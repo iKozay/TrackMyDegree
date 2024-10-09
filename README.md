@@ -12,7 +12,7 @@
 | Name  | Student ID   | Github ID   | Email Adress | 
 |------------|------------|------------|------------|
 | Aly Hussein|40167083|[Aly-Hussein](https://github.com/DobDub/TrackMyDegree/commits?author=Aly-Hussein)|alymohameduc@hotmail.co.uk|
-| Hassan Moharram|40158285|[Hassan](https://github.com/DobDub/TrackMyDegree/commits?author=DobDub)|hassan.moharram@hotmail.com|
+| Hassan Moharram|40158285|[DobDub](https://github.com/DobDub/TrackMyDegree/commits?author=DobDub)|hassan.moharram@hotmail.com|
 
 
 ### Developer getting started guide
