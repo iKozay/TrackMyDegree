@@ -13,6 +13,7 @@
 |------------|------------|------------|------------|
 | Aly Hussein|40167083|[Aly-Hussein](https://github.com/DobDub/TrackMyDegree/commits?author=Aly-Hussein)|alymohameduc@hotmail.co.uk|
 | Hassan Moharram|40158285|[DobDub](https://github.com/DobDub/TrackMyDegree/commits?author=DobDub)|hassan.moharram@hotmail.com|
+| Carter Stroeder|40121935|[cstroeder](https://github.com/DobDub/TrackMyDegree/commits?author=cstroeder)|stroeder.carter@gmail.com|
 
 
 ### Developer getting started guide
