@@ -6,7 +6,7 @@
 - Elevator pitch description at a highlevel
 
 ### Mockups
-Mockup designs made using Figma: [Here](https://www.figma.com/design/sgd3C3BYEPqSounsuIq6Kp/Untitled?node-id=0-1&t=eBk2gECMGuouPf0m-1)
+Mockup designs made using Figma: [Here](https://www.figma.com/design/sgd3C3BYEPqSounsuIq6Kp/TrackMyDegree?node-id=0-1&t=eBk2gECMGuouPf0m-1)
 
 ### Team members 
 - team lead name should be first and in bold
