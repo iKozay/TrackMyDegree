@@ -18,6 +18,8 @@ Mockup designs made using Figma: [Here](https://www.figma.com/design/sgd3C3BYEPq
 | Hassan Moharram|40158285|[DobDub](https://github.com/DobDub/TrackMyDegree/commits?author=DobDub)|hassan.moharram@hotmail.com|
 | Carter Stroeder|40121935|[cstroeder](https://github.com/DobDub/TrackMyDegree/commits?author=cstroeder)|stroeder.carter@gmail.com|
 | Gulnoor Kaur|40114998|[gul2223](https://github.com/DobDub/TrackMyDegree/commits?author=gul2223)|gulnoor_2223@rediffmail.com|
+| Jean-Claude Abou-Elias|40086851|[jcjc1233](https://github.com/DobDub/TrackMyDegree/commits?author=jcjc1233)|jeanclaudeabouelias@gmail.com|
+
 
 
 ### Developer getting started guide
