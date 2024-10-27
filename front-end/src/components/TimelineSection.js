@@ -1,6 +1,5 @@
 // src/components/TimelineSection.js
 import React from "react";
-//import './TimelineSection.css';
 
 const TimelineSection = () => {
   return (
