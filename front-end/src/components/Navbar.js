@@ -1,13 +1,24 @@
 // src/components/Navbar.js
-import React from "react";
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 const Navbar = () => {
+  const { isLoggedIn, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  // Handle logout logic
+  const handleLogout = () => {
+    logout();
+    navigate("/signin");
+  };
+
   return (
     <nav className="navbar navbar-expand-lg custom-navbar custom-navbar-height custom-navbar-padding">
       <div className="container-fluid custom-navbar-left-align">
-        <a className="navbar-brand custom-navbar-brand-left" href="#">
+        <a className="navbar-brand custom-navbar-brand-left" href="/">
           TrackMyDegree
         </a>
         <button
@@ -23,23 +34,29 @@ const Navbar = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div className="navbar-nav custom-nav-links">
-            <a className="nav-link active" aria-current="page" href="#">
+            <a className="nav-link active" aria-current="page" href="/">
               Home
             </a>
-            <a className="nav-link" href="#">
-              Features
-            </a>
-            <a className="nav-link" href="#">
-              Pricing
-            </a>
-            <a
-              className="nav-link disabled"
-              href="#"
-              tabIndex="-1"
-              aria-disabled="true"
-            >
-              Disabled
-            </a>
+
+            {isLoggedIn ? (
+              <>
+                <a className="nav-link" href="/user">
+                  User
+                </a>
+                {/* Add an empty link */}
+                <a className="nav-link">                      </a>
+                <a
+                  className="nav-link"
+                  onClick={handleLogout}
+                >
+                  Log Out
+                </a>
+              </>
+            ) : (
+              <a className="nav-link" href="/signin">
+                Log In
+              </a>
+            )}
           </div>
         </div>
       </div>

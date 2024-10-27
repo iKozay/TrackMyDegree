@@ -1,21 +1,41 @@
 // src/App.js
 import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
+import SignInPage from "./pages/SignInPage";
+import SignUpPage from "./pages/SignUpPage";
+import UserPage from "./pages/UserPage";
 import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import TimelineSection from "./components/TimelineSection";
 import Footer from "./components/Footer";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
 
 function App() {
   return (
-    <div className="App">
-      <Navbar />
-      <Hero />
-      <TimelineSection />
-      <Footer />
-    </div>
+    <AuthProvider>
+      <Router>
+        <Navbar />
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/signin" element={<SignInPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route 
+              path="/user" 
+              element={
+                <ProtectedRoute>
+                  <UserPage />
+                </ProtectedRoute>
+              } 
+            />
+          </Routes>
+        </div>
+        <Footer />
+      </Router>
+    </AuthProvider>
   );
 }
 

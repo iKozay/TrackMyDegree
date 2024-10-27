@@ -33,14 +33,23 @@
 
 .custom-navbar .nav-link {
   color: #ecf0f1 !important; /* Text color for links */
+  background-color: #912338;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;  
+  border: #000;
 }
 
 .custom-navbar .nav-link:hover {
   color: #e74c3c !important; /* Hover color for links */
 }
 
+.collapsing {
+  min-width: 400px;
+}
+
 .custom-navbar-height {
-  height: 100px; /* Adjust this value for vertical height */
+  height: 120px; /* Adjust this value for vertical height */
   padding: 20px 0; /* Adjust padding to align content within the navbar */
 }
 
@@ -56,6 +65,10 @@
 .custom-nav-links {
   margin-left: 400px; /* Adjust this value to manually move the nav links to the right */
   font-size: 24px;
+}
+
+.rounded {
+  border-radius: 50px; /* Adjust this value to control the roundness of the navbar */
 }
 
 /* TimelineSection.css */
@@ -89,4 +102,18 @@
 }
 .hero-button {
   margin-top: 20px;
+}
+
+.button-outline {
+  border: #000 1px solid;
+}
+
+.button-outline:hover {
+  /* background-color: #000; */
+  /* color: #fff; */
+  border: #000 1px solid;
+}
+
+.sign-in-container {
+  max-width: 60%;
 }
