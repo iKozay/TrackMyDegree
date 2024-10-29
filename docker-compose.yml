@@ -1,0 +1,37 @@
+
+services:
+  frontend:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'  # Expose React app on port 3000
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./back-end
+      dockerfile: Dockerfile
+    ports:
+      - '5000:5000'  # Expose Express app on port 5000
+    environment:
+      - SQL_SERVER_HOST=sqlserver
+      - SQL_SERVER_USER=sa # Set your SQL Server username
+      - SQL_SERVER_PASSWORD=MySecureP@ss123 # Set your SQL Server password
+      - SQL_SERVER_DATABASE=master  # Set your database name
+    depends_on:
+      - sqlserver
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=MySecureP@ss123  # Set your SQL Server SA password
+      - MSSQL_PID=Developer
+    ports:
+      - '1433:1433'  # Expose SQL Server on port 1433
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./entrypoint.sh:/usr/src/app/entrypoint.sh  # Mount the entrypoint script
+    entrypoint: ["/usr/src/app/entrypoint.sh"]  # Use the custom entrypoint script
