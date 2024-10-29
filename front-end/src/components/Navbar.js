@@ -57,6 +57,9 @@ const Navbar = () => {
                 Log In
               </a>
             )}
+            <a className="nav-link" href="/courselist">
+              Course List
+            </a>
           </div>
         </div>
       </div>
