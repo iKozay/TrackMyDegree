@@ -21,6 +21,8 @@ Mockup designs made using Figma: [Here](https://www.figma.com/design/sgd3C3BYEPq
 | Jean-Claude Abou-Elias|40086851|[jcjc1233](https://github.com/DobDub/TrackMyDegree/commits?author=jcjc1233)|jeanclaudeabouelias@gmail.com|
 | Xavier Morgan-Tracy|40129775|[XavierKMT](https://github.com/DobDub/TrackMyDegree/commits?author=XavierKMT)|x-man@videotron.ca|
 | Vraj Patel|40155059|[Vraj2301](https://github.com/Vraj2301)|patelvn231@gmail.com|
+| Shivam Veerabudren|40121035|[Shiv2205](https://github.com/Shiv2205)|shivamveerabudren@gmail.com|
+
 
 
 ### Developer getting started guide
