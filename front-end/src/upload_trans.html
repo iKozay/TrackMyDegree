@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrackMyDegree - Upload Transcript</title>
+  <style>
+    /* Basic Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Navbar */
+    .navbar {
+      background-color: #800020;
+      color: #fff;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar h1 {
+      font-size: 24px;
+    }
+
+    .navbar .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .navbar .nav-links a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .navbar .nav-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .navbar .nav-buttons button {
+      padding: 8px 15px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+    }
+
+    .navbar .sign-in {
+      background-color: black;
+      color: #fff;
+    }
+
+    .navbar .register {
+      background-color: #800020;
+      color: #fff;
+      border: 1px solid #fff;
+    }
+
+    /* Main Content */
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 50px 20px;
+    }
+
+    .container h2 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    .upload-box {
+      border: 2px dashed #ccc;
+      width: 300px;
+      height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .upload-box label {
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .upload-box input[type="file"] {
+      display: none;
+    }
+
+    .file-name {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .button-group button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+    }
+
+    .cancel-button {
+      background-color: #ccc;
+      color: #333;
+    }
+
+    .submit-button {
+      background-color: #800020;
+      color: #fff;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 50px;
+      font-size: 14px;
+      color: #333;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <h1>TrackMyDegree 🎓</h1>
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#">About Us</a>
+    </div>
+    <div class="nav-buttons">
+      <button class="sign-in">Sign In</button>
+      <button class="register">Register</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h2>Upload Transcript</h2>
+    <div class="upload-box">
+      <p>Drag and Drop file</p>
+      <p>or</p>
+      <!-- File Input -->
+      <label for="file-upload">Browse</label>
+      <input type="file" id="file-upload" name="file-upload" accept="application/pdf">
+      <p class="file-name" id="file-name">No file chosen</p>
+    </div>
+    <div class="button-group">
+      <button class="cancel-button">Cancel</button>
+      <button class="submit-button">Submit</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>Add Footer here</p>
+  </footer>
+
+  <!-- Include pdf.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
+  <script>
+    const fileInput = document.getElementById('file-upload');
+    const fileNameDisplay = document.getElementById('file-name');
+
+    // Listen for file selection
+    fileInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+
+      if (file) {
+        // Display file name
+        fileNameDisplay.textContent = `File Selected: ${file.name}`;
+
+        // Read file content and display text
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const typedArray = new Uint8Array(e.target.result);
+
+          pdfjsLib.getDocument(typedArray).promise.then(function (pdf) {
+            let textContent = "";
+            const pagesPromises = [];
+
+            // Loop through all pages
+            for (let i = 1; i <= pdf.numPages; i++) {
+              pagesPromises.push(
+                pdf.getPage(i).then(function (page) {
+                  return page.getTextContent().then(function (textContentPage) {
+                    textContentPage.items.forEach(function (item) {
+                      textContent += item.str + " ";
+                    });
+                  });
+                })
+              );
+            }
+
+            // When all pages are processed
+            Promise.all(pagesPromises).then(function () {
+              console.log("PDF Content:", textContent); // Display the entire PDF content on the console
+
+              // Extract specific details
+              const extractedCourses = extractCourses(textContent);
+              console.log("Extracted Courses:", extractedCourses); // Display extracted courses on the console
+            });
+          });
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        fileNameDisplay.textContent = 'No file chosen';
+      }
+    });
+
+    // Function to extract course names and terms using regex
+    function extractCourses(text) {
+      // Regex patterns to match terms and courses
+      const termRegex = /(Term GPA \d+\.\d+|Term:\s*(Winter|Summer|Fall)\s*\d{4})/g;
+      const courseRegex = /(\b[A-Z]{4} \d{3}\b)(.*?)\n/g;
+
+      let terms = [];
+      let courses = [];
+      let termMatch;
+
+      // Find all terms
+      while ((termMatch = termRegex.exec(text)) !== null) {
+        terms.push(termMatch[0]);
+      }
+
+      // Find all courses and their descriptions
+      while ((match = courseRegex.exec(text)) !== null) {
+        const courseCode = match[1];
+        const courseDescription = match[2].trim();
+
+        // Associate each course with the most recent term found
+        const term = terms.length > 0 ? terms[terms.length - 1] : "Term not found";
+
+        courses.push({
+          term: term,
+          course: courseCode,
+          description: courseDescription,
+        });
+      }
+
+      return courses;
+    }
+
+  </script>
+
+</body>
+
+</html>
