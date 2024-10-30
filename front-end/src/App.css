@@ -1,8 +1,15 @@
 /* App.css */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .App {
   font-family: Arial, sans-serif;
   line-height: 1.6;
   margin-top: 80px;
+  flex: 1;
 }
 
 /* Footer.css */

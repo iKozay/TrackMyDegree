@@ -17,21 +17,22 @@ import TimelinePage from "./pages/TimelinePage";
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Navbar />
-        <div className="App">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/signin" element={<SignInPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route 
-              path="/user" 
-              element={
-                <ProtectedRoute>
-                  <UserPage />
-                </ProtectedRoute>
-              } 
+    <div className="page-container">
+      <AuthProvider>
+        <Router>
+          <Navbar />
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/signin" element={<SignInPage />} />
+              <Route path="/signup" element={<SignUpPage />} />
+              <Route 
+                path="/user" 
+                element={
+                  <ProtectedRoute>
+                    <UserPage />
+                  </ProtectedRoute>
+                } 
             />
             <Route path="/timeline" 
               element={
@@ -39,13 +40,14 @@ function App() {
                   <TimelinePage />
                 </ProtectedRoute>
               }
-              />
-            <Route path="/courselist" element={<CourseList />} />
-          </Routes>
-        </div>
-        <Footer />
-      </Router>
-    </AuthProvider>
+                />
+              <Route path="/courselist" element={<CourseList />} />
+            </Routes>
+          </div>
+          <Footer />
+        </Router>
+      </AuthProvider>
+    </div>
   );
 }
 
