@@ -47,13 +47,13 @@ function CourseListPage () {
 
   return (
     <Container fluid>
-      <div style={{margin: '20px 0 50px 50px'}}>
+      <div className='course-list-div'>
         <h3>Select Degree</h3>
-        <Dropdown style={{width: '100%'}}>
-          <Dropdown.Toggle variant="success" id="dropdown-basic" style={{backgroundColor: '#912338', color: 'white', borderColor: 'transparent'}}>
+        <Dropdown>
+          <Dropdown.Toggle id="dropdown-basic" className="course-list-dropdown-toggle">
             {selectedDegree}
           </Dropdown.Toggle>
-          <Dropdown.Menu style={{textAlign: 'center'}}>
+          <Dropdown.Menu>
             {degrees.map((degree, index) => (
               <Dropdown.Item key={index} onClick={() => setSelectedDegree(degree)}>
                 {degree}
@@ -71,10 +71,10 @@ function CourseListPage () {
               <Accordion.Item eventKey={soenCourseSections[index]} key={soenCourseSections[index]}>
                 <Accordion.Header><b>{soenCourseSections[index]}</b></Accordion.Header>
                   <Accordion.Body>
-                    <Container style={{display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem'}}>
+                    <Container className="course-list-container">
                         {courses.map((course) => (
-                          <Card key={course.title} style={{cursor: 'pointer', backgroundColor: `${selectedCourse && course.title === selectedCourse.title ? "lightgray" : "white"}`}} onClick={() => setSelectedCourse(course)}>
-                          <Card.Body style={{textAlign: 'center', padding: '15px 0px 0px 0px'}}>
+                          <Card key={course.title} style={{backgroundColor: `${selectedCourse && course.title === selectedCourse.title ? "lightgray" : "white"}`}} onClick={() => setSelectedCourse(course)} className="cursor-pointer">
+                          <Card.Body className="course-list-card-body">
                             <Card.Title>
                               {course.title.slice(0, 8)}
                             </Card.Title>
@@ -93,7 +93,7 @@ function CourseListPage () {
         </Col>
         <Col sm={5}>
           {selectedCourse &&
-            <Card style={{ position: 'fixed', marginRight: '10px' }}>
+            <Card className="course-list-card">
               <Card.Body>
                 <Card.Title><b>{selectedCourse.title}</b></Card.Title>
                 <Card.Text>
