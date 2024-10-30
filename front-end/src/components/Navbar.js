@@ -43,6 +43,9 @@ const Navbar = () => {
                 <a className="nav-link" href="/user">
                   User
                 </a>
+                <a className="nav-link" href="/timeline">
+                  Timeline
+                </a>
                 {/* Add an empty link */}
                 <a className="nav-link">                      </a>
                 <a

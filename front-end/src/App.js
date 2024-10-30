@@ -13,6 +13,7 @@ import { AuthProvider } from "./AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
+import TimelinePage from "./pages/TimelinePage";
 
 function App() {
   return (
@@ -32,6 +33,13 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route path="/timeline" 
+              element={
+                <ProtectedRoute>
+                  <TimelinePage />
+                </ProtectedRoute>
+              }
+              />
             <Route path="/courselist" element={<CourseList />} />
           </Routes>
         </div>
