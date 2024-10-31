@@ -23,7 +23,7 @@ Mockup designs made using Figma: [Here](https://www.figma.com/design/sgd3C3BYEPq
 | Vraj Patel|40155059|[Vraj2301](https://github.com/Vraj2301)|patelvn231@gmail.com|
 | Shivam Veerabudren|40121035|[Shiv2205](https://github.com/Shiv2205)|shivamveerabudren@gmail.com|
 | Kaothar Reda|40111879|[KaotharReda](https://github.com/KaotharReda)|kaotharr97@gmail.com|
-| Jonah Ball |40178421|[darealstyl]|(https://github.com/darealstyl)|jonahball5@hotmail.com|
+| Jonah Ball |40178421|[darealstyl](https://github.com/darealstyl)|jonahball5@hotmail.com|
 
 
 
