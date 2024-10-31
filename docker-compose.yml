@@ -35,8 +35,8 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./entrypoint.sh:/usr/src/app/entrypoint.sh  # Mount the entrypoint script
     entrypoint: ["/usr/src/app/entrypoint.sh"]  # Use the custom entrypoint script
-    healthcheck:
-      test: ["CMD", "sqlcmd", "-S", "localhost", "-U", "sa", "-P", "MySecureP@ss123", "-Q", "SELECT 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+    # healthcheck:
+    #   test: ["CMD", "sqlcmd", "-S", "localhost", "-U", "sa", "-P", "MySecureP@ss123", "-Q", "SELECT 1"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 5
