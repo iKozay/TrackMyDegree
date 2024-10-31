@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import computerScienceGroup from "../course data/soen_courses/computer_science_group.json";
-import soenElectives from "../course data/soen_courses/electives.json";
+import soenElectives from "../course data/soen_courses/soen_electives.json";
 import soenCore from '../course data/soen_courses/soen_core.json';
 import engineeringNaturalScience from '../course data/soen_courses/engineering_natural_science_group.json';
 import "bootstrap/dist/css/bootstrap.min.css";
