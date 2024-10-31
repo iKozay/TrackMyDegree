@@ -182,6 +182,17 @@
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
 /* -------------------------------------------------------
 /* Timeline CSS */
 
@@ -189,16 +200,31 @@
   display: flex;
   gap: 20px;
   height: 70vh;
-  padding-bottom: 5%;
+  /* padding-bottom: %; */
+  padding: 2vh;
 }
 
-.course-list {
-  width: 15%;
+.timeline-page h3 {
+  text-align: center;
+}
+
+.course-list { 
   background-color: #f0f0f0;
   padding: 10px;
   border-radius: 5px;
-  overflow-y: auto; /* Enable vertical scrolling */
-  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 90%;
+}
+
+.timeline-left-bar {
+  width: 20%;
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-radius: 5px;
+  /* overflow-y: none; Enable vertical scrolling */
+  /* overflow: hidden; */
+  max-height:100%;
 }
 
 .semesters {
@@ -224,6 +250,8 @@
   padding: 10px;
   border-radius: 5px;
   min-width: 150px;
+  max-height: 100%;
+  overflow-y: auto;
 }
 
 .course-item {
@@ -233,11 +261,16 @@
   border: 1px solid #bcd0c7;
   border-radius: 3px;
   cursor: grab;
-  transition: transform 0.2s ease;
+  /* transition: transform 0.2s ease; */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 230px;
+  /* max-width: 280px; */
+  max-height: 120px;
+  overflow:hidden;
+  overflow-wrap: break-word;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .return-button {
@@ -252,26 +285,48 @@
 
 .course-item-overlay {
   padding: 10px;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
+  background-color: #d1e7dd;
+  border: 1px solid #bcd0c7;
   border-radius: 3px;
+  cursor: grabbing;
+  /* max-width: 120px; */
+}
+
+.course-item.dragging {
+  background-color: #ccc;
   cursor: grabbing;
 }
 
-.animated-drop {
-  position: absolute;
-  pointer-events: none;
-  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  transform-origin: top left;
+.course-item.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.course-item.dragging-from-semester {
+  opacity: 0;
+}
+
+.returning {
   padding: 10px;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
+  margin: 5px 0;
+  background-color: #d1e7dd;
+  border: 1px solid #bcd0c7;
   border-radius: 3px;
-  z-index: 1000;
+  cursor: grab;
+  /* transition: transform 0.2s ease; */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 230px;
+  max-height: 120px;
+  overflow:hidden;
+  overflow-wrap: break-word;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .semester-spot {
-  width: 250px;
+  min-width: 250px;
   min-height: 200px;
   background-color: #e9ecef;
   padding: 10px;
@@ -283,3 +338,71 @@
 .semester-spot:hover {
   background-color: #d4edda;
 }
+
+.no-scroll {
+  overflow: hidden !important;
+}
+
+
+
+
+
+
+
+
+
+/* -------------------------------------------------------
+/* Scrollbar CSS */
+
+/* Custom Scrollbar CSS */
+
+/* Firefox custom scrollbar */
+/* .course-list,
+.semesters {
+  scrollbar-color: rgba(145, 35, 56, 0.8) transparent;
+  scrollbar-width: thin;
+} */
+
+/* Show scrollbar thumb only while scrolling */
+.course-list:hover::-webkit-scrollbar-thumb,
+.semesters:hover::-webkit-scrollbar-thumb,
+.course-list:active::-webkit-scrollbar-thumb,
+.semesters:active::-webkit-scrollbar-thumb,
+.description-space:hover::-webkit-scrollbar-thumb,
+.description-space:active::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+
+/* Reserve space for the scrollbar */
+.course-list,
+.semesters,
+.description-space {
+  scrollbar-gutter: stable;
+}
+
+/* Customize scrollbar track and thumb */
+.course-list::-webkit-scrollbar,
+.semesters::-webkit-scrollbar,
+.description-space::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Make scrollbar thumb rounded with a transparent background on track */
+.course-list::-webkit-scrollbar-thumb,
+.semesters::-webkit-scrollbar-thumb,
+.description-space::-webkit-scrollbar-thumb {
+  background-color: rgba(145, 35, 56, 0.8); /* Dark red color */
+  border-radius: 10px; /* Fully round the ends of the scrollbar */
+  opacity: 0; /* Start hidden */
+  transition: opacity 0.3s ease;
+}
+
+.course-list::-webkit-scrollbar-track,
+.semesters::-webkit-scrollbar-track,
+.description-space::-webkit-scrollbar-track {
+  border-radius: 10px; /* Fully round the ends of the scrollbar */
+  background-color: rgba(145, 35, 56, 0.1) /* Transparent background for track */
+}
+
