@@ -3,41 +3,51 @@ import computerScienceGroup from "../course data/soen_courses/computer_science_g
 import soenElectives from "../course data/soen_courses/soen_electives.json";
 import soenCore from '../course data/soen_courses/soen_core.json';
 import engineeringNaturalScience from '../course data/soen_courses/engineering_natural_science_group.json';
+import engineeringCore from '../course data/engineering_core.json';
+import humanities from '../course data/general_education_electives/humanities.json';
+import otherStudies from '../course data/general_education_electives/other_complementary_studies.json';
+import socialSciences from '../course data/general_education_electives/social_sciences.json';
 import "bootstrap/dist/css/bootstrap.min.css";
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import Dropdown from "react-bootstrap/Dropdown";
+import CourseListAccordion from "../components/CourseListAccordion";
 
 const degrees = ['Software Engineering', 'Computer Engineering', 'Electrical Engineering'];
-const soenCourses = [soenCore, computerScienceGroup, engineeringNaturalScience, soenElectives];
-const soenCourseSections = ['Software Engineering Core', 'Computer Science Group', 'Engineering and Natural Science Group', 'Software Engineering Electives'];
+const genEdElec = [
+  {title: 'Humanities', courseList: humanities},
+  {title: 'Social Sciences', courseList: socialSciences},
+  {title: 'Other Complementary Studies', courseList: otherStudies},
+];
+const soenCourses = [
+  {title: 'Engineering Core', credits: 30.5, courseList: engineeringCore, subcourseTitle: 'General Education Electives', subcourseCredits: 3, subcourses: genEdElec},
+  {title: 'Software Engineering Core', credits: 47.5, courseList: soenCore},
+  {title: 'Computer Science Group', credits: 23, courseList: computerScienceGroup},
+  {title: 'Engineering and Natural Science Group', credits: 3, courseList: engineeringNaturalScience},
+  {title: 'Software Engineering Electives', credits: 16, courseList: soenElectives, elective: true},
+];
 
 function CourseListPage () {
 
-  const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedDegree, setSelectedDegree] = useState('Select Degree');
+  const [selectedCourse, setSelectedCourse] = useState(null);
   const [courseList, setCourseList] = useState(null);
-  const [courseSectionsList, setCourseSectionsList] = useState(null);
 
 
   useEffect(() =>  {
     switch(selectedDegree) {
       case 'Software Engineering':
         setCourseList(soenCourses);
-        setCourseSectionsList(soenCourseSections);
         setSelectedCourse(null);
         break;
       case 'Computer Engineering':
         setCourseList(null);
-        setCourseSectionsList(null);
         setSelectedCourse(null);
         break;
       default:
         setCourseList(null);
-        setCourseSectionsList(null);
         setSelectedCourse(null);
         break;
     }
@@ -65,30 +75,8 @@ function CourseListPage () {
       
       <Row>
         <Col sm={7}>
-          {courseList && courseSectionsList &&
-          <Accordion className='course-list-accordion' alwaysOpen>
-            {soenCourses.map((courses, index) => (
-              <Accordion.Item eventKey={soenCourseSections[index]} key={soenCourseSections[index]}>
-                <Accordion.Header><b>{soenCourseSections[index]}</b></Accordion.Header>
-                  <Accordion.Body>
-                    <Container className="course-list-container">
-                        {courses.map((course) => (
-                          <Card key={course.title} style={{backgroundColor: `${selectedCourse && course.title === selectedCourse.title ? "lightgray" : "white"}`}} onClick={() => setSelectedCourse(course)} className="cursor-pointer">
-                          <Card.Body className="course-list-card-body">
-                            <Card.Title>
-                              {course.title.slice(0, 8)}
-                            </Card.Title>
-                            <Card.Body>
-                              {course.title.slice(9)}
-                            </Card.Body>
-                          </Card.Body>
-                        </Card>
-                        ))}
-                    </Container>
-                  </Accordion.Body>
-              </Accordion.Item>
-            ))}
-          </Accordion>
+          {courseList &&
+            <CourseListAccordion courseList={courseList} selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} />
           }
         </Col>
         <Col sm={5}>
