@@ -14,9 +14,10 @@
       font-family: Arial, sans-serif;
     }
 
-    /* Navbar */
+    /* Navbar styling */
     .navbar {
       background-color: #800020;
+      /* Dark Red */
       color: #fff;
       padding: 15px 30px;
       display: flex;
@@ -24,45 +25,7 @@
       align-items: center;
     }
 
-    .navbar h1 {
-      font-size: 24px;
-    }
-
-    .navbar .nav-links {
-      display: flex;
-      gap: 20px;
-    }
-
-    .navbar .nav-links a {
-      color: #fff;
-      text-decoration: none;
-    }
-
-    .navbar .nav-buttons {
-      display: flex;
-      gap: 10px;
-    }
-
-    .navbar .nav-buttons button {
-      padding: 8px 15px;
-      font-size: 14px;
-      cursor: pointer;
-      border: none;
-      border-radius: 4px;
-    }
-
-    .navbar .sign-in {
-      background-color: black;
-      color: #fff;
-    }
-
-    .navbar .register {
-      background-color: #800020;
-      color: #fff;
-      border: 1px solid #fff;
-    }
-
-    /* Main Content */
+    /* Main content container */
     .container {
       display: flex;
       flex-direction: column;
@@ -70,11 +33,7 @@
       padding: 50px 20px;
     }
 
-    .container h2 {
-      font-size: 28px;
-      margin-bottom: 20px;
-    }
-
+    /* Upload box styling */
     .upload-box {
       border: 2px dashed #ccc;
       width: 300px;
@@ -86,28 +45,27 @@
       margin-bottom: 20px;
       font-size: 16px;
       color: #333;
+      cursor: pointer;
     }
 
+    /* Style when file is being dragged over the upload box */
+    .upload-box.dragover {
+      border-color: #4CAF50;
+      background-color: #e8f5e9;
+    }
+
+    /* Button for file upload */
     .upload-box label {
       background-color: #4CAF50;
+      /* Green background */
       color: #fff;
-      border: none;
       padding: 10px 20px;
       border-radius: 4px;
       cursor: pointer;
       margin-top: 10px;
     }
 
-    .upload-box input[type="file"] {
-      display: none;
-    }
-
-    .file-name {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #333;
-    }
-
+    /* Submit and Cancel buttons container */
     .button-group {
       display: flex;
       gap: 10px;
@@ -121,17 +79,31 @@
       border-radius: 4px;
     }
 
+    /* Cancel button styling */
     .cancel-button {
       background-color: #ccc;
       color: #333;
     }
 
+    /* Submit button styling */
     .submit-button {
+      padding: 10px 20px;
       background-color: #800020;
+      /* Dark Red */
       color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
     }
 
-    /* Footer */
+    /* Output section styling */
+    #output {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    /* Footer styling */
     footer {
       margin-top: 50px;
       font-size: 14px;
@@ -144,31 +116,29 @@
   <!-- Navbar -->
   <div class="navbar">
     <h1>TrackMyDegree 🎓</h1>
-    <div class="nav-links">
-      <a href="#">Home</a>
-      <a href="#">About Us</a>
-    </div>
-    <div class="nav-buttons">
-      <button class="sign-in">Sign In</button>
-      <button class="register">Register</button>
-    </div>
   </div>
 
   <!-- Main Content -->
   <div class="container">
     <h2>Upload Transcript</h2>
-    <div class="upload-box">
+
+    <!-- File Upload Box -->
+    <div class="upload-box" id="upload-box">
       <p>Drag and Drop file</p>
       <p>or</p>
-      <!-- File Input -->
       <label for="file-upload">Browse</label>
-      <input type="file" id="file-upload" name="file-upload" accept="application/pdf">
+      <input type="file" id="file-upload" accept="application/pdf" style="display: none;">
       <p class="file-name" id="file-name">No file chosen</p>
     </div>
+
+    <!-- Submit and Cancel Buttons -->
     <div class="button-group">
-      <button class="cancel-button">Cancel</button>
-      <button class="submit-button">Submit</button>
+      <button class="cancel-button" id="cancel-button">Cancel</button>
+      <button class="submit-button" id="submit-button">Submit</button>
     </div>
+
+    <!-- Output Section for displaying matched terms and courses -->
+    <div id="output"></div>
   </div>
 
   <!-- Footer -->
@@ -176,94 +146,250 @@
     <p>Add Footer here</p>
   </footer>
 
-  <!-- Include pdf.js library -->
+  <!-- Include pdf.js library for parsing PDFs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
   <script>
+    // References to HTML elements
     const fileInput = document.getElementById('file-upload');
     const fileNameDisplay = document.getElementById('file-name');
+    const outputDiv = document.getElementById('output');
+    const cancelButton = document.getElementById('cancel-button');
+    const submitButton = document.getElementById('submit-button');
+    const uploadBox = document.getElementById('upload-box');
 
-    // Listen for file selection
-    fileInput.addEventListener('change', (event) => {
-      const file = event.target.files[0];
+    // Global variable to hold the current file
+    let selectedFile = null;
 
-      if (file) {
-        // Display file name
+    // Event listeners for drag-and-drop functionality
+    uploadBox.addEventListener('dragover', (e) => {
+      e.preventDefault(); // Prevent default behavior (To allow drop)
+      uploadBox.classList.add('dragover'); // Add dragover style
+    });
+
+    uploadBox.addEventListener('dragleave', () => {
+      uploadBox.classList.remove('dragover'); // Remove dragover style when dragging leaves
+    });
+
+    uploadBox.addEventListener('drop', (e) => {
+      e.preventDefault(); // Prevent default behavior (To prevent file opening)
+      uploadBox.classList.remove('dragover'); // Remove dragover style after drop
+
+      const file = e.dataTransfer.files[0]; // Get the dropped file
+      if (file && file.type === 'application/pdf') {
+        // If the file is a PDF, display the name and load the file
         fileNameDisplay.textContent = `File Selected: ${file.name}`;
-
-        // Read file content and display text
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const typedArray = new Uint8Array(e.target.result);
-
-          pdfjsLib.getDocument(typedArray).promise.then(function (pdf) {
-            let textContent = "";
-            const pagesPromises = [];
-
-            // Loop through all pages
-            for (let i = 1; i <= pdf.numPages; i++) {
-              pagesPromises.push(
-                pdf.getPage(i).then(function (page) {
-                  return page.getTextContent().then(function (textContentPage) {
-                    textContentPage.items.forEach(function (item) {
-                      textContent += item.str + " ";
-                    });
-                  });
-                })
-              );
-            }
-
-            // When all pages are processed
-            Promise.all(pagesPromises).then(function () {
-              console.log("PDF Content:", textContent); // Display the entire PDF content on the console
-
-              // Extract specific details
-              const extractedCourses = extractCourses(textContent);
-              console.log("Extracted Courses:", extractedCourses); // Display extracted courses on the console
-            });
-          });
-        };
-        reader.readAsArrayBuffer(file);
+        selectedFile = file; // Store the file in the global variable
       } else {
-        fileNameDisplay.textContent = 'No file chosen';
+        // If it's not a PDF, show an error message
+        alert('Please drop a valid PDF file.');
       }
     });
 
-    // Function to extract course names and terms using regex
-    function extractCourses(text) {
-      // Regex patterns to match terms and courses
-      const termRegex = /(Term GPA \d+\.\d+|Term:\s*(Winter|Summer|Fall)\s*\d{4})/g;
-      const courseRegex = /(\b[A-Z]{4} \d{3}\b)(.*?)\n/g;
+    // Handle file selection through the browse button
+    fileInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
 
-      let terms = [];
-      let courses = [];
-      let termMatch;
-
-      // Find all terms
-      while ((termMatch = termRegex.exec(text)) !== null) {
-        terms.push(termMatch[0]);
+      if (file && file.type === 'application/pdf') {
+        // If the selected file is a PDF, display the name and process it
+        fileNameDisplay.textContent = `File Selected: ${file.name}`;
+        selectedFile = file; // Store the file in the global variable
+      } else {
+        // If it's not a PDF, show an error message
+        alert('Please select a valid PDF file.');
       }
+    });
 
-      // Find all courses and their descriptions
-      while ((match = courseRegex.exec(text)) !== null) {
-        const courseCode = match[1];
-        const courseDescription = match[2].trim();
+    // Function to process the selected file
+    function processFile(file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const typedArray = new Uint8Array(e.target.result);
 
-        // Associate each course with the most recent term found
-        const term = terms.length > 0 ? terms[terms.length - 1] : "Term not found";
+        // Use pdf.js to parse the PDF
+        pdfjsLib.getDocument(typedArray).promise.then(function (pdf) {
+          let pagesPromises = [];
 
-        courses.push({
-          term: term,
-          course: courseCode,
-          description: courseDescription,
+          // Loop through all pages in the PDF
+          for (let i = 1; i <= pdf.numPages; i++) {
+            pagesPromises.push(
+              pdf.getPage(i).then(function (page) {
+                return page.getTextContent().then(function (textContentPage) {
+                  return {
+                    page: i,
+                    text: textContentPage.items.map(item => item.str).join(' ')
+                  };
+                });
+              })
+            );
+          }
+
+          // Once all pages are processed, extract terms, courses, and match them
+          Promise.all(pagesPromises).then(function (pagesData) {
+            const extractedData = extractTermsCoursesAndSeparators(pagesData);
+            const matchedData = matchTermsWithCourses(extractedData);
+
+            if (matchedData.length > 0) {// Display the matched terms and courses in the output div
+              outputDiv.innerHTML = `
+                <h3>Matched Terms and Courses:</h3>
+                <ul>${matchedData.map(item => `<li>Term: ${item.term}, Course: ${item.course}, Grade: ${item.grade}</li>`).join('')}</ul>
+              `;
+            }
+            else {
+              // If there is no data extracted
+              outputDiv.innerHTML = `
+                <h3>There are no courses to show!</h3> `;
+            }
+          });
         });
-      }
-
-      return courses;
+      };
+      reader.readAsArrayBuffer(file);
     }
 
-  </script>
+    // Function to handle the cancel button
+    cancelButton.addEventListener('click', () => {
+      // Clear file input and reset file name display
+      fileInput.value = '';
+      fileNameDisplay.textContent = 'No file chosen';
 
+      // Clear the output section
+      outputDiv.innerHTML = '';
+      selectedFile = null; // Clear the selected file
+    });
+
+    // Function to handle the submit button
+    submitButton.addEventListener('click', () => {
+      const file = fileInput.files[0];
+
+      // Check if a file is selected
+      if (!selectedFile) {
+        alert('Please choose a file to upload!');
+        return;
+      }
+
+      // Process the selected file
+      processFile(selectedFile);
+    });
+
+    // Function to extract terms, courses, and separators from PDF pages
+    function extractTermsCoursesAndSeparators(pagesData) {
+      const termRegex = /((\s*(Winter|Summer|Fall)\s*\d{4}\s\s)|(\s*(Fall\/Winter)\s*20(\d{2})-(?!\6)\d{2}))/g;
+      const courseRegex = /([A-Za-z]{3,4})\s+(\d{3})\s+([A-Za-z]{2,3}|\d{2,3}|[A-Za-z]+)\s+([A-Za-z\s\&\-\+\.\/\(\)\,\'\']+)\s+([\d\.]+)\s+([A-F\+\-]+|PASS|EX)\s+([\d\.]+)/g;
+      const exemp_course = /([A-Za-z]{3,4})\s+(\d{3})\s+([A-Za-z\s]+)\s+EX/g;
+      const separatorRegex = /COURSE\s*DESCRIPTION\s*ATTEMPTED\s*GRADE\s*NOTATION/g;
+
+      let results = [];
+
+      pagesData.forEach(pageData => {
+        const { page, text } = pageData;
+
+        // Match and extract terms from the page
+        let termMatch;
+        while ((termMatch = termRegex.exec(text)) !== null) {
+          results.push({
+            name: termMatch[0].trim(),
+            page: page,
+            type: "Term",
+            position: termMatch.index
+          });
+        }
+
+        // Match and extract regular courses
+        let courseMatch;
+        while ((courseMatch = courseRegex.exec(text)) !== null) {
+          results.push({
+            name: courseMatch[1] + " " + courseMatch[2], // Course code and number
+            grade: courseMatch[6], // Grade
+            page: page,
+            type: "Course",
+            position: courseMatch.index
+          });
+        }
+
+        // Match and extract separators (to reset current term)
+        let separatorMatch;
+        while ((separatorMatch = separatorRegex.exec(text)) !== null) {
+          results.push({
+            name: separatorMatch[0],
+            page: page,
+            type: "Separator",
+            position: separatorMatch.index
+          });
+        }
+
+        // Match and extract exempted courses
+        let exemptedMatch;
+        while ((exemptedMatch = exemp_course.exec(text)) !== null) {
+          results.push({
+            name: exemptedMatch[1] + " " + exemptedMatch[2],
+            page: page,
+            type: "Exempted Course",
+            position: exemptedMatch.index
+          });
+        }
+      });
+
+      return results;
+    }
+
+    // Function to match terms with courses based on page and position
+    function matchTermsWithCourses(data) {
+      let matchedResults = [];
+      let currentTerm = data[0].name;
+      let currentTerm_it = 0;
+      let terms = [];
+      let exemptedcourse = [];
+
+      // Sort data by page and position for correct ordering
+      data.sort((a, b) => {
+        if (a.page !== b.page) {
+          return a.page - b.page;
+        }
+        return a.position - b.position;
+      });
+
+      // Process each extracted item (term, course, separator)
+      data.forEach(item => {
+        if (item.type === "Term") {
+          if (!terms.includes(item.name)) {
+            terms.push(item.name);
+          }
+        }
+
+
+        if (item.type === "Exempted Course") {
+          // Add exempted courses and mark them as matched with grade EX
+          exemptedcourse.push({ course: item.name });
+          matchedResults.push({
+            term: "Exempted",
+            course: item.name,
+            grade: "EX"
+          });
+          currentTerm_it = -1;
+        }
+
+        if (item.type === "Course" && currentTerm) {
+          matchedResults.push({
+            term: currentTerm,
+            course: item.name,
+            grade: item.grade
+          });
+        }
+
+        // Reset the current term when a separator is encountered
+        if (item.type === "Separator") {
+          currentTerm_it += 1;
+          if (terms.length > currentTerm_it) {
+            currentTerm = terms[currentTerm_it];
+          } else {
+            currentTerm = null;
+          }
+        }
+      });
+
+      return matchedResults;
+    }
+  </script>
 </body>
 
 </html>
