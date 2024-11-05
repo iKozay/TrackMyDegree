@@ -1,3 +1,4 @@
 .vscode/*
 Back-End/node_modules/*
 Back-End/yarn.lock
+Back-End/dist
