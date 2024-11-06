@@ -52,6 +52,8 @@ CREATE TABLE CourseXCoursePool (
 
 CREATE TABLE User (
     id VARCHAR(255) PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
     type ENUM('student', 'advisor', 'admin') NOT NULL
 );
