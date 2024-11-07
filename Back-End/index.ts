@@ -7,7 +7,6 @@ import Database                                     from '@controllers/DBControl
 import HTTP                                         from '@Util/HTTPCodes'
 //Routes import
 import authRouter                                   from '@routes/auth'
-import { error } from 'console'
 
 
 //Dev Consts
@@ -46,7 +45,7 @@ app.get('/test-db', async (req, res) => {
       });
     }
     else{
-      throw error;
+      throw new Error("Connection error in test-db");
     }
   } 
   catch (error) {
