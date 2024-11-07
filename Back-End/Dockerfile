@@ -19,4 +19,4 @@ COPY . .
 EXPOSE 5000
 
 # Start the Express app
-CMD ["node", "index.js"] 
+CMD ["yarn", "launch"] 
