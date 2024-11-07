@@ -1,3 +1,4 @@
+-- SQLBook: Code
 
 CREATE TABLE Degree (
     id VARCHAR(255) PRIMARY KEY,

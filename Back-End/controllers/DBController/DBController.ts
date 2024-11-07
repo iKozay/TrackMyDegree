@@ -1,6 +1,10 @@
 import msSQL                  from 'mssql'
 import SQL                    from '@controllers/DBController/DB_types'
+import dotenv                 from 'dotenv'
 
+
+//Env Var config
+dotenv.config();
 
 // Configure the connection
 const sqlConfig: SQL.Config = {
@@ -20,8 +24,9 @@ const sqlConfig: SQL.Config = {
 /**
  * Get connection obj to database
  * @returns A promise of a msSQL ConnectionPool object, or throws an error
+ * 
  */
-async function getConnection(): Promise<msSQL.ConnectionPool> {
+async function getConnection(): Promise<msSQL.ConnectionPool | undefined> {
   try {
     const pool = await msSQL.connect(sqlConfig);
     console.log("Connected to SQL Server successfully!");
@@ -29,13 +34,17 @@ async function getConnection(): Promise<msSQL.ConnectionPool> {
   } 
   catch (error) {
     console.error("Database connection failed:", error);
-    throw error;
   }
 }
 
 
+
 //Default export
 const DBController = {
+  //Object
+  msSQL,
+
+  //Methods
   getConnection
 };
 
