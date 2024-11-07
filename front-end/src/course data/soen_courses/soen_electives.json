@@ -1,5 +1,6 @@
 [
     {
+        "id": "AERO 480",
         "title": "AERO 480 Flight Control Systems",
         "credits": 3.5,
         "prerequisites": "AERO 371 or ELEC 372 or MECH 371 or SOEN 385.",
@@ -9,6 +10,7 @@
         "notes": "This course is equivalent to ELEC 415 and to MECH 480. Students who have received credit for ELEC 415 or MECH 480 may not take this course for credit."
     },
     {
+        "id": "AERO 482",
         "title": "AERO 482 Avionic Navigation Systems",
         "credits": 3,
         "prerequisites": " ENGR 371 or COMP 233; AERO 371 or ELEC 372 or MECH 370 or SOEN 385",
@@ -18,6 +20,7 @@
         "notes": "This course is equivalent to ELEC 416 and to MECH 482. Students who have received credit for ELEC 416 or MECH 482 may not take this course for credit."
     },
     {
+        "id": "COEN 320",
         "title": "COEN 320 Introduction to Real‑Time Systems",
         "credits": 3,
         "prerequisites": "COEN 346 or COMP 346",
@@ -27,6 +30,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 333",
         "title": "COMP 333 Data Analytics",
         "credits": 4,
         "prerequisites": "COMP 233 or ENGR 371 ; COMP 352 ; ENCS 282 ",
@@ -36,6 +40,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 339",
         "title": "COMP 339 Combinatorics",
         "credits": 3,
         "prerequisites": "COMP 232 ; or students must complete have completed 18 credits in post‑Cegep Mathematics prior to enrolling",
@@ -45,6 +50,7 @@
         "notes": "Students who have received credit for MATH 339 may not take this course for credit."
     },
     {
+        "id": "COMP 345",
         "title": "COMP 345 Advanced Program Design with C++",
         "credits": 4,
         "prerequisites": "COMP 352 ",
@@ -54,6 +60,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 371",
         "title": "COMP 371 Computer Graphics",
         "credits": 4,
         "prerequisites": "COMP 232 or COEN 231 ; COMP 352 or COEN 352 ",
@@ -63,6 +70,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 376",
         "title": "COMP 376 Introduction to Game Development",
         "credits": 4,
         "prerequisites": "COMP 371 ",
@@ -72,6 +80,7 @@
         "notes": "Students who have received credit forCART 315may not take this course for credit."
     },
     {
+        "id": "COMP 425",
         "title": "COMP 425 Computer Vision",
         "credits": 4,
         "prerequisites": "",
@@ -81,6 +90,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 426",
         "title": "COMP 426 Multicore Programming",
         "credits": 4,
         "prerequisites": "COMP 346 or COEN 346 ",
@@ -90,6 +100,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 428",
         "title": "COMP 428 Parallel Programming",
         "credits": 4,
         "prerequisites": "COMP 346 or COEN 346 ",
@@ -99,6 +110,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 432",
         "title": "COMP 432 Machine Learning",
         "credits": 4,
         "prerequisites": "COMP 352 ",
@@ -108,6 +120,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 433",
         "title": "COMP 433 Introduction to Deep Learning",
         "credits": 4,
         "prerequisites": "COMP 352 ",
@@ -117,6 +130,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 438",
         "title": "COMP 438 Geometric Modelling and Processing",
         "credits": 4,
         "prerequisites": "COMP 352 ",
@@ -126,6 +140,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 442",
         "title": "COMP 442 Compiler Design",
         "credits": 4,
         "prerequisites": "COMP 228 or SOEN 228 or COEN 311 ; COMP 335 ; COMP 352 or COEN 352 ",
@@ -135,6 +150,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 444",
         "title": "COMP 444 System Software Design",
         "credits": 4,
         "prerequisites": "COMP 346 ",
@@ -144,6 +160,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 445",
         "title": "COMP 445 Data Communication and Computer Networks",
         "credits": 4,
         "prerequisites": "COMP 346 ",
@@ -153,6 +170,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 451",
         "title": "COMP 451 Database Design",
         "credits": 4,
         "prerequisites": "COMP 353 ",
@@ -162,6 +180,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 465",
         "title": "COMP 465 Design and Analysis of Algorithms",
         "credits": 3,
         "prerequisites": "COMP 232 or COEN 231 ; COMP 339 ; COMP 352 or COEN 352 ",
@@ -171,6 +190,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 472",
         "title": "COMP 472 Artificial Intelligence",
         "credits": 4,
         "prerequisites": "COMP 352 or COEN 352 ",
@@ -180,6 +200,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 473",
         "title": "COMP 473 Pattern Recognition",
         "credits": 4,
         "prerequisites": "COMP 352 ",
@@ -189,6 +210,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 474",
         "title": "COMP 474 Intelligent Systems",
         "credits": 4,
         "prerequisites": "COMP 352 or COEN 352 ",
@@ -198,6 +220,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 475",
         "title": "COMP 475 Immersive Technologies",
         "credits": 4,
         "prerequisites": "COMP 371 ",
@@ -207,6 +230,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 476",
         "title": "COMP 476 Advanced Game Development",
         "credits": 4,
         "prerequisites": "COMP 361 or ENGR 391 ; COMP 376 ",
@@ -216,6 +240,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 477",
         "title": "COMP 477 Animation for Computer Games",
         "credits": 4,
         "prerequisites": "COMP 361 or ENGR 391 , COMP 371 ",
@@ -225,6 +250,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 478",
         "title": "COMP 478 Image Processing",
         "credits": 4,
         "prerequisites": "COMP 352 ",
@@ -234,6 +260,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 479",
         "title": "COMP 479 Information Retrieval and Web Search",
         "credits": 4,
         "prerequisites": "COMP 233 or ENGR 371 ; COMP 352 ",
@@ -243,6 +270,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 498",
         "title": "COMP 498 Topics in Computer Science",
         "credits": 3,
         "prerequisites": "",
@@ -252,6 +280,7 @@
         "notes": ""
     },
     {
+        "id": "COMP 499",
         "title": "COMP 499 Topics in Computer Science with Lab",
         "credits": 4,
         "prerequisites": "",
@@ -261,6 +290,7 @@
         "notes": ""
     },
     {
+        "id": "SOEN 298",
         "title": "SOEN 298 System Hardware Lab",
         "credits": 1,
         "prerequisites": "",
@@ -270,6 +300,7 @@
         "notes": ""
     },
     {
+        "id": "SOEN 344",
         "title": "SOEN 344 Advanced Software Architecture and Design",
         "credits": 3,
         "prerequisites": "SOEN 343 ",
@@ -279,6 +310,7 @@
         "notes": ""
     },
     {
+        "id": "SOEN 387",
         "title": "SOEN 387 Web‑Based Enterprise Application Design",
         "credits": 3,
         "prerequisites": "COMP 353 or SOEN 363 ",
@@ -288,6 +320,7 @@
         "notes": ""
     },
     {
+        "id": "SOEN 422",
         "title": "SOEN 422 Embedded Systems and Software",
         "credits": 4,
         "prerequisites": "COMP 346 ",
@@ -297,6 +330,7 @@
         "notes": "Students who have received credit for COEN 421 may not take this course for credit."
     },
     {
+        "id": "SOEN 423",
         "title": "SOEN 423 Distributed Systems",
         "credits": 4,
         "prerequisites": "COMP 346 ",
@@ -306,6 +340,7 @@
         "notes": ""
     },
     {
+        "id": "SOEN 448",
         "title": "SOEN 448 Management of Evolving Systems",
         "credits": 3,
         "prerequisites": "SOEN 342 , SOEN 343 ",
@@ -315,6 +350,7 @@
         "notes": ""
     },
     {
+        "id": "SOEN 471",
         "title": "SOEN 471 Big Data Analytics",
         "credits": 4,
         "prerequisites": "COMP 352 ",
@@ -324,6 +360,7 @@
         "notes": ""
     },
     {
+        "id": "SOEN 487",
         "title": "SOEN 487 Web Services and Applications",
         "credits": 4,
         "prerequisites": "SOEN 387 ",
@@ -333,6 +370,7 @@
         "notes": ""
     },
     {
+        "id": "SOEN 491",
         "title": "SOEN 491 Software Engineering Project",
         "credits": 1,
         "prerequisites": "",
@@ -342,6 +380,7 @@
         "notes": ""
     },
     {
+        "id": "SOEN 498",
         "title": "SOEN 498 Topics in Software Engineering",
         "credits": 3,
         "prerequisites": "",
@@ -351,6 +390,7 @@
         "notes": ""
     },
     {
+        "id": "SOEN 499",
         "title": "SOEN 499 Topics in Software Engineering with Lab",
         "credits": 4,
         "prerequisites": "",
@@ -360,6 +400,7 @@
         "notes": ""
     },
     {
+        "id": "ENGR 411",
         "title": "ENGR 411 Special Technical Report",
         "credits": 1,
         "prerequisites": "ENCS 282 ",
