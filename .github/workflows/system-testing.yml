@@ -1,0 +1,29 @@
+name: System Test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docker-compose:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone Repo
+        uses: actions/checkout@v2
+
+      - name: Start services with Docker Compose
+        run: |
+          docker compose -f docker-compose.yml up --build -d
+          sleep 10  # Wait briefly to ensure all services are up
+
+      - name: Check for errors in logs
+        run: |
+          if [ -n "$(docker ps --filter "status=stopped")" ]; then
+            echo "Error detected in logs"
+            exit 1
+          fi
+
+      - name: Stop and remove Docker Compose services
+        run: docker compose down
