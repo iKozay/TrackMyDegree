@@ -68,8 +68,10 @@ const TimelinePage = () => {
   const handleDragStart = (event) => {
     setReturning(false);
     const id = String(event.active.id);
-    //const course = coursesData.find((c) => c.id === id);
-    const course = soenCourses.map((courseLists) => courseLists.courseList.find((c) => c.id === id));
+
+    const course = soenCourses
+      .flatMap(courseSection => courseSection.courseList)
+      .find(c => c.id === id);
 
     if (course) {
       setSelectedCourse(course);
@@ -81,6 +83,7 @@ const TimelinePage = () => {
     }
 
     setActiveId(id);
+    console.log('dragging' + activeId);
   };
 
   const handleDragEnd = (event) => {
@@ -107,6 +110,7 @@ const TimelinePage = () => {
           }
           return updatedSemesters;
         });
+        console.log(activeId + ' assigned to ' + over.id);
       }
     }
 
@@ -125,10 +129,10 @@ const TimelinePage = () => {
     if (scrollContainer) {
       scrollContainer.classList.remove('no-scroll');
     }
+    console.log('cancelled' + activeId);
   };
 
   const handleReturn = (courseId) => {
-
     setReturning(true);
     console.log('returning');
 
@@ -141,8 +145,6 @@ const TimelinePage = () => {
       }
       return updatedSemesters;
     });
-
-
   };
 
   return (
@@ -155,53 +157,33 @@ const TimelinePage = () => {
         <div className="timeline-left-bar">
           <h3>Course List</h3>
           <Droppable id="courseList" className="course-list">
-          <Accordion alwaysOpen>
-      {soenCourses.map((courseSection) => (
-        <Accordion.Item eventKey={courseSection.title} key={courseSection.title}>
-          <Accordion.Header>
-            {courseSection.title}
-          </Accordion.Header>
-            <Accordion.Body>
-              <Container>
-                  {courseSection.courseList.map((course) => {
-                    const assigned = isCourseAssigned(course.id);
-                    const isCurrentlyDragging = activeId === course.id;
-                    return (
-                      <Draggable
-                        key={`${course.id}-${assigned}`} // Include 'assigned' in the key
-                        id={course.id}
-                        title={course.id}
-                        disabled={assigned}
-                        isDragging={isCurrentlyDragging}
-                        isReturning={returning}
-                      />
-                    );
-                  })}
-              </Container>
-              {/* {courseSection.subcourses !== undefined &&
-                <Container style={{ padding: '15px 25px'}}>
-                  <h3><b>{courseSection.subcourseTitle}</b> (Minimum of {courseSection.subcourseCredits} credits)</h3>
-                  <CourseListAccordion courseList={courseSection.subcourses} selectedCourse={selectedCourse} setSelectedCourse={setSelectedCourse} />
-                </Container>
-              } */}
-            </Accordion.Body>
-        </Accordion.Item>
-      ))}
-    </Accordion>
-            {/* {courseList.map((course) => {
-              const assigned = isCourseAssigned(course.id);
-              const isCurrentlyDragging = activeId === course.id;
-              return (
-                <Draggable
-                  key={`${course.id}-${assigned}`} // Include 'assigned' in the key
-                  id={course.id}
-                  title={course.id}
-                  disabled={assigned}
-                  isDragging={isCurrentlyDragging}
-                  isReturning={returning}
-                />
-              );
-            })} */}
+            <Accordion alwaysOpen>
+              {soenCourses.map((courseSection) => (
+                <Accordion.Item eventKey={courseSection.title} key={courseSection.title}>
+                  <Accordion.Header>
+                    {courseSection.title}
+                  </Accordion.Header>
+                  <Accordion.Body>
+                    <Container>
+                      {courseSection.courseList.map((course) => {
+                        const assigned = isCourseAssigned(course.id);
+                        const isCurrentlyDragging = activeId === course.id;
+                        return (
+                          <Draggable
+                            key={`${course.id}-${assigned}`} // Include 'assigned' in the key
+                            id={course.id}
+                            title={course.id}
+                            disabled={assigned}
+                            isDragging={isCurrentlyDragging}
+                            isReturning={returning}
+                          />
+                        );
+                      })}
+                    </Container>
+                  </Accordion.Body>
+                </Accordion.Item>
+              ))}
+            </Accordion>
           </Droppable>
         </div>
 
@@ -211,17 +193,18 @@ const TimelinePage = () => {
               <Droppable key={semester.id} id={semester.id}>
                 <h3>{semester.name}</h3>
                 {semesterCourses[semester.id].map((courseId) => {
-                  const course = soenCourses.map((courseLists) => courseLists.courseList.find((c) => c.id === courseId));
-                  //const course = coursesData.find((c) => c.id === courseId);
+                  const course = soenCourses
+                    .flatMap(courseSection => courseSection.courseList)
+                    .find(c => c.id === courseId);
+                  if (!course) return null;
                   const isCurrentlyDragging = activeId === course.id;
                   return (
                     <Draggable
                       key={course.id}
                       id={course.id}
-                      title={course.title}
+                      title={course.id}
                       disabled={false} // Courses in semesters are always draggable
                       isDraggingFromSemester={isCurrentlyDragging}
-                      // isReturning={returning}
                     />
                   );
                 })}
@@ -243,12 +226,12 @@ const TimelinePage = () => {
       <DragOverlay dropAnimation={returning ? null : undefined}>
         {activeId ? (
           <div className="course-item-overlay">
-            {soenCourses.map((courseLists) => courseLists.courseList.find((course) => course.id === activeId)?.title)}
-            {/* {coursesData.find((course) => course.id === activeId)?.title} */}
+            {soenCourses
+              .flatMap(courseSection => courseSection.courseList)
+              .find(course => course.id === activeId)?.id}
           </div>
         ) : null}
       </DragOverlay>
-
     </DndContext>
   );
 };
