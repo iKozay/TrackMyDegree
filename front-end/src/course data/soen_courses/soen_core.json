@@ -1,6 +1,6 @@
 [
     {
-        "id": "SOEN228",
+        "id": "SOEN 228",
         "title": "SOEN 228 System Hardware",
         "credits": 4,
         "prerequisites": "MATH 203 or Cegep Mathematics 103, MATH 204 or Cegep Mathematics 105",
@@ -10,7 +10,7 @@
         "notes": "Students who have received credit for COMP 228 may not take this course for credit."
     },
     {
-        "id": "SOEN287",
+        "id": "SOEN 287",
         "title": "SOEN 287 Web Programming",
         "credits": 3,
         "prerequisites": "COMP 248",
@@ -20,7 +20,7 @@
         "notes": ""
     },
     {
-        "id": "SOEN321",
+        "id": "SOEN 321",
         "title": "SOEN 321 Information Systems Security",
         "credits": 3,
         "prerequisites": "COMP 346 or COEN 346",
@@ -30,7 +30,7 @@
         "notes": ""
     },
     {
-        "id": "SOEN331",
+        "id": "SOEN 331",
         "title": "SOEN 331 Formal Methods for Software Engineering",
         "credits": 3,
         "prerequisites": "COMP 232 , COMP 249",
@@ -40,7 +40,7 @@
         "notes": ""
     },
     {
-        "id": "SOEN341",
+        "id": "SOEN 341",
         "title": "SOEN 341 Software Process and Practices",
         "credits": 4,
         "prerequisites": "",
@@ -50,7 +50,7 @@
         "notes": "Students who have received credit for COMP 354 may not take this course for credit."
     },
     {
-        "id": "SOEN342",
+        "id": "SOEN 342",
         "title": "SOEN 342 Software Requirements and Deployment",
         "credits": 4,
         "prerequisites": "SOEN 341",
@@ -60,7 +60,7 @@
         "notes": ""
     },
     {
-        "id": "SOEN343",
+        "id": "SOEN 343",
         "title": "SOEN 343 Software Architecture and Design",
         "credits": 4,
         "prerequisites": "SOEN 341 ; SOEN 342",
@@ -70,7 +70,7 @@
         "notes": ""
     },
     {
-        "id": "SOEN345",
+        "id": "SOEN 345",
         "title": "SOEN 345 Software Testing, Verification and Quality Assurance",
         "credits": 4,
         "prerequisites": "SOEN 343",
@@ -80,7 +80,7 @@
         "notes": ""
     },
     {
-        "id": "SOEN357",
+        "id": "SOEN 357",
         "title": "SOEN 357 User Interface Design",
         "credits": 3,
         "prerequisites": "SOEN 341 or COMP 354",
@@ -90,7 +90,7 @@
         "notes": ""
     },
     {
-        "id": "SOEN363",
+        "id": "SOEN 363",
         "title": "SOEN 363 Data Systems for Software Engineers",
         "credits": 3,
         "prerequisites": "COMP 352",
@@ -100,7 +100,7 @@
         "notes": "Students who have received credit for COMP 353 may not take this course for credit."
     },
     {
-        "id": "SOEN384",
+        "id": "SOEN 384",
         "title": "SOEN 384 Management, Measurement and Quality Control",
         "credits": 3,
         "prerequisites": "ENCS 282 ; SOEN 341",
@@ -110,7 +110,7 @@
         "notes": ""
     },
     {
-        "id": "SOEN390",
+        "id": "SOEN 390",
         "title": "SOEN 390 Software Engineering Team Design Project",
         "credits": 3.5,
         "prerequisites": "SOEN 345 and SOEN 357",
@@ -120,7 +120,7 @@
         "notes": ""
     },
     {
-        "id": "SOEN490",
+        "id": "SOEN 490",
         "title": "SOEN 490 Capstone Software Engineering Design Project",
         "credits": 6,
         "prerequisites": "SOEN 390",
