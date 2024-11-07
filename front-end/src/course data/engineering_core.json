@@ -1,5 +1,6 @@
 [
     {
+        "id": "ELEC 275",
         "title": "ELEC 275 Principles of Electrical Engineering",
         "credits": 3.5,
         "prerequisites": "PHYS 205",
@@ -9,6 +10,7 @@
         "notes": ""
     },
     {
+        "id": "ENCS 282",
         "title": "ENCS 282 Technical Writing and Communication",
         "credits": 3,
         "prerequisites": "ENCS 272",
@@ -18,6 +20,7 @@
         "notes": ""
     },
     {
+        "id": "ENGR 201",
         "title": "ENGR 201 Professional Practice and Responsibility",
         "credits": 1.5,
         "prerequisites": "",
@@ -27,6 +30,7 @@
         "notes": ""
     },
     {
+        "id": "ENGR 202",
         "title": "ENGR 202 Sustainable Development and Environmental Stewardship",
         "credits": 1.5,
         "prerequisites": "",
@@ -36,6 +40,7 @@
         "notes": ""
     },
     {
+        "id": "ENGR 213",
         "title": "ENGR 213 Applied Ordinary Differential Equations",
         "credits": 3,
         "prerequisites": "MATH 204 (Cegep Mathematics 105)",
@@ -45,6 +50,7 @@
         "notes": ""
     },
     {
+        "id": "ENGR 233",
         "title": "ENGR 233 Applied Advanced Calculus",
         "credits": 3,
         "prerequisites": "MATH 204 (Cegep Mathematics 105); MATH 205 (Cegep Mathematics 203)",
@@ -54,6 +60,7 @@
         "notes": ""
     },
     {
+        "id": "ENGR 301",
         "title": "ENGR 301 Engineering Management Principles and Economics",
         "credits": 3,
         "prerequisites": "",
@@ -63,6 +70,7 @@
         "notes": ""
     },
     {
+        "id": "ENGR 371",
         "title": "ENGR 371 Probability and Statistics in Engineering",
         "credits": 3,
         "prerequisites": "ENGR 213 , ENGR 233 ",
@@ -72,6 +80,7 @@
         "notes": ""
     },
     {
+        "id": "ENGR 391",
         "title": "ENGR 391 Numerical Methods in Engineering",
         "credits": 3,
         "prerequisites": "ENGR 213 , ENGR 233 ; COMP 248 or COEN 243 or MECH 215 or MIAE 215 or BCEE 231 ",
@@ -81,6 +90,7 @@
         "notes": ""
     },
     {
+        "id": "ENGR 392",
         "title": "ENGR 392 Impact of Technology on Society",
         "credits": 3,
         "prerequisites": "ENCS 282 ; ENGR 201 , ENGR 202 ",
