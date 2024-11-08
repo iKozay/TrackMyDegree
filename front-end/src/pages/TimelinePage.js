@@ -375,7 +375,7 @@ const TimelinePage = () => {
         <div className="timeline-left-bar">
           <h3>Course List</h3>
           <Droppable id="courseList" className="course-list">
-            <Accordion alwaysOpen>
+            <Accordion>
               {soenCourses.map((courseSection) => (
                 <Accordion.Item
                   eventKey={courseSection.title}
