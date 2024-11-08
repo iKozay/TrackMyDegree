@@ -224,7 +224,7 @@
   border-radius: 5px;
   max-height:100%;
   align-items: center;
-  min-width: 250px;
+  min-width: 300px;
 }
 
 .semesters {
@@ -241,7 +241,7 @@
 
 
 .semesters-and-description {
-  width: 60%;
+  min-width: 60%;
   display: flex;
   gap: 20px;
 }
@@ -256,6 +256,7 @@
   /* width: 230px; */
   max-height: 100%;
   overflow-y: auto;
+  z-index: 10;
 }
 
 .course-item {
@@ -285,7 +286,8 @@
   cursor: grabbing;
   display: flex;
   justify-content: center;
-  width: 230px;
+  width: 180px;
+  /* z-index: 9; */
   /* max-width: 120px; */
 }
 
@@ -325,7 +327,7 @@
 /* Semester Spot Styles */
 .semester-spot {
   min-width: 250px;
-  min-height: 400px;
+  min-height: 500px;
   background-color: #e9ecef;
   padding: 10px;
   border: 2px dashed #ced4da;

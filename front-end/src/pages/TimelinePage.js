@@ -193,7 +193,7 @@ const TimelinePage = () => {
                         const isCurrentlyDragging = activeId === course.id;
                         return (
                           <Draggable
-                            key={`${course.id}-${assigned}`} // Include 'assigned' in the key
+                            key={`${course.id}-${assigned}`}
                             id={course.id}
                             title={course.id}
                             disabled={assigned}
@@ -215,49 +215,50 @@ const TimelinePage = () => {
             {semesters.map((semester) => (
               <div key={semester.id} className="semester">
                 <h3>{semester.name}</h3>
-                {semesterCourses[semester.id].map((courseId) => {
-                  const course = soenCourses
-                    .flatMap(courseSection => courseSection.courseList)
-                    .find(c => c.id === courseId);
-                  if (!course) return null;
-                  const isCurrentlyDragging = activeId === course.id;
-                  return (
-                    <Draggable
-                      key={course.id}
-                      id={course.id}
-                      title={course.id}
-                      disabled={false} // Courses in semesters are always draggable
-                      isDraggingFromSemester={isCurrentlyDragging}
-                    />
-                  );
-                })}
-              </Droppable>
-            ))}
-
+                <Droppable id={semester.id}>
+                  {semesterCourses[semester.id].map((courseId) => {
+                    const course = soenCourses
+                      .flatMap(courseSection => courseSection.courseList)
+                      .find(c => c.id === courseId);
+                    if (!course) return null;
+                    const isCurrentlyDragging = activeId === course.id;
+                    return (
+                      <Draggable
+                        key={course.id}
+                        id={course.id}
+                        title={course.id}
+                        disabled={false}
+                        isDraggingFromSemester={isCurrentlyDragging}
+                      />
+                    );
+                  })}
+                </Droppable>
+              </div>
+            ))} {/* Added missing closing parentheses and curly brace */}
+          </div>
+          <div className="description-space">
+            {selectedCourse ? (
+              <div>
+                <h3>{selectedCourse.title}</h3>
+                <p>{selectedCourse.description}</p>
+              </div>
+            ) : (
+              <p>Drag a course to see its description here.</p>
+            )}
           </div>
         </div>
-        <div className="description-space">
-          {selectedCourse ? (
-            <div>
-              <h3>{selectedCourse.title}</h3>
-              <p>{selectedCourse.description}</p>
+        <DragOverlay dropAnimation={returning ? null : undefined}>
+          {activeId ? (
+            <div className="course-item-overlay">
+              {soenCourses
+                .flatMap(courseSection => courseSection.courseList)
+                .find(course => course.id === activeId)?.id}
             </div>
-          ) : (
-            <p>Drag a course to see its description here.</p>
-          )}
-        </div>
+          ) : null}
+        </DragOverlay>
       </div>
-      <DragOverlay dropAnimation={returning ? null : undefined}>
-        {activeId ? (
-          <div className="course-item-overlay">
-            {soenCourses
-              .flatMap(courseSection => courseSection.courseList)
-              .find(course => course.id === activeId)?.id}
-          </div>
-        ) : null}
-      </DragOverlay>
     </DndContext>
   );
-};
+}
 
 export default TimelinePage;
