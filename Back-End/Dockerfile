@@ -6,7 +6,6 @@ WORKDIR /app
 
 # Copy package.json and package-lock.json from the root directory to /app in the container
 COPY package.json ./
-COPY *lock* ./
 
 # Clear npm cache and install dependencies
 RUN yarn
