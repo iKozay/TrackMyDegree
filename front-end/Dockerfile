@@ -13,16 +13,11 @@ COPY *lock* ./
 # Install dependencies
 RUN yarn
 # npm install
-RUN yarn
-# npm install
-
 
 # Copy the rest of the application code
 COPY . .
 
 # Build the React app
-RUN yarn build
-#npm run build
 RUN yarn build
 #npm run build
 
