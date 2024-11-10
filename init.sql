@@ -51,6 +51,8 @@ CREATE TABLE CourseXCoursePool (
 
 CREATE TABLE AppUser (  -- Use square brackets for reserved keywords
     id VARCHAR(255) PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
     type VARCHAR(10) CHECK (type IN ('student', 'advisor', 'admin')) NOT NULL
 );
@@ -105,8 +107,8 @@ VALUES ('C1', 1, 3, 'Introduction to Programming'),
 
 -- Requisite table
 INSERT INTO Requisite (id, code1, number1, code2, number2, type)
-VALUES ('1', 'C2', 2, 'C1', 22, 'pre'),  -- Database Systems requires Introduction to Programming
-       ('2', 'C3', 3, 'C2', 33, 'co');  -- Web Development requires Database Systems
+VALUES ('1', 'C2', 2, 'C1', 1, 'pre'),  -- Database Systems requires Introduction to Programming
+       ('2', 'C3', 3, 'C2', 2, 'co');  -- Web Development requires Database Systems
 
 -- CoursePool table
 INSERT INTO CoursePool (id, name)
@@ -127,9 +129,9 @@ VALUES ('1', 1, 'C1', '1'),  -- CourseID 1 linked to CoursePoolID 1
        ('3', 3, 'C3', '3');  -- CourseID 3 linked to CoursePoolID 3
 
 -- User table (changed from AppUser to [User])
-INSERT INTO AppUser (id, name, type)
-VALUES ('1', 'John Doe', 'student'),
-       ('2', 'Jane Doe', 'advisor');
+INSERT INTO AppUser (id, email, password, name, type)
+VALUES ('1', 'jd1@concordia.ca', '1234', 'John Doe', 'student'),
+       ('2', 'jd2@concordia.ca', '5678', 'Jane Doe', 'advisor');
 
 -- Timeline table
 INSERT INTO Timeline (id, season, year, coursenumber, coursecode, user_id)
