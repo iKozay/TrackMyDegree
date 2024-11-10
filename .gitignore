@@ -1,6 +1,4 @@
+.vscode/*
 Back-End/node_modules/*
 Back-End/yarn.lock
-front-end/.env
-front-end/package-lock.json
-Back-End/.env
-Back-End/package-lock.json
+Back-End/dist
