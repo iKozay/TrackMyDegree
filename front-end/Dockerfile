@@ -13,7 +13,6 @@ COPY package*.json ./
 RUN yarn
 # npm install
 
-
 # Copy the rest of the application code
 COPY . .
 

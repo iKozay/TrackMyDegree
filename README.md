@@ -16,19 +16,19 @@ Mockup designs made using Figma: [Here](https://www.figma.com/design/sgd3C3BYEPq
 
 ### Team members
 
-| Name                   | Student ID | Github ID                                                                         | Email Adress                  |
-| ---------------------- | ---------- | --------------------------------------------------------------------------------- | ----------------------------- |
-| **Aly Hussein**        | 40167083   | [Aly-Hussein](https://github.com/DobDub/TrackMyDegree/commits?author=Aly-Hussein) | alymohameduc@hotmail.co.uk    |
-| Hassan Moharram        | 40158285   | [DobDub](https://github.com/DobDub/TrackMyDegree/commits?author=DobDub)           | hassan.moharram@hotmail.com   |
-| Carter Stroeder        | 40121935   | [cstroeder](https://github.com/DobDub/TrackMyDegree/commits?author=cstroeder)     | stroeder.carter@gmail.com     |
-| Gulnoor Kaur           | 40114998   | [gul2223](https://github.com/DobDub/TrackMyDegree/commits?author=gul2223)         | gulnoor_2223@rediffmail.com   |
-| Jean-Claude Abou-Elias | 40086851   | [jcjc1233](https://github.com/DobDub/TrackMyDegree/commits?author=jcjc1233)       | jeanclaudeabouelias@gmail.com |
-| Xavier Morgan-Tracy    | 40129775   | [XavierKMT](https://github.com/DobDub/TrackMyDegree/commits?author=XavierKMT)     | x-man@videotron.ca            |
-| Vraj Patel             | 40155059   | [Vraj2301](https://github.com/Vraj2301)                                           | patelvn231@gmail.com          |
-| Shivam Veerabudren     | 40121035   | [Shiv2205](https://github.com/Shiv2205)                                           | shivamveerabudren@gmail.com   |
-| Kaothar Reda           | 40111879   | [KaotharReda](https://github.com/KaotharReda)                                     | kaotharr97@gmail.com          |
-| Jonah Ball             | 40178421   | [darealstyl](https://github.com/darealstyl)                                       | jonahball5@hotmail.com        |
-| Dimitri Karagiannakis  | 40097824   | [DimitriKaragiannkis99](https://github.com/DimitriKaragiannakis99)                | dkaragiannakis99@gmail.com    |
+| Name                       | Student ID | Github ID                                                                         | Email Adress                  |
+| -------------------------- | ---------- | --------------------------------------------------------------------------------- | ----------------------------- |
+| **Jean-Claude Abou-Elias** | 40086851   | [jcjc1233](https://github.com/DobDub/TrackMyDegree/commits?author=jcjc1233)       | jeanclaudeabouelias@gmail.com |
+| Hassan Moharram            | 40158285   | [DobDub](https://github.com/DobDub/TrackMyDegree/commits?author=DobDub)           | hassan.moharram@hotmail.com   |
+| Carter Stroeder            | 40121935   | [cstroeder](https://github.com/DobDub/TrackMyDegree/commits?author=cstroeder)     | stroeder.carter@gmail.com     |
+| Gulnoor Kaur               | 40114998   | [gul2223](https://github.com/DobDub/TrackMyDegree/commits?author=gul2223)         | gulnoor_2223@rediffmail.com   |
+| Aly Hussein                | 40167083   | [Aly-Hussein](https://github.com/DobDub/TrackMyDegree/commits?author=Aly-Hussein) | alymohameduc@hotmail.co.uk    |
+| Xavier Morgan-Tracy        | 40129775   | [XavierKMT](https://github.com/DobDub/TrackMyDegree/commits?author=XavierKMT)     | x-man@videotron.ca            |
+| Vraj Patel                 | 40155059   | [Vraj2301](https://github.com/Vraj2301)                                           | patelvn231@gmail.com          |
+| Shivam Veerabudren         | 40121035   | [Shiv2205](https://github.com/Shiv2205)                                           | shivamveerabudren@gmail.com   |
+| Kaothar Reda               | 40111879   | [KaotharReda](https://github.com/KaotharReda)                                     | kaotharr97@gmail.com          |
+| Jonah Ball                 | 40178421   | [darealstyl](https://github.com/darealstyl)                                       | jonahball5@hotmail.com        |
+| Dimitri Karagiannakis      | 40097824   | [DimitriKaragiannkis99](https://github.com/DimitriKaragiannakis99)                | dkaragiannakis99@gmail.com    |
 
 ## Developer Setup Guide
 
@@ -70,5 +70,3 @@ Port already in use:
 
 - You can change the port to an available one in the docker compose yml file;
 - Re-run the code from step #2.
-
-### CI information
