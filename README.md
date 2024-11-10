@@ -4,7 +4,7 @@
 
 TrackMyDegree empowers Concordia students to seamlessly plan their academic journey with an interactive, intuitive platform that generates course sequences. It allows students to view course prerequisites, core requirements, and graduation timelines, ensuring they can easily navigate their degree requirements without feeling overwhelmed.
 
-The platform leverages features like document scanning, which automatically populates academic profiles based on unofficial transcripts and admission letters, which can save a lot of time. It also offers personalized technical elective recommendations based on students’ career goals and academic history, aiding students in making informed choices. When students change degrees, TrackMyDegree simplifies credit transfer by identifying equivalent courses, ensuring a smooth transition that maximizes academic credits.
+The platform leverages features like document scanning, which automatically populates academic profiles based on unofficial transcripts and admission letters, which can save a lot of time. It also offers personalized technical elective recommendations based on students' career goals and academic history, aiding students in making informed choices. When students change degrees, TrackMyDegree simplifies credit transfer by identifying equivalent courses, ensuring a smooth transition that maximizes academic credits.
 
 Real-time curriculum updates keep students informed of any changes impacting their degree path, allowing them to adjust plans proactively to graduate on schedule. As a bonus, future Concordia students from CEGEP or high school can explore potential degree paths, complete with transfer credit options.
 
@@ -70,3 +70,11 @@ Port already in use:
 
 - You can change the port to an available one in the docker compose yml file;
 - Re-run the code from step #2.
+
+### Equity and Diversity Statement
+
+At TrackMyDegree, our core belief is that we welcome users from diverse backgrounds, cultural perspectives, races, castes, and genders. We value people with diverse ideas and experiences and intend to provide a safe environment. 
+  
+The app is designed to make it intuitive and simple to navigate for all users, regardless of their technical ability. We are dedicated to catering to all groups and providing every user with equal opportunities to plan and use the app without any barriers.
+
+
