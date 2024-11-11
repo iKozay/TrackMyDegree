@@ -19,7 +19,7 @@ const CourseListAccordion = ({ courseList, selectedCourse, setSelectedCourse }) 
                     <Card key={course.title} style={{backgroundColor: `${selectedCourse && course.title === selectedCourse.title ? "lightgray" : "white"}`}} onClick={() => setSelectedCourse(course)} className="cursor-pointer">
                       <Card.Body className="course-list-card-body">
                         <Card.Title>
-                          {course.title.slice(0, 8)}
+                          {course.id}
                         </Card.Title>
                         <Card.Subtitle style={{color: 'gray'}}>
                           {course.credits} credits
@@ -31,6 +31,7 @@ const CourseListAccordion = ({ courseList, selectedCourse, setSelectedCourse }) 
                     </Card>
                   ))}
               </Container>
+              {/* If any course section has subcourses nested, use the same Accordion component to nest them in one accordion item */}
               {courseSection.subcourses !== undefined &&
                 <Container style={{ padding: '15px 25px'}}>
                   <h3><b>{courseSection.subcourseTitle}</b> (Minimum of {courseSection.subcourseCredits} credits)</h3>
