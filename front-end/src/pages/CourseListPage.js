@@ -16,7 +16,6 @@ function CourseListPage () {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [courseList, setCourseList] = useState(null);
 
-
   useEffect(() =>  {
     switch(selectedDegree) {
       case 'Software Engineering':
@@ -35,14 +34,13 @@ function CourseListPage () {
     }
   }, [selectedDegree]);
 
-
-
   return (
     <Container fluid>
       <div className='course-list-div'>
         <h3>Select Degree</h3>
+        
         <Dropdown>
-          <Dropdown.Toggle id="dropdown-basic" className="course-list-dropdown-toggle">
+          <Dropdown.Toggle id="dropdown-basic" data-testid='degree-dropdown' className="course-list-dropdown-toggle">
             {selectedDegree}
           </Dropdown.Toggle>
           <Dropdown.Menu>
@@ -63,6 +61,7 @@ function CourseListPage () {
           }
         </Col>
         <Col sm={5}>
+          {/* Only display course information if the user has selected a course */}
           {selectedCourse &&
             <Card className="course-list-card">
               <Card.Body>

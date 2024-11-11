@@ -139,7 +139,7 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
   });
 
   return (
-    <div ref={setNodeRef} className={className} data-semester-id={id}>
+    <div ref={setNodeRef} className={className} data-semester-id={id} data-testid={id}>
       {children}
     </div>
   );
@@ -453,7 +453,7 @@ const TimelinePage = () => {
             {selectedCourse ? (
               <div>
                 <h3>{selectedCourse.title}</h3>
-                <p>{selectedCourse.description}</p>
+                <p data-testid='course-description'>{selectedCourse.description}</p>
                 {selectedCourse.prerequisites && selectedCourse.prerequisites.length > 0 && (
                   <div>
                     <h4>Prerequisites:</h4>
@@ -479,7 +479,7 @@ const TimelinePage = () => {
                 )}
               </div>
             ) : (
-              <p>Drag or click on a course to see its description here.</p>
+              <p data-testid='course-description'>Drag or click on a course to see its description here.</p>
             )}
           </div>
 
