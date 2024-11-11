@@ -1,5 +1,6 @@
 [
     {
+        "id": "ENGR 245",
         "title": "ENGR 245 Mechanical Analysis",
         "credits": 3,
         "prerequisites": "PHYS 204 ",
@@ -9,6 +10,7 @@
         "notes": ""
     },
     {
+        "id": "MIAE 221",
         "title": "MIAE 221 Materials Science",
         "credits": 3,
         "prerequisites": "CHEM 205 ",

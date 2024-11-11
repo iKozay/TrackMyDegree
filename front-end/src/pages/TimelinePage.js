@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { DndContext, useDraggable, useDroppable, DragOverlay } from '@dnd-kit/core';
 import coursesData from '../course data/soen_courses/soen_core.json';
 
+
+
+
+
+// Semesters are currently hard coded, eventually we will load them dynamically
 const semesters = [
   { id: 'fall2024', name: 'Fall 2024' },
   { id: 'winter2025', name: 'Winter 2025' },
@@ -9,6 +14,24 @@ const semesters = [
   { id: 'fall2025', name: 'Fall 2025' },
   { id: 'winter2026', name: 'Winter 2026' },
 ];
+
+
+// Draggable and Droppable components from the DndKit library
+// https://docs.dndkit.com/
+// The draggable component represents a course that can be dragged and dropped
+// The droppable component represents a semester where courses can be dropped
+// The TimelinePage component is the main component that contains the draggable and droppable components
+// The TimelinePage component also contains the logic for handling drag and drop events
+// The isCourseAssigned function checks if a course is already assigned to a semester
+// The handleDragStart function is called when a course drag starts
+// The handleDragEnd function is called when a course drag ends
+// The handleDragCancel function is called when a course drag is cancelled
+// The handleReturn function is called when a course is returned to the course list
+// The TimelinePage component renders the draggable and droppable components for the course list and semesters
+// The selectedCourse state is used to display the description of the selected course
+// The returning state is used to indicate if a course is being returned to the course list
+// The semesterCourses state is used to keep track of the courses assigned to each semester
+
 
 const Draggable = ({ id, title, disabled, isDragging, isDraggingFromSemester, isReturning }) => {
   const { attributes, listeners, setNodeRef } = useDraggable({
@@ -26,7 +49,7 @@ const Draggable = ({ id, title, disabled, isDragging, isDraggingFromSemester, is
       {...attributes}
       className={className}
     >
-      {title}
+      {id}
     </div>
   );
 };
@@ -171,24 +194,29 @@ const TimelinePage = () => {
         <div className="semesters-and-description">
           <div className="semesters">
             {semesters.map((semester) => (
-              <Droppable key={semester.id} id={semester.id}>
+              <div key={semester.id} className="semester">
                 <h3>{semester.name}</h3>
-                {semesterCourses[semester.id].map((courseId) => {
-                  const course = coursesData.find((c) => c.id === courseId);
-                  const isCurrentlyDragging = activeId === course.id;
-                  return (
-                    <Draggable
-                      key={course.id}
-                      id={course.id}
-                      title={course.title}
-                      disabled={false} // Courses in semesters are always draggable
-                      isDraggingFromSemester={isCurrentlyDragging}
-                      // isReturning={returning}
-                    />
-                  );
-                })}
-              </Droppable>
+                <Droppable key={semester.id} id={semester.id}>
+
+                  <div className="course-items-container">
+                    {semesterCourses[semester.id].map((courseId) => {
+                      const course = coursesData.find((c) => c.id === courseId);
+                      const isCurrentlyDragging = activeId === course.id;
+                      return (
+                        <Draggable
+                          key={course.id}
+                          id={course.id}
+                          title={course.title}
+                          disabled={false} // Courses in semesters are always draggable
+                          isDraggingFromSemester={isCurrentlyDragging}
+                        />
+                      );
+                    })}
+                  </div>
+                </Droppable>
+              </div>
             ))}
+
           </div>
         </div>
         <div className="description-space">
@@ -205,7 +233,7 @@ const TimelinePage = () => {
       <DragOverlay dropAnimation={returning ? null : undefined}>
         {activeId ? (
           <div className="course-item-overlay">
-            {coursesData.find((course) => course.id === activeId)?.title}
+            {coursesData.find((course) => course.id === activeId)?.id}
           </div>
         ) : null}
       </DragOverlay>
