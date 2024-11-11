@@ -1,4 +1,3 @@
-// src/App.js
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
@@ -16,39 +15,52 @@ import "./App.css";
 import TimelinePage from "./pages/TimelinePage";
 
 function App() {
-  return (
-    <div className="page-container">
-      <AuthProvider>
-        <Router>
-          <Navbar />
-          <div className="App">
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/signin" element={<SignInPage />} />
-              <Route path="/signup" element={<SignUpPage />} />
-              <Route 
-                path="/user" 
-                element={
-                  <ProtectedRoute>
-                    <UserPage />
-                  </ProtectedRoute>
-                } 
-            />
-            <Route path="/timeline" 
-              element={
-                <ProtectedRoute>
-                  <TimelinePage />
-                </ProtectedRoute>
-              }
-                />
-              <Route path="/courselist" element={<CourseList />} />
-            </Routes>
-          </div>
-          <Footer />
-        </Router>
-      </AuthProvider>
-    </div>
-  );
+	return (
+		<div className="page-container">
+			<AuthProvider>
+				<Router>
+					<Navbar />
+					<div className="App">
+						<Routes>
+							<Route
+								path="/"
+								element={<LandingPage />}
+							/>
+							<Route
+								path="/signin"
+								element={<SignInPage />}
+							/>
+							<Route
+								path="/signup"
+								element={<SignUpPage />}
+							/>
+							<Route
+								path="/user"
+								element={
+									<ProtectedRoute>
+										<UserPage />
+									</ProtectedRoute>
+								}
+							/>
+							<Route
+								path="/timeline"
+								element={
+									<ProtectedRoute>
+										<TimelinePage />
+									</ProtectedRoute>
+								}
+							/>
+							<Route
+								path="/courselist"
+								element={<CourseList />}
+							/>
+						</Routes>
+					</div>
+					<Footer />
+				</Router>
+			</AuthProvider>
+		</div>
+	);
 }
 
 export default App;

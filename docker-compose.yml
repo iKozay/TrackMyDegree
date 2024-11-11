@@ -1,20 +1,19 @@
-
 services:
   frontend:
     build:
       context: ./front-end
       dockerfile: Dockerfile
     ports:
-      - '3000:3000'
+      - "3000:3000"
     depends_on:
       - backend
 
   backend:
     build:
-      context: ./back-end
+      context: ./Back-End
       dockerfile: Dockerfile
     ports:
-      - '5000:5000'
+      - "8000:8000"
     environment:
       - SQL_SERVER_HOST=sqlserver
       - SQL_SERVER_USER=sa
@@ -30,13 +29,10 @@ services:
       - SA_PASSWORD=MySecureP@ss123
       - MSSQL_PID=Developer
     ports:
-      - '1433:1433'
+      - "1433:1433"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./entrypoint.sh:/usr/src/app/entrypoint.sh  # Mount the entrypoint script
-    entrypoint: ["/usr/src/app/entrypoint.sh"]  # Use the custom entrypoint script
-    healthcheck:
-      test: ["CMD", "sqlcmd", "-S", "localhost", "-U", "sa", "-P", "MySecureP@ss123", "-Q", "SELECT 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+    command:  chmod +x entrypoint.sh
+    entrypoint: ["/bin/sh", "/usr/src/app/entrypoint.sh"]  # Use the custom entrypoint script
+
