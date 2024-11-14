@@ -46,6 +46,10 @@ async function addCourse(courseInfo: CourseTypes.CourseInfo): Promise<{ code: st
     if (dbConn) {
         const { code, number, credits, description } = courseInfo;
 
+        if (!code || !number || !credits || !description) {
+            throw new Error("Missing required course data");
+        }
+
         try {
             const result = await dbConn.request()
                 .input('code', Database.msSQL.VarChar, code)
@@ -73,19 +77,26 @@ async function removeCourse(code: string, number: number): Promise<boolean> {
 
     if (dbConn) {
         try {
-            await dbConn.request()
+            const result = await dbConn.request()
                 .input('code', Database.msSQL.VarChar, code)
                 .input('number', Database.msSQL.Int, number)
                 .query('DELETE FROM Course WHERE code = @code AND number = @number');
 
-            return true;
+            // Check if any rows were affected
+            if (result.rowsAffected[0] === 0) {
+                return false; // No course was found and deleted
+            }
+
+            return true; // Course was found and deleted
         } catch (error) {
-            log("Error removing course\n", error);
+            console.error("Error removing course\n", error);
+            throw error;
         }
     }
 
     return false;
 }
+
 
 const courseController = {
     getAllCourses,

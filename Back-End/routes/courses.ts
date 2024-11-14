@@ -64,9 +64,10 @@ router.post('/add', async (req: Request, res: Response) => {
         const result = await courseController.addCourse(courseInfo);
         res.status(HTTP.CREATED).json(result);
     } catch (error) {
-        console.error("Error in /courses", error);
+        console.error("Error in /courses/add", error);
         res.status(HTTP.SERVER_ERR).json({ error: "Could not add course" });
     }
+
 });
 
 export default router;
