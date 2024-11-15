@@ -1,6 +1,27 @@
 const request = require("supertest");
 
 describe("Course Routes", () => {
+    describe("GET /courses/getAll", () => {
+        it("should return an array of all courses", async () => {
+            const response = await request("http://localhost:8000")
+                .post("/courses/getAll")
+                .expect("Content-Type", /json/)
+                .expect(200);
+
+            // Assert that the response body is an array
+            expect(Array.isArray(response.body)).toBe(true);
+
+            if (response.body.length > 0) {
+                // Assert structure for the first course
+                const course = response.body[0];
+                expect(course).toHaveProperty("code");
+                expect(course).toHaveProperty("number");
+                expect(course).toHaveProperty("credits");
+                expect(course).toHaveProperty("description");
+            }
+        });
+    });
+
     // Test for adding a course
     describe("POST /courses/add", () => {
         it("should return a success message and course data", async () => {
@@ -133,4 +154,5 @@ describe("Course Routes", () => {
             expect(response.body).toHaveProperty("error", "Code and number are required");
         });
     });
+
 });
