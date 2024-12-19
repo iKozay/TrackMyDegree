@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import '../css/Navbar.css';
 
 const Navbar = () => {
   const { isLoggedIn, logout } = useContext(AuthContext);
