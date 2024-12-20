@@ -64,6 +64,9 @@ const Navbar = () => {
             <a className="nav-link" href="/courselist">
               Course List
             </a>
+            <a className="nav-link" href="/uploadTranscript">
+              Upload Transcript
+            </a>
           </div>
         </div>
       </div>

@@ -1,0 +1,139 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background-color: #f4f4f4;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 50px 20px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.navbar {
+  background-color: #800020;
+  color: white;
+  padding: 15px 30px;
+  width: 100%;
+  text-align: center;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+h2 {
+  margin: 20px 0;
+}
+
+.upload-box {
+  border: 2px dashed #ccc;
+  width: 100%;
+  max-width: 400px;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+  text-align: center;
+}
+
+.upload-box.dragover {
+  border-color: #4CAF50;
+  background-color: #e8f5e9;
+}
+
+.upload-box label {
+  background-color: #4CAF50; /* Green background */
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.file-name {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #555;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.button-group button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+}
+
+.cancel-button {
+  background-color: #ccc;
+  color: #333;
+}
+
+.submit-button {
+  background-color: #800020; /* Dark Red */
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+}
+
+#output {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #333;
+}
+
+footer {
+  margin-top: 50px;
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+  width: 100%;
+}
+
+@media screen and (max-width: 768px) {
+  .container {
+    padding: 30px 10px;
+  }
+
+  .navbar h1 {
+    font-size: 20px;
+  }
+
+  .upload-box {
+    width: 100%;
+    max-width: 300px;
+    height: 120px;
+  }
+
+  .file-name {
+    font-size: 12px;
+  }
+
+  .button-group button {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  footer {
+    font-size: 12px;
+  }
+}
