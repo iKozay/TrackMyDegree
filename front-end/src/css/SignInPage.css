@@ -6,3 +6,25 @@
   background-color: white;
   border: none;
 }
+
+.custom-header {
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.custom-input {
+  border-radius: 100px;
+  border-color: black;
+}
+
+.custom-cancel-btn {
+  background-color: #80808040;
+  color: black;
+  border: none;
+}
+
+.custom-submit-btn {
+  background-color: brown;
+  color: white;
+  border: none;
+}
