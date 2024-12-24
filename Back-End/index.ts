@@ -7,6 +7,7 @@ import Database from "@controllers/DBController/DBController";
 import HTTP from "@Util/HTTPCodes";
 //Routes import
 import authRouter from "@routes/auth";
+import coursesRouter from "@routes/courses";
 
 //Dev Consts
 const HOPPSCOTCH = "chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld";
@@ -25,7 +26,7 @@ app.use(cors({ origin: [HOPPSCOTCH, CLIENT, "*"] }));
 
 //Routes
 app.use("/auth", authRouter);
-
+app.use("/courses", coursesRouter);
 /**
  * DB test route
  * TO BE REMOVED

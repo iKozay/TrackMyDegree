@@ -53,7 +53,9 @@ CREATE TABLE AppUser (  -- Use square brackets for reserved keywords
     id VARCHAR(255) PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    name VARCHAR(255) NOT NULL,
+    firstname VARCHAR(255) NOT NULL,-- add degree / add first and last name
+    lastname VARCHAR(255) NOT NULL,
+    degree VARCHAR(255) NOT NULL,
     type VARCHAR(10) CHECK (type IN ('student', 'advisor', 'admin')) NOT NULL
 );
 
