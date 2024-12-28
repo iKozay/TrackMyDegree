@@ -11,9 +11,6 @@ COPY package.json ./
 RUN yarn
 #npm install
 
-# Install nodemon for automatic server restart
-RUN npm install -g nodemon
-
 # Copy the entire application source code into the container
 COPY . .
 
@@ -21,4 +18,4 @@ COPY . .
 EXPOSE 8000
 
 # Start the Express app
-CMD ["nodemon", "index.ts"]
+CMD ["yarn", "launch"] 
