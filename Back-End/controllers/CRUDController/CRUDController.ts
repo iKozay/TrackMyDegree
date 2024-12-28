@@ -3,7 +3,7 @@ import CRUD from "@controllers/CRUDController/CRUD_types"
 
 async function createDegree (id: string, name: string, totalCredits: number):  Promise<CRUD.Degree | undefined> {
   const conn = await Database.getConnection();
-  
+
     if(conn){
         try {
             // Check if a degree with the same id or name already exists
@@ -31,9 +31,34 @@ async function createDegree (id: string, name: string, totalCredits: number):  P
     }
 };
 
+
+async function readDegree (id: string):  Promise<CRUD.Degree | undefined> {
+    const conn = await Database.getConnection();
+    
+      if(conn){
+          try {
+              // Check if a degree with the same id or name already exists
+              const degree = await conn.request()
+              .input('id', Database.msSQL.VarChar, id)
+              .query('SELECT * FROM Degree WHERE id = @id');
+          
+              if (degree.recordset.length === 0) {
+                throw new Error('Degree with this id does not exist.');
+              }
+          
+              return degree.recordset[0];
+            } catch (error) {
+              throw error;
+            } finally {
+              conn.close();
+            }
+      }
+  };
+
 //Namespace
 const CRUDController = {
     createDegree,
+    readDegree,
 };
 
 export default CRUDController;

@@ -37,4 +37,37 @@ router.post('/degree/create', async (req: Request, res: Response) => {
     }
   });
   
+
+  router.get('/degree/read', async (req: Request, res: Response) => {
+    const { id } = req.query;
+  
+    try {
+      // Validate input
+      if (!id || typeof id !== 'string') {
+        res.status(HTTP.BAD_REQUEST).json({
+          error: 'Invalid input. Please provide id as a string.',
+        });
+        return;
+      }
+  
+      // Call the service function
+      const newDegree = await CRUDController.readDegree(id);
+  
+      // Send success response
+      res.status(HTTP.OK).json({
+        message: 'Degree read successfully.',
+        degree: newDegree,
+      });
+    } catch (error) {
+      // Handle errors from the service
+      if (error instanceof Error && error.message === 'Degree with this id does not exist.') {
+        res.status(HTTP.FORBIDDEN).json({ error: error.message });
+      } else {
+        const errMsg = 'Internal server error in /degree/read';
+        console.error(errMsg, error);
+        res.status(HTTP.SERVER_ERR).json({ error: errMsg });
+      }
+    }
+  });
+  
   export default router;
