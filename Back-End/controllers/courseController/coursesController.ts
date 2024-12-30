@@ -20,15 +20,14 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
 }
 
 // Fetch a course by code and number
-async function getCourseByCodeAndNumber(code: string, number: number): Promise<CourseTypes.CourseInfo | undefined> {
+async function getCourseByCode(code: string): Promise<CourseTypes.CourseInfo | undefined> {
     const dbConn = await Database.getConnection();
 
     if (dbConn) {
         try {
             const result = await dbConn.request()
                 .input('code', Database.msSQL.VarChar, code)
-                .input('number', Database.msSQL.Int, number)
-                .query('SELECT * FROM Course WHERE code = @code AND number = @number');
+                .query('SELECT * FROM Course WHERE code = @code');
 
             return result.recordset[0];
         } catch (error) {
@@ -40,26 +39,25 @@ async function getCourseByCodeAndNumber(code: string, number: number): Promise<C
 }
 
 // Add a new course
-async function addCourse(courseInfo: CourseTypes.CourseInfo): Promise<{ code: string; number: number } | undefined> {
+async function addCourse(courseInfo: CourseTypes.CourseInfo): Promise<{ code: string } | undefined> {
     const dbConn = await Database.getConnection();
 
     if (dbConn) {
-        const { code, number, credits, description } = courseInfo;
+        const { code, credits, description } = courseInfo;
 
-        if (!code || !number || !credits || !description) {
+        if (!code || !credits || !description) {
             throw new Error("Missing required course data");
         }
 
         try {
             const result = await dbConn.request()
                 .input('code', Database.msSQL.VarChar, code)
-                .input('number', Database.msSQL.Int, number)
                 .input('credits', Database.msSQL.Int, credits)
                 .input('description', Database.msSQL.VarChar, description)
                 .query(`
-          INSERT INTO Course (code, number, credits, description)
-          OUTPUT INSERTED.code, INSERTED.number
-          VALUES (@code, @number, @credits, @description)
+          INSERT INTO Course (code, credits, description)
+          OUTPUT INSERTED.code
+          VALUES (@code, @credits, @description)
         `);
 
             return result.recordset[0];
@@ -72,15 +70,14 @@ async function addCourse(courseInfo: CourseTypes.CourseInfo): Promise<{ code: st
 }
 
 // Remove a course by code and number
-async function removeCourse(code: string, number: number): Promise<boolean> {
+async function removeCourse(code: string): Promise<boolean> {
     const dbConn = await Database.getConnection();
 
     if (dbConn) {
         try {
             const result = await dbConn.request()
                 .input('code', Database.msSQL.VarChar, code)
-                .input('number', Database.msSQL.Int, number)
-                .query('DELETE FROM Course WHERE code = @code AND number = @number');
+                .query('DELETE FROM Course WHERE code = @code');
 
             // Check if any rows were affected
             if (result.rowsAffected[0] === 0) {
@@ -100,7 +97,7 @@ async function removeCourse(code: string, number: number): Promise<boolean> {
 
 const courseController = {
     getAllCourses,
-    getCourseByCodeAndNumber,
+    getCourseByCode,
     addCourse,
     removeCourse,
 };
