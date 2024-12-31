@@ -7,15 +7,15 @@ const router = express.Router();
 
 // Get course by code and number (via request body)
 router.post('/get', async (req: Request, res: Response) => {
-    const { code, number } = req.body;
+    const { code } = req.body;
 
-    if (!(code && number)) {
-        res.status(HTTP.BAD_REQUEST).json({ error: "Code and number are required" });
+    if (!(code)) {
+        res.status(HTTP.BAD_REQUEST).json({ error: "Course code is required" });
         return;
     }
 
     try {
-        const course = await courseController.getCourseByCodeAndNumber(code, number);
+        const course = await courseController.getCourseByCode(code);
 
         if (course) {
             res.status(HTTP.OK).json(course);
@@ -30,15 +30,15 @@ router.post('/get', async (req: Request, res: Response) => {
 
 // Remove a course by code and number (via request body)
 router.post('/remove', async (req: Request, res: Response) => {
-    const { code, number } = req.body;
+    const { code } = req.body;
 
-    if (!(code && number)) {
-        res.status(HTTP.BAD_REQUEST).json({ error: "Code and number are required" });
+    if (!(code)) {
+        res.status(HTTP.BAD_REQUEST).json({ error: "Course code is required" });
         return;
     }
 
     try {
-        const success = await courseController.removeCourse(code, number);
+        const success = await courseController.removeCourse(code);
 
         if (success) {
             res.status(HTTP.OK).json({ message: "Course removed successfully" });
