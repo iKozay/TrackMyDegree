@@ -1,7 +1,7 @@
 import Database from "@controllers/DBController/DBController"
-import CRUD from "@controllers/CRUDController/CRUD_types"
+import DegreeTypes from "@controllers/degreeController/degree_types"
 
-async function createDegree (id: string, name: string, totalCredits: number):  Promise<CRUD.Degree | undefined> {
+async function createDegree (id: string, name: string, totalCredits: number):  Promise<DegreeTypes.Degree | undefined> {
   const conn = await Database.getConnection();
 
     if(conn){
@@ -32,7 +32,7 @@ async function createDegree (id: string, name: string, totalCredits: number):  P
 };
 
 
-async function readDegree (id: string):  Promise<CRUD.Degree | undefined> {
+async function readDegree (id: string):  Promise<DegreeTypes.Degree | undefined> {
     const conn = await Database.getConnection();
     
       if(conn){
@@ -56,7 +56,7 @@ async function readDegree (id: string):  Promise<CRUD.Degree | undefined> {
   };
 
 
-  async function updateDegree(id: string, name: string, totalCredits: number): Promise<CRUD.Degree | undefined> {
+  async function updateDegree(id: string, name: string, totalCredits: number): Promise<DegreeTypes.Degree | undefined> {
     const conn = await Database.getConnection();
   
     if (conn) {
@@ -128,11 +128,11 @@ async function readDegree (id: string):  Promise<CRUD.Degree | undefined> {
   };
   
 //Namespace
-const CRUDController = {
+const degreeController = {
     createDegree,
     readDegree,
     updateDegree,
     deleteDegree
 };
 
-export default CRUDController;
+export default degreeController;

@@ -1,5 +1,5 @@
 
-declare namespace CRUD {
+declare namespace DegreeTypes {
 
     type Degree = {
         id: string;
@@ -9,4 +9,4 @@ declare namespace CRUD {
 
   }
   
-  export default CRUD;
+  export default DegreeTypes;

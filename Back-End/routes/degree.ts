@@ -1,7 +1,6 @@
 import HTTP from "@Util/HTTPCodes";
 import express, { Request, Response } from "express";
-import CRUDController from "@controllers/CRUDController/CRUDController";
-import CRUD from "@controllers/CRUDController/CRUD_types"
+import degreeController from "@controllers/degreeController/degreeController";
 
 const router = express.Router();
 
@@ -20,7 +19,7 @@ router.post('/degree/create', async (req: Request, res: Response) => {
       }
   
       // Call the service function
-      const newDegree = await CRUDController.createDegree(id, name, totalCredits);
+      const newDegree = await degreeController.createDegree(id, name, totalCredits);
   
       // Send success response
       res.status(HTTP.CREATED).json({
@@ -53,7 +52,7 @@ router.post('/degree/create', async (req: Request, res: Response) => {
       }
   
       // Call the service function
-      const newDegree = await CRUDController.readDegree(id);
+      const newDegree = await degreeController.readDegree(id);
   
       // Send success response
       res.status(HTTP.OK).json({
@@ -86,7 +85,7 @@ router.post('/degree/create', async (req: Request, res: Response) => {
       }
   
       // Call the service function
-      const updatedDegree = await CRUDController.updateDegree(id, name, totalCredits);
+      const updatedDegree = await degreeController.updateDegree(id, name, totalCredits);
   
       // Send success response
       res.status(HTTP.OK).json({
@@ -118,7 +117,7 @@ router.post('/degree/create', async (req: Request, res: Response) => {
       }
   
       // Call the service function
-      const newDegree = await CRUDController.deleteDegree(id);
+      const newDegree = await degreeController.deleteDegree(id);
   
       // Send success response
       res.status(HTTP.OK).json({
