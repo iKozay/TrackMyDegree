@@ -7,6 +7,7 @@ import Database from "@controllers/DBController/DBController";
 import HTTP from "@Util/HTTPCodes";
 //Routes import
 import authRouter from "@routes/auth";
+import coursesRouter from "@routes/courses";
 import CRUDRouter from "@routes/CRUD"
 
 //Dev Consts
@@ -26,7 +27,7 @@ app.use(cors({ origin: [HOPPSCOTCH, CLIENT, "*"] }));
 
 //Routes
 app.use("/auth", authRouter);
-app.use("/crud", CRUDRouter)
+app.use("/courses", coursesRouter);app.use("/crud", CRUDRouter)
 
 /**
  * DB test route
