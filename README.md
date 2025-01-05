@@ -29,6 +29,7 @@ Mockup designs made using Figma: [Here](https://www.figma.com/design/sgd3C3BYEPq
 | Kaothar Reda               | 40111879   | [KaotharReda](https://github.com/KaotharReda)                                     | kaotharr97@gmail.com          |
 | Jonah Ball                 | 40178421   | [darealstyl](https://github.com/darealstyl)                                       | jonahball5@hotmail.com        |
 | Dimitri Karagiannakis      | 40097824   | [DimitriKaragiannkis99](https://github.com/DimitriKaragiannakis99)                | dkaragiannakis99@gmail.com    |
+| Pai Peng                   | 40155601   | [pphaoniubi](https://github.com/pphaoniubi)                                       | pphaoniubi@gmail.com          |
 
 ## Developer Setup Guide
 
