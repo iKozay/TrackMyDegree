@@ -1,3 +1,4 @@
+-- Active: 1731210639535@@localhost@1433@master
 CREATE TABLE Degree (
   id VARCHAR(255) PRIMARY KEY,
   name VARCHAR(255) UNIQUE NOT NULL,
