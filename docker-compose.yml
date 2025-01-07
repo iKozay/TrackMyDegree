@@ -1,4 +1,16 @@
+version: '3.8'
+
 services:
+  tests:
+    build:
+      context: ./Back-End
+      dockerfile: Dockerfile.test
+    depends_on:
+      - backend
+      - sqlserver
+    networks:
+      - app-network
+
   frontend:
     build:
       context: ./front-end
@@ -33,6 +45,9 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./entrypoint.sh:/usr/src/app/entrypoint.sh  # Mount the entrypoint script
-    command:  chmod +x entrypoint.sh
-    entrypoint: ["/bin/sh", "/usr/src/app/entrypoint.sh"]  # Use the custom entrypoint script
+    command: chmod +x entrypoint.sh
+    entrypoint: ["/bin/sh", "/usr/src/app/entrypoint.sh"]
 
+networks:
+  app-network:
+    driver: bridge
