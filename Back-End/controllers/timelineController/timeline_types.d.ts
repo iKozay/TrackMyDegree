@@ -2,12 +2,12 @@ import CourseTypes from "@controllers/courseController/course_types"
 
 declare namespace TimelineTypes {
   export enum Season {
-    FALL,
-    WINTER,
-    FALL_WINTER,
-    SUMMER,
-    SUMMER_1,
-    SUMMER_2,
+    FALL        = "Fall",
+    WINTER      = "Winter",
+    FALL_WINTER = "Fall/Winter",
+    SUMMER      = "Summer",
+    SUMMER_1    = "Summer_1",
+    SUMMER_2    = "Summer_2",
   };
 
   export type TimelineItem = {
@@ -23,9 +23,15 @@ declare namespace TimelineTypes {
   };
 
   export type UserTimeline = {
-    user_id: string;
-    timeline_items: TimelineItem[];
-  }
+    user_id        : string;
+    timeline_items : TimelineItem[];
+  };
+
+  export enum TimelineResponse {
+    SUCCESS,
+    MOSTLY_OK,
+    FAILURE
+  };
 }
 
 export default TimelineTypes;
