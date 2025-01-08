@@ -21,13 +21,13 @@ import soenCourses from '../course data/soen_courses';
 // import { FaExclamationTriangle } from 'react-icons/fa'; // Import warning icon
 import warningIcon from '../icons/warning.png'; // Import warning icon
 // Semesters are currently hard-coded
-const semesters = [
-  { id: 'fall2024', name: 'Fall 2024' },
-  { id: 'winter2025', name: 'Winter 2025' },
-  { id: 'summer2025', name: 'Summer 2025' },
-  { id: 'fall2025', name: 'Fall 2025' },
-  { id: 'winter2026', name: 'Winter 2026' },
-];
+// const semesters = [
+//   { id: 'fall2024', name: 'Fall 2024' },
+//   { id: 'winter2025', name: 'Winter 2025' },
+//   { id: 'summer2025', name: 'Summer 2025' },
+//   { id: 'fall2025', name: 'Fall 2025' },
+//   { id: 'winter2026', name: 'Winter 2026' },
+// ];
 
 // DraggableCourse component for course list items
 const DraggableCourse = ({
@@ -147,18 +147,21 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 
 // Main component
 const TimelinePage = () => {
+  const [semesters, setSemesters] = useState([]);
+  const [semesterCourses, setSemesterCourses] = useState({});
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  //data
   const [activeId, setActiveId] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [returning, setReturning] = useState(false);
   const [hasUnmetPrerequisites, setHasUnmetPrerequisites] = useState(false);
-  const [semesterCourses, setSemesterCourses] = useState(
-    semesters.reduce((acc, semester) => {
-      acc[semester.id] = [];
-      return acc;
-    }, {})
-  );
-
   const [totalCredits, setTotalCredits] = useState(0);
+
+  // Add semester form state
+  const [selectedSeason, setSelectedSeason] = useState('Fall');
+  const [selectedYear, setSelectedYear] = useState('2025');
 
   // Sensors with activation constraints
   const mouseSensor = useSensor(MouseSensor, {
@@ -169,6 +172,42 @@ const TimelinePage = () => {
 
   const sensors = useSensors(mouseSensor);
 
+  // ---------------- ADD / REMOVE Semesters ----------------
+  const handleAddSemester = () => {
+    const seasonLower = selectedSeason.toLowerCase();
+    const id = `${seasonLower}${selectedYear}`; // "fall2025"
+    const name = `${selectedSeason} ${selectedYear}`;
+
+    // Prevent duplicates
+    if (semesters.some((sem) => sem.id === id)) {
+      alert(`Semester ${name} is already added.`);
+      return;
+    }
+
+    // Add the new semester
+    setSemesters((prev) => [...prev, { id, name }]);
+
+    // Initialize course list
+    setSemesterCourses((prev) => {
+      if (!prev[id]) {
+        return { ...prev, [id]: [] };
+      }
+      return prev;
+    });
+
+    // Close modal
+    setIsModalOpen(false);
+  };
+
+  const handleRemoveSemester = (semesterId) => {
+    setSemesters((prev) => prev.filter((s) => s.id !== semesterId));
+    setSemesterCourses((prev) => {
+      const updated = { ...prev };
+      delete updated[semesterId];
+      return updated;
+    });
+  };
+// ----------------------------------------------------------------------
   const isCourseAssigned = (courseId) => {
     for (const semesterId in semesterCourses) {
       if (semesterCourses[semesterId].includes(courseId)) {
@@ -327,7 +366,7 @@ const TimelinePage = () => {
     };
 
     calculateTotalCredits();
-  }, [semesterCourses]);
+  }, [semesterCourses, semesters]);
 
 
   // Function to check if prerequisites are met
@@ -354,6 +393,7 @@ const TimelinePage = () => {
     );
   };
 
+  // ----------------------------------------------------------------------------------------------------------------------
   return (
     <DndContext
       sensors={sensors}
@@ -362,138 +402,208 @@ const TimelinePage = () => {
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      {/* Total Credits Display */}
-      <div className="credits-display">
-        <h4 style={{ color: hasUnmetPrerequisites ? 'red' : 'inherit' }}>
-          Total Credits Earned: {totalCredits} / 120
-        </h4>
-      </div>
 
-      <div className="timeline-page">
+      {/* We blur the background content when modal is open */}
+      <div className={`timeline-container ${isModalOpen ? 'blurred' : ''}`}>
 
+          {/* Total Credits Display */}
+          <div className="credits-display">
+            <h4 style={{ color: hasUnmetPrerequisites ? 'red' : 'inherit' }}>
+              Total Credits Earned: {totalCredits} / 120
+            </h4>
+          </div>
 
-        <div className="timeline-left-bar">
-          <h3>Course List</h3>
-          <Droppable id="courseList" className="course-list">
-            <Accordion>
-              {soenCourses.map((courseSection) => (
-                <Accordion.Item
-                  eventKey={courseSection.title}
-                  key={courseSection.title}
-                >
-                  <Accordion.Header>{courseSection.title}</Accordion.Header>
-                  <Accordion.Body>
-                    <Container>
-                      {courseSection.courseList.map((course) => {
-                        const assigned = isCourseAssigned(course.id);
-                        const isSelected = selectedCourse?.id === course.id;
+        <div className="timeline-page">
 
-                        return (
-                          <DraggableCourse
-                            key={`${course.id}-${assigned}`} // Include assigned in key
-                            id={course.id}
-                            title={course.id}
-                            disabled={assigned}
-                            isReturning={returning}
-                            isSelected={isSelected}
-                            onSelect={handleCourseSelect}
-                            containerId="courseList"
-                          />
-                        );
-                      })}
-                    </Container>
-                  </Accordion.Body>
-                </Accordion.Item>
-              ))}
-            </Accordion>
-          </Droppable>
-        </div>
-
-        <div className="semesters-and-description">
-          <div className="semesters">
-            {semesters.map((semester, index) => (
-              <div key={semester.id} className="semester">
-                <h3>{semester.name}</h3>
-                <Droppable id={semester.id}>
-                  <SortableContext
-                    items={semesterCourses[semester.id]}
-                    strategy={verticalListSortingStrategy}
+          <div className="timeline-left-bar">
+            <h3>Course List</h3>
+            <Droppable id="courseList" className="course-list">
+              <Accordion>
+                {soenCourses.map((courseSection) => (
+                  <Accordion.Item
+                    eventKey={courseSection.title}
+                    key={courseSection.title}
                   >
-                    {semesterCourses[semester.id].map((courseId) => {
-                      const course = soenCourses
-                        .flatMap((courseSection) => courseSection.courseList)
-                        .find((c) => c.id === courseId);
-                      if (!course) return null;
-                      const isSelected = selectedCourse?.id === course.id;
-                      const isDraggingFromSemester = activeId === course.id;
+                    <Accordion.Header>{courseSection.title}</Accordion.Header>
+                    <Accordion.Body>
+                      <Container>
+                        {courseSection.courseList.map((course) => {
+                          const assigned = isCourseAssigned(course.id);
+                          const isSelected = selectedCourse?.id === course.id;
 
-                      // Check if prerequisites are met
-                      const prerequisitesMet = arePrerequisitesMet(courseId, index);
-
-                      return (
-                        <SortableCourse
-                          key={course.id}
-                          id={course.id}
-                          title={course.id}
-                          disabled={false}
-                          isSelected={isSelected}
-                          isDraggingFromSemester={isDraggingFromSemester}
-                          onSelect={handleCourseSelect}
-                          containerId={semester.id}
-                          prerequisitesMet={prerequisitesMet} // Pass the prop
-                        />
-                      );
-                    })}
-                  </SortableContext>
-                </Droppable>
-              </div>
-            ))}
+                          return (
+                            <DraggableCourse
+                              key={`${course.id}-${assigned}`} // Include assigned in key
+                              id={course.id}
+                              title={course.id}
+                              disabled={assigned}
+                              isReturning={returning}
+                              isSelected={isSelected}
+                              onSelect={handleCourseSelect}
+                              containerId="courseList"
+                            />
+                          );
+                        })}
+                      </Container>
+                    </Accordion.Body>
+                  </Accordion.Item>
+                ))}
+              </Accordion>
+            </Droppable>
           </div>
-          <div className="description-space">
-            {selectedCourse ? (
-              <div>
-                <h3>{selectedCourse.title}</h3>
-                <p data-testid='course-description'>{selectedCourse.description}</p>
-                {selectedCourse.prerequisites && selectedCourse.prerequisites.length > 0 && (
-                  <div>
-                    <h4>Prerequisites:</h4>
-                    <ul>
-                      {selectedCourse.prerequisites.map((prereqId) => {
-                        const prereqCourse = soenCourses
-                          .flatMap((courseSection) => courseSection.courseList)
-                          .find((c) => c.id === prereqId);
-                        return (
-                          <li key={prereqId} >
-                            {prereqCourse ? (
-                              <>
-                                {prereqCourse.id}
-                              </>
-                            ) : (
-                              prereqId
-                            )}
-                          </li>
-                        );
-                      })}
-                    </ul>
+
+          <div className="semesters-and-description">
+
+            <div className="semesters">
+              <button
+                  className="add-semester-button"
+                  onClick={() => setIsModalOpen(true)}
+              >
+                +
+              </button>
+              {semesters.map((semester, index) => (
+                  <div key={semester.id} className="semester">
+                    <Droppable id={semester.id}>
+                      <h3>{semester.name}</h3>
+                      <SortableContext
+                          items={semesterCourses[semester.id]}
+                          strategy={verticalListSortingStrategy}
+                      >
+                        {semesterCourses[semester.id].map((courseId) => {
+                          const course = soenCourses
+                              .flatMap((sec) => sec.courseList)
+                              .find((c) => c.id === courseId);
+                          if (!course) return null;
+                          const isSelected = selectedCourse?.id === course.id;
+                          const isDraggingFromSemester = activeId === course.id;
+
+                          // Check if prerequisites are met
+                          const prerequisitesMet = arePrerequisitesMet(courseId, index);
+
+                          return (
+                              <SortableCourse
+                                  key={course.id}
+                                  id={course.id}
+                                  title={course.id}
+                                  disabled={false}
+                                  isSelected={isSelected}
+                                  isDraggingFromSemester={isDraggingFromSemester}
+                                  onSelect={handleCourseSelect}
+                                  containerId={semester.id}
+                                  prerequisitesMet={prerequisitesMet} // Pass the prop
+                              />
+                          );
+                        })}
+                      </SortableContext>
+
+                      <div className="semester-footer">
+                        <div className="semester-credit">
+                          Total credit:
+                          {semesterCourses[semester.id]
+                              .map((cid) =>
+                                  soenCourses
+                                      .flatMap((s) => s.courseList)
+                                      .find((sc) => sc.id === cid)?.credits || 0
+                              )
+                              .reduce((sum, c) => sum + c, 0)}
+                        </div>
+
+                        <button
+                            className="remove-semester-btn"
+                            onClick={() => handleRemoveSemester(semester.id)}
+                        >
+                          🗑
+                        </button>
+                      </div>
+                    </Droppable>
                   </div>
-                )}
-              </div>
-            ) : (
-              <p data-testid='course-description'>Drag or click on a course to see its description here.</p>
-            )}
-          </div>
-
-        </div>
-        <DragOverlay dropAnimation={returning ? null : undefined}>
-          {activeId ? (
-            <div className="course-item-overlay selected">
-              {soenCourses
-                .flatMap((courseSection) => courseSection.courseList)
-                .find((course) => course.id === activeId)?.id}
+              ))}
             </div>
-          ) : null}
-        </DragOverlay>
+            <div className="description-space">
+              {selectedCourse ? (
+                  <div>
+                    <h3>{selectedCourse.title}</h3>
+                    <p data-testid='course-description'>{selectedCourse.description}</p>
+                  {selectedCourse.prerequisites && selectedCourse.prerequisites.length > 0 && (
+                    <div>
+                      <h4>Prerequisites:</h4>
+                      <ul>
+                        {selectedCourse.prerequisites.map((prereqId) => {
+                          const prereqCourse = soenCourses
+                            .flatMap((courseSection) => courseSection.courseList)
+                            .find((c) => c.id === prereqId);
+                          return (
+                            <li key={prereqId} >
+                              {prereqCourse ? (
+                                <>
+                                  {prereqCourse.id}
+                                </>
+                              ) : (
+                                prereqId
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p data-testid='course-description'>Drag or click on a course to see its description here.</p>
+              )}
+            </div>
+
+          </div>
+          <DragOverlay dropAnimation={returning ? null : undefined}>
+            {activeId ? (
+              <div className="course-item-overlay selected">
+                {soenCourses
+                  .flatMap((courseSection) => courseSection.courseList)
+                  .find((course) => course.id === activeId)?.id}
+              </div>
+            ) : null}
+          </DragOverlay>
+        </div>
       </div>
+
+      {/* ---------- Modal for Add Semester ---------- */}
+      {isModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <button
+                  className="close-button"
+                  onClick={() => setIsModalOpen(false)}
+              >
+                ✕
+              </button>
+              <h2>Add a Semester</h2>
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                <select
+                    value={selectedSeason}
+                    onChange={(e) => setSelectedSeason(e.target.value)}
+                >
+                  <option>Fall</option>
+                  <option>Winter</option>
+                  <option>Summer</option>
+                </select>
+                <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                >
+                  {Array.from({ length: 6 }).map((_, i) => {
+                    const year = 2025 + i;
+                    return (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                    );
+                  })}
+                </select>
+              </div>
+              <button onClick={handleAddSemester}>Add Semester</button>
+            </div>
+          </div>
+      )}
     </DndContext>
   );
 };
