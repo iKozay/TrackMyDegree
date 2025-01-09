@@ -241,20 +241,22 @@
   display: flex;
   gap: 20px;
   overflow-x: auto; /* Enable horizontal scrolling */
-  padding: 8px;
+  height:100%;
+  padding: 50px;
+  background-color: #faf0f0;
+  border-radius: 10px;
+  margin: 0px;
 }
 
 .semester {
-
-  display: flex;
-  flex-direction: column;
-
+  margin: 10px;
 }
 
 
 .semesters-and-description {
   min-width: 60%;
   display: flex;
+  align-items: flex-start; /* All items aligned to the top */
   gap: 20px;
 }
 
@@ -269,14 +271,15 @@
   max-height: 100%;
   overflow-y: auto;
   z-index: 10;
+  height:100%;
 }
 
 .course-item {
   padding: 10px;
   margin: 5px auto;
-  background-color: #d1e7dd;
-  border: 1px solid #bcd0c7;
-  border-radius: 3px;
+  background-color: #c0d8cd;
+  border: 1px solid #c0d8cd;
+  border-radius: 13px;
   cursor: grab;
   /* transition: transform 0.2s ease; */
   display: flex;
@@ -287,23 +290,28 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 180px;
+  color: #f6f5f5;
+  font-weight: bold;
+  font-size: 18px;
 }
 
 
 .course-item-overlay {
   padding: 10px;
   background-color: #d1e7dd;
-  border: 1px solid #bcd0c7;
-  border-radius: 3px;
+  border: 1px solid #c0d8cd;
+  border-radius: 13px;
   cursor: grabbing;
   display: flex;
   justify-content: center;
   width: 180px;
   /* z-index: 9; */
   /* max-width: 120px; */
+  color: #f6f5f5;
+  font-weight: bold;
+  font-size: 18px;
 
-  border: 2px solid #46a4c0; /* Adjust the color and thickness */
-  border-radius: 4px; /* Optional: add some border radius */
+
   box-shadow: #8db0d4 0px 0px 10px; /* Optional: add a shadow */
 }
 
@@ -324,9 +332,9 @@
 }
 
 .course-item.selected {
-  border: 2px solid #46a4c0; /* Adjust the color and thickness */
-  border-radius: 4px; /* Optional: add some border radius */
-  box-shadow: #8db0d4 0px 0px 10px; /* Optional: add a shadow */
+  border: 2px solid #c0d8cd; /* Adjust the color and thickness */
+  border-radius: 13px; /* Optional: add some border radius */
+  box-shadow: #8db0d4 0px 0px 4px; /* Optional: add a shadow */
 }
 
 
@@ -353,27 +361,32 @@
 .semester-spot {
   min-width: 250px;
   min-height: 500px;
-  background-color: #e9ecef;
+  background-color: #fdfafd;
   padding: 10px;
-  border: 2px dashed #ced4da;
-  border-radius: 5px;
+  border: 2px  #ced4da;
+  border-radius: 20px;
   transition: background-color 0.2s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
 }
 
 
 
 .semester-spot:hover {
-  background-color: #d4edda;
+  background-color: #f3eef3;
 }
 
 /* Keep the header at the top */
 .semester-spot h3 {
   margin: 0;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   text-align: center;
+  font-size: 23px;
+  color: rgb(78, 108, 91);
+  font-family: Arial, sans-serif;
+  font-weight: bold;
 }
 
 /* Center the course items */
@@ -509,9 +522,7 @@
 
 /* The + button at the top-right corner */
 .add-semester-button {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  align-self: flex-start;
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -523,7 +534,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0;
 }
 
 /*

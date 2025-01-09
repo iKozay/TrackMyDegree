@@ -455,15 +455,9 @@ const TimelinePage = () => {
           <div className="semesters-and-description">
 
             <div className="semesters">
-              <button
-                  className="add-semester-button"
-                  onClick={() => setIsModalOpen(true)}
-              >
-                +
-              </button>
               {semesters.map((semester, index) => (
-                  <div key={semester.id} className="semester">
-                    <Droppable id={semester.id}>
+                  <div key={semester.id}>
+                    <Droppable id={semester.id} color="pink">
                       <h3>{semester.name}</h3>
                       <SortableContext
                           items={semesterCourses[semester.id]}
@@ -519,44 +513,52 @@ const TimelinePage = () => {
                   </div>
               ))}
             </div>
+
+            <button
+                className="add-semester-button"
+                onClick={() => setIsModalOpen(true)}
+            >
+              +
+            </button>
+
             <div className="description-space">
               {selectedCourse ? (
                   <div>
                     <h3>{selectedCourse.title}</h3>
                     <p data-testid='course-description'>{selectedCourse.description}</p>
-                  {selectedCourse.prerequisites && selectedCourse.prerequisites.length > 0 && (
-                    <div>
-                      <h4>Prerequisites:</h4>
-                      <ul>
-                        {selectedCourse.prerequisites.map((prereqId) => {
-                          const prereqCourse = soenCourses
-                            .flatMap((courseSection) => courseSection.courseList)
-                            .find((c) => c.id === prereqId);
-                          return (
-                            <li key={prereqId} >
-                              {prereqCourse ? (
-                                <>
-                                  {prereqCourse.id}
-                                </>
-                              ) : (
-                                prereqId
-                              )}
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </div>
-                  )}
-                </div>
+                    {selectedCourse.prerequisites && selectedCourse.prerequisites.length > 0 && (
+                        <div>
+                          <h4>Prerequisites:</h4>
+                          <ul>
+                            {selectedCourse.prerequisites.map((prereqId) => {
+                              const prereqCourse = soenCourses
+                                  .flatMap((courseSection) => courseSection.courseList)
+                                  .find((c) => c.id === prereqId);
+                              return (
+                                  <li key={prereqId}>
+                                    {prereqCourse ? (
+                                        <>
+                                          {prereqCourse.id}
+                                        </>
+                                    ) : (
+                                        prereqId
+                                    )}
+                                  </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                    )}
+                  </div>
               ) : (
-                <p data-testid='course-description'>Drag or click on a course to see its description here.</p>
+                  <p data-testid='course-description'>Drag or click on a course to see its description here.</p>
               )}
             </div>
 
           </div>
           <DragOverlay dropAnimation={returning ? null : undefined}>
             {activeId ? (
-              <div className="course-item-overlay selected">
+                <div className="course-item-overlay selected">
                 {soenCourses
                   .flatMap((courseSection) => courseSection.courseList)
                   .find((course) => course.id === activeId)?.id}
