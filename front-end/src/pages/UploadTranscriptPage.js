@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import '../css/UploadTranscriptPage.css';
+import React, { useState, useRef } from 'react';
 import { pdfjs } from 'react-pdf';
 
 // Set the worker source
@@ -9,6 +9,7 @@ const UploadTranscript = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileName, setFileName] = useState('No file chosen');
   const [output, setOutput] = useState('');
+  const fileInputRef = useRef(null); // Reference for the file input
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -92,6 +93,10 @@ const UploadTranscript = () => {
     setSelectedFile(null);
     setFileName('No file chosen');
     setOutput('');
+    // Reset the file input by clearing its value
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''; // This clears the file input field
+    }
   };
 
   return (
@@ -112,6 +117,7 @@ const UploadTranscript = () => {
           id="file-upload"
           accept="application/pdf"
           onChange={handleFileChange}
+          ref={fileInputRef} // Attach the ref here
           style={{ display: 'none' }}
         />
         <p className="file-name">{fileName}</p>
