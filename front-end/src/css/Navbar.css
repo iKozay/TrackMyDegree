@@ -4,9 +4,7 @@
 
 .custom-navbar {
   background-color: #912338;
-  /* Custom background color */
   color: #ecf0f1;
-  /* Custom text color */
 }
 
 .custom-navbar .navbar-brand {
@@ -15,13 +13,31 @@
   font-size: 48px;
   color: white;
   margin-left: 20px;
-  /* Adjust this value to move TrackMyDegree to the left */
+}
+
+.brand-text {
+  display: inline-block;
+}
+
+.brand-emoji {
+  display: none; /* Hide emoji by default */
+  font-size: 48px;
+  margin-left: 8px;
+}
+
+/* Hide the brand text on smaller screens */
+@media (max-width: 1200px) {
+  .brand-text {
+    display: none; /* Hide TrackMyDegree text */
+  }
+
+  .brand-emoji {
+    display: inline-block; /* Show the emoji */
+  }
 }
 
 .custom-navbar .nav-link {
   color: #ecf0f1 !important;
-  /* Text color for links */
-  background-color: #912338;
   padding-bottom: 10px;
   padding-left: 10px;
   padding-right: 10px;
@@ -30,39 +46,70 @@
 
 .custom-navbar .nav-link:hover {
   color: #e74c3c !important;
-  /* Hover color for links */
 }
-
-/* .collapsing {
-  min-width: 400px;
-} */
 
 .custom-navbar-height {
   height: 120px;
-  /* Adjust this value for vertical height */
   padding: 20px 0;
-  /* Adjust padding to align content within the navbar */
 }
 
 .custom-navbar-left-align {
   width: 95%;
-  /* Adjust this value to control the horizontal length */
   margin-left: 0;
-  /* Align to the left */
 }
 
 .custom-navbar-padding {
   padding: 30px 20px;
-  /* Adjust this value to add more padding inside the navbar */
 }
 
 .custom-nav-links {
   margin-left: 400px;
-  /* Adjust this value to manually move the nav links to the right */
   font-size: 24px;
 }
 
 .rounded {
   border-radius: 50px;
-  /* Adjust this value to control the roundness of the navbar */
+}
+
+@media (max-width: 1200px) {
+  /* Adjust navbar links for smaller screens */
+  .custom-nav-links {
+    margin-left: 0;
+    text-align: center;
+    font-size: 18px;
+  }
+
+  /* Toggler and menu icon styling */
+  .navbar-toggler {
+    border-color: #ecf0f1;
+  }
+
+  .navbar-toggler-icon {
+    background-color: #ecf0f1;
+  }
+
+  /* Align the navbar items to the center */
+  .navbar-collapse {
+    flex-grow: 1;
+    justify-content: flex-end;
+  }
+
+  /* Adjust the active link style */
+  .nav-link.active {
+    color: #e74c3c !important;
+  }
+
+  /* Mobile view for navbar */
+  .navbar-nav {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .nav-link {
+    padding: 10px 0;
+    width: 100%;
+    text-align: center;
+  }
 }

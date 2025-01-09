@@ -1,14 +1,13 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/SignInPage.css";
 
 function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -19,7 +18,7 @@ function SignInPage() {
       login();
       navigate("/user");
     } else {
-      alert("Invalid email or password. Please try again.");
+      setErrorMessage("Invalid credentials. Please try again.");
     }
   };
 
@@ -37,6 +36,7 @@ function SignInPage() {
               placeholder="Enter your email..."
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              aria-label="Email address"
             />
           </div>
           <div className="mb-4">
@@ -48,8 +48,17 @@ function SignInPage() {
               placeholder="********"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              aria-label="Password"
             />
           </div>
+
+          {/* Show error message here */}
+          {errorMessage && (
+            <div className="alert alert-danger custom-alert" role="alert">
+              {errorMessage}
+            </div>
+          )}
+
           <div className="d-flex justify-content-between mb-3">
             <button
               type="button"

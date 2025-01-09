@@ -5,10 +5,20 @@
   min-height: 100vh;
 }
 
+html, body {
+  height: 100%; /* This makes the html and body elements take up the full height of the viewport */
+  margin: 0; /* Remove default margin to prevent unwanted space around the body */
+}
+
 .App {
   font-family: Arial, sans-serif;
   line-height: 1.6;
   flex: 1;
+}
+
+/* Footer stays at the bottom */
+footer {
+  margin-top: auto; /* This pushes the footer to the bottom of the page */
 }
 
 /* Show scrollbar thumb only while scrolling */

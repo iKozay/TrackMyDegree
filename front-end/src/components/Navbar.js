@@ -20,7 +20,8 @@ const Navbar = () => {
     <nav className="navbar navbar-expand-lg custom-navbar custom-navbar-height custom-navbar-padding">
       <div className="container-fluid custom-navbar-left-align">
         <a className="navbar-brand custom-navbar-brand-left" href="/">
-          TrackMyDegree
+          <span className="brand-text">TrackMyDegree 🎓</span>
+          <span className="brand-emoji">🎓</span>
         </a>
         <button
           className="navbar-toggler"
@@ -48,7 +49,7 @@ const Navbar = () => {
                   Timeline
                 </a>
                 {/* Add an empty link */}
-                <a className="nav-link">                      </a>
+                <a className="nav-link"></a>
                 <a
                   className="nav-link"
                   onClick={handleLogout}
