@@ -212,7 +212,7 @@
   padding: 2vh;
 }
 
-.timeline-page h3 {
+.timeline-page h4 {
   text-align: center;
 }
 
@@ -229,7 +229,7 @@
   max-width: 20%;
   background-color: #f0f0f0;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 25px;
   max-height:100%;
   align-items: center;
   min-width: 300px;
@@ -249,7 +249,7 @@
 }
 
 .semester {
-  margin: 10px;
+  margin: 15px;
 }
 
 
@@ -265,13 +265,14 @@
   /* width: 20%; */
   flex: 1;
   background-color: #f8f9fa;
-  padding: 10px;
-  border-radius: 5px;
+  padding: 20px;
+  border-radius: 25px;
   width: 230px;
   max-height: 100%;
   overflow-y: auto;
   z-index: 10;
   height:100%;
+  font-size: 15px;
 }
 
 .course-item {
@@ -289,10 +290,10 @@
   overflow-wrap: break-word;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 180px;
+  width: 150px;
   color: #f6f5f5;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 15px;
 }
 
 
@@ -334,7 +335,8 @@
 .course-item.selected {
   border: 2px solid #c0d8cd; /* Adjust the color and thickness */
   border-radius: 13px; /* Optional: add some border radius */
-  box-shadow: #8db0d4 0px 0px 4px; /* Optional: add a shadow */
+  box-shadow: #b2c5bc 0px 0px 3px;
+  background-color: #a4b8b0;
 }
 
 
@@ -359,8 +361,8 @@
 
 /* Semester Spot Styles */
 .semester-spot {
-  min-width: 250px;
-  min-height: 500px;
+  min-width: 210px;
+  min-height: 400px;
   background-color: #fdfafd;
   padding: 10px;
   border: 2px  #ced4da;
@@ -383,7 +385,7 @@
   margin: 0;
   margin-bottom: 15px;
   text-align: center;
-  font-size: 23px;
+  font-size: 20px;
   color: rgb(78, 108, 91);
   font-family: Arial, sans-serif;
   font-weight: bold;
@@ -464,8 +466,8 @@
 .course-list::-webkit-scrollbar-thumb,
 .semesters::-webkit-scrollbar-thumb,
 .description-space::-webkit-scrollbar-thumb {
-  background-color: rgba(145, 35, 56, 0.8); /* Dark red color */
-  border-radius: 10px; /* Fully round the ends of the scrollbar */
+  background-color: rgba(179, 163, 163, 0.8);
+  border-radius: 15px; /* Fully round the ends of the scrollbar */
   opacity: 0; /* Start hidden */
   transition: opacity 0.3s ease;
 }
@@ -526,7 +528,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: rgba(145, 35, 56, 0.8);
+  background-color: rgba(156, 143, 143, 0.8);
   color: #fff;
   border: none;
   font-size: 1.3rem;

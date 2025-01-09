@@ -408,7 +408,7 @@ const TimelinePage = () => {
 
           {/* Total Credits Display */}
           <div className="credits-display">
-            <h4 style={{ color: hasUnmetPrerequisites ? 'red' : 'inherit' }}>
+            <h4>
               Total Credits Earned: {totalCredits} / 120
             </h4>
           </div>
@@ -416,7 +416,7 @@ const TimelinePage = () => {
         <div className="timeline-page">
 
           <div className="timeline-left-bar">
-            <h3>Course List</h3>
+            <h4>Course List</h4>
             <Droppable id="courseList" className="course-list">
               <Accordion>
                 {soenCourses.map((courseSection) => (
@@ -524,11 +524,11 @@ const TimelinePage = () => {
             <div className="description-space">
               {selectedCourse ? (
                   <div>
-                    <h3>{selectedCourse.title}</h3>
+                    <h5>{selectedCourse.title}</h5>
                     <p data-testid='course-description'>{selectedCourse.description}</p>
                     {selectedCourse.prerequisites && selectedCourse.prerequisites.length > 0 && (
                         <div>
-                          <h4>Prerequisites:</h4>
+                          <h5>Prerequisites:</h5>
                           <ul>
                             {selectedCourse.prerequisites.map((prereqId) => {
                               const prereqCourse = soenCourses
