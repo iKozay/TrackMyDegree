@@ -1,6 +1,6 @@
 // src/components/Navbar.js
 import React, { useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,  Link  } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -39,36 +39,37 @@ const Navbar = () => {
             <a className="nav-link active" aria-current="page" href="/">
               Home
             </a>
-
-            {isLoggedIn ? (
-              <>
-                <a className="nav-link" href="/user">
-                  User
-                </a>
-                <a className="nav-link" href="/timeline">
+            <a className="nav-link" href="/timeline">
                   Timeline
-                </a>
-                {/* Add an empty link */}
-                <a className="nav-link"></a>
-                <a
-                  className="nav-link"
-                  onClick={handleLogout}
-                >
-                  Log Out
-                </a>
-              </>
-            ) : (
-              <a className="nav-link" href="/signin">
-                Log In
-              </a>
-            )}
+            </a>
             <a className="nav-link" href="/courselist">
               Course List
             </a>
-            <a className="nav-link" href="/uploadTranscript">
+            {/* <a className="nav-link" href="/uploadTranscript">
               Upload Transcript
-            </a>
+            </a> */}
           </div>
+            {isLoggedIn ? (
+              <>
+                <div className="navbar-right-buttons">
+                  <Link to="/user">
+                    <button className="navbar-button navbar-button-signin">User</button>
+                  </Link>
+                  <Link to="/signup">
+                    <button className="navbar-button navbar-button-register" onClick={handleLogout}>Log Out</button>
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <div className="navbar-right-buttons">
+                <Link to="/signin">
+                  <button className="navbar-button navbar-button-signin">Sign in</button>
+                </Link>
+                <Link to="/signup">
+                  <button className="navbar-button navbar-button-register">Register</button>
+                </Link>
+              </div>
+            )}
         </div>
       </div>
     </nav>

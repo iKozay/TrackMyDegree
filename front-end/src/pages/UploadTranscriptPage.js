@@ -1,6 +1,9 @@
 import '../css/UploadTranscriptPage.css';
 import React, { useState, useRef } from 'react';
 import { pdfjs } from 'react-pdf';
+import PrintImage from '../images/Print_image.png';
+import PdfImage from '../images/Pdf_image.png';
+import TransImage from '../images/Transc_image.png';
 
 // Set the worker source
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -46,7 +49,6 @@ const UploadTranscript = () => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const typedArray = new Uint8Array(e.target.result);
-      // Use pdf.js to parse the PDF (example: https://github.com/mozilla/pdf.js/)
       pdfjs.getDocument(typedArray).promise.then((pdf) => {
         let pagesPromises = [];
         for (let i = 1; i <= pdf.numPages; i++) {
@@ -100,42 +102,68 @@ const UploadTranscript = () => {
   };
 
   return (
-    <div className="container">
-      <h2>Upload Transcript</h2>
-
-      <div
-        className="upload-box"
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        <p>Drag and Drop file</p>
-        <p>or</p>
-        <label htmlFor="file-upload">Browse</label>
-        <input
-          type="file"
-          id="file-upload"
-          accept="application/pdf"
-          onChange={handleFileChange}
-          ref={fileInputRef} // Attach the ref here
-          style={{ display: 'none' }}
-        />
-        <p className="file-name">{fileName}</p>
+    <div className="upload-container">
+      {/* Instructions Section */}
+      <div className="instructions">
+        <h3>How to Download Your Transcript</h3>
+        <ol>
+          <li>
+            Go to <strong>Student Center</strong>, and under the <strong>"Academics"</strong> section, click on <em>"View Unofficial Transcript"</em>.
+            <br />
+            <img src={TransImage} alt="Step 1" className="instruction-image" />
+          </li>
+          <li>
+            Scroll till the end of the transcript and click on the <strong>"Print"</strong> button.
+            <br />
+            <img src={PrintImage} alt="Step 2" className="instruction-image" />
+          </li>
+          <li>
+            In the <strong></strong>"Print" prompt, for the <em>"Destination"</em> field, please select <strong>"Save as PDF"</strong>.
+            <br /><strong>Do not choose "Microsoft Print to PDF".</strong>
+            <br />
+            <img src={PdfImage} alt="Step 3" className="instruction-image" />
+          </li>
+        </ol>
       </div>
 
-      <div className="button-group">
-        <button className="cancel-button" onClick={handleCancel}>
-          Cancel
-        </button>
-        <button className="submit-button" onClick={handleSubmit}>
-          Submit
-        </button>
-      </div>
+      {/* Upload Section */}
+      <div className="upload-section">
+        <h2>Upload Transcript</h2>
+        <div
+          className="upload-box"
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <p>Drag and Drop file</p>
+          or
+          <label htmlFor="file-upload">Browse</label>
+          <input
+            type="file"
+            id="file-upload"
+            accept="application/pdf"
+            onChange={handleFileChange}
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+          />
+          <p className="file-name">{fileName}</p>
+        </div>
 
-      <div id="output" dangerouslySetInnerHTML={{ __html: output }}></div>
+        <div className="button-group">
+          <button className="cancel-button" onClick={handleCancel}>
+            Cancel
+          </button>
+          <button className="submit-button" onClick={handleSubmit}>
+            Submit
+          </button>
+        </div>
+
+        <div id="output" dangerouslySetInnerHTML={{ __html: output }}></div>
+      </div>
     </div>
   );
 };
+
 
 // Functions to extract terms, courses, and match them
 const extractTermsCoursesAndSeparators = (pagesData) => {
