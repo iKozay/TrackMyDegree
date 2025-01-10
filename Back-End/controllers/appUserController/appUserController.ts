@@ -31,13 +31,14 @@ async function updateAppUser(
         .input('email', Database.msSQL.VarChar, email)
         .input('password', Database.msSQL.VarChar, password)
         .input('fullname', Database.msSQL.VarChar, fullname)
-        // .input('degree', Database.msSQL.VarChar, degree)
+        .input('degree', Database.msSQL.VarChar, degree)
         .input('type', Database.msSQL.VarChar, type)
         .query(
           `UPDATE AppUser 
             SET email = @email, 
                 password = @password, 
-                fullname = @fullname,  
+                fullname = @fullname, 
+                degree = @degree, 
                 type = @type 
             WHERE id = @id`
         );
