@@ -48,8 +48,7 @@ CREATE TABLE AppUser (  -- Use square brackets for reserved keywords
     id VARCHAR(255) PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    firstname VARCHAR(255) NOT NULL,-- add degree / add first and last name
-    lastname VARCHAR(255) NOT NULL,
+    fullname VARCHAR(255) NOT NULL,
     degree VARCHAR(255),
     type VARCHAR(10) CHECK (type IN ('student', 'advisor', 'admin')) NOT NULL,
     FOREIGN KEY (degree) REFERENCES Degree(id)
@@ -125,9 +124,9 @@ VALUES ('1', 'COMP335', '1'),  -- CourseID 1 linked to CoursePoolID 1
        ('3', 'SOEN287', '3');  -- CourseID 3 linked to CoursePoolID 3
 
 -- User table (changed from AppUser to [User])
-INSERT INTO AppUser (id, email, password, firstname, lastname, degree, type)
-VALUES ('1', 'jd1@concordia.ca', '1234', 'John', 'Doe', '1', 'student'),
-       ('2', 'jd2@concordia.ca', '5678', 'Jane', 'Doe', '', 'advisor');
+INSERT INTO AppUser (id, email, password, fullname, degree, type)
+VALUES ('1', 'jd1@concordia.ca', '1234', 'John Doe', '1', 'student'),
+       ('2', 'jd2@concordia.ca', '5678', 'Jane Doe', '', 'advisor');
 
 -- Timeline table
 INSERT INTO Timeline (id, season, year, coursecode, user_id)
