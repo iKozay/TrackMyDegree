@@ -1,23 +1,25 @@
-import Database from "@controllers/DBController/DBController"
-import { randomUUID } from "crypto"
+import Database from "@controllers/DBController/DBController";
+import { randomUUID } from "crypto";
 //types import
-import Auth from "@controllers/authController/auth_types"
-import bcrypt from 'bcryptjs';
-
+import Auth from "@controllers/authController/auth_types";
+import bcrypt from "bcryptjs";
 
 const log = console.log;
 
-
 //Functions
-async function authenticate(email: string, password: string): Promise<Auth.UserInfo | undefined> {
+async function authenticate(
+  email: string,
+  password: string
+): Promise<Auth.UserInfo | undefined> {
   const authConn = await Database.getConnection();
 
   if (authConn) {
     try {
       // Step 1: Query the database for the user by email only
-      const result = await authConn.request()
-        .input('email', Database.msSQL.VarChar, email)
-        .query('SELECT * FROM AppUser WHERE email = @email');
+      const result = await authConn
+        .request()
+        .input("email", Database.msSQL.VarChar, email)
+        .query("SELECT * FROM AppUser WHERE email = @email");
 
       // Step 2: Check if user exists and if the password matches
       if (result.recordset && result.recordset.length > 0) {
@@ -34,8 +36,7 @@ async function authenticate(email: string, password: string): Promise<Auth.UserI
       } else {
         log("User not found", email);
       }
-    }
-    catch (error) {
+    } catch (error) {
       log("Error in login\n", error);
     }
   }
@@ -43,37 +44,36 @@ async function authenticate(email: string, password: string): Promise<Auth.UserI
   return undefined;
 }
 
-async function registerUser(userInfo: Auth.UserInfo)
-  : Promise<{ id: string } | undefined> {
-
+async function registerUser(
+  userInfo: Auth.UserInfo
+): Promise<{ id: string } | undefined> {
   const authConn = await Database.getConnection();
 
-  if ((undefined) !== (authConn)) {
-    const { email,
-      password,
-      fullname,
-      type } = userInfo;
+  if (undefined !== authConn) {
+    const { email, password, fullname, type, degree } = userInfo;
     const id = randomUUID();
 
     try {
-      const result = await authConn.request()
-        .input('id', Database.msSQL.VarChar, id)
-        .input('email', Database.msSQL.VarChar, email)
-        .input('password', Database.msSQL.VarChar, password)
-        .input('fullname', Database.msSQL.VarChar, fullname)
-        .input('type', Database.msSQL.VarChar, type)
-        .query('INSERT INTO AppUser ( id,  email,  password,  fullname,  type) \
+      const result = await authConn
+        .request()
+        .input("id", Database.msSQL.VarChar, id)
+        .input("email", Database.msSQL.VarChar, email)
+        .input("password", Database.msSQL.VarChar, password)
+        .input("fullname", Database.msSQL.VarChar, fullname)
+        .input("type", Database.msSQL.VarChar, type)
+        .input("degree", Database.msSQL.VarChar, degree)
+        .query(
+          "INSERT INTO AppUser ( id,  email,  password,  fullname,  type, degree) \
               OUTPUT INSERTED.id                                         \
-                          VALUES  (@id, @email, @password, @fullname, @type)');
+                          VALUES  (@id, @email, @password, @fullname, @type, @degree)"
+        );
 
-      if ((undefined) === (result.recordset)) {
+      if (undefined === result.recordset) {
         log("Error inserting record ", result.recordset);
-      }
-      else {
+      } else {
         return result.recordset[0];
       }
-    }
-    catch (error) {
+    } catch (error) {
       log("Error in Sign Up\n", error);
     }
   }
@@ -82,9 +82,8 @@ async function registerUser(userInfo: Auth.UserInfo)
 //Namespace
 const authController = {
   authenticate,
-  registerUser
+  registerUser,
 };
-
 
 //Default export
 export default authController;

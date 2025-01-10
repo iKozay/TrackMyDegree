@@ -16,6 +16,7 @@ declare namespace Auth {
     id?       : string;
     fullname  : string;
     type      : UserType;
+    degree?   : string;
   }
 }
 

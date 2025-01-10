@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
-import SignInPage from "./pages/SignInPage";
+import LogInPage from "./pages/LogInPage";
 import SignUpPage from "./pages/SignUpPage";
 import UserPage from "./pages/UserPage";
 import CourseList from "./pages/CourseListPage";
@@ -13,6 +13,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
 import TimelinePage from "./pages/TimelinePage";
+// import LogInPage from "./pages/LogInPage";
 
 function App() {
 	return (
@@ -28,7 +29,7 @@ function App() {
 							/>
 							<Route
 								path="/signin"
-								element={<SignInPage />}
+								element={<LogInPage />}
 							/>
 							<Route
 								path="/signup"
