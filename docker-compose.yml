@@ -1,4 +1,21 @@
+version: '3.8'
+
 services:
+  tests:
+    build:
+      context: ./Back-End
+      dockerfile: Dockerfile.test
+    depends_on:
+      - backend
+      - sqlserver
+    networks:
+      - app-network
+    entrypoint: >
+      sh -c "
+      ./ping-backend.sh &&
+      npm test
+      "
+
   frontend:
     build:
       context: ./front-end
@@ -21,6 +38,11 @@ services:
       - SQL_SERVER_DATABASE=master
     depends_on:
       - sqlserver
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/test-db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -32,7 +54,15 @@ services:
       - "1433:1433"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./entrypoint.sh:/usr/src/app/entrypoint.sh  # Mount the entrypoint script
-    command:  chmod +x entrypoint.sh
-    entrypoint: ["/bin/sh", "/usr/src/app/entrypoint.sh"]  # Use the custom entrypoint script
+      - ./entrypoint-sql.sh:/usr/src/app/entrypoint-sql.sh
+    command: chmod +x entrypoint.sh
+    entrypoint: ["/bin/sh", "/usr/src/app/entrypoint-sql.sh"]
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "MySecureP@ss123", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+networks:
+  app-network:
+    driver: bridge
