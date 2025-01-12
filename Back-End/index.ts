@@ -9,6 +9,7 @@ import HTTP from "@Util/HTTPCodes";
 import authRouter from "@routes/auth";
 import coursesRouter from "@routes/courses";
 import degreeRouter from "@routes/degree"
+import exemptionRouter from "@routes/exemption"
 
 //Dev Consts
 const HOPPSCOTCH = "chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld";
@@ -47,6 +48,7 @@ app.use(cookieParser());
 app.use("/auth", authRouter);
 app.use("/courses", coursesRouter);
 app.use("/degree", degreeRouter);
+app.use("/exemption", exemptionRouter);
 
 /**
  * DB test route
