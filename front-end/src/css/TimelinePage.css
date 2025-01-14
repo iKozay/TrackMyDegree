@@ -6,7 +6,7 @@
   padding: 2vh;
 }
 
-.timeline-page h3 {
+.timeline-page h4 {
   text-align: center;
 }
 
@@ -23,7 +23,7 @@
   max-width: 20%;
   background-color: #f0f0f0;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 25px;
   max-height: 100%;
   align-items: center;
   min-width: 300px;
@@ -34,16 +34,21 @@
   display: flex;
   gap: 20px;
   overflow-x: auto; /* Enable horizontal scrolling */
-  padding-bottom: 10px;
+  height:100%;
+  padding: 50px;
+  background-color: #faf0f0;
+  border-radius: 10px;
+  margin: 0px;
 }
 
-/* .semester {
-  
-} */
+.semester {
+  margin: 15px;
+}
 
 .semesters-and-description {
   min-width: 60%;
   display: flex;
+  align-items: flex-start;
   gap: 20px;
 }
 
@@ -51,20 +56,22 @@
   /* width: 20%; */
   flex: 1;
   background-color: #f8f9fa;
-  padding: 10px;
-  border-radius: 5px;
+  padding: 20px;
+  border-radius: 25px;
   width: 230px;
   max-height: 100%;
   overflow-y: auto;
   z-index: 10;
+  height:100%;
+  font-size: 15px;
 }
 
 .course-item {
   padding: 10px;
   margin: 5px auto;
-  background-color: #d1e7dd;
-  border: 1px solid #bcd0c7;
-  border-radius: 3px;
+  background-color: #c0d8cd;
+  border: 1px solid #c0d8cd;
+  border-radius: 13px;
   cursor: grab;
   /* transition: transform 0.2s ease; */
   display: flex;
@@ -74,24 +81,28 @@
   overflow-wrap: break-word;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 180px;
+  width: 150px;
+  color: #f6f5f5;
+  font-weight: bold;
+  font-size: 15px;
 }
 
 .course-item-overlay {
   padding: 10px;
   background-color: #d1e7dd;
-  border: 1px solid #bcd0c7;
-  border-radius: 3px;
+  border: 1px solid #c0d8cd;
+  border-radius: 13px;
   cursor: grabbing;
   display: flex;
   justify-content: center;
   width: 180px;
   /* z-index: 9; */
   /* max-width: 120px; */
-
-  border: 2px solid #46a4c0; /* Adjust the color and thickness */
-  border-radius: 4px; /* Optional: add some border radius */
+  /* Optional: add some border radius */
   box-shadow: #8db0d4 0px 0px 10px; /* Optional: add a shadow */
+  color: #f6f5f5;
+  font-weight: bold;
+  font-size: 18px;
 }
 
 .course-item.dragging {
@@ -110,10 +121,10 @@
 }
 
 .course-item.selected {
-  border: 2px solid #46a4c0; /* Adjust the color and thickness */
-  border-radius: 4px; /* Optional: add some border radius */
-  box-shadow: #8db0d4 0px 0px 10px; /* Optional: add a shadow */
-}
+  border: 2px solid #c0d8cd; /* Adjust the color and thickness */
+  border-radius: 13px; /* Optional: add some border radius */
+  box-shadow: #b2c5bc 0px 0px 3px;
+  background-color: #a4b8b0;}
 
 .returning {
   padding: 10px;
@@ -136,27 +147,33 @@
 
 /* Semester Spot Styles */
 .semester-spot {
-  min-width: 250px;
-  min-height: 500px;
-  background-color: #e9ecef;
+  min-width: 210px;
+  min-height: 400px;
+  background-color: #fdfafd;
   padding: 10px;
-  border: 2px dashed #ced4da;
-  border-radius: 5px;
+  border: 2px  #ced4da;
+  border-radius: 20px;
   transition: background-color 0.2s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+
 }
 
 .semester-spot:hover {
-  background-color: #d4edda;
+  background-color: #f3eef3;
 }
 
 /* Keep the header at the top */
 .semester-spot h3 {
   margin: 0;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   text-align: center;
+  font-size: 20px;
+  color: rgb(78, 108, 91);
+  font-family: Arial, sans-serif;
+  font-weight: bold;
 }
 
 /* Center the course items */
@@ -185,4 +202,90 @@
 
 .warning-icon {
   width: 25px;
+}
+/*---------------------------K R-------------------------*/
+
+/* When modal is open, blur the background (optional) */
+.timeline-container.blurred {
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+/* The overlay covers the entire screen */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* The modal itself */
+.modal-content {
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  position: relative;
+  min-width: 300px;
+  max-width: 500px;
+}
+
+/* Close button (the X) */
+.close-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.7rem;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+/* The + button at the top-right corner */
+.add-semester-button {
+  align-self: flex-start;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(156, 143, 143, 0.8);
+  color: #fff;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/*
+   Container that holds both the total credit and the trash button
+   at the bottom of each semester column.
+*/
+.semester-footer {
+
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Semester total credit on the left */
+.semester-credit {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.5rem;
+}
+
+/* The trash can button on the right */
+.remove-semester-btn {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem 0.5rem;
+  margin-left: 1rem;
 }
