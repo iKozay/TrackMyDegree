@@ -1,0 +1,35 @@
+.course-list-accordion {
+  --bs-accordion-active-bg: #912338;
+  --bs-accordion-active-color: white;
+  margin-bottom: 10px;
+}
+
+.course-list-div {
+  margin: 20px 0 50px 50px;
+}
+
+.course-list-dropdown-toggle {
+  background-color: #912338 !important;
+  color: white;
+  border-color: transparent !important;
+}
+
+.course-list-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.course-list-card-body {
+  text-align: center;
+  padding: 15px 0 0 0;
+}
+
+.course-list-card {
+  position: fixed;
+  margin-right: 10px;
+}

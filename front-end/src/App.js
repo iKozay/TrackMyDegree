@@ -5,6 +5,7 @@ import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import UserPage from "./pages/UserPage";
 import CourseList from "./pages/CourseListPage";
+import UploadTranscript from "./pages/UploadTranscriptPage";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -53,6 +54,10 @@ function App() {
 							<Route
 								path="/courselist"
 								element={<CourseList />}
+							/>
+							<Route
+								path="/uploadTranscript"
+								element={<UploadTranscript />}
 							/>
 						</Routes>
 					</div>

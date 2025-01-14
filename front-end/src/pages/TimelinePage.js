@@ -20,6 +20,8 @@ import Container from 'react-bootstrap/Container';
 import soenCourses from '../course data/soen_courses';
 // import { FaExclamationTriangle } from 'react-icons/fa'; // Import warning icon
 import warningIcon from '../icons/warning.png'; // Import warning icon
+import '../css/TimelinePage.css';
+
 // Semesters are currently hard-coded
 // const semesters = [
 //   { id: 'fall2024', name: 'Fall 2024' },

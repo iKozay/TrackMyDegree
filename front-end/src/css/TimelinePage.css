@@ -1,0 +1,188 @@
+.timeline-page {
+  display: flex;
+  gap: 20px;
+  height: 70vh;
+  /* padding-bottom: %; */
+  padding: 2vh;
+}
+
+.timeline-page h3 {
+  text-align: center;
+}
+
+.course-list {
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-radius: 5px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 90%;
+}
+
+.timeline-left-bar {
+  max-width: 20%;
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-radius: 5px;
+  max-height: 100%;
+  align-items: center;
+  min-width: 300px;
+}
+
+.semesters {
+  flex: 3;
+  display: flex;
+  gap: 20px;
+  overflow-x: auto; /* Enable horizontal scrolling */
+  padding-bottom: 10px;
+}
+
+/* .semester {
+  
+} */
+
+.semesters-and-description {
+  min-width: 60%;
+  display: flex;
+  gap: 20px;
+}
+
+.description-space {
+  /* width: 20%; */
+  flex: 1;
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 5px;
+  width: 230px;
+  max-height: 100%;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.course-item {
+  padding: 10px;
+  margin: 5px auto;
+  background-color: #d1e7dd;
+  border: 1px solid #bcd0c7;
+  border-radius: 3px;
+  cursor: grab;
+  /* transition: transform 0.2s ease; */
+  display: flex;
+  justify-content: space-evenly;
+  max-height: 120px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 180px;
+}
+
+.course-item-overlay {
+  padding: 10px;
+  background-color: #d1e7dd;
+  border: 1px solid #bcd0c7;
+  border-radius: 3px;
+  cursor: grabbing;
+  display: flex;
+  justify-content: center;
+  width: 180px;
+  /* z-index: 9; */
+  /* max-width: 120px; */
+
+  border: 2px solid #46a4c0; /* Adjust the color and thickness */
+  border-radius: 4px; /* Optional: add some border radius */
+  box-shadow: #8db0d4 0px 0px 10px; /* Optional: add a shadow */
+}
+
+.course-item.dragging {
+  background-color: #ccc;
+  cursor: grabbing;
+}
+
+.course-item.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  border: 0px;
+}
+
+.course-item.dragging-from-semester {
+  opacity: 0;
+}
+
+.course-item.selected {
+  border: 2px solid #46a4c0; /* Adjust the color and thickness */
+  border-radius: 4px; /* Optional: add some border radius */
+  box-shadow: #8db0d4 0px 0px 10px; /* Optional: add a shadow */
+}
+
+.returning {
+  padding: 10px;
+  margin: 5px 0;
+  background-color: #d1e7dd;
+  border: 1px solid #bcd0c7;
+  border-radius: 3px;
+  cursor: grab;
+  /* transition: transform 0.2s ease; */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 230px;
+  max-height: 120px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Semester Spot Styles */
+.semester-spot {
+  min-width: 250px;
+  min-height: 500px;
+  background-color: #e9ecef;
+  padding: 10px;
+  border: 2px dashed #ced4da;
+  border-radius: 5px;
+  transition: background-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.semester-spot:hover {
+  background-color: #d4edda;
+}
+
+/* Keep the header at the top */
+.semester-spot h3 {
+  margin: 0;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* Center the course items */
+.course-items-container {
+  flex-grow: 1; /* Allows the container to grow and fill available space */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers items horizontally */
+  justify-content: center; /* Centers items vertically */
+}
+
+.no-scroll {
+  overflow: hidden !important;
+}
+
+.credits-display {
+  padding: 10px;
+  background-color: #f5f5f5;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.credits-display h4 {
+  margin: 0;
+}
+
+.warning-icon {
+  width: 25px;
+}

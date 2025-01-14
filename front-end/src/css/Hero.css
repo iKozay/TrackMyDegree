@@ -1,0 +1,34 @@
+.hero {
+  background-color: #f8f9fa;
+  padding: 100px 0;
+}
+
+.hero-title {
+  font-size: 4rem;
+  font-weight: 900;
+  color: #000;
+  text-shadow: 2px 2px #ccc;
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+}
+
+.hero-button {
+  margin-top: 20px;
+}
+
+.button-outline {
+  border: #000 1px solid;
+}
+
+.button-outline:hover {
+  /* background-color: #000; */
+  /* color: #fff; */
+  border: #000 1px solid;
+}
+
+.sign-in-container {
+  max-width: 60%;
+}
