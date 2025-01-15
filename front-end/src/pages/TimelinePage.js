@@ -519,8 +519,7 @@ const TimelinePage = () => {
 
                       <div className="semester-footer">
                         <div className="semester-credit">
-                          Total credit:
-                          {semesterCourses[semester.id]
+                          Total Credit: {semesterCourses[semester.id]
                               .map((cid) =>
                                   soenCourses
                                       .flatMap((s) => s.courseList)
@@ -545,7 +544,7 @@ const TimelinePage = () => {
                           >
                             <polyline points="3 6 5 6 21 6"/>
                             <path d="M19 6l-1.21 14.06A2 2 0 0 1 15.8 22H8.2a2 2 0 0 1-1.99-1.94L5 6m3 0V4a2 2 0 0 1 2-2h2
-      a2 2 0 0 1 2 2v2"/>
+                             a2 2 0 0 1 2 2v2"/>
                             <line x1="10" y1="11" x2="10" y2="17"/>
                             <line x1="14" y1="11" x2="14" y2="17"/>
                           </svg>
@@ -622,31 +621,47 @@ const TimelinePage = () => {
               >
                 ✕
               </button>
-              <h2>Add a Semester</h2>
+
+              <p>Add a semester</p>
+              <hr style={{ marginBottom: '1rem' }} />
+
+              {/* Container for the two selects */}
               <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-                <select
-                    value={selectedSeason}
-                    onChange={(e) => setSelectedSeason(e.target.value)}
-                >
-                  <option>Fall</option>
-                  <option>Winter</option>
-                  <option>Summer</option>
-                </select>
-                <select
-                    value={selectedYear}
-                    onChange={(e) => setSelectedYear(e.target.value)}
-                >
-                  {Array.from({ length: 6 }).map((_, i) => {
-                    const year = 2025 + i;
-                    return (
-                        <option key={year} value={year}>
-                          {year}
-                        </option>
-                    );
-                  })}
-                </select>
+                {/* Term Select */}
+                <div className="select-container">
+                  <label className="select-label">Term</label>
+                  <select
+                      value={selectedSeason}
+                      onChange={(e) => setSelectedSeason(e.target.value)}
+                  >
+                    <option>Fall</option>
+                    <option>Winter</option>
+                    <option>Summer</option>
+                  </select>
+                </div>
+
+                {/* Year Select */}
+                <div className="select-container">
+                  <label className="select-label">Year</label>
+                  <select
+                      value={selectedYear}
+                      onChange={(e) => setSelectedYear(e.target.value)}
+                  >
+                    {Array.from({ length: 6 }).map((_, i) => {
+                      const year = 2025 + i;
+                      return (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
+                      );
+                    })}
+                  </select>
+                </div>
               </div>
-              <button onClick={handleAddSemester}>Add Semester</button>
+
+              <button className="TL-button" onClick={handleAddSemester}>
+                Add new semester
+              </button>
             </div>
           </div>
       )}

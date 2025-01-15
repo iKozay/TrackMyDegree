@@ -211,7 +211,7 @@
   pointer-events: none;
 }
 
-/* The overlay covers the entire screen */
+/* ------------- Modal Overlay & Content ------------- */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -225,17 +225,20 @@
   z-index: 9999;
 }
 
-/* The modal itself */
 .modal-content {
   background-color: #fff;
-  padding: 1.5rem;
+  padding: 1.9rem;
   border-radius: 8px;
   position: relative;
   min-width: 300px;
   max-width: 500px;
+  font-size: 18px;
+  color: rgb(78, 108, 91);
+  font-family: Arial, sans-serif;
+  font-weight: bold;
 }
 
-/* Close button (the X) */
+/* ------------- Close Button ------------- */
 .close-button {
   position: absolute;
   top: 0.5rem;
@@ -245,6 +248,80 @@
   font-size: 1.3rem;
   cursor: pointer;
 }
+
+/* ------------- "Add new semester" Button ------------- */
+.TL-button {
+  background-color: rgba(156, 143, 143, 0.8);
+  color: white;
+  border-radius: 12px;
+  border: none;
+  padding: 5px;
+  width: 40%;
+  margin-left: 280px; /* adjust based on your layout */
+  margin-bottom: 0px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.TL-button:hover {
+  background-color: rgba(156, 143, 143, 1);
+}
+
+.select-container {
+  display: flex;
+  flex-direction: column; /* label on top, select below */
+}
+
+.select-label {
+  margin-bottom: 6px;     /* space between label & select */
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  font-weight: normal;    /* can keep bold if you prefer */
+  color: rgb(78, 108, 91);
+}
+
+/* ------------- Select Elements in the Modal ------------- */
+.modal-content select {
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  color: rgb(78, 108, 91);
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: none;
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;  /* Remove default arrow in Chrome/Safari */
+  -moz-appearance: none;     /* Remove default arrow in Firefox */
+  appearance: none;
+  margin-right: 4px;
+  transition: border-color 0.2s ease;
+  margin-right: 4px;
+  margin-top:5px;
+  width: 120px;
+  border-color: rgba(156, 143, 143, 0.8);
+  box-shadow: 0 0 3px rgba(156, 143, 143, 0.3);
+  background:
+          url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWw0IDQgNC00IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+")
+          no-repeat
+          right 0.75em center / 0.65em;
+  transition: border-color 0.2s ease;
+}
+
+/* On focus (clicked) or hover, highlight border */
+.modal-content select:focus,
+.modal-content select:hover {
+  border-color: rgba(156, 143, 143, 0.8);
+  box-shadow: 0 0 3px rgba(156, 143, 143, 0.3);
+}
+
+.modal-content select option {
+  background-color: #fff;
+  color: rgb(78, 108, 91);
+  font-size: 16px;
+
+}
+
 
 /* The + button at the top-right corner */
 .add-semester-button {
@@ -278,6 +355,9 @@
 .semester-credit {
   font-size: 0.8rem;
   padding: 0.3rem 0.5rem;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  color: rgb(78, 108, 91);
 }
 
 /* The trash can button on the right */
@@ -298,3 +378,4 @@
 .remove-semester-btn:hover {
   background-color: #dacece;
 }
+
