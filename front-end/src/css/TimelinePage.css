@@ -39,6 +39,7 @@
   background-color: #faf0f0;
   border-radius: 10px;
   margin: 0px;
+  width: 70%;
 }
 
 .semester {
@@ -46,7 +47,7 @@
 }
 
 .semesters-and-description {
-  min-width: 60%;
+  min-width: 80%;
   display: flex;
   align-items: flex-start;
   gap: 20px;
@@ -58,8 +59,7 @@
   background-color: #f8f9fa;
   padding: 20px;
   border-radius: 25px;
-  width: 230px;
-  max-height: 100%;
+  width: 70%;
   overflow-y: auto;
   z-index: 10;
   height:100%;
@@ -282,10 +282,19 @@
 
 /* The trash can button on the right */
 .remove-semester-btn {
-  font-size: 1.5rem;
   background: none;
   border: none;
+  border-radius: 15px;
   cursor: pointer;
-  padding: 0.3rem 0.5rem;
+  color: #616161;       /* sets the "currentColor" for the SVG */
+  font-size: 1.5rem; /* scales the icon if using em */
   margin-left: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+}
+
+.remove-semester-btn:hover {
+  background-color: #dacece;
 }

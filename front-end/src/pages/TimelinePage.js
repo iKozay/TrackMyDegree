@@ -175,9 +175,32 @@ const TimelinePage = () => {
   const sensors = useSensors(mouseSensor);
 
   // ---------------- ADD / REMOVE Semesters ----------------
+  const SEASON_ORDER = {
+    Fall: 1,
+    Winter: 2,
+    Summer: 3,
+  };
+
+  function compareSemesters(a, b) {
+    // a.name might be "Fall 2026" => [ "Fall", "2026" ]
+    const [seasonA, yearA] = a.name.split(' ');
+    const [seasonB, yearB] = b.name.split(' ');
+
+    // Convert year from string to number
+    const yearNumA = parseInt(yearA, 10);
+    const yearNumB = parseInt(yearB, 10);
+
+    // First compare the numeric year
+    if (yearNumA !== yearNumB) {
+      return yearNumA - yearNumB;
+    }
+    // If same year, compare season order
+    return SEASON_ORDER[seasonA] - SEASON_ORDER[seasonB];
+  }
+
   const handleAddSemester = () => {
     const seasonLower = selectedSeason.toLowerCase();
-    const id = `${seasonLower}${selectedYear}`; // "fall2025"
+    const id = `${seasonLower}${selectedYear}`;
     const name = `${selectedSeason} ${selectedYear}`;
 
     // Prevent duplicates
@@ -186,10 +209,13 @@ const TimelinePage = () => {
       return;
     }
 
-    // Add the new semester
-    setSemesters((prev) => [...prev, { id, name }]);
+    // 1) Add the new semester to the "semesters" array, then sort
+    setSemesters((prev) => {
+      const newSemesters = [...prev, { id, name }];
+      newSemesters.sort(compareSemesters);
+      return newSemesters;
+    });
 
-    // Initialize course list
     setSemesterCourses((prev) => {
       if (!prev[id]) {
         return { ...prev, [id]: [] };
@@ -197,7 +223,6 @@ const TimelinePage = () => {
       return prev;
     });
 
-    // Close modal
     setIsModalOpen(false);
   };
 
@@ -508,8 +533,25 @@ const TimelinePage = () => {
                             className="remove-semester-btn"
                             onClick={() => handleRemoveSemester(semester.id)}
                         >
-                          🗑
+                          <svg
+                              width="1.2em"
+                              height="1.2em"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                          >
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-1.21 14.06A2 2 0 0 1 15.8 22H8.2a2 2 0 0 1-1.99-1.94L5 6m3 0V4a2 2 0 0 1 2-2h2
+      a2 2 0 0 1 2 2v2"/>
+                            <line x1="10" y1="11" x2="10" y2="17"/>
+                            <line x1="14" y1="11" x2="14" y2="17"/>
+                          </svg>
                         </button>
+
+
                       </div>
                     </Droppable>
                   </div>
