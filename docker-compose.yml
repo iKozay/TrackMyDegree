@@ -38,11 +38,11 @@ services:
       - SQL_SERVER_DATABASE=master
     depends_on:
       - sqlserver
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/test-db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8000/test-db"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
