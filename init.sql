@@ -128,7 +128,7 @@ VALUES ('1', 'COMP335', '1'),  -- CourseID 1 linked to CoursePoolID 1
 -- User table (changed from AppUser to [User])
 INSERT INTO AppUser (id, email, password, firstname, lastname, degree, type)
 VALUES ('1', 'jd1@concordia.ca', '1234', 'John', 'Doe', '1', 'student'),
-       ('2', 'jd2@concordia.ca', '5678', 'Jane', 'Doe', '', 'advisor');
+       ('2', 'jd2@concordia.ca', '5678', 'Jane', 'Doe', NULL, 'advisor');
 
 -- Timeline table
 INSERT INTO Timeline (id, season, year, coursecode, user_id)
