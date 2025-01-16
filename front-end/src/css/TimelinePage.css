@@ -366,8 +366,8 @@
   border: none;
   border-radius: 15px;
   cursor: pointer;
-  color: #616161;       /* sets the "currentColor" for the SVG */
-  font-size: 1.5rem; /* scales the icon if using em */
+  color: #616161;
+  font-size: 1.5rem;
   margin-left: 1rem;
   display: flex;
   align-items: center;
@@ -378,4 +378,28 @@
 .remove-semester-btn:hover {
   background-color: #dacece;
 }
+
+.exceeding-credit-limit {
+  animation: shake 0.4s ease-in-out 0s 2;
+  min-width: 210px;
+  min-height: 400px;
+  /*background-color: #efeaef;*/
+  border-radius: 20px;
+  padding: 10px;
+  transition: background-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+/* Keyframes for the shaking effect */
+@keyframes shake {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-5px, 0); }
+  40% { transform: translate(5px, 0); }
+  60% { transform: translate(-5px, 0); }
+  80% { transform: translate(5px, 0); }
+  100% { transform: translate(0, 0); }
+}
+
 

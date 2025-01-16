@@ -150,7 +150,7 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 // Main component
 const TimelinePage = () => {
   const [semesters, setSemesters] = useState([]);
-  const [semesterCourses, setSemesterCourses] = useState({});
+  const [semesterCourses, setSemesterCourses] = useState({courseList: [],});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -173,6 +173,9 @@ const TimelinePage = () => {
   });
 
   const sensors = useSensors(mouseSensor);
+
+  const [shakingSemesterId, setShakingSemesterId] = useState(null);
+
 
   // ---------------- ADD / REMOVE Semesters ----------------
   const SEASON_ORDER = {
@@ -237,6 +240,7 @@ const TimelinePage = () => {
 // ----------------------------------------------------------------------
   const isCourseAssigned = (courseId) => {
     for (const semesterId in semesterCourses) {
+      if (semesterId === "courseList") continue;
       if (semesterCourses[semesterId].includes(courseId)) {
         return true;
       }
@@ -268,6 +272,13 @@ const TimelinePage = () => {
       }
     }
     return null;
+  };
+
+  const shakeSemester = (semId) => {
+    setShakingSemesterId(semId);
+    setTimeout(() => {
+      setShakingSemesterId(null);
+    }, 2000);
   };
 
   const handleDragEnd = (event) => {
@@ -317,6 +328,39 @@ const TimelinePage = () => {
           if (overSemesterId) {
             // Insert into new semester
             updatedSemesters[overSemesterId].splice(overIndex, 0, id);
+          }
+
+          //check if we exceed the limit
+          const overSemesterObj = semesters.find((s) => s.id === overSemesterId);
+          if (!overSemesterObj) return prevSemesters; // safety check
+
+          // Sum up the credits in the new semester
+          const thisSemesterCourses = updatedSemesters[overSemesterId];
+          let sumCredits = 0;
+          for (let cId of thisSemesterCourses) {
+            const course = soenCourses
+                .flatMap((section) => section.courseList)
+                .find((c) => c.id === cId);
+            if (course?.credits) {
+              sumCredits += course.credits;
+            }
+          }
+
+          // Compare with max
+          const maxAllowed = getMaxCreditsForSemesterName(overSemesterObj.name);
+          if (sumCredits > maxAllowed) {
+            // 1) Shake the semester
+            shakeSemester(overSemesterId);
+
+            // 2) Move the course back to the course list
+            // We can directly remove it from updatedSemesters or call handleReturn
+            updatedSemesters[overSemesterId] =
+                updatedSemesters[overSemesterId].filter((cid) => cid !== id);
+
+            // Then add it to the courseList
+            updatedSemesters['courseList'].push(id);
+
+            return updatedSemesters;
           }
 
           return updatedSemesters;
@@ -419,6 +463,14 @@ const TimelinePage = () => {
       scheduledCourses.includes(prereqId)
     );
   };
+  //The Gina Cody School of Engineering and Computer Science at Concordia University has the following credit limits for full-time students:
+  //limit is 14 summer; Fall Winter 15.
+  function getMaxCreditsForSemesterName(semesterName) {
+    if (semesterName.toLowerCase().includes("summer")) {
+      return 14;
+    }
+    return 15;
+  }
 
   // ----------------------------------------------------------------------------------------------------------------------
   return (
@@ -483,7 +535,9 @@ const TimelinePage = () => {
 
             <div className="semesters">
               {semesters.map((semester, index) => (
-                  <div key={semester.id}>
+                  <div key={semester.id} className={`semester ${
+                      shakingSemesterId === semester.id ? 'exceeding-credit-limit' : ''
+                  }`}>
                     <Droppable id={semester.id} color="pink">
                       <h3>{semester.name}</h3>
                       <SortableContext
