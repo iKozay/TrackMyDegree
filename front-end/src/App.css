@@ -32,6 +32,7 @@ footer {
   opacity: 1;
 }
 
+
 /* Reserve space for the scrollbar */
 .course-list,
 .semesters,
@@ -51,8 +52,8 @@ footer {
 .course-list::-webkit-scrollbar-thumb,
 .semesters::-webkit-scrollbar-thumb,
 .description-space::-webkit-scrollbar-thumb {
-  background-color: rgba(145, 35, 56, 0.8); /* Dark red color */
-  border-radius: 10px; /* Fully round the ends of the scrollbar */
+  background-color: rgba(179, 163, 163, 0.8);
+  border-radius: 15px; /* Fully round the ends of the scrollbar */
   opacity: 0; /* Start hidden */
   transition: opacity 0.3s ease;
 }
@@ -68,3 +69,5 @@ footer {
     0.1
   ); /* Transparent background for track */
 }
+
+
