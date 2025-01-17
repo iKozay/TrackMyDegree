@@ -1,14 +1,17 @@
 const request = require("supertest");
 
+const url = process.DOCKER_URL || "host.docker.internal:8000";
+
 describe("POST /auth/signup", () => {
 	it("should return a successful signup message and user details", async () => {
-		const response = await request("http://localhost:8000")
+		const response = await request(url)
 			.post("/auth/signup")
 			.send({
 				email: "example@example.com",
 				password: "pass",
 				fullname: "Random User",
 				type: "student",
+				degree: "CS"
 			})
 			.expect("Content-Type", /json/)
 			.expect(201);
@@ -24,7 +27,7 @@ describe("POST /auth/signup", () => {
 
 	// Invalid request, missing fields
 	it("should return a 500 error message", async () => {
-		const response = await request("http://localhost:8000")
+		const response = await request(url)
 			.post("/auth/signup")
 			.send({
 				email: "example@example.com",
