@@ -6,6 +6,7 @@ import SignUpPage from "./pages/SignUpPage";
 import UserPage from "./pages/UserPage";
 import CourseList from "./pages/CourseListPage";
 import UploadTranscript from "./pages/UploadTranscriptPage";
+import UploadAcceptanceLetter from "./pages/UploadAcceptanceLetter";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -44,12 +45,8 @@ function App() {
 								}
 							/>
 							<Route
-								path="/timeline"
-								element={
-									<ProtectedRoute>
-										<TimelinePage />
-									</ProtectedRoute>
-								}
+								path="/timeline_change"
+								element={<TimelinePage />}
 							/>
 							<Route
 								path="/courselist"
@@ -58,6 +55,10 @@ function App() {
 							<Route
 								path="/uploadTranscript"
 								element={<UploadTranscript />}
+							/>
+							<Route 
+								path="/timeline_initial"
+								element={<UploadAcceptanceLetter />}
 							/>
 						</Routes>
 					</div>
