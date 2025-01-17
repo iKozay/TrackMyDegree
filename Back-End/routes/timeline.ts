@@ -10,7 +10,7 @@ const router = express.Router();
 router.post('/create', async (req: Request, res: Response) => {
   const payload: TimelineTypes.UserTimeline = req.body;                                                         
 
-  if( ! payload ) {
+  if( ( ! payload ) || ( Object.keys(payload).length < 2 ) ) {
     res.status(HTTP.BAD_REQUEST).json
     ({ error: "Payload of type UserTimeline is required for create." });
 
@@ -93,24 +93,17 @@ router.post('/delete', async (req: Request, res: Response) => {
   }
 
   try {
-    const result = await timelineController
+    const response = await timelineController
                   .removeTimelineItem(timeline_item_id);
 
-    switch (result) {
-      case DB_OPS.SUCCESS:
-        res.status(HTTP.OK).json({ message: "Item removed from timeline" });
-      break;
-    
-      case DB_OPS.MOSTLY_OK:
-        res.status(HTTP.NOT_FOUND).json({ error: "Item not found in timeline" });
-      break;
-
-      case DB_OPS.FAILURE:
-        throw new Error("Timeline item could not be deleted");
-      break;
-
-      default:
-      break;
+    if( DB_OPS.SUCCESS === response ) {
+      res.status(HTTP.OK).json({ message: "Item removed from timeline" });
+    } 
+    if( DB_OPS.MOSTLY_OK === response ) {
+      res.status(HTTP.NOT_FOUND).json({ error: "Item not found in timeline" });
+    }
+    if( DB_OPS.FAILURE === response ) {
+      throw new Error("Timeline item could not be deleted");
     }
 
   } catch ( error ) {
