@@ -10,6 +10,7 @@ import authRouter from "@routes/auth";
 import coursesRouter from "@routes/courses";
 import degreeRouter from "@routes/degree";
 import timelineRouter from "@routes/timeline";
+import AppUser from "@routes/appUser";
 
 
 //Dev Consts
@@ -49,6 +50,8 @@ app.use("/auth", authRouter);
 app.use("/courses", coursesRouter);
 app.use("/degree", degreeRouter);
 app.use("/timeline", timelineRouter);
+app.use("/appUser", AppUser);
+
 
 /**
  * DB test route
