@@ -22,15 +22,6 @@ import soenCourses from '../course data/soen_courses';
 import warningIcon from '../icons/warning.png'; // Import warning icon
 import '../css/TimelinePage.css';
 
-// Semesters are currently hard-coded
-// const semesters = [
-//   { id: 'fall2024', name: 'Fall 2024' },
-//   { id: 'winter2025', name: 'Winter 2025' },
-//   { id: 'summer2025', name: 'Summer 2025' },
-//   { id: 'fall2025', name: 'Fall 2025' },
-//   { id: 'winter2026', name: 'Winter 2026' },
-// ];
-
 // DraggableCourse component for course list items
 const DraggableCourse = ({
   id,
@@ -179,9 +170,9 @@ const TimelinePage = () => {
 
   // ---------------- ADD / REMOVE Semesters ----------------
   const SEASON_ORDER = {
-    Fall: 1,
-    Winter: 2,
-    Summer: 3,
+    Winter: 1,
+    Summer: 2,
+    Fall: 3,
   };
 
   function compareSemesters(a, b) {
@@ -688,9 +679,9 @@ const TimelinePage = () => {
                       value={selectedSeason}
                       onChange={(e) => setSelectedSeason(e.target.value)}
                   >
-                    <option>Fall</option>
                     <option>Winter</option>
                     <option>Summer</option>
+                    <option>Fall</option>
                   </select>
                 </div>
 
@@ -701,8 +692,8 @@ const TimelinePage = () => {
                       value={selectedYear}
                       onChange={(e) => setSelectedYear(e.target.value)}
                   >
-                    {Array.from({ length: 6 }).map((_, i) => {
-                      const year = 2025 + i;
+                    {Array.from({ length: 10 }).map((_, i) => {
+                      const year = 2020 + i;
                       return (
                           <option key={year} value={year}>
                             {year}
