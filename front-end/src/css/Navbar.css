@@ -70,8 +70,54 @@
 .rounded {
   border-radius: 50px;
 }
+@media (max-width: 990px) {
+  .navbar-collapse {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100%;
+    width: 300px;
+    background-color: #912338;
+    transition: right 0.3s ease;
+    z-index: 1050;
+  }
 
-@media (max-width: 1200px) {
+  .navbar-collapse.show {
+    right: 0;
+  }
+
+  body.menu-open {
+    overflow: hidden; /* Prevent scrolling when menu is open */
+  }
+
+  .navbar-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .navbar-right-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .navbar-button {
+    width: 90%;
+    margin-bottom: 10px;
+  }
+
+  .navbar-toggler {
+    display: block;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+  }
+}
+
+@media (max-width: 1400px) {
   /* Adjust navbar links for smaller screens */
   .custom-nav-links {
     margin-left: 0;
@@ -81,11 +127,10 @@
 
   /* Toggler and menu icon styling */
   .navbar-toggler {
-    border-color: #ecf0f1;
-  }
-
-  .navbar-toggler-icon {
-    background-color: #ecf0f1;
+    background-color: #3ce7e4; /* Set your desired background color */
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
   }
 
   /* Align the navbar items to the center */
