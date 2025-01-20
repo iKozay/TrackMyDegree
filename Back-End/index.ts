@@ -8,7 +8,6 @@ import HTTP from "@Util/HTTPCodes";
 //Routes import
 import authRouter from "@routes/auth";
 import coursesRouter from "@routes/courses";
-import degreeRouter from "@routes/degree"
 import exemptionRouter from "@routes/exemption"
 import deficiencyRouter from "@routes/deficiency"
 import degreeRouter from "@routes/degree";
