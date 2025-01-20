@@ -5,23 +5,23 @@ import deficiencyController from "@controllers/deficiencyController/deficiencyCo
 const router = express.Router();
 
 router.post('/create', async (req: Request, res: Response) => {
-    const { id, coursepool, user_id, creditsRequired } = req.body
+    const { coursepool, user_id, creditsRequired } = req.body
   
     try {
       // Validate input
-      if (!id || !coursepool || !user_id || !creditsRequired 
-        || typeof coursepool !== 'string' || typeof id !== 'string' 
+      if (!coursepool || !user_id || !creditsRequired 
+        || typeof coursepool !== 'string' 
         || typeof user_id !== 'string' 
         || typeof creditsRequired !== 'number') {
 
         res.status(HTTP.BAD_REQUEST).json({
-          error: 'Invalid input. Please provide id, coursepool, user_id, and creditsRequired in valid format.',
+          error: 'Invalid input. Please provide coursepool, user_id, and creditsRequired in valid format.',
         });
         return;
       }
   
       // Call the service function
-      const newDeficiency = await deficiencyController.createDeficiency(id, coursepool, user_id, creditsRequired);
+      const newDeficiency = await deficiencyController.createDeficiency(coursepool, user_id, creditsRequired);
   
       // Send success response
       res.status(HTTP.CREATED).json({
@@ -30,7 +30,7 @@ router.post('/create', async (req: Request, res: Response) => {
       });
     } catch (error) {
       // Handle errors from the service
-      if (error instanceof Error && error.message === 'Deficiency with this id or name already exists.') {
+      if (error instanceof Error) {
         res.status(HTTP.FORBIDDEN).json({ error: error.message });
       } else {
         const errMsg = 'Internal server error in /deficiency/create';
@@ -41,20 +41,20 @@ router.post('/create', async (req: Request, res: Response) => {
   });
   
 
-  router.get('/read', async (req: Request, res: Response) => {
-    const { id } = req.body;
+  router.post('/getAll', async (req: Request, res: Response) => {
+    const { user_id } = req.body;
   
     try {
       // Validate input
-      if (!id || typeof id !== 'string') {
+      if (!user_id || typeof user_id !== 'string') {
         res.status(HTTP.BAD_REQUEST).json({
-          error: 'Invalid input. Please provide id as a string.',
+          error: 'Invalid input. Please provide user_id as a string.',
         });
         return;
       }
   
       // Call the service function
-      const newDeficiency = await deficiencyController.readDeficiency(id);
+      const newDeficiency = await deficiencyController.getAllDeficienciesByUser(user_id);
   
       // Send success response
       res.status(HTTP.OK).json({
@@ -63,45 +63,10 @@ router.post('/create', async (req: Request, res: Response) => {
       });
     } catch (error) {
       // Handle errors from the service
-      if (error instanceof Error && error.message === 'Deficiency with this id does not exist.') {
+      if (error instanceof Error) {
         res.status(HTTP.FORBIDDEN).json({ error: error.message });
       } else {
-        const errMsg = 'Internal server error in /deficiency/read';
-        console.error(errMsg, error);
-        res.status(HTTP.SERVER_ERR).json({ error: errMsg });
-      }
-    }
-  });
-
-  router.put('/update', async (req: Request, res: Response) => {
-    const { id, coursepool, user_id, creditsRequired } = req.body;
-  
-    try {
-      // Validate input
-      if (!id || !coursepool || !user_id || !creditsRequired 
-        || typeof coursepool !== 'string' || typeof id !== 'string' 
-        || typeof user_id !== 'string' 
-        || typeof creditsRequired !== 'number') {
-        res.status(HTTP.BAD_REQUEST).json({
-          error: 'Invalid input.',
-        });
-        return;
-      }
-  
-      // Call the service function
-      const updatedDeficiency = await deficiencyController.updateDeficiency(id, coursepool, user_id, creditsRequired);
-  
-      // Send success response
-      res.status(HTTP.OK).json({
-        message: 'Deficiency updated successfully.',
-        deficiency: updatedDeficiency,
-      });
-    } catch (error) {
-      // Handle errors from the service
-      if (error instanceof Error && error.message === 'Deficiency with this id does not exist.') {
-        res.status(HTTP.FORBIDDEN).json({ error: error.message });
-      } else {
-        const errMsg = 'Internal server error in /deficiency/update';
+        const errMsg = 'Internal server error in /deficiency/getAll';
         console.error(errMsg, error);
         res.status(HTTP.SERVER_ERR).json({ error: errMsg });
       }
@@ -109,11 +74,11 @@ router.post('/create', async (req: Request, res: Response) => {
   });
 
   router.post('/delete', async (req: Request, res: Response) => {
-    const { id } = req.body;
+    const { coursepool, user_id } = req.body;
   
     try {
       // Validate input
-      if (!id || typeof id !== 'string') {
+      if (!coursepool || !user_id || typeof coursepool !== 'string' || typeof user_id !== 'string') {
         res.status(HTTP.BAD_REQUEST).json({
           error: 'Invalid input. Please provide id as a string.',
         });
@@ -121,7 +86,7 @@ router.post('/create', async (req: Request, res: Response) => {
       }
   
       // Call the service function
-        await deficiencyController.deleteDeficiency(id);
+        await deficiencyController.deleteDeficiencyByCoursepoolAndUserId(coursepool, user_id);
   
       // Send success response
       res.status(HTTP.OK).json({
