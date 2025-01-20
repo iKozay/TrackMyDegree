@@ -18,13 +18,25 @@ export const getUserData = async (req: Request, res: Response): Promise<void> =>
     }
 
     try {
+        // Check if the user exists
+        const userCheckResult = await conn.request()
+            .input("id", Database.msSQL.VarChar, id)
+            .query(
+                `SELECT id FROM AppUser WHERE id = @id`
+            );
+
+        if (userCheckResult.recordset.length === 0) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
+
         // Fetch timeline
         const timelineResult = await conn.request()
             .input("id", Database.msSQL.VarChar, id)
             .query(
                 `SELECT season, year, coursecode 
-         FROM Timeline 
-         WHERE user_id = @id`
+                 FROM Timeline 
+                 WHERE user_id = @id`
             );
 
         // Fetch deficiencies
@@ -32,8 +44,8 @@ export const getUserData = async (req: Request, res: Response): Promise<void> =>
             .input("id", Database.msSQL.VarChar, id)
             .query(
                 `SELECT coursepool, creditsRequired 
-         FROM Deficiency 
-         WHERE user_id = @id`
+                 FROM Deficiency 
+                 WHERE user_id = @id`
             );
 
         // Fetch exemptions
@@ -41,8 +53,8 @@ export const getUserData = async (req: Request, res: Response): Promise<void> =>
             .input("id", Database.msSQL.VarChar, id)
             .query(
                 `SELECT coursecode 
-         FROM Exemption 
-         WHERE user_id = @id`
+                 FROM Exemption 
+                 WHERE user_id = @id`
             );
 
         // Fetch degree
@@ -50,9 +62,9 @@ export const getUserData = async (req: Request, res: Response): Promise<void> =>
             .input("id", Database.msSQL.VarChar, id)
             .query(
                 `SELECT Degree.id, Degree.name, Degree.totalCredits 
-         FROM AppUser 
-         JOIN Degree ON AppUser.degree = Degree.id 
-         WHERE AppUser.id = @id`
+                 FROM AppUser 
+                 JOIN Degree ON AppUser.degree = Degree.id 
+                 WHERE AppUser.id = @id`
             );
 
         // Combine data into a structured response
