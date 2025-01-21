@@ -3,7 +3,6 @@ import timelineController             from "@controllers/timelineController/time
 import TimelineTypes                  from "@controllers/timelineController/timeline_types";
 import DB_OPS                         from "@Util/DB_Ops";
 import HTTP                           from "@Util/HTTPCodes";
-import { error } from "console";
 
 const router = express.Router();
 
