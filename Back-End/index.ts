@@ -6,10 +6,11 @@ import createError from "http-errors";
 import Database from "@controllers/DBController/DBController";
 import HTTP from "@Util/HTTPCodes";
 //Routes import
-import authRouter from "@routes/auth";
-import coursesRouter from "@routes/courses";
-import degreeRouter from "@routes/degree";
-import timelineRouter from "@routes/timeline";
+import authRouter       from "@routes/auth";
+import coursesRouter    from "@routes/courses";
+import degreeRouter     from "@routes/degree";
+import timelineRouter   from "@routes/timeline";
+import coursepoolRouter from "@routes/coursepool";
 
 
 //Dev Consts
@@ -45,10 +46,11 @@ app.use(cookieParser());
 
 
 //Routes
-app.use("/auth", authRouter);
-app.use("/courses", coursesRouter);
-app.use("/degree", degreeRouter);
-app.use("/timeline", timelineRouter);
+app.use("/auth"       , authRouter);
+app.use("/courses"    , coursesRouter);
+app.use("/degree"     , degreeRouter);
+app.use("/timeline"   , timelineRouter);
+app.use("/coursepool" , coursepoolRouter);
 
 /**
  * DB test route
