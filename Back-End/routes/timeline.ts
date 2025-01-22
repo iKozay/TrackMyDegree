@@ -45,7 +45,7 @@ router.post('/getAll', async (req: Request, res: Response) => {
     return;
   }
 
-  if( ! payload.timeline_item_id ) {
+  if( ! payload.user_id ) {
     res.status(HTTP.BAD_REQUEST).json
     ({ error: "Payload attributes cannot be empty" });
 
