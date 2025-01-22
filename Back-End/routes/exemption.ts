@@ -80,18 +80,17 @@ router.post('/create', async (req: Request, res: Response) => {
         !user_id || typeof user_id !== 'string'
       ) {
         res.status(HTTP.BAD_REQUEST).json({
-          error: 'Invalid input. Please provide id as a string.',
+          error: 'Invalid input. Please provide the parameters as a string.',
         });
         return;
       }
   
       // Call the service function
-      const newExemption = await exemptionController.deleteExemptionByCoursecodeAndUserId(coursecode, user_id);
+      await exemptionController.deleteExemptionByCoursecodeAndUserId(coursecode, user_id);
   
       // Send success response
       res.status(HTTP.OK).json({
-        message: 'Exemption deleted successfully.',
-        exemption: newExemption,
+        message: 'Exemption deleted successfully.'
       });
     } catch (error) {
       // Handle errors from the service
