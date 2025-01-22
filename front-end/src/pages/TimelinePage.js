@@ -339,21 +339,12 @@ const TimelinePage = () => {
 
           // Compare with max
           const maxAllowed = getMaxCreditsForSemesterName(overSemesterObj.name);
+
           if (sumCredits > maxAllowed) {
-            // 1) Shake the semester
+            // Optional: keep a visual shake
             shakeSemester(overSemesterId);
-
-            // 2) Move the course back to the course list
-            // We can directly remove it from updatedSemesters or call handleReturn
-            updatedSemesters[overSemesterId] =
-                updatedSemesters[overSemesterId].filter((cid) => cid !== id);
-
-            // Then add it to the courseList
-            updatedSemesters['courseList'].push(id);
-
-            return updatedSemesters;
+            // No revert. We still keep the course in the semester
           }
-
           return updatedSemesters;
         });
       }
@@ -526,7 +517,26 @@ const TimelinePage = () => {
           <div className="semesters-and-description">
 
             <div className="semesters">
-              {semesters.map((semester, index) => (
+              {semesters.map((semester, index) => {
+                // 1) Calculate total credits for this semester
+                const sumCredits = semesterCourses[semester.id]
+                    .map((cid) =>
+                        soenCourses
+                            .flatMap((s) => s.courseList)
+                            .find((sc) => sc.id === cid)?.credits || 0
+                    )
+                    .reduce((sum, c) => sum + c, 0);
+
+                // 2) Compare to max limit
+                const maxAllowed = getMaxCreditsForSemesterName(semester.name);
+                const isOver = sumCredits > maxAllowed;
+
+                // 3) “semester-credit” + conditionally add “over-limit-warning”
+                const creditClass = isOver
+                    ? "semester-credit over-limit-warning"
+                    : "semester-credit";
+
+                return (
                   <div key={semester.id} className={`semester ${
                       shakingSemesterId === semester.id ? 'exceeding-credit-limit' : ''
                   }`}>
@@ -564,14 +574,14 @@ const TimelinePage = () => {
                       </SortableContext>
 
                       <div className="semester-footer">
-                        <div className="semester-credit">
-                          Total Credit: {semesterCourses[semester.id]
-                              .map((cid) =>
-                                  soenCourses
-                                      .flatMap((s) => s.courseList)
-                                      .find((sc) => sc.id === cid)?.credits || 0
-                              )
-                              .reduce((sum, c) => sum + c, 0)}
+                        <div className={creditClass}>
+                          Total Credit: {sumCredits}
+                          {" "}
+                          {isOver && (
+                              <span>
+                                <br/> Over the credit limit 15
+                              </span>
+                          )}
                         </div>
 
                         <button
@@ -600,7 +610,7 @@ const TimelinePage = () => {
                       </div>
                     </Droppable>
                   </div>
-              ))}
+                )})}
             </div>
 
             <button

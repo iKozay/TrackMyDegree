@@ -158,6 +158,7 @@
   flex-direction: column;
   justify-content: space-evenly;
   box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 200px;
 
 }
 
@@ -359,6 +360,17 @@
   font-weight: bold;
   color: rgb(78, 108, 91);
 }
+.over-limit-warning {
+  color:  #912338;
+  font-weight: bold;
+  max-width: 200px;
+}
+
+/*.over-limit-warning span{*/
+/*  color:  #912338;*/
+/*  font-weight: bold;*/
+/*  margin-left: 49px;*/
+/*}*/
 
 /* The trash can button on the right */
 .remove-semester-btn {
