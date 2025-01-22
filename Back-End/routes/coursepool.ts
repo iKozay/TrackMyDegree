@@ -93,4 +93,44 @@ router.post('/get', async (req: Request, res: Response) => {
 
 });
 
+router.post('/update', async (req: Request, res: Response) => {
+  const payload:CoursePoolTypes.CoursePoolItem = req.body;
+
+  if( ( ! payload ) || ( Object.keys(payload).length < 2 ) ) {
+    res.status(HTTP.BAD_REQUEST).json
+    ({ error: "Payload of type CoursePoolItem is required for delete." });
+
+    return;
+  }
+
+  if( ( ! payload.id) || ( ! payload.name) ) {
+    res.status(HTTP.BAD_REQUEST).json
+    ({ error: "Payload attributes cannot be empty" });
+
+    return;
+  }
+
+  try {
+    const response = await coursepoolController.updateCoursePool(payload);
+
+    if( DB_OPS.SUCCESS === response ) {
+      res.status(HTTP.OK).json
+      ({ message: "CoursePool item updated successfully" });
+    } 
+    if( DB_OPS.MOSTLY_OK === response ) {
+      res.status(HTTP.NOT_FOUND).json
+      ({ error: "Item not found in CoursePool" });
+    }
+    if( DB_OPS.FAILURE === response ) {
+      throw new Error("CoursePool item could not be updated");
+    }
+
+  } catch ( error ) {
+    console.error("Error in /coursepool/update", error);
+    res.status(HTTP.SERVER_ERR).json
+    ({ error: "CoursePool item could not be updated" });
+  }
+
+});
+
 export default router;

@@ -85,10 +85,44 @@ Promise<CoursePoolTypes.CoursePoolItem | undefined> {
   return undefined;
 }
 
+async function updateCoursePool(update_info: CoursePoolTypes.CoursePoolItem):
+Promise<DB_OPS> {
+  const dbConn = await Database.getConnection();
+
+  if( dbConn ) {
+    const { id, name } = update_info; 
+
+    try {
+      const result = await dbConn.request()
+      .input('id'   , Database.msSQL.VarChar, id)
+      .input('name' , Database.msSQL.VarChar, name)
+      .query('UPDATE CoursePool  \
+              SET   name = @name \
+              OUTPUT INSERTED.id \
+              WHERE   id = @id');
+
+      if( (result.recordset.length > 0) && 
+          (id === result.recordset[0].id) ) {
+        return DB_OPS.SUCCESS;
+      }
+      else {
+        return DB_OPS.MOSTLY_OK;
+      }
+
+    } 
+    catch (error) {
+      log('Error in updating course pool item\n', error);
+    }
+  }
+
+  return DB_OPS.FAILURE;
+}
+
 const coursepoolController = {
   createCoursePool,
   getAllCoursePools,
-  getCoursePool
+  getCoursePool,
+  updateCoursePool
 };
 
 export default coursepoolController;
