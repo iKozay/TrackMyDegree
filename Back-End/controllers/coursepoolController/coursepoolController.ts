@@ -2,6 +2,7 @@ import Database         from '@controllers/DBController/DBController'
 import DB_OPS           from '@Util/DB_Ops'
 import CoursePoolTypes  from '@controllers/coursepoolController/coursepool_types'
 import { randomUUID }   from 'crypto'
+import { pool } from 'mssql';
 
 const log = console.log;
 
@@ -118,11 +119,39 @@ Promise<DB_OPS> {
   return DB_OPS.FAILURE;
 }
 
+async function removeCoursePool(pool_id: string): Promise<DB_OPS> {
+  const dbConn = await Database.getConnection();
+
+  if( dbConn ) {
+    try {
+      const result = await dbConn.request()
+          .input('id', Database.msSQL.VarChar, pool_id)
+          .query('DELETE FROM CoursePool\
+                  OUTPUT DELETED.id\
+                  WHERE id = @id');
+
+      if( (result.recordset.length > 0) && 
+          (result.recordset[0].id === pool_id) ) {
+        return DB_OPS.SUCCESS;
+      }
+      else {
+        return DB_OPS.MOSTLY_OK;
+      }
+    } 
+    catch (error) {
+      log('Error in updating course pool item\n', error);
+    }
+  }
+  
+  return DB_OPS.FAILURE;
+}
+
 const coursepoolController = {
   createCoursePool,
   getAllCoursePools,
   getCoursePool,
-  updateCoursePool
+  updateCoursePool,
+  removeCoursePool
 };
 
 export default coursepoolController;

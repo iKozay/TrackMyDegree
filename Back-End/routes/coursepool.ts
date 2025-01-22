@@ -41,7 +41,7 @@ router.post('/create', async (req: Request, res: Response) => {
       throw new Error("Error in establishing connection to database");
     }
   } 
-  catch (error) {
+  catch ( error ) {
     console.error("Error in /coursepool/create", error);
     res.status(HTTP.SERVER_ERR).json({ error: "CoursePool could not be created" });
   }
@@ -58,7 +58,7 @@ router.get('/getAll', async (req: Request, res: Response) => {
 
     res.status(HTTP.OK).json(response);
   } 
-  catch (error) {
+  catch ( error ) {
     console.error("Error in /coursepool/getAll", error);
     res.status(HTTP.SERVER_ERR).json
     ({ error: "Course Pools could not be fetched" });
@@ -98,7 +98,7 @@ router.post('/update', async (req: Request, res: Response) => {
 
   if( ( ! payload ) || ( Object.keys(payload).length < 2 ) ) {
     res.status(HTTP.BAD_REQUEST).json
-    ({ error: "Payload of type CoursePoolItem is required for delete." });
+    ({ error: "Payload of type CoursePoolItem is required for update." });
 
     return;
   }
@@ -131,6 +131,48 @@ router.post('/update', async (req: Request, res: Response) => {
     ({ error: "CoursePool item could not be updated" });
   }
 
+});
+
+router.post('/delete', async (req: Request, res: Response) => {
+  const payload = req.body;
+
+  if( ( ! payload ) || ( Object.keys(payload).length < 1 ) ) {
+    res.status(HTTP.BAD_REQUEST).json
+    ({ error: "ID is required to\
+               remove item from CoursePool." });
+
+    return;
+  }
+
+  if( ! payload.course_pool_id ) {
+    res.status(HTTP.BAD_REQUEST).json
+    ({ error: "Payload attributes cannot be empty" });
+
+    return;
+  }
+
+  const { course_pool_id } = payload;
+
+  try {
+    const response = await coursepoolController
+                  .removeCoursePool(course_pool_id);
+
+    if( DB_OPS.SUCCESS === response ) {
+      res.status(HTTP.OK).json({ message: "Item removed from CoursePool" });
+    } 
+    if( DB_OPS.MOSTLY_OK === response ) {
+      res.status(HTTP.NOT_FOUND).json({ error: "Item not found in CoursePool" });
+    }
+    if( DB_OPS.FAILURE === response ) {
+      throw new Error("CoursePool item could not be deleted");
+    }
+
+  } catch ( error ) {
+    console.error("Error in /coursepool/delete", error);
+    res.status(HTTP.SERVER_ERR).json
+    ({ error: "CoursePool item could not be deleted" });
+  }
+  
 });
 
 export default router;
