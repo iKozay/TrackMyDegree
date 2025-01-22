@@ -398,6 +398,7 @@ const TimelinePage = () => {
       let unmetPrereqFound = false;
 
       for (const semesterId in semesterCourses) {
+        if (semesterId === 'courseList') continue;
         const courseIds = semesterCourses[semesterId];
         const currentSemesterIndex = semesters.findIndex(
           (s) => s.id === semesterId
