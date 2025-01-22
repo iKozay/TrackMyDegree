@@ -1,6 +1,6 @@
 import Database         from '@controllers/DBController/DBController'
 import DB_OPS           from '@Util/DB_Ops'
-import CoursePoolTypes  from './coursepool_types'
+import CoursePoolTypes  from '@controllers/coursepoolController/coursepool_types'
 import { randomUUID }   from 'crypto'
 
 const log = console.log;
@@ -43,9 +43,52 @@ async function createCoursePool(pool_name: string): Promise<DB_OPS> {
   return DB_OPS.FAILURE;
 }
 
+async function getAllCoursePools():
+Promise<{course_pools: CoursePoolTypes.CoursePoolItem[]} | undefined> {
+  const dbConn = await Database.getConnection();
+
+  if( dbConn ) {
+    try {
+      const result = await dbConn.request()
+      .query('SELECT * FROM CoursePool');
+
+      return {
+        course_pools: result.recordset
+      };
+    } 
+    catch (error) {
+      log("Error fetching all course pools\n", error);
+    }
+  }
+
+  return undefined;
+}
+
+async function getCoursePool(pool_id: string):
+Promise<CoursePoolTypes.CoursePoolItem | undefined> {
+  const dbConn = await Database.getConnection();
+
+  if( dbConn ) {
+    try {
+      const result = await dbConn.request()
+      .input('id', Database.msSQL.VarChar, pool_id)
+      .query('SELECT * FROM CoursePool\
+              WHERE id = @id');
+
+      return result.recordset[0];
+    } 
+    catch (error) {
+      log("Error fetching course pool by ID\n", error);
+    }
+  }
+
+  return undefined;
+}
 
 const coursepoolController = {
-  createCoursePool
+  createCoursePool,
+  getAllCoursePools,
+  getCoursePool
 };
 
 export default coursepoolController;

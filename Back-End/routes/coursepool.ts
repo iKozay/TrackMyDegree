@@ -48,5 +48,49 @@ router.post('/create', async (req: Request, res: Response) => {
 
 });
 
+router.get('/getAll', async (req: Request, res: Response) => {
+  try {
+    const response = await coursepoolController.getAllCoursePools();
+
+    if( ! response ) {
+      res.status(HTTP.NOT_FOUND).json({ error: "No Course pools found" });
+    }
+
+    res.status(HTTP.OK).json(response);
+  } 
+  catch (error) {
+    console.error("Error in /coursepool/getAll", error);
+    res.status(HTTP.SERVER_ERR).json
+    ({ error: "Course Pools could not be fetched" });
+  }
+});
+
+router.post('/get', async (req: Request, res: Response) => {
+  const { course_pool_id } = req.body;
+
+  if( ! course_pool_id ) {
+    res.status(HTTP.BAD_REQUEST).json
+    ({ error: "Course Pool ID is required to get course pool." });
+
+    return;
+  }
+
+  try {
+    const response = await coursepoolController.getCoursePool(course_pool_id);
+    
+    if( response ) {
+      res.status(HTTP.OK).json(response);
+    }
+    else {
+      res.status(HTTP.NOT_FOUND).json({ error: "Course Pool not found" })
+    }
+  } 
+  catch (error) {
+    console.error("Error in /coursepool/get", error);
+    res.status(HTTP.SERVER_ERR).json
+    ({ error: "Could not retrieve Course Pool" });
+  }
+
+});
 
 export default router;
