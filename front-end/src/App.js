@@ -1,11 +1,12 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
-import SignInPage from "./pages/SignInPage";
+import LogInPage from "./pages/LogInPage";
 import SignUpPage from "./pages/SignUpPage";
 import UserPage from "./pages/UserPage";
 import CourseList from "./pages/CourseListPage";
 import UploadTranscript from "./pages/UploadTranscriptPage";
+import UploadAcceptanceLetter from "./pages/UploadAcceptanceLetter";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -14,6 +15,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
 import TimelinePage from "./pages/TimelinePage";
+// import LogInPage from "./pages/LogInPage";
 
 function App() {
 	return (
@@ -29,7 +31,7 @@ function App() {
 							/>
 							<Route
 								path="/signin"
-								element={<SignInPage />}
+								element={<LogInPage />}
 							/>
 							<Route
 								path="/signup"
@@ -44,12 +46,8 @@ function App() {
 								}
 							/>
 							<Route
-								path="/timeline"
-								element={
-									<ProtectedRoute>
-										<TimelinePage />
-									</ProtectedRoute>
-								}
+								path="/timeline_change"
+								element={<TimelinePage />}
 							/>
 							<Route
 								path="/courselist"
@@ -58,6 +56,10 @@ function App() {
 							<Route
 								path="/uploadTranscript"
 								element={<UploadTranscript />}
+							/>
+							<Route 
+								path="/timeline_initial"
+								element={<UploadAcceptanceLetter />}
 							/>
 						</Routes>
 					</div>
