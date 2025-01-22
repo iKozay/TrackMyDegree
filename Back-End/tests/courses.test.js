@@ -1,9 +1,11 @@
 const request = require("supertest");
 
+const url = process.DOCKER_URL || "host.docker.internal:8000";
+
 describe("Course Routes", () => {
     describe("GET /courses/getAll", () => {
         it("should return an array of all courses", async () => {
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/getAll")
                 .expect("Content-Type", /json/)
                 .expect(200);
@@ -30,7 +32,7 @@ describe("Course Routes", () => {
                 description: "Introduction to Computer Science",
             };
 
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/add")
                 .send(newCourse)
                 .expect("Content-Type", /json/)
@@ -42,7 +44,7 @@ describe("Course Routes", () => {
 
         // Bad request, missing fields
         it("should return 400 status and error message when course data is missing", async () => {
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/add")
                 .send({
                     code: "CS101"
@@ -61,7 +63,7 @@ describe("Course Routes", () => {
                 code: "CS101"
             };
 
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/get")
                 .send(courseRequest)
                 .expect("Content-Type", /json/)
@@ -78,7 +80,7 @@ describe("Course Routes", () => {
                 code: "CS999"
             };
 
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/get")
                 .send(courseRequest)
                 .expect("Content-Type", /json/)
@@ -89,7 +91,7 @@ describe("Course Routes", () => {
 
         // Bad request, missing fields
         it("should return 400 status and error message when code missing", async () => {
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/get")
                 .send({// missing code field
                 })
@@ -107,7 +109,7 @@ describe("Course Routes", () => {
                 code: "CS101"
             };
 
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/remove")
                 .send(courseRequest)
                 .expect("Content-Type", /json/)
@@ -122,7 +124,7 @@ describe("Course Routes", () => {
                 code: "CS999"
             };
 
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/remove")
                 .send(courseRequest)
                 .expect("Content-Type", /json/)
@@ -133,7 +135,7 @@ describe("Course Routes", () => {
 
         // Bad request, missing fields
         it("should return 400 status and error message when code missing", async () => {
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/remove")
                 .send({ // missing code field
                 })
