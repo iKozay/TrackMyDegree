@@ -139,7 +139,7 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 };
 
 // Main component
-const TimelinePage = () => {
+const TimelinePage = ({ timelineData }) => {
   const [semesters, setSemesters] = useState([]);
   const [semesterCourses, setSemesterCourses] = useState({});
 
@@ -164,6 +164,50 @@ const TimelinePage = () => {
   });
 
   const sensors = useSensors(mouseSensor);
+
+  // Process timelineData and generate semesters and courses
+  useEffect(() => {
+    const semesterMap = {};
+    const semesterNames = new Set();
+
+    // Group courses by semester
+    timelineData.forEach((data) => {
+      const { term, course } = data;
+
+      if (!semesterMap[term]) {
+        semesterMap[term] = [];
+      }
+      semesterMap[term].push(course);
+      semesterNames.add(term);
+    });
+
+    // Create an array of semesters sorted by term order
+    const sortedSemesters = Array.from(semesterNames).sort((a, b) => {
+      const order = { Winter: 1, Summer: 2, Fall: 3 };
+      const [seasonA, yearA] = a.split(' ');
+      const [seasonB, yearB] = b.split(' ');
+
+      if (yearA !== yearB) {
+        return parseInt(yearA) - parseInt(yearB);
+      }
+
+      return order[seasonA] - order[seasonB];
+    });
+
+    // Set state for semesters and courses
+    setSemesters(
+      sortedSemesters.map((term) => ({
+        id: term,
+        name: term,
+      }))
+    );
+
+    setSemesterCourses(
+      Object.fromEntries(
+        sortedSemesters.map((term) => [term, semesterMap[term] || []])
+      )
+    );
+  }, [timelineData]);
 
   // ---------------- ADD / REMOVE Semesters ----------------
   const SEASON_ORDER = {
