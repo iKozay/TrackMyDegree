@@ -1,0 +1,56 @@
+[
+    {
+        "title": "MIAE 211 Mechanical Engineering Drawing",
+        "credits": 3.5,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Thiscourseis anintroductionto graphiclanguageanddesign—meansandtechniques.Thefollowingtopicsarecovered:thethirdand the first angle projections; orthographic projection of points, lines, planes and solids; principal and auxiliary views; views in agiven direction; sectional views; intersection of lines, planes and solids; development of surfaces; drafting practices; dimensioning,fitsandtolerancing;computerâaideddrawingandsolidmodelling;workingdrawings— detailandassemblydrawing;designpractice;machineelements representation.",
+        "components": "Lecture 3 hours per week; Tutorial 2 hours per week â includes learning of a CAD software; Laboratory 2 hours per week, alternate weeks.",
+        "notes": "Students who have received credit for MECH 211 may not take this course for credit."
+    },
+    {
+        "title": "MIAE 215 Programming for Mechanical and Industrial Engineers",
+        "credits": 3.5,
+        "prerequisites": "MATH 204(Cegep mathematics 105).",
+        "corequisites": "",
+        "description": "This course focuses on writing programs using assignment and sequences; variables and types; operators and expressions; conditional and repetitive statements; input and output; file access; functions; program structure and organization; pointers and dynamic memory allocation; introduction to classes and objects; mechanical and industrial engineering applications.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 1 hour per week",
+        "notes": "Students who have received credit forCOEN 243or MECH 215 may not take this course for credit."
+    },
+    {
+        "title": "MIAE 221 Materials Science",
+        "credits": 3,
+        "prerequisites": "CHEM 205(Cegep Chemistry 101).",
+        "corequisites": "",
+        "description": "This course focuses on relationships between properties and internal structure, atomic bonding; molecular, crystalline and amorphous structures, crystalline imperfections and mechanisms of structural change; microstructures and their development from phase diagrams; structures and mechanical properties of polymers and ceramics; thermal and optical properties of materials.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
+        "notes": "Students who have received credit for MECH 221 may not take this course for credit."
+    },
+    {
+        "title": "MIAE 311 Manufacturing Processes",
+        "credits": 3,
+        "prerequisites": "MECH 313 orMIAE 313.",
+        "corequisites": "",
+        "description": "This course focuses on the fundamentals of manufacturing processes and their limitations, metrology, machine shop practice, safety and health considerations, forming, conventional machining and casting processes, welding and joining, plastic production, and non-conventional machining techniques; sustainable technologies.",
+        "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
+        "notes": "Students who have received credit for MECH 311 may not take this course for credit."
+    },
+    {
+        "title": "MIAE 313 Machine Drawing and Design",
+        "credits": 3.5,
+        "prerequisites": "MECH 211 orMIAE 211.",
+        "corequisites": "",
+        "description": "This course is an introduction to engineering design and design process. The following topics are covered: problem definition, solution formulation, model development and collaboration aspects of design process; the use of drawings and other graphical methods in the process of engineering design; industrial standards and specifications, design of fits, linear and geometrical tolerances. Design projects based on design philosophies will involve design and selection of many standard machine components like mechanical drives, cams, clutches, couplings, brakes, seals, fasteners, springs, and bearings. Drawing representation of standard components is also covered. Design projects are an integral part of this course.",
+        "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 12 hours total",
+        "notes": "Students who have received credit for MECH 313 may not take this course for credit."
+    },
+    {
+        "title": "MIAE 380 Product Design and Development",
+        "credits": 3,
+        "prerequisites": "MECH 211 orMIAE 211",
+        "corequisites": "ENCS 282",
+        "description": "This course focuses on development processes and organizations, product planning, identifying customer needs, product specifications, concept generation, concept selection, concept testing, product architecture, industrial design, design for manufacturing, prototyping robust design, patents and intellectual property.",
+        "components": "Lecture 3 hours per week",
+        "notes": "Students who have received credit for AERO 444 or INDU 440 may not take this course for credit."
+    }
+]
