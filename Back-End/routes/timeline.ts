@@ -20,10 +20,12 @@ router.post('/create', async (req: Request, res: Response) => {
     const response  = await timelineController.createTimeline(payload);
   
     if( DB_OPS.SUCCESS === response ) {
-      res.status(HTTP.CREATED).json({ res: "All courses added to user timeline" });
+      res.status(HTTP.CREATED).json
+      ({ res: "All courses added to user timeline" });
     } 
     if( DB_OPS.MOSTLY_OK === response ) {
-      res.status(HTTP.CREATED).json({ res: "Some courses were not added to user timeline" });
+      res.status(HTTP.CREATED).json
+      ({ res: "Some courses were not added to user timeline" });
     }
     if( DB_OPS.FAILURE === response ) {
       throw new Error("Error in establishing connection to database");
@@ -31,7 +33,8 @@ router.post('/create', async (req: Request, res: Response) => {
   } 
   catch (error) {
     console.error("Error in /timeline/create", error);
-    res.status(HTTP.SERVER_ERR).json({ error: "Timeline could not be created" });
+    res.status(HTTP.SERVER_ERR).json
+    ({ error: "Timeline could not be created" });
   }
 });
 
@@ -95,8 +98,8 @@ router.post('/delete', async (req: Request, res: Response) => {
 
   if( ( ! payload ) || ( Object.keys(payload).length < 1 ) ) {
     res.status(HTTP.BAD_REQUEST).json
-    ({ error: "Timeline item ID is required to\
-               remove item from timeline." });
+    ({ error: 
+    "Timeline item ID is required to remove item from timeline." });
 
     return;
   }

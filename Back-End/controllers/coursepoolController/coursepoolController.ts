@@ -139,7 +139,7 @@ async function removeCoursePool(pool_id: string): Promise<DB_OPS> {
       }
     } 
     catch (error) {
-      log('Error in updating course pool item\n', error);
+      log('Error in deleting course pool item\n', error);
     }
   }
   

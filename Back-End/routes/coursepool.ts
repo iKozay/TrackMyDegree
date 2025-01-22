@@ -9,22 +9,22 @@ const router = express.Router();
 router.post('/create', async (req: Request, res: Response) => {
   const payload = req.body;
 
-  if( ! payload ) {
+  if( ( ! payload ) || ( Object.keys(payload).length < 1 ) ) {
     res.status(HTTP.BAD_REQUEST).json
-    ({ error: "Payload containing name of coursepool\
-               is required for create." });
+    ({ error: 
+    "Payload containing name of coursepool is required for create." });
+
+    return;
+  }
+
+  if( ! payload.name ) {
+    res.status(HTTP.BAD_REQUEST).json
+    ({ error: "Payload attributes cannot be empty" });
 
     return;
   }
 
   const { name } = payload;
-
-  if( 0 === name.length ) {
-    res.status(HTTP.BAD_REQUEST).json
-    ({ error: "CoursePool name cannot be empty" });
-
-    return;
-  }
 
   try {
     const response = await coursepoolController.createCoursePool(name);
@@ -43,7 +43,8 @@ router.post('/create', async (req: Request, res: Response) => {
   } 
   catch ( error ) {
     console.error("Error in /coursepool/create", error);
-    res.status(HTTP.SERVER_ERR).json({ error: "CoursePool could not be created" });
+    res.status(HTTP.SERVER_ERR).json
+    ({ error: "CoursePool could not be created" });
   }
 
 });
@@ -138,8 +139,7 @@ router.post('/delete', async (req: Request, res: Response) => {
 
   if( ( ! payload ) || ( Object.keys(payload).length < 1 ) ) {
     res.status(HTTP.BAD_REQUEST).json
-    ({ error: "ID is required to\
-               remove item from CoursePool." });
+    ({ error: "ID is required to remove item from CoursePool." });
 
     return;
   }
@@ -158,10 +158,12 @@ router.post('/delete', async (req: Request, res: Response) => {
                   .removeCoursePool(course_pool_id);
 
     if( DB_OPS.SUCCESS === response ) {
-      res.status(HTTP.OK).json({ message: "Item removed from CoursePool" });
+      res.status(HTTP.OK).json
+      ({ message: "Item removed from CoursePool" });
     } 
     if( DB_OPS.MOSTLY_OK === response ) {
-      res.status(HTTP.NOT_FOUND).json({ error: "Item not found in CoursePool" });
+      res.status(HTTP.NOT_FOUND).json
+      ({ error: "Item not found in CoursePool" });
     }
     if( DB_OPS.FAILURE === response ) {
       throw new Error("CoursePool item could not be deleted");
