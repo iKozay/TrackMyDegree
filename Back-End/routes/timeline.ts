@@ -36,14 +36,23 @@ router.post('/create', async (req: Request, res: Response) => {
 });
 
 router.post('/getAll', async (req: Request, res: Response) => {
-  const { user_id } = req.body;
+  const payload = req.body;
 
-  if( ! user_id ) {
+  if( ( ! payload ) || ( Object.keys(payload).length < 1 ) ) {
     res.status(HTTP.BAD_REQUEST).json
     ({ error: "User ID is required to get timeline." });
 
     return;
   }
+
+  if( ! payload.timeline_item_id ) {
+    res.status(HTTP.BAD_REQUEST).json
+    ({ error: "Payload attributes cannot be empty" });
+
+    return;
+  }
+
+  const { user_id } = payload;
 
   try {
     const result = await timelineController.getAllTimelines(user_id);
@@ -82,14 +91,24 @@ router.post('/getAll', async (req: Request, res: Response) => {
 });
 
 router.post('/delete', async (req: Request, res: Response) => {
-  const { timeline_item_id } = req.body;
+  const payload = req.body;
 
-  if( ! timeline_item_id ) {
+  if( ( ! payload ) || ( Object.keys(payload).length < 1 ) ) {
     res.status(HTTP.BAD_REQUEST).json
-    ({ error: "Timeline item ID is required to remove item from timeline." });
+    ({ error: "Timeline item ID is required to\
+               remove item from timeline." });
 
     return;
   }
+
+  if( ! payload.timeline_item_id ) {
+    res.status(HTTP.BAD_REQUEST).json
+    ({ error: "Payload attributes cannot be empty" });
+
+    return;
+  }
+
+  const { timeline_item_id } = payload;
 
   try {
     const response = await timelineController
