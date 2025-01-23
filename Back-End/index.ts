@@ -12,7 +12,9 @@ import exemptionRouter from "@routes/exemption"
 import deficiencyRouter from "@routes/deficiency"
 import degreeRouter from "@routes/degree";
 import timelineRouter from "@routes/timeline";
-
+import AppUser from "@routes/appUser";
+import userDataRouter from "@routes/userData"
+import requisiteRouter from "@routes/requisite"
 
 
 //Dev Consts
@@ -54,6 +56,10 @@ app.use("/degree", degreeRouter);
 app.use("/exemption", exemptionRouter);
 app.use("/deficiency", deficiencyRouter);
 app.use("/timeline", timelineRouter);
+//app.use("/appUser", AppUser); //TOFIX
+app.use("/data", userDataRouter);
+app.use("/requisite", requisiteRouter);
+
 
 /**
  * DB test route

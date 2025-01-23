@@ -16,7 +16,7 @@ describe("POST /auth/login", () => {
 		expect(response.body).toHaveProperty("id");
 		expect(response.body).toHaveProperty("email", "example@example.com");
 		expect(response.body).toHaveProperty("password");
-		expect(response.body).toHaveProperty("name", "Random User");
+		expect(response.body).toHaveProperty("fullname", "Random User");
 		expect(response.body).toHaveProperty("type", "student");
 	});
 
