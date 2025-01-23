@@ -235,7 +235,7 @@ const TimelinePage = ({ timelineData }) => {
 
   const handleAddSemester = () => {
     const seasonLower = selectedSeason.toLowerCase();
-    const id = `${seasonLower}${selectedYear}`;
+    const id = `${selectedSeason} ${selectedYear}`;
     const name = `${selectedSeason} ${selectedYear}`;
 
     // Prevent duplicates
