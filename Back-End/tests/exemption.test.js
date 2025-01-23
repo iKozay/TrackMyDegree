@@ -1,5 +1,7 @@
 const request = require("supertest");
 
+const url = process.DOCKER_URL || "host.docker.internal:8000";
+
 describe("Exemption Routes", () => {
     // Test for adding an exemption
     describe("POST /exemption/create", () => {
@@ -10,20 +12,28 @@ describe("Exemption Routes", () => {
                 user_id: "1",
             };
 
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/exemption/create")
                 .send(newExemption)
                 .expect("Content-Type", /json/)
-                .expect(200);
+                .expect(201);
 
             expect(response.body).toHaveProperty("message", "Exemption created successfully.");
-            expect(response.body).toHaveProperty("exemption", newExemption);
+            expect(response.body).toHaveProperty("exemption");
+            const exemption = response.body.exemption;
+
+            // Validate the properties of the returned exemption
+            expect(exemption).toMatchObject({
+                id: "4",
+                coursecode: "COMP335",
+                user_id: "1",
+            });
 
         });
 
         // Bad request, missing fields
         it("should return 400 status and error message when user_id is missing", async () => {
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/exemption/create")
                 .send({
                     id: "2",
@@ -32,7 +42,7 @@ describe("Exemption Routes", () => {
                 .expect("Content-Type", /json/)
                 .expect(400);
 
-            expect(response.body).toHaveProperty("error", "Internal server error in /exemption/create");
+            expect(response.body).toHaveProperty("error", "Invalid input. Please provide coursecode, and user_id as a string.");
         });
     });
 
@@ -43,7 +53,7 @@ describe("Exemption Routes", () => {
                 user_id: "1"
             };
 
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/exemption/getAll")
                 .send(exemptionRequest)
                 .expect("Content-Type", /json/)
@@ -54,7 +64,7 @@ describe("Exemption Routes", () => {
 
         // No user_id provided case
         it("should return 400 status and error message when user_id is not provided", async () => {
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/exemption/getAll")
                 .send(
                     // Empty request body
@@ -74,7 +84,7 @@ describe("Exemption Routes", () => {
                 user_id: "1"
             };
 
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/exemption/delete")
                 .send(exemptionRequest)
                 .expect("Content-Type", /json/)
@@ -86,7 +96,7 @@ describe("Exemption Routes", () => {
 
         // Bad request, missing fields
         it("should return 400 status and error message when request body is missing", async () => {
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/exemption/delete")
                 .send({ // missing coursecode and user_id field
                 })

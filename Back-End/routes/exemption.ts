@@ -80,7 +80,7 @@ router.post('/create', async (req: Request, res: Response) => {
         !user_id || typeof user_id !== 'string'
       ) {
         res.status(HTTP.BAD_REQUEST).json({
-          error: 'Invalid input. Please provide the parameters as a string.',
+          error: 'Invalid input. Please provide coursecode and user_id as strings.',
         });
         return;
       }
@@ -90,7 +90,7 @@ router.post('/create', async (req: Request, res: Response) => {
   
       // Send success response
       res.status(HTTP.OK).json({
-        message: 'Exemption deleted successfully.'
+        message: 'Exemption deleted successfully.',
       });
     } catch (error) {
       // Handle errors from the service
