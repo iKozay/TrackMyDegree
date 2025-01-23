@@ -12,8 +12,7 @@ import degreeRouter from "@routes/degree";
 import timelineRouter from "@routes/timeline";
 import AppUser from "@routes/appUser";
 import userDataRouter from "@routes/userData"
-
-
+import requisiteRouter from "@routes/requisite"
 
 //Dev Consts
 const HOPPSCOTCH = "chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld";
@@ -52,8 +51,9 @@ app.use("/auth", authRouter);
 app.use("/courses", coursesRouter);
 app.use("/degree", degreeRouter);
 app.use("/timeline", timelineRouter);
-app.use("/appUser", AppUser);
+//app.use("/appUser", AppUser); //TOFIX
 app.use("/data", userDataRouter);
+app.use("/requisite", requisiteRouter);
 
 
 /**
