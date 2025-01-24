@@ -24,7 +24,7 @@ describe("POST /auth/login", () => {
       id        : "random uuid",
       email     : "example@example.com",
       password  : "Hashed password",
-      name      : "Random User",
+      fullname  : "Random User",
       type      : "student"
     };
 
