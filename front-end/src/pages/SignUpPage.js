@@ -53,6 +53,7 @@ function SignUpPage() {
     try {
       const response = await fetch("http://localhost:8000/auth/signup", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -65,6 +66,7 @@ function SignUpPage() {
         }),
       });
 
+      console.log(response);
       if (!response.ok) {
         // Extract error message from response
         const errorData = await response.json();
