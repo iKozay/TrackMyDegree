@@ -17,7 +17,8 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import Accordion from 'react-bootstrap/Accordion';
 import Container from 'react-bootstrap/Container';
-import soenCourses from '../course data/soen_courses';
+// import soenCourses from '../course data/soen_courses';
+import soenCourses from '../course data/soen_courses'; // Import course data
 // import { FaExclamationTriangle } from 'react-icons/fa'; // Import warning icon
 import warningIcon from '../icons/warning.png'; // Import warning icon
 import '../css/TimelinePage.css';

@@ -15,6 +15,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
 import TimelinePage from "./pages/TimelinePage";
+import AdminPage from "./pages/AdminPage";
 // import LogInPage from "./pages/LogInPage";
 
 function App() {
@@ -43,6 +44,12 @@ function App() {
 									<ProtectedRoute>
 										<UserPage />
 									</ProtectedRoute>
+								}
+							/>
+							<Route
+								path="/admin"
+								element={
+										<AdminPage />
 								}
 							/>
 							<Route
