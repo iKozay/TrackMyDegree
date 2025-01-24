@@ -3,21 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Button from 'react-bootstrap/Button';
-import Dropdown from "react-bootstrap/Dropdown"; 
 
 function SignUpPage() {
-  const [fullName, setfullName] = useState("");
+  const [fullname, setFullName] = useState(""); 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [selectDegree, setSelectDegree] = useState("Select Degree");
   const userType = "student"; // Hardcoded to 'student'
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const [error, setError] = useState(null); // To handle error messages
   const [loading, setLoading] = useState(false); // To handle loading state
 
-  const degrees = ['Software Engineering', 'Computer Engineering', 'Electrical Engineering']
   const handleSignUp = async (e) => {
     e.preventDefault();
 
@@ -25,7 +22,7 @@ function SignUpPage() {
     setError(null);
 
     // Basic validation checks
-    if (fullName === ""  || email === "" || password === "" || confirmPassword === "") {
+    if (fullname.trim() === "" || email.trim() === "" || password === "" || confirmPassword === "") {
       setError("All fields are required.");
       return;
     }
@@ -57,7 +54,7 @@ function SignUpPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          fullName,
+          fullname,
           email,
           password,
           type: userType,
@@ -89,28 +86,27 @@ function SignUpPage() {
       <div className="container my-5 sign-in-container">
         <h2 className="text-center mb-4">Sign Up</h2>
         <form onSubmit={handleSignUp}>
-
-          {/* Full Name Field*/}
+          {/* Name Field */}
           <div className="mb-3">
-            <label htmlFor="fullName" className="form-label">Full Name: </label>
+            <label htmlFor="fullname" className="form-label">Full Name</label>
             <input
-              type="fullName"
+              type="text"
               className="form-control"
-              id="fullName"
-              placeholder="* Enter your full name"
-              value={fullName}
-              onChange={(e) => setfullName(e.target.value)}
+              id="name"
+              placeholder="Enter your full name"
+              value={fullname}
+              onChange={(e) => setFullName(e.target.value)}
             />
           </div>
 
-          {/* Email Field*/}
+          {/* Email Field */}
           <div className="mb-3">
-            <label htmlFor="email" className="form-label">Email address: </label>
+            <label htmlFor="email" className="form-label">Email address</label>
             <input
               type="email"
               className="form-control"
               id="email"
-              placeholder="* Enter your email"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -118,12 +114,12 @@ function SignUpPage() {
 
           {/* Password Field */}
           <div className="mb-3">
-            <label htmlFor="password" className="form-label">Password:</label>
+            <label htmlFor="password" className="form-label">Password</label>
             <input
               type="password"
               className="form-control"
               id="password"
-              placeholder="* Enter your password"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -131,32 +127,15 @@ function SignUpPage() {
 
           {/* Confirm Password Field */}
           <div className="mb-5">
-            <label htmlFor="confirmPassword" className="form-label">Confirm Password:</label>
+            <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
             <input
               type="password"
               className="form-control"
               id="confirmPassword"
-              placeholder="* Confirm your password"
+              placeholder="Confirm your password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
-          </div>
-
-          {/* Select Degree */}
-          <div className="mb-4">
-            <label htmlFor="selectDegree" className="form-label">Select Degree:</label>
-            <Dropdown>
-              <Dropdown.Toggle id="dropdown-basic" className="dropdown-custom">
-                {selectDegree}
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                {degrees.map((degree, index) => (
-                  <Dropdown.Item key={index} onClick={() => setSelectDegree(degree)}>
-                    {degree}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </Dropdown>
           </div>
 
           {/* Display Error Message */}
@@ -166,20 +145,17 @@ function SignUpPage() {
             </div>
           )}
 
-          {/* Cancel and Register Buttons */}
-          <div className="d-flex justify-content-between">
-            <Button className="btn-secondary" type="button" onClick={() => navigate("/signin")}>
-              Cancel
-            </Button>
-            <Button className="btn-danger" type="submit">
-              Register
+          {/* Submit Button */}
+          <div className="d-grid gap-2">
+            <Button className="button-outline" variant="primary" type="submit" disabled={loading}>
+              {loading ? "Submitting..." : "Submit"}
             </Button>
           </div>
         </form>
 
         {/* Link to Sign In */}
         <div className="text-center mt-3">
-          <a href="/signin">Already have an account? Log in here!</a>
+          <a href="/signin">Already have an account? Sign in here!</a>
         </div>
       </div>
     </div>
