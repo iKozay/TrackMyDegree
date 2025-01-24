@@ -1,6 +1,23 @@
-const request = require("supertest");
+jest.mock("../dist/controllers/coursepoolController/coursepoolController", () => ({
+  __esModule: true,
+  default: {
+    createCoursePool  : jest.fn(),
+    updateCoursePool  : jest.fn(),
+    removeCoursePool  : jest.fn()
+  }
+}));
+
+const request     = require("supertest");
+const express     = require("express");
+const router      = require("../dist/routes/coursepool").default;
+const controller  = require("../dist/controllers/coursepoolController/coursepoolController").default;
+const DB_OPS      = require("../dist/Util/DB_Ops").default;
 
 const url = process.DOCKER_URL || "host.docker.internal:8000";
+
+const app = express();
+app.use(express.json());
+app.use("/coursepool", router);
 
 describe("CoursePool Routes", () => {
   describe("POST /coursepool/create", () => {
@@ -9,7 +26,9 @@ describe("CoursePool Routes", () => {
         name: "Basic & Natural Sciences"
       };
 
-      const response = await request(url)
+      controller.createCoursePool.mockResolvedValue(DB_OPS.SUCCESS);
+
+      const response = await request(app)
                       .post("/coursepool/create")
                       .send(payload)
                       .expect("Content-Type", /json/)
@@ -110,7 +129,9 @@ describe("CoursePool Routes", () => {
         name  : "Updated Pool"
       };
 
-      const response = await request(url)
+      controller.updateCoursePool.mockResolvedValue(DB_OPS.SUCCESS);
+
+      const response = await request(app)
                       .post("/coursepool/update")
                       .send(payload)
                       .expect("Content-Type", /json/)
@@ -152,7 +173,9 @@ describe("CoursePool Routes", () => {
         course_pool_id: "3" 
       };
 
-      const response = await request(url)
+      controller.removeCoursePool.mockResolvedValue(DB_OPS.SUCCESS);
+
+      const response = await request(app)
                       .post("/coursepool/delete")
                       .send(request_body)
                       .expect("Content-Type", /json/)

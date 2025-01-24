@@ -1,13 +1,39 @@
-const request = require("supertest");
+jest.mock("../dist/controllers/authController/authController", () => ({
+  __esModule: true,
+  default: {
+    authenticate  : jest.fn(),
+    registerUser  : jest.fn()
+  }
+}));
+
+const request     = require("supertest");
+const express     = require("express");
+const router      = require("../dist/routes/auth").default;
+const controller  = require("../dist/controllers/authController/authController").default;
 
 const url = process.DOCKER_URL || "host.docker.internal:8000";
 
+const app = express();
+app.use(express.json());
+app.use("/auth", router);
+
 describe("POST /auth/login", () => {
 	it("should return a successful login message and token", async () => {
-		const response = await request(url)
+		
+    const mockDBRecord = {
+      id        : "random uuid",
+      email     : "example@example.com",
+      password  : "Hashed password",
+      name      : "Random User",
+      type      : "student"
+    };
+
+    controller.authenticate.mockResolvedValue(mockDBRecord);
+    
+    const response = await request(app)
 			.post("/auth/login")
 			.send({
-				email: "example@example.com",
+				email: "example@example.com",   
 				password: "pass",
 			})
 			.expect("Content-Type", /json/)

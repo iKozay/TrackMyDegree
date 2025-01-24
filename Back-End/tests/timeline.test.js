@@ -1,8 +1,30 @@
-const request = require("supertest");
+jest.mock("../dist/controllers/timelineController/timelineController", () => ({
+  __esModule: true,
+  default: {
+    createTimeline      : jest.fn(),
+    removeTimelineItem  : jest.fn(),
+    getAllTimelines     : jest.fn()
+  }
+}));
+
+const request     = require("supertest");
+const express     = require("express");
+const router      = require("../dist/routes/timeline").default;
+const controller  = require("../dist/controllers/timelineController/timelineController").default;
+const DB_OPS      = require("../dist/Util/DB_Ops").default;
 
 const url = process.DOCKER_URL || "host.docker.internal:8000";
 
+const app = express();
+app.use(express.json());
+app.use("/timeline", router);
+
 describe("Timeline Routes", () => {
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe("POST /timeline/create", () => {
     it("should create a timeline successfully with all courses", async () => {
       const payload = {
@@ -21,13 +43,15 @@ describe("Timeline Routes", () => {
         ]
       };
 
-      const response = await request(url)
+      controller.createTimeline.mockResolvedValue(DB_OPS.SUCCESS);
+      
+      const response = await request(app)
                       .post("/timeline/create")
                       .send(payload)
                       .expect("Content-Type", /json/)
                       .expect(201);
-
-      expect(response.body).toHaveProperty("res", "All courses added to user timeline");
+      
+       expect(response.body).toHaveProperty("res", "All courses added to user timeline");
     });
 
     it("should return partial success when some courses couldn't be added", async () => {
@@ -47,7 +71,9 @@ describe("Timeline Routes", () => {
         ]
       };
 
-      const response = await request(url)
+      controller.createTimeline.mockResolvedValue(DB_OPS.MOSTLY_OK);
+
+      const response = await request(app)
                       .post("/timeline/create")
                       .send(payload)
                       .expect("Content-Type", /json/)
@@ -124,7 +150,9 @@ describe("Timeline Routes", () => {
         timeline_item_id: "1"
       };
 
-      const response = await request(url)
+      controller.removeTimelineItem.mockResolvedValue(DB_OPS.SUCCESS);
+
+      const response = await request(app)
                       .post("/timeline/delete")
                       .send(request_body)
                       .expect("Content-Type", /json/)
@@ -138,7 +166,9 @@ describe("Timeline Routes", () => {
         timeline_item_id: "nonexistent_item"
       };
 
-      const response = await request(url)
+      controller.removeTimelineItem.mockResolvedValue(DB_OPS.MOSTLY_OK);
+
+      const response = await request(app)
                       .post("/timeline/delete")
                       .send(request_body)
                       .expect("Content-Type", /json/)

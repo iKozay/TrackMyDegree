@@ -47,7 +47,7 @@ CREATE TABLE CourseXCoursePool (
 
 CREATE TABLE AppUser (  -- Use square brackets for reserved keywords
     id VARCHAR(255) PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     fullname VARCHAR(255) NOT NULL,
     degree VARCHAR(255),
