@@ -61,7 +61,6 @@ function SignUpPage() {
           email,
           password,
           type: userType,
-          degree: selectDegree,
           // degree: "BEng Software Engineering", // Hardcoded to 'BEng Software Engineering'
         }),
       });
@@ -131,7 +130,7 @@ function SignUpPage() {
           </div>
 
           {/* Confirm Password Field */}
-          <div className="mb-3">
+          <div className="mb-5">
             <label htmlFor="confirmPassword" className="form-label">Confirm Password:</label>
             <input
               type="password"
@@ -147,7 +146,7 @@ function SignUpPage() {
           <div className="mb-4">
             <label htmlFor="selectDegree" className="form-label">Select Degree:</label>
             <Dropdown>
-              <Dropdown.Toggle id="dropdown-basic" className="dropdown-custom w-100">
+              <Dropdown.Toggle id="dropdown-basic" className="dropdown-custom">
                 {selectDegree}
               </Dropdown.Toggle>
               <Dropdown.Menu>
@@ -168,7 +167,7 @@ function SignUpPage() {
           )}
 
           {/* Cancel and Register Buttons */}
-          <div className="d-flex justify-content-between align-items-center mt-3">
+          <div className="d-flex justify-content-between">
             <Button className="btn-secondary" type="button" onClick={() => navigate("/signin")}>
               Cancel
             </Button>
@@ -179,7 +178,7 @@ function SignUpPage() {
         </form>
 
         {/* Link to Sign In */}
-        <div className="text-center mt-4">
+        <div className="text-center mt-3">
           <a href="/signin">Already have an account? Log in here!</a>
         </div>
       </div>
