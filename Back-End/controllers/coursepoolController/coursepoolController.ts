@@ -2,7 +2,6 @@ import Database         from '@controllers/DBController/DBController'
 import DB_OPS           from '@Util/DB_Ops'
 import CoursePoolTypes  from '@controllers/coursepoolController/coursepool_types'
 import { randomUUID }   from 'crypto'
-import { pool } from 'mssql';
 
 const log = console.log;
 
