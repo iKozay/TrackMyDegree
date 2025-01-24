@@ -158,6 +158,7 @@
   flex-direction: column;
   justify-content: space-evenly;
   box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 200px;
 
 }
 
@@ -359,6 +360,17 @@
   font-weight: bold;
   color: rgb(78, 108, 91);
 }
+.over-limit-warning {
+  color:  #912338;
+  font-weight: bold;
+  max-width: 200px;
+}
+
+/*.over-limit-warning span{*/
+/*  color:  #912338;*/
+/*  font-weight: bold;*/
+/*  margin-left: 49px;*/
+/*}*/
 
 /* The trash can button on the right */
 .remove-semester-btn {
@@ -366,8 +378,8 @@
   border: none;
   border-radius: 15px;
   cursor: pointer;
-  color: #616161;       /* sets the "currentColor" for the SVG */
-  font-size: 1.5rem; /* scales the icon if using em */
+  color: #616161;
+  font-size: 1.5rem;
   margin-left: 1rem;
   display: flex;
   align-items: center;
@@ -378,4 +390,28 @@
 .remove-semester-btn:hover {
   background-color: #dacece;
 }
+
+.exceeding-credit-limit {
+  animation: shake 0.4s ease-in-out 0s 2;
+  min-width: 210px;
+  min-height: 400px;
+  /*background-color: #efeaef;*/
+  border-radius: 20px;
+  padding: 10px;
+  transition: background-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+/* Keyframes for the shaking effect */
+@keyframes shake {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-5px, 0); }
+  40% { transform: translate(5px, 0); }
+  60% { transform: translate(-5px, 0); }
+  80% { transform: translate(5px, 0); }
+  100% { transform: translate(0, 0); }
+}
+
 
