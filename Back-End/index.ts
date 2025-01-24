@@ -13,6 +13,7 @@ import timelineRouter from "@routes/timeline";
 import AppUser from "@routes/appUser";
 import userDataRouter from "@routes/userData";
 import Admin from "@routes/adminRoutes";
+import requisiteRouter from "@routes/requisite"
 
 //Dev Consts
 const HOPPSCOTCH = "chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld";
@@ -70,6 +71,7 @@ app.use("/timeline", timelineRouter);
 //app.use("/appUser", AppUser);
 app.use("/data", userDataRouter);
 app.use("/admin", Admin);
+app.use("/requisite", requisiteRouter);
 
 /**
  * DB test route
@@ -103,3 +105,4 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.listen(PORT, () => {
   console.log(`Server listening on Port: ${PORT}`);
 });
+
