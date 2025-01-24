@@ -50,6 +50,7 @@ function SignUpPage() {
     try {
       const response = await fetch("http://localhost:8000/auth/signup", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -58,10 +59,11 @@ function SignUpPage() {
           email,
           password,
           type: userType,
-          // degree: "BEng Software Engineering", // Hardcoded to 'BEng Software Engineering'
+          degree: "BEng Software Engineering", // Hardcoded to 'BEng Software Engineering'
         }),
       });
 
+      console.log(response);
       if (!response.ok) {
         // Extract error message from response
         const errorData = await response.json();
