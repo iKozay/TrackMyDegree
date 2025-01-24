@@ -8,11 +8,14 @@ import HTTP from "@Util/HTTPCodes";
 //Routes import
 import authRouter from "@routes/auth";
 import coursesRouter from "@routes/courses";
+import exemptionRouter from "@routes/exemption"
+import deficiencyRouter from "@routes/deficiency"
 import degreeRouter from "@routes/degree";
 import timelineRouter from "@routes/timeline";
 import AppUser from "@routes/appUser";
 import userDataRouter from "@routes/userData"
 import requisiteRouter from "@routes/requisite"
+
 
 //Dev Consts
 const HOPPSCOTCH = "chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld";
@@ -50,6 +53,8 @@ app.use(cookieParser());
 app.use("/auth", authRouter);
 app.use("/courses", coursesRouter);
 app.use("/degree", degreeRouter);
+app.use("/exemption", exemptionRouter);
+app.use("/deficiency", deficiencyRouter);
 app.use("/timeline", timelineRouter);
 //app.use("/appUser", AppUser); //TOFIX
 app.use("/data", userDataRouter);

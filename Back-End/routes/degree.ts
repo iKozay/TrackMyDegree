@@ -4,8 +4,8 @@ import degreeController from "@controllers/degreeController/degreeController";
 
 const router = express.Router();
 
-router.post('/degree/create', async (req: Request, res: Response) => {
-    const { id, name, totalCredits } = req.query;
+router.post('/create', async (req: Request, res: Response) => {
+    const { id, name, totalCredits } = req.body;
   
     try {
       // Validate input
@@ -39,8 +39,8 @@ router.post('/degree/create', async (req: Request, res: Response) => {
   });
   
 
-  router.get('/degree/read', async (req: Request, res: Response) => {
-    const { id } = req.query;
+  router.get('/read', async (req: Request, res: Response) => {
+    const { id } = req.body;
   
     try {
       // Validate input
@@ -71,8 +71,8 @@ router.post('/degree/create', async (req: Request, res: Response) => {
     }
   });
 
-  router.get('/degree/update', async (req: Request, res: Response) => {
-    const { id, name, totalCredits } = req.query;
+  router.put('/update', async (req: Request, res: Response) => {
+    const { id, name, totalCredits } = req.body;
   
     try {
       // Validate input
@@ -104,8 +104,8 @@ router.post('/degree/create', async (req: Request, res: Response) => {
     }
   });
 
-  router.get('/degree/delete', async (req: Request, res: Response) => {
-    const { id } = req.query;
+  router.post('/delete', async (req: Request, res: Response) => {
+    const { id } = req.body;
   
     try {
       // Validate input
