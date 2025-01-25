@@ -29,7 +29,7 @@
     {
         "title": "COEN 244 Programming Methodology II",
         "credits": 3,
-        "prerequisites": "COEN 243or MECH 215 orMIAE 215.",
+        "prerequisites": "COEN 243 or MECH 215 or MIAE 215.",
         "corequisites": "",
         "description": "This course covers advanced topics in computer programming. The course reviews objectâoriented programming and further concepts, and revisits pointers. The following topics are covered: operator overloading (regular and advanced usage), fundamentals of file and stream processing. The course also covers class composition and inheritance (regular and advanced usage), virtual functions, polymorphism, static and dynamic binding and abstract classes. A case study of a smallâscale objectâoriented project along with simplified analysis, design and implementation are discussed. Other topics in the course include files and streams, exception handling (advanced usage), templates (class templates, template instantiation and type binding), sequence containers and STL algorithms, UML modelling and an introduction to open software repository.",
         "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
