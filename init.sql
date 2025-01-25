@@ -33,7 +33,7 @@ CREATE TABLE DegreeXCoursePool (
   creditsRequired INT NOT NULL,
   UNIQUE(degree, coursepool),
   FOREIGN KEY (degree) REFERENCES Degree(id),
-  FOREIGN KEY (coursepool) REFERENCES CoursePool(id)
+  FOREIGN KEY (coursepool) REFERENCES CoursePool(id) ON DELETE CASCADE
 );
 
 CREATE TABLE CourseXCoursePool (
@@ -42,12 +42,12 @@ CREATE TABLE CourseXCoursePool (
   coursepool VARCHAR(255),
   UNIQUE(coursecode, coursepool),
   FOREIGN KEY (coursecode) REFERENCES Course(code), -- Composite foreign key
-  FOREIGN KEY (coursepool) REFERENCES CoursePool(id)
+  FOREIGN KEY (coursepool) REFERENCES CoursePool(id) ON DELETE CASCADE
 );
 
 CREATE TABLE AppUser (  -- Use square brackets for reserved keywords
     id VARCHAR(255) PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     fullname VARCHAR(255) NOT NULL,
     degree VARCHAR(255),

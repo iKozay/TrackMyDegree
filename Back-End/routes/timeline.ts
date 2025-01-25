@@ -3,7 +3,6 @@ import timelineController             from "@controllers/timelineController/time
 import TimelineTypes                  from "@controllers/timelineController/timeline_types";
 import DB_OPS                         from "@Util/DB_Ops";
 import HTTP                           from "@Util/HTTPCodes";
-import { error } from "console";
 
 const router = express.Router();
 
@@ -21,10 +20,12 @@ router.post('/create', async (req: Request, res: Response) => {
     const response  = await timelineController.createTimeline(payload);
   
     if( DB_OPS.SUCCESS === response ) {
-      res.status(HTTP.CREATED).json({ res: "All courses added to user timeline" });
+      res.status(HTTP.CREATED).json
+      ({ res: "All courses added to user timeline" });
     } 
     if( DB_OPS.MOSTLY_OK === response ) {
-      res.status(HTTP.CREATED).json({ res: "Some courses were not added to user timeline" });
+      res.status(HTTP.CREATED).json
+      ({ res: "Some courses were not added to user timeline" });
     }
     if( DB_OPS.FAILURE === response ) {
       throw new Error("Error in establishing connection to database");
@@ -32,19 +33,29 @@ router.post('/create', async (req: Request, res: Response) => {
   } 
   catch (error) {
     console.error("Error in /timeline/create", error);
-    res.status(HTTP.SERVER_ERR).json({ error: "Timeline could not be created" });
+    res.status(HTTP.SERVER_ERR).json
+    ({ error: "Timeline could not be created" });
   }
 });
 
 router.post('/getAll', async (req: Request, res: Response) => {
-  const { user_id } = req.body;
+  const payload = req.body;
 
-  if( ! user_id ) {
+  if( ( ! payload ) || ( Object.keys(payload).length < 1 ) ) {
     res.status(HTTP.BAD_REQUEST).json
     ({ error: "User ID is required to get timeline." });
 
     return;
   }
+
+  if( ! payload.user_id ) {
+    res.status(HTTP.BAD_REQUEST).json
+    ({ error: "Payload attributes cannot be empty" });
+
+    return;
+  }
+
+  const { user_id } = payload;
 
   try {
     const result = await timelineController.getAllTimelines(user_id);
@@ -83,14 +94,24 @@ router.post('/getAll', async (req: Request, res: Response) => {
 });
 
 router.post('/delete', async (req: Request, res: Response) => {
-  const { timeline_item_id } = req.body;
+  const payload = req.body;
 
-  if( ! timeline_item_id ) {
+  if( ( ! payload ) || ( Object.keys(payload).length < 1 ) ) {
     res.status(HTTP.BAD_REQUEST).json
-    ({ error: "Timeline item ID is required to remove item from timeline." });
+    ({ error: 
+    "Timeline item ID is required to remove item from timeline." });
 
     return;
   }
+
+  if( ! payload.timeline_item_id ) {
+    res.status(HTTP.BAD_REQUEST).json
+    ({ error: "Payload attributes cannot be empty" });
+
+    return;
+  }
+
+  const { timeline_item_id } = payload;
 
   try {
     const response = await timelineController
