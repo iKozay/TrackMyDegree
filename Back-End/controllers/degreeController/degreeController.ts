@@ -10,7 +10,7 @@ async function createDegree(id: string, name: string, totalCredits: number): Pro
       const existingDegree = await conn.request()
         .input('id', Database.msSQL.VarChar, id)
         .input('name', Database.msSQL.VarChar, name)
-        .query('SELECT * FROM Degree WHERE id = @id OR name = @fullname');
+        .query('SELECT * FROM Degree WHERE id = @id OR name = @name');
 
       if (existingDegree.recordset.length > 0) {
         throw new Error('Degree with this id or name already exists.');
@@ -20,7 +20,7 @@ async function createDegree(id: string, name: string, totalCredits: number): Pro
         .input('id', Database.msSQL.VarChar, id)
         .input('name', Database.msSQL.VarChar, name)
         .input('totalCredits', Database.msSQL.Int, totalCredits)
-        .query('INSERT INTO Degree (id, name, totalCredits) VALUES (?, ?, ?)');
+        .query('INSERT INTO Degree (id, name, totalCredits) VALUES (@id, @name, @totalCredits)');
 
       return { id, name, totalCredits };
     } catch (error) {

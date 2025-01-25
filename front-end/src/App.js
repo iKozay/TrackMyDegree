@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import LogInPage from "./pages/LogInPage";
@@ -15,9 +15,18 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
 import TimelinePage from "./pages/TimelinePage";
+import AdminPage from "./pages/AdminPage";
 // import LogInPage from "./pages/LogInPage";
 
 function App() {
+
+	const [timelineData, setTimelineData] = useState([]);
+
+  const handleDataProcessed = (data) => {
+    setTimelineData(data);
+  };
+
+
 	return (
 		<div className="page-container">
 			<AuthProvider>
@@ -46,8 +55,14 @@ function App() {
 								}
 							/>
 							<Route
+								path="/admin"
+								element={
+										<AdminPage />
+								}
+							/>
+							<Route
 								path="/timeline_change"
-								element={<TimelinePage />}
+								element={<TimelinePage timelineData={timelineData} />}
 							/>
 							<Route
 								path="/courselist"
@@ -55,7 +70,7 @@ function App() {
 							/>
 							<Route
 								path="/uploadTranscript"
-								element={<UploadTranscript />}
+								element={<UploadTranscript onDataProcessed={handleDataProcessed} />}
 							/>
 							<Route 
 								path="/timeline_initial"
