@@ -55,8 +55,13 @@ Promise<{course_codes: string[]} | undefined> {
       .query('SELECT coursecode FROM CourseXCoursePool\
               WHERE coursepool = @coursepool');
 
+      const codes = [];
+      for(let i = 0; i < result.recordset.length; i++) {
+        codes.push(result.recordset[i].coursecode)
+      }
+
       return {
-        course_codes: result.recordset
+        course_codes: codes
       }
     } 
     catch ( error ) {

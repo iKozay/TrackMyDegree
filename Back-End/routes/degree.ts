@@ -1,6 +1,8 @@
 import HTTP from "@Util/HTTPCodes";
 import express, { Request, Response } from "express";
 import degreeController from "@controllers/degreeController/degreeController";
+import DegreeXCPController from "@controllers/DegreeXCPController/DegreeXCPController";
+import CourseXCPController from "@controllers/CourseXCPController/CourseXCPController";
 
 const router = express.Router();
 
@@ -135,5 +137,59 @@ router.post('/degree/create', async (req: Request, res: Response) => {
       }
     }
   });
+
+router.post('/getPools', async (req: Request, res: Response) => {
+  const payload = req.body;
+
+  if( ( ! payload ) || ( Object.keys(payload).length < 1 ) ) {
+    res.status(HTTP.BAD_REQUEST).json
+    ({ error: "Degree ID is required to get Course Pools." });
+
+    return;
+  }
+
+  if( ! payload.degree_id ) {
+    res.status(HTTP.BAD_REQUEST).json
+    ({ error: "Payload attributes cannot be empty" });
+
+    return;
+  }
+
+  const { degree_id } = payload;
+
+  try {
+    const result = await DegreeXCPController.getAllDegreeXCP(degree_id);
+
+    if( (result) && (result.course_pools.length > 0) ) {
+      const { course_pools }      = result;
+      let degree_coursepools: any = {};
+
+      for(let i = 0; i < course_pools.length; i++) {
+        const { id, name } = course_pools[i];
+        const pools        = Object.keys(degree_coursepools);
+
+        if( ! pools.find( item => name === item ) ) {
+          degree_coursepools[name] = [];
+        }
+
+        const courses_in_pool = await CourseXCPController.getAllCourseXCP(id); 
+
+        if( courses_in_pool ) {
+          degree_coursepools[name] = courses_in_pool.course_codes;
+        }
+      }
+
+      res.status(HTTP.OK).json(degree_coursepools);
+    }
+    else {
+      res.status(HTTP.NOT_FOUND).json({ error: "No coursepools found" });
+    }
+  } 
+  catch ( error ) {
+    console.error("Error in /degree/getPools", error);
+    res.status(HTTP.SERVER_ERR).json
+    ({ error: "Coursepools could not be fetched" });
+  }
+});
   
   export default router;
