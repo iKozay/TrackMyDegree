@@ -27,6 +27,18 @@
         "notes": null
     },
     {
+        "id": "ELEC 275",
+        "title": "ELEC 275 Principles of Electrical Engineering",
+        "credits": 3.5,
+        "prereqs": "PHYS 205",
+        "coreqs": "ENGR 213",
+        "prerequisites":[],
+        "corequisites": ["ENGR 213"],
+        "description": "Fundamentals of electric circuits: Kirchoff’s laws, voltage and current sources, Ohm’s law, series and parallel circuits. Nodal and mesh analysis of DC circuits. Superposition theorem, Thevenin and Norton Equivalents. Use of operational amplifiers. Transient analysis of simple RC, RL and RLC circuits. Steady state analysis: Phasors and impedances, power and power factor. Single and three phase circuits. Magnetic circuits and transformers. Power generation and distribution.",
+        "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 15 hours total",
+        "notes": ""
+    },
+    {
         "title": "ELEC 311 Electronics I",
         "credits": 3.5,
         "prerequisites": "ELEC 273.",

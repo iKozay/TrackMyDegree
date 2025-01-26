@@ -6,4 +6,3 @@ package-lock.json
 node_modules
 .env
 .gitignore
-package.json

@@ -13,7 +13,6 @@ ENGR 233
 ENGR 301
 ENGR 371
 ENGR 391
-COMP 361
 ENGR 392
 General Education Elective
 

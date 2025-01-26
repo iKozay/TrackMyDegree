@@ -40,7 +40,9 @@ CREATE TABLE CourseXCoursePool (
   id VARCHAR(255) PRIMARY KEY,
   coursecode VARCHAR(7),
   coursepool VARCHAR(255),
+  groupId VARCHAR(255),
   UNIQUE(coursecode, coursepool),
+  CONSTRAINT UC_CourseXCoursePool UNIQUE (coursecode, coursepool, groupId),
   FOREIGN KEY (coursecode) REFERENCES Course(code), -- Composite foreign key
   FOREIGN KEY (coursepool) REFERENCES CoursePool(id)
 );

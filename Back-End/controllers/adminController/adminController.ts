@@ -4,7 +4,6 @@ import { Request, Response, NextFunction } from "express";
 import Database from "@controllers/DBController/DBController"; // Your database connection utility
 import {
   TableListResponse,
-  TableName,
   TableRecordsResponse,
   GetTableRecordsRequest,
   StandardResponse,
@@ -26,15 +25,12 @@ export const getTables = async (
 ): Promise<void> => {
   try {
     const pool = await Database.getConnection();
-    // console.log(pool);
     if (!pool) {
       res
         .status(500)
         .json({ success: false, message: "Database connection failed" });
       return;
     }
-
-    // console.log(process.env.DB_DATABASE);
 
     const query = `
             SELECT TABLE_NAME 
@@ -108,13 +104,11 @@ export const getTableRecords = async (
     res.status(200).json({ success: true, data: records });
   } catch (error) {
     console.error("Error fetching table records:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Error fetching records from table",
-        data: error,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Error fetching records from table",
+      data: error,
+    });
   }
 };
 
@@ -132,10 +126,10 @@ const dbConfig: sql.config = {
 // 2) Data Interfaces
 // -------------------------------------
 interface Requirement {
-  poolId: string; // e.g. "engineering-core"
-  poolName: string; // e.g. "Engineering Core (30.5 credits)"
-  creditsRequired: number; // e.g. 30.5
-  courseCodes: string[]; // e.g. ["ELEC 275", "ENCS 282", ...]
+  poolId: string; // e.g., "engineering-core"
+  poolName: string; // e.g., "Engineering Core (30.5 credits)"
+  creditsRequired: number; // e.g., 30.5
+  courseCodes: string[]; // e.g., ["ELEC275", "ENCS282", ...]
 }
 
 interface DegreeData {
@@ -143,6 +137,23 @@ interface DegreeData {
   degreeName: string;
   totalCredits: number;
   requirements: Requirement[];
+}
+
+// Requisite Interface
+interface Requisite {
+  code1: string; // Course code that has the requisite
+  code2: string; // Course code that is the prerequisite/corequisite
+  type: "pre" | "co";
+}
+
+// CourseJson Interface
+interface CourseJson {
+  title: string; // e.g., "ENGR 201 Professional Practice and Responsibility (1.5 credits)"
+  credits?: number; // e.g., 1.5
+  description?: string;
+  prerequisites?: string; // e.g., "COMP 248, MATH 201"
+  corequisites?: string; // e.g., "MATH 203"
+  // ... more if needed
 }
 
 // -------------------------------------
@@ -163,71 +174,53 @@ function parseRequirementsFile(filePath: string): DegreeData {
 
   function pushCurrentPool() {
     if (currentPoolName) {
-      // Create a poolId by slugifying the pool name
       const poolId = currentPoolName
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-") // replace non-alphanumeric with dashes
-        .replace(/-credits/g, ""); // minor cleanup
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/-credits/g, "");
+
       requirements.push({
         poolId,
         poolName: currentPoolName,
         creditsRequired: currentCredits,
-        courseCodes: currentCourseCodes.filter((cc) => cc), // remove empty lines
+        courseCodes: currentCourseCodes.filter((cc) => cc),
       });
     }
   }
 
   for (const line of lines) {
-    // Ignore empty lines or lines starting with #
     if (!line || line.startsWith("#")) {
       continue;
     }
 
-    // Parse Key=Value lines for metadata
     if (line.includes("DegreeID=")) {
-      const val = line.split("=")[1];
-      degreeId = val.trim();
+      degreeId = line.split("=")[1].trim();
       continue;
     }
     if (line.includes("DegreeName=")) {
-      const val = line.split("=")[1];
-      degreeName = val.trim();
+      degreeName = line.split("=")[1].trim();
       continue;
     }
     if (line.includes("TotalCredits=")) {
-      const val = line.split("=")[1];
-      totalCredits = parseFloat(val.trim());
+      totalCredits = parseFloat(line.split("=")[1].trim());
       continue;
     }
 
-    // If line starts with '[' we found a new section: [Something (X credits)]
     const bracketMatch = line.match(/^\[(.*)\]$/);
     if (bracketMatch) {
-      // We are starting a new pool. Push the old one if it exists
       pushCurrentPool();
-
-      // Reset for the new pool
-      currentPoolName = bracketMatch[1]; // e.g. "Engineering Core (30.5 credits)"
+      currentPoolName = bracketMatch[1];
       currentCourseCodes = [];
 
-      // Attempt to parse the credits from the pool name: e.g. "(30.5 credits)"
-      // We'll match something like (X credits) with possible decimals
       const creditsMatch = currentPoolName.match(/\(([\d\.]+)\s*credits?\)/i);
-      if (creditsMatch) {
-        currentCredits = parseFloat(creditsMatch[1]);
-      } else {
-        currentCredits = 0;
-      }
+      currentCredits = creditsMatch ? parseFloat(creditsMatch[1]) : 0;
 
       continue;
     }
 
-    // Otherwise, it should be a course code line
-    // e.g. "ELEC 275" or "General Education Elective"
     currentCourseCodes.push(line);
   }
 
-  // Push the last pool if any
   pushCurrentPool();
 
   return {
@@ -241,15 +234,6 @@ function parseRequirementsFile(filePath: string): DegreeData {
 // -------------------------------------
 // 4) Parse the JSON (Course Data)
 // -------------------------------------
-interface CourseJson {
-  title: string; // e.g. "ENGR 201 Professional Practice and Responsibility (1.5 credits)"
-  credits?: number; // e.g. 1.5
-  description?: string;
-  prerequisites?: string;
-  corequisites?: string;
-  // ... more if needed
-}
-
 /**
  * Recursively loads all .json files in `dirPath` and merges them into a single Map.
  * Each .json file is assumed to be an array of CourseJson objects.
@@ -297,213 +281,370 @@ function loadAllCourseJsons(dirPath: string): Map<string, CourseJson> {
 }
 
 /**
- * Attempt to parse a course code from "title".
- * E.g. "ENGR 201 Professional Practice ... (1.5 credits)" => "ENGR 201"
- * Adjust logic to suit your data better, or store code as a separate property in JSON.
+ * Extracts the course code from the course title.
+ * Example: "ENGR 201 Professional Practice ... (1.5 credits)" => "ENGR201"
  */
 function extractCodeFromTitle(title: string): string {
-  const tokens = title.trim().split(/\s+/);
-  if (tokens.length < 2) {
+  const match = title.match(/^([A-Z]{2,4})\s*(\d{3})/);
+  if (!match) {
     throw new Error(`Invalid course title format: "${title}"`);
   }
-  console.log(tokens[0] + tokens[1]);
-  return `${tokens[0]}${tokens[1]}`; // e.g. "ENGR201"
+  return `${match[1]}${match[2]}`.toUpperCase(); // e.g., "ENGR201"
 }
 
-function loadCourseJson(jsonFilePath: string): Map<string, CourseJson> {
-  const raw = fs.readFileSync(jsonFilePath, "utf-8");
-  const data: CourseJson[] = JSON.parse(raw);
-
-  const map = new Map<string, CourseJson>();
-  for (const c of data) {
-    // If your JSON has an explicit "code" field, use that. Otherwise parse from `title`.
-    const code = extractCodeFromTitle(c.title);
-    map.set(code.toUpperCase(), c); // store uppercase so we can compare easily
+/**
+ * Parses a prerequisites/corequisites string into an array of course codes.
+ * Example: "COMP 248, MATH 201" => ["COMP248", "MATH201"]
+ */
+/**
+ * Parses a prerequisites/corequisites string into an array of course codes.
+ * Handles various separators and cleans up trailing punctuation.
+ * Example: "COMP 248, MATH 201; SOEN 287." => ["COMP248", "MATH201", "SOEN287"]
+ */
+function parseRequisites(requisiteStr: string | undefined): string[] {
+  if (!requisiteStr) return [];
+  
+  if (typeof requisiteStr !== "string") {
+    console.warn(`Expected string for requisites but got ${typeof requisiteStr}. Skipping.`);
+    return [];
   }
-  return map;
+
+  // Replace semicolons with commas, remove periods, and split by comma
+  const cleanedStr = requisiteStr.replace(/;/g, ",").replace(/\./g, "");
+  
+  return cleanedStr
+    .split(",")
+    .map((code) => code.trim().replace(/\s+/g, "").toUpperCase())
+    .filter((code) => /^[A-Z]{2,4}\d{3}$/.test(code)); // Ensures valid course codes
 }
+
 
 // -------------------------------------
 // 5) Upsert Helpers (SQL Statements)
 // -------------------------------------
+
+/**
+ * Generates the next ID for a given table based on the prefix.
+ * @param t - The SQL transaction.
+ * @param tableName - The name of the table.
+ * @param prefix - The prefix for the ID.
+ * @returns The newly generated ID.
+ */
+async function generateNextId(
+  t: sql.Transaction,
+  tableName: string,
+  prefix: string
+): Promise<string> {
+  const request = new sql.Request(t);
+  const query = `
+    SELECT MAX(CAST(SUBSTRING(id, LEN(@prefix) + 1, LEN(id)) AS INT)) AS MaxId
+    FROM [${tableName}]
+    WHERE id LIKE @prefix + '%'
+  `;
+  request.input("prefix", sql.VarChar, prefix);
+
+  const result = await request.query(query);
+  const maxId = result.recordset[0].MaxId;
+  const nextIdNumber = (maxId !== null ? maxId : 0) + 1;
+
+  return `${prefix}${nextIdNumber}`;
+}
+
+/**
+ * Upserts a Degree based on name.
+ * Returns the degree's ID.
+ */
 async function upsertDegree(
   t: sql.Transaction,
-  degreeId: string,
   name: string,
   totalCredits: number
-) {
+): Promise<string> {
   const request = new sql.Request(t);
-  request.input("degreeId", sql.VarChar, degreeId);
+  request.input("name", sql.VarChar, name);
+  request.input("totalCredits", sql.Int, totalCredits);
 
+  // Check if degree exists by name
   const result = await request.query(
-    "SELECT id FROM Degree WHERE id = @degreeId"
+    "SELECT id FROM Degree WHERE name = @name"
   );
+
   if (result.recordset.length === 0) {
+    // Generate new ID
+    const newId = await generateNextId(t, "Degree", "D");
+
+    // Bind newId
+    request.input("newId", sql.VarChar, newId);
+
     // Insert
-    const insertSQL = `
-        INSERT INTO Degree (id, name, totalCredits)
-        VALUES (@degreeId, @name, @totalCredits)
-      `;
-    request.input("name", sql.VarChar, name);
-    request.input("totalCredits", sql.Int, totalCredits);
-    await request.query(insertSQL);
-    console.log(`Inserted Degree: ${degreeId}`);
+    await request.query(`
+      INSERT INTO Degree (id, name, totalCredits)
+      VALUES (@newId, @name, @totalCredits)
+    `);
+    console.log(`Inserted Degree: ${name} with ID: ${newId}`);
+    return newId;
   } else {
     // Update
-    const updateSQL = `
-        UPDATE Degree
-        SET name = @name, totalCredits = @totalCredits
-        WHERE id = @degreeId
-      `;
-    request.input("name", sql.VarChar, name);
-    request.input("totalCredits", sql.Int, totalCredits);
-    await request.query(updateSQL);
-    console.log(`Updated Degree: ${degreeId}`);
+    const degreeId = result.recordset[0].id;
+    request.input("id", sql.VarChar, degreeId);
+    await request.query(`
+      UPDATE Degree
+      SET totalCredits = @totalCredits
+      WHERE id = @id
+    `);
+    console.log(`Updated Degree: ${name} with ID: ${degreeId}`);
+    return degreeId;
   }
 }
 
+/**
+ * Upserts a CoursePool based on name.
+ * Returns the course pool's ID.
+ */
 async function upsertCoursePool(
   t: sql.Transaction,
-  poolId: string,
   poolName: string
-) {
+): Promise<string> {
   const request = new sql.Request(t);
-  request.input("poolId", sql.VarChar, poolId);
+  request.input("name", sql.VarChar, poolName);
 
+  // Check if course pool exists by name
   const result = await request.query(
-    "SELECT id FROM CoursePool WHERE id = @poolId"
+    "SELECT id FROM CoursePool WHERE name = @name"
   );
+
   if (result.recordset.length === 0) {
-    const insertSQL = `
-        INSERT INTO CoursePool (id, name)
-        VALUES (@poolId, @poolName)
-      `;
-    request.input("poolName", sql.VarChar, poolName);
-    await request.query(insertSQL);
-    console.log(`Inserted CoursePool: ${poolId}`);
+    // Generate new ID
+    const newId = await generateNextId(t, "CoursePool", "CP");
+
+    // Bind newId
+    request.input("newId", sql.VarChar, newId);
+
+    // Insert
+    await request.query(`
+      INSERT INTO CoursePool (id, name)
+      VALUES (@newId, @name)
+    `);
+    console.log(`Inserted CoursePool: ${poolName} with ID: ${newId}`);
+    return newId;
   } else {
-    const updateSQL = `
-        UPDATE CoursePool
-        SET name = @poolName
-        WHERE id = @poolId
-      `;
-    request.input("poolName", sql.VarChar, poolName);
-    await request.query(updateSQL);
-    console.log(`Updated CoursePool: ${poolId}`);
+    // Update (if necessary)
+    const poolId = result.recordset[0].id;
+    console.log(`CoursePool already exists: ${poolName} with ID: ${poolId}`);
+    return poolId;
   }
 }
 
-async function upsertDegreeXCoursePool(
-  t: sql.Transaction,
-  dxcpId: string,
-  degreeId: string,
-  poolId: string,
-  creditsRequired: number
-) {
-  const request = new sql.Request(t);
-  request.input("dxcpId", sql.VarChar, dxcpId);
-  let result = await request.query(
-    "SELECT id FROM DegreeXCoursePool WHERE id = @dxcpId"
-  );
-  if (result.recordset.length === 0) {
-    const insertSQL = `
-        INSERT INTO DegreeXCoursePool (id, degree, coursepool, creditsRequired)
-        VALUES (@dxcpId, @degree, @poolId, @creditsRequired)
-      `;
-    request.input("degree", sql.VarChar, degreeId);
-    request.input("poolId", sql.VarChar, poolId);
-    request.input("creditsRequired", sql.Int, creditsRequired);
-    await request.query(insertSQL);
-    console.log(`Inserted DegreeXCoursePool: ${dxcpId}`);
-  } else {
-    const updateSQL = `
-        UPDATE DegreeXCoursePool
-        SET degree = @degree, coursepool = @poolId, creditsRequired = @creditsRequired
-        WHERE id = @dxcpId
-      `;
-    request.input("degree", sql.VarChar, degreeId);
-    request.input("poolId", sql.VarChar, poolId);
-    request.input("creditsRequired", sql.Int, creditsRequired);
-    await request.query(updateSQL);
-    console.log(`Updated DegreeXCoursePool: ${dxcpId}`);
-  }
-}
-
+/**
+ * Upserts a Course based on code.
+ */
 async function upsertCourse(
   t: sql.Transaction,
   code: string,
   credits: number,
   description: string
-) {
+): Promise<void> {
   const request = new sql.Request(t);
   request.input("code", sql.VarChar, code);
+  request.input("credits", sql.Int, credits);
+  request.input("description", sql.VarChar, description);
+
+  // Check if course exists by code
   const result = await request.query(
     "SELECT code FROM Course WHERE code = @code"
   );
 
   if (result.recordset.length === 0) {
-    const insertSQL = `
-        INSERT INTO Course (code, credits, description)
-        VALUES (@code, @credits, @description)
-      `;
-    request.input("credits", sql.Int, credits);
-    request.input("description", sql.VarChar, description);
-    await request.query(insertSQL);
+    // Insert
+    await request.query(`
+      INSERT INTO Course (code, credits, description)
+      VALUES (@code, @credits, @description)
+    `);
     console.log(`Inserted Course: ${code}`);
   } else {
-    const updateSQL = `
-        UPDATE Course
-        SET credits = @credits, description = @description
-        WHERE code = @code
-      `;
-    request.input("credits", sql.Int, credits);
-    request.input("description", sql.VarChar, description);
-    await request.query(updateSQL);
-    // console.log(`Updated Course: ${code}`);
+    // Update
+    await request.query(`
+      UPDATE Course
+      SET credits = @credits, description = @description
+      WHERE code = @code
+    `);
+    console.log(`Updated Course: ${code}`);
   }
 }
 
+/**
+ * Upserts a DegreeXCoursePool.
+ */
+async function upsertDegreeXCoursePool(
+  t: sql.Transaction,
+  degreeId: string,
+  poolId: string,
+  creditsRequired: number
+): Promise<string> {
+  const request = new sql.Request(t);
+  request.input("degreeId", sql.VarChar, degreeId);
+  request.input("poolId", sql.VarChar, poolId);
+  request.input("creditsRequired", sql.Int, creditsRequired);
+
+  // Check if DegreeXCoursePool exists by degree and coursepool
+  const result = await request.query(`
+    SELECT id FROM DegreeXCoursePool
+    WHERE degree = @degreeId AND coursepool = @poolId
+  `);
+
+  if (result.recordset.length === 0) {
+    // Generate new ID
+    const newId = await generateNextId(t, "DegreeXCoursePool", "DXCP");
+
+    // Bind newId
+    request.input("newId", sql.VarChar, newId);
+
+    // Insert
+    await request.query(`
+      INSERT INTO DegreeXCoursePool (id, degree, coursepool, creditsRequired)
+      VALUES (@newId, @degreeId, @poolId, @creditsRequired)
+    `);
+    console.log(`Inserted DegreeXCoursePool with ID: ${newId}`);
+    return newId;
+  } else {
+    // Update
+    const dxcpId = result.recordset[0].id;
+    request.input("id", sql.VarChar, dxcpId);
+    await request.query(`
+      UPDATE DegreeXCoursePool
+      SET creditsRequired = @creditsRequired
+      WHERE id = @id
+    `);
+    console.log(`Updated DegreeXCoursePool with ID: ${dxcpId}`);
+    return dxcpId;
+  }
+}
+
+/**
+ * Upserts a CourseXCoursePool with an optional groupId.
+ */
 async function upsertCourseXCoursePool(
   t: sql.Transaction,
-  cxcpId: string,
   courseCode: string,
-  poolId: string
-) {
+  poolId: string,
+  groupId: string | null
+): Promise<string> {
   const request = new sql.Request(t);
-  request.input("cxcpId", sql.VarChar, cxcpId);
+  request.input("courseCode", sql.VarChar, courseCode);
+  request.input("poolId", sql.VarChar, poolId);
+  request.input("groupId", sql.VarChar, groupId);
 
-  let result = await request.query(
-    "SELECT id FROM CourseXCoursePool WHERE id = @cxcpId"
+  // Check if CourseXCoursePool exists by coursecode, poolId, and groupId
+  const result = await request.query(`
+    SELECT id FROM CourseXCoursePool
+    WHERE coursecode = @courseCode AND coursepool = @poolId AND 
+          ((@groupId IS NULL AND groupId IS NULL) OR groupId = @groupId)
+  `);
+
+  if (result.recordset.length === 0) {
+    // Generate new ID
+    const newId = await generateNextId(t, "CourseXCoursePool", "CXP");
+
+    // Bind newId
+    request.input("newId", sql.VarChar, newId);
+
+    // Insert
+    await request.query(`
+      INSERT INTO CourseXCoursePool (id, coursecode, coursepool, groupId)
+      VALUES (@newId, @courseCode, @poolId, @groupId)
+    `);
+    console.log(
+      `Linked Course ${courseCode} to CoursePool ID: ${poolId} with groupId: ${groupId}`
+    );
+    return newId;
+  } else {
+    // Already exists, return existing ID
+    const cxcpId = result.recordset[0].id;
+    console.log(
+      `CourseXCoursePool already exists for Course ${courseCode} in Pool ID: ${poolId} with groupId: ${groupId}`
+    );
+    return cxcpId;
+  }
+}
+
+/**
+ * Upserts a Requisite (prerequisite or corequisite).
+ */
+async function upsertRequisite(
+  t: sql.Transaction,
+  code1: string,
+  code2: string,
+  type: "pre" | "co"
+): Promise<void> {
+  const request = new sql.Request(t);
+  request.input("code1", sql.VarChar, code1);
+  request.input("code2", sql.VarChar, code2);
+  request.input("type", sql.VarChar, type);
+
+  // Check if Requisite exists by (code1, code2, type)
+  const result = await request.query(`
+    SELECT id FROM Requisite
+    WHERE code1 = @code1 AND code2 = @code2 AND type = @type
+  `);
+
+  if (result.recordset.length === 0) {
+    // Generate new ID
+    const newId = await generateNextId(t, "Requisite", "R");
+
+    // Bind newId
+    request.input("newId", sql.VarChar, newId);
+
+    // Insert
+    await request.query(`
+      INSERT INTO Requisite (id, code1, code2, type)
+      VALUES (@newId, @code1, @code2, @type)
+    `);
+    console.log(
+      `Inserted Requisite: ${code1} -> ${code2} (${type}) with ID: ${newId}`
+    );
+  } else {
+    console.log(`Requisite already exists: ${code1} -> ${code2} (${type})`);
+    // If you have additional fields to update, handle here
+  }
+}
+
+/**
+ * Retrieves the pool ID by pool name.
+ */
+async function getPoolIdByName(
+  t: sql.Transaction,
+  poolName: string
+): Promise<string> {
+  const request = new sql.Request(t);
+  request.input("name", sql.VarChar, poolName);
+
+  const result = await request.query(
+    "SELECT id FROM CoursePool WHERE name = @name"
   );
 
   if (result.recordset.length === 0) {
-    const insertSQL = `
-        INSERT INTO CourseXCoursePool (id, coursecode, coursepool)
-        VALUES (@cxcpId, @courseCode, @poolId)
-      `;
-    request.input("courseCode", sql.VarChar, courseCode);
-    request.input("poolId", sql.VarChar, poolId);
-    await request.query(insertSQL);
-    // console.log(`Linked ${courseCode} to ${poolId}`);
-  } else {
-    const updateSQL = `
-        UPDATE CourseXCoursePool
-        SET coursecode = @courseCode, coursepool = @poolId
-        WHERE id = @cxcpId
-      `;
-    request.input("courseCode", sql.VarChar, courseCode);
-    request.input("poolId", sql.VarChar, poolId);
-    await request.query(updateSQL);
-    // console.log(`Updated link for ${courseCode} in ${poolId}`);
+    throw new Error(`CoursePool with name "${poolName}" does not exist.`);
   }
+
+  return result.recordset[0].id;
+}
+
+/**
+ * Generates a unique groupId based on poolId and groupNumber.
+ */
+function generateGroupId(poolId: string, groupNumber: number): string {
+  return `${poolId}-group-${groupNumber}`;
 }
 
 // -------------------------------------
 // 6) Main Seed Function
 // -------------------------------------
+/**
+ * Main Seed Function to populate the database.
+ */
 async function seedSoenDegree() {
+  let transaction: sql.Transaction | null = null; // Declare transaction in outer scope for rollback
   try {
-    // 6.1) PARSE THE REQUIREMENTS TEXT FILE
+    // 1. PARSE THE REQUIREMENTS TEXT FILE
     const requirementsFilePath = path.join(
       __dirname,
       "../../course-data",
@@ -512,71 +653,169 @@ async function seedSoenDegree() {
     const { degreeId, degreeName, totalCredits, requirements } =
       parseRequirementsFile(requirementsFilePath);
 
-    // 6.2) LOAD COURSE JSON
+    // 2. LOAD COURSE JSON
     const courseListsDir = path.join(
       __dirname,
       "../../course-data/course-lists"
     );
     const courseMap = loadAllCourseJsons(courseListsDir);
 
-    // 6.3) CONNECT + BEGIN TRANSACTION
+    // 3. CONNECT + BEGIN TRANSACTION
     console.log("[SEED] Connecting to DB...");
     const pool = await sql.connect(dbConfig);
-    const transaction = pool.transaction();
+
+    // Confirm connected database
+    const dbResult = await pool.request().query("SELECT DB_NAME() AS dbName");
+    const connectedDbName = dbResult.recordset[0].dbName;
+    console.log(`[SEED] Connected to database: ${connectedDbName}`);
+
+    if (connectedDbName !== process.env.DB_NAME) {
+      throw new Error(
+        `Connected to incorrect database "${connectedDbName}". Expected "${process.env.DB_NAME}".`
+      );
+    }
+
+    transaction = pool.transaction();
     await transaction.begin();
-    console.log("[SEED] Connected. Transaction started.");
+    console.log("[SEED] Transaction started.");
 
-    // 6.4) Upsert the Degree
-    await upsertDegree(transaction, degreeId, degreeName, totalCredits);
+    // 4. Upsert the Degree
+    const degreeIdNumber = await upsertDegree(
+      transaction,
+      degreeName,
+      totalCredits
+    );
 
-    // 6.5) For each requirement, upsert course pool + link to degree
+    // 5. Upsert all CoursePools and DegreeXCoursePools
     for (const req of requirements) {
-      // 6.5a) Upsert CoursePool
-      await upsertCoursePool(transaction, req.poolId, req.poolName);
+      // Upsert CoursePool
+      const poolIdNumber = await upsertCoursePool(transaction, req.poolName);
 
-      // 6.5b) Upsert DegreeXCoursePool
-      const dxcpId = `${degreeId}-${req.poolId}`; // unique bridging ID
+      // Upsert DegreeXCoursePool
       await upsertDegreeXCoursePool(
         transaction,
-        dxcpId,
-        degreeId,
-        req.poolId,
+        degreeIdNumber,
+        poolIdNumber,
         req.creditsRequired
       );
+    }
 
-      // 6.5c) Upsert each Course & Link
-      for (const code of req.courseCodes) {
-        // If it’s something like "General Education Elective", skip or handle specially
-        if (!code.match(/^[A-Z]{2,4}\s*\d{3}/)) {
-          // skip if it doesn’t match typical "ENGR 201" pattern
+    // 6. Upsert all Courses
+    for (const [code, courseData] of courseMap.entries()) {
+      const cCredits = courseData.credits ?? 3; // default 3 if not found
+      const cDesc = courseData.description ?? `No description for ${code}`;
+      await upsertCourse(transaction, code, cCredits, cDesc);
+    }
+
+    // 7. Link Courses to CoursePools
+    for (const req of requirements) {
+      // Handle Course Groups (Alternative Courses)
+      const alternativeCourses = req.courseCodes.filter((code) =>
+        code.includes(",")
+      );
+      let groupNumber = 1;
+
+      for (const altLine of alternativeCourses) {
+        const groupCourses = altLine.split(",").map((c) => c.trim());
+        const groupId = generateGroupId(req.poolId, groupNumber);
+
+        for (const courseCode of groupCourses) {
+          if (!/^[A-Z]{2,4}\s*\d{3}/.test(courseCode)) {
+            console.log(`Skipping non-course line: "${courseCode}"`);
+            continue;
+          }
+
+          const upperCode = courseCode.toUpperCase().replace(/\s+/g, "");
+          const poolIdNumber = await getPoolIdByName(transaction, req.poolName);
+          console.log(`Upserting ${upperCode} in ${req.poolName}`);
+          console.log(`Pool ID: ${poolIdNumber}`);
+          console.log(`Group ID: ${groupId}`);
+          console.log(`Group Number: ${groupNumber}`);
+
+          await upsertCourseXCoursePool(
+            transaction,
+            upperCode,
+            poolIdNumber,
+            groupId
+          );
+        }
+
+        groupNumber++;
+      }
+
+      // Handle Non-Alternative Courses
+      const nonAlternativeCourses = req.courseCodes.filter(
+        (code) => !code.includes(",")
+      );
+      for (const code of nonAlternativeCourses) {
+        if (!/^[A-Z]{2,4}\s*\d{3}/.test(code)) {
           console.log(`Skipping non-course line: "${code}"`);
           continue;
         }
-        const upperCode = code.toUpperCase().replace(/\s+/g, '');
-        console.log(`Upserting course: ${upperCode}`);
-        const jsonData = courseMap.get(upperCode);
 
-        const cCredits = jsonData?.credits ?? 3; // default 3 if not found
-        const cDesc =
-          jsonData?.description ?? `No description for ${upperCode}`;
-        await upsertCourse(transaction, upperCode, cCredits, cDesc);
+        const upperCode = code.toUpperCase().replace(/\s+/g, "");
+        const poolIdNumber = await getPoolIdByName(transaction, req.poolName);
+        console.log(`Upserting ${upperCode} in ${req.poolName}`);
+        console.log(`Pool ID: ${poolIdNumber}`);
+        // console.log(`Group ID: ${groupId}`);
+        console.log(`Group Number: ${groupNumber}`);
 
-        // Link in CourseXCoursePool
-        const cxcpId = `${code}-${req.poolId}`;
-        await upsertCourseXCoursePool(transaction, cxcpId, upperCode, req.poolId);
+        await upsertCourseXCoursePool(
+          transaction,
+          upperCode,
+          poolIdNumber,
+          null
+        );
       }
     }
 
-    // 6.6) Commit
+    // 8. Upsert Prerequisites and Corequisites from Course JSONs
+    for (const [code, courseData] of courseMap.entries()) {
+      // Handle Prerequisites
+      const prerequisites = parseRequisites(courseData.prerequisites);
+      for (const preCode of prerequisites) {
+        // Ensure the prerequisite course exists
+        if (!courseMap.has(preCode)) {
+          console.warn(
+            `Prerequisite course "${preCode}" for "${code}" does not exist. Skipping.`
+          );
+          continue;
+        }
+        await upsertRequisite(transaction, code, preCode, "pre");
+      }
+
+      // Handle Corequisites
+      const corequisites = parseRequisites(courseData.corequisites);
+      for (const coCode of corequisites) {
+        // Ensure the corequisite course exists
+        if (!courseMap.has(coCode)) {
+          console.warn(
+            `Corequisite course "${coCode}" for "${code}" does not exist. Skipping.`
+          );
+          continue;
+        }
+        await upsertRequisite(transaction, code, coCode, "co");
+      }
+    }
+
+    // 9. Commit
     await transaction.commit();
     console.log("[SEED] Seeding completed successfully.");
     pool.close();
   } catch (err) {
     console.error("[SEED] Error during seeding:", err);
+    if (transaction) {
+      try {
+        await transaction.rollback();
+        console.log("[SEED] Transaction rolled back due to error.");
+      } catch (rollbackErr) {
+        console.error("[SEED] Error during rollback:", rollbackErr);
+      }
+    }
   }
 }
 
-// If running from command line: `ts-node seedSoenDegree.ts`
+// If running from command line: `ts-node adminController.ts`
 if (require.main === module) {
   seedSoenDegree();
 }
