@@ -56,8 +56,8 @@ body {
 }
 
 .instruction-image {
-  width: 150px; /* Set desired width */
-  height: 150px; /* Set desired height */
+  width: 20vw; /* Set desired width */
+  height: 20vh; /* Set desired height */
   object-fit: contain; /* Ensures the whole image is visible */
   border: 1px solid #ccc; /* Optional: for a border around the image */
   background-color: #f4f4f4; /* Optional: for a background color */
