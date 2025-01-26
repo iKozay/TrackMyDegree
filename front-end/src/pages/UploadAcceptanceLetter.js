@@ -18,6 +18,30 @@ const UploadAcceptanceLetterPage = () => {
     creditDeficiency: null,
   });
 
+  // List of specific programs to check for
+  const programNames = [
+    'Aerospace Engineering', 'Building Engineering', 'Civil Engineering', 'Computer Engineering',
+    'Computer Science', 'Computer Science (Minor)', 'Computer Science - Computation Arts',
+    'Data Science', 'Electrical Engineering', 'Health and Life Sciences', 'Indigenous Bridging Program',
+    'Industrial Engineering', 'Mechanical Engineering', 'Science and Technology', 'Software Engineering'
+  ];
+
+  const generateSemesterOptions = (startYear, endYear) => {
+    const terms = ['Winter', 'Summer', 'Fall'];
+    const options = [];
+    options.push(`Fall ${startYear}`);
+    for (let year = startYear; year <= endYear; year++) {
+      terms.forEach((term) => {
+        options.push(`${term} ${term === 'Fall' ? year + 1 : year}`);
+      });
+    }
+  
+    return options;
+  };
+
+  // Generate Terms from 2017 to 2030
+const startingSemesters = generateSemesterOptions(2017, 2030);
+
   const handleRadioChange = (group, value) => {
     setSelectedRadio((prev) => ({
       ...prev,
@@ -322,17 +346,21 @@ const UploadAcceptanceLetterPage = () => {
             <div>
               <label htmlFor="degree-concentration">Degree Concentration:</label>
               <select id="degree-concentration" className="input-field">
-                <option>Software Engineer</option>
-                <option>Computer Science</option>
-                <option>Electrical Engineering</option>
+                {programNames.map((program, index) => (
+                  <option key={index} value={program}>
+                    {program}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
               <label htmlFor="starting-semester">Starting Semester:</label>
               <select id="starting-semester" className="input-field">
-                <option>Fall 2023</option>
-                <option>Winter 2024</option>
-                <option>Summer 2024</option>
+                {startingSemesters.map((semester, index) => (
+                  <option key={index} value={semester}>
+                    {semester}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="radio-group">
@@ -390,6 +418,15 @@ const UploadAcceptanceLetterPage = () => {
             Create Timeline
           </button>
           {output && <div id="output" dangerouslySetInnerHTML={{ __html: output }}></div>}
+          <p>
+            To upload your unofficial transcript, please click here!
+          </p>
+          <button
+            className="upload-transcript-button"
+            onClick={() => navigate('/uploadTranscript')}
+          >
+            Upload Transcript
+          </button>
         </div>
       </div>
     </div>

@@ -142,7 +142,6 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 
 // Main component
 const TimelinePage = ({ timelineData }) => {
-  const navigate = useNavigate();
   const [semesters, setSemesters] = useState([]);
   const [semesterCourses, setSemesterCourses] = useState({courseList: [],});
 
@@ -525,12 +524,6 @@ const TimelinePage = ({ timelineData }) => {
             <h4>
               Total Credits Earned: {totalCredits} / 120
             </h4>
-            <button
-            className="upload-transcript-button"
-            onClick={() => navigate('/uploadTranscript')}
-          >
-            Upload Transcript
-          </button>
           </div>
 
         <div className="timeline-page">
