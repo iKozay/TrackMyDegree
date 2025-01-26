@@ -22,7 +22,6 @@ jobs:
       - name: Run Tests
         run: |
           docker logs $(docker ps -a -q --filter "name=trackmydegree-tests")  # Print test logs for visibility
-          docker wait $(docker ps -a -q --filter "name=trackmydegree-tests")  # Wait for the tests container to finish
           if [ "$(docker inspect -f '{{.State.ExitCode}}' $(docker ps -a -q --filter "name=trackmydegree-tests"))" -ne 0 ]; then
             echo "Tests failed!"
             exit 1
