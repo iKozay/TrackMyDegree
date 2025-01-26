@@ -2,7 +2,6 @@
   display: flex;
   gap: 20px;
   height: 70vh;
-  /* padding-bottom: %; */
   padding: 2vh;
 }
 
@@ -14,56 +13,139 @@
   background-color: #f0f0f0;
   padding: 10px;
   border-radius: 5px;
-  overflow-y: auto;
-  overflow-x: hidden;
   max-height: 90%;
 }
 
+.courses-with-button {
+  display: flex;
+  height: 100%;
+  position: relative;
+}
+
 .timeline-left-bar {
-  max-width: 20%;
   background-color: #f0f0f0;
   padding: 10px;
   border-radius: 25px;
   max-height: 100%;
   align-items: center;
-  min-width: 300px;
+  width: 300px;
+  transition: width 0.3s ease, transform 0.3s ease;
+  overflow: auto;
+  position: relative;
+}
+
+.timeline-left-bar.hidden {
+  width: 10px;
+  min-width: 10px;
+}
+
+.left-toggle-button {
+  position: absolute;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  right: -13px;
+  border: none;
+  border-radius: 50%;
+  background-color: lightgray;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.left-toggle-button:hover {
+  background-color: #e0e0e0;
+}
+
+.right-toggle-button {
+  position: absolute;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  left: -13px;
+  border: none;
+  border-radius: 50%;
+  background-color: lightgray;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.right-toggle-button:hover {
+  background-color: #e0e0e0;
 }
 
 .semesters {
-  flex: 3;
+  flex-grow: 1;
   display: flex;
-  gap: 20px;
-  overflow-x: auto; /* Enable horizontal scrolling */
-  height:100%;
-  padding: 50px;
-  background-color: #faf0f0;
-  border-radius: 10px;
+  gap: 15px;
+  overflow-x: scroll;
+  padding: 10px;
   margin: 0px;
-  width: 70%;
+  width: 100%;
+  height: min-content;
+}
+
+.timeline-middle-section {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+  background-color: #faf0f0;
+  height: 100%;
+  align-items: flex-start;
+  border-radius: 25px;
 }
 
 .semester {
   margin: 15px;
+  height: min-content;
 }
 
-.semesters-and-description {
-  min-width: 80%;
+.description-and-button {
   display: flex;
-  align-items: flex-start;
-  gap: 20px;
+  height: 100%;
+  position: relative;
 }
 
-.description-space {
-  /* width: 20%; */
-  flex: 1;
+.description-section {
   background-color: #f8f9fa;
   padding: 20px;
   border-radius: 25px;
-  width: 70%;
-  overflow-y: auto;
-  z-index: 10;
-  height:100%;
+  width: 300px;
+  overflow: auto;
+  height: 100%;
   font-size: 15px;
+  transition: width 0.3s ease, transform 0.3s ease;
+  position: relative;
+}
+
+.description-section.hidden {
+  white-space: nowrap;
+  width: 1px;
+  overflow: hidden;
+  color: #f8f9fa;
+  user-select: none;
+}
+
+.description-section.hidden p {
+  color: #f8f9fa;
+}
+
+.description-section::-webkit-scrollbar,
+.timeline-left-bar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.description-section::-webkit-scrollbar-thumb,
+.timeline-left-bar::-webkit-scrollbar-thumb {
+  background-color: lightgray;
+  border-radius: 5px;
 }
 
 .course-item {
@@ -124,7 +206,8 @@
   border: 2px solid #c0d8cd; /* Adjust the color and thickness */
   border-radius: 13px; /* Optional: add some border radius */
   box-shadow: #b2c5bc 0px 0px 3px;
-  background-color: #a4b8b0;}
+  background-color: #a4b8b0;
+}
 
 .returning {
   padding: 10px;
@@ -151,15 +234,14 @@
   min-height: 400px;
   background-color: #fdfafd;
   padding: 10px;
-  border: 2px  #ced4da;
+  border: 2px #ced4da;
   border-radius: 20px;
   transition: background-color 0.2s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
   box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
-  margin-bottom: 200px;
-
+  /* margin-bottom: 200px; */
 }
 
 .semester-spot:hover {
@@ -219,7 +301,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -258,7 +340,7 @@
   border: none;
   padding: 5px;
   width: 40%;
-  margin-left: 280px; /* adjust based on your layout */
+  align-self: flex-end;
   margin-bottom: 0px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -274,10 +356,10 @@
 }
 
 .select-label {
-  margin-bottom: 6px;     /* space between label & select */
+  margin-bottom: 6px; /* space between label & select */
   font-size: 14px;
   font-family: Arial, sans-serif;
-  font-weight: normal;    /* can keep bold if you prefer */
+  font-weight: normal; /* can keep bold if you prefer */
   color: rgb(78, 108, 91);
 }
 
@@ -292,20 +374,18 @@
   background-color: white;
   cursor: pointer;
   outline: none;
-  -webkit-appearance: none;  /* Remove default arrow in Chrome/Safari */
-  -moz-appearance: none;     /* Remove default arrow in Firefox */
+  -webkit-appearance: none; /* Remove default arrow in Chrome/Safari */
+  -moz-appearance: none; /* Remove default arrow in Firefox */
   appearance: none;
   margin-right: 4px;
   transition: border-color 0.2s ease;
   margin-right: 4px;
-  margin-top:5px;
+  margin-top: 5px;
   width: 120px;
   border-color: rgba(156, 143, 143, 0.8);
   box-shadow: 0 0 3px rgba(156, 143, 143, 0.3);
-  background:
-          url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWw0IDQgNC00IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+")
-          no-repeat
-          right 0.75em center / 0.65em;
+  background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWw0IDQgNC00IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+")
+    no-repeat right 0.75em center / 0.65em;
   transition: border-color 0.2s ease;
 }
 
@@ -320,17 +400,31 @@
   background-color: #fff;
   color: rgb(78, 108, 91);
   font-size: 16px;
-
 }
 
+.timeline-header {
+  width: 100%;
+  padding: 5px 10px 0px 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.timeline-title {
+  padding-left: 10px;
+  font-size: xx-large;
+  color: darkgray;
+  font-weight: bold;
+}
 
 /* The + button at the top-right corner */
 .add-semester-button {
-  align-self: flex-start;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: min-content;
+  height: min-content;
+  white-space: nowrap;
   background-color: rgba(156, 143, 143, 0.8);
+  padding: 1px 10px;
+  border-radius: 25px;
   color: #fff;
   border: none;
   font-size: 1.3rem;
@@ -340,12 +434,15 @@
   justify-content: center;
 }
 
+.add-semester-button:hover {
+  background-color: rgb(156, 143, 143);
+}
+
 /*
    Container that holds both the total credit and the trash button
    at the bottom of each semester column.
 */
 .semester-footer {
-
   margin-top: auto;
   display: flex;
   justify-content: space-between;
@@ -361,7 +458,7 @@
   color: rgb(78, 108, 91);
 }
 .over-limit-warning {
-  color:  #912338;
+  color: #912338;
   font-weight: bold;
   max-width: 200px;
 }
@@ -406,12 +503,22 @@
 
 /* Keyframes for the shaking effect */
 @keyframes shake {
-  0% { transform: translate(0, 0); }
-  20% { transform: translate(-5px, 0); }
-  40% { transform: translate(5px, 0); }
-  60% { transform: translate(-5px, 0); }
-  80% { transform: translate(5px, 0); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-5px, 0);
+  }
+  40% {
+    transform: translate(5px, 0);
+  }
+  60% {
+    transform: translate(-5px, 0);
+  }
+  80% {
+    transform: translate(5px, 0);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
-
-
