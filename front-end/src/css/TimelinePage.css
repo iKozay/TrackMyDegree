@@ -191,6 +191,8 @@
 }
 
 .credits-display {
+  display: flex;
+  justify-content: space-between;
   padding: 10px;
   background-color: #f5f5f5;
   text-align: center;
@@ -198,11 +200,26 @@
 }
 
 .credits-display h4 {
+  padding-left: 35vw;
   margin: 0;
 }
 
 .warning-icon {
   width: 25px;
+}
+
+.upload-transcript-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.upload-transcript-button:hover {
+  background-color: #0056b3;
 }
 /*---------------------------K R-------------------------*/
 

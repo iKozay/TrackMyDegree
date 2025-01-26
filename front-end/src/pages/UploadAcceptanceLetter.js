@@ -12,6 +12,18 @@ const UploadAcceptanceLetterPage = () => {
   const [output, setOutput] = useState('');
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  const [selectedRadio, setSelectedRadio] = useState({
+    coOp: null,
+    extendedCredit: null,
+    creditDeficiency: null,
+  });
+
+  const handleRadioChange = (group, value) => {
+    setSelectedRadio((prev) => ({
+      ...prev,
+      [group]: prev[group] === value ? null : value, // Toggle selection
+    }));
+  };
 
   const handleNextButtonClick = () => {
     navigate("/timeline_change");
@@ -326,19 +338,19 @@ const UploadAcceptanceLetterPage = () => {
             <div className="radio-group">
               <span className="cooo">Co-op Program? </span>
               <label>
-                <input type="radio" name="co-op" value="yes" />
+                <input type="checkbox" name="co-op" value="yes" />
               </label>
             </div>
             <div className="radio-group">
               <span className="cooo">Extended Credit Program? </span>
               <label>
-                <input type="radio" name="extended-credit" value="yes" />
+                <input type="checkbox" name="extended-credit" value="yes" />
               </label>
             </div>
             <div className="radio-group">
               <span className="cooo">Credit Deficiency? </span>
               <label>
-                <input type="radio" name="credit-deficiency" value="yes" />
+                <input type="checkbox" name="credit-deficiency" value="yes" />
               </label>
             </div>
           </form>
