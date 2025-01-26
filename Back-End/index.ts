@@ -12,6 +12,7 @@ import exemptionRouter from "@routes/exemption"
 import deficiencyRouter from "@routes/deficiency"
 import degreeRouter from "@routes/degree";
 import timelineRouter from "@routes/timeline";
+import coursepoolRouter from "@routes/coursepool";
 import AppUser from "@routes/appUser";
 import userDataRouter from "@routes/userData";
 import Admin from "@routes/adminRoutes";
@@ -73,6 +74,7 @@ app.use("/degree", degreeRouter);
 app.use("/exemption", exemptionRouter);
 app.use("/deficiency", deficiencyRouter);
 app.use("/timeline", timelineRouter);
+app.use("/coursepool", coursepoolRouter);
 //app.use("/appUser", AppUser);
 app.use("/data", userDataRouter);
 app.use("/admin", Admin);

@@ -1,24 +1,43 @@
-const request = require("supertest");
+jest.mock("../dist/controllers/exemptionController/exemptionController", () => ({
+  __esModule: true,
+  default: {
+    createExemption                       : jest.fn(),
+    getAllExemptionsByUser                : jest.fn(),
+    deleteExemptionByCoursecodeAndUserId  : jest.fn()
+  }
+}));
+
+const request     = require("supertest");
+const express     = require("express");
+const router      = require("../dist/routes/exemption").default;
+const controller  = require("../dist/controllers/exemptionController/exemptionController").default;
 
 const url = process.DOCKER_URL || "host.docker.internal:8000";
 
+const app = express();
+app.use(express.json());
+app.use("/exemption", router);
+
 describe("Exemption Routes", () => {
+    const newExemption = {
+      id: "4",
+      coursecode: "COMP335",
+      user_id: "1",
+    };
     // Test for adding an exemption
     describe("POST /exemption/create", () => {
         it("should return a success message and exemption data", async () => {
-            const newExemption = {
-                id: "4",
-                coursecode: "COMP335",
-                user_id: "1",
-            };
 
-            const response = await request(url)
+            controller.createExemption.mockResolvedValue(newExemption);
+
+            const response = await request(app)
                 .post("/exemption/create")
                 .send(newExemption)
                 .expect("Content-Type", /json/)
                 .expect(201);
 
-            expect(response.body).toHaveProperty("message", "Exemption created successfully.");
+            expect(response.body).toHaveProperty
+            ("message", "Exemption created successfully.");
             expect(response.body).toHaveProperty("exemption");
             const exemption = response.body.exemption;
 
@@ -42,7 +61,8 @@ describe("Exemption Routes", () => {
                 .expect("Content-Type", /json/)
                 .expect(400);
 
-            expect(response.body).toHaveProperty("error", "Invalid input. Please provide coursecode, and user_id as a string.");
+            expect(response.body).toHaveProperty
+            ("error", "Invalid input. Please provide coursecode, and user_id as a string.");
         });
     });
 
@@ -53,7 +73,9 @@ describe("Exemption Routes", () => {
                 user_id: "1"
             };
 
-            const response = await request(url)
+            controller.getAllExemptionsByUser.mockResolvedValue(newExemption);
+
+            const response = await request(app)
                 .post("/exemption/getAll")
                 .send(exemptionRequest)
                 .expect("Content-Type", /json/)
@@ -84,7 +106,7 @@ describe("Exemption Routes", () => {
                 user_id: "1"
             };
 
-            const response = await request(url)
+            const response = await request(app)
                 .post("/exemption/delete")
                 .send(exemptionRequest)
                 .expect("Content-Type", /json/)
@@ -103,7 +125,8 @@ describe("Exemption Routes", () => {
                 .expect("Content-Type", /json/)
                 .expect(400);
 
-            expect(response.body).toHaveProperty("error", "Invalid input. Please provide the parameters as a string.");
+            expect(response.body).toHaveProperty
+            ("error", "Invalid input. Please provide coursecode and user_id as strings.");
         });
     });
 

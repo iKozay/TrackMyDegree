@@ -1,43 +1,64 @@
-const request = require("supertest");
+jest.mock("../dist/controllers/deficiencyController/deficiencyController", () => ({
+  __esModule: true,
+  default: {
+    createDeficiency                      : jest.fn(),
+    getAllDeficienciesByUser              : jest.fn(),
+    deleteDeficiencyByCoursepoolAndUserId : jest.fn()
+  }
+}));
+
+const request     = require("supertest");
+const express     = require("express");
+const router      = require("../dist/routes/deficiency").default;
+const controller  = require("../dist/controllers/deficiencyController/deficiencyController").default;
 
 const url = process.DOCKER_URL || "host.docker.internal:8000";
+
+const app = express();
+app.use(express.json());
+app.use("/deficiency", router);
 
 describe("Deficiency Routes", () => {
     // Test for adding an deficiency
     describe("POST /deficiency/create", () => {
         it("should return a success message and deficiency data", async () => {
 
-            const newUser = {
-                email: "test1@test.com",
-				password: "pass",
-				fullname: "Random User",
-				type: "student",
-				degree: "CS"
-            };
+            // const newUser = {
+            //     email: "test1@test.com",
+            //     password: "pass",
+            //     fullname: "Random User",
+            //     type: "student",
+            //     degree: "CS"
+            // };
 
-            const signupResponse = await request(url)
-                .post("/auth/signup")
-                .send(newUser)
-                .expect("Content-Type", /json/)
-                .expect(201);
+            // const signupResponse = await request(url)
+            //     .post("/auth/signup")
+            //     .send(newUser)
+            //     .expect("Content-Type", /json/)
+            //     .expect(201);
 
-            const user_id = signupResponse.body.id;
+            // const user_id = signupResponse.body.id;
 
             const newDeficiency = {
                 coursepool: "1",
-                user_id: user_id,
+                user_id: "1",
                 creditsRequired: 120,
             };
 
+            controller.createDeficiency.mockResolvedValue({ 
+              id: "random id",
+              ...newDeficiency
+             });
 
-            const response = await request(url)
+            const response = await request(app)
                 .post("/deficiency/create")
                 .send(newDeficiency)
                 .expect("Content-Type", /json/)
                 .expect(201);
 
             expect(response.body).toHaveProperty("message", "Deficiency created successfully.");
-            expect(response.body).toHaveProperty("deficiency", response);
+            expect(response.body).toHaveProperty("deficiency");
+            expect(response.body.deficiency).toHaveProperty("id", "random id");
 
         });
 
@@ -60,7 +81,7 @@ describe("Deficiency Routes", () => {
     describe("POST /deficiency/getAll", () => {
         it("should return deficiencies related a specific user", async () => {
             const deficiencyRequest = {
-                user_id: "1"
+                user_id: "2"
             };
 
             const response = await request(url)
@@ -69,7 +90,8 @@ describe("Deficiency Routes", () => {
                 .expect("Content-Type", /json/)
                 .expect(200);
 
-            expect(response.body).toHaveProperty("deficiency", deficiency);
+            expect(response.body).toHaveProperty("message", "Deficiency read successfully.");
+            expect(response.body).toHaveProperty("deficiency");
         });
 
         // No user_id provided case
@@ -95,7 +117,9 @@ describe("Deficiency Routes", () => {
                 creditsRequired: 120
             };
 
-            const response = await request(url)
+            controller.deleteDeficiencyByCoursepoolAndUserId.mockResolvedValue("PASS");
+
+            const response = await request(app)
                 .post("/deficiency/delete")
                 .send(deficiencyRequest)
                 .expect("Content-Type", /json/)

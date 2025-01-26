@@ -137,7 +137,7 @@ VALUES ('1', 'winter', 2024, 'COMP335', '1'),  -- UserID 1's timeline for winter
 
 -- Deficiency table
 INSERT INTO Deficiency (id, coursepool, user_id, creditsRequired)
-VALUES ('1', '1', '1', 3),  -- UserID 1 has a deficiency
+VALUES ('1', '2', '1', 3),  -- UserID 1 has a deficiency
        ('2', '2', '2', 3);  -- UserID 2 has a deficiency
 
 -- Exemption table
