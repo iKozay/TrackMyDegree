@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - Dev-Release-2
+  pull_request:
+    branches:
+      - main
+      - Dev-Release-2
 
 jobs:
   docker-compose:
