@@ -12,6 +12,42 @@ const UploadAcceptanceLetterPage = () => {
   const [output, setOutput] = useState('');
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  const [selectedRadio, setSelectedRadio] = useState({
+    coOp: null,
+    extendedCredit: null,
+    creditDeficiency: null,
+  });
+
+  // List of specific programs to check for
+  const programNames = [
+    'Aerospace Engineering', 'Building Engineering', 'Civil Engineering', 'Computer Engineering',
+    'Computer Science', 'Computer Science (Minor)', 'Computer Science - Computation Arts',
+    'Data Science', 'Electrical Engineering', 'Health and Life Sciences', 'Indigenous Bridging Program',
+    'Industrial Engineering', 'Mechanical Engineering', 'Science and Technology', 'Software Engineering'
+  ];
+
+  const generateSemesterOptions = (startYear, endYear) => {
+    const terms = ['Summer', 'Fall', 'Winter'];
+    const options = [];
+    options.push(`Winter ${startYear}`);
+    for (let year = startYear; year <= endYear; year++) {
+      terms.forEach((term) => {
+        options.push(`${term} ${term === 'Winter' ? year + 1 : year}`);
+      });
+    }
+  
+    return options;
+  };
+
+  // Generate Terms from 2017 to 2030
+const startingSemesters = generateSemesterOptions(2017, 2030);
+
+  const handleRadioChange = (group, value) => {
+    setSelectedRadio((prev) => ({
+      ...prev,
+      [group]: prev[group] === value ? null : value, // Toggle selection
+    }));
+  };
 
   const handleNextButtonClick = () => {
     navigate("/timeline_change");
@@ -310,35 +346,39 @@ const UploadAcceptanceLetterPage = () => {
             <div>
               <label htmlFor="degree-concentration">Degree Concentration:</label>
               <select id="degree-concentration" className="input-field">
-                <option>Software Engineer</option>
-                <option>Computer Science</option>
-                <option>Electrical Engineering</option>
+                {programNames.map((program, index) => (
+                  <option key={index} value={program}>
+                    {program}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
               <label htmlFor="starting-semester">Starting Semester:</label>
               <select id="starting-semester" className="input-field">
-                <option>Fall 2023</option>
-                <option>Winter 2024</option>
-                <option>Summer 2024</option>
+                {startingSemesters.map((semester, index) => (
+                  <option key={index} value={semester}>
+                    {semester}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="radio-group">
               <span className="cooo">Co-op Program? </span>
               <label>
-                <input type="radio" name="co-op" value="yes" />
+                <input type="checkbox" name="co-op" value="yes" />
               </label>
             </div>
             <div className="radio-group">
               <span className="cooo">Extended Credit Program? </span>
               <label>
-                <input type="radio" name="extended-credit" value="yes" />
+                <input type="checkbox" name="extended-credit" value="yes" />
               </label>
             </div>
             <div className="radio-group">
               <span className="cooo">Credit Deficiency? </span>
               <label>
-                <input type="radio" name="credit-deficiency" value="yes" />
+                <input type="checkbox" name="credit-deficiency" value="yes" />
               </label>
             </div>
           </form>
@@ -378,6 +418,15 @@ const UploadAcceptanceLetterPage = () => {
             Create Timeline
           </button>
           {output && <div id="output" dangerouslySetInnerHTML={{ __html: output }}></div>}
+          <p>
+            To upload your unofficial transcript, please click here!
+          </p>
+          <button
+            className="upload-transcript-button"
+            onClick={() => navigate('/uploadTranscript')}
+          >
+            Upload Transcript
+          </button>
         </div>
       </div>
     </div>
