@@ -33,7 +33,7 @@ CREATE TABLE DegreeXCoursePool (
   creditsRequired INT NOT NULL,
   UNIQUE(degree, coursepool),
   FOREIGN KEY (degree) REFERENCES Degree(id),
-  FOREIGN KEY (coursepool) REFERENCES CoursePool(id)
+  FOREIGN KEY (coursepool) REFERENCES CoursePool(id) ON DELETE CASCADE
 );
 
 CREATE TABLE CourseXCoursePool (
@@ -44,12 +44,12 @@ CREATE TABLE CourseXCoursePool (
   UNIQUE(coursecode, coursepool),
   CONSTRAINT UC_CourseXCoursePool UNIQUE (coursecode, coursepool, groupId),
   FOREIGN KEY (coursecode) REFERENCES Course(code), -- Composite foreign key
-  FOREIGN KEY (coursepool) REFERENCES CoursePool(id)
+  FOREIGN KEY (coursepool) REFERENCES CoursePool(id) ON DELETE CASCADE
 );
 
 CREATE TABLE AppUser (  -- Use square brackets for reserved keywords
     id VARCHAR(255) PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     fullname VARCHAR(255) NOT NULL,
     degree VARCHAR(255),
@@ -139,7 +139,7 @@ VALUES ('1', 'winter', 2024, 'COMP335', '1'),  -- UserID 1's timeline for winter
 
 -- Deficiency table
 INSERT INTO Deficiency (id, coursepool, user_id, creditsRequired)
-VALUES ('1', '1', '1', 3),  -- UserID 1 has a deficiency
+VALUES ('1', '2', '1', 3),  -- UserID 1 has a deficiency
        ('2', '2', '2', 3);  -- UserID 2 has a deficiency
 
 -- Exemption table

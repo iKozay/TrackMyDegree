@@ -1,6 +1,7 @@
 import '../css/UploadTranscriptPage.css';
 import React, { useState, useRef } from 'react';
 import { pdfjs } from 'react-pdf';
+import { useNavigate } from 'react-router-dom';  // Import useNavigate from react-router-dom
 import PrintImage from '../images/Print_image.png';
 import PdfImage from '../images/Pdf_image.png';
 import TransImage from '../images/Transc_image.png';
@@ -8,11 +9,12 @@ import TransImage from '../images/Transc_image.png';
 // Set the worker source
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-const UploadTranscript = () => {
+const UploadTranscript = ({ onDataProcessed }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileName, setFileName] = useState('No file chosen');
   const [output, setOutput] = useState('');
   const fileInputRef = useRef(null); // Reference for the file input
+  const navigate = useNavigate(); // Hook to navigate to TimelinePage
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -65,15 +67,17 @@ const UploadTranscript = () => {
         }
         Promise.all(pagesPromises).then((pagesData) => {
           const extractedData = extractTermsCoursesAndSeparators(pagesData);
-          const matchedData = matchTermsWithCourses(extractedData);
+          const transcriptData = matchTermsWithCourses(extractedData);
 
-          if (matchedData.length > 0) {
-            setOutput(
-              `<h3>Matched Terms and Courses:</h3>
-              <ul>${matchedData
-                .map((item) => `<li>Term: ${item.term}, Course: ${item.course}, Grade: ${item.grade}</li>`)
-                .join('')}</ul>`
-            );
+          if (transcriptData.length > 0) {
+            // setOutput(
+            //   `<h3>Matched Terms and Courses:</h3>
+            //   <ul>${matchedData
+            //     .map((item) => `<li>Term: ${item.term}, Course: ${item.course}, Grade: ${item.grade}</li>`)
+            //     .join('')}</ul>`
+            // );
+            onDataProcessed(transcriptData); // Send grouped data to parent
+            navigate('/timeline_change'); // Navigate to TimelinePage
           } else {
             setOutput(`<h3>There are no courses to show!</h3>`);
           }
@@ -118,7 +122,7 @@ const UploadTranscript = () => {
             <img src={PrintImage} alt="Step 2" className="instruction-image" />
           </li>
           <li>
-            In the <strong></strong>"Print" prompt, for the <em>"Destination"</em> field, please select <strong>"Save as PDF"</strong>.
+            In the <strong>"Print"</strong> prompt, for the <em>"Destination"</em> field, please select <strong>"Save as PDF"</strong>.
             <br /><strong>Do not choose "Microsoft Print to PDF".</strong>
             <br />
             <img src={PdfImage} alt="Step 3" className="instruction-image" />
@@ -163,7 +167,6 @@ const UploadTranscript = () => {
     </div>
   );
 };
-
 
 // Functions to extract terms, courses, and match them
 const extractTermsCoursesAndSeparators = (pagesData) => {
@@ -257,6 +260,7 @@ const matchTermsWithCourses = (data) => {
     }
   });
 
+  console.log('Grouped data: ', matchedResults);
   return matchedResults;
 };
 

@@ -140,9 +140,9 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 };
 
 // Main component
-const TimelinePage = () => {
+const TimelinePage = ({ timelineData }) => {
   const [semesters, setSemesters] = useState([]);
-  const [semesterCourses, setSemesterCourses] = useState({});
+  const [semesterCourses, setSemesterCourses] = useState({courseList: [],});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -165,6 +165,56 @@ const TimelinePage = () => {
   });
 
   const sensors = useSensors(mouseSensor);
+  
+  
+  // Process timelineData and generate semesters and courses
+  useEffect(() => {
+    const semesterMap = {};
+    const semesterNames = new Set();
+
+    // Group courses by semester
+    timelineData.forEach((data) => {
+      const { term, course } = data;
+
+      if (!semesterMap[term]) {
+        semesterMap[term] = [];
+      }
+      semesterMap[term].push(course);
+      semesterNames.add(term);
+    });
+
+    // Create an array of semesters sorted by term order
+    const sortedSemesters = Array.from(semesterNames).sort((a, b) => {
+      const order = { Winter: 1, Summer: 2, Fall: 3 };
+      const [seasonA, yearA] = a.split(' ');
+      const [seasonB, yearB] = b.split(' ');
+
+      if (yearA !== yearB) {
+        return parseInt(yearA) - parseInt(yearB);
+      }
+
+      return order[seasonA] - order[seasonB];
+    });
+
+    // Set state for semesters and courses
+    setSemesters(
+      sortedSemesters.map((term) => ({
+        id: term,
+        name: term,
+      }))
+    );
+
+    setSemesterCourses(
+      Object.fromEntries(
+        sortedSemesters.map((term) => [term, semesterMap[term] || []])
+      )
+    );
+  }, [timelineData]);
+  
+  
+  const [shakingSemesterId, setShakingSemesterId] = useState(null);
+
+
 
   // ---------------- ADD / REMOVE Semesters ----------------
   const SEASON_ORDER = {
@@ -192,7 +242,7 @@ const TimelinePage = () => {
 
   const handleAddSemester = () => {
     const seasonLower = selectedSeason.toLowerCase();
-    const id = `${seasonLower}${selectedYear}`;
+    const id = `${selectedSeason} ${selectedYear}`;
     const name = `${selectedSeason} ${selectedYear}`;
 
     // Prevent duplicates
@@ -229,6 +279,7 @@ const TimelinePage = () => {
 // ----------------------------------------------------------------------
   const isCourseAssigned = (courseId) => {
     for (const semesterId in semesterCourses) {
+      if (semesterId === "courseList") continue;
       if (semesterCourses[semesterId].includes(courseId)) {
         return true;
       }
@@ -260,6 +311,13 @@ const TimelinePage = () => {
       }
     }
     return null;
+  };
+
+  const shakeSemester = (semId) => {
+    setShakingSemesterId(semId);
+    setTimeout(() => {
+      setShakingSemesterId(null);
+    }, 2000);
   };
 
   const handleDragEnd = (event) => {
@@ -311,6 +369,32 @@ const TimelinePage = () => {
             updatedSemesters[overSemesterId].splice(overIndex, 0, id);
           }
 
+          //check if we exceed the limit
+          const overSemesterObj = semesters.find((s) => s.id === overSemesterId);
+          if (!overSemesterObj) return prevSemesters; // safety check
+
+          // Sum up the credits in the new semester
+          const thisSemesterCourses = updatedSemesters[overSemesterId];
+          let sumCredits = 0;
+          for (let cId of thisSemesterCourses) {
+            const course = soenCourses
+                .flatMap((section) => section.courseList)
+                .find((c) => c.id === cId);
+            if (course?.credits) {
+              sumCredits += course.credits;
+            }
+          }
+
+          // Compare with max
+          const maxAllowed = getMaxCreditsForSemesterName(overSemesterObj.name);
+
+          if (sumCredits > maxAllowed) {
+            // Optional: keep a visual shake
+            shakeSemester(overSemesterId);
+            // No revert. We still keep the course in the semester
+            alert("You exceeded the limit of 15 credits per semester allowed in Gina Cody School of Engineering and Computer Science!");
+
+          }
           return updatedSemesters;
         });
       }
@@ -355,6 +439,7 @@ const TimelinePage = () => {
       let unmetPrereqFound = false;
 
       for (const semesterId in semesterCourses) {
+        if (semesterId === 'courseList') continue;
         const courseIds = semesterCourses[semesterId];
         const currentSemesterIndex = semesters.findIndex(
           (s) => s.id === semesterId
@@ -411,6 +496,14 @@ const TimelinePage = () => {
       scheduledCourses.includes(prereqId)
     );
   };
+  //The Gina Cody School of Engineering and Computer Science at Concordia University has the following credit limits for full-time students:
+  //limit is 14 summer; Fall Winter 15.
+  function getMaxCreditsForSemesterName(semesterName) {
+    if (semesterName.toLowerCase().includes("summer")) {
+      return 14;
+    }
+    return 15;
+  }
 
   // ----------------------------------------------------------------------------------------------------------------------
   return (
@@ -474,8 +567,29 @@ const TimelinePage = () => {
           <div className="semesters-and-description">
 
             <div className="semesters">
-              {semesters.map((semester, index) => (
-                  <div key={semester.id}>
+              {semesters.map((semester, index) => {
+                // 1) Calculate total credits for this semester
+                const sumCredits = semesterCourses[semester.id]
+                    .map((cid) =>
+                        soenCourses
+                            .flatMap((s) => s.courseList)
+                            .find((sc) => sc.id === cid)?.credits || 0
+                    )
+                    .reduce((sum, c) => sum + c, 0);
+
+                // 2) Compare to max limit
+                const maxAllowed = getMaxCreditsForSemesterName(semester.name);
+                const isOver = sumCredits > maxAllowed;
+
+                // 3) “semester-credit” + conditionally add “over-limit-warning”
+                const creditClass = isOver
+                    ? "semester-credit over-limit-warning"
+                    : "semester-credit";
+
+                return (
+                  <div key={semester.id} className={`semester ${
+                      shakingSemesterId === semester.id ? 'exceeding-credit-limit' : ''
+                  }`}>
                     <Droppable id={semester.id} color="pink">
                       <h3>{semester.name}</h3>
                       <SortableContext
@@ -510,14 +624,14 @@ const TimelinePage = () => {
                       </SortableContext>
 
                       <div className="semester-footer">
-                        <div className="semester-credit">
-                          Total Credit: {semesterCourses[semester.id]
-                              .map((cid) =>
-                                  soenCourses
-                                      .flatMap((s) => s.courseList)
-                                      .find((sc) => sc.id === cid)?.credits || 0
-                              )
-                              .reduce((sum, c) => sum + c, 0)}
+                        <div className={creditClass}>
+                          Total Credit: {sumCredits}
+                          {" "}
+                          {isOver && (
+                              <span>
+                                <br/> Over the credit limit 15
+                              </span>
+                          )}
                         </div>
 
                         <button
@@ -546,7 +660,7 @@ const TimelinePage = () => {
                       </div>
                     </Droppable>
                   </div>
-              ))}
+                )})}
             </div>
 
             <button

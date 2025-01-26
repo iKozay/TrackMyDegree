@@ -7,6 +7,7 @@ import Footer from "../components/Footer";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
+import '../css/SignInPage.css';
 
 function LogInPage() {
   const [email, setEmail] = useState("");
@@ -74,7 +75,7 @@ function LogInPage() {
       {/* <Navbar /> Include Navbar if needed */}
       <div className="LogInPage">
         <div className="container my-5 sign-in-container">
-          <h2 className="text-center mb-4">Log In</h2>
+          <h2 className="text-center mb-4">Sign In</h2>
           <form onSubmit={handleLogin}>
             {/* Email Field */}
             <div className="mb-3">

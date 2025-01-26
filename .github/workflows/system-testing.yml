@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+      - Dev-Release-2
+  pull_request:
+    branches:
+      - main
+      - Dev-Release-2
 
 jobs:
   docker-compose:
@@ -17,6 +22,15 @@ jobs:
         run: |
           docker compose -f docker-compose.yml up --build -d
           sleep 10  # Wait briefly to ensure all services are up
+
+      - name: Run Tests
+        run: |
+          docker logs $(docker ps -a -q --filter "name=trackmydegree-tests")  # Print test logs for visibility
+          if [ "$(docker inspect -f '{{.State.ExitCode}}' $(docker ps -a -q --filter "name=trackmydegree-tests"))" -ne 0 ]; then
+            echo "Tests failed!"
+            exit 1
+          fi
+          echo "Tests passed successfully."
 
       - name: Check for errors in logs
         run: |

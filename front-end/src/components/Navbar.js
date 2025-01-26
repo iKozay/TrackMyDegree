@@ -77,10 +77,10 @@ const Navbar = () => {
               Home
             </a>
             <a className="nav-link" href="/timeline_initial">
-                  Timeline
+              Timeline
             </a>
             <a className="nav-link" href="/courselist">
-              Course List
+              Courses
             </a>
             {/* <a className="nav-link" href="/uploadTranscript">
               Upload Transcript
