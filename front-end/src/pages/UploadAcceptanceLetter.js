@@ -27,12 +27,12 @@ const UploadAcceptanceLetterPage = () => {
   ];
 
   const generateSemesterOptions = (startYear, endYear) => {
-    const terms = ['Winter', 'Summer', 'Fall'];
+    const terms = ['Summer', 'Fall', 'Winter'];
     const options = [];
-    options.push(`Fall ${startYear}`);
+    options.push(`Winter ${startYear}`);
     for (let year = startYear; year <= endYear; year++) {
       terms.forEach((term) => {
-        options.push(`${term} ${term === 'Fall' ? year + 1 : year}`);
+        options.push(`${term} ${term === 'Winter' ? year + 1 : year}`);
       });
     }
   
