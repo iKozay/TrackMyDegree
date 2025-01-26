@@ -1,6 +1,6 @@
 # Metadata
 DegreeID=COEN-BEng
-DegreeName=Bachelor of Engineering in Computer Engineering
+DegreeName=BEng Computer Engineering
 TotalCredits=120
 
 [Engineering Core (30.5 credits)]
@@ -20,7 +20,7 @@ General Education Elective
 COEN 212
 COEN 231
 COEN 243
-COMP 244
+COEN 244
 COEN 311
 COEN 313
 COEN 314

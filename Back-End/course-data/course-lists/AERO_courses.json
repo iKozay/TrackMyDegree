@@ -21,7 +21,7 @@
         "title": "AERO 371 Modelling and Control Systems",
         "credits": 3.5,
         "prerequisites": "PHYS 205;ENGR 213,ENGR 243",
-        "corequisites": "ENGR 311 or ELEC 342 or ELEC 364",
+        "corequisites": "ENGR 311/ELEC 342/ELEC 364",
         "description": "Definition and classification of dynamic systems and components. Modelling of system components using ordinary differential equations: mechanical, electrical, electromechanical, and electrohydraulic subsystems in an airplane. Modelling of systems using transfer function models, block diagrams and signal flow graphs. Linearization of non-linear systems. Transient and steady-state characteristics of dynamic systems. Systems analyses using time domain methods, root-locus methods, and frequency response methods. Characteristics and performance of linear feedback control systems. System stability. Proportional, integral and derivative controllers. Simulation technique using Matlab/Simulink.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
         "notes": "Students who have received credit forELEC 372orMECH 371may not take this course for credit."
@@ -101,7 +101,7 @@
     {
         "title": "AERO 471 Aircraft Hydro-Mechanical and Fuel Systems",
         "credits": 3.5,
-        "prerequisites": "AERO 201. If prerequisites are not satisfied, permission of the Department is required.",
+        "prerequisites": "AERO 201. ",
         "corequisites": "",
         "description": "This course focuses on design principles and sizing of the following aircraft systems: hydraulic system, primary and secondary flight control actuation systems, landing gear systems, and fuel system. Traditional and new technology implementations in aircraft, helicopters and other aerospace vehicles are considered. Associated standards and regulations are described. Principles of architecture development and integration, as well as engineering tools for system sizing and simulation, are covered.",
         "components": "Lecture 3 hours per week; Laboratory 12 hours total",
@@ -119,7 +119,7 @@
     {
         "title": "AERO 480 Flight Control Systems",
         "credits": 3.5,
-        "prerequisites": "AERO 371 or ELEC 372 or MECH 371 or SOEN 385.",
+        "prerequisites": "AERO 371/ELEC 372/MECH 371/SOEN 385.",
         "corequisites": "",
         "description": "Basic flight control and flight dynamics principles. Aircraft dynamic equations and performance data. Implementation of aircraft control: control surfaces and their operations, development of thrust and its control; autopilot systems, their algorithms, dynamics and interaction problems. Flight instruments, principles of operation and dynamics. Cockpit layouts — basic configuration, ergonomic design, control field forces; advanced concepts in instruments, avionics and displays; HUD; flight management systems, and communication equipment. Introduction to flight simulation: overview of visual, audio and motion simulator systems; advanced concepts in flight simulators.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -128,7 +128,7 @@
     {
         "title": "AERO 481 Materials Engineering for Aerospace",
         "credits": 3.5,
-        "prerequisites": "MECH 221 or MIAE 221.",
+        "prerequisites": "MECH 221/MIAE 221.",
         "corequisites": "",
         "description": "Different types of materials used in aerospace. Metals, composites, ceramics, polymers. Failure prediction and prevention. Modes of material failure, fracture, fatigue, creep, corrosion, impact. Effect of high temperature and multiaxial loadings. High temperature materials. Cumulative damage in fatigue and creep. Materials selection.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -137,7 +137,7 @@
     {
         "title": "AERO 482 Avionic Navigation Systems",
         "credits": 3,
-        "prerequisites": "ENGR 371 or COMP 233;AERO 371 or ELEC 372 or MECH 370 or SOEN 385.",
+        "prerequisites": "ENGR 371/COMP 233;AERO 371/ELEC 372/MECH 370/SOEN 385.",
         "corequisites": "",
         "description": "Basics of modern electronic navigation systems, history of air navigation, earth coordinate and mapping systems; basic theory and analysis of modern electronic navigation instrumentation, communication and radar systems, approach aids, airborne systems, transmitters and antenna coverage; noise and losses, target detection, digital processing, display systems and technology; demonstration of avionic systems using flight simulator.",
         "components": "Lecture 3 hours per week",
@@ -182,7 +182,7 @@
     {
         "title": "AERO 490 Capstone Aerospace Engineering Design Project",
         "credits": 6,
-        "prerequisites": "AERO 390;ENGR 301. Students must have completed 75 credits in the program prior to enrolling.",
+        "prerequisites": "AERO 390;ENGR 301. 75CR",
         "corequisites": "",
         "description": "This course includes a supervised design, simulation or experimental capstone design project including a preliminary project proposal with complete project plan and a technical report at the end of the fall term; a final report by the group and presentation at the end of the winter term.",
         "components": "Lecture 1 hour per week, one term; Laboratory Equivalent time, 5 hours per week, two terms",

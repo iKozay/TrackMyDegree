@@ -1,6 +1,6 @@
 # Metadata
 DegreeID=ELEC-BEng
-DegreeName=Bachelor of Engineering in Electrical Engineering
+DegreeName=BEng Electrical Engineering
 TotalCredits=120
 
 [Engineering Core (30.5 credits)]

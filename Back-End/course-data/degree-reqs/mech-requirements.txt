@@ -1,6 +1,6 @@
 # Metadata
 DegreeID=MECH-BEng
-DegreeName=Bachelor of Engineering in Mechanical Engineering
+DegreeName=BEng Mechanical Engineering
 TotalCredits=120
 
 [Engineering Core (27 credits)]

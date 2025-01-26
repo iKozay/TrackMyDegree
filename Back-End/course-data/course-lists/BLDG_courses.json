@@ -137,7 +137,7 @@
     {
         "title": "BLDG 490 Capstone Building Engineering Design Project",
         "credits": 6,
-        "prerequisites": "",
+        "prerequisites": "ENCS 282; BCEE 344, BCEE 345; BLDG 371, BLDG 390; ENGR 301. 75CR",
         "corequisites": "",
         "description": "The project of each team encompasses the integrated design of at least three subâsystems of a new or retroâfitted building to achieve high performance and efficiency at reasonable cost; sustainable design and environmental impact issues are addressed in all projects. In the process, students learn, through case studies and literature survey, the information gathering and decision/design process, problemâresolution as well as aspects related to management, teamwork and communication. Students registering for this course must contact the course coordinator for the detailed procedure.",
         "components": "Lecture 3 hours per week, two terms",

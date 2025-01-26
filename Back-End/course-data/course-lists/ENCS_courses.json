@@ -20,7 +20,7 @@
     {
         "title": "ENCS 333 Research Methods, Ethics, Law and Regulation for Computational Biology",
         "credits": 3,
-        "prerequisites": "ENCS 282 or equivalent",
+        "prerequisites": "ENCS 282",
         "corequisites": "",
         "description": "The course is comprised of three modules: Research Methods; Ethics; and Intellectual Property, Law and Regulation.",
         "components": "Lecture 1.5 hours per week, over two terms, fall and winter.",

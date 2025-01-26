@@ -38,7 +38,7 @@
     {
         "title": "ENGR 213 Applied Ordinary Differential Equations",
         "credits": 3,
-        "prerequisites": "MATH 204 (Cegep Mathematics 105)",
+        "prerequisites": "MATH 204",
         "corequisites": "",
         "description": "This course introduces Engineering students to the theory and application of ordinary differential equations. Definition and terminology, initial‑value problems, separable differential equations, linear equations, exact equations, solutions by substitution, linear models, orthogonal trajectories, complex numbers, form of complex numbers: powers and roots, theory: linear equations, homogeneous linear equations with constant coefficients, undetermined coefficients, variation of parameters, Cauchy‑Euler equation, reduction of order, linear models: initial value, review of power series, power series solutions, theory, homogeneous linear systems, solution by diagonalization, non‑homogeneous linear systems. Eigenvalues and eigenvectors.",
         "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
@@ -47,7 +47,7 @@
     {
         "title": "ENGR 233 Applied Advanced Calculus",
         "credits": 3,
-        "prerequisites": "MATH 204 (Cegep Mathematics 105); MATH 205 (Cegep Mathematics 203)",
+        "prerequisites": "MATH 204 ;MATH 205",
         "corequisites": "",
         "description": "This course introduces Engineering students to the theory and application of advanced calculus. Functions of several variables, partial derivatives, total and exact differentials, approximations with differentials. Tangent plane and normal line to a surface, directional derivatives, gradient. Double and triple integrals. Polar, cylindrical, and spherical coordinates. Change of variables in double and triple integrals. Vector differential calculus; divergence, curl, curvature, line integrals, Green’s theorem, surface integrals, divergence theorem, applications of divergence theorem, Stokes’ theorem.",
         "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
@@ -74,7 +74,7 @@
     {
         "title": "ENGR 244 Mechanics of Materials (3.75 credits)",
         "credits": 0,
-        "prerequisites": "ENGR 213 ; ENGR 242 or ENGR 245 ",
+        "prerequisites": "ENGR 213 ; ENGR 242/ENGR 245 ",
         "corequisites": "ENGR 233 ",
         "description": "This course covers the following topics: mechanical behaviour of materials; stress; strain; review of shear and bending moment diagrams; analysis and design of structural and machine elements subjected to axial, torsional, and flexural loadings; combined stresses and stress transformation; deflections; introduction to elastic stability and buckling behaviour.",
         "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 3 hours per week, alternate weeks",
@@ -92,7 +92,7 @@
     {
         "title": "ENGR 251 Thermodynamics I",
         "credits": 3,
-        "prerequisites": "MATH 203 (Cegep Mathematics 103)",
+        "prerequisites": "MATH 203",
         "corequisites": "",
         "description": "Basic principles of thermodynamics and their application to various systems composed of pure substances and their homogeneous non‑reactive mixtures. Simple power production and utilization cycles.",
         "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
@@ -155,7 +155,7 @@
     {
         "title": "ENGR 391 Numerical Methods in Engineering",
         "credits": 3,
-        "prerequisites": "ENGR 213 , ENGR 233 ; COMP 248 or COEN 243 or MECH 215 or MIAE 215 or BCEE 231 ",
+        "prerequisites": "ENGR 213 , ENGR 233 ; COMP 248/COEN 243/MECH 215/MIAE 215/BCEE 231 ",
         "corequisites": "",
         "description": "This course focuses on roots of algebraic and transcendental equations; function approximation; solution of simultaneous algebraic equations; interpolation; regression; introduction to machine learning; numerical differentiation; numerical integration; numerical solutions of ordinary differential equations and partial differential equations; reliability; conditioning; error analysis. Implementation using GNU Octave/MATLAB.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
@@ -191,7 +191,7 @@
     {
         "title": "ENGR 472 Robot Manipulators (3.5 credits)",
         "credits": 0,
-        "prerequisites": "ELEC 372 or MECH 371 ",
+        "prerequisites": "ELEC 372/MECH 371 ",
         "corequisites": "",
         "description": "Spatial descriptions and transformations. Manipulator forward and inverse kinematics. Jacobians: velocities and static forces. Manipulator dynamics. Trajectory generation. Position control of manipulators. Force control of manipulators. Robot programming languages.",
         "components": "Lecture 3 hours per week; Laboratory 15 hours total",

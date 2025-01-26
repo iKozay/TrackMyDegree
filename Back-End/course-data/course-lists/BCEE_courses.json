@@ -47,7 +47,7 @@
     {
         "title": "BCEE 371 Surveying",
         "credits": 2,
-        "prerequisites": "BLDG 212orCIVI 212.",
+        "prerequisites": "BLDG 212/CIVI 212.",
         "corequisites": "",
         "description": "This course covers the following topics: elementary operations employed in engineering surveying; use, care, and adjustment of instruments; linear and angular measurements; traversing; earthwork calculations; theory of errors; horizontal and vertical curves and curve layout; slope stakes and grades, application of surveying methods to city, topographic surveying, and introduction to advanced surveying techniques; use of digital computers in surveying calculations.",
         "components": "Lecture; Fieldwork 6 hours per day; 5 days per week for 3 weeks",
@@ -65,7 +65,7 @@
     {
         "title": "BCEE 451 Construction Engineering",
         "credits": 3,
-        "prerequisites": "BLDG 341orCIVI 341.",
+        "prerequisites": "BLDG 341/CIVI 341.",
         "corequisites": "",
         "description": "The nature of construction and the environment in which the industry works; organizational structures for project delivery; construction contracts and documents; introduction to construction processes: excavation and site works, foundation layout, concrete form design, concrete, steel, timber, and masonry construction; project planning, scheduling, and control; construction safety.",
         "components": "Lecture 3 hours per week",
@@ -101,7 +101,7 @@
     {
         "title": "BCEE 465 Construction Planning and Control",
         "credits": 3,
-        "prerequisites": "BCEE 478or equivalent.",
+        "prerequisites": "BCEE 478",
         "corequisites": "",
         "description": "This course covers the following topics: methods of delivering construction, contractual relationships and organizational structures, phases of project development, estimating resource requirements, costs and durations, bidding strategies, network analysis using CPM and PERT, timeâcost tradeâoff, resource allocation, cash flow analysis, earnedâvalue concept for integrated time and cost control, quality control, and value engineering.",
         "components": "Lecture 3 hours per week",
@@ -119,7 +119,7 @@
     {
         "title": "BCEE 478 Project Management for Construction",
         "credits": 3,
-        "prerequisites": "BLDG 341orCIVI 341.",
+        "prerequisites": "BLDG 341/CIVI 341.",
         "corequisites": "",
         "description": "This course introduces project management techniques in construction, including project delivery methods, construction contracts, cost estimating and bidding planning and scheduling, cash flow analysis, project tracking, control and computer applications.",
         "components": "Lecture 3 hours per week",
@@ -137,7 +137,7 @@
     {
         "title": "BCEE 492 Construction Processes",
         "credits": 3,
-        "prerequisites": "BCEE 451or ENGR 451.",
+        "prerequisites": "BCEE 451/ENGR 451.",
         "corequisites": "",
         "description": "This course is a study of current construction methods and techniques. The subjects include site preparation and earthâwork, wood framing, masonry, concrete forming, slip forming, precast construction, industrialized building, deep excavation shoring and underpinning. Other topics covered in the course are design, erection, and removal of temporary construction work, current field practice and safety considerations and site visits.",
         "components": "Lecture 3 hours per week",

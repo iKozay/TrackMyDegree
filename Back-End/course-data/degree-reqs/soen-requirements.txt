@@ -1,6 +1,6 @@
 # Metadata
 DegreeID=SOEN-BEng
-DegreeName=Bachelor of Engineering in Software Engineering
+DegreeName=BEng Software Engineering
 TotalCredits=120
 
 [Engineering Core (30.5 credits)]

@@ -11,7 +11,7 @@ Promise <DB_OPS> {
   const dbConn = await Database.getConnection();
 
   if( dbConn ) {
-    const { coursecode, coursepool_id } = new_record;
+    const { coursecode, coursepool_id, group_id } = new_record;
     const record_id = randomUUID();
 
     try {
@@ -19,11 +19,12 @@ Promise <DB_OPS> {
       .input('id'        , Database.msSQL.VarChar, record_id)
       .input('coursecode', Database.msSQL.VarChar, coursecode)
       .input('coursepool', Database.msSQL.VarChar, coursepool_id)
+      .input('group_id'  , Database.msSQL.VarChar || '', group_id)
       .query('INSERT INTO CourseXCoursePool \
-              ( id, coursecode, coursepool )\
+              ( id, coursecode, coursepool, group_id )\
               OUTPUT INSERTED.id\
               VALUES\
-              (@id, @coursecode, @coursepool)');
+              (@id, @coursecode, @coursepool, @group_id)');
 
       
       if ( undefined === result.recordset ) {
@@ -78,17 +79,19 @@ Promise<DB_OPS> {
   const dbConn = await Database.getConnection();
 
   if( dbConn ) {
-    const { id, coursecode, coursepool_id } = update_record; 
+    const { id, coursecode, coursepool_id, group_id } = update_record; 
 
     try {
       const result = await dbConn.request()
       .input('id'   , Database.msSQL.VarChar, id)
       .input('coursecode' , Database.msSQL.VarChar, coursecode)
       .input('coursepool' , Database.msSQL.VarChar, coursepool_id)
+      .input('group_id'   , Database.msSQL.VarChar || '', group_id)
       .query('UPDATE CourseXCoursePool  \
               SET \
                 coursecode = @coursecode \
                 coursepool = @coursepool \
+                group_id = @group_id \
               OUTPUT INSERTED.id \
               WHERE   id = @id');
 
@@ -114,16 +117,18 @@ Promise<DB_OPS> {
   const dbConn = await Database.getConnection();
 
   if( dbConn ) {
-    const { coursecode, coursepool_id } = delete_record;
+    const { coursecode, coursepool_id, group_id } = delete_record;
 
     try {
       const result = await dbConn.request()
           .input('coursecode' , Database.msSQL.VarChar, coursecode)
           .input('coursepool' , Database.msSQL.VarChar, coursepool_id)
+          .input('group_id'   , Database.msSQL.VarChar || '', group_id)
           .query('DELETE FROM CourseXCoursePool\
                   OUTPUT DELETED.coursecode\
                   WHERE coursecode = @coursecode\
-                  AND   coursepool = @coursepool');
+                  AND   coursepool = @coursepool\
+                  AND   group_id = @group_id');
 
       if( (result.recordset.length > 0) && 
           (result.recordset[0].coursecode === coursecode) ) {

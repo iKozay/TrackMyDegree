@@ -20,7 +20,7 @@
     {
         "title": "CIVI 321 Engineering Materials",
         "credits": 3.75,
-        "prerequisites": "CHEM 205or equivalent.",
+        "prerequisites": "CHEM 205",
         "corequisites": "",
         "description": "Linear and nonlinear material behaviour, timeâdependent behaviour; structural and engineering properties of structural metals; behaviour of wood; production and properties of concrete; bituminous materials, ceramics, plastics; introduction to composite materials.",
         "components": "Lecture 3 hours per week; Laboratory 3 hours per week, alternate weeks",
@@ -56,7 +56,7 @@
     {
         "title": "CIVI 382 Water Resources Engineering",
         "credits": 3.5,
-        "prerequisites": "CIVI 381;ENGR 391or EMAT 391.",
+        "prerequisites": "CIVI 381;ENGR 391/EMAT 391.",
         "corequisites": "",
         "description": "Sources of water: surface water, groundwater, water quantities and requirements. Water use cycle. Characteristics of water and wastewater. Demand forecast, water use prediction and planning. Groundwater withdrawal and well hydraulics. Water supply network analysis, design of distribution systems, storage, pumping. Sanitary and storm water quantities, urban hydrology. Design of sewer systems, interceptors, gravity sewer, computer applications. Sustainable use of water resources. Design case studies.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
@@ -92,7 +92,7 @@
     {
         "title": "CIVI 440 Computer Applications in Civil Engineering Practice",
         "credits": 3,
-        "prerequisites": "BCEE 231. Students must complete 75 credits in the program prior to enrolling.",
+        "prerequisites": "BCEE 231. 75CR",
         "corequisites": "",
         "description": "General purpose IT tools for civil engineering applications: database programming and webâbased tools. Introduction to remote sensing and GIS. Application of major software packages in selected areas of civil engineering practice with emphasis on modelling, data integration, and workâflow. Case studies in structural design, geotechnical engineering, transportation, and environmental engineering.",
         "components": "Lecture 2 hours per week; Laboratory 2 hours per week",
@@ -102,7 +102,7 @@
         "title": "CIVI 453 Design of Reinforced Concrete Structures",
         "credits": 3.5,
         "prerequisites": "BCEE 345",
-        "corequisites": "CIVI 390orBLDG 390",
+        "corequisites": "CIVI 390/BLDG 390",
         "description": "This course covers a wide variety of topics on reinforced concrete including twoâway slab systems (flat plate, flat slab and slabâonâbeams); slender columns; columns subjected to biaxial bending; lateral loads resisting systems (momentâresisting frames, shear walls and coupled shear walls); prestressed concrete (losses, design requirements for flexure, shear, bond, anchorage and deflections). Design project.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
         "notes": null
@@ -111,7 +111,7 @@
         "title": "CIVI 454 Design of Steel Structures",
         "credits": 3.5,
         "prerequisites": "BCEE 344",
-        "corequisites": "CIVI 390orBLDG 390",
+        "corequisites": "CIVI 390/BLDG 390",
         "description": "This course covers a wide variety of topics on steel structures: trends and developments in structuralâsteel design, framing systems, floor systems such as composite construction and plate girders, braced frames, and momentâresisting frames. The subject includes connections and PâDelta effects. A design project is required.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
         "notes": null
@@ -209,7 +209,7 @@
     {
         "title": "CIVI 490 Capstone Civil Engineering Design Project",
         "credits": 6,
-        "prerequisites": "",
+        "prerequisites": "ENGR 301; CIVI 361, CIVI 390; BCEE 344, BCEE 345. 75CR",
         "corequisites": "",
         "description": "The project of each team will encompass the integrated design of at least two subâdisciplines of civil engineering to achieve high performance at reasonable cost. Through case studies and literature survey, students learn the information gathering and decision/design process, problem resolution, and aspects related to management, teamwork, and communication. Students registering for this course must contact the course coordinator for the detailed procedure.",
         "components": "Lecture 3 hours per week, two terms",

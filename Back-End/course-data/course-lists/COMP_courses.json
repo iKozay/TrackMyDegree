@@ -11,7 +11,7 @@
     {
         "title": "COMP 208 Computer Science C.Edge Option Reflective Learning II",
         "credits": 3,
-        "prerequisites": "COMP 108. Permission of the GCS is required.",
+        "prerequisites": "COMP 108.",
         "corequisites": "",
         "description": "This course expands on the students’ second C.Edge term in their related field of study to further develop their knowledge and workârelated skills.",
         "components": "Lecture",
@@ -20,7 +20,7 @@
     {
         "title": "COMP 218 Fundamentals of Programming",
         "credits": 3,
-        "prerequisites": "MATH 201or equivalent. No prior experience with computers is assumed.",
+        "prerequisites": "MATH 201",
         "corequisites": "",
         "description": "Computers and computing: problem solving with computers, basic data types, expressions, assignments, control structures, simple library functions, programmerâdefined functions, arrays of basic types. Basic elements of objectâoriented programming: classes, objects and methods.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
@@ -38,7 +38,7 @@
     {
         "title": "COMP 232 Mathematics for Computer Science",
         "credits": 3,
-        "prerequisites": "MATH 203or Cegep Mathematics 103 or NYA;MATH 204or Cegep Mathematics 105 or NYC.",
+        "prerequisites": "MATH 203;MATH 204",
         "corequisites": "",
         "description": "Sets. Propositional logic and predicate calculus. Functions and relations. Elements of number theory. Mathematical reasoning. Proof techniques: direct proof, indirect proof, proof by contradiction, proof by induction.",
         "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
@@ -47,16 +47,16 @@
     {
         "title": "COMP 233 Probability and Statistics for Computer Science",
         "credits": 3,
-        "prerequisites": "MATH 205or Cegep Mathematics 203 or NYB.",
+        "prerequisites": "MATH 205",
         "corequisites": "",
         "description": "Combinatorics. Axioms of probability. Conditional probability. Discrete and continuous probability distributions. Expectation and moments. Hypothesis testing. Parameter estimation. Correlation and linear regression. Applications to computer science.",
         "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
         "notes": "Students who have received credit forBIOL 322,ENGR 371,STAT 249,STAT 250,COMM 215,MAST 221,MAST 333may not take this course for credit."
     },
     {
-        "title": "COMP 249 ObjectâOriented Programming II",
+        "title": "COMP 249 Object Oriented Programming II",
         "credits": 3.5,
-        "prerequisites": "COMP 248;MATH 203or Cegep Mathematics 103 or NYA",
+        "prerequisites": "COMP 248;MATH 203",
         "corequisites": "MATH 205or Cegep Mathematics 203 or NYB",
         "description": "Design of classes. Inheritance. Polymorphism. Static and dynamic binding. Abstract classes. Exception handling. File I/O. Recursion. Interfaces and inner classes. Graphical user interfaces. Generics. Collections and iterators.",
         "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 1 hour per week",
@@ -74,7 +74,7 @@
     {
         "title": "COMP 333 Data Analytics",
         "credits": 4,
-        "prerequisites": "COMP 233orENGR 371;COMP 352;ENCS 282.",
+        "prerequisites": "COMP 233/ENGR 371;COMP 352;ENCS 282.",
         "corequisites": "",
         "description": "This course introduces the process of data analytics with the aid of examples from several disciplines. It covers data wrangling: extract-transform-load (ETL), cleaning, structuring, integration; data analytics activities: description, prescription, modelling, simulation, optimization, storytelling; and the Python ecosystem: language, libraries, and Jupyter environment.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -83,7 +83,7 @@
     {
         "title": "COMP 335 Introduction to Theoretical Computer Science",
         "credits": 3,
-        "prerequisites": "COMP 232orCOEN 231; andCOMP 249orCOEN 244.",
+        "prerequisites": "COMP 232/COEN 231; COMP 249/COEN 244.",
         "corequisites": "",
         "description": "This course covers the following topics:finite state automata and regular languages; pushâdown automata and contextâfree languages; pumping lemmas; applications to parsing; Turing machines; undecidability and decidability.",
         "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
@@ -92,7 +92,7 @@
     {
         "title": "COMP 339 Combinatorics",
         "credits": 3,
-        "prerequisites": "COMP 232; or students must complete have completed 18 credits in postâCegep Mathematics prior to enrolling.",
+        "prerequisites": "COMP 232;",
         "corequisites": "",
         "description": "General principles of counting, permutations, combinations, identities, partitions, generating functions, Fibonacci numbers, Stirling numbers, Catalan numbers, principle of inclusionâexclusion. Graphs, subgraphs, isomorphism, Euler graphs, Hamilton paths and cycles, planar graphs, Kuratowski’s Theorem, trees, colouring, 5âcolour theorem, matching, Hall’s theorem.",
         "components": "Lecture; Tutorial",
@@ -101,7 +101,7 @@
     {
         "title": "COMP 346 Operating Systems",
         "credits": 4,
-        "prerequisites": "COMP 228orSOEN 228;COMP 352.",
+        "prerequisites": "COMP 228/SOEN 228;COMP 352.",
         "corequisites": "",
         "description": "Fundamentals of operating system functionalities, design and implementation. Multiprogramming: processes and threads, context switching, queuing models and scheduling. Interprocess communication and synchronization. Principles of concurrency. Synchronization primitives. Deadlock detection and recovery, prevention and avoidance schemes. Memory management. Device management. File systems. Protection models and schemes.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week",
@@ -119,7 +119,7 @@
     {
         "title": "COMP 353 Databases",
         "credits": 4,
-        "prerequisites": "COMP 232orCOEN 231; andCOMP 352orCOEN 352.",
+        "prerequisites": "COMP 232/COEN 231; COMP 352/COEN 352.",
         "corequisites": "",
         "description": "This course introduces database design, applications, and aspects of database management systems. It covers conceptual database design using the entity-relationship model. Students are introduced to the relational data model, relational algebra, as well as the SQL language, and their applications. Furthermore,the course covers the development of database applications. Students also learn about other data models, including Datalog and Object-oriented. A project is required.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week",
@@ -146,7 +146,7 @@
     {
         "title": "COMP 367 Techniques in Symbolic Computation",
         "credits": 3,
-        "prerequisites": "MAST 217 or COMP 232 or equivalent; COMP 248 or equivalent.",
+        "prerequisites": "MAST 217/COMP 232; COMP 248",
         "corequisites": "",
         "description": "This course is an application-oriented introduction to algebraic methods involved in symbolic computation, as it applies to number theory and modular algebra, and covering the following topics: numbers, primes, modular arithmetic, Diophantine equations; congruence classes and applications, finite fields and rings; Fermat’s and Euler’s theorems; Chinese Remainder theorem and applications; polynomial congruences and rings. Applications to: error-correcting codes (Humming codes), Hill Cryptosystem, public key encryption schemes, polynomial factorization, polynomial interpolation.A symbolic computation system (e.g. MAPLE), is used as a computational tool and a platform for writing all assignments and tests but not as an object of study itself.",
         "components": "Lecture",
@@ -155,7 +155,7 @@
     {
         "title": "COMP 371 Computer Graphics",
         "credits": 4,
-        "prerequisites": "COMP 232orCOEN 231;COMP 352orCOEN 352.",
+        "prerequisites": "COMP 232/COEN 231;COMP 352/COEN 352.",
         "corequisites": "",
         "description": "This course covers the following topics:introduction to computer graphics and graphics hardware; introduction to graphics API and graphics systems architecture; mathematics of 2D and 3D transformations and 2D and 3D viewing; colour and basic rendering algorithms; visual realism and visibility; illumination and shading and global illumination techniques and textures; introduction to curves and surfaces and 3D object modelling; introduction to computer animation. This course includes a project.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week",
@@ -182,7 +182,7 @@
     {
         "title": "COMP 426 Multicore Programming",
         "credits": 4,
-        "prerequisites": "COMP 346orCOEN 346.",
+        "prerequisites": "COMP 346/COEN 346.",
         "corequisites": "",
         "description": "Fundamental concepts of computer architecture. Architecture of the selected multicore platform. Review of sharedâmemory parallel programming. The difficulties inherent to parallel programming. Scalability of programming models. The stream programming model for multicore. Implicit and explicit threading. Implicit and explicit orchestration of data movement, both on chip and off. Adapting standard algorithms to multicore. Critical assessment of the available systemâsoftware support. Project.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -191,7 +191,7 @@
     {
         "title": "COMP 428 Parallel Programming",
         "credits": 4,
-        "prerequisites": "COMP 346orCOEN 346.",
+        "prerequisites": "COMP 346/COEN 346.",
         "corequisites": "",
         "description": "Parallel programming techniques as a natural extension to sequential programming. Overview of parallel programming architectures and models. Parallel programming issues: locality, granularity, scheduling, data decomposition and distribution, load balancing, communication and synchronization, determinacy and nonâdeterminacy, cost and performance. Techniques and tools for messageâpassing parallel programming. Case studies. Project.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week",
@@ -227,7 +227,7 @@
     {
         "title": "COMP 442 Compiler Design",
         "credits": 4,
-        "prerequisites": "COMP 228orSOEN 228orCOEN 311;COMP 335;COMP 352orCOEN 352.",
+        "prerequisites": "COMP 228/SOEN 228/COEN 311;COMP 335;COMP 352/COEN 352.",
         "corequisites": "",
         "description": "Compiler organization and implementation: lexical analysis and parsing, syntaxâdirected translation, code optimization. Runâtime systems. Project.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -263,7 +263,7 @@
     {
         "title": "COMP 465 Design and Analysis of Algorithms",
         "credits": 3,
-        "prerequisites": "COMP 232orCOEN 231;COMP 339;COMP 352orCOEN 352.",
+        "prerequisites": "COMP 232/COEN 231;COMP 339;COMP 352/COEN 352.",
         "corequisites": "",
         "description": "Order statistics: worstâcase, averageâcase and amortized analysis. Algorithm design techniques: greedy algorithms, dynamic programming. Selected algorithms from graph theory, linear programming, number theory, string matching, and computational geometry. A survey of hard problems, NPâcompleteness, and approximation algorithms.",
         "components": "Lecture 3 hours per week",
@@ -272,7 +272,7 @@
     {
         "title": "COMP 472 Artificial Intelligence",
         "credits": 4,
-        "prerequisites": "COMP 352orCOEN 352.",
+        "prerequisites": "COMP 352/COEN 352.",
         "corequisites": "",
         "description": "This course initially describes the scope and history of Artificial Intelligence. Then it covers knowledge representation, heuristic search, game playing and planning. Finally, it introduces the topics of machine learning, genetic algorithms and natural language processing. A project is required.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -290,7 +290,7 @@
     {
         "title": "COMP 474 Intelligent Systems",
         "credits": 4,
-        "prerequisites": "COMP 352orCOEN 352.",
+        "prerequisites": "COMP 352/COEN 352.",
         "corequisites": "",
         "description": "Ruleâbased expert systems, blackboard architecture, and agentâbased. Knowledge acquisition and representation. Uncertainty and conflict resolution. Reasoning and explanation. Design of intelligent systems. Project.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -308,7 +308,7 @@
     {
         "title": "COMP 476 Advanced Game Development",
         "credits": 4,
-        "prerequisites": "COMP 361orENGR 391;COMP 376.",
+        "prerequisites": "COMP 361/ENGR 391;COMP 376.",
         "corequisites": "",
         "description": "Introduction to advanced aspects of computer games. Game engine design. Artificial Intelligence (AI): nonâplayer character movement, coordinated  movement, pathfinding, world representations; decision making; tactical AI, strategic AI, learning in games. Physicsâbased techniques: collision detection and response. Networked gaming: multiâplayer games, networking and distributed game design, mobile gaming. Improving realism: cut scenes, 3D sound. Project.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -317,7 +317,7 @@
     {
         "title": "COMP 477 Animation for Computer Games",
         "credits": 4,
-        "prerequisites": "COMP 361orENGR 391,COMP 371.",
+        "prerequisites": "COMP 361/ENGR 391,COMP 371.",
         "corequisites": "",
         "description": "Introduction to the algorithms, data structures, and techniques used in modelling and rendering dynamic scenes. Topics include principles of traditional animation, production pipeline, animation hardware and software, orientation representation and interpolation, modelling physical and articulated objects, forward and inverse kinematics, motion control and capture, keyâframe, procedural, and behavioural animation, camera animation, scripting system, and freeâform deformation. Project.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -335,7 +335,7 @@
     {
         "title": "COMP 479 Information Retrieval and Web Search",
         "credits": 4,
-        "prerequisites": "COMP 233orENGR 371;COMP 352.",
+        "prerequisites": "COMP 233/ENGR 371;COMP 352.",
         "corequisites": "",
         "description": "Basics of information retrieval (IR): boolean, vector space and probabilistic models. Tokenization and creation of inverted files. Weighting schemes. Evaluation of IR systems: precision, recall, Fâmeasure. Relevance feedback and query expansion. Application of IR to web search engines: XML, link analysis, PageRank algorithm. Text categorization and clustering techniques as used in spam filtering. Project.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -344,7 +344,7 @@
     {
         "title": "COMP 490 Computer Science Project I",
         "credits": 3,
-        "prerequisites": "ENCS 282. Students must complete 60 credits prior to enrolling. Permission of the Department is required.",
+        "prerequisites": "ENCS 282. 60CR",
         "corequisites": "",
         "description": "Students work on a computer science project under the supervision of a faculty member and submit a suitable written report on the work carried out.",
         "components": "Lecture",
@@ -353,7 +353,7 @@
     {
         "title": "COMP 493 Computational Biology Team Project",
         "credits": 6,
-        "prerequisites": "BIOL 367;COMP 352. Students must complete a minimum of 54 credits in theBCompSc in Health and Life Sciencesprogram prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "prerequisites": "BIOL 367;COMP 352. 54CR",
         "corequisites": "",
         "description": "Students form teams or join existing teams (such as those in research  labs) and work under faculty supervision to solve a computational  biology research problem or to carry out a computational biology  research project. The research problem or project involves the  utilization of knowledge of biology and of computing, involves computing  lab and/or wet lab practice and contributes to any of the areas of  computational biology. The project fosters teamwork and allows students  to develop their project management, technical writing and oral  presentation skills.",
         "components": "Research",
@@ -362,7 +362,7 @@
     {
         "title": "COMP 495 Honours Seminar",
         "credits": 1,
-        "prerequisites": "ENCS 282.  Registration in the final year of the honours program is required.",
+        "prerequisites": "ENCS 282.",
         "corequisites": "",
         "description": "Students are required to attend a number of departmental seminars and submit a written report on them.",
         "components": "Seminar",
@@ -389,7 +389,7 @@
     {
         "title": "SOEN 228 System Hardware",
         "credits": 4,
-        "prerequisites": "MATH 203or Cegep Mathematics 103,MATH 204or Cegep Mathematics 105.",
+        "prerequisites": "MATH 203, MATH 204",
         "corequisites": "",
         "description": "This course covers the following topics: Boolean Algebra, Digital logic and the design of logic circuits; CPU design; addressing modes; instruction sets and sequencing; design of datapath and control units; memory systems and types; cache memory levels; I/O devices and their interconnection to the CPU; assembly language, and Interrupts.",
         "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 2 hours per week",
@@ -416,7 +416,7 @@
     {
         "title": "SOEN 321 Information Systems Security",
         "credits": 3,
-        "prerequisites": "COMP 346orCOEN 346.",
+        "prerequisites": "COMP 346/COEN 346.",
         "corequisites": "",
         "description": "This course covers the following topics: introduction to cryptography and cryptanalysis; threats, attacks, and vulnerabilities; security services (confidentiality, authentication, integrity); public key systems including DiffieâHellman, RSA, Rabin; Digital Signature Schemes; Hash functions and MAC schemes; authentication protocols; network layers and security; protocols; Public Key Infrastructure (PKI); Transport Layer Security (TLS); firewalls; Intrusion Detection Systems; DNS security; Denial of Service Attacks; Penetration testing; Online Privacy and anonymity; Mix networks and Onion Routing; TOR; Malware; Botnets; Spam and Hot topics in Security and Privacy.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
@@ -452,7 +452,7 @@
     {
         "title": "SOEN 357 User Interface Design",
         "credits": 3,
-        "prerequisites": "SOEN 341orCOMP 354.",
+        "prerequisites": "SOEN 341/COMP 354.",
         "corequisites": "",
         "description": "This course covers the following topics: principles, standards and guidelines for user interface design; usability principles and user experience; standards and design rationale for userâcentred design; taskâcentred design; rationalized design; usability engineering; user models; interface design process, including interface requirement gathering, conceptual design and prototyping, and evaluation; usability testing and analytic evaluation; data gathering and analysis techniques for qualitative and quantitative data; interface design documentation; design approaches for touch, gestureâbased, and haptic interfaces.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
@@ -486,10 +486,10 @@
         "notes": null
     },
     {
-        "title": "SOEN 387 WebâBased Enterprise Application Design",
+        "title": "SOEN 387 Web Based Enterprise Application Design",
         "credits": 3,
-        "prerequisites": "COMP 354orSOEN 341;SOEN 287.",
-        "corequisites": "COMP 353orSOEN 363",
+        "prerequisites": "COMP 354/SOEN 341;SOEN 287.",
+        "corequisites": "COMP 353/SOEN 363",
         "description": "This course introduces Hypertext Transfer Protocol (HTTP), and client/server and layered architectures for Web-based Enterprise Applications (WEA). The course covers Application, Presentation, Domain and Data Source design patterns. Students learn how to use Java servlets and Java Server Pages. The course also covers authentication, security and transaction processing, as well as system-level testing of web applications.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
         "notes": null
@@ -542,7 +542,7 @@
     {
         "title": "SOEN 490 Capstone Software Engineering Design Project",
         "credits": 6,
-        "prerequisites": "SOEN 390. Students must have completed 75 credits in the program prior to enrolling.",
+        "prerequisites": "SOEN 390. 75CR",
         "corequisites": "",
         "description": "Students work in teams of at least four members to construct a significant software application. The class meets at regular intervals. Team members will give a presentation of their contribution to the project.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",

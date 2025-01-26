@@ -1,7 +1,7 @@
 import '../css/UploadAcceptanceLetter.css';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { pdfjs } from 'react-pdf';
-import { useNavigate,  Link  } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 // Set the worker source for PDF.js
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -10,12 +10,51 @@ const UploadAcceptanceLetterPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileName, setFileName] = useState('No file chosen');
   const [output, setOutput] = useState('');
+  const [degrees, setDegrees] = useState([]);
+  const [selectedDegreeId, setSelectedDegreeId] = useState(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  const handleNextButtonClick = () => {
-    navigate("/timeline_change");
+  const handleDegreeChange = (e) => {
+    setSelectedDegreeId(e.target.value);
   };
+
+  // 3. Navigate on Next button click, passing selectedDegreeId in the route state
+  const handleNextButtonClick = () => {
+    // Example check to ensure something is selected:
+    if (!selectedDegreeId) {
+      alert('Please select a degree before continuing.');
+      return;
+    }
+
+    // Pass the selectedDegreeId to the timeline page
+    navigate("/timeline_change", { state: { degreeId: selectedDegreeId } });
+  };
+
+  useEffect(() => {
+    // get a list of all degrees by name
+    const getDegrees = async () => {
+      try {
+        const response = await fetch(`http://localhost:8000/degree/getAllDegrees`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const jsonData = await response.json();
+        console.log(jsonData);
+        setDegrees(jsonData.degrees);
+      } catch (err) {
+        console.error(err.message);
+      }
+
+
+    }
+    getDegrees();
+  }, []);
+
+
 
   // Handle drag events
   const handleDragOver = (e) => {
@@ -108,22 +147,22 @@ const UploadAcceptanceLetterPage = () => {
 
     pagesData.forEach(({ text }) => {
       // Extract Degree Concentration (everything after Program/Plan(s) and before Academic Load)
-    const degreeConcentrationMatch = text.match(/Program\/Plan\(s\):\s*([^\n]+)(?:\n([^\n]+))?[\s\S]*?Academic Load/);
-    
-    if (degreeConcentrationMatch) {
-      // Combine the two parts (if any) into a single Degree Concentration string
-      let degreeConcentration = (degreeConcentrationMatch[1] + (degreeConcentrationMatch[2] || '')).trim();
+      const degreeConcentrationMatch = text.match(/Program\/Plan\(s\):\s*([^\n]+)(?:\n([^\n]+))?[\s\S]*?Academic Load/);
 
-      // Check if any of the specific program names are present in the extracted Degree Concentration
-      programNames.forEach(program => {
-        if (degreeConcentration.includes(program)) {
-          degreeConcentration = `${program}`; // Add the program name to the Degree Concentration if it matches
-        }
-      });
+      if (degreeConcentrationMatch) {
+        // Combine the two parts (if any) into a single Degree Concentration string
+        let degreeConcentration = (degreeConcentrationMatch[1] + (degreeConcentrationMatch[2] || '')).trim();
 
-      // Assign to details
-      details.degreeConcentration = degreeConcentration;
-    }
+        // Check if any of the specific program names are present in the extracted Degree Concentration
+        programNames.forEach(program => {
+          if (degreeConcentration.includes(program)) {
+            degreeConcentration = `${program}`; // Add the program name to the Degree Concentration if it matches
+          }
+        });
+
+        // Assign to details
+        details.degreeConcentration = degreeConcentration;
+      }
 
 
       // Check for "Co-op Recommendation: Congratulations!"
@@ -147,16 +186,16 @@ const UploadAcceptanceLetterPage = () => {
       // Extract Starting Semester (Term)
       const sessionIndex = text.indexOf('Session');
       const minProgramLengthIndex = text.indexOf('Minimum Program Length');
-      
+
       // Check if both Session and Minimum Program Length are present
       if (sessionIndex !== -1 && minProgramLengthIndex !== -1) {
         // Extract the substring between Session and Minimum Program Length
         const textBetweenSessionAndMinLength = text.substring(sessionIndex, minProgramLengthIndex);
-        
+
         // Regular expression to match the term (Winter, Summer, Fall, Fall/Winter)
         const termRegex = /(\s*(Winter|Summer|Fall)\s*\d{4}\s*)|(\s*(Fall\/Winter)\s*20(\d{2})-(?!\6)\d{2})/;
         const termMatchstart = textBetweenSessionAndMinLength.match(termRegex);
-        
+
         if (termMatchstart) {
           // Add the matched term to Starting Term
           details.startingTerm = termMatchstart[0].trim();
@@ -174,11 +213,11 @@ const UploadAcceptanceLetterPage = () => {
       if (expectedGradTermIndex !== -1 && admissionStatusIndex !== -1) {
         // Extract the substring between Expected Graduation Term and Admission Status
         const textBetweenExpectedGradTermAndStatus = text.substring(expectedGradTermIndex, admissionStatusIndex);
-        
+
         // Regex for matching terms like Winter 2024, Fall/Winter 2023-2024
         const termRegex = /(\s*(Winter|Summer|Fall)\s*\d{4}\s*)|(\s*(Fall\/Winter)\s*20(\d{2})-(?!\6)\d{2})/;
         const termMatch = textBetweenExpectedGradTermAndStatus.match(termRegex);
-        
+
         if (termMatch) {
           // Add matched term to Expected Graduation Term
           details.expectedGraduationTerm = termMatch[0].trim();
@@ -188,11 +227,11 @@ const UploadAcceptanceLetterPage = () => {
       // Extract Exemptions Courses (Regex match for courses)
       const exemptionsIndex = text.indexOf('Exemptions');
       const deficienciesIndex = text.indexOf('Deficiencies');
-      
+
       if (exemptionsIndex !== -1 && deficienciesIndex !== -1) {
         // Extract the substring between Exemptions and Deficiencies
         const textBetweenExemptionsAndDeficiencies = text.substring(exemptionsIndex, deficienciesIndex);
-        
+
         // Regex for matching course codes (e.g., MATH 101)
         const courseRegex = /([A-Za-z]{3,4})\s+(\d{3})\s+/g;
         let courseMatch;
@@ -212,11 +251,11 @@ const UploadAcceptanceLetterPage = () => {
       // Extract Deficiencies Courses (Regex match for courses)
       const deficienciesMatchIndex = text.indexOf('Deficiencies');
       const transferCreditsIndex = text.indexOf('Transfer Credits');
-      
+
       if (deficienciesMatchIndex !== -1 && transferCreditsIndex !== -1) {
         // Extract the substring between Deficiencies and Transfer Credits
         const textBetweenDeficienciesAndTransferCredits = text.substring(deficienciesMatchIndex, transferCreditsIndex);
-        
+
         // Regex for matching course codes (e.g., MATH 101)
         const courseRegex = /([A-Za-z]{3,4})\s+((\d{3})|[A-Z]{1,2})\s+/g;
         let courseMatch;
@@ -235,7 +274,7 @@ const UploadAcceptanceLetterPage = () => {
 
       // Extract Transfer Credits and respective credits
       const noteIndex = text.indexOf('NOTE:');
-      
+
       if (transferCreditsIndex !== -1 && noteIndex !== -1) {
         const textBetweenTransferAndNote = text.substring(transferCreditsIndex, noteIndex);
 
@@ -271,13 +310,13 @@ const UploadAcceptanceLetterPage = () => {
   const generateOutput = (data) => {
     if (data) {
       const transferCreditsHtml = data.transferCredits
-      ? data.transferCredits
+        ? data.transferCredits
           .map(
             (credit) =>
               `<li>${credit.course} - ${credit.credits}</li>`
           )
           .join('')
-      : 'None';
+        : 'None';
       return `
         <h3>Extracted Details:</h3>
         <ul>
@@ -309,10 +348,12 @@ const UploadAcceptanceLetterPage = () => {
           <form>
             <div>
               <label htmlFor="degree-concentration">Degree Concentration:</label>
-              <select id="degree-concentration" className="input-field">
-                <option>Software Engineer</option>
-                <option>Computer Science</option>
-                <option>Electrical Engineering</option>
+              <select id="degree-concentration" className="input-field" onChange={handleDegreeChange}>
+              <option value="">-- Select a Degree --</option>
+                {degrees.map((degree) => (
+                  <option key={degree.id} value={degree.id}>{degree.name}</option>
+                ))}
+
               </select>
             </div>
             <div>

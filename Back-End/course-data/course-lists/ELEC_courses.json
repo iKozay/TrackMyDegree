@@ -11,7 +11,7 @@
     {
         "title": "ELEC 251 Fundamentals of Applied Electromagnetics",
         "credits": 3,
-        "prerequisites": "ELEC 273or ENGR 273",
+        "prerequisites": "ELEC 273/ENGR 273",
         "corequisites": "ENGR 233",
         "description": "Electric charge, Coulomb’s law, electrostatic forces, electric field, Gauss’ law, electric potential, stored energy. Dielectrics, properties of materials in electric fields. Electric current, conduction in a vacuum and in material media, displacement current, magnetic field of a current, force on a currentâcarrying wire, magnetic induction, electromotive force, energy stored in a magnetic field. Magnetism in material media, magnetic circuits.Timeâvarying fields. Capacitance, resistance, inductance, elements of electric circuits.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
@@ -32,8 +32,8 @@
         "credits": 3.5,
         "prereqs": "PHYS 205",
         "coreqs": "ENGR 213",
-        "prerequisites":[],
-        "corequisites": ["ENGR 213"],
+        "prerequisites":"",
+        "corequisites": "ENGR 213",
         "description": "Fundamentals of electric circuits: Kirchoff’s laws, voltage and current sources, Ohm’s law, series and parallel circuits. Nodal and mesh analysis of DC circuits. Superposition theorem, Thevenin and Norton Equivalents. Use of operational amplifiers. Transient analysis of simple RC, RL and RLC circuits. Steady state analysis: Phasors and impedances, power and power factor. Single and three phase circuits. Magnetic circuits and transformers. Power generation and distribution.",
         "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 15 hours total",
         "notes": ""
@@ -50,7 +50,7 @@
     {
         "title": "ELEC 312 Electronics II",
         "credits": 3.5,
-        "prerequisites": "ELEC 311;ELEC 242orELEC364.",
+        "prerequisites": "ELEC 311;ELEC 242/ELEC364.",
         "corequisites": "",
         "description": "Differential and multiâstage amplifiers: differential pair; differential gain; commonâmode gain and commonâmode rejection ratio (CMRR) current mirrors. High frequency models: sâdomain analysis, transfer functions; common gate, common source, common drain configurations; common base, common emitter, common collector configurations; wideâband amplifiers. Feedback: general feedback structure; properties of negative feedback; the four basic feedback configurations; loop gain and stability problems. Power amplifiers: classification and output stages; class A, B, C, and AB amplifiers; biasing the class AB amplifier. Introduction to filters, tuned amplifiers, oscillators and mixers. PSPICE.",
         "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 15 hours total",
@@ -77,7 +77,7 @@
     {
         "title": "ELEC 342 DiscreteâTime Signals and Systems",
         "credits": 3.5,
-        "prerequisites": "ELEC 242or ELEC 264.",
+        "prerequisites": "ELEC 242/ELEC 264.",
         "corequisites": "",
         "description": "Basic material includes discrete vs. continuous-time signals, discrete-time signals, elementary signals and signal operations, discrete-time systems, properties of discrete-time systems and interconnections of systems. Timeâdomain analysis of discreteâtime systems is covered including finite difference equation representation of systems,linear time-invariant (LTI) systems, unit impulse response and convolution, sliding tape method for convolution, periodic convolution, properties of convolution, and properties of LTI systems. The next area is Fourier domain analysis including Discrete-Time Fourier Series (DTFS), Discrete-Time Fourier Transform (DTFT), properties of DTFS and DTFT, frequency response of LTI systems, and continuous and discrete-time Fourier transforms. Conversion of continuous-time to discrete-time signals is covered including ideal impulse train sampling, the sampling theorem, effect of sampling in the frequency and time domains graphically and algebraically, antiâaliasing preâfilter, reconstruction of band limited signal from its samples, discreteâtime processing of continuousâtime signals, quantization, uniform quantization, quantization noise, granular vs. overload noise, and design of uniform quantizers. The Discrete Fourier Transform (DFT) is developed along with the relationship between the DFT and the DTFT. Also covered is the relationship between the DFT and the Fast Fourier Transform (FFT). The z-transform (ZT) is covered with topics including properties, poles and zeros of rational ZTs, inverse and unilateral z-transforms (UZT), Region of Convergence (ROC), and relationship between ZT and DTFT. Filtering topics include LTI systems as frequencyâselective filters, ideal filters, Finite Impulse Response (FIR) vs. Infinite Impulse Response (IIR) filters, linear phase FIR filters, filter specification, and designing filters with MATLAB. The course closes with FIR filter design with windowing.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 12 hours total",
@@ -104,7 +104,7 @@
     {
         "title": "ELEC 366 Telecommunication Networks",
         "credits": 3.5,
-        "prerequisites": "COEN 352;ELEC 342or ELEC 364;ENGR 371.",
+        "prerequisites": "COEN 352;ELEC 342/ELEC 364;ENGR 371.",
         "corequisites": "",
         "description": "The course introduces communication network functions/services and the circuit and packet-switching approaches for network design. It covers transmission systems, multiplexing, switches, signalling and traffic control in circuitâswitched networks including cellular networks. It introduces the layered network architecture for packet-switching: peer-to-peer ARQ protocols and data-link controls;TCP/IP architecture: Internet and transport protocols. It covers multiple access communications: Aloha, CSMA, reservation schemes, polling, token passing rings, wireless LANs and LAN bridges. It includes application and socket programming.",
         "components": "Lecture 3 hours per week; Laboratory 15 hours total",
@@ -122,7 +122,7 @@
     {
         "title": "ELEC 372 Fundamentals of Control Systems",
         "credits": 3.5,
-        "prerequisites": "ELEC 242or ELEC 364.",
+        "prerequisites": "ELEC 242/ELEC 364.",
         "corequisites": "",
         "description": "Mathematical models of control systems. Characteristics, performance, and stability of linear feedback control systems. Rootâlocus methods. Frequency response methods. Stability in the frequency domain. Design and compensation of feedback control systems.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 15 hours total",
@@ -293,7 +293,7 @@
     {
         "title": "ELEC 441 Modern Analog Filter Design",
         "credits": 3.5,
-        "prerequisites": "ELEC 342orELEC364.",
+        "prerequisites": "ELEC 342/ELEC364.",
         "corequisites": "",
         "description": "Review of network analysis. Magnitude and frequency scaling. Magnitude and phase approximation in synthesis of filter functions. Secondâorder active RC filters. Synthesis of allâpole LC ladder filters. Secondâorder switchedâcapacitor filters. Realization of highâorder active filters. Current mode filters. Switchedâcurrent filters. Integrated circuit filters.",
         "components": "Lecture 3 hours per week; Laboratory 15 hours total",
@@ -302,7 +302,7 @@
     {
         "title": "ELEC 442 Advanced Signal Processing",
         "credits": 3,
-        "prerequisites": "ELEC 342or ELEC 364;ENGR 371.",
+        "prerequisites": "ELEC 342/ELEC 364;ENGR 371.",
         "corequisites": "",
         "description": "This course focuses on fundamental principles, methods and applications of statistical and adaptive signal processing. It begins with the introduction of random signal processing basics, including random variables and sequences, linear systems with stationary inputs, linear signal models, power spectral density estimation. It then covers optimum linear filtering and prediction, namely, Wiener filter, constrained minimum mean square error (MMSE) estimation, array/space-time processing and beamforming, forward and backward linear prediction. The course also covers adaptive filtering methods including least mean square filters, least-square filter, recursive least square filter, Kalman filter. Finally, the course ends with machine learning principles for signal processing including Bayesian learning, support vector machine, and neural network basics.",
         "components": "Lecture 3 hours per week",
@@ -320,7 +320,7 @@
     {
         "title": "ELEC 444 Medical Image Processing",
         "credits": 3,
-        "prerequisites": "ELEC 342or ELEC 364.",
+        "prerequisites": "ELEC 342/ELEC 364.",
         "corequisites": "",
         "description": "Principles and techniques used in the processing and analysis of medical images. Image quality metrics, denoising medical images, quantification, rigid and deformable registration. Similarity metrics such as mutual information (MI). Images from the most common medical imaging modalities (Xâray, CT, MRI and ultrasound) will be used.",
         "components": "Lecture 3 hours per week",
@@ -410,7 +410,7 @@
     {
         "title": "ELEC 465 Networks Security and Management",
         "credits": 3.5,
-        "prerequisites": "COEN 366or COEN 445 orELEC 366or ELEC 463.",
+        "prerequisites": "COEN 366/COEN 445/ELEC 366/ELEC 463.",
         "corequisites": "",
         "description": "This course covers two important areas of communication networks: network security and network management. In network security, topics include basic cryptography, authentication, message integrity, firewalls, security protocols, virtual private networks (VPNs), and security in wireless LANs. In network management, topics include network management architectures, ASN.1, Management Information Bases (MIBs), SNMP and its evolution.",
         "components": "Lecture 3 hours per week; Laboratory 15 hours total",
@@ -428,7 +428,7 @@
     {
         "title": "ELEC 470 Broadcast Signal Transmission",
         "credits": 3,
-        "prerequisites": "ELEC 363 orELEC 367.",
+        "prerequisites": "ELEC 363/ELEC 367.",
         "corequisites": "",
         "description": "Topics include signal definition, human eye limitations, pixel representation schemes, interfaces serial digital interface (SDI), image formats (1080i, 720i, 4k, 8k), compression schemes: MPEGâ2, MPEGâ4, moving JPEG. Modulation techniques: QPSK, QAM, VSB. Advanced terrestrial transmission standards such as DVBâT2, ATSCâ3. Satellite broadcasting standards such as DVB/S2. Path calculation: antennas, up and down conversion, solid state and travelling wave tube amplifiers. Transmission lines, waveguide and coaxial cable.",
         "components": "Lecture 3 hours per week",
@@ -437,7 +437,7 @@
     {
         "title": "ELEC 472 Advanced Telecommunication Networks",
         "credits": 3.5,
-        "prerequisites": "COEN 366or COEN 445 orELEC 366or ELEC 463.",
+        "prerequisites": "COEN 366/COEN 445/ELEC 366/ELEC 463.",
         "corequisites": "",
         "description": "This course covers Internet that has moved beyond the three “classical” services of email, file transfer and remote logâin to providing realâtime multimedia communication. The course provides the basic building blocks for the students to understand the current capabilities and potential of high-speed Internet to support emerging Internet services. Review of Internet architecture is followed by quality of service (QoS) requirements and protocols such as differentiated services, integrated services, Resource reservation protocol (RSVP), and Multi protocol label switching (MPLS) to support QoS. Topics also include protocols and standards for voice over IP; H.323, Session Initiation Protocol (SIP) and Media Gateway Control Protocol (MGCP); and their interworking.",
         "components": "Lecture 3 hours per week; Laboratory 15 hours total",
@@ -455,7 +455,7 @@
     {
         "title": "ELEC 481 Linear Systems",
         "credits": 3.5,
-        "prerequisites": "AERO 371orELEC 372orMECH 371.",
+        "prerequisites": "AERO 371/ELEC 372/MECH 371.",
         "corequisites": "",
         "description": "Review of matrix algebra. Stateâspace description of dynamic systems: linearity, causality, timeâinvariance, linearization. Solution of stateâspace equations. Transfer function representation. Discreteâtime models. Controllability and observability. Canonical forms and minimalâorder realizations. Stability. Stabilizability and pole placement. Linear quadratic optimal control. Observer design.",
         "components": "Lecture 3 hours per week; Laboratory 15 hours total",
@@ -464,7 +464,7 @@
     {
         "title": "ELEC 482 System Optimization",
         "credits": 3.5,
-        "prerequisites": "ENGR 391or EMAT 391.",
+        "prerequisites": "ENGR 391/EMAT 391.",
         "corequisites": "",
         "description": "Linear least squares. Properties of quadratic functions with applications to steepest descent method, Newton’s method and QuasiâNewton methods for nonlinear optimization. Oneâdimensional optimization. Introduction to constrained optimization, including the elements of KuhnâTucker conditions for optimality. Least pth and miniâmax optimization. Application of optimization techniques to engineering problems.",
         "components": "Lecture 3 hours per week; Laboratory 15 hours total",
@@ -473,7 +473,7 @@
     {
         "title": "ELEC 483 RealâTime Computer Control Systems",
         "credits": 3.5,
-        "prerequisites": "AERO 371orELEC 372;ELEC 342or ELEC 364.",
+        "prerequisites": "AERO 371/ELEC 372;ELEC 342/ELEC 364.",
         "corequisites": "",
         "description": "Introduction to realâtime computer control systems; a review of discreteâtime signals and systems, difference equations, zâtransform; sampledâdata systems, sample and hold, discrete models; discrete equivalents of continuousâtime systems; stability analysis; design specifications; design using root locus and frequency response methods; implementation issues including bumpless transfer, integral windup, sample rate selection, preâfiltering, quantization effects and computational delay; scheduling theory and priority assignment to control processes, timing of control loops, effects of missed deadlines; principles and characteristics of sensors and devices, embedded processors, processor/device interface.",
         "components": "Lecture 3 hours per week; Laboratory 15 hours total",
@@ -482,7 +482,7 @@
     {
         "title": "ELEC 490 Capstone Electrical Engineering Design Project",
         "credits": 6,
-        "prerequisites": "ENGR 301,ENGR 371;COEN 311;ELEC 342or 364;ELEC 390. Students must complete a minimum of 75 credits in the BEng (Electrical), as well asthe C.Edge work termor one co-op work termprior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "prerequisites": "ENGR 301,ENGR 371;COEN 311;ELEC 342/364;ELEC 390. 75CR",
         "corequisites": "",
         "description": "Students are assigned to groups, and work together under faculty supervision to solve a complex interdisciplinary design problem — typically involving communications, control systems, electromagnetics, power electronics, software design, and/or hardware design. The project fosters teamwork between group members and allows students to develop their project management, technical writing, and technical presentation skills.",
         "components": "Tutorial 1 hour per week, two terms; Laboratory Equivalent time, 9 hours per week, two terms",
