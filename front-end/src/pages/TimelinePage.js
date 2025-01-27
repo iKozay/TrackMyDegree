@@ -1,12 +1,14 @@
 // TimelinePage.js
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   DndContext,
   useDraggable,
   useDroppable,
   DragOverlay,
   MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   closestCorners,
@@ -141,6 +143,9 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 
 // Main component
 const TimelinePage = ({ timelineData }) => {
+  const [showCourseList, setShowCourseList] = useState(true);
+  const [showCourseDescription, setShowCourseDescription] = useState(true);
+
   const [semesters, setSemesters] = useState([]);
   const [semesterCourses, setSemesterCourses] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -149,6 +154,9 @@ const TimelinePage = ({ timelineData }) => {
   const { degreeId } = location.state || {};
 
   // Data
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 767);
+  const [addButtonText, setAddButtonText] = useState('+ Add Semester');
+
   const [activeId, setActiveId] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [returning, setReturning] = useState(false);
@@ -158,16 +166,24 @@ const TimelinePage = ({ timelineData }) => {
   // Add semester form state
   const [selectedSeason, setSelectedSeason] = useState('Fall');
   const [selectedYear, setSelectedYear] = useState('2025');
-
   // Fetching state
   const [coursePools, setCoursePools] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const toggleCourseList = () => setShowCourseList((prev) => !prev);
+  const toggleCourseDescription = () => setShowCourseDescription((prev) => !prev);
 
   // Sensors with activation constraints
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 5,
+    },
+  });
+
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: 100,
+      tolerance: 5,
     },
   });
 
@@ -251,6 +267,27 @@ const TimelinePage = ({ timelineData }) => {
       )
     );
   }, [timelineData, coursePools]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth > 767);
+      if (window.innerWidth > 999) {
+        setAddButtonText('+ Add Semester');
+      }
+      else {
+        setAddButtonText('+');
+      }
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!isDesktop) {
+      setShowCourseList(false);
+      setShowCourseDescription(false);
+    }
+  }, [isDesktop]);
 
   const [shakingSemesterId, setShakingSemesterId] = useState(null);
 
@@ -595,6 +632,25 @@ const TimelinePage = ({ timelineData }) => {
     }
     return 15;
   }
+
+  //method to get courses by id while taking into account nested coruse lists
+  // const getCourseById = (id, courses) => {
+  //   for (const courseSection of courses) {
+  //     if (courseSection.courseList) {
+  //       for (const course of courseSection.courseList) {
+  //         if (course.id === id) {
+  //           return course;
+  //         }
+  //       }
+  //     }
+  //     // Check for any nested subcourses and recursively search through them
+  //     if (courseSection.subcourses) {
+  //       const found = getCourseById(id, courseSection.subcourses);
+  //       if (found) return found;
+  //     }
+  //   }
+  //   return null;
+  // };
 
   // ----------------------------------------------------------------------------------------------------------------------
   return (

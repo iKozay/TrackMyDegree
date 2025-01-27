@@ -7,6 +7,7 @@ import humanities from './general_education_electives/humanities.json';
 import otherStudies from './general_education_electives/other_complementary_studies.json';
 import socialSciences from './general_education_electives/social_sciences.json';
 
+
 const genEdElec = [
   {title: 'Humanities', courseList: humanities},
   {title: 'Social Sciences', courseList: socialSciences},
