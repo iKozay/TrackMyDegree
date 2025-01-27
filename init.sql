@@ -14,11 +14,19 @@ CREATE TABLE Course (
 
 CREATE TABLE Requisite (
     id VARCHAR(255) PRIMARY KEY,
-    code1 VARCHAR(7),
-    code2 VARCHAR(7),
-    type VARCHAR(3) CHECK (type IN ('pre', 'co')),
+    code1 VARCHAR(7) NOT NULL,          -- Course that has the requisite
+    code2 VARCHAR(7),                    -- Prerequisite course (NULL if credit-based)
+    type VARCHAR(3) CHECK (type IN ('pre', 'co')), -- 'pre' for prerequisite, 'co' for corequisite
+    group_id VARCHAR(255),               -- Identifier for groups of alternative requisites
+    creditsRequired INT,                 -- Number of credits required (NULL if course-based)
     FOREIGN KEY (code1) REFERENCES Course(code),
-    FOREIGN KEY (code2) REFERENCES Course(code)
+    FOREIGN KEY (code2) REFERENCES Course(code),
+    CONSTRAINT UC_Requisite UNIQUE (code1, code2, type, group_id, creditsRequired),
+    CONSTRAINT CK_Requisite_CreditsOrCourse
+        CHECK (
+            (creditsRequired IS NOT NULL AND code2 IS NULL) OR
+            (creditsRequired IS NULL AND code2 IS NOT NULL)
+        )
 );
 
 CREATE TABLE CoursePool (
@@ -40,7 +48,9 @@ CREATE TABLE CourseXCoursePool (
   id VARCHAR(255) PRIMARY KEY,
   coursecode VARCHAR(7),
   coursepool VARCHAR(255),
+  groupId VARCHAR(255),
   UNIQUE(coursecode, coursepool),
+  CONSTRAINT UC_CourseXCoursePool UNIQUE (coursecode, coursepool, groupId),
   FOREIGN KEY (coursecode) REFERENCES Course(code), -- Composite foreign key
   FOREIGN KEY (coursepool) REFERENCES CoursePool(id) ON DELETE CASCADE
 );
@@ -91,56 +101,56 @@ CREATE TABLE Exemption (
 -- Corrected INSERT statements
 
 -- Degree table
-INSERT INTO Degree (id, name, totalCredits)
-VALUES ('1', 'Bachelor of Science in Computer Science', 120),
-       ('2', 'Bachelor of Arts in Business Administration', 120);
+-- INSERT INTO Degree (id, name, totalCredits)
+-- VALUES ('1', 'Bachelor of Science in Computer Science', 120),
+--        ('2', 'Bachelor of Arts in Business Administration', 120);
 
--- Course table
-INSERT INTO Course (code, credits, description)
-VALUES ('COMP335', 3, 'Introduction to Programming'),
-       ('SOEN363', 3, 'Database Systems'),
-       ('SOEN287', 3, 'Web Development');
+-- -- Course table
+-- INSERT INTO Course (code, credits, description)
+-- VALUES ('COMP335', 3, 'Introduction to Programming'),
+--        ('SOEN363', 3, 'Database Systems'),
+--        ('SOEN287', 3, 'Web Development');
 
--- Requisite table
-INSERT INTO Requisite (id, code1, code2, type)
-VALUES ('1', 'COMP335', 'SOEN363', 'pre'),  -- Database Systems requires Introduction to Programming
-       ('2', 'SOEN363', 'SOEN287', 'co');  -- Web Development requires Database Systems
+-- -- Requisite table
+-- INSERT INTO Requisite (id, code1, code2, type)
+-- VALUES ('1', 'COMP335', 'SOEN363', 'pre'),  -- Database Systems requires Introduction to Programming
+--        ('2', 'SOEN363', 'SOEN287', 'co');  -- Web Development requires Database Systems
 
--- CoursePool table
-INSERT INTO CoursePool (id, name)
-VALUES ('1', 'Core Courses'),
-       ('2', 'Electives'),
-       ('3', 'Special Topics');
+-- -- CoursePool table
+-- INSERT INTO CoursePool (id, name)
+-- VALUES ('1', 'Core Courses'),
+--        ('2', 'Electives'),
+--        ('3', 'Special Topics');
 
--- DegreeXCoursePool table
-INSERT INTO DegreeXCoursePool (id, degree, coursepool, creditsRequired)
-VALUES ('1', '1', '1', 30),  -- DegreeID 1 linked to CoursePoolID 1
-       ('2', '1', '2', 15),  -- DegreeID 1 linked to CoursePoolID 2
-       ('3', '2', '3', 12);  -- DegreeID 2 linked to CoursePoolID 3
+-- -- DegreeXCoursePool table
+-- INSERT INTO DegreeXCoursePool (id, degree, coursepool, creditsRequired)
+-- VALUES ('1', '1', '1', 30),  -- DegreeID 1 linked to CoursePoolID 1
+--        ('2', '1', '2', 15),  -- DegreeID 1 linked to CoursePoolID 2
+--        ('3', '2', '3', 12);  -- DegreeID 2 linked to CoursePoolID 3
 
--- CourseXCoursePool table
-INSERT INTO CourseXCoursePool (id, coursecode, coursepool)
-VALUES ('1', 'COMP335', '1'),  -- CourseID 1 linked to CoursePoolID 1
-       ('2', 'SOEN363', '2'),  -- CourseID 2 linked to CoursePoolID 2
-       ('3', 'SOEN287', '3');  -- CourseID 3 linked to CoursePoolID 3
+-- -- CourseXCoursePool table
+-- INSERT INTO CourseXCoursePool (id, coursecode, coursepool)
+-- VALUES ('1', 'COMP335', '1'),  -- CourseID 1 linked to CoursePoolID 1
+--        ('2', 'SOEN363', '2'),  -- CourseID 2 linked to CoursePoolID 2
+--        ('3', 'SOEN287', '3');  -- CourseID 3 linked to CoursePoolID 3
 
--- User table (changed from AppUser to [User])
+-- -- User table (changed from AppUser to [User])
 
-INSERT INTO AppUser (id, email, password, fullname, degree, type)
-VALUES ('1', 'jd1@concordia.ca', '1234', 'John Doe', '1', 'student'),
-       ('2', 'jd2@concordia.ca', '5678', 'Jane Doe', NULL, 'advisor');
+-- INSERT INTO AppUser (id, email, password, fullname, degree, type)
+-- VALUES ('1', 'jd1@concordia.ca', '1234', 'John Doe', '1', 'student'),
+--        ('2', 'jd2@concordia.ca', '5678', 'Jane Doe', NULL, 'advisor');
 
--- Timeline table
-INSERT INTO Timeline (id, season, year, coursecode, user_id)
-VALUES ('1', 'winter', 2024, 'COMP335', '1'),  -- UserID 1's timeline for winter 2024
-       ('2', 'fall', 2025, 'COMP335', '2');  -- UserID 2's timeline for fall 2025
+-- -- Timeline table
+-- INSERT INTO Timeline (id, season, year, coursecode, user_id)
+-- VALUES ('1', 'winter', 2024, 'COMP335', '1'),  -- UserID 1's timeline for winter 2024
+--        ('2', 'fall', 2025, 'COMP335', '2');  -- UserID 2's timeline for fall 2025
 
--- Deficiency table
-INSERT INTO Deficiency (id, coursepool, user_id, creditsRequired)
-VALUES ('1', '2', '1', 3),  -- UserID 1 has a deficiency
-       ('2', '2', '2', 3);  -- UserID 2 has a deficiency
+-- -- Deficiency table
+-- INSERT INTO Deficiency (id, coursepool, user_id, creditsRequired)
+-- VALUES ('1', '2', '1', 3),  -- UserID 1 has a deficiency
+--        ('2', '2', '2', 3);  -- UserID 2 has a deficiency
 
--- Exemption table
-INSERT INTO Exemption (id, coursecode, user_id)
-VALUES ('1', 'COMP335', '1');  -- UserID 1 has an exemption
+-- -- Exemption table
+-- INSERT INTO Exemption (id, coursecode, user_id)
+-- VALUES ('1', 'COMP335', '1');  -- UserID 1 has an exemption
 

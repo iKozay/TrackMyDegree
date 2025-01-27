@@ -1,11 +1,12 @@
-import computerScienceGroup from "../course data/soen_courses/computer_science_group.json";
-import soenElectives from "../course data/soen_courses/soen_electives.json";
-import soenCore from '../course data/soen_courses/soen_core.json';
-import engineeringNaturalScience from '../course data/soen_courses/engineering_natural_science_group.json';
-import engineeringCore from '../course data/engineering_core.json';
-import humanities from '../course data/general_education_electives/humanities.json';
-import otherStudies from '../course data/general_education_electives/other_complementary_studies.json';
-import socialSciences from '../course data/general_education_electives/social_sciences.json';
+import computerScienceGroup from "./soen_courses/computer_science_group.json";
+import soenElectives from "./soen_courses/soen_electives.json";
+import soenCore from './soen_courses/soen_core.json';
+import engineeringNaturalScience from './soen_courses/engineering_natural_science_group.json';
+import engineeringCore from './engineering_core.json';
+import humanities from './general_education_electives/humanities.json';
+import otherStudies from './general_education_electives/other_complementary_studies.json';
+import socialSciences from './general_education_electives/social_sciences.json';
+
 
 const genEdElec = [
   {title: 'Humanities', courseList: humanities},

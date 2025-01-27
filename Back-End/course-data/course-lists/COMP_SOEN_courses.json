@@ -55,7 +55,7 @@
     },
     {
         "title": "COMP 248 Object‑Oriented Programming I (3.5 credits)",
-        "credits": 0,
+        "credits": 3.5,
         "prerequisites": "MATH 204 or Cegep Mathematics 105 or NYC",
         "corequisites": "MATH 204 or Cegep Mathematics 105 or NYC",
         "description": "Introduction to programming. Basic data types, variables, expressions, assignments, control flow. Classes, objects, methods. Information hiding, public vs. private visibility, data abstraction and encapsulation. References. Arrays.",
@@ -64,7 +64,7 @@
     },
     {
         "title": "COMP 249 Object‑Oriented Programming II (3.5 credits)",
-        "credits": 0,
+        "credits": 3.5,
         "prerequisites": "COMP 248 ; MATH 203 or Cegep Mathematics 103 or NYA",
         "corequisites": "MATH 205 or Cegep Mathematics 203 or NYB",
         "description": "Design of classes. Inheritance. Polymorphism. Static and dynamic binding. Abstract classes. Exception handling. File I/O. Recursion. Interfaces and inner classes. Graphical user interfaces. Generics. Collections and iterators.",
@@ -173,7 +173,7 @@
     {
         "title": "COMP 367 Techniques in Symbolic Computation",
         "credits": 3,
-        "prerequisites": "MAST 217 or COMP 232 or equivalent; COMP 248 or equivalent",
+        "prerequisites": "MAST 217/COMP 232; COMP 248",
         "corequisites": "",
         "description": "This course is an application-oriented introduction to algebraic methods involved in symbolic computation, as it applies to number theory and modular algebra, and covering the following topics: numbers, primes, modular arithmetic, Diophantine equations; congruence classes and applications, finite fields and rings; Fermat’s and Euler’s theorems; Chinese Remainder theorem and applications; polynomial congruences and rings. Applications to: error-correcting codes (Humming codes), Hill Cryptosystem, public key encryption schemes, polynomial factorization, polynomial interpolation. A symbolic computation system (e.g. MAPLE), is used as a computational tool and a platform for writing all assignments and tests but not as an object of study itself.",
         "components": "Lecture Notes: Students who have received credit for MAST 332 may not take this course for credit.",
@@ -182,7 +182,7 @@
     {
         "title": "COMP 371 Computer Graphics",
         "credits": 4,
-        "prerequisites": "COMP 232 or COEN 231 ; COMP 352 or COEN 352 ",
+        "prerequisites": "COMP 232/COEN 231 ; COMP 352/COEN 352 ",
         "corequisites": "",
         "description": "This course covers the following topics: introduction to computer graphics and graphics hardware; introduction to graphics API and graphics systems architecture; mathematics of 2D and 3D transformations and 2D and 3D viewing; colour and basic rendering algorithms; visual realism and visibility; illumination and shading and global illumination techniques and textures; introduction to curves and surfaces and 3D object modelling; introduction to computer animation. This course includes a project.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week",
@@ -209,7 +209,7 @@
     {
         "title": "COMP 426 Multicore Programming",
         "credits": 4,
-        "prerequisites": "COMP 346 or COEN 346 ",
+        "prerequisites": "COMP 346/COEN 346 ",
         "corequisites": "",
         "description": "Fundamental concepts of computer architecture. Architecture of the selected multicore platform. Review of shared‑memory parallel programming. The difficulties inherent to parallel programming. Scalability of programming models. The stream programming model for multicore. Implicit and explicit threading. Implicit and explicit orchestration of data movement, both on chip and off. Adapting standard algorithms to multicore. Critical assessment of the available system‑software support. Project.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -218,7 +218,7 @@
     {
         "title": "COMP 428 Parallel Programming",
         "credits": 4,
-        "prerequisites": "COMP 346 or COEN 346 ",
+        "prerequisites": "COMP 346/COEN 346 ",
         "corequisites": "",
         "description": "Parallel programming techniques as a natural extension to sequential programming. Overview of parallel programming architectures and models. Parallel programming issues: locality, granularity, scheduling, data decomposition and distribution, load balancing, communication and synchronization, determinacy and non‑determinacy, cost and performance. Techniques and tools for message‑passing parallel programming. Case studies. Project.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week",
@@ -254,7 +254,7 @@
     {
         "title": "COMP 442 Compiler Design",
         "credits": 4,
-        "prerequisites": "COMP 228 or SOEN 228 or COEN 311 ; COMP 335 ; COMP 352 or COEN 352 ",
+        "prerequisites": "COMP 228/SOEN 228/COEN 311 ; COMP 335 ; COMP 352/COEN 352 ",
         "corequisites": "",
         "description": "Compiler organization and implementation: lexical analysis and parsing, syntax‑directed translation, code optimization. Run‑time systems. Project.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -290,7 +290,7 @@
     {
         "title": "COMP 465 Design and Analysis of Algorithms",
         "credits": 3,
-        "prerequisites": "COMP 232 or COEN 231 ; COMP 339 ; COMP 352 or COEN 352 ",
+        "prerequisites": "COMP 232/COEN 231 ; COMP 339 ; COMP 352/COEN 352 ",
         "corequisites": "",
         "description": "Order statistics: worst‑case, average‑case and amortized analysis. Algorithm design techniques: greedy algorithms, dynamic programming. Selected algorithms from graph theory, linear programming, number theory, string matching, and computational geometry. A survey of hard problems, NP‑completeness, and approximation algorithms.",
         "components": "Lecture 3 hours per week",
@@ -299,7 +299,7 @@
     {
         "title": "COMP 472 Artificial Intelligence",
         "credits": 4,
-        "prerequisites": "COMP 352 or COEN 352 ",
+        "prerequisites": "COMP 352/COEN 352 ",
         "corequisites": "",
         "description": "This course initially describes the scope and history of Artificial Intelligence. Then it covers knowledge representation, heuristic search, game playing and planning. Finally, it introduces the topics of machine learning, genetic algorithms and natural language processing. A project is required.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -317,7 +317,7 @@
     {
         "title": "COMP 474 Intelligent Systems",
         "credits": 4,
-        "prerequisites": "COMP 352 or COEN 352 ",
+        "prerequisites": "COMP 352/COEN 352 ",
         "corequisites": "",
         "description": "Rule‑based expert systems, blackboard architecture, and agent‑based. Knowledge acquisition and representation. Uncertainty and conflict resolution. Reasoning and explanation. Design of intelligent systems. Project.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -335,7 +335,7 @@
     {
         "title": "COMP 476 Advanced Game Development",
         "credits": 4,
-        "prerequisites": "COMP 361 or ENGR 391 ; COMP 376 ",
+        "prerequisites": "COMP 361/ENGR 391 ; COMP 376 ",
         "corequisites": "",
         "description": "Introduction to advanced aspects of computer games. Game engine design. Artificial Intelligence (AI): non‑player character movement, coordinated  movement, pathfinding, world representations; decision making; tactical AI, strategic AI, learning in games. Physics‑based techniques: collision detection and response. Networked gaming: multi‑player games, networking and distributed game design, mobile gaming. Improving realism: cut scenes, 3D sound. Project.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -344,7 +344,7 @@
     {
         "title": "COMP 477 Animation for Computer Games",
         "credits": 4,
-        "prerequisites": "COMP 361 or ENGR 391 , COMP 371 ",
+        "prerequisites": "COMP 361/ENGR 391 , COMP 371 ",
         "corequisites": "",
         "description": "Introduction to the algorithms, data structures, and techniques used in modelling and rendering dynamic scenes. Topics include principles of traditional animation, production pipeline, animation hardware and software, orientation representation and interpolation, modelling physical and articulated objects, forward and inverse kinematics, motion control and capture, key‑frame, procedural, and behavioural animation, camera animation, scripting system, and free‑form deformation. Project.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -362,7 +362,7 @@
     {
         "title": "COMP 479 Information Retrieval and Web Search",
         "credits": 4,
-        "prerequisites": "COMP 233 or ENGR 371 ; COMP 352 ",
+        "prerequisites": "COMP 233/ENGR 371 ; COMP 352 ",
         "corequisites": "",
         "description": "Basics of information retrieval (IR): boolean, vector space and probabilistic models. Tokenization and creation of inverted files. Weighting schemes. Evaluation of IR systems: precision, recall, F‑measure. Relevance feedback and query expansion. Application of IR to web search engines: XML, link analysis, PageRank algorithm. Text categorization and clustering techniques as used in spam filtering. Project.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -380,7 +380,7 @@
     {
         "title": "COMP 492 Computer Science Project II",
         "credits": 3,
-        "prerequisites": "COMP 490 ",
+        "prerequisites": "",
         "corequisites": "COMP 490 ",
         "description": "Students work on a computer science project under the supervision of a faculty member and submit a suitable written report on the work carried out.",
         "components": "Lecture Notes: Students can register for COMP 492 by itself or, with the permission of the Department, students can register for COMP 490 and COMP 492 concurrently and carry out a major project.",
@@ -425,7 +425,7 @@
     {
         "title": "SOEN 228 System Hardware",
         "credits": 4,
-        "prerequisites": "MATH 203 or Cegep Mathematics 103, MATH 204 or Cegep Mathematics 105",
+        "prerequisites": "MATH 203, MATH 204",
         "corequisites": "",
         "description": "This course covers the following topics: Boolean Algebra, Digital logic and the design of logic circuits; CPU design; addressing modes; instruction sets and sequencing; design of datapath and control units; memory systems and types; cache memory levels; I/O devices and their interconnection to the CPU; assembly language, and Interrupts.",
         "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 2 hours per week Notes: Students who have received credit for COMP 228 may not take this course for credit.",
@@ -452,7 +452,7 @@
     {
         "title": "SOEN 321 Information Systems Security",
         "credits": 3,
-        "prerequisites": "COMP 346 or COEN 346 ",
+        "prerequisites": "COMP 346/COEN 346 ",
         "corequisites": "",
         "description": "This course covers the following topics: introduction to cryptography and cryptanalysis; threats, attacks, and vulnerabilities; security services (confidentiality, authentication, integrity); public key systems including Diffie‑Hellman, RSA, Rabin; Digital Signature Schemes; Hash functions and MAC schemes; authentication protocols; network layers and security; protocols; Public Key Infrastructure (PKI); Transport Layer Security (TLS); firewalls; Intrusion Detection Systems; DNS security; Denial of Service Attacks; Penetration testing; Online Privacy and anonymity; Mix networks and Onion Routing; TOR; Malware; Botnets; Spam and Hot topics in Security and Privacy.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
@@ -488,8 +488,8 @@
     {
         "title": "SOEN 343 Software Architecture and Design",
         "credits": 4,
-        "prerequisites": "SOEN 341 ; SOEN 342 ",
-        "corequisites": "SOEN 341 ; SOEN 342 ",
+        "prerequisites": "SOEN 341",
+        "corequisites": "SOEN 342 ",
         "description": "This course covers the following topics: from requirements to design to implementation; planned vs. evolutionary design and refactoring; model‑driven design and Unified Modelling Language (UML); structural and behavioural design descriptions and specifications; general and domain‑specific design principles, patterns and idioms; introduction to software architecture (styles and view models); design quality; architectural debt; design smells; refactoring Anti‑Patterns to Patterns; design rationale.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week",
         "notes": ""
@@ -506,7 +506,7 @@
     {
         "title": "SOEN 345 Software Testing, Verification and Quality Assurance",
         "credits": 4,
-        "prerequisites": "SOEN 343 ",
+        "prerequisites": "",
         "corequisites": "SOEN 343 ",
         "description": "This course covers the following topics: unit testing and test‑driven development; characterization testing and legacy system testing; mocking, dependency injection, and breaking system dependencies; integration and system testing; test planning and management; test order, prioritization, redundancy, and flaky tests; advanced topics including static analysis, bisection, and fuzzing; data migration testing and verification; continuous integration and delivery; DevOps testing and validation including darklaunching, A/B testing, feature toggles, and logging.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week",
@@ -515,7 +515,7 @@
     {
         "title": "SOEN 357 User Interface Design",
         "credits": 3,
-        "prerequisites": "SOEN 341 or COMP 354 ",
+        "prerequisites": "SOEN 341/COMP 354 ",
         "corequisites": "",
         "description": "This course covers the following topics: principles, standards and guidelines for user interface design; usability principles and user experience; standards and design rationale for user‑centred design; task‑centred design; rationalized design; usability engineering; user models; interface design process, including interface requirement gathering, conceptual design and prototyping, and evaluation; usability testing and analytic evaluation; data gathering and analysis techniques for qualitative and quantitative data; interface design documentation; design approaches for touch, gesture‑based, and haptic interfaces.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
@@ -551,7 +551,7 @@
     {
         "title": "SOEN 387 Web‑Based Enterprise Application Design",
         "credits": 3,
-        "prerequisites": "COMP 353 or SOEN 363 ",
+        "prerequisites": "COMP 353/SOEN 363 ",
         "corequisites": "",
         "description": "This course introduces Hypertext Transfer Protocol (HTTP), and client/server and layered architectures for Web-based Enterprise Applications (WEA). The course covers Application, Presentation, Domain and Data Source design patterns. Students learn how to use Java servlets and Java Server Pages. The course also covers authentication, security and transaction processing, as well as system-level testing of web applications.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
@@ -560,8 +560,8 @@
     {
         "title": "SOEN 390 Software Engineering Team Design Project (3.5 credits)",
         "credits": 0,
-        "prerequisites": "SOEN 345 and SOEN 357 ",
-        "corequisites": "SOEN 345 and SOEN 357 ",
+        "prerequisites": "",
+        "corequisites": "SOEN 345, SOEN 357 ",
         "description": "Students work in teams to design and implement a software project from requirements provided by the coordinator. Each team will demonstrate the software and the testing of the software, and prepare adequate documentation for it. In addition, each team will generate a report based on the process of development.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 3 hours per week",
         "notes": ""

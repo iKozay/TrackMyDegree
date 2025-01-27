@@ -2,7 +2,7 @@
     {
         "title": "MECH 321 Properties and Failure of Materials",
         "credits": 3.5,
-        "prerequisites": "MECH 221 orMIAE 221.",
+        "prerequisites": "MECH 221/MIAE 221.",
         "corequisites": "",
         "description": "This course covers the following topics: the service capabilities of alloys and their relationship to microstructure as produced by thermal and mechanical treatments; tensile and torsion tests; elements of dislocation theory; strengthening mechanisms; composite materials; modes of failure of materials; fracture, fatigue, wear, creep, corrosion; failure analysis; material codes; material selection for design.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory",
@@ -20,7 +20,7 @@
     {
         "title": "MECH 344 Machine Element Design",
         "credits": 3,
-        "prerequisites": "ENGR 244; MECH 313 orMIAE 313",
+        "prerequisites": "ENGR 244; MECH 313/MIAE 313",
         "corequisites": "MECH 343",
         "description": "This course presents the basic principles employed in the design of standard mechanical components such as spur gears, shafts and rolling element bearings subjected to operating force and moment fields. The course highlights the adaptation of theoretical stress relationships to practical design problems.",
         "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
@@ -65,7 +65,7 @@
     {
         "title": "MECH 370 Modelling and Analysis of Dynamic Systems",
         "credits": 3.5,
-        "prerequisites": "PHYS 205;ENGR 213;ENGR 243orENGR 245",
+        "prerequisites": "PHYS 205;ENGR 213;ENGR 243/ENGR 245",
         "corequisites": "ENGR 311",
         "description": "Definition and classification of dynamic systems and components. Modelling of dynamic systems containing individual or mixed mechanical, electrical, fluid and thermal elements. Block diagrams representation and simulation techniques using MATLAB/Simulink. Time domain analysis.Transient and steady-state characteristics of dynamic systems. Linearization. Transfer functions. Introduction to feedback control systems.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
@@ -83,7 +83,7 @@
     {
         "title": "MECH 373 Instrumentation and Measurements",
         "credits": 3.5,
-        "prerequisites": "ENGR 311; AERO 371 or MECH 370.",
+        "prerequisites": "ENGR 311; AERO 371/MECH 370.",
         "corequisites": "",
         "description": "This course covers the following topics: unified treatment of measurement of physical quantities; static and dynamic characteristics of instruments (calibration, linearity, precision, accuracy, and bias and sensitivity drift); sources of errors; error analysis; experiment planning; data analysis techniques; principles of transducers; signal generation, acquisition and processing; principles and designs of systems for measurement of position, velocity, acceleration, pressure, force, stress, temperature, flow-rate, and proximity detection. The course includes demonstration of various instruments.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week",
@@ -92,7 +92,7 @@
     {
         "title": "MECH 375 Mechanical Vibrations",
         "credits": 3.5,
-        "prerequisites": "AERO 371 or MECH 370.",
+        "prerequisites": "AERO 371/MECH 370.",
         "corequisites": "",
         "description": "This course covers the following topics: transientand steady-statevibrations underperiodic, impulsive shock and arbitrary excitation; multiâdegree-of-freedom systems (free and forced response, influence coefficients, orthogonality principle, and numerical methods); introduction tofreevibrations of prismatic bars; Lagrange's equations; vibrationmeasurementand control.",
         "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -101,7 +101,7 @@
     {
         "title": "MECH 390 Mechanical Engineering Design Project",
         "credits": 3.5,
-        "prerequisites": "ENCS 282; MECH 311 or MIAE 311;MECH 343;MIAE 380",
+        "prerequisites": "ENCS 282; MECH 311/MIAE 311;MECH 343;MIAE 380",
         "corequisites": "MECH 344",
         "description": "This course covers the following topics: the design process; product cost, quality and time to market, open and concept design problems, problem description; geometric and type synthesis; direct and inverse design problems; material selection and load determination; mathematical modelling, analysis, and validation; introduction to ComputerâAided Design and Engineering (CAD and CAE); product evaluation for performance, tolerance, cost, manufacture, assembly, and other measures; design documentation. A teamâbased design project is an intrinsic part of this course.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 1 hour per week",
@@ -110,7 +110,7 @@
     {
         "title": "MECH 412 Computer-Aided Mechanical Design",
         "credits": 3.5,
-        "prerequisites": "MECH 313 orMIAE 313.",
+        "prerequisites": "MECH 313/MIAE 313.",
         "corequisites": "",
         "description": "This course is an introduction to computational tools in the design process. The following topics are covered: introduction to the fundamental approaches to computerâaided geometric modelling, physical modelling and engineering simulations; establishing functions and functional specifications with emphasis on geometric tolerancing and dimensioning, manufacturing and assembly evaluation.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -119,7 +119,7 @@
     {
         "title": "MECH 414 Computer Numerically Controlled Machining",
         "credits": 3.5,
-        "prerequisites": "MECH 311 orMIAE 311;MECH 412",
+        "prerequisites": "MECH 311/MIAE 311;MECH 412",
         "corequisites": "MIAE 312",
         "description": "This course focuses on computerâaided design and manufacturing (CAD/CAM) hardware and software. The following topics are covered: essentials of Computer Numerical Control (CNC) machine tools and systems; process planning and tooling systems for CNC machining, theory of CNC programming of sculptured parts; multiâaxis CNC tool path generation; project using CAD/CAM software; CATIA for complex mechanical parts design and a CNC machine tool to manufacture parts.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -128,7 +128,7 @@
     {
         "title": "MECH 415 Advanced Programming for Mechanical and Industrial Engineers",
         "credits": 3,
-        "prerequisites": "MECH 215 orMIAE 215.",
+        "prerequisites": "MECH 215/MIAE 215.",
         "corequisites": "",
         "description": "This course focuses on class definitions. The following topics are covered: designing classes and member functions; constructors and destructors; class libraries and their uses; input and output; data abstraction and encapsulation; introduction to software engineering; computer graphics and visualization; numerical methods; advanced mechanical and industrial engineering applications. This course includes a substantial project.",
         "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
@@ -137,7 +137,7 @@
     {
         "title": "MECH 421 Mechanical Shaping of Metals and Plastics",
         "credits": 3.5,
-        "prerequisites": "MECH 221 orMIAE 221.",
+        "prerequisites": "MECH 221/MIAE 221.",
         "corequisites": "",
         "description": "This course focuses on metal forming: extrusion, forging, rolling, drawing, pressing, compacting; shear line theory, sheet forming limits; metal cutting, machinability, tooling; plastics shaping: extrusion, moulding, vacuum forming; consideration of the mechanical parameters critical for process control and computer applications; interaction of materials characteristics with processing to define product properties (cold working, annealing, hot working, super plasticity, thermomechanical treatment); energy conservation, safety, product quality, and liability.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -146,7 +146,7 @@
     {
         "title": "MECH 422 Mechanical Behaviour of Polymer Composite Materials",
         "credits": 3,
-        "prerequisites": "ENGR 233,ENGR 244; MECH 221 orMIAE 221.",
+        "prerequisites": "ENGR 233,ENGR 244; MECH 221/MIAE 221.",
         "corequisites": "",
         "description": "This course focuses on general applications of polymer composite materials in aircraft, aerospace, automobile, marine, recreational, and chemical processing industries. The following topics are covered: mechanics of a unidirectional lamina; transformation of stress, strain, modulus, and compliance; offâaxis engineering constants, shear and normal coupling coefficients; inâplane and flexural stiffness and compliance with different laminates, including crossâply, angleâply, quasiisotropic, and general bidirectional laminates; hygrothermal effects; strength of laminates and failure criteria; micromechanics.",
         "components": "Lecture 3 hours per week",
@@ -155,7 +155,7 @@
     {
         "title": "MECH 423 Casting, Welding, Heat Treating, and NonâDestructive Testing",
         "credits": 3.5,
-        "prerequisites": "MECH 221 orMIAE 221.",
+        "prerequisites": "MECH 221/MIAE 221.",
         "corequisites": "",
         "description": "This course focuses on comparative analysis of the various techniques of casting, welding, powder fabrication, finishing, and nonâdestructive testing. The following topics are covered: consideration of the control parameters that are essential to define both automation and robot application; materials behaviour which determines product microâstructure and properties; technology and theory of solidification, normalizing, quenching, surface hardening, tempering, aging, and thermomechanical processing for steels, cast irons and Al, Cu, Ni and Ti alloys; energy conservation, worker safety, quality control, and product liability.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -164,7 +164,7 @@
     {
         "title": "MECH 424 MEMS â Design and Fabrication",
         "credits": 3.5,
-        "prerequisites": "MECH 311 orMIAE 311;MECH 343",
+        "prerequisites": "MECH 311/MIAE 311;MECH 343",
         "corequisites": "MIAE 312",
         "description": "This course is an introduction to microsystems and devices; mechanical properties of materials used in microsystems; microfabrication and postâprocessing techniques; sacrificial and structural layers; lithography, deposition and etching; introduction and design of different types of sensors and actuators; micromotors and other microdevices; mechanical design, finite element modelling; design and fabrication of freeâstanding structures; microbearings; special techniques: doubleâsided lithography, electrochemical milling, laser machining, LIGA, influence of IC fabrication methods on mechanical properties; application examples in biomedical, industrial, and space technology areas; integration, bonding and packaging of MEMS devices.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -173,7 +173,7 @@
     {
         "title": "MECH 425 Manufacturing of Composites",
         "credits": 3.5,
-        "prerequisites": "MECH 311 orMIAE 311",
+        "prerequisites": "MECH 311/MIAE 311",
         "corequisites": "MIAE 312",
         "description": "This course focuses on fibres and resins. The following topics are covered: hand lay up; autoclave curing; compression molding; filament winding; resin transfer molding; braiding. Injection molding; cutting; joining; thermoset and thermoplastic composites; Polymer Nanocomposites; process modelling and computer simulation; nonâdestructive evaluation techniques.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -182,7 +182,7 @@
     {
         "title": "MECH 426 Stress and Failure Analysis of Machinery",
         "credits": 3,
-        "prerequisites": "ENGR 233,ENGR 244;AERO 481orMECH 321.",
+        "prerequisites": "ENGR 233,ENGR 244;AERO 481/MECH 321.",
         "corequisites": "",
         "description": "Analysis of stresses, strains and deformations in machine elements; nonâsymmetric bending of beams; shear centre for thinâwalled beams; curved beams; torsion of nonâcircular shafts and tubes; thick wall cylinders; plates and shells; contact elements; stress concentrations; energy methods; failure modes, analysis and prevention; buckling, fracture, fatigue and creep.",
         "components": "Lecture 3 hours per week",
@@ -209,7 +209,7 @@
     {
         "title": "MECH 447 Fundamentals of Vehicle System Design",
         "credits": 3,
-        "prerequisites": "MECH 343.The following course must be completed previously or concurrently:MECH 375.",
+        "prerequisites": "MECH 343.",
         "corequisites": "MECH 375",
         "description": "This course covers the following topics: tiremechanics; performance characteristics of road vehicles such as maximum acceleration, velocity and gradability; driving condition diagrams; brake system design, braking performance, ideal braking force distribution, braking efficiency, and antilock braking system; handling characteristics, steady-state and transient responses to steering inputs, transient measurement methods, and directional stability; ride analysis, suspension system design and modelling, and simple ride models. This course includescase studies usingCarSim and mini projects.",
         "components": "Lecture 3 hours per week",
@@ -299,7 +299,7 @@
     {
         "title": "MECH 472 Mechatronics and Automation",
         "credits": 3.5,
-        "prerequisites": "MECH 215 orMIAE 215",
+        "prerequisites": "MECH 215/MIAE 215",
         "corequisites": "MECH 371",
         "description": "This course focuses on design and analysis of mechatronic and automation systems. The following topics are covered: selection and integration of actuators, sensors, hardware, and software; computer vision; programming and software design for mechatronic systems; modelling and simulation; design of logic control systems; finite state machine methods; feedback control and trajectory generation; safety logic systems; case studies including automation systems, mobile robots, and unmanned vehicle systems.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -308,7 +308,7 @@
     {
         "title": "MECH 473 Control System Design",
         "credits": 3.5,
-        "prerequisites": "ELEC 372orMECH 371.",
+        "prerequisites": "ELEC 372/MECH 371.",
         "corequisites": "",
         "description": "Analog and digital controller designs. Analog controllers: lead/lag compensators, pole placement, model matching, twoâparameter configuration, plant input/output feedback configuration. Digital controllers: difference equations, Zâtransform, stability in the Zâdomain, digital implementation of analog controllers, equivalent digital plant method, alias signals, selection of sampling time. Introduction to analog/digital stateâspace: controllability, observability, state feedback, state estimator. PI and PID controllers. Simulink assignments and project. Hardware laboratory project: analog and digital controller design for motor with inertial plus generator load.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -317,7 +317,7 @@
     {
         "title": "MECH 474 Mechatronics",
         "credits": 3.75,
-        "prerequisites": "ELEC 372orMECH 371.",
+        "prerequisites": "ELEC 372/MECH 371.",
         "corequisites": "",
         "description": "Introduction to mechatronics; basic elements of mechatronic systems. Measurement systems: including principles of measurement systems; sensors and transducers; signal conditioning processes and circuits; filters and data acquisition. Actuation systems: mechanical actuation systems and electrical actuation systems. Controllers: control modes; PID controller; performance measures; introduction to digital controllers and robust control. Modelling and analysis of mechatronic systems; performance measures; frequency response; transient response analysis; stability analysis.",
         "components": "Lecture 3 hours per week; Laboratory 3 hours per week, alternate weeks",
@@ -326,7 +326,7 @@
     {
         "title": "MECH 476 Generative Design and Manufacturing in Engineering",
         "credits": 3,
-        "prerequisites": "MECH 313 orMIAE 313",
+        "prerequisites": "MECH 313/MIAE 313",
         "corequisites": "",
         "description": "Generative design is a formâfinding process that can mimic nature's evolutionary approach to design. It can start with design goals and then explore innumerable possible permutations of a solution to find the best option. This course provides fundamental information on generative design and manufacturing in engineering. The core techniques from mathematics to artificial intelligence that are commonly used in the creative industry are discussed. The formal paradigms and algorithms used for generation as well as cloud computing are also covered.",
         "components": "Lecture 3 hours per week",
@@ -335,7 +335,7 @@
     {
         "title": "MECH 490 Capstone Mechanical Engineering Design Project",
         "credits": 6,
-        "prerequisites": "ENGR 301;MECH 344,MECH 390;MIAE 312. Students must complete 75 credits in the program prior to enrolling.",
+        "prerequisites": "ENGR 301;MECH 344,MECH 390;MIAE 312. 75CR",
         "corequisites": "",
         "description": "This course includes a supervised design, simulation or experimental capstone design project including a preliminary project proposal with complete project plan and a technical report at the end of the fall term; a final report by the group and presentation at the end of the winter term.",
         "components": "Lecture 1 hour per week, one term; Laboratory Equivalent time, 5 hours per week, two terms",

@@ -1,155 +1,155 @@
 [
-    {
-        "title": "BCEE 231 Structured Programming and Applications for Building and Civil Engineers",
-        "credits": 3,
-        "prerequisites": "MATH 204",
-        "corequisites": "ENGR 242",
-        "description": "Elements of procedural programming: variables, primitive data types, scope, operators and expressions, control structures, functions, derived data types and basic data structures. Program structure and development: specifications, analysis of requirements, flow charting, incremental development, testing, validation and program documenting. Application of procedural programming, graphics and numerical tool box to mathematics and building, civil and environmental engineering.",
-        "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
-        "notes": null
-    },
-    {
-        "title": "BCEE 342 Structural Analysis I",
-        "credits": 3,
-        "prerequisites": "ENGR 244.",
-        "corequisites": "",
-        "description": "Analysis of statically determinate structures: deflections, strain energy concepts, virtual work principles. Mueller Breslau principle, influence lines. Approximate methods for statically indeterminate structures. Collapse load analysis. Cables and Arches. Computer applications.",
-        "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
-        "notes": null
-    },
-    {
-        "title": "BCEE 343 Structural Analysis II",
-        "credits": 3,
-        "prerequisites": "BCEE 342",
-        "corequisites": "",
-        "description": "Analysis of statically indeterminate structures: the methods of consistent deformations, slope deflection, and moment distribution. Application of virtual work principles. Introduction to matrix methods. Computer applications.",
-        "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
-        "notes": null
-    },
-    {
-        "title": "BCEE 344 Structural Design of Steel and Wood Elements",
-        "credits": 3,
-        "prerequisites": "BCEE 342.",
-        "corequisites": "",
-        "description": "This course covers the following topics: basis for limit states design, code requirements, structural steel design: tension and compression members, beams and beamâcolumns, connections, design of timber members.",
-        "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
-        "notes": null
-    },
-    {
-        "title": "BCEE 345 Structural Design of Reinforced Concrete Elements",
-        "credits": 3,
-        "prerequisites": "BCEE 342.",
-        "corequisites": "",
-        "description": "This course covers the behaviour of reinforced concrete elements in flexure, compression, shear and bond. Other topics covered in the course are limit states design of reinforced concrete beams, oneâway slabs, columns, and footings; serviceability limits states; introduction to prestressed concrete and masonry structures.",
-        "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
-        "notes": null
-    },
-    {
-        "title": "BCEE 371 Surveying",
-        "credits": 2,
-        "prerequisites": "BLDG 212orCIVI 212.",
-        "corequisites": "",
-        "description": "This course covers the following topics: elementary operations employed in engineering surveying; use, care, and adjustment of instruments; linear and angular measurements; traversing; earthwork calculations; theory of errors; horizontal and vertical curves and curve layout; slope stakes and grades, application of surveying methods to city, topographic surveying, and introduction to advanced surveying techniques; use of digital computers in surveying calculations.",
-        "components": "Lecture; Fieldwork 6 hours per day; 5 days per week for 3 weeks",
-        "notes": "This summer school course is taken before entering second year of study in the BEng program."
-    },
-    {
-        "title": "BCEE 432 Soil Mechanics",
-        "credits": 3.5,
-        "prerequisites": "ENGR 244.",
-        "corequisites": "",
-        "description": "This course covers the geological origin of soils, basic principles of physical geology with emphasis on topics related to soil mechanics; definition of the index properties and classification of soils and weightâvolume relationships; the characterization of soils structure and moistureâdensity relationships; the definition of permeability, deformation, and strength of soils; the principle of total and effective stresses as related to soils; the characterization of steady stage seepage through isotropic soil media; the analysis of stress distribution due to external loads and evaluation of total settlements; brief outline of theory of consolidation; introduction to the fundamentals of stability of earth retaining walls, slopes, and footings.",
-        "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
-        "notes": null
-    },
-    {
-        "title": "BCEE 451 Construction Engineering",
-        "credits": 3,
-        "prerequisites": "BLDG 341orCIVI 341.",
-        "corequisites": "",
-        "description": "The nature of construction and the environment in which the industry works; organizational structures for project delivery; construction contracts and documents; introduction to construction processes: excavation and site works, foundation layout, concrete form design, concrete, steel, timber, and masonry construction; project planning, scheduling, and control; construction safety.",
-        "components": "Lecture 3 hours per week",
-        "notes": null
-    },
-    {
-        "title": "BCEE 452 Fundamentals of Finite Element Analysis of Structures",
-        "credits": 3,
-        "prerequisites": "ENGR 213,ENGR 233;BCEE 231,BCEE 343.",
-        "corequisites": "",
-        "description": "Matrix formulation of the force and of the displacement methods of analysis. Direct stiffness approach; finite element methods for structural analysis. Truss, beam, plane strain, plane stress, shell and solid elements. Computer applications.",
-        "components": "Lecture 3 hours per week",
-        "notes": null
-    },
-    {
-        "title": "BCEE 455 Introduction to Structural Dynamics",
-        "credits": 3,
-        "prerequisites": "ENGR 243,ENGR 391;BCEE 342.",
-        "corequisites": "",
-        "description": "Dynamic response of simple structural systems. Effects of blast, wind, traffic, and machinery vibrations. Basic concepts in earthquake resistant design. Computer applications.",
-        "components": "Lecture 3 hours per week",
-        "notes": null
-    },
-    {
-        "title": "BCEE 464 Project Cost Estimating",
-        "credits": 3,
-        "prerequisites": "ENGR 301.",
-        "corequisites": "",
-        "description": "Techniques and procedures used for estimating cost of construction projects. Cost estimation process; elements of project cost; conceptual and detailed cost estimation methods; risk assessment and range estimating; case studies; computerâaided estimating.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "BCEE 465 Construction Planning and Control",
-        "credits": 3,
-        "prerequisites": "BCEE 478or equivalent.",
-        "corequisites": "",
-        "description": "This course covers the following topics: methods of delivering construction, contractual relationships and organizational structures, phases of project development, estimating resource requirements, costs and durations, bidding strategies, network analysis using CPM and PERT, timeâcost tradeâoff, resource allocation, cash flow analysis, earnedâvalue concept for integrated time and cost control, quality control, and value engineering.",
-        "components": "Lecture 3 hours per week",
-        "notes": null
-    },
-    {
-        "title": "BCEE 466 Simulations and Design of Construction Operations",
-        "credits": 3,
-        "prerequisites": "BCEE 451.",
-        "corequisites": "",
-        "description": "Principles of modelling and simulation. Classification and validation of simulation models. Analysis of input data and outputs. Object Oriented Simulation (OOS). Simulation languages. Application of discrete event simulation in construction operations including earthmoving operations, building construction operations, and tunnelling operations.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "BCEE 478 Project Management for Construction",
-        "credits": 3,
-        "prerequisites": "BLDG 341orCIVI 341.",
-        "corequisites": "",
-        "description": "This course introduces project management techniques in construction, including project delivery methods, construction contracts, cost estimating and bidding planning and scheduling, cash flow analysis, project tracking, control and computer applications.",
-        "components": "Lecture 3 hours per week",
-        "notes": "Students who have received credit for BLDG 478 may not take this course for credit."
-    },
-    {
-        "title": "BCEE 491 Labour and Industrial Relations in Construction",
-        "credits": 3,
-        "prerequisites": "ENGR 301.",
-        "corequisites": "",
-        "description": "The study of labour legislation is covered, with special emphasis on the construction industry, union organization, the theory and practice of negotiations, mediation, contract administration, and arbitration. Moreover, the review of actual contracts and future trends are discussed.",
-        "components": "Lecture 3 hours per week",
-        "notes": "Students who have received credit for BLDG 491 may not take this course for credit."
-    },
-    {
-        "title": "BCEE 492 Construction Processes",
-        "credits": 3,
-        "prerequisites": "BCEE 451or ENGR 451.",
-        "corequisites": "",
-        "description": "This course is a study of current construction methods and techniques. The subjects include site preparation and earthâwork, wood framing, masonry, concrete forming, slip forming, precast construction, industrialized building, deep excavation shoring and underpinning. Other topics covered in the course are design, erection, and removal of temporary construction work, current field practice and safety considerations and site visits.",
-        "components": "Lecture 3 hours per week",
-        "notes": "Students who have received credit for BLDG 492 may not take this course for credit."
-    },
-    {
-        "title": "BCEE 493 Legal Issues in Construction",
-        "credits": 3,
-        "prerequisites": "ENGR 301.",
-        "corequisites": "",
-        "description": "Legal concepts and processes applicable to the development of constructed facilities and to the operation of the construction firm are covered. Emphasis is given to Quebec law and institutions.",
-        "components": "Lecture 3 hours per week",
-        "notes": "Students who have received credit for BLDG 493 may not take this course for credit."
-    }
-]
+        {
+            "title": "BCEE 231 Structured Programming and Applications for Building and Civil Engineers",
+            "credits": 3,
+            "prerequisites": "MATH 204",
+            "corequisites": "ENGR 242",
+            "description": "Elements of procedural programming: variables, primitive data types, scope, operators and expressions, control structures, functions, derived data types and basic data structures. Program structure and development: specifications, analysis of requirements, flow charting, incremental development, testing, validation and program documenting. Application of procedural programming, graphics and numerical tool box to mathematics and building, civil and environmental engineering.",
+            "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
+            "notes": null
+        },
+        {
+            "title": "BCEE 342 Structural Analysis I",
+            "credits": 3,
+            "prerequisites": "ENGR 244.",
+            "corequisites": "",
+            "description": "Analysis of statically determinate structures: deflections, strain energy concepts, virtual work principles. Mueller Breslau principle, influence lines. Approximate methods for statically indeterminate structures. Collapse load analysis. Cables and Arches. Computer applications.",
+            "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
+            "notes": null
+        },
+        {
+            "title": "BCEE 343 Structural Analysis II",
+            "credits": 3,
+            "prerequisites": "BCEE 342",
+            "corequisites": "",
+            "description": "Analysis of statically indeterminate structures: the methods of consistent deformations, slope deflection, and moment distribution. Application of virtual work principles. Introduction to matrix methods. Computer applications.",
+            "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
+            "notes": null
+        },
+        {
+            "title": "BCEE 344 Structural Design of Steel and Wood Elements",
+            "credits": 3,
+            "prerequisites": "BCEE 342.",
+            "corequisites": "",
+            "description": "This course covers the following topics: basis for limit states design, code requirements, structural steel design: tension and compression members, beams and beamâcolumns, connections, design of timber members.",
+            "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
+            "notes": null
+        },
+        {
+            "title": "BCEE 345 Structural Design of Reinforced Concrete Elements",
+            "credits": 3,
+            "prerequisites": "BCEE 342.",
+            "corequisites": "",
+            "description": "This course covers the behaviour of reinforced concrete elements in flexure, compression, shear and bond. Other topics covered in the course are limit states design of reinforced concrete beams, oneâway slabs, columns, and footings; serviceability limits states; introduction to prestressed concrete and masonry structures.",
+            "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
+            "notes": null
+        },
+        {
+            "title": "BCEE 371 Surveying",
+            "credits": 2,
+            "prerequisites": "BLDG 212/CIVI 212.",
+            "corequisites": "",
+            "description": "This course covers the following topics: elementary operations employed in engineering surveying; use, care, and adjustment of instruments; linear and angular measurements; traversing; earthwork calculations; theory of errors; horizontal and vertical curves and curve layout; slope stakes and grades, application of surveying methods to city, topographic surveying, and introduction to advanced surveying techniques; use of digital computers in surveying calculations.",
+            "components": "Lecture; Fieldwork 6 hours per day; 5 days per week for 3 weeks",
+            "notes": "This summer school course is taken before entering second year of study in the BEng program."
+        },
+        {
+            "title": "BCEE 432 Soil Mechanics",
+            "credits": 3.5,
+            "prerequisites": "ENGR 244.",
+            "corequisites": "",
+            "description": "This course covers the geological origin of soils, basic principles of physical geology with emphasis on topics related to soil mechanics; definition of the index properties and classification of soils and weightâvolume relationships; the characterization of soils structure and moistureâdensity relationships; the definition of permeability, deformation, and strength of soils; the principle of total and effective stresses as related to soils; the characterization of steady stage seepage through isotropic soil media; the analysis of stress distribution due to external loads and evaluation of total settlements; brief outline of theory of consolidation; introduction to the fundamentals of stability of earth retaining walls, slopes, and footings.",
+            "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
+            "notes": null
+        },
+        {
+            "title": "BCEE 451 Construction Engineering",
+            "credits": 3,
+            "prerequisites": "BLDG 341/CIVI 341.",
+            "corequisites": "",
+            "description": "The nature of construction and the environment in which the industry works; organizational structures for project delivery; construction contracts and documents; introduction to construction processes: excavation and site works, foundation layout, concrete form design, concrete, steel, timber, and masonry construction; project planning, scheduling, and control; construction safety.",
+            "components": "Lecture 3 hours per week",
+            "notes": null
+        },
+        {
+            "title": "BCEE 452 Fundamentals of Finite Element Analysis of Structures",
+            "credits": 3,
+            "prerequisites": "ENGR 213,ENGR 233;BCEE 231,BCEE 343.",
+            "corequisites": "",
+            "description": "Matrix formulation of the force and of the displacement methods of analysis. Direct stiffness approach; finite element methods for structural analysis. Truss, beam, plane strain, plane stress, shell and solid elements. Computer applications.",
+            "components": "Lecture 3 hours per week",
+            "notes": null
+        },
+        {
+            "title": "BCEE 455 Introduction to Structural Dynamics",
+            "credits": 3,
+            "prerequisites": "ENGR 243,ENGR 391;BCEE 342.",
+            "corequisites": "",
+            "description": "Dynamic response of simple structural systems. Effects of blast, wind, traffic, and machinery vibrations. Basic concepts in earthquake resistant design. Computer applications.",
+            "components": "Lecture 3 hours per week",
+            "notes": null
+        },
+        {
+            "title": "BCEE 464 Project Cost Estimating",
+            "credits": 3,
+            "prerequisites": "ENGR 301.",
+            "corequisites": "",
+            "description": "Techniques and procedures used for estimating cost of construction projects. Cost estimation process; elements of project cost; conceptual and detailed cost estimation methods; risk assessment and range estimating; case studies; computerâaided estimating.",
+            "components": "Lecture",
+            "notes": null
+        },
+        {
+            "title": "BCEE 465 Construction Planning and Control",
+            "credits": 3,
+            "prerequisites": "BCEE 478",
+            "corequisites": "",
+            "description": "This course covers the following topics: methods of delivering construction, contractual relationships and organizational structures, phases of project development, estimating resource requirements, costs and durations, bidding strategies, network analysis using CPM and PERT, timeâcost tradeâoff, resource allocation, cash flow analysis, earnedâvalue concept for integrated time and cost control, quality control, and value engineering.",
+            "components": "Lecture 3 hours per week",
+            "notes": null
+        },
+        {
+            "title": "BCEE 466 Simulations and Design of Construction Operations",
+            "credits": 3,
+            "prerequisites": "BCEE 451.",
+            "corequisites": "",
+            "description": "Principles of modelling and simulation. Classification and validation of simulation models. Analysis of input data and outputs. Object Oriented Simulation (OOS). Simulation languages. Application of discrete event simulation in construction operations including earthmoving operations, building construction operations, and tunnelling operations.",
+            "components": "Lecture",
+            "notes": null
+        },
+        {
+            "title": "BCEE 478 Project Management for Construction",
+            "credits": 3,
+            "prerequisites": "BLDG 341/CIVI 341.",
+            "corequisites": "",
+            "description": "This course introduces project management techniques in construction, including project delivery methods, construction contracts, cost estimating and bidding planning and scheduling, cash flow analysis, project tracking, control and computer applications.",
+            "components": "Lecture 3 hours per week",
+            "notes": "Students who have received credit for BLDG 478 may not take this course for credit."
+        },
+        {
+            "title": "BCEE 491 Labour and Industrial Relations in Construction",
+            "credits": 3,
+            "prerequisites": "ENGR 301.",
+            "corequisites": "",
+            "description": "The study of labour legislation is covered, with special emphasis on the construction industry, union organization, the theory and practice of negotiations, mediation, contract administration, and arbitration. Moreover, the review of actual contracts and future trends are discussed.",
+            "components": "Lecture 3 hours per week",
+            "notes": "Students who have received credit for BLDG 491 may not take this course for credit."
+        },
+        {
+            "title": "BCEE 492 Construction Processes",
+            "credits": 3,
+            "prerequisites": "BCEE 451/ENGR 451.",
+            "corequisites": "",
+            "description": "This course is a study of current construction methods and techniques. The subjects include site preparation and earthâwork, wood framing, masonry, concrete forming, slip forming, precast construction, industrialized building, deep excavation shoring and underpinning. Other topics covered in the course are design, erection, and removal of temporary construction work, current field practice and safety considerations and site visits.",
+            "components": "Lecture 3 hours per week",
+            "notes": "Students who have received credit for BLDG 492 may not take this course for credit."
+        },
+        {
+            "title": "BCEE 493 Legal Issues in Construction",
+            "credits": 3,
+            "prerequisites": "ENGR 301.",
+            "corequisites": "",
+            "description": "Legal concepts and processes applicable to the development of constructed facilities and to the operation of the construction firm are covered. Emphasis is given to Quebec law and institutions.",
+            "components": "Lecture 3 hours per week",
+            "notes": "Students who have received credit for BLDG 493 may not take this course for credit."
+        }
+    ]

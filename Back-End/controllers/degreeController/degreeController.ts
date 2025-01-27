@@ -55,6 +55,22 @@ async function readDegree(id: string): Promise<DegreeTypes.Degree | undefined> {
   }
 };
 
+async function readAllDegrees(): Promise<DegreeTypes.Degree[] | undefined> {
+  const conn = await Database.getConnection();
+
+  if (conn) {
+    try {
+      const degrees = await conn.request().query('SELECT * FROM Degree');
+
+      return degrees.recordset;
+    } catch (error) {
+      throw error;
+    } finally {
+      conn.close();
+    }
+  }
+};
+
 
 async function updateDegree(id: string, name: string, totalCredits: number): Promise<DegreeTypes.Degree | undefined> {
   const conn = await Database.getConnection();
@@ -132,7 +148,8 @@ const degreeController = {
   createDegree,
   readDegree,
   updateDegree,
-  deleteDegree
+  deleteDegree,
+  readAllDegrees
 };
 
 export default degreeController;
