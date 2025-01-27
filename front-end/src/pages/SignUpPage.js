@@ -89,7 +89,7 @@ function SignUpPage() {
   return (
     <div className="SignUpPage">
       <div className="container my-5 sign-in-container">
-        <h2 className="text-center mb-4" style={{"font-size": "5vh"}}>Sign Up</h2>
+        <h2 className="text-center mb-4" style={{fontSize: "5vh"}}>Sign Up</h2>
         <form onSubmit={handleSignUp}>
           {/* Name Field */}
           <div className="mb-3">
