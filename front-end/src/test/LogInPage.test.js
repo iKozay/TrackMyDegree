@@ -1,5 +1,5 @@
 import React from "react";
-import SignInPage from "../pages/SignInPage";
+import LogInPage from "../pages/LogInPage";
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { AuthContext } from "../AuthContext";
 
@@ -7,17 +7,19 @@ import { AuthContext } from "../AuthContext";
 const mockLogin = jest.fn();
 const mockNavigate = jest.fn();
 
-jest.mock('react-router-dom', () => ({
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
   useNavigate: () => mockNavigate,
 }));
 
-describe('SignInPage', () => {
+describe('LogInPage', () => {
   // Render page component while mocking login
   const renderComponent = () => {
     render(
       <AuthContext.Provider value={{ login: mockLogin }}>
-        <SignInPage />
+        <LogInPage />
       </AuthContext.Provider>
+      
     );
   };
 
@@ -27,10 +29,10 @@ describe('SignInPage', () => {
     mockNavigate.mockClear();
   });
 
-  test('should render the SignInPage correctly', () => {
+  test('should render the LogInPage correctly', () => {
     renderComponent();
     
-    expect(screen.getByText(/Log In/i)).toBeInTheDocument();
+    expect(screen.getByText(/Sign In/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Email address/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Submit/i })).toBeInTheDocument();
@@ -51,6 +53,18 @@ describe('SignInPage', () => {
   });
 
   test('should call login and navigate to user page on successful login', async () => {
+
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            token: "fake-token",
+            user: { id: 1, name: "John Doe" },
+          }),
+      })
+    );
+    
     renderComponent();
 
     const emailInput = screen.getByLabelText(/Email address/i);
@@ -63,16 +77,25 @@ describe('SignInPage', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      // login is called
-      expect(mockLogin).toHaveBeenCalledTimes(1);
+      expect(mockLogin).toHaveBeenCalledWith({
+        token: "fake-token",
+        user: { id: 1, name: "John Doe" },
+      });
     });
-    await waitFor(() => {
-      // Ensure navigate is called with '/user'
-      expect(mockNavigate).toHaveBeenCalledWith('/user');
-    });
+    expect(mockNavigate).toHaveBeenCalledWith("/user");
   });
 
   test('should display an alert on incorrect credentials', async () => {
+
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: false,
+        json: () =>
+          Promise.resolve({
+            message: "Invalid credentials.",
+          }),
+      })
+    );
 
     // Mocking window.alert
     window.alert = jest.fn();
@@ -88,9 +111,13 @@ describe('SignInPage', () => {
     fireEvent.change(passwordInput, { target: { value: 'wrongpassword' } });
     fireEvent.click(submitButton);
 
-    await waitFor(() => {
-      expect(window.alert).toHaveBeenCalledWith('Invalid email or password. Please try again.');
-    });
+    expect(await screen.findByText("Invalid credentials.")).toBeInTheDocument();
+    expect(mockLogin).not.toHaveBeenCalled();
+  });
+
+  afterAll(() => {
+    // Clean up the mock
+    global.fetch.mockRestore();
   });
 
 });

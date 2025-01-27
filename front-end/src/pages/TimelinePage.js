@@ -591,10 +591,11 @@ const TimelinePage = ({ timelineData }) => {
                     <h4>Course List</h4>
                     <Droppable id="courseList" className="course-list">
                       <Accordion>
-                        {soenCourses.map((courseSection) => (
+                        {soenCourses.map((courseSection, index) => (
                           <Accordion.Item
                             eventKey={courseSection.title}
                             key={courseSection.title}
+                            data-testid={`dropdown-item-${index}`}
                             style={{margin: '10px 0', border: '1px solid lightgray'}}
                           >
                             <Accordion.Header style={{margin: '0'}}>{courseSection.title}</Accordion.Header>
