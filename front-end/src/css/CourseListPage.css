@@ -2,6 +2,7 @@
   --bs-accordion-active-bg: #912338;
   --bs-accordion-active-color: white;
   margin-bottom: 10px;
+  width: 100%;
 }
 
 .course-list-div {
@@ -15,9 +16,22 @@
 }
 
 .course-list-container {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
   gap: 1rem;
+}
+
+.course-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  width: 100%;
+  border: 1px solid lightgray;
+  border-radius: 8px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
 .cursor-pointer {
@@ -27,9 +41,14 @@
 .course-list-card-body {
   text-align: center;
   padding: 15px 0 0 0;
+  /* TODO padding: 10px; */
 }
 
-.course-list-card {
-  position: fixed;
+.course-display-card {
+  border: 1px solid lightgray;
+  border-radius: 8px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 10px;
   margin-right: 10px;
 }
