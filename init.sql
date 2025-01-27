@@ -8,7 +8,7 @@ CREATE TABLE Degree (
 CREATE TABLE Course (
   code VARCHAR(7) NOT NULL,
   credits INT NOT NULL,
-  description VARCHAR(255) NOT NULL,
+  description VARCHAR(2055) NOT NULL,
   PRIMARY KEY (code)
 );
 
