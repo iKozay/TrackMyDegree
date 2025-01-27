@@ -689,44 +689,65 @@ const TimelinePage = ({ timelineData }) => {
 
             <div className="timeline-page">
 
-              <div className="timeline-left-bar">
-                <h4>Course List</h4>
-                <Droppable id="courseList" className="course-list">
-                  <Accordion>
-                    {coursePools.map((coursePool) => (
-                      <Accordion.Item
-                        eventKey={coursePool.poolName}
-                        key={coursePool.poolId}
-                      >
-                        <Accordion.Header>{coursePool.poolName}</Accordion.Header>
-                        <Accordion.Body>
-                          <Container>
-                            {coursePool.courses.map((course) => {
-                              const assigned = isCourseAssigned(course.code);
-                              const isSelected = selectedCourse?.code === course.code;
+              <div className='courses-with-button'>
+                <div className={`timeline-left-bar ${showCourseList ? '' : 'hidden'}`}>
+                  {showCourseList && (
+                    <div>
+                      <h4>Course List</h4>
+                      <Droppable id="courseList" className="course-list">
+                        <Accordion>
+                          {coursePools.map((coursePool) => (
+                            <Accordion.Item
+                              eventKey={coursePool.poolName}
+                              key={coursePool.poolId}
+                            >
+                              <Accordion.Header>{coursePool.poolName}</Accordion.Header>
+                              <Accordion.Body>
+                                <Container>
+                                  {coursePool.courses.map((course) => {
+                                    const assigned = isCourseAssigned(course.code);
+                                    const isSelected = selectedCourse?.code === course.code;
 
-                              return (
-                                <DraggableCourse
-                                  key={`${course.code}-${assigned}`} // Include assigned in key
-                                  id={course.code}
-                                  title={course.code}
-                                  disabled={assigned}
-                                  isReturning={returning}
-                                  isSelected={isSelected}
-                                  onSelect={handleCourseSelect}
-                                  containerId="courseList"
-                                />
-                              );
-                            })}
-                          </Container>
-                        </Accordion.Body>
-                      </Accordion.Item>
-                    ))}
-                  </Accordion>
-                </Droppable>
+                                    return (
+                                      <DraggableCourse
+                                        key={`${course.code}-${assigned}`} // Include assigned in key
+                                        id={course.code}
+                                        title={course.code}
+                                        disabled={assigned}
+                                        isReturning={returning}
+                                        isSelected={isSelected}
+                                        onSelect={handleCourseSelect}
+                                        containerId="courseList"
+                                      />
+                                    );
+                                  })}
+                                </Container>
+                              </Accordion.Body>
+                            </Accordion.Item>
+                          ))}
+                        </Accordion>
+                      </Droppable>
+                    </div>
+                  )}
+                </div>
+
+                <button className="left-toggle-button" onClick={toggleCourseList}>
+                  {showCourseList ? '◀' : '▶'}
+                </button>
               </div>
 
-              <div className="semesters-and-description">
+              <div className="timeline-middle-section">
+                <div className='timeline-header'>
+                  <div className='timeline-title'>
+                    Timeline
+                  </div>
+                  <button
+                    className="add-semester-button"
+                    onClick={() => setIsModalOpen(true)}
+                  >
+                    {addButtonText}
+                  </button>
+                </div>
 
                 <div className="semesters">
                   {semesters.map((semester, index) => {
@@ -822,15 +843,13 @@ const TimelinePage = ({ timelineData }) => {
                     );
                   })}
                 </div>
+              </div>
 
-                <button
-                  className="add-semester-button"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  +
+              <div className='description-and-button'>
+                <button className="right-toggle-button" onClick={toggleCourseDescription}>
+                  {showCourseDescription ? '▶' : '◀'}
                 </button>
-
-                <div className="description-space">
+                <div className={`description-section ${showCourseDescription ? '' : 'hidden'}`}>
                   {selectedCourse ? (
                     <div>
                       <h5>{selectedCourse.code}</h5>
