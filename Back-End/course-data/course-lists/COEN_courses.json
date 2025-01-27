@@ -1,0 +1,254 @@
+[
+    {
+        "title": "COEN 212 Digital Systems Design I",
+        "credits": 3.5,
+        "prerequisites": "MATH 204",
+        "corequisites": "",
+        "description": "Modulo arithmetic: representations of numbers in binary, octal and hexadecimal formats; binary arithmetic. Boolean algebra; theorems and properties, functions, canonical and standard forms. Logic gates and their use in the realization of Boolean algebra statements; logic minimization, multiple output circuits. Designing with MSI and LSI chips, decoders, multiplexers, adders, multipliers, programmable logic devices. Introduction to sequential circuits; flipâflops. Completely specified sequential machines. Machine equivalence and minimization. Implementation of clock mode sequential circuits.",
+        "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 15 hours total",
+        "notes": "This course is equivalent to COEN 312.Students who have received credit for COEN 312 may not take this course for credit."
+    },
+    {
+        "title": "COEN 231 Introduction to Discrete Mathematics",
+        "credits": 3,
+        "prerequisites": "MATH 204",
+        "corequisites": "",
+        "description": "Fundamentals of logic: basic connectives and truth tables; logical equivalence; the laws of logic; logical implication; rules of inference; the use of quantifiers; proofs of theorems. Sets: the laws of set theory. Boolean algebra. Relation of Boolean algebra to logical and set theoretic operations. Modulo arithmetic: division algorithm. Induction and recursion: induction on natural numbers; recursive definitions. Functions and relations: cartesian products and relations; functions; function composition and inverse functions; equivalence relations. Elements of graph theory: basic definitions of graph theory; paths, reachability and connectedness; computing paths from their matrix representation; traversing graphs represented as adjacency lists; trees and spanning trees. Finiteâstate machines (FSM) deterministic and nondeterministic machines; regular languages; FSM with output; composition of FSM.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
+        "notes": null
+    },
+    {
+        "title": "COEN 243 Programming Methodology I",
+        "credits": 3.5,
+        "prerequisites": "MATH 204",
+        "corequisites": "",
+        "description": "This course is an introduction to computers and programming paradigms. Essential topics from procedural programming languages are discussed such as key elements, reserved words and identifiers, data types and declarations, statements, arithmetic expressions, and different modes of execution. The course covers flow control using If-Else and Switch statements, repetition using loops, recursive functions, pointers, references and dynamic data structures and function pointer. The course material also includes Lambda expression, data structures, built-in arrays, template arrays and vectors, nâdimensional vectors, sorting and searching. Students learn objectâoriented programming, userâdefined classes, class attributes and methods, object creation, use and destruction. Students are also introduced to exception handling and UML class diagrams.",
+        "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 12 hours total",
+        "notes": "Students who have received credit forCOMP 248,MIAE 215or MECH 215 may not take this course for credit."
+    },
+    {
+        "title": "COEN 244 Programming Methodology II",
+        "credits": 3,
+        "prerequisites": "COEN 243/MECH 215/MIAE 215.",
+        "corequisites": "",
+        "description": "This course covers advanced topics in computer programming. The course reviews objectâoriented programming and further concepts, and revisits pointers. The following topics are covered: operator overloading (regular and advanced usage), fundamentals of file and stream processing. The course also covers class composition and inheritance (regular and advanced usage), virtual functions, polymorphism, static and dynamic binding and abstract classes. A case study of a smallâscale objectâoriented project along with simplified analysis, design and implementation are discussed. Other topics in the course include files and streams, exception handling (advanced usage), templates (class templates, template instantiation and type binding), sequence containers and STL algorithms, UML modelling and an introduction to open software repository.",
+        "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
+        "notes": "Students who have received credit forCOMP 249may not take this course for credit."
+    },
+    {
+        "title": "COEN 311 Computer Organization and Software",
+        "credits": 3.5,
+        "prerequisites": "COEN 212,COEN 243.",
+        "corequisites": "",
+        "description": "First, introduction and terminologies are presented. A review on data representation including fixed point and floatingâpoint formats and arithmetic operations are given. Next, the students get familiar with basic components of a processor. This includes Arithmetic and Logical Unit (ALU), registers, memory, Input/Output (I/Os) devices and bus. The addressing modes, instructions encoding and instruction execution steps and their relationship with the hardware are explained. Next, arithmetic, logical, shift/rotate, control and branch instructions are discussed. Gradually, the students also learn the basics of assembly language programming and learn how to develop programs for various problems. Furthermore, advanced topics such as stack, macro, subroutine, and interrupt are presented and practised through examples and discussions.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 12 hours total",
+        "notes": null
+    },
+    {
+        "title": "COEN 313 Digital Systems Design II",
+        "credits": 3.5,
+        "prerequisites": "COEN 212,COEN 231.",
+        "corequisites": "",
+        "description": "In this course, students are exposed to a comprehensive overview of VHDL language and the synthesis process for the design of digital systems. First, students learn the hardware implementation of basic VHDL language constructs, then they are exposed to the core of the RT-level design, including combinational circuits, \"regular\" sequential circuits, finite state machines, and circuits designed using register transfer methodology. Students are introduced as well to concepts related to metastability, self-timed circuits, programmable logic devices, field programmable gate arrays and testing issues.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 12 hours total",
+        "notes": null
+    },
+    {
+        "title": "COEN 314 Digital Electronics I",
+        "credits": 3.5,
+        "prerequisites": "COEN 212;ELEC 273.",
+        "corequisites": "",
+        "description": "This is an introductory course in digital electronics. In the first part of the course, students learn the very basics of MOSFETs, including the physical structure, creation of channels and nonlinear characteristics, to understand why and how they are used as the basic devices in mainstream digital circuits. Then, DC analysis and transient analysis of basic logic units, in particular CMOS inverters and gates, are presented. Students learn different performance aspects, including delay/power/critical path analysis and estimation, and understand the specifications of digital circuits. Students are also exposed to the transistor-level design of basic CMOS functional blocks such as XOR gates, adders, mux, tri-state, buffers, latches, RSFFs and DFFs. Furthermore, the design principle and read/write operations of static and dynamic RAM memory cells are presented.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 12 hours total",
+        "notes": "Students who have received credit for COEN 315 or COEN 415 may not take this course for credit."
+    },
+    {
+        "title": "COEN 316 Computer Architecture and Design",
+        "credits": 3.5,
+        "prerequisites": "COEN 311,COEN 313.",
+        "corequisites": "",
+        "description": "This course introduces students to fundamentals of the organization of the design of modern computer systems. Students learn cost issues and performances evaluation of processors and are exposed to instruction set design principles and its impact on both software programming and hardware design. Pipelining is studied, along with a hazards issue and solutions such as forwarding units. Memory hierarchy is presented, with a focus on caches organizations such as direct mapped, fully associative and set associative. Virtual memories and multi-processors architectures are introduced.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 12 hours total",
+        "notes": null
+    },
+    {
+        "title": "COEN 317 Microprocessor Based Systems",
+        "credits": 3.5,
+        "prerequisites": "COEN 311/COMP 228/SOEN 228;COEN 313.",
+        "corequisites": "",
+        "description": "First, an introduction on a history of microprocessors and its advancement are presented. Then, students get familiar with the microprocessor architecture, its instructions, bus organization, data transfer and memory interfacing. Next, the focus of the course is placed on the fundamentals of interfacing. Students learn how to use General Purpose Input Outputs (GPIOs) to connect various peripheral devices to the microprocessor and write programs to control these devices. Examples of peripheral devices are Light Emitted Diodes (LEDs), switches, timer/counters, seven-segments, Liquid Crystal Displays (LCDs) and sensors. They also learn how to configure serial communication protocols. Moreover, students are exposed to advanced topics including interrupt system and Direct Memory Access (DMA).",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 12 hours total",
+        "notes": "Students who have received credit for COEN 417 may not take this course for credit."
+    },
+    {
+        "title": "COEN 320 Introduction to RealâTime Systems",
+        "credits": 3,
+        "prerequisites": "COEN 346/COMP 346.",
+        "corequisites": "",
+        "description": "Fundamentals of realâtime systems: definitions, requirements, design issues and applicaâ tions. Realâtime operating systems (RTOS) feature: multiâtasking, process management, scheduling, interprocess communication and synchronization, realâtime memory management, clocks and timers, interrupt and exception handling, message queues, asynchronous input/output. Concurrent programming languages: design issues and examples, POSIX threads and semaphores. Introduction to realâtime uniprocessor scheduling policies: static vs. dynamic, preâemptive vs. nonâpreâemptive, specific techniques — rateâmonotonic algorithm, earliestâdeadlineâfirst, deadline monotonic, leastâlaxityâtimeâfirst; clockâdriven scheduling. Design and specification techniques — Finite state machine based Stateâchart, Dataflow diagram, Petri nets. Reliability and faultâtolerance. Case studies of RTOS — QNX, VxWorks, and research prototypes.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
+        "notes": null
+    },
+    {
+        "title": "COEN 346 Operating Systems",
+        "credits": 3.5,
+        "prerequisites": "COEN 311;COMP 352/COEN 352.",
+        "corequisites": "",
+        "description": "The evolution, architecture, and use of modern operating systems (OS). Multiâtasking, concurrency and synchronization, IPC, deadlock, resource allocation, scheduling, multiâthreaded programming, memory and storage managements, file systems, I/O techniques, buffering, protection and security, the client/server paradigm and communications. Introduction to real time operating systems. Students write substantial programs dealing with concurrency and synchronization in a multiâtasking environment.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 15 hours total",
+        "notes": "Students who have received credit forCOMP 346may not take this course for credit."
+    },
+    {
+        "title": "COEN 352 Data Structures and Algorithms",
+        "credits": 3,
+        "prerequisites": "COEN 231,COEN 244.",
+        "corequisites": "",
+        "description": "Mathematical introduction: mathematical induction, program analysis, and algorithm complexity. Fundamental data structures: lists, stacks, queues, and trees. Fundamental algorithms: hashing and sorting. Graph structures and algorithms. Overview of algorithm design techniques, including greedy algorithms, divide and conquer strategies, recursive and backtracking algorithms, and heuristics. Application of data structures and algorithms to engineering.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
+        "notes": "Students who have received credit forCOMP 352may not take this course for credit."
+    },
+    {
+        "title": "COEN 366 Communication Networks and Protocols",
+        "credits": 3.5,
+        "prerequisites": "COEN 346.",
+        "corequisites": "",
+        "description": "The main objectives of the course are an introduction to computer networks, architectures, protocols, and their fundamentals. Topics covered in the course include communications protocols basics, flow control, error detection and error control techniques, network topologies including local area networks (LANs) and wide area networks (WANs), layered architecture standards (OSI and TCP/IP), standard protocols, and their fundamentals, application and socket programming.",
+        "components": "Lecture 3 hours per week; Laboratory 15 hours total",
+        "notes": "Students who have received credit forELEC 366, ELEC 463 or COEN 445 may not take this course for credit."
+    },
+    {
+        "title": "COEN 390 Computer Engineering Product Design Project",
+        "credits": 3,
+        "prerequisites": "COEN 311,COEN 352;ENGR 290. 45CR",
+        "corequisites": "",
+        "description": "The Product Design Project reinforces skills introduced inENGR 290, which include teamwork, project management, engineering design for a complex problem, technical writing, and technical presentation in a team environment. It also introduces students to product development. Students are assigned to teams and each team develops, defines, designs and builds a system and/or device under broad constraints set by the Department. Students present their product definition and design, and demonstrate that their system/device works at the end of the term.",
+        "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory Equivalent time, 6 hours per week",
+        "notes": "All written documentation mustfollow the Concordia Form and Style guide. Students are responsible for obtaining this document before beginning the project."
+    },
+    {
+        "title": "COEN 413 Hardware Functional Verification",
+        "credits": 3.5,
+        "prerequisites": "COEN 313.",
+        "corequisites": "",
+        "description": "This course is about functional verification techniques and tools for hardware systems. It starts with the review of hardware design languages and the definition of hardware functional verification, then it introduces basic object-oriented programming notions, such as classes, methods, inheritance, threads, inter-process communications, and virtual methods. Students are later introduced to coverage metrics, functional coverage, and functional verification CAD tools. Students learn the use of SystemVerilog language to develop class-based verification environment based on the universal verification methodology (UVM). Students are exposed to practical verification case studies.",
+        "components": "Lecture 3 hours per week; Laboratory 12 hours per week",
+        "notes": null
+    },
+    {
+        "title": "COEN 414 Digital Electronics II",
+        "credits": 3.5,
+        "prerequisites": "COEN 314.",
+        "corequisites": "",
+        "description": "In this course, students learn to design digital functional blocks of different logic families, developed with CMOS IC technology. The focus is on the electronics aspect of digital circuit design. Students discover how logic functions are performed in pseudo-MOS, Pass Transistor Logic gates, and various dynamic gates, such as Domino gates and zipper logic gates. They also learn to analyze and to design pulse generators, including VCOs & ICOs, Schmitt triggers, memory circuits, and other specific circuit blocks. Low-power design techniques are also presented.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 12 hours total",
+        "notes": "Students who have received credit for COEN 315 or COEN 415 may not take this course for credit."
+    },
+    {
+        "title": "COEN 421 Embedded Systems Design",
+        "credits": 4,
+        "prerequisites": "COEN 317,COEN 320;SOEN 341.",
+        "corequisites": "",
+        "description": "Embedded systems, foundations for cyber physical systems design. Embedded HW architectures, sensors, actuators, processors. IO and peripherals, memory architectures, interfacing memory and peripheral. Hardwareâsoftware partitioning, software transformations, floating to fixed point conversion, loop transformations, code compaction, lowâpower design and embedded system testing.",
+        "components": "Lecture 3 hours per week; Laboratory 30 hours total",
+        "notes": null
+    },
+    {
+        "title": "COEN 422 Foundations of Cyber Physical Systems",
+        "credits": 3,
+        "prerequisites": "COEN 346;ELEC 372.",
+        "corequisites": "",
+        "description": "Cyber-Physical Systems (CPS) consist of interacting networks of physical and computational elements. This course covers the fundamentals of modelling, specification, analysis and design of CPS. Models for computation and physical systems including discrete event dynamic models, finite-state machines, extended FSMs, statecharts, Petri nets and continuous variable models are studied. Scheduling and optimization of process networks and hybrid models are covered. Specification, simulation and performance analysis of CPS and the relationship of program execution with physical time constants are discussed.",
+        "components": "Lecture 3 hours per week",
+        "notes": null
+    },
+    {
+        "title": "COEN 424 Programming on the Cloud",
+        "credits": 3,
+        "prerequisites": "COEN 346.",
+        "corequisites": "",
+        "description": "Autonomy of cloud computing, service and business models, data centres and virtualization. CAP theorem, REST API and data models. Map reduce and programming model of distributed data processing on computer clusters. Distributed file systems for computer clusters, development environments and tools on clouds. Cloudâbased data access and query. Cloud application design principles.",
+        "components": "Lecture 3 hours per week",
+        "notes": null
+    },
+    {
+        "title": "COEN 432 Applied Machine Learning and Evolutionary Algorithms",
+        "credits": 3,
+        "prerequisites": "COEN 352/COMP 352.",
+        "corequisites": "",
+        "description": "The course covers a variety of machine learning algorithms with applications to real-world problems of classification and prediction, optimization and design. The first part of the course introduces fundamental concepts of machine learning and some well-established models, such as decision tree models, linear models, distance-based models and probabilistic models. This is followed by machine learning heuristics such as tabu search, simulated annealing and particle swarm optimization. The second part of the course focuses on evolutionary algorithms and, in particular, genetic algorithms, evolutionary strategies and genetic programming, followed by salient advanced concepts such as multi-objective optimization.",
+        "components": "Lecture 3 hours per week",
+        "notes": null
+    },
+    {
+        "title": "COEN 433 Biological Computing and Synthetic Biology",
+        "credits": 3,
+        "prerequisites": "COEN 212,COEN 244.",
+        "corequisites": "",
+        "description": "Introduction to the cell and the genome. Foundations of synthetic biology and ethics. Synthetic genomes and metabolic engineering. Model organisms, such as E. coli bacteria and synthetic cells, self-replicating cells man-madefrom cloned genes,a cellular membrane and the basic elements of RNA and protein synthesis. Designing computational devices for implementation in biological cells. Introduction to modelling and computer simulation of gene regulatory networks. Methods of building and testing gene regulatory networks within and without cells. Expanding functionality via inter-cellular signaling. Basic interfacing to electronic sensors and actuators. Landmark and interesting applications of synthetic biology in computer engineering and other disciplines.",
+        "components": "Lecture 3 hours per week",
+        "notes": "StudentswhohavereceivedcreditforBIOL 475orforthistopicunderaBIOL 498numbermaynottakethiscourseforcredit."
+    },
+    {
+        "title": "COEN 434 Microfluidic Devices for Synthetic Biology",
+        "credits": 3,
+        "prerequisites": "(COEN 244, ENGR 290)/(BIOL 261, COMP 249).",
+        "corequisites": "",
+        "description": "This course introduces students to microfluidic components (pumps, valves, automation) programming microfluidics, paradigms, and applications for chemical and biological analysis.Introduction to synthetic biology; biological parts and their properties, network structure and pathway engineering, syntheticnetworks, manipulating DNA and measuring responses, basic behaviourof genetic circuits, building complex genetic networks; integration of microfluidics and synthetic biology; economic implications.",
+        "components": "Lecture 3 hours per week",
+        "notes": "StudentswhohavereceivedcreditforBIOL 476orforthistopicunderaBIOL 498numbermaynottakethiscourseforcredit."
+    },
+    {
+        "title": "COEN 446 Internet of Things",
+        "credits": 3.5,
+        "prerequisites": "COEN 366/COEN 445/ELEC 366/ELEC 463.",
+        "corequisites": "",
+        "description": "This course covers theparadigm change from the Internet and devices to the Internet of Things (IoT). It also covers IoT business models and applications (including health monitoring and smart cities); IoT characteristics, constraints and requirements. The IoT protocol stack is also covered and its contrasts with the TCP/IP protocol stack are discussed. Other covered topics include physical, link and networking layer protocols. Moreover, the course covers the Message Queueing Telemetry Transport (MQTT) and Constrained Application (CoAP) application layer protocols andthe efficient XML interchange (EXI) format. The course provides an introduction to security threats and privacy in IoT systems;IoT analytics,platforms and tools.",
+        "components": "Lecture 3 hours per week; Laboratory 15 hours total",
+        "notes": null
+    },
+    {
+        "title": "COEN 447 Software Defined Networking",
+        "credits": 3,
+        "prerequisites": "COEN 317;COEN 366/COEN 445/ELEC 366/ELEC 463.",
+        "corequisites": "",
+        "description": "This course equips students with an understanding of the principles and techniques underpinning the design of softwareâdefined networks.Topics include control and data planes, centralized vs. distributed control; network operating systems, network function virtualization; programmable data planes, network processors, programmable switch pipelines; high-level data-plane programming with P4 and data-plane development kit. This course includes a softwareâdefined network emulation project.",
+        "components": "Lecture 3 hours per week",
+        "notes": null
+    },
+    {
+        "title": "COEN 448 Software Testing and Validation",
+        "credits": 3.5,
+        "prerequisites": "SOEN 341.",
+        "corequisites": "",
+        "description": "This course starts with an overview of the three phases and deliverables of a project, and then discusses validation vs.verification, reviews and walkâthrough. Topics also include acceptance testing, integration testing, module testing. The course covers writing stubs, performance testing, the role of formal methods, code inspection, defect tracking and causality analysis. It concludes with software metrics and quality management.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 15 hours total",
+        "notes": "Students who have received credit for COEN 345 may not take this course for credit."
+    },
+    {
+        "title": "COEN 451 VLSI Circuit Design",
+        "credits": 4,
+        "prerequisites": "COEN 212;ELEC 311.",
+        "corequisites": "",
+        "description": "Analysis and design of electronic circuits using Very Large Scale Integration (VLSI) technologies. Physical design of MOS digital circuits. CMOS circuit schematic and layout. CMOS processing technology, design rules and CAD issues. Physical layers and parasitic elements of CMOS circuits. Characterization and performance evaluation. Constraints on speed, power dissipation and silicon space consumption. Design and implementation of CMOS logic structures, interconnections and I/O structures. Circuit design project using a specified CMOS technology.",
+        "components": "Lecture 3 hours per week; Laboratory 30 hours total",
+        "notes": null
+    },
+    {
+        "title": "COEN 490 Capstone Computer Engineering Design Project",
+        "credits": 6,
+        "prerequisites": "ENGR 301,ENGR 371;COEN 390;SOEN 341. 75CR",
+        "corequisites": "",
+        "description": "Students are assigned to groups, and work together under faculty supervision to solve a complex interdisciplinary design problem— typically involving communications, control systems, electromagnetics, power electronics, software design, and/or hardware design. The project fosters teamwork between group members and allows students to develop their project management, technical writing, and technical presentation skills.",
+        "components": "Tutorial 1 hour per week, two terms; Laboratory Equivalent time, 9 hours per week, two terms",
+        "notes": "All written documentation mustfollow the Concordia Form and Style guide. Students are responsible for obtaining this document before beginning the project."
+    },
+    {
+        "title": "COEN 498 Topics in Computer Engineering",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Thecourse,whenoffered,willincludetopicswhichcomplementelectivecoursesin computerengineeringandcomputerscience",
+        "components": "Lecture 3 hours per week",
+        "notes": null
+    }
+]

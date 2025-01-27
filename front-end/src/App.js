@@ -1,10 +1,12 @@
-import React from "react";
+import React, {useState} from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
-import SignInPage from "./pages/SignInPage";
+import LogInPage from "./pages/LogInPage";
 import SignUpPage from "./pages/SignUpPage";
 import UserPage from "./pages/UserPage";
 import CourseList from "./pages/CourseListPage";
+import UploadTranscript from "./pages/UploadTranscriptPage";
+import UploadAcceptanceLetter from "./pages/UploadAcceptanceLetter";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -13,8 +15,18 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
 import TimelinePage from "./pages/TimelinePage";
+import AdminPage from "./pages/AdminPage";
+// import LogInPage from "./pages/LogInPage";
 
 function App() {
+
+	const [timelineData, setTimelineData] = useState([]);
+
+  const handleDataProcessed = (data) => {
+    setTimelineData(data);
+  };
+
+
 	return (
 		<div className="page-container">
 			<AuthProvider>
@@ -28,7 +40,7 @@ function App() {
 							/>
 							<Route
 								path="/signin"
-								element={<SignInPage />}
+								element={<LogInPage />}
 							/>
 							<Route
 								path="/signup"
@@ -43,16 +55,26 @@ function App() {
 								}
 							/>
 							<Route
-								path="/timeline"
+								path="/admin"
 								element={
-									<ProtectedRoute>
-										<TimelinePage />
-									</ProtectedRoute>
+										<AdminPage />
 								}
+							/>
+							<Route
+								path="/timeline_change"
+								element={<TimelinePage timelineData={timelineData} />}
 							/>
 							<Route
 								path="/courselist"
 								element={<CourseList />}
+							/>
+							<Route
+								path="/uploadTranscript"
+								element={<UploadTranscript onDataProcessed={handleDataProcessed} />}
+							/>
+							<Route 
+								path="/timeline_initial"
+								element={<UploadAcceptanceLetter />}
 							/>
 						</Routes>
 					</div>

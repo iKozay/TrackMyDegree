@@ -1,0 +1,84 @@
+# Metadata
+DegreeID=CIVI-BEng
+DegreeName=BEng Civil Engineering
+TotalCredits=120
+
+[Engineering Core (30.5 credits)]
+ELEC 275
+ENCS 282
+ENGR 201
+ENGR 202
+ENGR 213
+ENGR 233
+ENGR 301
+ENGR 371
+ENGR 391
+ENGR 392
+General Education Elective
+
+[Civil Engineering Core (74.5 credits)]
+BCEE 231 
+BCEE 342 
+BCEE 343
+BCEE 344
+BCEE 345 
+BCEE 371
+BCEE 432
+BCEE 451
+CIVI 212 
+CIVI 231
+CIVI 321 
+CIVI 341 
+CIVI 361 
+CIVI 372
+CIVI 381
+CIVI 390
+CIVI 490
+ENGR 242
+ENGR 243
+ENGR 244
+ENGR 251
+ENGR 311 
+ENGR 361
+
+#Civil Engineering Electives (15 credits)
+[Option A Civil Infrastructure (15 credits)]
+BCEE 452 
+BCEE 455 
+CIVI 435
+CIVI 437
+CIVI 453 
+CIVI 454
+CIVI 471
+CIVI 474 
+CIVI 498 
+ENGR 411 
+ENGR 412
+
+[Option B Environmental (15 credits)]
+CIVI 382 
+CIVI 464
+CIVI 465 
+CIVI 466 
+CIVI 467 
+CIVI 468 
+CIVI 469
+CIVI 483
+CIVI 484 
+CIVI 498 
+ENGR 411
+ENGR 412
+
+[Option C Construction Engineering and Management (CEM) (15 credits)]
+BCEE 464 
+BCEE 465
+BCEE 466
+BCEE 478 
+BCEE 491 
+BCEE 492 
+BCEE 493 
+BLDG 480 
+CIVI 440
+CIVI 498
+ENGR 411
+ENGR 412 

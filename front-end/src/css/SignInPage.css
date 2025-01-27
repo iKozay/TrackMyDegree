@@ -1,0 +1,68 @@
+.LogInPage {
+  background-color: #ffffff; /* Light gray background */
+  min-height: 72.5vh;
+  align-content: center;
+}
+
+.card {
+  background-color: white;
+  border: none;
+}
+
+.custom-header {
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  font-size: 2rem;
+}
+
+.custom-input {
+  border-radius: 100px;
+  border-color: black;
+}
+
+.LogInPage h2{
+  font-size: 5vh;
+}
+
+.custom-cancel-btn {
+  background-color: #80808040;
+  color: black;
+  border: none;
+  border-radius: 30px;
+}
+
+.custom-submit-btn {
+  background-color: brown;
+  color: white;
+  border: none;
+  border-radius: 30px;
+}
+
+.custom-submit-btn:hover {
+  background-color: #6c4f2a;
+}
+
+.custom-cancel-btn:hover {
+  background-color: #cccccc;
+}
+
+.custom-alert {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.text-center a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.text-center a:hover {
+  text-decoration: underline;
+}

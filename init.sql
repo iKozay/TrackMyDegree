@@ -1,3 +1,4 @@
+-- Active: 1731210639535@@localhost@1433@master
 CREATE TABLE Degree (
   id VARCHAR(255) PRIMARY KEY,
   name VARCHAR(255) UNIQUE NOT NULL,
@@ -5,22 +6,27 @@ CREATE TABLE Degree (
 );
 
 CREATE TABLE Course (
-  code VARCHAR(5) NOT NULL,
-  number INT NOT NULL,
+  code VARCHAR(7) NOT NULL,
   credits INT NOT NULL,
-  description VARCHAR(255) NOT NULL,
-  PRIMARY KEY (code, number)
+  description VARCHAR(2055) NOT NULL,
+  PRIMARY KEY (code)
 );
 
 CREATE TABLE Requisite (
     id VARCHAR(255) PRIMARY KEY,
-    code1 VARCHAR(5),
-    number1 INT,
-    code2 VARCHAR(5),
-    number2 INT,
-    type VARCHAR(3) CHECK (type IN ('pre', 'co')),
-    FOREIGN KEY (code1, number1) REFERENCES Course(code, number),
-    FOREIGN KEY (code2, number2) REFERENCES Course(code, number)
+    code1 VARCHAR(7) NOT NULL,          -- Course that has the requisite
+    code2 VARCHAR(7),                    -- Prerequisite course (NULL if credit-based)
+    type VARCHAR(3) CHECK (type IN ('pre', 'co')), -- 'pre' for prerequisite, 'co' for corequisite
+    group_id VARCHAR(255),               -- Identifier for groups of alternative requisites
+    creditsRequired INT,                 -- Number of credits required (NULL if course-based)
+    FOREIGN KEY (code1) REFERENCES Course(code),
+    FOREIGN KEY (code2) REFERENCES Course(code),
+    CONSTRAINT UC_Requisite UNIQUE (code1, code2, type, group_id, creditsRequired),
+    CONSTRAINT CK_Requisite_CreditsOrCourse
+        CHECK (
+            (creditsRequired IS NOT NULL AND code2 IS NULL) OR
+            (creditsRequired IS NULL AND code2 IS NOT NULL)
+        )
 );
 
 CREATE TABLE CoursePool (
@@ -33,41 +39,40 @@ CREATE TABLE DegreeXCoursePool (
   degree VARCHAR(255),
   coursepool VARCHAR(255),
   creditsRequired INT NOT NULL,
-  required BIT NOT NULL,  -- Changed from BOOLEAN to BIT
   UNIQUE(degree, coursepool),
   FOREIGN KEY (degree) REFERENCES Degree(id),
-  FOREIGN KEY (coursepool) REFERENCES CoursePool(id)
+  FOREIGN KEY (coursepool) REFERENCES CoursePool(id) ON DELETE CASCADE
 );
 
 CREATE TABLE CourseXCoursePool (
   id VARCHAR(255) PRIMARY KEY,
-  coursenumber INT,
-  coursecode VARCHAR(5),
+  coursecode VARCHAR(7),
   coursepool VARCHAR(255),
-  UNIQUE(coursenumber, coursecode, coursepool),
-  FOREIGN KEY (coursecode, coursenumber) REFERENCES Course(code, number), -- Composite foreign key
-  FOREIGN KEY (coursepool) REFERENCES CoursePool(id)
+  groupId VARCHAR(255),
+  UNIQUE(coursecode, coursepool),
+  CONSTRAINT UC_CourseXCoursePool UNIQUE (coursecode, coursepool, groupId),
+  FOREIGN KEY (coursecode) REFERENCES Course(code), -- Composite foreign key
+  FOREIGN KEY (coursepool) REFERENCES CoursePool(id) ON DELETE CASCADE
 );
 
 CREATE TABLE AppUser (  -- Use square brackets for reserved keywords
     id VARCHAR(255) PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    firstname VARCHAR(255) NOT NULL,-- add degree / add first and last name
-    lastname VARCHAR(255) NOT NULL,
-    degree VARCHAR(255) NOT NULL,
-    type VARCHAR(10) CHECK (type IN ('student', 'advisor', 'admin')) NOT NULL
+    fullname VARCHAR(255) NOT NULL,
+    degree VARCHAR(255),
+    type VARCHAR(10) CHECK (type IN ('student', 'advisor', 'admin')) NOT NULL,
+    FOREIGN KEY (degree) REFERENCES Degree(id)
 );
 
 CREATE TABLE Timeline (
     id VARCHAR(255) PRIMARY KEY,
     season VARCHAR(10) CHECK (season IN ('fall', 'winter', 'summer1', 'summer2', 'fall/winter', 'summer')) NOT NULL,
     year INT NOT NULL,
-    coursenumber INT,
-    coursecode VARCHAR(5),
-    user_id VARCHAR(255),
-    UNIQUE(user_id, coursecode, coursenumber, season, year),
-    FOREIGN KEY (coursecode, coursenumber) REFERENCES Course(code, number), -- Composite foreign key
+    coursecode VARCHAR(7) NOT NULL,
+    user_id VARCHAR(255) NOT NULL,
+    UNIQUE(user_id, coursecode, season, year),
+    FOREIGN KEY (coursecode) REFERENCES Course(code), -- Composite foreign key
     FOREIGN KEY (user_id) REFERENCES AppUser (id)  -- Adjusted foreign key reference
 );
 
@@ -83,11 +88,10 @@ CREATE TABLE Deficiency (
 
 CREATE TABLE Exemption (
     id VARCHAR(255) PRIMARY KEY,
-    coursenumber INT,
-    coursecode VARCHAR(5),
+    coursecode VARCHAR(7),
     user_id VARCHAR(255),
-    UNIQUE(user_id, coursecode, coursenumber),
-    FOREIGN KEY (coursecode, coursenumber) REFERENCES Course(code, number), -- Composite foreign key
+    UNIQUE(user_id, coursecode),
+    FOREIGN KEY (coursecode) REFERENCES Course(code), -- Composite foreign key
     FOREIGN KEY (user_id) REFERENCES AppUser (id)
 );
 
@@ -97,55 +101,56 @@ CREATE TABLE Exemption (
 -- Corrected INSERT statements
 
 -- Degree table
-INSERT INTO Degree (id, name, totalCredits)
-VALUES ('1', 'Bachelor of Science in Computer Science', 120),
-       ('2', 'Bachelor of Arts in Business Administration', 120);
+-- INSERT INTO Degree (id, name, totalCredits)
+-- VALUES ('1', 'Bachelor of Science in Computer Science', 120),
+--        ('2', 'Bachelor of Arts in Business Administration', 120);
 
--- Course table
-INSERT INTO Course (code, number, credits, description)
-VALUES ('C1', 1, 3, 'Introduction to Programming'),
-       ('C2', 2, 3, 'Database Systems'),
-       ('C3', 3, 3, 'Web Development');
+-- -- Course table
+-- INSERT INTO Course (code, credits, description)
+-- VALUES ('COMP335', 3, 'Introduction to Programming'),
+--        ('SOEN363', 3, 'Database Systems'),
+--        ('SOEN287', 3, 'Web Development');
 
--- Requisite table
-INSERT INTO Requisite (id, code1, number1, code2, number2, type)
-VALUES ('1', 'C2', 2, 'C1', 1, 'pre'),  -- Database Systems requires Introduction to Programming
-       ('2', 'C3', 3, 'C2', 2, 'co');  -- Web Development requires Database Systems
+-- -- Requisite table
+-- INSERT INTO Requisite (id, code1, code2, type)
+-- VALUES ('1', 'COMP335', 'SOEN363', 'pre'),  -- Database Systems requires Introduction to Programming
+--        ('2', 'SOEN363', 'SOEN287', 'co');  -- Web Development requires Database Systems
 
--- CoursePool table
-INSERT INTO CoursePool (id, name)
-VALUES ('1', 'Core Courses'),
-       ('2', 'Electives'),
-       ('3', 'Special Topics');
+-- -- CoursePool table
+-- INSERT INTO CoursePool (id, name)
+-- VALUES ('1', 'Core Courses'),
+--        ('2', 'Electives'),
+--        ('3', 'Special Topics');
 
--- DegreeXCoursePool table
-INSERT INTO DegreeXCoursePool (id, degree, coursepool, creditsRequired, required)
-VALUES ('1', '1', '1', 30, 1),  -- DegreeID 1 linked to CoursePoolID 1
-       ('2', '1', '2', 15, 0),  -- DegreeID 1 linked to CoursePoolID 2
-       ('3', '2', '3', 12, 1);  -- DegreeID 2 linked to CoursePoolID 3
+-- -- DegreeXCoursePool table
+-- INSERT INTO DegreeXCoursePool (id, degree, coursepool, creditsRequired)
+-- VALUES ('1', '1', '1', 30),  -- DegreeID 1 linked to CoursePoolID 1
+--        ('2', '1', '2', 15),  -- DegreeID 1 linked to CoursePoolID 2
+--        ('3', '2', '3', 12);  -- DegreeID 2 linked to CoursePoolID 3
 
--- CourseXCoursePool table
-INSERT INTO CourseXCoursePool (id, coursenumber, coursecode, coursepool)
-VALUES ('1', 1, 'C1', '1'),  -- CourseID 1 linked to CoursePoolID 1
-       ('2', 2, 'C2', '2'),  -- CourseID 2 linked to CoursePoolID 2
-       ('3', 3, 'C3', '3');  -- CourseID 3 linked to CoursePoolID 3
+-- -- CourseXCoursePool table
+-- INSERT INTO CourseXCoursePool (id, coursecode, coursepool)
+-- VALUES ('1', 'COMP335', '1'),  -- CourseID 1 linked to CoursePoolID 1
+--        ('2', 'SOEN363', '2'),  -- CourseID 2 linked to CoursePoolID 2
+--        ('3', 'SOEN287', '3');  -- CourseID 3 linked to CoursePoolID 3
 
--- User table (changed from AppUser to [User])
-INSERT INTO AppUser (id, email, password, name, type)
-VALUES ('1', 'jd1@concordia.ca', '1234', 'John Doe', 'student'),
-       ('2', 'jd2@concordia.ca', '5678', 'Jane Doe', 'advisor');
+-- -- User table (changed from AppUser to [User])
 
--- Timeline table
-INSERT INTO Timeline (id, season, year, coursenumber, coursecode, user_id)
-VALUES ('1', 'winter', 2024, NULL, NULL, '1'),  -- UserID 1's timeline for winter 2024
-       ('2', 'fall', 2025, NULL, NULL, '2');  -- UserID 2's timeline for fall 2025
+-- INSERT INTO AppUser (id, email, password, fullname, degree, type)
+-- VALUES ('1', 'jd1@concordia.ca', '1234', 'John Doe', '1', 'student'),
+--        ('2', 'jd2@concordia.ca', '5678', 'Jane Doe', NULL, 'advisor');
 
--- Deficiency table
-INSERT INTO Deficiency (id, coursepool, user_id, creditsRequired)
-VALUES ('1', '1', '1', 3),  -- UserID 1 has a deficiency
-       ('2', '2', '2', 3);  -- UserID 2 has a deficiency
+-- -- Timeline table
+-- INSERT INTO Timeline (id, season, year, coursecode, user_id)
+-- VALUES ('1', 'winter', 2024, 'COMP335', '1'),  -- UserID 1's timeline for winter 2024
+--        ('2', 'fall', 2025, 'COMP335', '2');  -- UserID 2's timeline for fall 2025
 
--- Exemption table
-INSERT INTO Exemption (id, coursenumber, coursecode, user_id)
-VALUES ('1', 1, 'C1', '1');  -- UserID 1 has an exemption
+-- -- Deficiency table
+-- INSERT INTO Deficiency (id, coursepool, user_id, creditsRequired)
+-- VALUES ('1', '2', '1', 3),  -- UserID 1 has a deficiency
+--        ('2', '2', '2', 3);  -- UserID 2 has a deficiency
+
+-- -- Exemption table
+-- INSERT INTO Exemption (id, coursecode, user_id)
+-- VALUES ('1', 'COMP335', '1');  -- UserID 1 has an exemption
 

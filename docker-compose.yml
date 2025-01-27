@@ -1,4 +1,21 @@
+version: '3.8'
+
 services:
+  tests:
+    build:
+      context: ./Back-End
+      dockerfile: Dockerfile.test
+    depends_on:
+      - backend
+      - sqlserver
+    networks:
+      - app-network
+    entrypoint: >
+      sh -c "
+      ./ping-backend.sh &&
+      npm test
+      "
+
   frontend:
     build:
       context: ./front-end
@@ -22,6 +39,7 @@ services:
     depends_on:
       - sqlserver
 
+
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
@@ -32,7 +50,10 @@ services:
       - "1433:1433"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./entrypoint.sh:/usr/src/app/entrypoint.sh  # Mount the entrypoint script
-    command:  chmod +x entrypoint.sh
-    entrypoint: ["/bin/sh", "/usr/src/app/entrypoint.sh"]  # Use the custom entrypoint script
+      - ./entrypoint-sql.sh:/usr/src/app/entrypoint-sql.sh
+    command: chmod +x entrypoint.sh
+    entrypoint: ["/bin/sh", "/usr/src/app/entrypoint-sql.sh"]
 
+networks:
+  app-network:
+    driver: bridge

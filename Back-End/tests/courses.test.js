@@ -1,9 +1,11 @@
 const request = require("supertest");
 
+const url = process.DOCKER_URL || "host.docker.internal:8000";
+
 describe("Course Routes", () => {
     describe("GET /courses/getAll", () => {
         it("should return an array of all courses", async () => {
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/getAll")
                 .expect("Content-Type", /json/)
                 .expect(200);
@@ -15,7 +17,6 @@ describe("Course Routes", () => {
                 // Assert structure for the first course
                 const course = response.body[0];
                 expect(course).toHaveProperty("code");
-                expect(course).toHaveProperty("number");
                 expect(course).toHaveProperty("credits");
                 expect(course).toHaveProperty("description");
             }
@@ -27,29 +28,26 @@ describe("Course Routes", () => {
         it("should return a success message and course data", async () => {
             const newCourse = {
                 code: "CS101",
-                number: 1,
                 credits: 3,
                 description: "Introduction to Computer Science",
             };
 
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/add")
                 .send(newCourse)
                 .expect("Content-Type", /json/)
                 .expect(201);
 
             expect(response.body).toHaveProperty("code", newCourse.code);
-            expect(response.body).toHaveProperty("number", newCourse.number);
 
         });
 
         // Bad request, missing fields
         it("should return 400 status and error message when course data is missing", async () => {
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/add")
                 .send({
-                    code: "CS101",
-                    number: 1,
+                    code: "CS101"
                 }) // Missing credits and description
                 .expect("Content-Type", /json/)
                 .expect(500);
@@ -58,22 +56,20 @@ describe("Course Routes", () => {
         });
     });
 
-    // Test for getting a course by code and number
+    // Test for getting a course by code
     describe("POST /courses/get", () => {
         it("should return a course object when code and number match", async () => {
             const courseRequest = {
-                code: "CS101",
-                number: 1,
+                code: "CS101"
             };
 
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/get")
                 .send(courseRequest)
                 .expect("Content-Type", /json/)
                 .expect(200);
 
             expect(response.body).toHaveProperty("code", courseRequest.code);
-            expect(response.body).toHaveProperty("number", courseRequest.number);
             expect(response.body).toHaveProperty("credits");
             expect(response.body).toHaveProperty("description");
         });
@@ -81,11 +77,10 @@ describe("Course Routes", () => {
         // Not found case
         it("should return 404 status and error message when course is not found", async () => {
             const courseRequest = {
-                code: "CS999",
-                number: 999,
+                code: "CS999"
             };
 
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/get")
                 .send(courseRequest)
                 .expect("Content-Type", /json/)
@@ -95,16 +90,15 @@ describe("Course Routes", () => {
         });
 
         // Bad request, missing fields
-        it("should return 400 status and error message when code or number is missing", async () => {
-            const response = await request("http://localhost:8000")
+        it("should return 400 status and error message when code missing", async () => {
+            const response = await request(url)
                 .post("/courses/get")
-                .send({
-                    code: "CS101", // missing number field
+                .send({// missing code field
                 })
                 .expect("Content-Type", /json/)
                 .expect(400);
 
-            expect(response.body).toHaveProperty("error", "Code and number are required");
+            expect(response.body).toHaveProperty("error", "Course code is required");
         });
     });
 
@@ -112,11 +106,10 @@ describe("Course Routes", () => {
     describe("POST /courses/remove", () => {
         it("should return a success message when course is removed successfully", async () => {
             const courseRequest = {
-                code: "CS101",
-                number: 1,
+                code: "CS101"
             };
 
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/remove")
                 .send(courseRequest)
                 .expect("Content-Type", /json/)
@@ -128,11 +121,10 @@ describe("Course Routes", () => {
         // Not found case for removal
         it("should return 404 status and error message when course to remove does not exist", async () => {
             const courseRequest = {
-                code: "CS999",
-                number: 999,
+                code: "CS999"
             };
 
-            const response = await request("http://localhost:8000")
+            const response = await request(url)
                 .post("/courses/remove")
                 .send(courseRequest)
                 .expect("Content-Type", /json/)
@@ -142,16 +134,15 @@ describe("Course Routes", () => {
         });
 
         // Bad request, missing fields
-        it("should return 400 status and error message when code or number is missing", async () => {
-            const response = await request("http://localhost:8000")
+        it("should return 400 status and error message when code missing", async () => {
+            const response = await request(url)
                 .post("/courses/remove")
-                .send({
-                    code: "CS101", // missing number field
+                .send({ // missing code field
                 })
                 .expect("Content-Type", /json/)
                 .expect(400);
 
-            expect(response.body).toHaveProperty("error", "Code and number are required");
+            expect(response.body).toHaveProperty("error", "Course code is required");
         });
     });
 

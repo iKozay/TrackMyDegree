@@ -1,14 +1,37 @@
-const request = require("supertest");
+jest.mock("../dist/controllers/authController/authController", () => ({
+  __esModule: true,
+  default: {
+    authenticate  : jest.fn(),
+    registerUser  : jest.fn()
+  }
+}));
+
+const request     = require("supertest");
+const express     = require("express");
+const router      = require("../dist/routes/auth").default;
+const controller  = require("../dist/controllers/authController/authController").default;
+
+const url = process.DOCKER_URL || "host.docker.internal:8000";
+
+const app = express();
+app.use(express.json());
+app.use("/auth", router);
 
 describe("POST /auth/signup", () => {
+
+  const mockDBResponse = { id: "2d876080-5b77-43ba-969c-09b9d4247131" };
+
+  controller.registerUser.mockResolvedValue(mockDBResponse);
+
 	it("should return a successful signup message and user details", async () => {
-		const response = await request("http://localhost:8000")
+		const response = await request(app)
 			.post("/auth/signup")
 			.send({
 				email: "example@example.com",
 				password: "pass",
 				fullname: "Random User",
 				type: "student",
+				degree: "CS"
 			})
 			.expect("Content-Type", /json/)
 			.expect(201);
@@ -24,7 +47,7 @@ describe("POST /auth/signup", () => {
 
 	// Invalid request, missing fields
 	it("should return a 500 error message", async () => {
-		const response = await request("http://localhost:8000")
+		const response = await request(url)
 			.post("/auth/signup")
 			.send({
 				email: "example@example.com",

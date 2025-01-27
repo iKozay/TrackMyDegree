@@ -1,0 +1,202 @@
+/* Navbar.css */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
+/* Import the Inter font */
+
+.custom-navbar {
+  background-color: #912338;
+  color: #ecf0f1;
+}
+
+.custom-navbar .navbar-brand {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 48px;
+  color: white;
+  margin-left: 20px;
+}
+
+.brand-text {
+  display: inline-block;
+}
+
+.brand-emoji {
+  display: none; /* Hide emoji by default */
+  font-size: 48px;
+  margin-left: 8px;
+}
+
+/* Hide the brand text on smaller screens */
+@media (max-width: 1200px) {
+  .brand-text {
+    display: none; /* Hide TrackMyDegree text */
+  }
+
+  .brand-emoji {
+    display: inline-block; /* Show the emoji */
+  }
+}
+
+.custom-navbar .nav-link {
+  color: #ecf0f1 !important;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border: #000;
+}
+
+.custom-navbar .nav-link:hover {
+  color: #e74c3c !important;
+}
+
+.custom-navbar-height {
+  height: 120px;
+  padding: 20px 0;
+}
+
+.custom-navbar-left-align {
+  width: 95%;
+  margin-left: 0;
+}
+
+.custom-navbar-padding {
+  padding: 30px 20px;
+}
+
+.custom-nav-links {
+  margin-left: 10vh;
+  font-size: 24px;
+}
+
+.rounded {
+  border-radius: 50px;
+}
+@media (max-width: 990px) {
+  .navbar-collapse {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100%;
+    width: 300px;
+    background-color: #912338;
+    transition: right 0.3s ease;
+    z-index: 1050;
+  }
+
+  .navbar-collapse.show {
+    right: 0;
+  }
+
+  body.menu-open {
+    overflow: hidden; /* Prevent scrolling when menu is open */
+  }
+
+  .navbar-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .navbar-right-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .navbar-button {
+    width: 90%;
+    margin-bottom: 10px;
+  }
+
+  .navbar-toggler {
+    display: block;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+  }
+}
+
+@media (max-width: 1400px) {
+  /* Adjust navbar links for smaller screens */
+  .custom-nav-links {
+    margin-left: 0;
+    text-align: center;
+    font-size: 18px;
+  }
+
+  /* Toggler and menu icon styling */
+  .navbar-toggler {
+    background-color: #3ce7e4; /* Set your desired background color */
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+  }
+
+  /* Align the navbar items to the center */
+  .navbar-collapse {
+    flex-grow: 1;
+    justify-content: flex-end;
+  }
+
+  /* Adjust the active link style */
+  .nav-link.active {
+    color: #e74c3c !important;
+  }
+
+  /* Mobile view for navbar */
+  .navbar-nav {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .nav-link {
+    padding: 10px 0;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Sign in and Register Buttons */
+.navbar-right-buttons {
+  margin-left: auto; /* Push to the right */
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Space between buttons */
+}
+
+.navbar-button {
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  padding: 10px 20px;
+  border-radius: 25px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.navbar-button-signin {
+  background-color: white;
+  color: black;
+  border: 2px solid black;
+  transition: all 0.3s ease;
+}
+
+.navbar-button-signin:hover {
+  background-color: black;
+  color: white;
+}
+
+.navbar-button-register {
+  background-color: black;
+  color: white;
+  border: 2px solid black;
+  transition: all 0.3s ease;
+}
+
+.navbar-button-register:hover {
+  background-color: white;
+  color: black;
+}

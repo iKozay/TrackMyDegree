@@ -1,10 +1,20 @@
 namespace CourseTypes {
     export type CourseInfo = {
         code: string;
-        number: number;
         credits: number;
         description: string;
+        requisites: RequisiteInfo[];
     };
+    export interface Requisite {
+        type: 'pre' | 'co';
+        code: string;
+        description: string;
+    }
+    export interface CoursePoolInfo {
+        poolId: string;
+        poolName: string;
+        courses: CourseInfo[];
+    }
 }
 
 export default CourseTypes;
