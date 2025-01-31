@@ -9,25 +9,24 @@ const CourseListAccordion = ({ courseList, selectedCourse, setSelectedCourse }) 
   return (
     <Accordion className='course-list-accordion' alwaysOpen>
       {courseList.map((courseSection) => (
-        <Accordion.Item eventKey={courseSection.title} key={courseSection.title}>
+        <Accordion.Item eventKey={courseSection.poolName} key={courseSection.poolName}>
           <Accordion.Header style={{ margin: '0px' }}>
-            <b>{courseSection.title}</b>&nbsp;
-            {courseSection.credits !== undefined && (courseSection.elective ? `(Minimum of ${courseSection.credits} credits)` : `(${courseSection.credits} credits)`)}
+            <b>{courseSection.poolName}</b>
           </Accordion.Header>
             <Accordion.Body>
               <Container className="course-list-container">
-                  {courseSection.courseList.map((course) => (
-                    <Card key={course.title} style={{backgroundColor: `${selectedCourse && course.title === selectedCourse.title ? "lightgray" : "white"}`}} onClick={() => setSelectedCourse(course)} className="cursor-pointer course-card">
+                  {courseSection.courses.map((course) => (
+                    <Card key={course.code} style={{backgroundColor: `${selectedCourse && course.code === selectedCourse.code ? "lightgray" : "white"}`}} onClick={() => setSelectedCourse(course)} className="cursor-pointer course-card">
                       <Card.Body className="course-list-card-body">
                         <Card.Title>
-                          {course.id}
+                          {course.code.slice(0, 4)} {course.code.slice(4)}
                         </Card.Title>
                         <Card.Subtitle style={{color: 'gray'}}>
                           {course.credits} credits
                         </Card.Subtitle>
-                        <Card.Body style={{padding: '10px'}}>
+                        {/* <Card.Body style={{padding: '10px'}}>
                           {course.title.slice(9)}
-                        </Card.Body>
+                        </Card.Body> */}
                       </Card.Body>
                     </Card>
                   ))}
