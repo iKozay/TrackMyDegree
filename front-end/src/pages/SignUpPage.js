@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 import Dropdown from "react-bootstrap/Dropdown"; 
 
 function SignUpPage() {
-  const [fullName, setfullName] = useState("");
+  const [fullname, setfullname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -25,7 +25,7 @@ function SignUpPage() {
     setError(null);
 
     // Basic validation checks
-    if (fullName === ""  || email === "" || password === "" || confirmPassword === "") {
+    if (fullname === ""  || email === "" || password === "" || confirmPassword === "") {
       setError("All fields are required.");
       return;
     }
@@ -58,7 +58,7 @@ function SignUpPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          fullName,
+          fullname,
           email,
           password,
           type: userType,
@@ -89,18 +89,18 @@ function SignUpPage() {
   return (
     <div className="SignUpPage">
       <div className="container my-5 sign-in-container">
-        <h2 className="text-center mb-4" style={{"font-size": "5vh"}}>Sign Up</h2>
+        <h2 className="text-center mb-4" style={{fontSize: "5vh"}}>Sign Up</h2>
         <form onSubmit={handleSignUp}>
           {/* Name Field */}
           <div className="mb-3">
-          <label htmlFor="fullName" className="form-label">Full Name: </label>
+          <label htmlFor="fullname" className="form-label">Full Name: </label>
             <input
-              type="fullName"
+              type="fullname"
               className="form-control"
-              id="fullName"
+              id="fullname"
               placeholder="* Enter your full name"
-              value={fullName}
-              onChange={(e) => setfullName(e.target.value)}
+              value={fullname}
+              onChange={(e) => setfullname(e.target.value)}
             />
           </div>
 

@@ -90,6 +90,20 @@ const AdminPage = () => {
         fetchRecords(tableName);
     };
 
+    const handleSeedData = async () => {
+        try {
+            const response = await axios.post('http://localhost:8000/admin/seed-data');
+            if (response.data.success) {
+                alert('Data seeding successful!');
+            } else {
+                alert(`Data seeding failed: ${response.data.message}`);
+            }
+        } catch (err) {
+            console.error(err);
+            alert(`Error seeding data: ${err.message}`);
+        }
+    };
+
     if (loading) {
         return (
             <div className="spinner-container">
@@ -134,7 +148,7 @@ const AdminPage = () => {
                 </Col>
 
                 {/* Records Table Column */}
-                <Col md={9} className="records-table-container">
+                <Col md={12} className="records-table-container">
                     {selectedTable ? (
                         <div>
                             <h3>{selectedTable}</h3>
@@ -171,7 +185,14 @@ const AdminPage = () => {
                     )}
                 </Col>
             </Row>
+            <div style={{ marginTop: '20px' }}>
+                {/* The new button for seeding data */}
+                <button className="btn btn-primary" onClick={handleSeedData}>
+                    Seed Database with JSON
+                </button>
+            </div>
         </div>
+
 
     );
 };

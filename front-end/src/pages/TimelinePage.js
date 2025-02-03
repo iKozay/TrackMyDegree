@@ -1,10 +1,14 @@
+// TimelinePage.js
+
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   DndContext,
   useDraggable,
   useDroppable,
   DragOverlay,
   MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   closestCorners,
@@ -17,12 +21,10 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import Accordion from 'react-bootstrap/Accordion';
 import Container from 'react-bootstrap/Container';
-// import soenCourses from '../course data/soen_courses';
-import soenCourses from '../course data/soen_courses'; // Import course data
-// import { FaExclamationTriangle } from 'react-icons/fa'; // Import warning icon
 import warningIcon from '../icons/warning.png'; // Import warning icon
 import '../css/TimelinePage.css';
-
+import { groupPrerequisites } from '../utils/groupPrerequisites'; // Adjust the path as necessary
+import { useLocation } from 'react-router-dom';
 // DraggableCourse component for course list items
 const DraggableCourse = ({
   id,
@@ -38,7 +40,7 @@ const DraggableCourse = ({
     disabled,
     data: {
       type: 'course',
-      courseId: id,
+      courseCode: id,
       containerId,
     },
   });
@@ -84,7 +86,7 @@ const SortableCourse = ({
     id,
     data: {
       type: 'course',
-      courseId: id,
+      courseCode: id,
       containerId,
     },
   });
@@ -141,12 +143,20 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 
 // Main component
 const TimelinePage = ({ timelineData }) => {
-  const [semesters, setSemesters] = useState([]);
-  const [semesterCourses, setSemesterCourses] = useState({courseList: [],});
+  const [showCourseList, setShowCourseList] = useState(true);
+  const [showCourseDescription, setShowCourseDescription] = useState(true);
 
+  const [semesters, setSemesters] = useState([]);
+  const [semesterCourses, setSemesterCourses] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  //data
+  const location = useLocation();
+  const { degreeId } = location.state || {};
+
+  // Data
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 767);
+  const [addButtonText, setAddButtonText] = useState('+ Add Semester');
+
   const [activeId, setActiveId] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [returning, setReturning] = useState(false);
@@ -156,6 +166,12 @@ const TimelinePage = ({ timelineData }) => {
   // Add semester form state
   const [selectedSeason, setSelectedSeason] = useState('Fall');
   const [selectedYear, setSelectedYear] = useState('2025');
+  // Fetching state
+  const [coursePools, setCoursePools] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const toggleCourseList = () => setShowCourseList((prev) => !prev);
+  const toggleCourseDescription = () => setShowCourseDescription((prev) => !prev);
 
   // Sensors with activation constraints
   const mouseSensor = useSensor(MouseSensor, {
@@ -164,11 +180,52 @@ const TimelinePage = ({ timelineData }) => {
     },
   });
 
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: {
+      delay: 100,
+      tolerance: 5,
+    },
+  });
+
   const sensors = useSensors(mouseSensor);
-  
-  
+
+  // Fetch courses by degree on component mount
+  useEffect(() => {
+    const fetchCoursesByDegree = async () => {
+      try {
+        console.log('Fetching courses by degree:', degreeId);
+        const degree = degreeId; // The value to pass
+        const response = await fetch(`http://localhost:8000/courses/getByDegreeGrouped`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ degree }),
+        });
+
+        if (!response.ok) {
+          // Enhanced Error Handling
+          const errorData = await response.json();
+          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json(); // Array of CoursePoolInfo
+        setCoursePools(data); // Assuming data is an array of CoursePoolInfo
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching courses:', err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchCoursesByDegree();
+  }, []);
+
   // Process timelineData and generate semesters and courses
   useEffect(() => {
+    if (coursePools.length === 0) return; // Wait until coursePools are fetched
+
     const semesterMap = {};
     const semesterNames = new Set();
 
@@ -179,7 +236,7 @@ const TimelinePage = ({ timelineData }) => {
       if (!semesterMap[term]) {
         semesterMap[term] = [];
       }
-      semesterMap[term].push(course);
+      semesterMap[term].push(course.code); // Assuming course.code is the unique identifier
       semesterNames.add(term);
     });
 
@@ -209,12 +266,30 @@ const TimelinePage = ({ timelineData }) => {
         sortedSemesters.map((term) => [term, semesterMap[term] || []])
       )
     );
-  }, [timelineData]);
-  
-  
+  }, [timelineData, coursePools]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth > 767);
+      if (window.innerWidth > 999) {
+        setAddButtonText('+ Add Semester');
+      }
+      else {
+        setAddButtonText('+');
+      }
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!isDesktop) {
+      setShowCourseList(false);
+      setShowCourseDescription(false);
+    }
+  }, [isDesktop]);
+
   const [shakingSemesterId, setShakingSemesterId] = useState(null);
-
-
 
   // ---------------- ADD / REMOVE Semesters ----------------
   const SEASON_ORDER = {
@@ -241,7 +316,6 @@ const TimelinePage = ({ timelineData }) => {
   }
 
   const handleAddSemester = () => {
-    const seasonLower = selectedSeason.toLowerCase();
     const id = `${selectedSeason} ${selectedYear}`;
     const name = `${selectedSeason} ${selectedYear}`;
 
@@ -276,11 +350,11 @@ const TimelinePage = ({ timelineData }) => {
       return updated;
     });
   };
-// ----------------------------------------------------------------------
-  const isCourseAssigned = (courseId) => {
+  // ----------------------------------------------------------------------
+  const isCourseAssigned = (courseCode) => {
     for (const semesterId in semesterCourses) {
       if (semesterId === "courseList") continue;
-      if (semesterCourses[semesterId].includes(courseId)) {
+      if (semesterCourses[semesterId].includes(courseCode)) {
         return true;
       }
     }
@@ -291,9 +365,9 @@ const TimelinePage = ({ timelineData }) => {
     setReturning(false);
     const id = String(event.active.id);
 
-    const course = soenCourses
-      .flatMap((courseSection) => courseSection.courseList)
-      .find((c) => c.id === id);
+    const course = coursePools
+      .flatMap((pool) => pool.courses)
+      .find((c) => c.code === id);
 
     if (course) {
       setSelectedCourse(course);
@@ -304,9 +378,9 @@ const TimelinePage = ({ timelineData }) => {
     setActiveId(id);
   };
 
-  const findSemesterIdByCourseId = (courseId, semesters) => {
+  const findSemesterIdByCourseCode = (courseCode, semesters) => {
     for (const semesterId in semesters) {
-      if (semesters[semesterId].includes(courseId)) {
+      if (semesters[semesterId].includes(courseCode)) {
         return semesterId;
       }
     }
@@ -322,7 +396,7 @@ const TimelinePage = ({ timelineData }) => {
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    const id = String(active.id);
+    const id = String(active.id); // courseCode
 
     if (over) {
       if (over.id === 'courseList') {
@@ -331,7 +405,7 @@ const TimelinePage = ({ timelineData }) => {
       } else {
         setSemesterCourses((prevSemesters) => {
           const updatedSemesters = { ...prevSemesters };
-          const activeSemesterId = findSemesterIdByCourseId(
+          const activeSemesterId = findSemesterIdByCourseCode(
             id,
             prevSemesters
           );
@@ -353,7 +427,7 @@ const TimelinePage = ({ timelineData }) => {
             }
           } else {
             // Fallback
-            overSemesterId = findSemesterIdByCourseId(over.id, prevSemesters);
+            overSemesterId = findSemesterIdByCourseCode(over.id, prevSemesters);
             overIndex = updatedSemesters[overSemesterId]?.indexOf(over.id);
           }
 
@@ -361,7 +435,7 @@ const TimelinePage = ({ timelineData }) => {
             // Remove from old semester
             updatedSemesters[activeSemesterId] = updatedSemesters[
               activeSemesterId
-            ].filter((courseId) => courseId !== id);
+            ].filter((courseCode) => courseCode !== id);
           }
 
           if (overSemesterId) {
@@ -369,17 +443,17 @@ const TimelinePage = ({ timelineData }) => {
             updatedSemesters[overSemesterId].splice(overIndex, 0, id);
           }
 
-          //check if we exceed the limit
+          // Check if we exceed the limit
           const overSemesterObj = semesters.find((s) => s.id === overSemesterId);
           if (!overSemesterObj) return prevSemesters; // safety check
 
           // Sum up the credits in the new semester
           const thisSemesterCourses = updatedSemesters[overSemesterId];
           let sumCredits = 0;
-          for (let cId of thisSemesterCourses) {
-            const course = soenCourses
-                .flatMap((section) => section.courseList)
-                .find((c) => c.id === cId);
+          for (let cCode of thisSemesterCourses) {
+            const course = coursePools
+              .flatMap((pool) => pool.courses)
+              .find((c) => c.code === cCode);
             if (course?.credits) {
               sumCredits += course.credits;
             }
@@ -391,9 +465,8 @@ const TimelinePage = ({ timelineData }) => {
           if (sumCredits > maxAllowed) {
             // Optional: keep a visual shake
             shakeSemester(overSemesterId);
-            // No revert. We still keep the course in the semester
+            // Alert the user
             alert("You exceeded the limit of 15 credits per semester allowed in Gina Cody School of Engineering and Computer Science!");
-
           }
           return updatedSemesters;
         });
@@ -409,24 +482,24 @@ const TimelinePage = ({ timelineData }) => {
     document.querySelector('.semesters')?.classList.remove('no-scroll');
   };
 
-  const handleReturn = (courseId) => {
+  const handleReturn = (courseCode) => {
     setReturning(true);
 
     setSemesterCourses((prevSemesters) => {
       const updatedSemesters = { ...prevSemesters };
       for (const semesterId in updatedSemesters) {
         updatedSemesters[semesterId] = updatedSemesters[semesterId].filter(
-          (id) => id !== courseId
+          (code) => code !== courseCode
         );
       }
       return updatedSemesters;
     });
   };
 
-  const handleCourseSelect = (id) => {
-    const course = soenCourses
-      .flatMap((courseSection) => courseSection.courseList)
-      .find((c) => c.id === id);
+  const handleCourseSelect = (code) => {
+    const course = coursePools
+      .flatMap((pool) => pool.courses)
+      .find((c) => c.code === code);
     if (course) {
       setSelectedCourse(course);
     }
@@ -440,19 +513,19 @@ const TimelinePage = ({ timelineData }) => {
 
       for (const semesterId in semesterCourses) {
         if (semesterId === 'courseList') continue;
-        const courseIds = semesterCourses[semesterId];
+        const courseCodes = semesterCourses[semesterId];
         const currentSemesterIndex = semesters.findIndex(
           (s) => s.id === semesterId
         );
 
-        courseIds.forEach((courseId) => {
-          const course = soenCourses
-            .flatMap((courseSection) => courseSection.courseList)
-            .find((c) => c.id === courseId);
+        courseCodes.forEach((courseCode) => {
+          const course = coursePools
+            .flatMap((pool) => pool.courses)
+            .find((c) => c.code === courseCode);
 
           if (course && course.credits) {
             const prerequisitesMet = arePrerequisitesMet(
-              courseId,
+              courseCode,
               currentSemesterIndex
             );
 
@@ -470,40 +543,114 @@ const TimelinePage = ({ timelineData }) => {
     };
 
     calculateTotalCredits();
-  }, [semesterCourses, semesters]);
+  }, [semesterCourses, semesters, coursePools]);
 
 
-  // Function to check if prerequisites are met
-  const arePrerequisitesMet = (courseId, currentSemesterIndex) => {
-    const course = soenCourses
-      .flatMap((courseSection) => courseSection.courseList)
-      .find((c) => c.id === courseId);
+  // Function to check if prerequisites and corequisites are met
+  const arePrerequisitesMet = (courseCode, currentSemesterIndex) => {
+    const course = coursePools
+      .flatMap((pool) => pool.courses)
+      .find((c) => c.code === courseCode);
 
-    if (!course || !course.prerequisites || course.prerequisites.length === 0) {
-      // No prerequisites, so they are met by default
+    console.log(`Checking prerequisites for course ${courseCode} in semester index ${currentSemesterIndex}`);
+
+    if (!course || !course.requisites || course.requisites.length === 0) {
+      console.log(`Course ${courseCode} has no requisites.`);
       return true;
     }
 
+    // Separate prerequisites and corequisites
+    const prerequisites = course.requisites.filter(r => r.type.toLowerCase() === 'pre');
+    const corequisites = course.requisites.filter(r => r.type.toLowerCase() === 'co');
+
+    console.log(`Course ${courseCode} prerequisites:`, prerequisites);
+    console.log(`Course ${courseCode} corequisites:`, corequisites);
+
     // Collect all courses scheduled in semesters before the current one
-    const scheduledCourses = [];
+    const completedCourses = [];
     for (let i = 0; i < currentSemesterIndex; i++) {
-      const semesterId = semesters[i].id;
-      scheduledCourses.push(...semesterCourses[semesterId]);
+      const semesterId = semesters[i]?.id;
+      if (semesterId) {
+        completedCourses.push(...semesterCourses[semesterId]);
+      }
     }
 
-    // Check if all prerequisites are in the scheduled courses
-    return course.prerequisites.every((prereqId) =>
-      scheduledCourses.includes(prereqId)
-    );
+    console.log(`Completed courses before current semester:`, completedCourses);
+
+    // Check prerequisites
+    const prerequisitesMet = prerequisites.every((prereq) => {
+      if (prereq.group_id) {
+        // For grouped prerequisites, at least one in the group must be completed
+        const group = prerequisites.filter(p => p.group_id === prereq.group_id);
+        const result = group.some(p => completedCourses.includes(p.code2));
+        console.log(`Group ${prereq.group_id} met:`, result);
+        return result;
+      } else {
+        // Single prerequisite
+        const result = completedCourses.includes(prereq.code2);
+        console.log(`Prerequisite ${prereq.code2} met:`, result);
+        return result;
+      }
+    });
+
+    console.log(`Prerequisites met for course ${courseCode}:`, prerequisitesMet);
+
+    // Collect courses scheduled in the current semester for corequisites
+    const currentSemesterCourses = semesterCourses[semesters[currentSemesterIndex]?.id] || [];
+    console.log(`Current semester courses for corequisites:`, currentSemesterCourses);
+
+    // Check corequisites
+    const corequisitesMet = corequisites.every((coreq) => {
+      if (coreq.group_id) {
+        // If corequisites can also be grouped, handle similarly
+        const group = corequisites.filter(c => c.group_id === coreq.group_id);
+        const result = group.some(c => currentSemesterCourses.includes(c.code2));
+        console.log(`Corequisite group ${coreq.group_id} met:`, result);
+        return result;
+      } else {
+        // Single corequisite
+        const result = currentSemesterCourses.includes(coreq.code1);
+        console.log(`Corequisite ${coreq.code2} met:`, result);
+        return result;
+      }
+    });
+
+    console.log(`Corequisites met for course ${courseCode}:`, corequisitesMet);
+
+    const finalResult = prerequisitesMet && corequisitesMet;
+    console.log(`Prerequisites and Corequisites met for course ${courseCode}:`, finalResult);
+
+    return finalResult;
   };
-  //The Gina Cody School of Engineering and Computer Science at Concordia University has the following credit limits for full-time students:
-  //limit is 14 summer; Fall Winter 15.
+
+
+  // The Gina Cody School of Engineering and Computer Science at Concordia University has the following credit limits for full-time students:
+  // limit is 14 summer; Fall Winter 15.
   function getMaxCreditsForSemesterName(semesterName) {
     if (semesterName.toLowerCase().includes("summer")) {
       return 14;
     }
     return 15;
   }
+
+  //method to get courses by id while taking into account nested coruse lists
+  // const getCourseById = (id, courses) => {
+  //   for (const courseSection of courses) {
+  //     if (courseSection.courseList) {
+  //       for (const course of courseSection.courseList) {
+  //         if (course.id === id) {
+  //           return course;
+  //         }
+  //       }
+  //     }
+  //     // Check for any nested subcourses and recursively search through them
+  //     if (courseSection.subcourses) {
+  //       const found = getCourseById(id, courseSection.subcourses);
+  //       if (found) return found;
+  //     }
+  //   }
+  //   return null;
+  // };
 
   // ----------------------------------------------------------------------------------------------------------------------
   return (
@@ -518,258 +665,284 @@ const TimelinePage = ({ timelineData }) => {
       {/* We blur the background content when modal is open */}
       <div className={`timeline-container ${isModalOpen ? 'blurred' : ''}`}>
 
-          {/* Total Credits Display */}
-          <div className="credits-display">
-            <h4>
-              Total Credits Earned: {totalCredits} / 120
-            </h4>
+        {/* Loading and Error States */}
+        {loading && (
+          <div className="loading-container">
+            <p>Loading courses...</p>
           </div>
+        )}
 
-        <div className="timeline-page">
+        {error && (
+          <div className="error-container">
+            <p>Error: {error}</p>
+          </div>
+        )}
 
-          <div className="timeline-left-bar">
-            <h4>Course List</h4>
-            <Droppable id="courseList" className="course-list">
-              <Accordion>
-                {soenCourses.map((courseSection) => (
-                  <Accordion.Item
-                    eventKey={courseSection.title}
-                    key={courseSection.title}
+        {!loading && !error && (
+          <>
+            {/* Total Credits Display */}
+            <div className="credits-display">
+              <h4>
+                Total Credits Earned: {totalCredits} / 120
+              </h4>
+            </div>
+
+            <div className="timeline-page">
+
+              <div className='courses-with-button'>
+                <div className={`timeline-left-bar ${showCourseList ? '' : 'hidden'}`}>
+                  {showCourseList && (
+                    <div>
+                      <h4>Course List</h4>
+                      <Droppable id="courseList" className="course-list">
+                        <Accordion>
+                          {coursePools.map((coursePool) => (
+                            <Accordion.Item
+                              eventKey={coursePool.poolName}
+                              key={coursePool.poolId}
+                            >
+                              <Accordion.Header>{coursePool.poolName}</Accordion.Header>
+                              <Accordion.Body>
+                                <Container>
+                                  {coursePool.courses.map((course) => {
+                                    const assigned = isCourseAssigned(course.code);
+                                    const isSelected = selectedCourse?.code === course.code;
+
+                                    return (
+                                      <DraggableCourse
+                                        key={`${course.code}-${assigned}`} // Include assigned in key
+                                        id={course.code}
+                                        title={course.code}
+                                        disabled={assigned}
+                                        isReturning={returning}
+                                        isSelected={isSelected}
+                                        onSelect={handleCourseSelect}
+                                        containerId="courseList"
+                                      />
+                                    );
+                                  })}
+                                </Container>
+                              </Accordion.Body>
+                            </Accordion.Item>
+                          ))}
+                        </Accordion>
+                      </Droppable>
+                    </div>
+                  )}
+                </div>
+
+                <button className="left-toggle-button" onClick={toggleCourseList}>
+                  {showCourseList ? '◀' : '▶'}
+                </button>
+              </div>
+
+              <div className="timeline-middle-section">
+                <div className='timeline-header'>
+                  <div className='timeline-title'>
+                    Timeline
+                  </div>
+                  <button
+                    className="add-semester-button"
+                    onClick={() => setIsModalOpen(true)}
                   >
-                    <Accordion.Header>{courseSection.title}</Accordion.Header>
-                    <Accordion.Body>
-                      <Container>
-                        {courseSection.courseList.map((course) => {
-                          const assigned = isCourseAssigned(course.id);
-                          const isSelected = selectedCourse?.id === course.id;
+                    {addButtonText}
+                  </button>
+                </div>
 
-                          return (
-                            <DraggableCourse
-                              key={`${course.id}-${assigned}`} // Include assigned in key
-                              id={course.id}
-                              title={course.id}
-                              disabled={assigned}
-                              isReturning={returning}
-                              isSelected={isSelected}
-                              onSelect={handleCourseSelect}
-                              containerId="courseList"
-                            />
-                          );
-                        })}
-                      </Container>
-                    </Accordion.Body>
-                  </Accordion.Item>
-                ))}
-              </Accordion>
-            </Droppable>
-          </div>
+                <div className="semesters">
+                  {semesters.map((semester, index) => {
+                    // 1) Calculate total credits for this semester
+                    const sumCredits = semesterCourses[semester.id]
+                      .map((cCode) =>
+                        coursePools
+                          .flatMap((pool) => pool.courses)
+                          .find((c) => c.code === cCode)?.credits || 0
+                      )
+                      .reduce((sum, c) => sum + c, 0);
 
-          <div className="semesters-and-description">
+                    // 2) Compare to max limit
+                    const maxAllowed = getMaxCreditsForSemesterName(semester.name);
+                    const isOver = sumCredits > maxAllowed;
 
-            <div className="semesters">
-              {semesters.map((semester, index) => {
-                // 1) Calculate total credits for this semester
-                const sumCredits = semesterCourses[semester.id]
-                    .map((cid) =>
-                        soenCourses
-                            .flatMap((s) => s.courseList)
-                            .find((sc) => sc.id === cid)?.credits || 0
-                    )
-                    .reduce((sum, c) => sum + c, 0);
+                    // 3) “semester-credit” + conditionally add “over-limit-warning”
+                    const creditClass = isOver
+                      ? "semester-credit over-limit-warning"
+                      : "semester-credit";
 
-                // 2) Compare to max limit
-                const maxAllowed = getMaxCreditsForSemesterName(semester.name);
-                const isOver = sumCredits > maxAllowed;
+                    return (
+                      <div key={semester.id} className={`semester ${shakingSemesterId === semester.id ? 'exceeding-credit-limit' : ''
+                        }`}>
+                        <Droppable id={semester.id} color="pink">
+                          <h3>{semester.name}</h3>
+                          <SortableContext
+                            items={semesterCourses[semester.id]}
+                            strategy={verticalListSortingStrategy}
+                          >
+                            {semesterCourses[semester.id].map((courseCode) => {
+                              const course = coursePools
+                                .flatMap((pool) => pool.courses)
+                                .find((c) => c.code === courseCode);
+                              if (!course) return null;
+                              const isSelected = selectedCourse?.code === course.code;
+                              const isDraggingFromSemester = activeId === course.code;
 
-                // 3) “semester-credit” + conditionally add “over-limit-warning”
-                const creditClass = isOver
-                    ? "semester-credit over-limit-warning"
-                    : "semester-credit";
+                              // Check if prerequisites are met
+                              const prerequisitesMet = arePrerequisitesMet(course.code, index);
 
-                return (
-                  <div key={semester.id} className={`semester ${
-                      shakingSemesterId === semester.id ? 'exceeding-credit-limit' : ''
-                  }`}>
-                    <Droppable id={semester.id} color="pink">
-                      <h3>{semester.name}</h3>
-                      <SortableContext
-                          items={semesterCourses[semester.id]}
-                          strategy={verticalListSortingStrategy}
-                      >
-                        {semesterCourses[semester.id].map((courseId) => {
-                          const course = soenCourses
-                              .flatMap((sec) => sec.courseList)
-                              .find((c) => c.id === courseId);
-                          if (!course) return null;
-                          const isSelected = selectedCourse?.id === course.id;
-                          const isDraggingFromSemester = activeId === course.id;
-
-                          // Check if prerequisites are met
-                          const prerequisitesMet = arePrerequisitesMet(courseId, index);
-
-                          return (
-                              <SortableCourse
-                                  key={course.id}
-                                  id={course.id}
-                                  title={course.id}
+                              return (
+                                <SortableCourse
+                                  key={course.code}
+                                  id={course.code}
+                                  title={course.code}
                                   disabled={false}
                                   isSelected={isSelected}
                                   isDraggingFromSemester={isDraggingFromSemester}
                                   onSelect={handleCourseSelect}
                                   containerId={semester.id}
                                   prerequisitesMet={prerequisitesMet} // Pass the prop
-                              />
-                          );
-                        })}
-                      </SortableContext>
-
-                      <div className="semester-footer">
-                        <div className={creditClass}>
-                          Total Credit: {sumCredits}
-                          {" "}
-                          {isOver && (
-                              <span>
-                                <br/> Over the credit limit 15
-                              </span>
-                          )}
-                        </div>
-
-                        <button
-                            className="remove-semester-btn"
-                            onClick={() => handleRemoveSemester(semester.id)}
-                        >
-                          <svg
-                              width="1.2em"
-                              height="1.2em"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                          >
-                            <polyline points="3 6 5 6 21 6"/>
-                            <path d="M19 6l-1.21 14.06A2 2 0 0 1 15.8 22H8.2a2 2 0 0 1-1.99-1.94L5 6m3 0V4a2 2 0 0 1 2-2h2
-                             a2 2 0 0 1 2 2v2"/>
-                            <line x1="10" y1="11" x2="10" y2="17"/>
-                            <line x1="14" y1="11" x2="14" y2="17"/>
-                          </svg>
-                        </button>
-
-
-                      </div>
-                    </Droppable>
-                  </div>
-                )})}
-            </div>
-
-            <button
-                className="add-semester-button"
-                onClick={() => setIsModalOpen(true)}
-            >
-              +
-            </button>
-
-            <div className="description-space">
-              {selectedCourse ? (
-                  <div>
-                    <h5>{selectedCourse.title}</h5>
-                    <p data-testid='course-description'>{selectedCourse.description}</p>
-                    {selectedCourse.prerequisites && selectedCourse.prerequisites.length > 0 && (
-                        <div>
-                          <h5>Prerequisites:</h5>
-                          <ul>
-                            {selectedCourse.prerequisites.map((prereqId) => {
-                              const prereqCourse = soenCourses
-                                  .flatMap((courseSection) => courseSection.courseList)
-                                  .find((c) => c.id === prereqId);
-                              return (
-                                  <li key={prereqId}>
-                                    {prereqCourse ? (
-                                        <>
-                                          {prereqCourse.id}
-                                        </>
-                                    ) : (
-                                        prereqId
-                                    )}
-                                  </li>
+                                />
                               );
                             })}
+                          </SortableContext>
+
+                          <div className="semester-footer">
+                            <div className={creditClass}>
+                              Total Credit: {sumCredits}
+                              {" "}
+                              {isOver && (
+                                <span>
+                                  <br /> Over the credit limit {maxAllowed}
+                                </span>
+                              )}
+                            </div>
+
+                            <button
+                              className="remove-semester-btn"
+                              onClick={() => handleRemoveSemester(semester.id)}
+                            >
+                              <svg
+                                width="1.2em"
+                                height="1.2em"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <polyline points="3 6 5 6 21 6" />
+                                <path d="M19 6l-1.21 14.06A2 2 0 0 1 15.8 22H8.2a2 2 0 0 1-1.99-1.94L5 6m3 0V4a2 2 0 0 1 2-2h2
+                                 a2 2 0 0 1 2 2v2" />
+                                <line x1="10" y1="11" x2="10" y2="17" />
+                                <line x1="14" y1="11" x2="14" y2="17" />
+                              </svg>
+                            </button>
+                          </div>
+                        </Droppable>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className='description-and-button'>
+                <button className="right-toggle-button" onClick={toggleCourseDescription}>
+                  {showCourseDescription ? '▶' : '◀'}
+                </button>
+                <div className={`description-section ${showCourseDescription ? '' : 'hidden'}`}>
+                  {selectedCourse ? (
+                    <div>
+                      <h5>{selectedCourse.code}</h5>
+                      <p data-testid='course-description'>{selectedCourse.description}</p>
+
+                      {selectedCourse.requisites && selectedCourse.requisites.length > 0 && (
+                        <div>
+                          <h5>Prerequisites/Corequisites:</h5>
+                          <ul>
+                            {groupPrerequisites(selectedCourse.requisites).map((group, index) => (
+                              <li key={index}>
+                                {group.type.toLowerCase() === 'pre' ? 'Prerequisite: ' : 'Corequisite: '}
+                                {group.codes.join(' or ')}
+                              </li>
+                            ))}
                           </ul>
                         </div>
-                    )}
-                  </div>
-              ) : (
-                  <p data-testid='course-description'>Drag or click on a course to see its description here.</p>
-              )}
-            </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p data-testid='course-description'>Drag or click on a course to see its description here.</p>
+                  )}
+                </div>
 
-          </div>
-          <DragOverlay dropAnimation={returning ? null : undefined}>
-            {activeId ? (
-                <div className="course-item-overlay selected">
-                {soenCourses
-                  .flatMap((courseSection) => courseSection.courseList)
-                  .find((course) => course.id === activeId)?.id}
               </div>
-            ) : null}
-          </DragOverlay>
-        </div>
+              <DragOverlay dropAnimation={returning ? null : undefined}>
+                {activeId ? (
+                  <div className="course-item-overlay selected">
+                    {coursePools
+                      .flatMap((pool) => pool.courses)
+                      .find((course) => course.code === activeId)?.code}
+                  </div>
+                ) : null}
+              </DragOverlay>
+            </div>
+          </>
+        )}
+
       </div>
 
       {/* ---------- Modal for Add Semester ---------- */}
       {isModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <button
-                  className="close-button"
-                  onClick={() => setIsModalOpen(false)}
-              >
-                ✕
-              </button>
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button
+              className="close-button"
+              onClick={() => setIsModalOpen(false)}
+            >
+              ✕
+            </button>
 
-              <p>Add a semester</p>
-              <hr style={{ marginBottom: '1rem' }} />
+            <p>Add a semester</p>
+            <hr style={{ marginBottom: '1rem' }} />
 
-              {/* Container for the two selects */}
-              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-                {/* Term Select */}
-                <div className="select-container">
-                  <label className="select-label">Term</label>
-                  <select
-                      value={selectedSeason}
-                      onChange={(e) => setSelectedSeason(e.target.value)}
-                  >
-                    <option>Winter</option>
-                    <option>Summer</option>
-                    <option>Fall</option>
-                  </select>
-                </div>
-
-                {/* Year Select */}
-                <div className="select-container">
-                  <label className="select-label">Year</label>
-                  <select
-                      value={selectedYear}
-                      onChange={(e) => setSelectedYear(e.target.value)}
-                  >
-                    {Array.from({ length: 10 }).map((_, i) => {
-                      const year = 2020 + i;
-                      return (
-                          <option key={year} value={year}>
-                            {year}
-                          </option>
-                      );
-                    })}
-                  </select>
-                </div>
+            {/* Container for the two selects */}
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+              {/* Term Select */}
+              <div className="select-container">
+                <label className="select-label">Term</label>
+                <select
+                  value={selectedSeason}
+                  onChange={(e) => setSelectedSeason(e.target.value)}
+                >
+                  <option>Winter</option>
+                  <option>Summer</option>
+                  <option>Fall</option>
+                </select>
               </div>
 
-              <button className="TL-button" onClick={handleAddSemester}>
-                Add new semester
-              </button>
+              {/* Year Select */}
+              <div className="select-container">
+                <label className="select-label">Year</label>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                >
+                  {Array.from({ length: 10 }).map((_, i) => {
+                    const year = 2020 + i;
+                    return (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
             </div>
+
+            <button className="TL-button" onClick={handleAddSemester}>
+              Add new semester
+            </button>
           </div>
+        </div>
       )}
     </DndContext>
   );

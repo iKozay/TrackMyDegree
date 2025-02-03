@@ -1,5 +1,6 @@
 import Database from "@controllers/DBController/DBController";
 import CourseTypes from "./course_types";
+import { group } from "console";
 
 const log = console.log;
 
@@ -96,6 +97,8 @@ async function getCourseByCode(code: string): Promise<CourseTypes.CourseInfo | u
 }
 
 
+
+
 // Add a new course
 async function addCourse(courseInfo: CourseTypes.CourseInfo): Promise<{ code: string } | undefined> {
     const dbConn = await Database.getConnection();
@@ -152,6 +155,97 @@ async function removeCourse(code: string): Promise<boolean> {
     return false;
 }
 
+// Inside your courseController file
+
+/**
+ * Fetch courses associated with a specific degree, grouped by CoursePools.
+ * @param degreeId - The ID of the degree.
+ * @returns A list of CoursePoolInfo objects or undefined if an error occurs.
+ */
+async function getCoursesByDegreeGrouped(degreeId: string): Promise<CourseTypes.CoursePoolInfo[] | undefined> {
+    const dbConn = await Database.getConnection();
+
+    if (dbConn) {
+        try {
+            // SQL Query to fetch course pools and their associated courses for the specified degree
+            const query = `
+                SELECT 
+                    cp.id AS course_pool_id,
+                    cp.name AS course_pool_name,
+                    c.code, 
+                    c.credits, 
+                    c.description,
+                    r.code1 AS requisite_code1, 
+                    r.code2 AS requisite_code2, 
+                    r.group_id AS requisite_group_id,
+                    r.type AS requisite_type
+                FROM DegreeXCoursePool dxcp
+                INNER JOIN CourseXCoursePool cxcp ON dxcp.coursepool = cxcp.coursepool
+                INNER JOIN Course c ON cxcp.coursecode = c.code
+                INNER JOIN CoursePool cp ON cxcp.coursepool = cp.id
+                LEFT JOIN Requisite r ON c.code = r.code1
+                WHERE dxcp.degree = @degreeId
+                ORDER BY cp.name, c.code
+            `;
+
+            const result = await dbConn.request()
+                .input('degreeId', Database.msSQL.VarChar, degreeId)
+                .query(query);
+
+            const records = result.recordset;
+
+            if (records.length === 0) {
+                return undefined; // No courses found for the specified degree
+            }
+
+            // Group courses by CoursePool
+            const coursePoolsMap: { [key: string]: CourseTypes.CoursePoolInfo } = {};
+
+            records.forEach(record => {
+                const poolId = record.course_pool_id;
+                const poolName = record.course_pool_name;
+
+                if (!coursePoolsMap[poolId]) {
+                    coursePoolsMap[poolId] = {
+                        poolId: poolId,
+                        poolName: poolName,
+                        courses: []
+                    };
+                }
+
+                // Check if the course already exists in the pool to handle multiple requisites
+                let course = coursePoolsMap[poolId].courses.find(c => c.code === record.code);
+                if (!course) {
+                    course = {
+                        code: record.code,
+                        credits: record.credits,
+                        description: record.description,
+                        requisites: []
+                    };
+                    coursePoolsMap[poolId].courses.push(course);
+                }
+
+                // Add requisites if present
+                if (record.requisite_code1 && record.requisite_code2) {
+                    course.requisites.push({
+                        code1: record.requisite_code1,
+                        code2: record.requisite_code2,
+                        group_id: record.requisite_group_id,
+                        type: record.requisite_type
+                    });
+                }
+            });
+
+            // Convert the map to an array
+            return Object.values(coursePoolsMap);
+        } catch (error) {
+            log("Error fetching courses by degree grouped by course pools\n", error);
+        }
+    }
+
+    return undefined;
+}
+
 
 
 
@@ -160,6 +254,7 @@ const courseController = {
     getCourseByCode,
     addCourse,
     removeCourse,
+    getCoursesByDegreeGrouped,
 };
 
 export default courseController;

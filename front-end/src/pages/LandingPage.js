@@ -10,7 +10,7 @@ const LandingPage = () => {
     <section className="">
       <div className="">
       <Hero />
-      <TimelineSection />
+      {/* <TimelineSection /> */}
       </div>
     </section>
   );

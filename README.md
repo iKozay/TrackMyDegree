@@ -10,9 +10,15 @@ Real-time curriculum updates keep students informed of any changes impacting the
 
 TrackMyDegree targets Concordia’s students and advisors, starting with the Gina Cody School of Engineering and Computer Science, with plans to expand across departments. By streamlining communication and automating advising functions, TrackMyDegree reduces wait times, empowering advisors to focus on complex issues and enhancing the academic journey for all. At its core, TrackMyDegree is a student-centric solution, bringing clarity, adaptability, and flexibility to academic planning and setting a new standard in educational technology.
 
+### Demo Video Release 2
+
+https://drive.google.com/file/d/1lEBt27Ah2McjI5Mi5ZY4E11rHdWULGPI/view (video link is open to anyone) Video cannot be embedded in readme, file too large
+
 ### Mockups
 
 Mockup designs made using Figma: [Here](https://www.figma.com/design/sgd3C3BYEPqSounsuIq6Kp/TrackMyDegree?node-id=0-1&t=eBk2gECMGuouPf0m-1)
+
+
 
 ### Team members
 

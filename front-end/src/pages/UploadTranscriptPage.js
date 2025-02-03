@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';  // Import useNavigate from reac
 import PrintImage from '../images/Print_image.png';
 import PdfImage from '../images/Pdf_image.png';
 import TransImage from '../images/Transc_image.png';
+import Button from 'react-bootstrap/Button';
 
 // Set the worker source
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -154,12 +155,8 @@ const UploadTranscript = ({ onDataProcessed }) => {
         </div>
 
         <div className="button-group">
-          <button className="cancel-button" onClick={handleCancel}>
-            Cancel
-          </button>
-          <button className="submit-button" onClick={handleSubmit}>
-            Submit
-          </button>
+          <Button variant="danger" onClick={handleCancel}> Cancel</Button>         
+          <Button variant="primary" onClick={handleSubmit}> Submit </Button> 
         </div>
 
         <div id="output" dangerouslySetInnerHTML={{ __html: output }}></div>
