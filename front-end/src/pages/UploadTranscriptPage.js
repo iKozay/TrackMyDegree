@@ -68,20 +68,22 @@ const UploadTranscript = ({ onDataProcessed }) => {
         }
         Promise.all(pagesPromises).then((pagesData) => {
           const extractedData = extractTermsCoursesAndSeparators(pagesData);
-          const transcriptData = matchTermsWithCourses(extractedData);
+          const transcriptData = matchTermsWithCourses(extractedData.results);
+
+          // Extract Degree Info
+          const degreeInfo = extractedData.degree || "Unknown Degree";
+          const degreeId = extractedData.degreeId || "Unknown"; // Map degree to ID
 
           if (transcriptData.length > 0) {
-            // setOutput(
-            //   `<h3>Matched Terms and Courses:</h3>
-            //   <ul>${matchedData
-            //     .map((item) => `<li>Term: ${item.term}, Course: ${item.course}, Grade: ${item.grade}</li>`)
-            //     .join('')}</ul>`
-            // );
-            onDataProcessed(transcriptData); // Send grouped data to parent
+            onDataProcessed({
+              transcriptData,
+              degreeId,
+            }); // Send grouped data to parent
             navigate('/timeline_change'); // Navigate to TimelinePage
           } else {
             setOutput(`<h3>There are no courses to show!</h3>`);
           }
+          console.log(degreeId);
         });
       });
     };
@@ -171,11 +173,30 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
   const courseRegex = /([A-Za-z]{3,4})\s+(\d{3})\s+([A-Za-z]{2,3}|\d{2,3}|[A-Za-z]+)\s+([A-Za-z\s\&\-\+\.\/\(\)\,\'\']+)\s+([\d\.]+)\s+([A-F\+\-]+|PASS|EX)\s+([\d\.]+)/g;
   const exemp_course = /([A-Za-z]{3,4})\s+(\d{3})\s+([A-Za-z\s]+)\s+EX/g;
   const separatorRegex = /COURSE\s*DESCRIPTION\s*ATTEMPTED\s*GRADE\s*NOTATION/g;
+  const degreeMapping = {
+    "Bachelor of Engineering, Aerospace Engineering": "D1",
+    "Bachelor of Engineering, Computer Engineering": "D2",
+    "Bachelor of Engineering, Electrical Engineering": "D3",
+    "Bachelor of Engineering, Mechanical Engineering": "D4",
+    "Bachelor of Engineering, Software Engineering": "D5",
+  };
+  const degreeRegex = /Bachelor of [A-Za-z\s]+,\s*[A-Za-z\s]+/g; // Matches "Bachelor of Software Engineering", etc.
+  let degree = null;
+  let degreeId = null;
 
   let results = [];
 
   pagesData.forEach((pageData) => {
     const { page, text } = pageData;
+
+    if (!degree) {
+      const degreeMatch = text.match(degreeRegex);
+      if (degreeMatch) {
+        degree = degreeMatch[0];
+        degreeId = degreeMapping[degree];
+      }
+    }
+
 
     let termMatch;
     while ((termMatch = termRegex.exec(text)) !== null) {
@@ -218,8 +239,8 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
       });
     }
   });
-
-  return results;
+  console.log('Degree' , degreeId);
+  return { results, degree, degreeId };
 };
 
 const matchTermsWithCourses = (data) => {

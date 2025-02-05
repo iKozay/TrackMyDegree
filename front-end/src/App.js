@@ -19,11 +19,12 @@ import AdminPage from "./pages/AdminPage";
 // import LogInPage from "./pages/LogInPage";
 
 function App() {
-
+	const [degreeId, setDegreeId] = useState(null);
 	const [timelineData, setTimelineData] = useState([]);
 
   const handleDataProcessed = (data) => {
-    setTimelineData(data);
+    setTimelineData(data.transcriptData);  // Update transcript data
+    setDegreeId(data.degreeId);  // Update degreeId
   };
 
 
@@ -62,7 +63,7 @@ function App() {
 							/>
 							<Route
 								path="/timeline_change"
-								element={<TimelinePage timelineData={timelineData} />}
+								element={<TimelinePage degreeid={degreeId} timelineData={timelineData} />}
 							/>
 							<Route
 								path="/courselist"

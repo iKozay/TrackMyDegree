@@ -142,7 +142,7 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 };
 
 // Main component
-const TimelinePage = ({ timelineData }) => {
+const TimelinePage = ({degreeid, timelineData }) => {
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
 
@@ -151,8 +151,13 @@ const TimelinePage = ({ timelineData }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const location = useLocation();
-  const { degreeId } = location.state || {};
+  let { degreeId } = location.state || {};
 
+  if(!degreeId){
+    degreeId = degreeid;
+  }
+
+  console.log(degreeId);  // Logs the degreeId passed from UploadTranscriptPage.js
   // Data
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 767);
   const [addButtonText, setAddButtonText] = useState('+ Add Semester');
@@ -220,7 +225,7 @@ const TimelinePage = ({ timelineData }) => {
     };
 
     fetchCoursesByDegree();
-  }, []);
+  }, [degreeid]);
 
   // Process timelineData and generate semesters and courses
   useEffect(() => {
