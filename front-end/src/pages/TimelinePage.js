@@ -236,7 +236,7 @@ const TimelinePage = ({ timelineData }) => {
       if (!semesterMap[term]) {
         semesterMap[term] = [];
       }
-      semesterMap[term].push(course.code); // Assuming course.code is the unique identifier
+      semesterMap[term].push(course.replace(' ', '')); // Assuming course.code is the unique identifier
       semesterNames.add(term);
     });
 
