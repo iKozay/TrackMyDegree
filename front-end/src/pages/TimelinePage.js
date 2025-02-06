@@ -142,7 +142,7 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 };
 
 // Main component
-const TimelinePage = ({degreeid, timelineData }) => {
+const TimelinePage = ({degreeid, timelineData, creditsrequired}) => {
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
 
@@ -152,9 +152,19 @@ const TimelinePage = ({degreeid, timelineData }) => {
 
   const location = useLocation();
   let { degreeId } = location.state || {};
+  let { creditsRequired } = location.state || {};
 
   if(!degreeId){
     degreeId = degreeid;
+  }
+
+  if(!creditsrequired){
+    creditsRequired = 120;
+  }
+
+  else if(!creditsRequired){
+    creditsRequired = creditsrequired;
+    console.log("credi: ", creditsRequired);
   }
 
   console.log(degreeId);  // Logs the degreeId passed from UploadTranscriptPage.js
@@ -688,7 +698,7 @@ const TimelinePage = ({degreeid, timelineData }) => {
             {/* Total Credits Display */}
             <div className="credits-display">
               <h4>
-                Total Credits Earned: {totalCredits} / 120
+                Total Credits Earned: {totalCredits} / {creditsRequired}
               </h4>
             </div>
 

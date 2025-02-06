@@ -6,7 +6,7 @@ import { useNavigate, Link } from "react-router-dom";
 // Set the worker source for PDF.js
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-const UploadAcceptanceLetterPage = () => {
+const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileName, setFileName] = useState('No file chosen');
   const [output, setOutput] = useState('');
@@ -163,7 +163,24 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
         }
         Promise.all(pagesPromises).then((pagesData) => {
           const extractedData = extractAcceptanceDetails(pagesData);
-          setOutput(generateOutput(extractedData));
+          const transcriptData = matchTermsWithCourses(extractedData.results);
+          const creditsRequired = extractedData.details.creditsRequired;
+          //setOutput(generateOutput(extractedData));
+          // Extract Degree Info
+          const degreeInfo = extractedData.degree || "Unknown Degree";
+          const degreeId = extractedData.degreeId || "Unknown"; // Map degree to ID
+
+          if (transcriptData.length > 0) {
+            onDataProcessed({
+              transcriptData,
+              degreeId,
+              creditsRequired,
+            }); // Send grouped data to parent
+            navigate('/timeline_change'); // Navigate to TimelinePage
+          } else {
+            setOutput(`<h3>There are no data to show!</h3>`);
+          }
+          console.log(degreeId);
         });
       });
     };
@@ -180,6 +197,18 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
       'Data Science', 'Electrical Engineering', 'Health and Life Sciences', 'Indigenous Bridging Program',
       'Industrial Engineering', 'Mechanical Engineering', 'Science and Technology', 'Software Engineering'
     ];
+    const degreeMapping = {
+      "Aerospace Engineering": "D1",
+      "Computer Engineering": "D2",
+      "Electrical Engineering": "D3",
+      "Mechanical Engineering": "D4",
+      "Software Engineering": "D5",
+    };
+    let degree = null;
+    let degreeId = null;
+    
+    let results = [];
+
 
     pagesData.forEach(({ text }) => {
       // Extract Degree Concentration (everything after Program/Plan(s) and before Academic Load)
@@ -195,9 +224,9 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
             degreeConcentration = `${program}`; // Add the program name to the Degree Concentration if it matches
           }
         });
-
+        degreeId = degreeMapping[degreeConcentration];
         // Assign to details
-        details.degreeConcentration = degreeConcentration;
+        details.degreeConcentration = degreeId;
       }
 
 
@@ -275,6 +304,12 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
 
         // Find all course matches
         while ((courseMatch = courseRegex.exec(textBetweenExemptionsAndDeficiencies)) !== null) {
+          results.push({
+            name: courseMatch[0].replace(/\s+/g, ""),
+            page: 1,
+            type: 'Exempted Course',
+            position: 0,
+          });
           exemptionsCourses.push(courseMatch[0].trim());
         }
 
@@ -330,7 +365,12 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
 
           const creditMatch = lineContainingCourse?.match(creditRegex);
           const credits = creditMatch ? `${creditMatch[1]} crs` : 'Credits not found';
-
+          results.push({
+            name: course.replace(/\s+/g, ""),
+            page: 1,
+            type: 'Transfered Course',
+            position: 0,
+          });
           transferCredits.push({ course, credits });
         }
 
@@ -338,39 +378,138 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
           details.transferCredits = transferCredits;
         }
       }
+    }); // pages end
+
+    const start = details.startingTerm;
+    const end = details.expectedGraduationTerm;
+
+    // Function to generate all terms from startTerm to endTerm
+    const generateTerms = (startTerm, endTerm) => {
+      const terms = ["Winter", "Summer", "Fall"];
+      const startYear = parseInt(startTerm.split(" ")[1]);  // Extracting the year
+      const endYear = parseInt(endTerm.split(" ")[1]);  // Extracting the year
+      const startSeason = startTerm.split(" ")[0];  // Extracting the season
+      const endSeason = endTerm.split(" ")[0];  // Extracting the season
+
+      const resultTerms = [];
+      
+      let currentYear = startYear;
+      let currentSeasonIndex = terms.indexOf(startSeason); // Find index of start season in the list
+
+      // Loop to generate all terms from start to end
+      while (currentYear < endYear || (currentYear === endYear && currentSeasonIndex <= terms.indexOf(endSeason))) {
+        const term = `${terms[currentSeasonIndex]} ${currentYear}`;
+        resultTerms.push(term);
+
+        // Move to the next season
+        currentSeasonIndex++;
+
+        if (currentSeasonIndex === terms.length) {
+          currentSeasonIndex = 0;
+          currentYear++;
+        }
+      }
+      // console.log("terms:", resultTerms)
+      return resultTerms;
+    };
+
+    // Function to process and push results into the results array
+    const processTerms = (startTerm, endTerm, results) => {
+      const terms = generateTerms(startTerm, endTerm);
+
+      terms.forEach((term, index) => {
+        results.push({
+          name: term.trim(),
+          page: 1,
+          type: 'Term',
+          position: 0,  // Adjust as needed for your specific position logic
+        });
+      });
+      console.log(results);
+    };
+    
+    processTerms(start,end, results);
+
+    return { results, degree, degreeId, details };
+  };
+
+  const matchTermsWithCourses = (data) => {
+    let matchedResults = [];
+    let currentTerm = data[0]?.name; // Use optional chaining to safely access `name`
+    let terms = [];
+  
+    data.sort((a, b) => (a.page !== b.page ? a.page - b.page : a.position - b.position));
+  
+    data.forEach((item) => {
+      if (item && item.type === 'Term' && item.name) {  // Ensure `item` and `item.name` are defined
+        matchedResults.push({
+          term: item.name,
+          course: "",
+          grade: 'EX',
+        });
+      }
+  
+      if (item && item.type === 'Exempted Course' && item.name) {  // Ensure `item` and `item.name` are defined
+        matchedResults.push({
+          term: 'Exempted',
+          course: item.name,
+          grade: 'EX',
+        });
+      }
+
+      if (item && item.type === 'Transfered Course' && item.name) {  // Ensure `item` and `item.name` are defined
+        matchedResults.push({
+          term: 'Transfered Courses',
+          course: item.name,
+          grade: 'EX',
+        });
+      }
+  
+      if (item && item.type === 'Course' && currentTerm && item.name) {  // Ensure `item` and `currentTerm` and `item.name` are defined
+        matchedResults.push({
+          term: currentTerm,
+          course: item.name,
+          grade: item.grade,
+        });
+      }
+  
+      if (item && item.type === 'Separator') {
+        currentTerm = terms.shift() || null;
+      }
     });
-
-    return details;
+  
+    console.log('Grouped data: ', matchedResults);
+    return matchedResults;
   };
 
-  const generateOutput = (data) => {
-    if (data) {
-      const transferCreditsHtml = data.transferCredits
-        ? data.transferCredits
-          .map(
-            (credit) =>
-              `<li>${credit.course} - ${credit.credits}</li>`
-          )
-          .join('')
-        : 'None';
-      return `
-        <h3>Extracted Details:</h3>
-        <ul>
-          <li><strong>Degree Concentration:</strong> ${data.degreeConcentration || 'Not found'}</li>
-          <li><strong>Starting Term:</strong> ${data.startingTerm || 'Not found'}</li>
-          <li><strong>Co-op Program:</strong> ${data.coopProgram || 'Not found'}</li>
-          <li><strong>Extended Credit Program:</strong> ${data.extendedCreditProgram || 'Not found'}</li>
-          <li><strong>Credits Required:</strong> ${data.creditsRequired || 'Not found'}</li>
-          <li><strong>Expected Graduation Term:</strong> ${data.expectedGraduationTerm || 'Not found'}</li>
-          <li><strong>Exemptions Courses:</strong> ${data.exemptionsCourses ? data.exemptionsCourses.join(', ') : 'Not found'}</li>
-          <li><strong>Deficiencies Courses:</strong> ${data.deficienciesCourses ? data.deficienciesCourses.join(', ') : 'Not found'}</li>
-          <li><strong>Transfer Credits:</strong></li>
-          <ul>${transferCreditsHtml}</ul>
-        </ul>`;
-    } else {
-      return `<h3>No relevant data found in the acceptance letter.</h3>`;
-    }
-  };
+  // const generateOutput = (data) => {
+  //   if (data) {
+  //     const transferCreditsHtml = data.transferCredits
+  //       ? data.transferCredits
+  //         .map(
+  //           (credit) =>
+  //             `<li>${credit.course} - ${credit.credits}</li>`
+  //         )
+  //         .join('')
+  //       : 'None';
+  //     return `
+  //       <h3>Extracted Details:</h3>
+  //       <ul>
+  //         <li><strong>Degree Concentration:</strong> ${data.degreeConcentration || 'Not found'}</li>
+  //         <li><strong>Starting Term:</strong> ${data.startingTerm || 'Not found'}</li>
+  //         <li><strong>Co-op Program:</strong> ${data.coopProgram || 'Not found'}</li>
+  //         <li><strong>Extended Credit Program:</strong> ${data.extendedCreditProgram || 'Not found'}</li>
+  //         <li><strong>Credits Required:</strong> ${data.creditsRequired || 'Not found'}</li>
+  //         <li><strong>Expected Graduation Term:</strong> ${data.expectedGraduationTerm || 'Not found'}</li>
+  //         <li><strong>Exemptions Courses:</strong> ${data.exemptionsCourses ? data.exemptionsCourses.join(', ') : 'Not found'}</li>
+  //         <li><strong>Deficiencies Courses:</strong> ${data.deficienciesCourses ? data.deficienciesCourses.join(', ') : 'Not found'}</li>
+  //         <li><strong>Transfer Credits:</strong></li>
+  //         <ul>${transferCreditsHtml}</ul>
+  //       </ul>`;
+  //   } else {
+  //     return `<h3>No relevant data found in the acceptance letter.</h3>`;
+  //   }
+  // };
 
   return (
     <div className="top-down">

@@ -21,10 +21,12 @@ import AdminPage from "./pages/AdminPage";
 function App() {
 	const [degreeId, setDegreeId] = useState(null);
 	const [timelineData, setTimelineData] = useState([]);
+	const [creditsRequired, setcreditsRequired] = useState([]);
 
   const handleDataProcessed = (data) => {
     setTimelineData(data.transcriptData);  // Update transcript data
     setDegreeId(data.degreeId);  // Update degreeId
+		setcreditsRequired(data.creditsRequired); // Update creditsRequired
   };
 
 
@@ -63,7 +65,7 @@ function App() {
 							/>
 							<Route
 								path="/timeline_change"
-								element={<TimelinePage degreeid={degreeId} timelineData={timelineData} />}
+								element={<TimelinePage degreeid={degreeId} timelineData={timelineData} creditsrequired={creditsRequired}/>}
 							/>
 							<Route
 								path="/courselist"
@@ -75,7 +77,7 @@ function App() {
 							/>
 							<Route 
 								path="/timeline_initial"
-								element={<UploadAcceptanceLetter />}
+								element={<UploadAcceptanceLetter onDataProcessed={handleDataProcessed}/>}
 							/>
 						</Routes>
 					</div>
