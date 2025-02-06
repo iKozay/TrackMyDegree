@@ -64,7 +64,7 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
     }
 
     // Pass the selectedDegreeId to the timeline page
-    navigate("/timeline_change", { state: { degreeId: selectedDegreeId } });
+    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, creditsRequired: 120} });
   };
 
   useEffect(() => {
