@@ -5,22 +5,15 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/UserPage.css";
 
 const UserPage = () => {
-  const { user, loading } = useContext(AuthContext); // Access user data from context
+  const { user } = useContext(AuthContext); // Access user data from context
+
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState([
-    { title: "Full Name", value: "Test Name" },
-    { title: "Email", value: "testEmail@gmail.com" },
-    { title: "Password", value: "123456" },
-    { title: "Degree Concentration", value: "Software Man"},
+      { title: "Full Name", value: user.fullname || "NULL" },
+      { title: "Email", value: user.email || "NULL" },
+      { title: "Password", value: user.password || "NULL" },
+      { title: "Degree Concentration", value: user.degree || "N/A" },
   ]);
-  if (user != null) {
-    setUserInfo([
-      { title: "Full Name", value: user.fullname },
-      { title: "Email", value: user.email },
-      { title: "Password", value: user.password },
-      { title: "Degree Concentration", value: user.degree || "N/A"},
-    ]);
-  }
 
   // add way to get actual list here
   const degreeConcentrations = [
@@ -43,14 +36,45 @@ const UserPage = () => {
     setIsEditing(false);
   };
 
-  const saveChanges = () => {
+  const saveChanges = async () => {
     // add way to save changes here
     const updatedInfo = userInfo.map((item, index) => ({
       ...item,
       value: editedUserInfo[index],
     }));
-    setUserInfo(updatedInfo);
-    setIsEditing(false);
+    try {
+      // Construct the payload
+      const payload = {
+        id: user.id,
+        fullname: updatedInfo[0].value,
+        email: updatedInfo[1].value,
+        password: updatedInfo[2].value,
+        degree: updatedInfo[3].value,
+        type: user.type
+      };
+  
+      // Make the POST request to update user info
+      const response = await fetch("http://localhost:8000/appUser/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (response.ok) {
+        console.log("User info updated successfully!");
+        setUserInfo(updatedInfo);
+        setIsEditing(false);
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to update user info.", errorData);
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error("Error updating user info:", error);
+      setIsEditing(false);
+    }
   };
 
   const handleInputChange = (e, index) => {
@@ -82,13 +106,13 @@ const UserPage = () => {
 
   // Redirect to login if no user is found
   useEffect(() => {
-    //if (!user && !loading) {
-    //  navigate("/signin");
-    //}
-  }, [user, loading, navigate]);
+    if (!user) {
+      navigate("/signin");
+    }
+  }, [user, navigate]);
 
   if (!user) {
-    //return null;
+    return null;
   }
 
   return (
