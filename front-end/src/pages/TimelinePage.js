@@ -187,7 +187,7 @@ const TimelinePage = ({ timelineData }) => {
     },
   });
 
-  const sensors = useSensors(mouseSensor);
+  const sensors = useSensors(mouseSensor, touchSensor);
 
   // Fetch courses by degree on component mount
   useEffect(() => {
