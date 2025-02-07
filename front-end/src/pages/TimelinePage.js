@@ -142,7 +142,7 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 };
 
 // Main component
-const TimelinePage = ({ timelineData }) => {
+const TimelinePage = ({degreeid, timelineData, creditsrequired}) => {
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
 
@@ -151,8 +151,23 @@ const TimelinePage = ({ timelineData }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const location = useLocation();
-  const { degreeId } = location.state || {};
+  let { degreeId } = location.state || {};
+  let { creditsRequired } = location.state || {};
 
+  if(!degreeId){
+    degreeId = degreeid;
+  }
+
+  if(!creditsrequired){
+    creditsRequired = 120;
+  }
+
+  else if(!creditsRequired){
+    creditsRequired = creditsrequired;
+    console.log("credi: ", creditsRequired);
+  }
+
+  console.log(degreeId);  // Logs the degreeId passed from UploadTranscriptPage.js
   // Data
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 767);
   const [addButtonText, setAddButtonText] = useState('+ Add Semester');
@@ -220,7 +235,7 @@ const TimelinePage = ({ timelineData }) => {
     };
 
     fetchCoursesByDegree();
-  }, []);
+  }, [degreeid]);
 
   // Process timelineData and generate semesters and courses
   useEffect(() => {
@@ -236,7 +251,7 @@ const TimelinePage = ({ timelineData }) => {
       if (!semesterMap[term]) {
         semesterMap[term] = [];
       }
-      semesterMap[term].push(course.code); // Assuming course.code is the unique identifier
+      semesterMap[term].push(course.replace(' ', '')); // Assuming course.code is the unique identifier
       semesterNames.add(term);
     });
 
@@ -683,7 +698,7 @@ const TimelinePage = ({ timelineData }) => {
             {/* Total Credits Display */}
             <div className="credits-display">
               <h4>
-                Total Credits Earned: {totalCredits} / 120
+                Total Credits Earned: {totalCredits} / {creditsRequired}
               </h4>
             </div>
 
