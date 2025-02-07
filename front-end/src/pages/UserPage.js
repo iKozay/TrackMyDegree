@@ -1,17 +1,26 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useContext, useEffect  } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/UserPage.css";
 
 const UserPage = () => {
-  // add way to get user info here
+  const { user, loading } = useContext(AuthContext); // Access user data from context
+  const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState([
-    { title: "First Name", value: "John" },
-    { title: "Last Name", value: "Doe" },
-    { title: "Email", value: "john.doe@example.com" },
-    { title: "Password", value: "******" },
-    { title: "Degree Concentration", value: "Software Engineer" },
+    { title: "Full Name", value: "Test Name" },
+    { title: "Email", value: "testEmail@gmail.com" },
+    { title: "Password", value: "123456" },
+    { title: "Degree Concentration", value: "Software Man"},
   ]);
+  if (user != null) {
+    setUserInfo([
+      { title: "Full Name", value: user.fullname },
+      { title: "Email", value: user.email },
+      { title: "Password", value: user.password },
+      { title: "Degree Concentration", value: user.degree || "N/A"},
+    ]);
+  }
 
   // add way to get actual list here
   const degreeConcentrations = [
@@ -70,6 +79,17 @@ const UserPage = () => {
     setUserTimelines(userTimelines.filter((obj) => obj.id !== id));
     // add logic to actually delete here
   };
+
+  // Redirect to login if no user is found
+  useEffect(() => {
+    //if (!user && !loading) {
+    //  navigate("/signin");
+    //}
+  }, [user, loading, navigate]);
+
+  if (!user) {
+    //return null;
+  }
 
   return (
     <div className="container-fluid">
