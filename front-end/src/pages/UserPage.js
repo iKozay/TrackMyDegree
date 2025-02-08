@@ -6,14 +6,23 @@ import "../css/UserPage.css";
 
 const UserPage = () => {
   const { user } = useContext(AuthContext); // Access user data from context
+  const [userInfo, setUserInfo] = useState([]);
+  
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedUserInfo, setEditedUserInfo] = useState(null);
 
   const navigate = useNavigate();
-  const [userInfo, setUserInfo] = useState([
-      { title: "Full Name", value: user.fullname || "NULL" },
-      { title: "Email", value: user.email || "NULL" },
-      { title: "Password", value: user.password || "NULL" },
-      { title: "Degree Concentration", value: user.degree || "N/A" },
-  ]);
+
+  useEffect(() => {
+    if (user) {
+      setUserInfo([
+        { title: "Full Name", value: user.fullname || "NULL" },
+        { title: "Email", value: user.email || "NULL" },
+        { title: "Password", value: user.password || "NULL" },
+        { title: "Degree Concentration", value: user.degree || "N/A" },
+      ]);
+    }
+  }, [user]);
 
   // add way to get actual list here
   const degreeConcentrations = [
@@ -24,8 +33,11 @@ const UserPage = () => {
     "Network Engineer",
   ];
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedUserInfo, setEditedUserInfo] = useState(userInfo.map((item) => item.value));
+  useEffect(() => {
+    if (userInfo) {
+      setEditedUserInfo(userInfo.map((item) => item.value))
+    }
+  }, [userInfo]);
 
   const startEditing = () => {
     setIsEditing(true);
