@@ -87,6 +87,67 @@ Promise<TimelineTypes.UserTimeline | undefined> {
   return undefined;
 }
 
+async function saveTimeline(userTimeline: { user_id: string, timeline_items: { semesterName: string, coursecode: string[] }[] }): 
+Promise<DB_OPS> {
+
+  
+  const dbConn            = await Database.getConnection();
+  let   successfulInserts = 0;
+
+  if( dbConn ) {                                                               //Check if DB connection instance is undefined
+    const { timeline_items, user_id } = userTimeline;
+
+    for (const item of timeline_items) {
+      const [season, yearStr] = item.semesterName.split(" ");                   // Extract season & year
+      const year = parseInt(yearStr, 10);
+
+      if (!season || isNaN(year)) {
+        log(`Invalid season_year format: ${item.semesterName}`);
+        continue;
+      }
+
+
+      for (const course of item.coursecode) {
+        try {
+          const result = await dbConn.request()
+            .input('id'        , Database.msSQL.VarChar, randomUUID())
+            .input('season'    , Database.msSQL.VarChar, season)
+            .input('year'      , Database.msSQL.Int    , year)
+            .input('coursecode', Database.msSQL.VarChar, course)
+            .input('user_id'   , Database.msSQL.VarChar, user_id)
+            .query(`
+              UPDATE Timeline 
+              SET season = @season, 
+                  year = @year, 
+                  coursecode = @coursecode, 
+                  id = @id
+              WHERE user_id = @user_id
+            `);
+
+          if ( undefined === result.recordset ) {
+            log("Error updating timeline record ", result.recordset);
+          }
+          else {
+            successfulInserts++;
+          }
+        }
+        catch ( error ){
+          log("Error in Timeline update\n", error);
+        }
+      }
+    }
+
+    if( successfulInserts === userTimeline.timeline_items.length ) {           //Check if all records were successfully
+      return DB_OPS.SUCCESS;                                                   //inserted in DB
+    }
+    else {                                                                     //Otherwise, specify that some were successful
+      return DB_OPS.MOSTLY_OK;                                                 //and others not
+    }                                                                          
+  }
+
+  return DB_OPS.FAILURE;
+}
+
 async function removeTimelineItem(timeline_item_id: string): 
 Promise<DB_OPS> {
 
@@ -120,6 +181,7 @@ Promise<DB_OPS> {
 const timelineController = {
   createTimeline,
   getAllTimelines,
+  saveTimeline,
   removeTimelineItem
 };
 
