@@ -1,6 +1,7 @@
 namespace CourseTypes {
     export type CourseInfo = {
         code: string;
+        title: string;
         credits: number;
         description: string;
         requisites: RequisiteInfo[];

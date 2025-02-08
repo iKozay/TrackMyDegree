@@ -1,6 +1,5 @@
 import Database from "@controllers/DBController/DBController";
 import CourseTypes from "./course_types";
-import { group } from "console";
 
 const log = console.log;
 
@@ -12,7 +11,7 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
         try {
             const result = await dbConn.request()
                 .query(`
-                    SELECT c.code, c.credits, c.description, 
+                    SELECT c.code, c.title, c.credits, c.description, 
                            r.code1 AS requisite_code1, r.code2 AS requisite_code2, r.type AS requisite_type
                     FROM Course c
                     LEFT JOIN Requisite r ON c.code = r.code1 OR c.code = r.code2
@@ -26,6 +25,7 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
                 if (!acc[courseCode]) {
                     acc[courseCode] = {
                         code: course.code,
+                        title: course.title,
                         credits: course.credits,
                         description: course.description,
                         requisites: []
@@ -53,8 +53,7 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
     return undefined;
 }
 
-
-// Fetch a course by code and number
+// Fetch a course by code
 async function getCourseByCode(code: string): Promise<CourseTypes.CourseInfo | undefined> {
     const dbConn = await Database.getConnection();
 
@@ -63,14 +62,14 @@ async function getCourseByCode(code: string): Promise<CourseTypes.CourseInfo | u
             // Fetch course details
             const courseResult = await dbConn.request()
                 .input('code', Database.msSQL.VarChar, code)
-                .query('SELECT * FROM Course WHERE code = @code');
+                .query('SELECT code, title, credits, description FROM Course WHERE code = @code');
 
             const course = courseResult.recordset[0];
             if (!course) {
-                return undefined; // Course not found
+                return undefined;
             }
 
-            // Fetch requisites (prerequisites and corequisites)
+            // Fetch requisites
             const requisitesResult = await dbConn.request()
                 .input('code', Database.msSQL.VarChar, code)
                 .query(`
@@ -80,14 +79,18 @@ async function getCourseByCode(code: string): Promise<CourseTypes.CourseInfo | u
                     WHERE r.code1 = @code
                 `);
 
-            // Attach requisites to the course
-            course.requisites = requisitesResult.recordset.map((row: any) => ({
-                type: row.type,
-                code: row.requisiteCode,
-                description: row.requisiteDescription,
-            }));
-
-            return course;
+            // Construct course object with requisites
+            return {
+                code: course.code,
+                title: course.title,
+                credits: course.credits,
+                description: course.description,
+                requisites: requisitesResult.recordset.map((row: any) => ({
+                    type: row.type,
+                    code: row.requisiteCode,
+                    description: row.requisiteDescription,
+                }))
+            };
         } catch (error) {
             console.error("Error fetching course by code\n", error);
         }
@@ -96,30 +99,28 @@ async function getCourseByCode(code: string): Promise<CourseTypes.CourseInfo | u
     return undefined;
 }
 
-
-
-
 // Add a new course
 async function addCourse(courseInfo: CourseTypes.CourseInfo): Promise<{ code: string } | undefined> {
     const dbConn = await Database.getConnection();
 
     if (dbConn) {
-        const { code, credits, description } = courseInfo;
+        const { code, title, credits, description } = courseInfo;
 
-        if (!code || !credits || !description) {
+        if (!code || !title || !credits || !description) {
             throw new Error("Missing required course data");
         }
 
         try {
             const result = await dbConn.request()
                 .input('code', Database.msSQL.VarChar, code)
+                .input('title', Database.msSQL.VarChar, title)
                 .input('credits', Database.msSQL.Int, credits)
                 .input('description', Database.msSQL.VarChar, description)
                 .query(`
-          INSERT INTO Course (code, credits, description)
-          OUTPUT INSERTED.code
-          VALUES (@code, @credits, @description)
-        `);
+                    INSERT INTO Course (code, title, credits, description)
+                    OUTPUT INSERTED.code
+                    VALUES (@code, @title, @credits, @description)
+                `);
 
             return result.recordset[0];
         } catch (error) {
@@ -130,7 +131,7 @@ async function addCourse(courseInfo: CourseTypes.CourseInfo): Promise<{ code: st
     return undefined;
 }
 
-// Remove a course by code and number
+// Remove a course by code
 async function removeCourse(code: string): Promise<boolean> {
     const dbConn = await Database.getConnection();
 
@@ -140,12 +141,7 @@ async function removeCourse(code: string): Promise<boolean> {
                 .input('code', Database.msSQL.VarChar, code)
                 .query('DELETE FROM Course WHERE code = @code');
 
-            // Check if any rows were affected
-            if (result.rowsAffected[0] === 0) {
-                return false; // No course was found and deleted
-            }
-
-            return true; // Course was found and deleted
+            return result.rowsAffected[0] > 0;
         } catch (error) {
             console.error("Error removing course\n", error);
             throw error;
@@ -155,24 +151,18 @@ async function removeCourse(code: string): Promise<boolean> {
     return false;
 }
 
-// Inside your courseController file
-
-/**
- * Fetch courses associated with a specific degree, grouped by CoursePools.
- * @param degreeId - The ID of the degree.
- * @returns A list of CoursePoolInfo objects or undefined if an error occurs.
- */
+// Get courses by degree grouped into pools
 async function getCoursesByDegreeGrouped(degreeId: string): Promise<CourseTypes.CoursePoolInfo[] | undefined> {
     const dbConn = await Database.getConnection();
 
     if (dbConn) {
         try {
-            // SQL Query to fetch course pools and their associated courses for the specified degree
             const query = `
                 SELECT 
                     cp.id AS course_pool_id,
                     cp.name AS course_pool_name,
                     c.code, 
+                    c.title,
                     c.credits, 
                     c.description,
                     r.code1 AS requisite_code1, 
@@ -195,10 +185,9 @@ async function getCoursesByDegreeGrouped(degreeId: string): Promise<CourseTypes.
             const records = result.recordset;
 
             if (records.length === 0) {
-                return undefined; // No courses found for the specified degree
+                return undefined;
             }
 
-            // Group courses by CoursePool
             const coursePoolsMap: { [key: string]: CourseTypes.CoursePoolInfo } = {};
 
             records.forEach(record => {
@@ -213,11 +202,11 @@ async function getCoursesByDegreeGrouped(degreeId: string): Promise<CourseTypes.
                     };
                 }
 
-                // Check if the course already exists in the pool to handle multiple requisites
                 let course = coursePoolsMap[poolId].courses.find(c => c.code === record.code);
                 if (!course) {
                     course = {
                         code: record.code,
+                        title: record.title,
                         credits: record.credits,
                         description: record.description,
                         requisites: []
@@ -225,7 +214,6 @@ async function getCoursesByDegreeGrouped(degreeId: string): Promise<CourseTypes.
                     coursePoolsMap[poolId].courses.push(course);
                 }
 
-                // Add requisites if present
                 if (record.requisite_code1 && record.requisite_code2) {
                     course.requisites.push({
                         code1: record.requisite_code1,
@@ -236,7 +224,6 @@ async function getCoursesByDegreeGrouped(degreeId: string): Promise<CourseTypes.
                 }
             });
 
-            // Convert the map to an array
             return Object.values(coursePoolsMap);
         } catch (error) {
             log("Error fetching courses by degree grouped by course pools\n", error);
@@ -245,9 +232,6 @@ async function getCoursesByDegreeGrouped(degreeId: string): Promise<CourseTypes.
 
     return undefined;
 }
-
-
-
 
 const courseController = {
     getAllCourses,

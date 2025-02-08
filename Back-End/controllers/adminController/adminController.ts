@@ -443,11 +443,13 @@ async function upsertCoursePool(
 async function upsertCourse(
   t: sql.Transaction,
   code: string,
+  title: string,
   credits: number,
   description: string
 ): Promise<void> {
   const request = new sql.Request(t);
   request.input("code", sql.VarChar, code);
+  request.input("title", sql.VarChar, title);
   request.input("credits", sql.Int, credits);
   request.input("description", sql.VarChar, description);
 
@@ -459,15 +461,15 @@ async function upsertCourse(
   if (result.recordset.length === 0) {
     // Insert
     await request.query(`
-      INSERT INTO Course (code, credits, description)
-      VALUES (@code, @credits, @description)
+      INSERT INTO Course (code, title, credits, description)
+      VALUES (@code, @title, @credits, @description)
     `);
     console.log(`Inserted Course: ${code}`);
   } else {
     // Update
     await request.query(`
       UPDATE Course
-      SET credits = @credits, description = @description
+      SET title = @title, credits = @credits, description = @description
       WHERE code = @code
     `);
     console.log(`Updated Course: ${code}`);
@@ -557,7 +559,7 @@ async function upsertCourseXCoursePool(
     `);
     console.log(
       `Linked Course ${courseCode} to CoursePool ID: ${poolId}` +
-        (groupId ? ` with groupId: ${groupId}` : "")
+      (groupId ? ` with groupId: ${groupId}` : "")
     );
     return newId;
   } else {
@@ -565,7 +567,7 @@ async function upsertCourseXCoursePool(
     const cxcpId = result.recordset[0].id;
     console.log(
       `CourseXCoursePool already exists for Course ${courseCode} in Pool ID: ${poolId}` +
-        (groupId ? ` with groupId: ${groupId}` : "")
+      (groupId ? ` with groupId: ${groupId}` : "")
     );
     return cxcpId;
   }
@@ -636,20 +638,20 @@ async function upsertRequisite(
     `);
     console.log(
       `Inserted Requisite: ${code1}` +
-        (code2
-          ? ` -> ${code2}`
-          : ` with Credits Required: ${creditsRequired}`) +
-        ` (${type})` +
-        (groupId ? ` Group ID: ${groupId}` : "")
+      (code2
+        ? ` -> ${code2}`
+        : ` with Credits Required: ${creditsRequired}`) +
+      ` (${type})` +
+      (groupId ? ` Group ID: ${groupId}` : "")
     );
   } else {
     console.log(
       `Requisite already exists: ${code1}` +
-        (code2
-          ? ` -> ${code2}`
-          : ` with Credits Required: ${creditsRequired}`) +
-        ` (${type})` +
-        (groupId ? ` Group ID: ${groupId}` : "")
+      (code2
+        ? ` -> ${code2}`
+        : ` with Credits Required: ${creditsRequired}`) +
+      ` (${type})` +
+      (groupId ? ` Group ID: ${groupId}` : "")
     );
     // If you have additional fields to update, handle here
   }
@@ -873,9 +875,10 @@ async function seedSoenDegree() {
 
         // 6.e. UPSERT COURSES
         for (const [code, courseData] of courseMap.entries()) {
-          const cCredits = courseData.credits ?? 3; // default 3 if not found
+          const cTitle = courseData.title; // Extract title from CourseJson
+          const cCredits = courseData.credits ?? 3; // Default to 3 if not provided
           const cDesc = courseData.description ?? `No description for ${code}`;
-          await upsertCourse(transaction, code, cCredits, cDesc);
+          await upsertCourse(transaction, code, cTitle, cCredits, cDesc);
         }
 
         // 6.f. LINK COURSES TO COURSE_POOLS
