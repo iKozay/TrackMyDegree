@@ -68,7 +68,6 @@ CREATE TABLE AppUser (  -- Use square brackets for reserved keywords
 
 CREATE TABLE Timeline (
     id VARCHAR(255) PRIMARY KEY,
-    name VARCHAR(255),
     season VARCHAR(10) CHECK (season IN ('fall', 'winter', 'summer1', 'summer2', 'fall/winter', 'summer')) NOT NULL,
     year INT NOT NULL,
     coursecode VARCHAR(7) NOT NULL,
