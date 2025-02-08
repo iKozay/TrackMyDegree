@@ -128,7 +128,7 @@ function CourseListPage () {
         <Col md={5}>
           <Card className="course-display-card">
             <Card.Body>
-              <Card.Title><b>{selectedCourse.code} {selectedCourse.title}</b></Card.Title>
+              <Card.Title><b>{selectedCourse.title}</b></Card.Title>
               <Card.Text>
                 <br /><b>Credits:</b> {selectedCourse.credits}
               </Card.Text>
