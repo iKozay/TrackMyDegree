@@ -66,7 +66,7 @@ const UserPage = () => {
       };
   
       // Make the POST request to update user info
-      const response = await fetch("http://localhost:8000/appUser/update", {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/appUser/update`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
