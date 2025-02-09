@@ -142,7 +142,7 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 };
 
 // Main component
-const TimelinePage = ({degreeid, timelineData, creditsrequired}) => {
+const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
 
@@ -154,15 +154,15 @@ const TimelinePage = ({degreeid, timelineData, creditsrequired}) => {
   let { degreeId } = location.state || {};
   let { creditsRequired } = location.state || {};
 
-  if(!degreeId){
+  if (!degreeId) {
     degreeId = degreeid;
   }
 
-  if(!creditsrequired){
+  if (!creditsrequired) {
     creditsRequired = 120;
   }
 
-  else if(!creditsRequired){
+  else if (!creditsRequired) {
     creditsRequired = creditsrequired;
     console.log("credi: ", creditsRequired);
   }
@@ -210,7 +210,7 @@ const TimelinePage = ({degreeid, timelineData, creditsrequired}) => {
       try {
         console.log('Fetching courses by degree:', degreeId);
         const degree = degreeId; // The value to pass
-        const response = await fetch(`http://localhost:8000/courses/getByDegreeGrouped`, {
+        const response = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

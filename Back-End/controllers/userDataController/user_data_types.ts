@@ -19,9 +19,18 @@ export interface Degree {
     totalCredits: number;
 }
 
+export interface User {
+    id: string;
+    email: string;
+    fullname: string;
+    type: string;
+    degree: string | null;  // Foreign key reference (Degree ID)
+}
+
 export interface UserDataResponse {
+    user: User;
     timeline: TimelineEntry[];
     deficiencies: DeficiencyEntry[];
     exemptions: ExemptionEntry[];
-    degree: Degree | null;
+    degree: Degree | null;  // Expanded degree details (if available)
 }

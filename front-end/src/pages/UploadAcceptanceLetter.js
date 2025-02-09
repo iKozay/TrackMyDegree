@@ -37,12 +37,12 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         options.push(`${term} ${term === 'Winter' ? year + 1 : year}`);
       });
     }
-  
+
     return options;
   };
 
   // Generate Terms from 2017 to 2030
-const startingSemesters = generateSemesterOptions(2017, 2030);
+  const startingSemesters = generateSemesterOptions(2017, 2030);
 
   const handleRadioChange = (group, value) => {
     setSelectedRadio((prev) => ({
@@ -64,14 +64,14 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
     }
 
     // Pass the selectedDegreeId to the timeline page
-    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, creditsRequired: 120} });
+    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, creditsRequired: 120 } });
   };
 
   useEffect(() => {
     // get a list of all degrees by name
     const getDegrees = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/degree/getAllDegrees`, {
+        const response = await fetch(`${process.env.REACT_APP_SERVER}/degree/getAllDegrees`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -206,7 +206,7 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
     };
     let degree = null;
     let degreeId = null;
-    
+
     let results = [];
 
 
@@ -392,7 +392,7 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
       const endSeason = endTerm.split(" ")[0];  // Extracting the season
 
       const resultTerms = [];
-      
+
       let currentYear = startYear;
       let currentSeasonIndex = terms.indexOf(startSeason); // Find index of start season in the list
 
@@ -427,8 +427,8 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
       });
       console.log(results);
     };
-    
-    processTerms(start,end, results);
+
+    processTerms(start, end, results);
 
     return { results, degree, degreeId, details };
   };
@@ -437,9 +437,9 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
     let matchedResults = [];
     let currentTerm = data[0]?.name; // Use optional chaining to safely access `name`
     let terms = [];
-  
+
     data.sort((a, b) => (a.page !== b.page ? a.page - b.page : a.position - b.position));
-  
+
     data.forEach((item) => {
       if (item && item.type === 'Term' && item.name) {  // Ensure `item` and `item.name` are defined
         matchedResults.push({
@@ -448,7 +448,7 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
           grade: 'EX',
         });
       }
-  
+
       if (item && item.type === 'Exempted Course' && item.name) {  // Ensure `item` and `item.name` are defined
         matchedResults.push({
           term: 'Exempted',
@@ -464,7 +464,7 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
           grade: 'EX',
         });
       }
-  
+
       if (item && item.type === 'Course' && currentTerm && item.name) {  // Ensure `item` and `currentTerm` and `item.name` are defined
         matchedResults.push({
           term: currentTerm,
@@ -472,12 +472,12 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
           grade: item.grade,
         });
       }
-  
+
       if (item && item.type === 'Separator') {
         currentTerm = terms.shift() || null;
       }
     });
-  
+
     console.log('Grouped data: ', matchedResults);
     return matchedResults;
   };
@@ -524,7 +524,7 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
             <div>
               <label htmlFor="degree-concentration">Degree Concentration:</label>
               <select id="degree-concentration" className="input-field" onChange={handleDegreeChange}>
-              <option value="">-- Select a Degree --</option>
+                <option value="">-- Select a Degree --</option>
                 {degrees.map((degree) => (
                   <option key={degree.id} value={degree.id}>{degree.name}</option>
                 ))}
