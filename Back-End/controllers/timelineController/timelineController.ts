@@ -100,7 +100,7 @@ Promise<TimelineTypes.UserTimeline[] | undefined> {
       const timeline_item_ids = timeline_items.map(t => `'${t.id}'`).join(",");  
       const timeline_item_course_result = await dbConn.request()
           .input('timeline_item_id', Database.msSQL.VarChar, timeline_item_ids)
-          .query(`SELECT coursecode FROM TimelineItemXCourses \
+          .query(`SELECT timeline_item_id, coursecode FROM TimelineItemXCourses \
                   WHERE timeline_item_id IN (${timeline_item_ids})`);
 
       const timeline_items_courses = timeline_item_course_result.recordset;
