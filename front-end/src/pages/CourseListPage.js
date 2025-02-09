@@ -4,7 +4,7 @@ import { Modal, Card, Col, Row, Container, Dropdown } from "react-bootstrap";
 import CourseListAccordion from "../components/CourseListAccordion";
 import '../css/CourseListPage.css';
 
-function CourseListPage () {
+function CourseListPage() {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 767);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedDegree, setSelectedDegree] = useState('Select Degree');
@@ -23,7 +23,7 @@ function CourseListPage () {
   useEffect(() => {
     const getDegrees = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/degree/getAllDegrees`, {
+        const response = await fetch(`${process.env.REACT_APP_SERVER}/degree/getAllDegrees`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ function CourseListPage () {
         setDegrees(jsonData.degrees);
       } catch (err) {
         console.error(err.message);
-      }  
+      }
     }
     getDegrees();
   }, []);
@@ -61,7 +61,7 @@ function CourseListPage () {
 
     try {
       console.log('Fetching courses by degree:', degree);
-      const response = await fetch(`http://localhost:8000/courses/getByDegreeGrouped`, {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ function CourseListPage () {
     <Container fluid>
       <div className='course-list-div'>
         <h3>Select Degree</h3>
-        
+
         <Dropdown>
           <Dropdown.Toggle id="dropdown-basic" data-testid='degree-dropdown' className="course-list-dropdown-toggle">
             {selectedDegree}
@@ -115,8 +115,8 @@ function CourseListPage () {
           </Dropdown.Menu>
         </Dropdown>
       </div>
-      
-      <Row style={{display: 'flex'}}>
+
+      <Row style={{ display: 'flex' }}>
         <Col sm={12} md={7}>
           {/* Only display course accordions if the user has selected a degree */}
           {courseList.length !== 0 &&
@@ -125,62 +125,62 @@ function CourseListPage () {
           }
         </Col>
         {isDesktop && selectedCourse && (
-        <Col md={5}>
-          <Card className="course-display-card">
-            <Card.Body>
-              <Card.Title><b>{selectedCourse.title}</b></Card.Title>
-              <Card.Text>
-                <br /><b>Credits:</b> {selectedCourse.credits}
-              </Card.Text>
-              <Card.Text>
-                <b>Prerequisites:</b> {selectedCourse.prerequisites || "None"}
-              </Card.Text>
-              <Card.Text>
-                <b>Corequisites:</b> {selectedCourse.corequisites || "None"}
-              </Card.Text>
-              <Card.Text>
-                <b>Description:</b> {selectedCourse.description}
-              </Card.Text>
-              {selectedCourse.components && (
+          <Col md={5}>
+            <Card className="course-display-card">
+              <Card.Body>
+                <Card.Title><b>{selectedCourse.title}</b></Card.Title>
                 <Card.Text>
-                  <b>Components:</b> {selectedCourse.components}
+                  <br /><b>Credits:</b> {selectedCourse.credits}
                 </Card.Text>
-              )}
-              {selectedCourse.notes && (
                 <Card.Text>
-                  <b>Notes:</b> {selectedCourse.notes}
+                  <b>Prerequisites:</b> {selectedCourse.prerequisites || "None"}
                 </Card.Text>
+                <Card.Text>
+                  <b>Corequisites:</b> {selectedCourse.corequisites || "None"}
+                </Card.Text>
+                <Card.Text>
+                  <b>Description:</b> {selectedCourse.description}
+                </Card.Text>
+                {selectedCourse.components && (
+                  <Card.Text>
+                    <b>Components:</b> {selectedCourse.components}
+                  </Card.Text>
+                )}
+                {selectedCourse.notes && (
+                  <Card.Text>
+                    <b>Notes:</b> {selectedCourse.notes}
+                  </Card.Text>
+                )}
+              </Card.Body>
+            </Card>
+          </Col>
+        )}
+        {/* Display a popup for screens narrower than 767px */}
+        {!isDesktop && (
+          <Modal show={showPopup} onHide={() => hidePopup()}>
+            <Modal.Header closeButton>
+              <Modal.Title>{selectedCourse?.title}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              {selectedCourse ? (
+                <>
+                  <p><b>Credits:</b> {selectedCourse.credits}</p>
+                  <p><b>Prerequisites:</b> {selectedCourse.prerequisites || "None"}</p>
+                  <p><b>Corequisites:</b> {selectedCourse.corequisites || "None"}</p>
+                  <p><b>Description:</b> {selectedCourse.description}</p>
+                  <p><b>Notes:</b> {selectedCourse.notes}</p>
+                </>
+              ) : (
+                <p>No course selected.</p>
               )}
-            </Card.Body>
-          </Card>
-        </Col>
-      )}
-      {/* Display a popup for screens narrower than 767px */}
-      {!isDesktop && (
-        <Modal show={showPopup} onHide={() => hidePopup()}>
-          <Modal.Header closeButton>
-            <Modal.Title>{selectedCourse?.title}</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {selectedCourse ? (
-              <>
-                <p><b>Credits:</b> {selectedCourse.credits}</p>
-                <p><b>Prerequisites:</b> {selectedCourse.prerequisites || "None"}</p>
-                <p><b>Corequisites:</b> {selectedCourse.corequisites || "None"}</p>
-                <p><b>Description:</b> {selectedCourse.description}</p>
-                <p><b>Notes:</b> {selectedCourse.notes}</p>
-              </>
-            ) : (
-              <p>No course selected.</p>
-            )}
-          </Modal.Body>
-          <Modal.Footer>
-            <button onClick={() => hidePopup()} className="btn btn-secondary">
-              Close
-            </button>
-          </Modal.Footer>
-        </Modal>
-      )}
+            </Modal.Body>
+            <Modal.Footer>
+              <button onClick={() => hidePopup()} className="btn btn-secondary">
+                Close
+              </button>
+            </Modal.Footer>
+          </Modal>
+        )}
       </Row>
     </Container>
   );

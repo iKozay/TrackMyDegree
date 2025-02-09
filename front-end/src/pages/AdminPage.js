@@ -18,7 +18,7 @@ const AdminPage = () => {
     useEffect(() => {
         const fetchTables = async () => {
             try {
-                const response = await axios.post('http://localhost:8000/admin/tables');
+                const response = await axios.post(`${process.env.REACT_APP_SERVER}/admin/tables`);
                 console.log('Tables Response:', response.data); // Debugging Line
 
                 if (response.data.success) {
@@ -47,7 +47,7 @@ const AdminPage = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `http://localhost:8000/admin/tables/${tableName}`;
+            let url = `${process.env.REACT_APP_SERVER}/admin/tables/${tableName}`;
             if (keyword) {
                 url += `?keyword=${encodeURIComponent(keyword)}`;
             }
@@ -92,7 +92,7 @@ const AdminPage = () => {
 
     const handleSeedData = async () => {
         try {
-            const response = await axios.post('http://localhost:8000/admin/seed-data');
+            const response = await axios.post(`${process.env.REACT_APP_SERVER}/admin/seed-data`);
             if (response.data.success) {
                 alert('Data seeding successful!');
             } else {

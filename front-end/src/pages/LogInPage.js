@@ -40,7 +40,7 @@ function LogInPage() {
     setLoading(true); // Start loading
 
     try {
-      const response = await fetch("http://localhost:8000/auth/login", {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -80,10 +80,10 @@ function LogInPage() {
             {/* Email Field */}
             <div className="mb-3">
               <label htmlFor="email" className="form-label">Email address</label>
-              <input 
-                type="email" 
-                className="form-control" 
-                id="email" 
+              <input
+                type="email"
+                className="form-control"
+                id="email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -93,10 +93,10 @@ function LogInPage() {
             {/* Password Field */}
             <div className="mb-3">
               <label htmlFor="password" className="form-label">Password</label>
-              <input 
-                type="password" 
-                className="form-control" 
-                id="password" 
+              <input
+                type="password"
+                className="form-control"
+                id="password"
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -112,10 +112,10 @@ function LogInPage() {
 
             {/* Submit Button */}
             <div className="d-grid gap-2">
-              <Button 
-                className="button-outline" 
-                variant="primary" 
-                type="submit" 
+              <Button
+                className="button-outline"
+                variant="primary"
+                type="submit"
                 disabled={loading}
               >
                 {loading ? "Logging in..." : "Submit"}
