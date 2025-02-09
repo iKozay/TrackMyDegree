@@ -60,26 +60,40 @@ router.post('/getAll', async (req: Request, res: Response) => {
   try {
     const result = await timelineController.getAllTimelines(user_id);
     
-    if( (result) && (result.timeline_items.length > 0) ) {
-      const { timeline_items } = result;
-      let timelines: any       = {};
+    let timelines: Record<string, { 
+      id: string;
+      name: string;
+      user_id: string;
+      semesters: Record<string, any[]>;
+    }>       = {};
+    if( (result) ) {
+      for (const timeline of result){
 
-      for(let i = 0; i < timeline_items.length; i++) {
-        const { season, year } = timeline_items[i];
-        const semesters        = Object.keys(timelines);
-        const current_semester = season + " " + year;
-
-        if( ! semesters.find( item => item === current_semester ) ) {
-          timelines[current_semester] = [];
+        const { id, name, user_id, items } = timeline;
+        if (!timelines[id]) {
+          timelines[id] = {
+            id,
+            name,
+            user_id,
+            semesters: {} // Group items by semester
+          };
         }
+        for (const item of items) {
+          const { season, year, coursecode } = item;
+          const current_semester = `${season} ${year}`;
+          // console.log(item)
+          // Ensure each semester exists before adding items
+          if (!timelines[id].semesters[current_semester]) {
+            timelines[id].semesters[current_semester] = [];
+          }
 
-        timelines[current_semester].push({
-          timeline_item_id : timeline_items[i].id,
-          coursecode       : timeline_items[i].coursecode
-        });
-        
+          timelines[id].semesters[current_semester].push({
+            timeline_item_id: item.id,
+            coursecode: coursecode
+          });
+        }
+      
       }
-
       res.status(HTTP.OK).json(timelines);
     }
     else {
@@ -94,7 +108,7 @@ router.post('/getAll', async (req: Request, res: Response) => {
 });
 
 router.post('/save', async (req: Request, res: Response) => {
-  const payload: { user_id: string, timeline_items: { semesterName: string, coursecode: string[] }[] } = req.body;                                                         
+  const payload: { user_id: string, name: string, items: { timeline_id: string, semesterName: string, coursecode: string[] }[] }[] = req.body;                                                         
 
   if( ( ! payload ) || ( Object.keys(payload).length < 2 ) ) {
     res.status(HTTP.BAD_REQUEST).json

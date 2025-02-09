@@ -8,76 +8,138 @@ const log = console.log;
 
 async function createTimeline(userTimeline: TimelineTypes.UserTimeline): 
 Promise<DB_OPS> {
-
-  let record;                                                                  //TimelineTypes.TimelineInfo;
   
   const dbConn            = await Database.getConnection();
   let   successfulInserts = 0;
 
-  if( dbConn ) {                                                               //Check if DB connection instance is undefined
-    const { timeline_items } = userTimeline;
-
-    for(let i = 0; i < timeline_items.length; i++) {
-      record =                                                                 //Store timeline record information 
-      {
-        id          : randomUUID(),
-        course_item : timeline_items[i],
-        user_id     : userTimeline.user_id
-      };
+  if (!dbConn) {
+    return DB_OPS.FAILURE; // If no DB connection, return failure
+  }
+  
+                                                           //Check if DB connection instance is undefined
   
       try {
-        const courseItem = record.course_item;
-        const result     = await dbConn.request()
-        .input('id'        , Database.msSQL.VarChar, record.id)
-        .input('season'    , Database.msSQL.VarChar, courseItem.season)
-        .input('year'      , Database.msSQL.Int    , courseItem.year)
-        .input('coursecode', Database.msSQL.VarChar, courseItem.coursecode)
-        .input('user_id'   , Database.msSQL.VarChar, record.user_id)
-        .query('INSERT INTO Timeline ( id,  season,  year,  coursecode,  user_id)\
-                OUTPUT INSERTED.id\
-                VALUES               (@id, @season, @year, @coursecode, @user_id)');
-
-        if ( undefined === result.recordset ) {
-          log("Error inserting timeline record ", result.recordset);
+        const timeline_id = randomUUID(); // Unique ID for the new timeline
+        const result_timeline = await dbConn.request()
+          .input("id", Database.msSQL.VarChar, timeline_id)
+          .input("user_id", Database.msSQL.VarChar, userTimeline.user_id)
+          .input("name", Database.msSQL.VarChar, userTimeline.name)
+          .query(
+            `INSERT INTO Timeline (id, user_id, name)
+             OUTPUT INSERTED.id
+             VALUES (@id, @user_id, @name)`
+          );
+    
+        if (!result_timeline.recordset || result_timeline.recordset.length === 0) {
+          return DB_OPS.FAILURE; // Timeline insertion failed
         }
-        else {
-          successfulInserts++;
-        }
-      }
-      catch ( error ){
-        log("Error in Timeline creation\n", error);
-      }
-    }
 
-    if( successfulInserts === userTimeline.timeline_items.length ) {           //Check if all records were successfully
-      return DB_OPS.SUCCESS;                                                   //inserted in DB
+        for (const item of userTimeline.items) {
+          try {
+            const result_item = await dbConn.request()
+              .input("id", Database.msSQL.VarChar, randomUUID())
+              .input("timeline_id", Database.msSQL.VarChar, timeline_id) // Use the new timeline's ID
+              .input("season", Database.msSQL.VarChar, item.season)
+              .input("year", Database.msSQL.Int, item.year)
+              .input("coursecode", Database.msSQL.VarChar, item.coursecode)
+              .query(
+                `INSERT INTO TimelineItems (id, timeline_id, season, year, coursecode)
+                 OUTPUT INSERTED.id
+                 VALUES (@id, @timeline_id, @season, @year, @coursecode)`
+              );
+    
+            if (result_item.recordset && result_item.recordset.length > 0) {
+              successfulInserts++;
+              console.log(successfulInserts)
+            }
+          } catch (error) {
+            console.error("Error inserting timeline item:", error);
+          }
+        }
+
+    if (successfulInserts === userTimeline.items.length) {
+      return DB_OPS.SUCCESS;
+    } else if (successfulInserts > 0) {
+      return DB_OPS.MOSTLY_OK;
+    } else {
+      return DB_OPS.FAILURE;
     }
-    else {                                                                     //Otherwise, specify that some were successful
-      return DB_OPS.MOSTLY_OK;                                                 //and others not
-    }                                                                          
+  } catch (error) {
+    console.error("Error in Timeline creation:", error);
+    return DB_OPS.FAILURE;
   }
-
-  return DB_OPS.FAILURE;
 }
 
 async function getAllTimelines(user_id: string): 
-Promise<TimelineTypes.UserTimeline | undefined> {
+Promise<TimelineTypes.UserTimeline[] | undefined> {
 
   const dbConn = await Database.getConnection();
 
   if( dbConn ) {
     try {
-      const result = await dbConn.request()
-          .input('user_id', Database.msSQL.VarChar, user_id)
-          .query('SELECT id, season, year, coursecode FROM Timeline \
-                  WHERE user_id = @user_id');
 
-      const timeline_courses = result.recordset;
+      const timeline_result = await dbConn.request()
+      .input('user_id', Database.msSQL.VarChar, user_id)
+      .query('SELECT id, user_id, name FROM Timeline \
+              WHERE user_id = @user_id');
 
-      return {
-        user_id       : user_id,
-        timeline_items: timeline_courses
+      const timelines = timeline_result.recordset;
+
+    if (!timelines.length) {
+      return []; // No timelines found, return an empty array
+    }
+
+      const timeline_ids = timelines.map(t => `'${t.id}'`).join(",");  
+      const timeline_item_result = await dbConn.request()
+          .input('timeline_id', Database.msSQL.VarChar, timeline_ids)
+          .query(`SELECT id, timeline_id, season, year FROM TimelineItems \
+                  WHERE timeline_id IN (${timeline_ids})`);
+
+      const timeline_items = timeline_item_result.recordset;
+
+      const timeline_item_ids = timeline_items.map(t => `'${t.id}'`).join(",");  
+      const timeline_item_course_result = await dbConn.request()
+          .input('timeline_item_id', Database.msSQL.VarChar, timeline_item_ids)
+          .query(`SELECT coursecode FROM TimelineItemXCourses \
+                  WHERE timeline_item_id IN (${timeline_item_ids})`);
+
+      const timeline_items_courses = timeline_item_course_result.recordset;
+
+      const timeline_map: Record<string, any> = {};
+
+      for (const timeline of timelines) {
+        timeline_map[timeline.id] = {
+          id: timeline.id,
+          user_id: timeline.user_id,
+          name: timeline.name,
+          items: [] // Initialize empty items array
+        };
       }
+
+      // Initialize timeline items
+      const timeline_item_map: Record<string, TimelineTypes.TimelineItem> = {};
+
+      for (const item of timeline_items) {
+        const timeline_item: TimelineTypes.TimelineItem = {
+          id: item.id,
+          timeline_id: item.timeline_id,
+          season: item.season,
+          year: item.year,
+          coursecode: [] // Will be populated with courses
+        };
+  
+        timeline_map[item.timeline_id].items.push(timeline_item);
+        timeline_item_map[item.id] = timeline_item;
+  
+      }
+
+      for (const course of timeline_items_courses) {
+        if (timeline_item_map[course.timeline_item_id]) {
+          timeline_item_map[course.timeline_item_id].coursecode.push(course.coursecode);
+        }
+        console.log(course)
+      }
+      return Object.values(timeline_map); 
 
     } catch ( error ) {
       log("Error fetching all user timelines\n", error);
@@ -87,62 +149,82 @@ Promise<TimelineTypes.UserTimeline | undefined> {
   return undefined;
 }
 
-async function saveTimeline(userTimeline: { user_id: string, timeline_items: { semesterName: string, coursecode: string[] }[] }): 
+async function saveTimeline(userTimeline: { user_id: string, name: string, items: { timeline_id: string, semesterName: string, coursecode: string[] }[] }[]): 
 Promise<DB_OPS> {
 
-  
+
   const dbConn            = await Database.getConnection();
   let   successfulInserts = 0;
 
-  if( dbConn ) {                                                               //Check if DB connection instance is undefined
-    const { timeline_items, user_id } = userTimeline;
+  if( dbConn ) {            
+    for (const timeline of userTimeline){
+      const { user_id, name, items } = timeline;
+      const timeline_id = randomUUID();
+      const result_timeline = await dbConn.request()
+        .input("id", Database.msSQL.VarChar, timeline_id)
+        .input("user_id", Database.msSQL.VarChar, user_id)
+        .input("name", Database.msSQL.VarChar, name)
+        .query(
+          `INSERT INTO Timeline (id, user_id, name)
+          OUTPUT INSERTED.id
+           VALUES (@id, @user_id, @name)`
+        );
 
-    for (const item of timeline_items) {
-      const [season, yearStr] = item.semesterName.split(" ");                   // Extract season & year
-      const year = parseInt(yearStr, 10);
-
-      if (!season || isNaN(year)) {
-        log(`Invalid season_year format: ${item.semesterName}`);
-        continue;
+      if (!result_timeline.recordset || result_timeline.recordset.length === 0) {
+        continue;     // Skip if timeline creation failed
       }
 
+      for (const item of items) {
+        const [season, yearStr] = item.semesterName.split(" ");                   // Extract season & year
+        const year = parseInt(yearStr, 10);
+  
+        if (!season || isNaN(year)) {
+          log(`Invalid season_year format: ${item.semesterName}`);
+          continue;
+        }
 
-      for (const course of item.coursecode) {
-        try {
-          const result = await dbConn.request()
-            .input('id'        , Database.msSQL.VarChar, randomUUID())
-            .input('season'    , Database.msSQL.VarChar, season)
-            .input('year'      , Database.msSQL.Int    , year)
-            .input('coursecode', Database.msSQL.VarChar, course)
-            .input('user_id'   , Database.msSQL.VarChar, user_id)
+        const timeline_item_id = randomUUID()
+
+        const result_item = await dbConn.request()
+        .input("id", Database.msSQL.VarChar, timeline_item_id)
+        .input("timeline_id", Database.msSQL.VarChar, timeline_id)
+        .input("season", Database.msSQL.VarChar, season) // Extract season
+        .input("year", Database.msSQL.Int, year) // Extract year
+        .query(
+          `INSERT INTO TimelineItems (id, timeline_id, season, year)
+            OUTPUT INSERTED.id
+           VALUES (@id, @timeline_id, @season, @year)`
+        );
+
+
+        if ( !result_item.recordset || result_item.recordset.length === 0 ) {
+          log("Error updating timeline item record ", result_item.recordset);
+        }
+  
+
+        for (const coursecode of item.coursecode) {
+          try {
+            if (!coursecode) {
+              console.error("Skipping empty course entry.");
+              continue;
+            }
+            await dbConn.request()
+            .input("timeline_item_id", Database.msSQL.VarChar, timeline_item_id)
+            .input("coursecode", Database.msSQL.VarChar, coursecode)
             .query(`
-              UPDATE Timeline 
-              SET season = @season, 
-                  year = @year, 
-                  coursecode = @coursecode, 
-                  id = @id
-              WHERE user_id = @user_id
+              INSERT INTO TimelineItemXCourses (timeline_item_id, coursecode)
+              VALUES (@timeline_item_id, @coursecode)
             `);
-
-          if ( undefined === result.recordset ) {
-            log("Error updating timeline record ", result.recordset);
+          successfulInserts++;
           }
-          else {
-            successfulInserts++;
+          catch ( error ){
+            log("Error in Timeline update\n", error);
           }
-        }
-        catch ( error ){
-          log("Error in Timeline update\n", error);
         }
       }
-    }
+    }                                                   //Check if DB connection instance is undefined
 
-    if( successfulInserts === userTimeline.timeline_items.length ) {           //Check if all records were successfully
-      return DB_OPS.SUCCESS;                                                   //inserted in DB
-    }
-    else {                                                                     //Otherwise, specify that some were successful
-      return DB_OPS.MOSTLY_OK;                                                 //and others not
-    }                                                                          
+      return successfulInserts > 0 ? DB_OPS.SUCCESS : DB_OPS.FAILURE;                                                                 
   }
 
   return DB_OPS.FAILURE;

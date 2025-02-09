@@ -68,13 +68,26 @@ CREATE TABLE AppUser (  -- Use square brackets for reserved keywords
 
 CREATE TABLE Timeline (
     id VARCHAR(255) PRIMARY KEY,
-    season VARCHAR(10) CHECK (season IN ('fall', 'winter', 'summer1', 'summer2', 'fall/winter', 'summer')) NOT NULL,
-    year INT NOT NULL,
-    coursecode VARCHAR(7) NOT NULL,
     user_id VARCHAR(255) NOT NULL,
-    UNIQUE(user_id, coursecode, season, year),
-    FOREIGN KEY (coursecode) REFERENCES Course(code), -- Composite foreign key
-    FOREIGN KEY (user_id) REFERENCES AppUser (id)  -- Adjusted foreign key reference
+    name VARCHAR(100) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES AppUser (id)  -- Can link multiple timeline to user
+);
+
+CREATE TABLE TimelineItems (
+    id VARCHAR(255) PRIMARY KEY,
+    timeline_id VARCHAR(255) NOT NULL,    -- Belongs to a specific timeline
+    season VARCHAR(10) CHECK (season IN ('fall', 'winter', 'summer1', 'summer2', 'fall/winter', 'summer')) NOT NULL,
+    year INT NOT NULL, 
+    UNIQUE(timeline_id, season, year),
+    FOREIGN KEY (timeline_id) REFERENCES Timeline(id),
+);
+
+CREATE TABLE TimelineItemXCourses (
+    timeline_item_id VARCHAR(255) NOT NULL,
+    coursecode VARCHAR(7) NOT NULL,
+    PRIMARY KEY (timeline_item_id, coursecode),
+    FOREIGN KEY (timeline_item_id) REFERENCES TimelineItems(id),
+    FOREIGN KEY (coursecode) REFERENCES Course(code)
 );
 
 CREATE TABLE Deficiency (
@@ -107,10 +120,10 @@ CREATE TABLE Exemption (
 --        ('2', 'Bachelor of Arts in Business Administration', 120);
 
 -- -- Course table
--- INSERT INTO Course (code, credits, description)
--- VALUES ('COMP335', 3, 'Introduction to Programming'),
---        ('SOEN363', 3, 'Database Systems'),
---        ('SOEN287', 3, 'Web Development');
+INSERT INTO Course (code, credits, description)
+VALUES ('COMP335', 3, 'Introduction to Programming'),
+       ('SOEN363', 3, 'Database Systems'),
+        ('SOEN287', 3, 'Web Development');
 
 -- -- Requisite table
 -- INSERT INTO Requisite (id, code1, code2, type)
