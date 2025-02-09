@@ -51,7 +51,7 @@ function SignUpPage() {
     setLoading(true); // Start loading
 
     try {
-      const response = await fetch(`http://localhost:8000/auth/signup`, {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/signup`, {
         method: "POST",
         credentials: "include",
         headers: {
