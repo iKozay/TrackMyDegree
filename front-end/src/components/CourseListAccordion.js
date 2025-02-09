@@ -24,9 +24,9 @@ const CourseListAccordion = ({ courseList, selectedCourse, setSelectedCourse }) 
                         <Card.Subtitle style={{color: 'gray'}}>
                           {course.credits} credits
                         </Card.Subtitle>
-                        {/* <Card.Body style={{padding: '10px'}}>
+                        <Card.Body style={{padding: '10px'}}>
                           {course.title.slice(9)}
-                        </Card.Body> */}
+                        </Card.Body>
                       </Card.Body>
                     </Card>
                   ))}
