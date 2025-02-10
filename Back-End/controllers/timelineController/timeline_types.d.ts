@@ -11,20 +11,23 @@ declare namespace TimelineTypes {
 
   type TimelineItem = {
     id          : string;
+    timeline_id : string;    // link to a specific timeline
     season      : Season;
     year        : number;
-    coursecode  : string;    
+    coursecode  : string[];    
+  };
+
+  type UserTimeline = {
+    id          : string;
+    user_id     : string;
+    name        : string;
+    items       : TimelineItem[];
   };
 
   type TimelineInfo = {
     id          : string;
     course_item : TimelineItem;
     user_id     : string;
-  };
-
-  type UserTimeline = {
-    user_id        : string;
-    timeline_items : TimelineItem[];
   };
 
   enum TimelineResponse {
