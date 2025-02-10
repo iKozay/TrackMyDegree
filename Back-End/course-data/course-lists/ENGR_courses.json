@@ -10,7 +10,7 @@
     },
     {
         "title": "ENGR 201 Professional Practice and Responsibility (1.5 credits)",
-        "credits": 0,
+        "credits": 1.5,
         "prerequisites": "",
         "corequisites": "",
         "description": "Health and safety issues for engineering projects: Quebec and Canadian legislation; safe work practices; general laboratory safety common to all engineering disciplines, and specific laboratory safety pertaining to particular engineering disciplines. Review of the legal framework in Quebec, particularly the Professional Code and the Engineers Act, as well as professional ethics.",
@@ -19,7 +19,7 @@
     },
     {
         "title": "ENGR 202 Sustainable Development and Environmental Stewardship (1.5 credits)",
-        "credits": 0,
+        "credits": 1.5,
         "prerequisites": "",
         "corequisites": "",
         "description": "Introduction to the concept of sustainable development and the approaches for achieving it. Relationships with economic, social, and technological development. Methods for evaluating sustainability of engineering projects, including utilization of relevant databases and software. Impact of engineering design and industrial development on the environment. Case studies.",
