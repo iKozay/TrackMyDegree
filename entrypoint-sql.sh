@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Ensure /var/opt/mssql/data has the correct ownership
+chown -R mssql /var/opt/mssql/data
+
 # Start SQL Server in the background
 /opt/mssql/bin/sqlservr &
 

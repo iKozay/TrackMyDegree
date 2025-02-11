@@ -39,9 +39,9 @@ services:
     depends_on:
       - sqlserver
 
-
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
+    user: root  # Ensure the container runs as root for initialization
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=MySecureP@ss123
@@ -49,11 +49,14 @@ services:
     ports:
       - "1433:1433"
     volumes:
+      - mssql-data:/var/opt/mssql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./entrypoint-sql.sh:/usr/src/app/entrypoint-sql.sh
-    command: chmod +x entrypoint.sh
     entrypoint: ["/bin/sh", "/usr/src/app/entrypoint-sql.sh"]
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  mssql-data:
