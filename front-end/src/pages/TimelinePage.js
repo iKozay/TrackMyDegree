@@ -151,9 +151,6 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const location = useLocation();
-  // let { degreeId } = location.state || {};
-  // let { creditsRequired } = location.state || {};
-
   let { degreeId, startingSemester, creditsRequired } = location.state || {};
 
   if (!degreeId) {
@@ -166,7 +163,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
 
   else if (!creditsRequired) {
     creditsRequired = creditsrequired;
-    console.log("credi: ", creditsRequired);
+    console.log("credit: ", creditsRequired);
   }
 
   console.log(degreeId);  // Logs the degreeId passed from UploadTranscriptPage.js
@@ -205,6 +202,28 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
   });
 
   const sensors = useSensors(mouseSensor, touchSensor);
+
+  // Helper function to generate 2 years of semesters (6 semesters for 3 terms per year)
+  const generateTwoYearSemesters = (startSem) => {
+    const termOrder = ["Winter", "Summer", "Fall"];
+    const parts = startSem.split(" ");
+    if (parts.length < 2) return [];
+    let currentTerm = parts[0];
+    let currentYear = parseInt(parts[1], 10);
+    const semesters = [];
+    for (let i = 0; i < 6; i++) {
+      semesters.push(`${currentTerm} ${currentYear}`);
+      // Get next term
+      let currentIndex = termOrder.indexOf(currentTerm);
+      currentIndex++;
+      if (currentIndex >= termOrder.length) {
+        currentIndex = 0;
+        currentYear++;
+      }
+      currentTerm = termOrder[currentIndex];
+    }
+    return semesters;
+  };
 
   // Fetch courses by degree on component mount
   useEffect(() => {
@@ -246,21 +265,28 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
     const semesterMap = {};
     const semesterNames = new Set();
 
-    // Group courses by semester
+    // Group courses by semester from transcript data
     timelineData.forEach((data) => {
       const { term, course } = data;
-
       if (!semesterMap[term]) {
         semesterMap[term] = [];
       }
-      semesterMap[term].push(course.replace(' ', '')); // Assuming course.code is the unique identifier
+      // Adjust course code if needed:
+      semesterMap[term].push(course.replace(' ', ''));
       semesterNames.add(term);
     });
 
-      if (startingSemester && !semesterNames.has(startingSemester)) {
-        semesterNames.add(startingSemester);
-        semesterMap[startingSemester] = [];
-      }
+    // If a starting semester was passed, generate two years (6 semesters)
+    if (startingSemester) {
+      const twoYearSemesters = generateTwoYearSemesters(startingSemester);
+      twoYearSemesters.forEach((sem) => {
+        if (!semesterNames.has(sem)) {
+          semesterNames.add(sem);
+          semesterMap[sem] = [];
+        }
+      });
+    }
+
 
     // Create an array of semesters sorted by term order
     const sortedSemesters = Array.from(semesterNames).sort((a, b) => {

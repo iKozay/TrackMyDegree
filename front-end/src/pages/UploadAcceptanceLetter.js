@@ -12,7 +12,8 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   const [output, setOutput] = useState('');
   const [degrees, setDegrees] = useState([]);
   const [selectedDegreeId, setSelectedDegreeId] = useState(null);
-  const [selectedStartingSemester, setSelectedStartingSemester] = useState(null);
+  const [selectedTerm, setSelectedTerm] = useState(""); // No default value
+  const [selectedYear, setSelectedYear] = useState(""); // No default value
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const [selectedRadio, setSelectedRadio] = useState({
@@ -20,6 +21,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     extendedCredit: null,
     creditDeficiency: null,
   });
+
 
 
   // List of specific programs to check for
@@ -30,21 +32,23 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     'Industrial Engineering', 'Mechanical Engineering', 'Science and Technology', 'Software Engineering'
   ];
 
-  const generateSemesterOptions = (startYear, endYear) => {
-    const terms = ['Summer', 'Fall', 'Winter'];
-    const options = [];
-    options.push(`Winter ${startYear}`);
-    for (let year = startYear; year <= endYear; year++) {
-      terms.forEach((term) => {
-        options.push(`${term} ${term === 'Winter' ? year + 1 : year}`);
-      });
-    }
+  // No longer need to generate a combined list of starting semesters.
+  // Instead, the user selects the term and year separately.
 
-    return options;
-  };
-
+  // const generateSemesterOptions = (startYear, endYear) => {
+  //   const terms = ['Summer', 'Fall', 'Winter'];
+  //   const options = [];
+  //   options.push(`Winter ${startYear}`);
+  //   for (let year = startYear; year <= endYear; year++) {
+  //     terms.forEach((term) => {
+  //       options.push(`${term} ${term === 'Winter' ? year + 1 : year}`);
+  //     });
+  //   }
+  //
+  //   return options;
+  // };
   // Generate Terms from 2017 to 2030
-  const startingSemesters = generateSemesterOptions(2017, 2030);
+  // const startingSemesters = generateSemesterOptions(2017, 2030);
 
   const handleRadioChange = (group, value) => {
     setSelectedRadio((prev) => ({
@@ -57,7 +61,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     setSelectedDegreeId(e.target.value);
   };
 
-  // 3. Navigate on Next button click, passing selectedDegreeId in the route state
+  // Navigate on Next button click, passing the selected degree and combined starting semester
   const handleNextButtonClick = () => {
     // Example check to ensure something is selected:
     if (!selectedDegreeId) {
@@ -65,8 +69,14 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       return;
     }
 
+    if (!selectedTerm || !selectedYear) {
+      alert('Please select both a term and a year for your starting semester.');
+      return;
+    }
+    const startingSemester = `${selectedTerm} ${selectedYear}`;
+
     // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
-    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, creditsRequired: 120, startingSemester: selectedStartingSemester}});
+    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, creditsRequired: 120, startingSemester: startingSemester}});
   };
 
   useEffect(() => {
@@ -524,41 +534,62 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
               <select id="degree-concentration" className="input-field" onChange={handleDegreeChange}>
                 <option value="">-- Select a Degree --</option>
                 {degrees.map((degree) => (
-                  <option key={degree.id} value={degree.id}>{degree.name}</option>
+                    <option key={degree.id} value={degree.id}>{degree.name}</option>
                 ))}
 
               </select>
             </div>
             <div>
-              <label htmlFor="starting-semester">Starting Semester:</label>
-              <select id="starting-semester"
-                      className="input-field"
-                      value={selectedStartingSemester || ""}
-                      onChange={(e) => setSelectedStartingSemester(e.target.value)}
+              <div>
+                <label htmlFor="starting-term">Starting Term:</label>
+                <select
+                    id="starting-term"
+                    className="input-field"
+                    value={selectedTerm}
+                    onChange={(e) => setSelectedTerm(e.target.value)}
+                >
+                  <option value="">-- Select Term --</option>
+                  <option value="Winter">Winter</option>
+                  <option value="Summer">Summer</option>
+                  <option value="Fall">Fall</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label htmlFor="starting-year">Starting Year:</label>
+              <select
+                  id="starting-year"
+                  className="input-field"
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
               >
-                {startingSemesters.map((semester, index) => (
-                  <option key={index} value={semester}>
-                    {semester}
-                  </option>
-                ))}
+                <option value="">-- Select Year --</option>
+                {Array.from({length: 2031 - 2017 + 1}).map((_, index) => {
+                  const year = 2017 + index;
+                  return (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                  );
+                })}
               </select>
             </div>
             <div className="radio-group">
               <span className="cooo">Co-op Program? </span>
               <label>
-                <input type="checkbox" name="co-op" value="yes" />
+                <input type="checkbox" name="co-op" value="yes"/>
               </label>
             </div>
             <div className="radio-group">
               <span className="cooo">Extended Credit Program? </span>
               <label>
-                <input type="checkbox" name="extended-credit" value="yes" />
+                <input type="checkbox" name="extended-credit" value="yes"/>
               </label>
             </div>
             <div className="radio-group">
               <span className="cooo">Credit Deficiency? </span>
               <label>
-                <input type="checkbox" name="credit-deficiency" value="yes" />
+                <input type="checkbox" name="credit-deficiency" value="yes"/>
               </label>
             </div>
           </form>
@@ -575,10 +606,10 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
           <h2>Upload Acceptance Letter</h2>
           <p>Upload your acceptance letter to automatically fill out the required information</p>
           <div
-            className="upload-box-al"
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
+              className="upload-box-al"
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
           >
             <p>Drag and Drop file</p>
             or
