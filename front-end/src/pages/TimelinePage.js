@@ -151,8 +151,10 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const location = useLocation();
-  let { degreeId } = location.state || {};
-  let { creditsRequired } = location.state || {};
+  // let { degreeId } = location.state || {};
+  // let { creditsRequired } = location.state || {};
+
+  let { degreeId, startingSemester, creditsRequired } = location.state || {};
 
   if (!degreeId) {
     degreeId = degreeid;
@@ -254,6 +256,11 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
       semesterMap[term].push(course.replace(' ', '')); // Assuming course.code is the unique identifier
       semesterNames.add(term);
     });
+
+      if (startingSemester && !semesterNames.has(startingSemester)) {
+        semesterNames.add(startingSemester);
+        semesterMap[startingSemester] = [];
+      }
 
     // Create an array of semesters sorted by term order
     const sortedSemesters = Array.from(semesterNames).sort((a, b) => {
@@ -942,7 +949,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
                   onChange={(e) => setSelectedYear(e.target.value)}
                 >
                   {Array.from({ length: 10 }).map((_, i) => {
-                    const year = 2020 + i;
+                    const year = 2017 + i;
                     return (
                       <option key={year} value={year}>
                         {year}

@@ -12,6 +12,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   const [output, setOutput] = useState('');
   const [degrees, setDegrees] = useState([]);
   const [selectedDegreeId, setSelectedDegreeId] = useState(null);
+  const [selectedStartingSemester, setSelectedStartingSemester] = useState(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const [selectedRadio, setSelectedRadio] = useState({
@@ -19,6 +20,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     extendedCredit: null,
     creditDeficiency: null,
   });
+
 
   // List of specific programs to check for
   const programNames = [
@@ -63,8 +65,8 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       return;
     }
 
-    // Pass the selectedDegreeId to the timeline page
-    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, creditsRequired: 120 } });
+    // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
+    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, creditsRequired: 120, startingSemester: selectedStartingSemester}});
   };
 
   useEffect(() => {
@@ -84,13 +86,9 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       } catch (err) {
         console.error(err.message);
       }
-
-
     }
     getDegrees();
   }, []);
-
-
 
   // Handle drag events
   const handleDragOver = (e) => {
@@ -533,7 +531,11 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
             </div>
             <div>
               <label htmlFor="starting-semester">Starting Semester:</label>
-              <select id="starting-semester" className="input-field">
+              <select id="starting-semester"
+                      className="input-field"
+                      value={selectedStartingSemester || ""}
+                      onChange={(e) => setSelectedStartingSemester(e.target.value)}
+              >
                 {startingSemesters.map((semester, index) => (
                   <option key={index} value={semester}>
                     {semester}
