@@ -6,18 +6,18 @@ import HTTP                           from "@Util/HTTPCodes";
 
 const router = express.Router();
 
-router.post('/create', async (req: Request, res: Response) => {
-  const payload: TimelineTypes.UserTimeline = req.body;                                                         
+router.post('/save', async (req: Request, res: Response) => {
+  const payload: { user_id: string, name: string, items: { timeline_id: string, semesterName: string, coursecode: string[] }[] }[] = req.body;                                                         
 
   if( ( ! payload ) || ( Object.keys(payload).length < 2 ) ) {
     res.status(HTTP.BAD_REQUEST).json
-    ({ error: "Payload of type UserTimeline is required for create." });
+    ({ error: "Payload of type UserTimeline is required for save." });
 
     return;
   }
 
   try {
-    const response  = await timelineController.createTimeline(payload);
+    const response  = await timelineController.saveTimeline(payload);
   
     if( DB_OPS.SUCCESS === response ) {
       res.status(HTTP.CREATED).json
@@ -32,7 +32,7 @@ router.post('/create', async (req: Request, res: Response) => {
     }
   } 
   catch (error) {
-    console.error("Error in /timeline/create", error);
+    console.error("Error in /timeline/save", error);
     res.status(HTTP.SERVER_ERR).json
     ({ error: "Timeline could not be created" });
   }
@@ -107,37 +107,6 @@ router.post('/getAll', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/save', async (req: Request, res: Response) => {
-  const payload: { user_id: string, name: string, items: { timeline_id: string, semesterName: string, coursecode: string[] }[] }[] = req.body;                                                         
-
-  if( ( ! payload ) || ( Object.keys(payload).length < 2 ) ) {
-    res.status(HTTP.BAD_REQUEST).json
-    ({ error: "Payload of type UserTimeline is required for save." });
-
-    return;
-  }
-
-  try {
-    const response  = await timelineController.saveTimeline(payload);
-  
-    if( DB_OPS.SUCCESS === response ) {
-      res.status(HTTP.CREATED).json
-      ({ res: "All courses added to user timeline" });
-    } 
-    if( DB_OPS.MOSTLY_OK === response ) {
-      res.status(HTTP.CREATED).json
-      ({ res: "Some courses were not added to user timeline" });
-    }
-    if( DB_OPS.FAILURE === response ) {
-      throw new Error("Error in establishing connection to database");
-    }
-  } 
-  catch (error) {
-    console.error("Error in /timeline/save", error);
-    res.status(HTTP.SERVER_ERR).json
-    ({ error: "Timeline could not be created" });
-  }
-});
 
 router.post('/delete', async (req: Request, res: Response) => {
   const payload = req.body;
