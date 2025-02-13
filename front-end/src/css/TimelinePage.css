@@ -83,11 +83,36 @@
   flex-grow: 1;
   display: flex;
   gap: 15px;
-  overflow-x: scroll;
   padding: 10px;
   margin: 0px;
   width: 100%;
   height: min-content;
+}
+
+.timeline-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+  transition: background-color 0.3s ease;
+}
+
+.timeline-scroll-wrapper.scrolling {
+  background-color: rgba(200, 200, 200, 0.2);
+}
+
+.timeline-scroll-wrapper::-webkit-scrollbar {
+  height: 8px; /* or adjust to your liking */
+}
+.timeline-scroll-wrapper::-webkit-scrollbar-thumb {
+  background-color: lightgray;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+.timeline-scroll-wrapper::-webkit-scrollbar-track {
+  background-color: rgba(145, 35, 56, 0.1);
+  border-radius: 10px;
 }
 
 .timeline-middle-section {
@@ -268,10 +293,6 @@
   justify-content: center; /* Centers items vertically */
 }
 
-.no-scroll {
-  overflow: hidden !important;
-}
-
 .credits-display {
   display: flex;
   justify-content: space-between;
@@ -439,7 +460,7 @@
   width: min-content;
   height: min-content;
   white-space: nowrap;
-  background-color: rgba(156, 143, 143, 0.8);
+  background-color: lightgray;
   padding: 1px 10px;
   border-radius: 25px;
   color: #fff;
@@ -452,7 +473,7 @@
 }
 
 .add-semester-button:hover {
-  background-color: rgb(156, 143, 143);
+  background-color: #c8c8c8;
 }
 
 /*
