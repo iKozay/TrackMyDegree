@@ -70,6 +70,7 @@ CREATE TABLE Timeline (
     id VARCHAR(255) PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
     name VARCHAR(100) NOT NULL,
+    last_modified DATETIME2,
     FOREIGN KEY (user_id) REFERENCES AppUser (id)  -- Can link multiple timeline to user
 );
 
