@@ -119,18 +119,18 @@ router.post('/delete', async (req: Request, res: Response) => {
     return;
   }
 
-  if( ! payload.timeline_item_id ) {
+  if( ! payload.timeline_id ) {
     res.status(HTTP.BAD_REQUEST).json
     ({ error: "Payload attributes cannot be empty" });
 
     return;
   }
 
-  const { timeline_item_id } = payload;
+  const { timeline_id } = payload;
 
   try {
     const response = await timelineController
-                  .removeTimelineItem(timeline_item_id);
+                  .removeUserTimeline(timeline_id);
 
     if( DB_OPS.SUCCESS === response ) {
       res.status(HTTP.OK).json({ message: "Item removed from timeline" });

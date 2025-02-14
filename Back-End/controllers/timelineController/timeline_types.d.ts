@@ -24,12 +24,6 @@ declare namespace TimelineTypes {
     items       : TimelineItem[];
   };
 
-  type TimelineInfo = {
-    id          : string;
-    course_item : TimelineItem;
-    user_id     : string;
-  };
-
   enum TimelineResponse {
     SUCCESS,
     MOSTLY_OK,

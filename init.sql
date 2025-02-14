@@ -70,7 +70,7 @@ CREATE TABLE Timeline (
     id VARCHAR(255) PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
     name VARCHAR(100) NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES AppUser (id)  -- Can link multiple timeline to user
+    FOREIGN KEY (user_id) REFERENCES AppUser (id) ON DELETE CASCADE  -- Can link multiple timeline to user
 );
 
 CREATE TABLE TimelineItems (
@@ -79,14 +79,14 @@ CREATE TABLE TimelineItems (
     season VARCHAR(10) CHECK (season IN ('fall', 'winter', 'summer1', 'summer2', 'fall/winter', 'summer')) NOT NULL,
     year INT NOT NULL, 
     UNIQUE(timeline_id, season, year),
-    FOREIGN KEY (timeline_id) REFERENCES Timeline(id),
+    FOREIGN KEY (timeline_id) REFERENCES Timeline(id) ON DELETE CASCADE
 );
 
 CREATE TABLE TimelineItemXCourses (
     timeline_item_id VARCHAR(255) NOT NULL,
     coursecode VARCHAR(7) NOT NULL,
     PRIMARY KEY (timeline_item_id, coursecode),
-    FOREIGN KEY (timeline_item_id) REFERENCES TimelineItems(id),
+    FOREIGN KEY (timeline_item_id) REFERENCES TimelineItems(id) ON DELETE CASCADE,
     FOREIGN KEY (coursecode) REFERENCES Course(code)
 );
 

@@ -166,21 +166,22 @@ Promise<TimelineTypes.UserTimeline[] | undefined> {
   return undefined;
 }
 
-async function removeTimelineItem(timeline_item_id: string): 
+async function removeUserTimeline(timeline_id: string): 
 Promise<DB_OPS> {
 
   const dbConn = await Database.getConnection();
 
   if( dbConn ) {
     try {
+
       const result = await dbConn.request()
-          .input('id', Database.msSQL.VarChar, timeline_item_id)
+          .input('id', Database.msSQL.VarChar, timeline_id)
           .query('DELETE FROM Timeline\
                   OUTPUT DELETED.id\
                   WHERE id = @id');
 
       if( (result.recordset.length > 0) && 
-          (result.recordset[0].id === timeline_item_id) ) {
+          (result.recordset[0].id === timeline_id) ) {
         return DB_OPS.SUCCESS;
       }
       else {
@@ -199,7 +200,7 @@ Promise<DB_OPS> {
 const timelineController = {
   saveTimeline,
   getAllTimelines,
-  removeTimelineItem
+  removeUserTimeline
 };
 
 export default timelineController;
