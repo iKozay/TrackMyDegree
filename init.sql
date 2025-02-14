@@ -70,7 +70,7 @@ CREATE TABLE Timeline (
     id VARCHAR(255) PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
     name VARCHAR(100) NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES AppUser (id) ON DELETE CASCADE  -- Can link multiple timeline to user
+    FOREIGN KEY (user_id) REFERENCES AppUser (id) ON DELETE CASCADE,  -- Can link multiple timeline to user
     last_modified DATETIME2
 );
 

@@ -172,11 +172,39 @@ async function getTimelinesByUser(
     throw error;
   }
 }
+async function removeUserTimeline(timeline_id: string): Promise<string> {
+  const dbConn = await Database.getConnection();
+
+  if (!dbConn) {
+    return "Database connection failed.";
+  }
+
+  try {
+    const result = await dbConn.request()
+      .input("id", Database.msSQL.VarChar, timeline_id)
+      .query(`
+        DELETE FROM Timeline
+        OUTPUT DELETED.id
+        WHERE id = @id
+      `);
+
+    if (result.recordset.length > 0) {
+      return `Timeline with id: ${result.recordset[0].id} deleted successfully`;
+    } else {
+      return `No timeline found with id: ${timeline_id}`;
+    }
+  } catch (error) {
+    log("Error removing timeline item\n", error);
+    return "Error occurred while deleting timeline.";
+  }
+}
+
 
 
 const timelineController = {
   saveTimeline,
   getTimelinesByUser,
+  removeUserTimeline
 };
 
 export default timelineController;
