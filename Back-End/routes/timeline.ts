@@ -68,4 +68,31 @@ router.post("/getAll", async (req: Request, res: Response) => {
   }
 });
 
+
+router.post("/delete", async (req: Request, res: Response) => {
+  const { timeline_id } = req.body;
+
+  if (!timeline_id) {
+    res.status(HTTP.NOT_FOUND).json({ error: "Timeline ID is required" });
+    return;
+  }
+
+  try {
+    const result = await timelineController.removeUserTimeline(timeline_id);
+    if (!result){
+      res.status(HTTP.NOT_FOUND).json({ message: result });
+    }
+    if (result.includes("deleted successfully")) {
+      res.status(HTTP.OK).json({ message: result });
+    } else if (result.includes("No timeline found")) {
+      res.status(HTTP.NOT_FOUND).json({ error: result });
+    } else {
+      res.status(HTTP.NOT_FOUND).json({ error: "Internal Server Error" });
+    }
+  } catch (error) {
+    console.error("Error in /timeline/delete", error);
+    res.status(HTTP.SERVER_ERR).json({ error: "Failed to delete timeline" });
+  }
+});
+
 export default router;
