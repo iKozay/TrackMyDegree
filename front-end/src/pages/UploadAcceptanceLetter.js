@@ -12,6 +12,8 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   const [output, setOutput] = useState('');
   const [degrees, setDegrees] = useState([]);
   const [selectedDegreeId, setSelectedDegreeId] = useState(null);
+  const [selectedTerm, setSelectedTerm] = useState(""); // No default value
+  const [selectedYear, setSelectedYear] = useState(""); // No default value
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const [selectedRadio, setSelectedRadio] = useState({
@@ -19,6 +21,8 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     extendedCredit: null,
     creditDeficiency: null,
   });
+
+
 
   // List of specific programs to check for
   const programNames = [
@@ -28,21 +32,23 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     'Industrial Engineering', 'Mechanical Engineering', 'Science and Technology', 'Software Engineering'
   ];
 
-  const generateSemesterOptions = (startYear, endYear) => {
-    const terms = ['Summer', 'Fall', 'Winter'];
-    const options = [];
-    options.push(`Winter ${startYear}`);
-    for (let year = startYear; year <= endYear; year++) {
-      terms.forEach((term) => {
-        options.push(`${term} ${term === 'Winter' ? year + 1 : year}`);
-      });
-    }
-  
-    return options;
-  };
+  // No longer need to generate a combined list of starting semesters.
+  // Instead, the user selects the term and year separately.
 
+  // const generateSemesterOptions = (startYear, endYear) => {
+  //   const terms = ['Summer', 'Fall', 'Winter'];
+  //   const options = [];
+  //   options.push(`Winter ${startYear}`);
+  //   for (let year = startYear; year <= endYear; year++) {
+  //     terms.forEach((term) => {
+  //       options.push(`${term} ${term === 'Winter' ? year + 1 : year}`);
+  //     });
+  //   }
+  //
+  //   return options;
+  // };
   // Generate Terms from 2017 to 2030
-const startingSemesters = generateSemesterOptions(2017, 2030);
+  // const startingSemesters = generateSemesterOptions(2017, 2030);
 
   const handleRadioChange = (group, value) => {
     setSelectedRadio((prev) => ({
@@ -55,7 +61,7 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
     setSelectedDegreeId(e.target.value);
   };
 
-  // 3. Navigate on Next button click, passing selectedDegreeId in the route state
+  // Navigate on Next button click, passing the selected degree and combined starting semester
   const handleNextButtonClick = () => {
     // Example check to ensure something is selected:
     if (!selectedDegreeId) {
@@ -63,15 +69,21 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
       return;
     }
 
-    // Pass the selectedDegreeId to the timeline page
-    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, creditsRequired: 120} });
+    if (!selectedTerm || !selectedYear) {
+      alert('Please select both a term and a year for your starting semester.');
+      return;
+    }
+    const startingSemester = `${selectedTerm} ${selectedYear}`;
+
+    // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
+    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, creditsRequired: 120, startingSemester: startingSemester}});
   };
 
   useEffect(() => {
     // get a list of all degrees by name
     const getDegrees = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/degree/getAllDegrees`, {
+        const response = await fetch(`${process.env.REACT_APP_SERVER}/degree/getAllDegrees`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -84,13 +96,9 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
       } catch (err) {
         console.error(err.message);
       }
-
-
     }
     getDegrees();
   }, []);
-
-
 
   // Handle drag events
   const handleDragOver = (e) => {
@@ -206,7 +214,7 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
     };
     let degree = null;
     let degreeId = null;
-    
+
     let results = [];
 
 
@@ -392,7 +400,7 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
       const endSeason = endTerm.split(" ")[0];  // Extracting the season
 
       const resultTerms = [];
-      
+
       let currentYear = startYear;
       let currentSeasonIndex = terms.indexOf(startSeason); // Find index of start season in the list
 
@@ -427,8 +435,8 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
       });
       console.log(results);
     };
-    
-    processTerms(start,end, results);
+
+    processTerms(start, end, results);
 
     return { results, degree, degreeId, details };
   };
@@ -437,9 +445,9 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
     let matchedResults = [];
     let currentTerm = data[0]?.name; // Use optional chaining to safely access `name`
     let terms = [];
-  
+
     data.sort((a, b) => (a.page !== b.page ? a.page - b.page : a.position - b.position));
-  
+
     data.forEach((item) => {
       if (item && item.type === 'Term' && item.name) {  // Ensure `item` and `item.name` are defined
         matchedResults.push({
@@ -448,7 +456,7 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
           grade: 'EX',
         });
       }
-  
+
       if (item && item.type === 'Exempted Course' && item.name) {  // Ensure `item` and `item.name` are defined
         matchedResults.push({
           term: 'Exempted',
@@ -464,7 +472,7 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
           grade: 'EX',
         });
       }
-  
+
       if (item && item.type === 'Course' && currentTerm && item.name) {  // Ensure `item` and `currentTerm` and `item.name` are defined
         matchedResults.push({
           term: currentTerm,
@@ -472,12 +480,12 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
           grade: item.grade,
         });
       }
-  
+
       if (item && item.type === 'Separator') {
         currentTerm = terms.shift() || null;
       }
     });
-  
+
     console.log('Grouped data: ', matchedResults);
     return matchedResults;
   };
@@ -524,39 +532,64 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
             <div>
               <label htmlFor="degree-concentration">Degree Concentration:</label>
               <select id="degree-concentration" className="input-field" onChange={handleDegreeChange}>
-              <option value="">-- Select a Degree --</option>
+                <option value="">-- Select a Degree --</option>
                 {degrees.map((degree) => (
-                  <option key={degree.id} value={degree.id}>{degree.name}</option>
+                    <option key={degree.id} value={degree.id}>{degree.name}</option>
                 ))}
 
               </select>
             </div>
             <div>
-              <label htmlFor="starting-semester">Starting Semester:</label>
-              <select id="starting-semester" className="input-field">
-                {startingSemesters.map((semester, index) => (
-                  <option key={index} value={semester}>
-                    {semester}
-                  </option>
-                ))}
+              <div>
+                <label htmlFor="starting-term">Starting Term:</label>
+                <select
+                    id="starting-term"
+                    className="input-field"
+                    value={selectedTerm}
+                    onChange={(e) => setSelectedTerm(e.target.value)}
+                >
+                  <option value="">-- Select Term --</option>
+                  <option value="Winter">Winter</option>
+                  <option value="Summer">Summer</option>
+                  <option value="Fall">Fall</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label htmlFor="starting-year">Starting Year:</label>
+              <select
+                  id="starting-year"
+                  className="input-field"
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+              >
+                <option value="">-- Select Year --</option>
+                {Array.from({length: 2031 - 2017 + 1}).map((_, index) => {
+                  const year = 2017 + index;
+                  return (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                  );
+                })}
               </select>
             </div>
             <div className="radio-group">
               <span className="cooo">Co-op Program? </span>
               <label>
-                <input type="checkbox" name="co-op" value="yes" />
+                <input type="checkbox" name="co-op" value="yes"/>
               </label>
             </div>
             <div className="radio-group">
               <span className="cooo">Extended Credit Program? </span>
               <label>
-                <input type="checkbox" name="extended-credit" value="yes" />
+                <input type="checkbox" name="extended-credit" value="yes"/>
               </label>
             </div>
             <div className="radio-group">
               <span className="cooo">Credit Deficiency? </span>
               <label>
-                <input type="checkbox" name="credit-deficiency" value="yes" />
+                <input type="checkbox" name="credit-deficiency" value="yes"/>
               </label>
             </div>
           </form>
@@ -573,10 +606,10 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
           <h2>Upload Acceptance Letter</h2>
           <p>Upload your acceptance letter to automatically fill out the required information</p>
           <div
-            className="upload-box-al"
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
+              className="upload-box-al"
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
           >
             <p>Drag and Drop file</p>
             or

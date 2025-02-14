@@ -63,7 +63,7 @@ async function registerUser(userInfo: Auth.UserInfo)
         .input('fullname', Database.msSQL.VarChar, fullname)
         .input('type', Database.msSQL.VarChar, type)
         .query('INSERT INTO AppUser ( id,  email,  password,  fullname,  type) \
-              OUTPUT INSERTED.id                                         \
+              OUTPUT INSERTED.*                                         \
                           VALUES  (@id, @email, @password, @fullname, @type)');
 
       if ((undefined) === (result.recordset)) {

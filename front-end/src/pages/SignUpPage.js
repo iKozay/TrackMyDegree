@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Button from 'react-bootstrap/Button';
-import Dropdown from "react-bootstrap/Dropdown"; 
+import Dropdown from "react-bootstrap/Dropdown";
 
 function SignUpPage() {
   const [fullname, setfullname] = useState("");
@@ -25,7 +25,7 @@ function SignUpPage() {
     setError(null);
 
     // Basic validation checks
-    if (fullname === ""  || email === "" || password === "" || confirmPassword === "") {
+    if (fullname === "" || email === "" || password === "" || confirmPassword === "") {
       setError("All fields are required.");
       return;
     }
@@ -51,7 +51,7 @@ function SignUpPage() {
     setLoading(true); // Start loading
 
     try {
-      const response = await fetch("http://localhost:8000/auth/signup", {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/signup`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -89,11 +89,11 @@ function SignUpPage() {
   return (
     <div className="SignUpPage">
       <div className="container my-5 sign-in-container">
-        <h2 className="text-center mb-4" style={{fontSize: "5vh"}}>Sign Up</h2>
+        <h2 className="text-center mb-4" style={{ fontSize: "5vh" }}>Sign Up</h2>
         <form onSubmit={handleSignUp}>
           {/* Name Field */}
           <div className="mb-3">
-          <label htmlFor="fullname" className="form-label">Full Name: </label>
+            <label htmlFor="fullname" className="form-label">Full Name: </label>
             <input
               type="fullname"
               className="form-control"

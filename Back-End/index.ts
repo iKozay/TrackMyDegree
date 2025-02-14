@@ -35,6 +35,7 @@ const corsOptions: cors.CorsOptions = {
   ) => {
     const allowedOrigins = [
       "http://localhost:3000",
+      "http://159.65.216.141:3000",
       "chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld",
     ];
 
