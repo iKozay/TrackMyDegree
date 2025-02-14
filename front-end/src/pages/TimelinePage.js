@@ -1,6 +1,6 @@
 // TimelinePage.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef  } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   DndContext,
@@ -151,8 +151,12 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const location = useLocation();
-  let { degreeId } = location.state || {};
-  let { creditsRequired } = location.state || {};
+
+  const scrollWrapperRef = useRef(null);
+  const autoScrollInterval = useRef(null);
+
+
+  let { degreeId, startingSemester, creditsRequired } = location.state || {};
 
   if (!degreeId) {
     degreeId = degreeid;
@@ -164,7 +168,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
 
   else if (!creditsRequired) {
     creditsRequired = creditsrequired;
-    console.log("credi: ", creditsRequired);
+    console.log("credit: ", creditsRequired);
   }
 
   console.log(degreeId);  // Logs the degreeId passed from UploadTranscriptPage.js
@@ -194,7 +198,6 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
       distance: 5,
     },
   });
-
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
       delay: 100,
@@ -203,6 +206,28 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
   });
 
   const sensors = useSensors(mouseSensor, touchSensor);
+
+  // Helper function to generate 2 years of semesters (6 semesters for 3 terms per year)
+  const generateTwoYearSemesters = (startSem) => {
+    const termOrder = ["Winter", "Summer", "Fall"];
+    const parts = startSem.split(" ");
+    if (parts.length < 2) return [];
+    let currentTerm = parts[0];
+    let currentYear = parseInt(parts[1], 10);
+    const semesters = [];
+    for (let i = 0; i < 12; i++) {
+      semesters.push(`${currentTerm} ${currentYear}`);
+      // Get next term
+      let currentIndex = termOrder.indexOf(currentTerm);
+      currentIndex++;
+      if (currentIndex >= termOrder.length) {
+        currentIndex = 0;
+        currentYear++;
+      }
+      currentTerm = termOrder[currentIndex];
+    }
+    return semesters;
+  };
 
   // Fetch courses by degree on component mount
   useEffect(() => {
@@ -244,16 +269,28 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
     const semesterMap = {};
     const semesterNames = new Set();
 
-    // Group courses by semester
+    // Group courses by semester from transcript data
     timelineData.forEach((data) => {
       const { term, course } = data;
-
       if (!semesterMap[term]) {
         semesterMap[term] = [];
       }
-      semesterMap[term].push(course.replace(' ', '')); // Assuming course.code is the unique identifier
+      // Adjust course code if needed:
+      semesterMap[term].push(course.replace(' ', ''));
       semesterNames.add(term);
     });
+
+    // If a starting semester was passed, generate two years (6 semesters)
+    if (startingSemester) {
+      const twoYearSemesters = generateTwoYearSemesters(startingSemester);
+      twoYearSemesters.forEach((sem) => {
+        if (!semesterNames.has(sem)) {
+          semesterNames.add(sem);
+          semesterMap[sem] = [];
+        }
+      });
+    }
+
 
     // Create an array of semesters sorted by term order
     const sortedSemesters = Array.from(semesterNames).sort((a, b) => {
@@ -388,7 +425,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
       setSelectedCourse(course);
     }
 
-    document.querySelector('.semesters')?.classList.add('no-scroll');
+    // document.querySelector('.semesters')?.classList.add('no-scroll');
 
     setActiveId(id);
   };
@@ -667,6 +704,52 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
   //   return null;
   // };
 
+  // Function to handle mouse move over the scrollable container
+  const handleScrollMouseMove = (e) => {
+    const wrapper = scrollWrapperRef.current;
+    if (!wrapper) return;
+
+    const rect = wrapper.getBoundingClientRect();
+    // Calculate x position relative to the container
+    const mouseX = e.clientX - rect.left;
+    const threshold = 50;
+    let direction = 0;
+
+    if (mouseX < threshold) {
+      direction = -1;
+    } else if (mouseX > rect.width - threshold) {
+      direction = 1;
+    } else {
+      direction = 0;
+    }
+
+    if (direction !== 0) {
+      wrapper.classList.add("scrolling");
+      if (!autoScrollInterval.current) {
+        autoScrollInterval.current = setInterval(() => {
+          // Adjust the speed
+          wrapper.scrollLeft += direction * 15;
+        }, 30);
+      }
+    } else {
+      // Remove the visual cue and stop scrolling if mouse is not in the edge zone
+      wrapper.classList.remove("scrolling");
+      if (autoScrollInterval.current) {
+        clearInterval(autoScrollInterval.current);
+        autoScrollInterval.current = null;
+      }
+    }
+  };
+
+  const handleScrollMouseLeave = () => {
+    const wrapper = scrollWrapperRef.current;
+    if (!wrapper) return;
+    wrapper.classList.remove("scrolling");
+    if (autoScrollInterval.current) {
+      clearInterval(autoScrollInterval.current);
+      autoScrollInterval.current = null;
+    }
+  };
   // ----------------------------------------------------------------------------------------------------------------------
   return (
     <DndContext
@@ -764,99 +847,111 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
                   </button>
                 </div>
 
-                <div className="semesters">
-                  {semesters.map((semester, index) => {
-                    // 1) Calculate total credits for this semester
-                    const sumCredits = semesterCourses[semester.id]
-                      .map((cCode) =>
-                        coursePools
-                          .flatMap((pool) => pool.courses)
-                          .find((c) => c.code === cCode)?.credits || 0
-                      )
-                      .reduce((sum, c) => sum + c, 0);
+                <div
+                    className="timeline-scroll-wrapper"
+                    ref={scrollWrapperRef}
+                    onMouseMove={handleScrollMouseMove}
+                    onMouseLeave={handleScrollMouseLeave}
+                    onWheel={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.scrollLeft += e.deltaY;
+                    }}
+                >
 
-                    // 2) Compare to max limit
-                    const maxAllowed = getMaxCreditsForSemesterName(semester.name);
-                    const isOver = sumCredits > maxAllowed;
+                  <div className="semesters">
+                    {semesters.map((semester, index) => {
+                      // 1) Calculate total credits for this semester
+                      const sumCredits = semesterCourses[semester.id]
+                        .map((cCode) =>
+                          coursePools
+                            .flatMap((pool) => pool.courses)
+                            .find((c) => c.code === cCode)?.credits || 0
+                        )
+                        .reduce((sum, c) => sum + c, 0);
 
-                    // 3) “semester-credit” + conditionally add “over-limit-warning”
-                    const creditClass = isOver
-                      ? "semester-credit over-limit-warning"
-                      : "semester-credit";
+                      // 2) Compare to max limit
+                      const maxAllowed = getMaxCreditsForSemesterName(semester.name);
+                      const isOver = sumCredits > maxAllowed;
 
-                    return (
-                      <div key={semester.id} className={`semester ${shakingSemesterId === semester.id ? 'exceeding-credit-limit' : ''
-                        }`}>
-                        <Droppable id={semester.id} color="pink">
-                          <h3>{semester.name}</h3>
-                          <SortableContext
-                            items={semesterCourses[semester.id]}
-                            strategy={verticalListSortingStrategy}
-                          >
-                            {semesterCourses[semester.id].map((courseCode) => {
-                              const course = coursePools
-                                .flatMap((pool) => pool.courses)
-                                .find((c) => c.code === courseCode);
-                              if (!course) return null;
-                              const isSelected = selectedCourse?.code === course.code;
-                              const isDraggingFromSemester = activeId === course.code;
+                      // 3) “semester-credit” + conditionally add “over-limit-warning”
+                      const creditClass = isOver
+                        ? "semester-credit over-limit-warning"
+                        : "semester-credit";
 
-                              // Check if prerequisites are met
-                              const prerequisitesMet = arePrerequisitesMet(course.code, index);
-
-                              return (
-                                <SortableCourse
-                                  key={course.code}
-                                  id={course.code}
-                                  title={course.code}
-                                  disabled={false}
-                                  isSelected={isSelected}
-                                  isDraggingFromSemester={isDraggingFromSemester}
-                                  onSelect={handleCourseSelect}
-                                  containerId={semester.id}
-                                  prerequisitesMet={prerequisitesMet} // Pass the prop
-                                />
-                              );
-                            })}
-                          </SortableContext>
-
-                          <div className="semester-footer">
-                            <div className={creditClass}>
-                              Total Credit: {sumCredits}
-                              {" "}
-                              {isOver && (
-                                <span>
-                                  <br /> Over the credit limit {maxAllowed}
-                                </span>
-                              )}
-                            </div>
-
-                            <button
-                              className="remove-semester-btn"
-                              onClick={() => handleRemoveSemester(semester.id)}
+                      return (
+                        <div key={semester.id} className={`semester ${shakingSemesterId === semester.id ? 'exceeding-credit-limit' : ''
+                          }`}>
+                          <Droppable id={semester.id} color="pink">
+                            <h3>{semester.name}</h3>
+                            <SortableContext
+                              items={semesterCourses[semester.id]}
+                              strategy={verticalListSortingStrategy}
                             >
-                              <svg
-                                width="1.2em"
-                                height="1.2em"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
+                              {semesterCourses[semester.id].map((courseCode) => {
+                                const course = coursePools
+                                  .flatMap((pool) => pool.courses)
+                                  .find((c) => c.code === courseCode);
+                                if (!course) return null;
+                                const isSelected = selectedCourse?.code === course.code;
+                                const isDraggingFromSemester = activeId === course.code;
+
+                                // Check if prerequisites are met
+                                const prerequisitesMet = arePrerequisitesMet(course.code, index);
+
+                                return (
+                                  <SortableCourse
+                                    key={course.code}
+                                    id={course.code}
+                                    title={course.code}
+                                    disabled={false}
+                                    isSelected={isSelected}
+                                    isDraggingFromSemester={isDraggingFromSemester}
+                                    onSelect={handleCourseSelect}
+                                    containerId={semester.id}
+                                    prerequisitesMet={prerequisitesMet} // Pass the prop
+                                  />
+                                );
+                              })}
+                            </SortableContext>
+
+                            <div className="semester-footer">
+                              <div className={creditClass}>
+                                Total Credit: {sumCredits}
+                                {" "}
+                                {isOver && (
+                                  <span>
+                                    <br /> Over the credit limit {maxAllowed}
+                                  </span>
+                                )}
+                              </div>
+
+                              <button
+                                className="remove-semester-btn"
+                                onClick={() => handleRemoveSemester(semester.id)}
                               >
-                                <polyline points="3 6 5 6 21 6" />
-                                <path d="M19 6l-1.21 14.06A2 2 0 0 1 15.8 22H8.2a2 2 0 0 1-1.99-1.94L5 6m3 0V4a2 2 0 0 1 2-2h2
-                                 a2 2 0 0 1 2 2v2" />
-                                <line x1="10" y1="11" x2="10" y2="17" />
-                                <line x1="14" y1="11" x2="14" y2="17" />
-                              </svg>
-                            </button>
-                          </div>
-                        </Droppable>
-                      </div>
-                    );
-                  })}
+                                <svg
+                                  width="1.2em"
+                                  height="1.2em"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <polyline points="3 6 5 6 21 6" />
+                                  <path d="M19 6l-1.21 14.06A2 2 0 0 1 15.8 22H8.2a2 2 0 0 1-1.99-1.94L5 6m3 0V4a2 2 0 0 1 2-2h2
+                                   a2 2 0 0 1 2 2v2" />
+                                  <line x1="10" y1="11" x2="10" y2="17" />
+                                  <line x1="14" y1="11" x2="14" y2="17" />
+                                </svg>
+                              </button>
+                            </div>
+                          </Droppable>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
@@ -942,7 +1037,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
                   onChange={(e) => setSelectedYear(e.target.value)}
                 >
                   {Array.from({ length: 10 }).map((_, i) => {
-                    const year = 2020 + i;
+                    const year = 2017 + i;
                     return (
                       <option key={year} value={year}>
                         {year}
