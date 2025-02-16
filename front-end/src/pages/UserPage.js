@@ -96,12 +96,44 @@ const UserPage = () => {
   };
 
   // add way to get user timelines here
-  const [userTimelines, setUserTimelines] = useState([
-    { id: 1, name: "Timeline 1", modifiedDate: "2025-01-10 10:12am" },
-    { id: 2, name: "Timeline 2", modifiedDate: "2025-01-12 11:43am" },
-    { id: 3, name: "Timeline 3", modifiedDate: "2025-01-14 1:03pm" },
-  ]);
-  const sortedUserTimelines = [...userTimelines].sort((a, b) => new Date(b.modifiedDate) - new Date(a.modifiedDate));
+  const [userTimelines, setUserTimelines] = useState([]);
+
+  useEffect(() => {
+    if (user) {
+      const getTimelines = async () => {
+        try {
+          const response = await fetch(`${process.env.REACT_APP_SERVER}/timeline/getAll`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userID: user.id,
+            }),
+          });
+    
+          if (!response.ok) {
+            // Extract error message from response
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Failed to fetch user timelines.");
+          }
+    
+          const data = await response.json();
+    
+          // Sort by modified date in descending order
+          const sortedTimelines = data.sort(
+            (a, b) => new Date(b.last_modified) - new Date(a.last_modified)
+          );
+    
+          setUserTimelines(sortedTimelines);
+        } catch (e) {
+          console.error("Error updating user info:", e);
+        }
+      }
+    
+      getTimelines();
+    }
+  }, [user] );
 
   const [showModal, setShowModal] = useState(false);
   const [timelineToDelete, setTimelineToDelete] = useState(null);
@@ -111,9 +143,29 @@ const UserPage = () => {
     setShowModal(true);
   };
 
-  const handleDelete = (id) => {
-    setUserTimelines(userTimelines.filter((obj) => obj.id !== id));
-    // add logic to actually delete here
+  const handleDelete = async (id) => {
+    try {
+      // delete timeline
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/timeline/delete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          timeline_id: id,
+        }),
+      });
+
+      if (!response.ok) {
+        // Extract error message from response
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete user timelines.");
+      }
+      // remove from page
+      setUserTimelines(userTimelines.filter((obj) => obj.id !== id));
+    } catch (e) {
+      console.error("Error updating user info:", e);
+    }
   };
 
   // Redirect to login if no user is found
@@ -190,23 +242,24 @@ const UserPage = () => {
         {/* Right Side */}
         <div className="col-12 col-md-6 d-flex flex-column text-center mx-auto mt-3 mt-md-0">
           <h2 className="mb-4">My Timelines</h2>
-          {sortedUserTimelines.length === 0 ? (
-            <Link to="/timeline_change">
+          {userTimelines.length === 0 ? (
+            <Link to="/timeline_initial">
             <p>You haven't saved any timelines yet, click here to start now!</p></Link>
           ) : (
           <div className="list-group">
-            {sortedUserTimelines.map((obj) => (
+            {userTimelines.map((obj) => (
             <div
               key={obj.id}
               className="timeline-box d-flex align-items-center justify-content-between"
             >
               <Link
                 to="/timeline_change" // modify this link once timeline actually hooked up
+                state={{ timelineData: obj }}
                 className = "timeline-link"
               >
                 <span className="timeline-text">{obj.name}</span>
                 <span className="timeline-text">
-                  Last Modified: {obj.modifiedDate}
+                  Last Modified: {obj.last_modified}
                 </span>
               </Link>
               <button
@@ -219,16 +272,16 @@ const UserPage = () => {
               </button>
             </div>
             ))}
+            {/* Add New Timeline Button */}
+            <Link
+              to="/timeline_initial"
+              className="timeline-add"
+            >
+              <span className="timeline-text">
+                +
+              </span>
+            </Link>
           </div>)}
-          {/* Add New Timeline Button */}
-          <Link
-            to="/timeline_change"
-            className="timeline-add"
-          >
-            <span className="timeline-text">
-              +
-            </span>
-          </Link>
         </div>
       </div>
       
