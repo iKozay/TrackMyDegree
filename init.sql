@@ -110,6 +110,13 @@ CREATE TABLE Exemption (
     FOREIGN KEY (user_id) REFERENCES AppUser (id)
 );
 
+CREATE TABLE Feedback (
+    id VARCHAR(255) PRIMARY KEY,
+    user_id VARCHAR(255) NULL,  -- Nullable since the user may not be logged in
+    message TEXT NOT NULL,
+    submitted_at DATETIME2 DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES AppUser(id) ON DELETE SET NULL
+);
 
 -- Insert sample values into tables
 

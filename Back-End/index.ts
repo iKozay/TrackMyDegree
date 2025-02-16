@@ -17,6 +17,7 @@ import AppUser from "@routes/appUser";
 import userDataRouter from "@routes/userData";
 import Admin from "@routes/adminRoutes";
 import requisiteRouter from "@routes/requisite"
+import feedbackRouter from "@routes/feedback";
 
 
 //Dev Consts
@@ -80,6 +81,7 @@ app.use("/coursepool", coursepoolRouter);
 app.use("/data", userDataRouter);
 app.use("/admin", Admin);
 app.use("/requisite", requisiteRouter);
+app.use("/feedback", feedbackRouter);
 
 /**
  * DB test route
