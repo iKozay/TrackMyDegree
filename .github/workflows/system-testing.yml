@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - Dev-Release-2
+  workflow_dispatch:
 
 jobs:
   docker-compose:
