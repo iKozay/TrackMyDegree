@@ -18,7 +18,7 @@ const UserPage = () => {
       setUserInfo([
         { title: "Full Name", value: user.fullname || "NULL" },
         { title: "Email", value: user.email || "NULL" },
-        { title: "Password", value: user.password || "NULL" },
+        //{ title: "Password", value: user.password || "NULL" },
         { title: "Degree Concentration", value: user.degree || "N/A" },
       ]);
     }
@@ -60,7 +60,6 @@ const UserPage = () => {
         id: user.id,
         fullname: updatedInfo[0].value,
         email: updatedInfo[1].value,
-        password: updatedInfo[2].value,
         degree: updatedInfo[3].value,
         type: user.type
       };
@@ -195,7 +194,8 @@ const UserPage = () => {
                 <span className="userinfo-title fw-bold">
                   {item.title}:
                 </span>
-                {isEditing && item.title === "Degree Concentration" ? (
+                <span>{item.value}</span>
+                {/*{isEditing && item.title === "Degree Concentration" ? (
                   <select
                     value={editedUserInfo[index]}
                     onChange={(e) => handleInputChange(e, index)}
@@ -216,12 +216,12 @@ const UserPage = () => {
                   />
                 ) : (
                   <span>{item.value}</span>
-                )}
+                )}*/}  
               </div>
             ))}
           </div>
           {/* Edit, Cancel, and Save Buttons */}
-          <div className="mt-4">
+          {/*<div className="mt-4">
             {!isEditing ? (
               <button className="btn btn-success" onClick={startEditing}>
                 Edit
@@ -236,7 +236,7 @@ const UserPage = () => {
                 </button>
               </div>
             )}
-          </div>
+          </div>*/}
         </div>
 
         {/* Right Side */}
