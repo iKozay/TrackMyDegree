@@ -142,7 +142,8 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 };
 
 // Main component
-const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
+const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}) => {
+  const navigate = useNavigate();
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
 
@@ -685,6 +686,136 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
     return 15;
   }
 
+  const handleSaveTimeline = async () => {
+    // Collecting data for all semesters and their courses
+    // const timelineData = semesters.map((semester) => {
+    //   // Get the courses for this semester
+    //   const coursesForSemester = semesterCourses[semester.id].map((courseCode) => {
+    //     const course = coursePools
+    //       .flatMap((pool) => pool.courses)
+    //       .find((c) => c.code === courseCode);
+    //       if(!course?.code)
+    //       {
+    //         return {
+    //           courseCode: "SOEN000"
+    //         };
+    //       }
+    //     return {
+    //       courseCode: course?.code
+    //     };
+    //   });
+    //   const [season, year = "2020"] = semester.name.split(" ");
+    //   const yearInt = isNaN(parseInt(year, 10)) ? 2020 : parseInt(year, 10);
+
+    //   return {
+    //     season: season,
+    //     year: yearInt,
+    //     courses: coursesForSemester,
+    //   };
+    // });
+  
+    const timelineData = [];
+    semesters.forEach((semester) => {
+      const [season, year = "2020"] = semester.name.split(" ");
+      
+      // Validate the season
+      const validSeasons = ["fall", "winter", "summer1", "summer2", "fall/winter", "summer"];
+      if (!validSeasons.includes(season.toLowerCase())) {
+        // Skip this iteration (equivalent to continue)
+        return;
+      }
+
+      // Get the courses for this semester
+      const coursesForSemester = [];
+      (semesterCourses[semester.id] || []).forEach((courseCode) => {
+        const course = coursePools
+          .flatMap((pool) => pool.courses)
+          .find((c) => c.code === courseCode);
+        
+        // If course not found, use default course code
+        if (!course?.code) {
+          return;
+        } else {
+          coursesForSemester.push({
+            courseCode: course.code,
+          });
+        }
+        
+      });
+
+      const yearInt = isNaN(parseInt(year, 10)) ? 2020 : parseInt(year, 10);
+
+      // Add the valid semester data to the timelineData array
+      timelineData.push({
+        season: season,
+        year: yearInt,
+        courses: coursesForSemester,
+      });
+    });
+
+
+    // Only proceed if there is valid timeline data
+    if (timelineData.length > 0) {
+      console.log(timelineData);
+      // Prompt the user for the name of the timeline
+      const name = prompt("Please enter a name for your timeline:");
+      
+      if (name) {
+        // Proceed with saving the timeline data
+        const userTimeline = [{
+          user_id: JSON.parse(localStorage.getItem('user')).id, // Replace this with the actual user ID
+          name: name,
+          items: timelineData.map((item) => ({
+            season: item.season,
+            year: item.year,
+            courses: item.courses.map((course) => course.courseCode),
+          }))
+        }];
+
+        const user_id = userTimeline[0].user_id;
+        const name_1 = userTimeline[0].name;
+        const items = userTimeline[0].items;
+        
+
+        try {
+          // Send the data to the backend via the API
+        const response = await fetch(`${process.env.REACT_APP_SERVER}/timeline/save`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({user_id, name: name_1, items}),
+        });
+
+        console.log(user_id, "user");
+        console.log("name", name_1);
+        console.log("items", items);
+
+        const data = await response.json();
+  
+          if (response.ok) {
+            alert('Timeline saved successfully!');
+            navigate('/user'); // Navigate after saving
+          } else {
+            alert(data.message);
+          }
+        } catch (error) {
+          console.error("Error saving timeline:", error);
+          alert("An error occurred while saving your timeline.");
+        }
+      } else {
+        alert("Timeline name is required!");
+      }
+    } else {
+      alert("No valid data to save.");
+    }
+    
+    // Optionally log the data for debugging purposes
+    console.log('Saved Timeline:', timelineData);
+  };
+  
+  
+
   //method to get courses by id while taking into account nested coruse lists
   // const getCourseById = (id, courses) => {
   //   for (const courseSection of courses) {
@@ -783,6 +914,13 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired }) => {
               <h4>
                 Total Credits Earned: {totalCredits} / {creditsRequired}
               </h4>
+              {/* Save Timeline Button */}
+              <button
+                  className="save-timeline-button"
+                  onClick={handleSaveTimeline} // You can define this handler to save the transcript
+                >
+                  Save Timeline
+                </button>
             </div>
 
             <div className="timeline-page">
