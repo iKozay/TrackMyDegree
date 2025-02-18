@@ -100,20 +100,20 @@ const UserPage = () => {
   useEffect(() => {
     if (user) {
       const getTimelines = async () => {
+        const user_id = user.id;
         try {
           const response = await fetch(`${process.env.REACT_APP_SERVER}/timeline/getAll`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              userID: user.id,
-            }),
+            body: JSON.stringify({user_id}),
           });
     
           if (!response.ok) {
             // Extract error message from response
             const errorData = await response.json();
+            console.log(response);
             throw new Error(errorData.message || "Failed to fetch user timelines.");
           }
     
@@ -150,20 +150,19 @@ const UserPage = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          timeline_id: id,
-        }),
+        body: JSON.stringify({id}),
       });
 
       if (!response.ok) {
         // Extract error message from response
         const errorData = await response.json();
+        console.log(response);
         throw new Error(errorData.message || "Failed to delete user timelines.");
       }
       // remove from page
       setUserTimelines(userTimelines.filter((obj) => obj.id !== id));
     } catch (e) {
-      console.error("Error updating user info:", e);
+      console.error("Error deleting user timeline:", e);
     }
   };
 
@@ -253,8 +252,8 @@ const UserPage = () => {
               className="timeline-box d-flex align-items-center justify-content-between"
             >
               <Link
-                to="/timeline_change" // modify this link once timeline actually hooked up
-                state={{ timelineData: obj }}
+                to="/timeline_change"
+                state={{ timelineData: obj }} // add needed data once solved
                 className = "timeline-link"
               >
                 <span className="timeline-text">{obj.name}</span>
@@ -263,7 +262,7 @@ const UserPage = () => {
                 </span>
               </Link>
               <button
-                onClick={(e) => {
+                onClick={() => {
                   handleDeleteClick(obj);
                 }}
                 className="timeline-delete btn btn-danger btn-sm"
@@ -313,7 +312,7 @@ const UserPage = () => {
                   type="button"
                   className="btn btn-success"
                   onClick={() => {
-                    handleDelete(timelineToDelete);
+                    handleDelete(timelineToDelete.timeline_id);
                     setShowModal(false);
                   }}
                 >
