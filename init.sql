@@ -69,10 +69,13 @@ CREATE TABLE AppUser (  -- Use square brackets for reserved keywords
 CREATE TABLE Timeline (
     id VARCHAR(255) PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
+    degree_id VARCHAR(255) NOT NULL,  -- New column for the associated degree
     name VARCHAR(100) NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES AppUser (id) ON DELETE CASCADE,  -- Can link multiple timeline to user
-    last_modified DATETIME2
+    last_modified DATETIME2,
+    FOREIGN KEY (user_id) REFERENCES AppUser (id) ON DELETE CASCADE,
+    FOREIGN KEY (degree_id) REFERENCES Degree(id)
 );
+
 
 CREATE TABLE TimelineItems (
     id VARCHAR(255) PRIMARY KEY,
@@ -110,6 +113,13 @@ CREATE TABLE Exemption (
     FOREIGN KEY (user_id) REFERENCES AppUser (id)
 );
 
+CREATE TABLE Feedback (
+    id VARCHAR(255) PRIMARY KEY,
+    user_id VARCHAR(255) NULL,  -- Nullable since the user may not be logged in
+    message TEXT NOT NULL,
+    submitted_at DATETIME2 DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES AppUser(id) ON DELETE SET NULL
+);
 
 -- Insert sample values into tables
 

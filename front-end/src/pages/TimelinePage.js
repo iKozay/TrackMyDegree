@@ -452,7 +452,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
     const id = String(active.id); // courseCode
 
     if (over) {
-      if (over.id === 'courseList') {
+      if (over.id === 'courseList' || over.id === 'courses-with-button') {
         // Course is being returned to the course list
         handleReturn(id);
       } else {
@@ -516,9 +516,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
           const maxAllowed = getMaxCreditsForSemesterName(overSemesterObj.name);
 
           if (sumCredits > maxAllowed) {
-            // Optional: keep a visual shake
             shakeSemester(overSemesterId);
-            // Alert the user
             alert("You exceeded the limit of 15 credits per semester allowed in Gina Cody School of Engineering and Computer Science!");
           }
           return updatedSemesters;
@@ -925,12 +923,12 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
 
             <div className="timeline-page">
 
-              <div className='courses-with-button'>
+              <Droppable className='courses-with-button' id="courses-with-button">
                 <div className={`timeline-left-bar ${showCourseList ? '' : 'hidden'}`}>
                   {showCourseList && (
-                    <div>
+                      <div>
                       <h4>Course List</h4>
-                      <Droppable id="courseList" className="course-list">
+                      <Droppable id="courseList" className="course-list" style={"color=red"}>
                         <Accordion>
                           {coursePools.map((coursePool) => (
                             <Accordion.Item
@@ -970,7 +968,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
                 <button className="left-toggle-button" onClick={toggleCourseList}>
                   {showCourseList ? '◀' : '▶'}
                 </button>
-              </div>
+              </Droppable>
 
               <div className="timeline-middle-section">
                 <div className='timeline-header'>

@@ -4,6 +4,7 @@ declare namespace TimelineTypes {
     id?: string;
     user_id: string;
     name: string;
+    degree_id: string;
     /** This field is automatically set/updated when the timeline is saved. */
     last_modified?: Date | string;
     items: TimelineItem[];
