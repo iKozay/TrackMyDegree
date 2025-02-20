@@ -5,103 +5,101 @@ import exemptionController from "@controllers/exemptionController/exemptionContr
 const router = express.Router();
 
 router.post('/create', async (req: Request, res: Response) => {
-    const { coursecode, user_id } = req.body;
-  
-    try {
-      // Validate input
-      if ( !coursecode || typeof user_id !== 'string'
-            || typeof coursecode !== 'string') {
+  const { coursecodes, user_id } = req.body;
 
-        res.status(HTTP.BAD_REQUEST).json({
-          error: 'Invalid input. Please provide coursecode, and user_id as a string.',
-        });
-        return;
-      }
-  
-      // Call the service function
-      const newExemption = await exemptionController.createExemption(coursecode, user_id);
-  
-      // Send success response
-      res.status(HTTP.CREATED).json({
-        message: 'Exemption created successfully.',
-        exemption: newExemption,
+  try {
+    // Validate input
+    if (!Array.isArray(coursecodes) || coursecodes.some(cc => typeof cc !== 'string') || typeof user_id !== 'string') {
+      res.status(HTTP.BAD_REQUEST).json({
+        error: 'Invalid input. Please provide an array of course codes and a user_id as a string.',
       });
-    } catch (error) {
-      // Handle errors from the service
-      if (error instanceof Error) {
-        res.status(HTTP.FORBIDDEN).json({ error: error.message });
-      } else {
-        const errMsg = 'Internal server error in /exemption/create';
-        console.error(errMsg, error);
-        res.status(HTTP.SERVER_ERR).json({ error: errMsg });
-      }
+      return;
     }
-  });
-  
 
-  router.post('/getAll', async (req: Request, res: Response) => {
-    const { user_id } = req.body;
-  
-    try {
-      // Validate input
-      if (!user_id || typeof user_id !== 'string') {
-        res.status(HTTP.BAD_REQUEST).json({
-          error: 'Invalid input. Please provide user_id as a string.',
-        });
-        return;
-      }
-  
-      // Call the service function
-      const newExemption = await exemptionController.getAllExemptionsByUser(user_id);
-  
-      // Send success response
-      res.status(HTTP.OK).json({
-        message: 'Exemption read successfully.',
-        exemption: newExemption,
-      });
-    } catch (error) {
-      // Handle errors from the service
-      if (error instanceof Error) {
-        res.status(HTTP.FORBIDDEN).json({ error: error.message });
-      } else {
-        const errMsg = 'Internal server error in /exemption/getAll';
-        console.error(errMsg, error);
-        res.status(HTTP.SERVER_ERR).json({ error: errMsg });
-      }
-    }
-  });
+    // Call the service function
+    const exemptions = await exemptionController.createExemptions(coursecodes, user_id);
 
-  router.post('/delete', async (req: Request, res: Response) => {
-    const { coursecode, user_id } = req.body;
-  
-    try {
-      // Validate input
-      if (!coursecode || typeof coursecode !== 'string' ||
-        !user_id || typeof user_id !== 'string'
-      ) {
-        res.status(HTTP.BAD_REQUEST).json({
-          error: 'Invalid input. Please provide coursecode and user_id as strings.',
-        });
-        return;
-      }
-  
-      // Call the service function
-      await exemptionController.deleteExemptionByCoursecodeAndUserId(coursecode, user_id);
-  
-      // Send success response
-      res.status(HTTP.OK).json({
-        message: 'Exemption deleted successfully.',
-      });
-    } catch (error) {
-      // Handle errors from the service
-      if (error instanceof Error) {
-        res.status(HTTP.FORBIDDEN).json({ error: error.message });
-      } else {
-        const errMsg = 'Internal server error in /exemption/delete';
-        console.error(errMsg, error);
-        res.status(HTTP.SERVER_ERR).json({ error: errMsg });
-      }
+    // Send success response
+    res.status(HTTP.CREATED).json({
+      message: 'Exemptions created successfully.',
+      exemptions,
+    });
+  } catch (error) {
+    // Handle errors from the service
+    if (error instanceof Error) {
+      res.status(HTTP.FORBIDDEN).json({ error: error.message });
+    } else {
+      const errMsg = 'Internal server error in /exemption/create';
+      console.error(errMsg, error);
+      res.status(HTTP.SERVER_ERR).json({ error: errMsg });
     }
-  });
-  
-  export default router;
+  }
+});
+
+
+router.post('/getAll', async (req: Request, res: Response) => {
+  const { user_id } = req.body;
+
+  try {
+    // Validate input
+    if (!user_id || typeof user_id !== 'string') {
+      res.status(HTTP.BAD_REQUEST).json({
+        error: 'Invalid input. Please provide user_id as a string.',
+      });
+      return;
+    }
+
+    // Call the service function
+    const newExemption = await exemptionController.getAllExemptionsByUser(user_id);
+
+    // Send success response
+    res.status(HTTP.OK).json({
+      message: 'Exemption read successfully.',
+      exemption: newExemption,
+    });
+  } catch (error) {
+    // Handle errors from the service
+    if (error instanceof Error) {
+      res.status(HTTP.FORBIDDEN).json({ error: error.message });
+    } else {
+      const errMsg = 'Internal server error in /exemption/getAll';
+      console.error(errMsg, error);
+      res.status(HTTP.SERVER_ERR).json({ error: errMsg });
+    }
+  }
+});
+
+router.post('/delete', async (req: Request, res: Response) => {
+  const { coursecode, user_id } = req.body;
+
+  try {
+    // Validate input
+    if (!coursecode || typeof coursecode !== 'string' ||
+      !user_id || typeof user_id !== 'string'
+    ) {
+      res.status(HTTP.BAD_REQUEST).json({
+        error: 'Invalid input. Please provide coursecode and user_id as strings.',
+      });
+      return;
+    }
+
+    // Call the service function
+    await exemptionController.deleteExemptionByCoursecodeAndUserId(coursecode, user_id);
+
+    // Send success response
+    res.status(HTTP.OK).json({
+      message: 'Exemption deleted successfully.',
+    });
+  } catch (error) {
+    // Handle errors from the service
+    if (error instanceof Error) {
+      res.status(HTTP.FORBIDDEN).json({ error: error.message });
+    } else {
+      const errMsg = 'Internal server error in /exemption/delete';
+      console.error(errMsg, error);
+      res.status(HTTP.SERVER_ERR).json({ error: errMsg });
+    }
+  }
+});
+
+export default router;
