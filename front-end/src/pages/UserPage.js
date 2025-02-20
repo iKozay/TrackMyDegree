@@ -4,7 +4,7 @@ import { AuthContext } from "../AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/UserPage.css";
 
-const UserPage = () => {
+const UserPage = ({ onDataProcessed }) => {
   const { user } = useContext(AuthContext); // Access user data from context
   const [userInfo, setUserInfo] = useState([]);
   
@@ -23,15 +23,6 @@ const UserPage = () => {
       ]);
     }
   }, [user]);
-
-  // add way to get actual list here
-  const degreeConcentrations = [
-    "Software Engineer",
-    "Data Scientist",
-    "Cybersecurity Specialist",
-    "AI Researcher",
-    "Network Engineer",
-  ];
 
   useEffect(() => {
     if (userInfo) {
@@ -86,6 +77,39 @@ const UserPage = () => {
       console.error("Error updating user info:", error);
       setIsEditing(false);
     }
+  };
+
+  const handleTimelineClick = (obj) => {
+    const transcriptData = [];
+
+    const degreeId = obj.degree_id;
+    const items = obj.items;
+    const creditsRequired = 120;
+
+    items.forEach(item => {
+      const season = item.season;
+      const year = item.year;
+      const courses = item.courses;
+      if(courses.length > 0){
+        courses.forEach(course=>{
+          transcriptData.push({
+            term: `${season} ${year}`,
+            course: course,
+            grade: 'A'
+          });
+        });
+      };
+    });
+
+    onDataProcessed({
+      transcriptData,
+      degreeId,
+      creditsRequired
+    });
+    console.log("Obj.Item", obj.items);
+    console.log("Obj.degree_id:", obj.degree_id);
+    console.log("time", transcriptData);
+    navigate("/timeline_change");  // Navigate to the desired page
   };
 
   const handleInputChange = (e, index) => {
@@ -251,16 +275,19 @@ const UserPage = () => {
               key={obj.id}
               className="timeline-box d-flex align-items-center justify-content-between"
             >
-              <Link
-                to="/timeline_change"
-                state={{ timelineData: obj }} // add needed data once solved
-                className = "timeline-link"
-              >
+              <span
+                    className="timeline-link"
+                    // onClick={() => {
+                    //   onDataProcessed({ timelineData: obj }); // Send the timeline data
+                    //   navigate("/timeline_change");
+                    // }}
+                    onClick={() => handleTimelineClick(obj)} 
+                  >
                 <span className="timeline-text">{obj.name}</span>
                 <span className="timeline-text">
                   Last Modified: {obj.last_modified}
                 </span>
-              </Link>
+                </span>
               <button
                 onClick={() => {
                   handleDeleteClick(obj);
