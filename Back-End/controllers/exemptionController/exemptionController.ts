@@ -5,9 +5,10 @@ import { randomUUID } from "crypto"
 async function createExemptions(
   coursecodes: string[],
   user_id: string
-): Promise<ExemptionTypes.Exemption[]> {
+): Promise<{ created: ExemptionTypes.Exemption[]; alreadyExists: string[] }> {
   const conn = await Database.getConnection();
-  const exemptions: ExemptionTypes.Exemption[] = [];
+  const createdExemptions: ExemptionTypes.Exemption[] = [];
+  const alreadyExists: string[] = [];
 
   if (conn) {
     try {
@@ -37,7 +38,9 @@ async function createExemptions(
           .query('SELECT * FROM Exemption WHERE coursecode = @coursecode AND user_id = @user_id');
 
         if (existingExemption.recordset.length > 0) {
-          throw new Error(`Exemption for coursecode '${coursecode}' and user_id '${user_id}' already exists.`);
+          // Instead of throwing an error, add the coursecode to the alreadyExists array and continue.
+          alreadyExists.push(coursecode);
+          continue;
         }
 
         // Generate random id
@@ -50,10 +53,10 @@ async function createExemptions(
           .input('user_id', Database.msSQL.VarChar, user_id)
           .query('INSERT INTO Exemption (id, coursecode, user_id) VALUES (@id, @coursecode, @user_id)');
 
-        exemptions.push({ id, coursecode, user_id });
+        createdExemptions.push({ id, coursecode, user_id });
       }
 
-      return exemptions;
+      return { created: createdExemptions, alreadyExists };
     } catch (error) {
       throw error;
     } finally {
@@ -61,8 +64,9 @@ async function createExemptions(
     }
   }
 
-  return [];
+  return { created: [], alreadyExists: [] };
 }
+
 
 
 

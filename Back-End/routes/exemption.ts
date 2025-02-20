@@ -9,7 +9,11 @@ router.post('/create', async (req: Request, res: Response) => {
 
   try {
     // Validate input
-    if (!Array.isArray(coursecodes) || coursecodes.some(cc => typeof cc !== 'string') || typeof user_id !== 'string') {
+    if (
+      !Array.isArray(coursecodes) ||
+      coursecodes.some(cc => typeof cc !== 'string') ||
+      typeof user_id !== 'string'
+    ) {
       res.status(HTTP.BAD_REQUEST).json({
         error: 'Invalid input. Please provide an array of course codes and a user_id as a string.',
       });
@@ -17,12 +21,18 @@ router.post('/create', async (req: Request, res: Response) => {
     }
 
     // Call the service function
-    const exemptions = await exemptionController.createExemptions(coursecodes, user_id);
+    const result = await exemptionController.createExemptions(coursecodes, user_id);
+
+    // Compose a success message
+    let message = 'Exemptions created successfully.';
+    if (result.alreadyExists.length > 0) {
+      message += ` Exemptions for the following course codes already existed: ${result.alreadyExists.join(', ')}.`;
+    }
 
     // Send success response
     res.status(HTTP.CREATED).json({
-      message: 'Exemptions created successfully.',
-      exemptions,
+      message,
+      exemptions: result.created,
     });
   } catch (error) {
     // Handle errors from the service
@@ -35,6 +45,7 @@ router.post('/create', async (req: Request, res: Response) => {
     }
   }
 });
+
 
 
 router.post('/getAll', async (req: Request, res: Response) => {
