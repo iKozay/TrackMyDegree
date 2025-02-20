@@ -19,7 +19,6 @@ const UserPage = ({ onDataProcessed }) => {
         { title: "Full Name", value: user.fullname || "NULL" },
         { title: "Email", value: user.email || "NULL" },
         //{ title: "Password", value: user.password || "NULL" },
-        { title: "Degree Concentration", value: user.degree || "N/A" },
       ]);
     }
   }, [user]);
@@ -51,7 +50,6 @@ const UserPage = ({ onDataProcessed }) => {
         id: user.id,
         fullname: updatedInfo[0].value,
         email: updatedInfo[1].value,
-        degree: updatedInfo[3].value,
         type: user.type
       };
   
