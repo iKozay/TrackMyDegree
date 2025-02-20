@@ -685,32 +685,6 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
   }
 
   const handleSaveTimeline = async () => {
-    // Collecting data for all semesters and their courses
-    // const timelineData = semesters.map((semester) => {
-    //   // Get the courses for this semester
-    //   const coursesForSemester = semesterCourses[semester.id].map((courseCode) => {
-    //     const course = coursePools
-    //       .flatMap((pool) => pool.courses)
-    //       .find((c) => c.code === courseCode);
-    //       if(!course?.code)
-    //       {
-    //         return {
-    //           courseCode: "SOEN000"
-    //         };
-    //       }
-    //     return {
-    //       courseCode: course?.code
-    //     };
-    //   });
-    //   const [season, year = "2020"] = semester.name.split(" ");
-    //   const yearInt = isNaN(parseInt(year, 10)) ? 2020 : parseInt(year, 10);
-
-    //   return {
-    //     season: season,
-    //     year: yearInt,
-    //     courses: coursesForSemester,
-    //   };
-    // });
   
     const timelineData = [];
     semesters.forEach((semester) => {
@@ -773,6 +747,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
         const user_id = userTimeline[0].user_id;
         const name_1 = userTimeline[0].name;
         const items = userTimeline[0].items;
+        const degreeId = degreeid;
         
 
         try {
@@ -782,12 +757,13 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({user_id, name: name_1, items}),
+          body: JSON.stringify({user_id, name: name_1, items, degree_id: degreeId}),
         });
 
         console.log(user_id, "user");
         console.log("name", name_1);
         console.log("items", items);
+        console.log("degreeid", degreeId);
 
         const data = await response.json();
   
@@ -795,7 +771,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
             alert('Timeline saved successfully!');
             navigate('/user'); // Navigate after saving
           } else {
-            alert(data.message);
+            alert("Error saving Timeline!" || data.message);
           }
         } catch (error) {
           console.error("Error saving timeline:", error);
@@ -811,27 +787,6 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
     // Optionally log the data for debugging purposes
     console.log('Saved Timeline:', timelineData);
   };
-  
-  
-
-  //method to get courses by id while taking into account nested coruse lists
-  // const getCourseById = (id, courses) => {
-  //   for (const courseSection of courses) {
-  //     if (courseSection.courseList) {
-  //       for (const course of courseSection.courseList) {
-  //         if (course.id === id) {
-  //           return course;
-  //         }
-  //       }
-  //     }
-  //     // Check for any nested subcourses and recursively search through them
-  //     if (courseSection.subcourses) {
-  //       const found = getCourseById(id, courseSection.subcourses);
-  //       if (found) return found;
-  //     }
-  //   }
-  //   return null;
-  // };
 
   // Function to handle mouse move over the scrollable container
   const handleScrollMouseMove = (e) => {
