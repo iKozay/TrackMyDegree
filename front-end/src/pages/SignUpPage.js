@@ -10,13 +10,11 @@ function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [selectDegree, setSelectDegree] = useState("Select Degree");
   const userType = "student"; // Hardcoded to 'student'
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const [error, setError] = useState(null); // To handle error messages
   const [loading, setLoading] = useState(false); // To handle loading state
-  const degrees = ['Software Engineering', 'Computer Engineering', 'Electrical Engineering']
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -62,7 +60,6 @@ function SignUpPage() {
           email,
           password,
           type: userType,
-          degree: selectDegree,
         }),
       });
 
@@ -141,23 +138,6 @@ function SignUpPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
-          </div>
-
-          {/* Select Degree */}
-          <div className="mb-4">
-            <label htmlFor="selectDegree" className="form-label">Select Degree:</label>
-            <Dropdown>
-              <Dropdown.Toggle id="dropdown-basic" className="dropdown-custom w-100">
-                {selectDegree}
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                {degrees.map((degree, index) => (
-                  <Dropdown.Item key={index} onClick={() => setSelectDegree(degree)}>
-                    {degree}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </Dropdown>
           </div>
 
           {/* Display Error Message */}

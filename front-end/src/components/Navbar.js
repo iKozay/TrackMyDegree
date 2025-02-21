@@ -92,7 +92,7 @@ const Navbar = () => {
                   <Link to="/user">
                     <button className="navbar-button navbar-button-signin">User</button>
                   </Link>
-                  <Link to="/signup">
+                  <Link to="/signin">
                     <button className="navbar-button navbar-button-register" onClick={handleLogout}>Log Out</button>
                   </Link>
                 </div>

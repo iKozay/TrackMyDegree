@@ -60,7 +60,6 @@ function LogInPage() {
       const data = await response.json();
 
       // Assuming the API returns an authentication token and user data
-      // You might want to store the token in context or localStorage here
       login(data); // Pass the received data to the login function
       navigate("/user"); // Redirect to the user page
     } catch (err) {

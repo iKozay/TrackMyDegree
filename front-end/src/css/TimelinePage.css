@@ -560,3 +560,27 @@
     transform: translate(0, 0);
   }
 }
+
+/* General button styles */
+.save-timeline-button {
+  background-color: #800020; /* Green background */
+  color: white; /* White text */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 10px 20px; /* Padding for size */
+  font-size: 16px; /* Text size */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth transition for background color */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Hover effect */
+.save-timeline-button:hover {
+  background-color: #45a049; /* Darker green on hover */
+}
+
+/* Focus effect for accessibility */
+.save-timeline-button:focus {
+  outline: 2px solid #fff; /* White outline on focus */
+  outline-offset: 2px;
+}

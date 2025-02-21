@@ -53,7 +53,8 @@ function App() {
 								path="/user"
 								element={
 									<ProtectedRoute>
-										<UserPage />
+										<UserPage 
+									onDataProcessed={handleDataProcessed}/>
 									</ProtectedRoute>
 								}
 							/>
