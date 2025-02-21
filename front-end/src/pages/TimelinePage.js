@@ -1,6 +1,6 @@
 // TimelinePage.js
 
-import React, { useState, useEffect, useRef  } from 'react';
+import React, { useState, useContext, useEffect, useRef  } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   DndContext,
@@ -150,11 +150,62 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
   const [semesters, setSemesters] = useState([]);
   const [semesterCourses, setSemesterCourses] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const userData = localStorage.getItem('user');
+  const user = JSON.parse(userData);
   const location = useLocation();
 
   const scrollWrapperRef = useRef(null);
   const autoScrollInterval = useRef(null);
+
+  const exemptedcour = [];
+    
+  useEffect(() => {
+    if (user) {
+      const getexemptedcourses = async () => {
+        const user_id = user.id;
+        console.log("User in timeline exemp: ", user_id);
+        try {
+          const response = await fetch(`${process.env.REACT_APP_SERVER}/exemption/getAll`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({user_id}),
+          });
+    
+          if (!response.ok) {
+            // Extract error message from response
+            const errorData = await response.json();
+            console.log(response);
+            throw new Error(errorData.message || "Failed to fetch exempted courses.");
+          }
+    
+          const data = await response.json();
+          exemptedcour.push(data);
+        } catch (e) {
+          console.error("Error extracting exempted courses", e);
+        }
+
+        if(exemptedcour.length>0){
+          console.log("jcnkjn ",exemptedcour);
+          exemptedcour.forEach((item)=>{
+            item.exemption.forEach((item_2)=>{{
+              const exists = timelineData.some(result => result.course === item_2.coursecode);
+          
+              if (!exists) {
+                timelineData.push({
+                  term: 'Exempted',
+                  course: item_2.coursecode
+                });
+              }
+            }})
+          });
+        }
+      }
+    
+      getexemptedcourses();
+    }
+  }, [user] );
 
 
   let { degreeId, startingSemester, creditsRequired } = location.state || {};
@@ -279,6 +330,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
       // Adjust course code if needed:
       semesterMap[term].push(course.replace(' ', ''));
       semesterNames.add(term);
+      console.log(semesterMap);
     });
 
     // If a starting semester was passed, generate two years (6 semesters)
@@ -287,7 +339,8 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
       twoYearSemesters.forEach((sem) => {
         if (!semesterNames.has(sem)) {
           semesterNames.add(sem);
-          semesterMap[sem] = [];
+          if(!semesterMap[sem])
+          {semesterMap[sem] = [];}
         }
       });
     }
@@ -687,9 +740,31 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
   const handleSaveTimeline = async () => {
   
     const timelineData = [];
+    const exempted_courses = [];
     semesters.forEach((semester) => {
       const [season, year = "2020"] = semester.name.split(" ");
       
+      if (semester.id === "Exempted" || semester.id === "Transfered Courses") {
+        console.log("Exempted code: ");
+        
+        (semesterCourses[semester.id] || []).forEach((courseCode) => {
+          console.log("Exempted code: ", courseCode);
+      
+          const course = coursePools
+            .flatMap((pool) => pool.courses)
+            .find((c) => c.code === courseCode);
+          
+          // Ensure course exists and has a valid code
+          if (course && course.code) {
+            const courseCode_exp = course.code;
+            exempted_courses.push(courseCode_exp);
+          } else {
+            console.log(`Course not found or missing code for: ${courseCode}`);
+          }
+        });
+      }
+      
+
       // Validate the season
       const validSeasons = ["fall", "winter", "summer1", "summer2", "fall/winter", "summer"];
       if (!validSeasons.includes(season.toLowerCase())) {
@@ -749,6 +824,28 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
         const items = userTimeline[0].items;
         const degreeId = degreeid;
         
+
+        try {
+          // Send the data to the backend via the API
+        const response = await fetch(`${process.env.REACT_APP_SERVER}/exemption/create`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({coursecodes: exempted_courses,user_id}),
+        });
+
+        const data = await response.json();
+  
+          if (response.ok) {
+            
+          } else {
+            alert("Error saving Exempted Courses!" || data.message);
+          }
+        } catch (error) {
+          console.error("Error saving Exempted Courses:", error);
+          alert("An error occurred while saving your timeline.");
+        }
 
         try {
           // Send the data to the backend via the API
