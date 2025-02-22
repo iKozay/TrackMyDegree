@@ -822,7 +822,6 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
         const user_id = userTimeline[0].user_id;
         const name_1 = userTimeline[0].name;
         const items = userTimeline[0].items;
-        const degreeId = degreeid;
         
 
         try {
