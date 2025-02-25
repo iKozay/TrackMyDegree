@@ -76,6 +76,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     const startingSemester = `${selectedTerm} ${selectedYear}`;
 
     // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
+    localStorage.setItem('Timeline_Name', null);
     navigate("/timeline_change", { state: { degreeId: selectedDegreeId, creditsRequired: 120, startingSemester: startingSemester}});
   };
 
@@ -179,6 +180,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
           const degreeId = extractedData.degreeId || "Unknown"; // Map degree to ID
 
           if (transcriptData.length > 0) {
+            localStorage.setItem('Timeline_Name', null);
             onDataProcessed({
               transcriptData,
               degreeId,

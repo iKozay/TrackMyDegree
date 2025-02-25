@@ -76,6 +76,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
           const creditsRequired = extractedData.creditsRequired;
 
           if (transcriptData.length > 0) {
+            localStorage.setItem('Timeline_Name', null);
             onDataProcessed({
               transcriptData,
               degreeId,

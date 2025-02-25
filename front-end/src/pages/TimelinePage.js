@@ -802,10 +802,18 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
 
 
     // Only proceed if there is valid timeline data
-    if (timelineData.length > 0) {
+    if (timelineData.length > 0 || exempted_courses.length > 0) {
       console.log(timelineData);
       // Prompt the user for the name of the timeline
-      const name = prompt("Please enter a name for your timeline:");
+      const Timeline_Name = JSON.parse(localStorage.getItem("Timeline_Name"));
+      let name = "";
+      if(Timeline_Name)
+      {
+        name = Timeline_Name;
+      }
+      else{
+        name = prompt("Please enter a name for your timeline:");
+      }
       
       if (name) {
         // Proceed with saving the timeline data

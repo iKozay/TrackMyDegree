@@ -79,6 +79,7 @@ const UserPage = ({ onDataProcessed }) => {
 
   const handleTimelineClick = (obj) => {
     const transcriptData = [];
+    localStorage.setItem('Timeline_Name', JSON.stringify(obj.name));
 
     const degreeId = obj.degree_id;
     const items = obj.items;
