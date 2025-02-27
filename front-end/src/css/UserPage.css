@@ -18,7 +18,7 @@
     transition: border-color 0.3s;
     position: relative;
     height: 80px;
-    width: 600px;
+    width: 700px;
     transition: opacity 0.1s;
 }
 
@@ -26,6 +26,7 @@
     border-color: black; 
     transform: scale(1.01);
     opacity: 0.7;
+    cursor: pointer;
 }
   
 .timeline-box a:hover {
