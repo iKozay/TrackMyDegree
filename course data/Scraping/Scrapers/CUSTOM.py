@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import json
 import requests
 
-url = "https://www.concordia.ca/academics/undergraduate/calendar/current/section-31-faculty-of-arts-and-science/section-31-130-department-of-geography-planning-and-environment/geography-planning-and-environment-courses.html#1849"
+url="https://www.concordia.ca/academics/undergraduate/calendar/current/section-31-faculty-of-arts-and-science/section-31-090-department-of-education/english-as-a-second-language-courses.html#18944"
 
 response = requests.get(url)
 
@@ -47,32 +47,29 @@ for block in course_blocks:
         else:
             full_text = ""
 
-        # Separate prerequisites, corequisites, description, and components
+        # Extract prerequisites as a single block of text
         prereq_text = ""
-        coreq_text = ""
-        components = None
-        notes = None
-
         if "Prerequisite/Corequisite:" in full_text:
             prereq_start = full_text.find("Prerequisite/Corequisite:") + len("Prerequisite/Corequisite:")
             prereq_end = full_text.find("Description:", prereq_start)
-            prereqs_coreqs_text = full_text[prereq_start:prereq_end].strip()
+            prereq_text = full_text[prereq_start:prereq_end].strip()
 
-            if "previously" in prereqs_coreqs_text:
-                prereq_text = prereqs_coreqs_text.split("previously:")[1].split(". The")[0].strip()
-            if "previously or concurrently" in prereqs_coreqs_text:
-                coreq_text = prereqs_coreqs_text.split("previously or concurrently:")[1].split(".")[0].strip()
-
+        # Extract description
+        description = ""
         if "Description:" in full_text:
             desc_start = full_text.find("Description:") + len("Description:")
             desc_end = full_text.find("Component(s):", desc_start)
             description = full_text[desc_start:desc_end].strip() if desc_end != -1 else full_text[desc_start:].strip()
 
+        # Extract components
+        components = None
         if "Component(s):" in full_text:
             comp_start = full_text.find("Component(s):") + len("Component(s):")
             comp_end = full_text.find("Notes:", comp_start)
             components = full_text[comp_start:comp_end].strip() if comp_end != -1 else full_text[comp_start:].strip()
 
+        # Extract notes
+        notes = None
         if "Notes:" in full_text:
             notes_start = full_text.find("Notes:") + len("Notes:")
             notes = full_text[notes_start:].strip()
@@ -81,8 +78,8 @@ for block in course_blocks:
         course_data = {
             "title": title,
             "credits": credits,
-            "prerequisites": prereq_text,
-            "corequisites": coreq_text,
+            "prerequisites": prereq_text,  # All prerequisites/corequisites text goes here
+            "corequisites": "",  # Leave corequisites empty for manual handling
             "description": description,
             "components": components,
             "notes": notes
@@ -95,7 +92,7 @@ for block in course_blocks:
         print(f"Error processing course block: {e}")
 
 # Save the data to a JSON file
-output_path = 'geol_courses.json'
+output_path = 'esl_courses.json'
 with open(output_path, 'w', encoding='utf-8') as json_file:
     json.dump(courses, json_file, indent=4, ensure_ascii=False)
 
