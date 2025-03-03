@@ -2,14 +2,18 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
+import moment from "moment";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/UserPage.css";
+import {motion} from "framer-motion"
+
 
 // === Updated imports for your custom modal & trash icon ===
 import DeleteModal from "../components/DeleteModal";
 import TrashLogo from "../icons/trashlogo"; // Adjust path if needed
 
 const UserPage = ({ onDataProcessed }) => {
+
   const { user } = useContext(AuthContext);
   const [userInfo, setUserInfo] = useState([]);
 
@@ -207,24 +211,56 @@ const UserPage = ({ onDataProcessed }) => {
   }
 
   return (
+    <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.7 }}
+  >
     <div className="container-fluid">
       <div className="row vh-100">
-        {/* Left Side */}
-        <div className="col-12 col-md-4 d-flex flex-column align-items-center border-end text-center mx-auto">
-          <h2 className="mb-4">My Profile</h2>
-          <div className="d-flex flex-column mx-auto">
-            {userInfo.map((item, index) => (
-              <div key={index} className="userInfo-Box d-flex mb-2">
-                <span className="userinfo-title fw-bold">{item.title}:</span>
-                <span>{item.value}</span>
-              </div>
-            ))}
-          </div>
+      <div className="col-12 col-md-4 d-flex flex-column align-items-center text-center mx-auto">
+  <h2 className="mb-4">My Profile</h2>
+  <div className="profile-container d-flex">
+    <div className="max-w-sm w-full"> {/* Changed from max-w-xs to max-w-sm */}
+      <div className="bg-white shadow-xl rounded-lg py-4"> {/* Increased padding */}
+        <div className="photo-wrapper p-3"> {/* Increased padding */}
+          <img
+            className="w-40 h-40 rounded-full mx-auto" 
+            src="https://www.gravatar.com/avatar/2acfb745ecf9d4dccb3364752d17f65f?s=260&d=mp"
+            alt="Profile Avatar"
+          />
         </div>
+        <div className="p-3"> {/* Increased padding */}
+          <h3 className="text-center text-2xl text-gray-900 font-medium leading-8"> {/* Increased text size */}
+            {userInfo[0]?.value || "Full Name"}
+          </h3>
+          <div className="text-center text-gray-400 text-sm font-semibold"> {/* Increased text size */}
+            <p>User</p>
+          </div>
+          <table className="text-sm my-4"> {/* Increased text size and margin */}
+            <tbody>
+              <tr>
+                <td className="px-3 py-2 text-gray-500 font-semibold">Full Name</td> {/* Increased padding */}
+                <td className="px-3 py-2">{userInfo[0]?.value || "NULL"}</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 text-gray-500 font-semibold">Email</td>
+                <td className="px-3 py-2">{userInfo[1]?.value || "NULL"}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {/* Separator Line */}
+    <div className="separator-line"></div>
+  </div>
 
-        {/* Right Side */}
+</div>
+        {/* Right Side - My Timelines (Unchanged) */}
         <div className="col-12 col-md-6 d-flex flex-column text-center mx-auto mt-3 mt-md-0">
-          <h2 className="mb-4">My Timelines</h2>
+          <h2 className="mb-5">My Timelines</h2>
           {userTimelines.length === 0 ? (
             <Link to="/timeline_initial">
               <p>You haven't saved any timelines yet, click here to start now!</p>
@@ -242,14 +278,12 @@ const UserPage = ({ onDataProcessed }) => {
                   >
                     <span className="timeline-text">{obj.name}</span>
                     <span className="timeline-text">
-                      Last Modified: {obj.last_modified}
+                      Last Modified: {moment(obj.last_modified).format("MMM DD, YYYY h:mm A")}
                     </span>
                   </span>
-                  <button
-                    onClick={() => handleDeleteClick(obj)}
-                    className="timeline-delete btn btn-danger btn-sm"
-                  >
-                    <TrashLogo size={16} className="me-1" />
+                  <button onClick={() => handleDeleteClick(obj)}
+                    className="timeline-delete btn btn-lg p-0 border-0 bg-transparent">
+                     <TrashLogo size={25} className="me-1 text-danger" /> {/* Added text-danger for red icon */}
                   </button>
                 </div>
               ))}
@@ -294,6 +328,7 @@ const UserPage = ({ onDataProcessed }) => {
         </div>
       </DeleteModal>
     </div>
+  </motion.div>
   );
 };
 
