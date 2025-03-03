@@ -2,6 +2,7 @@ import '../css/UploadAcceptanceLetter.css';
 import React, { useState, useRef, useEffect } from 'react';
 import { pdfjs } from 'react-pdf';
 import { useNavigate, Link } from "react-router-dom";
+import {motion} from "framer-motion"
 
 // Set the worker source for PDF.js
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -522,6 +523,13 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   // };
 
   return (
+    <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.5 }}
+  >
+  
     <div className="top-down">
       <div className="g-container">
         <div className="form-container-al">
@@ -643,7 +651,9 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         </div>
       </div>
     </div>
+  </motion.div> 
   );
+ 
 };
 
 export default UploadAcceptanceLetterPage;
