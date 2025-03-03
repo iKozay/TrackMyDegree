@@ -1,0 +1,37 @@
+.landing-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1vh;
+}
+
+.Typewriter {
+  text-align: center;
+  padding-top: 10px;
+}
+
+.Typewriter__wrapper {
+  font-size: 45px;
+  font-weight: bold;
+}
+
+.Typewriter__cursor {
+  font-size: 45px;
+}
+
+.try-now-section {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 18px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .Typewriter__wrapper {
+    font-size: 30px;
+  }
+
+  .Typewriter__cursor {
+    font-size: 30px;
+  }
+}
