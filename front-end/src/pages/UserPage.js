@@ -114,6 +114,7 @@ const UserPage = ({ onDataProcessed }) => {
       degreeId,
       creditsRequired,
     });
+    localStorage.setItem("Timeline_Name", obj.name);
     navigate("/timeline_change");
   };
 
