@@ -4,6 +4,7 @@ import { AuthContext } from "../AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Button from 'react-bootstrap/Button';
 import Dropdown from "react-bootstrap/Dropdown";
+import {motion} from "framer-motion"
 
 function SignUpPage() {
   const [fullname, setfullname] = useState("");
@@ -84,9 +85,16 @@ function SignUpPage() {
   };
 
   return (
+    <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.7 }}
+  >
+  
     <div className="SignUpPage">
       <div className="container my-5 sign-in-container">
-        <h2 className="text-center mb-4" style={{ fontSize: "5vh" }}>Sign Up</h2>
+        <h2 className="text-center mb-6" style={{ fontSize: "5vh" }}>Sign Up</h2>
         <form onSubmit={handleSignUp}>
           {/* Name Field */}
           <div className="mb-3">
@@ -164,6 +172,7 @@ function SignUpPage() {
         </div>
       </div>
     </div>
+    </motion.div>
   );
 }
 

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Container, Row, Col, Table, Spinner, Alert } from 'react-bootstrap';
 import SearchBar from '../components/SearchBar'; // Assuming you have a SearchBar component
 import '../css/AdminPage.css'; // Import the CSS file
+import {motion} from "framer-motion"
 
 const AdminPage = () => {
     const [tables, setTables] = useState([]);
@@ -123,6 +124,12 @@ const AdminPage = () => {
     }
 
     return (
+        <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="admin-container">
             <Row className="mt-4">
                 {/* Tables List Column */}
@@ -192,6 +199,7 @@ const AdminPage = () => {
                 </button>
             </div>
         </div>
+        </motion.div>
 
 
     );

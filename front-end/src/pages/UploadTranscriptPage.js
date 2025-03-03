@@ -6,6 +6,7 @@ import PrintImage from '../images/Print_image.png';
 import PdfImage from '../images/Pdf_image.png';
 import TransImage from '../images/Transc_image.png';
 import Button from 'react-bootstrap/Button';
+import {motion} from "framer-motion"
 
 // Set the worker source
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -111,6 +112,12 @@ const UploadTranscript = ({ onDataProcessed }) => {
   };
 
   return (
+    <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.7 }}
+  >
     <div className="upload-container">
       {/* Instructions Section */}
       <div className="instructions">
@@ -166,6 +173,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
         <div id="output" dangerouslySetInnerHTML={{ __html: output }}></div>
       </div>
     </div>
+    </motion.div>
   );
 };
 
@@ -291,5 +299,6 @@ const matchTermsWithCourses = (data) => {
   console.log('Grouped data: ', matchedResults);
   return matchedResults;
 };
+
 
 export default UploadTranscript;

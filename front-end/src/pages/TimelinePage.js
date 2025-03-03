@@ -2,6 +2,7 @@
 
 import React, { useState, useContext, useEffect, useRef  } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {motion} from "framer-motion"
 import {
   DndContext,
   useDraggable,
@@ -49,6 +50,7 @@ const DraggableCourse = ({
     }${isSelected && !isDragging && !disabled ? ' selected' : ''}`;
 
   return (
+    
     <div
       ref={setNodeRef}
       {...attributes}
@@ -932,6 +934,14 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
   };
   // ----------------------------------------------------------------------------------------------------------------------
   return (
+
+    <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.7 }}
+  >
+
     <DndContext
       sensors={sensors}
       collisionDetection={closestCorners}
@@ -1242,6 +1252,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
         </div>
       )}
     </DndContext>
+    </motion.div>
   );
 };
 

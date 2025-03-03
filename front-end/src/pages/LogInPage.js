@@ -8,6 +8,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
+import {motion} from "framer-motion"
+
 
 function LogInPage() {
   const [email, setEmail] = useState("");
@@ -70,11 +72,17 @@ function LogInPage() {
   };
 
   return (
+    <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.7 }}
+  >
     <>
       {/* <Navbar /> Include Navbar if needed */}
       <div className="LogInPage">
         <div className="container my-5 sign-in-container">
-          <h2 className="text-center mb-4">Sign In</h2>
+          <h2 className="text-center mb-7">Sign In</h2>
           <form onSubmit={handleLogin}>
             {/* Email Field */}
             <div className="mb-3">
@@ -130,6 +138,7 @@ function LogInPage() {
       </div>
       {/* <Footer /> Include Footer if needed */}
     </>
+    </motion.div>
   );
 }
 
