@@ -15,7 +15,8 @@ const LandingPage = () => {
           strings: ['Organize your course sequence', 'Plan your degree', 'Visualize your courses', 'Stay on track', 'Navigate your program'],
           autoStart: true,
           loop: true,
-          pauseFor: 2000
+          pauseFor: 1000,
+          delay: 65
         }}
       />
       <div className="try-now-section">
