@@ -1163,10 +1163,11 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
                 <div className={`description-section ${showCourseDescription ? '' : 'hidden'}`}>
                   {selectedCourse ? (
                     <div>
-                      <h5>{selectedCourse.code}</h5>
+                      <h5>{selectedCourse.title}</h5>
+                      <p>Credits: {selectedCourse.credits}</p>
                       <p data-testid='course-description'>{selectedCourse.description}</p>
 
-                      {selectedCourse.requisites && selectedCourse.requisites.length > 0 && (
+                      {selectedCourse.requisites && (
                         <div>
                           <h5>Prerequisites/Corequisites:</h5>
                           <ul>
@@ -1177,6 +1178,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
                               </li>
                             ))}
                           </ul>
+                          {selectedCourse.requisites.length === 0 && <ul><li>None</li></ul>}
                         </div>
                       )}
                     </div>
