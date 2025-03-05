@@ -210,7 +210,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
   }, [user] );
 
 
-  let { degreeId, startingSemester, creditsRequired } = location.state || {};
+  let { degreeId, startingSemester, creditsRequired, extendedCredit } = location.state || {};
 
   if (!degreeId) {
     degreeId = degreeid;
@@ -226,6 +226,8 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
   }
 
   console.log(degreeId);  // Logs the degreeId passed from UploadTranscriptPage.js
+  console.log(extendedCredit); // Logs the timelineData passed from UploadTranscriptPage.js
+
   // Data
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 767);
   const [addButtonText, setAddButtonText] = useState('+ Add Semester');
