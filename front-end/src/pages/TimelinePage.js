@@ -193,7 +193,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
           exemptedcour.forEach((item)=>{
             item.exemption.forEach((item_2)=>{{
               const exists = timelineData.some(result => result.course === item_2.coursecode);
-          
+
               if (!exists) {
                 timelineData.push({
                   term: 'Exempted',
@@ -204,7 +204,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
           });
         }
       }
-    
+
       getexemptedcourses();
     }
   }, [user] );
@@ -241,6 +241,8 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
   const [selectedYear, setSelectedYear] = useState('2025');
   // Fetching state
   const [coursePools, setCoursePools] = useState([]);
+  const [deficiencyCredits, setDeficiencyCredits] = useState(0);
+  const [deficiencyCourses, setDeficiencyCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const toggleCourseList = () => setShowCourseList((prev) => !prev);
@@ -262,7 +264,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
   const sensors = useSensors(mouseSensor, touchSensor);
 
   // Helper function to generate 2 years of semesters (6 semesters for 3 terms per year)
-  const generateTwoYearSemesters = (startSem) => {
+  const generateFourYearSemesters = (startSem) => {
     const termOrder = ["Winter", "Summer", "Fall"];
     const parts = startSem.split(" ");
     if (parts.length < 2) return [];
@@ -298,13 +300,43 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
         });
 
         if (!response.ok) {
-          // Enhanced Error Handling
           const errorData = await response.json();
           throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
         }
+        //hardcoded for now
+        let data = await response.json();
+        if (location.state?.creditDeficiency) {
+          const deficiencyPool = {
+            poolName: 'Deficiencies',
+            poolId: 'def-pool',
+            courses: [
+              {
+                code: 'ESL202',
+                title: 'ESL 202',
+                credits: 3,
+                description: 'Deficiency course',
+                requisites: [],
+              },
+              {
+                code: 'ESL204',
+                title: 'ESL 204',
+                credits: 4,
+                description: 'Deficiency course',
+                requisites: [],
+              },
+            ],
+          };
+          if (!data.find((pool) => pool.poolId === 'def-pool')) {
+            data = [...data, deficiencyPool];
+            const totalDefCredits = deficiencyPool.courses.reduce(
+                (sum, course) => sum + (course.credits || 0),
+                0
+            );
+            setDeficiencyCredits(totalDefCredits);
+          }
+        }
 
-        const data = await response.json(); // Array of CoursePoolInfo
-        setCoursePools(data); // Assuming data is an array of CoursePoolInfo
+        setCoursePools(data);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching courses:', err);
@@ -314,7 +346,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
     };
 
     fetchCoursesByDegree();
-  }, [degreeid]);
+  }, [degreeId, location.state?.creditDeficiency]);
 
   // Process timelineData and generate semesters and courses
   useEffect(() => {
@@ -329,15 +361,14 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
       if (!semesterMap[term]) {
         semesterMap[term] = [];
       }
-      // Adjust course code if needed:
       semesterMap[term].push(course.replace(' ', ''));
       semesterNames.add(term);
       console.log(semesterMap);
     });
 
-    // If a starting semester was passed, generate two years (6 semesters)
+
     if (startingSemester) {
-      const twoYearSemesters = generateTwoYearSemesters(startingSemester);
+      const twoYearSemesters = generateFourYearSemesters(startingSemester);
       twoYearSemesters.forEach((sem) => {
         if (!semesterNames.has(sem)) {
           semesterNames.add(sem);
@@ -649,7 +680,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
     };
 
     calculateTotalCredits();
-  }, [semesterCourses, semesters, coursePools]);
+  }, [semesterCourses, semesters, coursePools,  deficiencyCredits]);
 
 
   // Function to check if prerequisites and corequisites are met
@@ -975,7 +1006,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
             {/* Total Credits Display */}
             <div className="credits-display">
               <h4>
-                Total Credits Earned: {totalCredits} / {creditsRequired}
+                Total Credits Earned: {totalCredits} / {creditsRequired + deficiencyCredits}
               </h4>
               {/* Save Timeline Button */}
               <button
