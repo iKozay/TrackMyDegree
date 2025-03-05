@@ -1,5 +1,9 @@
+Addon
+DegreeID=ECP
+DegreeName=Extended Credit Program
+TotalCredits=30
 
-[ECP Core]
+[ECP Core (18 credits)]
 MATH 203
 MATH 204
 MATH 205

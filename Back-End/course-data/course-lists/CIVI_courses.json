@@ -27,6 +27,15 @@
         "notes": null
     },
     {
+        "title": "CIVI 341 Civil Engineering Systems",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "BCEE 231",
+        "description": "Development of concepts and techniques commonly associated with systems engineering which are applicable to design and operation of systems that concern civil engineers. Design and planning process; problem formulation, optimization concepts, linear programming, decision analysis; system simulation; network planning and project scheduling; computer applications. The techniques developed are used to solve problems in transportation, water resources, structures, and construction management.",
+        "components": "Lecture 3 hours per week",
+        "notes": null
+    },
+    {
         "title": "CIVI 361 Introduction to Environmental Engineering",
         "credits": 3.5,
         "prerequisites": "ENGR 361.",

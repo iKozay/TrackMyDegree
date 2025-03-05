@@ -9,6 +9,15 @@
         "notes": "Students registered in a Physics program may not take this course for credit towards their degree requirements."
     },
     {
+        "title": "PHYS 204 Mechanics",
+        "credits": 3,
+        "prerequisites": "MATH 203",
+        "corequisites": "",
+        "description": "Kinematics, Newton’s laws of motion. Statics, dynamics. Conservation of momentum and energy. Rotational motion. Periodic motion.",
+        "components": "Lecture",
+        "notes": "Students in programs leading to the BSc degree may not take this course for credit to be applied to their program of concentration. See PHYS 224 for laboratory associated with this course."
+    },
+    {
         "title": "PHYS 205 Electricity and Magnetism",
         "credits": 3,
         "prerequisites": "MATH 203; PHYS 204 or equivalent.",

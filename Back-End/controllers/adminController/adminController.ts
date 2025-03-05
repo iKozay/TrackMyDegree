@@ -138,6 +138,7 @@ interface DegreeData {
   degreeName: string;
   totalCredits: number;
   requirements: Requirement[];
+  isAddon: boolean;
 }
 
 // Requisite Interface
@@ -169,6 +170,7 @@ function parseRequirementsFile(filePath: string): DegreeData {
   let degreeId = "";
   let degreeName = "";
   let totalCredits = 120;
+  let isAddon = false;
 
   const requirements: Requirement[] = [];
   let currentPoolName = "";
@@ -209,6 +211,10 @@ function parseRequirementsFile(filePath: string): DegreeData {
       totalCredits = parseFloat(line.split("=")[1].trim());
       continue;
     }
+    if (line.includes("Addon")) {
+      isAddon = true;
+      continue;
+    }
 
     const bracketMatch = line.match(/^\[(.*)\]$/);
     if (bracketMatch) {
@@ -232,6 +238,7 @@ function parseRequirementsFile(filePath: string): DegreeData {
     degreeName,
     totalCredits,
     requirements,
+    isAddon
   };
 }
 
@@ -359,12 +366,15 @@ async function generateNextId(
  */
 async function upsertDegree(
   t: sql.Transaction,
+  id: string,
   name: string,
-  totalCredits: number
+  totalCredits: number,
+  isAddon: boolean
 ): Promise<string> {
   const request = new sql.Request(t);
   request.input("name", sql.VarChar, name);
   request.input("totalCredits", sql.Int, totalCredits);
+  request.input("isAddon", sql.Bit, isAddon);
 
   // Check if degree exists by name
   const result = await request.query(
@@ -373,10 +383,15 @@ async function upsertDegree(
 
   if (result.recordset.length === 0) {
     // Generate new ID
-    const newId = await generateNextId(t, "Degree", "D");
-
-    // Bind newId
-    request.input("newId", sql.VarChar, newId);
+    let newId: string;
+    if (isAddon) {
+      // Addon degrees have a different prefix
+      newId = id;
+      request.input("newId", sql.VarChar, newId);
+    } else {
+      newId = await generateNextId(t, "Degree", "D");
+      request.input("newId", sql.VarChar, newId);
+    }
 
     // Insert
     await request.query(`
@@ -840,7 +855,7 @@ async function seedSoenDegree() {
       console.log(`[SEED] Processing file: ${filePath}`);
 
       // 6.a. PARSE REQUIREMENT FILE
-      const { degreeId, degreeName, totalCredits, requirements } =
+      const { degreeId, degreeName, totalCredits, requirements, isAddon } =
         parseRequirementsFile(filePath);
 
       // 6.b. BEGIN TRANSACTION
@@ -852,14 +867,24 @@ async function seedSoenDegree() {
         // 6.c. UPSERT DEGREE
         const degreeIdNumber = await upsertDegree(
           transaction,
+          degreeId,
           degreeName,
-          totalCredits
+          totalCredits,
+          isAddon, 
         );
+
+        // 6.e. UPSERT COURSES
+        for (const [code, courseData] of courseMap.entries()) {
+          const cTitle = courseData.title; // Extract title from CourseJson
+          const cCredits = courseData.credits ?? 3; // Default to 3 if not provided
+          const cDesc = courseData.description ?? `No description for ${code}`;
+          await upsertCourse(transaction, code, cTitle, cCredits, cDesc);
+        }
 
         // 6.d. UPSERT COURSE POOLS AND DEGREE_X_COURSE_POOLS
         for (const req of requirements) {
           // Create unique pool name by including degreeId
-          const uniquePoolName = `${degreeId} - ${req.poolName}`;
+          const uniquePoolName = `${req.poolName}`;
 
           // Upsert CoursePool
           const poolIdNumber = await upsertCoursePool(transaction, uniquePoolName);
@@ -873,13 +898,7 @@ async function seedSoenDegree() {
           );
         }
 
-        // 6.e. UPSERT COURSES
-        for (const [code, courseData] of courseMap.entries()) {
-          const cTitle = courseData.title; // Extract title from CourseJson
-          const cCredits = courseData.credits ?? 3; // Default to 3 if not provided
-          const cDesc = courseData.description ?? `No description for ${code}`;
-          await upsertCourse(transaction, code, cTitle, cCredits, cDesc);
-        }
+        
 
         // 6.f. LINK COURSES TO COURSE_POOLS
         for (const req of requirements) {
@@ -911,7 +930,7 @@ async function seedSoenDegree() {
                   continue;
                 }
 
-                const poolIdNumber = await getPoolIdByName(transaction, `${degreeId} - ${req.poolName}`);
+                const poolIdNumber = await getPoolIdByName(transaction, req.poolName);
                 console.log(`Upserting ${upperCode} in ${req.poolName}`);
                 console.log(`Pool ID: ${poolIdNumber}`);
                 console.log(`Group ID: ${groupId}`);
@@ -945,7 +964,7 @@ async function seedSoenDegree() {
                 continue;
               }
 
-              const poolIdNumber = await getPoolIdByName(transaction, `${degreeId} - ${req.poolName}`);
+              const poolIdNumber = await getPoolIdByName(transaction, req.poolName);
               console.log(`Upserting ${upperCode} in ${req.poolName}`);
               console.log(`Pool ID: ${poolIdNumber}`);
 
@@ -979,7 +998,7 @@ async function seedSoenDegree() {
               continue;
             }
 
-            const poolIdNumber = await getPoolIdByName(transaction, `${degreeId} - ${req.poolName}`);
+            const poolIdNumber = await getPoolIdByName(transaction, req.poolName);
             console.log(`Upserting ${upperCode} in ${req.poolName}`);
             console.log(`Pool ID: ${poolIdNumber}`);
 

@@ -1,5 +1,5 @@
 # Metadata
-DegreeID=SOEN-BEng
+DegreeID=SOEN
 DegreeName=BEng Software Engineering
 TotalCredits=120
 

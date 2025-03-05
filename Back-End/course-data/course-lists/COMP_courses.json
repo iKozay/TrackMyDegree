@@ -11,7 +11,7 @@
     {
         "title": "COMP 208 Computer Science C.Edge Option Reflective Learning II",
         "credits": 3,
-        "prerequisites": "COMP 108.",
+        "prerequisites": "COMP 108",
         "corequisites": "",
         "description": "This course expands on the students’ second C.Edge term in their related field of study to further develop their knowledge and workârelated skills.",
         "components": "Lecture",

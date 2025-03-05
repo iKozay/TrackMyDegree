@@ -1,5 +1,5 @@
 # Metadata
-DegreeID=BCEE-BEng
+DegreeID=BCEE
 DegreeName=BEng Building Engineering
 TotalCredits=120
 
