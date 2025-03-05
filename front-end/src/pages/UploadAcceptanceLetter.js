@@ -78,7 +78,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
 
     // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
     localStorage.setItem('Timeline_Name', null);
-    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, creditsRequired: 120, startingSemester: startingSemester}});
+    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, creditsRequired: 120, startingSemester: startingSemester, creditDeficiency: selectedRadio.creditDeficiency === "yes"}});
   };
 
   useEffect(() => {
@@ -599,7 +599,13 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
             <div className="radio-group">
               <span className="cooo">Credit Deficiency? </span>
               <label>
-                <input type="checkbox" name="credit-deficiency" value="yes"/>
+                <input type="checkbox" name="credit-deficiency" value="yes" checked={selectedRadio.creditDeficiency === "yes"}
+                       onChange={(e) =>
+                           setSelectedRadio((prev) => ({
+                             ...prev,
+                             creditDeficiency: e.target.checked ? "yes" : null
+                           }))
+                       }/>
               </label>
             </div>
           </form>
