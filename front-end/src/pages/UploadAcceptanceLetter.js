@@ -79,6 +79,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
     localStorage.setItem('Timeline_Name', null);
     navigate("/timeline_change", { state: { degreeId: selectedDegreeId, creditsRequired: 120, startingSemester: startingSemester, coOp: selectedRadio.coOp, extendedCredit: selectedRadio.extendedCredit, creditDeficiency: selectedRadio.creditDeficiency } });
+
   };
 
   useEffect(() => {
