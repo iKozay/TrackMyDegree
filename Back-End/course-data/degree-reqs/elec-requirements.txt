@@ -1,5 +1,5 @@
 # Metadata
-DegreeID=ELEC-BEng
+DegreeID=ELEC
 DegreeName=BEng Electrical Engineering
 TotalCredits=120
 

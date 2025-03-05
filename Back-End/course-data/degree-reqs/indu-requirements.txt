@@ -1,5 +1,5 @@
 # Metadata
-DegreeID=INDU-BEng
+DegreeID=INDU
 DegreeName=BEng Industrial Engineering
 TotalCredits=120
 

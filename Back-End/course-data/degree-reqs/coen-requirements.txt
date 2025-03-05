@@ -1,5 +1,5 @@
 # Metadata
-DegreeID=COEN-BEng
+DegreeID=COEN
 DegreeName=BEng Computer Engineering
 TotalCredits=120
 

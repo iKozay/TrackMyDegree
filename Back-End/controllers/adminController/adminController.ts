@@ -873,10 +873,18 @@ async function seedSoenDegree() {
           isAddon, 
         );
 
+        // 6.e. UPSERT COURSES
+        for (const [code, courseData] of courseMap.entries()) {
+          const cTitle = courseData.title; // Extract title from CourseJson
+          const cCredits = courseData.credits ?? 3; // Default to 3 if not provided
+          const cDesc = courseData.description ?? `No description for ${code}`;
+          await upsertCourse(transaction, code, cTitle, cCredits, cDesc);
+        }
+
         // 6.d. UPSERT COURSE POOLS AND DEGREE_X_COURSE_POOLS
         for (const req of requirements) {
           // Create unique pool name by including degreeId
-          const uniquePoolName = `${degreeId} - ${req.poolName}`;
+          const uniquePoolName = `${req.poolName}`;
 
           // Upsert CoursePool
           const poolIdNumber = await upsertCoursePool(transaction, uniquePoolName);
@@ -890,13 +898,7 @@ async function seedSoenDegree() {
           );
         }
 
-        // 6.e. UPSERT COURSES
-        for (const [code, courseData] of courseMap.entries()) {
-          const cTitle = courseData.title; // Extract title from CourseJson
-          const cCredits = courseData.credits ?? 3; // Default to 3 if not provided
-          const cDesc = courseData.description ?? `No description for ${code}`;
-          await upsertCourse(transaction, code, cTitle, cCredits, cDesc);
-        }
+        
 
         // 6.f. LINK COURSES TO COURSE_POOLS
         for (const req of requirements) {
@@ -928,7 +930,7 @@ async function seedSoenDegree() {
                   continue;
                 }
 
-                const poolIdNumber = await getPoolIdByName(transaction, `${degreeId} - ${req.poolName}`);
+                const poolIdNumber = await getPoolIdByName(transaction, req.poolName);
                 console.log(`Upserting ${upperCode} in ${req.poolName}`);
                 console.log(`Pool ID: ${poolIdNumber}`);
                 console.log(`Group ID: ${groupId}`);
@@ -962,7 +964,7 @@ async function seedSoenDegree() {
                 continue;
               }
 
-              const poolIdNumber = await getPoolIdByName(transaction, `${degreeId} - ${req.poolName}`);
+              const poolIdNumber = await getPoolIdByName(transaction, req.poolName);
               console.log(`Upserting ${upperCode} in ${req.poolName}`);
               console.log(`Pool ID: ${poolIdNumber}`);
 
@@ -996,7 +998,7 @@ async function seedSoenDegree() {
               continue;
             }
 
-            const poolIdNumber = await getPoolIdByName(transaction, `${degreeId} - ${req.poolName}`);
+            const poolIdNumber = await getPoolIdByName(transaction, req.poolName);
             console.log(`Upserting ${upperCode} in ${req.poolName}`);
             console.log(`Pool ID: ${poolIdNumber}`);
 
