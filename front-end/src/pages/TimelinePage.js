@@ -220,9 +220,8 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
     creditsRequired = 120;
   }
 
-  else if (!creditsRequired) {
-    creditsRequired = creditsrequired;
-    console.log("credit: ", creditsRequired);
+  if (extendedCredit) {
+    creditsRequired += 30;
   }
 
   console.log(degreeId);  // Logs the degreeId passed from UploadTranscriptPage.js
@@ -290,23 +289,34 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
     const fetchCoursesByDegree = async () => {
       try {
         console.log('Fetching courses by degree:', degreeId);
-        const degree = degreeId; // The value to pass
-        const response = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
+        const primaryResponse = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ degree }),
+          body: JSON.stringify({ degree: degreeId }),
         });
 
-        if (!response.ok) {
-          // Enhanced Error Handling
-          const errorData = await response.json();
-          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-        }
+        const primaryData = await primaryResponse.json();
 
-        const data = await response.json(); // Array of CoursePoolInfo
-        setCoursePools(data); // Assuming data is an array of CoursePoolInfo
+        let combinedData = primaryData;
+
+        if (extendedCredit) {
+          const extendedResponse = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ degree: 'ECP' }),
+          });
+
+          const extendedData = await extendedResponse.json();
+
+          combinedData = primaryData.concat(extendedData);
+
+        }
+        
+        setCoursePools(combinedData); // Assuming data is an array of CoursePoolInfo
         setLoading(false);
       } catch (err) {
         console.error('Error fetching courses:', err);
@@ -316,7 +326,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
     };
 
     fetchCoursesByDegree();
-  }, [degreeid]);
+  }, [degreeid, extendedCredit]);
 
   // Process timelineData and generate semesters and courses
   useEffect(() => {
@@ -612,6 +622,8 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
       setSelectedCourse(course);
     }
   };
+
+  const ECP_EXTRA_CREDITS = 30; // Extra credits for ECP students
 
   // Calculate total credits whenever semesterCourses changes
   useEffect(() => {
