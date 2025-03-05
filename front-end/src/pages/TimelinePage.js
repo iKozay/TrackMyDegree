@@ -210,7 +210,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
   }, [user] );
 
 
-  let { degreeId, startingSemester, creditsRequired } = location.state || {};
+  let { degreeId, startingSemester, creditsRequired, extendedCredit } = location.state || {};
 
   if (!degreeId) {
     degreeId = degreeid;
@@ -220,12 +220,13 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
     creditsRequired = 120;
   }
 
-  else if (!creditsRequired) {
-    creditsRequired = creditsrequired;
-    console.log("credit: ", creditsRequired);
+  if (extendedCredit) {
+    creditsRequired += 30;
   }
 
   console.log(degreeId);  // Logs the degreeId passed from UploadTranscriptPage.js
+  console.log(extendedCredit); // Logs the timelineData passed from UploadTranscriptPage.js
+
   // Data
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 767);
   const [addButtonText, setAddButtonText] = useState('+ Add Semester');
@@ -285,68 +286,85 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
     return semesters;
   };
 
-  // Fetch courses by degree on component mount
-  useEffect(() => {
-    const fetchCoursesByDegree = async () => {
-      try {
-        console.log('Fetching courses by degree:', degreeId);
-        const degree = degreeId; // The value to pass
-        const response = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
+// Fetch courses by degree on component mount
+useEffect(() => {
+  const fetchCoursesByDegree = async () => {
+    try {
+      console.log('Fetching courses by degree:', degreeId);
+      const primaryResponse = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ degree: degreeId }),
+      });
+      if (!primaryResponse.ok) {
+        const errorData = await primaryResponse.json();
+        throw new Error(errorData.error || `HTTP error! status: ${primaryResponse.status}`);
+      }
+      const primaryData = await primaryResponse.json();
+
+      let combinedData = primaryData;
+
+      if (extendedCredit) {
+        const extendedResponse = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ degree }),
+          body: JSON.stringify({ degree: 'ECP' }),
         });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        if (!extendedResponse.ok) {
+          const errorData = await extendedResponse.json();
+          throw new Error(errorData.error || `HTTP error! status: ${extendedResponse.status}`);
         }
-        //hardcoded for now
-        let data = await response.json();
-        if (location.state?.creditDeficiency) {
-          const deficiencyPool = {
-            poolName: 'Deficiencies',
-            poolId: 'def-pool',
-            courses: [
-              {
-                code: 'ESL202',
-                title: 'ESL 202',
-                credits: 3,
-                description: 'Deficiency course',
-                requisites: [],
-              },
-              {
-                code: 'ESL204',
-                title: 'ESL 204',
-                credits: 4,
-                description: 'Deficiency course',
-                requisites: [],
-              },
-            ],
-          };
-          if (!data.find((pool) => pool.poolId === 'def-pool')) {
-            data = [...data, deficiencyPool];
-            const totalDefCredits = deficiencyPool.courses.reduce(
-                (sum, course) => sum + (course.credits || 0),
-                0
-            );
-            setDeficiencyCredits(totalDefCredits);
-          }
-        }
-
-        setCoursePools(data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching courses:', err);
-        setError(err.message);
-        setLoading(false);
+        const extendedData = await extendedResponse.json();
+        combinedData = primaryData.concat(extendedData);
       }
-    };
 
-    fetchCoursesByDegree();
-  }, [degreeId, location.state?.creditDeficiency]);
+      if (location.state?.creditDeficiency) {
+        const deficiencyPool = {
+          poolName: 'Deficiencies',
+          poolId: 'def-pool',
+          courses: [
+            {
+              code: 'ESL202',
+              title: 'ESL 202',
+              credits: 3,
+              description: 'Deficiency course',
+              requisites: [],
+            },
+            {
+              code: 'ESL204',
+              title: 'ESL 204',
+              credits: 4,
+              description: 'Deficiency course',
+              requisites: [],
+            },
+          ],
+        };
+        if (!combinedData.find((pool) => pool.poolId === 'def-pool')) {
+          combinedData = [...combinedData, deficiencyPool];
+          const totalDefCredits = deficiencyPool.courses.reduce(
+            (sum, course) => sum + (course.credits || 0),
+            0
+          );
+          setDeficiencyCredits(totalDefCredits);
+        }
+      }
+
+      setCoursePools(combinedData);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching courses:', err);
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  fetchCoursesByDegree();
+}, [degreeId, location.state?.creditDeficiency, extendedCredit]);
+
 
   // Process timelineData and generate semesters and courses
   useEffect(() => {
@@ -641,6 +659,8 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
       setSelectedCourse(course);
     }
   };
+
+  const ECP_EXTRA_CREDITS = 30; // Extra credits for ECP students
 
   // Calculate total credits whenever semesterCourses changes
   useEffect(() => {
