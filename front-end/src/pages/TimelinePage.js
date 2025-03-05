@@ -193,7 +193,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
           exemptedcour.forEach((item)=>{
             item.exemption.forEach((item_2)=>{{
               const exists = timelineData.some(result => result.course === item_2.coursecode);
-          
+
               if (!exists) {
                 timelineData.push({
                   term: 'Exempted',
@@ -204,7 +204,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
           });
         }
       }
-    
+
       getexemptedcourses();
     }
   }, [user] );
@@ -242,6 +242,8 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
   const [selectedYear, setSelectedYear] = useState('2025');
   // Fetching state
   const [coursePools, setCoursePools] = useState([]);
+  const [deficiencyCredits, setDeficiencyCredits] = useState(0);
+  const [deficiencyCourses, setDeficiencyCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const toggleCourseList = () => setShowCourseList((prev) => !prev);
@@ -263,7 +265,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
   const sensors = useSensors(mouseSensor, touchSensor);
 
   // Helper function to generate 2 years of semesters (6 semesters for 3 terms per year)
-  const generateTwoYearSemesters = (startSem) => {
+  const generateFourYearSemesters = (startSem) => {
     const termOrder = ["Winter", "Summer", "Fall"];
     const parts = startSem.split(" ");
     if (parts.length < 2) return [];
@@ -284,49 +286,85 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
     return semesters;
   };
 
-  // Fetch courses by degree on component mount
-  useEffect(() => {
-    const fetchCoursesByDegree = async () => {
-      try {
-        console.log('Fetching courses by degree:', degreeId);
-        const primaryResponse = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
+// Fetch courses by degree on component mount
+useEffect(() => {
+  const fetchCoursesByDegree = async () => {
+    try {
+      console.log('Fetching courses by degree:', degreeId);
+      const primaryResponse = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ degree: degreeId }),
+      });
+      if (!primaryResponse.ok) {
+        const errorData = await primaryResponse.json();
+        throw new Error(errorData.error || `HTTP error! status: ${primaryResponse.status}`);
+      }
+      const primaryData = await primaryResponse.json();
+
+      let combinedData = primaryData;
+
+      if (extendedCredit) {
+        const extendedResponse = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ degree: degreeId }),
+          body: JSON.stringify({ degree: 'ECP' }),
         });
-
-        const primaryData = await primaryResponse.json();
-
-        let combinedData = primaryData;
-
-        if (extendedCredit) {
-          const extendedResponse = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ degree: 'ECP' }),
-          });
-
-          const extendedData = await extendedResponse.json();
-
-          combinedData = primaryData.concat(extendedData);
-
+        if (!extendedResponse.ok) {
+          const errorData = await extendedResponse.json();
+          throw new Error(errorData.error || `HTTP error! status: ${extendedResponse.status}`);
         }
-        
-        setCoursePools(combinedData); // Assuming data is an array of CoursePoolInfo
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching courses:', err);
-        setError(err.message);
-        setLoading(false);
+        const extendedData = await extendedResponse.json();
+        combinedData = primaryData.concat(extendedData);
       }
-    };
 
-    fetchCoursesByDegree();
-  }, [degreeid, extendedCredit]);
+      if (location.state?.creditDeficiency) {
+        const deficiencyPool = {
+          poolName: 'Deficiencies',
+          poolId: 'def-pool',
+          courses: [
+            {
+              code: 'ESL202',
+              title: 'ESL 202',
+              credits: 3,
+              description: 'Deficiency course',
+              requisites: [],
+            },
+            {
+              code: 'ESL204',
+              title: 'ESL 204',
+              credits: 4,
+              description: 'Deficiency course',
+              requisites: [],
+            },
+          ],
+        };
+        if (!combinedData.find((pool) => pool.poolId === 'def-pool')) {
+          combinedData = [...combinedData, deficiencyPool];
+          const totalDefCredits = deficiencyPool.courses.reduce(
+            (sum, course) => sum + (course.credits || 0),
+            0
+          );
+          setDeficiencyCredits(totalDefCredits);
+        }
+      }
+
+      setCoursePools(combinedData);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching courses:', err);
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  fetchCoursesByDegree();
+}, [degreeId, location.state?.creditDeficiency, extendedCredit]);
+
 
   // Process timelineData and generate semesters and courses
   useEffect(() => {
@@ -341,15 +379,14 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
       if (!semesterMap[term]) {
         semesterMap[term] = [];
       }
-      // Adjust course code if needed:
       semesterMap[term].push(course.replace(' ', ''));
       semesterNames.add(term);
       console.log(semesterMap);
     });
 
-    // If a starting semester was passed, generate two years (6 semesters)
+
     if (startingSemester) {
-      const twoYearSemesters = generateTwoYearSemesters(startingSemester);
+      const twoYearSemesters = generateFourYearSemesters(startingSemester);
       twoYearSemesters.forEach((sem) => {
         if (!semesterNames.has(sem)) {
           semesterNames.add(sem);
@@ -663,7 +700,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
     };
 
     calculateTotalCredits();
-  }, [semesterCourses, semesters, coursePools]);
+  }, [semesterCourses, semesters, coursePools,  deficiencyCredits]);
 
 
   // Function to check if prerequisites and corequisites are met
@@ -989,7 +1026,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
             {/* Total Credits Display */}
             <div className="credits-display">
               <h4>
-                Total Credits Earned: {totalCredits} / {creditsRequired}
+                Total Credits Earned: {totalCredits} / {creditsRequired + deficiencyCredits}
               </h4>
               {/* Save Timeline Button */}
               <button
@@ -1177,10 +1214,11 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
                 <div className={`description-section ${showCourseDescription ? '' : 'hidden'}`}>
                   {selectedCourse ? (
                     <div>
-                      <h5>{selectedCourse.code}</h5>
+                      <h5>{selectedCourse.title}</h5>
+                      <p>Credits: {selectedCourse.credits}</p>
                       <p data-testid='course-description'>{selectedCourse.description}</p>
 
-                      {selectedCourse.requisites && selectedCourse.requisites.length > 0 && (
+                      {selectedCourse.requisites && (
                         <div>
                           <h5>Prerequisites/Corequisites:</h5>
                           <ul>
@@ -1191,6 +1229,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
                               </li>
                             ))}
                           </ul>
+                          {selectedCourse.requisites.length === 0 && <ul><li>None</li></ul>}
                         </div>
                       )}
                     </div>
