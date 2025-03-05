@@ -2,7 +2,8 @@
 CREATE TABLE Degree (
   id VARCHAR(255) PRIMARY KEY,
   name VARCHAR(255) UNIQUE NOT NULL,
-  totalCredits INT NOT NULL
+  totalCredits INT NOT NULL,
+  isAddon BIT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE Course (

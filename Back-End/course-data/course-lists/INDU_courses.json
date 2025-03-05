@@ -234,33 +234,6 @@
         "notes": "Students who have received credit for COMM 215 may not take this course for credit."
     },
     {
-        "title": "MATH 206 Algebra and Functions",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Coordinate systems. Radicals and distance formula. Polynomials, factoring, and graphing. Relations and functions. Linear and quadratic functions, equations, and systems. Exponents, exponential and logarithmic functions and equations.",
-        "components": "Lecture; Tutorial",
-        "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration. Students who have received credit or exemption for a course at the level of MATH 201 or above may not take this course for credit."
-    },
-    {
-        "title": "MATH 208 Fundamental Mathematics I",
-        "credits": 3,
-        "prerequisites": "MATH 206",
-        "corequisites": "",
-        "description": "Topics covered in this course include matrices, Gaussian elimination, input‑output analysis, progressions, compound interest, annuities, permutations and combinations, probability, exponential and logarithmic functions, inequalities, linear programming.",
-        "components": "Lecture",
-        "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration. This is a prerequisite course for John Molson School of Business students. See Section 61.20 Admission Requirements and Section 14.2.2 John Molson School of Business under Mature Entry. Students who have received credit or an exemption for a course at the level of ACTU 256 or above; MAST 218 or above; MATH 251 or above; STAT 249 or above; or for a course having any of these courses in its sequence of prerequisites, may not take this course for credit."
-    },
-    {
-        "title": "MATH 209 Fundamental Mathematics II",
-        "credits": 3,
-        "prerequisites": "MATH 206",
-        "corequisites": "",
-        "description": "This course is a prerequisite course for John Molson School of Business students*. Limits; differentiation of rational, exponential, and logarithmic functions; theory of maxima and minima; integration.",
-        "components": "Lecture",
-        "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration. See Mature Entry and Section 61.20 Admission Requirements. Students who have received credit or exemption for MATH 203 or equivalent may not take this course for credit."
-    },
-    {
         "title": "BTM 480 Project Management",
         "credits": 3,
         "prerequisites": "",

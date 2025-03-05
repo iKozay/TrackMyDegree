@@ -60,7 +60,7 @@ async function readAllDegrees(): Promise<DegreeTypes.Degree[] | undefined> {
 
   if (conn) {
     try {
-      const degrees = await conn.request().query('SELECT * FROM Degree');
+      const degrees = await conn.request().query('SELECT * FROM Degree WHERE id LIKE \'D%\'');
 
       return degrees.recordset;
     } catch (error) {
