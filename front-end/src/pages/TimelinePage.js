@@ -791,6 +791,11 @@ useEffect(() => {
   }
 
   const handleSaveTimeline = async () => {
+
+    if(!user){
+      navigate('/signin');
+      return;
+    }
   
     const timelineData = [];
     const exempted_courses = [];
