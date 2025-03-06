@@ -78,7 +78,9 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
 
     // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
     localStorage.setItem('Timeline_Name', null);
-    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, creditsRequired: 120, startingSemester: startingSemester, coOp: selectedRadio.coOp, extendedCredit: selectedRadio.extendedCredit, creditDeficiency: selectedRadio.creditDeficiency } });
+    
+    console.log("select: ", selectedRadio.extendedCredit);
+    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, startingSemester: startingSemester, coOp: selectedRadio.coOp, extendedCredit: selectedRadio.extendedCredit, creditDeficiency: selectedRadio.creditDeficiency } });
 
   };
 
@@ -175,7 +177,6 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         Promise.all(pagesPromises).then((pagesData) => {
           const extractedData = extractAcceptanceDetails(pagesData);
           const transcriptData = matchTermsWithCourses(extractedData.results);
-          const creditsRequired = extractedData.details.creditsRequired;
           //setOutput(generateOutput(extractedData));
           // Extract Degree Info
           const degreeInfo = extractedData.degree || "Unknown Degree";
@@ -186,9 +187,9 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
             onDataProcessed({
               transcriptData,
               degreeId,
-              creditsRequired,
             }); // Send grouped data to parent
-            navigate('/timeline_change'); // Navigate to TimelinePage
+            console.log("select: ", selectedRadio.extendedCredit);
+            navigate('/timeline_change', { state: { coOp: selectedRadio.coOp, extendedCredit: extractedData.details.extendedCreditProgram} }); // Navigate to TimelinePage
           } else {
             setOutput(`<h3>There are no data to show!</h3>`);
           }
@@ -211,10 +212,13 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     ];
     const degreeMapping = {
       "Aerospace Engineering": "D1",
-      "Computer Engineering": "D2",
-      "Electrical Engineering": "D3",
-      "Mechanical Engineering": "D4",
-      "Software Engineering": "D5",
+      "Building Engineering": "D2",
+      "Civil Engineering": "D3",
+      "Computer Engineering": "D4",
+      "Electrical Engineering": "D5",
+      "Industrial Engineering": "D6",
+      "Mechanical Engineering": "D7",
+      "Software Engineering": "D8",
     };
     let degree = null;
     let degreeId = null;
@@ -252,11 +256,12 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         const ecpMatch = text.match(/Extended Credit Program/);
         const coopMatch = text.match(/Co-op Program/);
         if (ecpMatch) {
-          details.extendedCreditProgram = 'Yes';
+          details.extendedCreditProgram = 'yes';         
           details.coopProgram = 'No';
         } else if (coopMatch) {
           details.coopProgram = 'Yes';
           details.extendedCreditProgram = 'No';
+          handleRadioChange('extendedCredit', 'No');
         }
       }
 
@@ -278,10 +283,6 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
           details.startingTerm = termMatchstart[0].trim();
         }
       }
-
-      // Extract Credits Required (Digits after "Minimum Program Length")
-      const creditsMatch = text.match(/Minimum Program Length.*?(\d+)\s+/);
-      if (creditsMatch) details.creditsRequired = creditsMatch[1]?.trim();
 
       // Extract Expected Graduation Term (Winter 2024, Fall/Winter 2023-2024)
       const expectedGradTermIndex = text.indexOf('Expected Graduation Term');
@@ -493,36 +494,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     console.log('Grouped data: ', matchedResults);
     return matchedResults;
   };
-
-  // const generateOutput = (data) => {
-  //   if (data) {
-  //     const transferCreditsHtml = data.transferCredits
-  //       ? data.transferCredits
-  //         .map(
-  //           (credit) =>
-  //             `<li>${credit.course} - ${credit.credits}</li>`
-  //         )
-  //         .join('')
-  //       : 'None';
-  //     return `
-  //       <h3>Extracted Details:</h3>
-  //       <ul>
-  //         <li><strong>Degree Concentration:</strong> ${data.degreeConcentration || 'Not found'}</li>
-  //         <li><strong>Starting Term:</strong> ${data.startingTerm || 'Not found'}</li>
-  //         <li><strong>Co-op Program:</strong> ${data.coopProgram || 'Not found'}</li>
-  //         <li><strong>Extended Credit Program:</strong> ${data.extendedCreditProgram || 'Not found'}</li>
-  //         <li><strong>Credits Required:</strong> ${data.creditsRequired || 'Not found'}</li>
-  //         <li><strong>Expected Graduation Term:</strong> ${data.expectedGraduationTerm || 'Not found'}</li>
-  //         <li><strong>Exemptions Courses:</strong> ${data.exemptionsCourses ? data.exemptionsCourses.join(', ') : 'Not found'}</li>
-  //         <li><strong>Deficiencies Courses:</strong> ${data.deficienciesCourses ? data.deficienciesCourses.join(', ') : 'Not found'}</li>
-  //         <li><strong>Transfer Credits:</strong></li>
-  //         <ul>${transferCreditsHtml}</ul>
-  //       </ul>`;
-  //   } else {
-  //     return `<h3>No relevant data found in the acceptance letter.</h3>`;
-  //   }
-  // };
-
+  
   return (
     <motion.div
     initial={{ opacity: 0 }}
