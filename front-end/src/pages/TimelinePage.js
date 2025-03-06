@@ -923,6 +923,27 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
         }
 
         try {
+          const response = await fetch(`${process.env.REACT_APP_SERVER}/deficiency/create`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              coursepool: deficiencyCourses,
+              user_id: user_id,// array of codes
+              creditsRequired: deficiencyCredits,
+            }),
+          });
+
+          console.log("Saving deficiency courses with payload:", {
+            user_id,
+            coursepool: deficiencyCourses,
+            creditsRequired: deficiencyCredits,
+          });
+
+
+        } catch (err) {
+          console.error("Error saving deficiency", err);
+        }
+        try {
           // Send the data to the backend via the API
           const response = await fetch(`${process.env.REACT_APP_SERVER}/timeline/save`, {
             method: 'POST',
