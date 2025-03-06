@@ -78,6 +78,8 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
 
     // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
     localStorage.setItem('Timeline_Name', null);
+    
+    console.log("select: ", selectedRadio.extendedCredit);
     navigate("/timeline_change", { state: { degreeId: selectedDegreeId, startingSemester: startingSemester, coOp: selectedRadio.coOp, extendedCredit: selectedRadio.extendedCredit, creditDeficiency: selectedRadio.creditDeficiency } });
 
   };
@@ -186,7 +188,8 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
               transcriptData,
               degreeId,
             }); // Send grouped data to parent
-            navigate('/timeline_change'); // Navigate to TimelinePage
+            console.log("select: ", selectedRadio.extendedCredit);
+            navigate('/timeline_change', { state: { coOp: selectedRadio.coOp, extendedCredit: extractedData.details.extendedCreditProgram} }); // Navigate to TimelinePage
           } else {
             setOutput(`<h3>There are no data to show!</h3>`);
           }
@@ -253,8 +256,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         const ecpMatch = text.match(/Extended Credit Program/);
         const coopMatch = text.match(/Co-op Program/);
         if (ecpMatch) {
-          details.extendedCreditProgram = 'Yes';
-          handleRadioChange('extendedCredit', 'Yes');
+          details.extendedCreditProgram = 'yes';         
           details.coopProgram = 'No';
         } else if (coopMatch) {
           details.coopProgram = 'Yes';
