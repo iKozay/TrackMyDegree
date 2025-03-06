@@ -81,7 +81,8 @@ const UploadTranscript = ({ onDataProcessed }) => {
               transcriptData,
               degreeId
             }); // Send grouped data to parent
-            navigate('/timeline_change'); // Navigate to TimelinePage
+            console.log("Ecp" , extractedData.ecp);
+            navigate('/timeline_change', { state: { coOp: null, extendedCredit: extractedData.ecp} }); // Navigate to TimelinePage
           } else {
             setOutput(`<h3>There are no courses to show!</h3>`);
           }
@@ -179,9 +180,11 @@ const UploadTranscript = ({ onDataProcessed }) => {
 // Functions to extract terms, courses, and match them
 const extractTermsCoursesAndSeparators = (pagesData) => {
   const termRegex = /((\s*(Winter|Summer|Fall)\s*\d{4}\s\s)|(\s*(Fall\/Winter)\s*20(\d{2})-(?!\6)\d{2}))/g;
-  const courseRegex = /([A-Za-z]{3,4})\s+(\d{3})\s+([A-Za-z]{2,3}|\d{2,3}|[A-Za-z]+)\s+([A-Za-z\s\&\-\+\.\/\(\)\,\'\']+)\s+([\d\.]+)\s+([A-F\+\-]+|PASS|EX)\s+([\d\.]+)/g;
-  const exemp_course = /([A-Za-z]{3,4})\s+(\d{3})\s+([A-Za-z\s]+)\s+EX/g;
+  const courseRegex = /([A-Za-z]{3,4})\s+(\d{3})\s+([A-Za-z]{2,3}|\d{2,3}|[A-Za-z]*)\s*([A-Za-z\s\&\-\+\.\/\(\)\,\'\']*)\s*([\d\.]*)\s*([A-F\+\-]*|PASS|EX)\s+/g;
+  const exemp_course = /([A-Za-z]{3,4})\s+(\d{3})\s+([A-Za-z\s]+)\s*EX/g;
   const separatorRegex = /COURSE\s*DESCRIPTION\s*ATTEMPTED\s*GRADE\s*NOTATION/g;
+  const extendedCreditRegex = /\s*Extended\s*Credit\s*Program\s*/g;
+  let ecp = null;
   const degreeMapping = {
     "Bachelor of Engineering, Aerospace Engineering": "D1",
     "Bachelor of Engineering, Building Engineering": "D2",
@@ -207,6 +210,11 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
         degree = degreeMatch[0];
         degreeId = degreeMapping[degree];
       }
+    }
+
+    if(!ecp && text.match(extendedCreditRegex))
+    {
+      ecp = 'yes';
     }
 
 
@@ -252,7 +260,8 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
     }
   });
   console.log('Degree' , degreeId);
-  return { results, degree, degreeId};
+  console.log('Extended Credit Program:', ecp);
+  return { results, degree, degreeId, ecp};
 };
 
 const matchTermsWithCourses = (data) => {

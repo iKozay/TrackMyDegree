@@ -210,7 +210,7 @@ const TimelinePage = ({onDataProcessed, degreeid, timelineData, creditsrequired}
   }, [user] );
 
 
-  let { degreeId, startingSemester, creditsRequired, extendedCredit } = location.state || {};
+  let { degreeId, startingSemester, creditsRequired =120 , extendedCredit } = location.state || {};
 
   if (!degreeId) {
     degreeId = degreeid;
