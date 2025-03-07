@@ -1,5 +1,5 @@
 # TrackMyDegree
-
+### **[Try Here](http://167.71.165.174:3000/)** 🚀
 ### Project summary
 
 TrackMyDegree empowers Concordia students to seamlessly plan their academic journey with an interactive, intuitive platform that generates course sequences. It allows students to view course prerequisites, core requirements, and graduation timelines, ensuring they can easily navigate their degree requirements without feeling overwhelmed.
