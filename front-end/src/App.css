@@ -1,4 +1,9 @@
 /* App.css */
+@import "bootstrap/dist/css/bootstrap.min.css";
+@tailwind base; 
+@tailwind components;
+@tailwind utilities;
+
 .page-container {
   display: flex;
   flex-direction: column;

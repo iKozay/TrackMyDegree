@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Card, Col, Row, Container, Dropdown } from "react-bootstrap";
 import CourseListAccordion from "../components/CourseListAccordion";
 import '../css/CourseListPage.css';
+import {motion} from "framer-motion"
 
 function CourseListPage() {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 767);
@@ -94,6 +95,12 @@ function CourseListPage() {
   }
 
   return (
+    <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.5 }}
+  >
     <Container fluid>
       <div className='course-list-div'>
         <h3>Select Degree</h3>
@@ -183,6 +190,7 @@ function CourseListPage() {
         )}
       </Row>
     </Container>
+    </motion.div>
   );
 }
 

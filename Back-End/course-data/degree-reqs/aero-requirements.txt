@@ -1,5 +1,5 @@
 # Metadata
-DegreeID=AERO-BEng
+DegreeID=AERO
 DegreeName=BEng Aerospace Engineering
 TotalCredits=120
 

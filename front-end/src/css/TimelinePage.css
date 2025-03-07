@@ -11,7 +11,8 @@
 
 .course-list {
   background-color: #f0f0f0;
-  padding: 10px;
+  padding-right: 5px;
+  padding-left: 5px;
   border-radius: 5px;
   max-height: 90%;
 }
@@ -24,15 +25,27 @@
 
 .timeline-left-bar {
   background-color: #f0f0f0;
-  padding: 10px;
+  /* padding: 10px; */
   border-radius: 25px;
-  max-height: 100%;
   align-items: center;
   width: 300px;
   transition: width 0.3s ease, transform 0.3s ease;
-  overflow: auto;
+  overflow: hidden; /* Prevent scrolling on this element */
   position: relative;
 }
+
+
+.course-list-container {
+  /* border-radius: 25px; */
+  max-height: 500px; /* or any value that suits your design */
+  /* border-radius: 5px; */
+  overflow-y: auto;
+  margin: 15px;
+  
+}
+
+
+
 
 .timeline-left-bar.hidden {
   width: 10px;
@@ -162,13 +175,16 @@
   color: #f8f9fa;
 }
 
+
 .description-section::-webkit-scrollbar,
-.timeline-left-bar::-webkit-scrollbar {
+.course-list-container::-webkit-scrollbar {
   width: 5px;
+  
+  
 }
 
 .description-section::-webkit-scrollbar-thumb,
-.timeline-left-bar::-webkit-scrollbar-thumb {
+.course-list-container::-webkit-scrollbar-thumb {
   background-color: lightgray;
   border-radius: 5px;
 }
@@ -583,4 +599,32 @@
 .save-timeline-button:focus {
   outline: 2px solid #fff; /* White outline on focus */
   outline-offset: 2px;
+}
+
+.course-search-input {
+  display:block;
+  margin: 0 auto;
+  width: 90%;
+  max-width: 300px;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 30px;
+  background: linear-gradient(45deg, #f9f9f9, #ffffff);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  outline: none;
+}
+
+.course-search-input:focus {
+  border-color: #6a5acd; /* Slate blue */
+  box-shadow: 0 0 10px rgba(106, 90, 205, 0.5);
+}
+
+.course-search-input:hover {
+  border-color: #8a2be2; /* Blue violet */
+}
+
+.course-search-input::placeholder {
+  color: #999;
+  opacity: 0.8;
 }

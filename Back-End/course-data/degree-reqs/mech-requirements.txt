@@ -1,5 +1,5 @@
 # Metadata
-DegreeID=MECH-BEng
+DegreeID=MECH
 DegreeName=BEng Mechanical Engineering
 TotalCredits=120
 
