@@ -732,26 +732,27 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
     const calculateTotalCredits = () => {
       let total = 0;
       let unmetPrereqFound = false;
+      const countedCourses = new Set(); // Track already counted courses
 
       for (const semesterId in semesterCourses) {
         if (semesterId === 'courseList') continue;
         const courseCodes = semesterCourses[semesterId];
-        const currentSemesterIndex = semesters.findIndex(
-          (s) => s.id === semesterId
+        const currentSemesterIndex = semesters.findIndex((s) => s.id === semesterId);
         );
 
         courseCodes.forEach((courseCode) => {
+          if (countedCourses.has(courseCode)) {
+            console.log("Duplicate detected: ", courseCode);
+            return; // Skip if already counted
+          }
+
           const course = allCourses.find((c) => c.code === courseCode);
-
-
           if (course && course.credits) {
-            const prerequisitesMet = arePrerequisitesMet(
-              courseCode,
-              currentSemesterIndex
-            );
+            const prerequisitesMet = arePrerequisitesMet(courseCode, currentSemesterIndex);
 
             if (prerequisitesMet) {
               total += course.credits;
+              countedCourses.add(courseCode); // Mark course as counted
             } else {
               unmetPrereqFound = true;
             }
