@@ -35,22 +35,19 @@ const DraggableCourse = ({
   isSelected,
   onSelect,
   containerId,
+  className: extraClassName, // NEW prop
 }) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id,
     disabled,
-    data: {
-      type: 'course',
-      courseCode: id,
-      containerId,
-    },
+    data: { type: 'course', courseCode: id, containerId },
   });
 
   const className = `course-item${disabled ? ' disabled' : ''}${isDragging ? ' dragging' : ''
-    }${isSelected && !isDragging && !disabled ? ' selected' : ''}`;
+    }${isSelected && !isDragging && !disabled ? ' selected' : ''}${extraClassName ? ' ' + extraClassName : ''
+    }`;
 
   return (
-
     <div
       ref={setNodeRef}
       {...attributes}
@@ -65,6 +62,7 @@ const DraggableCourse = ({
     </div>
   );
 };
+
 
 // SortableCourse component for semester items
 const SortableCourse = ({
@@ -169,58 +167,58 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
 
   const exemptedcour = [];
 
-  useEffect(() => {
-    if (user) {
-      const getexemptedcourses = async () => {
-        const user_id = user.id;
-        console.log("User in timeline exemp: ", user_id);
-        try {
-          const response = await fetch(`${process.env.REACT_APP_SERVER}/exemption/getAll`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ user_id }),
-          });
+  // useEffect(() => {
+  //   if (user) {
+  //     const getexemptedcourses = async () => {
+  //       const user_id = user.id;
+  //       console.log("User in timeline exemp: ", user_id);
+  //       try {
+  //         const response = await fetch(`${process.env.REACT_APP_SERVER}/exemption/getAll`, {
+  //           method: "POST",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //           body: JSON.stringify({ user_id }),
+  //         });
 
-          if (!response.ok) {
-            // Extract error message from response
-            const errorData = await response.json();
-            console.log(response);
-            throw new Error(errorData.message || "Failed to fetch exempted courses.");
-          }
+  //         if (!response.ok) {
+  //           // Extract error message from response
+  //           const errorData = await response.json();
+  //           console.log(response);
+  //           throw new Error(errorData.message || "Failed to fetch exempted courses.");
+  //         }
 
-          const data = await response.json();
-          exemptedcour.push(data);
-        } catch (e) {
-          console.error("Error extracting exempted courses", e);
-        }
+  //         const data = await response.json();
+  //         exemptedcour.push(data);
+  //       } catch (e) {
+  //         console.error("Error extracting exempted courses", e);
+  //       }
 
-        if (exemptedcour.length > 0) {
-          console.log("jcnkjn ", exemptedcour);
-          exemptedcour.forEach((item) => {
-            item.exemption.forEach((item_2) => {
-              {
-                const exists = timelineData.some(result => result.course === item_2.coursecode);
+  //       if (exemptedcour.length > 0) {
+  //         console.log("jcnkjn ", exemptedcour);
+  //         exemptedcour.forEach((item) => {
+  //           item.exemption.forEach((item_2) => {
+  //             {
+  //               const exists = timelineData.some(result => result.course === item_2.coursecode);
 
-                if (!exists) {
-                  timelineData.push({
-                    term: 'Exempted',
-                    course: item_2.coursecode
-                  });
-                }
-              }
-            })
-          });
-        }
-      }
+  //               if (!exists) {
+  //                 timelineData.push({
+  //                   term: 'Exempted',
+  //                   course: item_2.coursecode
+  //                 });
+  //               }
+  //             }
+  //           })
+  //         });
+  //       }
+  //     }
 
-      getexemptedcourses();
-    }
-  }, [user]);
+  //     getexemptedcourses();
+  //   }
+  // }, [user]);
 
 
-  let { degreeId, startingSemester, creditsRequired =120 , extendedCredit } = location.state || {};
+  let { degreeId, startingSemester, creditsRequired = 120, extendedCredit } = location.state || {};
 
   if (!degreeId) {
     degreeId = degreeid;
@@ -259,12 +257,49 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
   const toggleCourseList = () => setShowCourseList((prev) => !prev);
   const toggleCourseDescription = () => setShowCourseDescription((prev) => !prev);
 
-  const filteredCourses = coursePools
-    .flatMap(pool => pool.courses)
-    .filter(course =>
-      course.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      course.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+  const [allCourses, setAllCourses] = useState([]);
+
+  // NEW: Fetch all courses from /courses/getAllCourses
+  useEffect(() => {
+    const fetchAllCourses = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_SERVER}/courses/getAllCourses`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch all courses');
+        }
+        const data = await response.json();
+        setAllCourses(data);
+      } catch (err) {
+        console.error("Error fetching all courses", err);
+      }
+    };
+
+    fetchAllCourses();
+  }, []);
+
+  // NEW: Compute remaining courses not in the degree's course pools
+  const normalizedDegreeCourseCodes = new Set(
+    coursePools.flatMap(pool => pool.courses.map(course => course.code.trim().toUpperCase()))
+  );
+
+  const remainingCourses = allCourses.filter(
+    course => !normalizedDegreeCourseCodes.has(course.code.trim().toUpperCase())
+  );
+
+
+
+
+  // const filteredCourses = coursePools
+  //   .flatMap(pool => pool.courses)
+  //   .filter(course =>
+  //     course.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     course.title.toLowerCase().includes(searchQuery.toLowerCase())
+  //   );
 
   // Sensors with activation constraints
   const mouseSensor = useSensor(MouseSensor, {
@@ -556,9 +591,8 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
     setReturning(false);
     const id = String(event.active.id);
 
-    const course = coursePools
-      .flatMap((pool) => pool.courses)
-      .find((c) => c.code === id);
+    const course = allCourses.find((c) => c.code === id);
+
 
     if (course) {
       setSelectedCourse(course);
@@ -642,9 +676,8 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
           const thisSemesterCourses = updatedSemesters[overSemesterId];
           let sumCredits = 0;
           for (let cCode of thisSemesterCourses) {
-            const course = coursePools
-              .flatMap((pool) => pool.courses)
-              .find((c) => c.code === cCode);
+            const course = allCourses.find((c) => c.code === cCode);
+
             if (course?.credits) {
               sumCredits += course.credits;
             }
@@ -686,9 +719,8 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
   };
 
   const handleCourseSelect = (code) => {
-    const course = coursePools
-      .flatMap((pool) => pool.courses)
-      .find((c) => c.code === code);
+    const course = allCourses.find((c) => c.code === code);
+
     if (course) {
       setSelectedCourse(course);
     }
@@ -710,9 +742,8 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
         );
 
         courseCodes.forEach((courseCode) => {
-          const course = coursePools
-            .flatMap((pool) => pool.courses)
-            .find((c) => c.code === courseCode);
+          const course = allCourses.find((c) => c.code === courseCode);
+
 
           if (course && course.credits) {
             const prerequisitesMet = arePrerequisitesMet(
@@ -734,14 +765,12 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
     };
 
     calculateTotalCredits();
-  }, [semesterCourses, semesters, coursePools, deficiencyCredits]);
+  }, [semesterCourses, semesters, allCourses, deficiencyCredits]);
 
 
   // Function to check if prerequisites and corequisites are met
   const arePrerequisitesMet = (courseCode, currentSemesterIndex) => {
-    const course = coursePools
-      .flatMap((pool) => pool.courses)
-      .find((c) => c.code === courseCode);
+    const course = allCourses.find((c) => c.code === courseCode);
 
     console.log(`Checking prerequisites for course ${courseCode} in semester index ${currentSemesterIndex}`);
 
@@ -826,11 +855,11 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
 
   const handleSaveTimeline = async () => {
 
-    if(!user){
+    if (!user) {
       navigate('/signin');
       return;
     }
-  
+
 
     const timelineData = [];
     const exempted_courses = [];
@@ -843,9 +872,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
         (semesterCourses[semester.id] || []).forEach((courseCode) => {
           console.log("Exempted code: ", courseCode);
 
-          const course = coursePools
-            .flatMap((pool) => pool.courses)
-            .find((c) => c.code === courseCode);
+          const course = allCourses.find((c) => c.code === courseCode);
 
           // Ensure course exists and has a valid code
           if (course && course.code) {
@@ -868,9 +895,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
       // Get the courses for this semester
       const coursesForSemester = [];
       (semesterCourses[semester.id] || []).forEach((courseCode) => {
-        const course = coursePools
-          .flatMap((pool) => pool.courses)
-          .find((c) => c.code === courseCode);
+        const course = allCourses.find((c) => c.code === courseCode);
 
         // If course not found, use default course code
         if (!course?.code) {
@@ -1116,63 +1141,86 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                         <div className="course-list-container">
 
                           <Droppable id="courseList" className="course-list" style={"color=red"}>
-                            {searchQuery.trim() !== "" ? (
-                              /* If there's a search query, show a single, flat list of matching courses */
-                                <Container>
-                                  {filteredCourses.length > 0 ? (
-                                    filteredCourses.map((course) => {
-                                      const assigned = isCourseAssigned(course.code);
-                                      const isSelected = selectedCourse?.code === course.code;
+                            <Accordion>
+                              {coursePools.map((coursePool) => {
+                                // Determine if any course in this pool matches the search query.
+                                const poolMatches =
+                                  searchQuery.trim() === "" ||
+                                  coursePool.courses.some(
+                                    (course) =>
+                                      course.code.toLowerCase().includes(searchQuery.toLowerCase())
+                                  );
+                                return (
+                                  <Accordion.Item
+                                    eventKey={coursePool.poolName}
+                                    key={coursePool.poolId}
+                                    className={searchQuery.trim() !== "" && !poolMatches ? "hidden-accordion" : ""}
+                                  >
+                                    <Accordion.Header>{coursePool.poolName}</Accordion.Header>
+                                    <Accordion.Body>
+                                      <Container>
+                                        {coursePool.courses.map((course) => {
+                                          const courseMatches =
+                                            searchQuery.trim() === "" ||
+                                            course.code.toLowerCase().includes(searchQuery.toLowerCase())
+                                          return (
+                                            <DraggableCourse
+                                              key={`${course.code}-${isCourseAssigned(course.code)}`}
+                                              id={course.code}
+                                              title={course.code}
+                                              disabled={isCourseAssigned(course.code)}
+                                              isReturning={returning}
+                                              isSelected={selectedCourse?.code === course.code}
+                                              onSelect={handleCourseSelect}
+                                              containerId="courseList"
+                                              className={!courseMatches ? "hidden-course" : ""}
+                                            />
+                                          );
+                                        })}
+                                      </Container>
+                                    </Accordion.Body>
+                                  </Accordion.Item>
+                                );
+                              })}
+                              {/* Similarly, for the Remaining Courses Accordion */}
+                              <Accordion.Item
+                                eventKey="remaining-courses"
+                                key="remaining-courses"
+                                className={
+                                  searchQuery.trim() !== "" &&
+                                    !remainingCourses.some(
+                                      (course) =>
+                                        course.code.toLowerCase().includes(searchQuery.toLowerCase())
+                                    )
+                                    ? "hidden-accordion"
+                                    : ""
+                                }
+                              >
+                                <Accordion.Header>Remaining Courses</Accordion.Header>
+                                <Accordion.Body>
+                                  <Container>
+                                    {remainingCourses.map((course) => {
+                                      const courseMatches =
+                                        searchQuery.trim() === "" ||
+                                        course.code.toLowerCase().includes(searchQuery.toLowerCase())
                                       return (
                                         <DraggableCourse
-                                          key={`${course.code}-${assigned}`}
+                                          key={`${course.code}-${isCourseAssigned(course.code)}`}
                                           id={course.code}
                                           title={course.code}
-                                          disabled={assigned}
+                                          disabled={isCourseAssigned(course.code)}
                                           isReturning={returning}
-                                          isSelected={isSelected}
+                                          isSelected={selectedCourse?.code === course.code}
                                           onSelect={handleCourseSelect}
                                           containerId="courseList"
+                                          className={!courseMatches ? "hidden-course" : ""}
                                         />
                                       );
-                                    })
-                                  ) : (
-                                    <div>No results found.</div>
-                                  )}
-                                </Container>
-                            ) : (
-                              /* If there's no search query, show the original Accordion structure */
-                                <Accordion>
-                                  {coursePools.map((coursePool) => (
-                                    <Accordion.Item
-                                      eventKey={coursePool.poolName}
-                                      key={coursePool.poolId}
-                                    >
-                                      <Accordion.Header>{coursePool.poolName}</Accordion.Header>
-                                      <Accordion.Body>
-                                        <Container>
-                                          {coursePool.courses.map((course) => {
-                                            const assigned = isCourseAssigned(course.code);
-                                            const isSelected = selectedCourse?.code === course.code;
-                                            return (
-                                              <DraggableCourse
-                                                key={`${course.code}-${assigned}`}
-                                                id={course.code}
-                                                title={course.code}
-                                                disabled={assigned}
-                                                isReturning={returning}
-                                                isSelected={isSelected}
-                                                onSelect={handleCourseSelect}
-                                                containerId="courseList"
-                                              />
-                                            );
-                                          })}
-                                        </Container>
-                                      </Accordion.Body>
-                                    </Accordion.Item>
-                                  ))}
-                                </Accordion>
-                            )}
+                                    })}
+                                  </Container>
+                                </Accordion.Body>
+                              </Accordion.Item>
+                            </Accordion>
                           </Droppable>
                         </div>
                       </div>
@@ -1238,9 +1286,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                                 strategy={verticalListSortingStrategy}
                               >
                                 {semesterCourses[semester.id].map((courseCode) => {
-                                  const course = coursePools
-                                    .flatMap((pool) => pool.courses)
-                                    .find((c) => c.code === courseCode);
+                                  const course = allCourses.find((c) => c.code === courseCode);
                                   if (!course) return null;
                                   const isSelected = selectedCourse?.code === course.code;
                                   const isDraggingFromSemester = activeId === course.code;
@@ -1350,9 +1396,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                 <DragOverlay dropAnimation={returning ? null : undefined}>
                   {activeId ? (
                     <div className="course-item-overlay selected">
-                      {coursePools
-                        .flatMap((pool) => pool.courses)
-                        .find((course) => course.code === activeId)?.code}
+                      {allCourses.find((course) => course.code === activeId)?.code}
                     </div>
                   ) : null}
                 </DragOverlay>
@@ -1398,7 +1442,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
                   >
-                    {Array.from({ length: 10 }).map((_, i) => {
+                    {Array.from({ length: 14 }).map((_, i) => {
                       const year = 2017 + i;
                       return (
                         <option key={year} value={year}>

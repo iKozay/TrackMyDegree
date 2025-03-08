@@ -5,9 +5,12 @@ import { AuthContext } from "../AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import '../css/Navbar.css';
+import userIcon from "../icons/userIcon2.png";
+import logoutIcon from "../icons/logoutIcon.png";
+import {color} from "framer-motion"; // New logout icon
 
 const Navbar = () => {
-  const { isLoggedIn, logout } = useContext(AuthContext);
+  const { isLoggedIn, logout, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const menuRef = useRef(null);
 
@@ -59,7 +62,7 @@ const Navbar = () => {
     <nav className="navbar navbar-expand-lg custom-navbar custom-navbar-height custom-navbar-padding">
       <div className="container-fluid custom-navbar-left-align">
         <a className="navbar-brand custom-navbar-brand-left" href="/">
-          <span className="brand-text">TrackMyDegree 🎓</span>
+          <span className="brand-text">TrackMyDegree🎓</span>
           <span className="brand-emoji">🎓</span>
         </a>
         <button
@@ -76,9 +79,11 @@ const Navbar = () => {
             <a className="nav-link active" aria-current="page" href="/">
               Home
             </a>
+            <a className={"nav-separator"}>|</a>
             <a className="nav-link" href="/timeline_initial">
               Timeline
             </a>
+            <a className={"nav-separator"}>|</a>
             <a className="nav-link" href="/courselist">
               Courses
             </a>
@@ -86,23 +91,29 @@ const Navbar = () => {
               Upload Transcript
             </a> */}
           </div>
-            {isLoggedIn ? (
+          {isLoggedIn ? (
               <>
                 <div className="navbar-right-buttons">
                   <Link to="/user">
-                    <button className="navbar-button navbar-button-signin">User</button>
+                    <button className="navbar-user">
+                      <img src={userIcon} alt="User Icon" className="user-icon"/>
+                      <span className="user-name">{user.fullname || "NULL"}</span>
+                    </button>
                   </Link>
                   <Link to="/signin">
-                    <button className="navbar-button navbar-button-register" onClick={handleLogout}>Log Out</button>
+                    <button className="navbar-user" onClick={handleLogout}>
+                      <img src={logoutIcon} alt="Logout Icon" className="logout-icon"/>
+                      <span className="user-name">Log Out</span>
+                    </button>
                   </Link>
                 </div>
               </>
             ) : (
-              <div className="navbar-right-buttons">
-                <Link to="/signin">
-                  <button className="navbar-button navbar-button-signin">Sign in</button>
-                </Link>
-                <Link to="/signup">
+                <div className="navbar-right-buttons">
+                  <Link to="/signin">
+                    <button className="navbar-button navbar-button-signin">Sign in</button>
+                  </Link>
+                  <Link to="/signup">
                   <button className="navbar-button navbar-button-register">Register</button>
                 </Link>
               </div>

@@ -1,15 +1,15 @@
--- Active: 1731210639535@@localhost@1433@master
+Active: 1731210639535@@localhost@1433@master
 
-DELETE FROM Requisite;
-DELETE FROM CoursePool;
-DELETE FROM DegreeXCoursePool;
-DELETE FROM CourseXCoursePool;
-DELETE FROM AppUser;
-DELETE FROM Timeline;
-DELETE FROM TimelineItems;
-DELETE FROM TimelineItemXCourses;
-DELETE FROM Degree;
-DELETE FROM Course;
+-- DELETE FROM Requisite;
+-- DELETE FROM CoursePool;
+-- DELETE FROM DegreeXCoursePool;
+-- DELETE FROM CourseXCoursePool;
+-- DELETE FROM AppUser;
+-- DELETE FROM Timeline;
+-- DELETE FROM TimelineItems;
+-- DELETE FROM TimelineItemXCourses;
+-- DELETE FROM Degree;
+-- DELETE FROM Course;
 
 CREATE TABLE Degree (
   id VARCHAR(255) PRIMARY KEY,
