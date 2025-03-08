@@ -628,3 +628,15 @@
   color: #999;
   opacity: 0.8;
 }
+
+.hidden-course,
+.hidden-accordion {
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  overflow: hidden;
+}
+
+.hidden-course {
+  display: none;
+}

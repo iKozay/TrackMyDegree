@@ -107,4 +107,19 @@ router.post("/getByDegreeGrouped", async (req: Request, res: Response) => {
   }
 });
 
+router.post("/getAllCourses", async (req: Request, res: Response) => {
+  try {
+    const courses = await courseController.getAllCoursesInDB();
+
+    if (courses && courses.length > 0) {
+      res.status(HTTP.OK).json(courses);
+    } else {
+      res.status(HTTP.NOT_FOUND).json({ error: "No courses found" });
+    }
+  } catch (error) {
+    console.error("Error in /courses/getAll", error);
+    res.status(HTTP.SERVER_ERR).json({ error: "Could not retrieve courses" });
+  }
+});
+
 export default router;
