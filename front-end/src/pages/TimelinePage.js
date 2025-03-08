@@ -1248,9 +1248,12 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                                       prerequisitesMet={prerequisitesMet} // Pass the prop
                                       removeButton={(
                                         <button 
+                                          className="remove-course-btn" 
                                           onClick={() => removeCourse(course.code, semester.id)}
                                         >
-                                            <span className="red-minus">➖</span>
+                                            <svg width="16" height="40" viewBox="0 0 24 24" fill="red" xmlns="http://www.w3.org/2000/svg">
+                                              <rect x="4" y="11" width="16" height="2" fill="red"/>
+                                            </svg>
                                         </button>
                                       )}
                                     />

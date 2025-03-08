@@ -629,9 +629,14 @@
   opacity: 0.8;
 }
 
-.red-minus {
-  font-size: 12px;  /* Makes it bigger */
-  color: red;       /* Red color */
-  background-color: transparent;  /* Fully transparent background */
+.remove-course-btn {
+  background: none;
   border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
 }
+
