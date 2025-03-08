@@ -105,7 +105,7 @@
   }
 
   .navbar-button {
-    width: 90%;
+    width: 100%;
     margin-bottom: 10px;
   }
 
@@ -199,4 +199,39 @@
 .navbar-button-register:hover {
   background-color: white;
   color: black;
+}
+
+.user-icon {
+  width: 90px;
+  height: 90px;
+}
+
+.user-link {
+  display: flex;
+  align-items: center;
+  color: inherit;
+}
+
+.user-icon {
+  width: 50px;
+  height: 50px;
+}
+
+.user-name {
+  font-size: 18px;
+  color: #ecf0f1;
+  text-decoration: none;
+}
+
+.navbar-user {
+  background: none;
+  border: none;
+  outline: none;
+  color: inherit;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.navbar-user:hover .user-name {
+  color: #bdc3c7;
 }

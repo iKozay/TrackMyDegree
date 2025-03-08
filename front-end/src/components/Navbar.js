@@ -5,9 +5,10 @@ import { AuthContext } from "../AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import '../css/Navbar.css';
+import userIcon from "../icons/userIcon.png";
 
 const Navbar = () => {
-  const { isLoggedIn, logout } = useContext(AuthContext);
+  const { isLoggedIn, logout, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const menuRef = useRef(null);
 
@@ -90,7 +91,10 @@ const Navbar = () => {
               <>
                 <div className="navbar-right-buttons">
                   <Link to="/user">
-                    <button className="navbar-button navbar-button-signin">User</button>
+                    <button className="navbar-user">
+                      <img src={userIcon} alt="User Icon" className="user-icon"/>
+                      <span className="user-name">{user.fullname || "NULL"}</span>
+                    </button>
                   </Link>
                   <Link to="/signin">
                     <button className="navbar-button navbar-button-register" onClick={handleLogout}>Log Out</button>
