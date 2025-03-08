@@ -631,6 +631,7 @@
 
 .remove-course-btn {
   background: none;
+  margin-left: auto;
   border: none;
   padding: 0;
   cursor: pointer;
