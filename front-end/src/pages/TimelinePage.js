@@ -76,6 +76,7 @@ const SortableCourse = ({
   onSelect,
   containerId,
   prerequisitesMet, // New prop
+  removeButton,
 }) => {
   const {
     attributes,
@@ -122,6 +123,10 @@ const SortableCourse = ({
           className="warning-icon"
         />
       )}
+
+      <span className="course-title">{title}</span>
+      {removeButton}
+
     </div>
   );
 };
@@ -521,6 +526,11 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
       return updated;
     });
   };
+
+
+  const removeCourse = () => {
+
+  }
   // ----------------------------------------------------------------------
   const isCourseAssigned = (courseCode) => {
     for (const semesterId in semesterCourses) {
@@ -1239,7 +1249,16 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                                       onSelect={handleCourseSelect}
                                       containerId={semester.id}
                                       prerequisitesMet={prerequisitesMet} // Pass the prop
+                                      removeButton={(
+                                        <button 
+                                          className="remove-course-btn" 
+                                          onClick={() => removeCourse(course.code, semester.id)}
+                                        >
+                                          ✏️ Edit
+                                        </button>
+                                      )}
                                     />
+
                                   );
                                 })}
                               </SortableContext>
