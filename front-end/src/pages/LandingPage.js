@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import '../css/LandingPage.css';
 import ImageCarousel from "../components/ImageCarousel";
 import Typewriter from "typewriter-effect";
-import {motion} from "framer-moti"
+import { motion } from "framer-motion"
 
 const LandingPage = () => {
 
