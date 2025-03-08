@@ -1412,7 +1412,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
                   >
-                    {Array.from({ length: 10 }).map((_, i) => {
+                    {Array.from({ length: 14 }).map((_, i) => {
                       const year = 2017 + i;
                       return (
                         <option key={year} value={year}>
