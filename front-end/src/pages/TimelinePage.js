@@ -525,9 +525,22 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
   };
 
 
-  const removeCourse = () => {
-
+  const removeCourse = (courseCode, semesterId) => {
+    setSemesterCourses((prevSemesters) => {
+      const updatedSemesters = { ...prevSemesters };
+  
+      // Remove course from its current semester
+      updatedSemesters[semesterId] = updatedSemesters[semesterId].filter(
+        (c) => c !== courseCode
+      );
+  
+      return updatedSemesters;
+    });
+  
+    // Call the function that handles returning courses
+    handleReturn(courseCode);
   }
+
   // ----------------------------------------------------------------------
   const isCourseAssigned = (courseCode) => {
     for (const semesterId in semesterCourses) {
@@ -1257,7 +1270,6 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                                         </button>
                                       )}
                                     />
-
                                   );
                                 })}
                               </SortableContext>
