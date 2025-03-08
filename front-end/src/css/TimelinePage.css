@@ -638,5 +638,10 @@
   align-items: center;
   justify-content: center;
   color: inherit;
+  transition: transform 0.2s ease-in-out;
+}
+
+.remove-course-btn:hover {
+  transform: scale(1.2); 
 }
 
