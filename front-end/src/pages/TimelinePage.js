@@ -738,7 +738,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
         if (semesterId === 'courseList') continue;
         const courseCodes = semesterCourses[semesterId];
         const currentSemesterIndex = semesters.findIndex((s) => s.id === semesterId);
-        );
+
 
         courseCodes.forEach((courseCode) => {
           if (countedCourses.has(courseCode)) {
