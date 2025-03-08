@@ -123,10 +123,7 @@ const SortableCourse = ({
           className="warning-icon"
         />
       )}
-
-      <span className="course-title">{title}</span>
       {removeButton}
-
     </div>
   );
 };
