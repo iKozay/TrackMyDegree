@@ -74,6 +74,7 @@ const SortableCourse = ({
   onSelect,
   containerId,
   prerequisitesMet, // New prop
+  removeButton,
 }) => {
   const {
     attributes,
@@ -120,6 +121,7 @@ const SortableCourse = ({
           className="warning-icon"
         />
       )}
+      {removeButton}
     </div>
   );
 };
@@ -556,6 +558,24 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
       return updated;
     });
   };
+
+
+  const removeCourse = (courseCode, semesterId) => {
+    setSemesterCourses((prevSemesters) => {
+      const updatedSemesters = { ...prevSemesters };
+  
+      // Remove course from its current semester
+      updatedSemesters[semesterId] = updatedSemesters[semesterId].filter(
+        (c) => c !== courseCode
+      );
+  
+      return updatedSemesters;
+    });
+  
+    // Call the function that handles returning courses
+    handleReturn(courseCode);
+  }
+
   // ----------------------------------------------------------------------
   const isCourseAssigned = (courseCode) => {
     for (const semesterId in semesterCourses) {
@@ -1285,6 +1305,16 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                                       onSelect={handleCourseSelect}
                                       containerId={semester.id}
                                       prerequisitesMet={prerequisitesMet} // Pass the prop
+                                      removeButton={(
+                                        <button 
+                                          className="remove-course-btn" 
+                                          onClick={() => removeCourse(course.code, semester.id)}
+                                        >
+                                            <svg width="30" height="25" viewBox="0 0 30 24" fill="red" xmlns="http://www.w3.org/2000/svg">
+                                              <rect x="2" y="11" width="22" height="4" fill="red"/>
+                                            </svg>
+                                        </button>
+                                      )}
                                     />
                                   );
                                 })}

@@ -629,6 +629,29 @@
   opacity: 0.8;
 }
 
+.remove-course-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  transition: transform 0.2s ease-in-out;
+}
+
+.remove-course-btn:hover {
+  transform: scale(1.2);
+  filter: drop-shadow(0px 0px 5px rgba(255, 0, 0, 0.6));
+}
+
+
+.remove-course-btn:active {
+  transform: scale(1.1); 
+  filter: brightness(1.5);
+}
+
 .hidden-course,
 .hidden-accordion {
   opacity: 0;
