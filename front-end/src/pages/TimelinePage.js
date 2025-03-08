@@ -688,7 +688,6 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
 
           if (sumCredits > maxAllowed) {
             shakeSemester(overSemesterId);
-            alert("You exceeded the limit of 15 credits per semester allowed in Gina Cody School of Engineering and Computer Science!");
           }
           return updatedSemesters;
         });
