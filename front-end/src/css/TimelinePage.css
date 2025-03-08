@@ -630,7 +630,7 @@
 }
 
 .red-minus {
-  font-size: 32px;  /* Makes it bigger */
+  font-size: 12px;  /* Makes it bigger */
   color: red;       /* Red color */
   background-color: transparent;  /* Fully transparent background */
   border: none;

@@ -1248,7 +1248,6 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                                       prerequisitesMet={prerequisitesMet} // Pass the prop
                                       removeButton={(
                                         <button 
-                                          className="remove-course-btn" 
                                           onClick={() => removeCourse(course.code, semester.id)}
                                         >
                                             <span className="red-minus">➖</span>
