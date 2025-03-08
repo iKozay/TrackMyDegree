@@ -1251,8 +1251,8 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                                           className="remove-course-btn" 
                                           onClick={() => removeCourse(course.code, semester.id)}
                                         >
-                                            <svg width="16" height="40" viewBox="0 0 24 24" fill="red" xmlns="http://www.w3.org/2000/svg">
-                                              <rect x="4" y="11" width="16" height="2" fill="red"/>
+                                            <svg width="50" height="25" viewBox="0 0 40 24" fill="red" xmlns="http://www.w3.org/2000/svg">
+                                              <rect x="2" y="11" width="25" height="3" fill="red"/>
                                             </svg>
                                         </button>
                                       )}
