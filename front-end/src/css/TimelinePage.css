@@ -628,3 +628,10 @@
   color: #999;
   opacity: 0.8;
 }
+
+.red-minus {
+  font-size: 32px;  /* Makes it bigger */
+  color: red;       /* Red color */
+  background-color: transparent;  /* Fully transparent background */
+  border: none;
+}
