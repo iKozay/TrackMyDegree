@@ -241,6 +241,15 @@
         "description": "This course covers the theory, tools, and techniques associated with the management of projects including the use of project management software. Cases from various business contexts are used to illustrate essential steps in setting up project plans, scheduling work, monitoring progress, and exercising control to achieve desired results. The course integrates the Project Management Body of Knowledge with the Project Management Institute’s certification requirements.",
         "components": "Lecture",
         "notes": "Students who have received credit for DESC 483 or for this topic under a DESC 490 number may not take this course for credit."
+    },
+    {
+        "title": "ACCO 220 Financial and Managerial Accounting",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course provides an introduction to accounting principles underlying the preparation of financial reports with an emphasis on the relationship between accounting information and production decisions. It examines the relationship between costs, production volume, and profit, as well as the practical benefits of standard costs for planning and control purposes. The role of accounting information in various manufacturing decisions is also highlighted.",
+        "components": "Lecture",
+        "notes": "John Molson School of Business students may not take this course for credit. This course would be useful to Engineering students. Students who have received credit for ACCO 230, ACCO 240 may not take this course for credit."
     }
     
 ]

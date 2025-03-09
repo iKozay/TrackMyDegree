@@ -3,7 +3,7 @@ DegreeID=SOEN
 DegreeName=BEng Software Engineering
 TotalCredits=120
 
-[Engineering Core (30.5 credits)]
+[Engineering Core (24.5 credits)]
 ELEC 275
 ENCS 282
 ENGR 201
@@ -12,8 +12,11 @@ ENGR 213
 ENGR 233
 ENGR 301
 ENGR 371
-ENGR 391, COMP 361
 ENGR 392
+
+[ENGR 391 / COMP 361 (3 credits)]
+ENGR 391
+COMP 361
 
 [Software Engineering Core (47.5 credits)]
 SOEN 228
@@ -44,7 +47,6 @@ ENGR 245
 MIAE 221
 
 [Software Engineering Electives (16 credits)]
-
 AERO 480
 AERO 482
 COEN 320

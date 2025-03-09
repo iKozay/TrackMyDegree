@@ -3,7 +3,7 @@ DegreeID=CIVI
 DegreeName=BEng Civil Engineering
 TotalCredits=120
 
-[Engineering Core (30.5 credits)]
+[Engineering Core (27.5 credits)]
 ELEC 275
 ENCS 282
 ENGR 201

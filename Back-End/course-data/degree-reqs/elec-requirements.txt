@@ -3,8 +3,8 @@ DegreeID=ELEC
 DegreeName=BEng Electrical Engineering
 TotalCredits=120
 
-[Engineering Core (30.5 credits)]
-ELEC 275
+[Engineering Core (27.5 credits)]
+ELEC 273
 ENCS 282
 ENGR 201
 ENGR 202
