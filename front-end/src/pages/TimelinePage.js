@@ -763,42 +763,70 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
   // Calculate total credits whenever semesterCourses changes
   useEffect(() => {
     const calculateTotalCredits = () => {
-      let total = 0;
       let unmetPrereqFound = false;
-      const countedCourses = new Set(); // Track already counted courses
 
+      // Build a map: poolId -> { assigned: number, max: number }
+      // assigned is how many credits we've added so far
+      // max is parsed from the pool name
+      const poolCreditMap = {};
+
+      // Initialize each pool with a max credits limit
+      coursePools.forEach((pool) => {
+        const maxFromName = parseMaxCreditsFromPoolName(pool.poolName);
+        poolCreditMap[pool.poolId] = {
+          assigned: 0,
+          max: maxFromName,
+        };
+      });
+
+      // Go through each semester (EXCEPT 'Exempted') and sum assigned credits
       for (const semesterId in semesterCourses) {
-        if (semesterId === 'courseList') continue;
+        if (semesterId.toLowerCase() === 'exempted') {
+          // Skip counting courses in 'Exempted'
+          continue;
+        }
+
         const courseCodes = semesterCourses[semesterId];
         const currentSemesterIndex = semesters.findIndex((s) => s.id === semesterId);
 
-
         courseCodes.forEach((courseCode) => {
-          if (countedCourses.has(courseCode)) {
-            console.log("Duplicate detected: ", courseCode);
-            return; // Skip if already counted
+          // Find which pool this course belongs to
+          const pool = coursePools.find((p) =>
+            p.courses.some((c) => c.code === courseCode)
+          );
+          if (!pool) return; // course not found in any pool (shouldn't happen, but just in case)
+
+          // Find the actual course object
+          const course = pool.courses.find((c) => c.code === courseCode);
+          if (!course) return;
+
+          // Check prerequisites
+          const prerequisitesMet = arePrerequisitesMet(courseCode, currentSemesterIndex);
+          if (!prerequisitesMet) {
+            unmetPrereqFound = true;
+            return;
           }
 
-          const course = allCourses.find((c) => c.code === courseCode);
-          if (course && course.credits) {
-            const prerequisitesMet = arePrerequisitesMet(courseCode, currentSemesterIndex);
-
-            if (prerequisitesMet) {
-              total += course.credits;
-              countedCourses.add(courseCode); // Mark course as counted
-            } else {
-              unmetPrereqFound = true;
-            }
-          }
+          // Add credits to the pool’s assigned sum, up to the pool’s max
+          const poolData = poolCreditMap[pool.poolId];
+          const newSum = poolData.assigned + (course.credits || 0);
+          poolData.assigned = Math.min(poolData.max, newSum);
         });
       }
+
+      // Sum up the assigned credits from all pools
+      const total = Object.values(poolCreditMap).reduce(
+        (sum, poolData) => sum + poolData.assigned,
+        0
+      );
 
       setTotalCredits(total);
       setHasUnmetPrerequisites(unmetPrereqFound);
     };
 
     calculateTotalCredits();
-  }, [semesterCourses, semesters, allCourses, deficiencyCredits]);
+  }, [semesterCourses, semesters, coursePools, deficiencyCredits]);
+
 
 
   // Function to check if prerequisites and corequisites are met
@@ -888,6 +916,16 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
     }
     return 15;
   }
+
+  function parseMaxCreditsFromPoolName(poolName) {
+    // Regex to find e.g. "(47.5 credits)"
+    const match = poolName.match(/\(([\d.]+)\s*credits?\)/i);
+    if (match) {
+      return parseFloat(match[1]);  // 47.5
+    }
+    return Infinity; // fallback if we can't parse a number
+  }
+
 
 
 
