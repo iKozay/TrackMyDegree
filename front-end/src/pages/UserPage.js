@@ -229,7 +229,7 @@ const UserPage = ({ onDataProcessed }) => {
         <div className="photo-wrapper p-3"> {/* Increased padding */}
           <img
             className="w-40 h-40 rounded-full mx-auto" 
-            src="https://www.gravatar.com/avatar/2acfb745ecf9d4dccb3364752d17f65f?s=260&d=mp"
+            src="https://www.svgrepo.com/download/374554/avatar-loading.svg" //replace when upload available
             alt="Profile Avatar"
           />
         </div>
