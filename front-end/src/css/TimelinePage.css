@@ -631,6 +631,7 @@
 
 .remove-course-btn {
   background: none;
+  margin-left: auto;
   border: none;
   padding: 0;
   cursor: pointer;
@@ -652,12 +653,12 @@
   filter: brightness(1.5);
 }
 
-.hidden-course,
 .hidden-accordion {
   opacity: 0;
   pointer-events: none;
   height: 0;
   overflow: hidden;
+  display: none;
 }
 
 .hidden-course {

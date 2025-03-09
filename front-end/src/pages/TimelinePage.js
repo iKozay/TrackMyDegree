@@ -258,6 +258,19 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
   const toggleCourseDescription = () => setShowCourseDescription((prev) => !prev);
 
   const [allCourses, setAllCourses] = useState([]);
+  const [showExempted, setShowExempted] = useState(true);
+
+
+  const DEFAULT_EXEMPTED_COURSES = [
+    'MATH201',
+    'MATH203',
+    'MATH204',
+    'MATH205',
+    'MATH206',
+    'CHEM205',
+    'PHYS204',
+    'PHYS205',
+  ]
 
   // NEW: Fetch all courses from /courses/getAllCourses
   useEffect(() => {
@@ -433,7 +446,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
       }
       semesterMap[term].push(course.replace(' ', ''));
       semesterNames.add(term);
-      console.log(semesterMap);
+      // console.log(semesterMap);
     });
 
 
@@ -447,9 +460,29 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
       });
     }
 
+    // If extendedCredit is false, ensure default exemptions are added.
+    if (!extendedCredit && DEFAULT_EXEMPTED_COURSES) {
+      if (!semesterNames.has("Exempted")) {
+        semesterNames.add("Exempted");
+        // Directly set the Exempted semester to the default courses.
+        semesterMap["Exempted"] = [...DEFAULT_EXEMPTED_COURSES];
+      } else {
+        // Merge defaults with any existing ones.
+        const existing = semesterMap["Exempted"] || [];
+        DEFAULT_EXEMPTED_COURSES.forEach(courseCode => {
+          if (!existing.includes(courseCode)) {
+            existing.push(courseCode);
+          }
+        });
+        semesterMap["Exempted"] = existing;
+      }
+    }
+
 
     // Create an array of semesters sorted by term order
     const sortedSemesters = Array.from(semesterNames).sort((a, b) => {
+      if (a === "Exempted") return -1;
+      if (b === "Exempted") return 1;
       const order = { Winter: 1, Summer: 2, Fall: 3 };
       const [seasonA, yearA] = a.split(' ');
       const [seasonB, yearB] = b.split(' ');
@@ -474,7 +507,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
         sortedSemesters.map((term) => [term, semesterMap[term] || []])
       )
     );
-  }, [timelineData, coursePools]);
+  }, [timelineData, coursePools, extendedCredit, startingSemester]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -671,7 +704,6 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
 
           if (sumCredits > maxAllowed) {
             shakeSemester(overSemesterId);
-            alert("You exceeded the limit of 15 credits per semester allowed in Gina Cody School of Engineering and Computer Science!");
           }
           return updatedSemesters;
         });
@@ -716,26 +748,27 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
     const calculateTotalCredits = () => {
       let total = 0;
       let unmetPrereqFound = false;
+      const countedCourses = new Set(); // Track already counted courses
 
       for (const semesterId in semesterCourses) {
         if (semesterId === 'courseList') continue;
         const courseCodes = semesterCourses[semesterId];
-        const currentSemesterIndex = semesters.findIndex(
-          (s) => s.id === semesterId
-        );
+        const currentSemesterIndex = semesters.findIndex((s) => s.id === semesterId);
+
 
         courseCodes.forEach((courseCode) => {
+          if (countedCourses.has(courseCode)) {
+            console.log("Duplicate detected: ", courseCode);
+            return; // Skip if already counted
+          }
+
           const course = allCourses.find((c) => c.code === courseCode);
-
-
           if (course && course.credits) {
-            const prerequisitesMet = arePrerequisitesMet(
-              courseCode,
-              currentSemesterIndex
-            );
+            const prerequisitesMet = arePrerequisitesMet(courseCode, currentSemesterIndex);
 
             if (prerequisitesMet) {
               total += course.credits;
+              countedCourses.add(courseCode); // Mark course as counted
             } else {
               unmetPrereqFound = true;
             }
@@ -773,8 +806,11 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
     const completedCourses = [];
     for (let i = 0; i < currentSemesterIndex; i++) {
       const semesterId = semesters[i]?.id;
-      if (semesterId) {
-        completedCourses.push(...semesterCourses[semesterId]);
+      if (semesterId === 'Exempted') {
+        completedCourses.push(...(semesterCourses[semesterId] || []));
+      } else {
+        // Add courses from regular semesters too.
+        completedCourses.push(...(semesterCourses[semesterId] || []));
       }
     }
 
@@ -835,6 +871,12 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
     }
     return 15;
   }
+
+
+
+
+
+
 
   const handleSaveTimeline = async () => {
 
@@ -1242,6 +1284,8 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                     <div className="semesters">
                       {semesters.map((semester, index) => {
                         // 1) Calculate total credits for this semester
+                        const isExempted = semester.id.trim().toLowerCase() === 'exempted';
+
                         const sumCredits = semesterCourses[semester.id]
                           .map((cCode) =>
                             coursePools
@@ -1260,7 +1304,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                           : "semester-credit";
 
                         return (
-                          <div key={semester.id} className={`semester ${shakingSemesterId === semester.id ? 'exceeding-credit-limit' : ''
+                          <div key={semester.id} className={`semester ${isExempted ? "hidden-accordion" : ""} ${shakingSemesterId === semester.id ? 'exceeding-credit-limit' : ''
                             }`}>
                             <Droppable id={semester.id} color="pink">
                               <h3>{semester.name}</h3>
@@ -1293,9 +1337,9 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                                           className="remove-course-btn"
                                           onClick={() => handleReturn(course.code)}
                                         >
-                                            <svg width="30" height="25" viewBox="0 0 30 24" fill="red" xmlns="http://www.w3.org/2000/svg">
-                                              <rect x="2" y="11" width="22" height="4" fill="red"/>
-                                            </svg>
+                                          <svg width="25" height="20" viewBox="0 0 30 24" fill="red" xmlns="http://www.w3.org/2000/svg">
+                                            <rect x="2" y="11" width="22" height="4" fill="red" />
+                                          </svg>
                                         </button>
                                       )}
                                     />
