@@ -4,14 +4,14 @@
 CREATE TABLE Degree (
   id VARCHAR(255) PRIMARY KEY,
   name VARCHAR(255) UNIQUE NOT NULL,
-  totalCredits INT NOT NULL,
+  totalCredits DECIMAL(10,2) NOT NULL,
   isAddon BIT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE Course (
   code VARCHAR(7) NOT NULL,
   title VARCHAR(255),
-  credits INT NOT NULL,
+  credits DECIMAL(10,2) NOT NULL,
   description VARCHAR(2055) NOT NULL,
   PRIMARY KEY (code)
 );
@@ -22,7 +22,7 @@ CREATE TABLE Requisite (
     code2 VARCHAR(7),                    -- Prerequisite course (NULL if credit-based)
     type VARCHAR(3) CHECK (type IN ('pre', 'co')), -- 'pre' for prerequisite, 'co' for corequisite
     group_id VARCHAR(255),               -- Identifier for groups of alternative requisites
-    creditsRequired INT,                 -- Number of credits required (NULL if course-based)
+    creditsRequired DECIMAL(10,2),                 -- Number of credits required (NULL if course-based)
     FOREIGN KEY (code1) REFERENCES Course(code),
     FOREIGN KEY (code2) REFERENCES Course(code),
     CONSTRAINT UC_Requisite UNIQUE (code1, code2, type, group_id, creditsRequired),
@@ -42,7 +42,7 @@ CREATE TABLE DegreeXCoursePool (
   id VARCHAR(255) PRIMARY KEY,
   degree VARCHAR(255),
   coursepool VARCHAR(255),
-  creditsRequired INT NOT NULL,
+  creditsRequired DECIMAL(10,2) NOT NULL,
   UNIQUE(degree, coursepool),
   FOREIGN KEY (degree) REFERENCES Degree(id),
   FOREIGN KEY (coursepool) REFERENCES CoursePool(id) ON DELETE CASCADE
@@ -102,7 +102,7 @@ CREATE TABLE Deficiency (
     id VARCHAR(255) PRIMARY KEY,
     coursepool VARCHAR(255),
     user_id VARCHAR(255),
-    creditsRequired INT NOT NULL,
+    creditsRequired DECIMAL(10,2) NOT NULL,
     UNIQUE(user_id, coursepool),
     FOREIGN KEY (coursepool) REFERENCES CoursePool(id),
     FOREIGN KEY (user_id) REFERENCES AppUser (id)
