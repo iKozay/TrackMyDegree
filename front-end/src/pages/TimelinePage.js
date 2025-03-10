@@ -144,7 +144,7 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 };
 
 // Main component
-const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired }) => {
+const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredit }) => {
   const navigate = useNavigate();
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
@@ -153,6 +153,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
   const [semesterCourses, setSemesterCourses] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isECP, setIsECP] = useState(false);
 
   // Flatten and filter courses from all pools based on the search query
 
@@ -165,10 +166,21 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
   const scrollWrapperRef = useRef(null);
   const autoScrollInterval = useRef(null);
 
-  // const exemptedcour = [];
-
 
   let { degreeId, startingSemester, creditsRequired = 120, extendedCredit } = location.state || {};
+
+  // console.log("isExtendedCredit: " + isExtendedCredit);
+  // console.log("extendedCredit: " + extendedCredit);
+
+  if (isExtendedCredit) {
+    extendedCredit = true;
+  }
+
+  if (isExtendedCredit === null && extendedCredit === null) {
+    extendedCredit = false;
+  }
+
+  // setIsECP(extendedCredit);
 
   if (!degreeId) {
     degreeId = degreeid;
@@ -212,6 +224,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [timelineName, setTimelineName] = useState('');
   const [tempName, setTempName] = useState('');
+
 
   let DEFAULT_EXEMPTED_COURSES = [];
   if (!extendedCredit) {
@@ -267,7 +280,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
       //console.log("Timeline Name Local Storage: ", localStorage.getItem("Timeline_Name"));
       //console.log("Timeline Name: ", timelineName);
     }
-
+    setIsECP(extendedCredit);
   }, []);
 
   // NEW: Compute remaining courses not in the degree's course pools
@@ -279,15 +292,6 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
     course => !normalizedDegreeCourseCodes.has(course.code.trim().toUpperCase())
   );
 
-
-
-
-  // const filteredCourses = coursePools
-  //   .flatMap(pool => pool.courses)
-  //   .filter(course =>
-  //     course.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //     course.title.toLowerCase().includes(searchQuery.toLowerCase())
-  //   );
 
   // Sensors with activation constraints
   const mouseSensor = useSensor(MouseSensor, {
@@ -330,7 +334,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
   useEffect(() => {
     const fetchCoursesByDegree = async () => {
       try {
-        console.log('Fetching courses by degree:', degreeId);
+        // console.log('Fetching courses by degree:', degreeId);
         const primaryResponse = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
           method: 'POST',
           headers: {
@@ -409,7 +413,13 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
   // Process timelineData and generate semesters and courses
   useEffect(() => {
     // Wait until coursePools have loaded.
-    if (coursePools.length === 0) return;
+
+    // console.log('coursePools:', coursePools);
+    if (coursePools.length === 0) {
+      console.log('Returning early, not building timeline yet.');
+      return;
+    }
+
 
     // --- Step 1. Separate exempted data from regular timelineData ---
     const nonExemptedData = [];
@@ -446,6 +456,11 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
         }
       });
     } else {
+
+      if (extendedCredit === null) {
+        extendedCredit = false;
+      }
+      // console.log("eC: " + extendedCredit);
       // No timeline data available; use preset exempted courses.
       if (!extendedCredit) {
         parsedExemptedCourses = [
@@ -503,6 +518,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
         semesterMap[term].push(...courses);
         semesterNames.add(term);
       }
+
     });
 
     // If a startingSemester is provided, generate missing empty semesters.
@@ -555,6 +571,10 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
         sortedSemesters.map((term) => [term, semesterMap[term] || []])
       )
     );
+    console.log("Building semesterMap from timelineData:", timelineData);
+    console.log("Resulting semesterMap:", semesterMap);
+
+
   }, [timelineData, coursePools, extendedCredit, startingSemester]);
 
 
@@ -868,10 +888,10 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
   const arePrerequisitesMet = (courseCode, currentSemesterIndex) => {
     const course = allCourses.find((c) => c.code === courseCode);
 
-    console.log(`Checking prerequisites for course ${courseCode} in semester index ${currentSemesterIndex}`);
+    // console.log(`Checking prerequisites for course ${courseCode} in semester index ${currentSemesterIndex}`);
 
     if (!course || !course.requisites || course.requisites.length === 0) {
-      console.log(`Course ${courseCode} has no requisites.`);
+      // console.log(`Course ${courseCode} has no requisites.`);
       return true;
     }
 
@@ -879,8 +899,8 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
     const prerequisites = course.requisites.filter(r => r.type.toLowerCase() === 'pre');
     const corequisites = course.requisites.filter(r => r.type.toLowerCase() === 'co');
 
-    console.log(`Course ${courseCode} prerequisites:`, prerequisites);
-    console.log(`Course ${courseCode} corequisites:`, corequisites);
+    // console.log(`Course ${courseCode} prerequisites:`, prerequisites);
+    // console.log(`Course ${courseCode} corequisites:`, corequisites);
 
     // Collect all courses scheduled in semesters before the current one
     const completedCourses = [];
@@ -894,7 +914,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
       }
     }
 
-    console.log(`Completed courses before current semester:`, completedCourses);
+    // console.log(`Completed courses before current semester:`, completedCourses);
 
     // Check prerequisites
     const prerequisitesMet = prerequisites.every((prereq) => {
@@ -902,21 +922,21 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
         // For grouped prerequisites, at least one in the group must be completed
         const group = prerequisites.filter(p => p.group_id === prereq.group_id);
         const result = group.some(p => completedCourses.includes(p.code2));
-        console.log(`Group ${prereq.group_id} met:`, result);
+        // console.log(`Group ${prereq.group_id} met:`, result);
         return result;
       } else {
         // Single prerequisite
         const result = completedCourses.includes(prereq.code2);
-        console.log(`Prerequisite ${prereq.code2} met:`, result);
+        // console.log(`Prerequisite ${prereq.code2} met:`, result);
         return result;
       }
     });
 
-    console.log(`Prerequisites met for course ${courseCode}:`, prerequisitesMet);
+    // console.log(`Prerequisites met for course ${courseCode}:`, prerequisitesMet);
 
     // Collect courses scheduled in the current semester for corequisites
     const currentSemesterCourses = semesterCourses[semesters[currentSemesterIndex]?.id] || [];
-    console.log(`Current semester courses for corequisites:`, currentSemesterCourses);
+    // console.log(`Current semester courses for corequisites:`, currentSemesterCourses);
 
     // Check corequisites
     const corequisitesMet = corequisites.every((coreq) => {
@@ -924,20 +944,20 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
         // If corequisites can also be grouped, handle similarly
         const group = corequisites.filter(c => c.group_id === coreq.group_id);
         const result = group.some(c => currentSemesterCourses.includes(c.code2));
-        console.log(`Corequisite group ${coreq.group_id} met:`, result);
+        // console.log(`Corequisite group ${coreq.group_id} met:`, result);
         return result;
       } else {
         // Single corequisite
         const result = currentSemesterCourses.includes(coreq.code1);
-        console.log(`Corequisite ${coreq.code2} met:`, result);
+        // console.log(`Corequisite ${coreq.code2} met:`, result);
         return result;
       }
     });
 
-    console.log(`Corequisites met for course ${courseCode}:`, corequisitesMet);
+    // console.log(`Corequisites met for course ${courseCode}:`, corequisitesMet);
 
     const finalResult = prerequisitesMet && corequisitesMet;
-    console.log(`Prerequisites and Corequisites met for course ${courseCode}:`, finalResult);
+    // console.log(`Prerequisites and Corequisites met for course ${courseCode}:`, finalResult);
 
     return finalResult;
   };
@@ -960,182 +980,6 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
     }
     return Infinity; // fallback if we can't parse a number
   }
-
-
-
-
-
-
-
-
-  // const handleSaveTimeline = async () => {
-
-  //   if (!user) {
-  //     navigate('/signin');
-  //     return;
-  //   }
-
-
-  //   const timelineData = [];
-  //   const exempted_courses = [];
-  //   semesters.forEach((semester) => {
-  //     const [season, year = "2020"] = semester.name.split(" ");
-
-  //     if (semester.id === "Exempted" || semester.id === "Transfered Courses") {
-  //       console.log("Exempted code: ");
-
-  //       (semesterCourses[semester.id] || []).forEach((courseCode) => {
-  //         //console.log("Exempted code: ", courseCode);
-
-  //         const course = allCourses.find((c) => c.code === courseCode);
-
-  //         // Ensure course exists and has a valid code
-  //         if (course && course.code) {
-  //           const courseCode_exp = course.code;
-  //           exempted_courses.push(courseCode_exp);
-  //         } else {
-  //           console.log(`Course not found or missing code for: ${courseCode}`);
-  //         }
-  //       });
-  //     }
-
-
-  //     // Validate the season
-  //     const validSeasons = ["fall", "winter", "summer1", "summer2", "fall/winter", "summer"];
-  //     if (!validSeasons.includes(season.toLowerCase())) {
-  //       // Skip this iteration (equivalent to continue)
-  //       return;
-  //     }
-
-  //     // Get the courses for this semester
-  //     const coursesForSemester = [];
-  //     (semesterCourses[semester.id] || []).forEach((courseCode) => {
-  //       const course = allCourses.find((c) => c.code === courseCode);
-
-  //       // If course not found, use default course code
-  //       if (!course?.code) {
-  //         return;
-  //       } else {
-  //         coursesForSemester.push({
-  //           courseCode: course.code,
-  //         });
-  //       }
-
-  //     });
-
-  //     const yearInt = isNaN(parseInt(year, 10)) ? 2020 : parseInt(year, 10);
-
-  //     // Add the valid semester data to the timelineData array
-  //     timelineData.push({
-  //       season: season,
-  //       year: yearInt,
-  //       courses: coursesForSemester,
-  //     });
-  //   });
-
-
-  //   // Only proceed if there is valid timeline data
-  //   if (timelineData.length > 0 || exempted_courses.length > 0) {
-  //     //console.log(timelineData);
-  //     let name = timelineName;
-  //     // Prompt the user for the name of the timeline
-  //     if (!name) {
-  //       name = prompt("Please enter a name for your timeline:");
-  //     }
-
-  //     if (name) {
-  //       // Proceed with saving the timeline data
-  //       const userTimeline = [{
-  //         user_id: JSON.parse(localStorage.getItem('user')).id, // Replace this with the actual user ID
-  //         name: name,
-  //         items: timelineData.map((item) => ({
-  //           season: item.season,
-  //           year: item.year,
-  //           courses: item.courses.map((course) => course.courseCode),
-  //         }))
-  //       }];
-
-  //       const user_id = userTimeline[0].user_id;
-  //       const name_1 = userTimeline[0].name;
-  //       const items = userTimeline[0].items;
-
-
-  //       try {
-  //         // Send the data to the backend via the API
-  //         const response = await fetch(`${process.env.REACT_APP_SERVER}/exemption/create`, {
-  //           method: 'POST',
-  //           headers: {
-  //             'Content-Type': 'application/json',
-  //           },
-  //           body: JSON.stringify({ coursecodes: exempted_courses, user_id }),
-  //         });
-
-  //         const data = await response.json();
-
-  //         if (response.ok) {
-
-  //         } else {
-  //           alert("Error saving Exempted Courses!" || data.message);
-  //         }
-  //       } catch (error) {
-  //         console.error("Error saving Exempted Courses:", error);
-  //         alert("An error occurred while saving your timeline.");
-  //       }
-
-  //       try {
-  //         const response = await fetch(`${process.env.REACT_APP_SERVER}/deficiency/create`, {
-  //           method: "POST",
-  //           headers: { "Content-Type": "application/json" },
-  //           body: JSON.stringify({
-  //             coursepool: deficiencyCourses,
-  //             user_id: user_id,// array of codes
-  //             creditsRequired: deficiencyCredits,
-  //           }),
-  //         });
-
-  //         console.log("Saving deficiency courses with payload:", {
-  //           user_id,
-  //           coursepool: deficiencyCourses,
-  //           creditsRequired: deficiencyCredits,
-  //         });
-
-
-  //       } catch (err) {
-  //         console.error("Error saving deficiency", err);
-  //       }
-  //       try {
-  //         // Send the data to the backend via the API
-  //         const response = await fetch(`${process.env.REACT_APP_SERVER}/timeline/save`, {
-  //           method: 'POST',
-  //           headers: {
-  //             'Content-Type': 'application/json',
-  //           },
-  //           body: JSON.stringify({ user_id, name: name_1, items, degree_id: degreeId }),
-  //         });
-
-  //         //console.log(user_id, "user");
-  //         //console.log("name", name_1);
-  //         //console.log("items", items);
-  //         //console.log("degreeid", degreeId);
-
-  //         const data = await response.json();
-
-  //         if (response.ok) {
-  //           alert('Timeline saved successfully!');
-  //           navigate('/user'); // Navigate after saving
-  //         } else {
-  //           alert("Error saving Timeline!" || data.message);
-  //         }
-  //       } catch (error) {
-  //         console.error("Error saving timeline:", error);
-  //         alert("An error occurred while saving your timeline.");
-  //       }
-  //     } else {
-  //       alert("Timeline name is required!");
-  //     }
-  //   } else {
-  //     alert("No valid data to save.");
-  //   }
 
   //   // Optionally log the data for debugging purposes
   //   //console.log('Saved Timeline:', timelineData);
@@ -1209,11 +1053,13 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
         year: item.year,
         courses: item.courses.map((course) => course.courseCode),
       })),
+      isExtendedCredit: extendedCredit || false,
     }];
 
     const user_id = userTimeline[0].user_id;
     const timelineNameToSend = userTimeline[0].name;
     const items = userTimeline[0].items;
+    const isExtendedCredit = userTimeline[0].isExtendedCredit;
 
     // Save Exempted Courses.
     try {
@@ -1252,7 +1098,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
       const responseTimeline = await fetch(`${process.env.REACT_APP_SERVER}/timeline/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id, name: timelineNameToSend, items, degree_id: degreeId }),
+        body: JSON.stringify({ user_id, name: timelineNameToSend, items, degree_id: degreeId, isExtendedCredit }),
       });
       const dataTimeline = await responseTimeline.json();
       if (responseTimeline.ok) {

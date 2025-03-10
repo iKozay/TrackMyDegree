@@ -74,6 +74,7 @@ CREATE TABLE Timeline (
     user_id VARCHAR(255) NOT NULL,
     degree_id VARCHAR(255) NOT NULL,  -- New column for the associated degree
     name VARCHAR(100) NOT NULL,
+    isExtendedCredit BIT NOT NULL DEFAULT 0,
     last_modified DATETIME2,
     FOREIGN KEY (user_id) REFERENCES AppUser (id) ON DELETE CASCADE,
     FOREIGN KEY (degree_id) REFERENCES Degree(id)
@@ -83,7 +84,7 @@ CREATE TABLE Timeline (
 CREATE TABLE TimelineItems (
     id VARCHAR(255) PRIMARY KEY,
     timeline_id VARCHAR(255) NOT NULL,    -- Belongs to a specific timeline
-    season VARCHAR(10) CHECK (season IN ('fall', 'winter', 'summer1', 'summer2', 'fall/winter', 'summer', 'exempted')) NOT NULL,
+    season VARCHAR(11) CHECK (season IN ('fall', 'winter', 'summer1', 'summer2', 'fall/winter', 'summer', 'exempted')) NOT NULL,
     year INT NOT NULL, 
     UNIQUE(timeline_id, season, year),
     FOREIGN KEY (timeline_id) REFERENCES Timeline(id) ON DELETE CASCADE

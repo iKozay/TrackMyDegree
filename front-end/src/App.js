@@ -22,11 +22,16 @@ function App() {
   const [degreeId, setDegreeId] = useState(null);
   const [timelineData, setTimelineData] = useState([]);
   const [creditsRequired, setcreditsRequired] = useState([]);
+  const [isExtendedCredit, setIsExtendedCredit] = useState(false);
 
   const handleDataProcessed = (data) => {
     setTimelineData(data.transcriptData); // Update transcript data
     setDegreeId(data.degreeId); // Update degreeId
     setcreditsRequired(data.creditsRequired); // Update creditsRequired
+    setIsExtendedCredit(data.isExtendedCredit); // Update is
+
+    console.log("app.js data.isExtendedCredit: ", data.isExtendedCredit);
+    console.log("app.js isExtendedCredit: ", isExtendedCredit);
   };
 
   return (
@@ -38,6 +43,7 @@ function App() {
             degreeId={degreeId}
             timelineData={timelineData}
             creditsRequired={creditsRequired}
+            isExtendedCredit={isExtendedCredit}
             handleDataProcessed={handleDataProcessed}
           />
           <Footer />
@@ -48,7 +54,7 @@ function App() {
 }
 
 // Create a new component to use `useLocation` inside the `<Router>`
-function AppContent({ degreeId, timelineData, creditsRequired, handleDataProcessed }) {
+function AppContent({ degreeId, timelineData, creditsRequired, handleDataProcessed, isExtendedCredit }) {
   const location = useLocation(); // <--- useLocation is now inside the Router context
 
   return (
@@ -74,6 +80,8 @@ function AppContent({ degreeId, timelineData, creditsRequired, handleDataProcess
                 degreeid={degreeId}
                 timelineData={timelineData}
                 creditsrequired={creditsRequired}
+                isExtendedCredit={isExtendedCredit}
+                onDataProcessed={handleDataProcessed}
               />
             }
           />
