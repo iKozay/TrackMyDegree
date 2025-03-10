@@ -176,7 +176,7 @@ const UserPage = ({ onDataProcessed }) => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (timeline_id) => {
     try {
       // delete timeline
       const response = await fetch(
@@ -186,7 +186,7 @@ const UserPage = ({ onDataProcessed }) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ id }),
+          body: JSON.stringify({ timeline_id }),
         }
       );
 
@@ -195,7 +195,7 @@ const UserPage = ({ onDataProcessed }) => {
         throw new Error(errorData.message || "Failed to delete user timeline.");
       }
       // remove from page
-      setUserTimelines(userTimelines.filter((obj) => obj.id !== id));
+      setUserTimelines(userTimelines.filter((obj) => obj.id !== timeline_id));
     } catch (e) {
       console.error("Error deleting user timeline:", e);
     }
@@ -314,7 +314,7 @@ const UserPage = ({ onDataProcessed }) => {
             <button
               className="btn btn-danger tw-w-full"
               onClick={() => {
-                handleDelete(timelineToDelete.timeline_id);
+                handleDelete(timelineToDelete?.id);
                 setShowModal(false);
               }}
             >
