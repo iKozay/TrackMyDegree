@@ -83,7 +83,7 @@ CREATE TABLE Timeline (
 CREATE TABLE TimelineItems (
     id VARCHAR(255) PRIMARY KEY,
     timeline_id VARCHAR(255) NOT NULL,    -- Belongs to a specific timeline
-    season VARCHAR(10) CHECK (season IN ('fall', 'winter', 'summer1', 'summer2', 'fall/winter', 'summer')) NOT NULL,
+    season VARCHAR(10) CHECK (season IN ('fall', 'winter', 'summer1', 'summer2', 'fall/winter', 'summer', 'exempted')) NOT NULL,
     year INT NOT NULL, 
     UNIQUE(timeline_id, season, year),
     FOREIGN KEY (timeline_id) REFERENCES Timeline(id) ON DELETE CASCADE

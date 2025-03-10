@@ -2,7 +2,7 @@
 
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from "framer-motion"
+import { motion, time } from "framer-motion"
 import {
   DndContext,
   useDraggable,
@@ -165,57 +165,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
   const scrollWrapperRef = useRef(null);
   const autoScrollInterval = useRef(null);
 
-  const exemptedcour = [];
-
-  // useEffect(() => {
-  //   if (user) {
-  //     const getexemptedcourses = async () => {
-  //       const user_id = user.id;
-  //       console.log("User in timeline exemp: ", user_id);
-  //       try {
-  //         const response = await fetch(`${process.env.REACT_APP_SERVER}/exemption/getAll`, {
-  //           method: "POST",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //           },
-  //           body: JSON.stringify({ user_id }),
-  //         });
-
-  //         if (!response.ok) {
-  //           // Extract error message from response
-  //           const errorData = await response.json();
-  //           console.log(response);
-  //           throw new Error(errorData.message || "Failed to fetch exempted courses.");
-  //         }
-
-  //         const data = await response.json();
-  //         exemptedcour.push(data);
-  //       } catch (e) {
-  //         console.error("Error extracting exempted courses", e);
-  //       }
-
-  //       if (exemptedcour.length > 0) {
-  //         console.log("jcnkjn ", exemptedcour);
-  //         exemptedcour.forEach((item) => {
-  //           item.exemption.forEach((item_2) => {
-  //             {
-  //               const exists = timelineData.some(result => result.course === item_2.coursecode);
-
-  //               if (!exists) {
-  //                 timelineData.push({
-  //                   term: 'Exempted',
-  //                   course: item_2.coursecode
-  //                 });
-  //               }
-  //             }
-  //           })
-  //         });
-  //       }
-  //     }
-
-  //     getexemptedcourses();
-  //   }
-  // }, [user]);
+  // const exemptedcour = [];
 
 
   let { degreeId, startingSemester, creditsRequired = 120, extendedCredit } = location.state || {};
@@ -232,8 +182,8 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
     creditsRequired += 30;
   }
 
-  console.log(degreeId);  // Logs the degreeId passed from UploadTranscriptPage.js
-  console.log(extendedCredit); // Logs the timelineData passed from UploadTranscriptPage.js
+  //console.log(degreeId);  // Logs the degreeId passed from UploadTranscriptPage.js
+  //console.log(extendedCredit); // Logs the timelineData passed from UploadTranscriptPage.js
 
   // Data
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 767);
@@ -259,18 +209,29 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
 
   const [allCourses, setAllCourses] = useState([]);
   const [showExempted, setShowExempted] = useState(true);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [timelineName, setTimelineName] = useState('');
+  const [tempName, setTempName] = useState('');
 
-
-  const DEFAULT_EXEMPTED_COURSES = [
-    'MATH201',
-    'MATH203',
-    'MATH204',
-    'MATH205',
-    'MATH206',
-    'CHEM205',
-    'PHYS204',
-    'PHYS205',
-  ]
+  let DEFAULT_EXEMPTED_COURSES = [];
+  if (!extendedCredit) {
+    DEFAULT_EXEMPTED_COURSES = [
+      'MATH201',
+      'MATH203',
+      'MATH204',
+      'MATH205',
+      'MATH206',
+      'CHEM205',
+      'PHYS204',
+      'PHYS205',
+    ]
+  }
+  else {
+    DEFAULT_EXEMPTED_COURSES = [
+      'MATH201',
+      'MATH206',
+    ]
+  }
 
   // NEW: Fetch all courses from /courses/getAllCourses
   useEffect(() => {
@@ -293,6 +254,20 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
     };
 
     fetchAllCourses();
+
+    if (localStorage.getItem("Timeline_Name")) {
+      if (localStorage.getItem("Timeline_Name") !== "" && localStorage.getItem("Timeline_Name") !== 'null' && localStorage.getItem("Timeline_Name") !== null) {
+        setTimelineName(localStorage.getItem("Timeline_Name"));
+        setTempName(localStorage.getItem("Timeline_Name"));
+      } else {
+        setTimelineName("");
+        setTempName("");
+      }
+
+      //console.log("Timeline Name Local Storage: ", localStorage.getItem("Timeline_Name"));
+      //console.log("Timeline Name: ", timelineName);
+    }
+
   }, []);
 
   // NEW: Compute remaining courses not in the degree's course pools
@@ -433,81 +408,158 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
 
   // Process timelineData and generate semesters and courses
   useEffect(() => {
-    if (coursePools.length === 0) return; // Wait until coursePools are fetched
+    // Wait until coursePools have loaded.
+    if (coursePools.length === 0) return;
 
+    // --- Step 1. Separate exempted data from regular timelineData ---
+    const nonExemptedData = [];
+    let parsedExemptedCourses = [];
+
+    if (timelineData.length > 0) {
+      timelineData.forEach((data) => {
+        let isExempted = false;
+        // Check the old format: data.term
+        if (data.term && typeof data.term === "string") {
+          isExempted = data.term.trim().toLowerCase() === "exempted 2020";
+        }
+        // Check the new format: data.season and data.year
+        else if (data.season && data.year) {
+          isExempted =
+            data.season.trim().toLowerCase() === "exempted" &&
+            parseInt(data.year, 10) === 2020;
+        }
+
+        if (isExempted) {
+          // Extract courses from the exempted item.
+          if (data.course && typeof data.course === "string") {
+            parsedExemptedCourses.push(data.course.trim());
+          } else if (Array.isArray(data.courses)) {
+            data.courses.forEach((course) => {
+              if (typeof course === "string") {
+                parsedExemptedCourses.push(course.trim());
+              }
+            });
+          }
+        } else {
+          // Add every timelineData item—even if courses is empty.
+          nonExemptedData.push(data);
+        }
+      });
+    } else {
+      // No timeline data available; use preset exempted courses.
+      if (!extendedCredit) {
+        parsedExemptedCourses = [
+          'MATH201',
+          'MATH203',
+          'MATH204',
+          'MATH205',
+          'MATH206',
+          'CHEM205',
+          'PHYS204',
+          'PHYS205',
+        ];
+      } else {
+        parsedExemptedCourses = [
+          'MATH201',
+          'MATH206',
+        ];
+      }
+    }
+
+    // Remove duplicates.
+    parsedExemptedCourses = [...new Set(parsedExemptedCourses)];
+
+    // --- Step 2. Build the semester map from non-exempted data ---
     const semesterMap = {};
     const semesterNames = new Set();
 
-    // Group courses by semester from transcript data
-    timelineData.forEach((data) => {
-      const { term, course } = data;
-      if (!semesterMap[term]) {
-        semesterMap[term] = [];
+    nonExemptedData.forEach((data) => {
+      let term = "";
+      // Default courses to an empty array if not provided.
+      let courses = Array.isArray(data.courses)
+        ? data.courses
+          .map((course) => (typeof course === "string" ? course.trim() : ""))
+          .filter(Boolean)
+        : [];
+
+      if (data.term && typeof data.term === "string") {
+        term = data.term;
+        // For old format, also check for a single course.
+        if (data.course && typeof data.course === "string") {
+          courses.push(data.course.trim());
+        }
+      } else if (data.season && data.year) {
+        term =
+          data.season.trim().toLowerCase() === "exempted"
+            ? "Exempted"
+            : `${data.season} ${data.year}`;
       }
-      semesterMap[term].push(course.replace(' ', ''));
-      semesterNames.add(term);
-      // console.log(semesterMap);
+
+      if (term) {
+        // Even if courses is empty, create the semester.
+        if (!semesterMap[term]) {
+          semesterMap[term] = [];
+        }
+        semesterMap[term].push(...courses);
+        semesterNames.add(term);
+      }
     });
 
-
+    // If a startingSemester is provided, generate missing empty semesters.
     if (startingSemester) {
-      const twoYearSemesters = generateFourYearSemesters(startingSemester);
-      twoYearSemesters.forEach((sem) => {
+      const generatedSemesters = generateFourYearSemesters(startingSemester);
+      generatedSemesters.forEach((sem) => {
         if (!semesterNames.has(sem)) {
           semesterNames.add(sem);
-          if (!semesterMap[sem]) { semesterMap[sem] = []; }
+          semesterMap[sem] = []; // This semester remains empty.
         }
       });
     }
 
-    // If extendedCredit is false, ensure default exemptions are added.
-    if (!extendedCredit && DEFAULT_EXEMPTED_COURSES) {
-      if (!semesterNames.has("Exempted")) {
-        semesterNames.add("Exempted");
-        // Directly set the Exempted semester to the default courses.
-        semesterMap["Exempted"] = [...DEFAULT_EXEMPTED_COURSES];
-      } else {
-        // Merge defaults with any existing ones.
-        const existing = semesterMap["Exempted"] || [];
-        DEFAULT_EXEMPTED_COURSES.forEach(courseCode => {
-          if (!existing.includes(courseCode)) {
-            existing.push(courseCode);
-          }
-        });
-        semesterMap["Exempted"] = existing;
+    // --- Step 3. Insert the parsed exempted courses as a dedicated "Exempted" term ---
+    if (parsedExemptedCourses.length > 0) {
+      const exemptedKey = "Exempted";
+      semesterNames.add(exemptedKey);
+      if (!semesterMap[exemptedKey]) {
+        semesterMap[exemptedKey] = [];
       }
+      parsedExemptedCourses.forEach((courseCode) => {
+        if (!semesterMap[exemptedKey].includes(courseCode)) {
+          semesterMap[exemptedKey].push(courseCode);
+        }
+      });
     }
 
-
-    // Create an array of semesters sorted by term order
+    // --- Step 4. Sort the semesters ---
     const sortedSemesters = Array.from(semesterNames).sort((a, b) => {
-      if (a === "Exempted") return -1;
-      if (b === "Exempted") return 1;
+      if (a.trim().toLowerCase() === "exempted") return -1;
+      if (b.trim().toLowerCase() === "exempted") return 1;
       const order = { Winter: 1, Summer: 2, Fall: 3 };
-      const [seasonA, yearA] = a.split(' ');
-      const [seasonB, yearB] = b.split(' ');
-
+      const [seasonA, yearA] = a.split(" ");
+      const [seasonB, yearB] = b.split(" ");
       if (yearA !== yearB) {
-        return parseInt(yearA) - parseInt(yearB);
+        return parseInt(yearA, 10) - parseInt(yearB, 10);
       }
-
       return order[seasonA] - order[seasonB];
     });
 
-    // Set state for semesters and courses
+    // --- Step 5. Update state ---
     setSemesters(
       sortedSemesters.map((term) => ({
         id: term,
         name: term,
       }))
     );
-
     setSemesterCourses(
       Object.fromEntries(
         sortedSemesters.map((term) => [term, semesterMap[term] || []])
       )
     );
   }, [timelineData, coursePools, extendedCredit, startingSemester]);
+
+
+
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -746,42 +798,70 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
   // Calculate total credits whenever semesterCourses changes
   useEffect(() => {
     const calculateTotalCredits = () => {
-      let total = 0;
       let unmetPrereqFound = false;
-      const countedCourses = new Set(); // Track already counted courses
 
+      // Build a map: poolId -> { assigned: number, max: number }
+      // assigned is how many credits we've added so far
+      // max is parsed from the pool name
+      const poolCreditMap = {};
+
+      // Initialize each pool with a max credits limit
+      coursePools.forEach((pool) => {
+        const maxFromName = parseMaxCreditsFromPoolName(pool.poolName);
+        poolCreditMap[pool.poolId] = {
+          assigned: 0,
+          max: maxFromName,
+        };
+      });
+
+      // Go through each semester (EXCEPT 'Exempted') and sum assigned credits
       for (const semesterId in semesterCourses) {
-        if (semesterId === 'courseList') continue;
+        if (semesterId.toLowerCase() === 'exempted') {
+          // Skip counting courses in 'Exempted'
+          continue;
+        }
+
         const courseCodes = semesterCourses[semesterId];
         const currentSemesterIndex = semesters.findIndex((s) => s.id === semesterId);
 
-
         courseCodes.forEach((courseCode) => {
-          if (countedCourses.has(courseCode)) {
-            console.log("Duplicate detected: ", courseCode);
-            return; // Skip if already counted
+          // Find which pool this course belongs to
+          const pool = coursePools.find((p) =>
+            p.courses.some((c) => c.code === courseCode)
+          );
+          if (!pool) return; // course not found in any pool (shouldn't happen, but just in case)
+
+          // Find the actual course object
+          const course = pool.courses.find((c) => c.code === courseCode);
+          if (!course) return;
+
+          // Check prerequisites
+          const prerequisitesMet = arePrerequisitesMet(courseCode, currentSemesterIndex);
+          if (!prerequisitesMet) {
+            unmetPrereqFound = true;
+            return;
           }
 
-          const course = allCourses.find((c) => c.code === courseCode);
-          if (course && course.credits) {
-            const prerequisitesMet = arePrerequisitesMet(courseCode, currentSemesterIndex);
-
-            if (prerequisitesMet) {
-              total += course.credits;
-              countedCourses.add(courseCode); // Mark course as counted
-            } else {
-              unmetPrereqFound = true;
-            }
-          }
+          // Add credits to the pool’s assigned sum, up to the pool’s max
+          const poolData = poolCreditMap[pool.poolId];
+          const newSum = poolData.assigned + (course.credits || 0);
+          poolData.assigned = Math.min(poolData.max, newSum);
         });
       }
+
+      // Sum up the assigned credits from all pools
+      const total = Object.values(poolCreditMap).reduce(
+        (sum, poolData) => sum + poolData.assigned,
+        0
+      );
 
       setTotalCredits(total);
       setHasUnmetPrerequisites(unmetPrereqFound);
     };
 
     calculateTotalCredits();
-  }, [semesterCourses, semesters, allCourses, deficiencyCredits]);
+  }, [semesterCourses, semesters, coursePools, deficiencyCredits]);
+
 
 
   // Function to check if prerequisites and corequisites are met
@@ -872,184 +952,324 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
     return 15;
   }
 
+  function parseMaxCreditsFromPoolName(poolName) {
+    // Regex to find e.g. "(47.5 credits)"
+    const match = poolName.match(/\(([\d.]+)\s*credits?\)/i);
+    if (match) {
+      return parseFloat(match[1]);  // 47.5
+    }
+    return Infinity; // fallback if we can't parse a number
+  }
 
 
 
 
 
 
-  const handleSaveTimeline = async () => {
+
+
+  // const handleSaveTimeline = async () => {
+
+  //   if (!user) {
+  //     navigate('/signin');
+  //     return;
+  //   }
+
+
+  //   const timelineData = [];
+  //   const exempted_courses = [];
+  //   semesters.forEach((semester) => {
+  //     const [season, year = "2020"] = semester.name.split(" ");
+
+  //     if (semester.id === "Exempted" || semester.id === "Transfered Courses") {
+  //       console.log("Exempted code: ");
+
+  //       (semesterCourses[semester.id] || []).forEach((courseCode) => {
+  //         //console.log("Exempted code: ", courseCode);
+
+  //         const course = allCourses.find((c) => c.code === courseCode);
+
+  //         // Ensure course exists and has a valid code
+  //         if (course && course.code) {
+  //           const courseCode_exp = course.code;
+  //           exempted_courses.push(courseCode_exp);
+  //         } else {
+  //           console.log(`Course not found or missing code for: ${courseCode}`);
+  //         }
+  //       });
+  //     }
+
+
+  //     // Validate the season
+  //     const validSeasons = ["fall", "winter", "summer1", "summer2", "fall/winter", "summer"];
+  //     if (!validSeasons.includes(season.toLowerCase())) {
+  //       // Skip this iteration (equivalent to continue)
+  //       return;
+  //     }
+
+  //     // Get the courses for this semester
+  //     const coursesForSemester = [];
+  //     (semesterCourses[semester.id] || []).forEach((courseCode) => {
+  //       const course = allCourses.find((c) => c.code === courseCode);
+
+  //       // If course not found, use default course code
+  //       if (!course?.code) {
+  //         return;
+  //       } else {
+  //         coursesForSemester.push({
+  //           courseCode: course.code,
+  //         });
+  //       }
+
+  //     });
+
+  //     const yearInt = isNaN(parseInt(year, 10)) ? 2020 : parseInt(year, 10);
+
+  //     // Add the valid semester data to the timelineData array
+  //     timelineData.push({
+  //       season: season,
+  //       year: yearInt,
+  //       courses: coursesForSemester,
+  //     });
+  //   });
+
+
+  //   // Only proceed if there is valid timeline data
+  //   if (timelineData.length > 0 || exempted_courses.length > 0) {
+  //     //console.log(timelineData);
+  //     let name = timelineName;
+  //     // Prompt the user for the name of the timeline
+  //     if (!name) {
+  //       name = prompt("Please enter a name for your timeline:");
+  //     }
+
+  //     if (name) {
+  //       // Proceed with saving the timeline data
+  //       const userTimeline = [{
+  //         user_id: JSON.parse(localStorage.getItem('user')).id, // Replace this with the actual user ID
+  //         name: name,
+  //         items: timelineData.map((item) => ({
+  //           season: item.season,
+  //           year: item.year,
+  //           courses: item.courses.map((course) => course.courseCode),
+  //         }))
+  //       }];
+
+  //       const user_id = userTimeline[0].user_id;
+  //       const name_1 = userTimeline[0].name;
+  //       const items = userTimeline[0].items;
+
+
+  //       try {
+  //         // Send the data to the backend via the API
+  //         const response = await fetch(`${process.env.REACT_APP_SERVER}/exemption/create`, {
+  //           method: 'POST',
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //           },
+  //           body: JSON.stringify({ coursecodes: exempted_courses, user_id }),
+  //         });
+
+  //         const data = await response.json();
+
+  //         if (response.ok) {
+
+  //         } else {
+  //           alert("Error saving Exempted Courses!" || data.message);
+  //         }
+  //       } catch (error) {
+  //         console.error("Error saving Exempted Courses:", error);
+  //         alert("An error occurred while saving your timeline.");
+  //       }
+
+  //       try {
+  //         const response = await fetch(`${process.env.REACT_APP_SERVER}/deficiency/create`, {
+  //           method: "POST",
+  //           headers: { "Content-Type": "application/json" },
+  //           body: JSON.stringify({
+  //             coursepool: deficiencyCourses,
+  //             user_id: user_id,// array of codes
+  //             creditsRequired: deficiencyCredits,
+  //           }),
+  //         });
+
+  //         console.log("Saving deficiency courses with payload:", {
+  //           user_id,
+  //           coursepool: deficiencyCourses,
+  //           creditsRequired: deficiencyCredits,
+  //         });
+
+
+  //       } catch (err) {
+  //         console.error("Error saving deficiency", err);
+  //       }
+  //       try {
+  //         // Send the data to the backend via the API
+  //         const response = await fetch(`${process.env.REACT_APP_SERVER}/timeline/save`, {
+  //           method: 'POST',
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //           },
+  //           body: JSON.stringify({ user_id, name: name_1, items, degree_id: degreeId }),
+  //         });
+
+  //         //console.log(user_id, "user");
+  //         //console.log("name", name_1);
+  //         //console.log("items", items);
+  //         //console.log("degreeid", degreeId);
+
+  //         const data = await response.json();
+
+  //         if (response.ok) {
+  //           alert('Timeline saved successfully!');
+  //           navigate('/user'); // Navigate after saving
+  //         } else {
+  //           alert("Error saving Timeline!" || data.message);
+  //         }
+  //       } catch (error) {
+  //         console.error("Error saving timeline:", error);
+  //         alert("An error occurred while saving your timeline.");
+  //       }
+  //     } else {
+  //       alert("Timeline name is required!");
+  //     }
+  //   } else {
+  //     alert("No valid data to save.");
+  //   }
+
+  //   // Optionally log the data for debugging purposes
+  //   //console.log('Saved Timeline:', timelineData);
+  // };
+  const confirmSaveTimeline = async (tName) => {
+    // Ensure a valid timeline name is provided.
+    if (!tName.trim()) {
+      alert("Timeline name is required!");
+      return;
+    }
+    setTimelineName(tName);
 
     if (!user) {
       navigate('/signin');
       return;
     }
 
-
-    const timelineData = [];
+    // Build final timeline data from all semesters.
+    const finalTimelineData = [];
     const exempted_courses = [];
+
     semesters.forEach((semester) => {
+      // Split the semester name into season and year.
       const [season, year = "2020"] = semester.name.split(" ");
 
-      if (semester.id === "Exempted" || semester.id === "Transfered Courses") {
-        console.log("Exempted code: ");
-
+      // If this semester is "Exempted" or "Transfered Courses", collect its courses.
+      if (
+        semester.id.trim().toLowerCase() === "exempted" ||
+        semester.id.trim().toLowerCase() === "transfered courses"
+      ) {
         (semesterCourses[semester.id] || []).forEach((courseCode) => {
-          console.log("Exempted code: ", courseCode);
-
           const course = allCourses.find((c) => c.code === courseCode);
-
-          // Ensure course exists and has a valid code
           if (course && course.code) {
-            const courseCode_exp = course.code;
-            exempted_courses.push(courseCode_exp);
+            exempted_courses.push(course.code);
           } else {
-            console.log(`Course not found or missing code for: ${courseCode}`);
+            console.warn(`Course not found or missing code for: ${courseCode}`);
           }
         });
       }
 
+      // Build the courses array for this semester.
+      const coursesForSemester = (semesterCourses[semester.id] || [])
+        .map((courseCode) => {
+          const course = allCourses.find((c) => c.code === courseCode);
+          return course && course.code ? { courseCode: course.code } : null;
+        })
+        .filter(Boolean);
 
-      // Validate the season
-      const validSeasons = ["fall", "winter", "summer1", "summer2", "fall/winter", "summer"];
-      if (!validSeasons.includes(season.toLowerCase())) {
-        // Skip this iteration (equivalent to continue)
-        return;
-      }
-
-      // Get the courses for this semester
-      const coursesForSemester = [];
-      (semesterCourses[semester.id] || []).forEach((courseCode) => {
-        const course = allCourses.find((c) => c.code === courseCode);
-
-        // If course not found, use default course code
-        if (!course?.code) {
-          return;
-        } else {
-          coursesForSemester.push({
-            courseCode: course.code,
-          });
-        }
-
-      });
-
+      // Convert year to integer.
       const yearInt = isNaN(parseInt(year, 10)) ? 2020 : parseInt(year, 10);
 
-      // Add the valid semester data to the timelineData array
-      timelineData.push({
-        season: season,
+      // Always include the semester, even if it has no courses.
+      finalTimelineData.push({
+        season,
         year: yearInt,
         courses: coursesForSemester,
       });
     });
 
-
-    // Only proceed if there is valid timeline data
-    if (timelineData.length > 0 || exempted_courses.length > 0) {
-      console.log(timelineData);
-      let name = localStorage.getItem("Timeline_Name");
-      // Prompt the user for the name of the timeline
-      if (!name) {
-        name = prompt("Please enter a name for your timeline:");
-      }
-
-      if (name) {
-        // Proceed with saving the timeline data
-        const userTimeline = [{
-          user_id: JSON.parse(localStorage.getItem('user')).id, // Replace this with the actual user ID
-          name: name,
-          items: timelineData.map((item) => ({
-            season: item.season,
-            year: item.year,
-            courses: item.courses.map((course) => course.courseCode),
-          }))
-        }];
-
-        const user_id = userTimeline[0].user_id;
-        const name_1 = userTimeline[0].name;
-        const items = userTimeline[0].items;
-
-
-        try {
-          // Send the data to the backend via the API
-          const response = await fetch(`${process.env.REACT_APP_SERVER}/exemption/create`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ coursecodes: exempted_courses, user_id }),
-          });
-
-          const data = await response.json();
-
-          if (response.ok) {
-
-          } else {
-            alert("Error saving Exempted Courses!" || data.message);
-          }
-        } catch (error) {
-          console.error("Error saving Exempted Courses:", error);
-          alert("An error occurred while saving your timeline.");
-        }
-
-        try {
-          const response = await fetch(`${process.env.REACT_APP_SERVER}/deficiency/create`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              coursepool: deficiencyCourses,
-              user_id: user_id,// array of codes
-              creditsRequired: deficiencyCredits,
-            }),
-          });
-
-          console.log("Saving deficiency courses with payload:", {
-            user_id,
-            coursepool: deficiencyCourses,
-            creditsRequired: deficiencyCredits,
-          });
-
-
-        } catch (err) {
-          console.error("Error saving deficiency", err);
-        }
-        try {
-          // Send the data to the backend via the API
-          const response = await fetch(`${process.env.REACT_APP_SERVER}/timeline/save`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ user_id, name: name_1, items, degree_id: degreeId }),
-          });
-
-          console.log(user_id, "user");
-          console.log("name", name_1);
-          console.log("items", items);
-          console.log("degreeid", degreeId);
-
-          const data = await response.json();
-
-          if (response.ok) {
-            alert('Timeline saved successfully!');
-            navigate('/user'); // Navigate after saving
-          } else {
-            alert("Error saving Timeline!" || data.message);
-          }
-        } catch (error) {
-          console.error("Error saving timeline:", error);
-          alert("An error occurred while saving your timeline.");
-        }
-      } else {
-        alert("Timeline name is required!");
-      }
-    } else {
+    if (finalTimelineData.length === 0 && exempted_courses.length === 0) {
       alert("No valid data to save.");
+      return;
     }
 
-    // Optionally log the data for debugging purposes
-    console.log('Saved Timeline:', timelineData);
+    // Build the payload for the timeline.
+    const userTimeline = [{
+      user_id: user.id,
+      name: tName,
+      items: finalTimelineData.map((item) => ({
+        season: item.season,
+        year: item.year,
+        courses: item.courses.map((course) => course.courseCode),
+      })),
+    }];
+
+    const user_id = userTimeline[0].user_id;
+    const timelineNameToSend = userTimeline[0].name;
+    const items = userTimeline[0].items;
+
+    // Save Exempted Courses.
+    try {
+      const responseExemptions = await fetch(`${process.env.REACT_APP_SERVER}/exemption/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ coursecodes: exempted_courses, user_id }),
+      });
+      const dataExemptions = await responseExemptions.json();
+      if (!responseExemptions.ok) {
+        alert("Error saving Exempted Courses: " + (dataExemptions.message || ""));
+      }
+    } catch (error) {
+      console.error("Error saving Exempted Courses:", error);
+      alert("An error occurred while saving your timeline.");
+    }
+
+    // Save deficiency courses.
+    try {
+      const responseDeficiency = await fetch(`${process.env.REACT_APP_SERVER}/deficiency/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          coursepool: deficiencyCourses,
+          user_id,
+          creditsRequired: deficiencyCredits,
+        }),
+      });
+      // Optionally check responseDeficiency here.
+    } catch (err) {
+      console.error("Error saving deficiency", err);
+    }
+
+    // Save the complete timeline.
+    try {
+      const responseTimeline = await fetch(`${process.env.REACT_APP_SERVER}/timeline/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id, name: timelineNameToSend, items, degree_id: degreeId }),
+      });
+      const dataTimeline = await responseTimeline.json();
+      if (responseTimeline.ok) {
+        alert('Timeline saved successfully!');
+        setShowSaveModal(false); // Close the modal
+        navigate('/user'); // Navigate after saving
+      } else {
+        alert("Error saving Timeline: " + (dataTimeline.message || ""));
+      }
+    } catch (error) {
+      console.error("Error saving timeline:", error);
+      alert("An error occurred while saving your timeline.");
+    }
   };
+
+
+
 
   // Function to handle mouse move over the scrollable container
   const handleScrollMouseMove = (e) => {
@@ -1141,7 +1361,8 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                 {/* Save Timeline Button */}
                 <button
                   className="save-timeline-button"
-                  onClick={handleSaveTimeline} // You can define this handler to save the transcript
+                  onClick={() => timelineName ? confirmSaveTimeline(timelineName) : setShowSaveModal(true)}
+                //onClick={() => setShowSaveModal(true)} // You can define this handler to save the transcript
                 >
                   Save Timeline
                 </button>
@@ -1260,7 +1481,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                 <div className="timeline-middle-section">
                   <div className='timeline-header'>
                     <div className='timeline-title'>
-                      Timeline
+                      {{ timelineName } && { timelineName } != 'null' ? <h2>{timelineName}</h2> : <h2>My Timeline</h2>}
                     </div>
                     <button
                       className="add-semester-button"
@@ -1284,7 +1505,7 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                     <div className="semesters">
                       {semesters.map((semester, index) => {
                         // 1) Calculate total credits for this semester
-                        const isExempted = semester.id.trim().toLowerCase() === 'exempted';
+                        const isExempted = semester.id.trim().toLowerCase().startsWith('exempted');
 
                         const sumCredits = semesterCourses[semester.id]
                           .map((cCode) =>
@@ -1480,15 +1701,57 @@ const TimelinePage = ({ onDataProcessed, degreeid, timelineData, creditsrequired
                   </select>
                 </div>
               </div>
-
               <button className="TL-button" onClick={handleAddSemester}>
                 Add new semester
               </button>
             </div>
           </div>
         )}
+        {showSaveModal && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <button
+                className="close-button"
+                // i want to conditionally call setshowsavemodal on whether or not timelineName is empty
+                onClick={() => setShowSaveModal(false)}
+              >
+                ✕
+              </button>
+
+              <p>Save Timeline</p>
+              <hr style={{ marginBottom: '1rem' }} />
+
+              {/* Text input for the timeline name */}
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem' }}>
+                  Enter a name for your timeline:
+                </label>
+                <input
+                  type="text"
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                  placeholder="e.g. My Winter Plan"
+                  style={{ width: '100%', padding: '0.5rem' }}
+                />
+              </div>
+
+              <button className="TL-button"
+                onClick={() => {
+                  // set timeline name as value of input field
+                  if (tempName.trim() === "") {
+                    setShowSaveModal(true);
+                  } else {
+                    confirmSaveTimeline(tempName);
+                  }
+                }}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        )}
       </DndContext>
-    </motion.div>
+    </motion.div >
   );
 };
 

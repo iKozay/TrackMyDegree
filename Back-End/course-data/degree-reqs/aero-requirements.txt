@@ -3,8 +3,7 @@ DegreeID=AERO
 DegreeName=BEng Aerospace Engineering
 TotalCredits=120
 
-[Engineering Core (27 credits)]
-ELEC 275
+[Engineering Core (24 credits)]
 ENCS 282
 ENGR 201
 ENGR 202
