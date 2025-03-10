@@ -169,8 +169,8 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
   let { degreeId, startingSemester, creditsRequired = 120, extendedCredit } = location.state || {};
 
-  console.log("isExtendedCredit: " + isExtendedCredit);
-  console.log("extendedCredit: " + extendedCredit);
+  // console.log("isExtendedCredit: " + isExtendedCredit);
+  // console.log("extendedCredit: " + extendedCredit);
 
   if (isExtendedCredit) {
     extendedCredit = true;
@@ -334,7 +334,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   useEffect(() => {
     const fetchCoursesByDegree = async () => {
       try {
-        console.log('Fetching courses by degree:', degreeId);
+        // console.log('Fetching courses by degree:', degreeId);
         const primaryResponse = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
           method: 'POST',
           headers: {
@@ -414,7 +414,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   useEffect(() => {
     // Wait until coursePools have loaded.
 
-    console.log('coursePools:', coursePools);
+    // console.log('coursePools:', coursePools);
     if (coursePools.length === 0) {
       console.log('Returning early, not building timeline yet.');
       return;
@@ -460,7 +460,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       if (extendedCredit === null) {
         extendedCredit = false;
       }
-      console.log("eC: " + extendedCredit);
+      // console.log("eC: " + extendedCredit);
       // No timeline data available; use preset exempted courses.
       if (!extendedCredit) {
         parsedExemptedCourses = [
@@ -493,7 +493,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       // Default courses to an empty array if not provided.
       let courses = Array.isArray(data.courses)
         ? data.courses
-          .map((course) => (typeof course === "string" ? course.replace(/\s/g,'') : ""))
+          .map((course) => (typeof course === "string" ? course.trim() : ""))
           .filter(Boolean)
         : [];
 
@@ -899,8 +899,8 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     const prerequisites = course.requisites.filter(r => r.type.toLowerCase() === 'pre');
     const corequisites = course.requisites.filter(r => r.type.toLowerCase() === 'co');
 
-    console.log(`Course ${courseCode} prerequisites:`, prerequisites);
-    console.log(`Course ${courseCode} corequisites:`, corequisites);
+    // console.log(`Course ${courseCode} prerequisites:`, prerequisites);
+    // console.log(`Course ${courseCode} corequisites:`, corequisites);
 
     // Collect all courses scheduled in semesters before the current one
     const completedCourses = [];
@@ -914,7 +914,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       }
     }
 
-    console.log(`Completed courses before current semester:`, completedCourses);
+    // console.log(`Completed courses before current semester:`, completedCourses);
 
     // Check prerequisites
     const prerequisitesMet = prerequisites.every((prereq) => {
@@ -922,21 +922,21 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
         // For grouped prerequisites, at least one in the group must be completed
         const group = prerequisites.filter(p => p.group_id === prereq.group_id);
         const result = group.some(p => completedCourses.includes(p.code2));
-        console.log(`Group ${prereq.group_id} met:`, result);
+        // console.log(`Group ${prereq.group_id} met:`, result);
         return result;
       } else {
         // Single prerequisite
         const result = completedCourses.includes(prereq.code2);
-        console.log(`Prerequisite ${prereq.code2} met:`, result);
+        // console.log(`Prerequisite ${prereq.code2} met:`, result);
         return result;
       }
     });
 
-    console.log(`Prerequisites met for course ${courseCode}:`, prerequisitesMet);
+    // console.log(`Prerequisites met for course ${courseCode}:`, prerequisitesMet);
 
     // Collect courses scheduled in the current semester for corequisites
     const currentSemesterCourses = semesterCourses[semesters[currentSemesterIndex]?.id] || [];
-    console.log(`Current semester courses for corequisites:`, currentSemesterCourses);
+    // console.log(`Current semester courses for corequisites:`, currentSemesterCourses);
 
     // Check corequisites
     const corequisitesMet = corequisites.every((coreq) => {
@@ -944,20 +944,20 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
         // If corequisites can also be grouped, handle similarly
         const group = corequisites.filter(c => c.group_id === coreq.group_id);
         const result = group.some(c => currentSemesterCourses.includes(c.code2));
-        console.log(`Corequisite group ${coreq.group_id} met:`, result);
+        // console.log(`Corequisite group ${coreq.group_id} met:`, result);
         return result;
       } else {
         // Single corequisite
         const result = currentSemesterCourses.includes(coreq.code1);
-        console.log(`Corequisite ${coreq.code2} met:`, result);
+        // console.log(`Corequisite ${coreq.code2} met:`, result);
         return result;
       }
     });
 
-    console.log(`Corequisites met for course ${courseCode}:`, corequisitesMet);
+    // console.log(`Corequisites met for course ${courseCode}:`, corequisitesMet);
 
     const finalResult = prerequisitesMet && corequisitesMet;
-    console.log(`Prerequisites and Corequisites met for course ${courseCode}:`, finalResult);
+    // console.log(`Prerequisites and Corequisites met for course ${courseCode}:`, finalResult);
 
     return finalResult;
   };
