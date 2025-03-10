@@ -5,21 +5,17 @@ import { AuthContext } from "../AuthContext";
 import moment from "moment";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/UserPage.css";
-import { motion } from "framer-motion"
-
+import { motion } from "framer-motion";
 
 // === Updated imports for your custom modal & trash icon ===
 import DeleteModal from "../components/DeleteModal";
 import TrashLogo from "../icons/trashlogo"; // Adjust path if needed
 
 const UserPage = ({ onDataProcessed }) => {
-
   const { user } = useContext(AuthContext);
   const [userInfo, setUserInfo] = useState([]);
-
   const [isEditing, setIsEditing] = useState(false);
   const [editedUserInfo, setEditedUserInfo] = useState(null);
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,13 +43,11 @@ const UserPage = ({ onDataProcessed }) => {
   };
 
   const saveChanges = async () => {
-    // add way to save changes here
     const updatedInfo = userInfo.map((item, index) => ({
       ...item,
       value: editedUserInfo[index],
     }));
     try {
-      // Construct the payload
       const payload = {
         id: user.id,
         fullname: updatedInfo[0].value,
@@ -61,7 +55,6 @@ const UserPage = ({ onDataProcessed }) => {
         type: user.type,
       };
 
-      // Make the POST request to update user info
       const response = await fetch(
         `${process.env.REACT_APP_SERVER}/appUser/update`,
         {
@@ -90,7 +83,7 @@ const UserPage = ({ onDataProcessed }) => {
 
   const handleTimelineClick = (obj) => {
     const transcriptData = [];
-    localStorage.setItem('Timeline_Name', JSON.stringify(obj.name));
+    localStorage.setItem("Timeline_Name", JSON.stringify(obj.name));
 
     const degreeId = obj.degree_id;
     const items = obj.items;
@@ -100,7 +93,7 @@ const UserPage = ({ onDataProcessed }) => {
       const { season, year, courses } = item;
       transcriptData.push({
         term: `${season} ${year}`,
-        courses: courses, // or leave it empty if needed
+        courses: courses, // even empty semesters are included
         grade: "A",
       });
     });
@@ -120,7 +113,7 @@ const UserPage = ({ onDataProcessed }) => {
     setEditedUserInfo(updatedValues);
   };
 
-  // add way to get user timelines here
+  // Get user timelines
   const [userTimelines, setUserTimelines] = useState([]);
 
   useEffect(() => {
@@ -147,15 +140,13 @@ const UserPage = ({ onDataProcessed }) => {
           }
 
           const data = await response.json();
-
           // Sort by modified date in descending order
           const sortedTimelines = data.sort(
             (a, b) => new Date(b.last_modified) - new Date(a.last_modified)
           );
-
           setUserTimelines(sortedTimelines);
         } catch (e) {
-          console.error("Error updating user info:", e);
+          console.error("Error updating user timelines:", e);
         }
       };
 
@@ -163,7 +154,7 @@ const UserPage = ({ onDataProcessed }) => {
     }
   }, [user]);
 
-  // modal state
+  // Modal state for deletion
   const [showModal, setShowModal] = useState(false);
   const [timelineToDelete, setTimelineToDelete] = useState(null);
 
@@ -172,9 +163,8 @@ const UserPage = ({ onDataProcessed }) => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (timeline_id) => {
     try {
-      // delete timeline
       const response = await fetch(
         `${process.env.REACT_APP_SERVER}/timeline/delete`,
         {
@@ -182,22 +172,24 @@ const UserPage = ({ onDataProcessed }) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ id }),
+          body: JSON.stringify({ timeline_id }),
         }
       );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to delete user timeline.");
+        throw new Error(
+          errorData.message || "Failed to delete user timeline."
+        );
       }
       // remove from page
-      setUserTimelines(userTimelines.filter((obj) => obj.id !== id));
+      setUserTimelines(userTimelines.filter((obj) => obj.id !== timeline_id));
     } catch (e) {
       console.error("Error deleting user timeline:", e);
     }
   };
 
-  // Redirect to login if no user is found
+  // Redirect to login if no user
   useEffect(() => {
     if (!user) {
       navigate("/signin");
@@ -220,31 +212,39 @@ const UserPage = ({ onDataProcessed }) => {
           <div className="col-12 col-md-4 d-flex flex-column align-items-center text-center mx-auto">
             <h2 className="mb-4">My Profile</h2>
             <div className="profile-container d-flex">
-              <div className="max-w-sm w-full"> {/* Changed from max-w-xs to max-w-sm */}
-                <div className="bg-white shadow-xl rounded-lg py-4"> {/* Increased padding */}
-                  <div className="photo-wrapper p-3"> {/* Increased padding */}
+              <div className="max-w-sm w-full">
+                <div className="bg-white shadow-xl rounded-lg py-4">
+                  <div className="photo-wrapper p-3">
                     <img
                       className="w-40 h-40 rounded-full mx-auto"
-                      src="https://www.gravatar.com/avatar/2acfb745ecf9d4dccb3364752d17f65f?s=260&d=mp"
+                      src="https://www.svgrepo.com/download/374554/avatar-loading.svg" // replace when upload available
                       alt="Profile Avatar"
                     />
                   </div>
-                  <div className="p-3"> {/* Increased padding */}
-                    <h3 className="text-center text-2xl text-gray-900 font-medium leading-8"> {/* Increased text size */}
+                  <div className="p-3">
+                    <h3 className="text-center text-2xl text-gray-900 font-medium leading-8">
                       {userInfo[0]?.value || "Full Name"}
                     </h3>
-                    <div className="text-center text-gray-400 text-sm font-semibold"> {/* Increased text size */}
+                    <div className="text-center text-gray-400 text-sm font-semibold">
                       <p>User</p>
                     </div>
-                    <table className="text-sm my-4"> {/* Increased text size and margin */}
+                    <table className="text-sm my-4">
                       <tbody>
                         <tr>
-                          <td className="px-3 py-2 text-gray-500 font-semibold">Full Name</td> {/* Increased padding */}
-                          <td className="px-3 py-2">{userInfo[0]?.value || "NULL"}</td>
+                          <td className="px-3 py-2 text-gray-500 font-semibold">
+                            Full Name
+                          </td>
+                          <td className="px-3 py-2">
+                            {userInfo[0]?.value || "NULL"}
+                          </td>
                         </tr>
                         <tr>
-                          <td className="px-3 py-2 text-gray-500 font-semibold">Email</td>
-                          <td className="px-3 py-2">{userInfo[1]?.value || "NULL"}</td>
+                          <td className="px-3 py-2 text-gray-500 font-semibold">
+                            Email
+                          </td>
+                          <td className="px-3 py-2">
+                            {userInfo[1]?.value || "NULL"}
+                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -254,14 +254,16 @@ const UserPage = ({ onDataProcessed }) => {
               {/* Separator Line */}
               <div className="separator-line"></div>
             </div>
-
           </div>
-          {/* Right Side - My Timelines (Unchanged) */}
+
+          {/* Right Side - My Timelines */}
           <div className="col-12 col-md-6 d-flex flex-column text-center mx-auto mt-3 mt-md-0">
             <h2 className="mb-5">My Timelines</h2>
             {userTimelines.length === 0 ? (
               <Link to="/timeline_initial">
-                <p>You haven't saved any timelines yet, click here to start now!</p>
+                <p>
+                  You haven't saved any timelines yet, click here to start now!
+                </p>
               </Link>
             ) : (
               <div className="list-group">
@@ -276,12 +278,17 @@ const UserPage = ({ onDataProcessed }) => {
                     >
                       <span className="timeline-text">{obj.name}</span>
                       <span className="timeline-text">
-                        Last Modified: {moment(obj.last_modified).format("MMM DD, YYYY h:mm A")}
+                        Last Modified:{" "}
+                        {moment(obj.last_modified).format(
+                          "MMM DD, YYYY h:mm A"
+                        )}
                       </span>
                     </span>
-                    <button onClick={() => handleDeleteClick(obj)}
-                      className="timeline-delete btn btn-lg p-0 border-0 bg-transparent">
-                      <TrashLogo size={25} className="me-1 text-danger" /> {/* Added text-danger for red icon */}
+                    <button
+                      onClick={() => handleDeleteClick(obj)}
+                      className="timeline-delete btn btn-lg p-0 border-0 bg-transparent"
+                    >
+                      <TrashLogo size={25} className="me-1 text-danger" />
                     </button>
                   </div>
                 ))}
@@ -310,7 +317,7 @@ const UserPage = ({ onDataProcessed }) => {
               <button
                 className="btn btn-danger tw-w-full"
                 onClick={() => {
-                  handleDelete(timelineToDelete.timeline_id);
+                  handleDelete(timelineToDelete?.id);
                   setShowModal(false);
                 }}
               >

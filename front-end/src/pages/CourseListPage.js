@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Card, Col, Row, Container, Dropdown } from "react-bootstrap";
 import CourseListAccordion from "../components/CourseListAccordion";
+import { groupPrerequisites } from '../utils/groupPrerequisites';
 import '../css/CourseListPage.css';
 import {motion} from "framer-motion"
 
@@ -140,10 +141,19 @@ function CourseListPage() {
                   <br /><b>Credits:</b> {selectedCourse.credits}
                 </Card.Text>
                 <Card.Text>
-                  <b>Prerequisites:</b> {selectedCourse.prerequisites || "None"}
-                </Card.Text>
-                <Card.Text>
-                  <b>Corequisites:</b> {selectedCourse.corequisites || "None"}
+                <p><b>Prerequisites/Corequisites:</b></p>
+                  {selectedCourse.requisites && selectedCourse.requisites.length > 0 ? (
+                    <ul>
+                      {groupPrerequisites(selectedCourse.requisites).map((group, index) => (
+                        <li key={index}>
+                          {group.type.toLowerCase() === 'pre' ? 'Prerequisite: ' : 'Corequisite: '}
+                          {group.codes.join(' or ')}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>None</p>
+                  )}
                 </Card.Text>
                 <Card.Text>
                   <b>Description:</b> {selectedCourse.description}
@@ -172,7 +182,7 @@ function CourseListPage() {
               {selectedCourse ? (
                 <>
                   <p><b>Credits:</b> {selectedCourse.credits}</p>
-                  <p><b>Prerequisites:</b> {selectedCourse.prerequisites || "None"}</p>
+                  <p><b>Prerequisites:</b> {selectedCourse.requisites || "None"}</p>
                   <p><b>Corequisites:</b> {selectedCourse.corequisites || "None"}</p>
                   <p><b>Description:</b> {selectedCourse.description}</p>
                   <p><b>Notes:</b> {selectedCourse.notes}</p>
