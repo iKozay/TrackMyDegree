@@ -133,7 +133,7 @@ async function saveTimeline(
   await transaction.begin();
 
   try {
-    const { user_id, name, degree_id, items } = timeline;
+    const { user_id, name, degree_id, items, isExtendedCredit } = timeline;
     if (!user_id || !name || !degree_id) {
       throw new Error("User ID, timeline name, and degree ID are required");
     }
@@ -173,9 +173,10 @@ async function saveTimeline(
         .input("timelineId", Database.msSQL.VarChar, timelineId)
         .input("lastModified", Database.msSQL.DateTime, lastModified)
         .input("degree_id", Database.msSQL.VarChar, degree_id)
+        .input("isExtendedCredit", Database.msSQL.Bit, isExtendedCredit)
         .query(
           `UPDATE Timeline 
-           SET last_modified = @lastModified, degree_id = @degree_id 
+           SET last_modified = @lastModified, degree_id = @degree_id, isExtendedCredit = @isExtendedCredit
            WHERE id = @timelineId`
         );
     } else {
@@ -187,9 +188,10 @@ async function saveTimeline(
         .input("degree_id", Database.msSQL.VarChar, degree_id)
         .input("name", Database.msSQL.VarChar, name)
         .input("lastModified", Database.msSQL.DateTime, lastModified)
+        .input("isExtendedCredit", Database.msSQL.Bit, isExtendedCredit)
         .query(
-          `INSERT INTO Timeline (id, user_id, degree_id, name, last_modified) 
-           VALUES (@id, @user_id, @degree_id, @name, @lastModified)`
+          `INSERT INTO Timeline (id, user_id, degree_id, name, last_modified, isExtendedCredit) 
+           VALUES (@id, @user_id, @degree_id, @name, @lastModified, @isExtendedCredit)`
         );
     }
 
@@ -228,6 +230,7 @@ async function saveTimeline(
       name,
       last_modified: lastModified,
       items,
+      isExtendedCredit
     };
   } catch (error) {
     await transaction.rollback();
@@ -254,7 +257,7 @@ async function getTimelinesByUser(
     const timelinesResult = await dbConn
       .request()
       .input("user_id", Database.msSQL.VarChar, user_id)
-      .query(`SELECT id, user_id, degree_id, name, last_modified FROM Timeline WHERE user_id = @user_id`);
+      .query(`SELECT id, user_id, degree_id, name, last_modified, isExtendedCredit FROM Timeline WHERE user_id = @user_id`);
 
     const timelinesRecords = timelinesResult.recordset;
     if (timelinesRecords.length === 0) return [];
@@ -295,6 +298,7 @@ async function getTimelinesByUser(
         name: tl.name,
         last_modified: tl.last_modified, // Include last_modified
         items,
+        isExtendedCredit: tl.isExtendedCredit
       });
     }
     return timelines;

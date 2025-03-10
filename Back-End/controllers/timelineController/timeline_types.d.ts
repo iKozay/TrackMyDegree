@@ -8,6 +8,7 @@ declare namespace TimelineTypes {
     /** This field is automatically set/updated when the timeline is saved. */
     last_modified?: Date | string;
     items: TimelineItem[];
+    isExtendedCredit: boolean;
   }
 
   export interface TimelineItem {

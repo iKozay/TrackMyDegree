@@ -48,25 +48,25 @@ router.post("/getAll", async (req: Request, res: Response) => {
 
 
 // Get all timelines for a given user (via JSON body)
-router.post("/getAll", async (req: Request, res: Response) => {
-  const { user_id } = req.body;
-  if (!user_id) {
-    res.status(HTTP.BAD_REQUEST).json({ error: "User ID is required" });
-    return;
-  }
+// router.post("/getAll", async (req: Request, res: Response) => {
+//   const { user_id } = req.body;
+//   if (!user_id) {
+//     res.status(HTTP.BAD_REQUEST).json({ error: "User ID is required" });
+//     return;
+//   }
 
-  try {
-    const timelines = await timelineController.getTimelinesByUser(user_id);
-    if (timelines && timelines.length > 0) {
-      res.status(HTTP.OK).json(timelines);
-    } else {
-      res.status(HTTP.NOT_FOUND).json({ error: "No timelines found" });
-    }
-  } catch (error) {
-    console.error("Error in /timeline/getAll", error);
-    res.status(HTTP.SERVER_ERR).json({ error: "Could not retrieve timelines" });
-  }
-});
+//   try {
+//     const timelines = await timelineController.getTimelinesByUser(user_id);
+//     if (timelines && timelines.length > 0) {
+//       res.status(HTTP.OK).json(timelines);
+//     } else {
+//       res.status(HTTP.NOT_FOUND).json({ error: "No timelines found" });
+//     }
+//   } catch (error) {
+//     console.error("Error in /timeline/getAll", error);
+//     res.status(HTTP.SERVER_ERR).json({ error: "Could not retrieve timelines" });
+//   }
+// });
 
 
 router.post("/delete", async (req: Request, res: Response) => {

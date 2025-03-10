@@ -74,6 +74,7 @@ CREATE TABLE Timeline (
     user_id VARCHAR(255) NOT NULL,
     degree_id VARCHAR(255) NOT NULL,  -- New column for the associated degree
     name VARCHAR(100) NOT NULL,
+    isExtendedCredit BIT NOT NULL DEFAULT 0,
     last_modified DATETIME2,
     FOREIGN KEY (user_id) REFERENCES AppUser (id) ON DELETE CASCADE,
     FOREIGN KEY (degree_id) REFERENCES Degree(id)

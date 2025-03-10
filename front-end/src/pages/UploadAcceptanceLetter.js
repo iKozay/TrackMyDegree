@@ -561,8 +561,8 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
               <span className="cooo">Co-op Program? </span>
               <label>
                 <input type="checkbox" name="co-op" value="yes"
-                  checked={selectedRadio.coOp === 'yes'}
-                  onChange={() => handleRadioChange('coOp', 'yes')}
+                  checked={selectedRadio.coOp === true}
+                  onChange={() => handleRadioChange('coOp', true)}
                 />
               </label>
             </div>
@@ -570,8 +570,8 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
               <span className="cooo">Extended Credit Program? </span>
               <label>
                 <input type="checkbox" name="extended-credit" value="yes" 
-                  checked={selectedRadio.extendedCredit === 'yes'}
-                  onChange={() => handleRadioChange('extendedCredit', 'yes')} 
+                  checked={selectedRadio.extendedCredit === true}
+                  onChange={() => handleRadioChange('extendedCredit', true)} 
                 />
               </label>
             </div>
@@ -579,8 +579,8 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
               <span className="cooo">Credit Deficiency? </span>
               <label>
                 <input type="checkbox" name="credit-deficiency" value="yes"
-                  checked={selectedRadio.creditDeficiency === 'yes'}
-                  onChange={() => handleRadioChange('creditDeficiency', 'yes')}
+                  checked={selectedRadio.creditDeficiency === true}
+                  onChange={() => handleRadioChange('creditDeficiency', true)}
                 />
               </label>
             </div>

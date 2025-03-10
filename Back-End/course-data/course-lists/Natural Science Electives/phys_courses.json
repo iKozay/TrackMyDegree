@@ -11,8 +11,8 @@
     {
         "title": "PHYS 204 Mechanics",
         "credits": 3,
-        "prerequisites": "MATH 203",
-        "corequisites": "",
+        "prerequisites": "",
+        "corequisites": "MATH 203",
         "description": "Kinematics, Newton’s laws of motion. Statics, dynamics. Conservation of momentum and energy. Rotational motion. Periodic motion.",
         "components": "Lecture",
         "notes": "Students in programs leading to the BSc degree may not take this course for credit to be applied to their program of concentration. See PHYS 224 for laboratory associated with this course."
@@ -20,7 +20,7 @@
     {
         "title": "PHYS 205 Electricity and Magnetism",
         "credits": 3,
-        "prerequisites": "MATH 203; PHYS 204 or equivalent.",
+        "prerequisites": "MATH 203; PHYS 204",
         "corequisites": "",
         "description": "Electrical charge and Coulomb’s law. Electrical field and potential. Capacity, steady state, and transient currents. Electromagnetic induction and alternating currents.",
         "components": "Lecture",
@@ -29,7 +29,7 @@
     {
         "title": "PHYS 206 Waves and Modern Physics",
         "credits": 3,
-        "prerequisites": "PHYS 204 or equivalent.",
+        "prerequisites": "PHYS 204",
         "corequisites": "",
         "description": "This course reviews Geometrical optics, together with wave propagation and interference. It covers special relativity and the photoelectric and Compton effects as well as introduces the Shrödinger equation and wave function, the uncertainty principle, Bohr’s atom, and radioactivity. Selected topics from high energy physics may be included.",
         "components": "Lecture",
@@ -65,7 +65,7 @@
     {
         "title": "PHYS 245 Classical Mechanics",
         "credits": 3,
-        "prerequisites": "MATH 204, MATH 205 or equivalent.",
+        "prerequisites": "MATH 204, MATH 205",
         "corequisites": "",
         "description": "Statics of rigid bodies, work and potential functions, motion in uniform field. Particle motion in an accelerated frame, rotation coordinate systems, motion in a resisting medium, small oscillations, damped (harmonic) motion, motion under central forces, mechanics of a rigid body, dynamics of systems of particles, motion of rigid bodies in three dimensions, elements of Lagrangian mechanics.",
         "components": "Lecture",
@@ -83,8 +83,8 @@
     {
         "title": "PHYS 253 Electricity and Magnetism I",
         "credits": 3,
-        "prerequisites": "PHYS 205 or equivalent",
-        "corequisites": "MAST 218 or equivalent",
+        "prerequisites": "PHYS 205",
+        "corequisites": "MAST 218",
         "description": "Electrostatics, Gauss’ law, electric potential, curl and divergence of fields, capacitance, RC circuits, Laplace’s equation, Legendre equation, method of images, multipole expansion, dielectrics, polarization, dipole moments, electric displacement.",
         "components": "Lecture; Tutorial",
         "notes": null
@@ -92,7 +92,7 @@
     {
         "title": "PHYS 260 Introductory Biophysics",
         "credits": 3,
-        "prerequisites": "BIOL 201; CHEM 205; MATH 203; PHYS 204, PHYS 205, PHYS 206; or equivalent.",
+        "prerequisites": "BIOL 201; CHEM 205; MATH 203; PHYS 204, PHYS 205, PHYS 206;",
         "corequisites": "",
         "description": "Cell physiology; macromolecules and molecular devices; transmission of genetic information; random walks, friction and diffusion; Reynolds number; entropy, temperature and free energy; entropic forces; chemical forces; self‑assembly; membranes; active transport; nerve impulses. Overview of experimental techniques: X‑ray crystallography; atomic force, electron and optical microscopies; patch‑clamp techniques.",
         "components": "Lecture; Tutorial",
@@ -200,7 +200,7 @@
     {
         "title": "PHYS 334 Thermodynamics",
         "credits": 3,
-        "prerequisites": "PHYS 204 or equivalent; MAST 218 or equivalent",
+        "prerequisites": "PHYS 204; MAST 218",
         "corequisites": "MAST 219",
         "description": "Equation of state, ideal and real gases, thermodynamic surfaces, first law of thermodynamics, isothermal and adiabatic processes, the energy equation, liquefaction of gases, Carnot engine, second law of thermodynamics, entropy, third law, thermodynamic potentials, Clausius‑Clapeyron equation, kinetic theory, equipartition of energy, Van der Waals’ equation, transport phenomena, probability and thermal distributions.",
         "components": "Lecture",
@@ -218,7 +218,7 @@
     {
         "title": "PHYS 345 Advanced Classical Mechanics",
         "credits": 3,
-        "prerequisites": "PHYS 232 or equivalent; PHYS 245 or equivalent; MAST 219.",
+        "prerequisites": "PHYS 232; PHYS 245; MAST 219.",
         "corequisites": "",
         "description": "Survey of Newtonian mechanics; D’Alembert’s principle and Lagrangian formulation; variational formulation and Hamilton’s principle. Hamiltonian formulation, canonical transformations, Poisson brackets (connection to quantum mechanics); central force motion; planetary motion; scattering in a central field, dynamics of rigid bodies; Euler’s equations; Hamilton‑Jacobi theory, applications. Introduction to non‑linear mechanics.",
         "components": "Lecture",
@@ -227,8 +227,8 @@
     {
         "title": "PHYS 354 Electricity and Magnetism II",
         "credits": 3,
-        "prerequisites": "PHYS 253 or equivalent",
-        "corequisites": "MAST 219 or equivalent",
+        "prerequisites": "PHYS 253",
+        "corequisites": "MAST 219",
         "description": "Biot‑Savart Law, Ampere’s law, divergence and curl of B, magnetic vector potential, magnetization, ferromagnetism, electromagnetic induction, motional EMF, inductance, transformer, ac‑circuits, Maxwell’s equations, the wave equation, polarization, reflection and transmission of em waves, rectangular wave guide, half‑wave antenna.",
         "components": "Lecture",
         "notes": "Students who have received credit for PHYS 254 may not take this course for credit."
@@ -245,7 +245,7 @@
     {
         "title": "PHYS 367 Modern Physics and Relativity",
         "credits": 3,
-        "prerequisites": "PHYS 205, PHYS 206 or equivalent.",
+        "prerequisites": "PHYS 205, PHYS 206.",
         "corequisites": "",
         "description": "This course covers basics of special relativity and some aspects of modern physics up to quantum mechanics. It covers Lorentz transformations, space-time and four-tensors, Minkowski map of space-time, four-velocity and four-acceleration, four-momentum, equivalence of mass and energy, angular momentum, three- and four-force as well as formal structure of Maxwell’s theory, transformation of E and B and electromagnetic energy tensor. The course also offers details on atomic structure such as orbital magnetization and the normal Zeeman effect, electron spin, spin-orbit interaction and other magnetic effects, exchange symmetry and the exclusion principle, electron interactions and screening effects, X-ray spectra and Mosley’s law and the periodic table.",
         "components": "Lecture; Tutorial",
@@ -254,7 +254,7 @@
     {
         "title": "PHYS 370 Nonlinear Dynamics/Chaos/Fractals",
         "credits": 3,
-        "prerequisites": "PHYS 232 or equivalent.",
+        "prerequisites": "PHYS 232",
         "corequisites": "",
         "description": "One-dimensional flows and maps, bifurcations, two-dimensional flows and maps, phase plane and limit cycles. Lorenz equations, strange attractors, chaos and nonlinearity, deterministic chaos, period doubling, experimental manifestations. Fractals, fractal dimension, examples of chaos and of fractals. Applications in physics, biology, chemistry, and engineering.",
         "components": "Lecture",
@@ -281,7 +281,7 @@
     {
         "title": "PHYS 389 Honours Research Experience II",
         "credits": 3,
-        "prerequisites": "PHYS 289. Enrolment in the Honours in Physics program is required. Permission of the Department is required.",
+        "prerequisites": "PHYS 289",
         "corequisites": "",
         "description": "This course is a second supervised research project in Physics or Biophysics. Students work under the supervision of a member of the Faculty on either an experimental, computational, or theoretical research project. The learning outcomes include, but are not limited to, developing the ability to conduct a detailed literature review, develop productive methods to troubleshoot research work progress, learn to organize and communicate research results at an intermediate level, develop the ability to work collaboratively and ethically, and make a targeted, but substantive, research contribution on a current research project. A formal, written report is required.",
         "components": "Research",
@@ -290,7 +290,7 @@
     {
         "title": "PHYS 390 Applied Electronics for Scientists",
         "credits": 3,
-        "prerequisites": "PHYS 355 or equivalent.",
+        "prerequisites": "PHYS 355",
         "corequisites": "",
         "description": "This course introduces students to hands-on design, assembly, analysis, and testing of electronic control and measurement circuits for modern laboratory experiments. Topics may include linear components, filters, transistors, semiconductor devices, operational amplifiers, integrated circuits, networks, ADCs/DACs, and microcontrollers/microprocessors (Arduino/Raspberry Pi).",
         "components": "Laboratory",
@@ -299,7 +299,7 @@
     {
         "title": "PHYS 392 Experimental Medical Electronics",
         "credits": 3,
-        "prerequisites": "PHYS 296 or PHYS 330, or equivalent.",
+        "prerequisites": "PHYS 296 / PHYS 330",
         "corequisites": "",
         "description": "A laboratory course in the maintenance and use of medical instruments, including ECG monitor, electrocardiograph, cardio‑tachometer, blood‑pressure recorder, respiration‑rate recorder, and clinical thermometer. The component parts of the instruments are studied first, and then the instruments are constructed and tested.",
         "components": "Laboratory",
@@ -335,7 +335,7 @@
     {
         "title": "PHYS 436 Methods of Theoretical Physics III",
         "credits": 3,
-        "prerequisites": "PHYS 335 or equivalent.",
+        "prerequisites": "PHYS 335",
         "corequisites": "",
         "description": "Partial differential equations, eigenfunction expansion and finite transforms, Laplace, Poisson, wave and diffusion equations, applications, special functions, boundary value problems, Sturm‑Liouville theory, Bessel functions, Legendre and Hermite polynomials, spherical harmonics, Green’s function and applications, perturbation theory, variational theory.",
         "components": "Lecture",
@@ -470,7 +470,7 @@
     {
         "title": "PHYS 494 Methods of Experimental Physics",
         "credits": 3,
-        "prerequisites": "PHYS 330. If prerequisites are not satisfied, permission of the Department is required.",
+        "prerequisites": "PHYS 330.",
         "corequisites": "",
         "description": "A supervised research project which may include experiments in nuclear physics, laser and fibre‑optics, solid state physics, ultrasonics, or thermal physics. A technical report is required.",
         "components": null,
@@ -488,7 +488,7 @@
     {
         "title": "PHYS 496 Honours Research Project",
         "credits": 6,
-        "prerequisites": "PHYS 330. Enrolment in the Honours in Physics is required. Students must have completed 45 credits in Physics prior to enrolling. Permission of the Department is required.",
+        "prerequisites": "PHYS 330",
         "corequisites": "",
         "description": "A research project for honours students that is carried out on a special topic in physics, biophysics, or applied physics under the supervision of a faculty member.",
         "components": "Research",
@@ -497,7 +497,7 @@
     {
         "title": "PHYS 497 Specialization Research Project",
         "credits": 3,
-        "prerequisites": "PHYS 330. Enrolment in the Specialization in Physics is required. Students must have completed 45 credits in Physics prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "prerequisites": "PHYS 330",
         "corequisites": "",
         "description": "This is an independent studies course for advanced specialization students in which a special topic in physics, biophysics, or applied physics is studied under the supervision of a faculty member. The student is required to write a report and give a brief presentation.",
         "components": "Research",
