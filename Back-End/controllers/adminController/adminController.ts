@@ -293,7 +293,7 @@ async function upsertDegree(
 ): Promise<string> {
   const request = new sql.Request(t);
   request.input("name", sql.VarChar, name);
-  request.input("totalCredits", sql.Int, totalCredits);
+  request.input("totalCredits", sql.Float, totalCredits);
   request.input("isAddon", sql.Bit, isAddon);
   const result = await request.query("SELECT id FROM Degree WHERE name = @name");
   if (result.recordset.length === 0) {
@@ -357,7 +357,7 @@ async function upsertCourse(
   const request = new sql.Request(t);
   request.input("code", sql.VarChar, code);
   request.input("title", sql.VarChar, title);
-  request.input("credits", sql.Int, credits);
+  request.input("credits", sql.Float, credits);
   request.input("description", sql.VarChar, description);
   const result = await request.query("SELECT code FROM Course WHERE code = @code");
   if (result.recordset.length === 0) {
@@ -536,7 +536,7 @@ function parseRequisites(
         if (/^[A-Z]{2,4}\d{3}$/.test(code)) {
           requisites.push({ code1, code2: code, type, groupId });
         } else if (/^\d+CR$/.test(code)) {
-          requisites.push({ code1, creditsRequired: parseInt(code.replace("CR", "")), type, groupId });
+          requisites.push({ code1, creditsRequired: parseFloat(code.replace("CR", "")), type, groupId });
         } else {
           console.warn(`Invalid course code or credit requirement "${code}" in requisites for course "${code1}". Skipping.`);
         }
@@ -546,7 +546,7 @@ function parseRequisites(
       if (/^[A-Z]{2,4}\d{3}$/.test(code)) {
         requisites.push({ code1, code2: code, type });
       } else if (/^\d+CR$/.test(code)) {
-        requisites.push({ code1, creditsRequired: parseInt(code.replace("CR", "")), type });
+        requisites.push({ code1, creditsRequired: parseFloat(code.replace("CR", "")), type });
       } else {
         console.warn(`Invalid course code or credit requirement "${code}" in requisites for course "${code1}". Skipping.`);
       }
