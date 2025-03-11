@@ -203,10 +203,11 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
     "Bachelor of Engineering, Building Engineering": "D2",
     "Bachelor of Engineering, Civil Engineering": "D3",
     "Bachelor of Engineering, Computer Engineering": "D4",
-    "Bachelor of Engineering, Electrical Engineering": "D5",
-    "Bachelor of Engineering, Industrial Engineering": "D6",
-    "Bachelor of Engineering, Mechanical Engineering": "D7",
-    "Bachelor of Engineering, Software Engineering": "D8",
+    "Bachelor of Computer Science, Computer Science": "D5",
+    "Bachelor of Engineering, Electrical Engineering": "D6",
+    "Bachelor of Engineering, Industrial Engineering": "D7",
+    "Bachelor of Engineering, Mechanical Engineering": "D8",
+    "Bachelor of Engineering, Software Engineering": "D9",
   };
   const degreeRegex = /Bachelor of [A-Za-z\s]+,\s*[A-Za-z\s]+/g; // Matches "Bachelor of Software Engineering", etc.
   let degree = null;
