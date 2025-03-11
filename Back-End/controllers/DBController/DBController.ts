@@ -13,6 +13,7 @@ const sqlConfig: SQL.Config = {                                                /
   options   : {
                 encrypt                 : true,                                // for Azure SQL
                 trustServerCertificate  : true,                                // change to true for local dev/self-signed certs
+                requestTimeout          : 30000,
               },
 };
 

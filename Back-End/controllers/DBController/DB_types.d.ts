@@ -10,6 +10,7 @@ declare namespace SQL {
     options   : {
                   encrypt                 : boolean,
                   trustServerCertificate  : boolean, 
+                  requestTimeout          : int
                 },
   }
 
