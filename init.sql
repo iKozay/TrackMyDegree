@@ -144,6 +144,9 @@ ON Requisite (code1);
 CREATE NONCLUSTERED INDEX idx_Requisite_code2
 ON Requisite (code2);
 
+-- Index on CoursePool for sorting by name
+CREATE NONCLUSTERED INDEX idx_CoursePool_name
+ON CoursePool (name);
 
 -- Insert sample values into tables
 
