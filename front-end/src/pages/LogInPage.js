@@ -2,8 +2,6 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
