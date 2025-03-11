@@ -215,10 +215,11 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       "Building Engineering": "D2",
       "Civil Engineering": "D3",
       "Computer Engineering": "D4",
-      "Electrical Engineering": "D5",
-      "Industrial Engineering": "D6",
-      "Mechanical Engineering": "D7",
-      "Software Engineering": "D8",
+      "Computer Science": "D5",
+      "Electrical Engineering": "D6",
+      "Industrial Engineering": "D7",
+      "Mechanical Engineering": "D8",
+      "Software Engineering": "D9",
     };
     let degree = null;
     let degreeId = null;
