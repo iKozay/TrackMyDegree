@@ -10,17 +10,29 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
   if (dbConn) {
     try {
       const result = await dbConn.request().query(`
-                    SELECT c.code, c.title, c.credits, c.description, 
-                           r.code1 AS requisite_code1, r.code2 AS requisite_code2, r.type AS requisite_type
-                    FROM Course c
-                    LEFT JOIN Requisite r ON c.code = r.code1 OR c.code = r.code2
-                `);
+        SELECT 
+            c.code, 
+            c.title, 
+            c.credits, 
+            c.description,
+            req.requisite_code1, 
+            req.requisite_code2, 
+            req.requisite_type
+        FROM Course c
+        LEFT JOIN (
+            SELECT code1 AS requisite_code1, code2 AS requisite_code2, type AS requisite_type
+            FROM Requisite
+            UNION ALL
+            SELECT code2 AS requisite_code1, code1 AS requisite_code2, type AS requisite_type
+            FROM Requisite
+        ) req ON c.code = req.requisite_code1
+      `);
 
       const courses = result.recordset;
 
       // Group requisites by course
       const coursesWithRequisites = courses.reduce((acc: any, course: any) => {
-        let courseCode = course.code;
+        const courseCode = course.code;
         if (!acc[courseCode]) {
           acc[courseCode] = {
             code: course.code,
@@ -38,11 +50,9 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
             type: course.requisite_type,
           });
         }
-
         return acc;
       }, {});
 
-      // Return the courses with requisites
       return Object.values(coursesWithRequisites);
     } catch (error) {
       log("Error fetching courses with requisites\n", error);
@@ -163,87 +173,94 @@ async function getCoursesByDegreeGrouped(
   degreeId: string
 ): Promise<CourseTypes.CoursePoolInfo[] | undefined> {
   const dbConn = await Database.getConnection();
+  if (!dbConn) return undefined;
 
-  if (dbConn) {
-    try {
-      const query = `
-                SELECT 
-                    cp.id AS course_pool_id,
-                    cp.name AS course_pool_name,
-                    c.code, 
-                    c.title,
-                    c.credits, 
-                    c.description,
-                    r.code1 AS requisite_code1, 
-                    r.code2 AS requisite_code2, 
-                    r.group_id AS requisite_group_id,
-                    r.type AS requisite_type
-                FROM DegreeXCoursePool dxcp
-                INNER JOIN CourseXCoursePool cxcp ON dxcp.coursepool = cxcp.coursepool
-                INNER JOIN Course c ON cxcp.coursecode = c.code
-                INNER JOIN CoursePool cp ON cxcp.coursepool = cp.id
-                LEFT JOIN Requisite r ON c.code = r.code1
-                WHERE dxcp.degree = @degreeId
-                ORDER BY cp.name, c.code
-            `;
+  try {
+    const query = `
+      WITH Courses AS (
+        SELECT 
+          cp.id AS course_pool_id, 
+          cp.name AS course_pool_name, 
+          c.code, 
+          c.title, 
+          c.credits, 
+          c.description
+        FROM DegreeXCoursePool dxcp
+        INNER JOIN CourseXCoursePool cxcp ON dxcp.coursepool = cxcp.coursepool
+        INNER JOIN Course c ON cxcp.coursecode = c.code
+        INNER JOIN CoursePool cp ON cxcp.coursepool = cp.id
+        WHERE dxcp.degree = @degreeId
+      )
+      SELECT 
+        c.course_pool_id, 
+        c.course_pool_name, 
+        c.code, 
+        c.title, 
+        c.credits, 
+        c.description,
+        ISNULL(
+          (SELECT 
+             r.code1, 
+             r.code2, 
+             r.group_id, 
+             r.type
+           FROM Requisite r
+           WHERE r.code1 = c.code
+           FOR JSON PATH
+          ), '[]'
+        ) AS requisites_json
+      FROM Courses c
+      ORDER BY c.course_pool_name, c.code;
+    `;
 
-      const result = await dbConn
-        .request()
-        .input("degreeId", Database.msSQL.VarChar, degreeId)
-        .query(query);
+    const result = await dbConn
+      .request()
+      .input("degreeId", Database.msSQL.VarChar, degreeId)
+      .query(query);
 
-      const records = result.recordset;
+    const records = result.recordset;
+    if (records.length === 0) return undefined;
 
-      if (records.length === 0) {
-        return undefined;
+    const coursePoolsMap: { [key: string]: CourseTypes.CoursePoolInfo } = {};
+
+    records.forEach((record: any) => {
+      // Parse the JSON array of requisites
+      let requisites: any[] = [];
+      try {
+        requisites = JSON.parse(record.requisites_json);
+      } catch (e) {
+        requisites = [];
       }
 
-      const coursePoolsMap: { [key: string]: CourseTypes.CoursePoolInfo } = {};
+      const poolId = record.course_pool_id;
+      if (!coursePoolsMap[poolId]) {
+        coursePoolsMap[poolId] = {
+          poolId: poolId,
+          poolName: record.course_pool_name,
+          courses: [],
+        };
+      }
 
-      records.forEach((record) => {
-        const poolId = record.course_pool_id;
-        const poolName = record.course_pool_name;
+      // Create a course object with its requisites
+      const course = {
+        code: record.code,
+        title: record.title,
+        credits: record.credits,
+        description: record.description,
+        requisites: requisites,
+      };
 
-        if (!coursePoolsMap[poolId]) {
-          coursePoolsMap[poolId] = {
-            poolId: poolId,
-            poolName: poolName,
-            courses: [],
-          };
-        }
+      coursePoolsMap[poolId].courses.push(course);
+    });
 
-        let course = coursePoolsMap[poolId].courses.find(
-          (c) => c.code === record.code
-        );
-        if (!course) {
-          course = {
-            code: record.code,
-            title: record.title,
-            credits: record.credits,
-            description: record.description,
-            requisites: [],
-          };
-          coursePoolsMap[poolId].courses.push(course);
-        }
-
-        if (record.requisite_code1 && record.requisite_code2) {
-          course.requisites.push({
-            code1: record.requisite_code1,
-            code2: record.requisite_code2,
-            group_id: record.requisite_group_id,
-            type: record.requisite_type,
-          });
-        }
-      });
-
-      return Object.values(coursePoolsMap);
-    } catch (error) {
-      log("Error fetching courses by degree grouped by course pools\n", error);
-    }
+    return Object.values(coursePoolsMap);
+  } catch (error) {
+    log("Error fetching courses by degree grouped by course pools\n", error);
   }
 
   return undefined;
 }
+
 
 async function getAllCoursesInDB(): Promise<
   CourseTypes.CourseInfo[] | undefined
