@@ -12,6 +12,8 @@ PHYS 204
 PHYS 205
 
 [General Education Humanities and Social Sciences Electives (6 credits)]
+ECON 201
+ECON 203
 ANTH 202
 ANTH 203
 ANTH 204
