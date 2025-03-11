@@ -2,12 +2,11 @@ import React from "react";
 import { Carousel } from "react-bootstrap";
 import '../css/Carousel.css';
 import pic1 from '../images/courseListExample.png';
-import pic2 from '../images/TimelineExample.png';
-import pic3 from '../images/TimelineExample2.png';
-import pic4 from '../images/uploadTranscriptExample.png';
-import pic5 from '../images/TimelineInitialExample.png';
+import pic2 from '../images/TimelineExample2.png';
+import pic3 from '../images/uploadTranscriptExample.png';
+import pic4 from '../images/TimelineInitialExample.png';
 
-const images = [pic1, pic2, pic3, pic4, pic5];
+const images = [pic1, pic2, pic3, pic4];
 
 const ImageCarousel = () => {
 
