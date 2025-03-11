@@ -17,7 +17,7 @@ const Footer = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({'message': feedback, 'user_id': ''}),
+        body: JSON.stringify({ 'message': feedback, 'user_id': '' }),
       });
 
       if (!response.ok) {
@@ -47,7 +47,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="footer">
+    <footer className="footer" style={{ position: 'relative', padding: '20px', minHeight: '60px' }}>
       {showPopup && (
         <div className="overlay" onClick={hidePopup}>
           <div className="popup" onClick={(e) => e.stopPropagation()}>
@@ -71,10 +71,17 @@ const Footer = () => {
         TrackMyDegree helps Concordia Engineering students visualize and plan
         their courses with an easy-to-use and interactive UI.
       </p>
-      <p className="footer-text" onClick={() => setShowPopup(true)} style={{textDecoration: 'underline', cursor: 'pointer'}}>Submit Feedback!</p>
+      <button
+        className="feedback-button"
+        onClick={() => setShowPopup(true)}
+        style={{ backgroundColor: 'red', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '16px', transition: 'background-color 0.3s ease', position: 'absolute', right: '20px', bottom: '10px' }}
+      >
+        Submit Feedback!
+      </button>
       {showAlert && <div className="alert">{showAlert}</div>}
     </footer>
   );
 };
+
 
 export default Footer;
