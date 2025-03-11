@@ -156,12 +156,17 @@ const UserPage = ({ onDataProcessed }) => {
 
           const data = await response.json();
 
-          // Sort by modified date in descending order
-          const sortedTimelines = data.sort(
-            (a, b) => new Date(b.last_modified) - new Date(a.last_modified)
-          );
+          if (Array.isArray(data)) {
+            // Sort by modified date in descending order
+            const sortedTimelines = data.sort(
+              (a, b) => new Date(b.last_modified) - new Date(a.last_modified)
+            );
 
-          setUserTimelines(sortedTimelines);
+            setUserTimelines(sortedTimelines);
+          }
+          else {
+            setUserTimelines([]);
+          }
         } catch (e) {
           console.error("Error updating user info:", e);
         }
