@@ -559,7 +559,7 @@
     },
     {
         "title": "SOEN 390 Software Engineering Team Design Project (3.5 credits)",
-        "credits": 0,
+        "credits": 3.5,
         "prerequisites": "",
         "corequisites": "SOEN 345, SOEN 357 ",
         "description": "Students work in teams to design and implement a software project from requirements provided by the coordinator. Each team will demonstrate the software and the testing of the software, and prepare adequate documentation for it. In addition, each team will generate a report based on the process of development.",
