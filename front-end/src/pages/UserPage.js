@@ -249,10 +249,10 @@ const UserPage = ({ onDataProcessed }) => {
                     <div className="text-center text-gray-400 text-sm font-semibold"> {/* Increased text size */}
                       <p>User</p>
                     </div>
-                    <table className="text-sm my-4"> {/* Increased text size and margin */}
+                    <table className="text-sm my-4">
                       <tbody>
                         <tr>
-                          <td className="px-3 py-2 text-gray-500 font-semibold">Full Name</td> {/* Increased padding */}
+                          <td className="px-3 py-2 text-gray-500 font-semibold">Full Name</td>
                           <td className="px-3 py-2">{userInfo[0]?.value || "NULL"}</td>
                         </tr>
                         <tr>
