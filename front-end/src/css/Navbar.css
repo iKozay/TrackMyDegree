@@ -1,6 +1,5 @@
 /* Navbar.css */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap');
 
 .custom-navbar {
   background-color: #912338;
@@ -15,25 +14,8 @@
   margin-left: 18px;
 }
 
-
-.logo-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
-  width: 100%;
-  padding: 20px;
-}
-
 .brand-text {
   display: inline-block;
-  font-family: Montserrat ;
-  color: #e7eadc;
-  font-size: 40px;
-  font-weight: bold;
-  align-items: center;
-  gap: 10px;
-  text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
 }
 
 .brand-emoji {
