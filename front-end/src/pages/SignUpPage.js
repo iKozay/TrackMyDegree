@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Button from 'react-bootstrap/Button';
-import Dropdown from "react-bootstrap/Dropdown";
 import {motion} from "framer-motion"
 
 function SignUpPage() {
@@ -15,7 +14,7 @@ function SignUpPage() {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const [error, setError] = useState(null); // To handle error messages
-  const [loading, setLoading] = useState(false); // To handle loading state
+  //const [loading, setLoading] = useState(false); // To handle loading state
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -47,7 +46,7 @@ function SignUpPage() {
       return;
     }
 
-    setLoading(true); // Start loading
+    //setLoading(true); // Start loading
 
     try {
       const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/signup`, {
@@ -80,7 +79,7 @@ function SignUpPage() {
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false); // End loading
+      //setLoading(false); // End loading
     }
   };
 
