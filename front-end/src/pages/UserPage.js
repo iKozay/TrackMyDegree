@@ -17,8 +17,9 @@ const UserPage = ({ onDataProcessed }) => {
   const { user } = useContext(AuthContext);
   const [userInfo, setUserInfo] = useState([]);
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedUserInfo, setEditedUserInfo] = useState(null);
+  // Commented out edit modde code
+  //const [isEditing, setIsEditing] = useState(false);
+  //const [editedUserInfo, setEditedUserInfo] = useState(null);
 
   const navigate = useNavigate();
 
@@ -31,22 +32,23 @@ const UserPage = ({ onDataProcessed }) => {
     }
   }, [user]);
 
-  useEffect(() => {
+  // Commented out edit modde code
+  /*useEffect(() => {
     if (userInfo) {
       setEditedUserInfo(userInfo.map((item) => item.value));
     }
-  }, [userInfo]);
+  }, [userInfo]);*/
 
-  const startEditing = () => {
+  /*const startEditing = () => {
     setIsEditing(true);
-  };
+  };*/
 
-  const cancelEditing = () => {
+  /*const cancelEditing = () => {
     setEditedUserInfo(userInfo.map((item) => item.value));
     setIsEditing(false);
-  };
+  };*/
 
-  const saveChanges = async () => {
+  /*const saveChanges = async () => {
     // add way to save changes here
     const updatedInfo = userInfo.map((item, index) => ({
       ...item,
@@ -86,7 +88,7 @@ const UserPage = ({ onDataProcessed }) => {
       console.error("Error updating user info:", error);
       setIsEditing(false);
     }
-  };
+  };*/
 
   const handleTimelineClick = (obj) => {
     const transcriptData = [];
@@ -119,11 +121,12 @@ const UserPage = ({ onDataProcessed }) => {
     navigate("/timeline_change");
   };
 
-  const handleInputChange = (e, index) => {
+  // Commented out edit modde code
+  /*const handleInputChange = (e, index) => {
     const updatedValues = [...editedUserInfo];
     updatedValues[index] = e.target.value;
     setEditedUserInfo(updatedValues);
-  };
+  };*/
 
   // add way to get user timelines here
   const [userTimelines, setUserTimelines] = useState([]);
