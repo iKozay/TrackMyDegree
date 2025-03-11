@@ -137,6 +137,12 @@ ON DegreeXCoursePool (degree);
 CREATE NONCLUSTERED INDEX idx_CourseXCoursePool_coursepool
 ON CourseXCoursePool (coursepool);
 
+-- Index on Requisite for joining on code1
+CREATE NONCLUSTERED INDEX idx_Requisite_code1
+ON Requisite (code1);
+
+CREATE NONCLUSTERED INDEX idx_Requisite_code2
+ON Requisite (code2);
 
 
 -- Insert sample values into tables
