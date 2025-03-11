@@ -46,6 +46,7 @@ services:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=MySecureP@ss123
       - MSSQL_PID=Developer
+      - CORS_ORIGIN=http://167.71.165.174:3000
     ports:
       - "1433:1433"
     volumes:
