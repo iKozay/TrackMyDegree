@@ -4,7 +4,7 @@ DegreeName=BCompSc Computer Science
 TotalCredits=90
 
 
-[Computer Science Core (90 credits)]
+[Computer Science Core (33 credits)]
 COMP 228
 COMP 232
 COMP 233
