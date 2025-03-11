@@ -35,6 +35,12 @@
   justify-content: space-between;
 }
 
+.course-list-container-timeline {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 1rem;
+}
+
 .course-list-container {
   display: grid !important;
   grid-template-columns: repeat(4, 1fr);

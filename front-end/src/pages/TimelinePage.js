@@ -1230,7 +1230,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
                           className="course-search-input"
                         />
 
-                        <div className="course-list-container">
+                        <div className="course-list-container-timeline">
 
                           <Droppable id="courseList" className="course-list" style={"color=red"}>
                             <Accordion>
