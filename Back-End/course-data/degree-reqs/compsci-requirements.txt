@@ -1,5 +1,5 @@
 # Metadata
-DegreeID=CompSc-BCompSc
+DegreeID=CompSci
 DegreeName=BCompSc Computer Science
 TotalCredits=90
 
