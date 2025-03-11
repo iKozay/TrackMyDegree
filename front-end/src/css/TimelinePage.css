@@ -44,6 +44,13 @@
   
 }
 
+.course-list-container-timeline {
+  max-height: 400px;  /* Adjust height as needed */
+  overflow-y: auto;    /* Enables vertical scrolling */
+  padding-right: 10px; /* Optional: Prevent scrollbar from covering content */
+  border: 1px solid #ccc;  /* Optional: Adds a border for styling */
+  /*background-color: #f9f9f9; /* Optional: Adds background color */
+}
 
 
 
