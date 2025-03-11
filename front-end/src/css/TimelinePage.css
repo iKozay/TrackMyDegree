@@ -45,7 +45,7 @@
 }
 
 .course-list-container-timeline {
-  max-height: 400px;  /* Adjust height as needed */
+  max-height: 500px;  /* Adjust height as needed */
   overflow-y: auto;    /* Enables vertical scrolling */
   padding-right: 10px; /* Optional: Prevent scrollbar from covering content */
   border: 1px solid #ccc;  /* Optional: Adds a border for styling */
