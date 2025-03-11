@@ -125,6 +125,20 @@ CREATE TABLE Feedback (
     FOREIGN KEY (user_id) REFERENCES AppUser(id) ON DELETE SET NULL
 );
 
+-- ================================================
+-- Index Creation for Performance Improvement
+-- ================================================
+
+-- Index on DegreeXCoursePool for filtering by degree
+CREATE NONCLUSTERED INDEX idx_DegreeXCoursePool_degree
+ON DegreeXCoursePool (degree);
+
+-- Index on CourseXCoursePool for joining on coursepool
+CREATE NONCLUSTERED INDEX idx_CourseXCoursePool_coursepool
+ON CourseXCoursePool (coursepool);
+
+
+
 -- Insert sample values into tables
 
 -- Corrected INSERT statements
