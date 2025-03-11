@@ -8,6 +8,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
+import {motion} from "framer-motion"
+
 
 function LogInPage() {
   const [email, setEmail] = useState("");
@@ -40,7 +42,7 @@ function LogInPage() {
     setLoading(true); // Start loading
 
     try {
-      const response = await fetch("http://localhost:8000/auth/login", {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -60,7 +62,6 @@ function LogInPage() {
       const data = await response.json();
 
       // Assuming the API returns an authentication token and user data
-      // You might want to store the token in context or localStorage here
       login(data); // Pass the received data to the login function
       navigate("/user"); // Redirect to the user page
     } catch (err) {
@@ -71,19 +72,25 @@ function LogInPage() {
   };
 
   return (
+    <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.7 }}
+  >
     <>
       {/* <Navbar /> Include Navbar if needed */}
       <div className="LogInPage">
         <div className="container my-5 sign-in-container">
-          <h2 className="text-center mb-4">Sign In</h2>
+          <h2 className="text-center mb-7">Sign In</h2>
           <form onSubmit={handleLogin}>
             {/* Email Field */}
             <div className="mb-3">
               <label htmlFor="email" className="form-label">Email address</label>
-              <input 
-                type="email" 
-                className="form-control" 
-                id="email" 
+              <input
+                type="email"
+                className="form-control"
+                id="email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -93,10 +100,10 @@ function LogInPage() {
             {/* Password Field */}
             <div className="mb-3">
               <label htmlFor="password" className="form-label">Password</label>
-              <input 
-                type="password" 
-                className="form-control" 
-                id="password" 
+              <input
+                type="password"
+                className="form-control"
+                id="password"
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -112,10 +119,10 @@ function LogInPage() {
 
             {/* Submit Button */}
             <div className="d-grid gap-2">
-              <Button 
-                className="button-outline" 
-                variant="primary" 
-                type="submit" 
+              <Button
+                className="button-outline"
+                variant="primary"
+                type="submit"
                 disabled={loading}
               >
                 {loading ? "Logging in..." : "Submit"}
@@ -131,6 +138,7 @@ function LogInPage() {
       </div>
       {/* <Footer /> Include Footer if needed */}
     </>
+    </motion.div>
   );
 }
 

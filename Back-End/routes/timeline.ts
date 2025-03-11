@@ -1,138 +1,98 @@
 import express, { Request, Response } from "express";
-import timelineController             from "@controllers/timelineController/timelineController";
-import TimelineTypes                  from "@controllers/timelineController/timeline_types";
-import DB_OPS                         from "@Util/DB_Ops";
-import HTTP                           from "@Util/HTTPCodes";
+import timelineController from "@controllers/timelineController/timelineController";
+import HTTP from "@Util/HTTPCodes";
 
 const router = express.Router();
 
-router.post('/create', async (req: Request, res: Response) => {
-  const payload: TimelineTypes.UserTimeline = req.body;                                                         
-
-  if( ( ! payload ) || ( Object.keys(payload).length < 2 ) ) {
-    res.status(HTTP.BAD_REQUEST).json
-    ({ error: "Payload of type UserTimeline is required for create." });
-
+// Save (or update) a timeline. 
+// The entire timeline (including items and courses) is passed in the JSON body.
+router.post("/save", async (req: Request, res: Response) => {
+  const timeline = req.body;
+  if (!timeline) {
+    res.status(HTTP.BAD_REQUEST).json({ error: "Timeline data is required" });
     return;
   }
 
   try {
-    const response  = await timelineController.createTimeline(payload);
-  
-    if( DB_OPS.SUCCESS === response ) {
-      res.status(HTTP.CREATED).json
-      ({ res: "All courses added to user timeline" });
-    } 
-    if( DB_OPS.MOSTLY_OK === response ) {
-      res.status(HTTP.CREATED).json
-      ({ res: "Some courses were not added to user timeline" });
+    const savedTimeline = await timelineController.saveTimeline(timeline);
+    if (savedTimeline) {
+      res.status(HTTP.OK).json(savedTimeline);
+    } else {
+      res.status(HTTP.SERVER_ERR).json({ error: "Could not save timeline" });
     }
-    if( DB_OPS.FAILURE === response ) {
-      throw new Error("Error in establishing connection to database");
-    }
-  } 
-  catch (error) {
-    console.error("Error in /timeline/create", error);
-    res.status(HTTP.SERVER_ERR).json
-    ({ error: "Timeline could not be created" });
+  } catch (error) {
+    console.error("Error in /timeline/save", error);
+    res.status(HTTP.SERVER_ERR).json({ error: "Could not save timeline" });
   }
 });
 
-router.post('/getAll', async (req: Request, res: Response) => {
-  const payload = req.body;
-
-  if( ( ! payload ) || ( Object.keys(payload).length < 1 ) ) {
-    res.status(HTTP.BAD_REQUEST).json
-    ({ error: "User ID is required to get timeline." });
-
+router.post("/getAll", async (req: Request, res: Response) => {
+  const { user_id } = req.body;
+  if (!user_id) {
+    res.status(HTTP.BAD_REQUEST).json({ error: "User ID is required" });
     return;
   }
-
-  if( ! payload.user_id ) {
-    res.status(HTTP.BAD_REQUEST).json
-    ({ error: "Payload attributes cannot be empty" });
-
-    return;
-  }
-
-  const { user_id } = payload;
 
   try {
-    const result = await timelineController.getAllTimelines(user_id);
-    
-    if( (result) && (result.timeline_items.length > 0) ) {
-      const { timeline_items } = result;
-      let timelines: any       = {};
-
-      for(let i = 0; i < timeline_items.length; i++) {
-        const { season, year } = timeline_items[i];
-        const semesters        = Object.keys(timelines);
-        const current_semester = season + " " + year;
-
-        if( ! semesters.find( item => item === current_semester ) ) {
-          timelines[current_semester] = [];
-        }
-
-        timelines[current_semester].push({
-          timeline_item_id : timeline_items[i].id,
-          coursecode       : timeline_items[i].coursecode
-        });
-        
-      }
-
+    const timelines = await timelineController.getTimelinesByUser(user_id);
+    if (timelines && timelines.length > 0) {
       res.status(HTTP.OK).json(timelines);
-    }
-    else {
+    } else {
       res.status(HTTP.NOT_FOUND).json({ error: "No timelines found" });
     }
-
-  } catch ( error ) {
-    console.error("Error in /timeline/get", error);
-    res.status(HTTP.SERVER_ERR).json
-    ({ error: "Timeline could not be fetched" });
+  } catch (error) {
+    console.error("Error in /timeline/getAll", error);
+    res.status(HTTP.SERVER_ERR).json({ error: "Could not retrieve timelines" });
   }
 });
 
-router.post('/delete', async (req: Request, res: Response) => {
-  const payload = req.body;
 
-  if( ( ! payload ) || ( Object.keys(payload).length < 1 ) ) {
-    res.status(HTTP.BAD_REQUEST).json
-    ({ error: 
-    "Timeline item ID is required to remove item from timeline." });
+// Get all timelines for a given user (via JSON body)
+// router.post("/getAll", async (req: Request, res: Response) => {
+//   const { user_id } = req.body;
+//   if (!user_id) {
+//     res.status(HTTP.BAD_REQUEST).json({ error: "User ID is required" });
+//     return;
+//   }
 
+//   try {
+//     const timelines = await timelineController.getTimelinesByUser(user_id);
+//     if (timelines && timelines.length > 0) {
+//       res.status(HTTP.OK).json(timelines);
+//     } else {
+//       res.status(HTTP.NOT_FOUND).json({ error: "No timelines found" });
+//     }
+//   } catch (error) {
+//     console.error("Error in /timeline/getAll", error);
+//     res.status(HTTP.SERVER_ERR).json({ error: "Could not retrieve timelines" });
+//   }
+// });
+
+
+router.post("/delete", async (req: Request, res: Response) => {
+  const { timeline_id } = req.body;
+
+  if (!timeline_id) {
+    res.status(HTTP.NOT_FOUND).json({ error: "Timeline ID is required" });
     return;
   }
-
-  if( ! payload.timeline_item_id ) {
-    res.status(HTTP.BAD_REQUEST).json
-    ({ error: "Payload attributes cannot be empty" });
-
-    return;
-  }
-
-  const { timeline_item_id } = payload;
 
   try {
-    const response = await timelineController
-                  .removeTimelineItem(timeline_item_id);
-
-    if( DB_OPS.SUCCESS === response ) {
-      res.status(HTTP.OK).json({ message: "Item removed from timeline" });
-    } 
-    if( DB_OPS.MOSTLY_OK === response ) {
-      res.status(HTTP.NOT_FOUND).json({ error: "Item not found in timeline" });
+    const result = await timelineController.removeUserTimeline(timeline_id);
+    if (!result){
+      res.status(HTTP.NOT_FOUND).json({ message: result });
     }
-    if( DB_OPS.FAILURE === response ) {
-      throw new Error("Timeline item could not be deleted");
+    if (result.includes("deleted successfully")) {
+      res.status(HTTP.OK).json({ message: result });
+    } else if (result.includes("No timeline found")) {
+      res.status(HTTP.NOT_FOUND).json({ error: result });
+    } else {
+      res.status(HTTP.NOT_FOUND).json({ error: "Internal Server Error" });
     }
-
-  } catch ( error ) {
+  } catch (error) {
     console.error("Error in /timeline/delete", error);
-    res.status(HTTP.SERVER_ERR).json
-    ({ error: "Timeline item could not be deleted" });
+    res.status(HTTP.SERVER_ERR).json({ error: "Failed to delete timeline" });
   }
-
 });
 
 export default router;

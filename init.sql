@@ -1,13 +1,17 @@
--- Active: 1731210639535@@localhost@1433@master
+--Active: 1731210639535@@localhost@1433@master
+
+
 CREATE TABLE Degree (
   id VARCHAR(255) PRIMARY KEY,
   name VARCHAR(255) UNIQUE NOT NULL,
-  totalCredits INT NOT NULL
+  totalCredits FLOAT NOT NULL,
+  isAddon BIT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE Course (
   code VARCHAR(7) NOT NULL,
-  credits INT NOT NULL,
+  title VARCHAR(255),
+  credits FLOAT NOT NULL,
   description VARCHAR(2055) NOT NULL,
   PRIMARY KEY (code)
 );
@@ -18,7 +22,7 @@ CREATE TABLE Requisite (
     code2 VARCHAR(7),                    -- Prerequisite course (NULL if credit-based)
     type VARCHAR(3) CHECK (type IN ('pre', 'co')), -- 'pre' for prerequisite, 'co' for corequisite
     group_id VARCHAR(255),               -- Identifier for groups of alternative requisites
-    creditsRequired INT,                 -- Number of credits required (NULL if course-based)
+    creditsRequired FLOAT,                 -- Number of credits required (NULL if course-based)
     FOREIGN KEY (code1) REFERENCES Course(code),
     FOREIGN KEY (code2) REFERENCES Course(code),
     CONSTRAINT UC_Requisite UNIQUE (code1, code2, type, group_id, creditsRequired),
@@ -38,7 +42,7 @@ CREATE TABLE DegreeXCoursePool (
   id VARCHAR(255) PRIMARY KEY,
   degree VARCHAR(255),
   coursepool VARCHAR(255),
-  creditsRequired INT NOT NULL,
+  creditsRequired FLOAT NOT NULL,
   UNIQUE(degree, coursepool),
   FOREIGN KEY (degree) REFERENCES Degree(id),
   FOREIGN KEY (coursepool) REFERENCES CoursePool(id) ON DELETE CASCADE
@@ -67,20 +71,38 @@ CREATE TABLE AppUser (  -- Use square brackets for reserved keywords
 
 CREATE TABLE Timeline (
     id VARCHAR(255) PRIMARY KEY,
-    season VARCHAR(10) CHECK (season IN ('fall', 'winter', 'summer1', 'summer2', 'fall/winter', 'summer')) NOT NULL,
-    year INT NOT NULL,
-    coursecode VARCHAR(7) NOT NULL,
     user_id VARCHAR(255) NOT NULL,
-    UNIQUE(user_id, coursecode, season, year),
-    FOREIGN KEY (coursecode) REFERENCES Course(code), -- Composite foreign key
-    FOREIGN KEY (user_id) REFERENCES AppUser (id)  -- Adjusted foreign key reference
+    degree_id VARCHAR(255) NOT NULL,  -- New column for the associated degree
+    name VARCHAR(100) NOT NULL,
+    isExtendedCredit BIT NOT NULL DEFAULT 0,
+    last_modified DATETIME2,
+    FOREIGN KEY (user_id) REFERENCES AppUser (id) ON DELETE CASCADE,
+    FOREIGN KEY (degree_id) REFERENCES Degree(id)
+);
+
+
+CREATE TABLE TimelineItems (
+    id VARCHAR(255) PRIMARY KEY,
+    timeline_id VARCHAR(255) NOT NULL,    -- Belongs to a specific timeline
+    season VARCHAR(11) CHECK (season IN ('fall', 'winter', 'summer1', 'summer2', 'fall/winter', 'summer', 'exempted')) NOT NULL,
+    year INT NOT NULL, 
+    UNIQUE(timeline_id, season, year),
+    FOREIGN KEY (timeline_id) REFERENCES Timeline(id) ON DELETE CASCADE
+);
+
+CREATE TABLE TimelineItemXCourses (
+    timeline_item_id VARCHAR(255) NOT NULL,
+    coursecode VARCHAR(7) NOT NULL,
+    PRIMARY KEY (timeline_item_id, coursecode),
+    FOREIGN KEY (timeline_item_id) REFERENCES TimelineItems(id) ON DELETE CASCADE,
+    FOREIGN KEY (coursecode) REFERENCES Course(code)
 );
 
 CREATE TABLE Deficiency (
     id VARCHAR(255) PRIMARY KEY,
     coursepool VARCHAR(255),
     user_id VARCHAR(255),
-    creditsRequired INT NOT NULL,
+    creditsRequired FLOAT NOT NULL,
     UNIQUE(user_id, coursepool),
     FOREIGN KEY (coursepool) REFERENCES CoursePool(id),
     FOREIGN KEY (user_id) REFERENCES AppUser (id)
@@ -95,6 +117,13 @@ CREATE TABLE Exemption (
     FOREIGN KEY (user_id) REFERENCES AppUser (id)
 );
 
+CREATE TABLE Feedback (
+    id VARCHAR(255) PRIMARY KEY,
+    user_id VARCHAR(255) NULL,  -- Nullable since the user may not be logged in
+    message TEXT NOT NULL,
+    submitted_at DATETIME2 DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES AppUser(id) ON DELETE SET NULL
+);
 
 -- Insert sample values into tables
 
@@ -106,10 +135,10 @@ CREATE TABLE Exemption (
 --        ('2', 'Bachelor of Arts in Business Administration', 120);
 
 -- -- Course table
--- INSERT INTO Course (code, credits, description)
--- VALUES ('COMP335', 3, 'Introduction to Programming'),
---        ('SOEN363', 3, 'Database Systems'),
---        ('SOEN287', 3, 'Web Development');
+INSERT INTO Course (code, credits, description)
+VALUES ('COMP335', 3, 'Introduction to Programming'),
+       ('SOEN363', 3, 'Database Systems'),
+        ('SOEN287', 3, 'Web Development');
 
 -- -- Requisite table
 -- INSERT INTO Requisite (id, code1, code2, type)

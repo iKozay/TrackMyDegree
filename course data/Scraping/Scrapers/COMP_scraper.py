@@ -4,30 +4,24 @@ import requests
 
 # URL of the Concordia Computer Science courses page
 url = "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-70-department-of-computer-science-and-software-engineering/section-71-70-10-computer-science-and-software-engineering-courses.html#3645"
-# Fetch the webpage content
 response = requests.get(url)
+
 if response.status_code != 200:
     print(f"Failed to fetch the webpage. Status code: {response.status_code}")
     exit()
 
-html_content = response.text
+# Use response.content to retain raw bytes for proper decoding
+soup = BeautifulSoup(response.content, 'html.parser')
 
-# Parse the HTML content
-soup = BeautifulSoup(html_content, 'html.parser')
-
-# Prepare the list to hold extracted course data
 courses = []
-
-# Extract course blocks based on the structure
 course_blocks = soup.find_all('div', class_='course')
 
-# Process each course block
 for block in course_blocks:
     try:
-        # Extract the course title and credits
         title_element = block.find('h3', class_='accordion-header xlarge')
         if title_element:
-            title_text = title_element.get_text(strip=True)
+            # Replace non-breaking hyphen (U+2011) with standard dash
+            title_text = title_element.get_text(strip=True).replace('\u2011', '-')
             title_parts = title_text.split('(')
             title = title_parts[0].strip()
             try:
@@ -39,9 +33,19 @@ for block in course_blocks:
             title = None
             credits = None
 
-        # Extract the description
+        # Extract the description with proper spacing and punctuation
         description_element = block.find('div', class_='accordion-body')
-        full_text = description_element.get_text(strip=True) if description_element else ""
+        if description_element:
+            full_text = ""
+            for element in description_element:
+                if element.name == "a":  # Handle hyperlinks
+                    full_text += f" {element.get_text(strip=True)} "  # Add spaces around hyperlinks
+                else:  # Handle regular text and punctuation
+                    text = element.get_text(strip=False)  # Preserve spaces and punctuation
+                    full_text += text
+            full_text = " ".join(full_text.split())  # Clean up extra spaces
+        else:
+            full_text = ""
 
         # Separate prerequisites, corequisites, description, and components
         prereq_text = ""
@@ -88,9 +92,8 @@ for block in course_blocks:
         courses.append(course_data)
 
     except Exception as e:
-        print(f"Error processing course block: {e}")
-
-# Save the data to a JSON file
+        print(f"Error processing course block: {e}")# Save the data to a JSON file
+        
 output_path = 'COMP_courses.json'
 with open(output_path, 'w', encoding='utf-8') as json_file:
     json.dump(courses, json_file, indent=4, ensure_ascii=False)

@@ -11,7 +11,8 @@
 
 .course-list {
   background-color: #f0f0f0;
-  padding: 10px;
+  padding-right: 5px;
+  padding-left: 5px;
   border-radius: 5px;
   max-height: 90%;
 }
@@ -24,15 +25,27 @@
 
 .timeline-left-bar {
   background-color: #f0f0f0;
-  padding: 10px;
+  /* padding: 10px; */
   border-radius: 25px;
-  max-height: 100%;
   align-items: center;
   width: 300px;
   transition: width 0.3s ease, transform 0.3s ease;
-  overflow: auto;
+  overflow: hidden; /* Prevent scrolling on this element */
   position: relative;
 }
+
+
+.course-list-container {
+  /* border-radius: 25px; */
+  max-height: 500px; /* or any value that suits your design */
+  /* border-radius: 5px; */
+  overflow-y: auto;
+  margin: 15px;
+  
+}
+
+
+
 
 .timeline-left-bar.hidden {
   width: 10px;
@@ -83,11 +96,36 @@
   flex-grow: 1;
   display: flex;
   gap: 15px;
-  overflow-x: scroll;
   padding: 10px;
   margin: 0px;
   width: 100%;
   height: min-content;
+}
+
+.timeline-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+  transition: background-color 0.3s ease;
+}
+
+.timeline-scroll-wrapper.scrolling {
+  background-color: rgba(200, 200, 200, 0.2);
+}
+
+.timeline-scroll-wrapper::-webkit-scrollbar {
+  height: 8px; /* or adjust to your liking */
+}
+.timeline-scroll-wrapper::-webkit-scrollbar-thumb {
+  background-color: lightgray;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+.timeline-scroll-wrapper::-webkit-scrollbar-track {
+  background-color: rgba(145, 35, 56, 0.1);
+  border-radius: 10px;
 }
 
 .timeline-middle-section {
@@ -137,13 +175,16 @@
   color: #f8f9fa;
 }
 
+
 .description-section::-webkit-scrollbar,
-.timeline-left-bar::-webkit-scrollbar {
+.course-list-container::-webkit-scrollbar {
   width: 5px;
+  
+  
 }
 
 .description-section::-webkit-scrollbar-thumb,
-.timeline-left-bar::-webkit-scrollbar-thumb {
+.course-list-container::-webkit-scrollbar-thumb {
   background-color: lightgray;
   border-radius: 5px;
 }
@@ -266,10 +307,6 @@
   flex-direction: column;
   align-items: center; /* Centers items horizontally */
   justify-content: center; /* Centers items vertically */
-}
-
-.no-scroll {
-  overflow: hidden !important;
 }
 
 .credits-display {
@@ -439,7 +476,7 @@
   width: min-content;
   height: min-content;
   white-space: nowrap;
-  background-color: rgba(156, 143, 143, 0.8);
+  background-color: lightgray;
   padding: 1px 10px;
   border-radius: 25px;
   color: #fff;
@@ -452,7 +489,7 @@
 }
 
 .add-semester-button:hover {
-  background-color: rgb(156, 143, 143);
+  background-color: #c8c8c8;
 }
 
 /*
@@ -538,4 +575,92 @@
   100% {
     transform: translate(0, 0);
   }
+}
+
+/* General button styles */
+.save-timeline-button {
+  background-color: #800020; /* Green background */
+  color: white; /* White text */
+  border: none; /* Remove border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 10px 20px; /* Padding for size */
+  font-size: 16px; /* Text size */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth transition for background color */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Hover effect */
+.save-timeline-button:hover {
+  background-color: #45a049; /* Darker green on hover */
+}
+
+/* Focus effect for accessibility */
+.save-timeline-button:focus {
+  outline: 2px solid #fff; /* White outline on focus */
+  outline-offset: 2px;
+}
+
+.course-search-input {
+  display:block;
+  margin: 0 auto;
+  width: 90%;
+  max-width: 300px;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 30px;
+  background: linear-gradient(45deg, #f9f9f9, #ffffff);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  outline: none;
+}
+
+.course-search-input:focus {
+  border-color: #6a5acd; /* Slate blue */
+  box-shadow: 0 0 10px rgba(106, 90, 205, 0.5);
+}
+
+.course-search-input:hover {
+  border-color: #8a2be2; /* Blue violet */
+}
+
+.course-search-input::placeholder {
+  color: #999;
+  opacity: 0.8;
+}
+
+.remove-course-btn {
+  background: none;
+  margin-left: auto;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  transition: transform 0.2s ease-in-out;
+}
+
+.remove-course-btn:hover {
+  transform: scale(1.2);
+  filter: drop-shadow(0px 0px 5px rgba(255, 0, 0, 0.6));
+}
+
+
+.remove-course-btn:active {
+  transform: scale(1.1); 
+  filter: brightness(1.5);
+}
+
+.hidden-accordion {
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  overflow: hidden;
+  display: none;
+}
+
+.hidden-course {
+  display: none;
 }

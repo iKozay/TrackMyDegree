@@ -205,5 +205,51 @@
         "description": "This course may be offered in a given year upon the authorization of the Mechanical, Industrial and Aerospace Engineering Department. The course content may vary from offering to offering and will be chosen to complement the elective courses available in the Industrial Engineering program.",
         "components": "Lecture 3 hours per week",
         "notes": null
+    },
+    {
+        "title": "BSTA 478 Data Mining Techniques",
+        "credits": 3,
+        "prerequisites": "COMM 214",
+        "corequisites": "",
+        "description": "The course covers essential ideas and techniques for extracting information from large amounts of data. It discusses both supervised and unsupervised methods, and covers topics such as dimension reduction, multiple regression, logistic regression, discriminant analysis, classification and regression trees, neural networks, association rules, cluster analysis and multi-dimensional scaling. Illustrations of the concepts and methods are given, and students gain practical experience in data mining with the use of popular data mining software.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for DESC 478 may not take this course for credit."
+    },
+    {
+        "title": "COMM 213 Computing and Visualization Tools for Business Analytics",
+        "credits": 1.5,
+        "prerequisites": "ECON 201",
+        "corequisites": "",
+        "description": "This course introduces some of the fundamental skills of data analytics tools, useful in a business environment. Students learn how to use the software, to manipulate data, combine data sets and to create appropriate visualization and dashboards. Lectures, assignments, quizzes, and/or exams are employed in this course.",
+        "components": "Lecture",
+        "notes": ""
+    },
+    {
+        "title": "COMM 214 Business Analytics",
+        "credits": 3,
+        "prerequisites": "MATH 208; MATH 209",
+        "corequisites": "COMM 213",
+        "description": "This course introduces the fundamentals of analytics as applied to the various areas of business. Topics include basic concepts of big data, exploratory statistical data analysis, prediction modelling, and data visualization. Practical usages of the methodologies are demonstrated via assignments and projects based on data from various functional areas of business.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for COMM 215 may not take this course for credit."
+    },
+    {
+        "title": "BTM 480 Project Management",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course covers the theory, tools, and techniques associated with the management of projects including the use of project management software. Cases from various business contexts are used to illustrate essential steps in setting up project plans, scheduling work, monitoring progress, and exercising control to achieve desired results. The course integrates the Project Management Body of Knowledge with the Project Management Institute’s certification requirements.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for DESC 483 or for this topic under a DESC 490 number may not take this course for credit."
+    },
+    {
+        "title": "ACCO 220 Financial and Managerial Accounting",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course provides an introduction to accounting principles underlying the preparation of financial reports with an emphasis on the relationship between accounting information and production decisions. It examines the relationship between costs, production volume, and profit, as well as the practical benefits of standard costs for planning and control purposes. The role of accounting information in various manufacturing decisions is also highlighted.",
+        "components": "Lecture",
+        "notes": "John Molson School of Business students may not take this course for credit. This course would be useful to Engineering students. Students who have received credit for ACCO 230, ACCO 240 may not take this course for credit."
     }
+    
 ]

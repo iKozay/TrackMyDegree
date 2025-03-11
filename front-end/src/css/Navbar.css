@@ -1,6 +1,5 @@
 /* Navbar.css */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
-/* Import the Inter font */
 
 .custom-navbar {
   background-color: #912338;
@@ -9,10 +8,10 @@
 
 .custom-navbar .navbar-brand {
   font-family: "Inter", sans-serif;
-  font-weight: 600;
-  font-size: 48px;
+  font-weight: 500;
+  font-size: 45px;
   color: white;
-  margin-left: 20px;
+  margin-left: 18px;
 }
 
 .brand-text {
@@ -42,10 +41,11 @@
   padding-left: 10px;
   padding-right: 10px;
   border: #000;
+  font-size : 20px;
 }
 
 .custom-navbar .nav-link:hover {
-  color: #e74c3c !important;
+  color: #d5b453 !important;
 }
 
 .custom-navbar-height {
@@ -65,6 +65,12 @@
 .custom-nav-links {
   margin-left: 10vh;
   font-size: 24px;
+}
+
+.nav-separator {
+  margin: 0 10px;
+  color: #ecf0f1;
+  font-size: 28px;
 }
 
 .rounded {
@@ -105,7 +111,7 @@
   }
 
   .navbar-button {
-    width: 90%;
+    width: 100%;
     margin-bottom: 10px;
   }
 
@@ -168,7 +174,7 @@
 }
 
 .navbar-button {
-  font-family: "Inter", sans-serif;
+  font-family: Tahoma , sans-serif;
   font-weight: 700;
   font-size: 18px;
   padding: 10px 20px;
@@ -190,13 +196,57 @@
 }
 
 .navbar-button-register {
-  background-color: black;
-  color: white;
+  background-color: #ffffff;
+  color: #1c1717;
   border: 2px solid black;
   transition: all 0.3s ease;
 }
 
 .navbar-button-register:hover {
-  background-color: white;
-  color: black;
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+}
+
+.user-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.user-link {
+  display: flex;
+  align-items: center;
+  color: inherit;
+}
+
+.user-name {
+  font-size: 16px;
+  color: #ecf0f1;
+  text-decoration: none;
+  font-family: Tahoma , sans-serif;
+}
+
+.navbar-user {
+  background: none;
+  border: none;
+  outline: none;
+  color: inherit;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.navbar-user:hover .user-name {
+  color: #bdc3c7;
+}
+
+/* User icon styling */
+.user-icon {
+  width: 23px;
+  height: 23px;
+}
+
+.logout-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 2px;
 }

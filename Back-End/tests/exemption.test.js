@@ -62,7 +62,7 @@ describe("Exemption Routes", () => {
                 .expect(400);
 
             expect(response.body).toHaveProperty
-            ("error", "Invalid input. Please provide coursecode, and user_id as a string.");
+                ("error", "Invalid input. Please provide an array of course codes and a user_id as a string.");
         });
     });
 

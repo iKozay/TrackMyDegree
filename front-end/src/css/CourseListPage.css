@@ -15,9 +15,36 @@
   border-color: transparent !important;
 }
 
-.course-list-container {
+.cursor-pointer {
+  cursor: pointer;
+}
+
+
+.course-display-card {
+  border: 1px solid lightgray;
+  border-radius: 8px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 10px;
+  margin-right: 10px;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.course-list-container-timeline {
   display: grid !important;
   grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 1rem;
+}
+
+.course-list-container {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr);
+  /* 4 cards per line */
   gap: 1rem;
 }
 
@@ -27,28 +54,23 @@
   justify-content: space-between;
   align-items: center;
   text-align: center;
+  min-height: 175px;
+  /* Reduced height by 30% */
   height: 100%;
+  /* Ensures cards stretch to fit content */
   width: 100%;
+  /* Ensures each card takes up the full width of the grid cell */
   border: 1px solid lightgray;
   border-radius: 8px;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-}
-
-.cursor-pointer {
-  cursor: pointer;
+  overflow: hidden;
 }
 
 .course-list-card-body {
   text-align: center;
   padding: 15px 0 0 0;
-  /* TODO padding: 10px; */
-}
-
-.course-display-card {
-  border: 1px solid lightgray;
-  border-radius: 8px;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 10px;
-  margin-right: 10px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }

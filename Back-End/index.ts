@@ -17,6 +17,7 @@ import AppUser from "@routes/appUser";
 import userDataRouter from "@routes/userData";
 import Admin from "@routes/adminRoutes";
 import requisiteRouter from "@routes/requisite"
+import feedbackRouter from "@routes/feedback";
 
 
 //Dev Consts
@@ -35,6 +36,7 @@ const corsOptions: cors.CorsOptions = {
   ) => {
     const allowedOrigins = [
       "http://localhost:3000",
+      "http://159.65.216.141:3000",
       "chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld",
     ];
 
@@ -79,6 +81,7 @@ app.use("/coursepool", coursepoolRouter);
 app.use("/data", userDataRouter);
 app.use("/admin", Admin);
 app.use("/requisite", requisiteRouter);
+app.use("/feedback", feedbackRouter);
 
 /**
  * DB test route

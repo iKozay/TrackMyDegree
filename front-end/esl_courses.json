@@ -1,0 +1,47 @@
+[
+    {
+        "title": "ESL 202 Developing Academic English Language Skills",
+        "credits": 6,
+        "prerequisites": "Placement by the Concordia Comprehensive ESL Placement Test (ConCEPT) is required.",
+        "corequisites": "",
+        "description": "This course helps non-native-speaking students develop the language skills necessary for academic work through an integrated program of grammar, vocabulary, reading, and writing. The coursework enables students to build a wide range of vocabulary and grammatical structures and apply them to essential university tasks such as paraphrasing, expository writing, and processing academic texts.",
+        "components": "Workshop",
+        "notes": null
+    },
+    {
+        "title": "ESL 204 Refining Academic English Language Skills",
+        "credits": 6,
+        "prerequisites": "The following course must be completed previously: ESL 202 or placement by the Concordia Comprehensive ESL Placement Test (ConCEPT) is required.",
+        "corequisites": "",
+        "description": "This course helps non-native-speaking students strengthen their English language skills and apply them to high-level academic tasks such as critical reading, synthesizing, and integrated writing assignments. Attention is paid to analyzing patterns in written English and making appropriate language choices as well as identifying, integrating, and referencing appropriate academic source material.",
+        "components": "Workshop",
+        "notes": null
+    },
+    {
+        "title": "ESL 205 Academic Oral Communication I",
+        "credits": 3,
+        "prerequisites": "Placement by the Concordia Comprehensive ESL Placement Test (ConCEPT) is required.",
+        "corequisites": "",
+        "description": "This course helps students develop the oral skills necessary for speaking and listening in an English-speaking academic environment. The focus of the course is the improvement of students’ overall pronunciation skills, including native-like production of English speech at the level of individual sounds, words, and sentences, as well as the development of the listening skills necessary for effective oral communication. This course includes a multimedia language lab component.",
+        "components": "Workshop",
+        "notes": null
+    },
+    {
+        "title": "ESL 206 Academic Oral Communication II",
+        "credits": 3,
+        "prerequisites": "The following course must be completed previously: ESL 205 or placement by the Concordia Comprehensive ESL Placement Test (ConCEPT) is required.",
+        "corequisites": "",
+        "description": "This course helps students achieve greater intelligibility and fluency by practising oral communication skills in meaningful discourse, as part of communicative activities and public-speaking assignments. Emphasis is placed on the learning of speech phenomena at the discourse level such as production of native-like stress, rhythm, intonation, and speaking rate. This course includes a multimedia language lab component.",
+        "components": "Workshop",
+        "notes": null
+    },
+    {
+        "title": "ESL 298 Selected Topics in ESL",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Specific topics for this course, and relevant prerequisites, are stated in the Undergraduate Class Schedule.",
+        "components": null,
+        "notes": null
+    }
+]

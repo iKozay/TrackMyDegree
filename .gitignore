@@ -5,4 +5,6 @@ Back-End/dist
 package-lock.json
 node_modules
 .env
+myenv/
 .gitignore
+entrypoint-sql.sh

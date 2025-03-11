@@ -2,59 +2,72 @@ import Database from "@controllers/DBController/DBController"
 import ExemptionTypes from "@controllers/exemptionController/exemption_types"
 import { randomUUID } from "crypto"
 
-async function createExemption(
-  coursecode: string, 
+async function createExemptions(
+  coursecodes: string[],
   user_id: string
-): Promise<ExemptionTypes.Exemption | undefined> {
+): Promise<{ created: ExemptionTypes.Exemption[]; alreadyExists: string[] }> {
   const conn = await Database.getConnection();
+  const createdExemptions: ExemptionTypes.Exemption[] = [];
+  const alreadyExists: string[] = [];
 
   if (conn) {
     try {
-      // Check if a course exists
-      const existingCourseCode = await conn.request()
-        .input('code', Database.msSQL.VarChar, coursecode)
-        .query('SELECT * FROM Course WHERE code = @code');
-
-      if (existingCourseCode.recordset.length === 0) {
-        throw new Error(`Course with code '${coursecode}' does not exist.`);
-      }
-
-      // Check if a appUser exists
-      const existingUser_id = await conn.request()
+      // Check if the user exists
+      const existingUser = await conn.request()
         .input('id', Database.msSQL.VarChar, user_id)
         .query('SELECT * FROM AppUser WHERE id = @id');
 
-      if (existingUser_id.recordset.length === 0) {
+      if (existingUser.recordset.length === 0) {
         throw new Error(`AppUser with id '${user_id}' does not exist.`);
       }
 
-      // Check if a exemption with the same coursecode and user_id already exists
-      const existingExemption = await conn.request()
-        .input('coursecode', Database.msSQL.VarChar, coursecode)
-        .input('user_id', Database.msSQL.VarChar, user_id)
-        .query('SELECT * FROM Exemption WHERE coursecode = @coursecode AND user_id = @user_id');
+      for (const coursecode of coursecodes) {
+        // Check if the course exists
+        const existingCourse = await conn.request()
+          .input('code', Database.msSQL.VarChar, coursecode)
+          .query('SELECT * FROM Course WHERE code = @code');
 
-      if (existingExemption.recordset.length > 0) {
-        throw new Error('Exemption with this coursecode and user_id already exists.');
+        if (existingCourse.recordset.length === 0) {
+          throw new Error(`Course with code '${coursecode}' does not exist.`);
+        }
+
+        // Check if the exemption already exists
+        const existingExemption = await conn.request()
+          .input('coursecode', Database.msSQL.VarChar, coursecode)
+          .input('user_id', Database.msSQL.VarChar, user_id)
+          .query('SELECT * FROM Exemption WHERE coursecode = @coursecode AND user_id = @user_id');
+
+        if (existingExemption.recordset.length > 0) {
+          // Instead of throwing an error, add the coursecode to the alreadyExists array and continue.
+          alreadyExists.push(coursecode);
+          continue;
+        }
+
+        // Generate random id
+        const id = randomUUID();
+
+        // Insert the new exemption
+        await conn.request()
+          .input('id', Database.msSQL.VarChar, id)
+          .input('coursecode', Database.msSQL.VarChar, coursecode)
+          .input('user_id', Database.msSQL.VarChar, user_id)
+          .query('INSERT INTO Exemption (id, coursecode, user_id) VALUES (@id, @coursecode, @user_id)');
+
+        createdExemptions.push({ id, coursecode, user_id });
       }
 
-      // generate random id
-      const id = randomUUID();
-
-      await conn.request()
-        .input('id', Database.msSQL.VarChar, id)
-        .input('coursecode', Database.msSQL.VarChar, coursecode)
-        .input('user_id', Database.msSQL.VarChar, user_id)
-        .query('INSERT INTO Exemption (id, coursecode, user_id) VALUES (@id, @coursecode, @user_id)');
-
-      return { id, coursecode, user_id };
+      return { created: createdExemptions, alreadyExists };
     } catch (error) {
       throw error;
     } finally {
-      conn.close()
+      conn.close();
     }
   }
-};
+
+  return { created: [], alreadyExists: [] };
+}
+
+
 
 
 async function getAllExemptionsByUser(user_id: string): Promise<ExemptionTypes.Exemption[] | undefined> {
@@ -62,8 +75,8 @@ async function getAllExemptionsByUser(user_id: string): Promise<ExemptionTypes.E
 
   if (conn) {
     try {
-        // Check if a appUser exists
-        const existingUser_id = await conn.request()
+      // Check if a appUser exists
+      const existingUser_id = await conn.request()
         .input('id', Database.msSQL.VarChar, user_id)
         .query('SELECT * FROM AppUser WHERE id = @id');
 
@@ -76,12 +89,12 @@ async function getAllExemptionsByUser(user_id: string): Promise<ExemptionTypes.E
         .input('user_id', Database.msSQL.VarChar, user_id)
         .query('SELECT * FROM Exemption WHERE user_id = @user_id');
 
-      
-        if (allExemptions.recordset.length === 0) {
-          throw new Error(`No exemptions found for user with id '${user_id}'.`);
-        }
 
-        return allExemptions.recordset;
+      if (allExemptions.recordset.length === 0) {
+        throw new Error(`No exemptions found for user with id '${user_id}'.`);
+      }
+
+      return allExemptions.recordset;
     } catch (error) {
       throw error;
     } finally {
@@ -91,8 +104,8 @@ async function getAllExemptionsByUser(user_id: string): Promise<ExemptionTypes.E
 };
 
 async function deleteExemptionByCoursecodeAndUserId(
-  coursecode: string, 
-  user_id: string, 
+  coursecode: string,
+  user_id: string,
 ): Promise<string | undefined> {
   const conn = await Database.getConnection();
 
@@ -128,7 +141,7 @@ async function deleteExemptionByCoursecodeAndUserId(
 
 //Namespace
 const exemptionController = {
-  createExemption,
+  createExemptions,
   getAllExemptionsByUser,
   deleteExemptionByCoursecodeAndUserId
 };

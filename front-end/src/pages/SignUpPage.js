@@ -3,20 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Button from 'react-bootstrap/Button';
-import Dropdown from "react-bootstrap/Dropdown"; 
+import Dropdown from "react-bootstrap/Dropdown";
+import {motion} from "framer-motion"
 
 function SignUpPage() {
   const [fullname, setfullname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [selectDegree, setSelectDegree] = useState("Select Degree");
   const userType = "student"; // Hardcoded to 'student'
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const [error, setError] = useState(null); // To handle error messages
   const [loading, setLoading] = useState(false); // To handle loading state
-  const degrees = ['Software Engineering', 'Computer Engineering', 'Electrical Engineering']
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -25,7 +24,7 @@ function SignUpPage() {
     setError(null);
 
     // Basic validation checks
-    if (fullname === ""  || email === "" || password === "" || confirmPassword === "") {
+    if (fullname === "" || email === "" || password === "" || confirmPassword === "") {
       setError("All fields are required.");
       return;
     }
@@ -51,7 +50,7 @@ function SignUpPage() {
     setLoading(true); // Start loading
 
     try {
-      const response = await fetch("http://localhost:8000/auth/signup", {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/signup`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -62,7 +61,6 @@ function SignUpPage() {
           email,
           password,
           type: userType,
-          degree: selectDegree,
         }),
       });
 
@@ -87,13 +85,20 @@ function SignUpPage() {
   };
 
   return (
+    <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.7 }}
+  >
+  
     <div className="SignUpPage">
       <div className="container my-5 sign-in-container">
-        <h2 className="text-center mb-4" style={{fontSize: "5vh"}}>Sign Up</h2>
+        <h2 className="text-center mb-6" style={{ fontSize: "5vh" }}>Sign Up</h2>
         <form onSubmit={handleSignUp}>
           {/* Name Field */}
           <div className="mb-3">
-          <label htmlFor="fullname" className="form-label">Full Name: </label>
+            <label htmlFor="fullname" className="form-label">Full Name: </label>
             <input
               type="fullname"
               className="form-control"
@@ -143,23 +148,6 @@ function SignUpPage() {
             />
           </div>
 
-          {/* Select Degree */}
-          <div className="mb-4">
-            <label htmlFor="selectDegree" className="form-label">Select Degree:</label>
-            <Dropdown>
-              <Dropdown.Toggle id="dropdown-basic" className="dropdown-custom w-100">
-                {selectDegree}
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                {degrees.map((degree, index) => (
-                  <Dropdown.Item key={index} onClick={() => setSelectDegree(degree)}>
-                    {degree}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </Dropdown>
-          </div>
-
           {/* Display Error Message */}
           {error && (
             <div className="alert alert-danger" role="alert">
@@ -184,6 +172,7 @@ function SignUpPage() {
         </div>
       </div>
     </div>
+    </motion.div>
   );
 }
 

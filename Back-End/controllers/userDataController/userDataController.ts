@@ -18,17 +18,21 @@ export const getUserData = async (req: Request, res: Response): Promise<void> =>
     }
 
     try {
-        // Check if the user exists
+        // Check if the user exists and retrieve user data
         const userCheckResult = await conn.request()
             .input("id", Database.msSQL.VarChar, id)
             .query(
-                `SELECT id FROM AppUser WHERE id = @id`
+                `SELECT id, email, fullname, degree, type 
+                 FROM AppUser 
+                 WHERE id = @id`
             );
 
         if (userCheckResult.recordset.length === 0) {
             res.status(404).json({ message: "User not found" });
             return;
         }
+
+        const userData = userCheckResult.recordset[0];
 
         // Fetch timeline
         const timelineResult = await conn.request()
@@ -57,7 +61,7 @@ export const getUserData = async (req: Request, res: Response): Promise<void> =>
                  WHERE user_id = @id`
             );
 
-        // Fetch degree
+        // Fetch degree details
         const degreeResult = await conn.request()
             .input("id", Database.msSQL.VarChar, id)
             .query(
@@ -69,10 +73,17 @@ export const getUserData = async (req: Request, res: Response): Promise<void> =>
 
         // Combine data into a structured response
         const response: UserDataResponse = {
+            user: {
+                id: userData.id,
+                email: userData.email,
+                fullname: userData.fullname,
+                type: userData.type,
+                degree: userData.degree // This is the foreign key ID (may be null)
+            },
             timeline: timelineResult.recordset,
             deficiencies: deficiencyResult.recordset,
             exemptions: exemptionResult.recordset,
-            degree: degreeResult.recordset[0] || null,
+            degree: degreeResult.recordset[0] || null, // Detailed degree info (or null)
         };
 
         res.status(200).json(response);

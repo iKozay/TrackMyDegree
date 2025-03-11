@@ -2,16 +2,19 @@ import '../css/UploadAcceptanceLetter.css';
 import React, { useState, useRef, useEffect } from 'react';
 import { pdfjs } from 'react-pdf';
 import { useNavigate, Link } from "react-router-dom";
+import {motion} from "framer-motion"
 
 // Set the worker source for PDF.js
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-const UploadAcceptanceLetterPage = () => {
+const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileName, setFileName] = useState('No file chosen');
   const [output, setOutput] = useState('');
   const [degrees, setDegrees] = useState([]);
   const [selectedDegreeId, setSelectedDegreeId] = useState(null);
+  const [selectedTerm, setSelectedTerm] = useState(""); // No default value
+  const [selectedYear, setSelectedYear] = useState(""); // No default value
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const [selectedRadio, setSelectedRadio] = useState({
@@ -19,6 +22,8 @@ const UploadAcceptanceLetterPage = () => {
     extendedCredit: null,
     creditDeficiency: null,
   });
+
+
 
   // List of specific programs to check for
   const programNames = [
@@ -28,21 +33,23 @@ const UploadAcceptanceLetterPage = () => {
     'Industrial Engineering', 'Mechanical Engineering', 'Science and Technology', 'Software Engineering'
   ];
 
-  const generateSemesterOptions = (startYear, endYear) => {
-    const terms = ['Summer', 'Fall', 'Winter'];
-    const options = [];
-    options.push(`Winter ${startYear}`);
-    for (let year = startYear; year <= endYear; year++) {
-      terms.forEach((term) => {
-        options.push(`${term} ${term === 'Winter' ? year + 1 : year}`);
-      });
-    }
-  
-    return options;
-  };
+  // No longer need to generate a combined list of starting semesters.
+  // Instead, the user selects the term and year separately.
 
+  // const generateSemesterOptions = (startYear, endYear) => {
+  //   const terms = ['Summer', 'Fall', 'Winter'];
+  //   const options = [];
+  //   options.push(`Winter ${startYear}`);
+  //   for (let year = startYear; year <= endYear; year++) {
+  //     terms.forEach((term) => {
+  //       options.push(`${term} ${term === 'Winter' ? year + 1 : year}`);
+  //     });
+  //   }
+  //
+  //   return options;
+  // };
   // Generate Terms from 2017 to 2030
-const startingSemesters = generateSemesterOptions(2017, 2030);
+  // const startingSemesters = generateSemesterOptions(2017, 2030);
 
   const handleRadioChange = (group, value) => {
     setSelectedRadio((prev) => ({
@@ -55,7 +62,7 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
     setSelectedDegreeId(e.target.value);
   };
 
-  // 3. Navigate on Next button click, passing selectedDegreeId in the route state
+  // Navigate on Next button click, passing the selected degree and combined starting semester
   const handleNextButtonClick = () => {
     // Example check to ensure something is selected:
     if (!selectedDegreeId) {
@@ -63,15 +70,25 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
       return;
     }
 
-    // Pass the selectedDegreeId to the timeline page
-    navigate("/timeline_change", { state: { degreeId: selectedDegreeId } });
+    if (!selectedTerm || !selectedYear) {
+      alert('Please select both a term and a year for your starting semester.');
+      return;
+    }
+    const startingSemester = `${selectedTerm} ${selectedYear}`;
+
+    // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
+    localStorage.setItem('Timeline_Name', null);
+    
+    console.log("select: ", selectedRadio.extendedCredit);
+    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, startingSemester: startingSemester, coOp: selectedRadio.coOp, extendedCredit: selectedRadio.extendedCredit, creditDeficiency: selectedRadio.creditDeficiency } });
+
   };
 
   useEffect(() => {
     // get a list of all degrees by name
     const getDegrees = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/degree/getAllDegrees`, {
+        const response = await fetch(`${process.env.REACT_APP_SERVER}/degree/getAllDegrees`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -84,13 +101,9 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
       } catch (err) {
         console.error(err.message);
       }
-
-
     }
     getDegrees();
   }, []);
-
-
 
   // Handle drag events
   const handleDragOver = (e) => {
@@ -163,7 +176,24 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
         }
         Promise.all(pagesPromises).then((pagesData) => {
           const extractedData = extractAcceptanceDetails(pagesData);
-          setOutput(generateOutput(extractedData));
+          const transcriptData = matchTermsWithCourses(extractedData.results);
+          //setOutput(generateOutput(extractedData));
+          // Extract Degree Info
+          const degreeInfo = extractedData.degree || "Unknown Degree";
+          const degreeId = extractedData.degreeId || "Unknown"; // Map degree to ID
+
+          if (transcriptData.length > 0) {
+            localStorage.setItem('Timeline_Name', null);
+            onDataProcessed({
+              transcriptData,
+              degreeId,
+            }); // Send grouped data to parent
+            console.log("select: ", selectedRadio.extendedCredit);
+            navigate('/timeline_change', { state: { coOp: selectedRadio.coOp, extendedCredit: extractedData.details.extendedCreditProgram} }); // Navigate to TimelinePage
+          } else {
+            setOutput(`<h3>There are no data to show!</h3>`);
+          }
+          console.log(degreeId);
         });
       });
     };
@@ -180,6 +210,21 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
       'Data Science', 'Electrical Engineering', 'Health and Life Sciences', 'Indigenous Bridging Program',
       'Industrial Engineering', 'Mechanical Engineering', 'Science and Technology', 'Software Engineering'
     ];
+    const degreeMapping = {
+      "Aerospace Engineering": "D1",
+      "Building Engineering": "D2",
+      "Civil Engineering": "D3",
+      "Computer Engineering": "D4",
+      "Electrical Engineering": "D5",
+      "Industrial Engineering": "D6",
+      "Mechanical Engineering": "D7",
+      "Software Engineering": "D8",
+    };
+    let degree = null;
+    let degreeId = null;
+
+    let results = [];
+
 
     pagesData.forEach(({ text }) => {
       // Extract Degree Concentration (everything after Program/Plan(s) and before Academic Load)
@@ -195,9 +240,9 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
             degreeConcentration = `${program}`; // Add the program name to the Degree Concentration if it matches
           }
         });
-
+        degreeId = degreeMapping[degreeConcentration];
         // Assign to details
-        details.degreeConcentration = degreeConcentration;
+        details.degreeConcentration = degreeId;
       }
 
 
@@ -211,11 +256,12 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
         const ecpMatch = text.match(/Extended Credit Program/);
         const coopMatch = text.match(/Co-op Program/);
         if (ecpMatch) {
-          details.extendedCreditProgram = 'Yes';
+          details.extendedCreditProgram = 'yes';         
           details.coopProgram = 'No';
         } else if (coopMatch) {
           details.coopProgram = 'Yes';
           details.extendedCreditProgram = 'No';
+          handleRadioChange('extendedCredit', 'No');
         }
       }
 
@@ -237,10 +283,6 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
           details.startingTerm = termMatchstart[0].trim();
         }
       }
-
-      // Extract Credits Required (Digits after "Minimum Program Length")
-      const creditsMatch = text.match(/Minimum Program Length.*?(\d+)\s+/);
-      if (creditsMatch) details.creditsRequired = creditsMatch[1]?.trim();
 
       // Extract Expected Graduation Term (Winter 2024, Fall/Winter 2023-2024)
       const expectedGradTermIndex = text.indexOf('Expected Graduation Term');
@@ -275,6 +317,12 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
 
         // Find all course matches
         while ((courseMatch = courseRegex.exec(textBetweenExemptionsAndDeficiencies)) !== null) {
+          results.push({
+            name: courseMatch[0].replace(/\s+/g, ""),
+            page: 1,
+            type: 'Exempted Course',
+            position: 0,
+          });
           exemptionsCourses.push(courseMatch[0].trim());
         }
 
@@ -330,7 +378,12 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
 
           const creditMatch = lineContainingCourse?.match(creditRegex);
           const credits = creditMatch ? `${creditMatch[1]} crs` : 'Credits not found';
-
+          results.push({
+            name: course.replace(/\s+/g, ""),
+            page: 1,
+            type: 'Transfered Course',
+            position: 0,
+          });
           transferCredits.push({ course, credits });
         }
 
@@ -338,41 +391,118 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
           details.transferCredits = transferCredits;
         }
       }
+    }); // pages end
+
+    const start = details.startingTerm;
+    const end = details.expectedGraduationTerm;
+
+    // Function to generate all terms from startTerm to endTerm
+    const generateTerms = (startTerm, endTerm) => {
+      const terms = ["Winter", "Summer", "Fall"];
+      const startYear = parseInt(startTerm.split(" ")[1]);  // Extracting the year
+      const endYear = parseInt(endTerm.split(" ")[1]);  // Extracting the year
+      const startSeason = startTerm.split(" ")[0];  // Extracting the season
+      const endSeason = endTerm.split(" ")[0];  // Extracting the season
+
+      const resultTerms = [];
+
+      let currentYear = startYear;
+      let currentSeasonIndex = terms.indexOf(startSeason); // Find index of start season in the list
+
+      // Loop to generate all terms from start to end
+      while (currentYear < endYear || (currentYear === endYear && currentSeasonIndex <= terms.indexOf(endSeason))) {
+        const term = `${terms[currentSeasonIndex]} ${currentYear}`;
+        resultTerms.push(term);
+
+        // Move to the next season
+        currentSeasonIndex++;
+
+        if (currentSeasonIndex === terms.length) {
+          currentSeasonIndex = 0;
+          currentYear++;
+        }
+      }
+      // console.log("terms:", resultTerms)
+      return resultTerms;
+    };
+
+    // Function to process and push results into the results array
+    const processTerms = (startTerm, endTerm, results) => {
+      const terms = generateTerms(startTerm, endTerm);
+
+      terms.forEach((term, index) => {
+        results.push({
+          name: term.trim(),
+          page: 1,
+          type: 'Term',
+          position: 0,  // Adjust as needed for your specific position logic
+        });
+      });
+      console.log(results);
+    };
+
+    processTerms(start, end, results);
+
+    return { results, degree, degreeId, details };
+  };
+
+  const matchTermsWithCourses = (data) => {
+    let matchedResults = [];
+    let currentTerm = data[0]?.name; // Use optional chaining to safely access `name`
+    let terms = [];
+
+    data.sort((a, b) => (a.page !== b.page ? a.page - b.page : a.position - b.position));
+
+    data.forEach((item) => {
+      if (item && item.type === 'Term' && item.name) {  // Ensure `item` and `item.name` are defined
+        matchedResults.push({
+          term: item.name,
+          course: "",
+          grade: 'EX',
+        });
+      }
+
+      if (item && item.type === 'Exempted Course' && item.name) {  // Ensure `item` and `item.name` are defined
+        matchedResults.push({
+          term: 'Exempted',
+          course: item.name,
+          grade: 'EX',
+        });
+      }
+
+      if (item && item.type === 'Transfered Course' && item.name) {  // Ensure `item` and `item.name` are defined
+        matchedResults.push({
+          term: 'Transfered Courses',
+          course: item.name,
+          grade: 'EX',
+        });
+      }
+
+      if (item && item.type === 'Course' && currentTerm && item.name) {  // Ensure `item` and `currentTerm` and `item.name` are defined
+        matchedResults.push({
+          term: currentTerm,
+          course: item.name,
+          grade: item.grade,
+        });
+      }
+
+      if (item && item.type === 'Separator') {
+        currentTerm = terms.shift() || null;
+      }
     });
 
-    return details;
+    console.log('Grouped data: ', matchedResults);
+    return matchedResults;
   };
-
-  const generateOutput = (data) => {
-    if (data) {
-      const transferCreditsHtml = data.transferCredits
-        ? data.transferCredits
-          .map(
-            (credit) =>
-              `<li>${credit.course} - ${credit.credits}</li>`
-          )
-          .join('')
-        : 'None';
-      return `
-        <h3>Extracted Details:</h3>
-        <ul>
-          <li><strong>Degree Concentration:</strong> ${data.degreeConcentration || 'Not found'}</li>
-          <li><strong>Starting Term:</strong> ${data.startingTerm || 'Not found'}</li>
-          <li><strong>Co-op Program:</strong> ${data.coopProgram || 'Not found'}</li>
-          <li><strong>Extended Credit Program:</strong> ${data.extendedCreditProgram || 'Not found'}</li>
-          <li><strong>Credits Required:</strong> ${data.creditsRequired || 'Not found'}</li>
-          <li><strong>Expected Graduation Term:</strong> ${data.expectedGraduationTerm || 'Not found'}</li>
-          <li><strong>Exemptions Courses:</strong> ${data.exemptionsCourses ? data.exemptionsCourses.join(', ') : 'Not found'}</li>
-          <li><strong>Deficiencies Courses:</strong> ${data.deficienciesCourses ? data.deficienciesCourses.join(', ') : 'Not found'}</li>
-          <li><strong>Transfer Credits:</strong></li>
-          <ul>${transferCreditsHtml}</ul>
-        </ul>`;
-    } else {
-      return `<h3>No relevant data found in the acceptance letter.</h3>`;
-    }
-  };
-
+  
   return (
+    <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.5 }}
+  >
+  
     <div className="top-down">
       <div className="g-container">
         <div className="form-container-al">
@@ -385,39 +515,73 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
             <div>
               <label htmlFor="degree-concentration">Degree Concentration:</label>
               <select id="degree-concentration" className="input-field" onChange={handleDegreeChange}>
-              <option value="">-- Select a Degree --</option>
+                <option value="">-- Select a Degree --</option>
                 {degrees.map((degree) => (
-                  <option key={degree.id} value={degree.id}>{degree.name}</option>
+                    <option key={degree.id} value={degree.id}>{degree.name}</option>
                 ))}
 
               </select>
             </div>
             <div>
-              <label htmlFor="starting-semester">Starting Semester:</label>
-              <select id="starting-semester" className="input-field">
-                {startingSemesters.map((semester, index) => (
-                  <option key={index} value={semester}>
-                    {semester}
-                  </option>
-                ))}
+              <div>
+                <label htmlFor="starting-term">Starting Term:</label>
+                <select
+                    id="starting-term"
+                    className="input-field"
+                    value={selectedTerm}
+                    onChange={(e) => setSelectedTerm(e.target.value)}
+                >
+                  <option value="">-- Select Term --</option>
+                  <option value="Winter">Winter</option>
+                  <option value="Summer">Summer</option>
+                  <option value="Fall">Fall</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label htmlFor="starting-year">Starting Year:</label>
+              <select
+                  id="starting-year"
+                  className="input-field"
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+              >
+                <option value="">-- Select Year --</option>
+                {Array.from({length: 2031 - 2017 + 1}).map((_, index) => {
+                  const year = 2017 + index;
+                  return (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                  );
+                })}
               </select>
             </div>
             <div className="radio-group">
               <span className="cooo">Co-op Program? </span>
               <label>
-                <input type="checkbox" name="co-op" value="yes" />
+                <input type="checkbox" name="co-op" value="yes"
+                  checked={selectedRadio.coOp === true}
+                  onChange={() => handleRadioChange('coOp', true)}
+                />
               </label>
             </div>
             <div className="radio-group">
               <span className="cooo">Extended Credit Program? </span>
               <label>
-                <input type="checkbox" name="extended-credit" value="yes" />
+                <input type="checkbox" name="extended-credit" value="yes" 
+                  checked={selectedRadio.extendedCredit === true}
+                  onChange={() => handleRadioChange('extendedCredit', true)} 
+                />
               </label>
             </div>
             <div className="radio-group">
               <span className="cooo">Credit Deficiency? </span>
               <label>
-                <input type="checkbox" name="credit-deficiency" value="yes" />
+                <input type="checkbox" name="credit-deficiency" value="yes"
+                  checked={selectedRadio.creditDeficiency === true}
+                  onChange={() => handleRadioChange('creditDeficiency', true)}
+                />
               </label>
             </div>
           </form>
@@ -434,10 +598,10 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
           <h2>Upload Acceptance Letter</h2>
           <p>Upload your acceptance letter to automatically fill out the required information</p>
           <div
-            className="upload-box-al"
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
+              className="upload-box-al"
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
           >
             <p>Drag and Drop file</p>
             or
@@ -469,7 +633,9 @@ const startingSemesters = generateSemesterOptions(2017, 2030);
         </div>
       </div>
     </div>
+  </motion.div> 
   );
+ 
 };
 
 export default UploadAcceptanceLetterPage;

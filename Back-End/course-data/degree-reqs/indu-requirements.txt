@@ -1,10 +1,9 @@
 # Metadata
-DegreeID=INDU-BEng
+DegreeID=INDU
 DegreeName=BEng Industrial Engineering
 TotalCredits=120
 
-[Engineering Core (27 credits)]
-ELEC 275
+[Engineering Core (24 credits)]
 ENCS 282
 ENGR 201
 ENGR 202
@@ -14,7 +13,6 @@ ENGR 301
 ENGR 371
 ENGR 391
 ENGR 392
-General Education Elective
 
 [Industrial Engineering Core (81 credits)]
 ENGR 245 
@@ -57,3 +55,6 @@ BTM 480
 ENGR 411 
 ENGR 412 
 MANA 300
+
+[General Education Humanities and Social Sciences Electives (3 credits)]
+ACCO 220

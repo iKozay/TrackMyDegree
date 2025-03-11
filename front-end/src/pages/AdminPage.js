@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Container, Row, Col, Table, Spinner, Alert } from 'react-bootstrap';
 import SearchBar from '../components/SearchBar'; // Assuming you have a SearchBar component
 import '../css/AdminPage.css'; // Import the CSS file
+import {motion} from "framer-motion"
 
 const AdminPage = () => {
     const [tables, setTables] = useState([]);
@@ -18,7 +19,7 @@ const AdminPage = () => {
     useEffect(() => {
         const fetchTables = async () => {
             try {
-                const response = await axios.post('http://localhost:8000/admin/tables');
+                const response = await axios.post(`${process.env.REACT_APP_SERVER}/admin/tables`);
                 console.log('Tables Response:', response.data); // Debugging Line
 
                 if (response.data.success) {
@@ -47,7 +48,7 @@ const AdminPage = () => {
         setLoading(true);
         setError('');
         try {
-            let url = `http://localhost:8000/admin/tables/${tableName}`;
+            let url = `${process.env.REACT_APP_SERVER}/admin/tables/${tableName}`;
             if (keyword) {
                 url += `?keyword=${encodeURIComponent(keyword)}`;
             }
@@ -92,7 +93,7 @@ const AdminPage = () => {
 
     const handleSeedData = async () => {
         try {
-            const response = await axios.post('http://localhost:8000/admin/seed-data');
+            const response = await axios.post(`${process.env.REACT_APP_SERVER}/admin/seed-data`);
             if (response.data.success) {
                 alert('Data seeding successful!');
             } else {
@@ -123,6 +124,12 @@ const AdminPage = () => {
     }
 
     return (
+        <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="admin-container">
             <Row className="mt-4">
                 {/* Tables List Column */}
@@ -192,6 +199,7 @@ const AdminPage = () => {
                 </button>
             </div>
         </div>
+        </motion.div>
 
 
     );
