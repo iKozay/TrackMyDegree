@@ -22,7 +22,7 @@ CREATE TABLE Requisite (
     code2 VARCHAR(7),                    -- Prerequisite course (NULL if credit-based)
     type VARCHAR(3) CHECK (type IN ('pre', 'co')), -- 'pre' for prerequisite, 'co' for corequisite
     group_id VARCHAR(255),               -- Identifier for groups of alternative requisites
-    creditsRequired FLOAT,                 -- Number of credits required (NULL if course-based)
+    creditsRequired FLOAT,               -- Number of credits required (NULL if course-based)
     FOREIGN KEY (code1) REFERENCES Course(code),
     FOREIGN KEY (code2) REFERENCES Course(code),
     CONSTRAINT UC_Requisite UNIQUE (code1, code2, type, group_id, creditsRequired),
@@ -55,11 +55,11 @@ CREATE TABLE CourseXCoursePool (
   groupId VARCHAR(255),
   UNIQUE(coursecode, coursepool),
   CONSTRAINT UC_CourseXCoursePool UNIQUE (coursecode, coursepool, groupId),
-  FOREIGN KEY (coursecode) REFERENCES Course(code), -- Composite foreign key
+  FOREIGN KEY (coursecode) REFERENCES Course(code),
   FOREIGN KEY (coursepool) REFERENCES CoursePool(id) ON DELETE CASCADE
 );
 
-CREATE TABLE AppUser (  -- Use square brackets for reserved keywords
+CREATE TABLE AppUser (
     id VARCHAR(255) PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
@@ -72,14 +72,13 @@ CREATE TABLE AppUser (  -- Use square brackets for reserved keywords
 CREATE TABLE Timeline (
     id VARCHAR(255) PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
-    degree_id VARCHAR(255) NOT NULL,  -- New column for the associated degree
+    degree_id VARCHAR(255) NOT NULL,  -- Associated degree
     name VARCHAR(100) NOT NULL,
     isExtendedCredit BIT NOT NULL DEFAULT 0,
     last_modified DATETIME2,
-    FOREIGN KEY (user_id) REFERENCES AppUser (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES AppUser(id) ON DELETE CASCADE,
     FOREIGN KEY (degree_id) REFERENCES Degree(id)
 );
-
 
 CREATE TABLE TimelineItems (
     id VARCHAR(255) PRIMARY KEY,
@@ -105,7 +104,7 @@ CREATE TABLE Deficiency (
     creditsRequired FLOAT NOT NULL,
     UNIQUE(user_id, coursepool),
     FOREIGN KEY (coursepool) REFERENCES CoursePool(id),
-    FOREIGN KEY (user_id) REFERENCES AppUser (id)
+    FOREIGN KEY (user_id) REFERENCES AppUser(id)
 );
 
 CREATE TABLE Exemption (
@@ -113,8 +112,8 @@ CREATE TABLE Exemption (
     coursecode VARCHAR(7),
     user_id VARCHAR(255),
     UNIQUE(user_id, coursecode),
-    FOREIGN KEY (coursecode) REFERENCES Course(code), -- Composite foreign key
-    FOREIGN KEY (user_id) REFERENCES AppUser (id)
+    FOREIGN KEY (coursecode) REFERENCES Course(code),
+    FOREIGN KEY (user_id) REFERENCES AppUser(id)
 );
 
 CREATE TABLE Feedback (
@@ -124,6 +123,29 @@ CREATE TABLE Feedback (
     submitted_at DATETIME2 DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES AppUser(id) ON DELETE SET NULL
 );
+
+-- ================================================
+-- Index Creation for Performance Improvement
+-- ================================================
+
+-- Index on DegreeXCoursePool for filtering by degree
+CREATE NONCLUSTERED INDEX idx_DegreeXCoursePool_degree
+ON DegreeXCoursePool (degree);
+
+-- Index on CourseXCoursePool for joining on coursepool
+CREATE NONCLUSTERED INDEX idx_CourseXCoursePool_coursepool
+ON CourseXCoursePool (coursepool);
+
+-- Index on Requisite for joining on code1
+CREATE NONCLUSTERED INDEX idx_Requisite_code1
+ON Requisite (code1);
+
+CREATE NONCLUSTERED INDEX idx_Requisite_code2
+ON Requisite (code2);
+
+-- Index on CoursePool for sorting by name
+CREATE NONCLUSTERED INDEX idx_CoursePool_name
+ON CoursePool (name);
 
 -- Insert sample values into tables
 

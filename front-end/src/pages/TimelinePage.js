@@ -834,6 +834,17 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
         };
       });
 
+      // Add remaining courses to the poolCreditMap with no pool-specific maximum
+      remainingCourses.forEach((course) => {
+        const poolId = 'remaining'; // A generic pool for remaining courses
+        if (!poolCreditMap[poolId]) {
+          poolCreditMap[poolId] = {
+            assigned: 0,
+            max: Infinity, // No max limit for remaining courses
+          };
+        }
+      });
+
       // Go through each semester (EXCEPT 'Exempted') and sum assigned credits
       for (const semesterId in semesterCourses) {
         if (semesterId.toLowerCase() === 'exempted') {
@@ -846,9 +857,15 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
         courseCodes.forEach((courseCode) => {
           // Find which pool this course belongs to
-          const pool = coursePools.find((p) =>
+          let pool = coursePools.find((p) =>
             p.courses.some((c) => c.code === courseCode)
           );
+
+          // If not in coursePools, check if it belongs to remainingCourses
+          if (!pool) {
+            pool = { poolId: 'remaining', courses: remainingCourses }; // Use the remaining pool
+          }
+
           if (!pool) return; // course not found in any pool (shouldn't happen, but just in case)
 
           // Find the actual course object
@@ -859,7 +876,6 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
           const prerequisitesMet = arePrerequisitesMet(courseCode, currentSemesterIndex);
           if (!prerequisitesMet) {
             unmetPrereqFound = true;
-            return;
           }
 
           // Add credits to the pool’s assigned sum, up to the pool’s max
@@ -1354,11 +1370,20 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
                         const isExempted = semester.id.trim().toLowerCase().startsWith('exempted');
 
                         const sumCredits = semesterCourses[semester.id]
-                          .map((cCode) =>
-                            coursePools
-                              .flatMap((pool) => pool.courses)
-                              .find((c) => c.code === cCode)?.credits || 0
-                          )
+                        .map((cCode) => {
+                          // Look for the course in both coursePools and remainingCourses
+                          const courseInPool = coursePools
+                            .flatMap((pool) => pool.courses)
+                            .find((c) => c.code === cCode);
+                  
+                          // If course is not in coursePools, check in remainingCourses
+                          const courseInRemaining = remainingCourses.find((c) => c.code === cCode);
+                  
+                          // Choose the course found in either pool or remaining courses
+                          const course = courseInPool || courseInRemaining;
+                  
+                          return course ? course.credits : 0; // Return the course's credits or 0 if not found
+                        })
                           .reduce((sum, c) => sum + c, 0);
 
                         // 2) Compare to max limit

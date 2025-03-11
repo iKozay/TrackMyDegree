@@ -227,6 +227,10 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
 
 
     pagesData.forEach(({ text }) => {
+      if (!pagesData || pagesData.length === 0) {
+        console.error('No pages data available');
+        return { results: [] };
+      }      
       // Extract Degree Concentration (everything after Program/Plan(s) and before Academic Load)
       const degreeConcentrationMatch = text.match(/Program\/Plan\(s\):\s*([^\n]+)(?:\n([^\n]+))?[\s\S]*?Academic Load/);
 
@@ -516,9 +520,13 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
               <label htmlFor="degree-concentration">Degree Concentration:</label>
               <select id="degree-concentration" className="input-field" onChange={handleDegreeChange}>
                 <option value="">-- Select a Degree --</option>
-                {degrees.map((degree) => (
+                {degrees && degrees.length > 0 ? (
+                  degrees.map((degree) => (
                     <option key={degree.id} value={degree.id}>{degree.name}</option>
-                ))}
+                  ))
+                ) : (
+                  <option value="" disabled>No degrees available</option>
+                )}
 
               </select>
             </div>
