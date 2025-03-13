@@ -20,8 +20,8 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import Accordion from 'react-bootstrap/Accordion';
-import Container from 'react-bootstrap/Container';
+import { Accordion, Button, Container } from "react-bootstrap";
+import { FaUndo, FaRedo } from "react-icons/fa";
 import warningIcon from '../icons/warning.png'; // Import warning icon
 import '../css/TimelinePage.css';
 import { groupPrerequisites } from '../utils/groupPrerequisites'; // Adjust the path as necessary
@@ -1179,6 +1179,19 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       autoScrollInterval.current = null;
     }
   };
+
+
+  const [state, setState] = useState("");
+  const [history, setHistory] = useState([]);
+  const [future, setFuture] = useState([]);
+
+  const handleUndo = () => {
+    console.log('undo clicked');
+  }
+
+  const handleRedo = () => {
+    console.log('redo clicked');
+  }
   // ----------------------------------------------------------------------------------------------------------------------
   return (
 
@@ -1217,6 +1230,22 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
             <>
               {/* Total Credits Display */}
               <div className="credits-display">
+              <Button 
+                onClick={handleUndo}
+                disabled={state.length === 0}
+                className='rounded-circle'
+                style={{ border: 'none', backgroundColor: 'transparent', color: '#912338' }}
+              >
+                <FaUndo size={25} />
+              </Button>
+              <Button
+                onClick={handleRedo}
+                disabled={state.length === 0}
+                className='rounded-circle'
+                style={{ border: 'none', backgroundColor: 'transparent', color: '#912338' }}
+              >
+                <FaRedo size={25} />
+              </Button>
                 <h4>
                   Total Credits Earned: {totalCredits} / {creditsRequired + deficiencyCredits}
                 </h4>
