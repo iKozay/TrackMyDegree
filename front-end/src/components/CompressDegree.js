@@ -2,7 +2,8 @@ const DATA = {
   semesters: {
     "Fall": "F",
     "Winter": "W",
-    "Summer": "S"
+    "Summer": "S",
+    "Exempted": "E"
   },
   depts: {
     "ACCO": "AA",
@@ -160,22 +161,25 @@ function decompressTimelineV1(data) {
 
   const parts = tempParts.flatMap(part => part.split(/(?=[FWS]\d{2})/g));
 
-
   parts.forEach(compressedSemester => {
-    var currentSeason = '';
-    var currentYear = '';
     var courses = '';
     var courseList = [];
+    var currentSemester = '';
     if (compressedSemester.includes('|')) {
       courses = compressedSemester.slice(5);
-      currentSeason = EXPAND_DATA.semesters[compressedSemester[0]] + '/' + EXPAND_DATA.semesters[compressedSemester[1]];
-      currentYear = '20' + (parseInt(compressedSemester.slice(3, 5))-1) + '-' + compressedSemester.slice(3, 5);
+      const currentSeason = EXPAND_DATA.semesters[compressedSemester[0]] + '/' + EXPAND_DATA.semesters[compressedSemester[1]];
+      const currentYear = '20' + compressedSemester.slice(3, 5);
+      currentSemester = currentSeason + ' ' + currentYear;
+    } else if (compressedSemester.includes('!')) {
+      courses = compressedSemester.slice(2);
+      currentSemester = EXPAND_DATA.semesters[compressedSemester[0]]
     } else {
       courses = compressedSemester.slice(3);
-      currentSeason = EXPAND_DATA.semesters[compressedSemester[0]];
-      currentYear = '20' + compressedSemester.slice(1, 3);
+      const currentSeason = EXPAND_DATA.semesters[compressedSemester[0]];
+      const currentYear = '20' + compressedSemester.slice(1, 3);
+      currentSemester = currentSeason + ' ' + currentYear;
     }
-    const currentSemester = currentSeason + ' ' + currentYear;
+    // const currentSemester = currentSeason + ' ' + currentYear;
     if (courses.length % 4 !== 0 ) {
       console.log('error');
       return;
@@ -195,16 +199,22 @@ export const compressTimeline = (timeline) => {
   let compressed = '';
 
   Object.entries(timeline).forEach(([semester, courses]) => {
-    const [season, year] = semester.split(' ');
-    const shortYear = year.slice(-2);
     let semCode;
-    if (season.includes('/')) {
-      const [season1, season2] = season.split('/');
-      semCode = DATA.semesters[season1] + DATA.semesters[season2] + '|' + shortYear;
+    if (semester.includes(' ')) {
+      const [season, year] = semester.split(' ');
+      const shortYear = year.slice(-2);
+      
+      if (season.includes('/')) {
+        const [season1, season2] = season.split('/');
+        semCode = DATA.semesters[season1] + DATA.semesters[season2] + '|' + shortYear;
+      }
+      else {
+        semCode = DATA.semesters[season] + shortYear;
+      }
+    } else {
+      semCode = DATA.semesters[semester] + '!';
     }
-    else {
-      semCode = DATA.semesters[season] + shortYear;
-    }
+    
 
     const compressedCourses = courses.map(course => {
       const match = course.match(/([A-Z]+)(\d+)/);
