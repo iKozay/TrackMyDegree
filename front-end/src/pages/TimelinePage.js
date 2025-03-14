@@ -26,6 +26,7 @@ import warningIcon from '../icons/warning.png'; // Import warning icon
 import '../css/TimelinePage.css';
 import { groupPrerequisites } from '../utils/groupPrerequisites'; // Adjust the path as necessary
 import { useLocation } from 'react-router-dom';
+import { compressTimeline, decompressTimeline } from '../components/CompressDegree';
 // DraggableCourse component for course list items
 const DraggableCourse = ({
   id,
@@ -224,6 +225,10 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [timelineName, setTimelineName] = useState('');
   const [tempName, setTempName] = useState('');
+
+  const [timelineString, setTimelineString] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [future, setFuture] = useState([]);
 
 
   let DEFAULT_EXEMPTED_COURSES = [];
@@ -1180,18 +1185,49 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     }
   };
 
-
-  const [state, setState] = useState("");
-  const [history, setHistory] = useState([]);
-  const [future, setFuture] = useState([]);
+  useEffect(() => {
+    if (Object.keys(semesterCourses).length === 0) {
+      return;
+    }
+    // console.log(semesterCourses);
+    const timeline = compressTimeline(semesterCourses);
+    // console.log(timeline);
+    if (timelineString === null) {
+      setTimelineString(timeline);
+      return;
+    }
+    if (timeline === timelineString) {
+      return;
+    }
+    setHistory([...history, timelineString]);
+    setFuture([]);
+    setTimelineString(timeline);
+  }, [semesterCourses]);
 
   const handleUndo = () => {
-    console.log('undo clicked');
+    // console.log('undo clicked');
+    if (history.length > 0) {
+      const prevTimeline = history[history.length - 1];
+      const timelineObj = decompressTimeline(prevTimeline);
+      setHistory(history.slice(0, -1));
+      setFuture([timelineString, ...future]);
+      setSemesterCourses(timelineObj);
+      setTimelineString(prevTimeline);
+    }
   }
 
   const handleRedo = () => {
-    console.log('redo clicked');
+    // console.log('redo clicked');
+    if (future.length > 0) {
+      const nextTimeline = future[0];
+      setFuture(future.slice(1));
+      setHistory([...history, timelineString]);
+      setSemesterCourses(decompressTimeline(nextTimeline));
+      setTimelineString(nextTimeline);
+    }
   }
+
+
   // ----------------------------------------------------------------------------------------------------------------------
   return (
 
@@ -1232,7 +1268,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
               <div className="credits-display">
               <Button 
                 onClick={handleUndo}
-                disabled={state.length === 0}
+                disabled={history.length === 0}
                 className='rounded-circle'
                 style={{ border: 'none', backgroundColor: 'transparent', color: '#912338' }}
               >
@@ -1240,7 +1276,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
               </Button>
               <Button
                 onClick={handleRedo}
-                disabled={state.length === 0}
+                disabled={future.length === 0}
                 className='rounded-circle'
                 style={{ border: 'none', backgroundColor: 'transparent', color: '#912338' }}
               >
