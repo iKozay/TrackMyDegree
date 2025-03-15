@@ -156,23 +156,31 @@ function decompressCourseNumber(compressedNum) {
 
 function decompressTimelineV1(data) {
   const timeline = {};
+  var degreeId = '';
 
-  const tempParts = data.split(/(?=FW\|\d{2})|(?=[FWS]\d{2})/g);
+  const parts = data.split(/(?=FW-\d{2})|(?=[FWS]\d{2})|(?=E_)/g);
 
-  const parts = tempParts.flatMap(part => part.split(/(?=[FWS]\d{2})/g));
+  console.log(parts);
+
+
 
   parts.forEach(compressedSemester => {
     var courses = '';
     var courseList = [];
     var currentSemester = '';
-    if (compressedSemester.includes('|')) {
+    if (compressedSemester.includes('-')) {
       courses = compressedSemester.slice(5);
       const currentSeason = EXPAND_DATA.semesters[compressedSemester[0]] + '/' + EXPAND_DATA.semesters[compressedSemester[1]];
       const currentYear = '20' + compressedSemester.slice(3, 5);
       currentSemester = currentSeason + ' ' + currentYear;
-    } else if (compressedSemester.includes('!')) {
-      courses = compressedSemester.slice(2);
-      currentSemester = EXPAND_DATA.semesters[compressedSemester[0]]
+    } else if (compressedSemester.includes('_')) {
+      if (compressedSemester[0] === 'D') {
+        degreeId = compressedSemester.slice(2);
+        return;
+      } else {
+        courses = compressedSemester.slice(2);
+        currentSemester = EXPAND_DATA.semesters[compressedSemester[0]]
+      }
     } else {
       courses = compressedSemester.slice(3);
       const currentSeason = EXPAND_DATA.semesters[compressedSemester[0]];
@@ -192,11 +200,13 @@ function decompressTimelineV1(data) {
     timeline[currentSemester] = courseList;
   });
 
-  return timeline;
+  return [timeline, degreeId];
 }
 
-export const compressTimeline = (timeline) => {
-  let compressed = '';
+export const compressTimeline = (timeline, degreeId) => {
+  let compressed = 'D_' + degreeId;
+
+
 
   Object.entries(timeline).forEach(([semester, courses]) => {
     let semCode;
@@ -206,13 +216,13 @@ export const compressTimeline = (timeline) => {
       
       if (season.includes('/')) {
         const [season1, season2] = season.split('/');
-        semCode = DATA.semesters[season1] + DATA.semesters[season2] + '|' + shortYear;
+        semCode = DATA.semesters[season1] + DATA.semesters[season2] + '-' + shortYear;
       }
       else {
         semCode = DATA.semesters[season] + shortYear;
       }
     } else {
-      semCode = DATA.semesters[semester] + '!';
+      semCode = DATA.semesters[semester] + '_';
     }
     
 
