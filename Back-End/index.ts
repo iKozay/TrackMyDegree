@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import createError from "http-errors";
 import Database from "@controllers/DBController/DBController";
 import HTTP from "@Util/HTTPCodes";
+import rateLimit from "express-rate-limit";
+
 //Routes import
 import authRouter from "@routes/auth";
 import coursesRouter from "@routes/courses";
@@ -13,7 +15,6 @@ import deficiencyRouter from "@routes/deficiency";
 import degreeRouter from "@routes/degree";
 import timelineRouter from "@routes/timeline";
 import coursepoolRouter from "@routes/coursepool";
-import AppUser from "@routes/appUser";
 import userDataRouter from "@routes/userData";
 import Admin from "@routes/adminRoutes";
 import requisiteRouter from "@routes/requisite";
@@ -69,6 +70,28 @@ app.options("*", cors(corsOptions));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
+
+// Rate limiter for "Forgot Password"
+const forgotPasswordLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes time window for counting requests
+	max: 5, // Limit each IP to 5 requests per window
+	message: { error: "Too many password reset attempts. Try again later." },
+	standardHeaders: true, // Send rate limit info in headers
+	legacyHeaders: false, // Disable X-RateLimit legacy headers
+});
+
+// Rate limiter for "Reset Password"
+const resetPasswordLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000,
+	max: 3, // Limit each IP to 3 reset attempts per window
+	message: { error: "Too many reset attempts. Try again later." },
+	standardHeaders: true,
+	legacyHeaders: false,
+});
+
+// Apply rate limiters of forgot-password and reset-password routes
+app.use("/auth/forgot-password", forgotPasswordLimiter);
+app.use("/auth/reset-password", resetPasswordLimiter);
 
 //Routes
 app.use("/auth", authRouter);

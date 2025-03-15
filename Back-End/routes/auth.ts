@@ -7,9 +7,6 @@ import bcrypt from "bcryptjs";
 const router = express.Router();
 var salt = bcrypt.genSaltSync(10);
 
-var bcryptVar = require("bcryptjs");
-var hash = bcrypt.hashSync("B4c0//", salt);
-
 /**Routes */
 // Login
 router.post("/login", async (req: Request, res: Response) => {
