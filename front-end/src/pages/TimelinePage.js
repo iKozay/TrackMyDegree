@@ -1,7 +1,7 @@
 // TimelinePage.js
 
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, time } from "framer-motion"
 import {
   DndContext,
@@ -145,7 +145,7 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 };
 
 // Main component
-const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredit }) => {
+const TimelinePage = ({ degreeid, initialTimelineData, creditsrequired, isExtendedCredit }) => {
   const navigate = useNavigate();
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
@@ -155,6 +155,11 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isECP, setIsECP] = useState(false);
+
+  const [searchParam, setSearchParam] = useSearchParams();
+  const [timelineString, setTimelineString] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [future, setFuture] = useState([]);
 
   // Flatten and filter courses from all pools based on the search query
 
@@ -167,8 +172,11 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   const scrollWrapperRef = useRef(null);
   const autoScrollInterval = useRef(null);
 
+  const [degreeId, setDegreeId] = useState(location.state?.degreeId || '');
+  const [timelineData, setTimelineData] = useState(initialTimelineData);
 
-  let { degreeId, startingSemester, creditsRequired = 120, extendedCredit } = location.state || {};
+
+  let { startingSemester, creditsRequired = 120, extendedCredit } = location.state || {};
 
   // console.log("isExtendedCredit: " + isExtendedCredit);
   // console.log("extendedCredit: " + extendedCredit);
@@ -183,9 +191,25 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
   // setIsECP(extendedCredit);
 
-  if (!degreeId) {
-    degreeId = degreeid;
+  if (degreeId === '') {
+    if (!degreeid) {
+      const [URLtimeline, URLdegreeId] = decompressTimeline(searchParam.get('tstring'));
+      setDegreeId(URLdegreeId);
+      setSemesterCourses(URLtimeline);
+      setSemesters(Object.keys(URLtimeline).map((key) => ({
+        id: key,
+        name: key,
+      })));
+      setTimelineData(URLtimeline);
+    } else {
+      setDegreeId(degreeid);
+    }
   }
+
+  useEffect(() => {
+    console.log('semesterCourses changed');
+    console.log(semesterCourses);
+  }, [semesterCourses]);
 
   if (!creditsrequired) {
     creditsRequired = 120;
@@ -226,9 +250,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   const [timelineName, setTimelineName] = useState('');
   const [tempName, setTempName] = useState('');
 
-  const [timelineString, setTimelineString] = useState(null);
-  const [history, setHistory] = useState([]);
-  const [future, setFuture] = useState([]);
+  
 
 
   let DEFAULT_EXEMPTED_COURSES = [];
@@ -419,6 +441,11 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   useEffect(() => {
     // Wait until coursePools have loaded.
 
+    //if the timeline is being set by the url, it is not an array, and the information will be set elsewhere
+    if (!Array.isArray(timelineData)) {
+      return;
+    }
+
     // console.log('coursePools:', coursePools);
     if (coursePools.length === 0) {
       console.log('Returning early, not building timeline yet.');
@@ -492,6 +519,8 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     // --- Step 2. Build the semester map from non-exempted data ---
     const semesterMap = {};
     const semesterNames = new Set();
+
+    console.log('2: ', nonExemptedData);
 
     nonExemptedData.forEach((data) => {
       let term = "";
@@ -578,6 +607,9 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     );
     console.log("Building semesterMap from timelineData:", timelineData);
     console.log("Resulting semesterMap:", semesterMap);
+
+    console.log("Resulting sortedSemesters:", sortedSemesters);
+    console.log("Resulting semesterNames:", semesterNames);
 
 
   }, [timelineData, coursePools, extendedCredit, startingSemester]);
@@ -1185,13 +1217,15 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     }
   };
 
+  
+
+
   useEffect(() => {
     if (Object.keys(semesterCourses).length === 0) {
       return;
     }
-    // console.log(semesterCourses);
-    const timeline = compressTimeline(semesterCourses);
-    // console.log(timeline);
+    const timeline = compressTimeline(semesterCourses, degreeId);
+    setSearchParam({ tstring: timeline });
     if (timelineString === null) {
       setTimelineString(timeline);
       return;
@@ -1205,10 +1239,19 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   }, [semesterCourses]);
 
   const handleUndo = () => {
-    // console.log('undo clicked');
     if (history.length > 0) {
       const prevTimeline = history[history.length - 1];
-      const timelineObj = decompressTimeline(prevTimeline);
+      const [timelineObj, idFromTimeline] = decompressTimeline(prevTimeline);
+      setDegreeId(idFromTimeline);
+      if (Object.keys(timelineObj).length !== semesters.length) {
+        console.log(semesterCourses);
+        const newSemesters = Object.keys(timelineObj).map((key) => ({
+          id: key,
+          name: key,
+        }));
+        console.log(newSemesters);
+        setSemesters(newSemesters);
+      }
       setHistory(history.slice(0, -1));
       setFuture([timelineString, ...future]);
       setSemesterCourses(timelineObj);
@@ -1217,12 +1260,20 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   }
 
   const handleRedo = () => {
-    // console.log('redo clicked');
     if (future.length > 0) {
       const nextTimeline = future[0];
+      const [timelineObj, timelineId] = decompressTimeline(nextTimeline);
+      setDegreeId(timelineId);
+      if (Object.keys(timelineObj).length !== semesters.length) {
+        const newSemesters = Object.keys(timelineObj).map((key) => ({
+          id: key,
+          name: key,
+        }));
+        setSemesters(newSemesters);
+      }
       setFuture(future.slice(1));
       setHistory([...history, timelineString]);
-      setSemesterCourses(decompressTimeline(nextTimeline));
+      setSemesterCourses(timelineObj);
       setTimelineString(nextTimeline);
     }
   }
