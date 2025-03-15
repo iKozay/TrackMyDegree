@@ -123,12 +123,14 @@ async function forgotPassword(
 
 		// Create email transporter object to send email
 		const transporter = nodemailer.createTransport({
-			service: "Gmail",
+			service: "gmail",
 			auth: {
 				user: process.env.EMAIL_USER!,
-				pass: process.env.EMAIL_PASS!,
+				pass: process.env.EMAIL_PASSWORD!,
 			},
 		});
+		log(process.env.EMAIL_USER);
+		log(process.env.EMAIL_PASSWORD);
 
 		// Configure mailing options
 		const mailOptions = {
@@ -138,7 +140,8 @@ async function forgotPassword(
 			text: `Your OTP (expires in 10 minutes): ${otp}`,
 		};
 
-		await transporter.sendMail(mailOptions); // Send email
+		// Send email
+		await transporter.sendMail(mailOptions);
 
 		return { message: "OTP has been sent to your email." }; // Confirmation message
 	} catch (error) {
