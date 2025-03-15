@@ -189,7 +189,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
               degreeId,
             }); // Send grouped data to parent
             console.log("select: ", selectedRadio.extendedCredit);
-            navigate('/timeline_change', { state: { coOp: selectedRadio.coOp, extendedCredit: extractedData.details.extendedCreditProgram} }); // Navigate to TimelinePage
+            navigate('/timeline_change', { state: { coOp: selectedRadio.coOp, extendedCredit: extractedData.details.extendedCreditProgram, creditDeficiency: extractedData.details.creditDeficiency} }); // Navigate to TimelinePage
           } else {
             setOutput(`<h3>There are no data to show!</h3>`);
           }
@@ -357,6 +357,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
 
         if (deficienciesCourses.length > 0) {
           // Add matched courses to Deficiencies courses
+          details.creditDeficiency = true;
           details.deficienciesCourses = deficienciesCourses;
         }
       }
