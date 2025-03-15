@@ -5,6 +5,12 @@ import { randomUUID }   from 'crypto'
 
 const log = console.log;
 
+/**
+ * Creates a new course pool.
+ *
+ * @param {string} pool_name - The name of the course pool.
+ * @returns {Promise<DB_OPS>} - Returns a DB operation status.
+ */
 async function createCoursePool(pool_name: string): Promise<DB_OPS> {
 
   const dbConn = await Database.getConnection();
@@ -43,6 +49,11 @@ async function createCoursePool(pool_name: string): Promise<DB_OPS> {
   return DB_OPS.FAILURE;
 }
 
+/**
+ * Retrieves all course pools.
+ *
+ * @returns {Promise<{ course_pools: CoursePoolTypes.CoursePoolItem[] } | undefined>}
+ */
 async function getAllCoursePools():
 Promise<{course_pools: CoursePoolTypes.CoursePoolItem[]} | undefined> {
   const dbConn = await Database.getConnection();
@@ -64,6 +75,12 @@ Promise<{course_pools: CoursePoolTypes.CoursePoolItem[]} | undefined> {
   return undefined;
 }
 
+/**
+ * Retrieves a specific course pool by ID.
+ *
+ * @param {string} pool_id - The course pool ID.
+ * @returns {Promise<CoursePoolTypes.CoursePoolItem | undefined>}
+ */
 async function getCoursePool(pool_id: string):
 Promise<CoursePoolTypes.CoursePoolItem | undefined> {
   const dbConn = await Database.getConnection();
@@ -85,6 +102,12 @@ Promise<CoursePoolTypes.CoursePoolItem | undefined> {
   return undefined;
 }
 
+/**
+ * Updates an existing course pool.
+ *
+ * @param {CoursePoolTypes.CoursePoolItem} update_info - The course pool details to update.
+ * @returns {Promise<DB_OPS>}
+ */
 async function updateCoursePool(update_info: CoursePoolTypes.CoursePoolItem):
 Promise<DB_OPS> {
   const dbConn = await Database.getConnection();
@@ -118,6 +141,12 @@ Promise<DB_OPS> {
   return DB_OPS.FAILURE;
 }
 
+/**
+ * Removes a course pool by ID.
+ *
+ * @param {string} pool_id - The course pool ID to remove.
+ * @returns {Promise<DB_OPS>}
+ */
 async function removeCoursePool(pool_id: string): Promise<DB_OPS> {
   const dbConn = await Database.getConnection();
 
