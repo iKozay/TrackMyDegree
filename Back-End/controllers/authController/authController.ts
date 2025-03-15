@@ -106,7 +106,7 @@ async function forgotPassword(
 			return;
 		}
 
-		// Generate OTP
+		// Generate OTP (one time pass)
 		const otp = Math.floor(1000 + Math.random() * 9000);
 		const otpExpire = new Date();
 		otpExpire.setMinutes(otpExpire.getMinutes() + 10); // Set OTP expiry
@@ -129,15 +129,13 @@ async function forgotPassword(
 				pass: process.env.EMAIL_PASSWORD!,
 			},
 		});
-		log(process.env.EMAIL_USER);
-		log(process.env.EMAIL_PASSWORD);
 
 		// Configure mailing options
 		const mailOptions = {
 			from: process.env.EMAIL_USER!,
 			to: email,
-			subject: "Password Reset OTP",
-			text: `Your OTP (expires in 10 minutes): ${otp}`,
+			subject: "Password Reset",
+			text: `Your One Time Password (expires in 10 minutes): ${otp}`,
 		};
 
 		// Send email
@@ -169,7 +167,7 @@ async function resetPassword(
 	}
 
 	// Query the database for the OTP that matches the user's input
-	// LEAVE FOR NOW BUT MIGHT NEED TO QUERY EMAIL UP
+	// Is it safe to query for the OTP
 	try {
 		const result = await authConn
 			.request()
