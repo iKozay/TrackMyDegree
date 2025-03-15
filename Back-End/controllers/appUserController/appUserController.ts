@@ -1,6 +1,18 @@
 import Database from "@controllers/DBController/DBController"
 import appUserTypes from "@controllers/appUserController/appUser_types"
 
+/**
+ * Updates an existing AppUser in the database.
+ *
+ * @param {string} id - The unique identifier of the user.
+ * @param {string} email - The new email of the user.
+ * @param {string} password - The new password of the user.
+ * @param {string} fullname - The updated full name of the user.
+ * @param {string} degree - The updated degree ID associated with the user.
+ * @param {appUserTypes.UserType} type - The updated user type (student, advisor, admin).
+ * @returns {Promise<appUserTypes.AppUser | undefined>} - The updated user record or undefined if the update fails.
+ * @throws {Error} - If the user does not exist or a database error occurs.
+ */
 async function updateAppUser(
   id: string,
   email: string,
@@ -9,12 +21,12 @@ async function updateAppUser(
   degree: string,
   type: appUserTypes.UserType
 ): Promise<appUserTypes.AppUser | undefined> {
-
+  // Establish a database connection
   const conn = await Database.getConnection();
 
   if (conn) {
     try {
-      // Check if a appUser with the id exists
+      // Check if an AppUser with the given id exists
       const appUser = await conn
         .request()
         .input('id', Database.msSQL.VarChar, id)
@@ -24,7 +36,7 @@ async function updateAppUser(
         throw new Error('AppUser with this id does not exist.');
       }
 
-      // Update the appUser with the new name and totalCredits
+      // Update the AppUser with the provided values
       await conn
         .request()
         .input('id', Database.msSQL.VarChar, id)
@@ -43,7 +55,7 @@ async function updateAppUser(
             WHERE id = @id`
         );
 
-      // Return the updated appUser
+      // Retrieve and return the updated user data
       const updatedAppUser = await conn
         .request()
         .input('id', Database.msSQL.VarChar, id)
@@ -51,19 +63,27 @@ async function updateAppUser(
 
       return updatedAppUser.recordset[0];
     } catch (error) {
-      throw error;
+      throw error; // Rethrow any errors encountered
     } finally {
-      conn.close();
+      conn.close(); // Ensure the database connection is closed
     }
   }
 }
 
+
+/**
+ * Deletes an AppUser from the database.
+ *
+ * @param {string} id - The unique identifier of the user to be deleted.
+ * @returns {Promise<string | undefined>} - A success message if deletion is successful, or undefined if an error occurs.
+ * @throws {Error} - If the user does not exist or a database error occurs.
+ */
 async function deleteAppUser(id: string): Promise<string | undefined> {
   const conn = await Database.getConnection();
 
   if (conn) {
     try {
-      // Check if a AppUser with the given id exists
+      // Check if an AppUser with the given id exists
       const appUser = await conn
         .request()
         .input('id', Database.msSQL.VarChar, id)
@@ -73,7 +93,7 @@ async function deleteAppUser(id: string): Promise<string | undefined> {
         throw new Error('AppUser with this id does not exist.');
       }
 
-      // Delete the AppUser
+      // Delete the AppUser from the database
       await conn
         .request()
         .input('id', Database.msSQL.VarChar, id)
@@ -82,9 +102,9 @@ async function deleteAppUser(id: string): Promise<string | undefined> {
       // Return success message
       return `AppUser with id ${id} has been successfully deleted.`;
     } catch (error) {
-      throw error;
+      throw error; // Rethrow any errors encountered
     } finally {
-      conn.close();
+      conn.close(); // Ensure the database connection is always closed
     }
   }
 };
