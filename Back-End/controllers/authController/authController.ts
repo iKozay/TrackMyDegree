@@ -49,6 +49,12 @@ async function authenticate(email: string, password: string): Promise<Auth.UserI
   return undefined;
 }
 
+/**
+ * Registers a new user in the database.
+ *
+ * @param {Auth.UserInfo} userInfo - Object containing user details (email, password, fullname, type).
+ * @returns {Promise<{ id: string } | undefined>} - The newly created user's ID, or undefined if registration fails.
+ */
 async function registerUser(userInfo: Auth.UserInfo)
   : Promise<{ id: string } | undefined> {
 
