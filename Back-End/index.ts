@@ -8,17 +8,16 @@ import HTTP from "@Util/HTTPCodes";
 //Routes import
 import authRouter from "@routes/auth";
 import coursesRouter from "@routes/courses";
-import exemptionRouter from "@routes/exemption"
-import deficiencyRouter from "@routes/deficiency"
+import exemptionRouter from "@routes/exemption";
+import deficiencyRouter from "@routes/deficiency";
 import degreeRouter from "@routes/degree";
 import timelineRouter from "@routes/timeline";
 import coursepoolRouter from "@routes/coursepool";
 import AppUser from "@routes/appUser";
 import userDataRouter from "@routes/userData";
 import Admin from "@routes/adminRoutes";
-import requisiteRouter from "@routes/requisite"
+import requisiteRouter from "@routes/requisite";
 import feedbackRouter from "@routes/feedback";
-
 
 //Dev Consts
 const HOPPSCOTCH = "chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld";
@@ -30,33 +29,34 @@ const PORT = process.env.PORT || 8000;
 const CLIENT = process.env.CLIENT || "http://localhost:3000";
 
 const corsOptions: cors.CorsOptions = {
-  origin: (
-    origin: string | undefined,
-    callback: (err: Error | null, allow?: boolean) => void
-  ) => {
-    const allowedOrigins = [
-      "http://localhost:3000",
-      "http://167.71.165.174:3000",
-      "http://159.65.216.141:3000",
-      "chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld",
-    ];
+	origin: (
+		origin: string | undefined,
+		callback: (err: Error | null, allow?: boolean) => void
+	) => {
+		const allowedOrigins = [
+			"http://localhost:3000",
+			"http://167.71.165.174:3000",
+			"http://159.65.216.141:3000",
+			"chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld",
+			"https://hoppscotch.io",
+		];
 
-    // Allow requests with no origin (like Postman or server-to-server calls)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true); // Allow
-    } else {
-      callback(new Error("Not allowed by CORS")); // Deny
-    }
-  },
-  credentials: true, // Allow cookies to be sent
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: [
-    "Origin",
-    "X-Requested-With",
-    "Content-Type",
-    "Accept",
-    "Authorization",
-  ],
+		// Allow requests with no origin (like Postman or server-to-server calls)
+		if (!origin || allowedOrigins.includes(origin)) {
+			callback(null, true); // Allow
+		} else {
+			callback(new Error("Not allowed by CORS")); // Deny
+		}
+	},
+	credentials: true, // Allow cookies to be sent
+	methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+	allowedHeaders: [
+		"Origin",
+		"X-Requested-With",
+		"Content-Type",
+		"Accept",
+		"Authorization",
+	],
 };
 
 // Apply the CORS middleware
@@ -89,31 +89,30 @@ app.use("/feedback", feedbackRouter);
  * TO BE REMOVED
  */
 app.get("/test-db", async (req, res) => {
-  try {
-    const pool = await Database.getConnection();
-    if (pool) {
-      const result = await pool.request().query("SELECT 1 AS number");
-      res.status(HTTP.OK).send({
-        message: "Database connected successfully!",
-        result: result.recordset,
-      });
-    } else {
-      throw new Error("Connection error in test-db");
-    }
-  } catch (error) {
-    res
-      .status(HTTP.SERVER_ERR)
-      .send({ message: "Database connection failed", error });
-  }
+	try {
+		const pool = await Database.getConnection();
+		if (pool) {
+			const result = await pool.request().query("SELECT 1 AS number");
+			res.status(HTTP.OK).send({
+				message: "Database connected successfully!",
+				result: result.recordset,
+			});
+		} else {
+			throw new Error("Connection error in test-db");
+		}
+	} catch (error) {
+		res
+			.status(HTTP.SERVER_ERR)
+			.send({ message: "Database connection failed", error });
+	}
 });
 
 //Handle 404
 app.use((req: Request, res: Response, next: NextFunction) => {
-  next(createError(HTTP.NOT_FOUND, "Page not found!!!"));
+	next(createError(HTTP.NOT_FOUND, "Page not found!!!"));
 });
 
 //Listen for requests
 app.listen(PORT, () => {
-  console.log(`Server listening on Port: ${PORT}`);
+	console.log(`Server listening on Port: ${PORT}`);
 });
-
