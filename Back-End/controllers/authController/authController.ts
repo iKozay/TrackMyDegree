@@ -135,8 +135,10 @@ async function forgotPassword(
 			from: process.env.EMAIL_USER!,
 			to: email,
 			subject: "Password Reset",
-			text: `Your One Time Password (expires in 10 minutes): ${otp}`,
-		};
+			text: `Your One Time Password (expires in 10 minutes): ${otp}
+			\nReset your password at: http://localhost:3000/reset-pass
+			\nIf you did not request this, please ignore this email.`,
+		}; // Change this to URL before adding to production
 
 		// Send email
 		await transporter.sendMail(mailOptions);
