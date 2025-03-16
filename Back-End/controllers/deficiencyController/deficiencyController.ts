@@ -2,6 +2,14 @@ import Database from "@controllers/DBController/DBController"
 import DeficiencyTypes from "@controllers/deficiencyController/deficiency_types"
 import { randomUUID } from "crypto"
 
+/**
+ * Creates a new deficiency for a user and coursepool.
+ * 
+ * @param {string} coursepool - The ID of the course pool.
+ * @param {string} user_id - The ID of the user.
+ * @param {number} creditsRequired - The number of credits required to resolve the deficiency.
+ * @returns {Promise<DeficiencyTypes.Deficiency | undefined>} - The created deficiency or undefined if failed.
+ */
 async function createDeficiency (
     coursepool: string, 
     user_id: string, 
@@ -56,7 +64,12 @@ async function createDeficiency (
     }
 };
 
-
+/**
+ * Retrieves all deficiencies for a specific user.
+ * 
+ * @param {string} user_id - The ID of the user.
+ * @returns {Promise<DeficiencyTypes.Deficiency[] | undefined>} - List of deficiencies or undefined if not found.
+ */
 async function getAllDeficienciesByUser(
   user_id: string
 ): Promise<DeficiencyTypes.Deficiency[] | undefined> {
@@ -89,6 +102,13 @@ async function getAllDeficienciesByUser(
     }
   }
 }
+/**
+ * Deletes a deficiency based on course pool and user ID.
+ * 
+ * @param {string} coursepool - The ID of the course pool.
+ * @param {string} user_id - The ID of the user.
+ * @returns {Promise<string | undefined>} - Success message or undefined if deletion fails.
+ */
   
   async function deleteDeficiencyByCoursepoolAndUserId(
     coursepool: string, 

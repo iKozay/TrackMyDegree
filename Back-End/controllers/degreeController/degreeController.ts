@@ -1,6 +1,13 @@
 import Database from "@controllers/DBController/DBController"
 import DegreeTypes from "@controllers/degreeController/degree_types"
-
+/**
+ * Creates a new degree in the database.
+ * 
+ * @param {string} id - The unique identifier for the degree.
+ * @param {string} name - The name of the degree.
+ * @param {number} totalCredits - The total number of credits required to complete the degree.
+ * @returns {Promise<DegreeTypes.Degree | undefined>} - The created degree object or undefined if the operation fails.
+ */
 async function createDegree(id: string, name: string, totalCredits: number): Promise<DegreeTypes.Degree | undefined> {
   const conn = await Database.getConnection();
 
@@ -31,7 +38,12 @@ async function createDegree(id: string, name: string, totalCredits: number): Pro
   }
 };
 
-
+/**
+ * Retrieves a degree by its ID.
+ * 
+ * @param {string} id - The unique identifier for the degree.
+ * @returns {Promise<DegreeTypes.Degree | undefined>} - The degree object or undefined if the degree is not found.
+ */
 async function readDegree(id: string): Promise<DegreeTypes.Degree | undefined> {
   const conn = await Database.getConnection();
 
@@ -54,7 +66,11 @@ async function readDegree(id: string): Promise<DegreeTypes.Degree | undefined> {
     }
   }
 };
-
+/**
+ * Retrieves all degrees from the database.
+ * 
+ * @returns {Promise<DegreeTypes.Degree[] | undefined>} - A list of all degrees or undefined if no degrees are found.
+ */
 async function readAllDegrees(): Promise<DegreeTypes.Degree[] | undefined> {
   const conn = await Database.getConnection();
 
@@ -71,7 +87,14 @@ async function readAllDegrees(): Promise<DegreeTypes.Degree[] | undefined> {
   }
 };
 
-
+/**
+ * Updates an existing degree with new information.
+ * 
+ * @param {string} id - The unique identifier for the degree.
+ * @param {string} name - The new name of the degree.
+ * @param {number} totalCredits - The new total credits for the degree.
+ * @returns {Promise<DegreeTypes.Degree | undefined>} - The updated degree object or undefined if the update fails.
+ */
 async function updateDegree(id: string, name: string, totalCredits: number): Promise<DegreeTypes.Degree | undefined> {
   const conn = await Database.getConnection();
 
@@ -111,7 +134,12 @@ async function updateDegree(id: string, name: string, totalCredits: number): Pro
     }
   }
 }
-
+/**
+ * Deletes a degree from the database by its ID.
+ * 
+ * @param {string} id - The unique identifier for the degree to delete.
+ * @returns {Promise<string | undefined>} - A success message if the degree is deleted or undefined if the deletion fails.
+ */
 async function deleteDegree(id: string): Promise<string | undefined> {
   const conn = await Database.getConnection();
 

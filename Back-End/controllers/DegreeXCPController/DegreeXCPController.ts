@@ -5,7 +5,12 @@ import DB_OPS           from '@Util/DB_Ops'
 import { randomUUID }   from 'crypto'
 
 const log = console.log;
-
+/**
+ * Creates a new DegreeXCoursePool record in the database.
+ * 
+ * @param {DegreeXCPTypes.NewDegreeXCP} new_record - The new degreeXcoursepool record to be created.
+ * @returns {Promise<DB_OPS>} - The result of the operation (SUCCESS, MOSTLY_OK, or FAILURE).
+ */
 async function createDegreeXCP(new_record: DegreeXCPTypes.NewDegreeXCP): 
 Promise<DB_OPS> {
 
@@ -44,6 +49,12 @@ Promise<DB_OPS> {
 
   return DB_OPS.FAILURE;
 }
+/**
+ * Retrieves all course pools associated with a specific degree.
+ * 
+ * @param {string} degree_id - The ID of the degree.
+ * @returns {Promise<{course_pools: CoursePoolTypes.CoursePoolItem[]} | undefined>} - A list of course pools associated with the degree, or undefined if an error occurs.
+ */
 
 async function getAllDegreeXCP(degree_id: string): 
 Promise<{course_pools: CoursePoolTypes.CoursePoolItem[]} | undefined> {
@@ -70,7 +81,12 @@ Promise<{course_pools: CoursePoolTypes.CoursePoolItem[]} | undefined> {
 
   return undefined;
 }
-
+/**
+ * Updates an existing DegreeXCoursePool record.
+ * 
+ * @param {DegreeXCPTypes.DegreeXCPItem} update_record - The degreeXcoursepool record with updated information.
+ * @returns {Promise<DB_OPS>} - The result of the operation (SUCCESS, MOSTLY_OK, or FAILURE).
+ */
 async function updateDegreeXCP(update_record: DegreeXCPTypes.DegreeXCPItem):
 Promise<DB_OPS> {
 
@@ -109,6 +125,12 @@ Promise<DB_OPS> {
 
   return DB_OPS.FAILURE
 }
+/**
+ * Removes a DegreeXCoursePool record from the database.
+ * 
+ * @param {DegreeXCPTypes.DegreeXCP} delete_record - The degreeXcoursepool record to be deleted.
+ * @returns {Promise<DB_OPS>} - The result of the operation (SUCCESS, MOSTLY_OK, or FAILURE).
+ */
 
 async function removeDegreeXCP(delete_record: DegreeXCPTypes.DegreeXCP): 
 Promise<DB_OPS> {
