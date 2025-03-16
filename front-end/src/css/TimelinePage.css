@@ -34,21 +34,25 @@
   position: relative;
 }
 
+
 .course-list-container {
   /* border-radius: 25px; */
   max-height: 500px; /* or any value that suits your design */
   /* border-radius: 5px; */
   overflow-y: auto;
   margin: 15px;
+  
 }
 
 .course-list-container-timeline {
-  max-height: 450px; /* Adjust height as needed */
-  overflow-y: auto; /* Enables vertical scrolling */
+  max-height: 450px;  /* Adjust height as needed */
+  overflow-y: auto;    /* Enables vertical scrolling */
   padding-right: 10px; /* Optional: Prevent scrollbar from covering content */
-  border: 1px solid #ccc; /* Optional: Adds a border for styling */
+  border: 1px solid #ccc;  /* Optional: Adds a border for styling */
   /*background-color: #f9f9f9; /* Optional: Adds background color */
 }
+
+
 
 .timeline-left-bar.hidden {
   width: 10px;
@@ -178,9 +182,12 @@
   color: #f8f9fa;
 }
 
+
 .description-section::-webkit-scrollbar,
 .course-list-container::-webkit-scrollbar {
   width: 5px;
+  
+  
 }
 
 .description-section::-webkit-scrollbar-thumb,
@@ -319,8 +326,8 @@
 }
 
 .credits-display h4 {
+  padding-left: 35vw;
   margin: 0;
-  flex-grow: 1;
 }
 
 .warning-icon {
@@ -602,7 +609,7 @@
 }
 
 .course-search-input {
-  display: block;
+  display:block;
   margin: 0 auto;
   width: 90%;
   max-width: 300px;
@@ -647,8 +654,9 @@
   filter: drop-shadow(0px 0px 5px rgba(255, 0, 0, 0.6));
 }
 
+
 .remove-course-btn:active {
-  transform: scale(1.1);
+  transform: scale(1.1); 
   filter: brightness(1.5);
 }
 
