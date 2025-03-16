@@ -173,20 +173,21 @@ const TimelinePage = ({ degreeid, initialTimelineData, creditsrequired, isExtend
   const autoScrollInterval = useRef(null);
 
   const [degreeId, setDegreeId] = useState(location.state?.degreeId || '');
+  const [extendedCredit, setExtendedCredit] = useState(location.state?.degreeId ? location.state?.degreeId : false);
   const [timelineData, setTimelineData] = useState(initialTimelineData);
 
 
-  let { startingSemester, creditsRequired = 120, extendedCredit } = location.state || {};
+  let { startingSemester, creditsRequired = 120 } = location.state || {};
 
   // console.log("isExtendedCredit: " + isExtendedCredit);
   // console.log("extendedCredit: " + extendedCredit);
 
   if (isExtendedCredit) {
-    extendedCredit = true;
+    setExtendedCredit(true);
   }
 
   if (isExtendedCredit === null && extendedCredit === null) {
-    extendedCredit = false;
+    setExtendedCredit(false);
   }
 
   // setIsECP(extendedCredit);
@@ -249,8 +250,6 @@ const TimelinePage = ({ degreeid, initialTimelineData, creditsrequired, isExtend
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [timelineName, setTimelineName] = useState('');
   const [tempName, setTempName] = useState('');
-
-  
 
 
   let DEFAULT_EXEMPTED_COURSES = [];
@@ -440,6 +439,10 @@ const TimelinePage = ({ degreeid, initialTimelineData, creditsrequired, isExtend
   // Process timelineData and generate semesters and courses
   useEffect(() => {
     // Wait until coursePools have loaded.
+    if (startingSemester === undefined && timelineData.length === 0) {
+      // console.log('undefined');
+      return;
+    }
 
     //if the timeline is being set by the url, it is not an array, and the information will be set elsewhere
     if (!Array.isArray(timelineData)) {
@@ -519,8 +522,6 @@ const TimelinePage = ({ degreeid, initialTimelineData, creditsrequired, isExtend
     // --- Step 2. Build the semester map from non-exempted data ---
     const semesterMap = {};
     const semesterNames = new Set();
-
-    console.log('2: ', nonExemptedData);
 
     nonExemptedData.forEach((data) => {
       let term = "";
@@ -605,13 +606,8 @@ const TimelinePage = ({ degreeid, initialTimelineData, creditsrequired, isExtend
         sortedSemesters.map((term) => [term, semesterMap[term] || []])
       )
     );
-    console.log("Building semesterMap from timelineData:", timelineData);
-    console.log("Resulting semesterMap:", semesterMap);
-
-    console.log("Resulting sortedSemesters:", sortedSemesters);
-    console.log("Resulting semesterNames:", semesterNames);
-
-
+    // console.log("Building semesterMap from timelineData:", timelineData);
+    // console.log("Resulting semesterMap:", semesterMap);
   }, [timelineData, coursePools, extendedCredit, startingSemester]);
 
 
@@ -1244,7 +1240,6 @@ const TimelinePage = ({ degreeid, initialTimelineData, creditsrequired, isExtend
       const [timelineObj, idFromTimeline] = decompressTimeline(prevTimeline);
       setDegreeId(idFromTimeline);
       if (Object.keys(timelineObj).length !== semesters.length) {
-        console.log(semesterCourses);
         const newSemesters = Object.keys(timelineObj).map((key) => ({
           id: key,
           name: key,
@@ -1317,22 +1312,22 @@ const TimelinePage = ({ degreeid, initialTimelineData, creditsrequired, isExtend
             <>
               {/* Total Credits Display */}
               <div className="credits-display">
-              <Button 
-                onClick={handleUndo}
-                disabled={history.length === 0}
-                className='rounded-circle'
-                style={{ border: 'none', backgroundColor: 'transparent', color: '#912338' }}
-              >
-                <FaUndo size={25} />
-              </Button>
-              <Button
-                onClick={handleRedo}
-                disabled={future.length === 0}
-                className='rounded-circle'
-                style={{ border: 'none', backgroundColor: 'transparent', color: '#912338' }}
-              >
-                <FaRedo size={25} />
-              </Button>
+                <Button 
+                  onClick={handleUndo}
+                  disabled={history.length === 0}
+                  className='rounded-circle'
+                  style={{ border: 'none', backgroundColor: 'transparent', color: '#912338' }}
+                >
+                  <FaUndo size={25} />
+                </Button>
+                <Button
+                  onClick={handleRedo}
+                  disabled={future.length === 0}
+                  className='rounded-circle'
+                  style={{ border: 'none', backgroundColor: 'transparent', color: '#912338' }}
+                >
+                  <FaRedo size={25} />
+                </Button>
                 <h4>
                   Total Credits Earned: {totalCredits} / {creditsRequired + deficiencyCredits}
                 </h4>
