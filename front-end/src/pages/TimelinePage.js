@@ -1,7 +1,7 @@
 // TimelinePage.js
 
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, time } from "framer-motion"
 import {
   DndContext,
@@ -20,12 +20,13 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import Accordion from 'react-bootstrap/Accordion';
-import Container from 'react-bootstrap/Container';
+import { Accordion, Button, Container } from "react-bootstrap";
+import { FaUndo, FaRedo } from "react-icons/fa";
 import warningIcon from '../icons/warning.png'; // Import warning icon
 import '../css/TimelinePage.css';
 import { groupPrerequisites } from '../utils/groupPrerequisites'; // Adjust the path as necessary
 import { useLocation } from 'react-router-dom';
+import { compressTimeline, decompressTimeline } from '../components/CompressDegree';
 // DraggableCourse component for course list items
 const DraggableCourse = ({
   id,
@@ -144,7 +145,7 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 };
 
 // Main component
-const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredit }) => {
+const TimelinePage = ({ degreeid, initialTimelineData, creditsrequired, isExtendedCredit }) => {
   const navigate = useNavigate();
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
@@ -154,6 +155,11 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isECP, setIsECP] = useState(false);
+
+  const [searchParam, setSearchParam] = useSearchParams();
+  const [timelineString, setTimelineString] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [future, setFuture] = useState([]);
 
   // Flatten and filter courses from all pools based on the search query
 
@@ -166,25 +172,45 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   const scrollWrapperRef = useRef(null);
   const autoScrollInterval = useRef(null);
 
+  const [degreeId, setDegreeId] = useState(location.state?.degreeId || '');
+  const [extendedCredit, setExtendedCredit] = useState(location.state?.degreeId ? location.state?.degreeId : false);
+  const [timelineData, setTimelineData] = useState(initialTimelineData);
 
-  let { degreeId, startingSemester, creditsRequired = 120, extendedCredit } = location.state || {};
+
+  let { startingSemester, creditsRequired = 120 } = location.state || {};
 
   // console.log("isExtendedCredit: " + isExtendedCredit);
   // console.log("extendedCredit: " + extendedCredit);
 
   if (isExtendedCredit) {
-    extendedCredit = true;
+    setExtendedCredit(true);
   }
 
   if (isExtendedCredit === null && extendedCredit === null) {
-    extendedCredit = false;
+    setExtendedCredit(false);
   }
 
   // setIsECP(extendedCredit);
 
-  if (!degreeId) {
-    degreeId = degreeid;
+  if (degreeId === '') {
+    if (!degreeid) {
+      const [URLtimeline, URLdegreeId] = decompressTimeline(searchParam.get('tstring'));
+      setDegreeId(URLdegreeId);
+      setSemesterCourses(URLtimeline);
+      setSemesters(Object.keys(URLtimeline).map((key) => ({
+        id: key,
+        name: key,
+      })));
+      setTimelineData(URLtimeline);
+    } else {
+      setDegreeId(degreeid);
+    }
   }
+
+  useEffect(() => {
+    console.log('semesterCourses changed');
+    console.log(semesterCourses);
+  }, [semesterCourses]);
 
   if (!creditsrequired) {
     creditsRequired = 120;
@@ -413,6 +439,15 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   // Process timelineData and generate semesters and courses
   useEffect(() => {
     // Wait until coursePools have loaded.
+    if (startingSemester === undefined && timelineData.length === 0) {
+      // console.log('undefined');
+      return;
+    }
+
+    //if the timeline is being set by the url, it is not an array, and the information will be set elsewhere
+    if (!Array.isArray(timelineData)) {
+      return;
+    }
 
     // console.log('coursePools:', coursePools);
     if (coursePools.length === 0) {
@@ -571,10 +606,8 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
         sortedSemesters.map((term) => [term, semesterMap[term] || []])
       )
     );
-    console.log("Building semesterMap from timelineData:", timelineData);
-    console.log("Resulting semesterMap:", semesterMap);
-
-
+    // console.log("Building semesterMap from timelineData:", timelineData);
+    // console.log("Resulting semesterMap:", semesterMap);
   }, [timelineData, coursePools, extendedCredit, startingSemester]);
 
 
@@ -1179,6 +1212,68 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       autoScrollInterval.current = null;
     }
   };
+
+  
+
+
+  useEffect(() => {
+    if (Object.keys(semesterCourses).length === 0) {
+      return;
+    }
+    const timeline = compressTimeline(semesterCourses, degreeId);
+    setSearchParam({ tstring: timeline });
+    if (timelineString === null) {
+      setTimelineString(timeline);
+      return;
+    }
+    if (timeline === timelineString) {
+      return;
+    }
+    setHistory([...history, timelineString]);
+    setFuture([]);
+    setTimelineString(timeline);
+  }, [semesterCourses]);
+
+  const handleUndo = () => {
+    if (history.length > 0) {
+      const prevTimeline = history[history.length - 1];
+      const [timelineObj, idFromTimeline] = decompressTimeline(prevTimeline);
+      setDegreeId(idFromTimeline);
+      if (Object.keys(timelineObj).length !== semesters.length) {
+        const newSemesters = Object.keys(timelineObj).map((key) => ({
+          id: key,
+          name: key,
+        }));
+        console.log(newSemesters);
+        setSemesters(newSemesters);
+      }
+      setHistory(history.slice(0, -1));
+      setFuture([timelineString, ...future]);
+      setSemesterCourses(timelineObj);
+      setTimelineString(prevTimeline);
+    }
+  }
+
+  const handleRedo = () => {
+    if (future.length > 0) {
+      const nextTimeline = future[0];
+      const [timelineObj, timelineId] = decompressTimeline(nextTimeline);
+      setDegreeId(timelineId);
+      if (Object.keys(timelineObj).length !== semesters.length) {
+        const newSemesters = Object.keys(timelineObj).map((key) => ({
+          id: key,
+          name: key,
+        }));
+        setSemesters(newSemesters);
+      }
+      setFuture(future.slice(1));
+      setHistory([...history, timelineString]);
+      setSemesterCourses(timelineObj);
+      setTimelineString(nextTimeline);
+    }
+  }
+
+
   // ----------------------------------------------------------------------------------------------------------------------
   return (
 
@@ -1217,6 +1312,22 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
             <>
               {/* Total Credits Display */}
               <div className="credits-display">
+                <Button 
+                  onClick={handleUndo}
+                  disabled={history.length === 0}
+                  className='rounded-circle'
+                  style={{ border: 'none', backgroundColor: 'transparent', color: '#912338' }}
+                >
+                  <FaUndo size={25} />
+                </Button>
+                <Button
+                  onClick={handleRedo}
+                  disabled={future.length === 0}
+                  className='rounded-circle'
+                  style={{ border: 'none', backgroundColor: 'transparent', color: '#912338' }}
+                >
+                  <FaRedo size={25} />
+                </Button>
                 <h4>
                   Total Credits Earned: {totalCredits} / {creditsRequired + deficiencyCredits}
                 </h4>

@@ -78,9 +78,12 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
 
     // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
     localStorage.setItem('Timeline_Name', null);
-    
-    console.log("select: ", selectedRadio.extendedCredit);
-    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, startingSemester: startingSemester, coOp: selectedRadio.coOp, extendedCredit: selectedRadio.extendedCredit, creditDeficiency: selectedRadio.creditDeficiency } });
+    onDataProcessed({
+      transcriptData: [],
+      degreeId: selectedDegreeId,
+    });
+    // console.log("select: ", selectedRadio.extendedCredit);
+    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, startingSemester: startingSemester, coOp: selectedRadio.coOp, extendedCredit: selectedRadio.extendedCredit ? selectedRadio.extendedCredit : false, creditDeficiency: selectedRadio.creditDeficiency } });
 
   };
 

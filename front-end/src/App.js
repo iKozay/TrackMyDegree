@@ -78,7 +78,7 @@ function AppContent({ degreeId, timelineData, creditsRequired, handleDataProcess
             element={
               <TimelinePage
                 degreeid={degreeId}
-                timelineData={timelineData}
+                initialTimelineData={timelineData}
                 creditsrequired={creditsRequired}
                 isExtendedCredit={isExtendedCredit}
                 onDataProcessed={handleDataProcessed}
