@@ -17,8 +17,9 @@ const UserPage = ({ onDataProcessed }) => {
   const { user } = useContext(AuthContext);
   const [userInfo, setUserInfo] = useState([]);
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedUserInfo, setEditedUserInfo] = useState(null);
+  // Commented out edit modde code
+  //const [isEditing, setIsEditing] = useState(false);
+  //const [editedUserInfo, setEditedUserInfo] = useState(null);
 
   const navigate = useNavigate();
 
@@ -31,22 +32,23 @@ const UserPage = ({ onDataProcessed }) => {
     }
   }, [user]);
 
-  useEffect(() => {
+  // Commented out edit modde code
+  /*useEffect(() => {
     if (userInfo) {
       setEditedUserInfo(userInfo.map((item) => item.value));
     }
-  }, [userInfo]);
+  }, [userInfo]);*/
 
-  const startEditing = () => {
+  /*const startEditing = () => {
     setIsEditing(true);
-  };
+  };*/
 
-  const cancelEditing = () => {
+  /*const cancelEditing = () => {
     setEditedUserInfo(userInfo.map((item) => item.value));
     setIsEditing(false);
-  };
+  };*/
 
-  const saveChanges = async () => {
+  /*const saveChanges = async () => {
     // add way to save changes here
     const updatedInfo = userInfo.map((item, index) => ({
       ...item,
@@ -86,7 +88,7 @@ const UserPage = ({ onDataProcessed }) => {
       console.error("Error updating user info:", error);
       setIsEditing(false);
     }
-  };
+  };*/
 
   const handleTimelineClick = (obj) => {
     const transcriptData = [];
@@ -119,11 +121,12 @@ const UserPage = ({ onDataProcessed }) => {
     navigate("/timeline_change");
   };
 
-  const handleInputChange = (e, index) => {
+  // Commented out edit modde code
+  /*const handleInputChange = (e, index) => {
     const updatedValues = [...editedUserInfo];
     updatedValues[index] = e.target.value;
     setEditedUserInfo(updatedValues);
-  };
+  };*/
 
   // add way to get user timelines here
   const [userTimelines, setUserTimelines] = useState([]);
@@ -153,12 +156,17 @@ const UserPage = ({ onDataProcessed }) => {
 
           const data = await response.json();
 
-          // Sort by modified date in descending order
-          const sortedTimelines = data.sort(
-            (a, b) => new Date(b.last_modified) - new Date(a.last_modified)
-          );
+          if (Array.isArray(data)) {
+            // Sort by modified date in descending order
+            const sortedTimelines = data.sort(
+              (a, b) => new Date(b.last_modified) - new Date(a.last_modified)
+            );
 
-          setUserTimelines(sortedTimelines);
+            setUserTimelines(sortedTimelines);
+          }
+          else {
+            setUserTimelines([]);
+          }
         } catch (e) {
           console.error("Error updating user info:", e);
         }
@@ -241,10 +249,10 @@ const UserPage = ({ onDataProcessed }) => {
                     <div className="text-center text-gray-400 text-sm font-semibold"> {/* Increased text size */}
                       <p>User</p>
                     </div>
-                    <table className="text-sm my-4"> {/* Increased text size and margin */}
+                    <table className="text-sm my-4">
                       <tbody>
                         <tr>
-                          <td className="px-3 py-2 text-gray-500 font-semibold">Full Name</td> {/* Increased padding */}
+                          <td className="px-3 py-2 text-gray-500 font-semibold">Full Name</td>
                           <td className="px-3 py-2">{userInfo[0]?.value || "NULL"}</td>
                         </tr>
                         <tr>

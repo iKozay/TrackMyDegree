@@ -1,8 +1,8 @@
 // TimelinePage.js
 
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, time } from "framer-motion"
+import { motion } from "framer-motion"
 import {
   DndContext,
   useDraggable,
@@ -1248,7 +1248,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
                         <div className="course-list-container-timeline">
 
-                          <Droppable id="courseList" className="course-list" style={"color=red"}>
+                          <Droppable id="courseList" className="course-list" style={{color: "red"}}>
                             <Accordion>
                               {coursePools.map((coursePool) => {
                                 // Determine if any course in this pool matches the search query.
@@ -1343,7 +1343,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
                 <div className="timeline-middle-section">
                   <div className='timeline-header'>
                     <div className='timeline-title'>
-                      {{ timelineName } && { timelineName } != 'null' ? <h2>{timelineName}</h2> : <h2>My Timeline</h2>}
+                      { timelineName  && timelineName !== 'null' ? <h2>{timelineName}</h2> : <h2>My Timeline</h2>}
                     </div>
                     <button
                       className="add-semester-button"
