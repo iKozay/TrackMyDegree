@@ -109,7 +109,7 @@ async function forgotPassword(
 		// Generate OTP (one time pass)
 		const otp = Math.floor(1000 + Math.random() * 9000);
 		const otpExpire = new Date();
-		otpExpire.setMinutes(otpExpire.getMinutes() + 10); // Set OTP expiry
+		otpExpire.setMinutes(otpExpire.getMinutes() + 2); // Set OTP expiry to 2 minutes
 
 		// Update user record with OTP and expiry
 		await authConn
