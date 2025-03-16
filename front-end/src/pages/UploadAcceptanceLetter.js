@@ -1,7 +1,7 @@
 import '../css/UploadAcceptanceLetter.css';
 import React, { useState, useRef, useEffect } from 'react';
 import { pdfjs } from 'react-pdf';
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {motion} from "framer-motion"
 
 // Set the worker source for PDF.js
@@ -22,16 +22,6 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     extendedCredit: null,
     creditDeficiency: null,
   });
-
-
-
-  // List of specific programs to check for
-  const programNames = [
-    'Aerospace Engineering', 'Building Engineering', 'Civil Engineering', 'Computer Engineering',
-    'Computer Science', 'Computer Science (Minor)', 'Computer Science - Computation Arts',
-    'Data Science', 'Electrical Engineering', 'Health and Life Sciences', 'Indigenous Bridging Program',
-    'Industrial Engineering', 'Mechanical Engineering', 'Science and Technology', 'Software Engineering'
-  ];
 
   // No longer need to generate a combined list of starting semesters.
   // Instead, the user selects the term and year separately.
@@ -78,12 +68,9 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
 
     // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
     localStorage.setItem('Timeline_Name', null);
-    onDataProcessed({
-      transcriptData: [],
-      degreeId: selectedDegreeId,
-    });
-    // console.log("select: ", selectedRadio.extendedCredit);
-    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, startingSemester: startingSemester, coOp: selectedRadio.coOp, extendedCredit: selectedRadio.extendedCredit ? selectedRadio.extendedCredit : false, creditDeficiency: selectedRadio.creditDeficiency } });
+    
+    console.log("select: ", selectedRadio.extendedCredit);
+    navigate("/timeline_change", { state: { degreeId: selectedDegreeId, startingSemester: startingSemester, coOp: selectedRadio.coOp, extendedCredit: selectedRadio.extendedCredit, creditDeficiency: selectedRadio.creditDeficiency } });
 
   };
 
@@ -182,7 +169,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
           const transcriptData = matchTermsWithCourses(extractedData.results);
           //setOutput(generateOutput(extractedData));
           // Extract Degree Info
-          const degreeInfo = extractedData.degree || "Unknown Degree";
+          //const degreeInfo = extractedData.degree || "Unknown Degree";
           const degreeId = extractedData.degreeId || "Unknown"; // Map degree to ID
 
           if (transcriptData.length > 0) {

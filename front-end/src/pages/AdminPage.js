@@ -13,7 +13,7 @@ const AdminPage = () => {
     const [loading, setLoading] = useState(true);
     const [selectedTable, setSelectedTable] = useState(null);
     const [error, setError] = useState('');
-    const [keyword, setKeyword] = useState('');
+    //const [keyword, setKeyword] = useState('');
 
     // Fetch the list of tables when the component mounts
     useEffect(() => {
@@ -80,7 +80,7 @@ const AdminPage = () => {
     };
 
     const handleSearch = (searchKeyword) => {
-        setKeyword(searchKeyword);
+        //setKeyword(searchKeyword);
         if (selectedTable) {
             fetchRecords(selectedTable, searchKeyword);
         }
