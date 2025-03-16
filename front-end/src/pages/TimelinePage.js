@@ -221,9 +221,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
   const [allCourses, setAllCourses] = useState([]);
   const [showExempted, setShowExempted] = useState(true);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false); // Track changes
-  const [showSaveModal, setShowSaveModal] = useState(false); // Popup for save
-  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
   const [timelineName, setTimelineName] = useState('');
   const [tempName, setTempName] = useState('');
 
@@ -247,21 +245,6 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       'MATH206',
     ]
   }
-
-  useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      if (hasUnsavedChanges) {
-        event.preventDefault();
-        event.returnValue = "You have unsaved changes. Do you really want to leave?";
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [hasUnsavedChanges]);
 
   // NEW: Fetch all courses from /courses/getAllCourses
   useEffect(() => {
@@ -655,8 +638,6 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       return;
     }
 
-    setHasUnsavedChanges(true);
-    
     // 1) Add the new semester to the "semesters" array, then sort
     setSemesters((prev) => {
       const newSemesters = [...prev, { id, name }];
@@ -679,7 +660,6 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     setSemesterCourses((prev) => {
       const updated = { ...prev };
       delete updated[semesterId];
-      setHasUnsavedChanges(true);
       return updated;
     });
   };
@@ -1641,38 +1621,6 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
             </div>
           </div>
         )}
-
-        {/* Leave Confirm Modal */}
-        <DeleteModal open={showLeaveModal} onClose={() => setShowModal(false)}>
-          <div className="tw-text-center tw-w-56">
-            <TrashLogo size={56} className="tw-mx-auto tw-text-red-500" />
-            <div className="tw-mx-auto tw-my-4 tw-w-48">
-              <h3 className="tw-text-lg tw-font-black tw-text-gray-800">
-                Confirm Delete
-              </h3>
-              <p className="tw-text-sm tw-text-gray-500">
-                Are you sure you want to delete "{timelineToDelete?.name}"?
-              </p>
-            </div>
-            <div className="tw-flex tw-gap-4">
-              <button
-                className="btn btn-danger tw-w-full"
-                onClick={() => {
-                  handleDelete(timelineToDelete?.id);
-                  setShowModal(false);
-                }}
-              >
-                Delete
-              </button>
-              <button
-                className="btn btn-light tw-w-full"
-                onClick={() => setShowModal(false)}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </DeleteModal>
       </DndContext>
     </motion.div >
   );
