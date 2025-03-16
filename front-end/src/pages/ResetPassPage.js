@@ -31,6 +31,11 @@ function ResetPassPage() {
 			return;
 		}
 
+		if (otp.length !== 4) {
+			setError("OTP must be 4 digits long.");
+			return;
+		}
+
 		// Check if passwords match
 		if (password !== confirmPassword) {
 			setError("Passwords do not match.");
@@ -84,77 +89,96 @@ function ResetPassPage() {
 				<div className="LogInPage">
 					<div className="container my-5 sign-in-container">
 						<h3 className="text-center mb-7">Reset Password</h3>
-						<form onSubmit={handleResetPassword}>
-							{/* Email Field */}
-							<div className="mb-3">
-								<label
-									htmlFor="otp"
-									className="form-label"
-								>
-									{" "}
-									OTP Code:{" "}
-								</label>
-								<input
-									type="text"
-									className="form-control"
-									id="text"
-									placeholder="* Enter your OTP"
-									value={otp}
-									onChange={(e) => setOTP(e.target.value)}
-								/>
-							</div>
+						<div className="position-relative">
+							<form onSubmit={handleResetPassword}>
+								{/* OTP Field */}
+								<div className="mb-3">
+									<label
+										htmlFor="otp"
+										className="form-label"
+									>
+										OTP Code:
+									</label>
+									<input
+										type="text"
+										className="form-control"
+										id="otp"
+										placeholder="* Enter your OTP"
+										value={otp}
+										onChange={(e) => {
+											setOTP(e.target.value);
+											setError(null);
+										}}
+									/>
+								</div>
 
-							{/* Password Field */}
-							<div className="mb-3">
-								<label
-									htmlFor="password"
-									className="form-label"
-								>
-									Password:
-								</label>
-								<input
-									type="password"
-									className="form-control"
-									id="password"
-									placeholder="* Enter your password"
-									value={password}
-									onChange={(e) => setPassword(e.target.value)}
-								/>
-							</div>
+								{/* Password Field */}
+								<div className="mb-3">
+									<label
+										htmlFor="password"
+										className="form-label"
+									>
+										Password:
+									</label>
+									<input
+										type="password"
+										className="form-control"
+										id="password"
+										placeholder="* Enter your password"
+										value={password}
+										onChange={(e) => {
+											setPassword(e.target.value);
+											setError(null);
+										}}
+									/>
+								</div>
 
-							{/* Confirm Password Field */}
-							<div className="mb-3">
-								<label
-									htmlFor="confirmPassword"
-									className="form-label"
-								>
-									Confirm Password:
-								</label>
-								<input
-									type="password"
-									className="form-control"
-									id="confirmPassword"
-									placeholder="* Confirm your password"
-									value={confirmPassword}
-									onChange={(e) => setConfirmPassword(e.target.value)}
-								/>
-							</div>
+								{/* Confirm Password Field */}
+								<div className="mb-3">
+									<label
+										htmlFor="confirmPassword"
+										className="form-label"
+									>
+										Confirm Password:
+									</label>
+									<input
+										type="password"
+										className="form-control"
+										id="confirmPassword"
+										placeholder="* Confirm your password"
+										value={confirmPassword}
+										onChange={(e) => {
+											setConfirmPassword(e.target.value);
+											setError(null);
+										}}
+									/>
+								</div>
 
-							{/* Display Error Message */}
-							{error && <Alert variant="danger">{error}</Alert>}
-
-							{/* Submit Button */}
-							<div className="d-grid gap-2">
-								<Button
-									className="button-outline"
-									variant="primary"
-									type="submit"
-									disabled={loading}
-								>
-									{loading ? "Resetting Password..." : "Submit"}
-								</Button>
-							</div>
-						</form>
+								{/* Submit Button */}
+								<div className="d-grid gap-2">
+									<Button
+										className="button-outline"
+										variant="primary"
+										type="submit"
+										disabled={loading}
+									>
+										{loading ? "Resetting Password..." : "Submit"}
+									</Button>
+								</div>
+								{error && (
+									<Alert
+										variant="danger"
+										style={{
+											marginTop: "30px", // Adds spacing below the button
+											width: "100%", // Matches button width
+											textAlign: "center", // Centers text
+										}}
+									>
+										{error}
+									</Alert>
+								)}
+							</form>
+						</div>
 					</div>
 				</div>
 			</>
