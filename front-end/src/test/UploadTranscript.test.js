@@ -48,15 +48,19 @@ describe('UploadTranscriptPage', () => {
     render(<UploadTranscript onDataProcessed={onDataProcessedMock} />);
 
     // Check if the instructions and upload section are present
-    expect(screen.getByText(/How to Download Your Transcript/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/How to Download Your Transcript/i),
+    ).toBeInTheDocument();
     expect(screen.getByText(/Upload Transcript/i)).toBeInTheDocument();
   });
 
   it('handles file input change correctly (PDF file)', () => {
     render(<UploadTranscript onDataProcessed={onDataProcessedMock} />);
-    
+
     const fileInput = screen.getByLabelText(/Browse/i);
-    const file = new File(['dummy content'], 'example.pdf', { type: 'application/pdf' });
+    const file = new File(['dummy content'], 'example.pdf', {
+      type: 'application/pdf',
+    });
     fireEvent.change(fileInput, { target: { files: [file] } });
 
     expect(screen.getByText('File Selected: example.pdf')).toBeInTheDocument();
@@ -64,20 +68,26 @@ describe('UploadTranscriptPage', () => {
 
   it('alerts user for invalid file type', () => {
     render(<UploadTranscript onDataProcessed={onDataProcessedMock} />);
-    
+
     const fileInput = screen.getByLabelText(/Browse/i);
-    const file = new File(['dummy content'], 'example.txt', { type: 'text/plain' });
+    const file = new File(['dummy content'], 'example.txt', {
+      type: 'text/plain',
+    });
     fireEvent.change(fileInput, { target: { files: [file] } });
 
     // Check for alert
-    expect(global.alert).toHaveBeenCalledWith('Please select a valid PDF file.');
+    expect(global.alert).toHaveBeenCalledWith(
+      'Please select a valid PDF file.',
+    );
   });
 
   it('handles drag and drop file upload correctly', () => {
     render(<UploadTranscript onDataProcessed={onDataProcessedMock} />);
-    
+
     const dropBox = screen.getByText(/Drag and Drop file/i);
-    const file = new File(['dummy content'], 'example.pdf', { type: 'application/pdf' });
+    const file = new File(['dummy content'], 'example.pdf', {
+      type: 'application/pdf',
+    });
 
     // Simulate drag over and drop
     fireEvent.dragOver(dropBox);
@@ -88,9 +98,11 @@ describe('UploadTranscriptPage', () => {
 
   it('alerts user for invalid drag-and-drop file type', () => {
     render(<UploadTranscript onDataProcessed={onDataProcessedMock} />);
-    
+
     const dropBox = screen.getByText(/Drag and Drop file/i);
-    const file = new File(['dummy content'], 'example.txt', { type: 'text/plain' });
+    const file = new File(['dummy content'], 'example.txt', {
+      type: 'text/plain',
+    });
 
     fireEvent.drop(dropBox, { dataTransfer: { files: [file] } });
 
@@ -99,7 +111,7 @@ describe('UploadTranscriptPage', () => {
 
   // it('calls onDataProcessed and navigates on valid file submit', async () => {
   //   render(<UploadTranscript onDataProcessed={onDataProcessedMock} />);
-    
+
   //   const fileInput = screen.getByLabelText(/Browse/i);
   //   const file = new File(['dummy content'], 'example.pdf', { type: 'application/pdf' });
   //   fireEvent.change(fileInput, { target: { files: [file] } });
@@ -121,15 +133,19 @@ describe('UploadTranscriptPage', () => {
 
   it('resets the form state on cancel', () => {
     render(<UploadTranscript onDataProcessed={onDataProcessedMock} />);
-    
+
     const fileInput = screen.getByLabelText(/Browse/i);
-    const file = new File(['dummy content'], 'example.pdf', { type: 'application/pdf' });
+    const file = new File(['dummy content'], 'example.pdf', {
+      type: 'application/pdf',
+    });
     fireEvent.change(fileInput, { target: { files: [file] } });
 
     fireEvent.click(screen.getByText('Cancel'));
 
     // Check that the file input is reset
     expect(screen.getByText('No file chosen')).toBeInTheDocument();
-    expect(screen.queryByText('File Selected: example.pdf')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('File Selected: example.pdf'),
+    ).not.toBeInTheDocument();
   });
 });

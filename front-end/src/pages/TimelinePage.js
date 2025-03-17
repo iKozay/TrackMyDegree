@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from "framer-motion"
+import { motion } from 'framer-motion';
 import {
   DndContext,
   useDraggable,
@@ -43,9 +43,11 @@ const DraggableCourse = ({
     data: { type: 'course', courseCode: id, containerId },
   });
 
-  const className = `course-item${disabled ? ' disabled' : ''}${isDragging ? ' dragging' : ''
-    }${isSelected && !isDragging && !disabled ? ' selected' : ''}${extraClassName ? ' ' + extraClassName : ''
-    }`;
+  const className = `course-item${disabled ? ' disabled' : ''}${
+    isDragging ? ' dragging' : ''
+  }${isSelected && !isDragging && !disabled ? ' selected' : ''}${
+    extraClassName ? ' ' + extraClassName : ''
+  }`;
 
   return (
     <div
@@ -62,7 +64,6 @@ const DraggableCourse = ({
     </div>
   );
 };
-
 
 // SortableCourse component for semester items
 const SortableCourse = ({
@@ -97,9 +98,11 @@ const SortableCourse = ({
     transition,
   };
 
-  const className = `course-item${disabled ? ' disabled' : ''}${isDragging ? ' dragging' : ''
-    }${isDraggingFromSemester ? ' dragging-from-semester' : ''}${isSelected ? ' selected' : ''
-    }`;
+  const className = `course-item${disabled ? ' disabled' : ''}${
+    isDragging ? ' dragging' : ''
+  }${isDraggingFromSemester ? ' dragging-from-semester' : ''}${
+    isSelected ? ' selected' : ''
+  }`;
 
   return (
     <div
@@ -137,14 +140,24 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
   });
 
   return (
-    <div ref={setNodeRef} className={className} data-semester-id={id} data-testid={id}>
+    <div
+      ref={setNodeRef}
+      className={className}
+      data-semester-id={id}
+      data-testid={id}
+    >
       {children}
     </div>
   );
 };
 
 // Main component
-const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredit }) => {
+const TimelinePage = ({
+  degreeid,
+  timelineData,
+  creditsrequired,
+  isExtendedCredit,
+}) => {
   const navigate = useNavigate();
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
@@ -157,8 +170,6 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
   // Flatten and filter courses from all pools based on the search query
 
-
-
   const userData = localStorage.getItem('user');
   const user = JSON.parse(userData);
   const location = useLocation();
@@ -166,8 +177,12 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   const scrollWrapperRef = useRef(null);
   const autoScrollInterval = useRef(null);
 
-
-  let { degreeId, startingSemester, creditsRequired = 120, extendedCredit } = location.state || {};
+  let {
+    degreeId,
+    startingSemester,
+    creditsRequired = 120,
+    extendedCredit,
+  } = location.state || {};
 
   // console.log("isExtendedCredit: " + isExtendedCredit);
   // console.log("extendedCredit: " + extendedCredit);
@@ -217,14 +232,14 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const toggleCourseList = () => setShowCourseList((prev) => !prev);
-  const toggleCourseDescription = () => setShowCourseDescription((prev) => !prev);
+  const toggleCourseDescription = () =>
+    setShowCourseDescription((prev) => !prev);
 
   const [allCourses, setAllCourses] = useState([]);
   const [showExempted, setShowExempted] = useState(true);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [timelineName, setTimelineName] = useState('');
   const [tempName, setTempName] = useState('');
-
 
   let DEFAULT_EXEMPTED_COURSES = [];
   if (!extendedCredit) {
@@ -237,44 +252,47 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       'CHEM205',
       'PHYS204',
       'PHYS205',
-    ]
-  }
-  else {
-    DEFAULT_EXEMPTED_COURSES = [
-      'MATH201',
-      'MATH206',
-    ]
+    ];
+  } else {
+    DEFAULT_EXEMPTED_COURSES = ['MATH201', 'MATH206'];
   }
 
   // NEW: Fetch all courses from /courses/getAllCourses
   useEffect(() => {
     const fetchAllCourses = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_SERVER}/courses/getAllCourses`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          `${process.env.REACT_APP_SERVER}/courses/getAllCourses`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
           },
-        });
+        );
         if (!response.ok) {
           throw new Error('Failed to fetch all courses');
         }
         const data = await response.json();
         setAllCourses(data);
       } catch (err) {
-        console.error("Error fetching all courses", err);
+        console.error('Error fetching all courses', err);
       }
     };
 
     fetchAllCourses();
 
-    if (localStorage.getItem("Timeline_Name")) {
-      if (localStorage.getItem("Timeline_Name") !== "" && localStorage.getItem("Timeline_Name") !== 'null' && localStorage.getItem("Timeline_Name") !== null) {
-        setTimelineName(localStorage.getItem("Timeline_Name"));
-        setTempName(localStorage.getItem("Timeline_Name"));
+    if (localStorage.getItem('Timeline_Name')) {
+      if (
+        localStorage.getItem('Timeline_Name') !== '' &&
+        localStorage.getItem('Timeline_Name') !== 'null' &&
+        localStorage.getItem('Timeline_Name') !== null
+      ) {
+        setTimelineName(localStorage.getItem('Timeline_Name'));
+        setTempName(localStorage.getItem('Timeline_Name'));
       } else {
-        setTimelineName("");
-        setTempName("");
+        setTimelineName('');
+        setTempName('');
       }
 
       //console.log("Timeline Name Local Storage: ", localStorage.getItem("Timeline_Name"));
@@ -285,13 +303,15 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
   // NEW: Compute remaining courses not in the degree's course pools
   const normalizedDegreeCourseCodes = new Set(
-    coursePools.flatMap(pool => pool.courses.map(course => course.code.trim().toUpperCase()))
+    coursePools.flatMap((pool) =>
+      pool.courses.map((course) => course.code.trim().toUpperCase()),
+    ),
   );
 
   const remainingCourses = allCourses.filter(
-    course => !normalizedDegreeCourseCodes.has(course.code.trim().toUpperCase())
+    (course) =>
+      !normalizedDegreeCourseCodes.has(course.code.trim().toUpperCase()),
   );
-
 
   // Sensors with activation constraints
   const mouseSensor = useSensor(MouseSensor, {
@@ -310,8 +330,8 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
   // Helper function to generate 2 years of semesters (6 semesters for 3 terms per year)
   const generateFourYearSemesters = (startSem) => {
-    const termOrder = ["Winter", "Summer", "Fall"];
-    const parts = startSem.split(" ");
+    const termOrder = ['Winter', 'Summer', 'Fall'];
+    const parts = startSem.split(' ');
     if (parts.length < 2) return [];
     let currentTerm = parts[0];
     let currentYear = parseInt(parts[1], 10);
@@ -335,32 +355,43 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     const fetchCoursesByDegree = async () => {
       try {
         // console.log('Fetching courses by degree:', degreeId);
-        const primaryResponse = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const primaryResponse = await fetch(
+          `${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ degree: degreeId }),
           },
-          body: JSON.stringify({ degree: degreeId }),
-        });
+        );
         if (!primaryResponse.ok) {
           const errorData = await primaryResponse.json();
-          throw new Error(errorData.error || `HTTP error! status: ${primaryResponse.status}`);
+          throw new Error(
+            errorData.error || `HTTP error! status: ${primaryResponse.status}`,
+          );
         }
         const primaryData = await primaryResponse.json();
 
         let combinedData = primaryData;
 
         if (extendedCredit) {
-          const extendedResponse = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
+          const extendedResponse = await fetch(
+            `${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ degree: 'ECP' }),
             },
-            body: JSON.stringify({ degree: 'ECP' }),
-          });
+          );
           if (!extendedResponse.ok) {
             const errorData = await extendedResponse.json();
-            throw new Error(errorData.error || `HTTP error! status: ${extendedResponse.status}`);
+            throw new Error(
+              errorData.error ||
+                `HTTP error! status: ${extendedResponse.status}`,
+            );
           }
           const extendedData = await extendedResponse.json();
           combinedData = primaryData.concat(extendedData);
@@ -391,7 +422,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
             combinedData = [...combinedData, deficiencyPool];
             const totalDefCredits = deficiencyPool.courses.reduce(
               (sum, course) => sum + (course.credits || 0),
-              0
+              0,
             );
             setDeficiencyCredits(totalDefCredits);
           }
@@ -409,7 +440,6 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     fetchCoursesByDegree();
   }, [degreeId, location.state?.creditDeficiency, extendedCredit]);
 
-
   // Process timelineData and generate semesters and courses
   useEffect(() => {
     // Wait until coursePools have loaded.
@@ -420,7 +450,6 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       return;
     }
 
-
     // --- Step 1. Separate exempted data from regular timelineData ---
     const nonExemptedData = [];
     let parsedExemptedCourses = [];
@@ -429,23 +458,23 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       timelineData.forEach((data) => {
         let isExempted = false;
         // Check the old format: data.term
-        if (data.term && typeof data.term === "string") {
-          isExempted = data.term.trim().toLowerCase() === "exempted 2020";
+        if (data.term && typeof data.term === 'string') {
+          isExempted = data.term.trim().toLowerCase() === 'exempted 2020';
         }
         // Check the new format: data.season and data.year
         else if (data.season && data.year) {
           isExempted =
-            data.season.trim().toLowerCase() === "exempted" &&
+            data.season.trim().toLowerCase() === 'exempted' &&
             parseInt(data.year, 10) === 2020;
         }
 
         if (isExempted) {
           // Extract courses from the exempted item.
-          if (data.course && typeof data.course === "string") {
+          if (data.course && typeof data.course === 'string') {
             parsedExemptedCourses.push(data.course.trim());
           } else if (Array.isArray(data.courses)) {
             data.courses.forEach((course) => {
-              if (typeof course === "string") {
+              if (typeof course === 'string') {
                 parsedExemptedCourses.push(course.trim());
               }
             });
@@ -456,7 +485,6 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
         }
       });
     } else {
-
       if (extendedCredit === null) {
         extendedCredit = false;
       }
@@ -474,10 +502,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
           'PHYS205',
         ];
       } else {
-        parsedExemptedCourses = [
-          'MATH201',
-          'MATH206',
-        ];
+        parsedExemptedCourses = ['MATH201', 'MATH206'];
       }
     }
 
@@ -489,24 +514,24 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     const semesterNames = new Set();
 
     nonExemptedData.forEach((data) => {
-      let term = "";
+      let term = '';
       // Default courses to an empty array if not provided.
       let courses = Array.isArray(data.courses)
         ? data.courses
-          .map((course) => (typeof course === "string" ? course.trim() : ""))
-          .filter(Boolean)
+            .map((course) => (typeof course === 'string' ? course.trim() : ''))
+            .filter(Boolean)
         : [];
 
-      if (data.term && typeof data.term === "string") {
+      if (data.term && typeof data.term === 'string') {
         term = data.term;
         // For old format, also check for a single course.
-        if (data.course && typeof data.course === "string") {
+        if (data.course && typeof data.course === 'string') {
           courses.push(data.course.trim());
         }
       } else if (data.season && data.year) {
         term =
-          data.season.trim().toLowerCase() === "exempted"
-            ? "Exempted"
+          data.season.trim().toLowerCase() === 'exempted'
+            ? 'Exempted'
             : `${data.season} ${data.year}`;
       }
 
@@ -518,7 +543,6 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
         semesterMap[term].push(...courses);
         semesterNames.add(term);
       }
-
     });
 
     // If a startingSemester is provided, generate missing empty semesters.
@@ -534,7 +558,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
     // --- Step 3. Insert the parsed exempted courses as a dedicated "Exempted" term ---
     if (parsedExemptedCourses.length > 0) {
-      const exemptedKey = "Exempted";
+      const exemptedKey = 'Exempted';
       semesterNames.add(exemptedKey);
       if (!semesterMap[exemptedKey]) {
         semesterMap[exemptedKey] = [];
@@ -548,11 +572,11 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
     // --- Step 4. Sort the semesters ---
     const sortedSemesters = Array.from(semesterNames).sort((a, b) => {
-      if (a.trim().toLowerCase() === "exempted") return -1;
-      if (b.trim().toLowerCase() === "exempted") return 1;
+      if (a.trim().toLowerCase() === 'exempted') return -1;
+      if (b.trim().toLowerCase() === 'exempted') return 1;
       const order = { Winter: 1, Summer: 2, Fall: 3 };
-      const [seasonA, yearA] = a.split(" ");
-      const [seasonB, yearB] = b.split(" ");
+      const [seasonA, yearA] = a.split(' ');
+      const [seasonB, yearB] = b.split(' ');
       if (yearA !== yearB) {
         return parseInt(yearA, 10) - parseInt(yearB, 10);
       }
@@ -564,35 +588,28 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       sortedSemesters.map((term) => ({
         id: term,
         name: term,
-      }))
+      })),
     );
     setSemesterCourses(
       Object.fromEntries(
-        sortedSemesters.map((term) => [term, semesterMap[term] || []])
-      )
+        sortedSemesters.map((term) => [term, semesterMap[term] || []]),
+      ),
     );
-    console.log("Building semesterMap from timelineData:", timelineData);
-    console.log("Resulting semesterMap:", semesterMap);
-
-
+    console.log('Building semesterMap from timelineData:', timelineData);
+    console.log('Resulting semesterMap:', semesterMap);
   }, [timelineData, coursePools, extendedCredit, startingSemester]);
-
-
-
-
 
   useEffect(() => {
     const handleResize = () => {
       setIsDesktop(window.innerWidth > 767);
       if (window.innerWidth > 999) {
         setAddButtonText('+ Add Semester');
-      }
-      else {
+      } else {
         setAddButtonText('+');
       }
-    }
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
@@ -667,7 +684,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   // ----------------------------------------------------------------------
   const isCourseAssigned = (courseCode) => {
     for (const semesterId in semesterCourses) {
-      if (semesterId === "courseList") continue;
+      if (semesterId === 'courseList') continue;
       if (semesterCourses[semesterId].includes(courseCode)) {
         return true;
       }
@@ -680,7 +697,6 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     const id = String(event.active.id);
 
     const course = allCourses.find((c) => c.code === id);
-
 
     if (course) {
       setSelectedCourse(course);
@@ -720,7 +736,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
           const updatedSemesters = { ...prevSemesters };
           const activeSemesterId = findSemesterIdByCourseCode(
             id,
-            prevSemesters
+            prevSemesters,
           );
           let overSemesterId;
           let overIndex;
@@ -757,7 +773,9 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
           }
 
           // Check if we exceed the limit
-          const overSemesterObj = semesters.find((s) => s.id === overSemesterId);
+          const overSemesterObj = semesters.find(
+            (s) => s.id === overSemesterId,
+          );
           if (!overSemesterObj) return prevSemesters; // safety check
 
           // Sum up the credits in the new semester
@@ -798,7 +816,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       const updatedSemesters = { ...prevSemesters };
       for (const semesterId in updatedSemesters) {
         updatedSemesters[semesterId] = updatedSemesters[semesterId].filter(
-          (code) => code !== courseCode
+          (code) => code !== courseCode,
         );
       }
       return updatedSemesters;
@@ -853,12 +871,14 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
         }
 
         const courseCodes = semesterCourses[semesterId];
-        const currentSemesterIndex = semesters.findIndex((s) => s.id === semesterId);
+        const currentSemesterIndex = semesters.findIndex(
+          (s) => s.id === semesterId,
+        );
 
         courseCodes.forEach((courseCode) => {
           // Find which pool this course belongs to
           let pool = coursePools.find((p) =>
-            p.courses.some((c) => c.code === courseCode)
+            p.courses.some((c) => c.code === courseCode),
           );
 
           // If not in coursePools, check if it belongs to remainingCourses
@@ -873,7 +893,10 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
           if (!course) return;
 
           // Check prerequisites
-          const prerequisitesMet = arePrerequisitesMet(courseCode, currentSemesterIndex);
+          const prerequisitesMet = arePrerequisitesMet(
+            courseCode,
+            currentSemesterIndex,
+          );
           if (!prerequisitesMet) {
             unmetPrereqFound = true;
           }
@@ -888,7 +911,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       // Sum up the assigned credits from all pools
       const total = Object.values(poolCreditMap).reduce(
         (sum, poolData) => sum + poolData.assigned,
-        0
+        0,
       );
 
       setTotalCredits(total);
@@ -897,8 +920,6 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
     calculateTotalCredits();
   }, [semesterCourses, semesters, coursePools, deficiencyCredits]);
-
-
 
   // Function to check if prerequisites and corequisites are met
   const arePrerequisitesMet = (courseCode, currentSemesterIndex) => {
@@ -912,8 +933,12 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     }
 
     // Separate prerequisites and corequisites
-    const prerequisites = course.requisites.filter(r => r.type.toLowerCase() === 'pre');
-    const corequisites = course.requisites.filter(r => r.type.toLowerCase() === 'co');
+    const prerequisites = course.requisites.filter(
+      (r) => r.type.toLowerCase() === 'pre',
+    );
+    const corequisites = course.requisites.filter(
+      (r) => r.type.toLowerCase() === 'co',
+    );
 
     // console.log(`Course ${courseCode} prerequisites:`, prerequisites);
     // console.log(`Course ${courseCode} corequisites:`, corequisites);
@@ -936,8 +961,10 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     const prerequisitesMet = prerequisites.every((prereq) => {
       if (prereq.group_id) {
         // For grouped prerequisites, at least one in the group must be completed
-        const group = prerequisites.filter(p => p.group_id === prereq.group_id);
-        const result = group.some(p => completedCourses.includes(p.code2));
+        const group = prerequisites.filter(
+          (p) => p.group_id === prereq.group_id,
+        );
+        const result = group.some((p) => completedCourses.includes(p.code2));
         // console.log(`Group ${prereq.group_id} met:`, result);
         return result;
       } else {
@@ -951,15 +978,18 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     // console.log(`Prerequisites met for course ${courseCode}:`, prerequisitesMet);
 
     // Collect courses scheduled in the current semester for corequisites
-    const currentSemesterCourses = semesterCourses[semesters[currentSemesterIndex]?.id] || [];
+    const currentSemesterCourses =
+      semesterCourses[semesters[currentSemesterIndex]?.id] || [];
     // console.log(`Current semester courses for corequisites:`, currentSemesterCourses);
 
     // Check corequisites
     const corequisitesMet = corequisites.every((coreq) => {
       if (coreq.group_id) {
         // If corequisites can also be grouped, handle similarly
-        const group = corequisites.filter(c => c.group_id === coreq.group_id);
-        const result = group.some(c => currentSemesterCourses.includes(c.code2));
+        const group = corequisites.filter((c) => c.group_id === coreq.group_id);
+        const result = group.some((c) =>
+          currentSemesterCourses.includes(c.code2),
+        );
         // console.log(`Corequisite group ${coreq.group_id} met:`, result);
         return result;
       } else {
@@ -978,11 +1008,10 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     return finalResult;
   };
 
-
   // The Gina Cody School of Engineering and Computer Science at Concordia University has the following credit limits for full-time students:
   // limit is 14 summer; Fall Winter 15.
   function getMaxCreditsForSemesterName(semesterName) {
-    if (semesterName.toLowerCase().includes("summer")) {
+    if (semesterName.toLowerCase().includes('summer')) {
       return 14;
     }
     return 15;
@@ -992,7 +1021,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     // Regex to find e.g. "(47.5 credits)"
     const match = poolName.match(/\(([\d.]+)\s*credits?\)/i);
     if (match) {
-      return parseFloat(match[1]);  // 47.5
+      return parseFloat(match[1]); // 47.5
     }
     return Infinity; // fallback if we can't parse a number
   }
@@ -1003,7 +1032,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   const confirmSaveTimeline = async (tName) => {
     // Ensure a valid timeline name is provided.
     if (!tName.trim()) {
-      alert("Timeline name is required!");
+      alert('Timeline name is required!');
       return;
     }
     setTimelineName(tName);
@@ -1019,12 +1048,12 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
     semesters.forEach((semester) => {
       // Split the semester name into season and year.
-      const [season, year = "2020"] = semester.name.split(" ");
+      const [season, year = '2020'] = semester.name.split(' ');
 
       // If this semester is "Exempted" or "Transfered Courses", collect its courses.
       if (
-        semester.id.trim().toLowerCase() === "exempted" ||
-        semester.id.trim().toLowerCase() === "transfered courses"
+        semester.id.trim().toLowerCase() === 'exempted' ||
+        semester.id.trim().toLowerCase() === 'transfered courses'
       ) {
         (semesterCourses[semester.id] || []).forEach((courseCode) => {
           const course = allCourses.find((c) => c.code === courseCode);
@@ -1056,21 +1085,23 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     });
 
     if (finalTimelineData.length === 0 && exempted_courses.length === 0) {
-      alert("No valid data to save.");
+      alert('No valid data to save.');
       return;
     }
 
     // Build the payload for the timeline.
-    const userTimeline = [{
-      user_id: user.id,
-      name: tName,
-      items: finalTimelineData.map((item) => ({
-        season: item.season,
-        year: item.year,
-        courses: item.courses.map((course) => course.courseCode),
-      })),
-      isExtendedCredit: extendedCredit || false,
-    }];
+    const userTimeline = [
+      {
+        user_id: user.id,
+        name: tName,
+        items: finalTimelineData.map((item) => ({
+          season: item.season,
+          year: item.year,
+          courses: item.courses.map((course) => course.courseCode),
+        })),
+        isExtendedCredit: extendedCredit || false,
+      },
+    ];
 
     const user_id = userTimeline[0].user_id;
     const timelineNameToSend = userTimeline[0].name;
@@ -1079,59 +1110,73 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
     // Save Exempted Courses.
     try {
-      const responseExemptions = await fetch(`${process.env.REACT_APP_SERVER}/exemption/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ coursecodes: exempted_courses, user_id }),
-      });
+      const responseExemptions = await fetch(
+        `${process.env.REACT_APP_SERVER}/exemption/create`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ coursecodes: exempted_courses, user_id }),
+        },
+      );
       const dataExemptions = await responseExemptions.json();
       if (!responseExemptions.ok) {
-        alert("Error saving Exempted Courses: " + (dataExemptions.message || ""));
+        alert(
+          'Error saving Exempted Courses: ' + (dataExemptions.message || ''),
+        );
       }
     } catch (error) {
-      console.error("Error saving Exempted Courses:", error);
-      alert("An error occurred while saving your timeline.");
+      console.error('Error saving Exempted Courses:', error);
+      alert('An error occurred while saving your timeline.');
     }
 
     // Save deficiency courses.
     try {
-      const responseDeficiency = await fetch(`${process.env.REACT_APP_SERVER}/deficiency/create`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          coursepool: deficiencyCourses,
-          user_id,
-          creditsRequired: deficiencyCredits,
-        }),
-      });
+      const responseDeficiency = await fetch(
+        `${process.env.REACT_APP_SERVER}/deficiency/create`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            coursepool: deficiencyCourses,
+            user_id,
+            creditsRequired: deficiencyCredits,
+          }),
+        },
+      );
       // Optionally check responseDeficiency here.
     } catch (err) {
-      console.error("Error saving deficiency", err);
+      console.error('Error saving deficiency', err);
     }
 
     // Save the complete timeline.
     try {
-      const responseTimeline = await fetch(`${process.env.REACT_APP_SERVER}/timeline/save`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id, name: timelineNameToSend, items, degree_id: degreeId, isExtendedCredit }),
-      });
+      const responseTimeline = await fetch(
+        `${process.env.REACT_APP_SERVER}/timeline/save`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id,
+            name: timelineNameToSend,
+            items,
+            degree_id: degreeId,
+            isExtendedCredit,
+          }),
+        },
+      );
       const dataTimeline = await responseTimeline.json();
       if (responseTimeline.ok) {
         alert('Timeline saved successfully!');
         setShowSaveModal(false); // Close the modal
         navigate('/user'); // Navigate after saving
       } else {
-        alert("Error saving Timeline: " + (dataTimeline.message || ""));
+        alert('Error saving Timeline: ' + (dataTimeline.message || ''));
       }
     } catch (error) {
-      console.error("Error saving timeline:", error);
-      alert("An error occurred while saving your timeline.");
+      console.error('Error saving timeline:', error);
+      alert('An error occurred while saving your timeline.');
     }
   };
-
-
-
 
   // Function to handle mouse move over the scrollable container
   const handleScrollMouseMove = (e) => {
@@ -1153,7 +1198,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     }
 
     if (direction !== 0) {
-      wrapper.classList.add("scrolling");
+      wrapper.classList.add('scrolling');
       if (!autoScrollInterval.current) {
         autoScrollInterval.current = setInterval(() => {
           // Adjust the speed
@@ -1162,7 +1207,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       }
     } else {
       // Remove the visual cue and stop scrolling if mouse is not in the edge zone
-      wrapper.classList.remove("scrolling");
+      wrapper.classList.remove('scrolling');
       if (autoScrollInterval.current) {
         clearInterval(autoScrollInterval.current);
         autoScrollInterval.current = null;
@@ -1173,7 +1218,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   const handleScrollMouseLeave = () => {
     const wrapper = scrollWrapperRef.current;
     if (!wrapper) return;
-    wrapper.classList.remove("scrolling");
+    wrapper.classList.remove('scrolling');
     if (autoScrollInterval.current) {
       clearInterval(autoScrollInterval.current);
       autoScrollInterval.current = null;
@@ -1181,14 +1226,12 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   };
   // ----------------------------------------------------------------------------------------------------------------------
   return (
-
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.7 }}
     >
-
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -1196,10 +1239,8 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-
         {/* We blur the background content when modal is open */}
         <div className={`timeline-container ${isModalOpen ? 'blurred' : ''}`}>
-
           {/* Loading and Error States */}
           {loading && (
             <div className="loading-container">
@@ -1218,22 +1259,31 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
               {/* Total Credits Display */}
               <div className="credits-display">
                 <h4>
-                  Total Credits Earned: {totalCredits} / {creditsRequired + deficiencyCredits}
+                  Total Credits Earned: {totalCredits} /{' '}
+                  {creditsRequired + deficiencyCredits}
                 </h4>
                 {/* Save Timeline Button */}
                 <button
                   className="save-timeline-button"
-                  onClick={() => timelineName ? confirmSaveTimeline(timelineName) : setShowSaveModal(true)}
-                //onClick={() => setShowSaveModal(true)} // You can define this handler to save the transcript
+                  onClick={() =>
+                    timelineName
+                      ? confirmSaveTimeline(timelineName)
+                      : setShowSaveModal(true)
+                  }
+                  //onClick={() => setShowSaveModal(true)} // You can define this handler to save the transcript
                 >
                   Save Timeline
                 </button>
               </div>
 
               <div className="timeline-page">
-
-                <Droppable className='courses-with-button' id="courses-with-button">
-                  <div className={`timeline-left-bar ${showCourseList ? '' : 'hidden'}`}>
+                <Droppable
+                  className="courses-with-button"
+                  id="courses-with-button"
+                >
+                  <div
+                    className={`timeline-left-bar ${showCourseList ? '' : 'hidden'}`}
+                  >
                     {showCourseList && (
                       <div>
                         <h4>Course List</h4>
@@ -1247,41 +1297,64 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
                         />
 
                         <div className="course-list-container-timeline">
-
-                          <Droppable id="courseList" className="course-list" style={{color: "red"}}>
+                          <Droppable
+                            id="courseList"
+                            className="course-list"
+                            style={{ color: 'red' }}
+                          >
                             <Accordion>
                               {coursePools.map((coursePool) => {
                                 // Determine if any course in this pool matches the search query.
                                 const poolMatches =
-                                  searchQuery.trim() === "" ||
-                                  coursePool.courses.some(
-                                    (course) =>
-                                      course.code.toLowerCase().includes(searchQuery.toLowerCase())
+                                  searchQuery.trim() === '' ||
+                                  coursePool.courses.some((course) =>
+                                    course.code
+                                      .toLowerCase()
+                                      .includes(searchQuery.toLowerCase()),
                                   );
                                 return (
                                   <Accordion.Item
                                     eventKey={coursePool.poolName}
                                     key={coursePool.poolId}
-                                    className={searchQuery.trim() !== "" && !poolMatches ? "hidden-accordion" : ""}
+                                    className={
+                                      searchQuery.trim() !== '' && !poolMatches
+                                        ? 'hidden-accordion'
+                                        : ''
+                                    }
                                   >
-                                    <Accordion.Header>{coursePool.poolName}</Accordion.Header>
+                                    <Accordion.Header>
+                                      {coursePool.poolName}
+                                    </Accordion.Header>
                                     <Accordion.Body>
                                       <Container>
                                         {coursePool.courses.map((course) => {
                                           const courseMatches =
-                                            searchQuery.trim() === "" ||
-                                            course.code.toLowerCase().includes(searchQuery.toLowerCase())
+                                            searchQuery.trim() === '' ||
+                                            course.code
+                                              .toLowerCase()
+                                              .includes(
+                                                searchQuery.toLowerCase(),
+                                              );
                                           return (
                                             <DraggableCourse
                                               key={`${course.code}-${isCourseAssigned(course.code)}`}
                                               id={course.code}
                                               title={course.code}
-                                              disabled={isCourseAssigned(course.code)}
+                                              disabled={isCourseAssigned(
+                                                course.code,
+                                              )}
                                               isReturning={returning}
-                                              isSelected={selectedCourse?.code === course.code}
+                                              isSelected={
+                                                selectedCourse?.code ===
+                                                course.code
+                                              }
                                               onSelect={handleCourseSelect}
                                               containerId="courseList"
-                                              className={!courseMatches ? "hidden-course" : ""}
+                                              className={
+                                                !courseMatches
+                                                  ? 'hidden-course'
+                                                  : ''
+                                              }
                                             />
                                           );
                                         })}
@@ -1295,33 +1368,46 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
                                 eventKey="remaining-courses"
                                 key="remaining-courses"
                                 className={
-                                  searchQuery.trim() !== "" &&
-                                    !remainingCourses.some(
-                                      (course) =>
-                                        course.code.toLowerCase().includes(searchQuery.toLowerCase())
-                                    )
-                                    ? "hidden-accordion"
-                                    : ""
+                                  searchQuery.trim() !== '' &&
+                                  !remainingCourses.some((course) =>
+                                    course.code
+                                      .toLowerCase()
+                                      .includes(searchQuery.toLowerCase()),
+                                  )
+                                    ? 'hidden-accordion'
+                                    : ''
                                 }
                               >
-                                <Accordion.Header>Remaining Courses</Accordion.Header>
+                                <Accordion.Header>
+                                  Remaining Courses
+                                </Accordion.Header>
                                 <Accordion.Body>
                                   <Container>
                                     {remainingCourses.map((course) => {
                                       const courseMatches =
-                                        searchQuery.trim() === "" ||
-                                        course.code.toLowerCase().includes(searchQuery.toLowerCase())
+                                        searchQuery.trim() === '' ||
+                                        course.code
+                                          .toLowerCase()
+                                          .includes(searchQuery.toLowerCase());
                                       return (
                                         <DraggableCourse
                                           key={`${course.code}-${isCourseAssigned(course.code)}`}
                                           id={course.code}
                                           title={course.code}
-                                          disabled={isCourseAssigned(course.code)}
+                                          disabled={isCourseAssigned(
+                                            course.code,
+                                          )}
                                           isReturning={returning}
-                                          isSelected={selectedCourse?.code === course.code}
+                                          isSelected={
+                                            selectedCourse?.code === course.code
+                                          }
                                           onSelect={handleCourseSelect}
                                           containerId="courseList"
-                                          className={!courseMatches ? "hidden-course" : ""}
+                                          className={
+                                            !courseMatches
+                                              ? 'hidden-course'
+                                              : ''
+                                          }
                                         />
                                       );
                                     })}
@@ -1335,15 +1421,22 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
                     )}
                   </div>
 
-                  <button className="left-toggle-button" onClick={toggleCourseList}>
+                  <button
+                    className="left-toggle-button"
+                    onClick={toggleCourseList}
+                  >
                     {showCourseList ? '◀' : '▶'}
                   </button>
                 </Droppable>
 
                 <div className="timeline-middle-section">
-                  <div className='timeline-header'>
-                    <div className='timeline-title'>
-                      { timelineName  && timelineName !== 'null' ? <h2>{timelineName}</h2> : <h2>My Timeline</h2>}
+                  <div className="timeline-header">
+                    <div className="timeline-title">
+                      {timelineName && timelineName !== 'null' ? (
+                        <h2>{timelineName}</h2>
+                      ) : (
+                        <h2>My Timeline</h2>
+                      )}
                     </div>
                     <button
                       className="add-semester-button"
@@ -1363,86 +1456,120 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
                       e.currentTarget.scrollLeft += e.deltaY;
                     }}
                   >
-
                     <div className="semesters">
                       {semesters.map((semester, index) => {
                         // 1) Calculate total credits for this semester
-                        const isExempted = semester.id.trim().toLowerCase().startsWith('exempted');
+                        const isExempted = semester.id
+                          .trim()
+                          .toLowerCase()
+                          .startsWith('exempted');
 
                         const sumCredits = semesterCourses[semester.id]
-                        .map((cCode) => {
-                          // Look for the course in both coursePools and remainingCourses
-                          const courseInPool = coursePools
-                            .flatMap((pool) => pool.courses)
-                            .find((c) => c.code === cCode);
-                  
-                          // If course is not in coursePools, check in remainingCourses
-                          const courseInRemaining = remainingCourses.find((c) => c.code === cCode);
-                  
-                          // Choose the course found in either pool or remaining courses
-                          const course = courseInPool || courseInRemaining;
-                  
-                          return course ? course.credits : 0; // Return the course's credits or 0 if not found
-                        })
+                          .map((cCode) => {
+                            // Look for the course in both coursePools and remainingCourses
+                            const courseInPool = coursePools
+                              .flatMap((pool) => pool.courses)
+                              .find((c) => c.code === cCode);
+
+                            // If course is not in coursePools, check in remainingCourses
+                            const courseInRemaining = remainingCourses.find(
+                              (c) => c.code === cCode,
+                            );
+
+                            // Choose the course found in either pool or remaining courses
+                            const course = courseInPool || courseInRemaining;
+
+                            return course ? course.credits : 0; // Return the course's credits or 0 if not found
+                          })
                           .reduce((sum, c) => sum + c, 0);
 
                         // 2) Compare to max limit
-                        const maxAllowed = getMaxCreditsForSemesterName(semester.name);
+                        const maxAllowed = getMaxCreditsForSemesterName(
+                          semester.name,
+                        );
                         const isOver = sumCredits > maxAllowed;
 
                         // 3) “semester-credit” + conditionally add “over-limit-warning”
                         const creditClass = isOver
-                          ? "semester-credit over-limit-warning"
-                          : "semester-credit";
+                          ? 'semester-credit over-limit-warning'
+                          : 'semester-credit';
 
                         return (
-                          <div key={semester.id} className={`semester ${isExempted ? "hidden-accordion" : ""} ${shakingSemesterId === semester.id ? 'exceeding-credit-limit' : ''
-                            }`}>
+                          <div
+                            key={semester.id}
+                            className={`semester ${isExempted ? 'hidden-accordion' : ''} ${
+                              shakingSemesterId === semester.id
+                                ? 'exceeding-credit-limit'
+                                : ''
+                            }`}
+                          >
                             <Droppable id={semester.id} color="pink">
                               <h3>{semester.name}</h3>
                               <SortableContext
                                 items={semesterCourses[semester.id]}
                                 strategy={verticalListSortingStrategy}
                               >
-                                {semesterCourses[semester.id].map((courseCode) => {
-                                  const course = allCourses.find((c) => c.code === courseCode);
-                                  if (!course) return null;
-                                  const isSelected = selectedCourse?.code === course.code;
-                                  const isDraggingFromSemester = activeId === course.code;
+                                {semesterCourses[semester.id].map(
+                                  (courseCode) => {
+                                    const course = allCourses.find(
+                                      (c) => c.code === courseCode,
+                                    );
+                                    if (!course) return null;
+                                    const isSelected =
+                                      selectedCourse?.code === course.code;
+                                    const isDraggingFromSemester =
+                                      activeId === course.code;
 
-                                  // Check if prerequisites are met
-                                  const prerequisitesMet = arePrerequisitesMet(course.code, index);
+                                    // Check if prerequisites are met
+                                    const prerequisitesMet =
+                                      arePrerequisitesMet(course.code, index);
 
-                                  return (
-                                    <SortableCourse
-                                      key={course.code}
-                                      id={course.code}
-                                      title={course.code}
-                                      disabled={false}
-                                      isSelected={isSelected}
-                                      isDraggingFromSemester={isDraggingFromSemester}
-                                      onSelect={handleCourseSelect}
-                                      containerId={semester.id}
-                                      prerequisitesMet={prerequisitesMet} // Pass the prop
-                                      removeButton={(
-                                        <button
-                                          className="remove-course-btn"
-                                          onClick={() => handleReturn(course.code)}
-                                        >
-                                          <svg width="25" height="20" viewBox="0 0 30 24" fill="red" xmlns="http://www.w3.org/2000/svg">
-                                            <rect x="2" y="11" width="22" height="4" fill="red" />
-                                          </svg>
-                                        </button>
-                                      )}
-                                    />
-                                  );
-                                })}
+                                    return (
+                                      <SortableCourse
+                                        key={course.code}
+                                        id={course.code}
+                                        title={course.code}
+                                        disabled={false}
+                                        isSelected={isSelected}
+                                        isDraggingFromSemester={
+                                          isDraggingFromSemester
+                                        }
+                                        onSelect={handleCourseSelect}
+                                        containerId={semester.id}
+                                        prerequisitesMet={prerequisitesMet} // Pass the prop
+                                        removeButton={
+                                          <button
+                                            className="remove-course-btn"
+                                            onClick={() =>
+                                              handleReturn(course.code)
+                                            }
+                                          >
+                                            <svg
+                                              width="25"
+                                              height="20"
+                                              viewBox="0 0 30 24"
+                                              fill="red"
+                                              xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                              <rect
+                                                x="2"
+                                                y="11"
+                                                width="22"
+                                                height="4"
+                                                fill="red"
+                                              />
+                                            </svg>
+                                          </button>
+                                        }
+                                      />
+                                    );
+                                  },
+                                )}
                               </SortableContext>
 
                               <div className="semester-footer">
                                 <div className={creditClass}>
-                                  Total Credit: {sumCredits}
-                                  {" "}
+                                  Total Credit: {sumCredits}{' '}
                                   {isOver && (
                                     <span>
                                       <br /> Over the credit limit {maxAllowed}
@@ -1452,7 +1579,9 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
                                 <button
                                   className="remove-semester-btn"
-                                  onClick={() => handleRemoveSemester(semester.id)}
+                                  onClick={() =>
+                                    handleRemoveSemester(semester.id)
+                                  }
                                 >
                                   <svg
                                     width="1.2em"
@@ -1465,8 +1594,10 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
                                     strokeLinejoin="round"
                                   >
                                     <polyline points="3 6 5 6 21 6" />
-                                    <path d="M19 6l-1.21 14.06A2 2 0 0 1 15.8 22H8.2a2 2 0 0 1-1.99-1.94L5 6m3 0V4a2 2 0 0 1 2-2h2
-                                   a2 2 0 0 1 2 2v2" />
+                                    <path
+                                      d="M19 6l-1.21 14.06A2 2 0 0 1 15.8 22H8.2a2 2 0 0 1-1.99-1.94L5 6m3 0V4a2 2 0 0 1 2-2h2
+                                   a2 2 0 0 1 2 2v2"
+                                    />
                                     <line x1="10" y1="11" x2="10" y2="17" />
                                     <line x1="14" y1="11" x2="14" y2="17" />
                                   </svg>
@@ -1480,49 +1611,67 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
                   </div>
                 </div>
 
-                <div className='description-and-button'>
-                  <button className="right-toggle-button" onClick={toggleCourseDescription}>
+                <div className="description-and-button">
+                  <button
+                    className="right-toggle-button"
+                    onClick={toggleCourseDescription}
+                  >
                     {showCourseDescription ? '▶' : '◀'}
                   </button>
-                  <div className={`description-section ${showCourseDescription ? '' : 'hidden'}`}>
+                  <div
+                    className={`description-section ${showCourseDescription ? '' : 'hidden'}`}
+                  >
                     {selectedCourse ? (
                       <div>
                         <h5>{selectedCourse.title}</h5>
                         <p>Credits: {selectedCourse.credits}</p>
-                        <p data-testid='course-description'>{selectedCourse.description}</p>
+                        <p data-testid="course-description">
+                          {selectedCourse.description}
+                        </p>
 
                         {selectedCourse.requisites && (
                           <div>
                             <h5>Prerequisites/Corequisites:</h5>
                             <ul>
-                              {groupPrerequisites(selectedCourse.requisites).map((group, index) => (
+                              {groupPrerequisites(
+                                selectedCourse.requisites,
+                              ).map((group, index) => (
                                 <li key={index}>
-                                  {group.type.toLowerCase() === 'pre' ? 'Prerequisite: ' : 'Corequisite: '}
+                                  {group.type.toLowerCase() === 'pre'
+                                    ? 'Prerequisite: '
+                                    : 'Corequisite: '}
                                   {group.codes.join(' or ')}
                                 </li>
                               ))}
                             </ul>
-                            {selectedCourse.requisites.length === 0 && <ul><li>None</li></ul>}
+                            {selectedCourse.requisites.length === 0 && (
+                              <ul>
+                                <li>None</li>
+                              </ul>
+                            )}
                           </div>
                         )}
                       </div>
                     ) : (
-                      <p data-testid='course-description'>Drag or click on a course to see its description here.</p>
+                      <p data-testid="course-description">
+                        Drag or click on a course to see its description here.
+                      </p>
                     )}
                   </div>
-
                 </div>
                 <DragOverlay dropAnimation={returning ? null : undefined}>
                   {activeId ? (
                     <div className="course-item-overlay selected">
-                      {allCourses.find((course) => course.code === activeId)?.code}
+                      {
+                        allCourses.find((course) => course.code === activeId)
+                          ?.code
+                      }
                     </div>
                   ) : null}
                 </DragOverlay>
               </div>
             </>
           )}
-
         </div>
 
         {/* ---------- Modal for Add Semester ---------- */}
@@ -1540,7 +1689,9 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
               <hr style={{ marginBottom: '1rem' }} />
 
               {/* Container for the two selects */}
-              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+              <div
+                style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}
+              >
                 {/* Term Select */}
                 <div className="select-container">
                   <label className="select-label">Term</label>
@@ -1606,10 +1757,11 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
                 />
               </div>
 
-              <button className="TL-button"
+              <button
+                className="TL-button"
                 onClick={() => {
                   // set timeline name as value of input field
-                  if (tempName.trim() === "") {
+                  if (tempName.trim() === '') {
                     setShowSaveModal(true);
                   } else {
                     confirmSaveTimeline(tempName);
@@ -1622,7 +1774,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
           </div>
         )}
       </DndContext>
-    </motion.div >
+    </motion.div>
   );
 };
 

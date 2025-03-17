@@ -1,12 +1,12 @@
 import '../css/UploadTranscriptPage.css';
 import React, { useState, useRef } from 'react';
 import { pdfjs } from 'react-pdf';
-import { useNavigate } from 'react-router-dom';  // Import useNavigate from react-router-dom
+import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
 import PrintImage from '../images/Print_image.png';
 import PdfImage from '../images/Pdf_image.png';
 import TransImage from '../images/Transc_image.png';
 import Button from 'react-bootstrap/Button';
-import { motion } from "framer-motion"
+import { motion } from 'framer-motion';
 
 // Set the worker source
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -64,7 +64,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
                   text: textContentPage.items.map((item) => item.str).join(' '),
                 };
               });
-            })
+            }),
           );
         }
         Promise.all(pagesPromises).then((pagesData) => {
@@ -73,8 +73,8 @@ const UploadTranscript = ({ onDataProcessed }) => {
           const transcriptData = matchTermsWithCourses(extractedData.results);
 
           // Extract Degree Info
-          const degreeInfo = extractedData.degree || "Unknown Degree";
-          const degreeId = extractedData.degreeId || "Unknown"; // Map degree to ID
+          const degreeInfo = extractedData.degree || 'Unknown Degree';
+          const degreeId = extractedData.degreeId || 'Unknown'; // Map degree to ID
           const isExtendedCredit = extractedData.ecp || false;
 
           if (transcriptData.length > 0) {
@@ -83,13 +83,15 @@ const UploadTranscript = ({ onDataProcessed }) => {
             onDataProcessed({
               transcriptData,
               degreeId,
-              isExtendedCredit
+              isExtendedCredit,
             }); // Send grouped data to parent
             console.log('transcriptData from PDF:', transcriptData);
             console.log('Degree:', degreeInfo);
             console.log('Degree ID:', degreeId);
-            console.log("Ecp", extractedData.ecp);
-            navigate('/timeline_change', { state: { coOp: null, extendedCreditCourses: extractedData.ecp } }); // Navigate to TimelinePage
+            console.log('Ecp', extractedData.ecp);
+            navigate('/timeline_change', {
+              state: { coOp: null, extendedCreditCourses: extractedData.ecp },
+            }); // Navigate to TimelinePage
           } else {
             setOutput(`<h3>There are no courses to show!</h3>`);
           }
@@ -131,18 +133,32 @@ const UploadTranscript = ({ onDataProcessed }) => {
           <h3>How to Download Your Transcript</h3>
           <ol>
             <li>
-              Go to <strong>Student Center</strong>, and under the <strong>"Academics"</strong> section, click on <em>"View Unofficial Transcript"</em>.
+              Go to <strong>Student Center</strong>, and under the{' '}
+              <strong>"Academics"</strong> section, click on{' '}
+              <em>"View Unofficial Transcript"</em>.
               <br />
-              <img src={TransImage} alt="Step 1" className="instruction-image" />
+              <img
+                src={TransImage}
+                alt="Step 1"
+                className="instruction-image"
+              />
             </li>
             <li>
-              Scroll till the end of the transcript and click on the <strong>"Print"</strong> button.
+              Scroll till the end of the transcript and click on the{' '}
+              <strong>"Print"</strong> button.
               <br />
-              <img src={PrintImage} alt="Step 2" className="instruction-image" />
+              <img
+                src={PrintImage}
+                alt="Step 2"
+                className="instruction-image"
+              />
             </li>
             <li>
-              In the <strong>"Print"</strong> prompt, for the <em>"Destination"</em> field, please select <strong>"Save as PDF"</strong>.
-              <br /><strong>Do not choose "Microsoft Print to PDF".</strong>
+              In the <strong>"Print"</strong> prompt, for the{' '}
+              <em>"Destination"</em> field, please select{' '}
+              <strong>"Save as PDF"</strong>.
+              <br />
+              <strong>Do not choose "Microsoft Print to PDF".</strong>
               <br />
               <img src={PdfImage} alt="Step 3" className="instruction-image" />
             </li>
@@ -173,8 +189,14 @@ const UploadTranscript = ({ onDataProcessed }) => {
           </div>
 
           <div className="button-group">
-            <Button variant="danger" onClick={handleCancel}> Cancel</Button>
-            <Button variant="primary" onClick={handleSubmit}> Submit </Button>
+            <Button variant="danger" onClick={handleCancel}>
+              {' '}
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleSubmit}>
+              {' '}
+              Submit{' '}
+            </Button>
           </div>
 
           <div id="output" dangerouslySetInnerHTML={{ __html: output }}></div>
@@ -186,11 +208,12 @@ const UploadTranscript = ({ onDataProcessed }) => {
 
 // Functions to extract terms, courses, and match them
 const extractTermsCoursesAndSeparators = (pagesData) => {
-  const termRegex = /((\s*(Winter|Summer|Fall|Fall\/Winter)\s*\d{4}\s\s)|(\s*(Fall\/Winter)\s*20(\d{2})-(?!\6)\d{2}))/g;
+  const termRegex =
+    /((\s*(Winter|Summer|Fall|Fall\/Winter)\s*\d{4}\s\s)|(\s*(Fall\/Winter)\s*20(\d{2})-(?!\6)\d{2}))/g;
   // Capture department (3-4 letters), course number (3 digits), then a flexible description
   // The grade group is now optional, so it may or may not appear.
-  const courseRegex = /([A-Za-z]{3,4})\s+(\d{3})\s+(.*?)(?:\s+([A-F][+-]?|PASS|FNS))?\b/g;
-
+  const courseRegex =
+    /([A-Za-z]{3,4})\s+(\d{3})\s+(.*?)(?:\s+([A-F][+-]?|PASS|FNS))?\b/g;
 
   // Updated regex for exempted courses
   const exemp_course = /([A-Za-z]{3,4})\s+(\d{3})\s+(.+?)\s+(EX|TRC)\b/g;
@@ -199,15 +222,15 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
   const extendedCreditRegex = /\s*Extended\s*Credit\s*Program\s*/g;
   let ecp = null;
   const degreeMapping = {
-    "Bachelor of Engineering, Aerospace Engineering": "D1",
-    "Bachelor of Engineering, Building Engineering": "D2",
-    "Bachelor of Engineering, Civil Engineering": "D3",
-    "Bachelor of Engineering, Computer Engineering": "D4",
-    "Bachelor of Computer Science, Computer Science": "D5",
-    "Bachelor of Engineering, Electrical Engineering": "D6",
-    "Bachelor of Engineering, Industrial Engineering": "D7",
-    "Bachelor of Engineering, Mechanical Engineering": "D8",
-    "Bachelor of Engineering, Software Engineering": "D9",
+    'Bachelor of Engineering, Aerospace Engineering': 'D1',
+    'Bachelor of Engineering, Building Engineering': 'D2',
+    'Bachelor of Engineering, Civil Engineering': 'D3',
+    'Bachelor of Engineering, Computer Engineering': 'D4',
+    'Bachelor of Computer Science, Computer Science': 'D5',
+    'Bachelor of Engineering, Electrical Engineering': 'D6',
+    'Bachelor of Engineering, Industrial Engineering': 'D7',
+    'Bachelor of Engineering, Mechanical Engineering': 'D8',
+    'Bachelor of Engineering, Software Engineering': 'D9',
   };
   const degreeRegex = /Bachelor of [A-Za-z\s]+,\s*[A-Za-z\s]+/g; // Matches "Bachelor of Software Engineering", etc.
   let degree = null;
@@ -267,16 +290,15 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
     let exemptedMatch;
     while ((exemptedMatch = exemp_course.exec(text)) !== null) {
       results.push({
-        name: exemptedMatch[1] + exemptedMatch[2],  // e.g. "MATH 201"
+        name: exemptedMatch[1] + exemptedMatch[2], // e.g. "MATH 201"
         page: page,
         type: 'Exempted Course',
         position: exemptedMatch.index,
-        grade: exemptedMatch[4],  // e.g. "EX" or "TRC" or "PASS"
+        grade: exemptedMatch[4], // e.g. "EX" or "TRC" or "PASS"
       });
 
       console.log('Exempted Course:', exemptedMatch[1] + exemptedMatch[2]);
     }
-
   });
   console.log('Degree', degreeId);
   console.log('Extended Credit Program:', ecp);
@@ -285,7 +307,6 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
 };
 
 const matchTermsWithCourses = (data) => {
-
   // First, gather all exempted course codes in a Set
   const exemptedSet = new Set();
   data.forEach((item) => {
@@ -298,10 +319,13 @@ const matchTermsWithCourses = (data) => {
   let currentTerm = data[0]?.name; // Use optional chaining to safely access `name`
   let terms = [];
 
-  data.sort((a, b) => (a.page !== b.page ? a.page - b.page : a.position - b.position));
+  data.sort((a, b) =>
+    a.page !== b.page ? a.page - b.page : a.position - b.position,
+  );
 
   data.forEach((item) => {
-    if (item && item.type === 'Term' && item.name) {  // Ensure `item` and `item.name` are defined
+    if (item && item.type === 'Term' && item.name) {
+      // Ensure `item` and `item.name` are defined
       if (!terms.includes(item.name)) {
         terms.push(item.name);
       }
@@ -309,16 +333,16 @@ const matchTermsWithCourses = (data) => {
 
     if (item && item.type === 'Exempted Course' && item.name) {
       matchedResults.push({
-        term: 'Exempted 2020',   // Force them all into “Exempted 2020”
-        course: item.name,       // e.g. "MATH 201"
-        grade: item.grade,       // e.g. "EX" or "TRC" or "PASS"
+        term: 'Exempted 2020', // Force them all into “Exempted 2020”
+        course: item.name, // e.g. "MATH 201"
+        grade: item.grade, // e.g. "EX" or "TRC" or "PASS"
       });
     }
 
-
     // Only add regular courses if they haven't already been marked as exempted
     if (item && item.type === 'Course' && currentTerm && item.name) {
-      if (!exemptedSet.has(item.name)) {  // Check if course is not in exempted set
+      if (!exemptedSet.has(item.name)) {
+        // Check if course is not in exempted set
         matchedResults.push({
           term: currentTerm,
           course: item.name,
@@ -335,6 +359,5 @@ const matchTermsWithCourses = (data) => {
   console.log('Grouped data: ', matchedResults);
   return matchedResults;
 };
-
 
 export default UploadTranscript;
