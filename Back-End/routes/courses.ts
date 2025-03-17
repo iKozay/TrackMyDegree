@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import courseController from "@controllers/courseController/coursesController";
+import courseController from "@controllers/courseController/courseController";
 import CourseTypes from "@controllers/courseController/course_types";
 import HTTP from "@Util/HTTPCodes";
 
