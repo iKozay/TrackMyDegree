@@ -38,7 +38,7 @@ router.post("/getAll", async (req: Request, res: Response) => {
     if (timelines && timelines.length > 0) {
       res.status(HTTP.OK).json(timelines);
     } else {
-      res.status(HTTP.NOT_FOUND).json({ error: "No timelines found" });
+      res.status(HTTP.OK).json("No timelines found");
     }
   } catch (error) {
     console.error("Error in /timeline/getAll", error);

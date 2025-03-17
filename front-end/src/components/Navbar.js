@@ -7,7 +7,6 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import '../css/Navbar.css';
 import userIcon from "../icons/userIcon2.png";
 import logoutIcon from "../icons/logoutIcon.png";
-import {color} from "framer-motion"; // New logout icon
 
 const Navbar = () => {
   const { isLoggedIn, logout, user } = useContext(AuthContext);
@@ -79,11 +78,11 @@ const Navbar = () => {
             <a className="nav-link active" aria-current="page" href="/">
               Home
             </a>
-            <a className={"nav-separator"}>|</a>
+            <p className={"nav-separator"}>|</p>
             <a className="nav-link" href="/timeline_initial">
               Timeline
             </a>
-            <a className={"nav-separator"}>|</a>
+            <p className={"nav-separator"}>|</p>
             <a className="nav-link" href="/courselist">
               Courses
             </a>

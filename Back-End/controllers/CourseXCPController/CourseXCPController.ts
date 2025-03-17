@@ -43,6 +43,12 @@ Promise <DB_OPS> {
 
   return DB_OPS.FAILURE;
 }
+/**
+ * Retrieves all course codes for a given course pool ID.
+ *
+ * @param {string} coursepool_id - The ID of the course pool.
+ * @returns {Promise<{ course_codes: string[] } | undefined>}
+ */
 
 async function getAllCourseXCP(coursepool_id: string): 
 Promise<{course_codes: string[]} | undefined> {
@@ -72,7 +78,12 @@ Promise<{course_codes: string[]} | undefined> {
 
   return undefined;
 }
-
+/**
+ * Updates a CourseXCoursePool record.
+ *
+ * @param {CourseXCPTypes.CourseXCPItem} update_record - The updated record details.
+ * @returns {Promise<DB_OPS>}
+ */
 async function updateCourseXCP(update_record: CourseXCPTypes.CourseXCPItem):
 Promise<DB_OPS> {
 
@@ -111,6 +122,12 @@ Promise<DB_OPS> {
 
   return DB_OPS.FAILURE
 }
+/**
+ * Removes a CourseXCoursePool record.
+ *
+ * @param {CourseXCPTypes.CourseXCP} delete_record - The record details to delete.
+ * @returns {Promise<DB_OPS>}
+ */
 
 async function removeDegreeXCP(delete_record: CourseXCPTypes.CourseXCP): 
 Promise<DB_OPS> {

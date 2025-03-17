@@ -1,6 +1,14 @@
 import Database from "@controllers/DBController/DBController";
 import { randomUUID } from "crypto";
-
+/**
+ * Submits feedback to the database.
+ * 
+ * @param {string} message - The feedback message provided by the user.
+ * @param {string} [user_id] - The optional user ID associated with the feedback. If not provided, it's set to null.
+ * @returns {Promise<{ id: string; message: string; user_id: string | null; submitted_at: string }>} - An object containing the feedback details: id, message, user_id, and timestamp when it was submitted.
+ * 
+ * @throws {Error} - Throws an error if there's any issue while interacting with the database.
+ */
 export default async function submitFeedback(message: string, user_id?: string) {
     const conn = await Database.getConnection();
 

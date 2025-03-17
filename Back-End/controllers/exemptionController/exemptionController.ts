@@ -1,7 +1,13 @@
 import Database from "@controllers/DBController/DBController"
 import ExemptionTypes from "@controllers/exemptionController/exemption_types"
 import { randomUUID } from "crypto"
-
+/**
+ * Creates exemptions for a list of courses for a specific user.
+ * 
+ * @param {string[]} coursecodes - Array of course codes for which exemptions are to be created.
+ * @param {string} user_id - The ID of the user for whom the exemptions are created.
+ * @returns {Promise<{ created: ExemptionTypes.Exemption[]; alreadyExists: string[] }>} - An object containing a list of created exemptions and a list of course codes that already have exemptions.
+ */
 async function createExemptions(
   coursecodes: string[],
   user_id: string
@@ -67,9 +73,12 @@ async function createExemptions(
   return { created: [], alreadyExists: [] };
 }
 
-
-
-
+/**
+ * Retrieves all exemptions associated with a specific user.
+ * 
+ * @param {string} user_id - The ID of the user whose exemptions are to be fetched.
+ * @returns {Promise<ExemptionTypes.Exemption[] | undefined>} - A list of exemptions associated with the user, or undefined if none found.
+ */
 async function getAllExemptionsByUser(user_id: string): Promise<ExemptionTypes.Exemption[] | undefined> {
   const conn = await Database.getConnection();
 
@@ -102,7 +111,13 @@ async function getAllExemptionsByUser(user_id: string): Promise<ExemptionTypes.E
     }
   }
 };
-
+/**
+ * Deletes an exemption for a specific course and user.
+ * 
+ * @param {string} coursecode - The course code for which the exemption should be deleted.
+ * @param {string} user_id - The ID of the user for whom the exemption is being deleted.
+ * @returns {Promise<string | undefined>} - A success message if the exemption was deleted, or undefined if no exemption was found.
+ */
 async function deleteExemptionByCoursecodeAndUserId(
   coursecode: string,
   user_id: string,

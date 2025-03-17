@@ -8,7 +8,13 @@ import bcrypt from 'bcryptjs';
 const log = console.log;
 
 
-//Functions
+/**
+ * Authenticates a user by verifying their email and password.
+ *
+ * @param {string} email - The email of the user attempting to log in.
+ * @param {string} password - The plaintext password provided by the user.
+ * @returns {Promise<Auth.UserInfo | undefined>} - The authenticated user object if credentials are correct, otherwise undefined.
+ */
 async function authenticate(email: string, password: string): Promise<Auth.UserInfo | undefined> {
   const authConn = await Database.getConnection();
 
@@ -43,6 +49,12 @@ async function authenticate(email: string, password: string): Promise<Auth.UserI
   return undefined;
 }
 
+/**
+ * Registers a new user in the database.
+ *
+ * @param {Auth.UserInfo} userInfo - Object containing user details (email, password, fullname, type).
+ * @returns {Promise<{ id: string } | undefined>} - The newly created user's ID, or undefined if registration fails.
+ */
 async function registerUser(userInfo: Auth.UserInfo)
   : Promise<{ id: string } | undefined> {
 

@@ -3,7 +3,11 @@ import CourseTypes from "./course_types";
 
 const log = console.log;
 
-// Fetch all courses
+/**
+ * Retrieves all courses along with their requisites.
+ * 
+ * @returns {Promise<CourseTypes.CourseInfo[] | undefined>} - List of courses or undefined if an error occurs.
+ */
 async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
   const dbConn = await Database.getConnection();
 
@@ -62,7 +66,12 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
   return undefined;
 }
 
-// Fetch a course by code
+/**
+ * Retrieves a specific course by its unique code.
+ * 
+ * @param {string} code - The course code to search for.
+ * @returns {Promise<CourseTypes.CourseInfo | undefined>} - The course details, or undefined if not found.
+ */
 async function getCourseByCode(
   code: string
 ): Promise<CourseTypes.CourseInfo | undefined> {
@@ -113,7 +122,12 @@ async function getCourseByCode(
   return undefined;
 }
 
-// Add a new course
+/**
+ * Adds a new course to the database.
+ * 
+ * @param {CourseTypes.CourseInfo} courseInfo - The course details.
+ * @returns {Promise<{ code: string } | undefined>} - The inserted course's code, or undefined on failure.
+ */
 async function addCourse(
   courseInfo: CourseTypes.CourseInfo
 ): Promise<{ code: string } | undefined> {
@@ -147,7 +161,12 @@ async function addCourse(
   return undefined;
 }
 
-// Remove a course by code
+/**
+ * Deletes a course from the database.
+ * 
+ * @param {string} code - The course code to delete.
+ * @returns {Promise<boolean>} - True if deleted successfully, false otherwise.
+ */
 async function removeCourse(code: string): Promise<boolean> {
   const dbConn = await Database.getConnection();
 
@@ -168,7 +187,12 @@ async function removeCourse(code: string): Promise<boolean> {
   return false;
 }
 
-// Get courses by degree grouped into pools
+/**
+ * Retrieves courses grouped by course pools for a given degree.
+ * 
+ * @param {string} degreeId - The ID of the degree.
+ * @returns {Promise<CourseTypes.CoursePoolInfo[] | undefined>} - The grouped courses, or undefined on failure.
+ */
 async function getCoursesByDegreeGrouped(
   degreeId: string
 ): Promise<CourseTypes.CoursePoolInfo[] | undefined> {
@@ -261,7 +285,11 @@ async function getCoursesByDegreeGrouped(
   return undefined;
 }
 
-
+/**
+ * Retrieves all courses from the database, including their requisites.
+ *
+ * @returns {Promise<CourseTypes.CourseInfo[] | undefined>} - A list of courses with their requisite information, or undefined on failure.
+ */
 async function getAllCoursesInDB(): Promise<
   CourseTypes.CourseInfo[] | undefined
 > {
