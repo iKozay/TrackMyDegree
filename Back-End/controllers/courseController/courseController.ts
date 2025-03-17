@@ -74,7 +74,7 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
  */
 async function getCourseByCode(
   code: string
-): Promise<CourseTypes.CourseInfo | undefined> {
+): Promise<CourseTypes.CourseInfoDB | undefined> {
   const dbConn = await Database.getConnection();
 
   if (dbConn) {
@@ -318,7 +318,7 @@ async function getAllCoursesInDB(): Promise<
       }
 
       // Build a map keyed by course code
-      const coursesMap: { [key: string]: CourseTypes.CourseInfo } = {};
+      const coursesMap: { [key: string]: CourseTypes.CourseInfoDB } = {};
 
       records.forEach((record) => {
         const courseCode = record.code;

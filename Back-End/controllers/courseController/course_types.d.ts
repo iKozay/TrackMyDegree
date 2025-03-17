@@ -4,7 +4,9 @@ namespace CourseTypes {
         title: string;
         credits: number;
         description: string;
-        requisites: RequisiteInfo[];
+    };
+    export type CourseInfoDB = CourseInfo & {
+      requisites: RequisiteInfo[];
     };
     export interface Requisite {
         type: 'pre' | 'co';
