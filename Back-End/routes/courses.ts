@@ -55,7 +55,13 @@ router.post("/remove", async (req: Request, res: Response) => {
 router.post("/add", async (req: Request, res: Response) => {
   const courseInfo: CourseTypes.CourseInfo = req.body;
 
-  if (!courseInfo) {
+  const courseInfoCorrect =
+    courseInfo.code &&
+    courseInfo.credits &&
+    courseInfo.description &&
+    courseInfo.title;
+
+  if (!courseInfo || !courseInfoCorrect) {
     res.status(HTTP.BAD_REQUEST).json({ error: "Course data is required" });
     return;
   }
