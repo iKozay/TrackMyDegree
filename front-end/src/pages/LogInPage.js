@@ -7,6 +7,14 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 import "../css/SignInPage.css";
 import { motion } from "framer-motion";
+import * as Sentry from "@sentry/react";
+
+class LoginError extends Error {
+	constructor(message) {
+		super(message);
+		this.name = `Authentication Error: ${message}`;
+	}
+}
 
 function LogInPage() {
 	const [email, setEmail] = useState("");
@@ -56,7 +64,7 @@ function LogInPage() {
 			if (!response.ok) {
 				// Extract error message from response
 				const errorData = await response.json();
-				throw new Error(errorData.message || "Failed to log in.");
+				throw new LoginError(errorData.message || "Failed to log in.");
 			}
 
 			const data = await response.json();
@@ -66,6 +74,8 @@ function LogInPage() {
 			navigate("/user"); // Redirect to the user page
 		} catch (err) {
 			setError(err.message);
+			// Send error to Sentry
+			Sentry.captureException(err);
 		} finally {
 			setLoading(false); // End loading
 		}

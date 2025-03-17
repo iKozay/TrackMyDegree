@@ -24,7 +24,6 @@ import ForgotPassPage from "./pages/ForgotPassPage";
 import ResetPassPage from "./pages/ResetPassPage";
 import AdminPage from "./pages/AdminPage";
 import { AnimatePresence } from "framer-motion";
-// Add Sentry logging
 import * as Sentry from "@sentry/react";
 
 // Initialize Sentry
@@ -34,25 +33,11 @@ Sentry.init({
 	tracesSampleRate: 1.0, // Capsure 100% of transactions
 });
 
-// Define each error type for each use case
-class ValidationError extends Error {
-	constructor(message) {
-		super(message);
-		this.name = `ERROR: ${message}`;
-	}
-}
-
 function App() {
 	const [degreeId, setDegreeId] = useState(null);
 	const [timelineData, setTimelineData] = useState([]);
 	const [creditsRequired, setcreditsRequired] = useState([]);
 	const [isExtendedCredit, setIsExtendedCredit] = useState(false);
-
-	// For sentry testing Sentry
-	const [count, setCount] = useState(0);
-	const handleCreateError = (message) => {
-		Sentry.captureException(new ValidationError(message)); // Capture the error
-	};
 
 	const handleDataProcessed = (data) => {
 		setTimelineData(data.transcriptData); // Update transcript data
