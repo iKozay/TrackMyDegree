@@ -12,7 +12,7 @@ import * as Sentry from "@sentry/react";
 class LoginError extends Error {
 	constructor(message) {
 		super(message);
-		this.name = `Authentication Error: ${message}`;
+		this.name = `Authentication Error`;
 	}
 }
 
