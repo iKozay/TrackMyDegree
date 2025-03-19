@@ -1,7 +1,7 @@
 // TimelinePage.js
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, useBlocker } from 'react-router-dom';
 import { motion } from "framer-motion"
 import {
   DndContext,
@@ -25,7 +25,7 @@ import Container from 'react-bootstrap/Container';
 import warningIcon from '../icons/warning.png'; // Import warning icon
 import '../css/TimelinePage.css';
 import { groupPrerequisites } from '../utils/groupPrerequisites'; // Adjust the path as necessary
-import { useLocation } from 'react-router-dom';
+import DeleteModal from "../components/DeleteModal";
 // DraggableCourse component for course list items
 const DraggableCourse = ({
   id,
@@ -221,7 +221,10 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
   const [allCourses, setAllCourses] = useState([]);
   const [showExempted, setShowExempted] = useState(true);
-  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false); // Track if changes
+  const [nextPath, setNextPath] = useState(null); // Track what new page should be
+  const [showSaveModal, setShowSaveModal] = useState(false); // Popup for save
+  const [showLeaveModal, setShowLeaveModal] = useState(false); // Popup for leave
   const [timelineName, setTimelineName] = useState('');
   const [tempName, setTempName] = useState('');
 
@@ -245,6 +248,16 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       'MATH206',
     ]
   }
+
+  // Handle navigation
+  useBlocker(({ nextLocation }) => {
+    if (hasUnsavedChanges) {
+      setNextPath(nextLocation.pathname); // Store the intended destination
+      setShowLeaveModal(true); // Show modal instead of navigating
+      return true; // Block navigation
+    }
+    return false; // Allow navigation
+  });
 
   // NEW: Fetch all courses from /courses/getAllCourses
   useEffect(() => {
@@ -638,6 +651,8 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       return;
     }
 
+    setHasUnsavedChanges(true);
+    
     // 1) Add the new semester to the "semesters" array, then sort
     setSemesters((prev) => {
       const newSemesters = [...prev, { id, name }];
@@ -660,6 +675,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     setSemesterCourses((prev) => {
       const updated = { ...prev };
       delete updated[semesterId];
+      setHasUnsavedChanges(true);
       return updated;
     });
   };
@@ -717,6 +733,8 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
         handleReturn(id);
       } else {
         setSemesterCourses((prevSemesters) => {
+          setHasUnsavedChanges(true);
+
           const updatedSemesters = { ...prevSemesters };
           const activeSemesterId = findSemesterIdByCourseCode(
             id,
@@ -793,6 +811,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
   const handleReturn = (courseCode) => {
     setReturning(true);
+    setHasUnsavedChanges(true);
 
     setSemesterCourses((prevSemesters) => {
       const updatedSemesters = { ...prevSemesters };
@@ -1009,6 +1028,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     setTimelineName(tName);
 
     if (!user) {
+      //setHasUnsavedChanges(false); // Not sure what to do about this
       navigate('/signin');
       return;
     }
@@ -1057,6 +1077,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
     if (finalTimelineData.length === 0 && exempted_courses.length === 0) {
       alert("No valid data to save.");
+      setHasUnsavedChanges(false);
       return;
     }
 
@@ -1119,8 +1140,12 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       const dataTimeline = await responseTimeline.json();
       if (responseTimeline.ok) {
         alert('Timeline saved successfully!');
+        setHasUnsavedChanges(false);
         setShowSaveModal(false); // Close the modal
-        navigate('/user'); // Navigate after saving
+        // Navigate after saving
+        setTimeout(() => {
+          navigate('/user');  // Trigger navigation after delay due to setHasUnsavedChanges(false)
+        }, 250);
       } else {
         alert("Error saving Timeline: " + (dataTimeline.message || ""));
       }
@@ -1621,6 +1646,42 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
             </div>
           </div>
         )}
+
+        {/* Leave Confirm Modal */}
+        <DeleteModal open={showLeaveModal} onClose={() => setShowLeaveModal(false)}>
+          <div className="tw-text-center tw-w-56">
+            <div className="tw-mx-auto tw-my-4 tw-w-48">
+              <h3 className="tw-text-lg tw-font-black tw-text-gray-800">
+                Warning
+              </h3>
+              <p className="tw-text-sm tw-text-gray-500">
+                You have unsaved changes. Do you really want to leave?
+              </p>
+            </div>
+            <div className="tw-flex tw-gap-4">
+              <button
+                className="btn btn-danger tw-w-full"
+                onClick={async () => {
+                  if (nextPath) {
+                    setHasUnsavedChanges(false);
+
+                    setTimeout(() => {
+                      navigate(nextPath);  // Trigger navigation after delay due to setHasUnsavedChanges(false)
+                    }, 250);
+                  }
+                }}
+              >
+                Leave Anyways
+              </button>
+              <button
+                className="btn btn-light tw-w-full"
+                onClick={() => setShowLeaveModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </DeleteModal>
       </DndContext>
     </motion.div >
   );
