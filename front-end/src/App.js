@@ -98,7 +98,7 @@ function AppContent({
 						}
 					/>
 					<Route
-						path="/admin"
+						path="/adminpage"
 						element={<AdminPage />}
 					/>
 					<Route
