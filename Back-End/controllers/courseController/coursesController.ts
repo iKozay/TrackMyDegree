@@ -339,7 +339,7 @@ async function getCoursesByDegreeGrouped(
 
     try {
       // Cache the result in Redis for 3600 seconds (1 hour)
-      await redisClient.setEx(cacheKey, 3600, JSON.stringify(resultData));
+      await redisClient.setEx(cacheKey, 604800, JSON.stringify(resultData));
     } catch (cacheError) {
       log("Error writing to Redis cache", cacheError);
     }
@@ -425,7 +425,7 @@ async function getAllCoursesInDB(): Promise<CourseTypes.CourseInfo[] | undefined
 
       // Cache the result in Redis for 1 hour (3600 seconds)
       try {
-        await redisClient.setEx(cacheKey, 3600, JSON.stringify(resultData));
+        await redisClient.setEx(cacheKey, 604800, JSON.stringify(resultData));
       } catch (cacheError) {
         log("Error writing to Redis cache", cacheError);
       }
