@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import LogInPage from "./pages/LogInPage";
 import SignUpPage from "./pages/SignUpPage";
@@ -21,82 +21,75 @@ import { AnimatePresence } from "framer-motion";
 function App() {
   const [degreeId, setDegreeId] = useState(null);
   const [timelineData, setTimelineData] = useState([]);
-  const [creditsRequired, setcreditsRequired] = useState([]);
+  const [creditsRequired, setCreditsRequired] = useState([]);
   const [isExtendedCredit, setIsExtendedCredit] = useState(false);
 
   const handleDataProcessed = (data) => {
     setTimelineData(data.transcriptData); // Update transcript data
     setDegreeId(data.degreeId); // Update degreeId
-    setcreditsRequired(data.creditsRequired); // Update creditsRequired
+    setCreditsRequired(data.creditsRequired); // Update creditsRequired
     setIsExtendedCredit(data.isExtendedCredit); // Update is
 
     console.log("app.js data.isExtendedCredit: ", data.isExtendedCredit);
     console.log("app.js isExtendedCredit: ", isExtendedCredit);
   };
 
-  return (
-    <div className="page-container">
-      <AuthProvider>
-        <Router>
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: (
+        <div className="page-container">
           <Navbar />
-          <AppContent
-            degreeId={degreeId}
-            timelineData={timelineData}
-            creditsRequired={creditsRequired}
-            isExtendedCredit={isExtendedCredit}
-            handleDataProcessed={handleDataProcessed}
-          />
+          <AnimatePresence mode="wait">
+            <div className="App">
+              <Outlet />
+            </div>
+          </AnimatePresence>
           <Footer />
-        </Router>
-      </AuthProvider>
-    </div>
-  );
-}
-
-// Create a new component to use `useLocation` inside the `<Router>`
-function AppContent({ degreeId, timelineData, creditsRequired, handleDataProcessed, isExtendedCredit }) {
-  const location = useLocation(); // <--- useLocation is now inside the Router context
+        </div>
+      ),
+      children: [
+        { path: "/", element: <LandingPage /> },
+        { path: "/signin", element: <LogInPage /> },
+        { path: "/signup", element: <SignUpPage /> },
+        { path: "/admin", element: <AdminPage /> },
+        {
+          path: "/user",
+          element: (
+            <ProtectedRoute>
+              <UserPage onDataProcessed={handleDataProcessed} />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "/timeline_change",
+          element: (
+            <TimelinePage
+              degreeid={degreeId}
+              timelineData={timelineData}
+              creditsrequired={creditsRequired}
+              isExtendedCredit={isExtendedCredit}
+              onDataProcessed={handleDataProcessed}
+            />
+          ),
+        },
+        { path: "/courselist", element: <CourseList /> },
+        {
+          path: "/uploadTranscript",
+          element: <UploadTranscript onDataProcessed={handleDataProcessed} />,
+        },
+        {
+          path: "/timeline_initial",
+          element: <UploadAcceptanceLetter onDataProcessed={handleDataProcessed} />,
+        },
+      ],
+    },
+  ]);
 
   return (
-    <div className="App">
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/signin" element={<LogInPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
-          <Route
-            path="/user"
-            element={
-              <ProtectedRoute>
-                <UserPage onDataProcessed={handleDataProcessed} />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route
-            path="/timeline_change"
-            element={
-              <TimelinePage
-                degreeid={degreeId}
-                timelineData={timelineData}
-                creditsrequired={creditsRequired}
-                isExtendedCredit={isExtendedCredit}
-                onDataProcessed={handleDataProcessed}
-              />
-            }
-          />
-          <Route path="/courselist" element={<CourseList />} />
-          <Route
-            path="/uploadTranscript"
-            element={<UploadTranscript onDataProcessed={handleDataProcessed} />}
-          />
-          <Route
-            path="/timeline_initial"
-            element={<UploadAcceptanceLetter onDataProcessed={handleDataProcessed} />}
-          />
-        </Routes>
-      </AnimatePresence>
-    </div>
+    <AuthProvider>
+      <RouterProvider router = {router} />
+    </AuthProvider>
   );
 }
 
