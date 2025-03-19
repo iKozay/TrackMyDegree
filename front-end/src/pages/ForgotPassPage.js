@@ -1,31 +1,27 @@
-// src/pages/SignInPage.js
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 import "../css/SignInPage.css";
 import { motion } from "framer-motion";
 
-function LogInPage() {
+function ForgotPassPage() {
 	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const { login } = useContext(AuthContext);
 	const navigate = useNavigate();
 
 	const [error, setError] = useState(null); // To handle error messages
 	const [loading, setLoading] = useState(false); // To handle loading state
 
-	const handleLogin = async (e) => {
+	const handleForgotPassword = async (e) => {
 		e.preventDefault();
 
 		// Reset error state
 		setError(null);
 
 		// Basic validation checks
-		if (email.trim() === "" || password.trim() === "") {
-			setError("Both email and password are required.");
+		if (email.trim() === "") {
+			setError("Email is required.");
 			return;
 		}
 
@@ -40,7 +36,7 @@ function LogInPage() {
 
 		try {
 			const response = await fetch(
-				`${process.env.REACT_APP_SERVER}/auth/login`,
+				`${process.env.REACT_APP_SERVER}/auth/forgot-password`,
 				{
 					method: "POST",
 					headers: {
@@ -48,7 +44,6 @@ function LogInPage() {
 					},
 					body: JSON.stringify({
 						email,
-						password,
 					}),
 				}
 			);
@@ -56,14 +51,13 @@ function LogInPage() {
 			if (!response.ok) {
 				// Extract error message from response
 				const errorData = await response.json();
-				throw new Error(errorData.message || "Failed to log in.");
+				throw new Error(errorData.message || "Email does not exist.");
 			}
 
 			const data = await response.json();
-
-			// Assuming the API returns an authentication token and user data
-			login(data); // Pass the received data to the login function
-			navigate("/user"); // Redirect to the user page
+			console.log(data);
+			// API returns a success message and we can redirect to reset pass page
+			navigate("/reset-pass");
 		} catch (err) {
 			setError(err.message);
 		} finally {
@@ -79,19 +73,17 @@ function LogInPage() {
 			transition={{ duration: 0.7 }}
 		>
 			<>
-				{/* <Navbar /> Include Navbar if needed */}
+				{/* Same styling as LogInPage.css */}
 				<div className="LogInPage">
 					<div className="container my-5 sign-in-container">
-						<h2 className="text-center mb-7">Sign In</h2>
-						<form onSubmit={handleLogin}>
+						<h3 className="text-center mb-7">Forgot Your Password?</h3>
+						<form onSubmit={handleForgotPassword}>
 							{/* Email Field */}
 							<div className="mb-3">
 								<label
 									htmlFor="email"
 									className="form-label"
-								>
-									Email address
-								</label>
+								></label>
 								<input
 									type="email"
 									className="form-control"
@@ -99,24 +91,6 @@ function LogInPage() {
 									placeholder="Enter your email"
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
-								/>
-							</div>
-
-							{/* Password Field */}
-							<div className="mb-3">
-								<label
-									htmlFor="password"
-									className="form-label"
-								>
-									Password
-								</label>
-								<input
-									type="password"
-									className="form-control"
-									id="password"
-									placeholder="Enter your password"
-									value={password}
-									onChange={(e) => setPassword(e.target.value)}
 								/>
 							</div>
 
@@ -131,23 +105,15 @@ function LogInPage() {
 									type="submit"
 									disabled={loading}
 								>
-									{loading ? "Logging in..." : "Submit"}
+									{loading ? "Sending email..." : "Submit"}
 								</Button>
 							</div>
 						</form>
-
-						{/* Link to Sign Up */}
-						<div className="text-center mt-3">
-							<a href="/signup">Don't have an account? Register here!</a>
-							<br />
-							<a href="/forgot-pass">Forgot your password?</a>
-						</div>
 					</div>
 				</div>
-				{/* <Footer /> Include Footer if needed */}
 			</>
 		</motion.div>
 	);
 }
 
-export default LogInPage;
+export default ForgotPassPage;
