@@ -1,3 +1,4 @@
+import "./middleware/sentry_instrument";
 import React, { useState } from "react";
 import {
 	BrowserRouter as Router,
@@ -15,7 +16,7 @@ import UploadAcceptanceLetter from "./pages/UploadAcceptanceLetter";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { AuthProvider } from "./AuthContext";
+import { AuthProvider } from "./middleware/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
@@ -24,14 +25,6 @@ import ForgotPassPage from "./pages/ForgotPassPage";
 import ResetPassPage from "./pages/ResetPassPage";
 import AdminPage from "./pages/AdminPage";
 import { AnimatePresence } from "framer-motion";
-import * as Sentry from "@sentry/react";
-
-// Initialize Sentry
-Sentry.init({
-	dsn: process.env.REACT_APP_SENTRY_DSN,
-	integrations: [Sentry.browserTracingIntegration()],
-	tracesSampleRate: 1.0, // Capsure 100% of transactions
-});
 
 function App() {
 	const [degreeId, setDegreeId] = useState(null);

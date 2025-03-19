@@ -1,10 +1,10 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../AuthContext";
+import { AuthContext } from "../middleware/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Button from "react-bootstrap/Button";
 import { motion } from "framer-motion";
-import { SignUpError } from "../../middleware/SentryErrors";
+import { SignUpError } from "../middleware/SentryErrors";
 
 function SignUpPage() {
 	const [fullname, setfullname] = useState("");

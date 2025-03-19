@@ -1,13 +1,13 @@
 // src/pages/SignInPage.js
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../AuthContext";
+import { AuthContext } from "../middleware/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 import "../css/SignInPage.css";
 import { motion } from "framer-motion";
-import { LoginError } from "../../middleware/SentryErrors";
+import { LoginError } from "../middleware/SentryErrors";
 
 function LogInPage() {
 	const [email, setEmail] = useState("");

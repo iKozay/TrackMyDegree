@@ -5,7 +5,7 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 import "../css/SignInPage.css";
 import { motion } from "framer-motion";
-import { ResetPassError } from "../../middleware/SentryErrors";
+import { ResetPassError } from "../middleware/SentryErrors";
 
 function ResetPassPage() {
 	const [otp, setOTP] = useState("");

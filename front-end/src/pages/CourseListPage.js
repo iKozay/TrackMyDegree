@@ -6,7 +6,7 @@ import { groupPrerequisites } from "../utils/groupPrerequisites";
 import "../css/CourseListPage.css";
 import { motion } from "framer-motion";
 import * as Sentry from "@sentry/react";
-import { CourseListPageError } from "../../middleware/SentryErrors";
+import { CourseListPageError } from "../middleware/SentryErrors";
 
 function CourseListPage() {
 	const [isDesktop, setIsDesktop] = useState(window.innerWidth > 767);

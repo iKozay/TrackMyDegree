@@ -5,7 +5,7 @@ import { Container, Row, Col, Table, Spinner, Alert } from "react-bootstrap";
 import SearchBar from "../components/SearchBar"; // Assuming you have a SearchBar component
 import "../css/AdminPage.css"; // Import the CSS file
 import { motion } from "framer-motion";
-import { AdminPageError } from "../../middleware/SentryErrors";
+import { AdminPageError } from "../middleware/SentryErrors";
 
 const AdminPage = () => {
 	const [tables, setTables] = useState([]);

@@ -1,7 +1,7 @@
 // src/pages/UserPage.js
 import React, { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../AuthContext";
+import { AuthContext } from "../middleware/AuthContext";
 import moment from "moment";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/UserPage.css";
@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 // === Updated imports for your custom modal & trash icon ===
 import DeleteModal from "../components/DeleteModal";
 import TrashLogo from "../icons/trashlogo"; // Adjust path if needed
-import { UserPageError } from "../../middleware/SentryErrors";
+import { UserPageError } from "../middleware/SentryErrors";
 
 const UserPage = ({ onDataProcessed }) => {
 	const { user } = useContext(AuthContext);
