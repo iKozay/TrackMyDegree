@@ -60,10 +60,10 @@ const Navbar = () => {
     <div ref={menuRef}>
     <nav className="navbar navbar-expand-lg custom-navbar custom-navbar-height custom-navbar-padding">
       <div className="container-fluid custom-navbar-left-align">
-        <a className="navbar-brand custom-navbar-brand-left" href="/">
+        <Link className="navbar-brand custom-navbar-brand-left" to="/">
           <span className="brand-text">TrackMyDegree🎓</span>
           <span className="brand-emoji">🎓</span>
-        </a>
+        </Link>
         <button
           className="navbar-toggler"
           type="button"
@@ -75,20 +75,20 @@ const Navbar = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div className="navbar-nav custom-nav-links">
-            <a className="nav-link active" aria-current="page" href="/">
+            <Link className="nav-link active" aria-current="page" to="/">
               Home
-            </a>
+            </Link>
             <p className={"nav-separator"}>|</p>
-            <a className="nav-link" href="/timeline_initial">
+            <Link className="nav-link" to="/timeline_initial">
               Timeline
-            </a>
+            </Link>
             <p className={"nav-separator"}>|</p>
-            <a className="nav-link" href="/courselist">
+            <Link className="nav-link" to="/courselist">
               Courses
-            </a>
-            {/* <a className="nav-link" href="/uploadTranscript">
+            </Link>
+            {/* <Link className="nav-link" to="/uploadTranscript">
               Upload Transcript
-            </a> */}
+            </Link> */}
           </div>
           {isLoggedIn ? (
               <>
