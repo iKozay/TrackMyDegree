@@ -7,14 +7,7 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 import "../css/SignInPage.css";
 import { motion } from "framer-motion";
-import * as Sentry from "@sentry/react";
-
-class LoginError extends Error {
-	constructor(message) {
-		super(message);
-		this.name = `Authentication Error`;
-	}
-}
+import { LoginError } from "../utils/SentryErrors";
 
 function LogInPage() {
 	const [email, setEmail] = useState("");
@@ -74,8 +67,6 @@ function LogInPage() {
 			navigate("/user"); // Redirect to the user page
 		} catch (err) {
 			setError(err.message);
-			// Send error to Sentry
-			Sentry.captureException(err);
 		} finally {
 			setLoading(false); // End loading
 		}
