@@ -26,6 +26,9 @@ import warningIcon from '../icons/warning.png'; // Import warning icon
 import '../css/TimelinePage.css';
 import { groupPrerequisites } from '../utils/groupPrerequisites'; // Adjust the path as necessary
 import { useLocation } from 'react-router-dom';
+import { TimelineError } from '../../middleware/SentryErrors';
+import * as Sentry from "@sentry/react";
+
 // DraggableCourse component for course list items
 const DraggableCourse = ({
   id,
@@ -257,7 +260,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
           },
         });
         if (!response.ok) {
-          throw new Error('Failed to fetch all courses');
+          throw new TimelineError('Failed to fetch all courses');
         }
         const data = await response.json();
         setAllCourses(data);
@@ -344,7 +347,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
         });
         if (!primaryResponse.ok) {
           const errorData = await primaryResponse.json();
-          throw new Error(errorData.error || `HTTP error! status: ${primaryResponse.status}`);
+          throw new TimelineError(errorData.error || `HTTP error! status: ${primaryResponse.status}`);
         }
         const primaryData = await primaryResponse.json();
 
@@ -360,7 +363,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
           });
           if (!extendedResponse.ok) {
             const errorData = await extendedResponse.json();
-            throw new Error(errorData.error || `HTTP error! status: ${extendedResponse.status}`);
+            throw new TimelineError(errorData.error || `HTTP error! status: ${extendedResponse.status}`);
           }
           const extendedData = await extendedResponse.json();
           combinedData = primaryData.concat(extendedData);
@@ -1091,6 +1094,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     } catch (error) {
       console.error("Error saving Exempted Courses:", error);
       alert("An error occurred while saving your timeline.");
+      Sentry.captureException(error);
     }
 
     // Save deficiency courses.
@@ -1107,6 +1111,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       // Optionally check responseDeficiency here.
     } catch (err) {
       console.error("Error saving deficiency", err);
+      Sentry.captureException(err);
     }
 
     // Save the complete timeline.
@@ -1127,6 +1132,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     } catch (error) {
       console.error("Error saving timeline:", error);
       alert("An error occurred while saving your timeline.");
+      Sentry.captureException(error);
     }
   };
 

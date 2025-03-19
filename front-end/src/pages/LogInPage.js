@@ -7,7 +7,7 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 import "../css/SignInPage.css";
 import { motion } from "framer-motion";
-import { LoginError } from "../utils/SentryErrors";
+import { LoginError } from "../../middleware/SentryErrors";
 
 function LogInPage() {
 	const [email, setEmail] = useState("");

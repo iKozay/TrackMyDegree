@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 import "../css/SignInPage.css";
 import { motion } from "framer-motion";
+import { ResetPassError } from "../../middleware/SentryErrors";
 
 function ResetPassPage() {
 	const [otp, setOTP] = useState("");
@@ -63,7 +64,9 @@ function ResetPassPage() {
 			if (!response.ok) {
 				// Extract error message from response
 				const errorData = await response.json();
-				throw new Error(errorData.message || "Error resetting password!");
+				throw new ResetPassError(
+					errorData.message || "Error resetting password!"
+				);
 			}
 
 			const data = await response.json();

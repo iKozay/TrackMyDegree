@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 // === Updated imports for your custom modal & trash icon ===
 import DeleteModal from "../components/DeleteModal";
 import TrashLogo from "../icons/trashlogo"; // Adjust path if needed
-import { UserPageError } from "../utils/SentryErrors";
+import { UserPageError } from "../../middleware/SentryErrors";
 
 const UserPage = ({ onDataProcessed }) => {
 	const { user } = useContext(AuthContext);
