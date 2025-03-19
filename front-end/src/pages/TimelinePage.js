@@ -249,7 +249,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     ]
   }
 
-  // Handle navigation
+  // Handle internal navigation (React)
   useBlocker(({ nextLocation }) => {
     if (hasUnsavedChanges) {
       setNextPath(nextLocation.pathname); // Store the intended destination
@@ -258,6 +258,18 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     }
     return false; // Allow navigation
   });
+
+  // Handle external navigation
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (hasUnsavedChanges) {
+        event.preventDefault();
+        event.returnValue = "You have unsaved changes. Are you sure you want to leave?"; // Custom message
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   // NEW: Fetch all courses from /courses/getAllCourses
   useEffect(() => {
