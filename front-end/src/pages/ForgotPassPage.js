@@ -6,6 +6,7 @@ import Alert from "react-bootstrap/Alert";
 import "../css/SignInPage.css";
 import { motion } from "framer-motion";
 import { ForgotPassError } from "../middleware/SentryErrors";
+import * as Sentry from "@sentry/react";
 
 function ForgotPassPage() {
 	const [email, setEmail] = useState("");

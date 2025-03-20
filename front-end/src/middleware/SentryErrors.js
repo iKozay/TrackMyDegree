@@ -27,7 +27,7 @@ class UserPageError extends Error {
 class ResetPassError extends Error {
 	constructor(message) {
 		super(message);
-		this.name = `Reset Password Error`;
+		this.name = `Reset Password Page Error`;
 		Sentry.captureException(this);
 	}
 }
@@ -35,7 +35,7 @@ class ResetPassError extends Error {
 class ForgotPassError extends Error {
 	constructor(message) {
 		super(message);
-		this.name = `Forgot Password Error`;
+		this.name = `Forgot Password Page Error`;
 		Sentry.captureException(this);
 	}
 }
