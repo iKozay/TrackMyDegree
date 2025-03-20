@@ -20,6 +20,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './App.css';
 import TimelinePage from './pages/TimelinePage';
+import ForgotPassPage from './pages/ForgotPassPage';
+import ResetPassPage from './pages/ResetPassPage';
 import AdminPage from './pages/AdminPage';
 import { AnimatePresence } from 'framer-motion';
 
