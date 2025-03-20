@@ -14,14 +14,14 @@ function LogInPage() {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-	const [error, setError] = useState(null); // To handle error messages
-	const [loading, setLoading] = useState(false); // To handle loading state
+  const [error, setError] = useState(null); // To handle error messages
+  const [loading, setLoading] = useState(false); // To handle loading state
 
-	const handleLogin = async (e) => {
-		e.preventDefault();
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-		// Reset error state
-		setError(null);
+    // Reset error state
+    setError(null);
 
     // Basic validation checks
     if (email.trim() === '' || password.trim() === '') {
@@ -36,7 +36,7 @@ function LogInPage() {
       return;
     }
 
-		setLoading(true); // Start loading
+    setLoading(true); // Start loading
 
     try {
       const response = await fetch(
@@ -59,7 +59,7 @@ function LogInPage() {
         throw new Error(errorData.message || 'Failed to log in.');
       }
 
-			const data = await response.json();
+      const data = await response.json();
 
       // Assuming the API returns an authentication token and user data
       login(data); // Pass the received data to the login function

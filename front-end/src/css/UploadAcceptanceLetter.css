@@ -1,4 +1,4 @@
-.top-down{
+.top-down {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11,7 +11,7 @@
     align-items: center; /* Center-align items */
   }
 
-  .form-container-al, 
+  .form-container-al,
   .upload-container-al {
     margin: 0; /* Reset margins for vertical layout */
     width: 100%; /* Make containers take full width */
@@ -22,14 +22,13 @@
   }
 }
 
-
 .g-container {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   padding: 20px;
   font-family: 'Arial', sans-serif;
-  gap: 20px; 
+  gap: 20px;
 }
 
 .form-container-al {
@@ -38,7 +37,7 @@
   margin-left: 10vh;
 }
 
-.upload-container-al{
+.upload-container-al {
   text-align: center;
   width: 50%;
 }
@@ -121,7 +120,7 @@ p {
 }
 
 .next-button {
-  background-color: #8B0000;
+  background-color: #8b0000;
   color: #fff;
 }
 
@@ -165,7 +164,7 @@ p {
   font-size: 16px;
   border: none;
   border-radius: 5px;
-  background-color: #8B0000;
+  background-color: #8b0000;
   color: #fff;
   cursor: pointer;
 }
@@ -176,7 +175,7 @@ p {
 }
 
 .upload-container-al .upload-box-al.dragover {
-  border-color: #8B0000;
+  border-color: #8b0000;
 }
 
 .or-divider {
