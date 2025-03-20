@@ -216,7 +216,7 @@ function CourseListPage() {
                 selectedCourse={selectedCourse}
                 setSelectedCourse={setSelectedCourse}
               />
-            )}
+            }
           </Col>
           {isDesktop && selectedCourse && (
             <Col md={5}>
