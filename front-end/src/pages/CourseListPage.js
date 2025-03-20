@@ -210,7 +210,7 @@ function CourseListPage() {
         <Row style={{ display: 'flex' }}>
           <Col sm={12} md={7}>
             {/* Only display course accordions if the courseList has data */}
-            {filteredCourseList.length !== 0 &&
+            {filteredCourseList.length !== 0 && (
               <CourseListAccordion
                 courseList={filteredCourseList}
                 selectedCourse={selectedCourse}
