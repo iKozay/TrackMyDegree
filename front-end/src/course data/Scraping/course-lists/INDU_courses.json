@@ -1,209 +1,209 @@
 [
-    {
-        "title": "INDU 211 Introduction to Production and Manufacturing Systems",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "History of industrial engineering. Role of industrial engineers. Types of manufacturing and production systems. Material flow systems. Job design and work measurement. Introduction to solution methodologies for problems which relate to the design and operation of integrated production systems of humans, machines, information, and materials.",
-        "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
-        "notes": null
-    },
-    {
-        "title": "INDU 311 Simulation of Industrial Systems",
-        "credits": 3.5,
-        "prerequisites": "ENGR 371.",
-        "corequisites": "",
-        "description": "Modelling techniques in simulation; application of discrete simulation techniques to model industrial systems; random number generation and testing; design of simulation experiments using different simulation languages; output data analysis.",
-        "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
-        "notes": null
-    },
-    {
-        "title": "INDU 320 Production Engineering",
-        "credits": 3,
-        "prerequisites": "INDU 323.",
-        "corequisites": "",
-        "description": "The systems approach to production. Interrelationships among the component blocks of the system: forecasting, aggregate planning, production, material and capacity planning, operations scheduling. An overview of integrated production planning and control including MRP II, Just in Time manufacturing (JIT).",
-        "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
-        "notes": null
-    },
-    {
-        "title": "INDU 321 Lean Manufacturing",
-        "credits": 3,
-        "prerequisites": "INDU 320.",
-        "corequisites": "",
-        "description": "Lean fundamentals; lean manufacturing; lean engineering; lean principles, tools and techniques, practices, and implementation; five S’s, process analysis/spaghetti charts, value engineering; value stream mapping; standardized work/ standard times; setâup reduction/line balancing; unit manufacturing; cell layout/cellular manufacturing; total productive maintenance; anban; lean supply chain management; transitionâtoâlean roadmap; people/organizational issues in the lean enterprise; Six Sigma;TOM; agile manufacturing.",
-        "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
-        "notes": "Students who have received credit for INDU 420 may not take this course for credit."
-    },
-    {
-        "title": "INDU 323 Operations Research I",
-        "credits": 3.5,
-        "prerequisites": "ENGR 213,ENGR 233;INDU 211.",
-        "corequisites": "",
-        "description": "An introduction to deterministic mathematical models with emphasis on linear programming. Applications to production, logistics, and service systems. Computer solution of optimization problems.",
-        "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
-        "notes": null
-    },
-    {
-        "title": "INDU 324 Operations Research II",
-        "credits": 3.5,
-        "prerequisites": "INDU 323.",
-        "corequisites": "",
-        "description": "Integer programming (IP), including modelling and enumerative algorithms for solving IP problems; postâoptimality analysis. Network flows, dynamic programming and nonâlinear programming. Applications in the design and operation of industrial systems.",
-        "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 2 hours per week, alternate weeks",
-        "notes": "Students who have received credit for INDU 430 may not take this course for credit."
-    },
-    {
-        "title": "INDU 330 Engineering Management",
-        "credits": 3,
-        "prerequisites": "ENCS 282",
-        "corequisites": "ENGR 301",
-        "description": "Organizational structures, their growth and change. Motivation, leadership, and group behaviour. Design of alternatives for improving organizational performance and effectiveness. Planning, organization and management of engineering projects. Management for total quality.",
-        "components": "Lecture 3 hours per week",
-        "notes": null
-    },
-    {
-        "title": "INDU 342 Logistics Network Models",
-        "credits": 3,
-        "prerequisites": "INDU 324.",
-        "corequisites": "",
-        "description": "Overview of transportation systems; airlines, railways, ocean liners, cargo, energy transportation and pipelines. Supply chain characterization. Site location. Distribution planning. Vehicle routing. Fleet scheduling. Crew scheduling. Demand management. Replenishment management. Revenue management. Geographic information systems. Realâtime network control issues. Project.",
-        "components": "Lecture 3 hours per week",
-        "notes": "StudentswhohavereceivedcreditforINDU 442maynottakethiscourseforcredit."
-    },
-    {
-        "title": "INDU 371 Stochastic Models in Industrial Engineering",
-        "credits": 3,
-        "prerequisites": "ENGR 371.",
-        "corequisites": "",
-        "description": "Overview of probability theory; probability distributions; exponential model and Poisson process; discreteâtime and continuousâtime Markov chains; classification of states; birth and death processes; queuing theory. Application to industrial engineering problems.",
-        "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
-        "notes": null
-    },
-    {
-        "title": "INDU 372 Quality Control and Reliability",
-        "credits": 3,
-        "prerequisites": "ENGR 371.",
-        "corequisites": "",
-        "description": "Importance of quality; total quality management; statistical concepts relevant to process control; control charts for variables and attributes; sampling plans. Introduction to reliability models and acceptance testing; issues of standardization.",
-        "components": "Lecture 3 hours per week",
-        "notes": null
-    },
-    {
-        "title": "INDU 410 Safety Engineering",
-        "credits": 3,
-        "prerequisites": "MECH 311 orMIAE 311",
-        "corequisites": "MIAE 312",
-        "description": "This course focuses on the following topics: engineering design for the control of workplace hazards; occupational injuries and diseases; codes and standards; Workplace Hazardous Materials Information Systems (WHMIS); hazard evaluation and control; design criteria; risk assessment; safety in the manufacturing environment; applications in ventilation, air cleaning, noise and vibration.",
-        "components": "Lecture 3 hours per week",
-        "notes": null
-    },
-    {
-        "title": "INDU 411 Computer Integrated Manufacturing",
-        "credits": 3.5,
-        "prerequisites": "MECH 311 orMIAE 311",
-        "corequisites": "MIAE 312",
-        "description": "This course focuses on concepts and benefits of computer integrated manufacturing (CIM); design for manufacturing; computerâaided design, process planning, manufacturing (computer numerical control parts programming), and inspection; robots in CIM; production planning and scheduling in CIM; system integration.",
-        "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
-        "notes": null
-    },
-    {
-        "title": "INDU 412 Human Factors Engineering",
-        "credits": 3.5,
-        "prerequisites": "ENGR 371.",
-        "corequisites": "",
-        "description": "Elements of anatomy, physiology, and psychology; engineering anthropometry; human capacities and limitations; manual material handling; design of workplaces; humanâmachines system design; design of controls and displays; shift work. Applications to a manufacturing environment.",
-        "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
-        "notes": null
-    },
-    {
-        "title": "INDU 421 Facilities Design and Material Handling Systems",
-        "credits": 3.5,
-        "prerequisites": "INDU 320.",
-        "corequisites": "INDU 311",
-        "description": "An introduction to planning and design of production and manufacturing. Facility layout and location. Material handling systems and equipment specifications. Computerâaided facilities planning.",
-        "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
-        "notes": null
-    },
-    {
-        "title": "INDU 423 Inventory Control",
-        "credits": 3.5,
-        "prerequisites": "INDU 320.",
-        "corequisites": "",
-        "description": "This course provides the fundamentals of inventory control and management within a company and its impact on the supply chain. The implications of inventory control decisions on production, distribution and logistics operations are emphasized. The methods of reducing inventory holding costs while providing an effective product availability are covered. The topics covered include an introduction to role of inventories and associated costs in a firm, optimal lot sizing and safety stock decisions, coordinated replenishment of items; perishable inventories, supply chain management.",
-        "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
-        "notes": null
-    },
-    {
-        "title": "INDU 424 Introduction to Enterprise Resource Planning",
-        "credits": 3,
-        "prerequisites": "INDU 320.",
-        "corequisites": "",
-        "description": "This course covers the essential principles and techniques for the design and applications of Enterprise Resource Planning (ERP) systems. ERP has become an integral part of medium- to large-size companies in today’s competitive world of business. ERP systems integrate different functions across various departments of a company in one system to meet all business process requirements quicker, more accurately and efficiently. The course describes the requirements of ERP systems followed by the introduction of ERP modules on Materials Management, Production Planning, Sales and Distribution, and Financial Accounting and Controlling. Various applications are illustrated using SAP ERP.",
-        "components": "Lecture 3 hours per week",
-        "notes": null
-    },
-    {
-        "title": "INDU 431 Quantitative Methods in Healthâcare Systems",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Topics include mathematical modelling and optimization methods in healthâcare problems, healthâcare staff planning and scheduling, operating room management, appointment scheduling in clinics, production and delivery of radioâpharmaceuticals, resource allocation and capacity planning in hospitals, ambulance redeployment and dispatching, routing and scheduling of caregivers in homeâhealth industries, healthâcare facility location, inventory management of blood products, kidney exchange optimization and optimization in radiation therapy (IMRT and VMAT). A project is required.",
-        "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
-        "notes": null
-    },
-    {
-        "title": "INDU 441 Introduction to Six Sigma",
-        "credits": 3,
-        "prerequisites": "INDU 372.",
-        "corequisites": "",
-        "description": "Overview of the Six Sigma concepts and tools. Six Sigma deployment practices: Define, Measure, Analyze, Improve and Control phases (DMAIC). Project development, and the DMAIC problemâsolving approach. Project.",
-        "components": "Lecture 3 hours per week",
-        "notes": null
-    },
-    {
-        "title": "INDU 466 Decision Models in Service Sector",
-        "credits": 3,
-        "prerequisites": "ENGR 371;INDU 320.",
-        "corequisites": "",
-        "description": "Introduction to service strategy and operations. Service demand forecasting and development of new services. Service facility location and layout planning. Applications of decision models in service operations and service quality control. Cost analysis, queuing models, risk management and resource allocation models for service decisions. Service outsourcing and supply chain issues. Efficiency and effectiveness issues in different service sectors such as emergency force deployment, municipal resource allocation and health care. Case studies using operations research, operations management, and statistical techniques.",
-        "components": "Lecture 3 hours per week",
-        "notes": null
-    },
-    {
-        "title": "INDU 475 Advanced Concepts in Quality Improvement",
-        "credits": 3,
-        "prerequisites": "INDU 372.",
-        "corequisites": "",
-        "description": "Statistical experimental design issues such as randomized blocks, factorial designs at two levels, applications on factorial designs, building models, Taguchi methods.",
-        "components": "Lecture 3 hours per week",
-        "notes": null
-    },
-    {
-        "title": "INDU 480 Cases in Industrial Engineering",
-        "credits": 3,
-        "prerequisites": "INDU 311,INDU 324.",
-        "corequisites": "",
-        "description": "This course uses the case teaching method to train industrial engineering students to analyze realâ world situations using the tools of operations research. Students assume the roles of engineering consultants working together to solve a problem posed by the client in each case. As a consequence, students obtain experience dealing with all steps involved in solving a real problem, from identification of stakeholders, problem formulation and identification of data requirements, to model implementation and analysis of results. Students are required to participate in class discussions of the case and to present their solutions in either report or presentation form.",
-        "components": "Lecture 3 hours per week",
-        "notes": null
-    },
-    {
-        "title": "INDU 490 Capstone Industrial Engineering Design Project",
-        "credits": 6,
-        "prerequisites": "ENGR 301;MIAE 380.The following courses must be completed previously orconcurrentlyINDU 421.Students must complete 75 credits in the program prior to enrolling.",
-        "corequisites": "",
-        "description": "This course includes a supervised design, simulation or experimental capstone design project including a preliminary project proposal with complete project plan and a technical report at the end of the fall term, and a final report by the group and individual oral presentation at the end of the winter term.",
-        "components": "Lecture 1 hour per week, one term; Laboratory Equivalent time, 5 hours per week, two terms",
-        "notes": "Students work in groups under direct supervision of a faculty member."
-    },
-    {
-        "title": "INDU 498 Topics in Industrial Engineering",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course may be offered in a given year upon the authorization of the Mechanical, Industrial and Aerospace Engineering Department. The course content may vary from offering to offering and will be chosen to complement the elective courses available in the Industrial Engineering program.",
-        "components": "Lecture 3 hours per week",
-        "notes": null
-    }
+  {
+    "title": "INDU 211 Introduction to Production and Manufacturing Systems",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "History of industrial engineering. Role of industrial engineers. Types of manufacturing and production systems. Material flow systems. Job design and work measurement. Introduction to solution methodologies for problems which relate to the design and operation of integrated production systems of humans, machines, information, and materials.",
+    "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
+    "notes": null
+  },
+  {
+    "title": "INDU 311 Simulation of Industrial Systems",
+    "credits": 3.5,
+    "prerequisites": "ENGR 371.",
+    "corequisites": "",
+    "description": "Modelling techniques in simulation; application of discrete simulation techniques to model industrial systems; random number generation and testing; design of simulation experiments using different simulation languages; output data analysis.",
+    "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
+    "notes": null
+  },
+  {
+    "title": "INDU 320 Production Engineering",
+    "credits": 3,
+    "prerequisites": "INDU 323.",
+    "corequisites": "",
+    "description": "The systems approach to production. Interrelationships among the component blocks of the system: forecasting, aggregate planning, production, material and capacity planning, operations scheduling. An overview of integrated production planning and control including MRP II, Just in Time manufacturing (JIT).",
+    "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
+    "notes": null
+  },
+  {
+    "title": "INDU 321 Lean Manufacturing",
+    "credits": 3,
+    "prerequisites": "INDU 320.",
+    "corequisites": "",
+    "description": "Lean fundamentals; lean manufacturing; lean engineering; lean principles, tools and techniques, practices, and implementation; five S’s, process analysis/spaghetti charts, value engineering; value stream mapping; standardized work/ standard times; setâup reduction/line balancing; unit manufacturing; cell layout/cellular manufacturing; total productive maintenance; anban; lean supply chain management; transitionâtoâlean roadmap; people/organizational issues in the lean enterprise; Six Sigma;TOM; agile manufacturing.",
+    "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
+    "notes": "Students who have received credit for INDU 420 may not take this course for credit."
+  },
+  {
+    "title": "INDU 323 Operations Research I",
+    "credits": 3.5,
+    "prerequisites": "ENGR 213,ENGR 233;INDU 211.",
+    "corequisites": "",
+    "description": "An introduction to deterministic mathematical models with emphasis on linear programming. Applications to production, logistics, and service systems. Computer solution of optimization problems.",
+    "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
+    "notes": null
+  },
+  {
+    "title": "INDU 324 Operations Research II",
+    "credits": 3.5,
+    "prerequisites": "INDU 323.",
+    "corequisites": "",
+    "description": "Integer programming (IP), including modelling and enumerative algorithms for solving IP problems; postâoptimality analysis. Network flows, dynamic programming and nonâlinear programming. Applications in the design and operation of industrial systems.",
+    "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 2 hours per week, alternate weeks",
+    "notes": "Students who have received credit for INDU 430 may not take this course for credit."
+  },
+  {
+    "title": "INDU 330 Engineering Management",
+    "credits": 3,
+    "prerequisites": "ENCS 282",
+    "corequisites": "ENGR 301",
+    "description": "Organizational structures, their growth and change. Motivation, leadership, and group behaviour. Design of alternatives for improving organizational performance and effectiveness. Planning, organization and management of engineering projects. Management for total quality.",
+    "components": "Lecture 3 hours per week",
+    "notes": null
+  },
+  {
+    "title": "INDU 342 Logistics Network Models",
+    "credits": 3,
+    "prerequisites": "INDU 324.",
+    "corequisites": "",
+    "description": "Overview of transportation systems; airlines, railways, ocean liners, cargo, energy transportation and pipelines. Supply chain characterization. Site location. Distribution planning. Vehicle routing. Fleet scheduling. Crew scheduling. Demand management. Replenishment management. Revenue management. Geographic information systems. Realâtime network control issues. Project.",
+    "components": "Lecture 3 hours per week",
+    "notes": "StudentswhohavereceivedcreditforINDU 442maynottakethiscourseforcredit."
+  },
+  {
+    "title": "INDU 371 Stochastic Models in Industrial Engineering",
+    "credits": 3,
+    "prerequisites": "ENGR 371.",
+    "corequisites": "",
+    "description": "Overview of probability theory; probability distributions; exponential model and Poisson process; discreteâtime and continuousâtime Markov chains; classification of states; birth and death processes; queuing theory. Application to industrial engineering problems.",
+    "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
+    "notes": null
+  },
+  {
+    "title": "INDU 372 Quality Control and Reliability",
+    "credits": 3,
+    "prerequisites": "ENGR 371.",
+    "corequisites": "",
+    "description": "Importance of quality; total quality management; statistical concepts relevant to process control; control charts for variables and attributes; sampling plans. Introduction to reliability models and acceptance testing; issues of standardization.",
+    "components": "Lecture 3 hours per week",
+    "notes": null
+  },
+  {
+    "title": "INDU 410 Safety Engineering",
+    "credits": 3,
+    "prerequisites": "MECH 311 orMIAE 311",
+    "corequisites": "MIAE 312",
+    "description": "This course focuses on the following topics: engineering design for the control of workplace hazards; occupational injuries and diseases; codes and standards; Workplace Hazardous Materials Information Systems (WHMIS); hazard evaluation and control; design criteria; risk assessment; safety in the manufacturing environment; applications in ventilation, air cleaning, noise and vibration.",
+    "components": "Lecture 3 hours per week",
+    "notes": null
+  },
+  {
+    "title": "INDU 411 Computer Integrated Manufacturing",
+    "credits": 3.5,
+    "prerequisites": "MECH 311 orMIAE 311",
+    "corequisites": "MIAE 312",
+    "description": "This course focuses on concepts and benefits of computer integrated manufacturing (CIM); design for manufacturing; computerâaided design, process planning, manufacturing (computer numerical control parts programming), and inspection; robots in CIM; production planning and scheduling in CIM; system integration.",
+    "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
+    "notes": null
+  },
+  {
+    "title": "INDU 412 Human Factors Engineering",
+    "credits": 3.5,
+    "prerequisites": "ENGR 371.",
+    "corequisites": "",
+    "description": "Elements of anatomy, physiology, and psychology; engineering anthropometry; human capacities and limitations; manual material handling; design of workplaces; humanâmachines system design; design of controls and displays; shift work. Applications to a manufacturing environment.",
+    "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
+    "notes": null
+  },
+  {
+    "title": "INDU 421 Facilities Design and Material Handling Systems",
+    "credits": 3.5,
+    "prerequisites": "INDU 320.",
+    "corequisites": "INDU 311",
+    "description": "An introduction to planning and design of production and manufacturing. Facility layout and location. Material handling systems and equipment specifications. Computerâaided facilities planning.",
+    "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
+    "notes": null
+  },
+  {
+    "title": "INDU 423 Inventory Control",
+    "credits": 3.5,
+    "prerequisites": "INDU 320.",
+    "corequisites": "",
+    "description": "This course provides the fundamentals of inventory control and management within a company and its impact on the supply chain. The implications of inventory control decisions on production, distribution and logistics operations are emphasized. The methods of reducing inventory holding costs while providing an effective product availability are covered. The topics covered include an introduction to role of inventories and associated costs in a firm, optimal lot sizing and safety stock decisions, coordinated replenishment of items; perishable inventories, supply chain management.",
+    "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
+    "notes": null
+  },
+  {
+    "title": "INDU 424 Introduction to Enterprise Resource Planning",
+    "credits": 3,
+    "prerequisites": "INDU 320.",
+    "corequisites": "",
+    "description": "This course covers the essential principles and techniques for the design and applications of Enterprise Resource Planning (ERP) systems. ERP has become an integral part of medium- to large-size companies in today’s competitive world of business. ERP systems integrate different functions across various departments of a company in one system to meet all business process requirements quicker, more accurately and efficiently. The course describes the requirements of ERP systems followed by the introduction of ERP modules on Materials Management, Production Planning, Sales and Distribution, and Financial Accounting and Controlling. Various applications are illustrated using SAP ERP.",
+    "components": "Lecture 3 hours per week",
+    "notes": null
+  },
+  {
+    "title": "INDU 431 Quantitative Methods in Healthâcare Systems",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Topics include mathematical modelling and optimization methods in healthâcare problems, healthâcare staff planning and scheduling, operating room management, appointment scheduling in clinics, production and delivery of radioâpharmaceuticals, resource allocation and capacity planning in hospitals, ambulance redeployment and dispatching, routing and scheduling of caregivers in homeâhealth industries, healthâcare facility location, inventory management of blood products, kidney exchange optimization and optimization in radiation therapy (IMRT and VMAT). A project is required.",
+    "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
+    "notes": null
+  },
+  {
+    "title": "INDU 441 Introduction to Six Sigma",
+    "credits": 3,
+    "prerequisites": "INDU 372.",
+    "corequisites": "",
+    "description": "Overview of the Six Sigma concepts and tools. Six Sigma deployment practices: Define, Measure, Analyze, Improve and Control phases (DMAIC). Project development, and the DMAIC problemâsolving approach. Project.",
+    "components": "Lecture 3 hours per week",
+    "notes": null
+  },
+  {
+    "title": "INDU 466 Decision Models in Service Sector",
+    "credits": 3,
+    "prerequisites": "ENGR 371;INDU 320.",
+    "corequisites": "",
+    "description": "Introduction to service strategy and operations. Service demand forecasting and development of new services. Service facility location and layout planning. Applications of decision models in service operations and service quality control. Cost analysis, queuing models, risk management and resource allocation models for service decisions. Service outsourcing and supply chain issues. Efficiency and effectiveness issues in different service sectors such as emergency force deployment, municipal resource allocation and health care. Case studies using operations research, operations management, and statistical techniques.",
+    "components": "Lecture 3 hours per week",
+    "notes": null
+  },
+  {
+    "title": "INDU 475 Advanced Concepts in Quality Improvement",
+    "credits": 3,
+    "prerequisites": "INDU 372.",
+    "corequisites": "",
+    "description": "Statistical experimental design issues such as randomized blocks, factorial designs at two levels, applications on factorial designs, building models, Taguchi methods.",
+    "components": "Lecture 3 hours per week",
+    "notes": null
+  },
+  {
+    "title": "INDU 480 Cases in Industrial Engineering",
+    "credits": 3,
+    "prerequisites": "INDU 311,INDU 324.",
+    "corequisites": "",
+    "description": "This course uses the case teaching method to train industrial engineering students to analyze realâ world situations using the tools of operations research. Students assume the roles of engineering consultants working together to solve a problem posed by the client in each case. As a consequence, students obtain experience dealing with all steps involved in solving a real problem, from identification of stakeholders, problem formulation and identification of data requirements, to model implementation and analysis of results. Students are required to participate in class discussions of the case and to present their solutions in either report or presentation form.",
+    "components": "Lecture 3 hours per week",
+    "notes": null
+  },
+  {
+    "title": "INDU 490 Capstone Industrial Engineering Design Project",
+    "credits": 6,
+    "prerequisites": "ENGR 301;MIAE 380.The following courses must be completed previously orconcurrentlyINDU 421.Students must complete 75 credits in the program prior to enrolling.",
+    "corequisites": "",
+    "description": "This course includes a supervised design, simulation or experimental capstone design project including a preliminary project proposal with complete project plan and a technical report at the end of the fall term, and a final report by the group and individual oral presentation at the end of the winter term.",
+    "components": "Lecture 1 hour per week, one term; Laboratory Equivalent time, 5 hours per week, two terms",
+    "notes": "Students work in groups under direct supervision of a faculty member."
+  },
+  {
+    "title": "INDU 498 Topics in Industrial Engineering",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course may be offered in a given year upon the authorization of the Mechanical, Industrial and Aerospace Engineering Department. The course content may vary from offering to offering and will be chosen to complement the elective courses available in the Industrial Engineering program.",
+    "components": "Lecture 3 hours per week",
+    "notes": null
+  }
 ]

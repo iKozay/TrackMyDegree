@@ -1,182 +1,182 @@
 [
-    {
-        "title": "ARTE 201 Art in Early Childhood I",
-        "credits": 3,
-        "prerequisites": "Enrolment in the Specialization in Early Childhood or the Major in Child Studies is required. If prerequisites are not satisfied, permission of the Department is required.",
-        "corequisites": "",
-        "description": "An introductory study of the art‑making process in early childhood. This course is a studio workshop which investigates potential media and teaching approaches appropriate for the young child.",
-        "components": "Studio",
-        "notes": "Students enrolled in the Major in Art Education – Visual Arts or the Specialization in Art Education – Visual Arts programs may not take this course for credit."
-    },
-    {
-        "title": "ARTE 202 Art in Early Childhood II",
-        "credits": 3,
-        "prerequisites": "The following course must be completed previously: ARTE 201.",
-        "corequisites": "",
-        "description": "A continuation of ARTE 201.",
-        "components": "Studio",
-        "notes": "Students enrolled in the Major in Art Education – Visual Arts or the Specialization in Art Education – Visual Arts programs may not take this course for credit."
-    },
-    {
-        "title": "ARTE 203 Arts in Recreation",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "In this workshop/seminar course, students are introduced to various art forms currently used in recreation centres. Intrinsic to the course content is a consideration of the role of the arts in recreation and leisure populations.",
-        "components": "Studio",
-        "notes": "Students enrolled in the Major in Art Education – Visual Arts or the Specialization in Art Education – Visual Arts programs may not take this course for credit."
-    },
-    {
-        "title": "ARTE 220 Foundations of Art Education",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course provides a survey of content and contexts of art education. In studio activities, students explore art‑making skills and techniques, creative expression, and art in society. This content is related to lesson planning for schools, museums, and community settings. Students are introduced to the foundational connections between artistic practice and art education. By reflecting systematically on artistic practices, course readings and resources, and in-class activities, students will consider, design, and implement art curricula and pedagogies. Teaching experiences will include peer workshops.",
-        "components": "Studio",
-        "notes": "Students who have received credit for ARTE 200 may not take this course for credit."
-    },
-    {
-        "title": "ARTE 230 Practicum: Observation and Analysis of Children’s Learning",
-        "credits": 3,
-        "prerequisites": "The following course must be completed previously: ARTE 220.",
-        "corequisites": "",
-        "description": "This practicum course gives students first‑hand experience and knowledge of children’s learning as it occurs in schools. It also provides students with a theoretical framework for observing and analyzing individual and group learning processes in the elementary classroom. It permits students to develop preliminary skills in assessing and meeting the needs of individual children. Students are introduced to methods for evaluating learning and for critically reflecting on learning and teaching. The practicum experience consists of a placement in a primary school one day a week for a total of 70 hours.",
-        "components": "Studio",
-        "notes": "Students who have received credit for ARTE 220 may not take this course for credit."
-    },
-    {
-        "title": "ARTE 320 Multidisciplinary Approaches to Art and Teaching",
-        "credits": 3,
-        "prerequisites": "The following course must be completed previously: ARTE 230. If prerequisites are not satisfied, permission of the Department is required.",
-        "corequisites": "",
-        "description": "This course investigates various creative, historical, and critical approaches to art as a basis for developing curriculum content. Students expand their repertoire of skills and techniques for planning and teaching lessons with multiple dimensions. Students also consider the specific requirements of diverse student populations that may vary by age, disability, ability, identity, and experience. This course may include a practicum component.",
-        "components": "Studio",
-        "notes": "Students who have received credit for ARTE 300 may not take this course for credit."
-    },
-    {
-        "title": "ARTE 330 Introduction to Community Art Education",
-        "credits": 3,
-        "prerequisites": "The following course must be completed previously: ARTE 320. If prerequisites are not satisfied, permission of the Department is required.",
-        "corequisites": "",
-        "description": "The course investigates the various issues and concerns related to community art education. Students develop skills in assessing community needs. After observation and studio research, students develop and propose an art education curriculum for a specific community setting or population. This course includes a practicum component.",
-        "components": "Studio",
-        "notes": "Students who have received credit for ARTE 300 may not take this course for credit."
-    },
-    {
-        "title": "ARTE 340 Art Education for Adolescents and Adults",
-        "credits": 3,
-        "prerequisites": "Students must have completed 24 credits in the Major in Art Education or the Specialization in Art Education – Visual Arts. prior to enrolling.",
-        "corequisites": "",
-        "description": "Students are introduced to theories of adolescent and adult learning, and how these are practised as teaching methods. Students learn about different types of group management and support techniques appropriate for adolescent and adult students. The course presents ways to effectively build relationships with learners over the age of 13, as well as strategies to plan and deliver programming in community settings or curriculum in school settings.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTE 352 Light-Based Media",
-        "credits": 3,
-        "prerequisites": "Students must have completed 24 credits in the Major in Art Education or the Specialization in Art Education – Visual Arts. prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
-        "corequisites": "",
-        "description": "Students develop proficiency in a variety of imaging processes, including traditional and digital photography, that are suitable for school or community art education programs. Students investigate related approaches to teaching and curriculum.",
-        "components": "Studio",
-        "notes": "Students are expected to have basic computing skills or to have completed INTE 290 before registering for this course.Students who have received credit for ARTE 430 may not take this course for credit."
-    },
-    {
-        "title": "ARTE 354 Time-Based Media",
-        "credits": 3,
-        "prerequisites": "Students must have completed 24 credits in the Major in Art Education or the Specialization in Art Education – Visual Arts. prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
-        "corequisites": "",
-        "description": "Students develop proficiency in a variety of time‑based media, including video and multimedia installations that are suitable for school or community art education programs. Students investigate related approaches to teaching and curriculum.",
-        "components": "Studio",
-        "notes": "Students are expected to have basic computing skills or to have completed INTE 290 before registering for this course.Students who have received credit for ARTE 430 may not take this course for credit."
-    },
-    {
-        "title": "ARTE 398 Special Topics in Art Education",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course provides an opportunity for the study of specialized aspects of art education. Topics chosen for consideration vary from year to year.",
-        "components": null,
-        "notes": null
-    },
-    {
-        "title": "ARTE 420 Art Education for Elementary School",
-        "credits": 3,
-        "prerequisites": "The following course must be completed previously: ARTE 330.",
-        "corequisites": "",
-        "description": "Students apply theories of development and learning to design appropriate lessons for elementary school practicum settings. The course explores currently available teaching resources such as textbooks, MEQ curriculum, and communication technologies. The course also investigates processes and procedures for assessment appropriate to an elementary art classroom.",
-        "components": "Studio",
-        "notes": null
-    },
-    {
-        "title": "ARTE 421 Practicum in the Elementary School",
-        "credits": 3,
-        "prerequisites": "The following course must be completed previously: ARTE 330.",
-        "corequisites": "",
-        "description": "Student teachers observe and assist an elementary school classroom teacher in the development and implementation of an effective art program during a practicum of 140 hours. Student teachers also observe the social and cultural dynamics of the school and initiate positive interactions with their students and professional colleagues.",
-        "components": "Practicum/Internship/Work Term",
-        "notes": "A minimum grade of B is required in this course to remain in good academic standing in the specialization and be recommended for the Quebec Art Specialist teaching permit."
-    },
-    {
-        "title": "ARTE 422 Art Education in the Secondary School I",
-        "credits": 3,
-        "prerequisites": "The following course must be completed previously: ARTE 434.",
-        "corequisites": "",
-        "description": "A lecture/seminar course where students identify themes and concerns that are appropriate to secondary‑ school students with diverse backgrounds. Students explore the currently available teaching resources such as MEQ curriculum and others, textbooks and communication technology.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTE 423 Practicum in the Secondary School I",
-        "credits": 3,
-        "prerequisites": "The following courses must be completed previously: ARTE 421, ARTE 434; EDUC 200.",
-        "corequisites": "",
-        "description": "Student teachers observe and assist a secondary‑school art specialist in the development and implementation of an effective art program during a practicum of 140 hours. Student teachers also observe the social and cultural dynamics of the school and initiate positive interactions with their students and professional colleagues.",
-        "components": "Practicum/Internship/Work Term",
-        "notes": "A minimum grade of B is required in this course to remain in good academic standing in the specialization and be recommended for the Quebec Art Specialist teaching permit."
-    },
-    {
-        "title": "ARTE 424 Art Education in the Secondary School II",
-        "credits": 3,
-        "prerequisites": "The following course must be completed previously: ARTE 422.",
-        "corequisites": "",
-        "description": "The course concentrates on the objectives, goals, and content of the MEQ Secondary School Curriculum Guidelines in visual arts. Students analyze, reflect on, and evaluate their own practice and philosophy of art learning and teaching within the wider context of school and society. The course also provides guidance in preparing students to enter the professional teaching environment.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTE 425 Practicum in the Secondary School II",
-        "credits": 9,
-        "prerequisites": "The following course must be completed previously: ARTE 423.",
-        "corequisites": "",
-        "description": "This course is a 350‑hour teaching practicum in a secondary school. Student teachers implement curriculum planning and classroom management that respects ethnic, socio‑economic, and cultural diversity, and that successfully integrates students with special needs. Student teachers also apply safe use of art materials and appropriate art learning assessment procedures.",
-        "components": "Practicum/Internship/Work Term",
-        "notes": "A minimum grade of B is required in this course to remain in good academic standing in the specialization and be recommended for the Quebec Art Specialist teaching permit."
-    },
-    {
-        "title": "ARTE 432 Community Art Education: Theory and Practice",
-        "credits": 3,
-        "prerequisites": "The following course must be completed previously: ARTE 330. If prerequisites are not satisfied, permission of the Department is required.",
-        "corequisites": "",
-        "description": "Students connect theory and practice by planning and teaching appropriate art events for a particular community setting or population. Students investigate organizational and administrative approaches necessary for successful community art education programming.",
-        "components": "Studio; Practicum/Internship/Work Term",
-        "notes": null
-    },
-    {
-        "title": "ARTE 434 Professional Practice for Art Educators",
-        "credits": 3,
-        "prerequisites": "The following course must be completed previously: ARTE 420 or ARTE 432.",
-        "corequisites": "",
-        "description": "Students develop, teach, and then evaluate an art program during a practicum in a community setting. Students formulate and express a philosophy of teaching art in a community setting that connects theory, critical thinking, reflective practice and fieldwork experience. Students investigate entrepreneurial skills needed to market community art programs. Students must complete a practicum in a community setting.",
-        "components": "Studio",
-        "notes": null
-    },
-    {
-        "title": "ARTE 498 Special Topics in Inter-Related Media and Technologies",
-        "credits": 3,
-        "prerequisites": "Students must have completed 24 credits in the Major or Specialization in Art Education – Visual Arts. prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
-        "corequisites": "",
-        "description": "This course provides an opportunity for the study of specialized aspects of art education. Topics chosen for consideration vary from year to year.Notes:Students are expected to have intermediate computing skills in image‑manipulation processes, word processing, and Internet searches.",
-        "components": null,
-        "notes": "Students are expected to have intermediate computing skills in image‑manipulation processes, word processing, and Internet searches."
-    }
+  {
+    "title": "ARTE 201 Art in Early Childhood I",
+    "credits": 3,
+    "prerequisites": "Enrolment in the Specialization in Early Childhood or the Major in Child Studies is required. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "An introductory study of the art‑making process in early childhood. This course is a studio workshop which investigates potential media and teaching approaches appropriate for the young child.",
+    "components": "Studio",
+    "notes": "Students enrolled in the Major in Art Education – Visual Arts or the Specialization in Art Education – Visual Arts programs may not take this course for credit."
+  },
+  {
+    "title": "ARTE 202 Art in Early Childhood II",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: ARTE 201.",
+    "corequisites": "",
+    "description": "A continuation of ARTE 201.",
+    "components": "Studio",
+    "notes": "Students enrolled in the Major in Art Education – Visual Arts or the Specialization in Art Education – Visual Arts programs may not take this course for credit."
+  },
+  {
+    "title": "ARTE 203 Arts in Recreation",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "In this workshop/seminar course, students are introduced to various art forms currently used in recreation centres. Intrinsic to the course content is a consideration of the role of the arts in recreation and leisure populations.",
+    "components": "Studio",
+    "notes": "Students enrolled in the Major in Art Education – Visual Arts or the Specialization in Art Education – Visual Arts programs may not take this course for credit."
+  },
+  {
+    "title": "ARTE 220 Foundations of Art Education",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course provides a survey of content and contexts of art education. In studio activities, students explore art‑making skills and techniques, creative expression, and art in society. This content is related to lesson planning for schools, museums, and community settings. Students are introduced to the foundational connections between artistic practice and art education. By reflecting systematically on artistic practices, course readings and resources, and in-class activities, students will consider, design, and implement art curricula and pedagogies. Teaching experiences will include peer workshops.",
+    "components": "Studio",
+    "notes": "Students who have received credit for ARTE 200 may not take this course for credit."
+  },
+  {
+    "title": "ARTE 230 Practicum: Observation and Analysis of Children’s Learning",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: ARTE 220.",
+    "corequisites": "",
+    "description": "This practicum course gives students first‑hand experience and knowledge of children’s learning as it occurs in schools. It also provides students with a theoretical framework for observing and analyzing individual and group learning processes in the elementary classroom. It permits students to develop preliminary skills in assessing and meeting the needs of individual children. Students are introduced to methods for evaluating learning and for critically reflecting on learning and teaching. The practicum experience consists of a placement in a primary school one day a week for a total of 70 hours.",
+    "components": "Studio",
+    "notes": "Students who have received credit for ARTE 220 may not take this course for credit."
+  },
+  {
+    "title": "ARTE 320 Multidisciplinary Approaches to Art and Teaching",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: ARTE 230. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course investigates various creative, historical, and critical approaches to art as a basis for developing curriculum content. Students expand their repertoire of skills and techniques for planning and teaching lessons with multiple dimensions. Students also consider the specific requirements of diverse student populations that may vary by age, disability, ability, identity, and experience. This course may include a practicum component.",
+    "components": "Studio",
+    "notes": "Students who have received credit for ARTE 300 may not take this course for credit."
+  },
+  {
+    "title": "ARTE 330 Introduction to Community Art Education",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: ARTE 320. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "The course investigates the various issues and concerns related to community art education. Students develop skills in assessing community needs. After observation and studio research, students develop and propose an art education curriculum for a specific community setting or population. This course includes a practicum component.",
+    "components": "Studio",
+    "notes": "Students who have received credit for ARTE 300 may not take this course for credit."
+  },
+  {
+    "title": "ARTE 340 Art Education for Adolescents and Adults",
+    "credits": 3,
+    "prerequisites": "Students must have completed 24 credits in the Major in Art Education or the Specialization in Art Education – Visual Arts. prior to enrolling.",
+    "corequisites": "",
+    "description": "Students are introduced to theories of adolescent and adult learning, and how these are practised as teaching methods. Students learn about different types of group management and support techniques appropriate for adolescent and adult students. The course presents ways to effectively build relationships with learners over the age of 13, as well as strategies to plan and deliver programming in community settings or curriculum in school settings.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTE 352 Light-Based Media",
+    "credits": 3,
+    "prerequisites": "Students must have completed 24 credits in the Major in Art Education or the Specialization in Art Education – Visual Arts. prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "Students develop proficiency in a variety of imaging processes, including traditional and digital photography, that are suitable for school or community art education programs. Students investigate related approaches to teaching and curriculum.",
+    "components": "Studio",
+    "notes": "Students are expected to have basic computing skills or to have completed INTE 290 before registering for this course.Students who have received credit for ARTE 430 may not take this course for credit."
+  },
+  {
+    "title": "ARTE 354 Time-Based Media",
+    "credits": 3,
+    "prerequisites": "Students must have completed 24 credits in the Major in Art Education or the Specialization in Art Education – Visual Arts. prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "Students develop proficiency in a variety of time‑based media, including video and multimedia installations that are suitable for school or community art education programs. Students investigate related approaches to teaching and curriculum.",
+    "components": "Studio",
+    "notes": "Students are expected to have basic computing skills or to have completed INTE 290 before registering for this course.Students who have received credit for ARTE 430 may not take this course for credit."
+  },
+  {
+    "title": "ARTE 398 Special Topics in Art Education",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course provides an opportunity for the study of specialized aspects of art education. Topics chosen for consideration vary from year to year.",
+    "components": null,
+    "notes": null
+  },
+  {
+    "title": "ARTE 420 Art Education for Elementary School",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: ARTE 330.",
+    "corequisites": "",
+    "description": "Students apply theories of development and learning to design appropriate lessons for elementary school practicum settings. The course explores currently available teaching resources such as textbooks, MEQ curriculum, and communication technologies. The course also investigates processes and procedures for assessment appropriate to an elementary art classroom.",
+    "components": "Studio",
+    "notes": null
+  },
+  {
+    "title": "ARTE 421 Practicum in the Elementary School",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: ARTE 330.",
+    "corequisites": "",
+    "description": "Student teachers observe and assist an elementary school classroom teacher in the development and implementation of an effective art program during a practicum of 140 hours. Student teachers also observe the social and cultural dynamics of the school and initiate positive interactions with their students and professional colleagues.",
+    "components": "Practicum/Internship/Work Term",
+    "notes": "A minimum grade of B is required in this course to remain in good academic standing in the specialization and be recommended for the Quebec Art Specialist teaching permit."
+  },
+  {
+    "title": "ARTE 422 Art Education in the Secondary School I",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: ARTE 434.",
+    "corequisites": "",
+    "description": "A lecture/seminar course where students identify themes and concerns that are appropriate to secondary‑ school students with diverse backgrounds. Students explore the currently available teaching resources such as MEQ curriculum and others, textbooks and communication technology.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTE 423 Practicum in the Secondary School I",
+    "credits": 3,
+    "prerequisites": "The following courses must be completed previously: ARTE 421, ARTE 434; EDUC 200.",
+    "corequisites": "",
+    "description": "Student teachers observe and assist a secondary‑school art specialist in the development and implementation of an effective art program during a practicum of 140 hours. Student teachers also observe the social and cultural dynamics of the school and initiate positive interactions with their students and professional colleagues.",
+    "components": "Practicum/Internship/Work Term",
+    "notes": "A minimum grade of B is required in this course to remain in good academic standing in the specialization and be recommended for the Quebec Art Specialist teaching permit."
+  },
+  {
+    "title": "ARTE 424 Art Education in the Secondary School II",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: ARTE 422.",
+    "corequisites": "",
+    "description": "The course concentrates on the objectives, goals, and content of the MEQ Secondary School Curriculum Guidelines in visual arts. Students analyze, reflect on, and evaluate their own practice and philosophy of art learning and teaching within the wider context of school and society. The course also provides guidance in preparing students to enter the professional teaching environment.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTE 425 Practicum in the Secondary School II",
+    "credits": 9,
+    "prerequisites": "The following course must be completed previously: ARTE 423.",
+    "corequisites": "",
+    "description": "This course is a 350‑hour teaching practicum in a secondary school. Student teachers implement curriculum planning and classroom management that respects ethnic, socio‑economic, and cultural diversity, and that successfully integrates students with special needs. Student teachers also apply safe use of art materials and appropriate art learning assessment procedures.",
+    "components": "Practicum/Internship/Work Term",
+    "notes": "A minimum grade of B is required in this course to remain in good academic standing in the specialization and be recommended for the Quebec Art Specialist teaching permit."
+  },
+  {
+    "title": "ARTE 432 Community Art Education: Theory and Practice",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: ARTE 330. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "Students connect theory and practice by planning and teaching appropriate art events for a particular community setting or population. Students investigate organizational and administrative approaches necessary for successful community art education programming.",
+    "components": "Studio; Practicum/Internship/Work Term",
+    "notes": null
+  },
+  {
+    "title": "ARTE 434 Professional Practice for Art Educators",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: ARTE 420 or ARTE 432.",
+    "corequisites": "",
+    "description": "Students develop, teach, and then evaluate an art program during a practicum in a community setting. Students formulate and express a philosophy of teaching art in a community setting that connects theory, critical thinking, reflective practice and fieldwork experience. Students investigate entrepreneurial skills needed to market community art programs. Students must complete a practicum in a community setting.",
+    "components": "Studio",
+    "notes": null
+  },
+  {
+    "title": "ARTE 498 Special Topics in Inter-Related Media and Technologies",
+    "credits": 3,
+    "prerequisites": "Students must have completed 24 credits in the Major or Specialization in Art Education – Visual Arts. prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course provides an opportunity for the study of specialized aspects of art education. Topics chosen for consideration vary from year to year.Notes:Students are expected to have intermediate computing skills in image‑manipulation processes, word processing, and Internet searches.",
+    "components": null,
+    "notes": "Students are expected to have intermediate computing skills in image‑manipulation processes, word processing, and Internet searches."
+  }
 ]

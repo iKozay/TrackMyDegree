@@ -1,6 +1,6 @@
 /* App.css */
-@import "bootstrap/dist/css/bootstrap.min.css";
-@tailwind base; 
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -10,7 +10,8 @@
   min-height: 100vh;
 }
 
-html, body {
+html,
+body {
   height: 100%; /* This makes the html and body elements take up the full height of the viewport */
   margin: 0; /* Remove default margin to prevent unwanted space around the body */
 }
@@ -36,7 +37,6 @@ footer {
 .description-space:active::-webkit-scrollbar-thumb {
   opacity: 1;
 }
-
 
 /* Reserve space for the scrollbar */
 .course-list,
@@ -74,5 +74,3 @@ footer {
     0.1
   ); /* Transparent background for track */
 }
-
-

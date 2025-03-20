@@ -1,506 +1,506 @@
 [
-    {
-        "title": "THEO 201 Introduction to Theological Studies",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course introduces students to the history, sources, and basic structure of Christian theology. A survey of certain interrelationships between theology and other disciplines is provided as well as an introduction to contemporary approaches to God and topics such as Jesus Christ, sin, and redemption.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 202 Introduction to Biblical Studies",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course provides a survey of the contents of the Bible, from Genesis to Revelation, and a practical introduction to the skills required to understand biblical texts. Attention is paid to diverse approaches to interpretation which are used in historical, literary, or theological study of the Bible.",
-        "components": null,
-        "notes": null
-    },
-    {
-        "title": "THEO 203 Introduction to the New Testament",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course deals with the writings of the New Testament with an emphasis on both content and form. As well, students are introduced to the socio-political, economic, and cultural backdrops within which earliest Christianity arose and began to spread.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 204 Introduction to Christian Ethics",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course is an introduction to the field of ethics in the context of Christian faith. Christian ethics is presented as an active quest towards understanding and guiding Christian moral living. There are four parts to this course: 1) a brief exploration of the historical background; 2) key insights on moral knowing, moral persons and the social dimension of moral life; 3) a consideration of the problem of evil and the response of Christian faith; and 4) an exploration of how moral development shapes and informs one's relationship with and understanding of God.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 205 Introduction to Christian Spirituality",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course involves the analysis of characteristics of Christian spirituality, its roots in scripture, the balance between contemplation and action, its communal dimension, and its attitude to the world.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 206 Introduction to Christian Origins",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course is a study of the historical origins of Christianity with a view to understanding the creative originality of the Christian tradition. The course focuses on the ways in which communities and individuals in the first six centuries Common Era understood the Bible and interpreted its traditions to address their historical, social, and theological contexts, and their spiritual needs.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 212 Faith, Reason and the Religious Sense",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course investigates the basic human search for meaning and value in the context of the variety of models of revelation. It considers how religious experience is understood in the light of the psychology of religion and faith.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 226 Theology and Myth",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course is a comparative study of mythology. The focus is on the role of myths in Christian theology, e.g. creation myths, origins of humanity, salvation myths, and others.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 228 Celtic Christianity",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course follows a historical line to show the connections of the pre‑Christian Celtic beliefs with the early Christian Church of Celtic countries. It focuses on the spirituality of the Celtic people in the context of Celtic history and culture.",
-        "components": "Lecture",
-        "notes": "Students who have received credit for IRST 228 may not take this course for credit."
-    },
-    {
-        "title": "THEO 232 The Bible in US Politics",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course focuses on the use of the Bible in US politics (immigration, abortion, LGBTQ2+ rights, climate change, creationism, and other topics) through the study of the history of Christian conservatism in the United States. Biblical interpretation is examined in the context of the Christian Right and dominionist currents such as Christian Reconstructionism and the New Apostolic Reformation.Notes:Students who have taken this course under a THEO 298 number may not take this course for credit.",
-        "components": null,
-        "notes": "Students who have taken this course under a THEO 298 number may not take this course for credit."
-    },
-    {
-        "title": "THEO 233 Religious Pluralism in a Secular Culture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course focuses on the relationships between religion, pluralism, and secular culture. It deals specifically with secularization, secularism and theological responses that are rooted in historical discourses of church/state relations.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 234 Pilgrim Bodies, Sacred Journeys",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course examines the history, politics, and spirituality of transformative journey in both theory and practice. Interdisciplinary exploration of a diversity of sources, including sacred texts and secular literature, art, architecture and music, as well as contemporary pop culture, facilitates a meaningful understanding and experience of pilgrimage as a growing postmodern phenomenon with an ancient global history. This course offers the opportunity for individual and group fieldwork, investigating the material, corporeal and performative dimensions of theology.",
-        "components": "Lecture",
-        "notes": "Students who have received credit for this topic under a LOYC 298 number may not take this course for credit."
-    },
-    {
-        "title": "THEO 236 Spirituality: Personal, Social and Religious Dimensions",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course focuses on the phenomenon of spirituality as a personal and social response to the human quest for self‑integration and self‑transcendence. It examines the roles of both religious tradition and secular culture in shaping approaches to the spiritual journey. Consideration of the characteristics of Christian spiritual traditions is complemented by reflection upon the meaning and variety of spiritualities present in the pluralistic postmodern culture.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 238 Theology in Film",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course examines a series of films to uncover their theological preoccupations, motives, and questions. Methods of analyses are discussed, in conjunction with screenings of selected films.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 242 Theology and the Arts",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course explores a wide variety of ancient, modern, and contemporary artistic media — painting, sculpture, architecture, glass, music, literature, and multimedia — in order to uncover a theological understanding of artistic activity. It investigates the ways in which artists explore apprehensions of transcendence and the artistic imagination.",
-        "components": null,
-        "notes": null
-    },
-    {
-        "title": "THEO 243 Indigenous Spirituality",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course explores Indigenous spirituality through its various epistemologies (ways of knowing) and axiologies (ways of acting). A key component of the course is studying the emerging field of Indigenous methodologies. Students encounter some of the many expressions of Indigenous spirituality, as it is concretely embedded in all aspects of existence (physical, emotional) and in all our relations, that is, to the land, to human and non‑human animals, and to the spirit‑imbued world surrounding us. Consideration is also given to the relationship between Indigenous and non‑Indigenous spiritualities and methodologies.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 245 The Creative Self",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course helps students explore their own creative processes in order to come to a deeper appreciation of the infinite human capacity for creation, and thus, self‑transcendence. It considers the cognitive dimensions of the creative processes, their ethical aspects, their expression in human action, and their impact on ultimate value and meaning.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 291 The Icon: Theology in Colour",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "The icon is both a theological medium and a theological message. The first is expressed by design, the latter by colour. The study of the icon offers the student an opportunity to explore theological meaning through image and symbolism as well as concept and reasoning.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 295 Theology and Women",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course explores the emergence of a body of scholarly writing by women theologians. It looks at their questions and the critiques of traditional theological doctrines and interpretations, as well as suggesting different hermeneutical approaches to exegesis, theology, and history.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 298 Selected Topics in Theological Studies",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 299 Selected Topics in Theological Studies",
-        "credits": 6,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
-        "components": null,
-        "notes": null
-    },
-    {
-        "title": "THEO 301 The Pentateuch",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "The objective of this course is to familiarize students with the first five books of the Bible, known as the Pentateuch. The course considers literary criticism pertaining to the composition of the Pentateuch, its themes, and their theological meanings.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 302 Historiographies in the Bible",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Beginning with an introduction to biblical historiographies, this course discusses how the Bible provides different perspectives of Israel’s history. It focuses on the rereading of the past as a means of actualizing traditions, concepts, prophecies, and stories to make these relevant to communities living in a new and different social, political and cultural context.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 304 Prophetic and Wisdom Literature in the Hebrew Bible",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course introduces the prophetic, wisdom, and deuterocanonical books of the Hebrew Bible. Topics discussed are literary genres, historical contexts, and theological themes, as well as the phenomenon of prophecy in the ancient Near East, the historical settings for the biblical prophetic and wisdom literature, the language, and the message of these biblical books.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 311 John's Writings and the Apocalypse",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course offers an in-depth study of the Gospel of John, the three letters of John and the Book of Revelation (the Apocalypse). Attention is given to Christology, salvation, belief and the role of the Spirit. The Book of Revelation is studied from a historical perspective with some discussion about its contemporary reception.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 315 Gospels and Acts",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course is an introduction to the texts and teachings of the four canonical Gospels and to the Acts of the Apostles.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 317 Paul's Letters",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course is an introduction to Paul and his letters. In studying these writings, students engage in close examination of parts of the text (exegesis) and also discover the history and context of earliest Christianity.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 319 Extra-Biblical Literature",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course explores extra-biblical texts relevant to the study of the Old Testament as well as to the New Testament. Texts may include the Dead Sea Scrolls, Old Testament Pseudepigrapha, the Nag Hammadi corpus, and Christian Apocrypha. Themes such as salvific knowledge, cosmogony and creation, anthropogony, Christology, and soteriology are also considered from a comparative perspective.",
-        "components": "Lecture",
-        "notes": "Students who have received credit for this topic under a THEO 298 number may not take this course for credit."
-    },
-    {
-        "title": "THEO 320 History of Christianity: The Medieval Period",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course offers a study of Christianity from Late Antiquity to the dawn of the Reformation. It explores the history of the Christian Church in the West and in the East, the development of Christian thought and the formation of doctrine focusing on the most important theological figures of the period and history of movements and ideas. Students work with primary sources on diverse topics including but not limited to the conversion of Europe; religious acculturation of pagan peoples; the power and appeal of Christian saints; Christian kingship; monastic, scholastic, and lay piety; pilgrimage; Crusade; dissent and institutional response; and the relationship to those outside the faith.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 321 Reform and Heresy in the Middle Ages",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course examines movements of reform in the monastic and ecclesiastical life of the Middle Ages and the simultaneous rise of religious dissents or heresies. This course focuses on the most significant religious orders founded between the 10th and the 13th centuries, such as the Cluniacs, the Cistercians, the Franciscans and the Dominicans, as well as on the most important dissents of the Middle Ages, such as the so-called Heresies of the Year Thousand, the Waldenses, the Cathars, the Lollards, and the Hussites. This course also examines the lives and writings of some of the most famous female medieval mystics, such as Hildegard of Bingen, Hadewijch of Antwerp, Mechtild of Magdeburg, Marguerite Porete and Julian of Norwich.",
-        "components": "Lecture",
-        "notes": "Students who have taken this course under a THEO 298 number may not take this course for credit."
-    },
-    {
-        "title": "THEO 322 History of Christianity: Reformation and Modernity",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course examines the 16th-century Protestant Reformation and its impact on the modern world, in the areas of religion, politics, economics, science and the arts. The first part of the course focuses on the Reformation theologians and their revolutionary ideas. The second part traces the influence that the Reformation has had on the world up to the present.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 324 Roman Catholicism",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course offers an introduction to the contemporary Roman Catholic experience, and includes a treatment of the historical origins of Catholicism, its worship and liturgy, its spirituality, and its role in society and culture.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 331 The Christian Understanding of God",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course examines the classical presentation of Christian belief in God as a Trinity of divine persons through its biblical origins and historical development. It also examines modern theological reflection on this classical view, including perspectives from non‑Western cultural contexts.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 333 Jesus Christ in History and Faith",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course studies the biblical and later traditions about the person, nature, and work of Jesus Christ, from historical and doctrinal perspectives. The course examines the central role of Jesus Christ in ancient, medieval, and modern theology and culture. Texts studied include the Bible, theological texts from a variety of historical periods as well as other literary and artistic representations of Christ.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 337 The Christian Sacraments",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course examines the history, symbols, and images of ritual and liturgical communication in Christianity, especially in baptism and eucharist. These “mysteries,” as the Christian sacraments were originally called, are studied in the context of a Christian life.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 343 Religion and Politics",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Focusing on the relationship between church, state, and democracy, this course examines the intersection of religion and politics by studying the connections between moral values and political beliefs in different settings around the world. It explores how religious beliefs have shaped politics and have impacted democratization, education, and citizenship. At the same time, it reflects on the way in which politics has affected religious life and religious organizations.",
-        "components": "Lecture",
-        "notes": "Students who have received credit for POLI 389 or for this topic under a POLI 398 number may not take this course for credit."
-    },
-    {
-        "title": "THEO 347 Spirituality of Aging",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course deals with the spirituality of aging through a number of important themes: mid‑life crises, intergenerational conflicts, sexuality, theology of the body, relationships, death and dying.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 351 Applied Ethical Issues",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course examines various ethical theories and their application to concrete issues challenging contemporary society. These may include issues in health care, the economy, and scientific and technological advances.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 353 Theology and Bioethics",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course presents major frameworks for ethical deliberation and the basic ethical concepts operative in bioethics. Providing students with an opportunity to identify, articulate, and analyze ethical issues arising in the bioethical context, it explores theological reflections on concrete bioethics issues, including beginning and end of life issues, ecosystems and health, in particular determinants of Indigenous health and genetic technology.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 393 Philosophical Foundations of Christian Theology",
-        "credits": 3,
-        "prerequisites": "Students must complete 24 credits prior to enrolling.",
-        "corequisites": "",
-        "description": "This survey course investigates the philosophical outlook and language of theological doctrines and Christian thinkers in various historical periods. Questions of truth, meaning, and goodness are examined in light of Christian interpretations of Plato and Aristotle. Contemporary topics at the intersection of philosophy and theology, such as human sexuality, political philosophy, and scientific theories, are also treated.Notes:Students who have received credit for THEO 293 may not take this course for credit.",
-        "components": null,
-        "notes": "Students who have received credit for THEO 293 may not take this course for credit."
-    },
-    {
-        "title": "THEO 398 Selected Topics in Theological Studies",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
-        "components": "Lecture",
-        "notes": "All 400‑level Theology courses have as their prerequisite an appropriate 300‑level Theology course, or its equivalent, with permission of the Department."
-    },
-    {
-        "title": "THEO 399 Selected Topics in Theological Studies",
-        "credits": 6,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.Notes:All 400‑level Theology courses have as their prerequisite an appropriate 300‑level Theology course, or its equivalent, with permission of the Department.",
-        "components": null,
-        "notes": "All 400‑level Theology courses have as their prerequisite an appropriate 300‑level Theology course, or its equivalent, with permission of the Department."
-    },
-    {
-        "title": "THEO 402 Pastoral Care",
-        "credits": 3,
-        "prerequisites": "All 400-level Theology courses have as their prerequisite an appropriate 300-level Theology course, or its equivalent, with permission of the Department.",
-        "corequisites": "",
-        "description": "This course introduces students to the theology and practice of pastoral caregiving. It explores how biblical foundations and social context shape this ministry. Students are invited to learn from practitioners about the particular skills, ethical virtues, and spiritual sensitivity required for the exercise of pastoral care.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 403 Ignatian Spirituality: Theory and Method",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course provides students with theoretical and methodological grounding in Ignatian spirituality specifically and in the academic study of Christian spirituality in general. The course introduces students to the Spiritual Exercises of St. Ignatius, situating the Exercises both in their historical context and within interpretations in contemporary culture. The goal of the course is to prepare students to engage in the role of directing spiritual exercises, to facilitate students’ understanding of the dynamics of the exercises and to explore the underlying anthropology and theology of the Ignatian exercises.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 404 Practicum in Pastoral Care",
-        "credits": 3,
-        "prerequisites": "The following course must be completed previously: THEO 402. Permission of the Department is required.",
-        "corequisites": "",
-        "description": "This course complements THEO 402 as the internship and field exploration of a particular pastoral ministry. It will be supervised by experts or experienced individuals in the various fields of ministry, e.g. eldercare, bereavement, hospital, school, youth ministries, and others.",
-        "components": "Practicum/Internship/Work Term",
-        "notes": null
-    },
-    {
-        "title": "THEO 406 The History of Biblical Research",
-        "credits": 3,
-        "prerequisites": "The following course must be completed previously: THEO 202 or THEO 203.",
-        "corequisites": "",
-        "description": "In this advanced biblical studies course, students explore the history of biblical interpretation from Late Antiquity to the variety of exegetical approaches which emerged since the Enlightenment.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 408 Classical Theological Texts: Reading and Interpretation",
-        "credits": 3,
-        "prerequisites": "The following courses must be completed previously: THEO 201; THEO 331 or THEO 333 or THEO 337. If prerequisites are not satisfied, permission of the Department is required.",
-        "corequisites": "",
-        "description": "This course provides students with the interpretive skills that permit critical responses to texts. Classical texts are analyzed in terms of the elements of context, structure, form, and content. The course covers classical theological writings from the fourth to the 20th century.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 410 Honours Tutorial",
-        "credits": 3,
-        "prerequisites": "Enrolment in the honours program is required. Permission of the Department is required.",
-        "corequisites": "",
-        "description": "This course provides students with background studies in central theological issues and writers. Students prepare an annotated bibliography as part of the requirements of the course.",
-        "components": null,
-        "notes": null
-    },
-    {
-        "title": "THEO 460 Honours Essay",
-        "credits": 3,
-        "prerequisites": "The following courses must be completed previously or concurrently: THEO 410. Enrolment in the honours program is required. Permission of the Department is required.",
-        "corequisites": "",
-        "description": "Each student works with an individual faculty member in a particular area of theological studies to produce a research paper of about 40 pages in length.",
-        "components": "Tutorial",
-        "notes": null
-    },
-    {
-        "title": "THEO 492 Biblical Hebrew I",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "No prior knowledge of the Hebrew language is necessary. With a view to reading and comprehending simple biblical narratives in Hebrew, students learn the rudiments of Biblical Hebrew from the alphabet, vocabulary, and the basic grammar.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 493 Biblical Hebrew II",
-        "credits": 3,
-        "prerequisites": "The following courses must be completed previously: THEO 492.",
-        "corequisites": "",
-        "description": "This course continues the objectives of Biblical Hebrew I. With a view to reading and comprehending simple biblical narratives in Hebrew, students learn problematic verb forms, grammatical constructions, and text linguistics. By the end of this course students are able to read, analyze, and translate biblical narratives.",
-        "components": null,
-        "notes": null
-    },
-    {
-        "title": "THEO 495 Biblical Greek I",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This is an introductory course to Greek Koine. No prior knowledge of the Greek language is necessary. It provides the student with a basic understanding of New Testament Greek.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 496 Biblical Greek II",
-        "credits": 3,
-        "prerequisites": "The following courses must be completed previously: THEO 495.",
-        "corequisites": "",
-        "description": "This course builds on the material presented in Biblical Greek I. By the end of the course, students will be able to analyze and translate biblical texts.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 497 Selected Topics in Theological Studies",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
-        "components": null,
-        "notes": null
-    },
-    {
-        "title": "THEO 498 Selected Topics in Theological Studies",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "THEO 499 Advanced Topics in Theological Studies",
-        "credits": 6,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
-        "components": null,
-        "notes": null
-    }
+  {
+    "title": "THEO 201 Introduction to Theological Studies",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course introduces students to the history, sources, and basic structure of Christian theology. A survey of certain interrelationships between theology and other disciplines is provided as well as an introduction to contemporary approaches to God and topics such as Jesus Christ, sin, and redemption.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 202 Introduction to Biblical Studies",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course provides a survey of the contents of the Bible, from Genesis to Revelation, and a practical introduction to the skills required to understand biblical texts. Attention is paid to diverse approaches to interpretation which are used in historical, literary, or theological study of the Bible.",
+    "components": null,
+    "notes": null
+  },
+  {
+    "title": "THEO 203 Introduction to the New Testament",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course deals with the writings of the New Testament with an emphasis on both content and form. As well, students are introduced to the socio-political, economic, and cultural backdrops within which earliest Christianity arose and began to spread.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 204 Introduction to Christian Ethics",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course is an introduction to the field of ethics in the context of Christian faith. Christian ethics is presented as an active quest towards understanding and guiding Christian moral living. There are four parts to this course: 1) a brief exploration of the historical background; 2) key insights on moral knowing, moral persons and the social dimension of moral life; 3) a consideration of the problem of evil and the response of Christian faith; and 4) an exploration of how moral development shapes and informs one's relationship with and understanding of God.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 205 Introduction to Christian Spirituality",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course involves the analysis of characteristics of Christian spirituality, its roots in scripture, the balance between contemplation and action, its communal dimension, and its attitude to the world.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 206 Introduction to Christian Origins",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course is a study of the historical origins of Christianity with a view to understanding the creative originality of the Christian tradition. The course focuses on the ways in which communities and individuals in the first six centuries Common Era understood the Bible and interpreted its traditions to address their historical, social, and theological contexts, and their spiritual needs.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 212 Faith, Reason and the Religious Sense",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course investigates the basic human search for meaning and value in the context of the variety of models of revelation. It considers how religious experience is understood in the light of the psychology of religion and faith.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 226 Theology and Myth",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course is a comparative study of mythology. The focus is on the role of myths in Christian theology, e.g. creation myths, origins of humanity, salvation myths, and others.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 228 Celtic Christianity",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course follows a historical line to show the connections of the pre‑Christian Celtic beliefs with the early Christian Church of Celtic countries. It focuses on the spirituality of the Celtic people in the context of Celtic history and culture.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for IRST 228 may not take this course for credit."
+  },
+  {
+    "title": "THEO 232 The Bible in US Politics",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course focuses on the use of the Bible in US politics (immigration, abortion, LGBTQ2+ rights, climate change, creationism, and other topics) through the study of the history of Christian conservatism in the United States. Biblical interpretation is examined in the context of the Christian Right and dominionist currents such as Christian Reconstructionism and the New Apostolic Reformation.Notes:Students who have taken this course under a THEO 298 number may not take this course for credit.",
+    "components": null,
+    "notes": "Students who have taken this course under a THEO 298 number may not take this course for credit."
+  },
+  {
+    "title": "THEO 233 Religious Pluralism in a Secular Culture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course focuses on the relationships between religion, pluralism, and secular culture. It deals specifically with secularization, secularism and theological responses that are rooted in historical discourses of church/state relations.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 234 Pilgrim Bodies, Sacred Journeys",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the history, politics, and spirituality of transformative journey in both theory and practice. Interdisciplinary exploration of a diversity of sources, including sacred texts and secular literature, art, architecture and music, as well as contemporary pop culture, facilitates a meaningful understanding and experience of pilgrimage as a growing postmodern phenomenon with an ancient global history. This course offers the opportunity for individual and group fieldwork, investigating the material, corporeal and performative dimensions of theology.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a LOYC 298 number may not take this course for credit."
+  },
+  {
+    "title": "THEO 236 Spirituality: Personal, Social and Religious Dimensions",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course focuses on the phenomenon of spirituality as a personal and social response to the human quest for self‑integration and self‑transcendence. It examines the roles of both religious tradition and secular culture in shaping approaches to the spiritual journey. Consideration of the characteristics of Christian spiritual traditions is complemented by reflection upon the meaning and variety of spiritualities present in the pluralistic postmodern culture.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 238 Theology in Film",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines a series of films to uncover their theological preoccupations, motives, and questions. Methods of analyses are discussed, in conjunction with screenings of selected films.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 242 Theology and the Arts",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores a wide variety of ancient, modern, and contemporary artistic media — painting, sculpture, architecture, glass, music, literature, and multimedia — in order to uncover a theological understanding of artistic activity. It investigates the ways in which artists explore apprehensions of transcendence and the artistic imagination.",
+    "components": null,
+    "notes": null
+  },
+  {
+    "title": "THEO 243 Indigenous Spirituality",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores Indigenous spirituality through its various epistemologies (ways of knowing) and axiologies (ways of acting). A key component of the course is studying the emerging field of Indigenous methodologies. Students encounter some of the many expressions of Indigenous spirituality, as it is concretely embedded in all aspects of existence (physical, emotional) and in all our relations, that is, to the land, to human and non‑human animals, and to the spirit‑imbued world surrounding us. Consideration is also given to the relationship between Indigenous and non‑Indigenous spiritualities and methodologies.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 245 The Creative Self",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course helps students explore their own creative processes in order to come to a deeper appreciation of the infinite human capacity for creation, and thus, self‑transcendence. It considers the cognitive dimensions of the creative processes, their ethical aspects, their expression in human action, and their impact on ultimate value and meaning.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 291 The Icon: Theology in Colour",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "The icon is both a theological medium and a theological message. The first is expressed by design, the latter by colour. The study of the icon offers the student an opportunity to explore theological meaning through image and symbolism as well as concept and reasoning.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 295 Theology and Women",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores the emergence of a body of scholarly writing by women theologians. It looks at their questions and the critiques of traditional theological doctrines and interpretations, as well as suggesting different hermeneutical approaches to exegesis, theology, and history.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 298 Selected Topics in Theological Studies",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 299 Selected Topics in Theological Studies",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null
+  },
+  {
+    "title": "THEO 301 The Pentateuch",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "The objective of this course is to familiarize students with the first five books of the Bible, known as the Pentateuch. The course considers literary criticism pertaining to the composition of the Pentateuch, its themes, and their theological meanings.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 302 Historiographies in the Bible",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Beginning with an introduction to biblical historiographies, this course discusses how the Bible provides different perspectives of Israel’s history. It focuses on the rereading of the past as a means of actualizing traditions, concepts, prophecies, and stories to make these relevant to communities living in a new and different social, political and cultural context.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 304 Prophetic and Wisdom Literature in the Hebrew Bible",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course introduces the prophetic, wisdom, and deuterocanonical books of the Hebrew Bible. Topics discussed are literary genres, historical contexts, and theological themes, as well as the phenomenon of prophecy in the ancient Near East, the historical settings for the biblical prophetic and wisdom literature, the language, and the message of these biblical books.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 311 John's Writings and the Apocalypse",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course offers an in-depth study of the Gospel of John, the three letters of John and the Book of Revelation (the Apocalypse). Attention is given to Christology, salvation, belief and the role of the Spirit. The Book of Revelation is studied from a historical perspective with some discussion about its contemporary reception.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 315 Gospels and Acts",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course is an introduction to the texts and teachings of the four canonical Gospels and to the Acts of the Apostles.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 317 Paul's Letters",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course is an introduction to Paul and his letters. In studying these writings, students engage in close examination of parts of the text (exegesis) and also discover the history and context of earliest Christianity.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 319 Extra-Biblical Literature",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores extra-biblical texts relevant to the study of the Old Testament as well as to the New Testament. Texts may include the Dead Sea Scrolls, Old Testament Pseudepigrapha, the Nag Hammadi corpus, and Christian Apocrypha. Themes such as salvific knowledge, cosmogony and creation, anthropogony, Christology, and soteriology are also considered from a comparative perspective.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a THEO 298 number may not take this course for credit."
+  },
+  {
+    "title": "THEO 320 History of Christianity: The Medieval Period",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course offers a study of Christianity from Late Antiquity to the dawn of the Reformation. It explores the history of the Christian Church in the West and in the East, the development of Christian thought and the formation of doctrine focusing on the most important theological figures of the period and history of movements and ideas. Students work with primary sources on diverse topics including but not limited to the conversion of Europe; religious acculturation of pagan peoples; the power and appeal of Christian saints; Christian kingship; monastic, scholastic, and lay piety; pilgrimage; Crusade; dissent and institutional response; and the relationship to those outside the faith.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 321 Reform and Heresy in the Middle Ages",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines movements of reform in the monastic and ecclesiastical life of the Middle Ages and the simultaneous rise of religious dissents or heresies. This course focuses on the most significant religious orders founded between the 10th and the 13th centuries, such as the Cluniacs, the Cistercians, the Franciscans and the Dominicans, as well as on the most important dissents of the Middle Ages, such as the so-called Heresies of the Year Thousand, the Waldenses, the Cathars, the Lollards, and the Hussites. This course also examines the lives and writings of some of the most famous female medieval mystics, such as Hildegard of Bingen, Hadewijch of Antwerp, Mechtild of Magdeburg, Marguerite Porete and Julian of Norwich.",
+    "components": "Lecture",
+    "notes": "Students who have taken this course under a THEO 298 number may not take this course for credit."
+  },
+  {
+    "title": "THEO 322 History of Christianity: Reformation and Modernity",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the 16th-century Protestant Reformation and its impact on the modern world, in the areas of religion, politics, economics, science and the arts. The first part of the course focuses on the Reformation theologians and their revolutionary ideas. The second part traces the influence that the Reformation has had on the world up to the present.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 324 Roman Catholicism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course offers an introduction to the contemporary Roman Catholic experience, and includes a treatment of the historical origins of Catholicism, its worship and liturgy, its spirituality, and its role in society and culture.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 331 The Christian Understanding of God",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the classical presentation of Christian belief in God as a Trinity of divine persons through its biblical origins and historical development. It also examines modern theological reflection on this classical view, including perspectives from non‑Western cultural contexts.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 333 Jesus Christ in History and Faith",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course studies the biblical and later traditions about the person, nature, and work of Jesus Christ, from historical and doctrinal perspectives. The course examines the central role of Jesus Christ in ancient, medieval, and modern theology and culture. Texts studied include the Bible, theological texts from a variety of historical periods as well as other literary and artistic representations of Christ.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 337 The Christian Sacraments",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the history, symbols, and images of ritual and liturgical communication in Christianity, especially in baptism and eucharist. These “mysteries,” as the Christian sacraments were originally called, are studied in the context of a Christian life.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 343 Religion and Politics",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Focusing on the relationship between church, state, and democracy, this course examines the intersection of religion and politics by studying the connections between moral values and political beliefs in different settings around the world. It explores how religious beliefs have shaped politics and have impacted democratization, education, and citizenship. At the same time, it reflects on the way in which politics has affected religious life and religious organizations.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for POLI 389 or for this topic under a POLI 398 number may not take this course for credit."
+  },
+  {
+    "title": "THEO 347 Spirituality of Aging",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course deals with the spirituality of aging through a number of important themes: mid‑life crises, intergenerational conflicts, sexuality, theology of the body, relationships, death and dying.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 351 Applied Ethical Issues",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines various ethical theories and their application to concrete issues challenging contemporary society. These may include issues in health care, the economy, and scientific and technological advances.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 353 Theology and Bioethics",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course presents major frameworks for ethical deliberation and the basic ethical concepts operative in bioethics. Providing students with an opportunity to identify, articulate, and analyze ethical issues arising in the bioethical context, it explores theological reflections on concrete bioethics issues, including beginning and end of life issues, ecosystems and health, in particular determinants of Indigenous health and genetic technology.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 393 Philosophical Foundations of Christian Theology",
+    "credits": 3,
+    "prerequisites": "Students must complete 24 credits prior to enrolling.",
+    "corequisites": "",
+    "description": "This survey course investigates the philosophical outlook and language of theological doctrines and Christian thinkers in various historical periods. Questions of truth, meaning, and goodness are examined in light of Christian interpretations of Plato and Aristotle. Contemporary topics at the intersection of philosophy and theology, such as human sexuality, political philosophy, and scientific theories, are also treated.Notes:Students who have received credit for THEO 293 may not take this course for credit.",
+    "components": null,
+    "notes": "Students who have received credit for THEO 293 may not take this course for credit."
+  },
+  {
+    "title": "THEO 398 Selected Topics in Theological Studies",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": "Lecture",
+    "notes": "All 400‑level Theology courses have as their prerequisite an appropriate 300‑level Theology course, or its equivalent, with permission of the Department."
+  },
+  {
+    "title": "THEO 399 Selected Topics in Theological Studies",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.Notes:All 400‑level Theology courses have as their prerequisite an appropriate 300‑level Theology course, or its equivalent, with permission of the Department.",
+    "components": null,
+    "notes": "All 400‑level Theology courses have as their prerequisite an appropriate 300‑level Theology course, or its equivalent, with permission of the Department."
+  },
+  {
+    "title": "THEO 402 Pastoral Care",
+    "credits": 3,
+    "prerequisites": "All 400-level Theology courses have as their prerequisite an appropriate 300-level Theology course, or its equivalent, with permission of the Department.",
+    "corequisites": "",
+    "description": "This course introduces students to the theology and practice of pastoral caregiving. It explores how biblical foundations and social context shape this ministry. Students are invited to learn from practitioners about the particular skills, ethical virtues, and spiritual sensitivity required for the exercise of pastoral care.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 403 Ignatian Spirituality: Theory and Method",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course provides students with theoretical and methodological grounding in Ignatian spirituality specifically and in the academic study of Christian spirituality in general. The course introduces students to the Spiritual Exercises of St. Ignatius, situating the Exercises both in their historical context and within interpretations in contemporary culture. The goal of the course is to prepare students to engage in the role of directing spiritual exercises, to facilitate students’ understanding of the dynamics of the exercises and to explore the underlying anthropology and theology of the Ignatian exercises.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 404 Practicum in Pastoral Care",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: THEO 402. Permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course complements THEO 402 as the internship and field exploration of a particular pastoral ministry. It will be supervised by experts or experienced individuals in the various fields of ministry, e.g. eldercare, bereavement, hospital, school, youth ministries, and others.",
+    "components": "Practicum/Internship/Work Term",
+    "notes": null
+  },
+  {
+    "title": "THEO 406 The History of Biblical Research",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: THEO 202 or THEO 203.",
+    "corequisites": "",
+    "description": "In this advanced biblical studies course, students explore the history of biblical interpretation from Late Antiquity to the variety of exegetical approaches which emerged since the Enlightenment.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 408 Classical Theological Texts: Reading and Interpretation",
+    "credits": 3,
+    "prerequisites": "The following courses must be completed previously: THEO 201; THEO 331 or THEO 333 or THEO 337. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course provides students with the interpretive skills that permit critical responses to texts. Classical texts are analyzed in terms of the elements of context, structure, form, and content. The course covers classical theological writings from the fourth to the 20th century.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 410 Honours Tutorial",
+    "credits": 3,
+    "prerequisites": "Enrolment in the honours program is required. Permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course provides students with background studies in central theological issues and writers. Students prepare an annotated bibliography as part of the requirements of the course.",
+    "components": null,
+    "notes": null
+  },
+  {
+    "title": "THEO 460 Honours Essay",
+    "credits": 3,
+    "prerequisites": "The following courses must be completed previously or concurrently: THEO 410. Enrolment in the honours program is required. Permission of the Department is required.",
+    "corequisites": "",
+    "description": "Each student works with an individual faculty member in a particular area of theological studies to produce a research paper of about 40 pages in length.",
+    "components": "Tutorial",
+    "notes": null
+  },
+  {
+    "title": "THEO 492 Biblical Hebrew I",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "No prior knowledge of the Hebrew language is necessary. With a view to reading and comprehending simple biblical narratives in Hebrew, students learn the rudiments of Biblical Hebrew from the alphabet, vocabulary, and the basic grammar.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 493 Biblical Hebrew II",
+    "credits": 3,
+    "prerequisites": "The following courses must be completed previously: THEO 492.",
+    "corequisites": "",
+    "description": "This course continues the objectives of Biblical Hebrew I. With a view to reading and comprehending simple biblical narratives in Hebrew, students learn problematic verb forms, grammatical constructions, and text linguistics. By the end of this course students are able to read, analyze, and translate biblical narratives.",
+    "components": null,
+    "notes": null
+  },
+  {
+    "title": "THEO 495 Biblical Greek I",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This is an introductory course to Greek Koine. No prior knowledge of the Greek language is necessary. It provides the student with a basic understanding of New Testament Greek.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 496 Biblical Greek II",
+    "credits": 3,
+    "prerequisites": "The following courses must be completed previously: THEO 495.",
+    "corequisites": "",
+    "description": "This course builds on the material presented in Biblical Greek I. By the end of the course, students will be able to analyze and translate biblical texts.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 497 Selected Topics in Theological Studies",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null
+  },
+  {
+    "title": "THEO 498 Selected Topics in Theological Studies",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "THEO 499 Advanced Topics in Theological Studies",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null
+  }
 ]

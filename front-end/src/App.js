@@ -1,22 +1,29 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
-import LandingPage from "./pages/LandingPage";
-import LogInPage from "./pages/LogInPage";
-import SignUpPage from "./pages/SignUpPage";
-import UserPage from "./pages/UserPage";
-import CourseList from "./pages/CourseListPage";
-import UploadTranscript from "./pages/UploadTranscriptPage";
-import UploadAcceptanceLetter from "./pages/UploadAcceptanceLetter";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import ProtectedRoute from "./components/ProtectedRoute";
-import { AuthProvider } from "./AuthContext";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import "./App.css";
-import TimelinePage from "./pages/TimelinePage";
-import AdminPage from "./pages/AdminPage";
-import { AnimatePresence } from "framer-motion";
+import React, { useState } from 'react';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from 'react-router-dom';
+import LandingPage from './pages/LandingPage';
+import LogInPage from './pages/LogInPage';
+import SignUpPage from './pages/SignUpPage';
+import UserPage from './pages/UserPage';
+import CourseList from './pages/CourseListPage';
+import UploadTranscript from './pages/UploadTranscriptPage';
+import UploadAcceptanceLetter from './pages/UploadAcceptanceLetter';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './AuthContext';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import './App.css';
+import TimelinePage from './pages/TimelinePage';
+import ForgotPassPage from './pages/ForgotPassPage';
+import ResetPassPage from './pages/ResetPassPage';
+import AdminPage from './pages/AdminPage';
+import { AnimatePresence } from 'framer-motion';
 
 function App() {
   const [degreeId, setDegreeId] = useState(null);
@@ -30,8 +37,8 @@ function App() {
     setcreditsRequired(data.creditsRequired); // Update creditsRequired
     setIsExtendedCredit(data.isExtendedCredit); // Update is
 
-    console.log("app.js data.isExtendedCredit: ", data.isExtendedCredit);
-    console.log("app.js isExtendedCredit: ", isExtendedCredit);
+    console.log('app.js data.isExtendedCredit: ', data.isExtendedCredit);
+    console.log('app.js isExtendedCredit: ', isExtendedCredit);
   };
 
   return (
@@ -54,7 +61,13 @@ function App() {
 }
 
 // Create a new component to use `useLocation` inside the `<Router>`
-function AppContent({ degreeId, timelineData, creditsRequired, handleDataProcessed, isExtendedCredit }) {
+function AppContent({
+  degreeId,
+  timelineData,
+  creditsRequired,
+  handleDataProcessed,
+  isExtendedCredit,
+}) {
   const location = useLocation(); // <--- useLocation is now inside the Router context
 
   return (
@@ -72,7 +85,7 @@ function AppContent({ degreeId, timelineData, creditsRequired, handleDataProcess
               </ProtectedRoute>
             }
           />
-          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/adminpage" element={<AdminPage />} />
           <Route
             path="/timeline_change"
             element={
@@ -92,8 +105,12 @@ function AppContent({ degreeId, timelineData, creditsRequired, handleDataProcess
           />
           <Route
             path="/timeline_initial"
-            element={<UploadAcceptanceLetter onDataProcessed={handleDataProcessed} />}
+            element={
+              <UploadAcceptanceLetter onDataProcessed={handleDataProcessed} />
+            }
           />
+          <Route path="/forgot-pass" element={<ForgotPassPage />} />
+          <Route path="/reset-pass" element={<ResetPassPage />} />
         </Routes>
       </AnimatePresence>
     </div>

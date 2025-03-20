@@ -36,6 +36,8 @@ describe("Course Routes", () => {
 
       // Assert that the response body is an array
       expect(Array.isArray(response.body)).toBe(true);
+      // Assert that the response body is an array
+      expect(Array.isArray(response.body)).toBe(true);
 
       if (response.body.length > 0) {
         // Assert structure for the first course

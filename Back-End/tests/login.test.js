@@ -14,7 +14,7 @@ const authController =
 
 const mockDBRecord = require("./__mocks__/user_mocks").mockDBRecord;
 
-const url = process.DOCKER_URL || "host.docker.internal:8000";
+const url = process.DOCKER_URL || 'host.docker.internal:8000';
 
 const app = express();
 app.use(express.json());
@@ -33,29 +33,29 @@ describe("POST /auth/login", () => {
 			.expect("Content-Type", /json/)
 			.expect(200);
 
-		expect(response.body).toHaveProperty("id");
-		expect(response.body).toHaveProperty("email", "example@example.com");
-		expect(response.body).toHaveProperty("password");
-		expect(response.body).toHaveProperty("fullname", "Random User");
-		expect(response.body).toHaveProperty("type", "student");
-	});
+    expect(response.body).toHaveProperty('id');
+    expect(response.body).toHaveProperty('email', 'example@example.com');
+    expect(response.body).toHaveProperty('password');
+    expect(response.body).toHaveProperty('fullname', 'Random User');
+    expect(response.body).toHaveProperty('type', 'student');
+  });
 
-	// Wrong field request
-	it("should return 401 status and error message when password is incorrect", async () => {
-		const response = await request(url)
-			.post("/auth/login")
-			.send({
-				email: "example@example.com",
-				password: "wrongpass",
-			})
-			.expect("Content-Type", /json/)
-			.expect(401);
+  // Wrong field request
+  it('should return 401 status and error message when password is incorrect', async () => {
+    const response = await request(url)
+      .post('/auth/login')
+      .send({
+        email: 'example@example.com',
+        password: 'wrongpass',
+      })
+      .expect('Content-Type', /json/)
+      .expect(401);
 
-		expect(response.body).toHaveProperty(
-			"error",
-			"Incorrect email or password"
-		);
-	});
+    expect(response.body).toHaveProperty(
+      'error',
+      'Incorrect email or password',
+    );
+  });
 
 	// Bad request, missing fields
 	it("should return 400 status and error message when the body is incorrect", async () => {
@@ -67,9 +67,9 @@ describe("POST /auth/login", () => {
 			.expect("Content-Type", /json/)
 			.expect(400);
 
-		expect(response.body).toHaveProperty(
-			"error",
-			"Email and password are required"
-		);
-	});
+    expect(response.body).toHaveProperty(
+      'error',
+      'Email and password are required',
+    );
+  });
 });
