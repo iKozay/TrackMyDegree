@@ -6,6 +6,7 @@ import createError from "http-errors";
 import Database from "@controllers/DBController/DBController";
 import HTTP from "@Util/HTTPCodes";
 import rateLimit from "express-rate-limit";
+import * as Sentry from "@sentry/react";
 
 //Routes import
 import authRouter from "@routes/auth";
@@ -19,6 +20,13 @@ import userDataRouter from "@routes/userData";
 import Admin from "@routes/adminRoutes";
 import requisiteRouter from "@routes/requisite";
 import feedbackRouter from "@routes/feedback";
+
+// Sentry Backend INIT
+Sentry.init({
+	dsn: process.env.REACT_APP_SENTRY_DSN,
+	integrations: [Sentry.browserTracingIntegration()],
+	tracesSampleRate: 1.0,
+});
 
 //Dev Consts
 const HOPPSCOTCH = "chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld";

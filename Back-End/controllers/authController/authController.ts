@@ -4,6 +4,7 @@ import Auth from "@controllers/authController/auth_types"; //types import
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import * as Sentry from "@sentry/react";
 
 dotenv.config();
 const log = console.log;
@@ -46,6 +47,7 @@ async function authenticate(
 				log("User not found", email);
 			}
 		} catch (error) {
+			Sentry.captureException({ error: "Backend error - authenticate" });
 			log("Error in login\n", error);
 		}
 	}
@@ -88,6 +90,7 @@ async function registerUser(
 				return result.recordset[0];
 			}
 		} catch (error) {
+			Sentry.captureException({ error: "Backend error - register user" });
 			log("Error in Sign Up\n", error);
 		}
 	}
@@ -157,6 +160,7 @@ async function forgotPassword(
 
 		return { message: "OTP has been sent to your email." }; // Confirmation message
 	} catch (error) {
+		Sentry.captureException({ error: "Backend error - forgot password" });
 		log("Error in forgot password:\n", error);
 	}
 }
@@ -210,6 +214,7 @@ async function resetPassword(
 
 		return { message: "Password reset successful." };
 	} catch (error) {
+		Sentry.captureException({ error: "Backend error - reset password" });
 		log("Error in reset password:\n", error);
 	}
 }
