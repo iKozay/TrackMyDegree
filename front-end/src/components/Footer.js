@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import '../css/Footer.css';
 
 const Footer = () => {
-  const [feedback, setFeedback] = useState("");
+  const [feedback, setFeedback] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const [showAlert, setShowAlert] = useState('');
 
@@ -17,13 +17,12 @@ const Footer = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 'message': feedback, 'user_id': '' }),
+        body: JSON.stringify({ message: feedback, user_id: '' }),
       });
 
       if (!response.ok) {
         setShowAlert('Error submitting feedback');
-      }
-      else {
+      } else {
         const resData = await response.json();
         console.log(resData);
         setShowAlert(resData.message);
@@ -32,29 +31,31 @@ const Footer = () => {
       setTimeout(() => {
         setShowAlert('');
       }, 2500);
-
     } catch (err) {
       console.error('Error submitting feedback:', err);
     }
 
-    setFeedback("");
+    setFeedback('');
     setShowPopup(false);
   };
 
   const hidePopup = () => {
-    setFeedback("");
+    setFeedback('');
     setShowPopup(false);
   };
 
   return (
-    <footer className="footer" style={{ position: 'relative', padding: '20px', minHeight: '60px' }}>
+    <footer
+      className="footer"
+      style={{ position: 'relative', padding: '20px', minHeight: '60px' }}
+    >
       {showPopup && (
         <div className="overlay" onClick={hidePopup}>
           <div className="popup" onClick={(e) => e.stopPropagation()}>
             <div className="popup-content">
               <h3>Submit Feedback</h3>
               <textarea
-                rows='4'
+                rows="4"
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 placeholder="Enter your feedback..."
@@ -74,7 +75,19 @@ const Footer = () => {
       <button
         className="feedback-button"
         onClick={() => setShowPopup(true)}
-        style={{ backgroundColor: 'red', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '16px', transition: 'background-color 0.3s ease', position: 'absolute', right: '20px', bottom: '10px' }}
+        style={{
+          backgroundColor: 'red',
+          color: 'white',
+          padding: '10px 20px',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+          fontSize: '16px',
+          transition: 'background-color 0.3s ease',
+          position: 'absolute',
+          right: '20px',
+          bottom: '10px',
+        }}
       >
         Submit Feedback!
       </button>
@@ -82,6 +95,5 @@ const Footer = () => {
     </footer>
   );
 };
-
 
 export default Footer;

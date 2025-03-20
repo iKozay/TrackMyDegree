@@ -1,6 +1,6 @@
 // src/components/TimelineSection.js
-import React from "react";
-import TimelineExample from "../images/TimelineExample.png";
+import React from 'react';
+import TimelineExample from '../images/TimelineExample.png';
 import '../css/TimelineSection.css';
 
 const TimelineSection = () => {
