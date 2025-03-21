@@ -629,6 +629,7 @@ const TimelinePage = ({
     Winter: 1,
     Summer: 2,
     Fall: 3,
+    Fall_Winter: 4,
   };
 
   function compareSemesters(a, b) {
@@ -649,8 +650,16 @@ const TimelinePage = ({
   }
 
   const handleAddSemester = () => {
-    const id = `${selectedSeason} ${selectedYear}`;
-    const name = `${selectedSeason} ${selectedYear}`;
+    let id = '';
+    let name = '';
+    // Check for Fall/Winter
+    if (selectedSeason === 'Fall/Winter') {
+      id = `Fall_Winter ${selectedYear}`;
+      name = `Fall_Winter ${selectedYear}`;
+    } else {
+      id = `${selectedSeason} ${selectedYear}`;
+      name = `${selectedSeason} ${selectedYear}`;
+    }
 
     // Prevent duplicates
     if (semesters.some((sem) => sem.id === id)) {
@@ -1708,6 +1717,7 @@ const TimelinePage = ({
                     <option>Winter</option>
                     <option>Summer</option>
                     <option>Fall</option>
+                    <option>Fall/Winter</option>
                   </select>
                 </div>
 
