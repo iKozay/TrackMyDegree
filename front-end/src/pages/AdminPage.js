@@ -5,8 +5,7 @@ import { Container, Row, Col, Table, Spinner, Alert } from 'react-bootstrap';
 import SearchBar from '../components/SearchBar'; // Assuming you have a SearchBar component
 import '../css/AdminPage.css'; // Import the CSS file
 import { motion } from 'framer-motion';
-import { AdminPageError } from "../middleware/SentryErrors";
-
+import { AdminPageError } from '../middleware/SentryErrors';
 
 const AdminPage = () => {
   const [tables, setTables] = useState([]);
@@ -26,15 +25,15 @@ const AdminPage = () => {
         );
         console.log('Tables Response:', response.data); // Debugging Line
 
-				if (response.data.success) {
-					if (Array.isArray(response.data.data)) {
-						setTables(response.data.data);
-					} else {
-						throw new AdminPageError("Tables data is not an array");
-					}
-				} else {
-					throw new AdminPageError("Failed to fetch tables");
-				}
+        if (response.data.success) {
+          if (Array.isArray(response.data.data)) {
+            setTables(response.data.data);
+          } else {
+            throw new AdminPageError('Tables data is not an array');
+          }
+        } else {
+          throw new AdminPageError('Failed to fetch tables');
+        }
 
         setLoading(false);
       } catch (err) {
@@ -60,20 +59,20 @@ const AdminPage = () => {
       const response = await axios.post(url);
       console.log('Records Response:', response.data); // Debugging Line
 
-			if (response.data.success) {
-				if (Array.isArray(response.data.data)) {
-					setRecords(response.data.data);
-					if (response.data.data.length > 0) {
-						setColumns(Object.keys(response.data.data[0]));
-					} else {
-						setColumns([]);
-					}
-				} else {
-					throw new AdminPageError("Records data is not an array");
-				}
-			} else {
-				throw new AdminPageError("Failed to fetch records");
-			}
+      if (response.data.success) {
+        if (Array.isArray(response.data.data)) {
+          setRecords(response.data.data);
+          if (response.data.data.length > 0) {
+            setColumns(Object.keys(response.data.data[0]));
+          } else {
+            setColumns([]);
+          }
+        } else {
+          throw new AdminPageError('Records data is not an array');
+        }
+      } else {
+        throw new AdminPageError('Failed to fetch records');
+      }
 
       setLoading(false);
     } catch (err) {
@@ -110,22 +109,6 @@ const AdminPage = () => {
       alert(`Error seeding data: ${err.message}`);
     }
   };
-	const handleSeedData = async () => {
-		try {
-			const response = await axios.post(
-				`${process.env.REACT_APP_SERVER}/admin/seed-data`
-			);
-			if (response.data.success) {
-				alert("Data seeding successful!");
-			} else {
-				alert(`Data seeding failed: ${response.data.message}`);
-				throw new AdminPageError("Failed to seed data");
-			}
-		} catch (err) {
-			console.error(err);
-			alert(`Error seeding data: ${err.message}`);
-		}
-	};
 
   if (loading) {
     return (

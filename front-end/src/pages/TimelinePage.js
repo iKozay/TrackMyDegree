@@ -26,6 +26,9 @@ import warningIcon from '../icons/warning.png'; // Import warning icon
 import '../css/TimelinePage.css';
 import { groupPrerequisites } from '../utils/groupPrerequisites'; // Adjust the path as necessary
 import { useLocation } from 'react-router-dom';
+import { TimelineError } from '../middleware/SentryErrors';
+import * as Sentry from '@sentry/react';
+
 // DraggableCourse component for course list items
 const DraggableCourse = ({
   id,
@@ -271,7 +274,7 @@ const TimelinePage = ({
           },
         );
         if (!response.ok) {
-          throw new Error('Failed to fetch all courses');
+          throw new TimelineError('Failed to fetch all courses');
         }
         const data = await response.json();
         setAllCourses(data);
@@ -367,7 +370,7 @@ const TimelinePage = ({
         );
         if (!primaryResponse.ok) {
           const errorData = await primaryResponse.json();
-          throw new Error(
+          throw new TimelineError(
             errorData.error || `HTTP error! status: ${primaryResponse.status}`,
           );
         }
@@ -388,7 +391,7 @@ const TimelinePage = ({
           );
           if (!extendedResponse.ok) {
             const errorData = await extendedResponse.json();
-            throw new Error(
+            throw new TimelineError(
               errorData.error ||
                 `HTTP error! status: ${extendedResponse.status}`,
             );
@@ -1125,6 +1128,7 @@ const TimelinePage = ({
         );
       }
     } catch (error) {
+      Sentry.captureException(error);
       console.error('Error saving Exempted Courses:', error);
       alert('An error occurred while saving your timeline.');
     }
@@ -1145,6 +1149,7 @@ const TimelinePage = ({
       );
       // Optionally check responseDeficiency here.
     } catch (err) {
+      Sentry.captureException(err);
       console.error('Error saving deficiency', err);
     }
 
@@ -1173,6 +1178,7 @@ const TimelinePage = ({
         alert('Error saving Timeline: ' + (dataTimeline.message || ''));
       }
     } catch (error) {
+      Sentry.captureException(error);
       console.error('Error saving timeline:', error);
       alert('An error occurred while saving your timeline.');
     }
