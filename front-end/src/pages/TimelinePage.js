@@ -1235,27 +1235,66 @@ const TimelinePage = ({
 
   const exportTimelineToPDF = () => {
     const input = document.querySelector('.timeline-middle-section');
+    const scrollWrapper = document.querySelector('.timeline-scroll-wrapper');
 
-    if (input) {
-      html2canvas(input, { scale: 2 })
+    if (!input || !scrollWrapper) {
+      alert('Timeline section not found');
+      return;
+    }
+
+    // Backup original styles
+    const originalHeight = input.style.height;
+    const originalOverflow = input.style.overflow;
+    const originalScrollHeight = scrollWrapper.style.height;
+    const originalWrapperOverflow = scrollWrapper.style.overflow;
+
+    // Temporarily expand all semesters for full visibility
+    const semesters = input.querySelectorAll('.semester');
+    semesters.forEach((semester) => {
+      semester.style.display = 'flex';
+    });
+
+    // Adjust the container dimensions explicitly to the full scrollable content height
+    input.style.height = `${input.scrollHeight}px`;
+    input.style.overflow = 'visible';
+
+    scrollWrapper.style.height = `${scrollWrapper.scrollHeight}px`;
+    scrollWrapper.style.overflow = 'visible';
+
+    // Wait briefly for DOM to update fully
+    setTimeout(() => {
+      html2canvas(input, {
+        scale: 2,
+        useCORS: true,
+        windowWidth: input.scrollWidth,
+        windowHeight: input.scrollHeight,
+      })
         .then((canvas) => {
           const imgData = canvas.toDataURL('image/png');
-          const pdf = new jsPDF('landscape', 'pt', 'a4');
-          const imgProps = pdf.getImageProperties(imgData);
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+          const pdfWidth = canvas.width;
+          const pdfHeight = canvas.height;
 
+          const pdf = new jsPDF('l', 'px', [pdfWidth, pdfHeight]);
           pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-          pdf.save('schedule.pdf');
+          pdf.save('timeline.pdf');
         })
         .catch((error) => {
-          console.error('Error generating PDF', error);
-          alert('Failed to generate PDF');
+          console.error('Error generating PDF:', error);
+          alert('Failed to generate PDF.');
+        })
+        .finally(() => {
+          // Restore original styles after PDF generation
+          input.style.height = originalHeight;
+          input.style.overflow = originalOverflow;
+          scrollWrapper.style.height = originalScrollHeight;
+          scrollWrapper.style.overflow = originalWrapperOverflow;
+          semesters.forEach((semester) => {
+            semester.style.display = '';
+          });
         });
-    } else {
-      alert('Timeline section not found');
-    }
+    }, 500);
   };
+
 
   // ----------------------------------------------------------------------------------------------------------------------
   return (
