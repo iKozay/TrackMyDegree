@@ -23,6 +23,7 @@ import { CSS } from '@dnd-kit/utilities';
 import Accordion from 'react-bootstrap/Accordion';
 import Container from 'react-bootstrap/Container';
 import warningIcon from '../icons/warning.png'; // Import warning icon
+import downloadIcon from '../icons/download-icon.PNG';
 import '../css/TimelinePage.css';
 import { groupPrerequisites } from '../utils/groupPrerequisites'; // Adjust the path as necessary
 import { useLocation } from 'react-router-dom';
@@ -1359,22 +1360,22 @@ const TimelinePage = ({
                   Total Credits Earned: {totalCredits} /{' '}
                   {creditsRequired + deficiencyCredits}
                 </h4>
-                {/* Save Timeline Button */}
-                <button
-                  className="save-timeline-button"
-                  onClick={() =>
-                    timelineName
-                      ? confirmSaveTimeline(timelineName)
-                      : setShowSaveModal(true)
-                  }
-                  //onClick={() => setShowSaveModal(true)} // You can define this handler to save the transcript
-                >
-                  Save Timeline
-                </button>
-                <button className="save-timeline-button" onClick={exportTimelineToPDF}>
-                  Download
-                </button>
-
+                <div className="timeline-buttons-container">
+                  <button
+                    className="save-timeline-button"
+                    onClick={() =>
+                      timelineName
+                        ? confirmSaveTimeline(timelineName)
+                        : setShowSaveModal(true)
+                    }
+                  >
+                    Save Timeline
+                  </button>
+                  <button className="download-timeline-button" onClick={exportTimelineToPDF}>
+                    <img src={downloadIcon} alt="Download Icon" className="download-icon" />
+                    Download
+                  </button>
+                </div>
               </div>
 
               <div className="timeline-page">
