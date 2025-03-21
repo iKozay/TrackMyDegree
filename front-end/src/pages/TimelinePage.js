@@ -1230,6 +1230,31 @@ const TimelinePage = ({
       autoScrollInterval.current = null;
     }
   };
+
+  const exportTimelineToPDF = () => {
+    const input = document.querySelector('.timeline-middle-section');
+
+    if (input) {
+      html2canvas(input, { scale: 2 })
+        .then((canvas) => {
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF('landscape', 'pt', 'a4');
+          const imgProps = pdf.getImageProperties(imgData);
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+          pdf.save('schedule.pdf');
+        })
+        .catch((error) => {
+          console.error('Error generating PDF', error);
+          alert('Failed to generate PDF');
+        });
+    } else {
+      alert('Timeline section not found');
+    }
+  };
+
   // ----------------------------------------------------------------------------------------------------------------------
   return (
     <motion.div
