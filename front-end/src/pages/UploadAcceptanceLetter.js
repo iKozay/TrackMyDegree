@@ -24,24 +24,6 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     creditDeficiency: null,
   });
 
-  // No longer need to generate a combined list of starting semesters.
-  // Instead, the user selects the term and year separately.
-
-  // const generateSemesterOptions = (startYear, endYear) => {
-  //   const terms = ['Summer', 'Fall', 'Winter'];
-  //   const options = [];
-  //   options.push(`Winter ${startYear}`);
-  //   for (let year = startYear; year <= endYear; year++) {
-  //     terms.forEach((term) => {
-  //       options.push(`${term} ${term === 'Winter' ? year + 1 : year}`);
-  //     });
-  //   }
-  //
-  //   return options;
-  // };
-  // Generate Terms from 2017 to 2030
-  // const startingSemesters = generateSemesterOptions(2017, 2030);
-
   const handleRadioChange = (group, value) => {
     setSelectedRadio((prev) => ({
       ...prev,
@@ -245,11 +227,17 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
 
     let results = [];
 
+    let offer_of_Admission = false;
     pagesData.forEach(({ text }) => {
       if (!pagesData || pagesData.length === 0) {
         console.error('No pages data available');
         return { results: [] };
+      }  
+      // Check if text contains "OFFER OF ADMISSION"
+      if (text.match("OFFER OF ADMISSION")) {
+           offer_of_Admission = true;
       }
+
       // Extract Degree Concentration (everything after Program/Plan(s) and before Academic Load)
       const degreeConcentrationMatch = text.match(
         /Program\/Plan\(s\):\s*([^\n]+)(?:\n([^\n]+))?[\s\S]*?Academic Load/,
@@ -450,6 +438,11 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         }
       }
     }); // pages end
+
+    if(!offer_of_Admission){
+      alert("Please choose Offer of Admission");     
+      return { results: [] };
+    }
 
     const start = details.startingTerm;
     const end = details.expectedGraduationTerm;

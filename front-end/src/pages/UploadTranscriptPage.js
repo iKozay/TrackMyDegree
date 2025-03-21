@@ -238,6 +238,7 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
 
   let results = [];
 
+  let transcript = false;
   pagesData.forEach((pageData) => {
     const { page, text } = pageData;
 
@@ -247,6 +248,10 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
         degree = degreeMatch[0];
         degreeId = degreeMapping[degree];
       }
+    }
+    // Check if text contains "OFFER OF ADMISSION"
+    if (text.match("Student Record")) {
+      transcript = true;
     }
 
     if (!ecp && text.match(extendedCreditRegex)) {
@@ -300,6 +305,10 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
       console.log('Exempted Course:', exemptedMatch[1] + exemptedMatch[2]);
     }
   });
+  if(!transcript){
+    alert("Please choose Offer of Admission");     
+    return { results: [] };
+  }
   console.log('Degree', degreeId);
   console.log('Extended Credit Program:', ecp);
   // console.log('Raw PDF text:', text);
