@@ -1,5 +1,5 @@
 /* Navbar.css */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
 .custom-navbar {
   background-color: #912338;
@@ -7,7 +7,7 @@
 }
 
 .custom-navbar .navbar-brand {
-  font-family: "Inter", sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 500;
   font-size: 45px;
   color: white;
@@ -41,7 +41,7 @@
   padding-left: 10px;
   padding-right: 10px;
   border: #000;
-  font-size : 20px;
+  font-size: 20px;
 }
 
 .custom-navbar .nav-link:hover {
@@ -174,7 +174,7 @@
 }
 
 .navbar-button {
-  font-family: Tahoma , sans-serif;
+  font-family: Tahoma, sans-serif;
   font-weight: 700;
   font-size: 18px;
   padding: 10px 20px;
@@ -223,7 +223,7 @@
   font-size: 16px;
   color: #ecf0f1;
   text-decoration: none;
-  font-family: Tahoma , sans-serif;
+  font-family: Tahoma, sans-serif;
 }
 
 .navbar-user {

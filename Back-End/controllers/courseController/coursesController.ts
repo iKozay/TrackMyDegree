@@ -1,20 +1,59 @@
 import Database from "@controllers/DBController/DBController";
 import CourseTypes from "./course_types";
 import * as Sentry from "@sentry/react";
+import redisClient from "@controllers/redisClient";
 
 const log = console.log;
 
+async function getFromCache(key: string): Promise<string | null> {
+  try {
+    return await redisClient.get(key);
+  } catch (err) {
+    Sentry.captureException(new Error("Error getting cache"));
+    console.error("Error getting cache:", err);
+    return null;
+  }
+}
+
+async function setCache(
+  key: string,
+  value: string,
+  ttl: number
+): Promise<void> {
+  try {
+    await redisClient.setEx(key, ttl, value);
+  } catch (err) {
+    Sentry.captureException(new Error("Error setting cache"));
+    console.error("Error setting cache:", err);
+  }
+}
+
 /**
- * Retrieves all courses along with their requisites.
+ * Retrieves all courses along with their requisites,
+ * using Redis caching.
  *
  * @returns {Promise<CourseTypes.CourseInfo[] | undefined>} - List of courses or undefined if an error occurs.
  */
 async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
-	const dbConn = await Database.getConnection();
+  const cacheKey = "getAllCourses";
 
-	if (dbConn) {
-		try {
-			const result = await dbConn.request().query(`
+  // Try to fetch from cache first
+  try {
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      log("Serving getAllCourses from Redis cache");
+      return JSON.parse(cachedData) as CourseTypes.CourseInfo[];
+    }
+  } catch (cacheError) {
+    Sentry.captureException(new Error("Error reading from Redis cache"));
+    log("Error reading from Redis cache", cacheError);
+    // Proceed to query the database if cache fails
+  }
+
+  const dbConn = await Database.getConnection();
+  if (dbConn) {
+    try {
+      const result = await dbConn.request().query(`
         SELECT 
             c.code, 
             c.title, 
@@ -58,17 +97,26 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
 				return acc;
 			}, {});
 
-			return Object.values(coursesWithRequisites);
-		} catch (error) {
-			Sentry.captureException({
-				error: "Error fetching courses with requisites",
-			});
-			log("Error fetching courses with requisites\n", error);
-		}
-	}
+      const resultData = Object.values(coursesWithRequisites) as CourseTypes.CourseInfo[];
+
+      // Cache the result for 1 hour (3600 seconds)
+      try {
+        await redisClient.setEx(cacheKey, 3600, JSON.stringify(resultData));
+      } catch (cacheError) {
+        Sentry.captureException(new Error("Error writing to Redis cache"));
+        log("Error writing to Redis cache", cacheError);
+      }
+
+      return resultData;
+    } catch (error) {
+      Sentry.captureException(new Error("Error fetching courses with requisites"));
+      log("Error fetching courses with requisites\n", error);
+    }
+  }
 
 	return undefined;
 }
+
 
 /**
  * Retrieves a specific course by its unique code.
@@ -119,9 +167,7 @@ async function getCourseByCode(
 				})),
 			};
 		} catch (error) {
-			Sentry.captureException({
-				error: "Error fetching course by code",
-			});
+			Sentry.captureException(new Error("Error fetching course by code"));
 			console.error("Error fetching course by code\n", error);
 		}
 	}
@@ -131,6 +177,7 @@ async function getCourseByCode(
 
 /**
  * Adds a new course to the database.
+ *
  *
  * @param {CourseTypes.CourseInfo} courseInfo - The course details.
  * @returns {Promise<{ code: string } | undefined>} - The inserted course's code, or undefined on failure.
@@ -161,9 +208,7 @@ async function addCourse(
 
 			return result.recordset[0];
 		} catch (error) {
-			Sentry.captureException({
-				error: "Error adding course",
-			});
+			Sentry.captureException(new Error("Error adding course"));
 			log("Error adding course\n", error);
 		}
 	}
@@ -173,6 +218,7 @@ async function addCourse(
 
 /**
  * Deletes a course from the database.
+ *
  *
  * @param {string} code - The course code to delete.
  * @returns {Promise<boolean>} - True if deleted successfully, false otherwise.
@@ -189,9 +235,7 @@ async function removeCourse(code: string): Promise<boolean> {
 
 			return result.rowsAffected[0] > 0;
 		} catch (error) {
-			Sentry.captureException({
-				error: "Error removing course",
-			});
+			Sentry.captureException(new Error("Error removing course"));
 			console.error("Error removing course\n", error);
 			throw error;
 		}
@@ -201,7 +245,8 @@ async function removeCourse(code: string): Promise<boolean> {
 }
 
 /**
- * Retrieves courses grouped by course pools for a given degree.
+ * Retrieves courses grouped by course pools for a given degree,
+ * using Redis caching.
  *
  * @param {string} degreeId - The ID of the degree.
  * @returns {Promise<CourseTypes.CoursePoolInfo[] | undefined>} - The grouped courses, or undefined on failure.
@@ -209,8 +254,22 @@ async function removeCourse(code: string): Promise<boolean> {
 async function getCoursesByDegreeGrouped(
 	degreeId: string
 ): Promise<CourseTypes.CoursePoolInfo[] | undefined> {
-	const dbConn = await Database.getConnection();
-	if (!dbConn) return undefined;
+  const cacheKey = `coursesByDegreeGrouped:${degreeId}`;
+
+  try {
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      log("Serving getCoursesByDegreeGrouped from Redis cache");
+      return JSON.parse(cachedData) as CourseTypes.CoursePoolInfo[];
+    }
+  } catch (cacheError) {
+    Sentry.captureException(new Error("Error reading from Redis cache"));
+    log("Error reading from Redis cache", cacheError);
+    // Continue to query the database if cache read fails
+  }
+
+  const dbConn = await Database.getConnection();
+  if (!dbConn) return undefined;
 
 	try {
 		const query = `
@@ -260,15 +319,13 @@ async function getCoursesByDegreeGrouped(
 
 		const coursePoolsMap: { [key: string]: CourseTypes.CoursePoolInfo } = {};
 
-		records.forEach((record: any) => {
-			// Parse the JSON array of requisites
-			let requisites: any[] = [];
-			try {
-				requisites = JSON.parse(record.requisites_json);
-			} catch (e) {
-				requisites = [];
-			}
-
+    records.forEach((record: any) => {
+      let requisites: any[] = [];
+      try {
+        requisites = JSON.parse(record.requisites_json);
+      } catch (e) {
+        requisites = [];
+      }
 			const poolId = record.course_pool_id;
 			if (!coursePoolsMap[poolId]) {
 				coursePoolsMap[poolId] = {
@@ -290,43 +347,64 @@ async function getCoursesByDegreeGrouped(
 			coursePoolsMap[poolId].courses.push(course);
 		});
 
-		return Object.values(coursePoolsMap);
-	} catch (error) {
-		Sentry.captureException({
-			error: "Error fetching courses by degree grouped by course pools",
-		});
-		log("Error fetching courses by degree grouped by course pools\n", error);
-	}
+    const resultData = Object.values(coursePoolsMap);
+
+    try {
+      // Cache the result in Redis for 3600 seconds (1 hour)
+      await redisClient.setEx(cacheKey, 604800, JSON.stringify(resultData));
+    } catch (cacheError) {
+      Sentry.captureException(new Error("Error writing to Redis cache"));
+      log("Error writing to Redis cache", cacheError);
+    }
+
+    return resultData;
+  } catch (error) {
+    Sentry.captureException(new Error("Error fetching courses by degree grouped by course pools"));
+    log("Error fetching courses by degree grouped by course pools\n", error);
+  }
 
 	return undefined;
 }
 
 /**
- * Retrieves all courses from the database, including their requisites.
+ * Retrieves all courses from the database, including their requisites,
+ * using Redis caching.
  *
  * @returns {Promise<CourseTypes.CourseInfo[] | undefined>} - A list of courses with their requisite information, or undefined on failure.
  */
-async function getAllCoursesInDB(): Promise<
-	CourseTypes.CourseInfo[] | undefined
-> {
-	const dbConn = await Database.getConnection();
+async function getAllCoursesInDB(): Promise<CourseTypes.CourseInfo[] | undefined> {
+  const cacheKey = "getAllCoursesInDB";
 
-	if (dbConn) {
-		try {
-			const result = await dbConn.request().query(`
-                SELECT 
-                    c.code, 
-                    c.title,
-                    c.credits, 
-                    c.description,
-                    r.code1 AS requisite_code1, 
-                    r.code2 AS requisite_code2, 
-                    r.group_id AS requisite_group_id,
-                    r.type AS requisite_type
-                FROM Course c
-                LEFT JOIN Requisite r ON c.code = r.code1
-                ORDER BY c.code
-            `);
+  // Try to fetch from Redis cache first
+  try {
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      log("Serving getAllCoursesInDB from Redis cache");
+      return JSON.parse(cachedData) as CourseTypes.CourseInfo[];
+    }
+  } catch (cacheError) {
+    Sentry.captureException(new Error("Error reading from Redis cache"));
+    log("Error reading from Redis cache", cacheError);
+    // Continue to query the database if cache fails
+  }
+
+  const dbConn = await Database.getConnection();
+  if (dbConn) {
+    try {
+      const result = await dbConn.request().query(`
+        SELECT 
+            c.code, 
+            c.title,
+            c.credits, 
+            c.description,
+            r.code1 AS requisite_code1, 
+            r.code2 AS requisite_code2, 
+            r.group_id AS requisite_group_id,
+            r.type AS requisite_type
+        FROM Course c
+        LEFT JOIN Requisite r ON c.code = r.code1
+        ORDER BY c.code
+      `);
 
 			const records = result.recordset;
 			if (!records || records.length === 0) {
@@ -336,36 +414,44 @@ async function getAllCoursesInDB(): Promise<
 			// Build a map keyed by course code
 			const coursesMap: { [key: string]: CourseTypes.CourseInfo } = {};
 
-			records.forEach((record) => {
-				const courseCode = record.code;
-				if (!coursesMap[courseCode]) {
-					coursesMap[courseCode] = {
-						code: record.code,
-						title: record.title,
-						credits: record.credits,
-						description: record.description,
-						requisites: [],
-					};
-				}
-				// Add requisite information if available
-				if (record.requisite_code1 && record.requisite_code2) {
-					coursesMap[courseCode].requisites.push({
-						code1: record.requisite_code1,
-						code2: record.requisite_code2,
-						group_id: record.requisite_group_id,
-						type: record.requisite_type,
-					});
-				}
-			});
+      records.forEach((record: any) => {
+        const courseCode = record.code;
+        if (!coursesMap[courseCode]) {
+          coursesMap[courseCode] = {
+            code: record.code,
+            title: record.title,
+            credits: record.credits,
+            description: record.description,
+            requisites: [],
+          };
+        }
+        // Add requisite information if available
+        if (record.requisite_code1 && record.requisite_code2) {
+          coursesMap[courseCode].requisites.push({
+            code1: record.requisite_code1,
+            code2: record.requisite_code2,
+            group_id: record.requisite_group_id,
+            type: record.requisite_type,
+          });
+        }
+      });
 
-			return Object.values(coursesMap);
-		} catch (error) {
-			Sentry.captureException({
-				error: "Error fetching all courses",
-			});
-			log("Error fetching all courses\n", error);
-		}
-	}
+      const resultData = Object.values(coursesMap) as CourseTypes.CourseInfo[];
+
+      // Cache the result in Redis for 1 hour (3600 seconds)
+      try {
+        await redisClient.setEx(cacheKey, 604800, JSON.stringify(resultData));
+      } catch (cacheError) {
+        Sentry.captureException(new Error("Error writing to Redis cache"));
+        log("Error writing to Redis cache", cacheError);
+      }
+
+      return resultData;
+    } catch (error) {
+      Sentry.captureException(new Error("Error fetching all courses"));
+      log("Error fetching all courses\n", error);
+    }
+  }
 
 	return undefined;
 }

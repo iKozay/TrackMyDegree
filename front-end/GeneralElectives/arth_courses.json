@@ -1,587 +1,587 @@
 [
-    {
-        "title": "ARTH 201 Perspectives of Art History I",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course provides an overview of art and architectural history from approximately pre-history to 1300 CE, taught within a roughly chronological framework. The material taught includes a selective examination of canonical figures, movements, periods and thematic issues, not limited to Western art history.",
-        "components": "Lecture; Tutorial",
-        "notes": "Students in Art History programs should complete this course as part of their first 30 credits.Students who have received credit for ARTH 200 may not take this course for credit."
-    },
-    {
-        "title": "ARTH 202 Perspectives of Art History II",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "This course provides an overview of art and architectural history from approximately 1300 CE to the present, taught within a roughly chronological framework. The material taught includes a selective examination of canonical figures, movements, periods and thematic issues, not limited to Western art history.",
-        "components": "Lecture; Tutorial",
-        "notes": "Students in Art History programs should complete this course as part of their first 30 credits.Students who have received credit for ARTH 200 may not take this course for credit."
-    },
-    {
-        "title": "ARTH 262 Aspects of the History of Drawing",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A selective examination of drawing as an art form and of its relation to painting and other visual arts.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 263 Aspects of the History of the Print",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A selective examination of the development and uses of the print.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 264 Aspects of the History of Ceramics",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A selective examination of the development and uses of ceramics.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 265 Aspects of the History of Sculpture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A selective examination of the development and uses of sculpture.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 266 Aspects of the History of Fibre Art",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A selective examination of the development of fibre art.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 267 Aspects of the History of Photography",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A selective examination of the development and uses of photography.",
-        "components": "Lecture",
-        "notes": "Students who have received credit for PHOT 250 may not take this course for credit."
-    },
-    {
-        "title": "ARTH 270 Icons of Architectural History",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A study of key buildings and the vocabulary of architecture.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 271 Introduction to Canadian Art",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An introduction to selected subjects and themes in Quebec and Canadian art.Notes:This course may not be applied within a BFA degree or any Fine Arts specialization, major, or minor program.Students who have received credit for ARTH 370 may not take this course for credit.",
-        "components": null,
-        "notes": "This course may not be applied within a BFA degree or any Fine Arts specialization, major, or minor program.Students who have received credit for ARTH 370 may not take this course for credit."
-    },
-    {
-        "title": "ARTH 272 From Realism to Abstraction in Canadian Art",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An introduction to ideas and techniques associated with the transition from representationalism to abstraction in 19th‑ and 20th‑century Quebec and Canadian art.Notes:This course may not be applied within a BFA degree or any Fine Arts specialization, major, or minor program.",
-        "components": null,
-        "notes": "This course may not be applied within a BFA degree or any Fine Arts specialization, major, or minor program."
-    },
-    {
-        "title": "ARTH 283 The Life and Work of ...",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A critical examination of an artist’s life and work.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 290 Art History and Archaeology",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A selective examination of the relationship between art history and archaeology.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 298 Special Topics in Genre Studies",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Topics pertaining to categories of subject matter such as landscape, portraiture, and still life.",
-        "components": null,
-        "notes": null
-    },
-    {
-        "title": "ARTH 300 Art Historical Methods",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An in‑depth examination of the methods used in art history to analyze and interpret works of art.",
-        "components": "Lecture; Tutorial",
-        "notes": "Students in Art History programs should complete this course as part of their first 60 credits."
-    },
-    {
-        "title": "ARTH 348 Special Topics in Art and Film",
-        "credits": 3,
-        "prerequisites": "The following courses must be completed previously: ARTH 201; ARTH 202; one of FMST 201 or FMST 202 or FMST 203; FMST 220. Enrolment in the Major in Art History and Film Studies is required. If prerequisites are not satisfied, permission of the program director is required.",
-        "corequisites": "",
-        "description": "A comparative examination of some aspects of art history and film studies.",
-        "components": "Lecture",
-        "notes": "Students who have received credit for FMST 348 may not take this course for credit."
-    },
-    {
-        "title": "ARTH 349 Studies in the History of the Print",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An examination of selected subjects in the history of the print.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 350 Studies in the History of Ceramics",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An examination of selected subjects in the history of ceramics.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 351 Studies in the History of Sculpture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An examination of selected subjects in the history of sculpture.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 352 Studies in the History of Fibre Art",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An examination of selected subjects in the history of fibre art.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 353 Technology and Contemporary Art",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A selective examination of the relationship between technology and contemporary art.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 354 Studies in Interdisciplinarity in the Visual Arts",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A selective examination of historical and contemporary art that utilizes a number of media.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 355 Studies in Architecture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An examination of the role and implications of selected materials and technology in architecture.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 356 Studies in the Materials and Processes of Art",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An examination of selected historical and contemporary materials and processes of art.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 357 Studies in the History of Craft and the Decorative Arts",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Selected subjects in the history of craft and the decorative arts as forms of material culture.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 358 Studies in the History of Media Art",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A selective examination of new media art since the 1990s, including the historical development, thematic content, and conceptual strategies for such practices as video art, projection installation and performance, and experimental film.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 359 Studies in Contemporary Photographic Art",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A selective examination of recent photographic art.",
-        "components": "Lecture",
-        "notes": "Students who have received credit for PHOT 250 may not take this course for credit."
-    },
-    {
-        "title": "ARTH 360 Studies in Ancient Greek Art and Architecture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Selected subjects in the art and architectural production of Ancient Greece.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 361 Studies in Ancient Roman Art and Architecture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Selected subjects in the art and architectural production of Ancient Rome.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 362 Studies in Early Christian and Byzantine Art and Architecture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Selected subjects in the art and architectural production of Early Christian and Byzantine cultures.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 363 Studies in Medieval Art and Architecture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Selected subjects in the art and architectural production of the Medieval period.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 364 Studies in Renaissance Art and Architecture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Selected subjects in the art and architectural production of 15th‑ and 16th‑century Europe.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 365 Studies in 17th- and 18th-Century Art and Architecture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Selected subjects in the art and architectural production of the 17th and 18th centuries.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 366 Studies in 19th-Century Art and Architecture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Selected subjects in the art and architectural production of the 19th century.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 367 Studies in 20th-Century Art and Architecture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Selected subjects in the art and architectural production of the 20th century.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 368 Studies in Contemporary Art and Architecture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Selected subjects in contemporary art and architectural production.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 369 Studies in Middle Eastern Art and Architecture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Selected subjects in the art and architectural production of the Middle East.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 370 Studies in Canadian Art",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Selected subjects in the art of Canada.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 371 Studies in Canadian Architecture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "Selected subjects in the architecture of Canada.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 372 Issues in Contemporary Canadian Architecture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A consideration of specific issues in the practice of recent architecture in Canada.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 373 Issues in Contemporary Canadian Art",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A consideration of specific issues in the recent art of Canada.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 374 Architecture and Urbanism in Montreal",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "The relationship of architecture to issues of urbanism, analyzed through examples from Montreal’s past and/or present.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 375 Issues in the Montreal Art Milieu",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An analysis of specific issues in the historical and/or contemporary Montreal art community.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 376 Topics in Indigenous Art",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A selective examination of the work of Indigenous artists.",
-        "components": "Lecture",
-        "notes": null
-    },
-    {
-        "title": "ARTH 379 Postcolonial Theory in Art History",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A critical examination of the key concepts of postcolonial art and theory.",
-        "components": "Lecture",
-        "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
-    },
-    {
-        "title": "ARTH 380 Histories of Art History",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "The history of art history as a discipline and the concepts of history it uses.",
-        "components": "Lecture",
-        "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
-    },
-    {
-        "title": "ARTH 381 Feminism and Art History",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A consideration of feminism in art history.",
-        "components": "Lecture",
-        "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
-    },
-    {
-        "title": "ARTH 383 Art and Philosophy",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A consideration of the relationship between philosophy, art theory, and practice.",
-        "components": "Lecture",
-        "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
-    },
-    {
-        "title": "ARTH 384 Theories of Representation",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An examination of the different concepts of representation involved in creating, defining, and interpreting an artwork.",
-        "components": "Lecture",
-        "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
-    },
-    {
-        "title": "ARTH 385 Colour: Theory and Application in the Visual Arts",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An examination of various theories of colour by artists, philosophers, psychologists, and scientists.",
-        "components": "Lecture",
-        "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
-    },
-    {
-        "title": "ARTH 386 Art and the Viewer",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A consideration of the relationships between artwork and audience.",
-        "components": "Lecture",
-        "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
-    },
-    {
-        "title": "ARTH 387 Issues in Art and Criticism",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An examination of selected aspects of the relationship between art, aesthetics, and critical writing.",
-        "components": "Lecture",
-        "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
-    },
-    {
-        "title": "ARTH 388 Narration and Art",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A critical examination of selected aspects of the relationship between art and its narratives.",
-        "components": "Lecture",
-        "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
-    },
-    {
-        "title": "ARTH 389 Issues in Ethnocultural Art Histories",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An analysis of the concepts of ethnic and cultural identity in art and art history.",
-        "components": "Lecture",
-        "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
-    },
-    {
-        "title": "ARTH 390 Art and the Museum",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A study of selected issues in museums and related art institutions.",
-        "components": "Lecture",
-        "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
-    },
-    {
-        "title": "ARTH 391 Art and Its Changing Contexts",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An investigation of art in its original context and of its changing meanings and uses through time.",
-        "components": "Lecture",
-        "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
-    },
-    {
-        "title": "ARTH 392 Gender Issues in Art and Art History",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "An examination of gender as a factor in making and interpreting art.",
-        "components": "Lecture",
-        "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
-    },
-    {
-        "title": "ARTH 396 Art and Culture",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A critical examination of selected issues in art and its cultural context.",
-        "components": "Lecture",
-        "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
-    },
-    {
-        "title": "ARTH 398 Special Topics in Art and Society",
-        "credits": 3,
-        "prerequisites": "",
-        "corequisites": "",
-        "description": "A detailed examination of a selected aspect of art in society.",
-        "components": "Lecture",
-        "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
-    },
-    {
-        "title": "ARTH 400 Advanced Seminar in Art Historical Method",
-        "credits": 3,
-        "prerequisites": "Students must be in third‑year standing with fewer than 33 credits remaining in the Major in Art History degree program. Written permission of the Department of Art History is required.",
-        "corequisites": "",
-        "description": "A detailed examination of selected aspects of art methodologies.",
-        "components": "Seminar",
-        "notes": null
-    },
-    {
-        "title": "ARTH 401 Independent Studies in Art History",
-        "credits": 3,
-        "prerequisites": "Students must be in third‑year standing with fewer than 33 credits remaining in the Major in Art History degree program. Written permission of the Department of Art History is required.",
-        "corequisites": "",
-        "description": "Students are required to prepare a research paper under the supervision of a faculty member.",
-        "components": "Independent Study",
-        "notes": null
-    },
-    {
-        "title": "ARTH 403 Internship",
-        "credits": 3,
-        "prerequisites": "Students must be in third‑year standing with fewer than 33 credits remaining in the Major in Art History degree program. Written permission of the Department of Art History is required.",
-        "corequisites": "",
-        "description": "A course in the practice of art history. Students are required to work on specific projects under the supervision of a faculty member. The purpose of the internship is to provide graduating students with the opportunity to take on a project in a professional art milieu so as to complement their academic education.",
-        "components": "Practicum/Internship/Work Term",
-        "notes": null
-    },
-    {
-        "title": "ARTH 448 Advanced Seminar in Art and Film",
-        "credits": 3,
-        "prerequisites": "The following course must be completed previously: ARTH 348 or FMST 348. Enrolment in the Major in Art History and Film Studies is required. If prerequisites are not satisfied, permission of the Department of Art History is required.",
-        "corequisites": "",
-        "description": "A seminar designed to permit an in‑depth course of study on some aspects of art and film history.",
-        "components": "Seminar",
-        "notes": "This course is equivalent to FMST 448. Students who have received credit for FMST 448 may not take this course for credit."
-    },
-    {
-        "title": "ARTH 450 Advanced Seminar in the History of Art and Architecture",
-        "credits": 3,
-        "prerequisites": "Students must be in in third‑year standing with fewer than 33 credits remaining in the Major in Art History degree program. Written permission of the Department of Art History is required.",
-        "corequisites": "",
-        "description": "A detailed examination of selected aspects of art and architectural history.",
-        "components": "Seminar",
-        "notes": null
-    },
-    {
-        "title": "ARTH 498 Special Topics in the History of Art and Architecture",
-        "credits": 3,
-        "prerequisites": "Students must have completed 18 credits in Art History prior to enrolling. If prerequisites are not satisfied, permission of the Department of Art History is required.",
-        "corequisites": "",
-        "description": "A course for advanced students which provides for the study of more specialized areas of art.",
-        "components": "Seminar",
-        "notes": null
-    }
+  {
+    "title": "ARTH 201 Perspectives of Art History I",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course provides an overview of art and architectural history from approximately pre-history to 1300 CE, taught within a roughly chronological framework. The material taught includes a selective examination of canonical figures, movements, periods and thematic issues, not limited to Western art history.",
+    "components": "Lecture; Tutorial",
+    "notes": "Students in Art History programs should complete this course as part of their first 30 credits.Students who have received credit for ARTH 200 may not take this course for credit."
+  },
+  {
+    "title": "ARTH 202 Perspectives of Art History II",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course provides an overview of art and architectural history from approximately 1300 CE to the present, taught within a roughly chronological framework. The material taught includes a selective examination of canonical figures, movements, periods and thematic issues, not limited to Western art history.",
+    "components": "Lecture; Tutorial",
+    "notes": "Students in Art History programs should complete this course as part of their first 30 credits.Students who have received credit for ARTH 200 may not take this course for credit."
+  },
+  {
+    "title": "ARTH 262 Aspects of the History of Drawing",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A selective examination of drawing as an art form and of its relation to painting and other visual arts.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 263 Aspects of the History of the Print",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A selective examination of the development and uses of the print.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 264 Aspects of the History of Ceramics",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A selective examination of the development and uses of ceramics.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 265 Aspects of the History of Sculpture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A selective examination of the development and uses of sculpture.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 266 Aspects of the History of Fibre Art",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A selective examination of the development of fibre art.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 267 Aspects of the History of Photography",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A selective examination of the development and uses of photography.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for PHOT 250 may not take this course for credit."
+  },
+  {
+    "title": "ARTH 270 Icons of Architectural History",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A study of key buildings and the vocabulary of architecture.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 271 Introduction to Canadian Art",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An introduction to selected subjects and themes in Quebec and Canadian art.Notes:This course may not be applied within a BFA degree or any Fine Arts specialization, major, or minor program.Students who have received credit for ARTH 370 may not take this course for credit.",
+    "components": null,
+    "notes": "This course may not be applied within a BFA degree or any Fine Arts specialization, major, or minor program.Students who have received credit for ARTH 370 may not take this course for credit."
+  },
+  {
+    "title": "ARTH 272 From Realism to Abstraction in Canadian Art",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An introduction to ideas and techniques associated with the transition from representationalism to abstraction in 19th‑ and 20th‑century Quebec and Canadian art.Notes:This course may not be applied within a BFA degree or any Fine Arts specialization, major, or minor program.",
+    "components": null,
+    "notes": "This course may not be applied within a BFA degree or any Fine Arts specialization, major, or minor program."
+  },
+  {
+    "title": "ARTH 283 The Life and Work of ...",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A critical examination of an artist’s life and work.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 290 Art History and Archaeology",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A selective examination of the relationship between art history and archaeology.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 298 Special Topics in Genre Studies",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Topics pertaining to categories of subject matter such as landscape, portraiture, and still life.",
+    "components": null,
+    "notes": null
+  },
+  {
+    "title": "ARTH 300 Art Historical Methods",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An in‑depth examination of the methods used in art history to analyze and interpret works of art.",
+    "components": "Lecture; Tutorial",
+    "notes": "Students in Art History programs should complete this course as part of their first 60 credits."
+  },
+  {
+    "title": "ARTH 348 Special Topics in Art and Film",
+    "credits": 3,
+    "prerequisites": "The following courses must be completed previously: ARTH 201; ARTH 202; one of FMST 201 or FMST 202 or FMST 203; FMST 220. Enrolment in the Major in Art History and Film Studies is required. If prerequisites are not satisfied, permission of the program director is required.",
+    "corequisites": "",
+    "description": "A comparative examination of some aspects of art history and film studies.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for FMST 348 may not take this course for credit."
+  },
+  {
+    "title": "ARTH 349 Studies in the History of the Print",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An examination of selected subjects in the history of the print.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 350 Studies in the History of Ceramics",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An examination of selected subjects in the history of ceramics.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 351 Studies in the History of Sculpture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An examination of selected subjects in the history of sculpture.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 352 Studies in the History of Fibre Art",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An examination of selected subjects in the history of fibre art.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 353 Technology and Contemporary Art",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A selective examination of the relationship between technology and contemporary art.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 354 Studies in Interdisciplinarity in the Visual Arts",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A selective examination of historical and contemporary art that utilizes a number of media.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 355 Studies in Architecture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An examination of the role and implications of selected materials and technology in architecture.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 356 Studies in the Materials and Processes of Art",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An examination of selected historical and contemporary materials and processes of art.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 357 Studies in the History of Craft and the Decorative Arts",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Selected subjects in the history of craft and the decorative arts as forms of material culture.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 358 Studies in the History of Media Art",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A selective examination of new media art since the 1990s, including the historical development, thematic content, and conceptual strategies for such practices as video art, projection installation and performance, and experimental film.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 359 Studies in Contemporary Photographic Art",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A selective examination of recent photographic art.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for PHOT 250 may not take this course for credit."
+  },
+  {
+    "title": "ARTH 360 Studies in Ancient Greek Art and Architecture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Selected subjects in the art and architectural production of Ancient Greece.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 361 Studies in Ancient Roman Art and Architecture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Selected subjects in the art and architectural production of Ancient Rome.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 362 Studies in Early Christian and Byzantine Art and Architecture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Selected subjects in the art and architectural production of Early Christian and Byzantine cultures.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 363 Studies in Medieval Art and Architecture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Selected subjects in the art and architectural production of the Medieval period.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 364 Studies in Renaissance Art and Architecture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Selected subjects in the art and architectural production of 15th‑ and 16th‑century Europe.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 365 Studies in 17th- and 18th-Century Art and Architecture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Selected subjects in the art and architectural production of the 17th and 18th centuries.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 366 Studies in 19th-Century Art and Architecture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Selected subjects in the art and architectural production of the 19th century.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 367 Studies in 20th-Century Art and Architecture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Selected subjects in the art and architectural production of the 20th century.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 368 Studies in Contemporary Art and Architecture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Selected subjects in contemporary art and architectural production.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 369 Studies in Middle Eastern Art and Architecture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Selected subjects in the art and architectural production of the Middle East.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 370 Studies in Canadian Art",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Selected subjects in the art of Canada.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 371 Studies in Canadian Architecture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Selected subjects in the architecture of Canada.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 372 Issues in Contemporary Canadian Architecture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A consideration of specific issues in the practice of recent architecture in Canada.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 373 Issues in Contemporary Canadian Art",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A consideration of specific issues in the recent art of Canada.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 374 Architecture and Urbanism in Montreal",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "The relationship of architecture to issues of urbanism, analyzed through examples from Montreal’s past and/or present.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 375 Issues in the Montreal Art Milieu",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An analysis of specific issues in the historical and/or contemporary Montreal art community.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 376 Topics in Indigenous Art",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A selective examination of the work of Indigenous artists.",
+    "components": "Lecture",
+    "notes": null
+  },
+  {
+    "title": "ARTH 379 Postcolonial Theory in Art History",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A critical examination of the key concepts of postcolonial art and theory.",
+    "components": "Lecture",
+    "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
+  },
+  {
+    "title": "ARTH 380 Histories of Art History",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "The history of art history as a discipline and the concepts of history it uses.",
+    "components": "Lecture",
+    "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
+  },
+  {
+    "title": "ARTH 381 Feminism and Art History",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A consideration of feminism in art history.",
+    "components": "Lecture",
+    "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
+  },
+  {
+    "title": "ARTH 383 Art and Philosophy",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A consideration of the relationship between philosophy, art theory, and practice.",
+    "components": "Lecture",
+    "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
+  },
+  {
+    "title": "ARTH 384 Theories of Representation",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An examination of the different concepts of representation involved in creating, defining, and interpreting an artwork.",
+    "components": "Lecture",
+    "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
+  },
+  {
+    "title": "ARTH 385 Colour: Theory and Application in the Visual Arts",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An examination of various theories of colour by artists, philosophers, psychologists, and scientists.",
+    "components": "Lecture",
+    "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
+  },
+  {
+    "title": "ARTH 386 Art and the Viewer",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A consideration of the relationships between artwork and audience.",
+    "components": "Lecture",
+    "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
+  },
+  {
+    "title": "ARTH 387 Issues in Art and Criticism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An examination of selected aspects of the relationship between art, aesthetics, and critical writing.",
+    "components": "Lecture",
+    "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
+  },
+  {
+    "title": "ARTH 388 Narration and Art",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A critical examination of selected aspects of the relationship between art and its narratives.",
+    "components": "Lecture",
+    "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
+  },
+  {
+    "title": "ARTH 389 Issues in Ethnocultural Art Histories",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An analysis of the concepts of ethnic and cultural identity in art and art history.",
+    "components": "Lecture",
+    "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
+  },
+  {
+    "title": "ARTH 390 Art and the Museum",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A study of selected issues in museums and related art institutions.",
+    "components": "Lecture",
+    "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
+  },
+  {
+    "title": "ARTH 391 Art and Its Changing Contexts",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An investigation of art in its original context and of its changing meanings and uses through time.",
+    "components": "Lecture",
+    "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
+  },
+  {
+    "title": "ARTH 392 Gender Issues in Art and Art History",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "An examination of gender as a factor in making and interpreting art.",
+    "components": "Lecture",
+    "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
+  },
+  {
+    "title": "ARTH 396 Art and Culture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A critical examination of selected issues in art and its cultural context.",
+    "components": "Lecture",
+    "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
+  },
+  {
+    "title": "ARTH 398 Special Topics in Art and Society",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "A detailed examination of a selected aspect of art in society.",
+    "components": "Lecture",
+    "notes": "It is strongly recommended that students have completed at least six Art History credits before enrolling in this course."
+  },
+  {
+    "title": "ARTH 400 Advanced Seminar in Art Historical Method",
+    "credits": 3,
+    "prerequisites": "Students must be in third‑year standing with fewer than 33 credits remaining in the Major in Art History degree program. Written permission of the Department of Art History is required.",
+    "corequisites": "",
+    "description": "A detailed examination of selected aspects of art methodologies.",
+    "components": "Seminar",
+    "notes": null
+  },
+  {
+    "title": "ARTH 401 Independent Studies in Art History",
+    "credits": 3,
+    "prerequisites": "Students must be in third‑year standing with fewer than 33 credits remaining in the Major in Art History degree program. Written permission of the Department of Art History is required.",
+    "corequisites": "",
+    "description": "Students are required to prepare a research paper under the supervision of a faculty member.",
+    "components": "Independent Study",
+    "notes": null
+  },
+  {
+    "title": "ARTH 403 Internship",
+    "credits": 3,
+    "prerequisites": "Students must be in third‑year standing with fewer than 33 credits remaining in the Major in Art History degree program. Written permission of the Department of Art History is required.",
+    "corequisites": "",
+    "description": "A course in the practice of art history. Students are required to work on specific projects under the supervision of a faculty member. The purpose of the internship is to provide graduating students with the opportunity to take on a project in a professional art milieu so as to complement their academic education.",
+    "components": "Practicum/Internship/Work Term",
+    "notes": null
+  },
+  {
+    "title": "ARTH 448 Advanced Seminar in Art and Film",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: ARTH 348 or FMST 348. Enrolment in the Major in Art History and Film Studies is required. If prerequisites are not satisfied, permission of the Department of Art History is required.",
+    "corequisites": "",
+    "description": "A seminar designed to permit an in‑depth course of study on some aspects of art and film history.",
+    "components": "Seminar",
+    "notes": "This course is equivalent to FMST 448. Students who have received credit for FMST 448 may not take this course for credit."
+  },
+  {
+    "title": "ARTH 450 Advanced Seminar in the History of Art and Architecture",
+    "credits": 3,
+    "prerequisites": "Students must be in in third‑year standing with fewer than 33 credits remaining in the Major in Art History degree program. Written permission of the Department of Art History is required.",
+    "corequisites": "",
+    "description": "A detailed examination of selected aspects of art and architectural history.",
+    "components": "Seminar",
+    "notes": null
+  },
+  {
+    "title": "ARTH 498 Special Topics in the History of Art and Architecture",
+    "credits": 3,
+    "prerequisites": "Students must have completed 18 credits in Art History prior to enrolling. If prerequisites are not satisfied, permission of the Department of Art History is required.",
+    "corequisites": "",
+    "description": "A course for advanced students which provides for the study of more specialized areas of art.",
+    "components": "Seminar",
+    "notes": null
+  }
 ]

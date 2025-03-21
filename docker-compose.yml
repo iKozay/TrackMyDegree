@@ -8,6 +8,7 @@ services:
     depends_on:
       - backend
       - sqlserver
+      - redis
     networks:
       - app-network
     entrypoint: >
@@ -36,8 +37,14 @@ services:
       - SQL_SERVER_USER=sa
       - SQL_SERVER_PASSWORD=MySecureP@ss123
       - SQL_SERVER_DATABASE=master
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_URL=redis://redis:6379
     depends_on:
       - sqlserver
+      - redis
+    networks:
+      - app-network
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -54,6 +61,18 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ./entrypoint-sql.sh:/usr/src/app/entrypoint-sql.sh
     entrypoint: ["/bin/sh", "/usr/src/app/entrypoint-sql.sh"]
+    networks:
+      - app-network
+
+  redis:
+    image: redis:latest
+    container_name: my-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
 
 networks:
   app-network:
@@ -61,3 +80,4 @@ networks:
 
 volumes:
   mssql-data:
+  redis-data:
