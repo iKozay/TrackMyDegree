@@ -28,6 +28,8 @@ import { groupPrerequisites } from '../utils/groupPrerequisites'; // Adjust the 
 import { useLocation } from 'react-router-dom';
 import { TimelineError } from '../middleware/SentryErrors';
 import * as Sentry from '@sentry/react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 // DraggableCourse component for course list items
 const DraggableCourse = ({
@@ -1305,6 +1307,10 @@ const TimelinePage = ({
                 >
                   Save Timeline
                 </button>
+                <button className="save-timeline-button" onClick={exportTimelineToPDF}>
+                  Download
+                </button>
+
               </div>
 
               <div className="timeline-page">
