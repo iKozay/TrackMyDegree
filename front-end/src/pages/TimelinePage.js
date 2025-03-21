@@ -1236,6 +1236,8 @@ const TimelinePage = ({
   const exportTimelineToPDF = () => {
     const input = document.querySelector('.timeline-middle-section');
     const scrollWrapper = document.querySelector('.timeline-scroll-wrapper');
+    const addSemesterButton = document.querySelector('.add-semester-button');
+    const deleteButtons = input.querySelectorAll('.remove-semester-btn, .remove-course-btn');
 
     if (!input || !scrollWrapper) {
       alert('Timeline section not found');
@@ -1247,9 +1249,20 @@ const TimelinePage = ({
     const originalOverflow = input.style.overflow;
     const originalScrollHeight = scrollWrapper.style.height;
     const originalWrapperOverflow = scrollWrapper.style.overflow;
+    const originalButtonDisplay = addSemesterButton?.style.display;
+
+    // Hide the add semester button
+    if (addSemesterButton) {
+      addSemesterButton.style.display = 'none';
+    }
+
+    // Hide delete buttons in semesters
+    deleteButtons.forEach((btn) => {
+      btn.style.display = 'none';
+    });
 
     // Temporarily expand all semesters for full visibility
-    const semesters = input.querySelectorAll('.semester');
+    const semesters = input.querySelectorAll('.timeline-middle-section');
     semesters.forEach((semester) => {
       semester.style.display = 'flex';
     });
@@ -1288,12 +1301,24 @@ const TimelinePage = ({
           input.style.overflow = originalOverflow;
           scrollWrapper.style.height = originalScrollHeight;
           scrollWrapper.style.overflow = originalWrapperOverflow;
+
+          if (addSemesterButton) {
+            addSemesterButton.style.display = originalButtonDisplay;
+          }
+
+          deleteButtons.forEach((btn) => {
+            btn.style.display = '';
+          });
+
           semesters.forEach((semester) => {
             semester.style.display = '';
           });
         });
     }, 500);
   };
+;
+;
+
 
 
   // ----------------------------------------------------------------------------------------------------------------------
