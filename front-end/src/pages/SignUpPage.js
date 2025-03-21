@@ -1,9 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../AuthContext';
+import { AuthContext } from '../middleware/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
 import { motion } from 'framer-motion';
+import { SignUpError } from '../middleware/SentryErrors';
 
 function SignUpPage() {
   const [fullname, setfullname] = useState('');
@@ -75,7 +76,7 @@ function SignUpPage() {
       if (!response.ok) {
         // Extract error message from response
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to sign up.');
+        throw new SignUpError(errorData.message || 'Failed to sign up.');
       }
 
       const data = await response.json();

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import "./middleware/sentry_instrument";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -15,7 +16,7 @@ import UploadAcceptanceLetter from './pages/UploadAcceptanceLetter';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider } from './AuthContext';
+import { AuthProvider } from './middleware/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './App.css';
@@ -117,4 +118,4 @@ function AppContent({
   );
 }
 
-export default App;
+export default App; // Profiler caused issues, explore later

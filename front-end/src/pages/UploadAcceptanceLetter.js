@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { pdfjs } from 'react-pdf';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import * as Sentry from '@sentry/react';
 
 // Set the worker source for PDF.js
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -99,6 +100,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         console.log(jsonData);
         setDegrees(jsonData.degrees);
       } catch (err) {
+        Sentry.captureException(err);
         console.error(err.message);
       }
     };

@@ -4,12 +4,19 @@ import Auth from "@controllers/authController/auth_types"; //types import
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import * as Sentry from "@sentry/react";
 
 dotenv.config();
 const log = console.log;
 var salt = bcrypt.genSaltSync(10);
 
-//Functions
+/**
+ * Authenticates a user by verifying their email and password.
+ *
+ * @param {string} email - The email of the user attempting to log in.
+ * @param {string} password - The plaintext password provided by the user.
+ * @returns {Promise<Auth.UserInfo | undefined>} - The authenticated user object if credentials are correct, otherwise undefined.
+ */
 async function authenticate(
 	email: string,
 	password: string
@@ -40,6 +47,7 @@ async function authenticate(
 				log("User not found", email);
 			}
 		} catch (error) {
+			Sentry.captureException({ error: "Backend error - authenticate" });
 			log("Error in login\n", error);
 		}
 	}
@@ -47,6 +55,12 @@ async function authenticate(
 	return undefined;
 }
 
+/**
+ * Registers a new user in the database.
+ *
+ * @param {Auth.UserInfo} userInfo - Object containing user details (email, password, fullname, type).
+ * @returns {Promise<{ id: string } | undefined>} - The newly created user's ID, or undefined if registration fails.
+ */
 async function registerUser(
 	userInfo: Auth.UserInfo
 ): Promise<{ id: string } | undefined> {
@@ -76,6 +90,7 @@ async function registerUser(
 				return result.recordset[0];
 			}
 		} catch (error) {
+			Sentry.captureException({ error: "Backend error - register user" });
 			log("Error in Sign Up\n", error);
 		}
 	}
@@ -145,6 +160,7 @@ async function forgotPassword(
 
 		return { message: "OTP has been sent to your email." }; // Confirmation message
 	} catch (error) {
+		Sentry.captureException({ error: "Backend error - forgot password" });
 		log("Error in forgot password:\n", error);
 	}
 }
@@ -198,6 +214,7 @@ async function resetPassword(
 
 		return { message: "Password reset successful." };
 	} catch (error) {
+		Sentry.captureException({ error: "Backend error - reset password" });
 		log("Error in reset password:\n", error);
 	}
 }

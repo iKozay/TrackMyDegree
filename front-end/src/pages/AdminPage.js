@@ -5,6 +5,7 @@ import { Container, Row, Col, Table, Spinner, Alert } from 'react-bootstrap';
 import SearchBar from '../components/SearchBar'; // Assuming you have a SearchBar component
 import '../css/AdminPage.css'; // Import the CSS file
 import { motion } from 'framer-motion';
+import { AdminPageError } from '../middleware/SentryErrors';
 
 const AdminPage = () => {
   const [tables, setTables] = useState([]);
@@ -28,10 +29,10 @@ const AdminPage = () => {
           if (Array.isArray(response.data.data)) {
             setTables(response.data.data);
           } else {
-            throw new Error('Tables data is not an array');
+            throw new AdminPageError('Tables data is not an array');
           }
         } else {
-          throw new Error('Failed to fetch tables');
+          throw new AdminPageError('Failed to fetch tables');
         }
 
         setLoading(false);
@@ -67,10 +68,10 @@ const AdminPage = () => {
             setColumns([]);
           }
         } else {
-          throw new Error('Records data is not an array');
+          throw new AdminPageError('Records data is not an array');
         }
       } else {
-        throw new Error('Failed to fetch records');
+        throw new AdminPageError('Failed to fetch records');
       }
 
       setLoading(false);

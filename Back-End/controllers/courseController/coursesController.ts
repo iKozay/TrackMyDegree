@@ -1,5 +1,6 @@
 import Database from "@controllers/DBController/DBController";
 import CourseTypes from "./course_types";
+import * as Sentry from "@sentry/react";
 import redisClient from "@controllers/redisClient";
 
 const log = console.log;
@@ -8,6 +9,7 @@ async function getFromCache(key: string): Promise<string | null> {
   try {
     return await redisClient.get(key);
   } catch (err) {
+    Sentry.captureException(new Error("Error getting cache"));
     console.error("Error getting cache:", err);
     return null;
   }
@@ -21,6 +23,7 @@ async function setCache(
   try {
     await redisClient.setEx(key, ttl, value);
   } catch (err) {
+    Sentry.captureException(new Error("Error setting cache"));
     console.error("Error setting cache:", err);
   }
 }
@@ -42,6 +45,7 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
       return JSON.parse(cachedData) as CourseTypes.CourseInfo[];
     }
   } catch (cacheError) {
+    Sentry.captureException(new Error("Error reading from Redis cache"));
     log("Error reading from Redis cache", cacheError);
     // Proceed to query the database if cache fails
   }
@@ -68,30 +72,30 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
         ) req ON c.code = req.requisite_code1
       `);
 
-      const courses = result.recordset;
+			const courses = result.recordset;
 
-      // Group requisites by course
-      const coursesWithRequisites = courses.reduce((acc: any, course: any) => {
-        const courseCode = course.code;
-        if (!acc[courseCode]) {
-          acc[courseCode] = {
-            code: course.code,
-            title: course.title,
-            credits: course.credits,
-            description: course.description,
-            requisites: [],
-          };
-        }
+			// Group requisites by course
+			const coursesWithRequisites = courses.reduce((acc: any, course: any) => {
+				const courseCode = course.code;
+				if (!acc[courseCode]) {
+					acc[courseCode] = {
+						code: course.code,
+						title: course.title,
+						credits: course.credits,
+						description: course.description,
+						requisites: [],
+					};
+				}
 
-        if (course.requisite_code1 && course.requisite_code2) {
-          acc[courseCode].requisites.push({
-            code1: course.requisite_code1,
-            code2: course.requisite_code2,
-            type: course.requisite_type,
-          });
-        }
-        return acc;
-      }, {});
+				if (course.requisite_code1 && course.requisite_code2) {
+					acc[courseCode].requisites.push({
+						code1: course.requisite_code1,
+						code2: course.requisite_code2,
+						type: course.requisite_type,
+					});
+				}
+				return acc;
+			}, {});
 
       const resultData = Object.values(coursesWithRequisites) as CourseTypes.CourseInfo[];
 
@@ -99,16 +103,18 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
       try {
         await redisClient.setEx(cacheKey, 3600, JSON.stringify(resultData));
       } catch (cacheError) {
+        Sentry.captureException(new Error("Error writing to Redis cache"));
         log("Error writing to Redis cache", cacheError);
       }
 
       return resultData;
     } catch (error) {
+      Sentry.captureException(new Error("Error fetching courses with requisites"));
       log("Error fetching courses with requisites\n", error);
     }
   }
 
-  return undefined;
+	return undefined;
 }
 
 
@@ -119,118 +125,123 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
  * @returns {Promise<CourseTypes.CourseInfo | undefined>} - The course details, or undefined if not found.
  */
 async function getCourseByCode(
-  code: string
+	code: string
 ): Promise<CourseTypes.CourseInfo | undefined> {
-  const dbConn = await Database.getConnection();
+	const dbConn = await Database.getConnection();
 
-  if (dbConn) {
-    try {
-      // Fetch course details
-      const courseResult = await dbConn
-        .request()
-        .input("code", Database.msSQL.VarChar, code)
-        .query(
-          "SELECT code, title, credits, description FROM Course WHERE code = @code"
-        );
+	if (dbConn) {
+		try {
+			// Fetch course details
+			const courseResult = await dbConn
+				.request()
+				.input("code", Database.msSQL.VarChar, code)
+				.query(
+					"SELECT code, title, credits, description FROM Course WHERE code = @code"
+				);
 
-      const course = courseResult.recordset[0];
-      if (!course) {
-        return undefined;
-      }
+			const course = courseResult.recordset[0];
+			if (!course) {
+				return undefined;
+			}
 
-      // Fetch requisites
-      const requisitesResult = await dbConn
-        .request()
-        .input("code", Database.msSQL.VarChar, code).query(`
+			// Fetch requisites
+			const requisitesResult = await dbConn
+				.request()
+				.input("code", Database.msSQL.VarChar, code).query(`
                     SELECT r.type, r.code2 AS requisiteCode, c.description AS requisiteDescription
                     FROM Requisite r
                     INNER JOIN Course c ON r.code2 = c.code
                     WHERE r.code1 = @code
                 `);
 
-      // Construct course object with requisites
-      return {
-        code: course.code,
-        title: course.title,
-        credits: course.credits,
-        description: course.description,
-        requisites: requisitesResult.recordset.map((row: any) => ({
-          type: row.type,
-          code: row.requisiteCode,
-          description: row.requisiteDescription,
-        })),
-      };
-    } catch (error) {
-      console.error("Error fetching course by code\n", error);
-    }
-  }
+			// Construct course object with requisites
+			return {
+				code: course.code,
+				title: course.title,
+				credits: course.credits,
+				description: course.description,
+				requisites: requisitesResult.recordset.map((row: any) => ({
+					type: row.type,
+					code: row.requisiteCode,
+					description: row.requisiteDescription,
+				})),
+			};
+		} catch (error) {
+			Sentry.captureException(new Error("Error fetching course by code"));
+			console.error("Error fetching course by code\n", error);
+		}
+	}
 
-  return undefined;
+	return undefined;
 }
 
 /**
  * Adds a new course to the database.
  *
+ *
  * @param {CourseTypes.CourseInfo} courseInfo - The course details.
  * @returns {Promise<{ code: string } | undefined>} - The inserted course's code, or undefined on failure.
  */
 async function addCourse(
-  courseInfo: CourseTypes.CourseInfo
+	courseInfo: CourseTypes.CourseInfo
 ): Promise<{ code: string } | undefined> {
-  const dbConn = await Database.getConnection();
+	const dbConn = await Database.getConnection();
 
-  if (dbConn) {
-    const { code, title, credits, description } = courseInfo;
+	if (dbConn) {
+		const { code, title, credits, description } = courseInfo;
 
-    if (!code || !title || !credits || !description) {
-      throw new Error("Missing required course data");
-    }
+		if (!code || !title || !credits || !description) {
+			throw new Error("Missing required course data");
+		}
 
-    try {
-      const result = await dbConn
-        .request()
-        .input("code", Database.msSQL.VarChar, code)
-        .input("title", Database.msSQL.VarChar, title)
-        .input("credits", Database.msSQL.Int, credits)
-        .input("description", Database.msSQL.VarChar, description).query(`
+		try {
+			const result = await dbConn
+				.request()
+				.input("code", Database.msSQL.VarChar, code)
+				.input("title", Database.msSQL.VarChar, title)
+				.input("credits", Database.msSQL.Int, credits)
+				.input("description", Database.msSQL.VarChar, description).query(`
                     INSERT INTO Course (code, title, credits, description)
                     OUTPUT INSERTED.code
                     VALUES (@code, @title, @credits, @description)
                 `);
 
-      return result.recordset[0];
-    } catch (error) {
-      log("Error adding course\n", error);
-    }
-  }
+			return result.recordset[0];
+		} catch (error) {
+			Sentry.captureException(new Error("Error adding course"));
+			log("Error adding course\n", error);
+		}
+	}
 
-  return undefined;
+	return undefined;
 }
 
 /**
  * Deletes a course from the database.
  *
+ *
  * @param {string} code - The course code to delete.
  * @returns {Promise<boolean>} - True if deleted successfully, false otherwise.
  */
 async function removeCourse(code: string): Promise<boolean> {
-  const dbConn = await Database.getConnection();
+	const dbConn = await Database.getConnection();
 
-  if (dbConn) {
-    try {
-      const result = await dbConn
-        .request()
-        .input("code", Database.msSQL.VarChar, code)
-        .query("DELETE FROM Course WHERE code = @code");
+	if (dbConn) {
+		try {
+			const result = await dbConn
+				.request()
+				.input("code", Database.msSQL.VarChar, code)
+				.query("DELETE FROM Course WHERE code = @code");
 
-      return result.rowsAffected[0] > 0;
-    } catch (error) {
-      console.error("Error removing course\n", error);
-      throw error;
-    }
-  }
+			return result.rowsAffected[0] > 0;
+		} catch (error) {
+			Sentry.captureException(new Error("Error removing course"));
+			console.error("Error removing course\n", error);
+			throw error;
+		}
+	}
 
-  return false;
+	return false;
 }
 
 /**
@@ -241,7 +252,7 @@ async function removeCourse(code: string): Promise<boolean> {
  * @returns {Promise<CourseTypes.CoursePoolInfo[] | undefined>} - The grouped courses, or undefined on failure.
  */
 async function getCoursesByDegreeGrouped(
-  degreeId: string
+	degreeId: string
 ): Promise<CourseTypes.CoursePoolInfo[] | undefined> {
   const cacheKey = `coursesByDegreeGrouped:${degreeId}`;
 
@@ -252,6 +263,7 @@ async function getCoursesByDegreeGrouped(
       return JSON.parse(cachedData) as CourseTypes.CoursePoolInfo[];
     }
   } catch (cacheError) {
+    Sentry.captureException(new Error("Error reading from Redis cache"));
     log("Error reading from Redis cache", cacheError);
     // Continue to query the database if cache read fails
   }
@@ -259,8 +271,8 @@ async function getCoursesByDegreeGrouped(
   const dbConn = await Database.getConnection();
   if (!dbConn) return undefined;
 
-  try {
-    const query = `
+	try {
+		const query = `
       WITH Courses AS (
         SELECT 
           cp.id AS course_pool_id, 
@@ -297,15 +309,15 @@ async function getCoursesByDegreeGrouped(
       ORDER BY c.course_pool_name, c.code;
     `;
 
-    const result = await dbConn
-      .request()
-      .input("degreeId", Database.msSQL.VarChar, degreeId)
-      .query(query);
+		const result = await dbConn
+			.request()
+			.input("degreeId", Database.msSQL.VarChar, degreeId)
+			.query(query);
 
-    const records = result.recordset;
-    if (records.length === 0) return undefined;
+		const records = result.recordset;
+		if (records.length === 0) return undefined;
 
-    const coursePoolsMap: { [key: string]: CourseTypes.CoursePoolInfo } = {};
+		const coursePoolsMap: { [key: string]: CourseTypes.CoursePoolInfo } = {};
 
     records.forEach((record: any) => {
       let requisites: any[] = [];
@@ -314,26 +326,26 @@ async function getCoursesByDegreeGrouped(
       } catch (e) {
         requisites = [];
       }
+			const poolId = record.course_pool_id;
+			if (!coursePoolsMap[poolId]) {
+				coursePoolsMap[poolId] = {
+					poolId: poolId,
+					poolName: record.course_pool_name,
+					courses: [],
+				};
+			}
 
-      const poolId = record.course_pool_id;
-      if (!coursePoolsMap[poolId]) {
-        coursePoolsMap[poolId] = {
-          poolId: poolId,
-          poolName: record.course_pool_name,
-          courses: [],
-        };
-      }
+			// Create a course object with its requisites
+			const course = {
+				code: record.code,
+				title: record.title,
+				credits: record.credits,
+				description: record.description,
+				requisites: requisites,
+			};
 
-      const course = {
-        code: record.code,
-        title: record.title,
-        credits: record.credits,
-        description: record.description,
-        requisites: requisites,
-      };
-
-      coursePoolsMap[poolId].courses.push(course);
-    });
+			coursePoolsMap[poolId].courses.push(course);
+		});
 
     const resultData = Object.values(coursePoolsMap);
 
@@ -341,15 +353,17 @@ async function getCoursesByDegreeGrouped(
       // Cache the result in Redis for 3600 seconds (1 hour)
       await redisClient.setEx(cacheKey, 604800, JSON.stringify(resultData));
     } catch (cacheError) {
+      Sentry.captureException(new Error("Error writing to Redis cache"));
       log("Error writing to Redis cache", cacheError);
     }
 
     return resultData;
   } catch (error) {
+    Sentry.captureException(new Error("Error fetching courses by degree grouped by course pools"));
     log("Error fetching courses by degree grouped by course pools\n", error);
   }
 
-  return undefined;
+	return undefined;
 }
 
 /**
@@ -369,6 +383,7 @@ async function getAllCoursesInDB(): Promise<CourseTypes.CourseInfo[] | undefined
       return JSON.parse(cachedData) as CourseTypes.CourseInfo[];
     }
   } catch (cacheError) {
+    Sentry.captureException(new Error("Error reading from Redis cache"));
     log("Error reading from Redis cache", cacheError);
     // Continue to query the database if cache fails
   }
@@ -391,13 +406,13 @@ async function getAllCoursesInDB(): Promise<CourseTypes.CourseInfo[] | undefined
         ORDER BY c.code
       `);
 
-      const records = result.recordset;
-      if (!records || records.length === 0) {
-        return undefined;
-      }
+			const records = result.recordset;
+			if (!records || records.length === 0) {
+				return undefined;
+			}
 
-      // Build a map keyed by course code
-      const coursesMap: { [key: string]: CourseTypes.CourseInfo } = {};
+			// Build a map keyed by course code
+			const coursesMap: { [key: string]: CourseTypes.CourseInfo } = {};
 
       records.forEach((record: any) => {
         const courseCode = record.code;
@@ -427,25 +442,27 @@ async function getAllCoursesInDB(): Promise<CourseTypes.CourseInfo[] | undefined
       try {
         await redisClient.setEx(cacheKey, 604800, JSON.stringify(resultData));
       } catch (cacheError) {
+        Sentry.captureException(new Error("Error writing to Redis cache"));
         log("Error writing to Redis cache", cacheError);
       }
 
       return resultData;
     } catch (error) {
+      Sentry.captureException(new Error("Error fetching all courses"));
       log("Error fetching all courses\n", error);
     }
   }
 
-  return undefined;
+	return undefined;
 }
 
 const courseController = {
-  getAllCourses,
-  getCourseByCode,
-  addCourse,
-  removeCourse,
-  getCoursesByDegreeGrouped,
-  getAllCoursesInDB,
+	getAllCourses,
+	getCourseByCode,
+	addCourse,
+	removeCourse,
+	getCoursesByDegreeGrouped,
+	getAllCoursesInDB,
 };
 
 export default courseController;
