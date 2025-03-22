@@ -4,7 +4,7 @@ Back-End/yarn.lock
 Back-End/dist
 package-lock.json
 node_modules
-.env
+**/.env
 myenv/
 .gitignore
 entrypoint-sql.sh
