@@ -532,6 +532,7 @@ const TimelinePage = ({
           courses.push(data.course.trim());
         }
       } else if (data.season && data.year) {
+        let formattedYear = data.year;
         term =
           data.season.trim().toLowerCase() === 'exempted'
             ? 'Exempted'
@@ -577,7 +578,7 @@ const TimelinePage = ({
     const sortedSemesters = Array.from(semesterNames).sort((a, b) => {
       if (a.trim().toLowerCase() === 'exempted') return -1;
       if (b.trim().toLowerCase() === 'exempted') return 1;
-      const order = { Winter: 1, Summer: 2, Fall: 3 };
+      const order = { Winter: 1, Summer: 2, Fall: 3, Fall_Winter: 4 };
       const [seasonA, yearA] = a.split(' ');
       const [seasonB, yearB] = b.split(' ');
       if (yearA !== yearB) {
@@ -588,10 +589,18 @@ const TimelinePage = ({
 
     // --- Step 5. Update state ---
     setSemesters(
-      sortedSemesters.map((term) => ({
-        id: term,
-        name: term,
-      })),
+      sortedSemesters.map((term) => {
+        const [season, year] = term.split(' ');
+
+        let displayYear = year;
+        if (season === 'Fall/Winter') {
+          displayYear = `${year}-${(parseInt(year, 10) + 1) % 100}`;
+        }
+        return {
+          id: term,
+          name: `${season} ${displayYear}`,
+        };
+      }),
     );
     setSemesterCourses(
       Object.fromEntries(
@@ -650,16 +659,19 @@ const TimelinePage = ({
   }
 
   const handleAddSemester = () => {
-    let id = '';
-    let name = '';
-    // Check for Fall/Winter
-    if (selectedSeason === 'Fall/Winter') {
-      id = `Fall_Winter ${selectedYear}`;
-      name = `Fall_Winter ${selectedYear}`;
-    } else {
-      id = `${selectedSeason} ${selectedYear}`;
-      name = `${selectedSeason} ${selectedYear}`;
+    let formattedYear = selectedYear;
+    let displayYear = selectedYear; // This will store YYYY-YY for name
+
+    if (
+      selectedSeason === 'Fall/Winter' &&
+      !String(selectedYear).includes('-')
+    ) {
+      const startYear = parseInt(selectedYear, 10);
+      displayYear = `${startYear}-${(startYear + 1) % 100}`;
     }
+
+    const id = `${selectedSeason} ${selectedYear}`;
+    const name = `${selectedSeason} ${displayYear}`;
 
     // Prevent duplicates
     if (semesters.some((sem) => sem.id === id)) {
@@ -1730,9 +1742,14 @@ const TimelinePage = ({
                   >
                     {Array.from({ length: 14 }).map((_, i) => {
                       const year = 2017 + i;
+                      const displayYear =
+                        selectedSeason === 'Fall/Winter'
+                          ? `${year}-${(year + 1) % 100}`
+                          : year;
+
                       return (
                         <option key={year} value={year}>
-                          {year}
+                          {displayYear}
                         </option>
                       );
                     })}
