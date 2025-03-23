@@ -66,6 +66,8 @@ CREATE TABLE AppUser (
     fullname VARCHAR(255) NOT NULL,
     degree VARCHAR(255),
     type VARCHAR(10) CHECK (type IN ('student', 'advisor', 'admin')) NOT NULL,
+    otp VARCHAR(10),         
+    otpExpire DATETIME,
     FOREIGN KEY (degree) REFERENCES Degree(id)
 );
 
