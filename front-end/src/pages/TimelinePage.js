@@ -144,7 +144,7 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 };
 
 // Main component
-const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredit }) => {
+const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredit }) => {
   const navigate = useNavigate();
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
@@ -167,7 +167,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
   const autoScrollInterval = useRef(null);
 
 
-  let { degreeId, startingSemester, creditsRequired = 120, extendedCredit } = location.state || {};
+  let { degree_Id, startingSemester, credits_Required = 120, extendedCredit } = location.state || {};
 
   // console.log("isExtendedCredit: " + isExtendedCredit);
   // console.log("extendedCredit: " + extendedCredit);
@@ -182,16 +182,16 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
 
   // setIsECP(extendedCredit);
 
-  if (!degreeId) {
-    degreeId = degreeid;
+  if (!degree_Id) {
+    degree_Id = degreeId;
   }
 
-  if (!creditsrequired) {
-    creditsRequired = 120;
+  if (!credits_Required) {
+    credits_Required = 120;
   }
 
   if (extendedCredit) {
-    creditsRequired += 30;
+    credits_Required += 30;
   }
 
   //console.log(degreeId);  // Logs the degreeId passed from UploadTranscriptPage.js
@@ -365,7 +365,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ degree: degreeId }),
+          body: JSON.stringify({ degree: degree_Id }),
         });
         if (!primaryResponse.ok) {
           const errorData = await primaryResponse.json();
@@ -432,7 +432,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
     };
 
     fetchCoursesByDegree();
-  }, [degreeId, location.state?.creditDeficiency, extendedCredit]);
+  }, [degree_Id, location.state?.creditDeficiency, extendedCredit]);
 
 
   // Process timelineData and generate semesters and courses
@@ -1147,7 +1147,7 @@ const TimelinePage = ({ degreeid, timelineData, creditsrequired, isExtendedCredi
       const responseTimeline = await fetch(`${process.env.REACT_APP_SERVER}/timeline/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id, name: timelineNameToSend, items, degree_id: degreeId, isExtendedCredit }),
+        body: JSON.stringify({ user_id, name: timelineNameToSend, items, degree_id: degree_Id, isExtendedCredit }),
       });
       const dataTimeline = await responseTimeline.json();
       if (responseTimeline.ok) {

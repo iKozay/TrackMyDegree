@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  useLocation,
+  Routes,
+  Route,
+} from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import LogInPage from "./pages/LogInPage";
 import SignUpPage from "./pages/SignUpPage";
@@ -36,63 +42,61 @@ function App() {
 		console.log("app.js isExtendedCredit: ", isExtendedCredit);
 	};
 
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: (
-        <div className="page-container">
-          <Navbar />
-          <AnimatePresence mode="wait">
-            <div className="App">
-              <Outlet />
-            </div>
-          </AnimatePresence>
-          <Footer />
-        </div>
-      ),
-      children: [
-        { path: "/", element: <LandingPage /> },
-        { path: "/signin", element: <LogInPage /> },
-        { path: "/signup", element: <SignUpPage /> },
-        { path: "/admin", element: <AdminPage /> },
-        {
-          path: "/user",
-          element: (
-            <ProtectedRoute>
-              <UserPage onDataProcessed={handleDataProcessed} />
-            </ProtectedRoute>
-          ),
-        },
-        {
-          path: "/timeline_change",
-          element: (
-            <TimelinePage
-              degreeid={degreeId}
-              timelineData={timelineData}
-              creditsrequired={creditsRequired}
-              isExtendedCredit={isExtendedCredit}
-              onDataProcessed={handleDataProcessed}
-            />
-          ),
-        },
-        { path: "/courselist", element: <CourseList /> },
-        {
-          path: "/uploadTranscript",
-          element: <UploadTranscript onDataProcessed={handleDataProcessed} />,
-        },
-        {
-          path: "/timeline_initial",
-          element: <UploadAcceptanceLetter onDataProcessed={handleDataProcessed} />,
-        },
-      ],
-    },
-  ]);
+  const location = useLocation();
 
   return (
-    <AuthProvider>
-      <RouterProvider router = {router} />
-    </AuthProvider>
+    <div className="page-container">
+      <Navbar />
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/signin" element={<LogInPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route
+            path="/user"
+            element={
+              <ProtectedRoute>
+                <UserPage onDataProcessed={handleDataProcessed} />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/adminpage" element={<AdminPage />} />
+          <Route
+            path="/timeline_change"
+            element={
+              <TimelinePage
+                degreeId={degreeId}
+                timelineData={timelineData}
+                creditsRequired={creditsRequired}
+                isExtendedCredit={isExtendedCredit}
+                onDataProcessed={handleDataProcessed}
+              />
+            }
+          />
+          <Route path="/courselist" element={<CourseList />} />
+          <Route
+            path="/uploadTranscript"
+            element={<UploadTranscript onDataProcessed={handleDataProcessed} />}
+          />
+          <Route
+            path="/timeline_initial"
+            element={<UploadAcceptanceLetter onDataProcessed={handleDataProcessed} />}
+          />
+        </Routes>
+      </AnimatePresence>
+      <Footer />
+    </div>
   );
 }
 
-export default App;
+const router = createBrowserRouter([
+  { path: "/*", element: <App /> },
+]);
+
+export default function Root() {
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
+}
