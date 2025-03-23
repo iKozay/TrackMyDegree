@@ -17,7 +17,7 @@ import UploadAcceptanceLetter from "./pages/UploadAcceptanceLetter";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { AuthProvider } from "./AuthContext";
+import { AuthProvider } from "./middleware/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
@@ -42,6 +42,8 @@ function App() {
     console.log('app.js data.isExtendedCredit: ', data.isExtendedCredit);
     console.log('app.js isExtendedCredit: ', isExtendedCredit);
   };
+
+  const location = useLocation();
 
   return (
     <div className="page-container">
