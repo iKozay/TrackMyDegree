@@ -73,9 +73,9 @@ describe("Course Routes", () => {
           code: "CS101",
         }) // Missing credits and description
         .expect("Content-Type", /json/)
-        .expect(500);
+        .expect(400);
 
-      expect(response.body).toHaveProperty("error", "Could not add course");
+      expect(response.body).toHaveProperty("error", "Course data is required");
     });
   });
 
