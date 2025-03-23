@@ -1101,9 +1101,9 @@ const TimelinePage = ({
   // limit is 14 summer; Fall Winter 15.
   function getMaxCreditsForSemesterName(semesterName) {
     if (semesterName.toLowerCase().includes('summer')) {
-      return 14;
+      return 15;
     }
-    return 15;
+    return 19;
   }
 
   function parseMaxCreditsFromPoolName(poolName) {
