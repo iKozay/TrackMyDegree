@@ -1,19 +1,18 @@
 // src/pages/UserPage.js
-import React, { useState, useContext, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../AuthContext";
-import moment from "moment";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../css/UserPage.css";
-import { motion } from "framer-motion"
-
+import React, { useState, useContext, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../middleware/AuthContext';
+import moment from 'moment';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../css/UserPage.css';
+import { motion } from 'framer-motion';
 
 // === Updated imports for your custom modal & trash icon ===
-import DeleteModal from "../components/DeleteModal";
-import TrashLogo from "../icons/trashlogo"; // Adjust path if needed
+import DeleteModal from '../components/DeleteModal';
+import TrashLogo from '../icons/trashlogo'; // Adjust path if needed
+import { UserPageError } from '../middleware/SentryErrors';
 
 const UserPage = ({ onDataProcessed }) => {
-
   const { user } = useContext(AuthContext);
   const [userInfo, setUserInfo] = useState([]);
 
@@ -26,8 +25,8 @@ const UserPage = ({ onDataProcessed }) => {
   useEffect(() => {
     if (user) {
       setUserInfo([
-        { title: "Full Name", value: user.fullname || "NULL" },
-        { title: "Email", value: user.email || "NULL" },
+        { title: 'Full Name', value: user.fullname || 'NULL' },
+        { title: 'Email', value: user.email || 'NULL' },
       ]);
     }
   }, [user]);
@@ -104,12 +103,11 @@ const UserPage = ({ onDataProcessed }) => {
       transcriptData.push({
         term: `${season} ${year}`,
         courses: courses,
-        grade: "A",
+        grade: 'A',
       });
-
     });
 
-    console.log("isExtendedCredit user page", isExtendedCredit);
+    console.log('isExtendedCredit user page', isExtendedCredit);
 
     onDataProcessed({
       transcriptData,
@@ -117,8 +115,8 @@ const UserPage = ({ onDataProcessed }) => {
       creditsRequired,
       isExtendedCredit,
     });
-    localStorage.setItem("Timeline_Name", obj.name);
-    navigate("/timeline_change");
+    localStorage.setItem('Timeline_Name', obj.name);
+    navigate('/timeline_change');
   };
 
   // Commented out edit modde code
@@ -139,18 +137,18 @@ const UserPage = ({ onDataProcessed }) => {
           const response = await fetch(
             `${process.env.REACT_APP_SERVER}/timeline/getAll`,
             {
-              method: "POST",
+              method: 'POST',
               headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
               },
               body: JSON.stringify({ user_id }),
-            }
+            },
           );
 
           if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(
-              errorData.message || "Failed to fetch user timelines."
+            throw new UserPageError(
+              errorData.message || 'Failed to fetch user timelines.',
             );
           }
 
@@ -159,16 +157,15 @@ const UserPage = ({ onDataProcessed }) => {
           if (Array.isArray(data)) {
             // Sort by modified date in descending order
             const sortedTimelines = data.sort(
-              (a, b) => new Date(b.last_modified) - new Date(a.last_modified)
+              (a, b) => new Date(b.last_modified) - new Date(a.last_modified),
             );
 
             setUserTimelines(sortedTimelines);
-          }
-          else {
+          } else {
             setUserTimelines([]);
           }
         } catch (e) {
-          console.error("Error updating user info:", e);
+          console.error('Error updating user info:', e);
         }
       };
 
@@ -191,29 +188,31 @@ const UserPage = ({ onDataProcessed }) => {
       const response = await fetch(
         `${process.env.REACT_APP_SERVER}/timeline/delete`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({ timeline_id }),
-        }
+        },
       );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to delete user timeline.");
+        throw new UserPageError(
+          errorData.message || 'Failed to delete user timeline.',
+        );
       }
       // remove from page
       setUserTimelines(userTimelines.filter((obj) => obj.id !== timeline_id));
     } catch (e) {
-      console.error("Error deleting user timeline:", e);
+      console.error('Error deleting user timeline:', e);
     }
   };
 
   // Redirect to login if no user is found
   useEffect(() => {
     if (!user) {
-      navigate("/signin");
+      navigate('/signin');
     }
   }, [user, navigate]);
 
@@ -233,31 +232,51 @@ const UserPage = ({ onDataProcessed }) => {
           <div className="col-12 col-md-4 d-flex flex-column align-items-center text-center mx-auto">
             <h2 className="mb-4">My Profile</h2>
             <div className="profile-container d-flex">
-              <div className="max-w-sm w-full"> {/* Changed from max-w-xs to max-w-sm */}
-                <div className="bg-white shadow-xl rounded-lg py-4"> {/* Increased padding */}
-                  <div className="photo-wrapper p-3"> {/* Increased padding */}
+              <div className="max-w-sm w-full">
+                {' '}
+                {/* Changed from max-w-xs to max-w-sm */}
+                <div className="bg-white shadow-xl rounded-lg py-4">
+                  {' '}
+                  {/* Increased padding */}
+                  <div className="photo-wrapper p-3">
+                    {' '}
+                    {/* Increased padding */}
                     <img
                       className="w-40 h-40 rounded-full mx-auto"
                       src="https://www.svgrepo.com/download/374554/avatar-loading.svg" //replace when upload available
                       alt="Profile Avatar"
                     />
                   </div>
-                  <div className="p-3"> {/* Increased padding */}
-                    <h3 className="text-center text-2xl text-gray-900 font-medium leading-8"> {/* Increased text size */}
-                      {userInfo[0]?.value || "Full Name"}
+                  <div className="p-3">
+                    {' '}
+                    {/* Increased padding */}
+                    <h3 className="text-center text-2xl text-gray-900 font-medium leading-8">
+                      {' '}
+                      {/* Increased text size */}
+                      {userInfo[0]?.value || 'Full Name'}
                     </h3>
-                    <div className="text-center text-gray-400 text-sm font-semibold"> {/* Increased text size */}
+                    <div className="text-center text-gray-400 text-sm font-semibold">
+                      {' '}
+                      {/* Increased text size */}
                       <p>User</p>
                     </div>
                     <table className="text-sm my-4">
                       <tbody>
                         <tr>
-                          <td className="px-3 py-2 text-gray-500 font-semibold">Full Name</td>
-                          <td className="px-3 py-2">{userInfo[0]?.value || "NULL"}</td>
+                          <td className="px-3 py-2 text-gray-500 font-semibold">
+                            Full Name
+                          </td>
+                          <td className="px-3 py-2">
+                            {userInfo[0]?.value || 'NULL'}
+                          </td>
                         </tr>
                         <tr>
-                          <td className="px-3 py-2 text-gray-500 font-semibold">Email</td>
-                          <td className="px-3 py-2">{userInfo[1]?.value || "NULL"}</td>
+                          <td className="px-3 py-2 text-gray-500 font-semibold">
+                            Email
+                          </td>
+                          <td className="px-3 py-2">
+                            {userInfo[1]?.value || 'NULL'}
+                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -267,14 +286,15 @@ const UserPage = ({ onDataProcessed }) => {
               {/* Separator Line */}
               <div className="separator-line"></div>
             </div>
-
           </div>
           {/* Right Side - My Timelines (Unchanged) */}
           <div className="col-12 col-md-6 d-flex flex-column text-center mx-auto mt-3 mt-md-0">
             <h2 className="mb-5">My Timelines</h2>
             {userTimelines.length === 0 ? (
               <Link to="/timeline_initial">
-                <p>You haven't saved any timelines yet, click here to start now!</p>
+                <p>
+                  You haven't saved any timelines yet, click here to start now!
+                </p>
               </Link>
             ) : (
               <div className="list-group">
@@ -289,12 +309,18 @@ const UserPage = ({ onDataProcessed }) => {
                     >
                       <span className="timeline-text">{obj.name}</span>
                       <span className="timeline-text">
-                        Last Modified: {moment(obj.last_modified).format("MMM DD, YYYY h:mm A")}
+                        Last Modified:{' '}
+                        {moment(obj.last_modified).format(
+                          'MMM DD, YYYY h:mm A',
+                        )}
                       </span>
                     </span>
-                    <button onClick={() => handleDeleteClick(obj)}
-                      className="timeline-delete btn btn-lg p-0 border-0 bg-transparent">
-                      <TrashLogo size={25} className="me-1 text-danger" /> {/* Added text-danger for red icon */}
+                    <button
+                      onClick={() => handleDeleteClick(obj)}
+                      className="timeline-delete btn btn-lg p-0 border-0 bg-transparent"
+                    >
+                      <TrashLogo size={25} className="me-1 text-danger" />{' '}
+                      {/* Added text-danger for red icon */}
                     </button>
                   </div>
                 ))}

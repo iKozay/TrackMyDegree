@@ -1,20 +1,21 @@
 // src/controllers/adminController.ts
 
-import { Request, Response, NextFunction } from "express";
-import Database from "@controllers/DBController/DBController"; // Your database connection utility
+import { Request, Response, NextFunction } from 'express';
+import Database from '@controllers/DBController/DBController'; // Your database connection utility
 import {
   TableListResponse,
   TableRecordsResponse,
   GetTableRecordsRequest,
   StandardResponse,
   TableRecord,
-} from "@controllers/adminController/admin_types";
+} from '@controllers/adminController/admin_types';
 
-import fs from "fs";
-import path from "path";
-import * as sql from "mssql";
-import "dotenv/config";
+import fs from 'fs';
+import path from 'path';
+import * as sql from 'mssql';
+import 'dotenv/config';
 import { readdir } from 'fs/promises';
+import * as Sentry from '@sentry/node';
 
 /**
  * Fetches the list of all tables in the database.
@@ -22,12 +23,14 @@ import { readdir } from 'fs/promises';
 export const getTables = async (
   req: Request,
   res: Response<StandardResponse>,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const pool = await Database.getConnection();
     if (!pool) {
-      res.status(500).json({ success: false, message: "Database connection failed" });
+      res
+        .status(500)
+        .json({ success: false, message: 'Database connection failed' });
       return;
     }
 
@@ -40,12 +43,14 @@ export const getTables = async (
 
     const result = await pool.request().query(query);
     const tables: TableListResponse = result.recordset.map(
-      (row: { TABLE_NAME: string }) => row.TABLE_NAME
+      (row: { TABLE_NAME: string }) => row.TABLE_NAME,
     );
     res.status(200).json({ success: true, data: tables });
   } catch (error) {
-    console.error("Error fetching tables:", error);
-    res.status(500).json({ success: false, message: "Error fetching tables", data: error });
+    console.error('Error fetching tables:', error);
+    res
+      .status(500)
+      .json({ success: false, message: 'Error fetching tables', data: error });
   }
 };
 
@@ -55,7 +60,7 @@ export const getTables = async (
 export const getTableRecords = async (
   req: GetTableRecordsRequest,
   res: Response<StandardResponse>,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   const { tableName } = req.params;
   const { keyword } = req.query;
@@ -63,7 +68,10 @@ export const getTableRecords = async (
   try {
     const pool = await Database.getConnection();
     if (!pool) {
-      res.status(500).json({ success: false, message: "Database connection failed" });
+      res
+        .status(500)
+        .json({ success: false, message: 'Database connection failed' });
+      Sentry.captureException({ error: 'Database connection failed' });
       return;
     }
 
@@ -77,23 +85,24 @@ export const getTableRecords = async (
           AND DATA_TYPE IN ('varchar', 'nvarchar', 'text', 'char')
       `);
       const columns: string[] = columnsResult.recordset.map(
-        (row: { COLUMN_NAME: string }) => row.COLUMN_NAME
+        (row: { COLUMN_NAME: string }) => row.COLUMN_NAME,
       );
       if (columns.length > 0) {
         const whereClauses = columns.map(
-          (col) => `[${col}] LIKE '%${keyword}%'`
+          (col) => `[${col}] LIKE '%${keyword}%'`,
         );
-        query += ` WHERE ${whereClauses.join(" OR ")}`;
+        query += ` WHERE ${whereClauses.join(' OR ')}`;
       }
     }
     const result = await pool.request().query(query);
     const records: TableRecordsResponse = result.recordset as TableRecord[];
     res.status(200).json({ success: true, data: records });
   } catch (error) {
-    console.error("Error fetching table records:", error);
+    Sentry.captureException({ error: 'Error fetching table records' });
+    console.error('Error fetching table records:', error);
     res.status(500).json({
       success: false,
-      message: "Error fetching records from table",
+      message: 'Error fetching records from table',
       data: error,
     });
   }
@@ -103,7 +112,7 @@ const dbConfig: sql.config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  server: process.env.DB_HOST || "localhost",
+  server: process.env.DB_HOST || 'localhost',
   options: {
     trustServerCertificate: true,
   },
@@ -131,7 +140,7 @@ interface DegreeData {
 interface Requisite {
   code1: string; // Course code that has the requisite
   code2?: string; // Prerequisite course code (optional for credit-based)
-  type: "pre" | "co";
+  type: 'pre' | 'co';
   groupId?: string; // Identifier for groups of alternative requisites
   creditsRequired?: number; // Number of credits required (optional for credit-based)
 }
@@ -150,15 +159,15 @@ interface CourseJson {
 // 3) Parse the Requirements Text File
 // -------------------------------------
 function parseRequirementsFile(filePath: string): DegreeData {
-  const text = fs.readFileSync(filePath, "utf-8");
-  const lines = text.split("\n").map((l) => l.trim());
+  const text = fs.readFileSync(filePath, 'utf-8');
+  const lines = text.split('\n').map((l) => l.trim());
 
-  let degreeId = "";
-  let degreeName = "";
+  let degreeId = '';
+  let degreeName = '';
   let totalCredits = 120;
   let isAddon = false;
   const requirements: Requirement[] = [];
-  let currentPoolName = "";
+  let currentPoolName = '';
   let currentCredits = 0;
   let currentCourseCodes: string[] = [];
 
@@ -169,8 +178,8 @@ function parseRequirementsFile(filePath: string): DegreeData {
       requirements.push({
         poolId: uniquePoolName
           .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/-credits/g, ""),
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/-credits/g, ''),
         poolName: uniquePoolName,
         creditsRequired: currentCredits,
         courseCodes: currentCourseCodes.filter((cc) => cc),
@@ -179,20 +188,20 @@ function parseRequirementsFile(filePath: string): DegreeData {
   }
 
   for (const line of lines) {
-    if (!line || line.startsWith("#")) continue;
-    if (line.includes("DegreeID=")) {
-      degreeId = line.split("=")[1].trim();
+    if (!line || line.startsWith('#')) continue;
+    if (line.includes('DegreeID=')) {
+      degreeId = line.split('=')[1].trim();
       continue;
     }
-    if (line.includes("DegreeName=")) {
-      degreeName = line.split("=")[1].trim();
+    if (line.includes('DegreeName=')) {
+      degreeName = line.split('=')[1].trim();
       continue;
     }
-    if (line.includes("TotalCredits=")) {
-      totalCredits = parseFloat(line.split("=")[1].trim());
+    if (line.includes('TotalCredits=')) {
+      totalCredits = parseFloat(line.split('=')[1].trim());
       continue;
     }
-    if (line.includes("Addon")) {
+    if (line.includes('Addon')) {
       isAddon = true;
       continue;
     }
@@ -222,18 +231,23 @@ function loadAllCourseJsons(dirPath: string): Map<string, CourseJson> {
       const fullPath = path.join(currentPath, entry.name);
       if (entry.isDirectory()) {
         recurseDirectory(fullPath);
-      } else if (entry.isFile() && entry.name.toLowerCase().endsWith(".json")) {
+      } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.json')) {
         try {
-          const raw = fs.readFileSync(fullPath, "utf-8");
+          const raw = fs.readFileSync(fullPath, 'utf-8');
           const data: CourseJson[] = JSON.parse(raw);
           for (const c of data) {
             const code = extractCodeFromTitle(c.title).toUpperCase();
             if (courseMap.has(code)) {
-              console.warn(`Warning: Duplicate course code "${code}" found in file ${fullPath}. Overwriting previous entry.`);
+              console.warn(
+                `Warning: Duplicate course code "${code}" found in file ${fullPath}. Overwriting previous entry.`,
+              );
             }
             courseMap.set(code, c);
           }
         } catch (err) {
+          Sentry.captureException({
+            error: `Error parsing JSON file: ${fullPath}`,
+          });
           console.error(`Error parsing JSON file: ${fullPath}`, err);
         }
       }
@@ -252,12 +266,17 @@ function extractCodeFromTitle(title: string): string {
 function validateCourseData(courseMap: Map<string, CourseJson>): void {
   for (const [code, courseData] of courseMap.entries()) {
     if (!/^[A-Z]{2,4}\s*\d{3}/.test(courseData.title)) {
-      console.warn(`Course "${code}" has an invalid title format: "${courseData.title}"`);
+      console.warn(
+        `Course "${code}" has an invalid title format: "${courseData.title}"`,
+      );
     }
-    ["pre", "co"].forEach((field) => {
+    ['pre', 'co'].forEach((field) => {
       const requisiteStr = courseData[field as keyof CourseJson];
-      if (requisiteStr && typeof requisiteStr !== "string") {
-        console.warn(`Course "${code}" has a non-string ${field}:`, requisiteStr);
+      if (requisiteStr && typeof requisiteStr !== 'string') {
+        console.warn(
+          `Course "${code}" has a non-string ${field}:`,
+          requisiteStr,
+        );
       }
     });
   }
@@ -269,7 +288,7 @@ function validateCourseData(courseMap: Map<string, CourseJson>): void {
 async function generateNextId(
   t: sql.Transaction,
   tableName: string,
-  prefix: string
+  prefix: string,
 ): Promise<string> {
   const request = new sql.Request(t);
   const query = `
@@ -277,7 +296,7 @@ async function generateNextId(
     FROM [${tableName}]
     WHERE id LIKE @prefix + '%'
   `;
-  request.input("prefix", sql.VarChar, prefix);
+  request.input('prefix', sql.VarChar, prefix);
   const result = await request.query(query);
   const maxId = result.recordset[0].MaxId;
   const nextIdNumber = (maxId !== null ? maxId : 0) + 1;
@@ -289,21 +308,23 @@ async function upsertDegree(
   id: string,
   name: string,
   totalCredits: number,
-  isAddon: boolean
+  isAddon: boolean,
 ): Promise<string> {
   const request = new sql.Request(t);
-  request.input("name", sql.VarChar, name);
-  request.input("totalCredits", sql.Float, totalCredits);
-  request.input("isAddon", sql.Bit, isAddon);
-  const result = await request.query("SELECT id FROM Degree WHERE name = @name");
+  request.input('name', sql.VarChar, name);
+  request.input('totalCredits', sql.Float, totalCredits);
+  request.input('isAddon', sql.Bit, isAddon);
+  const result = await request.query(
+    'SELECT id FROM Degree WHERE name = @name',
+  );
   if (result.recordset.length === 0) {
     let newId: string;
     if (isAddon) {
       newId = id;
-      request.input("newId", sql.VarChar, newId);
+      request.input('newId', sql.VarChar, newId);
     } else {
-      newId = await generateNextId(t, "Degree", "D");
-      request.input("newId", sql.VarChar, newId);
+      newId = await generateNextId(t, 'Degree', 'D');
+      request.input('newId', sql.VarChar, newId);
     }
     await request.query(`
       INSERT INTO Degree (id, name, totalCredits)
@@ -313,7 +334,7 @@ async function upsertDegree(
     return newId;
   } else {
     const degreeId = result.recordset[0].id;
-    request.input("id", sql.VarChar, degreeId);
+    request.input('id', sql.VarChar, degreeId);
     await request.query(`
       UPDATE Degree
       SET totalCredits = @totalCredits
@@ -326,14 +347,16 @@ async function upsertDegree(
 
 async function upsertCoursePool(
   t: sql.Transaction,
-  poolName: string
+  poolName: string,
 ): Promise<string> {
   const request = new sql.Request(t);
-  request.input("name", sql.VarChar, poolName);
-  const result = await request.query("SELECT id FROM CoursePool WHERE name = @name");
+  request.input('name', sql.VarChar, poolName);
+  const result = await request.query(
+    'SELECT id FROM CoursePool WHERE name = @name',
+  );
   if (result.recordset.length === 0) {
-    const newId = await generateNextId(t, "CoursePool", "CP");
-    request.input("newId", sql.VarChar, newId);
+    const newId = await generateNextId(t, 'CoursePool', 'CP');
+    request.input('newId', sql.VarChar, newId);
     await request.query(`
       INSERT INTO CoursePool (id, name)
       VALUES (@newId, @name)
@@ -352,14 +375,16 @@ async function upsertCourse(
   code: string,
   title: string,
   credits: number,
-  description: string
+  description: string,
 ): Promise<void> {
   const request = new sql.Request(t);
-  request.input("code", sql.VarChar, code);
-  request.input("title", sql.VarChar, title);
-  request.input("credits", sql.Float, credits);
-  request.input("description", sql.VarChar, description);
-  const result = await request.query("SELECT code FROM Course WHERE code = @code");
+  request.input('code', sql.VarChar, code);
+  request.input('title', sql.VarChar, title);
+  request.input('credits', sql.Float, credits);
+  request.input('description', sql.VarChar, description);
+  const result = await request.query(
+    'SELECT code FROM Course WHERE code = @code',
+  );
   if (result.recordset.length === 0) {
     await request.query(`
       INSERT INTO Course (code, title, credits, description)
@@ -380,19 +405,19 @@ async function upsertDegreeXCoursePool(
   t: sql.Transaction,
   degreeId: string,
   poolId: string,
-  creditsRequired: number
+  creditsRequired: number,
 ): Promise<string> {
   const request = new sql.Request(t);
-  request.input("degreeId", sql.VarChar, degreeId);
-  request.input("poolId", sql.VarChar, poolId);
-  request.input("creditsRequired", sql.Float, creditsRequired);
+  request.input('degreeId', sql.VarChar, degreeId);
+  request.input('poolId', sql.VarChar, poolId);
+  request.input('creditsRequired', sql.Float, creditsRequired);
   const result = await request.query(`
     SELECT id FROM DegreeXCoursePool
     WHERE degree = @degreeId AND coursepool = @poolId
   `);
   if (result.recordset.length === 0) {
-    const newId = await generateNextId(t, "DegreeXCoursePool", "DXCP");
-    request.input("newId", sql.VarChar, newId);
+    const newId = await generateNextId(t, 'DegreeXCoursePool', 'DXCP');
+    request.input('newId', sql.VarChar, newId);
     await request.query(`
       INSERT INTO DegreeXCoursePool (id, degree, coursepool, creditsRequired)
       VALUES (@newId, @degreeId, @poolId, @creditsRequired)
@@ -401,7 +426,7 @@ async function upsertDegreeXCoursePool(
     return newId;
   } else {
     const dxcpId = result.recordset[0].id;
-    request.input("id", sql.VarChar, dxcpId);
+    request.input('id', sql.VarChar, dxcpId);
     await request.query(`
       UPDATE DegreeXCoursePool
       SET creditsRequired = @creditsRequired
@@ -416,96 +441,131 @@ async function upsertCourseXCoursePool(
   t: sql.Transaction,
   courseCode: string,
   poolId: string,
-  groupId: string | null
+  groupId: string | null,
 ): Promise<string> {
   const request = new sql.Request(t);
-  request.input("courseCode", sql.VarChar, courseCode);
-  request.input("poolId", sql.VarChar, poolId);
-  request.input("groupId", sql.VarChar, groupId);
+  request.input('courseCode', sql.VarChar, courseCode);
+  request.input('poolId', sql.VarChar, poolId);
+  request.input('groupId', sql.VarChar, groupId);
   const result = await request.query(`
     SELECT id FROM CourseXCoursePool
     WHERE coursecode = @courseCode AND coursepool = @poolId AND 
           ((@groupId IS NULL AND groupId IS NULL) OR groupId = @groupId)
   `);
   if (result.recordset.length === 0) {
-    const newId = await generateNextId(t, "CourseXCoursePool", "CXP");
-    request.input("newId", sql.VarChar, newId);
+    const newId = await generateNextId(t, 'CourseXCoursePool', 'CXP');
+    request.input('newId', sql.VarChar, newId);
     await request.query(`
       INSERT INTO CourseXCoursePool (id, coursecode, coursepool, groupId)
       VALUES (@newId, @courseCode, @poolId, @groupId)
     `);
-    console.log(`Linked Course ${courseCode} to CoursePool ID: ${poolId}` + (groupId ? ` with groupId: ${groupId}` : ""));
+    console.log(
+      `Linked Course ${courseCode} to CoursePool ID: ${poolId}` +
+        (groupId ? ` with groupId: ${groupId}` : ''),
+    );
     return newId;
   } else {
     const cxcpId = result.recordset[0].id;
-    console.log(`CourseXCoursePool already exists for Course ${courseCode} in Pool ID: ${poolId}` + (groupId ? ` with groupId: ${groupId}` : ""));
+    console.log(
+      `CourseXCoursePool already exists for Course ${courseCode} in Pool ID: ${poolId}` +
+        (groupId ? ` with groupId: ${groupId}` : ''),
+    );
     return cxcpId;
   }
 }
 
 async function upsertRequisite(
   t: sql.Transaction,
-  requisite: Requisite
+  requisite: Requisite,
 ): Promise<void> {
   const { code1, code2, type, groupId, creditsRequired } = requisite;
   const request = new sql.Request(t);
-  request.input("code1", sql.VarChar, code1);
-  request.input("type", sql.VarChar, type);
+  request.input('code1', sql.VarChar, code1);
+  request.input('type', sql.VarChar, type);
   if (creditsRequired !== undefined) {
-    request.input("creditsRequired", sql.Float, creditsRequired);
+    request.input('creditsRequired', sql.Float, creditsRequired);
   }
   if (code2) {
-    request.input("code2", sql.VarChar, code2);
+    request.input('code2', sql.VarChar, code2);
   }
   if (groupId) {
-    request.input("group_id", sql.VarChar, groupId);
+    request.input('group_id', sql.VarChar, groupId);
   }
-  let whereClause = "code1 = @code1 AND type = @type";
+  let whereClause = 'code1 = @code1 AND type = @type';
   if (creditsRequired !== undefined) {
-    whereClause += " AND creditsRequired = @creditsRequired AND code2 IS NULL AND group_id IS NULL";
+    whereClause +=
+      ' AND creditsRequired = @creditsRequired AND code2 IS NULL AND group_id IS NULL';
   } else if (code2) {
-    whereClause += " AND code2 = @code2";
+    whereClause += ' AND code2 = @code2';
     if (groupId) {
-      whereClause += " AND group_id = @group_id";
+      whereClause += ' AND group_id = @group_id';
     } else {
-      whereClause += " AND group_id IS NULL";
+      whereClause += ' AND group_id IS NULL';
     }
   }
-  const result = await request.query(`SELECT id FROM Requisite WHERE ${whereClause}`);
+  const result = await request.query(
+    `SELECT id FROM Requisite WHERE ${whereClause}`,
+  );
   if (result.recordset.length === 0) {
-    const newId = await generateNextId(t, "Requisite", "R");
-    request.input("newId", sql.VarChar, newId);
+    const newId = await generateNextId(t, 'Requisite', 'R');
+    request.input('newId', sql.VarChar, newId);
     await request.query(`
       INSERT INTO Requisite (id, code1, code2, type, group_id, creditsRequired)
       VALUES (
         @newId, 
         @code1, 
-        ${creditsRequired !== undefined ? "NULL" : (code2 ? "@code2" : "NULL")}, 
+        ${creditsRequired !== undefined ? 'NULL' : code2 ? '@code2' : 'NULL'}, 
         @type, 
-        ${creditsRequired !== undefined ? "NULL" : (groupId ? "@group_id" : "NULL")}, 
-        ${creditsRequired !== undefined ? "@creditsRequired" : "NULL"}
+        ${
+          creditsRequired !== undefined
+            ? 'NULL'
+            : groupId
+              ? '@group_id'
+              : 'NULL'
+        }, 
+        ${creditsRequired !== undefined ? '@creditsRequired' : 'NULL'}
       )
     `);
-    console.log(`Inserted Requisite: ${code1}` + (code2 ? ` -> ${code2}` : ` with Credits Required: ${creditsRequired}`) + ` (${type})` + (groupId ? ` Group ID: ${groupId}` : ""));
+    console.log(
+      `Inserted Requisite: ${code1}` +
+        (code2
+          ? ` -> ${code2}`
+          : ` with Credits Required: ${creditsRequired}`) +
+        ` (${type})` +
+        (groupId ? ` Group ID: ${groupId}` : ''),
+    );
   } else {
-    console.log(`Requisite already exists: ${code1}` + (code2 ? ` -> ${code2}` : ` with Credits Required: ${creditsRequired}`) + ` (${type})` + (groupId ? ` Group ID: ${groupId}` : ""));
+    console.log(
+      `Requisite already exists: ${code1}` +
+        (code2
+          ? ` -> ${code2}`
+          : ` with Credits Required: ${creditsRequired}`) +
+        ` (${type})` +
+        (groupId ? ` Group ID: ${groupId}` : ''),
+    );
   }
 }
 
 async function getPoolIdByName(
   t: sql.Transaction,
-  poolName: string
+  poolName: string,
 ): Promise<string> {
   const request = new sql.Request(t);
-  request.input("name", sql.VarChar, poolName);
-  const result = await request.query("SELECT id FROM CoursePool WHERE name = @name");
+  request.input('name', sql.VarChar, poolName);
+  const result = await request.query(
+    'SELECT id FROM CoursePool WHERE name = @name',
+  );
   if (result.recordset.length === 0) {
     throw new Error(`CoursePool with name "${poolName}" does not exist.`);
   }
   return result.recordset[0].id;
 }
 
-function generateGroupId(degreeId: string, poolId: string, groupNumber: number): string {
+function generateGroupId(
+  degreeId: string,
+  poolId: string,
+  groupNumber: number,
+): string {
   return `${degreeId}-${poolId}-G${groupNumber}`;
 }
 
@@ -516,39 +576,54 @@ let globalGroupCounter = 1;
 function parseRequisites(
   code1: string,
   requisiteStr: string | undefined,
-  type: "pre" | "co"
+  type: 'pre' | 'co',
 ): Requisite[] {
   if (!requisiteStr) return [];
-  if (typeof requisiteStr !== "string") {
-    console.warn(`Expected string for requisites but got ${typeof requisiteStr} for course ${code1}. Skipping.`);
+  if (typeof requisiteStr !== 'string') {
+    console.warn(
+      `Expected string for requisites but got ${typeof requisiteStr} for course ${code1}. Skipping.`,
+    );
     return [];
   }
-  const cleanedStr = requisiteStr.replace(/;/g, ",");
-  const parts = cleanedStr.split(",");
+  const cleanedStr = requisiteStr.replace(/;/g, ',');
+  const parts = cleanedStr.split(',');
   const requisites: Requisite[] = [];
   for (const part of parts) {
-    const trimmedPart = part.trim().replace(/\./g, "");
-    if (trimmedPart.includes("/")) {
-      const alternatives = trimmedPart.split("/").map((c) => c.trim());
+    const trimmedPart = part.trim().replace(/\./g, '');
+    if (trimmedPart.includes('/')) {
+      const alternatives = trimmedPart.split('/').map((c) => c.trim());
       const groupId = `G${globalGroupCounter++}`;
       for (const alt of alternatives) {
-        const code = alt.replace(/\s+/g, "").toUpperCase();
+        const code = alt.replace(/\s+/g, '').toUpperCase();
         if (/^[A-Z]{2,4}\d{3}$/.test(code)) {
           requisites.push({ code1, code2: code, type, groupId });
         } else if (/^\d+CR$/.test(code)) {
-          requisites.push({ code1, creditsRequired: parseFloat(code.replace("CR", "")), type, groupId });
+          requisites.push({
+            code1,
+            creditsRequired: parseFloat(code.replace('CR', '')),
+            type,
+            groupId,
+          });
         } else {
-          console.warn(`Invalid course code or credit requirement "${code}" in requisites for course "${code1}". Skipping.`);
+          console.warn(
+            `Invalid course code or credit requirement "${code}" in requisites for course "${code1}". Skipping.`,
+          );
         }
       }
     } else {
-      const code = trimmedPart.replace(/\s+/g, "").toUpperCase();
+      const code = trimmedPart.replace(/\s+/g, '').toUpperCase();
       if (/^[A-Z]{2,4}\d{3}$/.test(code)) {
         requisites.push({ code1, code2: code, type });
       } else if (/^\d+CR$/.test(code)) {
-        requisites.push({ code1, creditsRequired: parseFloat(code.replace("CR", "")), type });
+        requisites.push({
+          code1,
+          creditsRequired: parseFloat(code.replace('CR', '')),
+          type,
+        });
       } else {
-        console.warn(`Invalid course code or credit requirement "${code}" in requisites for course "${code1}". Skipping.`);
+        console.warn(
+          `Invalid course code or credit requirement "${code}" in requisites for course "${code1}". Skipping.`,
+        );
       }
     }
   }
@@ -563,14 +638,20 @@ async function seedSoenDegree() {
   let pool: sql.ConnectionPool | null = null;
   try {
     // 1. DEFINE PATHS
-    const requirementsDir = path.join(__dirname, "../../course-data/degree-reqs");
-    const courseListsDir = path.join(__dirname, "../../course-data/course-lists");
+    const requirementsDir = path.join(
+      __dirname,
+      '../../course-data/degree-reqs',
+    );
+    const courseListsDir = path.join(
+      __dirname,
+      '../../course-data/course-lists',
+    );
 
     // 2. READ ALL REQUIREMENT FILES
     const files = await readdir(requirementsDir);
-    const requirementFiles = files.filter((file) => file.endsWith(".txt"));
+    const requirementFiles = files.filter((file) => file.endsWith('.txt'));
     if (requirementFiles.length === 0) {
-      console.warn("No requirement files found in the directory.");
+      console.warn('No requirement files found in the directory.');
       return;
     }
 
@@ -579,13 +660,15 @@ async function seedSoenDegree() {
     validateCourseData(courseMap);
 
     // 5. CONNECT TO DATABASE
-    console.log("[SEED] Connecting to DB...");
+    console.log('[SEED] Connecting to DB...');
     pool = await sql.connect(dbConfig);
-    const dbResult = await pool.request().query("SELECT DB_NAME() AS dbName");
+    const dbResult = await pool.request().query('SELECT DB_NAME() AS dbName');
     const connectedDbName = dbResult.recordset[0].dbName;
     console.log(`[SEED] Connected to database: ${connectedDbName}`);
     if (connectedDbName !== process.env.DB_NAME) {
-      throw new Error(`Connected to incorrect database "${connectedDbName}". Expected "${process.env.DB_NAME}".`);
+      throw new Error(
+        `Connected to incorrect database "${connectedDbName}". Expected "${process.env.DB_NAME}".`,
+      );
     }
 
     // Phase 1: Upsert Courses and Requisites (only once)
@@ -601,32 +684,52 @@ async function seedSoenDegree() {
       }
       // Upsert Requisites (Prerequisites and Corequisites)
       for (const [code, courseData] of courseMap.entries()) {
-        const prerequisites = parseRequisites(code, courseData.prerequisites, "pre");
+        const prerequisites = parseRequisites(
+          code,
+          courseData.prerequisites,
+          'pre',
+        );
         for (const preReq of prerequisites) {
-          if (preReq.code2 && !courseMap.has(preReq.code2) && !/^\d+CR$/.test(preReq.code2)) {
-            console.warn(`Prerequisite course or credit requirement "${preReq.code2}" for "${code}" does not exist. Skipping.`);
+          if (
+            preReq.code2 &&
+            !courseMap.has(preReq.code2) &&
+            !/^\d+CR$/.test(preReq.code2)
+          ) {
+            console.warn(
+              `Prerequisite course or credit requirement "${preReq.code2}" for "${code}" does not exist. Skipping.`,
+            );
             continue;
           }
           await upsertRequisite(courseTx, preReq);
         }
-        const corequisites = parseRequisites(code, courseData.corequisites, "co");
+        const corequisites = parseRequisites(
+          code,
+          courseData.corequisites,
+          'co',
+        );
         for (const coReq of corequisites) {
-          if (coReq.code2 && !courseMap.has(coReq.code2) && !/^\d+CR$/.test(coReq.code2)) {
-            console.warn(`Corequisite course or credit requirement "${coReq.code2}" for "${code}" does not exist. Skipping.`);
+          if (
+            coReq.code2 &&
+            !courseMap.has(coReq.code2) &&
+            !/^\d+CR$/.test(coReq.code2)
+          ) {
+            console.warn(
+              `Corequisite course or credit requirement "${coReq.code2}" for "${code}" does not exist. Skipping.`,
+            );
             continue;
           }
           await upsertRequisite(courseTx, coReq);
         }
       }
       await courseTx.commit();
-      console.log("Courses and requisites upserted successfully.");
+      console.log('Courses and requisites upserted successfully.');
     } catch (err) {
-      console.error("Error upserting courses and requisites:", err);
+      console.error('Error upserting courses and requisites:', err);
       // Attempt rollback if possible
       try {
         if (transaction) await transaction.rollback();
       } catch (rollbackErr) {
-        console.error("Error during rollback:", rollbackErr);
+        console.error('Error during rollback:', rollbackErr);
       }
       throw err;
     }
@@ -635,103 +738,160 @@ async function seedSoenDegree() {
     for (const file of requirementFiles) {
       const filePath = path.join(requirementsDir, file);
       console.log(`[SEED] Processing file: ${filePath}`);
-      const { degreeId, degreeName, totalCredits, requirements, isAddon } = parseRequirementsFile(filePath);
+      const { degreeId, degreeName, totalCredits, requirements, isAddon } =
+        parseRequirementsFile(filePath);
       const tx = pool.transaction();
       await tx.begin();
       console.log(`[SEED] Transaction started for degree: ${degreeName}`);
       try {
         // Upsert Degree
-        const degreeIdNumber = await upsertDegree(tx, degreeId, degreeName, totalCredits, isAddon);
+        const degreeIdNumber = await upsertDegree(
+          tx,
+          degreeId,
+          degreeName,
+          totalCredits,
+          isAddon,
+        );
         // Upsert Course Pools and DegreeXCoursePool
         for (const req of requirements) {
           const uniquePoolName = req.poolName; // Already includes the degreeId prefix
           const poolIdNumber = await upsertCoursePool(tx, uniquePoolName);
-          await upsertDegreeXCoursePool(tx, degreeIdNumber, poolIdNumber, req.creditsRequired);
+          await upsertDegreeXCoursePool(
+            tx,
+            degreeIdNumber,
+            poolIdNumber,
+            req.creditsRequired,
+          );
         }
         // Link Courses to Course Pools
         for (const req of requirements) {
           // Handle Course Groups (Alternative Courses)
-          const alternativeCourses = req.courseCodes.filter((code) => code.includes(",") || code.includes("/"));
+          const alternativeCourses = req.courseCodes.filter(
+            (code) => code.includes(',') || code.includes('/'),
+          );
           let groupNumber = 1;
           for (const altLine of alternativeCourses) {
-            const separators = altLine.includes("/") ? "/" : ",";
+            const separators = altLine.includes('/') ? '/' : ',';
             const groupCourses = altLine.split(separators).map((c) => c.trim());
             if (groupCourses.length > 1) {
-              const groupId = generateGroupId(degreeId, req.poolId, groupNumber);
+              const groupId = generateGroupId(
+                degreeId,
+                req.poolId,
+                groupNumber,
+              );
               for (const courseCode of groupCourses) {
-                const upperCode = courseCode.toUpperCase().replace(/\s+/g, "");
+                const upperCode = courseCode.toUpperCase().replace(/\s+/g, '');
                 const isCreditReq = /^\d+CR$/.test(upperCode);
                 if (!/^[A-Z]{2,4}\d{3}$/.test(upperCode) && !isCreditReq) {
-                  console.log(`Skipping invalid course code or credit requirement: "${courseCode}"`);
+                  console.log(
+                    `Skipping invalid course code or credit requirement: "${courseCode}"`,
+                  );
                   continue;
                 }
                 const poolIdNumber = await getPoolIdByName(tx, req.poolName);
-                console.log(`Upserting ${upperCode} in ${req.poolName} with groupId ${groupId}`);
+                console.log(
+                  `Upserting ${upperCode} in ${req.poolName} with groupId ${groupId}`,
+                );
                 if (isCreditReq) {
-                  console.warn(`Credit-based requisites should be handled in course prerequisites. Skipping linking for "${upperCode}".`);
+                  console.warn(
+                    `Credit-based requisites should be handled in course prerequisites. Skipping linking for "${upperCode}".`,
+                  );
                 } else {
-                  await upsertCourseXCoursePool(tx, upperCode, poolIdNumber, groupId);
+                  await upsertCourseXCoursePool(
+                    tx,
+                    upperCode,
+                    poolIdNumber,
+                    groupId,
+                  );
                 }
               }
               groupNumber++;
             } else {
               const code = groupCourses[0];
-              const upperCode = code.toUpperCase().replace(/\s+/g, "");
+              const upperCode = code.toUpperCase().replace(/\s+/g, '');
               const isCreditReq = /^\d+CR$/.test(upperCode);
               if (!/^[A-Z]{2,4}\d{3}$/.test(upperCode) && !isCreditReq) {
-                console.log(`Skipping invalid course code or credit requirement: "${code}"`);
+                console.log(
+                  `Skipping invalid course code or credit requirement: "${code}"`,
+                );
                 continue;
               }
               const poolIdNumber = await getPoolIdByName(tx, req.poolName);
               console.log(`Upserting ${upperCode} in ${req.poolName}`);
               if (isCreditReq) {
-                console.warn(`Credit-based requisites should be handled in course prerequisites. Skipping linking for "${upperCode}".`);
+                console.warn(
+                  `Credit-based requisites should be handled in course prerequisites. Skipping linking for "${upperCode}".`,
+                );
               } else {
-                await upsertCourseXCoursePool(tx, upperCode, poolIdNumber, null);
+                await upsertCourseXCoursePool(
+                  tx,
+                  upperCode,
+                  poolIdNumber,
+                  null,
+                );
               }
             }
           }
           // Handle Non-Alternative Courses
-          const nonAlternativeCourses = req.courseCodes.filter((code) => !code.includes(",") && !code.includes("/"));
+          const nonAlternativeCourses = req.courseCodes.filter(
+            (code) => !code.includes(',') && !code.includes('/'),
+          );
           for (const code of nonAlternativeCourses) {
-            const upperCode = code.toUpperCase().replace(/\s+/g, "");
+            const upperCode = code.toUpperCase().replace(/\s+/g, '');
             const isCreditReq = /^\d+CR$/.test(upperCode);
             if (!/^[A-Z]{2,4}\d{3}$/.test(upperCode) && !isCreditReq) {
-              console.log(`Skipping invalid course code or credit requirement: "${code}"`);
+              console.log(
+                `Skipping invalid course code or credit requirement: "${code}"`,
+              );
               continue;
             }
             const poolIdNumber = await getPoolIdByName(tx, req.poolName);
             console.log(`Upserting ${upperCode} in ${req.poolName}`);
             if (isCreditReq) {
-              console.warn(`Credit-based requisites should be handled in course prerequisites. Skipping linking for "${upperCode}".`);
+              console.warn(
+                `Credit-based requisites should be handled in course prerequisites. Skipping linking for "${upperCode}".`,
+              );
             } else {
               await upsertCourseXCoursePool(tx, upperCode, poolIdNumber, null);
             }
           }
         }
         await tx.commit();
-        console.log(`[SEED] Seeding completed successfully for degree: ${degreeName}`);
+        console.log(
+          `[SEED] Seeding completed successfully for degree: ${degreeName}`,
+        );
       } catch (err) {
-        console.error(`[SEED] Error during seeding degree "${degreeName}":`, err);
+        console.error(
+          `[SEED] Error during seeding degree "${degreeName}":`,
+          err,
+        );
         try {
           await tx.rollback();
-          console.log(`[SEED] Transaction rolled back for degree: ${degreeName}`);
+          console.log(
+            `[SEED] Transaction rolled back for degree: ${degreeName}`,
+          );
         } catch (rollbackErr) {
-          console.error(`[SEED] Error during rollback for degree "${degreeName}":`, rollbackErr);
+          console.error(
+            `[SEED] Error during rollback for degree "${degreeName}":`,
+            rollbackErr,
+          );
         }
         continue;
       }
     }
 
-    console.log("[SEED] All requirement files have been processed.");
+    console.log('[SEED] All requirement files have been processed.');
     await pool.close();
   } catch (err) {
-    console.error("[SEED] Unexpected error during seeding:", err);
+    console.error('[SEED] Unexpected error during seeding:', err);
     if (pool) {
       try {
         await pool.close();
       } catch (closeErr) {
-        console.error("[SEED] Error closing the database connection:", closeErr);
+        console.error(
+          '[SEED] Error closing the database connection:',
+          closeErr,
+        );
       }
     }
   }

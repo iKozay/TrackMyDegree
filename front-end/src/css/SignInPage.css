@@ -1,5 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap");
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
 .LogInPage {
   background-color: #ffffff; /* Light gray background */
@@ -23,7 +22,7 @@
   border-color: black;
 }
 
-.LogInPage h2{
+.LogInPage h2 {
   font-size: 5vh;
 }
 
@@ -71,7 +70,6 @@
 }
 
 .mb-7 {
-font-family:"Inter",sans-serif;
-font-weight: bold;
+  font-family: 'Inter', sans-serif;
+  font-weight: bold;
 }
-

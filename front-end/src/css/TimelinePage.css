@@ -29,11 +29,12 @@
   border-radius: 25px;
   align-items: center;
   width: 300px;
-  transition: width 0.3s ease, transform 0.3s ease;
+  transition:
+    width 0.3s ease,
+    transform 0.3s ease;
   overflow: hidden; /* Prevent scrolling on this element */
   position: relative;
 }
-
 
 .course-list-container {
   /* border-radius: 25px; */
@@ -41,18 +42,15 @@
   /* border-radius: 5px; */
   overflow-y: auto;
   margin: 15px;
-  
 }
 
 .course-list-container-timeline {
-  max-height: 450px;  /* Adjust height as needed */
-  overflow-y: auto;    /* Enables vertical scrolling */
+  max-height: 450px; /* Adjust height as needed */
+  overflow-y: auto; /* Enables vertical scrolling */
   padding-right: 10px; /* Optional: Prevent scrollbar from covering content */
-  border: 1px solid #ccc;  /* Optional: Adds a border for styling */
+  border: 1px solid #ccc; /* Optional: Adds a border for styling */
   /*background-color: #f9f9f9; /* Optional: Adds background color */
 }
-
-
 
 .timeline-left-bar.hidden {
   width: 10px;
@@ -166,7 +164,9 @@
   overflow: auto;
   height: 100%;
   font-size: 15px;
-  transition: width 0.3s ease, transform 0.3s ease;
+  transition:
+    width 0.3s ease,
+    transform 0.3s ease;
   position: relative;
 }
 
@@ -182,12 +182,9 @@
   color: #f8f9fa;
 }
 
-
 .description-section::-webkit-scrollbar,
 .course-list-container::-webkit-scrollbar {
   width: 5px;
-  
-  
 }
 
 .description-section::-webkit-scrollbar-thumb,
@@ -445,7 +442,7 @@
   width: 120px;
   border-color: rgba(156, 143, 143, 0.8);
   box-shadow: 0 0 3px rgba(156, 143, 143, 0.3);
-  background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWw0IDQgNC00IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+")
+  background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWw0IDQgNC00IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+')
     no-repeat right 0.75em center / 0.65em;
   transition: border-color 0.2s ease;
 }
@@ -609,7 +606,7 @@
 }
 
 .course-search-input {
-  display:block;
+  display: block;
   margin: 0 auto;
   width: 90%;
   max-width: 300px;
@@ -618,7 +615,9 @@
   border: 2px solid #ccc;
   border-radius: 30px;
   background: linear-gradient(45deg, #f9f9f9, #ffffff);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
   outline: none;
 }
 
@@ -654,9 +653,8 @@
   filter: drop-shadow(0px 0px 5px rgba(255, 0, 0, 0.6));
 }
 
-
 .remove-course-btn:active {
-  transform: scale(1.1); 
+  transform: scale(1.1);
   filter: brightness(1.5);
 }
 

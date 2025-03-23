@@ -1,3 +1,4 @@
+import "./middleware/sentry_instrument";
 import React, { useState } from "react";
 import {
   createBrowserRouter,
@@ -38,11 +39,9 @@ function App() {
     setCreditsRequired(data.creditsRequired); // Update creditsRequired
     setIsExtendedCredit(data.isExtendedCredit); // Update is
 
-		console.log("app.js data.isExtendedCredit: ", data.isExtendedCredit);
-		console.log("app.js isExtendedCredit: ", isExtendedCredit);
-	};
-
-  const location = useLocation();
+    console.log('app.js data.isExtendedCredit: ', data.isExtendedCredit);
+    console.log('app.js isExtendedCredit: ', isExtendedCredit);
+  };
 
   return (
     <div className="page-container">

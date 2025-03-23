@@ -16,7 +16,7 @@ const renderComponent = () => {
   render(
     <AuthContext.Provider value={{ login: mockLogin }}>
       <SignUpPage />
-    </AuthContext.Provider>
+    </AuthContext.Provider>,
   );
 };
 
@@ -29,12 +29,18 @@ describe('SignUpPage', () => {
 
   test('renders page correctly', () => {
     renderComponent();
-    
+
     // Check if elements are rendered correctly
     expect(screen.getByText('Sign Up')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('* Enter your email')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('* Enter your password')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('* Confirm your password')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('* Enter your email'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('* Enter your password'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('* Confirm your password'),
+    ).toBeInTheDocument();
   });
 
   test('shows alert when fields are empty', () => {
@@ -49,12 +55,19 @@ describe('SignUpPage', () => {
     renderComponent();
 
     // invalid credentials (different passwords)
-    fireEvent.change(screen.getByPlaceholderText('* Enter your full name'), { target: { value: 'John Doe' } });
-    fireEvent.change(screen.getByPlaceholderText('* Enter your email'), { target: { value: 'user@example.com' } });
-    fireEvent.change(screen.getByPlaceholderText('* Enter your password'), { target: { value: 'password123' } });
-    fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), { target: { value: 'password456' } });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your full name'), {
+      target: { value: 'John Doe' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your email'), {
+      target: { value: 'user@example.com' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
+      target: { value: 'password123' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
+      target: { value: 'password456' },
+    });
 
-    
     fireEvent.click(screen.getByText('Register'));
 
     // alert is shown for password mismatch
@@ -62,34 +75,40 @@ describe('SignUpPage', () => {
   });
 
   test('calls login and navigate on successful signup', async () => {
-
     global.fetch = jest.fn(() =>
       Promise.resolve({
         ok: true,
         json: () =>
           Promise.resolve({
-            token: "fake-token",
-            user: { id: 1, name: "John Doe" },
+            token: 'fake-token',
+            user: { id: 1, name: 'John Doe' },
           }),
-      })
+      }),
     );
-    
+
     renderComponent();
 
     // valid credentials
-    fireEvent.change(screen.getByPlaceholderText('* Enter your full name'), { target: { value: 'John Doe' } });
-    fireEvent.change(screen.getByPlaceholderText('* Enter your email'), { target: { value: 'user@example.com' } });
-    fireEvent.change(screen.getByPlaceholderText('* Enter your password'), { target: { value: 'password123' } });
-    fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your full name'), {
+      target: { value: 'John Doe' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your email'), {
+      target: { value: 'user@example.com' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
+      target: { value: 'password123' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
+      target: { value: 'password123' },
+    });
     fireEvent.click(screen.getByText('Register'));
 
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith({
-        token: "fake-token",
-        user: { id: 1, name: "John Doe" },
+        token: 'fake-token',
+        user: { id: 1, name: 'John Doe' },
       });
     });
-    expect(mockNavigate).toHaveBeenCalledWith("/user");
+    expect(mockNavigate).toHaveBeenCalledWith('/user');
   });
-  
 });
