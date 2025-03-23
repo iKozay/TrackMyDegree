@@ -1,6 +1,6 @@
 // TimelinePage.js
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, act } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -31,7 +31,8 @@ import * as Sentry from '@sentry/react';
 
 // DraggableCourse component for course list items
 const DraggableCourse = ({
-  id,
+  internalId,
+  courseCode,
   title,
   disabled,
   isReturning,
@@ -41,16 +42,14 @@ const DraggableCourse = ({
   className: extraClassName, // NEW prop
 }) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id,
+    id: internalId,
     disabled,
-    data: { type: 'course', courseCode: id, containerId },
+    data: { type: 'course', courseCode, containerId },
   });
 
-  const className = `course-item${disabled ? ' disabled' : ''}${
-    isDragging ? ' dragging' : ''
-  }${isSelected && !isDragging && !disabled ? ' selected' : ''}${
-    extraClassName ? ' ' + extraClassName : ''
-  }`;
+  const className = `course-item${disabled ? ' disabled' : ''}${isDragging ? ' dragging' : ''
+    }${isSelected && !isDragging && !disabled ? ' selected' : ''}${extraClassName ? ' ' + extraClassName : ''
+    }`;
 
   return (
     <div
@@ -60,18 +59,18 @@ const DraggableCourse = ({
       className={className}
       onClick={(e) => {
         e.stopPropagation();
-        onSelect(id);
+        onSelect(courseCode);
       }}
     >
-      {id}
+      {courseCode}
     </div>
   );
 };
 
 // SortableCourse component for semester items
 const SortableCourse = ({
-  id,
-  title,
+  internalId,
+  courseCode,
   disabled,
   isSelected,
   isDraggingFromSemester,
@@ -88,10 +87,10 @@ const SortableCourse = ({
     transition,
     isDragging,
   } = useSortable({
-    id,
+    id: internalId,
     data: {
       type: 'course',
-      courseCode: id,
+      courseCode,
       containerId,
     },
   });
@@ -101,11 +100,9 @@ const SortableCourse = ({
     transition,
   };
 
-  const className = `course-item${disabled ? ' disabled' : ''}${
-    isDragging ? ' dragging' : ''
-  }${isDraggingFromSemester ? ' dragging-from-semester' : ''}${
-    isSelected ? ' selected' : ''
-  }`;
+  const className = `course-item${disabled ? ' disabled' : ''}${isDragging ? ' dragging' : ''
+    }${isDraggingFromSemester ? ' dragging-from-semester' : ''}${isSelected ? ' selected' : ''
+    }`;
 
   return (
     <div
@@ -116,10 +113,10 @@ const SortableCourse = ({
       className={className}
       onClick={(e) => {
         e.stopPropagation();
-        onSelect(id);
+        onSelect(courseCode);
       }}
     >
-      {id}
+      {courseCode}
       {!prerequisitesMet && (
         <img
           src={warningIcon}
@@ -243,6 +240,9 @@ const TimelinePage = ({
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [timelineName, setTimelineName] = useState('');
   const [tempName, setTempName] = useState('');
+
+  const [courseInstanceMap, setCourseInstanceMap] = useState({});
+  const [uniqueIdCounter, setUniqueIdCounter] = useState(0);
 
   let DEFAULT_EXEMPTED_COURSES = [];
   if (!extendedCredit) {
@@ -393,7 +393,7 @@ const TimelinePage = ({
             const errorData = await extendedResponse.json();
             throw new TimelineError(
               errorData.error ||
-                `HTTP error! status: ${extendedResponse.status}`,
+              `HTTP error! status: ${extendedResponse.status}`,
             );
           }
           const extendedData = await extendedResponse.json();
@@ -521,8 +521,8 @@ const TimelinePage = ({
       // Default courses to an empty array if not provided.
       let courses = Array.isArray(data.courses)
         ? data.courses
-            .map((course) => (typeof course === 'string' ? course.trim() : ''))
-            .filter(Boolean)
+          .map((course) => (typeof course === 'string' ? course.trim() : ''))
+          .filter(Boolean)
         : [];
 
       if (data.term && typeof data.term === 'string') {
@@ -532,6 +532,7 @@ const TimelinePage = ({
           courses.push(data.course.trim());
         }
       } else if (data.season && data.year) {
+        let formattedYear = data.year;
         term =
           data.season.trim().toLowerCase() === 'exempted'
             ? 'Exempted'
@@ -577,7 +578,7 @@ const TimelinePage = ({
     const sortedSemesters = Array.from(semesterNames).sort((a, b) => {
       if (a.trim().toLowerCase() === 'exempted') return -1;
       if (b.trim().toLowerCase() === 'exempted') return 1;
-      const order = { Winter: 1, Summer: 2, Fall: 3 };
+      const order = { Winter: 1, Summer: 2, Fall: 3, Fall_Winter: 4 };
       const [seasonA, yearA] = a.split(' ');
       const [seasonB, yearB] = b.split(' ');
       if (yearA !== yearB) {
@@ -588,18 +589,43 @@ const TimelinePage = ({
 
     // --- Step 5. Update state ---
     setSemesters(
-      sortedSemesters.map((term) => ({
-        id: term,
-        name: term,
-      })),
+      sortedSemesters.map((term) => {
+        const [season, year] = term.split(' ');
+
+        let displayYear = year;
+        if (season === 'Fall/Winter') {
+          displayYear = `${year}-${(parseInt(year, 10) + 1) % 100}`;
+        }
+        return {
+          id: term,
+          name: `${season} ${displayYear}`,
+        };
+      }),
     );
-    setSemesterCourses(
-      Object.fromEntries(
-        sortedSemesters.map((term) => [term, semesterMap[term] || []]),
-      ),
-    );
-    console.log('Building semesterMap from timelineData:', timelineData);
-    console.log('Resulting semesterMap:', semesterMap);
+    setSemesterCourses(() => {
+      const newSemesterCourses = {};
+      let newUniqueCounter = uniqueIdCounter; // start from current counter
+      const newCourseInstanceMap = { ...courseInstanceMap };
+      sortedSemesters.forEach((term) => {
+        // Get the generic course codes from the semesterMap:
+        const genericCodes = semesterMap[term] || [];
+        // If duplicates exist, you can filter them out (each course should only appear once per semester)
+        const uniqueGenericCodes = Array.from(new Set(genericCodes));
+        newSemesterCourses[term] = uniqueGenericCodes.map((code) => {
+          const uniqueId = `${code}-${newUniqueCounter}`;
+          newUniqueCounter++;
+          newCourseInstanceMap[uniqueId] = code;
+          return uniqueId;
+        });
+      })
+      setUniqueIdCounter(newUniqueCounter);
+      setCourseInstanceMap(newCourseInstanceMap);
+      return newSemesterCourses;
+    });
+    // console.log('Building semesterMap from timelineData:', timelineData);
+    // console.log('Resulting semesterMap:', semesterMap);
+
+
   }, [timelineData, coursePools, extendedCredit, startingSemester]);
 
   useEffect(() => {
@@ -629,6 +655,7 @@ const TimelinePage = ({
     Winter: 1,
     Summer: 2,
     Fall: 3,
+    Fall_Winter: 4,
   };
 
   function compareSemesters(a, b) {
@@ -649,8 +676,19 @@ const TimelinePage = ({
   }
 
   const handleAddSemester = () => {
+    let formattedYear = selectedYear;
+    let displayYear = selectedYear; // This will store YYYY-YY for name
+
+    if (
+      selectedSeason === 'Fall/Winter' &&
+      !String(selectedYear).includes('-')
+    ) {
+      const startYear = parseInt(selectedYear, 10);
+      displayYear = `${startYear}-${(startYear + 1) % 100}`;
+    }
+
     const id = `${selectedSeason} ${selectedYear}`;
-    const name = `${selectedSeason} ${selectedYear}`;
+    const name = `${selectedSeason} ${displayYear}`;
 
     // Prevent duplicates
     if (semesters.some((sem) => sem.id === id)) {
@@ -697,17 +735,18 @@ const TimelinePage = ({
 
   const handleDragStart = (event) => {
     setReturning(false);
-    const id = String(event.active.id);
-
-    const course = allCourses.find((c) => c.code === id);
-
+    const internalId = String(event.active.id);
+    let genericCode;
+    if (internalId.startsWith("source-")) {
+      genericCode = internalId.replace("source-", "");
+    } else {
+      genericCode = courseInstanceMap[internalId] || internalId;
+    }
+    const course = allCourses.find((c) => c.code === genericCode);
     if (course) {
       setSelectedCourse(course);
     }
-
-    // document.querySelector('.semesters')?.classList.add('no-scroll');
-
-    setActiveId(id);
+    setActiveId(internalId);
   };
 
   const findSemesterIdByCourseCode = (courseCode, semesters) => {
@@ -728,80 +767,116 @@ const TimelinePage = ({
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    const id = String(active.id); // courseCode
+    const uniqueId = String(active.id); // courseCode
+    const sourceContainer = active.data.current.containerId;
+    let draggedId = uniqueId; // initially, this is the generic course code if from courseList
+    const draggedGeneric = active.data.current.courseCode;
+    // If dragged from the course list, generate a new unique instance ID
+    if (sourceContainer === 'courseList') {
+      const newUniqueId = `${draggedGeneric}-${uniqueIdCounter}`;
+      setUniqueIdCounter((prev) => prev + 1);
+      // Update the mapping so that the unique id points to the generic course code
+      setCourseInstanceMap((prev) => ({
+        ...prev,
+        [newUniqueId]: active.data.current.courseCode,
+      }));
 
-    if (over) {
-      if (over.id === 'courseList' || over.id === 'courses-with-button') {
-        // Course is being returned to the course list
-        handleReturn(id);
-      } else {
-        setSemesterCourses((prevSemesters) => {
-          const updatedSemesters = { ...prevSemesters };
-          const activeSemesterId = findSemesterIdByCourseCode(
-            id,
-            prevSemesters,
-          );
-          let overSemesterId;
-          let overIndex;
-
-          if (over.data.current?.type === 'semester') {
-            // Dropped over a semester (empty space)
-            overSemesterId = over.data.current.containerId;
-            overIndex = updatedSemesters[overSemesterId].length;
-          } else if (over.data.current?.type === 'course') {
-            // Dropped over a course in a semester
-            overSemesterId = over.data.current.containerId;
-            overIndex = updatedSemesters[overSemesterId].indexOf(over.id);
-
-            if (id === over.id) {
-              // Dropped back onto itself; do nothing
-              return prevSemesters;
-            }
-          } else {
-            // Fallback
-            overSemesterId = findSemesterIdByCourseCode(over.id, prevSemesters);
-            overIndex = updatedSemesters[overSemesterId]?.indexOf(over.id);
-          }
-
-          if (activeSemesterId) {
-            // Remove from old semester
-            updatedSemesters[activeSemesterId] = updatedSemesters[
-              activeSemesterId
-            ].filter((courseCode) => courseCode !== id);
-          }
-
-          if (overSemesterId) {
-            // Insert into new semester
-            updatedSemesters[overSemesterId].splice(overIndex, 0, id);
-          }
-
-          // Check if we exceed the limit
-          const overSemesterObj = semesters.find(
-            (s) => s.id === overSemesterId,
-          );
-          if (!overSemesterObj) return prevSemesters; // safety check
-
-          // Sum up the credits in the new semester
-          const thisSemesterCourses = updatedSemesters[overSemesterId];
-          let sumCredits = 0;
-          for (let cCode of thisSemesterCourses) {
-            const course = allCourses.find((c) => c.code === cCode);
-
-            if (course?.credits) {
-              sumCredits += course.credits;
-            }
-          }
-
-          // Compare with max
-          const maxAllowed = getMaxCreditsForSemesterName(overSemesterObj.name);
-
-          if (sumCredits > maxAllowed) {
-            shakeSemester(overSemesterId);
-          }
-          return updatedSemesters;
-        });
-      }
+      draggedId = newUniqueId;
     }
+
+    if (!over) {
+      setActiveId(null);
+      document.querySelector('.semesters')?.classList.remove('no-scroll');
+      return;
+    }
+
+
+    setSemesterCourses((prevSemesters) => {
+      const updatedSemesters = { ...prevSemesters };
+      let overSemesterId, overIndex;
+
+      if (over.data.current?.type === 'semester') {
+        overSemesterId = over.data.current.containerId;
+        // Ensure the target semester exists.
+        if (!updatedSemesters[overSemesterId]) {
+          updatedSemesters[overSemesterId] = [];
+        }
+        const targetCourses = updatedSemesters[overSemesterId];
+        const exists = targetCourses.some(
+          (code) => (courseInstanceMap[code] || code) === draggedGeneric
+        );
+        if (exists) return prevSemesters;
+        overIndex = targetCourses.length;
+      } else if (over.data.current?.type === 'course') {
+        overSemesterId = over.data.current.containerId;
+        if (!updatedSemesters[overSemesterId]) {
+          updatedSemesters[overSemesterId] = [];
+        }
+        const targetCourses = updatedSemesters[overSemesterId];
+        const exists = targetCourses.some(
+          (code) => (courseInstanceMap[code] || code) === draggedGeneric
+        );
+        if (exists) return prevSemesters;
+        overIndex = targetCourses.indexOf(over.id);
+        if (draggedId === over.id) return prevSemesters; // Dropped onto itself
+      } else {
+        overSemesterId = findSemesterIdByCourseCode(over.id, updatedSemesters);
+        if (!overSemesterId) return prevSemesters;
+        if (!updatedSemesters[overSemesterId]) {
+          updatedSemesters[overSemesterId] = [];
+        }
+        const targetCourses = updatedSemesters[overSemesterId];
+        const exists = targetCourses.some(
+          (code) => (courseInstanceMap[code] || code) === draggedGeneric
+        );
+        if (exists) return prevSemesters;
+        overIndex = targetCourses.indexOf(over.id);
+      }
+
+      // Remove the dragged course from its current semester (if present)
+      const activeSemesterId = findSemesterIdByCourseCode(draggedId, updatedSemesters);
+      if (activeSemesterId) {
+        updatedSemesters[activeSemesterId] = updatedSemesters[activeSemesterId].filter(
+          (code) => code !== draggedId
+        );
+      }
+
+      // Ensure the target semester exists before inserting.
+      if (overSemesterId && !updatedSemesters[overSemesterId]) {
+        updatedSemesters[overSemesterId] = [];
+      }
+
+      if (overSemesterId) {
+        updatedSemesters[overSemesterId].splice(overIndex, 0, draggedId);
+      }
+
+      // Check if we exceed the limit
+      const overSemesterObj = semesters.find(
+        (s) => s.id === overSemesterId,
+      );
+      if (!overSemesterObj) return prevSemesters; // safety check
+
+      // Sum up the credits in the new semester
+      const thisSemesterCourses = updatedSemesters[overSemesterId];
+      let sumCredits = 0;
+      for (let cCode of thisSemesterCourses) {
+        const genericCode = courseInstanceMap[cCode] || cCode;
+        const course = allCourses.find((c) => c.code === genericCode);
+
+        if (course?.credits) {
+          sumCredits += course.credits;
+        }
+      }
+
+      // Compare with max
+      const maxAllowed = getMaxCreditsForSemesterName(overSemesterObj.name);
+
+      if (sumCredits > maxAllowed) {
+        shakeSemester(overSemesterId);
+      }
+      return updatedSemesters;
+    });
+
 
     setActiveId(null);
     document.querySelector('.semesters')?.classList.remove('no-scroll');
@@ -827,12 +902,18 @@ const TimelinePage = ({
   };
 
   const handleCourseSelect = (code) => {
-    const course = allCourses.find((c) => c.code === code);
-
+    let genericCode = code;
+    if (code.startsWith("source-")) {
+      genericCode = code.replace("source-", "");
+    } else {
+      genericCode = courseInstanceMap[code] || code;
+    }
+    const course = allCourses.find((c) => c.code === genericCode);
     if (course) {
       setSelectedCourse(course);
     }
   };
+
 
   const ECP_EXTRA_CREDITS = 30; // Extra credits for ECP students
 
@@ -866,6 +947,17 @@ const TimelinePage = ({
         }
       });
 
+      const lastOccurrence = {};
+      semesters.forEach((sem, index) => {
+        if (sem.id.toLowerCase() === 'exempted') return;
+        const courseInstances = semesterCourses[sem.id] || [];
+        courseInstances.forEach((instanceId) => {
+          const genericCode = courseInstanceMap[instanceId] || instanceId;
+          // Always override, so the last (largest index) is stored.
+          lastOccurrence[genericCode] = index;
+        });
+      });
+
       // Go through each semester (EXCEPT 'Exempted') and sum assigned credits
       for (const semesterId in semesterCourses) {
         if (semesterId.toLowerCase() === 'exempted') {
@@ -878,10 +970,15 @@ const TimelinePage = ({
           (s) => s.id === semesterId,
         );
 
-        courseCodes.forEach((courseCode) => {
+        courseCodes.forEach((instanceId) => {
+          const genericCode = courseInstanceMap[instanceId] || instanceId;
+          if (currentSemesterIndex !== lastOccurrence[genericCode]) {
+            return; // Skip if not the last occurrence
+          }
+
           // Find which pool this course belongs to
           let pool = coursePools.find((p) =>
-            p.courses.some((c) => c.code === courseCode),
+            p.courses.some((c) => c.code === genericCode),
           );
 
           // If not in coursePools, check if it belongs to remainingCourses
@@ -892,12 +989,12 @@ const TimelinePage = ({
           if (!pool) return; // course not found in any pool (shouldn't happen, but just in case)
 
           // Find the actual course object
-          const course = pool.courses.find((c) => c.code === courseCode);
+          const course = pool.courses.find((c) => c.code === genericCode);
           if (!course) return;
 
           // Check prerequisites
           const prerequisitesMet = arePrerequisitesMet(
-            courseCode,
+            genericCode,
             currentSemesterIndex,
           );
           if (!prerequisitesMet) {
@@ -926,7 +1023,8 @@ const TimelinePage = ({
 
   // Function to check if prerequisites and corequisites are met
   const arePrerequisitesMet = (courseCode, currentSemesterIndex) => {
-    const course = allCourses.find((c) => c.code === courseCode);
+    const genericCode = courseInstanceMap[courseCode] || courseCode;
+    const course = allCourses.find((c) => c.code === genericCode);
 
     // console.log(`Checking prerequisites for course ${courseCode} in semester index ${currentSemesterIndex}`);
 
@@ -950,65 +1048,53 @@ const TimelinePage = ({
     const completedCourses = [];
     for (let i = 0; i < currentSemesterIndex; i++) {
       const semesterId = semesters[i]?.id;
-      if (semesterId === 'Exempted') {
-        completedCourses.push(...(semesterCourses[semesterId] || []));
-      } else {
-        // Add courses from regular semesters too.
-        completedCourses.push(...(semesterCourses[semesterId] || []));
-      }
+      const coursesInSemester = semesterCourses[semesterId] || [];
+      coursesInSemester.forEach((instanceId) => {
+        const generic = courseInstanceMap[instanceId] || instanceId;
+        completedCourses.push(generic);
+      });
     }
 
     // console.log(`Completed courses before current semester:`, completedCourses);
 
     // Check prerequisites
-    const prerequisitesMet = prerequisites.every((prereq) => {
+    const prereqMet = prerequisites.every((prereq) => {
       if (prereq.group_id) {
         // For grouped prerequisites, at least one in the group must be completed
         const group = prerequisites.filter(
           (p) => p.group_id === prereq.group_id,
         );
-        const result = group.some((p) => completedCourses.includes(p.code2));
+        return group.some((p) => completedCourses.includes(p.code2));
         // console.log(`Group ${prereq.group_id} met:`, result);
-        return result;
+
       } else {
         // Single prerequisite
-        const result = completedCourses.includes(prereq.code2);
-        // console.log(`Prerequisite ${prereq.code2} met:`, result);
-        return result;
+        return completedCourses.includes(prereq.code2);
+
       }
     });
 
-    // console.log(`Prerequisites met for course ${courseCode}:`, prerequisitesMet);
-
-    // Collect courses scheduled in the current semester for corequisites
-    const currentSemesterCourses =
-      semesterCourses[semesters[currentSemesterIndex]?.id] || [];
-    // console.log(`Current semester courses for corequisites:`, currentSemesterCourses);
+    const currentSemesterId = semesters[currentSemesterIndex]?.id;
+    const currentCourses = (semesterCourses[currentSemesterId] || []).map(
+      (instanceId) => courseInstanceMap[instanceId] || instanceId
+    );
 
     // Check corequisites
-    const corequisitesMet = corequisites.every((coreq) => {
+    const coreqMet = corequisites.every((coreq) => {
       if (coreq.group_id) {
-        // If corequisites can also be grouped, handle similarly
         const group = corequisites.filter((c) => c.group_id === coreq.group_id);
-        const result = group.some((c) =>
-          currentSemesterCourses.includes(c.code2),
-        );
-        // console.log(`Corequisite group ${coreq.group_id} met:`, result);
-        return result;
+        return group.some((c) => currentCourses.includes(c.code2));
       } else {
-        // Single corequisite
-        const result = currentSemesterCourses.includes(coreq.code1);
-        // console.log(`Corequisite ${coreq.code2} met:`, result);
-        return result;
+        return currentCourses.includes(coreq.code2);
       }
     });
 
     // console.log(`Corequisites met for course ${courseCode}:`, corequisitesMet);
 
-    const finalResult = prerequisitesMet && corequisitesMet;
+    return prereqMet && coreqMet;
     // console.log(`Prerequisites and Corequisites met for course ${courseCode}:`, finalResult);
 
-    return finalResult;
+
   };
 
   // The Gina Cody School of Engineering and Computer Science at Concordia University has the following credit limits for full-time students:
@@ -1059,7 +1145,8 @@ const TimelinePage = ({
         semester.id.trim().toLowerCase() === 'transfered courses'
       ) {
         (semesterCourses[semester.id] || []).forEach((courseCode) => {
-          const course = allCourses.find((c) => c.code === courseCode);
+          const genericCode = courseInstanceMap[courseCode] || courseCode;
+          const course = allCourses.find((c) => c.code === genericCode);
           if (course && course.code) {
             exempted_courses.push(course.code);
           } else {
@@ -1071,7 +1158,8 @@ const TimelinePage = ({
       // Build the courses array for this semester.
       const coursesForSemester = (semesterCourses[semester.id] || [])
         .map((courseCode) => {
-          const course = allCourses.find((c) => c.code === courseCode);
+          const genericCode = courseInstanceMap[courseCode] || courseCode;
+          const course = allCourses.find((c) => c.code === genericCode);
           return course && course.code ? { courseCode: course.code } : null;
         })
         .filter(Boolean);
@@ -1276,7 +1364,7 @@ const TimelinePage = ({
                       ? confirmSaveTimeline(timelineName)
                       : setShowSaveModal(true)
                   }
-                  //onClick={() => setShowSaveModal(true)} // You can define this handler to save the transcript
+                //onClick={() => setShowSaveModal(true)} // You can define this handler to save the transcript
                 >
                   Save Timeline
                 </button>
@@ -1343,12 +1431,11 @@ const TimelinePage = ({
                                               );
                                           return (
                                             <DraggableCourse
-                                              key={`${course.code}-${isCourseAssigned(course.code)}`}
-                                              id={course.code}
+                                              key={`source-${course.code}`}
+                                              internalId={`source-${course.code}`}
+                                              courseCode={course.code}
                                               title={course.code}
-                                              disabled={isCourseAssigned(
-                                                course.code,
-                                              )}
+                                              disabled={false}
                                               isReturning={returning}
                                               isSelected={
                                                 selectedCourse?.code ===
@@ -1375,11 +1462,11 @@ const TimelinePage = ({
                                 key="remaining-courses"
                                 className={
                                   searchQuery.trim() !== '' &&
-                                  !remainingCourses.some((course) =>
-                                    course.code
-                                      .toLowerCase()
-                                      .includes(searchQuery.toLowerCase()),
-                                  )
+                                    !remainingCourses.some((course) =>
+                                      course.code
+                                        .toLowerCase()
+                                        .includes(searchQuery.toLowerCase()),
+                                    )
                                     ? 'hidden-accordion'
                                     : ''
                                 }
@@ -1503,11 +1590,10 @@ const TimelinePage = ({
                         return (
                           <div
                             key={semester.id}
-                            className={`semester ${isExempted ? 'hidden-accordion' : ''} ${
-                              shakingSemesterId === semester.id
-                                ? 'exceeding-credit-limit'
-                                : ''
-                            }`}
+                            className={`semester ${isExempted ? 'hidden-accordion' : ''} ${shakingSemesterId === semester.id
+                              ? 'exceeding-credit-limit'
+                              : ''
+                              }`}
                           >
                             <Droppable id={semester.id} color="pink">
                               <h3>{semester.name}</h3>
@@ -1516,24 +1602,25 @@ const TimelinePage = ({
                                 strategy={verticalListSortingStrategy}
                               >
                                 {semesterCourses[semester.id].map(
-                                  (courseCode) => {
-                                    const course = allCourses.find(
-                                      (c) => c.code === courseCode,
-                                    );
+                                  (instanceId) => {
+                                    const genericCode = courseInstanceMap[instanceId] || instanceId;
+                                    const course = allCourses.find((c) => c.code === genericCode);
                                     if (!course) return null;
                                     const isSelected =
                                       selectedCourse?.code === course.code;
                                     const isDraggingFromSemester =
-                                      activeId === course.code;
+                                      activeId === instanceId;
 
                                     // Check if prerequisites are met
                                     const prerequisitesMet =
                                       arePrerequisitesMet(course.code, index);
 
+
                                     return (
                                       <SortableCourse
-                                        key={course.code}
-                                        id={course.code}
+                                        key={instanceId}
+                                        internalId={instanceId}
+                                        courseCode={allCourses.find((c) => c.code === (courseInstanceMap[instanceId] || instanceId)).code}
                                         title={course.code}
                                         disabled={false}
                                         isSelected={isSelected}
@@ -1547,7 +1634,7 @@ const TimelinePage = ({
                                           <button
                                             className="remove-course-btn"
                                             onClick={() =>
-                                              handleReturn(course.code)
+                                              handleReturn(instanceId)
                                             }
                                           >
                                             <svg
@@ -1665,12 +1752,17 @@ const TimelinePage = ({
                     )}
                   </div>
                 </div>
-                <DragOverlay dropAnimation={returning ? null : undefined}>
+                <DragOverlay dropAnimation={null}>
                   {activeId ? (
                     <div className="course-item-overlay selected">
                       {
-                        allCourses.find((course) => course.code === activeId)
-                          ?.code
+                        allCourses.find((course) =>
+                          course.code === (
+                            activeId.startsWith("source-")
+                              ? activeId.replace("source-", "")
+                              : (courseInstanceMap[activeId] || activeId)
+                          )
+                        )?.code
                       }
                     </div>
                   ) : null}
@@ -1708,6 +1800,7 @@ const TimelinePage = ({
                     <option>Winter</option>
                     <option>Summer</option>
                     <option>Fall</option>
+                    <option>Fall/Winter</option>
                   </select>
                 </div>
 
@@ -1720,9 +1813,14 @@ const TimelinePage = ({
                   >
                     {Array.from({ length: 14 }).map((_, i) => {
                       const year = 2017 + i;
+                      const displayYear =
+                        selectedSeason === 'Fall/Winter'
+                          ? `${year}-${(year + 1) % 100}`
+                          : year;
+
                       return (
                         <option key={year} value={year}>
-                          {year}
+                          {displayYear}
                         </option>
                       );
                     })}
