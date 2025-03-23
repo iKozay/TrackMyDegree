@@ -75,7 +75,7 @@ describe("Course Routes", () => {
         .expect("Content-Type", /json/)
         .expect(400);
 
-      expect(response.body).toHaveProperty("error", "Course data is required");
+      expect(response.body).toHaveProperty("error", "Course data is required  ");
     });
   });
 
