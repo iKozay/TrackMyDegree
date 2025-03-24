@@ -1,10 +1,8 @@
-import * as Sentry from "@sentry/react";
+import * as Sentry from '@sentry/node';
 
 // Sentry Backend INIT
 Sentry.init({
-	dsn: process.env.REACT_APP_SENTRY_DSN,
-	integrations: [Sentry.browserTracingIntegration()],
-	tracesSampleRate: 1.0,
+  dsn: process.env.REACT_APP_SENTRY_DSN,
 });
 
 export default Sentry;
