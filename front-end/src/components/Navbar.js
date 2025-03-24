@@ -58,39 +58,39 @@ const Navbar = () => {
 
   return (
     <div ref={menuRef}>
-      <nav className="navbar navbar-expand-lg custom-navbar custom-navbar-height custom-navbar-padding">
-        <div className="container-fluid custom-navbar-left-align">
-          <a className="navbar-brand custom-navbar-brand-left" href="/">
-            <span className="brand-text">TrackMyDegree🎓</span>
-            <span className="brand-emoji">🎓</span>
-          </a>
-          <button
-            className="navbar-toggler"
-            type="button"
-            onClick={toggleMenu}
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div className="navbar-nav custom-nav-links">
-              <a className="nav-link active" aria-current="page" href="/">
-                Home
-              </a>
-              <p className={'nav-separator'}>|</p>
-              <a className="nav-link" href="/timeline_initial">
-                Timeline
-              </a>
-              <p className={'nav-separator'}>|</p>
-              <a className="nav-link" href="/courselist">
-                Courses
-              </a>
-              {/* <a className="nav-link" href="/uploadTranscript">
+    <nav className="navbar navbar-expand-lg custom-navbar custom-navbar-height custom-navbar-padding">
+      <div className="container-fluid custom-navbar-left-align">
+        <Link className="navbar-brand custom-navbar-brand-left" to="/">
+          <span className="brand-text">TrackMyDegree🎓</span>
+          <span className="brand-emoji">🎓</span>
+        </Link>
+        <button
+          className="navbar-toggler"
+          type="button"
+          onClick={toggleMenu}
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+        <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div className="navbar-nav custom-nav-links">
+            <Link className="nav-link active" aria-current="page" to="/">
+              Home
+            </Link>
+            <p className={'nav-separator'}>|</p>
+            <Link className="nav-link" to="/timeline_initial">
+              Timeline
+            </Link>
+            <p className={'nav-separator'}>|</p>
+            <Link className="nav-link" to="/courselist">
+              Courses
+            </Link>
+            {/* <Link className="nav-link" to="/uploadTranscript">
               Upload Transcript
-            </a> */}
-            </div>
-            {isLoggedIn ? (
+            </Link> */}
+          </div>
+          {isLoggedIn ? (
               <>
                 <div className="navbar-right-buttons">
                   <Link to="/user">

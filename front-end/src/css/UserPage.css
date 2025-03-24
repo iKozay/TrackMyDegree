@@ -183,9 +183,10 @@
 
 .mb-4 {
   margin-top: 20px;
-  margin-left: 250px;
+  margin-left: 200px;
   font-family: 'Inter', sans-serif;
   font-weight: bold;
+  width: 200px;
 }
 
 .mb-5 {
