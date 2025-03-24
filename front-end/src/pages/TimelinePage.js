@@ -1283,60 +1283,52 @@ const TimelinePage = ({
       btn.style.display = 'none';
     });
 
-    // Temporarily expand all semesters for full visibility
-    const semesters = input.querySelectorAll('.timeline-middle-section');
-    semesters.forEach((semester) => {
-      semester.style.display = 'flex';
-    });
+    // Temporarily force full height for PDF capture
+    const originalScrollLeft = scrollWrapper.scrollLeft;
+    const originalScrollTop = scrollWrapper.scrollTop;
 
-    // Adjust the container dimensions explicitly to the full scrollable content height
-    input.style.height = `${input.scrollHeight}px`;
+    input.style.height = 'auto';
     input.style.overflow = 'visible';
-
-    scrollWrapper.style.height = `${scrollWrapper.scrollHeight}px`;
+    scrollWrapper.style.height = 'auto';
     scrollWrapper.style.overflow = 'visible';
 
-    // Wait briefly for DOM to update fully
-    setTimeout(() => {
-      html2canvas(input, {
-        scale: 2,
-        useCORS: true,
-        windowWidth: input.scrollWidth,
-        windowHeight: input.scrollHeight,
+    // Expand the wrapper to full scrollable width & height
+    const fullWidth = scrollWrapper.scrollWidth;
+    const fullHeight = scrollWrapper.scrollHeight;
+
+    html2canvas(scrollWrapper, {
+      scale: 2,
+      useCORS: true,
+      width: fullWidth,
+      height: fullHeight,
+      windowWidth: fullWidth,
+      windowHeight: fullHeight,
+    })
+      .then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdfWidth = canvas.width;
+        const pdfHeight = canvas.height;
+
+        const pdf = new jsPDF('l', 'px', [pdfWidth, pdfHeight]);
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save('timeline.pdf');
       })
-        .then((canvas) => {
-          const imgData = canvas.toDataURL('image/png');
-          const pdfWidth = canvas.width;
-          const pdfHeight = canvas.height;
+      .catch(error => {
+        console.error('Error generating PDF:', error);
+        alert('Failed to generate PDF.');
+      })
+      .finally(() => {
+        // Restore original styles
+        input.style.height = originalHeight;
+        input.style.overflow = originalOverflow;
+        scrollWrapper.style.height = originalScrollHeight;
+        scrollWrapper.style.overflow = originalWrapperOverflow;
+        scrollWrapper.scrollLeft = originalScrollLeft;
+        scrollWrapper.scrollTop = originalScrollTop;
 
-          const pdf = new jsPDF('l', 'px', [pdfWidth, pdfHeight]);
-          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-          pdf.save('timeline.pdf');
-        })
-        .catch((error) => {
-          console.error('Error generating PDF:', error);
-          alert('Failed to generate PDF.');
-        })
-        .finally(() => {
-          // Restore original styles after PDF generation
-          input.style.height = originalHeight;
-          input.style.overflow = originalOverflow;
-          scrollWrapper.style.height = originalScrollHeight;
-          scrollWrapper.style.overflow = originalWrapperOverflow;
-
-          if (addSemesterButton) {
-            addSemesterButton.style.display = originalButtonDisplay;
-          }
-
-          deleteButtons.forEach((btn) => {
-            btn.style.display = '';
-          });
-
-          semesters.forEach((semester) => {
-            semester.style.display = '';
-          });
-        });
-    }, 500);
+        if (addSemesterButton) addSemesterButton.style.display = originalButtonDisplay;
+        deleteButtons.forEach(btn => (btn.style.display = ''));
+      });
   };
 ;
 ;
