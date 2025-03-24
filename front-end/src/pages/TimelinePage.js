@@ -27,7 +27,6 @@ import downloadIcon from '../icons/download-icon.PNG';
 import '../css/TimelinePage.css';
 import { groupPrerequisites } from '../utils/groupPrerequisites';
 import { useLocation } from 'react-router-dom';
-import { groupPrerequisites } from '../utils/groupPrerequisites'; // Adjust the path as necessary
 import DeleteModal from "../components/DeleteModal";
 import { TimelineError } from '../middleware/SentryErrors';
 import * as Sentry from '@sentry/react';
