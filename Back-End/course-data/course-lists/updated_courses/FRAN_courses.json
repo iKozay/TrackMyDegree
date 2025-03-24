@@ -1,0 +1,1580 @@
+[
+  {
+    "title": "FRAI 201 Immersive Beginner French",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course is designed for students with no prior knowledge of  French. It introduces basic structures and commonly used vocabulary to  communicate information about oneself or one's immediate surroundings.  This course enhances both oral and written skills, but emphasis is  placed on oral comprehension and expression in predictable communication  situations. The content corresponds to levels 1 and 2 of the Échelle québécoise des niveaux de compétence en français.",
+    "components": "Lecture",
+    "notes": "This course is assessed on a success/no success basis. This course is restricted to students with no previous training in  French. This course is not intended for students who have attended high  school in Quebec. Students who have received credit for FRAN 211 may not take this course for credit.",
+    "offeredIn": [
+      "summer"
+    ]
+  },
+  {
+    "title": "FRAI 202 Français élémentaire immersif I",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours de niveau « débutant avancé » s'adresse aux étudiantes et étudiants dont  la compétence en français correspond au niveau 2 en cours d’acquisition  de l' Échelle québécoise des niveaux de compétence en français. Il renforce les structures de base du français et vise à développer la  spontanéité autour de thèmes de la vie quotidienne. Ce cours permet  d'améliorer les compétences orales et écrites, en soutenant le  développement de l’assurance lors des échanges oraux. Les contenus  enseignés couvrent les niveaux 2 et 3 de l' Échelle québécoise. This  “advanced beginner” level course is designed for students whose  proficiency in French corresponds to level 2 in progress on the Échelle québécoise des niveaux de compétence en français .  It reinforces the basic structures of French and aims to develop  spontaneous communication around everyday themes. This course helps  improve oral and written skills, supporting the learner's development of  self-confidence in oral exchanges. Content covers levels 2 and 3 of the Échelle québécoise.",
+    "components": "Lecture",
+    "notes": "This course is assessed on a success/no success basis. Ce cours est évalué sous la forme réussi/non réussi. Ce cours est conçu pour faire suite au cours FRAI 201 ou FRAN 211 .  Les étudiantes et étudiants qui n'ont pas suivi de cours de français préalable au  Département d'études françaises doivent passer un test de classement.   Ce cours n'est pas destiné aux étudiantes et étudiants qui ont fréquenté l'école  secondaire au Québec. Les étudiantes et étudiants qui ont suivi FRAN 212 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "summer"
+    ]
+  },
+  {
+    "title": "FRAI 203 Français élémentaire immersif II",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours « élémentaire fonctionnel » s'adresse aux étudiantes et étudiants avec un niveau 3 en cours d’acquisition de l' Échelle québécoise des niveaux de compétence en français. Il met l'accent sur la gestion de conversations comportant des éléments  abstraits et de plus en plus complexes. Le cours développe toutes les  compétences orales et écrites nécessaires à la connaissance  fonctionnelle du français, en mettant l'accent sur le développement de  l'autonomie dans diverses situations de communication. Les contenus  enseignés correspondent aux niveaux 3 et 4 de l' Échelle québécoise.",
+    "components": "Lecture",
+    "notes": "Ce cours est évalué sous la forme réussi/non réussi. Ce cours est conçu pour suivre le cours FRAI 202 ou FRAN 212 .  Les étudiantes et étudiants qui n'ont  pas suivi de cours de français préalable au Département d'études  françaises doivent passer un test de classement.  Ce cours n'est pas  destiné aux étudiantes et étudiants qui ont fréquenté l'école secondaire au Québec. Les étudiantes et étudiants qui ont reçu des crédits pour les cours FRAN 213 , FRAN 214 ou FRAN 215 ne peuvent pas recevoir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FRAI 204 Français intermédiaire immersif",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours intermédiaire s'adresse aux étudiantes et étudiants dont  la compétence en français correspond au niveau 4 en cours d’acquisition  de l' Échelle québécoise des niveaux de compétence en français. Il vise à développer la compréhension de la communication essentielle  dans les situations de la vie courante. Le cours porte sur les  compétences orales et écrites, avec une attention particulière à  l'amélioration de l'aisance à l'oral dans divers contextes de  communication. Les contenus enseignés correspondent aux niveaux 4 et 5  de l' Échelle québécoise.",
+    "components": "Lecture",
+    "notes": "Ce cours est évalué sous la forme réussi/non réussi. Ce cours est conçu pour faire suite aux cours FRAI 203 , FRAN 213 ou FRAN 215 . Les étudiantes et étudiants qui n'ont pas suivi de cours de français préalable  au Département d'études françaises doivent passer un test de classement.  Ce cours n'est pas destiné aux étudiantes et étudiants qui ont fréquenté l'école  secondaire au Québec. Les étudiantes et étudiants qui ont reçu des crédits pour FRAN 301 ou FRAN 303 ne peuvent pas recevoir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FRAN 211 French Language: Elementary",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course includes a comprehensive introduction to the basic structures and vocabulary of French and should enable students to acquire an ability to speak and understand simple conversational French. Both oral and written aspects of the language are presented, with special emphasis on oral skills. Notes: This course is restricted to students with no previous training in French. This course is not intended for students who have attended high school in Quebec. Students who have received credit for FRAI 201 , FRAN 200 or FRAN 201 may not take this course for credit.",
+    "components": null,
+    "notes": "This course is restricted to students with no previous training in French. This course is not intended for students who have attended high school in Quebec. Students who have received credit for FRAI 201 , FRAN 200 or FRAN 201 may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAN 212 French Language: Transitional Level",
+    "credits": 6,
+    "prerequisites": "FRAI 201 or FRAN 211 ; or equivalent.",
+    "corequisites": "",
+    "description": "The aim of this course is to provide students who have studied either one year of French at the university or post‑secondary level, or two years of French at the secondary level or equivalent, with an opportunity to improve their levels of comprehension and expression so that they will be able to communicate with greater ease in written and oral French. Students will expand their repertory of linguistic structures and vocabulary through in‑class directed conversation groups, homework, oral lab, and written exercises.",
+    "components": "Lecture",
+    "notes": "This course is designed to follow FRAN 211 , or may be taken if students have little previous training in French. This course is not intended for students who have attended high school in Quebec. Les étudiantes et étudiants qui ont suivi FRAI 202 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAN 213 Langue française : niveaux intermédiaires I et II",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours s’adresse aux étudiantes et étudiants ayant suivi soit quatre ans de français à l’école secondaire, soit deux ans de français au niveau collégial, soit 12 crédits de français à l’université, ou l’équivalent. Par un apprentissage et approfondissement de mécanismes grammaticaux, du vocabulaire, de techniques de compréhension et production écrites et orales, l’étudiant sera amené à développer les compétences nécessaires pour communiquer avec aisance en français.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAI 203 , FRAN 204, FRAN 214 , ou FRAN 215 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAN 214 Langue française : niveau intermédiaire I",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours s’adresse aux étudiantes et étudiants ayant suivi soit quatre ans de français à l’école secondaire, soit deux ans de français au niveau collégial, soit 12 crédits de français à l’université, ou l’équivalent. Par un apprentissage et approfondissement de mécanismes grammaticaux, du vocabulaire, de techniques de compréhension et production écrites et orales, l’étudiant sera amené à développer les compétences nécessaires pour communiquer avec aisance en français.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAN 204 ou FRAN 213 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FRAN 215 Langue française : niveau intermédiaire II",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours est la suite du FRAN 214. Il vise à donner à l’étudiant une plus grande aisance dans son utilisation du français oral et écrit. Les travaux prendront la forme d’exercices variés de grammaire, de vocabulaire, de compréhension et production de textes écrits, et d’interaction orale.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAN 205 ou FRAN 213 ne peuvent obtenir de crédits pour ce cours .",
+    "offeredIn": []
+  },
+  {
+    "title": "FRAN 218 Initiation au français oral",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours de niveau intermédiaire s’adresse à des étudiantes et à des étudiants qui ont une connaissance de base du français et qui désirent renforcer leur compétence en communication orale. Une démarche combinant compréhension auditive et expression orale permettra de développer aussi bien les habiletés à comprendre la langue parlée que l’aisance à prendre la parole.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAN 219 Initiation au français écrit",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours de niveau intermédiaire s’adresse à des étudiantes et étudiants qui ont une bonne compétence en communication orale en français et qui désirent renforcer leur compétence en communication écrite. Il a principalement pour objectif d’amener les étudiantes et les étudiants à consolider leurs connaissances de la structure de la phrase de base et de ses transformations, et à enrichir leur vocabulaire. Les étudiantes et les étudiants seront également initiés à la composition de textes divers et à deux techniques d’expression : le plan et le résumé.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAN 221 Correction phonétique",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours s’adresse à des étudiantes et des étudiants dont la langue maternelle n’est pas le français et qui souhaitent améliorer leur prononciation. Une approche systématique, qui combine des activités de perception et d’articulation allant des sons isolés à la phrase, leur permettra d’acquérir et de mettre en pratique les règles de la phonétique française (prononciation, liaison, intonation).",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FRAN 222 Initiation à la lecture de textes littéraires",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours est une initiation à la compréhension de textes littéraires. Il permet de développer une plus grande autonomie en lecture, d’enrichir le vocabulaire et, plus généralement, d’améliorer les compétences en français.",
+    "components": null,
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAN 298 Étude d’un sujet particulier",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Les préalables de ces cours, ainsi que les sujets particuliers qui y sont étudiés, sont indiqués dans le Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FRAN 301 Langue française : niveaux d’approfondissement I et II",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours d’approfondissement est destiné aux étudiantes et étudiants qui possèdent déjà une bonne connaissance du français mais qui ont besoin d’améliorer leur expression écrite et orale. Le cours est essentiellement axé sur la pratique de la lecture, sur la compréhension de textes et de documents audiovisuels, ainsi que sur la pratique de la grammaire et de la rédaction.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAI 204 , FRAN 302 , ou FRAN 303 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAN 302 Langue française : niveau d’approfondissement I",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours de français, niveau d’approfondissement I, est destiné aux étudiantes et étudiants qui possèdent déjà une bonne connaissance du français mais qui ont besoin d’améliorer leur expression orale et écrite. Le cours est essentiellement axé sur la pratique de la lecture, sur la compréhension de textes et de documents audiovisuels, ainsi que sur la pratique de la grammaire et de la rédaction.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAI 204 ou FRAN 301 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FRAN 303 Langue française : niveau d’approfondissement II",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours de français, niveau d’approfondissement II, est destiné aux étudiantes et étudiants qui possèdent déjà une bonne connaissance du français mais qui ont besoin d’améliorer leur expression écrite et orale. Le cours est essentiellement axé sur la pratique de la grammaire et de la rédaction.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAI 204 ou FRAN 301 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FRAN 304 Langue française : niveau d’approfondissement III",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours de français, niveau d’approfondissement III, est destiné aux étudiantes et étudiants qui possèdent déjà une bonne connaissance du français, mais qui ont besoin d’approfondir leur expression écrite et orale.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAN 305 Communication orale",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours s’adresse à des étudiantes et des étudiants non francophones qui souhaitent améliorer les aptitudes nécessaires à une communication orale efficace en français. Des présentations théoriques et des activités pratiques exploitant des situations de communication variées leur permettront d’acquérir une plus grande aisance et de mieux organiser leur discours. Des activités d’écoute basées sur des documents authentiques leur permettront d’augmenter leur capacité de compréhension en français.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAN 306 Communication écrite",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Acquisition des techniques nécessaires à la rédaction. Étude des différents styles de langue écrite par opposition à ceux de la langue parlée. Pratique de l’analyse et du commentaire de texte.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAN 315 Correction phonétique",
+    "credits": null,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours s’adresse à l’étudiante ou l’étudiant qui peut s’exprimer clairement du point de vue phonétique et qui désire acquérir une performance en prononciation. Le cours est essentiellement axé sur les particularités prosodiques et phonétiques du français. Une importance est également accordée à l’intonation expressive.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAN 318 Le français des affaires",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours vise à faire acquérir des compétences nécessaires à une communication écrite et orale efficace dans des situations complexes du marché du travail. Les étudiantes et étudiants seront amenés à analyser et à rédiger divers documents administratifs (lettres, procès‑verbaux, comptes rendus) ainsi qu’à communiquer oralement avec aisance dans le milieu des affaires. L’approfondissement des notions linguistiques et l’exploitation d’un vocabulaire relatif à la langue des affaires font aussi partie des objectifs du cours.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FRAN 320 Le vocabulaire français",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours propose une présentation méthodique des divers aspects du vocabulaire français. Il comporte quatre parties: introduction générale et présentation des outils bibliographiques; origine et évolution des mots; procédés de création lexicale; variation sémantique. Les travaux prendront la forme d’exercices variés de vocabulaire, d’analyses de textes et de recherches lexicales.",
+    "components": "Lecture",
+    "notes": "Avec le cours FRAN 306 , ce cours constituerait une bonne préparation aux cours de langue de niveau 400. Les étudiantes et étudiants qui ont suivi FRAN 334 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAN 321 Grammaire fonctionnelle du français",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours de mise à niveau s’adresse à l’étudiante ou l’étudiant qui, possédant déjà des connaissances approfondies en français, veut développer des automatismes de correction adaptés aux différents types de communication. Axé sur la compréhension et l’expression écrite et orale, il permettra à l’étudiante ou à l’étudiant d’atteindre une meilleure utilisation de la langue française.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAN 398 Étude d’un sujet particulier",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Les préalables de ces cours, ainsi que les sujets particuliers qui y sont étudiés, sont indiqués dans le Undergraduate Class Schedule.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FRAA 400 Introduction à la linguistique française I",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours vise à initier l’étudiante ou l’étudiant à l’analyse descriptive de la structure linguistique du français contemporain. Il présente un aperçu des aspects phonémiques, morphosyntaxiques et lexicaux de la langue considérée comme un système. Outre les notions de base sur la linguistique générale, on y aborde les méthodes d’analyse phonétique, phonologique et morphologique du français.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAN 330 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAA 401 Introduction à la linguistique française II",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Suite du FRAA 400 , ce cours vise à poursuivre l’étude du système linguistique du français contemporain. Outre les notions de base sur la sociolinguistique et la linguistique de l’énonciation, il traite des méthodes d’analyse syntaxique, lexicale et sémantique du français.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAN 331 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAA 403 Histoire de la langue française",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours est une initiation à l’histoire interne et à l’histoire externe du français. On étudiera, d’une part, les origines de cette langue et ses transformations au cours des siècles, sur les plans phonétique, orthographique, morphologique, syntaxique, lexical et sémantique et, d’autre part, l’évolution de sa situation dans le monde comme langue maternelle, langue seconde, langue de culture.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAN 333 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FRAA 404 Histoire de la langue française au Québec",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Aperçu de l’évolution du français au Québec, du XVIIe siècle à nos jours. Étude de la formation du français québécois et des influences internes et externes qu’il a subies au cours du temps. À l’aide de documents provenant d’époques successives, on s’attachera à définir ce qui caractérise les différents états du français parlé et écrit au Québec.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAN 466 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAA 405 Le code oratoire",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours avancé de langue vise à donner aux étudiantes et aux étudiants des connaissances sur les mécanismes en jeu dans la communication orale. Il porte sur les processus cognitifs impliqués dans la production et la compréhension du langage et sur la pragmatique, c’est‑à‑dire sur les aspects linguistiques du fonctionnement et de l’interprétation des énoncés en contexte. Il comporte également un volet pratique sur la création et la transmission de discours oraux universitaires : introduction à la rhétorique et création de discours informatifs et argumentatifs.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAN 404 ou FRAN 405 ou FRAN 408 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FRAA 419 Le français en Amérique du Nord, histoire et destins",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "La présence de la langue française en sol nord‑américain ne se limite pas au Québec, à l’Acadie et à la Louisiane. En effet, il existe plusieurs autres variétés de français parlées au Canada (le franco‑ontarien, le franco‑manitobain, le français mitchif ou encore le franco‑albertain) et aux États‑Unis (le français du Missouri, le franco‑américain ou encore le franco‑dakotain). L’objectif de ce cours est d’offrir aux étudiantes et aux étudiants un portrait à la fois historique, sociolinguistique et culturel de ces nombreuses variétés nord‑américaines du français.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FRAA 422 Questions actuelles en linguistique française",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours propose l’étude d’un sujet particulier du domaine de la linguistique. Plus précisément, ce cours aborde des questions qui peuvent être rattachées au domaine de l’énonciation, de la sociolinguistique, des politiques linguistiques, du traitement automatique du langage ou d’autres domaines de recherche en linguistique. Des présentations théoriques, des ateliers d’observation ou des exercices d’application permettront à l’étudiante et à l’étudiant de mieux cerner la problématique abordée.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAN 471 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FRAA 429 Fondements en linguistique française",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours vise à approfondir les connaissances de l’étudiante et de l’étudiant dans les trois domaines fondamentaux de la linguistique française : la phonologie, la syntaxe et la morphologie.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FRAA 410 Grammaire du français en contextes",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours vise le perfectionnement des connaissances grammaticales et l’acquisition d’une excellente compréhension du fonctionnement de la langue française en tant que système. En analysant des documents de diverses natures, en produisant des textes et en présentant des exposés oraux, l’étudiante et l’étudiant seront amenés à effectuer des choix langagiers adaptés à différents contextes de communication.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAN 406 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAA 412 Grammaire de texte",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours de communication écrite vise l’approfondissement des connaissances de la structuration du texte. L’accent est mis sur l’acquisition des règles spécifiques de la grammaire du texte qui dépassent le cadre d’une grammaire de la phrase. Dans cette perspective seront abordés des éléments tels que la reprise lexicale et pronominale, les articulateurs textuels et le rôle des paragraphes. Différentes organisations textuelles seront également analysées et ce, dans une perspective élargie de communication écrite.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAN 407 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAA 413 Rédaction",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours est destiné à l’étudiante ou à l’étudiant qui possède déjà une connaissance approfondie de la langue française. Il vise l’apprentissage des exigences méthodologiques propres aux travaux universitaires en abordant l’élaboration d’un plan et d’une bibliographie ainsi que la rédaction de textes informatifs et argumentatifs. Par le biais d’exercices de lecture, de rappels grammaticaux et d’ateliers de rédaction, l’étudiante ou l’étudiant pourra corriger ses lacunes et apprendre à nuancer son expression.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAA 415 Français avancé I",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours est destiné à l’étudiante ou à l’étudiant qui souhaite, tant à l’écrit qu’à l’oral, développer une argumentation structurée et cohérente, mettre en œuvre des outils d’organisation, d’articulation et de cohésion du discours. Il vise à permettre à l’étudiante ou à l’étudiant d’enrichir ses connaissances grammaticales et culturelles, de s’exprimer efficacement, d’argumenter de façon claire, de comprendre un large éventail de textes et discours longs ainsi que leur signification implicite.",
+    "components": null,
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FRAA 416 Français avancé II",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours constitue la suite du FRAA 415 , français avancé I. Il est destiné à l’étudiante ou à l’étudiant qui souhaite, tant à l’écrit qu’à l’oral, développer une argumentation structurée et cohérente, mettre en œuvre des outils d’organisation, d’articulation et de cohésion du discours. Il vise à permettre à l’étudiante ou à l’étudiant d’enrichir ses connaissances grammaticales et culturelles, de s’exprimer efficacement, d’argumenter de façon claire, de comprendre un large éventail de textes et discours longs ainsi que leur signification implicite.",
+    "components": null,
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAA 423 Rédaction avancée",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours vise l’approfondissement des compétences rédactionnelles par l’apprentissage de techniques de recherche documentaire et de synthèse textuelle, et par l’écriture de textes combinant ces techniques comme le compte rendu critique, le dossier ou le texte de vulgarisation.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAN 403 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "FRAA 491 Tutorat en langue ou linguistique",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude d’un sujet particulier dans le domaine de la langue ou de la linguistique.",
+    "components": "Tutorial",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAN 491 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FRAA 492 Tutorat en langue ou linguistique",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude d’un sujet particulier dans le domaine de la langue ou de la linguistique.",
+    "components": "Tutorial",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FRAA 498 Étude avancée d’un sujet particulier",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Les préalables de ces cours, ainsi que les sujets particuliers qui y sont étudiés, sont indiqués dans le Undergraduate Class Schedule.",
+    "components": "Tutorial",
+    "notes": "Les étudiantes et étudiants qui ont suivi le même sujet sous le numéro FRAN 498 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 222 Introduction à la littérature et à la culture françaises",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours offre une introduction à la littérature et à la culture françaises et à leurs spécificités historiques, sociales et linguistiques par la lecture et l’étude de quelques œuvres représentatives.",
+    "components": "Lecture",
+    "notes": "Ce cours est réservé aux étudiantes et étudiants ayant effectué leurs études secondaires dans une langue autre que le français.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FLIT 232 Introduction à la littérature et à la culture québécoises",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours offre une introduction à la littérature et à la culture québécoises et à leurs spécificités historiques, sociales et linguistiques par la lecture et l’étude de quelques œuvres représentatives.",
+    "components": "Lecture",
+    "notes": "Ce cours est réservé aux étudiantes et étudiants ayant effectué leurs études secondaires dans une langue autre que le français.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FLIT 240 Introduction aux littératures et aux cultures de la Francophonie",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours offre une introduction aux littératures et aux cultures des pays francophones du sud et à leurs spécificités historiques, sociales et linguistiques par la lecture et l’étude de quelques oeuvres représentatives.",
+    "components": "Lecture",
+    "notes": "Ce cours est réservé aux étudiantes et étudiants ayant effectué leurs études secondaires dans une langue autre que le français.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FLIT 250 Introduction aux cultures populaires de langue française",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours offre une introduction aux cultures populaires de langue française (littérature, cinéma, télévision, chanson) et à leurs spécificités historiques, sociales et linguistiques par la lecture et l’étude de quelques œuvres représentatives.",
+    "components": "Lecture",
+    "notes": "Ce cours est réservé aux étudiantes et étudiants ayant effectué leurs études secondaires dans une langue autre que le français.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FLIT 300 Littérature et culture françaises du Moyen Âge au XVIIe siècle",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Aperçu général de la littérature française du Moyen Âge, de la Renaissance et du XVIIe siècle, et des contextes historiques, sociaux et culturels qui permettent de mieux comprendre les œuvres.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FLIT 302 Littérature et culture françaises du XVIIIe siècle à aujourd’hui",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Aperçu général de la littérature française du XVIIIe siècle à aujourd’hui et des contextes historiques, sociaux et culturels qui permettent de mieux comprendre les œuvres.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FLIT 305 Littérature et culture québécoises",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Aperçu général de la littérature québécoise du début du XXe siècle à aujourd’hui et des contextes historiques, sociaux et culturels qui permettent de mieux comprendre les œuvres.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FLIT 308 Littératures et cultures de la Francophonie",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Aperçu général des littératures des pays francophones du sud et des contextes historiques, sociaux et culturels qui permettent de mieux comprendre les œuvres.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FLIT 310 Littérature française du Moyen Âge",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude de la littérature du Moyen Âge (chanson de geste, courtoisie, satire, lyrisme), de son contexte et de ses principales thématiques.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 312 Littérature française de la Renaissance",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude de la littérature du XVIe siècle (humanisme, poètes de la Pléiade), de son contexte et de ses principales thématiques.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 314 Littérature française du XVIIe siècle",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude de la littérature du XVIIe siècle (baroque, classicisme), de son contexte et de ses principales thématiques.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 316 Littérature française du XVIIIe siècle",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude de la littérature du XVIIIe siècle (Lumières, libertinage), de son contexte et de ses principales thématiques.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 318 Littérature française du XIXe siècle I",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude des principaux courants de la première moitié du XIXe siècle (romantisme, réalisme) et de leurs principales thématiques telles que le lyrisme et les transformations sociales.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 319 Littérature française du XIXe siècle II",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude des principaux courants de la seconde moitié du XIXe siècle (réalisme, Parnasse, naturalisme, décadence, symbolisme) et de leurs principales thématiques telles que le progrès, la question sociale et le statut de la littérature.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 320 Littérature française du XXe siècle I",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude des principaux courants de la première moitié du XXe siècle (surréalisme, existentialisme, absurde) et de leurs principales thématiques telles que l’inconscient, la guerre, les extrêmes politiques et le relativisme philosophique.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FLIT 321 Littérature française du XXe siècle II",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude des principaux courants de la seconde moitié du XXe siècle (absurde, nouveau roman, Oulipo) et de leurs principales thématiques telles que le souvenir de l’Occupation, la société de consommation, la libéralisation des mœurs et la révolte de la jeunesse.",
+    "components": "Lecture",
+    "notes": "Il n’est pas nécessaire d’avoir suivi FLIT 320 pour s’inscrire à ce cours.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FLIT 324 Littérature française contemporaine",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude des principaux courants contemporains (retour au réalisme, postmodernisme, autofiction) et de leurs principales thématiques telles que le néolibéralisme, le multiculturalisme, l’influence du numérique et la conscience historique.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FLIT 424 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FLIT 339 Littérature québécoise avant 1900",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude de la littérature de la fondation de la Nouvelle‑France à la fin du XIXe siècle (écrits coloniaux, contes et légendes, roman historique, roman de colonisation, poésie patriotique), de son contexte et de ses principales thématiques.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FLIT 303 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FLIT 341 Littérature québécoise de 1900 à 1960",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude des principaux courants de 1900 à 1960 (terroir, réalisme, roman psychologique) et de leurs principales thématiques telles que la survivance, l’urbanisation et la quête identitaire.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FLIT 343 Littérature québécoise de 1960 à 1980",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude des principaux courants de 1960 à 1980 (nouveau roman, contreculture, écriture migrante) et de leurs principales thématiques telles que l’identité nationale et linguistique, la modernité, le féminisme.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FLIT 345 Littérature québécoise de 1980 à aujourd’hui",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude des principaux courants depuis 1980 (écriture migrante, postmodernisme, autofiction, néo‑terroir) et de leurs principales thématiques telles que le désenchantement, l’américanité, l’hyperconsommation et le multiculturalisme.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FLIT 351 Théâtre québécois",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude du théâtre moderne et contemporain, de ses théories, de ses pratiques et des principaux axes de son développement comme le théâtre populaire, le réalisme, la critique sociale, les expérimentations formelles et l’autoréflexivité.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 362 Littératures du Maghreb",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude d’œuvres francophones significatives de l’Algérie, de la Tunisie et du Maroc en contexte colonial (interrogations identitaires, génération 54, revue souffles) et après les Indépendances (interrogations sociales, engagement et contestation politiques), de la littérature beure à la littérature‑monde.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FLIT 363 Littératures d’Afrique francophone",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude d’œuvres significatives de quelques pays d’Afrique subsaharienne francophone en contexte colonial (la négritude) et postcolonial, des Indépendances à nos jours, du roman de la dictature au roman de la migritude.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FLIT 364 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FLIT 365 Littératures de la Caraïbe francophone",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude d’œuvres significatives de la Guadeloupe, de la Martinique, de la Guyane, des courants littéraires auxquels elles appartiennent (négritude, antillanité, créolité, Tout‑monde) et des enjeux contemporains de la création littéraire caribéenne.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FLIT 364 ne peuvent obtenir de crédits pour ce cours",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FLIT 367 Littérature d’Haïti",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude d’œuvres significatives d’Haïti de l’indépendance à nos jours et de courants littéraires comme le romantisme haïtien, l’indigénisme, le mouvement de La Nouvelle Ronde, la négritude et la littérature de la diaspora.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FLIT 371 Littérature des femmes en France",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude d’œuvres françaises de diverses époques écrites par des femmes et de leurs principales thématiques telles que l’affirmation identitaire, le rapport au social, le corps et le féminisme.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FLIT 472 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "summer"
+    ]
+  },
+  {
+    "title": "FLIT 373 Littérature des femmes au Québec",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude d’œuvres québécoises de diverses époques écrites par des femmes et de leurs principales thématiques telles que l’affirmation identitaire, le rapport au social, le corps et le féminisme.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FLIT 471 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "summer"
+    ]
+  },
+  {
+    "title": "FLIT 375 Littérature des femmes de la Francophonie",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude d’œuvres de différents pays francophones du sud écrites par des femmes et de leurs principales thématiques liées à différents contextes culturels, historiques et idéologiques, de la colonisation à la décolonisation, du féminisme au womanism.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FLIT 360 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 398 Étude d’un sujet particulier",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude d’un sujet particulier dans le domaine des littératures de langue française. Le contenu spécifique du cours est indiqué dans le Undergraduate Class Schedule.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 402 Littérature et culture populaires de la France",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse d’œuvres représentatives de la littérature et de la culture populaires de la France (par exemple, roman, théâtre, cinéma, télévision, chanson) et examen de leurs spécificités historiques, sociales et linguistiques.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FLIT 446 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FLIT 404 Littérature et culture populaires du Québec",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse d’œuvres représentatives de la littérature et de la culture populaires du Québec (par exemple, roman, théâtre, cinéma, télévision, chanson) et examen de leurs spécificités historiques, sociales et linguistiques.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FLIT 446 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FLIT 406 Littératures et cultures populaires de la Francophonie",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse d’œuvres représentatives des littératures et des cultures des pays francophones du sud (par exemple, roman, théâtre, cinéma, télévision, chanson) et examen de leurs spécificités historiques, sociales et linguistiques.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FLIT 446 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 411 La bande dessinée",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse d’œuvres de bande dessinée et de roman graphique en français et étude des différents concepts qui permettent de théoriser les rapports entre texte et image (narration, scénarisation, ancrage, relais).",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 413 Le roman policier français",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse d’œuvres représentatives de la tradition du roman policier français (roman à énigme, roman noir, roman à suspense, néo‑polar, polar contemporain) et examen de leurs spécificités historiques, sociales et linguistiques.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FLIT 415 Les écritures scéniques",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse de formes émergentes et de stratégies dramaturgiques significatives des arts de la scène (théâtre, danse‑théâtre, performance, cirque contemporain) visant à mettre en évidence ce qui s’écrit sur scène par la parole, le geste, l’image et la performance.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 431 Littératures coloniales",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse d’œuvres littéraires francophones (Maghreb, Afrique subsaharienne) de la fin du XIXe siècle aux années 1960, situation des enjeux politiques, historiques, sociaux et culturels qu’elles abordent, et examen de textes‑clés des principaux penseurs et des mouvements anticoloniaux.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FLIT 433 Littératures postcoloniales",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse d’œuvres littéraires francophones (Maghreb, Afrique subsaharienne) des Indépendances africaines à nos jours, situation des enjeux politiques, historiques, sociaux et culturels qu’elles abordent, et examen de textes‑clés des théories postcoloniales.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FLIT 447 Les voix de Montréal",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse d’œuvres littéraires qui ont pour sujet la ville de Montréal, son histoire, son présent, ses quartiers, ses habitants, ses langues, ses cultures, son ambiance et sa diversité, afin de mieux comprendre les représentations qui la caractérisent.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FLIT 449 Littérature québécoise – Canadian Literature",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse comparée d’œuvres significatives des littératures québécoise et canadienne‑anglaise visant à mettre en évidence leurs similitudes et leurs traits distinctifs à la lumière des contextes historiques, sociaux et culturels.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FLIT 464 Littératures mondiales",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse d’œuvres significatives de la littérature‑monde, en traduction française, qui ont eu un impact hors de leur contexte d’origine et qui reflètent des interrogations contemporaines.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 466 Littératures des Amériques",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse d’œuvres littéraires des Amériques (Canada, États‑Unis, Amérique latine), en français ou en traduction française, visant à mettre en évidence des enjeux liés à l’américanité, à la transculturalité et à l’hybridation.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 468 Littératures autochtones",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse d’œuvres significatives des littératures autochtones en français ou en traduction française et examen des enjeux culturels, historiques, sociaux et linguistiques qu’elles mettent en évidence.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 470 Littérature et cinéma",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse d’œuvres littéraires en français et de leur adaptation cinématographique, selon les caractéristiques respectives de l’expression écrite et du langage filmique, afin de comprendre la nature et les effets de la transposition.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 473 Littérature et numérique",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse d’œuvres littéraires en français ou en traduction française, parues sous la forme de livre ou de dispositif hypermédiatique, qui témoignent des changements que le numérique entraîne dans les pratiques d’écriture et de lecture.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 476 Littérature et musique",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse d’œuvres littéraires en français ayant la musique pour sujet, afin de comprendre la représentation thématique d’un univers musical (répertoire, sous‑culture) et la transposition verbale d’un phénomène sonore.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 478 Littérature et gastronomie",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Analyse d’œuvres littéraires en français qui ont pour sujet l’alimentation (production, cuisine, consommation, rituels), à l’aide de notions liées au domaine des études gastronomiques (food studies), pour mieux comprendre les représentations du fait alimentaire.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 486 Création littéraire I",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Introduction aux pratiques et aux exigences de la création littéraire (forme, ton, rythme, lexique) par le biais de lectures et d’ateliers d’écriture.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAA 440 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FLIT 488 Création littéraire II",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Approfondissement des pratiques et des exigences de la création littéraire (forme, ton, rythme, lexique) par le biais de lectures et d’ateliers d’écriture ainsi que par l’élaboration d’un projet individuel.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAA 441 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 494 Tutorat en littérature",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude individuelle dirigée d’un sujet particulier dans le domaine des littératures de langue française.",
+    "components": "Tutorial",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 495 Tutorat en littérature",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude individuelle dirigée d’un sujet particulier dans le domaine des littératures de langue française.",
+    "components": "Tutorial",
+    "notes": "Toute étudiante et tout étudiant s’inscrivant pour la seconde fois au cours FLIT 494 obtient les crédits FLIT 495 . Les étudiantes et étudiants qui ont suivi FRAN 495 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 496 Recherche dirigée",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude individuelle dirigée permettant d’approfondir un sujet particulier dans le domaine des littératures de langue française.",
+    "components": "Tutorial",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FLIT 498 Étude d’un sujet particulier",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude d’un sujet particulier dans le domaine des littératures de langue française. Le contenu spécifique du cours est indiqué dans le Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "FTRA 200 Méthodologie de la traduction",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours a pour but d’initier l’étudiante et l’étudiant aux problèmes de la traduction. Il sera une introduction générale aux différentes approches du texte à traduire : analyse du discours, grammaire contrastive, stylistique comparée, terminologie et recherche documentaire.",
+    "components": "Lecture",
+    "notes": "Ce cours comporte plusieurs sections, les unes réservées aux étudiantes et étudiants de l’option française, les autres à celles et ceux de l’option anglaise. Les étudiantes et étudiants qui ont suivi TRAD 200 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FTRA 201 Traduction générale du français à l’anglais I",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Traduction du français à l’anglais de textes généraux et analyse des problèmes liés au transfert linguistique.",
+    "components": "Lecture",
+    "notes": "(A) Ce cours a le français comme langue de départ et l’anglais comme langue d’arrivée. Les étudiantes et étudiants qui ont suivi TRAD 201 ou TRAD 202 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FTRA 202 Traduction générale de l’anglais au français I",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Traduction de l’anglais au français de textes généraux et analyse des problèmes liés au transfert linguistique.",
+    "components": "Lecture",
+    "notes": "(F) Ce cours a l’anglais comme langue de départ et le français comme langue d’arrivée. Les étudiantes et étudiants qui ont suivi TRAD 201 ou 202 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FTRA 203 L’anglais en contact avec le français au Québec",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours s’adresse aux étudiantes et étudiants anglophones en traduction, langue, littérature et rédaction. Il les sensibilisera aux problèmes liés au contact de l’anglais avec le français au Québec et leur permettra de corriger leurs propres erreurs de façon systématique. Le cours est axé sur la langue écrite et on travaillera uniquement sur des textes journalistiques.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FTRA 204 Le français en contact avec l’anglais au Québec",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours s’adresse aux étudiantes et étudiants francophones en traduction, langue, littérature et rédaction. Il les sensibilisera aux problèmes liés au contact du français avec l’anglais au Québec et leur permettra de corriger leurs propres erreurs de façon systématique. Le cours est axé sur la langue écrite et on travaillera uniquement sur des textes journalistiques.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FTRA 207 Traduction générale du français à l’anglais II",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours s’adresse aux étudiantes et étudiants anglophones et porte sur la traduction du français à l’anglais de textes généraux, et sur l’analyse des problèmes liés au transfert linguistique.",
+    "components": "Lecture",
+    "notes": "(A) Ce cours a le français comme langue de départ et l’anglais comme langue d’arrivée.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FTRA 208 Traduction générale de l’anglais au français II",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours s’adresse aux étudiantes et étudiants francophones et porte sur la traduction de l’anglais au français de textes généraux, et sur l’analyse des problèmes liés au transfert linguistique.",
+    "components": "Lecture",
+    "notes": "(F) Ce cours a l’anglais comme langue de départ et le français comme langue d’arrivée.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FTRA 298 Étude d’un sujet particulier",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Les préalables de ces cours, ainsi que les sujets particuliers qui y sont étudiés, sont indiqués dans le Undergraduate Class Schedule.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi un cours TRAD 298 ayant le même contenu ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FTRA 299 Étude d’un sujet particulier",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Les préalables de ces cours, ainsi que les sujets particuliers qui y sont étudiés, sont indiqués dans le Undergraduate Class Schedule.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi un cours TRAD 299 ayant le même contenu ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FTRA 301 Traduction littéraire du français à l’anglais",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Sensibilisation aux problèmes spécifiques à la traduction littéraire. Travaux pratiques : traduction de textes de genres variés.",
+    "components": "Lecture",
+    "notes": "(A) Ce cours a le français comme langue de départ et l’anglais comme langue d’arrivée. Les étudiantes et étudiants qui ont suivi TRAD 301 ou TRAD 302 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FTRA 304 Traduction littéraire de l’anglais au français",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Sensibilisation aux problèmes spécifiques à la traduction littéraire. Travaux pratiques : traduction de textes de genres variés.",
+    "components": "Lecture",
+    "notes": "(F) Ce cours a l’anglais comme langue de départ et le français comme langue d’arrivée. Les étudiantes et étudiants qui ont suivi TRAD 303 ou TRAD 304 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FTRA 305 Initiation à la traduction économique du français à l’anglais",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Sensibilisation aux problèmes que pose dans le domaine de l’économie la traduction du français à l’anglais.",
+    "components": "Lecture",
+    "notes": "(A) Ce cours a le français comme langue de départ et l’anglais comme langue d’arrivée.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FTRA 306 Initiation à la traduction économique de l’anglais au français",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Sensibilisation aux problèmes que pose dans le domaine de l’économie la traduction de l’anglais au français.",
+    "components": "Lecture",
+    "notes": "(F) Ce cours a l’anglais comme langue de départ et le français comme langue d’arrivée.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FTRA 310 Initiation à la recherche documentaire et terminologique",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Le cours fournit les outils permettant de repérer les problèmes de terminologie en traduction. Sont traités : les cheminements documentaire et terminologique (terminologie bilingue ou unilingue, langues de spécialités); la création de produits terminographiques (surtout thématiques); l’intervention linguistique et ses modalités (perspective sociolinguistique).",
+    "components": "Lecture",
+    "notes": "(F/A) Ce cours peut être offert en français ou en anglais. Les étudiantes et étudiants qui ont suivi TRAD 310 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "FTRA 316 Informatique et traduction",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours porte sur la langue de l’informatique, la théorie et les concepts fondamentaux qui s’y rapportent. Il comporte des exercices de traduction, et une initiation aux outils informatisés pour les traducteurs : Internet, bases de données, systèmes de traduction assistée, utilitaires.",
+    "components": "Lecture",
+    "notes": "(F/A) Ce cours peut être offert en français ou en anglais. Les étudiantes et étudiants qui ont suivi TRAD 416 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "FTRA 398 Étude d’un sujet particulier",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Les préalables de ces cours, ainsi que les sujets particuliers qui y sont étudiés, sont indiqués dans le Undergraduate Class Schedule. Notes: Les étudiantes et étudiants qui ont suivi un cours TRAD 398 ayant le même contenu ne peuvent obtenir de crédits pour ce cours.",
+    "components": null,
+    "notes": "Les étudiantes et étudiants qui ont suivi un cours TRAD 398 ayant le même contenu ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FTRA 399 Étude d’un sujet particulier",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Les préalables de ces cours, ainsi que les sujets particuliers qui y sont étudiés, sont indiqués dans le Undergraduate Class Schedule. Notes: Les étudiantes et étudiants qui ont suivi un cours TRAD 399 ayant le même contenu ne peuvent obtenir de crédits pour ce cours.",
+    "components": null,
+    "notes": "Les étudiantes et étudiants qui ont suivi un cours TRAD 399 ayant le même contenu ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FTRA 401 Traduction littéraire avancée : du français à l’anglais",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude des différents principes et des différentes techniques de la traduction littéraire; aperçu de la traduction littéraire au Canada. Travaux pratiques : analyse critique et comparaison de traductions et de leur original; traduction de textes français.",
+    "components": "Lecture",
+    "notes": "(A) Ce cours a le français comme langue de départ et l’anglais comme langue d’arrivée. Les étudiantes et étudiants qui ont suivi TRAD 401 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FTRA 402 Traduction littéraire avancée : de l’anglais au français",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude des différents principes et des différentes techniques de la traduction littéraire; aperçu de la traduction littéraire au Canada. Travaux pratiques : analyse critique et comparaison de traductions et de leur original; traduction de textes anglais.",
+    "components": "Lecture",
+    "notes": "(F) Ce cours a l’anglais comme langue de départ et le français comme langue d’arrivée. Les étudiantes et étudiants qui ont suivi TRAD 402 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FTRA 403 Traduction scientifique et technique du français à l’anglais",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Initiation aux différents problèmes de la traduction dans les langues de spécialités scientifiques et techniques (français‑anglais). Le cours est divisé en plusieurs parties, chaque partie correspondant à un domaine spécialisé en traduction.",
+    "components": "Lecture",
+    "notes": "(A) Ce cours a le français comme langue de départ et l’anglais comme langue d’arrivée. Les étudiantes et étudiants qui ont suivi TRAD 403 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FTRA 404 Traduction scientifique et technique de l’anglais au français",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Initiation aux différents problèmes de la traduction dans les langues de spécialités scientifiques et techniques (anglais‑français). Le cours est divisé en plusieurs parties, chaque partie correspondant à un domaine spécialisé en traduction.",
+    "components": "Lecture",
+    "notes": "(F) Ce cours a l’anglais comme langue de départ et le français comme langue d’arrivée. Les étudiantes et étudiants qui ont suivi TRAD 404 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FTRA 405 Traduction commerciale et juridique du français à l’anglais",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Initiation aux différents problèmes de la traduction dans les langues de spécialités de l’administration, du commerce et du droit (français‑anglais). Le cours est divisé en plusieurs parties, chaque partie correspondant à un domaine spécialisé en traduction.",
+    "components": "Lecture",
+    "notes": "(A) Ce cours a le français comme langue de départ et l’anglais comme langue d’arrivée. Les étudiantes et étudiants qui ont suivi TRAD 405 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FTRA 406 Traduction commerciale et juridique de l’anglais au français",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Initiation aux différents problèmes de la traduction dans les langues de spécialités de l’administration, du commerce et du droit (anglais‑français). Le cours est divisé en plusieurs parties, chaque partie correspondant à un domaine spécialisé.",
+    "components": "Lecture",
+    "notes": "(F) Ce cours a l’anglais comme langue de départ et le français comme langue d’arrivée. Les étudiantes et étudiants qui ont suivi TRAD 406 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FTRA 408 Adaptation publicitaire",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Initiation à l’adaptation de textes publicitaires. À partir d’exemples empruntés à la publicité écrite, radiophonique ou télévisée, les étudiantes et étudiants seront amenés à se familiariser avec les problèmes linguistiques, affectifs et sociaux soulevés par le travail d’adaptation.",
+    "components": "Lecture",
+    "notes": "(F/A) Ce cours peut être offert en français ou en anglais. Les étudiantes et étudiants qui ont suivi TRAD 408 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FTRA 409 Révision et correction en traduction",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours abordera les différentes méthodes de révision et de correction de textes rédigés ou traduits en anglais; il sensibilisera les étudiantes et étudiants aux aspects humains et techniques du métier de réviseure et réviseur; on touchera aussi aux problèmes de l’évaluation de la qualité des traductions.",
+    "components": "Lecture",
+    "notes": "(A) Ce cours a le français comme langue de départ et l’anglais comme langue d’arrivée. Les étudiantes et étudiants qui ont suivi TRAD 409 ou TRAD 410 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FTRA 410 Révision et correction en traduction",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours abordera les différentes méthodes de révision et de correction de textes rédigés ou traduits en français; il sensibilisera les étudiantes et étudiants aux aspects humains et techniques du métier de réviseure et réviseur; on touchera aussi aux problèmes de l’évaluation de la qualité des traductions.",
+    "components": "Lecture",
+    "notes": "(F) Ce cours a l’anglais comme langue de départ et le français comme langue d’arrivée. Les étudiantes et étudiants qui ont suivi TRAD 409 ou TRAD 410 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FTRA 411 Terminologie et mondialisation",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Le cours porte sur certains points fins en terminologie et en terminographie modernes : synonymie, marques sociolinguistiques, néonymie, normalisation et internationalisation. Il traite spécifiquement du rôle de la terminologie dans la gestion de l’information unilingue et multilingue dans les entreprises et dans les organismes nationaux et internationaux. L’aspect pratique prend, entre autres, la forme de rédaction de rapports de recherche et l’utilisation d’outils terminotiques.",
+    "components": "Lecture",
+    "notes": "(F/A) Ce cours peut être offert en français ou en anglais.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "FTRA 412 Théories de la traduction",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours est une initiation aux différentes théories actuelles de la traduction. Est examiné l’apport de secteurs disciplinaires clés tels que la linguistique, la sémiotique, la sociocritique, dans le développement de la traductologie moderne.",
+    "components": "Lecture",
+    "notes": "(F/A) Ce cours peut être offert en français ou en anglais. Les étudiantes et étudiants qui ont suivi TRAD 412 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FTRA 414 Histoire de la traduction",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Cours d’initiation à l’histoire de la traduction où sont traités les grands courants de la traduction depuis l’Antiquité classique. Sera également abordée la traduction dans certaines sociétés non occidentales. On procèdera par thèmes et par aires géographiques en mettant l’accent sur les époques clés de grands changements politiques et culturels.",
+    "components": "Lecture",
+    "notes": "(F/A) Ce cours peut être offert en français ou en anglais. Les étudiantes et étudiants qui ont suivi TRAD 414 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FTRA 418 Web, technologies, traduction : théories et critiques",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours pose une réflexion théorique sur les pratiques contemporaines issues du contexte de la mondialisation par rapport aux technologies, au Web multilingue et à la traduction. Sont examinés les aspects et les enjeux culturels, sociaux, linguistiques, scientifiques, techniques, philosophiques, institutionnels, politiques et idéologiques. Le cours comporte des discussions hebdomadaires et un travail approfondi de recherche sur l’analyse des courants actuels des technologies et du Web en mettant l’accent sur la traduction et la communication mondiale.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi le même sujet sous le numéro FTRA 498 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FTRA 420 Stage de formation : de l’anglais au français",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Le stage a pour but d’initier l’étudiante ou l’étudiant à l’activité professionnelle dans le domaine de la traduction de l’anglais au français et de lui faire connaître le monde du travail. Le stage peut comporter des tâches en traduction, en terminologie ou en gestion de projet. Il a lieu généralement en entreprise, au gouvernement ou en milieu communautaire ou sous forme de mentorat OTTIAQ.",
+    "components": "Practicum/Internship/Work Term",
+    "notes": "(F) Ce cours a l’anglais comme langue de départ et le français comme langue d’arrivée. Les étudiantes et étudiants qui ont suivi TRAD 420 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FTRA 421 Stage de formation : du français à l’anglais",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Le stage a pour but d’initier l’étudiante ou l’étudiant à l’activité professionnelle dans le domaine de la traduction du français à l’anglais et de lui faire connaître le monde du travail. Le stage peut comporter des tâches en traduction, en terminologie ou en gestion de projet. Il a lieu généralement en entreprise, au gouvernement ou en milieu communautaire ou sous forme de mentorat OTTIAQ.",
+    "components": "Practicum/Internship/Work Term",
+    "notes": "(A) Ce cours a le français comme langue de départ et l’anglais comme langue d’arrivée. Les étudiantes et étudiants qui ont suivi TRAD 421 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FTRA 422 Stage de formation : de l’anglais au français I",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Le stage a pour but d’initier l’étudiante ou l’étudiant à l’activité professionnelle dans le domaine de la traduction de l’anglais au français et de lui faire connaître le monde du travail. Le stage peut comporter des tâches en traduction, en terminologie ou en gestion de projet. Il a lieu généralement en entreprise, au gouvernement ou en milieu communautaire ou sous forme de mentorat OTTIAQ.",
+    "components": "Practicum/Internship/Work Term",
+    "notes": "(F) Ce cours a l’anglais comme langue de départ et le français comme langue d’arrivée.",
+    "offeredIn": []
+  },
+  {
+    "title": "FTRA 423 Stage de formation : du français à l’anglais I",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Le stage a pour but d’initier l’étudiante ou l’étudiant à l’activité professionnelle dans le domaine de la traduction du français à l’anglais et de lui faire connaître le monde du travail. Le stage peut comporter des tâches en traduction, en terminologie ou en gestion de projet. Il a lieu généralement en entreprise, au gouvernement ou en milieu communautaire ou sous forme de mentorat OTTIAQ.",
+    "components": "Practicum/Internship/Work Term",
+    "notes": "(A) Ce cours a le français comme langue de départ et l’anglais comme langue d’arrivée.",
+    "offeredIn": []
+  },
+  {
+    "title": "FTRA 424 Stage de formation : de l’anglais au français II",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Le stage a pour but d’initier l’étudiante ou l’étudiant à l’activité professionnelle dans le domaine de la traduction de l’anglais au français et de lui faire connaître le monde du travail.  Le stage peut comporter des tâches en traduction, en terminologie ou en gestion de projet. Il a lieu généralement en entreprise, au gouvernement ou en milieu communautaire ou sous forme de mentorat OTTIAQ.",
+    "components": "Practicum/Internship/Work Term",
+    "notes": "(F) Ce cours a l’anglais comme langue de départ et le français comme langue d’arrivée.",
+    "offeredIn": []
+  },
+  {
+    "title": "FTRA 425 Stage de formation : du français à l’anglais II",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Le stage a pour but d’initier l’étudiante ou l’étudiant à l’activité professionnelle dans le domaine de la traduction du français à l’anglais et de lui faire connaître le monde du travail. Le stage peut comporter des tâches en traduction, en terminologie ou en gestion de projet. Il a lieu généralement en entreprise, au gouvernement ou en milieu communautaire ou sous forme de mentorat OTTIAQ.",
+    "components": "Practicum/Internship/Work Term",
+    "notes": "(A) Ce cours a le français comme langue de départ et l’anglais comme langue d’arrivée.",
+    "offeredIn": []
+  },
+  {
+    "title": "FTRA 438 Initiation au sous-titrage",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours a pour but d’initier les étudiantes et étudiants à la traduction audiovisuelle, en particulier au sous‑titrage. Il comporte un volet théorique, avec lectures et analyses, ainsi qu’un volet pratique où sont traités les principes et les conventions du sous‑titrage, les aspects techniques et les genres cinématographiques. Sont aussi abordées la traduction de la voix hors‑champ et les techniques d’accessibilité tels le sous‑titrage pour malentendants et l’audiodescription.",
+    "components": "Lecture",
+    "notes": "Les étudiantes et étudiants qui ont suivi TRAD 408 ou qui ont suivi le même sujet sous le numéro FTRA 498 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FTRA 452 Traduction automatique",
+    "credits": null,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours permet d’analyser les aspects morphologiques, lexicaux, syntaxiques et sémantiques des systèmes de traduction automatisée. L’étudiante et l’étudiant apprennent à appliquer les concepts analysés à un système commercialisé. Ils évaluent des traductions machine, font des exercices simples de programmation portant sur des problèmes linguistiques; ils appliquent des outils de gestion et de traduction au matériel à localiser à l’aide de logiciels de localisation, de logiciels de terminologie, et de mémoires de traduction.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "FTRA 455 Gestion de projets",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Ce cours traite de la gestion des projets de traduction/localisation multilingues, depuis la rédaction de l’offre de services, jusqu’au contrôle de la qualité et la livraison, en passant par la résolution de problèmes et la gestion en situation de crise. Il comprend une partie théorique et des mises en situation. Les étudiantes et étudiants se familiarisent avec l’évaluation des ressources (humaines et matérielles) nécessaires pour exécuter le travail, l’élaboration d’échéanciers et le suivi d’un budget. Ils apprennent à gérer les ressources affectées aux projets afin de pouvoir respecter le mandat qui leur est confié.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FTRA 458 Pratique de la localisation",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "L’étudiante et l’étudiant étudieront dans ce cours les stratégies de localisation et les processus de localisation : la localisation de logiciels et la localisation de sites web; les acteurs dans les projets de localisation; la situation et le travail du traducteur dans les projets de localisation; les types de fichiers à localiser : ressources, code source, fichiers d’aide, guides imprimés, matériel marketing; les types de logiciels localisés : logiciels système, logiciels de gestion, logiciels client, logiciels multimédia, logiciels web.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "FTRA 492 Tutorat en traduction",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Étude d’un sujet particulier dans le domaine de la traduction.",
+    "components": "Tutorial",
+    "notes": "Les étudiantes et étudiants qui ont suivi FRAN 492 ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FTRA 498 Étude avancée d’un sujet particulier",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Les préalables de ces cours, ainsi que les sujets particuliers qui y sont étudiés, sont indiqués dans le Undergraduate Class Schedule. Notes: Les étudiantes et étudiants qui ont suivi un cours TRAD 498 ayant le même contenu ne peuvent obtenir de crédits pour ce cours.",
+    "components": null,
+    "notes": "Les étudiantes et étudiants qui ont suivi un cours TRAD 498 ayant le même contenu ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  },
+  {
+    "title": "FTRA 499 Étude avancée d’un sujet particulier",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Les préalables de ces cours, ainsi que les sujets particuliers qui y sont étudiés, sont indiqués dans le Undergraduate Class Schedule. Notes: Les étudiantes et étudiants qui ont suivi un cours TRAD 499 ayant le même contenu ne peuvent obtenir de crédits pour ce cours.",
+    "components": null,
+    "notes": "Les étudiantes et étudiants qui ont suivi un cours TRAD 499 ayant le même contenu ne peuvent obtenir de crédits pour ce cours.",
+    "offeredIn": []
+  }
+]

@@ -4,8 +4,8 @@ import json
 import requests
 import re
 
-# URL of the Concordia Computer Science courses page
-url = "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-70-department-of-computer-science-and-software-engineering/section-71-70-10-computer-science-and-software-engineering-courses.html#3645"
+# URL of the Concordia Engineering courses page
+url = "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-60-engineering-course-descriptions/engineering-courses.html"
 
 
 # Set a user agent to mimic a real browser
@@ -157,7 +157,7 @@ for block in course_blocks:
         print(f"Error processing course block: {e}")
 
 # Save to JSON file
-output_path = 'COMP_courses.json'
+output_path = 'ENGR_courses.json'
 with open(output_path, 'w', encoding='utf-8') as json_file:
     json.dump(courses, json_file, indent=4, ensure_ascii=False)
 
