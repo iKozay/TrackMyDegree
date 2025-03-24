@@ -34,13 +34,23 @@ function App() {
   const [isExtendedCredit, setIsExtendedCredit] = useState(false);
 
   const handleDataProcessed = (data) => {
-    setTimelineData(data.transcriptData); // Update transcript data
-    setDegreeId(data.degreeId); // Update degreeId
-    setCreditsRequired(data.creditsRequired); // Update creditsRequired
-    setIsExtendedCredit(data.isExtendedCredit); // Update is
-
-    console.log('app.js data.isExtendedCredit: ', data.isExtendedCredit);
-    console.log('app.js isExtendedCredit: ', isExtendedCredit);
+    if (data) {
+      setTimelineData(data.transcriptData); // Update transcript data
+      setDegreeId(data.degreeId); // Update degreeId
+      setCreditsRequired(data.creditsRequired); // Update creditsRequired
+      setIsExtendedCredit(data.isExtendedCredit); // Update is
+      
+      console.log('app.js data.isExtendedCredit: ', data.isExtendedCredit);
+      console.log('app.js isExtendedCredit: ', isExtendedCredit);
+    } 
+    else {
+      // Clear the data
+      setTimelineData([]);
+      setDegreeId(null);
+      setCreditsRequired([]);
+      setIsExtendedCredit(false);
+      console.log('Timeline data cleared')
+    }
   };
 
   const location = useLocation();
