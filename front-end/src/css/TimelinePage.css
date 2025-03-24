@@ -196,8 +196,8 @@
 .course-item {
   padding: 10px;
   margin: 5px auto;
-  background-color: #c0d8cd;
-  border: 1px solid #c0d8cd;
+  background-color: #912338;
+  border: 1px solid #912338;
   border-radius: 13px;
   cursor: grab;
   /* transition: transform 0.2s ease; */
@@ -209,15 +209,15 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 150px;
-  color: #f6f5f5;
+  color: #ffffff;
   font-weight: bold;
   font-size: 15px;
 }
 
 .course-item-overlay {
   padding: 10px;
-  background-color: #d1e7dd;
-  border: 1px solid #c0d8cd;
+  background-color: #e6c9ce;
+  border: 1px solid #daa5af;
   border-radius: 13px;
   cursor: grabbing;
   display: flex;
@@ -227,18 +227,18 @@
   /* max-width: 120px; */
   /* Optional: add some border radius */
   box-shadow: #8db0d4 0px 0px 10px; /* Optional: add a shadow */
-  color: #f6f5f5;
+  color: #ffffff;
   font-weight: bold;
   font-size: 18px;
 }
 
 .course-item.dragging {
-  background-color: #ccc;
+  background-color: #79192a;
   cursor: grabbing;
 }
 
 .course-item.disabled {
-  background-color: #ccc;
+  background-color: #79192a;
   cursor: not-allowed;
   border: 0px;
 }
