@@ -23,11 +23,15 @@ import { CSS } from '@dnd-kit/utilities';
 import Accordion from 'react-bootstrap/Accordion';
 import Container from 'react-bootstrap/Container';
 import warningIcon from '../icons/warning.png'; // Import warning icon
+import downloadIcon from '../icons/download-icon.PNG';
 import '../css/TimelinePage.css';
-import { groupPrerequisites } from '../utils/groupPrerequisites'; // Adjust the path as necessary
+import { groupPrerequisites } from '../utils/groupPrerequisites';
 import { useLocation } from 'react-router-dom';
 import { TimelineError } from '../middleware/SentryErrors';
 import * as Sentry from '@sentry/react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
 
 // DraggableCourse component for course list items
 const DraggableCourse = ({
