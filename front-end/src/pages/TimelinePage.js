@@ -173,7 +173,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const autoScrollInterval = useRef(null);
 
 
-  let { degree_Id, startingSemester, credits_Required = 120, extendedCredit } = location.state || {};
+  let { degree_Id, startingSemester, credits_Required, extendedCredit } = location.state || {};
 
   // console.log("isExtendedCredit: " + isExtendedCredit);
   // console.log("extendedCredit: " + extendedCredit);
@@ -193,7 +193,12 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   }
 
   if (!credits_Required) {
-    credits_Required = 120;
+    if(creditsRequired && String(creditsRequired).trim()) {
+      credits_Required = creditsRequired;
+    }
+    else {
+      credits_Required = 120;
+    }
   }
 
   if (extendedCredit) {
@@ -1384,7 +1389,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
               <div className="credits-display">
                 <h4>
                   Total Credits Earned: {totalCredits} /{' '}
-                  {creditsRequired + deficiencyCredits}
+                  {credits_Required + deficiencyCredits}
                 </h4>
                 {/* Save Timeline Button */}
                 <button
