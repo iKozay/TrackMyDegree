@@ -89,6 +89,20 @@
   overflow-y: auto; /* Enable vertical scrolling for the records */
 }
 
+.records-table td {
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+    /* Allow text to wrap */
+    max-width: 200px;
+    /* Set a reasonable max width */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Show '...' when text overflows */
+    padding: 8px;
+}
+
+
 .records-table thead {
   display: table; /* Retain the table layout for the header */
   width: 100%; /* Ensure the header spans the table width */
