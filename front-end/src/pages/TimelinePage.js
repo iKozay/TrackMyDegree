@@ -1583,7 +1583,7 @@ const TimelinePage = ({
                                                 y="11"
                                                 width="22"
                                                 height="4"
-                                                fill="red"
+                                                fill="white"
                                               />
                                             </svg>
                                           </button>

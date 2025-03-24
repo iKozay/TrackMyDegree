@@ -9,6 +9,7 @@ const corsOptions: CorsOptions = {
 			"http://localhost:3000",
 			"http://167.71.165.174:3000",
 			"http://159.65.216.141:3000",
+			"https://trackmydegree.com",
 			"chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld",
 			"https://hoppscotch.io",
 		];
