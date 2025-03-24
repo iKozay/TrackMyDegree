@@ -1,8 +1,8 @@
 // TimelinePage.js
 
 import React, { useState, useEffect, useRef, act } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useNavigate, useLocation, useBlocker } from 'react-router-dom';
+import { motion } from 'framer-motion'
 import {
   DndContext,
   useDraggable,
@@ -27,6 +27,8 @@ import downloadIcon from '../icons/download-icon.PNG';
 import '../css/TimelinePage.css';
 import { groupPrerequisites } from '../utils/groupPrerequisites';
 import { useLocation } from 'react-router-dom';
+import { groupPrerequisites } from '../utils/groupPrerequisites'; // Adjust the path as necessary
+import DeleteModal from "../components/DeleteModal";
 import { TimelineError } from '../middleware/SentryErrors';
 import * as Sentry from '@sentry/react';
 import jsPDF from 'jspdf';
@@ -156,12 +158,7 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
 };
 
 // Main component
-const TimelinePage = ({
-  degreeid,
-  timelineData,
-  creditsrequired,
-  isExtendedCredit,
-}) => {
+const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredit }) => {
   const navigate = useNavigate();
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
@@ -181,12 +178,8 @@ const TimelinePage = ({
   const scrollWrapperRef = useRef(null);
   const autoScrollInterval = useRef(null);
 
-  let {
-    degreeId,
-    startingSemester,
-    creditsRequired = 120,
-    extendedCredit,
-  } = location.state || {};
+
+  let { degree_Id, startingSemester, credits_Required, extendedCredit } = location.state || {};
 
   // console.log("isExtendedCredit: " + isExtendedCredit);
   // console.log("extendedCredit: " + extendedCredit);
@@ -201,16 +194,21 @@ const TimelinePage = ({
 
   // setIsECP(extendedCredit);
 
-  if (!degreeId) {
-    degreeId = degreeid;
+  if (!degree_Id) {
+    degree_Id = degreeId;
   }
 
-  if (!creditsrequired) {
-    creditsRequired = 120;
+  if (!credits_Required) {
+    if(creditsRequired && String(creditsRequired).trim()) {
+      credits_Required = creditsRequired;
+    }
+    else {
+      credits_Required = 120;
+    }
   }
 
   if (extendedCredit) {
-    creditsRequired += 30;
+    credits_Required += 30;
   }
 
   //console.log(degreeId);  // Logs the degreeId passed from UploadTranscriptPage.js
@@ -241,7 +239,10 @@ const TimelinePage = ({
 
   const [allCourses, setAllCourses] = useState([]);
   const [showExempted, setShowExempted] = useState(true);
-  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false); // Track if changes
+  const [nextPath, setNextPath] = useState(null); // Track what new page should be
+  const [showSaveModal, setShowSaveModal] = useState(false); // Popup for save
+  const [showLeaveModal, setShowLeaveModal] = useState(false); // Popup for leave
   const [timelineName, setTimelineName] = useState('');
   const [tempName, setTempName] = useState('');
 
@@ -259,10 +260,36 @@ const TimelinePage = ({
       'CHEM205',
       'PHYS204',
       'PHYS205',
-    ];
-  } else {
-    DEFAULT_EXEMPTED_COURSES = ['MATH201', 'MATH206'];
+    ]
   }
+  else {
+    DEFAULT_EXEMPTED_COURSES = [
+      'MATH201',
+      'MATH206',
+    ]
+  }
+
+  // Handle internal navigation (React)
+  useBlocker(({ nextLocation }) => {
+    if (hasUnsavedChanges) {
+      setNextPath(nextLocation.pathname); // Store the intended destination
+      setShowLeaveModal(true); // Show modal instead of navigating
+      return true; // Block navigation
+    }
+    return false; // Allow navigation
+  });
+
+  // Handle external navigation
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (hasUnsavedChanges) {
+        event.preventDefault();
+        event.returnValue = "You have unsaved changes. Are you sure you want to leave?"; // Custom message
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   // NEW: Fetch all courses from /courses/getAllCourses
   useEffect(() => {
@@ -369,7 +396,7 @@ const TimelinePage = ({
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ degree: degreeId }),
+            body: JSON.stringify({ degree: degree_Id }),
           },
         );
         if (!primaryResponse.ok) {
@@ -445,7 +472,8 @@ const TimelinePage = ({
     };
 
     fetchCoursesByDegree();
-  }, [degreeId, location.state?.creditDeficiency, extendedCredit]);
+  }, [degree_Id, location.state?.creditDeficiency, extendedCredit]);
+
 
   // Process timelineData and generate semesters and courses
   useEffect(() => {
@@ -700,6 +728,8 @@ const TimelinePage = ({
       return;
     }
 
+    setHasUnsavedChanges(true);
+
     // 1) Add the new semester to the "semesters" array, then sort
     setSemesters((prev) => {
       const newSemesters = [...prev, { id, name }];
@@ -722,6 +752,7 @@ const TimelinePage = ({
     setSemesterCourses((prev) => {
       const updated = { ...prev };
       delete updated[semesterId];
+      setHasUnsavedChanges(true);
       return updated;
     });
   };
@@ -796,6 +827,7 @@ const TimelinePage = ({
 
 
     setSemesterCourses((prevSemesters) => {
+      setHasUnsavedChanges(true);
       const updatedSemesters = { ...prevSemesters };
       let overSemesterId, overIndex;
 
@@ -893,6 +925,7 @@ const TimelinePage = ({
 
   const handleReturn = (courseCode) => {
     setReturning(true);
+    setHasUnsavedChanges(true);
 
     setSemesterCourses((prevSemesters) => {
       const updatedSemesters = { ...prevSemesters };
@@ -1131,6 +1164,7 @@ const TimelinePage = ({
     setTimelineName(tName);
 
     if (!user) {
+      //setHasUnsavedChanges(false); // Not sure what to do about this
       navigate('/signin');
       return;
     }
@@ -1181,6 +1215,7 @@ const TimelinePage = ({
 
     if (finalTimelineData.length === 0 && exempted_courses.length === 0) {
       alert('No valid data to save.');
+      setHasUnsavedChanges(false);
       return;
     }
 
@@ -1247,25 +1282,27 @@ const TimelinePage = ({
 
     // Save the complete timeline.
     try {
-      const responseTimeline = await fetch(
-        `${process.env.REACT_APP_SERVER}/timeline/save`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+      const responseTimeline = await fetch(`${process.env.REACT_APP_SERVER}/timeline/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
             user_id,
             name: timelineNameToSend,
             items,
-            degree_id: degreeId,
-            isExtendedCredit,
+            degree_id: degree_Id,
+            isExtendedCredit
           }),
-        },
-      );
+      },
+    );
       const dataTimeline = await responseTimeline.json();
       if (responseTimeline.ok) {
         alert('Timeline saved successfully!');
+        setHasUnsavedChanges(false);
         setShowSaveModal(false); // Close the modal
-        navigate('/user'); // Navigate after saving
+        // Navigate after saving
+        setTimeout(() => {
+          navigate('/user');  // Trigger navigation after delay due to setHasUnsavedChanges(false)
+        }, 250);
       } else {
         alert('Error saving Timeline: ' + (dataTimeline.message || ''));
       }
@@ -1439,7 +1476,7 @@ const TimelinePage = ({
               <div className="credits-display">
                 <h4>
                   Total Credits Earned: {totalCredits} /{' '}
-                  {creditsRequired + deficiencyCredits}
+                  {credits_Required + deficiencyCredits}
                 </h4>
                 <div className="timeline-buttons-container">
                   <button
@@ -1966,6 +2003,42 @@ const TimelinePage = ({
             </div>
           </div>
         )}
+
+        {/* Leave Confirm Modal */}
+        <DeleteModal open={showLeaveModal} onClose={() => setShowLeaveModal(false)}>
+          <div className="tw-text-center tw-w-56">
+            <div className="tw-mx-auto tw-my-4 tw-w-48">
+              <h3 className="tw-text-lg tw-font-black tw-text-gray-800">
+                Warning
+              </h3>
+              <p className="tw-text-sm tw-text-gray-500">
+                You have unsaved changes. Do you really want to leave?
+              </p>
+            </div>
+            <div className="tw-flex tw-gap-4">
+              <button
+                className="btn btn-danger tw-w-full"
+                onClick={async () => {
+                  if (nextPath) {
+                    setHasUnsavedChanges(false);
+
+                    setTimeout(() => {
+                      navigate(nextPath);  // Trigger navigation after delay due to setHasUnsavedChanges(false)
+                    }, 250);
+                  }
+                }}
+              >
+                Leave Anyways
+              </button>
+              <button
+                className="btn btn-light tw-w-full"
+                onClick={() => setShowLeaveModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </DeleteModal>
       </DndContext>
     </motion.div>
   );
