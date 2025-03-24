@@ -7,8 +7,8 @@ const router = express.Router();
 // Save (or update) a timeline.
 // The entire timeline (including items and courses) is passed in the JSON body.
 router.post('/save', async (req: Request, res: Response) => {
-  const timeline = req.body;
-  if (!timeline) {
+  const { timeline } = req.body;
+  if (!timeline || Object.keys(timeline).length === 0) {
     res.status(HTTP.BAD_REQUEST).json({ error: 'Timeline data is required' });
     return;
   }
@@ -66,7 +66,6 @@ router.post('/delete', async (req: Request, res: Response) => {
       res.status(HTTP.NOT_FOUND).json({ error: 'Internal Server Error' });
     }
   } catch (error) {
-    console.error('Error in /timeline/delete', error);
     res.status(HTTP.SERVER_ERR).json({ error: 'Failed to delete timeline' });
   }
 });

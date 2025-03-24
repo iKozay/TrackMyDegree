@@ -64,7 +64,6 @@ router.post('/signup', async (req: Request, res: Response) => {
 
 // Forgot password
 router.post('/forgot-password', async (req: Request, res: Response) => {
-  console.log('Request Body:', req.body);
   if (!req.body) {
     res
       .status(HTTP.BAD_REQUEST)

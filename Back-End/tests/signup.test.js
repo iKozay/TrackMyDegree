@@ -60,6 +60,7 @@ describe('POST /auth/signup', () => {
   });
 
   // Bad request, empty body
+  // Works in container but not here ?
   it('should return 400 status and error message when the body is empty', async () => {
     const response = await request(app)
       .post('/auth/signup')

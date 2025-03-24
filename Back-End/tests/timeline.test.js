@@ -26,12 +26,15 @@ describe('Timeline Routes', () => {
     jest.clearAllMocks();
   });
   describe('POST /timeline/save', () => {
+    // Works in container but not here ?
     it('should return 400 if no timeline data is provided', async () => {
       const response = await request(app)
         .post('/timeline/save')
-        .send({}) // Sending empty body
+        .send({})
+        .expect('Content-Type', /json/)
         .expect(400);
 
+      console.log(response);
       expect(response.body).toHaveProperty(
         'error',
         'Timeline data is required',
@@ -98,6 +101,7 @@ describe('Timeline Routes', () => {
         .expect('Content-Type', /json/)
         .expect(200);
       expect(response.body).toEqual('No timelines found');
+      // this fails in the container has to be expect(response.body).toHaveProperty('error', 'No timelines found');
     });
 
     it('should return 400 when user_id is missing', async () => {
@@ -111,48 +115,79 @@ describe('Timeline Routes', () => {
     });
   });
 
-  // describe('POST /timeline/delete', () => {
-  //   it('should delete timeline item successfully', async () => {
-  //     const request_body = { timeline_item_id: '1' };
-  //     controller.removeTimelineItem.mockResolvedValue(DB_OPS.SUCCESS);
+  describe('POST /timeline/delete', () => {
+    it('should delete timeline item successfully', async () => {
+      const request_body = { timeline_id: '1' };
+      expected_response = `Timeline with id: ${request_body.timeline_id} deleted successfully`;
+      timelineController.removeUserTimeline.mockResolvedValue(
+        expected_response,
+      );
 
-  //     const response = await request(app)
-  //       .post('/timeline/delete')
-  //       .send(request_body)
-  //       .expect('Content-Type', /json/)
-  //       .expect(200);
+      const response = await request(app)
+        .post('/timeline/delete')
+        .send(request_body)
+        .expect('Content-Type', /json/)
+        .expect(200);
 
-  //     expect(response.body).toHaveProperty(
-  //       'message',
-  //       'Item removed from timeline',
-  //     );
-  //   });
+      expect(response.body).toHaveProperty('message', expected_response);
+    });
 
-  //   it('should return 404 when timeline item not found', async () => {
-  //     controller.removeTimelineItem.mockResolvedValue(DB_OPS.MOSTLY_OK);
+    it('should return 404 when timeline item not found', async () => {
+      const invalid_request = { timeline_id: 'nonexistent_item' };
 
-  //     const response = await request(app)
-  //       .post('/timeline/delete')
-  //       .send({ timeline_item_id: 'nonexistent_item' })
-  //       .expect('Content-Type', /json/)
-  //       .expect(404);
+      timelineController.removeUserTimeline.mockResolvedValue(
+        `No timeline found with id: ${invalid_request.timeline_id}`,
+      );
 
-  //     expect(response.body).toHaveProperty(
-  //       'error',
-  //       'Item not found in timeline',
-  //     );
-  //   });
+      const response = await request(app)
+        .post('/timeline/delete')
+        .send(invalid_request)
+        .expect('Content-Type', /json/)
+        .expect(404);
 
-  //   it('should return 400 when timeline_item_id is missing', async () => {
-  //     const response = await request(app)
-  //       .post('/timeline/delete')
-  //       .send({})
-  //       .expect('Content-Type', /json/)
-  //       .expect(400);
+      expect(response.body).toHaveProperty(
+        'error',
+        `No timeline found with id: nonexistent_item`,
+      );
+    });
 
-  //     expect(response.body).toHaveProperty(
-  //       'error',
-  //       'Timeline item ID is required to remove item from timeline.',
-  //     );
-  //   });
+    it('should return 404 when timeline_item_id is missing', async () => {
+      const response = await request(app)
+        .post('/timeline/delete')
+        .send({})
+        .expect('Content-Type', /json/)
+        .expect(404);
+
+      expect(response.body).toHaveProperty('error', 'Timeline ID is required');
+    });
+
+    it('should return 404 when timeline controller returns error', async () => {
+      timelineController.removeUserTimeline.mockResolvedValue(
+        'Error occurred while deleting timeline.',
+      );
+      const response = await request(app)
+        .post('/timeline/delete')
+        .send({ timeline_id: '1' })
+        .expect('Content-Type', /json/)
+        .expect(404);
+
+      expect(response.body).toHaveProperty('error', 'Internal Server Error');
+    });
+
+    it('should return 500 when timeline controller triggers error in route function', async () => {
+      timelineController.removeUserTimeline.mockRejectedValueOnce(
+        new Error('Database error'),
+      );
+      const response = await request(app)
+        .post('/timeline/delete')
+        .send({ timeline_id: '1' })
+        .expect('Content-Type', /json/)
+        .expect(500);
+
+      expect(response.body).toHaveProperty(
+        'error',
+        'Failed to delete timeline',
+      );
+    });
+  });
 });
