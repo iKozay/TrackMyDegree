@@ -1,37 +1,37 @@
-jest.mock("../dist/controllers/authController/authController", () => ({
-	__esModule: true,
-	default: {
-		authenticate: jest.fn(),
-		registerUser: jest.fn(),
-	},
+jest.mock('../dist/controllers/authController/authController', () => ({
+  __esModule: true,
+  default: {
+    authenticate: jest.fn(),
+    registerUser: jest.fn(),
+  },
 }));
 
-const request = require("supertest");
-const express = require("express");
-const router = require("../dist/routes/auth").default;
+const request = require('supertest');
+const express = require('express');
+const { afterEach } = require('node:test');
+const router = require('../dist/routes/auth').default;
 const authController =
-	require("../dist/controllers/authController/authController").default;
+  require('../dist/controllers/authController/authController').default;
 
-const mockDBRecord = require("./__mocks__/user_mocks").mockDBRecord;
+const mockDBRecord = require('./__mocks__/user_mocks').mockDBRecord;
 
 const url = process.DOCKER_URL || 'host.docker.internal:8000';
 
 const app = express();
 app.use(express.json());
-app.use("/auth", router);
+app.use('/auth', router);
 
-describe("POST /auth/login", () => {
-	it("should return a successful login message and token", async () => {
-		authController.authenticate.mockResolvedValue(mockDBRecord);
-
-		const response = await request(app)
-			.post("/auth/login")
-			.send({
-				email: "example@example.com",
-				password: "pass",
-			})
-			.expect("Content-Type", /json/)
-			.expect(200);
+describe('POST /auth/login', () => {
+  it('should return a successful login message and token', async () => {
+    authController.authenticate.mockResolvedValueOnce(mockDBRecord);
+    const response = await request(app)
+      .post('/auth/login')
+      .send({
+        email: 'example@example.com',
+        password: 'pass',
+      })
+      .expect('Content-Type', /json/)
+      .expect(200);
 
     expect(response.body).toHaveProperty('id');
     expect(response.body).toHaveProperty('email', 'example@example.com');
@@ -42,11 +42,12 @@ describe("POST /auth/login", () => {
 
   // Wrong field request
   it('should return 401 status and error message when password is incorrect', async () => {
-    const response = await request(url)
+    authController.authenticate.mockResolvedValueOnce(undefined);
+    const response = await request(app)
       .post('/auth/login')
       .send({
         email: 'example@example.com',
-        password: 'wrongpass',
+        password: 'adsadhsa',
       })
       .expect('Content-Type', /json/)
       .expect(401);
@@ -57,15 +58,15 @@ describe("POST /auth/login", () => {
     );
   });
 
-	// Bad request, missing fields
-	it("should return 400 status and error message when the body is incorrect", async () => {
-		const response = await request(url)
-			.post("/auth/login")
-			.send({
-				email: "example@example.com", // missing password field
-			})
-			.expect("Content-Type", /json/)
-			.expect(400);
+  // Bad request, missing fields
+  it('should return 400 status and error message when the body is incorrect', async () => {
+    const response = await request(app)
+      .post('/auth/login')
+      .send({
+        email: 'example@example.com', // missing password field
+      })
+      .expect('Content-Type', /json/)
+      .expect(400);
 
     expect(response.body).toHaveProperty(
       'error',
