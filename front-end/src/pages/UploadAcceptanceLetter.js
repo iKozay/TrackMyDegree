@@ -55,7 +55,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     console.log('select: ', selectedRadio.extendedCredit);
     navigate('/timeline_change', {
       state: {
-        degreeId: selectedDegreeId,
+        degree_Id: selectedDegreeId,
         startingSemester: startingSemester,
         coOp: selectedRadio.coOp,
         extendedCredit: selectedRadio.extendedCredit,
