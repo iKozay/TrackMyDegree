@@ -23,11 +23,15 @@ import { CSS } from '@dnd-kit/utilities';
 import Accordion from 'react-bootstrap/Accordion';
 import Container from 'react-bootstrap/Container';
 import warningIcon from '../icons/warning.png'; // Import warning icon
+import downloadIcon from '../icons/download-icon.PNG';
 import '../css/TimelinePage.css';
-import { groupPrerequisites } from '../utils/groupPrerequisites'; // Adjust the path as necessary
+import { groupPrerequisites } from '../utils/groupPrerequisites';
 import DeleteModal from "../components/DeleteModal";
 import { TimelineError } from '../middleware/SentryErrors';
 import * as Sentry from '@sentry/react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
 
 // DraggableCourse component for course list items
 const DraggableCourse = ({
@@ -723,7 +727,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     }
 
     setHasUnsavedChanges(true);
-    
+
     // 1) Add the new semester to the "semesters" array, then sort
     setSemesters((prev) => {
       const newSemesters = [...prev, { id, name }];
@@ -1279,12 +1283,12 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       const responseTimeline = await fetch(`${process.env.REACT_APP_SERVER}/timeline/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            user_id, 
-            name: timelineNameToSend, 
-            items, 
-            degree_id: degree_Id, 
-            isExtendedCredit 
+        body: JSON.stringify({
+            user_id,
+            name: timelineNameToSend,
+            items,
+            degree_id: degree_Id,
+            isExtendedCredit
           }),
       },
     );
@@ -1353,6 +1357,87 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       autoScrollInterval.current = null;
     }
   };
+
+  const exportTimelineToPDF = () => {
+    const input = document.querySelector('.timeline-middle-section');
+    const scrollWrapper = document.querySelector('.timeline-scroll-wrapper');
+    const addSemesterButton = document.querySelector('.add-semester-button');
+    const deleteButtons = input.querySelectorAll('.remove-semester-btn, .remove-course-btn');
+
+    if (!input || !scrollWrapper) {
+      alert('Timeline section not found');
+      return;
+    }
+
+    // Backup original styles
+    const originalHeight = input.style.height;
+    const originalOverflow = input.style.overflow;
+    const originalScrollHeight = scrollWrapper.style.height;
+    const originalWrapperOverflow = scrollWrapper.style.overflow;
+    const originalButtonDisplay = addSemesterButton?.style.display;
+
+    // Hide the add semester button
+    if (addSemesterButton) {
+      addSemesterButton.style.display = 'none';
+    }
+
+    // Hide delete buttons in semesters
+    deleteButtons.forEach((btn) => {
+      btn.style.display = 'none';
+    });
+
+    // Temporarily force full height for PDF capture
+    const originalScrollLeft = scrollWrapper.scrollLeft;
+    const originalScrollTop = scrollWrapper.scrollTop;
+
+    input.style.height = 'auto';
+    input.style.overflow = 'visible';
+    scrollWrapper.style.height = 'auto';
+    scrollWrapper.style.overflow = 'visible';
+
+    // Expand the wrapper to full scrollable width & height
+    const fullWidth = scrollWrapper.scrollWidth;
+    const fullHeight = scrollWrapper.scrollHeight;
+
+    html2canvas(scrollWrapper, {
+      scale: 2,
+      useCORS: true,
+      width: fullWidth,
+      height: fullHeight,
+      windowWidth: fullWidth,
+      windowHeight: fullHeight,
+    })
+      .then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdfWidth = canvas.width;
+        const pdfHeight = canvas.height;
+
+        const pdf = new jsPDF('l', 'px', [pdfWidth, pdfHeight]);
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save('timeline.pdf');
+      })
+      .catch(error => {
+        console.error('Error generating PDF:', error);
+        alert('Failed to generate PDF.');
+      })
+      .finally(() => {
+        // Restore original styles
+        input.style.height = originalHeight;
+        input.style.overflow = originalOverflow;
+        scrollWrapper.style.height = originalScrollHeight;
+        scrollWrapper.style.overflow = originalWrapperOverflow;
+        scrollWrapper.scrollLeft = originalScrollLeft;
+        scrollWrapper.scrollTop = originalScrollTop;
+
+        if (addSemesterButton) addSemesterButton.style.display = originalButtonDisplay;
+        deleteButtons.forEach(btn => (btn.style.display = ''));
+      });
+  };
+;
+;
+
+
+
   // ----------------------------------------------------------------------------------------------------------------------
   return (
     <motion.div
@@ -1391,18 +1476,22 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   Total Credits Earned: {totalCredits} /{' '}
                   {credits_Required + deficiencyCredits}
                 </h4>
-                {/* Save Timeline Button */}
-                <button
-                  className="save-timeline-button"
-                  onClick={() =>
-                    timelineName
-                      ? confirmSaveTimeline(timelineName)
-                      : setShowSaveModal(true)
-                  }
-                //onClick={() => setShowSaveModal(true)} // You can define this handler to save the transcript
-                >
-                  Save Timeline
-                </button>
+                <div className="timeline-buttons-container">
+                  <button
+                    className="save-timeline-button"
+                    onClick={() =>
+                      timelineName
+                        ? confirmSaveTimeline(timelineName)
+                        : setShowSaveModal(true)
+                    }
+                  >
+                    Save Timeline
+                  </button>
+                  <button className="download-timeline-button" onClick={exportTimelineToPDF}>
+                    <img src={downloadIcon} alt="Download Icon" className="download-icon" />
+                    Download
+                  </button>
+                </div>
               </div>
 
               <div className="timeline-page">
@@ -1684,7 +1773,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                                 y="11"
                                                 width="22"
                                                 height="4"
-                                                fill="red"
+                                                fill="white"
                                               />
                                             </svg>
                                           </button>
