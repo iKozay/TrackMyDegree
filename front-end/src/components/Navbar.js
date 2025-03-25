@@ -1,6 +1,6 @@
 // src/components/Navbar.js
 import React, { useContext, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate,  NavLink , Link} from 'react-router-dom';
 import { AuthContext } from '../middleware/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -75,20 +75,30 @@ const Navbar = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div className="navbar-nav custom-nav-links">
-            <Link className="nav-link active" aria-current="page" to="/">
+            <NavLink
+              to="/"
+              className={({ isActive }) =>
+                "nav-link" + (isActive ? " active" : "")
+              }
+            >
               Home
-            </Link>
-            <p className={'nav-separator'}>|</p>
-            <Link className="nav-link" to="/timeline_initial">
+            </NavLink>
+            <NavLink
+              to="/timeline_initial"
+              className={({ isActive }) =>
+                "nav-link" + (isActive ? " active" : "")
+              }
+            >
               Timeline
-            </Link>
-            <p className={'nav-separator'}>|</p>
-            <Link className="nav-link" to="/courselist">
+            </NavLink>
+            <NavLink
+              to="/courselist"
+              className={({ isActive }) =>
+                "nav-link" + (isActive ? " active" : "")
+              }
+            >
               Courses
-            </Link>
-            {/* <Link className="nav-link" to="/uploadTranscript">
-              Upload Transcript
-            </Link> */}
+            </NavLink>
           </div>
           {isLoggedIn ? (
               <>

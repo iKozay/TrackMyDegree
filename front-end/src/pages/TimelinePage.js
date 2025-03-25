@@ -87,6 +87,7 @@ const SortableCourse = ({
   onSelect,
   containerId,
   prerequisitesMet, // New prop
+  isOffered, // New prop
   removeButton,
 }) => {
   const {
@@ -114,6 +115,17 @@ const SortableCourse = ({
     }${isDraggingFromSemester ? ' dragging-from-semester' : ''}${isSelected ? ' selected' : ''
     }`;
 
+  const getWarningMessage = () => {
+    const warnings = [];
+    if (!prerequisitesMet) {
+      warnings.push('Prerequisites not met');
+    }
+    if (!isOffered) {
+      warnings.push('Not offered in this term');
+    }
+    return warnings.join(', ');
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -127,12 +139,15 @@ const SortableCourse = ({
       }}
     >
       {courseCode}
-      {!prerequisitesMet && (
-        <img
-          src={warningIcon}
-          alt="Warning: prerequisites not met"
-          className="warning-icon"
-        />
+      {(!prerequisitesMet || !isOffered) && (
+        <div className='warning-container'>
+          <img
+            src={warningIcon}
+            alt="Warning: prerequisites not met"
+            className="warning-icon"
+          />
+          <div className={`warning-tooltip ${isSelected ? 'selected' : ''}`}>{getWarningMessage()}</div>
+        </div>
       )}
       {removeButton}
     </div>
@@ -780,6 +795,29 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     }
     return false;
   };
+
+  // Returns true if the course’s offeredIn data (array or string)
+  // includes the semester term (e.g. "Fall", "Winter", "Summer") – case-insensitive.
+  const isCourseOfferedInSemester = (course, semesterId) => {
+    // Extract the term from the semesterId (assumes format like "Fall 2025")
+    const semesterTerm = semesterId.split(" ")[0].toLowerCase();
+
+    if (Array.isArray(course.offeredIn) && course.offeredIn.length > 0) {
+      // Normalize terms to lowercase before checking.
+      const offeredTerms = course.offeredIn.map(term => term.toLowerCase());
+      return offeredTerms.includes(semesterTerm);
+    }
+
+    if (typeof course.offeredIn === "string" && course.offeredIn.trim() !== "") {
+      // If offeredIn is a comma-separated string.
+      const offeredTerms = course.offeredIn.split(",").map(term => term.trim().toLowerCase());
+      return offeredTerms.includes(semesterTerm);
+    }
+
+    // If there is no offering information, we assume the course is not offered in any term.
+    return false;
+  };
+
 
 
   const handleDragStart = (event) => {
@@ -1510,7 +1548,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   >
                     {showCourseList && (
                       <div>
-                        <h4>Course List</h4>
+                        <h4 className='mt-1'>Course List</h4>
                         {/* Search input field */}
                         <input
                           type="text"
@@ -1741,6 +1779,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                     const prerequisitesMet =
                                       arePrerequisitesMet(course.code, index);
 
+                                    const offeredCheck = isCourseOfferedInSemester(course, semester.name);
+
 
                                     return (
                                       <SortableCourse
@@ -1756,6 +1796,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                         onSelect={handleCourseSelect}
                                         containerId={semester.id}
                                         prerequisitesMet={prerequisitesMet} // Pass the prop
+                                        isOffered={offeredCheck}
                                         removeButton={
                                           <button
                                             className={`remove-course-btn ${isSelected ? 'selected' : ''}`}
