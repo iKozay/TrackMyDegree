@@ -1182,11 +1182,13 @@ const TimelinePage = ({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            user_id,
-            name: timelineNameToSend,
-            items,
-            degree_id: degreeId,
-            isExtendedCredit,
+            timeline: {
+              user_id,
+              name: timelineNameToSend,
+              items,
+              degree_id: degreeId,
+              isExtendedCredit,
+            },
           }),
         },
       );
