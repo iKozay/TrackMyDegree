@@ -201,7 +201,7 @@ function CourseListPage() {
           </Dropdown>
           {/* Search Bar */}
 					{selectedDegree !== 'Select Degree' && (
-						<Form className="search-course">
+						<Form className="search-course" onSubmit={(e) => e.preventDefault()}>
 							<Form.Control
 								type="text"
 								placeholder="Search courses, e.g., ENCS 282"
