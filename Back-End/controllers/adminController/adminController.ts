@@ -152,6 +152,7 @@ interface CourseJson {
   description?: string;
   prerequisites?: string; // e.g., "COMP 248, MATH 201" or "COMP 248/MATH 201"
   corequisites?: string; // e.g., "MATH 203" or "MATH 203/ENGR 300"
+  offeredIn?: string[]; // e.g., ["Fall", "Winter"]
   // ... more if needed
 }
 
@@ -376,25 +377,27 @@ async function upsertCourse(
   title: string,
   credits: number,
   description: string,
+  offeredIn: string,
 ): Promise<void> {
   const request = new sql.Request(t);
   request.input('code', sql.VarChar, code);
   request.input('title', sql.VarChar, title);
   request.input('credits', sql.Float, credits);
   request.input('description', sql.VarChar, description);
+  request.input('offeredIn', sql.VarChar, offeredIn);
   const result = await request.query(
     'SELECT code FROM Course WHERE code = @code',
   );
   if (result.recordset.length === 0) {
     await request.query(`
-      INSERT INTO Course (code, title, credits, description)
-      VALUES (@code, @title, @credits, @description)
+      INSERT INTO Course (code, title, credits, description, offeredIn)
+      VALUES (@code, @title, @credits, @description, @offeredIn)
     `);
     console.log(`Inserted Course: ${code}`);
   } else {
     await request.query(`
       UPDATE Course
-      SET title = @title, credits = @credits, description = @description
+      SET title = @title, credits = @credits, description = @description, offeredIn = @offeredIn
       WHERE code = @code
     `);
     console.log(`Updated Course: ${code}`);
@@ -585,22 +588,24 @@ function parseRequisites(
     );
     return [];
   }
-  const cleanedStr = requisiteStr.replace(/;/g, ',');
-  const parts = cleanedStr.split(',');
+  const cleanedStr = requisiteStr.replace(/[;\.]/g, ',');
+  const parts = cleanedStr
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
   const requisites: Requisite[] = [];
   for (const part of parts) {
-    const trimmedPart = part.trim().replace(/\./g, '');
-    if (trimmedPart.includes('/')) {
-      const alternatives = trimmedPart.split('/').map((c) => c.trim());
+    if (part.includes('/')) {
+      const alternatives = part.split('/').map((c) => c.trim());
       const groupId = `G${globalGroupCounter++}`;
       for (const alt of alternatives) {
         const code = alt.replace(/\s+/g, '').toUpperCase();
         if (/^[A-Z]{2,4}\d{3}$/.test(code)) {
           requisites.push({ code1, code2: code, type, groupId });
-        } else if (/^\d+CR$/.test(code)) {
+        } else if (/^\d+CR$/i.test(code)) {
           requisites.push({
             code1,
-            creditsRequired: parseFloat(code.replace('CR', '')),
+            creditsRequired: parseFloat(code.replace(/CR/i, '')),
             type,
             groupId,
           });
@@ -611,13 +616,13 @@ function parseRequisites(
         }
       }
     } else {
-      const code = trimmedPart.replace(/\s+/g, '').toUpperCase();
+      const code = part.replace(/\s+/g, '').toUpperCase();
       if (/^[A-Z]{2,4}\d{3}$/.test(code)) {
         requisites.push({ code1, code2: code, type });
-      } else if (/^\d+CR$/.test(code)) {
+      } else if (/^\d+CR$/i.test(code)) {
         requisites.push({
           code1,
-          creditsRequired: parseFloat(code.replace('CR', '')),
+          creditsRequired: parseFloat(code.replace(/CR/i, '')),
           type,
         });
       } else {
@@ -644,7 +649,7 @@ async function seedSoenDegree() {
     );
     const courseListsDir = path.join(
       __dirname,
-      '../../course-data/course-lists',
+      '../../course-data/course-lists/updated_courses',
     );
 
     // 2. READ ALL REQUIREMENT FILES
@@ -673,14 +678,15 @@ async function seedSoenDegree() {
 
     // Phase 1: Upsert Courses and Requisites (only once)
     try {
-      const courseTx = pool.transaction();
-      await courseTx.begin();
+      transaction = pool.transaction();
+      await transaction.begin();
       // Upsert Courses
       for (const [code, courseData] of courseMap.entries()) {
         const cTitle = courseData.title;
         const cCredits = courseData.credits ?? 3;
         const cDesc = courseData.description ?? `No description for ${code}`;
-        await upsertCourse(courseTx, code, cTitle, cCredits, cDesc);
+        const cOfferedIn = courseData.offeredIn?.join(', ') ?? 'Empty';
+        await upsertCourse(transaction, code, cTitle, cCredits, cDesc, cOfferedIn);
       }
       // Upsert Requisites (Prerequisites and Corequisites)
       for (const [code, courseData] of courseMap.entries()) {
@@ -700,7 +706,7 @@ async function seedSoenDegree() {
             );
             continue;
           }
-          await upsertRequisite(courseTx, preReq);
+          await upsertRequisite(transaction, preReq);
         }
         const corequisites = parseRequisites(
           code,
@@ -718,10 +724,10 @@ async function seedSoenDegree() {
             );
             continue;
           }
-          await upsertRequisite(courseTx, coReq);
+          await upsertRequisite(transaction, coReq);
         }
       }
-      await courseTx.commit();
+      await transaction.commit();
       console.log('Courses and requisites upserted successfully.');
     } catch (err) {
       console.error('Error upserting courses and requisites:', err);

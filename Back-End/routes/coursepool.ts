@@ -82,9 +82,9 @@ router.post('/get', async (req: Request, res: Response) => {
     if( response ) {
       res.status(HTTP.OK).json(response);
     }
-    else {
-      res.status(HTTP.NOT_FOUND).json({ error: "Course Pool not found" })
-    }
+      else {
+        res.status(HTTP.NOT_FOUND).json({ error: "Course Pool not found" })
+      }
   } 
   catch (error) {
     console.error("Error in /coursepool/get", error);

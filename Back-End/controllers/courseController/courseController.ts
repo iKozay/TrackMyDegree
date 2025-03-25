@@ -59,6 +59,7 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
             c.title, 
             c.credits, 
             c.description,
+            c.offeredIn,
             req.requisite_code1, 
             req.requisite_code2, 
             req.requisite_type
@@ -74,7 +75,6 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
 
       const courses = result.recordset;
 
-      // Group requisites by course
       const coursesWithRequisites = courses.reduce((acc: any, course: any) => {
         const courseCode = course.code;
         if (!acc[courseCode]) {
@@ -83,9 +83,11 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
             title: course.title,
             credits: course.credits,
             description: course.description,
+            offeredIn: course.offeredIn,
             requisites: [],
           };
         }
+
 
         if (course.requisite_code1 && course.requisite_code2) {
           acc[courseCode].requisites.push({
@@ -129,7 +131,7 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
  */
 async function getCourseByCode(
   code: string,
-): Promise<CourseTypes.CourseInfo | undefined> {
+): Promise<CourseTypes.CourseInfoDB | undefined> {
   const dbConn = await Database.getConnection();
 
   if (dbConn) {
@@ -139,8 +141,9 @@ async function getCourseByCode(
         .request()
         .input('code', Database.msSQL.VarChar, code)
         .query(
-          'SELECT code, title, credits, description FROM Course WHERE code = @code',
+          'SELECT code, title, credits, description, offeredIn FROM Course WHERE code = @code',
         );
+
 
       const course = courseResult.recordset[0];
       if (!course) {
@@ -163,12 +166,14 @@ async function getCourseByCode(
         title: course.title,
         credits: course.credits,
         description: course.description,
+        offeredIn: course.offeredIn,
         requisites: requisitesResult.recordset.map((row: any) => ({
           type: row.type,
           code: row.requisiteCode,
           description: row.requisiteDescription,
         })),
       };
+
     } catch (error) {
       Sentry.captureException(new Error('Error fetching course by code'));
       console.error('Error fetching course by code\n', error);
@@ -203,10 +208,11 @@ async function addCourse(
         .input('code', Database.msSQL.VarChar, code)
         .input('title', Database.msSQL.VarChar, title)
         .input('credits', Database.msSQL.Int, credits)
+        .input('offeredIn', Database.msSQL.VarChar, courseInfo.offeredIn)
         .input('description', Database.msSQL.VarChar, description).query(`
-                    INSERT INTO Course (code, title, credits, description)
+                    INSERT INTO Course (code, title, credits, description, offeredIn)
                     OUTPUT INSERTED.code
-                    VALUES (@code, @title, @credits, @description)
+                    VALUES (@code, @title, @credits, @description, @offeredIn)
                 `);
 
       return result.recordset[0];
@@ -283,7 +289,8 @@ async function getCoursesByDegreeGrouped(
           c.code, 
           c.title, 
           c.credits, 
-          c.description
+          c.description,
+          c.offeredIn
         FROM DegreeXCoursePool dxcp
         INNER JOIN CourseXCoursePool cxcp ON dxcp.coursepool = cxcp.coursepool
         INNER JOIN Course c ON cxcp.coursecode = c.code
@@ -297,6 +304,7 @@ async function getCoursesByDegreeGrouped(
         c.title, 
         c.credits, 
         c.description,
+        c.offeredIn,
         ISNULL(
           (SELECT 
              r.code1, 
@@ -344,6 +352,7 @@ async function getCoursesByDegreeGrouped(
         title: record.title,
         credits: record.credits,
         description: record.description,
+        offeredIn: record.offeredIn,
         requisites: requisites,
       };
 
@@ -404,6 +413,7 @@ async function getAllCoursesInDB(): Promise<
             c.title,
             c.credits, 
             c.description,
+            c.offeredIn,
             r.code1 AS requisite_code1, 
             r.code2 AS requisite_code2, 
             r.group_id AS requisite_group_id,
@@ -419,7 +429,7 @@ async function getAllCoursesInDB(): Promise<
       }
 
       // Build a map keyed by course code
-      const coursesMap: { [key: string]: CourseTypes.CourseInfo } = {};
+      const coursesMap: { [key: string]: CourseTypes.CourseInfoDB } = {};
 
       records.forEach((record: any) => {
         const courseCode = record.code;
@@ -429,6 +439,7 @@ async function getAllCoursesInDB(): Promise<
             title: record.title,
             credits: record.credits,
             description: record.description,
+            offeredIn: record.offeredIn,
             requisites: [],
           };
         }
