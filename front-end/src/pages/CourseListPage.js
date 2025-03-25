@@ -200,14 +200,16 @@ function CourseListPage() {
             </Dropdown.Menu>
           </Dropdown>
           {/* Search Bar */}
-          <Form className="search-course">
-            <Form.Control
-              type="text"
-              placeholder="Search courses..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </Form>
+					{selectedDegree !== 'Select Degree' && (
+						<Form className="search-course">
+							<Form.Control
+								type="text"
+								placeholder="Search courses, e.g., ENCS 282"
+								value={searchTerm}
+								onChange={(e) => setSearchTerm(e.target.value)}
+							/>
+						</Form>
+					)}
         </div>
 
         <Row style={{ display: 'flex' }}>
