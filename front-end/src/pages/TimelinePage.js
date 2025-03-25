@@ -26,6 +26,9 @@ import warningIcon from '../icons/warning.png'; // Import warning icon
 import '../css/TimelinePage.css';
 import { groupPrerequisites } from '../utils/groupPrerequisites'; // Adjust the path as necessary
 import { useLocation } from 'react-router-dom';
+import { TimelineError } from '../middleware/SentryErrors';
+import * as Sentry from '@sentry/react';
+
 // DraggableCourse component for course list items
 const DraggableCourse = ({
   id,
@@ -271,7 +274,7 @@ const TimelinePage = ({
           },
         );
         if (!response.ok) {
-          throw new Error('Failed to fetch all courses');
+          throw new TimelineError('Failed to fetch all courses');
         }
         const data = await response.json();
         setAllCourses(data);
@@ -367,7 +370,7 @@ const TimelinePage = ({
         );
         if (!primaryResponse.ok) {
           const errorData = await primaryResponse.json();
-          throw new Error(
+          throw new TimelineError(
             errorData.error || `HTTP error! status: ${primaryResponse.status}`,
           );
         }
@@ -388,7 +391,7 @@ const TimelinePage = ({
           );
           if (!extendedResponse.ok) {
             const errorData = await extendedResponse.json();
-            throw new Error(
+            throw new TimelineError(
               errorData.error ||
                 `HTTP error! status: ${extendedResponse.status}`,
             );
@@ -529,6 +532,7 @@ const TimelinePage = ({
           courses.push(data.course.trim());
         }
       } else if (data.season && data.year) {
+        let formattedYear = data.year;
         term =
           data.season.trim().toLowerCase() === 'exempted'
             ? 'Exempted'
@@ -574,7 +578,7 @@ const TimelinePage = ({
     const sortedSemesters = Array.from(semesterNames).sort((a, b) => {
       if (a.trim().toLowerCase() === 'exempted') return -1;
       if (b.trim().toLowerCase() === 'exempted') return 1;
-      const order = { Winter: 1, Summer: 2, Fall: 3 };
+      const order = { Winter: 1, Summer: 2, Fall: 3, Fall_Winter: 4 };
       const [seasonA, yearA] = a.split(' ');
       const [seasonB, yearB] = b.split(' ');
       if (yearA !== yearB) {
@@ -585,10 +589,18 @@ const TimelinePage = ({
 
     // --- Step 5. Update state ---
     setSemesters(
-      sortedSemesters.map((term) => ({
-        id: term,
-        name: term,
-      })),
+      sortedSemesters.map((term) => {
+        const [season, year] = term.split(' ');
+
+        let displayYear = year;
+        if (season === 'Fall/Winter') {
+          displayYear = `${year}-${(parseInt(year, 10) + 1) % 100}`;
+        }
+        return {
+          id: term,
+          name: `${season} ${displayYear}`,
+        };
+      }),
     );
     setSemesterCourses(
       Object.fromEntries(
@@ -626,6 +638,7 @@ const TimelinePage = ({
     Winter: 1,
     Summer: 2,
     Fall: 3,
+    Fall_Winter: 4,
   };
 
   function compareSemesters(a, b) {
@@ -646,8 +659,19 @@ const TimelinePage = ({
   }
 
   const handleAddSemester = () => {
+    let formattedYear = selectedYear;
+    let displayYear = selectedYear; // This will store YYYY-YY for name
+
+    if (
+      selectedSeason === 'Fall/Winter' &&
+      !String(selectedYear).includes('-')
+    ) {
+      const startYear = parseInt(selectedYear, 10);
+      displayYear = `${startYear}-${(startYear + 1) % 100}`;
+    }
+
     const id = `${selectedSeason} ${selectedYear}`;
-    const name = `${selectedSeason} ${selectedYear}`;
+    const name = `${selectedSeason} ${displayYear}`;
 
     // Prevent duplicates
     if (semesters.some((sem) => sem.id === id)) {
@@ -1125,6 +1149,7 @@ const TimelinePage = ({
         );
       }
     } catch (error) {
+      Sentry.captureException(error);
       console.error('Error saving Exempted Courses:', error);
       alert('An error occurred while saving your timeline.');
     }
@@ -1145,6 +1170,7 @@ const TimelinePage = ({
       );
       // Optionally check responseDeficiency here.
     } catch (err) {
+      Sentry.captureException(err);
       console.error('Error saving deficiency', err);
     }
 
@@ -1173,6 +1199,7 @@ const TimelinePage = ({
         alert('Error saving Timeline: ' + (dataTimeline.message || ''));
       }
     } catch (error) {
+      Sentry.captureException(error);
       console.error('Error saving timeline:', error);
       alert('An error occurred while saving your timeline.');
     }
@@ -1556,7 +1583,7 @@ const TimelinePage = ({
                                                 y="11"
                                                 width="22"
                                                 height="4"
-                                                fill="red"
+                                                fill="white"
                                               />
                                             </svg>
                                           </button>
@@ -1702,6 +1729,7 @@ const TimelinePage = ({
                     <option>Winter</option>
                     <option>Summer</option>
                     <option>Fall</option>
+                    <option>Fall/Winter</option>
                   </select>
                 </div>
 
@@ -1714,9 +1742,14 @@ const TimelinePage = ({
                   >
                     {Array.from({ length: 14 }).map((_, i) => {
                       const year = 2017 + i;
+                      const displayYear =
+                        selectedSeason === 'Fall/Winter'
+                          ? `${year}-${(year + 1) % 100}`
+                          : year;
+
                       return (
                         <option key={year} value={year}>
-                          {year}
+                          {displayYear}
                         </option>
                       );
                     })}

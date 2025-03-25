@@ -1,20 +1,27 @@
-import Database from "@controllers/DBController/DBController"
-import DegreeTypes from "@controllers/degreeController/degree_types"
+import Database from '@controllers/DBController/DBController';
+import DegreeTypes from '@controllers/degreeController/degree_types';
+import { captureException } from '@sentry/node';
+
 /**
  * Creates a new degree in the database.
- * 
+ *
  * @param {string} id - The unique identifier for the degree.
  * @param {string} name - The name of the degree.
  * @param {number} totalCredits - The total number of credits required to complete the degree.
  * @returns {Promise<DegreeTypes.Degree | undefined>} - The created degree object or undefined if the operation fails.
  */
-async function createDegree(id: string, name: string, totalCredits: number): Promise<DegreeTypes.Degree | undefined> {
+async function createDegree(
+  id: string,
+  name: string,
+  totalCredits: number,
+): Promise<DegreeTypes.Degree | undefined> {
   const conn = await Database.getConnection();
 
   if (conn) {
     try {
       // Check if a degree with the same id or name already exists
-      const existingDegree = await conn.request()
+      const existingDegree = await conn
+        .request()
         .input('id', Database.msSQL.VarChar, id)
         .input('name', Database.msSQL.VarChar, name)
         .query('SELECT * FROM Degree WHERE id = @id OR name = @name');
@@ -23,24 +30,28 @@ async function createDegree(id: string, name: string, totalCredits: number): Pro
         throw new Error('Degree with this id or name already exists.');
       }
 
-      await conn.request()
+      await conn
+        .request()
         .input('id', Database.msSQL.VarChar, id)
         .input('name', Database.msSQL.VarChar, name)
         .input('totalCredits', Database.msSQL.Int, totalCredits)
-        .query('INSERT INTO Degree (id, name, totalCredits) VALUES (@id, @name, @totalCredits)');
+        .query(
+          'INSERT INTO Degree (id, name, totalCredits) VALUES (@id, @name, @totalCredits)',
+        );
 
       return { id, name, totalCredits };
     } catch (error) {
+      captureException(error);
       throw error;
     } finally {
-      conn.close()
+      conn.close();
     }
   }
-};
+}
 
 /**
  * Retrieves a degree by its ID.
- * 
+ *
  * @param {string} id - The unique identifier for the degree.
  * @returns {Promise<DegreeTypes.Degree | undefined>} - The degree object or undefined if the degree is not found.
  */
@@ -50,7 +61,8 @@ async function readDegree(id: string): Promise<DegreeTypes.Degree | undefined> {
   if (conn) {
     try {
       // Check if a degree with the id exists
-      const degree = await conn.request()
+      const degree = await conn
+        .request()
         .input('id', Database.msSQL.VarChar, id)
         .query('SELECT * FROM Degree WHERE id = @id');
 
@@ -60,15 +72,16 @@ async function readDegree(id: string): Promise<DegreeTypes.Degree | undefined> {
 
       return degree.recordset[0];
     } catch (error) {
+      captureException(error);
       throw error;
     } finally {
       conn.close();
     }
   }
-};
+}
 /**
  * Retrieves all degrees from the database.
- * 
+ *
  * @returns {Promise<DegreeTypes.Degree[] | undefined>} - A list of all degrees or undefined if no degrees are found.
  */
 async function readAllDegrees(): Promise<DegreeTypes.Degree[] | undefined> {
@@ -76,26 +89,33 @@ async function readAllDegrees(): Promise<DegreeTypes.Degree[] | undefined> {
 
   if (conn) {
     try {
-      const degrees = await conn.request().query('SELECT * FROM Degree WHERE id LIKE \'D%\'');
+      const degrees = await conn
+        .request()
+        .query("SELECT * FROM Degree WHERE id LIKE 'D%'");
 
       return degrees.recordset;
     } catch (error) {
+      captureException(error);
       throw error;
     } finally {
       conn.close();
     }
   }
-};
+}
 
 /**
  * Updates an existing degree with new information.
- * 
+ *
  * @param {string} id - The unique identifier for the degree.
  * @param {string} name - The new name of the degree.
  * @param {number} totalCredits - The new total credits for the degree.
  * @returns {Promise<DegreeTypes.Degree | undefined>} - The updated degree object or undefined if the update fails.
  */
-async function updateDegree(id: string, name: string, totalCredits: number): Promise<DegreeTypes.Degree | undefined> {
+async function updateDegree(
+  id: string,
+  name: string,
+  totalCredits: number,
+): Promise<DegreeTypes.Degree | undefined> {
   const conn = await Database.getConnection();
 
   if (conn) {
@@ -117,7 +137,7 @@ async function updateDegree(id: string, name: string, totalCredits: number): Pro
         .input('fullname', Database.msSQL.VarChar, name)
         .input('totalCredits', Database.msSQL.Int, totalCredits)
         .query(
-          'UPDATE Degree SET name = @fullname, totalCredits = @totalCredits WHERE id = @id'
+          'UPDATE Degree SET name = @fullname, totalCredits = @totalCredits WHERE id = @id',
         );
 
       // Return the updated degree
@@ -128,6 +148,7 @@ async function updateDegree(id: string, name: string, totalCredits: number): Pro
 
       return updatedDegree.recordset[0];
     } catch (error) {
+      captureException(error);
       throw error;
     } finally {
       conn.close();
@@ -136,7 +157,7 @@ async function updateDegree(id: string, name: string, totalCredits: number): Pro
 }
 /**
  * Deletes a degree from the database by its ID.
- * 
+ *
  * @param {string} id - The unique identifier for the degree to delete.
  * @returns {Promise<string | undefined>} - A success message if the degree is deleted or undefined if the deletion fails.
  */
@@ -164,12 +185,13 @@ async function deleteDegree(id: string): Promise<string | undefined> {
       // Return success message
       return `Degree with id ${id} has been successfully deleted.`;
     } catch (error) {
+      captureException(error);
       throw error;
     } finally {
       conn.close();
     }
   }
-};
+}
 
 //Namespace
 const degreeController = {
@@ -177,7 +199,7 @@ const degreeController = {
   readDegree,
   updateDegree,
   deleteDegree,
-  readAllDegrees
+  readAllDegrees,
 };
 
 export default degreeController;

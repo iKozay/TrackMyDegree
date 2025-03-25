@@ -1,12 +1,13 @@
 // src/pages/SignInPage.js
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../AuthContext';
+import { AuthContext } from '../middleware/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
+import { LoginError } from "../middleware/SentryErrors";
 
 function LogInPage() {
   const [email, setEmail] = useState('');
@@ -53,11 +54,11 @@ function LogInPage() {
         },
       );
 
-      if (!response.ok) {
-        // Extract error message from response
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to log in.');
-      }
+			if (!response.ok) {
+				// Extract error message from response
+				const errorData = await response.json();
+				throw new LoginError(errorData.message || "Failed to log in.");
+			}
 
       const data = await response.json();
 

@@ -5,6 +5,8 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
+import { ForgotPassError } from "../middleware/SentryErrors";
+import * as Sentry from "@sentry/react";
 
 function ForgotPassPage() {
   const [email, setEmail] = useState('');
@@ -48,11 +50,11 @@ function ForgotPassPage() {
         },
       );
 
-      if (!response.ok) {
-        // Extract error message from response
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Email does not exist.');
-      }
+			if (!response.ok) {
+				// Extract error message from response
+				const errorData = await response.json();
+				throw new ForgotPassError(errorData.message || "Email does not exist.");
+			}
 
       const data = await response.json();
       console.log(data);

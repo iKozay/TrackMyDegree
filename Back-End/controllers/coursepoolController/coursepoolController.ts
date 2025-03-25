@@ -1,7 +1,8 @@
-import Database         from '@controllers/DBController/DBController'
-import DB_OPS           from '@Util/DB_Ops'
-import CoursePoolTypes  from '@controllers/coursepoolController/coursepool_types'
-import { randomUUID }   from 'crypto'
+import Database from '@controllers/DBController/DBController';
+import DB_OPS from '@Util/DB_Ops';
+import CoursePoolTypes from '@controllers/coursepoolController/coursepool_types';
+import { randomUUID } from 'crypto';
+import * as Sentry from '@sentry/node';
 
 const log = console.log;
 
@@ -12,38 +13,35 @@ const log = console.log;
  * @returns {Promise<DB_OPS>} - Returns a DB operation status.
  */
 async function createCoursePool(pool_name: string): Promise<DB_OPS> {
-
   const dbConn = await Database.getConnection();
 
-  if( dbConn ) {
-    let record: CoursePoolTypes.CoursePoolItem =
-    {
-      id : randomUUID(),
-      name: pool_name
+  if (dbConn) {
+    let record: CoursePoolTypes.CoursePoolItem = {
+      id: randomUUID(),
+      name: pool_name,
     };
 
     try {
-
-      const result = await dbConn.request()
-      .input('id'   , Database.msSQL.VarChar, record.id)
-      .input('name' , Database.msSQL.VarChar, record.name)
-      .query('INSERT INTO CoursePool ( id, name )\
+      const result = await dbConn
+        .request()
+        .input('id', Database.msSQL.VarChar, record.id)
+        .input('name', Database.msSQL.VarChar, record.name)
+        .query(
+          'INSERT INTO CoursePool ( id, name )\
               OUTPUT INSERTED.id\
-              VALUES                 (@id, @name)');
+              VALUES                 (@id, @name)',
+        );
 
-      if ( undefined === result.recordset ) {
-        log("Error inserting coursepool record: " + result.recordset);
+      if (undefined === result.recordset) {
+        log('Error inserting coursepool record: ' + result.recordset);
         return DB_OPS.MOSTLY_OK;
-      }
-      else {
+      } else {
         return DB_OPS.SUCCESS;
       }
-
-    } 
-    catch ( error ) {
-      log("Error in coursepool creation\n", error);
+    } catch (error) {
+      Sentry.captureException({ error: 'Error in coursepool creation' });
+      log('Error in coursepool creation\n', error);
     }
-
   }
 
   return DB_OPS.FAILURE;
@@ -54,21 +52,23 @@ async function createCoursePool(pool_name: string): Promise<DB_OPS> {
  *
  * @returns {Promise<{ course_pools: CoursePoolTypes.CoursePoolItem[] } | undefined>}
  */
-async function getAllCoursePools():
-Promise<{course_pools: CoursePoolTypes.CoursePoolItem[]} | undefined> {
+async function getAllCoursePools(): Promise<
+  { course_pools: CoursePoolTypes.CoursePoolItem[] } | undefined
+> {
   const dbConn = await Database.getConnection();
 
-  if( dbConn ) {
+  if (dbConn) {
     try {
-      const result = await dbConn.request()
-      .query('SELECT * FROM CoursePool');
+      const result = await dbConn.request().query('SELECT * FROM CoursePool');
 
       return {
-        course_pools: result.recordset
+        course_pools: result.recordset,
       };
-    } 
-    catch (error) {
-      log("Error fetching all course pools\n", error);
+    } catch (error) {
+      Sentry.captureException({
+        error: 'Error fetching all course pools',
+      });
+      log('Error fetching all course pools\n', error);
     }
   }
 
@@ -81,21 +81,27 @@ Promise<{course_pools: CoursePoolTypes.CoursePoolItem[]} | undefined> {
  * @param {string} pool_id - The course pool ID.
  * @returns {Promise<CoursePoolTypes.CoursePoolItem | undefined>}
  */
-async function getCoursePool(pool_id: string):
-Promise<CoursePoolTypes.CoursePoolItem | undefined> {
+async function getCoursePool(
+  pool_id: string,
+): Promise<CoursePoolTypes.CoursePoolItem | undefined> {
   const dbConn = await Database.getConnection();
 
-  if( dbConn ) {
+  if (dbConn) {
     try {
-      const result = await dbConn.request()
-      .input('id', Database.msSQL.VarChar, pool_id)
-      .query('SELECT * FROM CoursePool\
-              WHERE id = @id');
+      const result = await dbConn
+        .request()
+        .input('id', Database.msSQL.VarChar, pool_id)
+        .query(
+          'SELECT * FROM CoursePool\
+              WHERE id = @id',
+        );
 
       return result.recordset[0];
-    } 
-    catch (error) {
-      log("Error fetching course pool by ID\n", error);
+    } catch (error) {
+      Sentry.captureException({
+        error: 'Error fetching course pool by ID',
+      });
+      log('Error fetching course pool by ID\n', error);
     }
   }
 
@@ -108,32 +114,35 @@ Promise<CoursePoolTypes.CoursePoolItem | undefined> {
  * @param {CoursePoolTypes.CoursePoolItem} update_info - The course pool details to update.
  * @returns {Promise<DB_OPS>}
  */
-async function updateCoursePool(update_info: CoursePoolTypes.CoursePoolItem):
-Promise<DB_OPS> {
+async function updateCoursePool(
+  update_info: CoursePoolTypes.CoursePoolItem,
+): Promise<DB_OPS> {
   const dbConn = await Database.getConnection();
 
-  if( dbConn ) {
-    const { id, name } = update_info; 
+  if (dbConn) {
+    const { id, name } = update_info;
 
     try {
-      const result = await dbConn.request()
-      .input('id'   , Database.msSQL.VarChar, id)
-      .input('name' , Database.msSQL.VarChar, name)
-      .query('UPDATE CoursePool  \
+      const result = await dbConn
+        .request()
+        .input('id', Database.msSQL.VarChar, id)
+        .input('name', Database.msSQL.VarChar, name)
+        .query(
+          'UPDATE CoursePool  \
               SET   name = @name \
               OUTPUT INSERTED.id \
-              WHERE   id = @id');
+              WHERE   id = @id',
+        );
 
-      if( (result.recordset.length > 0) && 
-          (id === result.recordset[0].id) ) {
+      if (result.recordset.length > 0 && id === result.recordset[0].id) {
         return DB_OPS.SUCCESS;
-      }
-      else {
+      } else {
         return DB_OPS.MOSTLY_OK;
       }
-
-    } 
-    catch (error) {
+    } catch (error) {
+      Sentry.captureException({
+        error: 'Error in updating course pool item',
+      });
       log('Error in updating course pool item\n', error);
     }
   }
@@ -150,27 +159,30 @@ Promise<DB_OPS> {
 async function removeCoursePool(pool_id: string): Promise<DB_OPS> {
   const dbConn = await Database.getConnection();
 
-  if( dbConn ) {
+  if (dbConn) {
     try {
-      const result = await dbConn.request()
-          .input('id', Database.msSQL.VarChar, pool_id)
-          .query('DELETE FROM CoursePool\
+      const result = await dbConn
+        .request()
+        .input('id', Database.msSQL.VarChar, pool_id)
+        .query(
+          'DELETE FROM CoursePool\
                   OUTPUT DELETED.id\
-                  WHERE id = @id');
+                  WHERE id = @id',
+        );
 
-      if( (result.recordset.length > 0) && 
-          (result.recordset[0].id === pool_id) ) {
+      if (result.recordset.length > 0 && result.recordset[0].id === pool_id) {
         return DB_OPS.SUCCESS;
-      }
-      else {
+      } else {
         return DB_OPS.MOSTLY_OK;
       }
-    } 
-    catch (error) {
+    } catch (error) {
+      Sentry.captureException({
+        error: 'Error in deleting course pool item',
+      });
       log('Error in deleting course pool item\n', error);
     }
   }
-  
+
   return DB_OPS.FAILURE;
 }
 
@@ -179,7 +191,7 @@ const coursepoolController = {
   getAllCoursePools,
   getCoursePool,
   updateCoursePool,
-  removeCoursePool
+  removeCoursePool,
 };
 
 export default coursepoolController;

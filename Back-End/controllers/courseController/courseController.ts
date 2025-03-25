@@ -1,6 +1,7 @@
-import Database from "@controllers/DBController/DBController";
-import CourseTypes from "./course_types";
-import redisClient from "@controllers/redisClient";
+import Database from '@controllers/DBController/DBController';
+import CourseTypes from './course_types';
+import * as Sentry from '@sentry/node';
+import redisClient from '@controllers/redisClient';
 
 const log = console.log;
 
@@ -8,7 +9,8 @@ async function getFromCache(key: string): Promise<string | null> {
   try {
     return await redisClient.get(key);
   } catch (err) {
-    console.error("Error getting cache:", err);
+    Sentry.captureException(new Error('Error getting cache'));
+    console.error('Error getting cache:', err);
     return null;
   }
 }
@@ -16,12 +18,13 @@ async function getFromCache(key: string): Promise<string | null> {
 async function setCache(
   key: string,
   value: string,
-  ttl: number
+  ttl: number,
 ): Promise<void> {
   try {
     await redisClient.setEx(key, ttl, value);
   } catch (err) {
-    console.error("Error setting cache:", err);
+    Sentry.captureException(new Error('Error setting cache'));
+    console.error('Error setting cache:', err);
   }
 }
 
@@ -32,17 +35,18 @@ async function setCache(
  * @returns {Promise<CourseTypes.CourseInfo[] | undefined>} - List of courses or undefined if an error occurs.
  */
 async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
-  const cacheKey = "getAllCourses";
+  const cacheKey = 'getAllCourses';
 
   // Try to fetch from cache first
   try {
     const cachedData = await redisClient.get(cacheKey);
     if (cachedData) {
-      log("Serving getAllCourses from Redis cache");
+      log('Serving getAllCourses from Redis cache');
       return JSON.parse(cachedData) as CourseTypes.CourseInfo[];
     }
   } catch (cacheError) {
-    log("Error reading from Redis cache", cacheError);
+    Sentry.captureException(new Error('Error reading from Redis cache'));
+    log('Error reading from Redis cache', cacheError);
     // Proceed to query the database if cache fails
   }
 
@@ -93,24 +97,29 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
         return acc;
       }, {});
 
-      const resultData = Object.values(coursesWithRequisites) as CourseTypes.CourseInfo[];
+      const resultData = Object.values(
+        coursesWithRequisites,
+      ) as CourseTypes.CourseInfo[];
 
       // Cache the result for 1 hour (3600 seconds)
       try {
         await redisClient.setEx(cacheKey, 3600, JSON.stringify(resultData));
       } catch (cacheError) {
-        log("Error writing to Redis cache", cacheError);
+        Sentry.captureException(new Error('Error writing to Redis cache'));
+        log('Error writing to Redis cache', cacheError);
       }
 
       return resultData;
     } catch (error) {
-      log("Error fetching courses with requisites\n", error);
+      Sentry.captureException(
+        new Error('Error fetching courses with requisites'),
+      );
+      log('Error fetching courses with requisites\n', error);
     }
   }
 
   return undefined;
 }
-
 
 /**
  * Retrieves a specific course by its unique code.
@@ -119,7 +128,7 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
  * @returns {Promise<CourseTypes.CourseInfo | undefined>} - The course details, or undefined if not found.
  */
 async function getCourseByCode(
-  code: string
+  code: string,
 ): Promise<CourseTypes.CourseInfoDB | undefined> {
   const dbConn = await Database.getConnection();
 
@@ -128,9 +137,9 @@ async function getCourseByCode(
       // Fetch course details
       const courseResult = await dbConn
         .request()
-        .input("code", Database.msSQL.VarChar, code)
+        .input('code', Database.msSQL.VarChar, code)
         .query(
-          "SELECT code, title, credits, description FROM Course WHERE code = @code"
+          'SELECT code, title, credits, description FROM Course WHERE code = @code',
         );
 
       const course = courseResult.recordset[0];
@@ -141,7 +150,7 @@ async function getCourseByCode(
       // Fetch requisites
       const requisitesResult = await dbConn
         .request()
-        .input("code", Database.msSQL.VarChar, code).query(`
+        .input('code', Database.msSQL.VarChar, code).query(`
                     SELECT r.type, r.code2 AS requisiteCode, c.description AS requisiteDescription
                     FROM Requisite r
                     INNER JOIN Course c ON r.code2 = c.code
@@ -161,7 +170,8 @@ async function getCourseByCode(
         })),
       };
     } catch (error) {
-      console.error("Error fetching course by code\n", error);
+      Sentry.captureException(new Error('Error fetching course by code'));
+      console.error('Error fetching course by code\n', error);
     }
   }
 
@@ -171,11 +181,12 @@ async function getCourseByCode(
 /**
  * Adds a new course to the database.
  *
+ *
  * @param {CourseTypes.CourseInfo} courseInfo - The course details.
  * @returns {Promise<{ code: string } | undefined>} - The inserted course's code, or undefined on failure.
  */
 async function addCourse(
-  courseInfo: CourseTypes.CourseInfo
+  courseInfo: CourseTypes.CourseInfo,
 ): Promise<{ code: string } | undefined> {
   const dbConn = await Database.getConnection();
 
@@ -183,16 +194,16 @@ async function addCourse(
     const { code, title, credits, description } = courseInfo;
 
     if (!code || !title || !credits || !description) {
-      throw new Error("Missing required course data");
+      throw new Error('Missing required course data');
     }
 
     try {
       const result = await dbConn
         .request()
-        .input("code", Database.msSQL.VarChar, code)
-        .input("title", Database.msSQL.VarChar, title)
-        .input("credits", Database.msSQL.Int, credits)
-        .input("description", Database.msSQL.VarChar, description).query(`
+        .input('code', Database.msSQL.VarChar, code)
+        .input('title', Database.msSQL.VarChar, title)
+        .input('credits', Database.msSQL.Int, credits)
+        .input('description', Database.msSQL.VarChar, description).query(`
                     INSERT INTO Course (code, title, credits, description)
                     OUTPUT INSERTED.code
                     VALUES (@code, @title, @credits, @description)
@@ -200,7 +211,8 @@ async function addCourse(
 
       return result.recordset[0];
     } catch (error) {
-      log("Error adding course\n", error);
+      Sentry.captureException(new Error('Error adding course'));
+      log('Error adding course\n', error);
     }
   }
 
@@ -209,6 +221,7 @@ async function addCourse(
 
 /**
  * Deletes a course from the database.
+ *
  *
  * @param {string} code - The course code to delete.
  * @returns {Promise<boolean>} - True if deleted successfully, false otherwise.
@@ -220,12 +233,13 @@ async function removeCourse(code: string): Promise<boolean> {
     try {
       const result = await dbConn
         .request()
-        .input("code", Database.msSQL.VarChar, code)
-        .query("DELETE FROM Course WHERE code = @code");
+        .input('code', Database.msSQL.VarChar, code)
+        .query('DELETE FROM Course WHERE code = @code');
 
       return result.rowsAffected[0] > 0;
     } catch (error) {
-      console.error("Error removing course\n", error);
+      Sentry.captureException(new Error('Error removing course'));
+      console.error('Error removing course\n', error);
       throw error;
     }
   }
@@ -241,18 +255,19 @@ async function removeCourse(code: string): Promise<boolean> {
  * @returns {Promise<CourseTypes.CoursePoolInfo[] | undefined>} - The grouped courses, or undefined on failure.
  */
 async function getCoursesByDegreeGrouped(
-  degreeId: string
+  degreeId: string,
 ): Promise<CourseTypes.CoursePoolInfo[] | undefined> {
   const cacheKey = `coursesByDegreeGrouped:${degreeId}`;
 
   try {
     const cachedData = await redisClient.get(cacheKey);
     if (cachedData) {
-      log("Serving getCoursesByDegreeGrouped from Redis cache");
+      log('Serving getCoursesByDegreeGrouped from Redis cache');
       return JSON.parse(cachedData) as CourseTypes.CoursePoolInfo[];
     }
   } catch (cacheError) {
-    log("Error reading from Redis cache", cacheError);
+    Sentry.captureException(new Error('Error reading from Redis cache'));
+    log('Error reading from Redis cache', cacheError);
     // Continue to query the database if cache read fails
   }
 
@@ -299,7 +314,7 @@ async function getCoursesByDegreeGrouped(
 
     const result = await dbConn
       .request()
-      .input("degreeId", Database.msSQL.VarChar, degreeId)
+      .input('degreeId', Database.msSQL.VarChar, degreeId)
       .query(query);
 
     const records = result.recordset;
@@ -314,7 +329,6 @@ async function getCoursesByDegreeGrouped(
       } catch (e) {
         requisites = [];
       }
-
       const poolId = record.course_pool_id;
       if (!coursePoolsMap[poolId]) {
         coursePoolsMap[poolId] = {
@@ -324,6 +338,7 @@ async function getCoursesByDegreeGrouped(
         };
       }
 
+      // Create a course object with its requisites
       const course = {
         code: record.code,
         title: record.title,
@@ -341,12 +356,16 @@ async function getCoursesByDegreeGrouped(
       // Cache the result in Redis for 3600 seconds (1 hour)
       await redisClient.setEx(cacheKey, 604800, JSON.stringify(resultData));
     } catch (cacheError) {
-      log("Error writing to Redis cache", cacheError);
+      Sentry.captureException(new Error('Error writing to Redis cache'));
+      log('Error writing to Redis cache', cacheError);
     }
 
     return resultData;
   } catch (error) {
-    log("Error fetching courses by degree grouped by course pools\n", error);
+    Sentry.captureException(
+      new Error('Error fetching courses by degree grouped by course pools'),
+    );
+    log('Error fetching courses by degree grouped by course pools\n', error);
   }
 
   return undefined;
@@ -358,18 +377,21 @@ async function getCoursesByDegreeGrouped(
  *
  * @returns {Promise<CourseTypes.CourseInfo[] | undefined>} - A list of courses with their requisite information, or undefined on failure.
  */
-async function getAllCoursesInDB(): Promise<CourseTypes.CourseInfo[] | undefined> {
-  const cacheKey = "getAllCoursesInDB";
+async function getAllCoursesInDB(): Promise<
+  CourseTypes.CourseInfo[] | undefined
+> {
+  const cacheKey = 'getAllCoursesInDB';
 
   // Try to fetch from Redis cache first
   try {
     const cachedData = await redisClient.get(cacheKey);
     if (cachedData) {
-      log("Serving getAllCoursesInDB from Redis cache");
+      log('Serving getAllCoursesInDB from Redis cache');
       return JSON.parse(cachedData) as CourseTypes.CourseInfo[];
     }
   } catch (cacheError) {
-    log("Error reading from Redis cache", cacheError);
+    Sentry.captureException(new Error('Error reading from Redis cache'));
+    log('Error reading from Redis cache', cacheError);
     // Continue to query the database if cache fails
   }
 
@@ -427,12 +449,14 @@ async function getAllCoursesInDB(): Promise<CourseTypes.CourseInfo[] | undefined
       try {
         await redisClient.setEx(cacheKey, 604800, JSON.stringify(resultData));
       } catch (cacheError) {
-        log("Error writing to Redis cache", cacheError);
+        Sentry.captureException(new Error('Error writing to Redis cache'));
+        log('Error writing to Redis cache', cacheError);
       }
 
       return resultData;
     } catch (error) {
-      log("Error fetching all courses\n", error);
+      Sentry.captureException(new Error('Error fetching all courses'));
+      log('Error fetching all courses\n', error);
     }
   }
 

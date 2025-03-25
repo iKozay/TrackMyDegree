@@ -5,7 +5,7 @@ Back-End/dist
 Back-End/coverage
 package-lock.json
 node_modules
-.env
+**/.env
 myenv/
 .gitignore
 entrypoint-sql.sh

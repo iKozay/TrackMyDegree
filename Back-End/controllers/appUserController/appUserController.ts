@@ -1,5 +1,6 @@
-import Database from "@controllers/DBController/DBController"
-import appUserTypes from "@controllers/appUserController/appUser_types"
+import Database from '@controllers/DBController/DBController';
+import appUserTypes from '@controllers/appUserController/appUser_types';
+import * as Sentry from '@sentry/node';
 
 /**
  * Updates an existing AppUser in the database.
@@ -19,7 +20,7 @@ async function updateAppUser(
   password: string,
   fullname: string,
   degree: string,
-  type: appUserTypes.UserType
+  type: appUserTypes.UserType,
 ): Promise<appUserTypes.AppUser | undefined> {
   // Establish a database connection
   const conn = await Database.getConnection();
@@ -52,7 +53,7 @@ async function updateAppUser(
                 fullname = @fullname, 
                 degree = @degree, 
                 type = @type 
-            WHERE id = @id`
+            WHERE id = @id`,
         );
 
       // Retrieve and return the updated user data
@@ -63,13 +64,13 @@ async function updateAppUser(
 
       return updatedAppUser.recordset[0];
     } catch (error) {
+      Sentry.captureException(error);
       throw error; // Rethrow any errors encountered
     } finally {
       conn.close(); // Ensure the database connection is closed
     }
   }
 }
-
 
 /**
  * Deletes an AppUser from the database.
@@ -102,17 +103,18 @@ async function deleteAppUser(id: string): Promise<string | undefined> {
       // Return success message
       return `AppUser with id ${id} has been successfully deleted.`;
     } catch (error) {
+      Sentry.captureException(error);
       throw error; // Rethrow any errors encountered
     } finally {
       conn.close(); // Ensure the database connection is always closed
     }
   }
-};
+}
 
 //Namespace
 const appUserController = {
   updateAppUser,
-  deleteAppUser
+  deleteAppUser,
 };
 
 export default appUserController;

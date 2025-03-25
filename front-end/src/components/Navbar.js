@@ -1,7 +1,7 @@
 // src/components/Navbar.js
 import React, { useContext, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { AuthContext } from '../AuthContext';
+import { AuthContext } from '../middleware/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '../css/Navbar.css';
@@ -9,9 +9,9 @@ import userIcon from '../icons/userIcon2.png';
 import logoutIcon from '../icons/logoutIcon.png';
 
 const Navbar = () => {
-  const { isLoggedIn, logout, user } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const menuRef = useRef(null);
+	const { isLoggedIn, logout, user } = useContext(AuthContext);
+	const navigate = useNavigate();
+	const menuRef = useRef(null);
 
   // Handle logout logic
   const handleLogout = () => {
