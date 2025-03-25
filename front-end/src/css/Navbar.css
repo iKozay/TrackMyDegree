@@ -42,11 +42,41 @@
   padding-right: 10px;
   border: #000;
   font-size: 20px;
+  margin: 30px;
+  margin-bottom: 10px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
 .custom-navbar .nav-link:hover {
-  color: #bdb7b8 !important;
+  color: white !important;
+  transform: translateY(-3px) scale(1.05);
 }
+
+.custom-navbar .nav-link.active {
+  color: #ffffff !important;
+  transform: translateY(3px);
+  position: relative; /* Needed for positioning the pseudo-element */
+}
+
+.custom-navbar .nav-link.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -24px; /* move the underline  */
+  height: 6px;   /* Thickness of the underline */
+  background-color: #ecf0f1;
+  border-radius: 8px;
+}
+
+/*.custom-navbar .nav-link.active {*/
+/*  color: #1c1717 !important;*/
+/*  background-color: #ecf0f1;*/
+/*  border-radius: 8px;*/
+/*  width: 100px;*/
+/*  height: 45px;*/
+/*  font-size: 20px;*/
+/*}*/
 
 .custom-navbar-height {
   height: 120px;
@@ -143,11 +173,6 @@
   .navbar-collapse {
     flex-grow: 1;
     justify-content: flex-end;
-  }
-
-  /* Adjust the active link style */
-  .nav-link.active {
-    color: #e74c3c !important;
   }
 
   /* Mobile view for navbar */
