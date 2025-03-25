@@ -58,6 +58,7 @@ router.post("/add", async (req: Request, res: Response) => {
   const courseInfoCorrect =
     courseInfo.code &&
     courseInfo.credits &&
+    courseInfo.offeredIn &&
     courseInfo.description &&
     courseInfo.title;
 
