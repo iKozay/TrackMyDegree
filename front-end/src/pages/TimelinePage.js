@@ -44,6 +44,7 @@ const DraggableCourse = ({
   onSelect,
   containerId,
   className: extraClassName, // NEW prop
+  isInTimeline, // NEW prop
 }) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: internalId,
@@ -67,6 +68,10 @@ const DraggableCourse = ({
       }}
     >
       {courseCode}
+      {isInTimeline && (
+        <span className="checkmark-icon">✔</span>
+        /* <img src={checkIcon} alt="In timeline" className="checkmark-icon" /> */
+      )}
     </div>
   );
 };
@@ -758,13 +763,23 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   // ----------------------------------------------------------------------
   const isCourseAssigned = (courseCode) => {
     for (const semesterId in semesterCourses) {
+      // Skip the "courseList" container
       if (semesterId === 'courseList') continue;
-      if (semesterCourses[semesterId].includes(courseCode)) {
+
+      // For each instanceId, retrieve its base code from courseInstanceMap
+      const alreadyAssigned = semesterCourses[semesterId].some((instanceId) => {
+        const baseCode = courseInstanceMap[instanceId] || instanceId;
+        return baseCode === courseCode;
+      });
+
+      if (alreadyAssigned) {
+        console.log('Course already assigned:', courseCode);
         return true;
       }
     }
     return false;
   };
+
 
   const handleDragStart = (event) => {
     setReturning(false);
@@ -1034,6 +1049,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           );
           if (!prerequisitesMet) {
             unmetPrereqFound = true;
+            return;
           }
 
           // Add credits to the pool’s assigned sum, up to the pool’s max
@@ -1556,6 +1572,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                               }
                                               onSelect={handleCourseSelect}
                                               containerId="courseList"
+                                              isInTimeline={isCourseAssigned(course.code)}
                                               className={
                                                 !courseMatches
                                                   ? 'hidden-course'
@@ -1597,24 +1614,19 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                           .includes(searchQuery.toLowerCase());
                                       return (
                                         <DraggableCourse
-                                          key={`${course.code}-${isCourseAssigned(course.code)}`}
-                                          id={course.code}
+                                          key={`source-${course.code}`}
+                                          internalId={`source-${course.code}`}
+                                          courseCode={course.code}
                                           title={course.code}
-                                          disabled={isCourseAssigned(
-                                            course.code,
-                                          )}
+                                          disabled={isCourseAssigned(course.code)}
                                           isReturning={returning}
-                                          isSelected={
-                                            selectedCourse?.code === course.code
-                                          }
+                                          isSelected={selectedCourse?.code === course.code}
                                           onSelect={handleCourseSelect}
                                           containerId="courseList"
-                                          className={
-                                            !courseMatches
-                                              ? 'hidden-course'
-                                              : ''
-                                          }
+                                          isInTimeline={isCourseAssigned(course.code)}
+                                          className={!courseMatches ? 'hidden-course' : ''}
                                         />
+
                                       );
                                     })}
                                   </Container>
@@ -1757,13 +1769,13 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                               fill="red"
                                               xmlns="http://www.w3.org/2000/svg"
                                             >{isSelected ? <rect x="2" y="11" width="22" height="4" fill="#912338" /> : <rect
-                                                x="2"
-                                                y="11"
-                                                width="22"
-                                                height="4"
-                                                fill="white"
-                                              />}
-                                              
+                                              x="2"
+                                              y="11"
+                                              width="22"
+                                              height="4"
+                                              fill="white"
+                                            />}
+
                                             </svg>
                                           </button>
                                         }
@@ -1831,18 +1843,24 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                       <div>
                         <h5><strong>{selectedCourse.title}</strong></h5>
                         <div><strong>Credits: </strong>{selectedCourse.credits}</div>
+                        <p></p>
 
 
-                        {selectedCourse.offeredIn && (
-                          <>
-                            <strong>Offered In: </strong>
-                            <p>
-                              {Array.isArray(selectedCourse.offeredIn)
+                        <div>
+                          <strong>Offered In: </strong>
+                          <p>
+                            {Array.isArray(selectedCourse.offeredIn)
+                              ? selectedCourse.offeredIn.length > 0
                                 ? selectedCourse.offeredIn.join(', ')
-                                : selectedCourse.offeredIn}
-                            </p>
-                          </>
-                        )}
+                                : <i>None</i>
+                              : typeof selectedCourse.offeredIn === 'string' && selectedCourse.offeredIn.trim()
+                                ? selectedCourse.offeredIn
+                                : <i>None</i>
+                            }
+                          </p>
+                        </div>
+
+
                         {selectedCourse.requisites && (
                           <div>
                             {/* Display Prerequisites */}
@@ -1908,9 +1926,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                             )}
 
                             {selectedCourse.requisites.length === 0 && (
-                              <ul>
-                                <li>None</li>
-                              </ul>
+                              <>
+                                <p><i>No Requisites</i></p>
+                              </>
                             )}
                           </div>
                         )}
