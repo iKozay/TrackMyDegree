@@ -200,7 +200,7 @@ function CourseListPage() {
             </Dropdown.Menu>
           </Dropdown>
           {/* Search Bar */}
-          <Form className="mt-3">
+          <Form className="search-course">
             <Form.Control
               type="text"
               placeholder="Search courses..."
