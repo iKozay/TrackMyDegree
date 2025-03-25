@@ -2,7 +2,7 @@
   {
     "title": "COEN 212 Digital Systems Design I",
     "credits": 3.5,
-    "prerequisites": "MATH 204 (Cegep Mathematics 105).",
+    "prerequisites": "MATH 204.",
     "corequisites": "",
     "description": "This course starts with an overview of binary and other radix-based formats, and unsigned and signed binary arithmetic. Logic gates, Boolean algebra theorems and properties, logical functions with canonical and standard forms, logic minimization using Boolean algebra and K-maps are addressed. Then, the course presents design methodologies of combinational circuits that lead to relevant gate-level diagrams such as adders, subtractors, multipliers, comparators, decoders, encoders, multiplexers, and demultiplexers. Sequential circuits starting with latches and flip-flops are introduced. Subsequently, registers and counters are presented. Design of synchronous sequential circuits with relevant schematic diagrams are then addressed. Finite State Machines (FS Ms) with state equivalence and minimization are also introduced. Finally, introduction to memory and Programmable Logic Devices (PL Ds) is presented.",
     "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 15 hours total",
@@ -16,7 +16,7 @@
   {
     "title": "COEN 231 Introduction to Discrete Mathematics",
     "credits": 3,
-    "prerequisites": "MATH 204 (Cegep Mathematics 105).",
+    "prerequisites": "MATH 204.",
     "corequisites": "",
     "description": "Fundamentals of logic: basic connectives and truth tables; logical equivalence; the laws of logic; logical implication; rules of inference; the use of quantifiers; proofs of theorems. Sets: the laws of set theory. Boolean algebra. Relation of Boolean algebra to logical and set theoretic operations. Modulo arithmetic: division algorithm. Induction and recursion: induction on natural numbers; recursive definitions. Functions and relations: cartesian products and relations; functions; function composition and inverse functions; equivalence relations. Elements of graph theory: basic definitions of graph theory; paths, reachability and connectedness; computing paths from their matrix representation; traversing graphs represented as adjacency lists; trees and spanning trees. Finite-state machines (FSM) deterministic and nondeterministic machines; regular languages; FSM with output; composition of FSM.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
@@ -30,7 +30,7 @@
   {
     "title": "COEN 243 Programming Methodology I",
     "credits": 3.5,
-    "prerequisites": "MATH 204 (Cegep Mathematics 105).",
+    "prerequisites": "MATH 204.",
     "corequisites": "",
     "description": "This course is an introduction to computers and programming paradigms. Essential topics from procedural programming languages are discussed such as key elements, reserved words and identifiers, data types and declarations, statements, arithmetic expressions, and different modes of execution. The course covers flow control using If-Else and Switch statements, repetition using loops, recursive functions, pointers, references and dynamic data structures and function pointer. The course material also includes Lambda expression, data structures, built-in arrays, template arrays and vectors, n-dimensional vectors, sorting and searching. Students learn object-oriented programming, user-defined classes, class attributes and methods, object creation, use and destruction. Students are also introduced to exception handling and UML class diagrams.",
     "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 12 hours total",
@@ -274,7 +274,7 @@
   {
     "title": "COEN 434 Microfluidic Devices for Synthetic Biology",
     "credits": 3,
-    "prerequisites": "COEN 244 and ENGR 290; / BIOL 261 and COMP 249.",
+    "prerequisites": "COEN 244 , ENGR 290 / BIOL 261, COMP 249.",
     "corequisites": "",
     "description": "This course introduces students to microfluidic components (pumps, valves, automation) programming microfluidics, paradigms, and applications for chemical and biological analysis. Introduction to synthetic biology; biological parts and their properties, network structure and pathway engineering, synthetic networks, manipulating DNA and measuring responses, basic behaviour of genetic circuits, building complex genetic networks; integration of microfluidics and synthetic biology; economic implications.",
     "components": "Lecture 3 hours per week",
@@ -286,7 +286,7 @@
   {
     "title": "COEN 446 Internet of Things",
     "credits": 3.5,
-    "prerequisites": "COEN 366 / 445 / ELEC 366 / 463.",
+    "prerequisites": "COEN 366 / COEN 445 / ELEC 366 / ELEC 463.",
     "corequisites": "",
     "description": "This course covers the paradigm change from the Internet and devices to the Internet of Things (IoT). It also covers IoT business models and applications (including health monitoring and smart cities); IoT characteristics, constraints and requirements. The IoT protocol stack is also covered and its contrasts with the TCP/IP protocol stack are discussed. Other covered topics include physical, link and networking layer protocols. Moreover, the course covers the Message Queueing Telemetry Transport (MQTT) and Constrained Application (CoAP) application layer protocols and the efficient XML interchange (EXI) format. The course provides an introduction to security threats and privacy in IoT systems; IoT analytics, platforms and tools.",
     "components": "Lecture 3 hours per week; Laboratory 15 hours total",
@@ -298,7 +298,7 @@
   {
     "title": "COEN 447 Software-Defined Networking",
     "credits": 3,
-    "prerequisites": "COEN 317; COEN 366 / 445 / ELEC 366 / 463.",
+    "prerequisites": "COEN 317; COEN 366 / COEN 445 / ELEC 366 / ELEC 463.",
     "corequisites": "",
     "description": "This course equips students with an understanding of the principles and techniques underpinning the design of software-defined networks. Topics include control and data planes, centralized vs. distributed control; network operating systems, network function virtualization; programmable data planes, network processors, programmable switch pipelines; high-level data-plane programming with P 4 and data-plane development kit. This course includes a software-defined network emulation project.",
     "components": "Lecture 3 hours per week",
