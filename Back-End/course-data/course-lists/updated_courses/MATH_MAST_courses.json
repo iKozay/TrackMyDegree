@@ -29,7 +29,7 @@
   {
     "title": "MATH 202 College Algebra",
     "credits": 3,
-    "prerequisites": "MATH 201 or equivalent.",
+    "prerequisites": "MATH 201",
     "corequisites": "",
     "description": "This course introduces students to the fundamental notions of algebra. Topics may include progressions, combinations, permutations, mathematical induction, inequalities, polynomials, and the Cartesian and polar forms of complex numbers.",
     "components": "Lecture; Tutorial",
@@ -39,7 +39,7 @@
   {
     "title": "MATH 203 Differential and Integral Calculus I",
     "credits": 3,
-    "prerequisites": "MATH 201 or equivalent.",
+    "prerequisites": "MATH 201",
     "corequisites": "",
     "description": "This course is the first of two connected calculus courses (followed by MATH 205). This course focuses on an overview of functions and limits; derivative as rate of change, differentiation of elementary functions (power, exponential, logarithmic, trigonometric); differentiation rules (product, quotient, and chain rules); implicit differentiation; higher derivatives; approximations using linearization and the differential. Applications include related rates; optimization, analysis of functions (determining maxima, minima and inflection points) and graphing.",
     "components": "Lecture; Tutorial",
@@ -53,7 +53,7 @@
   {
     "title": "MATH 204 Vectors and Matrices",
     "credits": 3,
-    "prerequisites": "MATH 201 or equivalent.",
+    "prerequisites": "MATH 201",
     "corequisites": "",
     "description": "This is an introductory course in elementary linear algebra. In this course, students learn algebra and geometry of vectors, dot and cross products, lines and planes. A key objective is learning methods to solve systems of linear equations, which are reformulated with matrix multiplication, matrix inversion, and determinants. Finally, these methods are clarified through linear transformations.",
     "components": "Lecture; Tutorial",
@@ -67,7 +67,7 @@
   {
     "title": "MATH 205 Differential and Integral Calculus II",
     "credits": 3,
-    "prerequisites": "MATH 203 or equivalent.",
+    "prerequisites": "MATH 203",
     "corequisites": "",
     "description": "This course is the second of two connected courses on differential and integral calculus (preceded by MATH 203). In this course, students learn about definite integrals and antiderivatives, the fundamental theorem of calculus, indefinite integrals and techniques of integration (substitutions, integration by parts, partial fractions, trigonometric functions), improper integrals, applications of integration (area between curves, volumes of solids of revolurion); infinite sequences and series: tests for convergence; power series, Taylor and Maclaurin series.",
     "components": "Lecture; Tutorial",
@@ -95,7 +95,7 @@
   {
     "title": "MATH 208 Fundamental Mathematics I",
     "credits": 3,
-    "prerequisites": "MATH 206 or equivalent.",
+    "prerequisites": "MATH 206",
     "corequisites": "",
     "description": "Topics covered in this course include matrices, Gaussian elimination, input‑output analysis, progressions, compound interest, annuities, permutations and combinations, probability, exponential and logarithmic functions, inequalities, linear programming.",
     "components": "Lecture",
@@ -109,7 +109,7 @@
   {
     "title": "MATH 209 Fundamental Mathematics II",
     "credits": 3,
-    "prerequisites": "MATH 206 or equivalent.",
+    "prerequisites": "MATH 206",
     "corequisites": "",
     "description": "This course is a prerequisite course for John Molson School of Business students*. Limits; differentiation of rational, exponential, and logarithmic functions; theory of maxima and minima; integration.",
     "components": "Lecture",
@@ -173,7 +173,7 @@
   {
     "title": "MATH 222 Logic, Proofs, and Discrete Structures",
     "credits": 3,
-    "prerequisites": "MATH 204, MATH 205 or equivalent.",
+    "prerequisites": "MATH 204, MATH 205.",
     "corequisites": "",
     "description": "This course provides an introduction to formal logic and standard techniques for constructing proofs from a mathematical perspective. This is done in tandem with an introduction to a variety of fundamental mathematical structures so that students learn to identify, understand, and create rigorous mathematical proofs. Topics may include logic and proofs, basic structures, algorithms, number theory and cryptography, induction and recursion, counting techniques, relations and their properties, graphs, trees, Boolean algebra, and modelling computation.",
     "components": "Lecture",
@@ -186,7 +186,7 @@
   {
     "title": "MATH 251 Linear Algebra I",
     "credits": 3,
-    "prerequisites": "MATH 204 and MATH 205 or equivalent.",
+    "prerequisites": "MATH 204, MATH 205.",
     "corequisites": "",
     "description": "This course is an introduction to vector spaces and linear transformations. The following topics are treated with mathematical rigour: matrices and linear equations; vector spaces; bases, dimension and rank; linear mappings and algebra of linear operators; matrix representation of linear operators; determinants; eigenvalues and eigenvectors; diagonalization.",
     "components": "Lecture",
@@ -199,7 +199,7 @@
   {
     "title": "MATH 252 Linear Algebra II",
     "credits": 3,
-    "prerequisites": "MATH 251 or equivalent.",
+    "prerequisites": "MATH 251",
     "corequisites": "",
     "description": "This course continues the study of vector spaces and linear transformations, with mathematical rigour. Topics may include characteristic and minimum polynomials; invariant subspaces, invariant direct sums; cyclic subspaces; rational canonical form; bilinear and quadratic forms; inner product; orthogonality; adjoint operators and orthogonal operators; Jordan canonical form.",
     "components": "Lecture",
@@ -247,7 +247,7 @@
   {
     "title": "MATH 365 Analysis II",
     "credits": 3,
-    "prerequisites": "MATH 364 or equivalent.",
+    "prerequisites": "MATH 364",
     "corequisites": "",
     "description": "This course continues the study of mathematical analysis with more advanced topics and greater precision. The Riemann integral is defined rigorously. Examples and counter-examples are given. Families of Riemann integrable functions are studied as are improper integrals. Series of real numbers are studied, under the umbrella of absolute and conditional convergence. Important and useful tests for convergence and divergence are studied, including results by Abel and Dirichlet. The regrouping and rearrangement of series are also covered. The work on series of reals is followed by the topic of sequences and series of functions. The fundamental idea of uniform convergence of sequences and series of functions is studied in detail. This leads to the three preservation theorems and their applications to the M-test and to Taylor series. Further special topics may be explored.",
     "components": null,
@@ -259,7 +259,7 @@
   {
     "title": "MATH 366 Complex Analysis I",
     "credits": 3,
-    "prerequisites": "MAST 219 or equivalent.",
+    "prerequisites": "MAST 219",
     "corequisites": "",
     "description": "This course covers the algebra and geometry of complex numbers, linear transformations, analytic functions, Laurent’s series, calculus of residues, and special functions.",
     "components": "Lecture",
@@ -284,7 +284,7 @@
   {
     "title": "MATH 370 Ordinary Differential Equations",
     "credits": 3,
-    "prerequisites": "MAST 219; MATH 251 or MAST 234; or equivalent.",
+    "prerequisites": "MAST 219; MATH 251 / MAST 234",
     "corequisites": "",
     "description": "In this course, students are taught to recognize, interpret, and solve various differential equations and boundary value problems. Topics may include separable equations, exact equations, integrating factors, first order linear equations, second order equations, series solutions, reduction of order, variation of parameters, the Laplace transform, and higher-order linear equations with constant coefficients. Systems of linear differential equations may also be covered. Applications of these methods to population models, mechanical systems, and many other realistic situations are emphasized throughout.",
     "components": "Lecture",
@@ -318,7 +318,7 @@
   {
     "title": "MATH 397 History of Mathematics",
     "credits": 3,
-    "prerequisites": "MATH 252; MATH 365. If prerequisites are not satisfied, permission of the Department is required.",
+    "prerequisites": "MATH 252; MATH 365.",
     "corequisites": "",
     "description": "Early mathematics, Greek mathematics, European mathematics in the Middle Ages, the origin and development of analytic geometry and calculus, mathematics as free creation, the generality of mathematics in the 20th century.",
     "components": "Lecture",
@@ -328,7 +328,7 @@
   {
     "title": "MATH 433 Calculus of Variations",
     "credits": 3,
-    "prerequisites": "MAST 219; MATH 365, MATH 370; or equivalent.",
+    "prerequisites": "MAST 219; MATH 365, MATH 370.",
     "corequisites": "",
     "description": "This course covers the nature of problems, weak variations, the first variation, Euler’s equation, the second variation, Jacobi’s equation, Legendre’s test, conjugate points, relative maxima and minima, and iso‑perimetrical problems. Integrals with variable end points, and applications to problems in pure and applied mathematics, the principle of least action, strong variations, and the Weierstrass E‑function are also discussed.",
     "components": "Lecture",
@@ -338,7 +338,7 @@
   {
     "title": "MATH 464 Real Analysis",
     "credits": 3,
-    "prerequisites": "MAST 219; MATH 365; or equivalent.",
+    "prerequisites": "MAST 219; MATH 365.",
     "corequisites": "",
     "description": "This course covers metric spaces; function spaces; compactness; completeness; and the following theorems: fixed‑point, Ascoli‑Arzela, and Weierstrass approximation.",
     "components": "Lecture",
@@ -350,7 +350,7 @@
   {
     "title": "MATH 466 Complex Analysis II",
     "credits": 3,
-    "prerequisites": "MAST 219; MATH 365, MATH 366; or equivalent.",
+    "prerequisites": "MAST 219; MATH 365, MATH 366",
     "corequisites": "",
     "description": "This course focuses on Cauchy’s theorem, singularities, maximum modulus principle, uniqueness theorem, normal families, and Riemann mapping theorem.",
     "components": "Lecture",
@@ -362,8 +362,8 @@
   {
     "title": "MATH 467 Measure Theory",
     "credits": 3,
-    "prerequisites": "MAST 219 or equivalent; MATH 365",
-    "corequisites": "MATH 464 or equivalent",
+    "prerequisites": "MAST 219, MATH 365",
+    "corequisites": "MATH 464",
     "description": "In this course, students learn about the Lebesgue measure and integration on the real line, convergence theorems, Lp spaces, completeness of Lp[0,1], absolute continuity.",
     "components": "Lecture",
     "notes": null,
@@ -375,7 +375,7 @@
   {
     "title": "MATH 470 Abstract Algebra II",
     "credits": 3,
-    "prerequisites": "MATH 369 or equivalent.",
+    "prerequisites": "MATH 369.",
     "corequisites": "",
     "description": "This is an advanced course in algebra, introducing the notion of rings and studying the properties of several classes of rings. Topics may include an introduction to rings, ideals, euclidean domains, principal ideal domains and unique factorization domains; polynomial rings; introduction to modules.",
     "components": "Lecture",
@@ -387,7 +387,7 @@
   {
     "title": "MATH 471 Abstract Algebra III",
     "credits": 3,
-    "prerequisites": "MATH 470 or equivalent.",
+    "prerequisites": "MATH 470.",
     "corequisites": "",
     "description": "This course continues the study of rings and modules from MATH 470. Topics may include the structure theorem of modules over principal ideal domains; Noetherian rings and modules (including Hilbert basis theorem for rings and modules), and Hilbert’s Nullstellensatz.",
     "components": "Lecture",
@@ -397,7 +397,7 @@
   {
     "title": "MATH 472 Abstract Algebra IV",
     "credits": 3,
-    "prerequisites": "MATH 470 or equivalent.",
+    "prerequisites": "MATH 470.",
     "corequisites": "",
     "description": "This course studies fields and their extensions. Topics may include elements of field and Galois theory, including straight-edge-and-compass construction and unsolvability of equations of fifth degree by radicals.",
     "components": "Lecture",
@@ -407,7 +407,7 @@
   {
     "title": "MATH 473 Partial Differential Equations",
     "credits": 3,
-    "prerequisites": "MATH 370 or equivalent.",
+    "prerequisites": "MATH 370.",
     "corequisites": "",
     "description": "This course is an introduction to partial differential equations and focuses on recognizing, interpreting, and solving such equations. Particular attention is paid to the Laplace, Poisson, heat, and wave equations with various boundary conditions. Solution methods include separation of variables, Fourier expansions, variational methods, and energy methods. Theory developed in this course includes Green’s formula, the maximum principle, and properties of harmonic functions, such as the mean value theorem. Further special topics may be explored.",
     "components": "Lecture",
@@ -419,7 +419,7 @@
   {
     "title": "MATH 474 Linear and Non-Linear Dynamical Systems",
     "credits": 3,
-    "prerequisites": "MAST 219; MATH 365; or equivalent. If prerequisites are not satisfied, permission of the Department is required.",
+    "prerequisites": "MAST 219; MATH 365",
     "corequisites": "",
     "description": "This course is an introduction to dynamical systems. Topics may include systems of linear differential equations; fundamental matrices; non-homogeneous linear systems; non-linear systems; solutions and trajectories; the phase plane; stability concepts; Liapounov’s second method; and periodic solutions and limit cycles.",
     "components": "Lecture",
@@ -431,7 +431,7 @@
   {
     "title": "MATH 475 Discrete Dynamical Systems, Chaos and Fractals",
     "credits": 3,
-    "prerequisites": "MAST 219; MATH 365; or equivalent. If prerequisites are not satisfied, permission of the Department is required.",
+    "prerequisites": "MAST 219; MATH 365",
     "corequisites": "",
     "description": "This course provides a comprehensive investigation of complex dynamics and chaos in the context of discrete dynamical systems. Topics may include modelling with discrete equations, bifurcations, the period three theorem, symbolic dynamics, transitivity, conjugacies, Julia and Fatou sets, and fractals. Complex behaviour in discrete models is analyzed through computer simulations and in the context of iterated function systems.",
     "components": "Lecture",
@@ -441,7 +441,7 @@
   {
     "title": "MATH 478 Non-Linear Programming",
     "credits": 3,
-    "prerequisites": "MATH 251 or MAST 234; MAST 218 or equivalent; MATH 364. If prerequisites are not satisfied, permission of the Department is required.",
+    "prerequisites": "MATH 251 / MAST 234; MAST 218; MATH 364.",
     "corequisites": "",
     "description": "This course provides an overview of nonlinear optimization and related topics. Students review unconstrained nonlinear optimization using methods from advanced calculus. The rudiments of convex analysis are covered and applied to deriving optimality conditions in constrained convex optimization via the classical Lagrangian approach. Nonlinear duality is covered as well. Further special topics (such as an introduction to nonsmooth analysis) may be explored.",
     "components": "Lecture",
@@ -451,7 +451,7 @@
   {
     "title": "MATH 479 Convex and Non-Linear Analysis",
     "credits": 3,
-    "prerequisites": "MATH 365. If prerequisites are not satisfied, permission of the Department is required.",
+    "prerequisites": "MATH 365.",
     "corequisites": "",
     "description": "This is an introduction to convex analysis. Topics may include support and separation of convex sets, extreme point characterizations, convex and dual cones, Farkas’ theorem; convex functions, criteria for convexity, subgradient, Legendre-Fenchel conjugate, Young's inequality; Lagrangians, necessary and sufficient conditions for optimality in constrained minimization; the dual problem; functional inequalities and other applications.",
     "components": "Lecture",
@@ -508,7 +508,7 @@
   {
     "title": "MAST 214 Calculus and Linear Algebra",
     "credits": 6,
-    "prerequisites": "Cegep Mathematics 105 or 201-NYC, 203 or 201- NYB.",
+    "prerequisites": "",
     "corequisites": "",
     "description": "This course spans the range of single and multi-variable calculus as well as elementary linear algebra and is aimed at preparing for the more advanced topics of the curriculum as well as strengthening the necessary skillset of students. Topics from calculus include functions; maxima and minima; velocity and acceleration; iterative solution of equations and parametric equation of curves; integrals; change of variables; integration by parts; double integrals; numerical integration; conic sections. Topics from linear algebra include matrices; determinants; eigen‑values; eigenvectors; system of equations; series and their convergence. The course also includes an introduction to vector space and complex numbers.",
     "components": "Lecture",
@@ -518,7 +518,7 @@
   {
     "title": "MAST 218 Multivariable Calculus I",
     "credits": 3,
-    "prerequisites": "MATH 204 and MATH 205, or equivalent.",
+    "prerequisites": "MATH 204 and MATH 205",
     "corequisites": "",
     "description": "This is an introductory course in the theory of functions of several variables addressing differential and vector calculus. In this course, students focus on vector geometry; lines and planes; curves in Rn; vector functions; vector differential calculus; functions of several variables, chain rule and implicit differentiation, extrema, classification of extremal values and Lagrange multipliers.",
     "components": "Lecture",
@@ -531,8 +531,8 @@
   {
     "title": "MAST 219 Multivariable Calculus II",
     "credits": 3,
-    "prerequisites": "MAST 218 or equivalent.",
-    "corequisites": "",
+    "prerequisites": "MATH 204, MATH 205",
+    "corequisites": "MAST 218",
     "description": "This course is a continuation of the theory of functions of several variables from MAST 218. In this course, students learn about the theory of integration of such functions and the applications of multiple integrals to physics. Topics include vector integral calculus; line and surface integrals; fundamental theorem of line integrals; Green’s, Stokes’ and Gauss’ theorems and Gauss' law; change of integration variables in multiple integrals and Jacobians; applications to multivariate random variables.",
     "components": "Lecture",
     "notes": "Students who have received credit for MATH 265 may not take this course for credit.",
@@ -556,7 +556,7 @@
   {
     "title": "MAST 223 Introduction to Stochastic Methods of Operations Research",
     "credits": 3,
-    "prerequisites": "MAST 221 or equivalent.",
+    "prerequisites": "MAST 221.",
     "corequisites": "",
     "description": "This course is an introduction to stochastic methods of operations research. Topics may include Markov chains; queuing theory; inventory theory; Markov decision processes; applications to reliability.",
     "components": "Lecture",
@@ -568,7 +568,7 @@
   {
     "title": "MAST 232 Mathematics with Computer Algebra",
     "credits": 3,
-    "prerequisites": "MATH 204, MATH 205; or equivalent.",
+    "prerequisites": "MATH 204, MATH 205.",
     "corequisites": "",
     "description": "An introduction to the use of a high‑level mathematical programming language as a practical aid in doing mathematics. Most classes are given in an interactive way in the computer laboratory. The aim is to arrive at a sufficient working familiarity with the computer algebra language to permit its regular use in subsequent studies and applications. The commands and online resources are introduced through a review of arithmetic, complex numbers, algebra, Euclidean geometry, trigonometry, coordinate systems and graphing, elementary functions and transformations, series, derivatives, integrals, vectors and matrices. There may be additional topics from domains such as number theory, differential equations, integral transforms, probability and statistics.",
     "components": "Lecture",
@@ -581,7 +581,7 @@
   {
     "title": "MAST 234 Linear Algebra and Applications I",
     "credits": 3,
-    "prerequisites": "MATH 204 or equivalent.",
+    "prerequisites": "MATH 204.",
     "corequisites": "",
     "description": "In this course, students focus on two major concepts: vector spaces and linear transformations. Topics include system of linear equations, matrix operations, row echelon form; linear dependence; Rn and general vector spaces, subspaces; bases and coordinates; linear operators and their matrix representations; similar matrices; applications of determinants; eigenvalues and eigenvectors; diagonalization of matrices; and the applications of diagonalization (e.g. Markov chains). Computing environments/software may be used in the course as tools and/or assignment platforms, but not as objects of study.",
     "components": "Lecture",
@@ -594,7 +594,7 @@
   {
     "title": "MAST 235 Linear Algebra and Applications II",
     "credits": 3,
-    "prerequisites": "MAST 234 or equivalent.",
+    "prerequisites": "MAST 234.",
     "corequisites": "",
     "description": "In this course, the theory studied in MAST 234 is applied and further developed. Topics may include inner product spaces; orthogonal projection and Gram-Schmidt algorithm; orthogonal and unitary matrices; self-adjoint operators and Hermitian matrices; spectral theorem. Applications to economic models, networks, dynamical systems, normal equations and least square solutions to inconsistent systems, principal axes theorem and quadratic forms are examined. Further special topics (e.g. Cayley-Hamilton Theorem, singular values and SVD factorization) may be explored. Computing environments/software may be used in the course as tools and/or assignment platforms, but not as objects of study.",
     "components": "Lecture",
@@ -606,7 +606,7 @@
   {
     "title": "MAST 324 Introduction to Optimization",
     "credits": 3,
-    "prerequisites": "MATH 203, MATH 204; or equivalent.",
+    "prerequisites": "MATH 203, MATH 204.",
     "corequisites": "",
     "description": "This course is an introduction to optimization. Topics may include linear models, linear programming (simplex algorithm, sensitivity analysis, duality and dual simplex algorithm), and the transportation problem (transportation simplex algorithm and sensitivity analysis). An introduction to unconstrained nonlinear optimization and the rudiments of constrained nonlinear optimization via basic facts about convex sets and functions may also be explored.",
     "components": "Lecture",
@@ -618,7 +618,7 @@
   {
     "title": "MAST 331 Mathematical Modelling",
     "credits": 3,
-    "prerequisites": "MAST 221, MAST 234; or equivalent",
+    "prerequisites": "MAST 221, MAST 234",
     "corequisites": "MAST 324",
     "description": "This course provides opportunities for students to construct and analyze mathematical models that arise in the physical, biological, and social sciences. The course is driven by the derivation of models that describe a wide variety of phenomena. In-depth mathematical methods are presented that can be used to solve/analyze the derived models. This course covers multiple modelling techniques and may include optimization, ordinary differential equations, dynamical systems, and stochastic models, among others. These methods build upon each other as the course progresses. Specific topics may include linear programming, linear and nonlinear ordinary differential equations in one and two dimensions, construction of models from data, and Markov chains. The course uses mathematical techniques from calculus, probability, and linear algebra.",
     "components": "Lecture",
@@ -630,7 +630,7 @@
   {
     "title": "MAST 332 Techniques in Symbolic Computation",
     "credits": 3,
-    "prerequisites": "MATH 222 or COMP 232 or equivalent; COMP 248 or equivalent.",
+    "prerequisites": "MATH 222 / COMP 232; COMP 248",
     "corequisites": "",
     "description": "This course is an application-oriented introduction to algebraic methods involved in symbolic computation, as applied to number theory and modular algebra. Topics may include numbers, primes, modular arithmetic, Diophantine equations; congruence classes and applications, finite fields and rings; Fermat’s and Euler’s theorems; Chinese Remainder Theorem and applications; polynomial congruences and rings. Applications to error-correcting codes (Humming codes), Hill Cryptosystem, public key encryption schemes, polynomial factorization and polynomial interpolation are also covered. Computing environments/software may be used in the course as tools and/or assignment platforms, but not as objects of study.",
     "components": "Lecture",
@@ -642,7 +642,7 @@
   {
     "title": "MAST 333 Applied Statistics",
     "credits": 3,
-    "prerequisites": "MAST 221 or equivalent.",
+    "prerequisites": "MAST 221.",
     "corequisites": "",
     "description": "Graphical and numerical descriptive methods; Estimation and hypothesis testing; linear regression and correlation; one way ANOVA; contingency and goodness of fit tests. Use of statistical software, e.g. MINITAB.",
     "components": "Lecture",
@@ -654,7 +654,7 @@
   {
     "title": "MAST 334 Numerical Analysis",
     "credits": 3,
-    "prerequisites": "MAST 218 or equivalent; MAST 234 or MATH 251 or equivalent.",
+    "prerequisites": "MAST 218; MAST 234 / MATH 251",
     "corequisites": "",
     "description": "In this course, students learn about numerical analysis, an algorithmic approach to finding approximate solutions when exact solutions are impossible or unreasonably complicated. Lying at the intersection of mathematics and computer science, numerical analysis is a key component of computational mathematics. Topics may include analysis of errors involved in computations; floating-point arithmetic; root-finding methods; interpolation theory and function approximation; orthogonal polynomials; numerical integration and quadrature formulas; error analysis of numerical algorithms.",
     "components": "Lecture",
@@ -666,7 +666,7 @@
   {
     "title": "MAST 335 Investment Mathematics",
     "credits": 3,
-    "prerequisites": "MAST 218 or equivalent.",
+    "prerequisites": "MAST 218",
     "corequisites": "",
     "description": "This course introduces the notion of interest and the basic principles of financial mathematics. Topics may include simple and compound interest; annuities; amortization and sinking funds; mortgage schemes; bonds and related securities; capital cost and depletion; spread‑sheet implementation.",
     "components": "Lecture",
@@ -678,7 +678,7 @@
   {
     "title": "MAST 336 Insurance Mathematics",
     "credits": 3,
-    "prerequisites": "MAST 221 or equivalent; MAST 335 or equivalent.",
+    "prerequisites": "MAST 221, MAST 335.",
     "corequisites": "",
     "description": "This class provides an overview of techniques used by life insurers, pension plans and Property and Casualty insurers to quantify and measure their liabilities. The course is subdivided into two main parts. The first aims at studying life-contingent liabilities such as life insurance and annuities. The second part provides an overview of methods utilized by Property and Casualty insurers to represent their liabilities.",
     "components": "Lecture",
@@ -690,7 +690,7 @@
   {
     "title": "MAST 387 Data Science Lab",
     "credits": 3,
-    "prerequisites": "STAT 280; and MAST 333 or STAT 360.",
+    "prerequisites": "STAT 280; MAST 333 / STAT 360.",
     "corequisites": "",
     "description": "This lab course offers hands-on exposure to a broad array of problems and tasks frequently encountered in the data science practice. Examples of topics that are covered may include dataset and table construction, data curation and preparation, data exploration, non-traditional data types and large data sets (big data). Extensive programming duties and data analysis projects are assigned to students.",
     "components": "Laboratory",
