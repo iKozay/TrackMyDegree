@@ -16,7 +16,7 @@
   {
     "title": "MIAE 215 Programming for Mechanical and Industrial Engineers",
     "credits": 3.5,
-    "prerequisites": "MATH 204 (Cegep mathematics 105).",
+    "prerequisites": "MATH 204.",
     "corequisites": "",
     "description": "This course focuses on writing programs using assignment and sequences; variables and types; operators and expressions; conditional and repetitive statements; input and output; file access; functions; program structure and organization; pointers and dynamic memory allocation; introduction to classes and objects; mechanical and industrial engineering applications.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 1 hour per week",
@@ -30,7 +30,7 @@
   {
     "title": "MIAE 221 Materials Science",
     "credits": 3,
-    "prerequisites": "CHEM 205 (Cegep Chemistry 101).",
+    "prerequisites": "CHEM 205.",
     "corequisites": "",
     "description": "This course focuses on relationships between properties and internal structure, atomic bonding; molecular, crystalline and amorphous structures, crystalline imperfections and mechanisms of structural change; microstructures and their development from phase diagrams; structures and mechanical properties of polymers and ceramics; thermal and optical properties of materials.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
@@ -56,7 +56,7 @@
   {
     "title": "MIAE 312 Engineering Design and Manufacturing Processes Lab",
     "credits": 1,
-    "prerequisites": "MIAE 311.",
+    "prerequisites": "",
     "corequisites": "MIAE 311.",
     "description": "This laboratory includes instruction and practice on conventional and advanced machine tools and a manufacturing project.",
     "components": "Laboratory Equivalent to 4 hours per week, alternate weeks",
