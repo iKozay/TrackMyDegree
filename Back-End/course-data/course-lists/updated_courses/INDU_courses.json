@@ -75,7 +75,7 @@
   {
     "title": "INDU 330 Engineering Management",
     "credits": 3,
-    "prerequisites": "ENGR 301.",
+    "prerequisites": "ENCS 282.",
     "corequisites": "ENGR 301.",
     "description": "Organizational structures, their growth and change. Motivation, leadership, and group behaviour. Design of alternatives for improving organizational performance and effectiveness. Planning, organization and management of engineering projects. Management for total quality.",
     "components": "Lecture 3 hours per week",
@@ -123,7 +123,7 @@
   {
     "title": "INDU 410 Safety Engineering",
     "credits": 3,
-    "prerequisites": "MIAE 312.",
+    "prerequisites": "MECH 311 / MIAE 311.",
     "corequisites": "MIAE 312.",
     "description": "This course focuses on the following topics: engineering design for the control of workplace hazards; occupational injuries and diseases; codes and standards; Workplace Hazardous Materials Information Systems (WHMIS); hazard evaluation and control; design criteria; risk assessment; safety in the manufacturing environment; applications in ventilation, air cleaning, noise and vibration.",
     "components": "Lecture 3 hours per week",
@@ -135,7 +135,7 @@
   {
     "title": "INDU 411 Computer Integrated Manufacturing",
     "credits": 3.5,
-    "prerequisites": "MIAE 312.",
+    "prerequisites": "MECH 311 / MIAE 311.",
     "corequisites": "MIAE 312.",
     "description": "This course focuses on concepts and benefits of computer integrated manufacturing (CIM); design for manufacturing; computer-aided design, process planning, manufacturing (computer numerical control parts programming), and inspection; robots in CIM; production planning and scheduling in CIM; system integration.",
     "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -159,7 +159,7 @@
   {
     "title": "INDU 421 Facilities Design and Material Handling Systems",
     "credits": 3.5,
-    "prerequisites": "INDU 311.",
+    "prerequisites": "INDU 320",
     "corequisites": "INDU 311.",
     "description": "An introduction to planning and design of production and manufacturing. Facility layout and location. Material handling systems and equipment specifications. Computer-aided facilities planning.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
@@ -256,7 +256,7 @@
   {
     "title": "INDU 490 Capstone Industrial Engineering Design Project",
     "credits": 6,
-    "prerequisites": "INDU 421.",
+    "prerequisites": "ENGR 301, MIAE 380.",
     "corequisites": "INDU 421.",
     "description": "This course includes a supervised design, simulation or experimental capstone design project including a preliminary project proposal with complete project plan and a technical report at the end of the fall term, and a final report by the group and individual oral presentation at the end of the winter term.",
     "components": "Lecture 1 hour per week, one term; Laboratory Equivalent time, 5 hours per week, two terms",
