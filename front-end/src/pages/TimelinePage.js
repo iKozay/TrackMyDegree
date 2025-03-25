@@ -1280,15 +1280,19 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
     // Save the complete timeline.
     try {
-      const responseTimeline = await fetch(`${process.env.REACT_APP_SERVER}/timeline/save`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            user_id,
-            name: timelineNameToSend,
-            items,
-            degree_id: degree_Id,
-            isExtendedCredit
+      const responseTimeline = await fetch(
+        `${process.env.REACT_APP_SERVER}/timeline/save`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            timeline: {
+              user_id,
+              name: timelineNameToSend,
+              items,
+              degree_id: degreeId,
+              isExtendedCredit,
+            },
           }),
       },
     );
