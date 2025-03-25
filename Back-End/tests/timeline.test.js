@@ -9,7 +9,6 @@ jest.mock('../dist/controllers/timelineController/timelineController', () => ({
 
 const request = require('supertest');
 const express = require('express');
-const { afterEach } = require('node:test');
 const router = require('../dist/routes/timeline').default;
 const timelineController =
   require('../dist/controllers/timelineController/timelineController').default;
@@ -22,9 +21,6 @@ app.use(express.json());
 app.use('/timeline', router);
 
 describe('Timeline Routes', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
   describe('POST /timeline/save', () => {
     // Works in container but not here ?
     it('should return 400 if no timeline data is provided', async () => {
@@ -100,7 +96,7 @@ describe('Timeline Routes', () => {
         .send({ user_id: '1' })
         .expect('Content-Type', /json/)
         .expect(200);
-      expect(response.body).toEqual('No timelines found');
+      expect(response.body).toHaveProperty('message', 'No timelines found');
       // this fails in the container has to be expect(response.body).toHaveProperty('error', 'No timelines found');
     });
 

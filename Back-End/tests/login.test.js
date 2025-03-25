@@ -8,7 +8,6 @@ jest.mock('../dist/controllers/authController/authController', () => ({
 
 const request = require('supertest');
 const express = require('express');
-const { afterEach } = require('node:test');
 const router = require('../dist/routes/auth').default;
 const authController =
   require('../dist/controllers/authController/authController').default;
