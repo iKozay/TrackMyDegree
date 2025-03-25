@@ -13,6 +13,7 @@ CREATE TABLE Course (
   title VARCHAR(255),
   credits FLOAT NOT NULL,
   description VARCHAR(2055) NOT NULL,
+  offeredIn VARCHAR(255)
   PRIMARY KEY (code)
 );
 
