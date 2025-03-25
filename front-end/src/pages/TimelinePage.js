@@ -197,7 +197,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   }
 
   if (!credits_Required) {
-    if(creditsRequired && String(creditsRequired).trim()) {
+    if (creditsRequired && String(creditsRequired).trim()) {
       credits_Required = creditsRequired;
     }
     else {
@@ -1294,8 +1294,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
               isExtendedCredit,
             },
           }),
-      },
-    );
+        },
+      );
       const dataTimeline = await responseTimeline.json();
       if (responseTimeline.ok) {
         alert('Timeline saved successfully!');
@@ -1437,8 +1437,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         deleteButtons.forEach(btn => (btn.style.display = ''));
       });
   };
-;
-;
+  ;
+  ;
 
 
 
@@ -1849,7 +1849,14 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                         <p data-testid="course-description">
                           {selectedCourse.description}
                         </p>
-
+                        {selectedCourse.offeredIn && (
+                          <p>
+                            <strong>Offered In: </strong>
+                            {Array.isArray(selectedCourse.offeredIn)
+                              ? selectedCourse.offeredIn.join(', ')
+                              : selectedCourse.offeredIn}
+                          </p>
+                        )}
                         {selectedCourse.requisites && (
                           <div>
                             <h5>Prerequisites/Corequisites:</h5>
