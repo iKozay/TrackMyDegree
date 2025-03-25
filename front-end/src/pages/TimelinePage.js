@@ -31,6 +31,7 @@ import { TimelineError } from '../middleware/SentryErrors';
 import * as Sentry from '@sentry/react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import CourseSectionButton from '../components/SectionModal';
 
 
 // DraggableCourse component for course list items
@@ -1932,6 +1933,11 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                             )}
                           </div>
                         )}
+                        <p>
+                          <CourseSectionButton
+                            title={selectedCourse.title}
+                          />
+                        </p>
                         <strong>Description:</strong>
                         <p data-testid="course-description">
                           {selectedCourse.description}

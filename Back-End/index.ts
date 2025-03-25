@@ -26,6 +26,7 @@ import userDataRouter from '@routes/userData';
 import Admin from '@routes/adminRoutes';
 import requisiteRouter from '@routes/requisite';
 import feedbackRouter from '@routes/feedback';
+import sectionsRoutes from '@routes/sectionsRoutes'
 
 //Dev Consts
 const HOPPSCOTCH = 'chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld';
@@ -68,6 +69,7 @@ app.use('/data', userDataRouter);
 app.use('/admin', Admin);
 app.use('/requisite', requisiteRouter);
 app.use('/feedback', feedbackRouter);
+app.use('/section', sectionsRoutes)
 
 /**
  * DB test route
