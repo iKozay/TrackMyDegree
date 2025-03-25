@@ -3,7 +3,10 @@ namespace CourseTypes {
         code: string;
         title: string;
         credits: number;
+        offeredIn: string;
         description: string;
+    };
+    export type CourseInfoDB = CourseInfo & {
         requisites: RequisiteInfo[];
     };
     export interface Requisite {

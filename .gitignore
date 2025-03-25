@@ -2,6 +2,7 @@
 Back-End/node_modules/*
 Back-End/yarn.lock
 Back-End/dist
+Back-End/coverage
 package-lock.json
 node_modules
 **/.env

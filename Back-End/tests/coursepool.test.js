@@ -1,21 +1,27 @@
 jest.mock(
-  '../dist/controllers/coursepoolController/coursepoolController',
-  () => ({
-    __esModule: true,
-    default: {
-      createCoursePool: jest.fn(),
-      updateCoursePool: jest.fn(),
-      removeCoursePool: jest.fn(),
-    },
-  }),
+    '../dist/controllers/coursepoolController/coursepoolController',
+    () => ({
+      __esModule: true,
+      default: {
+        createCoursePool: jest.fn(),
+        getAllCoursePools: jest.fn(),
+        getCoursePool: jest.fn(),
+        updateCoursePool: jest.fn(),
+        removeCoursePool: jest.fn(),
+      },
+    }),
 );
 
 const request = require('supertest');
 const express = require('express');
 const router = require('../dist/routes/coursepool').default;
 const controller =
-  require('../dist/controllers/coursepoolController/coursepoolController').default;
+    require('../dist/controllers/coursepoolController/coursepoolController')
+        .default;
 const DB_OPS = require('../dist/Util/DB_Ops').default;
+const HTTP = require('../dist/Util/HTTPCodes').default;
+
+const coursepool_mocks = require('./__mocks__/coursepool_mocks');
 
 const url = process.DOCKER_URL || 'host.docker.internal:8000';
 
@@ -26,61 +32,59 @@ app.use('/coursepool', router);
 describe('CoursePool Routes', () => {
   describe('POST /coursepool/create', () => {
     it('should create a coursepool successfully', async () => {
-      const payload = {
-        name: 'Basic & Natural Sciences',
-      };
-
       controller.createCoursePool.mockResolvedValue(DB_OPS.SUCCESS);
 
       const response = await request(app)
-        .post('/coursepool/create')
-        .send(payload)
-        .expect('Content-Type', /json/)
-        .expect(201);
+                           .post('/coursepool/create')
+                           .send(coursepool_mocks.payload_create)
+                           .expect('Content-Type', /json/)
+                           .expect(HTTP.CREATED);
 
-      expect(response.body).toHaveProperty(
-        'res',
-        'New CoursePool added successfully',
-      );
+      expect(response.body)
+          .toHaveProperty(
+              'res',
+              'New CoursePool added successfully',
+          );
     });
 
     it('should return 400 when payload is missing', async () => {
-      const response = await request(url)
-        .post('/coursepool/create')
-        .send({})
-        .expect('Content-Type', /json/)
-        .expect(400);
+      const response = await request(app)
+                           .post('/coursepool/create')
+                           .send({})
+                           .expect('Content-Type', /json/)
+                           .expect(HTTP.BAD_REQUEST);
 
-      expect(response.body).toHaveProperty(
-        'error',
-        'Payload containing name of coursepool is required for create.',
-      );
+      expect(response.body)
+          .toHaveProperty(
+              'error',
+              'Payload containing name of coursepool is required for create.',
+          );
     });
 
     it('should return 400 when name is empty', async () => {
-      const payload = {
-        name: '',
-      };
+      const response = await request(app)
+                           .post('/coursepool/create')
+                           .send(coursepool_mocks.payload_create_empty)
+                           .expect('Content-Type', /json/)
+                           .expect(HTTP.BAD_REQUEST);
 
-      const response = await request(url)
-        .post('/coursepool/create')
-        .send(payload)
-        .expect('Content-Type', /json/)
-        .expect(400);
-
-      expect(response.body).toHaveProperty(
-        'error',
-        'Payload attributes cannot be empty',
-      );
+      expect(response.body)
+          .toHaveProperty(
+              'error',
+              'Payload attributes cannot be empty',
+          );
     });
   });
 
   describe('GET /coursepool/getAll', () => {
     it('should return all course pools', async () => {
-      const response = await request(url)
-        .get('/coursepool/getAll')
-        .expect('Content-Type', /json/)
-        .expect(200);
+      controller.getAllCoursePools.mockResolvedValue(
+          coursepool_mocks.response_getall)
+
+      const response = await request(app)
+                           .get('/coursepool/getAll')
+                           .expect('Content-Type', /json/)
+                           .expect(HTTP.OK);
 
       expect(Array.isArray(response.body.course_pools)).toBe(true);
 
@@ -93,149 +97,138 @@ describe('CoursePool Routes', () => {
 
   describe('POST /coursepool/get', () => {
     it('should return specific course pool', async () => {
-      const request_body = {
-        course_pool_id: '2',
-      };
+      controller.getCoursePool.mockResolvedValue(coursepool_mocks.response_get);
 
-      const response = await request(url)
-        .post('/coursepool/get')
-        .send(request_body)
-        .expect('Content-Type', /json/)
-        .expect(200);
+      const response = await request(app)
+                           .post('/coursepool/get')
+                           .send(coursepool_mocks.payload_get)
+                           .expect('Content-Type', /json/)
+                           .expect(HTTP.OK);
 
       expect(response.body).toHaveProperty('id');
       expect(response.body).toHaveProperty('name');
     });
 
     it('should return 404 when course pool not found', async () => {
-      const request_body = {
-        course_pool_id: 'nonexistent_id',
-      };
+      controller.getCoursePool.mockResolvedValue(undefined);
 
-      const response = await request(url)
-        .post('/coursepool/get')
-        .send(request_body)
-        .expect('Content-Type', /json/)
-        .expect(404);
+      const response = await request(app)
+                           .post('/coursepool/get')
+                           .send(coursepool_mocks.payload_get)
+                           .expect('Content-Type', /json/)
+                           .expect(HTTP.NOT_FOUND);
 
       expect(response.body).toHaveProperty('error', 'Course Pool not found');
     });
 
     it('should return 400 when course_pool_id is missing', async () => {
-      const response = await request(url)
-        .post('/coursepool/get')
-        .send({})
-        .expect('Content-Type', /json/)
-        .expect(400);
+      const response = await request(app)
+                           .post('/coursepool/get')
+                           .send({})
+                           .expect('Content-Type', /json/)
+                           .expect(HTTP.BAD_REQUEST);
 
-      expect(response.body).toHaveProperty(
-        'error',
-        'Course Pool ID is required to get course pool.',
-      );
+      expect(response.body)
+          .toHaveProperty(
+              'error',
+              'Course Pool ID is required to get course pool.',
+          );
     });
   });
 
   describe('POST /coursepool/update', () => {
     it('should update course pool successfully', async () => {
-      const payload = {
-        id: '1',
-        name: 'Updated Pool',
-      };
-
       controller.updateCoursePool.mockResolvedValue(DB_OPS.SUCCESS);
 
       const response = await request(app)
-        .post('/coursepool/update')
-        .send(payload)
-        .expect('Content-Type', /json/)
-        .expect(200);
+                           .post('/coursepool/update')
+                           .send(coursepool_mocks.payload_update)
+                           .expect('Content-Type', /json/)
+                           .expect(HTTP.OK);
 
-      expect(response.body).toHaveProperty(
-        'message',
-        'CoursePool item updated successfully',
-      );
+      expect(response.body)
+          .toHaveProperty(
+              'message',
+              'CoursePool item updated successfully',
+          );
     });
 
     it('should return 404 when course pool not found', async () => {
-      const payload = {
-        id: 'nonexistent_id',
-        name: 'Updated Pool',
-      };
+      controller.updateCoursePool.mockResolvedValue(DB_OPS.MOSTLY_OK);
+      
+      const response = await request(app)
+                           .post('/coursepool/update')
+                           .send(coursepool_mocks.payload_update)
+                           .expect('Content-Type', /json/)
+                           .expect(HTTP.NOT_FOUND);
 
-      const response = await request(url)
-        .post('/coursepool/update')
-        .send(payload)
-        .expect('Content-Type', /json/)
-        .expect(404);
-
-      expect(response.body).toHaveProperty(
-        'error',
-        'Item not found in CoursePool',
-      );
+      expect(response.body)
+          .toHaveProperty(
+              'error',
+              'Item not found in CoursePool',
+          );
     });
 
     it('should return 400 when payload is incomplete', async () => {
-      const response = await request(url)
-        .post('/coursepool/update')
-        .send({})
-        .expect('Content-Type', /json/)
-        .expect(400);
+      const response = await request(app)
+                           .post('/coursepool/update')
+                           .send({})
+                           .expect('Content-Type', /json/)
+                           .expect(HTTP.BAD_REQUEST);
 
-      expect(response.body).toHaveProperty(
-        'error',
-        'Payload of type CoursePoolItem is required for update.',
-      );
+      expect(response.body)
+          .toHaveProperty(
+              'error',
+              'Payload of type CoursePoolItem is required for update.',
+          );
     });
   });
 
   describe('POST /coursepool/delete', () => {
     it('should delete course pool successfully', async () => {
-      const request_body = {
-        course_pool_id: '3',
-      };
-
       controller.removeCoursePool.mockResolvedValue(DB_OPS.SUCCESS);
 
       const response = await request(app)
-        .post('/coursepool/delete')
-        .send(request_body)
-        .expect('Content-Type', /json/)
-        .expect(200);
+                           .post('/coursepool/delete')
+                           .send(coursepool_mocks.payload_delete)
+                           .expect('Content-Type', /json/)
+                           .expect(HTTP.OK);
 
-      expect(response.body).toHaveProperty(
-        'message',
-        'Item removed from CoursePool',
-      );
+      expect(response.body)
+          .toHaveProperty(
+              'message',
+              'Item removed from CoursePool',
+          );
     });
 
     it('should return 404 when course pool not found', async () => {
-      const request_body = {
-        course_pool_id: 'nonexistent_id',
-      };
+      controller.removeCoursePool.mockResolvedValue(DB_OPS.MOSTLY_OK)
 
-      const response = await request(url)
-        .post('/coursepool/delete')
-        .send(request_body)
-        .expect('Content-Type', /json/)
-        .expect(404);
+      const response = await request(app)
+                           .post('/coursepool/delete')
+                           .send(coursepool_mocks.payload_delete)
+                           .expect('Content-Type', /json/)
+                           .expect(HTTP.NOT_FOUND);
 
-      expect(response.body).toHaveProperty(
-        'error',
-        'Item not found in CoursePool',
-      );
+      expect(response.body)
+          .toHaveProperty(
+              'error',
+              'Item not found in CoursePool',
+          );
     });
 
     it('should return 400 when course_pool_id is missing', async () => {
-      const response = await request(url)
-        .post('/coursepool/delete')
-        .send({})
-        .expect('Content-Type', /json/)
-        .expect(400);
+      const response = await request(app)
+                           .post('/coursepool/delete')
+                           .send({})
+                           .expect('Content-Type', /json/)
+                           .expect(HTTP.BAD_REQUEST);
 
-      expect(response.body).toHaveProperty(
-        'error',
-        'ID is required to remove item from CoursePool.',
-      );
+      expect(response.body)
+          .toHaveProperty(
+              'error',
+              'ID is required to remove item from CoursePool.',
+          );
     });
   });
 });
