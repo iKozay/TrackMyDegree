@@ -2,7 +2,7 @@
   {
     "title": "AERO 201 Introduction to Flight and Aerospace Systems",
     "credits": 4,
-    "prerequisites": "ENGR 213.",
+    "prerequisites": "",
     "corequisites": "ENGR 213.",
     "description": "Introduction to flight vehicles in the atmosphere and in space; elements of aerodynamics, airfoils and wings; aerospace technologies including structures, materials and propulsion systems; elements of aircraft performance; basic principles of flight stability, control and systems integration; aspects of aircraft conceptual design.",
     "components": "Lecture 3 hours per week; Laboratory 4 hours per week, alternate weeks",
@@ -15,7 +15,7 @@
   {
     "title": "AERO 290 Introduction to Aircraft Design",
     "credits": 3,
-    "prerequisites": "ENCS 282.",
+    "prerequisites": "AERO 201",
     "corequisites": "ENCS 282.",
     "description": "Students taking this course will work as part of a multidisciplinary team to solve an assigned aerospace conceptual design problem. The course provides introductory, design-related knowledge on aerospace design topics including structural layout, powerplant integration, integrated systems requirements (such as avionics, electrical, flight controls, hydraulic, fuel, air, pressurization) and preliminary performance predictions. Lectures instruct students on the conceptual design process; aircraft sizing including take-off weight, empty weight and fuel-fraction estimates; mission analysis and trade studies; airfoil selection; constraint diagrams for thrust-to-weight and wing loading estimation; fuselage layout, engines and control surface sizing; structural and systems layout; introductory stability, control and performance; and cost analysis methods.",
     "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
@@ -27,8 +27,8 @@
   {
     "title": "AERO 371 Modelling and Control Systems",
     "credits": 3.5,
-    "prerequisites": "ENGR 311.",
-    "corequisites": "ENGR 311.",
+    "prerequisites": "PHYS 205, ENGR 213, ENGR 243.",
+    "corequisites": "ENGR 311 / ELEC 342 / ELEC 364.",
     "description": "Definition and classification of dynamic systems and components. Modelling of system components using ordinary differential equations: mechanical, electrical, electromechanical, and electrohydraulic subsystems in an airplane. Modelling of systems using transfer function models, block diagrams and signal flow graphs. Linearization of non-linear systems. Transient and steady-state characteristics of dynamic systems. Systems analyses using time domain methods, root-locus methods, and frequency response methods. Characteristics and performance of linear feedback control systems. System stability. Proportional, integral and derivative controllers. Simulation technique using Matlab/Simulink.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
     "notes": "Students who have received credit for ELEC 372 or MECH 371 may not take this course for credit.",
