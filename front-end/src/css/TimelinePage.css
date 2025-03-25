@@ -28,27 +28,38 @@
   /* padding: 10px; */
   border-radius: 25px;
   align-items: center;
-  width: 300px;
+  width: 320px;
   transition:
     width 0.3s ease,
     transform 0.3s ease;
-  overflow: hidden; /* Prevent scrolling on this element */
+  overflow: hidden;
+  /* Prevent scrolling on this element */
   position: relative;
 }
 
 .course-list-container {
   /* border-radius: 25px; */
-  max-height: 500px; /* or any value that suits your design */
+  max-height: 500px;
+  /* or any value that suits your design */
   /* border-radius: 5px; */
   overflow-y: auto;
   margin: 15px;
+  /* margin-top: 5px; */
 }
 
 .course-list-container-timeline {
-  max-height: 450px; /* Adjust height as needed */
-  overflow-y: auto; /* Enables vertical scrolling */
-  padding-right: 10px; /* Optional: Prevent scrollbar from covering content */
-  border: 1px solid #ccc; /* Optional: Adds a border for styling */
+  max-height: 450px;
+  /* Adjust height as needed */
+  overflow-y: auto;
+  /* Enables vertical scrolling */
+  margin-right: 15px;
+  margin-left: 15px;
+  margin-top: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  /* Optional: Prevent scrollbar from covering content */
+  border: 1px solid #ccc; 
+  /* Optional: Adds a border for styling */
   /*background-color: #f9f9f9; /* Optional: Adds background color */
 }
 
@@ -62,7 +73,7 @@
   top: 50%;
   width: 30px;
   height: 30px;
-  right: -13px;
+  right: -15px;
   border: none;
   border-radius: 50%;
   background-color: lightgray;
@@ -82,7 +93,7 @@
   top: 50%;
   width: 30px;
   height: 30px;
-  left: -13px;
+  left: -15px;
   border: none;
   border-radius: 50%;
   background-color: lightgray;
@@ -99,7 +110,8 @@
 
 .semesters {
   flex-grow: 1;
-  display: flex !important;;
+  display: flex !important;
+  ;
   gap: 15px;
   padding: 10px;
   margin: 0px;
@@ -121,14 +133,17 @@
 }
 
 .timeline-scroll-wrapper::-webkit-scrollbar {
-  height: 8px; /* or adjust to your liking */
+  height: 8px;
+  /* or adjust to your liking */
   width: 8px;
 }
+
 .timeline-scroll-wrapper::-webkit-scrollbar-thumb {
   background-color: lightgray;
   border-radius: 5px;
   transition: background-color 0.3s ease;
 }
+
 .timeline-scroll-wrapper::-webkit-scrollbar-track {
   background-color: rgba(145, 35, 56, 0.1);
   border-radius: 10px;
@@ -171,19 +186,22 @@
   position: relative;
 }
 
-.description-section p, .description-section li {
+.description-section p,
+.description-section li {
   color: #505050;
 }
 
 .description-section.hidden {
   white-space: nowrap;
-  width: 1px;
+  width: 10px;
+  padding: 0px;
   overflow: hidden;
   color: #f8f9fa;
   user-select: none;
 }
 
-.description-section.hidden p, .description-section.hidden li {
+.description-section.hidden p,
+.description-section.hidden li {
   color: #f8f9fa00;
 }
 
@@ -232,7 +250,8 @@
   /* z-index: 9; */
   /* max-width: 120px; */
   /* Optional: add some border radius */
-  box-shadow: #8db0d4 0px 0px 10px; /* Optional: add a shadow */
+  box-shadow: #8db0d4 0px 0px 10px;
+  /* Optional: add a shadow */
   color: #ffffff;
   font-weight: bold;
   font-size: 18px;
@@ -255,15 +274,17 @@
 }
 
 .course-item.selected {
-  border: 2px solid #912338; /* Adjust the color and thickness */
-  border-radius: 13px; /* Optional: add some border radius */
+  border: 2px solid #912338;
+  /* Adjust the color and thickness */
+  border-radius: 13px;
+  /* Optional: add some border radius */
   /* box-shadow: #eb3030 0px 0px 17px; */
   background-color: #ffffff;
   color: #912338;
 }
 
 .course-item.selected {
-  color:#912338;
+  color: #912338;
 }
 
 .returning {
@@ -318,11 +339,14 @@
 
 /* Center the course items */
 .course-items-container {
-  flex-grow: 1; /* Allows the container to grow and fill available space */
+  flex-grow: 1;
+  /* Allows the container to grow and fill available space */
   display: flex;
   flex-direction: column;
-  align-items: center; /* Centers items horizontally */
-  justify-content: center; /* Centers items vertically */
+  align-items: center;
+  /* Centers items horizontally */
+  justify-content: center;
+  /* Centers items vertically */
 }
 
 .credits-display {
@@ -344,13 +368,15 @@
 
 .timeline-buttons-container {
   display: flex;
-  gap: 10px; /* Space between buttons */
+  gap: 10px;
+  /* Space between buttons */
 }
 
 .save-timeline-button,
-.download-timeline-button{
+.download-timeline-button {
   background-color: #800020;
-  color: white; /* White text */
+  color: white;
+  /* White text */
   border: none;
   border-radius: 5px;
   padding: 10px 20px;
@@ -366,16 +392,19 @@
 }
 
 /* Focus effect for accessibility */
-.save-timeline-button:focus ,
+.save-timeline-button:focus,
 .download-timeline-button:focus {
-  outline: 2px solid #fff; /* White outline on focus */
+  outline: 2px solid #fff;
+  /* White outline on focus */
   outline-offset: 2px;
 }
 
 .download-icon {
-  width: 18px; /* Adjust size as needed */
+  width: 18px;
+  /* Adjust size as needed */
   height: 18px;
-  margin-right: 5px; /* Space between icon and text */
+  margin-right: 5px;
+  /* Space between icon and text */
 }
 
 .warning-icon {
@@ -395,6 +424,7 @@
 .upload-transcript-button:hover {
   background-color: #0056b3;
 }
+
 /*---------------------------K R-------------------------*/
 
 /* When modal is open, blur the background (optional) */
@@ -461,14 +491,17 @@
 
 .select-container {
   display: flex;
-  flex-direction: column; /* label on top, select below */
+  flex-direction: column;
+  /* label on top, select below */
 }
 
 .select-label {
-  margin-bottom: 6px; /* space between label & select */
+  margin-bottom: 6px;
+  /* space between label & select */
   font-size: 14px;
   font-family: Arial, sans-serif;
-  font-weight: normal; /* can keep bold if you prefer */
+  font-weight: normal;
+  /* can keep bold if you prefer */
   color: rgb(78, 108, 91);
 }
 
@@ -483,8 +516,10 @@
   background-color: white;
   cursor: pointer;
   outline: none;
-  -webkit-appearance: none; /* Remove default arrow in Chrome/Safari */
-  -moz-appearance: none; /* Remove default arrow in Firefox */
+  -webkit-appearance: none;
+  /* Remove default arrow in Chrome/Safari */
+  -moz-appearance: none;
+  /* Remove default arrow in Firefox */
   appearance: none;
   margin-right: 4px;
   transition: border-color 0.2s ease;
@@ -493,8 +528,7 @@
   width: 120px;
   border-color: rgba(156, 143, 143, 0.8);
   box-shadow: 0 0 3px rgba(156, 143, 143, 0.3);
-  background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWw0IDQgNC00IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+')
-    no-repeat right 0.75em center / 0.65em;
+  background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWw0IDQgNC00IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+') no-repeat right 0.75em center / 0.65em;
   transition: border-color 0.2s ease;
 }
 
@@ -566,6 +600,7 @@
   font-weight: bold;
   color: rgb(78, 108, 91);
 }
+
 .over-limit-warning {
   color: #912338;
   font-weight: bold;
@@ -615,18 +650,23 @@
   0% {
     transform: translate(0, 0);
   }
+
   20% {
     transform: translate(-5px, 0);
   }
+
   40% {
     transform: translate(5px, 0);
   }
+
   60% {
     transform: translate(-5px, 0);
   }
+
   80% {
     transform: translate(5px, 0);
   }
+
   100% {
     transform: translate(0, 0);
   }
@@ -634,15 +674,24 @@
 
 /* General button styles */
 .save-timeline-button {
-  background-color: #800020; /* Green background */
-  color: white; /* White text */
-  border: none; /* Remove border */
-  border-radius: 5px; /* Rounded corners */
-  padding: 10px 20px; /* Padding for size */
-  font-size: 16px; /* Text size */
-  cursor: pointer; /* Pointer cursor on hover */
-  transition: background-color 0.3s ease; /* Smooth transition for background color */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  background-color: #800020;
+  /* Green background */
+  color: white;
+  /* White text */
+  border: none;
+  /* Remove border */
+  border-radius: 5px;
+  /* Rounded corners */
+  padding: 10px 20px;
+  /* Padding for size */
+  font-size: 16px;
+  /* Text size */
+  cursor: pointer;
+  /* Pointer cursor on hover */
+  transition: background-color 0.3s ease;
+  /* Smooth transition for background color */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow */
 }
 
 .course-search-input {
@@ -662,12 +711,14 @@
 }
 
 .course-search-input:focus {
-  border-color: #6a5acd; /* Slate blue */
+  border-color: #6a5acd;
+  /* Slate blue */
   box-shadow: 0 0 10px rgba(106, 90, 205, 0.5);
 }
 
 .course-search-input:hover {
-  border-color: #8a2be2; /* Blue violet */
+  border-color: #8a2be2;
+  /* Blue violet */
 }
 
 .course-search-input::placeholder {
@@ -689,7 +740,7 @@
 }
 
 .remove-course-btn .selected {
-  color:#912338;
+  color: #912338;
 }
 
 .remove-course-btn:hover {
@@ -716,10 +767,81 @@
 
 .checkmark-icon {
   position: absolute;
-  left: -25px;      /* Adjust this value to move the checkmark further left or right */
-  top: 50%;         /* Vertically center the checkmark */
+  left: -25px;
+  /* Adjust this value to move the checkmark further left or right */
+  top: 50%;
+  /* Vertically center the checkmark */
   transform: translateY(-50%);
-  color: green;     
+  color: green;
   font-weight: bold;
   z-index: 1000;
+}
+
+
+/* Container for the warning icon and tooltip */
+.warning-container {
+  display: inline-block;
+  position: relative;
+  margin-left: 8px;
+  /* adjust spacing as needed */
+  cursor: pointer;
+}
+
+/* The tooltip itself, initially hidden */
+.warning-tooltip {
+  visibility: hidden;
+  width: 200px;
+  /* fixed width */
+
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1000;
+  bottom: 165%;
+  /* Position above the icon */
+  left: 50%;
+  margin-left: -100px;
+  /* half of the width */
+  opacity: 0;
+  transition: opacity 0.3s;
+  white-space: normal;
+  /* allow text wrapping */
+  overflow-wrap: break-word;
+  /* break long words if needed */
+  border-width: 2px;
+  border-style: solid;
+  background-color: #912338;;
+  color: #ffffff;
+  /* border-color: #ffffff; */
+  /* Optional: add a blur in the background */
+  /* backdrop-filter: blur(1px); */
+}
+
+.warning-tooltip.selected {
+  background-color: #ffffff;
+  color: #912338;
+  border-color: #912338;
+}
+
+
+/* Arrow at the bottom of the tooltip */
+.warning-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -7px;
+  border-width: 7px;
+  border-style: solid;
+  border-color: #912338 transparent transparent transparent;
+}
+
+
+
+/* Show the tooltip when hovering over the warning container */
+.warning-container:hover .warning-tooltip {
+  visibility: visible;
+  opacity: 1;
+
 }
