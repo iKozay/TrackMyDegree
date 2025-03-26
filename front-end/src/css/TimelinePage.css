@@ -373,7 +373,8 @@
 }
 
 .save-timeline-button,
-.download-timeline-button {
+.download-timeline-button,
+.add-deficiencies-button{
   background-color: #800020;
   color: white;
   /* White text */
@@ -387,7 +388,8 @@
 }
 
 .save-timeline-button:hover,
-.download-timeline-button:hover {
+.download-timeline-button:hover, 
+.add-deficiencies-button:hover{
   background-color: #9f5f6a;
 }
 
@@ -561,7 +563,8 @@
 }
 
 /* The + button at the top-right corner */
-.add-semester-button {
+.add-semester-button,
+.add-course-btn{
   width: min-content;
   height: min-content;
   white-space: nowrap;
@@ -577,7 +580,8 @@
   justify-content: center;
 }
 
-.add-semester-button:hover {
+.add-semester-button:hover,
+.add-course-btn:hover {
   background-color: #c8c8c8;
 }
 
