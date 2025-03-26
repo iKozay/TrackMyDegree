@@ -61,7 +61,10 @@
     "description": "This laboratory includes instruction and practice on conventional and advanced machine tools and a manufacturing project.",
     "components": "Laboratory Equivalent to 4 hours per week, alternate weeks",
     "notes": "Students who completed MECH 311 or MIAE 311 prior to Summer 2021 cannot take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "summer",
+      "fall"
+    ]
   },
   {
     "title": "MIAE 313 Machine Drawing and Design",
