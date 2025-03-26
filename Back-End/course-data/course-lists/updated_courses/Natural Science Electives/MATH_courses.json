@@ -31,7 +31,11 @@
     "description": "This is an introductory course in elementary linear algebra. In this course, students learn algebra and geometry of vectors, dot and cross products, lines and planes. A key objective is learning methods to solve systems of linear equations, which are reformulated with matrix multiplication, matrix inversion, and determinants. Finally, these methods are clarified through linear transformations.",
     "components": "Lecture; Tutorial",
     "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration. Students who have received credit or an exemption for a course at the level of ACTU 256 or above; MATH 218 or above; MATH 251 or above; STAT 249 or above; or for a course having any of these courses in its sequence of prerequisites, may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
   },
   {
     "title": "MATH 205 Differential and Integral Calculus II",
