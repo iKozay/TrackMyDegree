@@ -202,35 +202,15 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   const extractAcceptanceDetails = (pagesData) => {
     const details = {};
 
-    // List of specific programs to check for
-    const programNames = [
-      'Aerospace Engineering',
-      'Building Engineering',
-      'Civil Engineering',
-      'Computer Engineering',
-      'Computer Science',
-      'Computer Science (Minor)',
-      'Computer Science - Computation Arts',
-      'Data Science',
-      'Electrical Engineering',
-      'Health and Life Sciences',
-      'Indigenous Bridging Program',
-      'Industrial Engineering',
-      'Mechanical Engineering',
-      'Science and Technology',
-      'Software Engineering',
-    ];
-    const degreeMapping = {
-      'Aerospace Engineering': 'D1',
-      'Building Engineering': 'D2',
-      'Civil Engineering': 'D3',
-      'Computer Engineering': 'D4',
-      'Computer Science': 'D5',
-      'Electrical Engineering': 'D6',
-      'Industrial Engineering': 'D7',
-      'Mechanical Engineering': 'D8',
-      'Software Engineering': 'D9',
-    };
+    // Prgram names
+    const programNames = degrees.map(degree => degree.name);
+
+    // Degree mapping
+    const degreeMapping = {};
+    degrees.forEach(({ name, id }) => {
+      degreeMapping[name] = id;
+    });
+
     let degree = null;
     let degreeId = null;
 
