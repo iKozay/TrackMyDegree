@@ -11,11 +11,291 @@ import {
 } from '@controllers/adminController/admin_types';
 
 import fs from 'fs';
+import { promises as fsPromises } from 'fs';
 import path from 'path';
 import * as sql from 'mssql';
 import 'dotenv/config';
 import { readdir } from 'fs/promises';
 import * as Sentry from '@sentry/node';
+
+const allowedTables = [
+  'AppUser',
+  'Timeline',
+  'TimelineItems',
+  'TimelineItemXCourses',
+  'Feedback',
+];
+
+const allTablesReversed = [
+  'Feedback',
+  'Exemption',
+  'Deficiency',
+  'TimelineItemXCourses',
+  'TimelineItems',
+  'Timeline',
+  'AppUser',
+  'CourseXCoursePool',
+  'DegreeXCoursePool',
+  'CoursePool',
+  'Requisite',
+  'Course',
+  'Degree',
+];
+
+const getBackupDir = (): string => {
+  return process.env.BACKUP_DIR || path.join(__dirname, '../../backups');
+};
+
+export const createBackup = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const pool = await Database.getConnection();
+    if (!pool) {
+      res
+        .status(500)
+        .json({ success: false, message: 'Database connection failed' });
+      return;
+    }
+    // Query to get all table names in the current database
+    const tableQuery = `
+      SELECT TABLE_NAME 
+      FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_TYPE = 'BASE TABLE' 
+        AND TABLE_CATALOG = '${process.env.SQL_SERVER_DATABASE}'
+        AND TABLE_NAME IN (${allowedTables.map((t) => `'${t}'`).join(',')})
+    `;
+    const tableResult = await pool.request().query(tableQuery);
+    const tables: string[] = tableResult.recordset.map(
+      (row: { TABLE_NAME: string }) => row.TABLE_NAME,
+    );
+
+    // Create an object mapping table names to their records
+    const backupData: Record<string, any[]> = {};
+    for (const tableName of tables) {
+      const result = await pool.request().query(`SELECT * FROM [${tableName}]`);
+      backupData[tableName] = result.recordset;
+    }
+
+    // Generate a backup filename with a timestamp (replace colons and dots)
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const backupFileName = `backup-${timestamp}.json`;
+    const backupDir = getBackupDir();
+
+    // Ensure the backup directory exists
+    if (!fs.existsSync(backupDir)) {
+      fs.mkdirSync(backupDir, { recursive: true });
+    }
+    const backupFilePath = path.join(backupDir, backupFileName);
+
+    // Write backup data as pretty-printed JSON
+    await fsPromises.writeFile(
+      backupFilePath,
+      JSON.stringify(backupData, null, 2),
+      'utf-8',
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Backup created successfully',
+      data: backupFileName,
+    });
+  } catch (error) {
+    Sentry.captureException(error);
+    console.error('Error creating backup:', error);
+    res
+      .status(500)
+      .json({ success: false, message: 'Error creating backup', data: error });
+  }
+};
+
+/**
+ * Lists the available backup files from the backup directory.
+ */
+export const listBackups = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const backupDir = getBackupDir();
+    // If the backup directory doesn't exist, return an empty list
+    if (!fs.existsSync(backupDir)) {
+      res.status(200).json({ success: true, data: [] });
+      return;
+    }
+    const files = await fsPromises.readdir(backupDir);
+    // Filter to include only .json files
+    const backups = files.filter((file) => file.endsWith('.json'));
+    res.status(200).json({ success: true, data: backups });
+  } catch (error) {
+    Sentry.captureException(error);
+    console.error('Error listing backups:', error);
+    res
+      .status(500)
+      .json({ success: false, message: 'Error listing backups', data: error });
+  }
+};
+
+/**
+ * Restores the database from the backup file.
+ * This function reads the JSON backup file, then for each table:
+ * 1. Deletes all records.
+ * 2. Inserts the backed-up records.
+ * All insertions are wrapped in a transaction.
+ */
+export const restoreBackup = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { backupName } = req.body;
+    if (!backupName) {
+      res
+        .status(400)
+        .json({ success: false, message: 'Backup name is required' });
+      return;
+    }
+    const backupDir = getBackupDir();
+    const backupFilePath = path.join(backupDir, backupName);
+    if (!fs.existsSync(backupFilePath)) {
+      res
+        .status(404)
+        .json({ success: false, message: 'Backup file not found' });
+      return;
+    }
+    const backupContent = await fsPromises.readFile(backupFilePath, 'utf-8');
+    const backupData = JSON.parse(backupContent);
+
+    // Filter backupData to only include allowed tables
+    const filteredBackupData: Record<string, any[]> = {};
+    for (const tableName of Object.keys(backupData)) {
+      if (allowedTables.includes(tableName)) {
+        filteredBackupData[tableName] = backupData[tableName];
+      }
+    }
+
+    const pool = await Database.getConnection();
+    if (!pool) {
+      res
+        .status(500)
+        .json({ success: false, message: 'Database connection failed' });
+      return;
+    }
+
+    // ========================================================
+    // Step 1: Delete records from ALL allowed tables in reverse order
+    // ========================================================
+    const deletionTx = pool.transaction();
+    await deletionTx.begin();
+    try {
+      for (const tableName of allTablesReversed) {
+        await deletionTx.request().query(`DELETE FROM [${tableName}]`);
+      }
+      await deletionTx.commit();
+      console.log('Allowed tables deleted successfully.');
+    } catch (deleteError) {
+      await deletionTx.rollback();
+      throw deleteError;
+    }
+
+    // ========================================================
+    // Step 2: Reseed the database using seedSoenDegree function
+    // ========================================================
+    console.log('Reseeding database...');
+    await seedSoenDegree();
+    console.log('Database reseeded successfully.');
+
+    const newPool = await Database.getConnection();
+    if (!newPool) {
+      res
+        .status(500)
+        .json({ success: false, message: 'Database connection failed' });
+      return;
+    }
+
+    // ========================================================
+    // Step 3: Insert backup data into allowed tables
+    // ========================================================
+    const insertTx = newPool.transaction();
+    await insertTx.begin();
+    try {
+      for (const tableName of Object.keys(filteredBackupData)) {
+        // Delete any leftover records (just in case)
+        await insertTx.request().query(`DELETE FROM [${tableName}]`);
+        const records: any[] = filteredBackupData[tableName];
+        if (records.length === 0) continue;
+        for (const record of records) {
+          const columns = Object.keys(record);
+          const values = columns.map((col) => record[col]);
+          const columnsJoined = columns.map((col) => `[${col}]`).join(', ');
+          const placeholders = columns.map((_, idx) => `@p${idx}`).join(', ');
+          const insertRequest = insertTx.request();
+          columns.forEach((col, idx) => {
+            insertRequest.input(`p${idx}`, values[idx]);
+          });
+          await insertRequest.query(
+            `INSERT INTO [${tableName}] (${columnsJoined}) VALUES (${placeholders})`,
+          );
+        }
+      }
+      await insertTx.commit();
+      console.log('Backup data inserted successfully.');
+      res
+        .status(200)
+        .json({ success: true, message: 'Database restored successfully' });
+    } catch (insertError) {
+      await insertTx.rollback();
+      throw insertError;
+    }
+  } catch (error) {
+    Sentry.captureException(error);
+    console.error('Error restoring backup:', error);
+    res
+      .status(500)
+      .json({ success: false, message: 'Error restoring backup', data: error });
+  }
+};
+
+/**
+ * Deletes a backup file from the backup directory.
+ */
+export const deleteBackup = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { backupName } = req.body;
+    if (!backupName) {
+      res
+        .status(400)
+        .json({ success: false, message: 'Backup name is required' });
+      return;
+    }
+    const backupDir = getBackupDir();
+    const backupFilePath = path.join(backupDir, backupName);
+    if (!fs.existsSync(backupFilePath)) {
+      res
+        .status(404)
+        .json({ success: false, message: 'Backup file not found' });
+      return;
+    }
+    await fsPromises.unlink(backupFilePath);
+    res
+      .status(200)
+      .json({ success: true, message: 'Backup deleted successfully' });
+  } catch (error) {
+    Sentry.captureException(error);
+    console.error('Error deleting backup:', error);
+    res
+      .status(500)
+      .json({ success: false, message: 'Error deleting backup', data: error });
+  }
+};
 
 /**
  * Fetches the list of all tables in the database.
@@ -686,7 +966,14 @@ async function seedSoenDegree() {
         const cCredits = courseData.credits ?? 3;
         const cDesc = courseData.description ?? `No description for ${code}`;
         const cOfferedIn = courseData.offeredIn?.join(', ') ?? 'Empty';
-        await upsertCourse(transaction, code, cTitle, cCredits, cDesc, cOfferedIn);
+        await upsertCourse(
+          transaction,
+          code,
+          cTitle,
+          cCredits,
+          cDesc,
+          cOfferedIn,
+        );
       }
       // Upsert Requisites (Prerequisites and Corequisites)
       for (const [code, courseData] of courseMap.entries()) {

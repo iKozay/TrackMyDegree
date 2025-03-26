@@ -260,7 +260,11 @@
     "description": "Students must submit a report on a topic related to the students' discipline and approved by the Department. The report must present a review of a current engineering problem, a proposal for a design project, or a current engineering practice.",
     "components": "Lecture",
     "notes": "Students who have received credit for ENGR 410 may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "fall",
+      "winter",
+      "summer"
+    ]
   },
   {
     "title": "ENGR 412 Honours Research Project",
@@ -290,7 +294,9 @@
     "description": "Students work on a supervised team project to solve a complex interdisciplinary design problem. The project is completed by a team of students from at least two different departments in Gina Cody School of Engineering and Computer Science. The project must provide clear goals for each discipline-specific task and each student must have sufficient exposure to subjects in their program of study. Student eligibility and project topics for this course are subject to approval by the ENGR 490 Design Committee, which includes a member from each department in Gina Cody School of Engineering and Computer Science that offers undergraduate programs. This committee vets each project to ensure the clarity and scope of the goals and its relevance to the learning outcomes of students from each discipline. The project is carried out over both fall and winter terms. Students are expected to provide a preliminary project proposal, a progress and a final report (as a group); take part in group discussions in audit sessions during the design phase; and participate in a poster session involving individual oral presentations at the end of the winter term. In addition to the technical aspects, students are expected to learn how to evaluate their designs for compliance to regulations, environmental and societal expectations and economic issues. Students learn how to work in a multidisciplinary environment and receive exposure to entrepreneurial skills.",
     "components": "Lecture 1 hour per week, two terms; Laboratory Equivalent time, 5 hours per week, two terms",
     "notes": "Students work in groups under direct supervision of a faculty member.",
-    "offeredIn": []
+    "offeredIn": [
+      "fall/winter"
+    ]
   },
   {
     "title": "ENGR 498 Topics in Engineering",

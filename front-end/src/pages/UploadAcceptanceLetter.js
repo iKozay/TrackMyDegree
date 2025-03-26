@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import * as Sentry from '@sentry/react';
 
 // Set the worker source for PDF.js
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
 const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   const isFirstRender = useRef(true);

@@ -276,5 +276,15 @@
     "offeredIn": [
       "winter"
     ]
-  }
+  },
+  {
+    "title": "ACCO 220 Financial and Managerial Accounting",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course provides an introduction to accounting principles underlying the preparation of financial reports with an emphasis on the relationship between accounting information and production decisions. It examines the relationship between costs, production volume, and profit, as well as the practical benefits of standard costs for planning and control purposes. The role of accounting information in various manufacturing decisions is also highlighted.",
+    "components": "Lecture",
+    "notes": "John Molson School of Business students may not take this course for credit. This course would be useful to Engineering students. Students who have received credit for ACCO 230, ACCO 240 may not take this course for credit.",
+    "offeredIn": []
+}
 ]

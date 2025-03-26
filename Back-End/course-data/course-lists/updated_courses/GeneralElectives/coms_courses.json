@@ -921,7 +921,10 @@
     "description": "This advanced production course offers a sustained opportunity to develop one or more portfolio-quality media productions, either individually or in groups. Other topics may include CV design, grant-writing, and professional development.",
     "components": "Lecture; Laboratory",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "winter",
+      "fall"
+    ]
   },
   {
     "title": "COMS 493 Communication Media: Advanced Topics",
