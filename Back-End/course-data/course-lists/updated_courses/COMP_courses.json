@@ -614,7 +614,10 @@
     "description": "Digital design exercises including assembly and testing corresponding to the SOEN 228 lab.",
     "components": "Laboratory 2 hours per week",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "winter",
+      "summer"
+    ]
   },
   {
     "title": "SOEN 321 Information Systems Security",
@@ -855,7 +858,9 @@
     "description": "Theoretical or practical project in an advanced topic in software engineering.",
     "components": "Lecture",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "winter"
+    ]
   },
   {
     "title": "SOEN 498 Topics in Software Engineering",
