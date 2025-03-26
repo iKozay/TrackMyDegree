@@ -203,7 +203,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     const details = {};
 
     // List of specific programs to check for
-    const programNames = [
+    /*const programNames = [
       'Aerospace Engineering',
       'Building Engineering',
       'Civil Engineering',
@@ -219,8 +219,12 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       'Mechanical Engineering',
       'Science and Technology',
       'Software Engineering',
-    ];
-    const degreeMapping = {
+    ]; */
+
+    const programNames = degrees.map(degree => degree.name);
+    console.log("programNames", programNames);
+
+/*    const degreeMapping = {
       'Aerospace Engineering': 'D1',
       'Building Engineering': 'D2',
       'Civil Engineering': 'D3',
@@ -230,7 +234,16 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       'Industrial Engineering': 'D7',
       'Mechanical Engineering': 'D8',
       'Software Engineering': 'D9',
-    };
+    }; */
+
+    const degreeMapping = {};
+
+    degrees.forEach(({ name, id }) => {
+      degreeMapping[name] = id;
+    });
+
+    console.log("degreeMapping", degreeMapping);
+
     let degree = null;
     let degreeId = null;
 
