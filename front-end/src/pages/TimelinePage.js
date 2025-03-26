@@ -1708,15 +1708,16 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                           .startsWith('exempted');
 
                         const sumCredits = semesterCourses[semester.id]
-                          .map((cCode) => {
+                          .map((instanceId) => {
                             // Look for the course in both coursePools and remainingCourses
+                            const genericCode = courseInstanceMap[instanceId] || instanceId;
                             const courseInPool = coursePools
                               .flatMap((pool) => pool.courses)
-                              .find((c) => c.code === cCode);
+                              .find((c) => c.code === genericCode);
 
                             // If course is not in coursePools, check in remainingCourses
                             const courseInRemaining = remainingCourses.find(
-                              (c) => c.code === cCode,
+                              (c) => c.code === genericCode,
                             );
 
                             // Choose the course found in either pool or remaining courses
