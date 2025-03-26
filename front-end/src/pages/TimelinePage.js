@@ -1020,11 +1020,12 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       const poolCreditMap = {};
 
       // Initialize each pool with a max credits limit
-      coursePools.forEach((pool) => {
-        const maxFromName = parseMaxCreditsFromPoolName(pool.poolName);
+      coursePools
+      .filter((pool) => !pool.poolName.toLowerCase().includes("option"))
+      .forEach((pool) => {
         poolCreditMap[pool.poolId] = {
           assigned: 0,
-          max: maxFromName,
+          max: parseMaxCreditsFromPoolName(pool.poolName),
         };
       });
 
@@ -1962,6 +1963,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                         <p>
                           <CourseSectionButton
                             title={selectedCourse.title}
+                            hidden={showCourseDescription}
                           />
                         </p>
                         <strong>Description:</strong>

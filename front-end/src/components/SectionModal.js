@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React, { useState, useEffect } from 'react';
 
-const CourseSectionButton = ({ title }) => {
+const CourseSectionButton = ({ title, hidden }) => {
     const [sections, setSections] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -128,7 +128,7 @@ const CourseSectionButton = ({ title }) => {
 
     return (
         <div>
-            <button onClick={fetchSections} disabled={loading}>
+            <button className={`show-course-button${!hidden ? " hidden" : ""}`} onClick={fetchSections} disabled={loading}>
                 {loading ? 'Loading...' : 'Show Course Schedule'}
             </button>
 
