@@ -260,7 +260,11 @@
     "description": "Students must submit a report on a topic related to the students' discipline and approved by the Department. The report must present a review of a current engineering problem, a proposal for a design project, or a current engineering practice.",
     "components": "Lecture",
     "notes": "Students who have received credit for ENGR 410 may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "fall",
+      "winter",
+      "summer"
+    ]
   },
   {
     "title": "ENGR 412 Honours Research Project",
