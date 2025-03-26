@@ -843,7 +843,9 @@
     "description": "Students work in teams of at least four members to construct a significant software application. The class meets at regular intervals. Team members will give a presentation of their contribution to the project.",
     "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "fall/winter"
+    ]
   },
   {
     "title": "SOEN 491 Software Engineering Project",
