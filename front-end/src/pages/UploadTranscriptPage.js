@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 
 
 // Set the worker source
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
 const UploadTranscript = ({ onDataProcessed }) => {
   const [selectedFile, setSelectedFile] = useState(null);
