@@ -2248,7 +2248,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                         className="add-course-btn"
                         onClick={() => addDeficiencyCourse(course)}
                       >
-                        +
+                      ➕
                       </button>
                     </div>
                   ))}

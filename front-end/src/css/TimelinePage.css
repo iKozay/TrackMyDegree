@@ -454,8 +454,8 @@
   padding: 1.9rem;
   border-radius: 8px;
   position: relative;
-  min-width: 300px;
-  max-width: 500px;
+  min-width: 75%;
+  max-width: 600px;
   font-size: 18px;
   color: rgb(78, 108, 91);
   font-family: Arial, sans-serif;
@@ -563,8 +563,7 @@
 }
 
 /* The + button at the top-right corner */
-.add-semester-button,
-.add-course-btn{
+.add-semester-button{
   width: min-content;
   height: min-content;
   white-space: nowrap;
@@ -580,8 +579,35 @@
   justify-content: center;
 }
 
-.add-semester-button:hover,
+.add-course-btn{
+  background: none;
+  margin-left: auto;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c25757;
+  transition: transform 0.2s ease-in-out;
+}
+
+.add-course-btn .selected {
+  color: #912338;
+}
+
 .add-course-btn:hover {
+  transform: scale(1.2);
+  filter: drop-shadow(0px 0px 5px rgba(255, 0, 0, 0.6));
+}
+
+.add-course-btn:active {
+  transform: scale(1.1);
+  filter: brightness(1.5);
+}
+
+.add-semester-button:hover {
   background-color: #c8c8c8;
 }
 
