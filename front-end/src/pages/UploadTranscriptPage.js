@@ -8,8 +8,9 @@ import TransImage from '../images/Transc_image.png';
 import Button from 'react-bootstrap/Button';
 import { motion } from 'framer-motion';
 
+
 // Set the worker source
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const UploadTranscript = ({ onDataProcessed }) => {
   const [selectedFile, setSelectedFile] = useState(null);

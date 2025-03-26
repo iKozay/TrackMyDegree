@@ -200,6 +200,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
   let { degree_Id, startingSemester, credits_Required, extendedCredit } = location.state || {};
 
+  console.log("degree_Id: " + degree_Id);
+  console.log("degreeId: " + degreeId);
+
   // console.log("isExtendedCredit: " + isExtendedCredit);
   // console.log("extendedCredit: " + extendedCredit);
 
@@ -1194,28 +1197,30 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   //   //console.log('Saved Timeline:', timelineData);
   // };
   const confirmSaveTimeline = async (tName) => {
-    // Ensure a valid timeline name is provided.
+    // Ensure required values are provided
     if (!tName.trim()) {
       alert('Timeline name is required!');
       return;
     }
-    setTimelineName(tName);
-
-    if (!user) {
-      //setHasUnsavedChanges(false); // Not sure what to do about this
+    if (!user || !user.id) {
+      alert('User must be logged in!');
       navigate('/signin');
       return;
     }
-
+    if (!degree_Id) {
+      alert('Degree ID is missing!');
+      return;
+    }
+  
+    setTimelineName(tName);
+  
     // Build final timeline data from all semesters.
     const finalTimelineData = [];
     const exempted_courses = [];
-
+  
     semesters.forEach((semester) => {
-      // Split the semester name into season and year.
       const [season, year = '2020'] = semester.name.split(' ');
-
-      // If this semester is "Exempted" or "Transfered Courses", collect its courses.
+  
       if (
         semester.id.trim().toLowerCase() === 'exempted' ||
         semester.id.trim().toLowerCase() === 'transfered courses'
@@ -1230,8 +1235,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           }
         });
       }
-
-      // Build the courses array for this semester.
+  
       const coursesForSemester = (semesterCourses[semester.id] || [])
         .map((courseCode) => {
           const genericCode = courseInstanceMap[courseCode] || courseCode;
@@ -1239,24 +1243,17 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           return course && course.code ? { courseCode: course.code } : null;
         })
         .filter(Boolean);
-
-      // Convert year to integer.
+  
       const yearInt = isNaN(parseInt(year, 10)) ? 2020 : parseInt(year, 10);
-
-      // Always include the semester, even if it has no courses.
-      finalTimelineData.push({
-        season,
-        year: yearInt,
-        courses: coursesForSemester,
-      });
+      finalTimelineData.push({ season, year: yearInt, courses: coursesForSemester });
     });
-
+  
     if (finalTimelineData.length === 0 && exempted_courses.length === 0) {
       alert('No valid data to save.');
       setHasUnsavedChanges(false);
       return;
     }
-
+  
     // Build the payload for the timeline.
     const userTimeline = [
       {
@@ -1270,13 +1267,23 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         isExtendedCredit: extendedCredit || false,
       },
     ];
-
+  
+    // Debug: log the payload
+    console.log('Saving timeline with payload:', {
+      user_id: user.id,
+      name: tName,
+      items: userTimeline[0].items,
+      degree_id: degree_Id,
+      isExtendedCredit: extendedCredit || false,
+    });
+  
     const user_id = userTimeline[0].user_id;
     const timelineNameToSend = userTimeline[0].name;
     const items = userTimeline[0].items;
-    const isExtendedCredit = userTimeline[0].isExtendedCredit;
-
-    // Save Exempted Courses.
+    const isExtended = userTimeline[0].isExtendedCredit;
+    const degreeId = degree_Id;
+  
+    // Save Exempted Courses (if needed)
     try {
       const responseExemptions = await fetch(
         `${process.env.REACT_APP_SERVER}/exemption/create`,
@@ -1284,40 +1291,18 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ coursecodes: exempted_courses, user_id }),
-        },
+        }
       );
       const dataExemptions = await responseExemptions.json();
       if (!responseExemptions.ok) {
-        alert(
-          'Error saving Exempted Courses: ' + (dataExemptions.message || ''),
-        );
+        alert('Error saving Exempted Courses: ' + (dataExemptions.message || ''));
       }
     } catch (error) {
       Sentry.captureException(error);
       console.error('Error saving Exempted Courses:', error);
       alert('An error occurred while saving your timeline.');
     }
-
-    // Save deficiency courses.
-    try {
-      const responseDeficiency = await fetch(
-        `${process.env.REACT_APP_SERVER}/deficiency/create`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            coursepool: deficiencyCourses,
-            user_id,
-            creditsRequired: deficiencyCredits,
-          }),
-        },
-      );
-      // Optionally check responseDeficiency here.
-    } catch (err) {
-      Sentry.captureException(err);
-      console.error('Error saving deficiency', err);
-    }
-
+  
     // Save the complete timeline.
     try {
       const responseTimeline = await fetch(
@@ -1330,20 +1315,19 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
               user_id,
               name: timelineNameToSend,
               items,
-              degree_id: degreeId,
-              isExtendedCredit,
+              degree_id: degree_Id,
+              isExtendedCredit: isExtended,
             },
           }),
-        },
+        }
       );
       const dataTimeline = await responseTimeline.json();
       if (responseTimeline.ok) {
         alert('Timeline saved successfully!');
         setHasUnsavedChanges(false);
-        setShowSaveModal(false); // Close the modal
-        // Navigate after saving
+        setShowSaveModal(false);
         setTimeout(() => {
-          navigate('/user');  // Trigger navigation after delay due to setHasUnsavedChanges(false)
+          navigate('/user');
         }, 250);
       } else {
         alert('Error saving Timeline: ' + (dataTimeline.message || ''));
@@ -1354,6 +1338,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       alert('An error occurred while saving your timeline.');
     }
   };
+  
 
   // Function to handle mouse move over the scrollable container
   const handleScrollMouseMove = (e) => {
