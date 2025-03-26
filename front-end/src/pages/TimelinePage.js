@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, act } from 'react';
 import { useNavigate, useLocation, useBlocker } from 'react-router-dom';
-import { motion } from 'framer-motion'
+import { motion, time } from 'framer-motion'
 import {
   DndContext,
   useDraggable,
@@ -1243,6 +1243,22 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         courses: coursesForSemester,
       });
     });
+
+    const deficiencyCoursescode = deficiencyCourses
+        .map((courseCode) => {
+          const genericCode = courseInstanceMap[courseCode.code] || courseCode.code;
+          const course = allCourses.find((c) => c.code === genericCode);
+          return course && course.code ? { courseCode: course.code } : null;
+        })
+        .filter(Boolean);
+    console.log(deficiencyCoursescode);
+    if(deficiencyCourses.length > 0){
+      finalTimelineData.push({
+        season: 'deficiencies',
+        year: 2020,
+        courses: deficiencyCoursescode,
+      });
+    }
 
     if (finalTimelineData.length === 0 && exempted_courses.length === 0) {
       alert('No valid data to save.');
