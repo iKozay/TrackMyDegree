@@ -1139,10 +1139,10 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         alert("Course already added to deficiencies!");
         return prev;
       }
+      alert("Course added to deficiencies!");
+      setDeficiencyCredits((prevCredits) => prevCredits + (course.credits || 0));
       return [...prev, course];
     });
-  
-    setDeficiencyCredits((prev) => prev + (course.credits || 0));
   };
 
   const removeDeficiencyCourse = (course) => {
