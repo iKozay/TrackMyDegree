@@ -213,7 +213,7 @@ function CourseListPage() {
 					)}
         </div>
 
-        <Row style={{ display: 'flex' }}>
+        <Row style={{ display: 'flex', flexWrap: 'nowrap', gap: '40px' }}>
           <Col sm={12} md={7}>
             {/* Only display course accordions if the courseList has data */}
             {filteredCourseList.length !== 0 && (
