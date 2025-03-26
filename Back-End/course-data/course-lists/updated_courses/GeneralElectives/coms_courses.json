@@ -1,0 +1,983 @@
+[
+  {
+    "title": "COMS 205 Effective Communication Skills",
+    "credits": 3,
+    "prerequisites": "Registration in a Communication Studies program is required.",
+    "corequisites": "",
+    "description": "This course introduces a range of foundational communication skills, with a focus on scholarly writing and research. Class readings, activities, and assignments explore the writing styles and modes of address typical to communications research and practice in diverse social, institutional, and cultural contexts.",
+    "components": "Lecture; Tutorial",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 220 History of Communication and Media",
+    "credits": 3,
+    "prerequisites": "Registration in a Communication Studies program is required.",
+    "corequisites": "",
+    "description": "This course examines communication and media from a comparative and historical perspective. Topics may include the transition from orality to literacy, the print revolution, the advent of modern visual and sonic media, and the creation of modern national and transnational publics through histories of colonialism and globalization. Assignments introduce methods of historical research.",
+    "components": "Lecture; Tutorial",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 225 Media Institutions and Policies",
+    "credits": 3,
+    "prerequisites": "Registration in Communication and Cultural Studies Major is required.",
+    "corequisites": "",
+    "description": "This course introduces students to the analysis of the institutional, political, and economic forces that shape the development of media in the 21st century. Attention is given to the ownership structures, corporate practices, and state policy interventions affecting media institutions in both the public and private sectors. A particular focus is given to the interrelations between cultural, multicultural, and communication policy interventions in the Canadian context.",
+    "components": "Seminar",
+    "notes": "Students who have received credit for COMS 326 may not take this course for credit.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 240 Communication and Media Theory",
+    "credits": 3,
+    "prerequisites": "Registration in a Communication Studies program is required.",
+    "corequisites": "",
+    "description": "This course introduces some of the major theoretical traditions within the study of communication and media. Through close reading of key authors, lectures, and tutorials, and writing and essay assignments, students explore, evaluate, and learn how to apply different theoretical perspectives and concepts relevant to communication and media analysis.",
+    "components": "Lecture; Tutorial",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 274 Communication Media: Intermedia I",
+    "credits": 3,
+    "prerequisites": "Registration in a Major or Specialization in Communication Studies is required.",
+    "corequisites": "",
+    "description": "This course provides a theoretical and applied introduction to intermedia art and media practices such as remediation, design, animation, interactivity, installation, and performance. General emphasis is placed on the creative process, and proof‑of‑concept media creations, rather than “finished” media productions.",
+    "components": "Lecture; Laboratory",
+    "notes": "Students who have received credit for COMS 256 may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 276 Communication Media: Sound I",
+    "credits": 3,
+    "prerequisites": "Registration in the Major or Specialization in Communication Studies is required.",
+    "corequisites": "",
+    "description": "This course introduces students to acoustic, analog, and digital components of sound systems. Students explore the communicational and aesthetic characteristics of sound, especially in everyday life contexts. Through practical exercises, students learn how to structure sound into creative aural forms using field recordings, vocal samples and other audio sources.",
+    "components": "Lecture; Laboratory",
+    "notes": "Students who have received credit for COMS 278 may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 284 Communication Media: Moving Images I",
+    "credits": 3,
+    "prerequisites": "Registration in the Major or Specialization in Communication Studies is required.",
+    "corequisites": "",
+    "description": "This course provides a foundation in the creative, critical, and technical aspects of moving images, including an introduction to cinematography and editing. Through collaborative assignments, lectures, screenings, discussions and readings, students develop a range of production skills.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for COMS 280 and 282 may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 298 Selected Topics in Communication Studies",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 299 Selected Topics in Communication Studies",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 301 Selected Topics in National Cinemas",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course focuses on selected national cinemas. The analytic perspective of the course varies but may encompass such issues as cultural contexts; aesthetic conventions; economic and policy constraints; and the history of canons and their renewals.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a COMS 303 number may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 304 Selected Topics in Film Studies",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "The topic of this course varies but may include such issues as film theories; the political economy of cinema; the analysis of particular periods in film history; the analysis of the films of particular directors and/or producers; film policies, or the relations between film, video, and television.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a COMS 302 number may not take this course for credit.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 305 Media Criticism",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "Through lectures, discussions, readings, and critical analyses, this course offers students insight into the major schools and practices of media criticism. The course explores the relationships between formal, aesthetic, representational, sensory, and affective elements of media. Potential topics include the analysis of media texts such as films, novels, and video games and the analysis of digital culture including social media, AI systems, and platform economies.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for COMS 210 may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 307 Scriptwriting for Media",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department. Registration in a Major or Specialization in Communication Studies is required. Submission of a sample of creative writing and subsequent approval by the instructor is required prior to enrolling.",
+    "corequisites": "",
+    "description": "This course is designed to provide knowledge of and practice in the forms and formats of scripts for media, including TV, film, graphic novels and video games. With an emphasis on formal structures, story construction, and plot development processes, the course also addresses character creation and the roles of tension, conflict, and resolution.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 308 Selected Topics in Video",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course investigates a variety of video practices from their origins to the present. These practices range from video as a political tool to commercial streaming, including video art and installation. Students gain an understanding of the critical and creative uses of video as a tool for communication and the role of video platforms in diverse cultural, commercial, and political contexts.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 309 Studies in Documentary",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course offers a survey of documentary genres in various media. Topics include the characteristic styles and forms of documentary, the function of documentary, and its relationship to truth and knowledge. The course consists of lectures, screenings, readings, critique, and discussion.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for COMS 306 and COMS 331 may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 310 Media Genres",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course presents the concept of genre as a framework for the study of media. As a tool for cultural classification, genre allows for the identification of patterns, similarities, and differences in media texts. Topics may include the development of genre theory; the distinctive genres of particular media such as film, television, music, or video games; the affective and aesthetic qualities of familiar genres such as comedy, horror, or romance; and the analysis of emergent genres on social media.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 319 Media Literacy",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course develops a critical tool kit for evaluating media, their contents, their effects on audiences, and the social frameworks of interpretation. Students explore the benefits, drawbacks, and challenges of various media literacy tools, with a particular focus on contemporary digital and social media. Topics may include infotainment and influencer culture, disinformation and fake news, AI-generated content, digital toxicity and harm.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a COMS 398 number may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 324 Communication Analysis of Environment",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course examines the built and natural dimensions of selected local, transnational, and/or global sites and considers how they reflect larger environmental concerns. Students learn to apply diverse communication and site-specific research methods such as close listening, sound walks, mapping, photography, field observation, and creative writing.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 325 Approaches to Research in Communication and Cultural Studies",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: COMS 225. Registration in Communication and Cultural Studies Major is required.",
+    "corequisites": "",
+    "description": "This course introduces some of the major qualitative research approaches used within Communication and Cultural Studies. Students learn to formulate research questions, choose the appropriate methodological tools, and interpret and report research findings. Students also learn how to evaluate the power dynamics and the ethical and political assumptions and consequences of differing research methods. Topics may include decolonized, feminist, and anti-ableist approaches to communication and cultural research.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 333 Games, Media and Culture",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course takes a critical approach to understanding the role of games as media and cultural objects. Students explore and learn to analyze games, play, and the gaming industry. The course offers opportunities for students to play, discuss, and experiment with games, as well as with media about games.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a COMS 298 or COMS 398 number may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 352 Media Policy in Canada",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course introduces students to the fundamentals of media policy in Canada. Students acquire a critical framework for understanding key institutions and media policy that may include internet, social media, copyright, telecommunications, privacy, and data policy.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 354 Youth and Media",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course focuses on relationships between media and young people, including adolescents, youth, and children. Topics may include public perceptions of young people and media, youth media practices, and young people’s media creation, consumption, use, and circulation.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 355 Media and New Technology",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course examines the emergence of new technologies in the field of communication from conceptual, theoretical, and practical perspectives. It explores diverse ways communication and information technologies shape politics, society and culture and the impact of technological development on the environment.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 357 Media and Critical Theory",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course focuses on key authors and readings in critical theory, including the work of the Frankfurt School, British Cultural Studies, structuralism, post-structuralism, and feminist, queer, and postcolonial and decolonial theories. A central concern is to understand the nature of power in modern media environments.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 360 Mass Media",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "The course examines the nature and forms of mass media, its social sources and uses, audiences, and effects. Issues such as media ownership and access, government and self-regulation, technological implications, ethics and accountability may be discussed.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 361 Propaganda",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course addresses propaganda as a phenomenon and a technique of mass persuasion and influence in public discourse and action. It develops a critical tool kit for understanding the history of propaganda and its impact on politics, entertainment, and consumer culture.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 362 Psychology of Communication",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course surveys a range of psychological processes within communicative acts. Through a variety of formats and analytical approaches, students explore topics such as perception and information processing, language development, influences on attitude/behaviour, and the meaning and use of verbal and non‑verbal codes.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 365 History of Sound Technology",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course attends to technologies of sound amplification, transmission, recording and remixing, offering historical context and different ways to understand related social and economic conditions. The evolution of studio and field recording practices, changes in the production and consumption of music, and changes in the role of audio as a medium of cultural communication are analyzed. Attention is also given to sonic practices in cinema, DJ and sound-system culture, television, radio, and other forms of media.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 367 Media and Cultural Context",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course examines the contested notions of culture and diversity as they relate to interpersonal and mediated communication. It focuses on ways in which different cultural communities critique and access a range of cultural forms, on issues and challenges of cross-cultural communications, and on media representational practices, challenges, and problematics.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 368 Media and Gender",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course investigates how gender and sexuality are constructed, sustained and challenged in contemporary media. Using an intersectional approach, the course explores the entanglements of gender with race, class, sexuality, and ability to understand how structures of power shape media technologies and representations.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 369 Visual Communication and Culture",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course considers the status and function of images and visual media within diverse cultural and social domains. Through key theoretical readings and analysis of visual objects, the course may explore topics such as the power of images in media representations, the role of media technologies in creating visual knowledge, and the dynamics of social interaction in the contemporary era of image abundance.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 370 Advertising and Consumer Culture",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course critically examines the place of advertising in contemporary societies. Topics may include the analysis of advertising strategies, the construction of desire, the significance of advertising for the production and circulation of commodities, the role of advertising and consumption in the construction of social identity, and advertising effects as experienced individually or collectively.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for COMS 470 may not take this course for credit.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 371 Public Relations: Principles and Problems",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course considers the principles and responsibilities of public relations, and critically examines specific problems and the processes and practices used to effect solutions.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for COMS 471 may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 372 Theories of Public Discourse",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course presents a variety of theoretical frameworks that inform the analysis of public communication. Emphasis is placed on cultural, political, and ideological interpretations. Concepts presented are drawn from a number of traditions including rhetoric, hermeneutics, post-structuralism, psychoanalysis, semiotics, and deconstruction.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 373 Topics in Media and Cultural History",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course offers an in‑depth examination of specific periods or issues in media and cultural history. Selected topics focus on the development of media forms or cultural practices, as well as their social and political consequences. Historiographic research methods and theories are addressed.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 374 Communication Media: Intermedia II",
+    "credits": 6,
+    "prerequisites": "The following course must be completed previously: COMS 274. Permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course provides further theoretical and applied exploration of intermedia art and media practices such as remediation, design, animation, interactivity, installation, and performance. General emphasis on creative process, and proof‑of‑concept media creations, rather than “finished” media productions.",
+    "components": "Lecture; Laboratory",
+    "notes": "Students who have received credit for this topic under a COMS 399 number may not take this course for credit.",
+    "offeredIn": [
+      "fall/winter"
+    ]
+  },
+  {
+    "title": "COMS 376 Communication Media: Sound II",
+    "credits": 6,
+    "prerequisites": "The following course must be completed previously: COMS 276. Permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course explores myriad contemporary ways to communicate through sound. This involves hands-on, technical skill-building including audio production techniques associated with various media such as radio, video soundtracks, podcasts, music production and sound effects. Students develop critical awareness of the social and historical contexts of sound production and reception.",
+    "components": "Lecture; Laboratory",
+    "notes": "Students who have received credit for COMS 378 may not take this course for credit.",
+    "offeredIn": [
+      "fall/winter"
+    ]
+  },
+  {
+    "title": "COMS 384 Communication Media: Moving Images II",
+    "credits": 6,
+    "prerequisites": "The following course must be completed previously: COMS 284. Permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course explores aesthetic, critical, and technical issues of moving images through the development of artistic voice, concept, and audience. Students explore visual and aural strategies through collaborative projects and hone skills in camera, lighting, sound and editing.",
+    "components": "Lecture; Laboratory",
+    "notes": "Students who have received credit for COMS 385 or COMS 387 may not take this course for credit.",
+    "offeredIn": [
+      "fall/winter"
+    ]
+  },
+  {
+    "title": "COMS 393 Communication Media: Special Topics",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: COMS 274, COMS 276 or COMS 284 Submission of a portfolio and project proposal to instructor and permission of the Department is required prior to enrolling.",
+    "corequisites": "",
+    "description": "This course involves the development and creation of specialized projects in selected media genres and forms. Emphasis is placed upon conception, design, and execution of media works. Choice of media and types of forms and genres vary from year to year. Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.Notes:Students who have received credit for this topic under COMS 379 or 380 may not take this course for credit.",
+    "components": null,
+    "notes": "Students who have received credit for this topic under COMS 379 or 380 may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 394 Communication Studies Apprenticeship I",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department. Registration in a Communication Studies program is required. Permission of the Department is required.",
+    "corequisites": "",
+    "description": "With approval from the BA program director, students are given the opportunity to work in the communications industry under the co-supervision of a faculty member and a media professional. Students may be accepted for an open apprenticeship position offered to the Department, or they may formulate a study proposal on their own initiative. In order to receive credit, such an apprenticeship proposal must be approved by the BA program director.",
+    "components": "Practicum/Internship/Work Term",
+    "notes": "Students who have received credit for COMS 494 may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 395 Communication Studies Apprenticeship II",
+    "credits": 3,
+    "prerequisites": "300-level courses, unless otherwise indicated, are open to students who have successfully completed 24 university credits or who have received permission from the Department. Registration in a Communication Studies program is required. Permission of the Department is required.Component(s): Practicum/Internship/Work TermNotes:Students who have received credit for COMS 394 may register for COMS 395.Students who have received credit for COMS 495 may not take this course for credit",
+    "corequisites": "",
+    "description": "",
+    "components": "Practicum/Internship/Work Term",
+    "notes": "Students who have received credit for COMS 394 may register for COMS 395.Students who have received credit for COMS 495 may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 398 Selected Topics in Communication Studies",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this courses, and relevant prerequisites, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 399 Selected Topics in Communication Studies",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this courses, and relevant prerequisites, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 407 Advanced Scriptwriting for Media",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: COMS 307. Approval by the instructor is required. 400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course provides an in‑depth approach to writing for media, including television, film, graphic novels and video games. Emphasis is placed upon the story development process in both fictional and non-fictional media production, focusing on aspects such as character, dialogue, and action, flashback schemas, and the role of backstory.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 410 Contemporary Sonic Media",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course investigates contemporary trends in the production, circulation and playback of sonic media with an ear towards identifying relations of power and creative influence. Topics may include hip-hop, sound systems, DJ culture, sampling, remixing, sound and gender, and pop music production. Students engage in the critical analysis of selected sound “texts” (e.g. music videos, podcasts, documentaries, and audio tracks) and are encouraged to bring their own knowledge and listening practices into the classroom.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 411 Sexuality and Public Discourse",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course analyzes the ways sexuality circulates in and as public discourse across a variety of media. The course explores how gender and sexuality are pronounced, embodied and negotiated within specific cultural contexts, through their intersection with race, class, ability, nationality, ethnicity, and age.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 412 Discourses of Dissent",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course examines the theories, forms and tactics of public discourses directed toward social change. Emphasis is placed upon the analysis of political protest, conflict and controversy, and mobilization in relation to specific media technologies and forms.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 413 Cultures of Production",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course examines the digital creator economy and creative industries as sites of active agency, negotiation, and constraint. Students learn how new technologies and political economies of communication impact cultural producers, analyzing issues such as labour rights, algorithmic recommendation, and platform power dynamics.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 414 Production Administration",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course focuses on the language, skills, and strategies necessary for producing media projects and events. Administration, organization, permits and permissions, fundraising, liability and contracts, team-building, distribution and writing are just a few of the areas that are examined as students learn the skills necessary to be a producer.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "summer"
+    ]
+  },
+  {
+    "title": "COMS 415 Advanced Topics in Photography",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course explores photography as a communicative medium, focusing on its social, cultural, political, and performative dimensions. It examines key theoretical and historical literature, addressing the aesthetics, technology, and power dynamics of selected photographic images and practices. Students learn about the role that photography has played in the making of the modern world, including its remediation within contemporary digital culture.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 416 Advanced Media Criticism",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course explores the assumptions, methodologies, and vocabularies implicit in important schools of popular and academic media criticism across mulitiple media forms.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 418 Cultures of Globalization",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course examines the relationships between advancing communication technologies, economic globalization, and ongoing dynamics of migration and intercultural exchange in an increasingly interconnected world. Through analysis of key theoretical literature and selected case studies, the course explores topics such as cultural imperialism, diaspora media, theories of cultural hybridity vs. homogeneity, media piracy, cultural appropriation, cultural sovereignty, and cross-cultural audience reception.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 419 Communication and Indigenous Media",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course examines histories and practices of communication and media about and by Indigenous peoples in Canada. Topics may include histories of settler colonization in Canada and territorial land acknowledgements; legal frameworks, policies, and commissions (such as the 2015 Truth and Reconciliation Commission); representations of indigeneity and Indigenous people in popular media; and contemporary practices and self-representations of Indigenous media makers, producers, broadcasters, writers, and scholars.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 420 Reception Studies",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course examines recent theory and research trends in the area of media reception studies and audience agency. Topics may include discursive, institutional, observational, and ethnographic approaches through readings, discussion, and the design and execution of field research projects.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 421 Communicative Performances and Interventions",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course examines the performative dimensions of interventions in social and cultural issues. Topics may include the history of performance strategies, the social and political character of aesthetic interventions, and the role of different media technologies, platforms, and communicative contexts within performative practices.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 422 Perspectives on the Information Society",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course critically examines the political, social, and ethical dimensions of information and data within Canadian society and throughout the world. Placing the development of information technologies, networks, and economies in their socio-historical context, the course considers the relationship between information, media, and global communication and examines the role of national, regional, and global policy.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 423 Media Art and Aesthetics",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course examines the intersection of aesthetics and communication technologies, highlighting how new modes of circulation shape media creation, production, and consumption. Students may examine current trends and key concepts in media aesthetics and their relationship with environmental, cultural and political landscapes.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 424 Alternative Media",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course examines various alternatives to mainstream media, including community radio and video, independent film, and other historical and emergent trends. The course explores the concepts of mainstream and alternative as well as the relationship between alternative media and social practices.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 425 Advanced Seminar in Cultural Studies",
+    "credits": 3,
+    "prerequisites": "Registration in the Communication and Cultural Studies Major is required. 400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course offers an intense examination of a prominent contemporary debate and/or issue within communication and cultural studies. Through selected readings and seminar discussion, students work toward the completion of a major research assignment.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 426 Television Studies",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course examines recent research focusing on television. Topics may include technological and industrial changes in television programming and distribution, audience activity, evolving genres and representational conventions, and labour conditions in the industry.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 427 Social Media Platforms and Policy",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course critically examines the cultures, economics and affordances of social media platforms. The development of social media platforms is also discussed in order to understand how global flows of technology and culture converge. This course also examines platform policy and governance.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 434 Advanced Topics in Film Studies",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course provides an in‑depth study of a selected area of film studies.",
+    "components": null,
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 435 Advanced Topics in Documentary",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course provides an in‑depth study of selected film, video, sound and interactive documentary genres.",
+    "components": null,
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 437 Media Forecasting",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course examines emerging trends in predictive analytics, algorithmic calculation, and generative Artificial Intelligence, focusing on their impact on user behaviour, and their social, cultural, and political consequences for governance, decision-making, and identity formation. The course explores theoretical approaches to new technologies, focusing on their technical and material aspects as well as their performative logic.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 453 Communication Ethics",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course examines issues of creative responsibility and ethical dimensions of media practice. Emphasis is placed upon the relationship between production and theory at the level of ethical responsibility. Topics may include ethical theories as applied to media, communication and information; the relationship of human values and technologies of information reproduction; and the possibilities of critical media practice.",
+    "components": "Seminar",
+    "notes": "Students who have received credit for JOUR 216 or JOUR 317 may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 455 Food, Media, and Culture",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "Food and water are essential to life and inform the articulation of identities, values, and cultures. This course addresses the critical role communication plays in framing contemporary food issues. Students develop skills to critically analyze the narratives and metaphors that scholars, artists, communication experts, educators, and activists draw on when addressing food, water and environmental concerns.",
+    "components": "Seminar",
+    "notes": "Students who have received credit for this topic under a COMS 435 number may not take this course for credit.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 456 News, Media, and Power",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course explores how news is produced, accessed, and consumed within systems of media and power. It examines the structures, technologies, and conventions that shape the making and promotion of news, while also considering the potential impact of disinformation on news organizations and publics.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 460 Political Communication",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course examines relationships between forms of communication and political structures and processes. Topics include freedom of expression, the role of communication in mediating conflict, the place of deliberation and debate in democracy, political campaigns and advertising, and the relationship between styles of communication and models of governance.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 461 Organizational Communication",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course considers major approaches to organizational communication in relation to shifting patterns of power, inequality, and technological change. Topics include communication networks, organization culture, bureaucracy, systematically distorted communication, gendered communication, the impact of new communication technologies, and patterns of organizational dominance and resistance. Case studies of particular organizations are examined.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 462 Communication, Culture, and Popular Art",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course offers an advanced examination of popular culture. With attention to such phenomena as hit films and television shows, stars, influencers, fan cultures, and pop art, this course focuses on the formation of hierarchies of value in cultural forms. This course examines how some cultural products come to be celebrated while others are dismissed. It also considers social and political consequences of divisions of high and low culture.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 463 Semiotics",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course provides a detailed introduction to the semiotics of communication. The course considers the formal characteristics of signs and codes and examines how signs or texts produce meaning. Central to this course is the notion that sign-systems are fundamental to the production of knowledge and ideology. The course proceeds through lectures, an analytical reading of assigned texts, and student discussion and presentations.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 464 Race, Ethnicity, and Media",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course addresses practical and theoretical issues related to race and ethnicity in media. The course examines current debates and challenges to the field and deconstructs historical approaches to the representations, media frames, and systemic spaces in which race and ethnicity are constructed, lived, and contested. Topics may include anti-Black racism, Whiteness, technologies of colour, and anti-racism.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 465 Rhetoric and Communication",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course focuses upon communication as persuasive or as producing identification. Emphasis is placed upon the role of communication in civic affairs. Classical and contemporary approaches to rhetorical theory and criticism are examined.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 468 Communication, Colonialism, and Decolonization",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course critically examines histories of colonialism and post-colonialism as well as contemporary conditions and politics of decolonization within the context of media and communication studies. Topics may include post-colonial cultural theory; media, empire, and violence in neo-liberal times; discourses of development within communication theories and policies; Orientalism and the colonial gaze; anti-colonial media; and the ethics and politics of decolonizing communication studies in theory and practice.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 472 Communication Technologies and Gender",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course applies feminist theories to critique the impact and meanings of communication technologies in various spheres of cultural activity. The course examines the role of gender in technological development and technology-related practices through a range of feminist lenses while also interrogating popular notions of feminism, post-feminism, and masculinity, which often become embedded in technologies.",
+    "components": "Seminar",
+    "notes": "Prior completion of a course in women’s studies or gender studies at the university level is recommended.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 473 International Communication",
+    "credits": 3,
+    "prerequisites": "400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course explores historical and current parameters of international communication within the context of shifting global power/knowledge relations. Topics may include international broadcasting; transnational media ownership and distribution; shifting national media policies within the global regime; the application of theories of development and neo-colonialism for media research; international debates over the “right to communicate”; and media and international conflict.",
+    "components": "Seminar",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 475 Communication Media: Intermedia III",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: COMS 374. Permission of the Department is required.",
+    "corequisites": "",
+    "description": "This advanced course in intermedia theory and practice involves further engagement with analog and digital media, such as remediation, design, animation, interactivity, installation, and performance. The course emphasizes concept, process, and polish in the development of a portfolio-level work.",
+    "components": "Lecture; Laboratory",
+    "notes": "Students who have received credit for COMS 474 or COMS 490 may not take this course for credit.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 477 Communication Media: Sound III",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: COMS 376. Permission of the Department is required. 400-level courses, unless otherwise indicated, are open to students who have successfully completed 48 university credits or who have received permission from the Department.",
+    "corequisites": "",
+    "description": "This course involves analysis and creation of substantial audio projects such as podcasts, long-form musical compositions, soundscape works, multi-layered soundtracks, and audio installations. Emphasis is placed on creative portfolio development and gaining hands-on experience with contemporary sound synthesis and editing techniques along with different kinds of sound systems.",
+    "components": "Lecture; Laboratory",
+    "notes": "Students who have received credit for COMS 476 or COMS 478 may not take this course for credit.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 484 Communication Media: Moving Images III",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: COMS 384. Permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course emphasizes the development of portfolio-quality creative work in moving images with a focus on cinematography, sound design, editing, distribution, aesthetic and critical aspects of digital moving image production and the professional field.",
+    "components": "Lecture; Laboratory",
+    "notes": "Students who have received credit for COMS 485 or COMS 487 may not take this course for credit.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 491 Communication Media: Portfolio",
+    "credits": 3,
+    "prerequisites": "Successful completion of any second-year production course. Permission of the Department is required.",
+    "corequisites": "",
+    "description": "This advanced production course offers a sustained opportunity to develop one or more portfolio-quality media productions, either individually or in groups. Other topics may include CV design, grant-writing, and professional development.",
+    "components": "Lecture; Laboratory",
+    "notes": null,
+    "offeredIn": [
+      "winter",
+      "fall"
+    ]
+  },
+  {
+    "title": "COMS 493 Communication Media: Advanced Topics",
+    "credits": 3,
+    "prerequisites": "The following course must be completed previously: COMS 374, COMS 376 or COMS 385. Submission of portfolio and project proposal to instructor and permission of the Department is required prior to enrolling.",
+    "corequisites": "",
+    "description": "This course involves the development and creation of specialized projects in selected media genres and forms. Emphasis is placed upon conception, design, and execution of media works. Choice of media and types of forms and genres vary from year to year. Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": "Lecture; Laboratory",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 496 Directed Study I",
+    "credits": 3,
+    "prerequisites": "Registration in a Communication Studies program is required.",
+    "corequisites": "",
+    "description": "Towards the end of their second year, students enrolled in a Communication Studies program who have demonstrated scholarly and creative ability may be selected for major research or production in a communications area of special interest. During the third year, individually or in teams, the project is realized in close collaboration with faculty directors.",
+    "components": "Independent Study",
+    "notes": "No more than six credits may be taken in Apprenticeships or Directed Study. The appropriate Cluster for Apprenticeship and Directed Study courses is determined by the course content as outlined in the student proposal.Students who have received credit for COMS 495 may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 497 Directed Study II",
+    "credits": 3,
+    "prerequisites": "Registration in a Communication Studies program is required.Component(s): Independent StudyNotes:No more than six credits may be taken in Apprenticeships or Directed Study. The appropriate Cluster for Apprenticeship and Directed Study courses is determined by the course content as outlined in the student proposal.Students who have received credit for COMS 496 may register for COMS 497",
+    "corequisites": "",
+    "description": "",
+    "components": "Independent Study",
+    "notes": "No more than six credits may be taken in Apprenticeships or Directed Study. The appropriate Cluster for Apprenticeship and Directed Study courses is determined by the course content as outlined in the student proposal.Students who have received credit for COMS 496 may register for COMS 497.",
+    "offeredIn": []
+  },
+  {
+    "title": "COMS 498 Advanced Topics in Communication Studies",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this courses, and relevant prerequisites, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "COMS 499 Advanced Topics in Communication Studies",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this courses, and relevant prerequisites, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null,
+    "offeredIn": []
+  }
+]

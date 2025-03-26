@@ -6,6 +6,7 @@ import SearchBar from '../components/SearchBar'; // Assuming you have a SearchBa
 import '../css/AdminPage.css'; // Import the CSS file
 import { motion } from 'framer-motion';
 import { AdminPageError } from '../middleware/SentryErrors';
+import { Button, Form } from 'react-bootstrap';
 
 const AdminPage = () => {
   const [tables, setTables] = useState([]);
@@ -14,7 +15,91 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTable, setSelectedTable] = useState(null);
   const [error, setError] = useState('');
+  const [backups, setBackups] = useState([]);
+  const [selectedBackup, setSelectedBackup] = useState('');
   //const [keyword, setKeyword] = useState('');
+
+
+  const fetchBackups = async () => {
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_SERVER}/admin/fetch-backups`);
+      if (response.data.success) {
+        alert('Backups fetched successfully!');
+        setBackups(response.data.data);
+      } else {
+        console.error('Failed to fetch backups');
+      }
+    } catch (err) {
+      console.error('Error fetching backups:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchBackups();
+  }, []);
+
+  // Function to create a new backup
+  const handleCreateBackup = async () => {
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_SERVER}/admin/create-backup`);
+      if (response.data.success) {
+        alert('Backup created successfully!');
+        fetchBackups(); // refresh list after creating backup
+      } else {
+        alert('Failed to create backup');
+      }
+    } catch (err) {
+      console.error('Error creating backup:', err);
+      alert('Error creating backup');
+    }
+  };
+
+  // Function to restore backup
+  const handleRestoreBackup = async () => {
+    if (!selectedBackup) {
+      alert('Please select a backup to restore');
+      return;
+    }
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER}/admin/restore-backup`,
+        { backupName: selectedBackup }
+      );
+      if (response.data.success) {
+        alert('Database restored successfully!');
+      } else {
+        alert(`Restore failed: ${response.data.message}`);
+      }
+    } catch (err) {
+      console.error('Error restoring backup:', err);
+      alert('Error restoring backup');
+    }
+  };
+
+  // Function to delete selected backup
+  const handleDeleteBackup = async () => {
+    if (!selectedBackup) {
+      alert('Please select a backup to delete');
+      return;
+    }
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER}/admin/delete-backup`,
+        { backupName: selectedBackup }
+      );
+      if (response.data.success) {
+        alert('Backup deleted successfully!');
+        setSelectedBackup('');
+        fetchBackups();
+      } else {
+        alert(`Deletion failed: ${response.data.message}`);
+      }
+    } catch (err) {
+      console.error('Error deleting backup:', err);
+      alert('Error deleting backup');
+    }
+  };
+
 
   // Fetch the list of tables when the component mounts
   useEffect(() => {
@@ -145,9 +230,8 @@ const AdminPage = () => {
                 tables.map((table) => (
                   <li
                     key={table}
-                    className={`list-group-item list-group-item-action ${
-                      selectedTable === table ? 'active' : ''
-                    }`}
+                    className={`list-group-item list-group-item-action ${selectedTable === table ? 'active' : ''
+                      }`}
                     onClick={() => handleTableSelect(table)}
                     style={{ cursor: 'pointer' }}
                   >
@@ -202,6 +286,35 @@ const AdminPage = () => {
             ) : (
               <Alert variant="info">Select a table to view its records.</Alert>
             )}
+          </Col>
+        </Row>
+        {/* Backup Section */}
+        <Row className="mt-4">
+          <Col md={12}>
+            <h4>Database Backups</h4>
+            <div className="backup-controls">
+              <Button variant="primary" onClick={handleCreateBackup}>
+                Create Backup
+              </Button>
+              <Form.Select
+                value={selectedBackup}
+                onChange={(e) => setSelectedBackup(e.target.value)}
+                style={{ width: '300px', display: 'inline-block', margin: '0 10px' }}
+              >
+                <option value="">Select a backup...</option>
+                {backups.map((backup) => (
+                  <option key={backup} value={backup}>
+                    {backup}
+                  </option>
+                ))}
+              </Form.Select>
+              <Button variant="success" onClick={handleRestoreBackup}>
+                Restore Backup
+              </Button>
+              <Button variant="danger" onClick={handleDeleteBackup}>
+                Delete Backup
+              </Button>
+            </div>
           </Col>
         </Row>
         <div style={{ marginTop: '20px' }}>

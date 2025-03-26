@@ -1,78 +1,63 @@
 import "./middleware/sentry_instrument";
 import React, { useState } from "react";
 import {
-  BrowserRouter as Router,
+  createBrowserRouter,
+  RouterProvider,
+  useLocation,
   Routes,
   Route,
-  useLocation,
-} from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import LogInPage from './pages/LogInPage';
-import SignUpPage from './pages/SignUpPage';
-import UserPage from './pages/UserPage';
-import CourseList from './pages/CourseListPage';
-import UploadTranscript from './pages/UploadTranscriptPage';
-import UploadAcceptanceLetter from './pages/UploadAcceptanceLetter';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider } from './middleware/AuthContext';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import './App.css';
-import TimelinePage from './pages/TimelinePage';
-import ForgotPassPage from './pages/ForgotPassPage';
-import ResetPassPage from './pages/ResetPassPage';
-import AdminPage from './pages/AdminPage';
-import { AnimatePresence } from 'framer-motion';
+} from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
+import LogInPage from "./pages/LogInPage";
+import SignUpPage from "./pages/SignUpPage";
+import UserPage from "./pages/UserPage";
+import CourseList from "./pages/CourseListPage";
+import UploadTranscript from "./pages/UploadTranscriptPage";
+import UploadAcceptanceLetter from "./pages/UploadAcceptanceLetter";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "./middleware/AuthContext";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import "./App.css";
+import TimelinePage from "./pages/TimelinePage";
+import ForgotPassPage from "./pages/ForgotPassPage";
+import ResetPassPage from "./pages/ResetPassPage";
+import AdminPage from "./pages/AdminPage";
+import { AnimatePresence } from "framer-motion";
 
 function App() {
   const [degreeId, setDegreeId] = useState(null);
   const [timelineData, setTimelineData] = useState([]);
-  const [creditsRequired, setcreditsRequired] = useState([]);
+  const [creditsRequired, setCreditsRequired] = useState([]);
   const [isExtendedCredit, setIsExtendedCredit] = useState(false);
 
   const handleDataProcessed = (data) => {
-    setTimelineData(data.transcriptData); // Update transcript data
-    setDegreeId(data.degreeId); // Update degreeId
-    setcreditsRequired(data.creditsRequired); // Update creditsRequired
-    setIsExtendedCredit(data.isExtendedCredit); // Update is
-
-    console.log('app.js data.isExtendedCredit: ', data.isExtendedCredit);
-    console.log('app.js isExtendedCredit: ', isExtendedCredit);
+    if (data) {
+      setTimelineData(data.transcriptData); // Update transcript data
+      setDegreeId(data.degreeId); // Update degreeId
+      setCreditsRequired(data.creditsRequired); // Update creditsRequired
+      setIsExtendedCredit(data.isExtendedCredit); // Update is
+      
+      console.log('app.js data.isExtendedCredit: ', data.isExtendedCredit);
+      console.log('app.js isExtendedCredit: ', isExtendedCredit);
+    } 
+    else {
+      // Clear the data
+      setTimelineData([]);
+      setDegreeId(null);
+      setCreditsRequired([]);
+      setIsExtendedCredit(false);
+      console.log('Timeline data cleared')
+    }
   };
+
+  const location = useLocation();
 
   return (
     <div className="page-container">
-      <AuthProvider>
-        <Router>
-          <Navbar />
-          <AppContent
-            degreeId={degreeId}
-            timelineData={timelineData}
-            creditsRequired={creditsRequired}
-            isExtendedCredit={isExtendedCredit}
-            handleDataProcessed={handleDataProcessed}
-          />
-          <Footer />
-        </Router>
-      </AuthProvider>
-    </div>
-  );
-}
-
-// Create a new component to use `useLocation` inside the `<Router>`
-function AppContent({
-  degreeId,
-  timelineData,
-  creditsRequired,
-  handleDataProcessed,
-  isExtendedCredit,
-}) {
-  const location = useLocation(); // <--- useLocation is now inside the Router context
-
-  return (
-    <div className="App">
+      <Navbar />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<LandingPage />} />
@@ -91,9 +76,9 @@ function AppContent({
             path="/timeline_change"
             element={
               <TimelinePage
-                degreeid={degreeId}
+                degreeId={degreeId}
                 timelineData={timelineData}
-                creditsrequired={creditsRequired}
+                creditsRequired={creditsRequired}
                 isExtendedCredit={isExtendedCredit}
                 onDataProcessed={handleDataProcessed}
               />
@@ -106,16 +91,23 @@ function AppContent({
           />
           <Route
             path="/timeline_initial"
-            element={
-              <UploadAcceptanceLetter onDataProcessed={handleDataProcessed} />
-            }
+            element={<UploadAcceptanceLetter onDataProcessed={handleDataProcessed} />}
           />
-          <Route path="/forgot-pass" element={<ForgotPassPage />} />
-          <Route path="/reset-pass" element={<ResetPassPage />} />
         </Routes>
       </AnimatePresence>
+      <Footer />
     </div>
   );
 }
 
-export default App; // Profiler caused issues, explore later
+const router = createBrowserRouter([
+  { path: "/*", element: <App /> },
+]);
+
+export default function Root() {
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
+}

@@ -9,18 +9,18 @@ CREATE TABLE Degree (
 );
 
 CREATE TABLE Course (
-  code VARCHAR(7) NOT NULL,
+  code VARCHAR(8) NOT NULL,
   title VARCHAR(255),
   credits FLOAT NOT NULL,
   description VARCHAR(2055) NOT NULL,
-  offeredIn VARCHAR(255)
+  offeredIn VARCHAR(255),
   PRIMARY KEY (code)
 );
 
 CREATE TABLE Requisite (
     id VARCHAR(255) PRIMARY KEY,
-    code1 VARCHAR(7) NOT NULL,          -- Course that has the requisite
-    code2 VARCHAR(7),                    -- Prerequisite course (NULL if credit-based)
+    code1 VARCHAR(8) NOT NULL,          -- Course that has the requisite
+    code2 VARCHAR(8),                    -- Prerequisite course (NULL if credit-based)
     type VARCHAR(3) CHECK (type IN ('pre', 'co')), -- 'pre' for prerequisite, 'co' for corequisite
     group_id VARCHAR(255),               -- Identifier for groups of alternative requisites
     creditsRequired FLOAT,               -- Number of credits required (NULL if course-based)
@@ -51,7 +51,7 @@ CREATE TABLE DegreeXCoursePool (
 
 CREATE TABLE CourseXCoursePool (
   id VARCHAR(255) PRIMARY KEY,
-  coursecode VARCHAR(7),
+  coursecode VARCHAR(8),
   coursepool VARCHAR(255),
   groupId VARCHAR(255),
   UNIQUE(coursecode, coursepool),
@@ -94,7 +94,7 @@ CREATE TABLE TimelineItems (
 
 CREATE TABLE TimelineItemXCourses (
     timeline_item_id VARCHAR(255) NOT NULL,
-    coursecode VARCHAR(7) NOT NULL,
+    coursecode VARCHAR(8) NOT NULL,
     PRIMARY KEY (timeline_item_id, coursecode),
     FOREIGN KEY (timeline_item_id) REFERENCES TimelineItems(id) ON DELETE CASCADE,
     FOREIGN KEY (coursecode) REFERENCES Course(code)
@@ -112,7 +112,7 @@ CREATE TABLE Deficiency (
 
 CREATE TABLE Exemption (
     id VARCHAR(255) PRIMARY KEY,
-    coursecode VARCHAR(7),
+    coursecode VARCHAR(8),
     user_id VARCHAR(255),
     UNIQUE(user_id, coursecode),
     FOREIGN KEY (coursecode) REFERENCES Course(code),

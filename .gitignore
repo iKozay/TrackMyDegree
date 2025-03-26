@@ -3,6 +3,7 @@ Back-End/node_modules/*
 Back-End/yarn.lock
 Back-End/dist
 Back-End/coverage
+front-end/yarn.lock
 package-lock.json
 node_modules
 **/.env

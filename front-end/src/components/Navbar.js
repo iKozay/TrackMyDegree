@@ -1,6 +1,6 @@
 // src/components/Navbar.js
 import React, { useContext, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate,  NavLink , Link, useLocation} from 'react-router-dom';
 import { AuthContext } from '../middleware/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -12,6 +12,9 @@ const Navbar = () => {
 	const { isLoggedIn, logout, user } = useContext(AuthContext);
 	const navigate = useNavigate();
 	const menuRef = useRef(null);
+  const location = useLocation();
+  const timelineActivePaths = ['/timeline_initial', '/timeline_change', '/uploadTranscript'];
+
 
   // Handle logout logic
   const handleLogout = () => {
@@ -58,39 +61,47 @@ const Navbar = () => {
 
   return (
     <div ref={menuRef}>
-      <nav className="navbar navbar-expand-lg custom-navbar custom-navbar-height custom-navbar-padding">
-        <div className="container-fluid custom-navbar-left-align">
-          <a className="navbar-brand custom-navbar-brand-left" href="/">
-            <span className="brand-text">TrackMyDegree🎓</span>
-            <span className="brand-emoji">🎓</span>
-          </a>
-          <button
-            className="navbar-toggler"
-            type="button"
-            onClick={toggleMenu}
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div className="navbar-nav custom-nav-links">
-              <a className="nav-link active" aria-current="page" href="/">
-                Home
-              </a>
-              <p className={'nav-separator'}>|</p>
-              <a className="nav-link" href="/timeline_initial">
-                Timeline
-              </a>
-              <p className={'nav-separator'}>|</p>
-              <a className="nav-link" href="/courselist">
-                Courses
-              </a>
-              {/* <a className="nav-link" href="/uploadTranscript">
-              Upload Transcript
-            </a> */}
-            </div>
-            {isLoggedIn ? (
+    <nav className="navbar navbar-expand-lg custom-navbar custom-navbar-height custom-navbar-padding">
+      <div className="container-fluid custom-navbar-left-align">
+        <Link className="navbar-brand custom-navbar-brand-left" to="/">
+          <span className="brand-text">TrackMyDegree🎓</span>
+          <span className="brand-emoji">🎓</span>
+        </Link>
+        <button
+          className="navbar-toggler"
+          type="button"
+          onClick={toggleMenu}
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+        <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div className="navbar-nav custom-nav-links">
+            <NavLink
+              to="/"
+              className={({ isActive }) =>
+                "nav-link" + (isActive ? " active" : "")
+              }
+            >
+              Home
+            </NavLink>
+            <NavLink
+              to="/timeline_initial"
+              className={() => "nav-link" + (timelineActivePaths.includes(location.pathname) ? " active" : "")}
+            >
+              Timeline
+            </NavLink>
+            <NavLink
+              to="/courselist"
+              className={({ isActive }) =>
+                "nav-link" + (isActive ? " active" : "")
+              }
+            >
+              Courses
+            </NavLink>
+          </div>
+          {isLoggedIn ? (
               <>
                 <div className="navbar-right-buttons">
                   <Link to="/user">

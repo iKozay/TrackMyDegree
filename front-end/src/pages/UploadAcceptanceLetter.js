@@ -6,9 +6,10 @@ import { motion } from 'framer-motion';
 import * as Sentry from '@sentry/react';
 
 // Set the worker source for PDF.js
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
 const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
+  const isFirstRender = useRef(true);
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileName, setFileName] = useState('No file chosen');
   const [output, setOutput] = useState('');
@@ -23,6 +24,14 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     extendedCredit: null,
     creditDeficiency: null,
   });
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      onDataProcessed(); // Clear old timeline data on load
+      isFirstRender.current = false;
+    }
+    
+  }, [onDataProcessed]);
 
   const handleRadioChange = (group, value) => {
     setSelectedRadio((prev) => ({
@@ -55,7 +64,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     console.log('select: ', selectedRadio.extendedCredit);
     navigate('/timeline_change', {
       state: {
-        degreeId: selectedDegreeId,
+        degree_Id: selectedDegreeId,
         startingSemester: startingSemester,
         coOp: selectedRadio.coOp,
         extendedCredit: selectedRadio.extendedCredit,
