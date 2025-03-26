@@ -32,6 +32,7 @@ import * as Sentry from '@sentry/react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import CourseSectionButton from '../components/SectionModal';
+import ShowInsights from '../components/ShowInsights';
 
 
 // DraggableCourse component for course list items
@@ -1507,6 +1508,26 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   {credits_Required + deficiencyCredits}
                 </h4>
                 <div className="timeline-buttons-container">
+                <div>
+                    {coursePools != null &&
+                        semesterCourses != null &&
+                        totalCredits != null &&
+                        creditsRequired != null &&
+                        deficiencyCredits != null ? (
+                          <ShowInsights
+                            coursePools={coursePools}
+                            semesterCourses={semesterCourses}
+                            totalCredits={totalCredits}
+                            creditsRequired={creditsRequired}
+                            deficiencyCredits={deficiencyCredits}
+                            courseInstanceMap={courseInstanceMap}
+                          />
+                        ) : (
+                        <div>
+                        <p>Loading insights data... Please ensure all required data is available.</p>
+                      </div>
+                    )}
+                  </div>
                   <button
                     className="save-timeline-button"
                     onClick={() =>
