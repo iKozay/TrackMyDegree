@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, act } from 'react';
 import { useNavigate, useLocation, useBlocker } from 'react-router-dom';
-import { motion } from 'framer-motion'
+import { motion, time } from 'framer-motion'
 import {
   DndContext,
   useDraggable,
@@ -182,7 +182,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const navigate = useNavigate();
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
-
+  const [showDeficiencyModal, setShowDeficiencyModal] = useState(false);
+  const [searchDeficiencyQuery, setSearchDeficiencyQuery] = useState('');
   const [semesters, setSemesters] = useState([]);
   const [semesterCourses, setSemesterCourses] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -454,37 +455,6 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           combinedData = primaryData.concat(extendedData);
         }
 
-        if (location.state?.creditDeficiency) {
-          const deficiencyPool = {
-            poolName: 'Deficiencies',
-            poolId: 'def-pool',
-            courses: [
-              {
-                code: 'ESL202',
-                title: 'ESL 202',
-                credits: 3,
-                description: 'Deficiency course',
-                requisites: [],
-              },
-              {
-                code: 'ESL204',
-                title: 'ESL 204',
-                credits: 4,
-                description: 'Deficiency course',
-                requisites: [],
-              },
-            ],
-          };
-          if (!combinedData.find((pool) => pool.poolId === 'def-pool')) {
-            combinedData = [...combinedData, deficiencyPool];
-            const totalDefCredits = deficiencyPool.courses.reduce(
-              (sum, course) => sum + (course.credits || 0),
-              0,
-            );
-            setDeficiencyCredits(totalDefCredits);
-          }
-        }
-
         setCoursePools(combinedData);
         setLoading(false);
       } catch (err) {
@@ -525,6 +495,50 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             data.season.trim().toLowerCase() === 'exempted' &&
             parseInt(data.year, 10) === 2020;
         }
+
+        console.log(timelineData);
+
+        if (data.term === "deficiencies 2020" && Array.isArray(data.courses)) {
+          setDeficiencyCourses(() => {
+            const newCourses = data.courses
+              .map((courseCode) => {
+                const genericCode = courseInstanceMap[courseCode] || courseCode;
+                const course = allCourses.find((c) => c.code === genericCode);
+                return course && course.code ? { code: course.code, credits: course.credits} : null;
+              })
+              .filter(Boolean); // Remove null values
+
+              //Calculate total deficiency credits
+            const totalDeficiencyCredits = newCourses.reduce(
+              (sum, course) => sum + (course.credits || 3),
+              0
+            );
+
+            setDeficiencyCredits(totalDeficiencyCredits);
+            
+            return [...newCourses]; // Append to existing list
+          });
+
+          data.term = "";
+        }
+
+        
+        // if(data.term == "deficiencies 2020"){
+        //   data.courses
+        // .map((courseCode) => {
+        //   const genericCode = courseInstanceMap[courseCode] || courseCode;
+        //   const course = allCourses.find((c) => c.code === genericCode);
+        //   return course && course.code ? { courseCode: course.code } : null;
+        // })
+        // .filter(Boolean);
+        //   setDeficiencyCourses(prevCourses => {
+        //     const newCourses = data.courses.filter(course => 
+        //         !prevCourses.some(c => c.code === course) // Avoid duplicates
+        //     ).map(course); // Assume 3 credits (modify as needed)
+            
+        //     return [...prevCourses, ...newCourses];
+        //   });
+        // }
 
         if (isExempted) {
           // Extract courses from the exempted item.
@@ -833,7 +847,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     } else {
       genericCode = courseInstanceMap[internalId] || internalId;
     }
-    const course = allCourses.find((c) => c.code === genericCode);
+    const course = allCourses.find((c) => c.code === genericCode) || deficiencyCourses.find((c) => c.code === genericCode);    ;
     if (course) {
       setSelectedCourse(course);
     }
@@ -862,8 +876,12 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     const sourceContainer = active.data.current.containerId;
     let draggedId = uniqueId; // initially, this is the generic course code if from courseList
     const draggedGeneric = active.data.current.courseCode;
+
+    // Check if course is from deficiency list
+    const isFromDeficiencyList = sourceContainer === "deficiencyList";
+
     // If dragged from the course list, generate a new unique instance ID
-    if (sourceContainer === 'courseList') {
+    if (sourceContainer === 'courseList'|| isFromDeficiencyList) {
       const newUniqueId = `${draggedGeneric}-${uniqueIdCounter}`;
       setUniqueIdCounter((prev) => prev + 1);
       // Update the mapping so that the unique id points to the generic course code
@@ -1116,6 +1134,25 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     calculateTotalCredits();
   }, [semesterCourses, semesters, coursePools, deficiencyCredits]);
 
+  const addDeficiencyCourse = (course) => {
+    setDeficiencyCourses((prev) => {
+      if (prev.some((c) => c.code === course.code)) {
+        alert("Course already added to deficiencies!");
+        return prev;
+      }
+      alert("Course added to deficiencies!");
+      setDeficiencyCredits((prevCredits) => prevCredits + (course.credits || 0));
+      return [...prev, course];
+    });
+  };
+
+  const removeDeficiencyCourse = (course) => {
+    setDeficiencyCourses((prev) => prev.filter((c) => c.code !== course.code));
+    setDeficiencyCredits((prev) => prev - (course.credits || 0));
+  };
+  
+  
+
   // Function to check if prerequisites and corequisites are met
   const arePrerequisitesMet = (courseCode, currentSemesterIndex) => {
     const genericCode = courseInstanceMap[courseCode] || courseCode;
@@ -1249,7 +1286,23 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       const yearInt = isNaN(parseInt(year, 10)) ? 2020 : parseInt(year, 10);
       finalTimelineData.push({ season, year: yearInt, courses: coursesForSemester });
     });
-  
+    
+    const deficiencyCoursescode = deficiencyCourses
+        .map((courseCode) => {
+          const genericCode = courseInstanceMap[courseCode.code] || courseCode.code;
+          const course = allCourses.find((c) => c.code === genericCode);
+          return course && course.code ? { courseCode: course.code } : null;
+        })
+        .filter(Boolean);
+    console.log(deficiencyCoursescode);
+    if(deficiencyCourses.length > 0){
+      finalTimelineData.push({
+        season: 'deficiencies',
+        year: 2020,
+        courses: deficiencyCoursescode,
+      });
+    }
+
     if (finalTimelineData.length === 0 && exempted_courses.length === 0) {
       alert('No valid data to save.');
       setHasUnsavedChanges(false);
@@ -1542,6 +1595,12 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                     <img src={downloadIcon} alt="Download Icon" className="download-icon" />
                     Download
                   </button>
+                  <button
+                    className="add-deficiencies-button"
+                    onClick={() => setShowDeficiencyModal(true)}
+                  >
+                    Add Deficiencies
+                  </button>
                 </div>
               </div>
 
@@ -1675,6 +1734,34 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
                                       );
                                     })}
+                                  </Container>
+                                </Accordion.Body>
+                              </Accordion.Item>
+                              <Accordion.Item eventKey="deficiencies">
+                                <Accordion.Header>Deficiency Courses</Accordion.Header>
+                                <Accordion.Body>
+                                <Container>
+                                    {deficiencyCourses.map((course) => (
+                                        <div key={`source-${course.code}`} className={`course-item`}>
+                                          <DraggableCourse 
+                                            internalId={`source-${course.code}`}
+                                            courseCode={course.code}
+                                            title={course.code}
+                                            disabled={isCourseAssigned(course.code)}
+                                            isReturning={returning}
+                                            isSelected={selectedCourse?.code === course.code}
+                                            onSelect={handleCourseSelect}
+                                            containerId="deficiencyList"
+                                            isInTimeline={isCourseAssigned(course.code)}
+                                          />
+                                          <button
+                                            className="remove-course-btn"
+                                            onClick={() => removeDeficiencyCourse(course)}
+                                          >
+                                            ❌
+                                          </button>
+                                        </div>
+                                      ))}
                                   </Container>
                                 </Accordion.Body>
                               </Accordion.Item>
@@ -2160,6 +2247,36 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             </div>
           </div>
         </DeleteModal>
+        {showDeficiencyModal && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <button className="close-button" onClick={() => setShowDeficiencyModal(false)}>✕</button>
+              <h3>Add Deficiency Courses</h3>
+              <input
+                type="text"
+                placeholder="Search courses..."
+                value={searchDeficiencyQuery}
+                onChange={(e) => setSearchDeficiencyQuery(e.target.value)}
+                className="course-search-input"
+              />
+              <div className="course-list-container">
+                {allCourses
+                  .filter(course => course.code.toLowerCase().includes(searchDeficiencyQuery.toLowerCase()))
+                  .map(course => (
+                    <div key={course.code} className="course-item">
+                      {course.code}
+                      <button
+                        className="add-course-btn"
+                        onClick={() => addDeficiencyCourse(course)}
+                      >
+                      ➕
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        )}
       </DndContext>
     </motion.div>
   );
