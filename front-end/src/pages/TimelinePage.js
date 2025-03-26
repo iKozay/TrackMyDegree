@@ -492,6 +492,50 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             parseInt(data.year, 10) === 2020;
         }
 
+        console.log(timelineData);
+
+        if (data.term === "deficiencies 2020" && Array.isArray(data.courses)) {
+          setDeficiencyCourses(() => {
+            const newCourses = data.courses
+              .map((courseCode) => {
+                const genericCode = courseInstanceMap[courseCode] || courseCode;
+                const course = allCourses.find((c) => c.code === genericCode);
+                return course && course.code ? { code: course.code, credits: course.credits} : null;
+              })
+              .filter(Boolean); // Remove null values
+
+              //Calculate total deficiency credits
+            const totalDeficiencyCredits = newCourses.reduce(
+              (sum, course) => sum + (course.credits || 3),
+              0
+            );
+
+            setDeficiencyCredits(totalDeficiencyCredits);
+            
+            return [...newCourses]; // Append to existing list
+          });
+
+          data.term = "";
+        }
+
+        
+        // if(data.term == "deficiencies 2020"){
+        //   data.courses
+        // .map((courseCode) => {
+        //   const genericCode = courseInstanceMap[courseCode] || courseCode;
+        //   const course = allCourses.find((c) => c.code === genericCode);
+        //   return course && course.code ? { courseCode: course.code } : null;
+        // })
+        // .filter(Boolean);
+        //   setDeficiencyCourses(prevCourses => {
+        //     const newCourses = data.courses.filter(course => 
+        //         !prevCourses.some(c => c.code === course) // Avoid duplicates
+        //     ).map(course); // Assume 3 credits (modify as needed)
+            
+        //     return [...prevCourses, ...newCourses];
+        //   });
+        // }
+
         if (isExempted) {
           // Extract courses from the exempted item.
           if (data.course && typeof data.course === 'string') {
@@ -2217,7 +2261,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                         className="add-course-btn"
                         onClick={() => addDeficiencyCourse(course)}
                       >
-                        Add
+                        +
                       </button>
                     </div>
                   ))}
