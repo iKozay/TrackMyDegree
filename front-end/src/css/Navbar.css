@@ -68,16 +68,6 @@
   background-color: #ecf0f1;
   border-radius: 8px;
 }
-
-/*.custom-navbar .nav-link.active {*/
-/*  color: #1c1717 !important;*/
-/*  background-color: #ecf0f1;*/
-/*  border-radius: 8px;*/
-/*  width: 100px;*/
-/*  height: 45px;*/
-/*  font-size: 20px;*/
-/*}*/
-
 .custom-navbar-height {
   height: 120px;
   padding: 20px 0;
@@ -206,6 +196,9 @@
       align-items: center;
       width: 100%;
       gap: 15px;
+      padding: 5px;
+      padding-left: 20px;
+      padding-top: 0px;
     }
 
     .navbar-nav {
@@ -214,8 +207,9 @@
       flex-direction: column;
       align-items: center;
       width: 100%;
+      margin-top: 55px;
+      margin-left:70px;
       gap: 35px;
-      margin-top: 70px;
     }
 
     .mobile-feedback {
@@ -384,4 +378,133 @@
   width: 24px;
   height: 24px;
   margin-right: 2px;
+}
+
+/*for screen getting smaller by height*/
+@media (max-height: 500px) {
+  .navbar-collapse {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100%;
+    width: 65vw; /* Use viewport width for responsive sizing */
+    max-width: 200px; /* Maximum width */
+    min-width: 150px; /* Minimum width */
+    background-color: #912338;
+    transition: right 0.3s ease;
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    padding: 2vh 15px; /* Use viewport height units for padding */
+    justify-content: flex-start;
+    gap: 2vh; /* Responsive gap using viewport height */
+    overflow-y: auto; /* Allow scrolling if content is too tall */
+  }
+
+  .close-nav {
+    order: 1;
+    align-self: flex-end;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    font-size: calc(16px + 1vw); /* Responsive font size */
+    color: #ecf0f1;
+    cursor: pointer;
+    margin-bottom: 1vh;
+  }
+
+  .navbar-right-buttons {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1.5vh; /* Responsive gap */
+    padding: 0;
+  }
+
+  .navbar-nav {
+    order: 3;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 2vh;
+    gap: 2.5vh; /* Responsive gap */
+    margin-left: 0;
+    padding-left: 15px;
+  }
+
+  .mobile-feedback {
+    order: 4;
+    width: 100%;
+    margin-top: auto;
+    padding: 1.5vh 0;
+    text-align: center;
+    margin-left: 0;
+  }
+
+  .feedback-button-mobile {
+    background-color: #aeaaaa;
+    color: white;
+    padding: 1vh 0.5vw;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: calc(12px + 0.5vw); /* Responsive font size */
+    transition: background-color 0.3s ease;
+    width: 100%;
+  }
+
+  /* Active link indicator */
+  .custom-navbar .nav-link.active::before {
+    content: "";
+    position: absolute;
+    left: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 60%; /* Relative to text height */
+    width: 4px;
+    background-color: #ecf0f1;
+    border-radius: 4px;
+  }
+
+  /* Text sizing */
+  .custom-navbar .nav-link {
+    font-size: calc(16px + 0.5vw);
+    padding: 0.5vh 0;
+    margin: 0;
+  }
+
+  .user-name {
+    font-size: calc(12px + 0.5vw);
+  }
+
+  /* Adjust button sizes */
+  .navbar-button {
+    padding: 1vh 0.5vw;
+    font-size: calc(12px + 0.5vw);
+  }
+
+  /* Make sure icons scale */
+  .user-icon, .logout-icon {
+    width: calc(20px + 0.5vw);
+    height: calc(20px + 0.5vw);
+  }
+}
+
+/* For very small screens */
+@media (max-width: 400px) and (max-height: 600px) {
+  .navbar-collapse {
+    gap: 1vh;
+    padding: 1vh 10px;
+  }
+
+  .navbar-nav {
+    gap: 1.5vh;
+    margin-top: 1vh;
+  }
+
+  .custom-navbar .nav-link {
+    font-size: calc(14px + 0.5vw);
+  }
 }
