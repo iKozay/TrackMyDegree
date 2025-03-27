@@ -2247,7 +2247,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         </DeleteModal>
         {showDeficiencyModal && (
           <div className="modal-overlay">
-            <div className="modal-content">
+            <div className="modal-content-def">
               <button className="close-button" onClick={() => setShowDeficiencyModal(false)}>✕</button>
               <h3>Add Deficiency Courses</h3>
               <input

@@ -454,14 +454,26 @@
   padding: 1.9rem;
   border-radius: 8px;
   position: relative;
-  min-width: 75%;
-  max-width: 600px;
+  min-width: 300px;
+  max-width: 500px;
   font-size: 18px;
   color: rgb(78, 108, 91);
   font-family: Arial, sans-serif;
   font-weight: bold;
 }
 
+.modal-content-def {
+  background-color: #ffff;
+  padding: 1.9rem;
+  border-radius: 8px;
+  position: relative;
+  min-width: 60%;
+  max-width: 600px;
+  font-size: 18px;
+  color: rgb(78, 108, 91);
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+}
 /* ------------- Close Button ------------- */
 .close-button {
   position: absolute;
@@ -542,6 +554,46 @@
 }
 
 .modal-content select option {
+  background-color: #fff;
+  color: rgb(78, 108, 91);
+  font-size: 16px;
+}
+
+/* ------------- Select Elements in the Modal ------------- */
+.modal-content-def select {
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  color: rgb(78, 108, 91);
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: none;
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  /* Remove default arrow in Chrome/Safari */
+  -moz-appearance: none;
+  /* Remove default arrow in Firefox */
+  appearance: none;
+  margin-right: 4px;
+  transition: border-color 0.2s ease;
+  margin-right: 4px;
+  margin-top: 5px;
+  width: 120px;
+  border-color: rgba(156, 143, 143, 0.8);
+  box-shadow: 0 0 3px rgba(156, 143, 143, 0.3);
+  background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWw0IDQgNC00IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+') no-repeat right 0.75em center / 0.65em;
+  transition: border-color 0.2s ease;
+}
+
+/* On focus (clicked) or hover, highlight border */
+.modal-content-def select:focus,
+.modal-content-def select:hover {
+  border-color: rgba(156, 143, 143, 0.8);
+  box-shadow: 0 0 3px rgba(156, 143, 143, 0.3);
+}
+
+.modal-content-def select option {
   background-color: #fff;
   color: rgb(78, 108, 91);
   font-size: 16px;
