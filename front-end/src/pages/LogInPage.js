@@ -44,6 +44,7 @@ function LogInPage() {
         `${process.env.REACT_APP_SERVER}/auth/login`,
         {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },
