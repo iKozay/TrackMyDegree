@@ -1110,8 +1110,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             currentSemesterIndex,
           );
           if (!prerequisitesMet) {
-            unmetPrereqFound = true;
-            return;
+            unmetPrereqFound = true; // Mark unmet prerequisites but still count credits
           }
 
           // Add credits to the pool’s assigned sum, up to the pool’s max
