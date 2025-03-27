@@ -21,6 +21,7 @@ function ResetPassPage() {
 
     // Reset error state
     setError(null);
+    await new Promise((resolve) => setTimeout(resolve, 10));
 
     // Basic validation checks
     if (

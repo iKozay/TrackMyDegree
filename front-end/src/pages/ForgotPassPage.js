@@ -5,8 +5,7 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
-import { ForgotPassError } from "../middleware/SentryErrors";
-import * as Sentry from "@sentry/react";
+import { ForgotPassError } from '../middleware/SentryErrors';
 
 function ForgotPassPage() {
   const [email, setEmail] = useState('');
@@ -20,6 +19,7 @@ function ForgotPassPage() {
 
     // Reset error state
     setError(null);
+    await new Promise((resolve) => setTimeout(resolve, 10));
 
     // Basic validation checks
     if (email.trim() === '') {
@@ -50,16 +50,16 @@ function ForgotPassPage() {
         },
       );
 
-			if (!response.ok) {
-				// Extract error message from response
-				const errorData = await response.json();
-				throw new ForgotPassError(errorData.message || "Email does not exist.");
-			}
+      if (!response.ok) {
+        // Extract error message from response
+        const errorData = await response.json();
+        throw new ForgotPassError(errorData.message || 'Email does not exist.');
+      }
 
       const data = await response.json();
       console.log(data);
       // API returns a success message and we can redirect to reset pass page
-      navigate('/reset-pass');
+      navigate('/reset-password');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -93,9 +93,6 @@ function ForgotPassPage() {
                 />
               </div>
 
-              {/* Display Error Message */}
-              {error && <Alert variant="danger">{error}</Alert>}
-
               {/* Submit Button */}
               <div className="d-grid gap-2">
                 <Button
@@ -107,6 +104,12 @@ function ForgotPassPage() {
                   {loading ? 'Sending email...' : 'Submit'}
                 </Button>
               </div>
+              {/* Display Error Message */}
+              {error && (
+                <Alert variant="danger " className="mt-4">
+                  {error}
+                </Alert>
+              )}
             </form>
           </div>
         </div>
