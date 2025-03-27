@@ -106,6 +106,13 @@
 .rounded {
   border-radius: 50px;
 }
+
+@media (min-width: 991px) {
+  .mobile-feedback {
+    display: none;
+  }
+}
+
 @media (max-width: 990px) {
 
   .navbar-collapse {
@@ -125,26 +132,51 @@
     right: 0;
   }
 
+  .navbar-right-buttons {
+    order: -2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+    margin-top: 30px;
+  }
+
+  .feedback-button-mobile {
+    background-color: #aeaaaa;
+    color: white;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+    width: 80%;
+    margin: 0 auto;
+  }
+  .feedback-button-mobile:hover {
+    background-color: #595757;
+    transform: translateY(-3px) scale(1.05);
+  }
+
   /*body.menu-open {*/
   /*  overflow: hidden; !* Prevent scrolling when menu is open *!*/
   /*}*/
 
+  .mobile-feedback {
+    order: 1; /* Use an order lower than the auth buttons if needed */
+    width: 80%;
+    padding: 10px 0;
+    text-align: center; /* Center the button */
+  }
+
   .navbar-nav {
-    order: 1;
+    order: -1;
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-top: 50px;
     padding-bottom: 250px;
 
-  }
-
-  .navbar-right-buttons {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 90%;
-    margin-top: 30px;
   }
 
   .navbar-button {

@@ -77,6 +77,19 @@ const Navbar = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div className="mobile-feedback">
+            <button
+              className="feedback-button-mobile"
+              onClick={() =>
+                window.open(
+                  'https://docs.google.com/forms/d/e/1FAIpQLScr67TcEpPV1wNCTM5H53hPwRgplAvkYmxg72LKgHihCSmzKg/viewform',
+                  '_blank'
+                )
+              }
+            >
+              Submit Feedback!
+            </button>
+          </div>
           <div className="navbar-nav custom-nav-links">
             <NavLink
               to="/"
