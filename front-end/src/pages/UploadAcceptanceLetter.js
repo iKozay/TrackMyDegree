@@ -179,6 +179,9 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
           //const degreeInfo = extractedData.degree || "Unknown Degree";
           const degreeId = extractedData.degreeId || 'Unknown'; // Map degree to ID
 
+          const matched_degree = degrees.find(d => d.id === degreeId);
+          const credits_Required = matched_degree.totalCredits;
+
           if (transcriptData.length > 0) {
             localStorage.setItem('Timeline_Name', null);
             onDataProcessed({
@@ -189,6 +192,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
             navigate('/timeline_change', {
               state: {
                 coOp: selectedRadio.coOp,
+                credits_Required: credits_Required,
                 extendedCredit: extractedData.details.extendedCreditProgram,
                 creditDeficiency: extractedData.details.creditDeficiency,
               },
