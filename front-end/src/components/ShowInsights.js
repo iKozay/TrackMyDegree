@@ -125,10 +125,10 @@ const ShowInsights = ({
         .filter(([semesterId]) => semesterId.toLowerCase() !== 'exempted')
         .flatMap(([, instanceIds]) => instanceIds);
 
-      const assignedGenericCodes = allAssignedInstanceIds.map((instanceId) => {
+      const assignedGenericCodes = [...new Set(allAssignedInstanceIds.map((instanceId) => {
         const genericCode = courseInstanceMap[instanceId] || instanceId;
         return genericCode;
-      });
+      }))]; // Ensure unique course codes
 
       const assignedCourses = assignedGenericCodes.filter((cCode) =>
         pool.courses.some((c) => c.code === cCode),

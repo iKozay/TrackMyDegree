@@ -504,25 +504,25 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
               .map((courseCode) => {
                 const genericCode = courseInstanceMap[courseCode] || courseCode;
                 const course = allCourses.find((c) => c.code === genericCode);
-                return course && course.code ? { code: course.code, credits: course.credits} : null;
+                return course && course.code ? { code: course.code, credits: course.credits } : null;
               })
               .filter(Boolean); // Remove null values
 
-              //Calculate total deficiency credits
+            //Calculate total deficiency credits
             const totalDeficiencyCredits = newCourses.reduce(
               (sum, course) => sum + (course.credits || 3),
               0
             );
 
             setDeficiencyCredits(totalDeficiencyCredits);
-            
+
             return [...newCourses]; // Append to existing list
           });
 
           data.term = "";
         }
 
-        
+
         // if(data.term == "deficiencies 2020"){
         //   data.courses
         // .map((courseCode) => {
@@ -535,7 +535,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         //     const newCourses = data.courses.filter(course => 
         //         !prevCourses.some(c => c.code === course) // Avoid duplicates
         //     ).map(course); // Assume 3 credits (modify as needed)
-            
+
         //     return [...prevCourses, ...newCourses];
         //   });
         // }
@@ -847,7 +847,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     } else {
       genericCode = courseInstanceMap[internalId] || internalId;
     }
-    const course = allCourses.find((c) => c.code === genericCode) || deficiencyCourses.find((c) => c.code === genericCode);    ;
+    const course = allCourses.find((c) => c.code === genericCode) || deficiencyCourses.find((c) => c.code === genericCode);;
     if (course) {
       setSelectedCourse(course);
     }
@@ -881,7 +881,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     const isFromDeficiencyList = sourceContainer === "deficiencyList";
 
     // If dragged from the course list, generate a new unique instance ID
-    if (sourceContainer === 'courseList'|| isFromDeficiencyList) {
+    if (sourceContainer === 'courseList' || isFromDeficiencyList) {
       const newUniqueId = `${draggedGeneric}-${uniqueIdCounter}`;
       setUniqueIdCounter((prev) => prev + 1);
       // Update the mapping so that the unique id points to the generic course code
@@ -1040,13 +1040,13 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
       // Initialize each pool with a max credits limit
       coursePools
-      .filter((pool) => !pool.poolName.toLowerCase().includes("option"))
-      .forEach((pool) => {
-        poolCreditMap[pool.poolId] = {
-          assigned: 0,
-          max: parseMaxCreditsFromPoolName(pool.poolName),
-        };
-      });
+        .filter((pool) => !pool.poolName.toLowerCase().includes("option"))
+        .forEach((pool) => {
+          poolCreditMap[pool.poolId] = {
+            assigned: 0,
+            max: parseMaxCreditsFromPoolName(pool.poolName),
+          };
+        });
 
       // Add remaining courses to the poolCreditMap with no pool-specific maximum
       remainingCourses.forEach((course) => {
@@ -1150,8 +1150,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     setDeficiencyCourses((prev) => prev.filter((c) => c.code !== course.code));
     setDeficiencyCredits((prev) => prev - (course.credits || 0));
   };
-  
-  
+
+
 
   // Function to check if prerequisites and corequisites are met
   const arePrerequisitesMet = (courseCode, currentSemesterIndex) => {
@@ -1250,16 +1250,16 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       alert('Degree ID is missing!');
       return;
     }
-  
+
     setTimelineName(tName);
-  
+
     // Build final timeline data from all semesters.
     const finalTimelineData = [];
     const exempted_courses = [];
-  
+
     semesters.forEach((semester) => {
       const [season, year = '2020'] = semester.name.split(' ');
-  
+
       if (
         semester.id.trim().toLowerCase() === 'exempted' ||
         semester.id.trim().toLowerCase() === 'transfered courses'
@@ -1274,7 +1274,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           }
         });
       }
-  
+
       const coursesForSemester = (semesterCourses[semester.id] || [])
         .map((courseCode) => {
           const genericCode = courseInstanceMap[courseCode] || courseCode;
@@ -1282,20 +1282,20 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           return course && course.code ? { courseCode: course.code } : null;
         })
         .filter(Boolean);
-  
+
       const yearInt = isNaN(parseInt(year, 10)) ? 2020 : parseInt(year, 10);
       finalTimelineData.push({ season, year: yearInt, courses: coursesForSemester });
     });
-    
+
     const deficiencyCoursescode = deficiencyCourses
-        .map((courseCode) => {
-          const genericCode = courseInstanceMap[courseCode.code] || courseCode.code;
-          const course = allCourses.find((c) => c.code === genericCode);
-          return course && course.code ? { courseCode: course.code } : null;
-        })
-        .filter(Boolean);
+      .map((courseCode) => {
+        const genericCode = courseInstanceMap[courseCode.code] || courseCode.code;
+        const course = allCourses.find((c) => c.code === genericCode);
+        return course && course.code ? { courseCode: course.code } : null;
+      })
+      .filter(Boolean);
     console.log(deficiencyCoursescode);
-    if(deficiencyCourses.length > 0){
+    if (deficiencyCourses.length > 0) {
       finalTimelineData.push({
         season: 'deficiencies',
         year: 2020,
@@ -1308,7 +1308,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       setHasUnsavedChanges(false);
       return;
     }
-  
+
     // Build the payload for the timeline.
     const userTimeline = [
       {
@@ -1322,7 +1322,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         isExtendedCredit: extendedCredit || false,
       },
     ];
-  
+
     // Debug: log the payload
     console.log('Saving timeline with payload:', {
       user_id: user.id,
@@ -1331,13 +1331,13 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       degree_id: degree_Id,
       isExtendedCredit: extendedCredit || false,
     });
-  
+
     const user_id = userTimeline[0].user_id;
     const timelineNameToSend = userTimeline[0].name;
     const items = userTimeline[0].items;
     const isExtended = userTimeline[0].isExtendedCredit;
     const degreeId = degree_Id;
-  
+
     // Save Exempted Courses (if needed)
     try {
       const responseExemptions = await fetch(
@@ -1357,7 +1357,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       console.error('Error saving Exempted Courses:', error);
       alert('An error occurred while saving your timeline.');
     }
-  
+
     // Save the complete timeline.
     try {
       const responseTimeline = await fetch(
@@ -1393,7 +1393,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       alert('An error occurred while saving your timeline.');
     }
   };
-  
+
 
   // Function to handle mouse move over the scrollable container
   const handleScrollMouseMove = (e) => {
@@ -1561,22 +1561,20 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   {credits_Required + deficiencyCredits}
                 </h4>
                 <div className="timeline-buttons-container">
-                <div>
+                  <div>
                     {coursePools != null &&
-                        semesterCourses != null &&
-                        totalCredits != null &&
-                        creditsRequired != null &&
-                        deficiencyCredits != null ? (
-                          <ShowInsights
-                            coursePools={coursePools}
-                            semesterCourses={semesterCourses}
-                            totalCredits={totalCredits}
-                            creditsRequired={creditsRequired}
-                            deficiencyCredits={deficiencyCredits}
-                            courseInstanceMap={courseInstanceMap}
-                          />
-                        ) : (
-                        <div>
+                      semesterCourses != null &&
+                      totalCredits != null &&
+                      deficiencyCredits != null ? (
+                      <ShowInsights
+                        coursePools={coursePools}
+                        semesterCourses={semesterCourses}
+                        totalCredits={totalCredits}
+                        deficiencyCredits={deficiencyCredits}
+                        courseInstanceMap={courseInstanceMap}
+                      />
+                    ) : (
+                      <div>
                         <p>Loading insights data... Please ensure all required data is available.</p>
                       </div>
                     )}
@@ -1740,28 +1738,28 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                               <Accordion.Item eventKey="deficiencies">
                                 <Accordion.Header>Deficiency Courses</Accordion.Header>
                                 <Accordion.Body>
-                                <Container>
+                                  <Container>
                                     {deficiencyCourses.map((course) => (
-                                        <div key={`source-${course.code}`} className={`course-item`}>
-                                          <DraggableCourse 
-                                            internalId={`source-${course.code}`}
-                                            courseCode={course.code}
-                                            title={course.code}
-                                            disabled={isCourseAssigned(course.code)}
-                                            isReturning={returning}
-                                            isSelected={selectedCourse?.code === course.code}
-                                            onSelect={handleCourseSelect}
-                                            containerId="deficiencyList"
-                                            isInTimeline={isCourseAssigned(course.code)}
-                                          />
-                                          <button
-                                            className="remove-course-btn"
-                                            onClick={() => removeDeficiencyCourse(course)}
-                                          >
-                                            ❌
-                                          </button>
-                                        </div>
-                                      ))}
+                                      <div key={`source-${course.code}`} className={`course-item`}>
+                                        <DraggableCourse
+                                          internalId={`source-${course.code}`}
+                                          courseCode={course.code}
+                                          title={course.code}
+                                          disabled={isCourseAssigned(course.code)}
+                                          isReturning={returning}
+                                          isSelected={selectedCourse?.code === course.code}
+                                          onSelect={handleCourseSelect}
+                                          containerId="deficiencyList"
+                                          isInTimeline={isCourseAssigned(course.code)}
+                                        />
+                                        <button
+                                          className="remove-course-btn"
+                                          onClick={() => removeDeficiencyCourse(course)}
+                                        >
+                                          ❌
+                                        </button>
+                                      </div>
+                                    ))}
                                   </Container>
                                 </Accordion.Body>
                               </Accordion.Item>
@@ -2269,7 +2267,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                         className="add-course-btn"
                         onClick={() => addDeficiencyCourse(course)}
                       >
-                      ➕
+                        ➕
                       </button>
                     </div>
                   ))}
