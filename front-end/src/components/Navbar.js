@@ -77,6 +77,10 @@ const Navbar = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
+          {/* Close button for mobile collapse */}
+          <button className="close-nav" onClick={toggleMenu}>
+            &times;
+          </button>
           <div className="mobile-feedback">
             <button
               className="feedback-button-mobile"

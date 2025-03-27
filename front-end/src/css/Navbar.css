@@ -25,7 +25,7 @@
 }
 
 /* Hide the brand text on smaller screens */
-@media (max-width: 1200px) {
+@media (max-width: 700px) {
   .brand-text {
     display: none; /* Hide TrackMyDegree text */
   }
@@ -111,6 +111,9 @@
   .mobile-feedback {
     display: none;
   }
+  .close-nav {
+    display: none;
+  }
 }
 
 @media (max-width: 990px) {
@@ -126,19 +129,82 @@
     z-index: 1050;
     display: flex;
     flex-direction: column;
+    padding: 10px 20px;
+    justify-content: flex-start;
+    gap: 20px;
   }
 
   .navbar-collapse.show {
     right: 0;
   }
 
-  .navbar-right-buttons {
-    order: -2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 90%;
-    margin-top: 30px;
+  /* Reorder elements */
+  @media (max-width: 990px) {
+
+    .navbar-collapse {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .close-nav {
+      order: 1;
+      align-self: flex-end;
+      margin: 0;
+      padding: 0;
+      background: none;
+      border: none;
+      font-size: 2rem;
+      color: #ecf0f1;
+      cursor: pointer;
+    }
+
+    .close-nav:hover {
+      transform: translateY(-3px) scale(1.05);
+    }
+
+    .navbar-right-buttons {
+      order: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .navbar-nav {
+      order: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      gap: 35px;
+      margin-top: 55px;
+    }
+
+    .mobile-feedback {
+      order: 4;
+      width: 100%;
+      margin-top: auto; /* Push to the bottom */
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    .feedback-button-mobile {
+      background-color: #aeaaaa;
+      color: white;
+      padding: 8px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+      width: 80%;
+    }
+    .feedback-button-mobile:hover {
+      background-color: #595757;
+      transform: translateY(-3px) scale(1.05);
+    }
   }
 
   .feedback-button-mobile {
@@ -150,63 +216,12 @@
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.3s ease;
-    width: 80%;
-    margin: 0 auto;
-  }
-  .feedback-button-mobile:hover {
-    background-color: #595757;
-    transform: translateY(-3px) scale(1.05);
-  }
-
-  /*body.menu-open {*/
-  /*  overflow: hidden; !* Prevent scrolling when menu is open *!*/
-  /*}*/
-
-  .mobile-feedback {
-    order: 1; /* Use an order lower than the auth buttons if needed */
-    width: 80%;
-    padding: 10px 0;
-    text-align: center; /* Center the button */
-  }
-
-  .navbar-nav {
-    order: -1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 50px;
-    padding-bottom: 250px;
-
-  }
-
-  .navbar-button {
     width: 100%;
-    margin-bottom: 10px;
   }
 
-  .navbar-toggler {
-    display: block;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-  }
-
-  .custom-navbar .nav-link.active {
-    width: 100px;
-    color: #ffffff !important;
-    transform: translateY(3px);
-    position: relative; /* Needed for positioning the pseudo-element */
-  }
-
-  .custom-navbar .nav-link.active::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -10px; /* move the underline  */
-    height: 6px;   /* Thickness of the underline */
-    background-color: #ecf0f1;
-    border-radius: 8px;
+  .custom-navbar .nav-link {
+    margin: 0;
+    padding: 8px 0;
   }
 }
 
