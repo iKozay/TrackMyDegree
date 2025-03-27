@@ -107,6 +107,42 @@
   border-radius: 50px;
 }
 
+@media (max-width: 990px) {
+  /* Remove the underline for mobile */
+  .custom-navbar .nav-link.active::after {
+    display: none;
+  }
+
+  /* Add left line indicator for active navlink */
+  .custom-navbar .nav-link.active {
+    position: relative;
+    padding-left: 15px; /* Add space for the line */
+  }
+
+  .custom-navbar .nav-link.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 70px; /* Adjust this to control line height */
+    width: 5px; /* Line thickness */
+    background-color: #ecf0f1;
+    border-radius: 4px;
+  }
+
+  /* Adjust hover effect for mobile */
+  .custom-navbar .nav-link:hover {
+    transform: none; /* Remove the translateY effect for mobile */
+    color: white !important;
+  }
+
+  /* Remove the transform effect for active state in mobile */
+  .custom-navbar .nav-link.active {
+    transform: none;
+  }
+}
+
 @media (min-width: 991px) {
   .mobile-feedback {
     display: none;
@@ -130,6 +166,7 @@
     display: flex;
     flex-direction: column;
     padding: 10px 20px;
+    padding-left:0px;
     justify-content: flex-start;
     gap: 20px;
   }
@@ -169,7 +206,6 @@
       align-items: center;
       width: 100%;
       gap: 15px;
-      margin-top: 10px;
     }
 
     .navbar-nav {
@@ -179,21 +215,21 @@
       align-items: center;
       width: 100%;
       gap: 35px;
-      margin-top: 55px;
+      margin-top: 70px;
     }
 
     .mobile-feedback {
       order: 4;
       width: 100%;
       margin-top: auto; /* Push to the bottom */
-      padding: 20px 0;
+      padding: 5px 0;
       text-align: center;
+      margin-left:20px;
     }
 
     .feedback-button-mobile {
       background-color: #aeaaaa;
       color: white;
-      padding: 8px 10px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
@@ -201,6 +237,7 @@
       transition: background-color 0.3s ease;
       width: 80%;
     }
+
     .feedback-button-mobile:hover {
       background-color: #595757;
       transform: translateY(-3px) scale(1.05);
@@ -210,7 +247,7 @@
   .feedback-button-mobile {
     background-color: #aeaaaa;
     color: white;
-    padding: 8px 10px;
+    padding: 10px 5px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -317,10 +354,11 @@
 }
 
 .user-name {
-  font-size: 16px;
+  font-size: 14px;
   color: #ecf0f1;
   text-decoration: none;
   font-family: Tahoma, sans-serif;
+  align-items: center;
 }
 
 .navbar-user {
