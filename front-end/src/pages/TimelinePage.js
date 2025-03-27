@@ -201,7 +201,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   let { degree_Id, startingSemester, credits_Required, extendedCredit } = location.state || {};
 
   console.log("degree_Id: " + degree_Id);
-  console.log("degreeId: " + degreeId);
+  console.log("credits_Required: " + credits_Required);
 
   // console.log("isExtendedCredit: " + isExtendedCredit);
   // console.log("extendedCredit: " + extendedCredit);
