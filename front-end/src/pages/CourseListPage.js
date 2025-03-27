@@ -201,16 +201,16 @@ function CourseListPage() {
             </Dropdown.Menu>
           </Dropdown>
           {/* Search Bar */}
-					{selectedDegree !== 'Select Degree' && (
-						<Form className="search-course" onSubmit={(e) => e.preventDefault()}>
-							<Form.Control
-								type="text"
-								placeholder="Search courses, e.g., ENCS 282"
-								value={searchTerm}
-								onChange={(e) => setSearchTerm(e.target.value)}
-							/>
-						</Form>
-					)}
+          {selectedDegree !== 'Select Degree' && (
+            <Form className="search-course" onSubmit={(e) => e.preventDefault()}>
+              <Form.Control
+                type="text"
+                placeholder="Search courses, e.g., ENCS 282"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </Form>
+          )}
         </div>
 
         <Row style={{ display: 'flex', flexWrap: 'nowrap', gap: '40px' }}>
@@ -257,11 +257,14 @@ function CourseListPage() {
                       <p>None</p>
                     )}
                   </Card.Text>
-                  <p>
-                    <CourseSectionButton
-                      title={selectedCourse.title}
-                    />
-                  </p>
+                  <Card.Text>
+                    <p>
+                      <CourseSectionButton
+                        title={selectedCourse.title}
+                        hidden={true}
+                      />
+                    </p>
+                  </Card.Text>
                   <Card.Text>
                     <b>Description:</b> {selectedCourse.description}
                   </Card.Text>

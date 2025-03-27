@@ -373,7 +373,8 @@
 }
 
 .save-timeline-button,
-.download-timeline-button {
+.download-timeline-button,
+.add-deficiencies-button{
   background-color: #800020;
   color: white;
   /* White text */
@@ -387,7 +388,8 @@
 }
 
 .save-timeline-button:hover,
-.download-timeline-button:hover {
+.download-timeline-button:hover, 
+.add-deficiencies-button:hover{
   background-color: #9f5f6a;
 }
 
@@ -452,8 +454,8 @@
   padding: 1.9rem;
   border-radius: 8px;
   position: relative;
-  min-width: 300px;
-  max-width: 500px;
+  min-width: 75%;
+  max-width: 600px;
   font-size: 18px;
   color: rgb(78, 108, 91);
   font-family: Arial, sans-serif;
@@ -561,7 +563,7 @@
 }
 
 /* The + button at the top-right corner */
-.add-semester-button {
+.add-semester-button{
   width: min-content;
   height: min-content;
   white-space: nowrap;
@@ -575,6 +577,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.add-course-btn{
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 1rem;
+  font-style: bold;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: transform 0.2s ease-in-out;
+}
+
+
+.add-course-btn:hover {
+  transform: scale(1.2);
+  filter: drop-shadow(0px 0px 5px rgba(255, 0, 0, 0.6));
 }
 
 .add-semester-button:hover {
