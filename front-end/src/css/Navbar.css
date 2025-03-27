@@ -107,37 +107,44 @@
   border-radius: 50px;
 }
 @media (max-width: 990px) {
+
   .navbar-collapse {
     position: fixed;
     top: 0;
     right: -100%;
     height: 100%;
-    width: 300px;
+    width: 150px;
     background-color: #912338;
     transition: right 0.3s ease;
     z-index: 1050;
+    display: flex;
+    flex-direction: column;
   }
 
   .navbar-collapse.show {
     right: 0;
   }
 
-  body.menu-open {
-    overflow: hidden; /* Prevent scrolling when menu is open */
-  }
+  /*body.menu-open {*/
+  /*  overflow: hidden; !* Prevent scrolling when menu is open *!*/
+  /*}*/
 
   .navbar-nav {
+    order: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 20px;
+    margin-top: 50px;
+    padding-bottom: 250px;
+
   }
 
   .navbar-right-buttons {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%;
+    width: 90%;
+    margin-top: 30px;
   }
 
   .navbar-button {
@@ -150,6 +157,24 @@
     border: none;
     padding: 10px;
     border-radius: 5px;
+  }
+
+  .custom-navbar .nav-link.active {
+    width: 100px;
+    color: #ffffff !important;
+    transform: translateY(3px);
+    position: relative; /* Needed for positioning the pseudo-element */
+  }
+
+  .custom-navbar .nav-link.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -10px; /* move the underline  */
+    height: 6px;   /* Thickness of the underline */
+    background-color: #ecf0f1;
+    border-radius: 8px;
   }
 }
 
@@ -201,8 +226,8 @@
 .navbar-button {
   font-family: Tahoma, sans-serif;
   font-weight: 700;
-  font-size: 18px;
-  padding: 10px 20px;
+  font-size: 15px;
+  padding: 10px 15px;
   border-radius: 25px;
   text-align: center;
   cursor: pointer;
