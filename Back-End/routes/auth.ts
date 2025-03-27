@@ -31,7 +31,9 @@ router.post('/login', async (req: Request, res: Response) => {
         .status(HTTP.UNAUTHORIZED)
         .json({ error: 'Incorrect email or password' });
     } else {
-      res = setJWTCookie(res, result); //? Attach the JWT Cookie to the response
+      const cookie = setJWTCookie(result); //? Attach the JWT Cookie to the response
+      res.cookie(cookie.name, cookie.value, cookie.config);
+
       res.status(HTTP.OK).json(result);
     }
   } catch (error) {

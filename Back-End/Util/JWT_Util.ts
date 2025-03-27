@@ -1,7 +1,6 @@
-import { Response } from 'express';
+import { CookieOptions } from 'express';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import { createPrivateKey, KeyObject } from 'crypto';
 import Auth from '@controllers/authController/auth_types';
 
 dotenv.config(); //? Env Variable Config
@@ -12,6 +11,12 @@ export type JWTPayload = {
   orgId: string;
   userId: string;
   type: Auth.UserType;
+};
+
+export type JWTCookieModel = {
+  name: string;
+  value: string;
+  config: CookieOptions;
 };
 
 //* Functions
@@ -43,22 +48,29 @@ function generateToken(payload: JWTPayload): string {
   return jwt.sign(payload, secret, options);
 }
 
-function verifyToken(access_token: string): JWTPayload {
+export function verifyToken(access_token: string): JWTPayload {
   const secret: string = getSecretKey();
 
   return jwt.verify(access_token, secret) as JWTPayload;
 }
 
-export function setJWTCookie(
-  response: Response,
-  result: Auth.UserInfo,
-): Response {
+export function setJWTCookie(result: Auth.UserInfo): JWTCookieModel {
   const { id, type } = result;
   const payload: JWTPayload = getJWTPayload(id, type);
-
   const access_token = generateToken(payload);
+  const security = process.env.NODE_ENV === 'production';
+  const domain_name = security ? undefined : 'localhost';
 
-  response.cookie('access_token', access_token, { httpOnly: true });
-
-  return response;
+  return {//? Return the Cookie with all of its configs
+    name: 'access_token',
+    value: access_token,
+    config: {
+      httpOnly: true,
+      secure: security,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 1000 * 60 * 60, //? 1 Hour
+      domain: domain_name
+    },
+  };
 }

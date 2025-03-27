@@ -20,9 +20,18 @@ const AdminPage = () => {
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        const response = await axios.post(
-          `${process.env.REACT_APP_SERVER}/admin/tables`,
-        );
+        const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/tables`,
+          {
+            method: 'POST',
+            credentials: 'include'
+          }
+        ) 
+        // await axios.post(
+        //   `${process.env.REACT_APP_SERVER}/admin/tables`,
+        //   {
+        //     withCredentials: true
+        //   }
+        // );
         console.log('Tables Response:', response.data); // Debugging Line
 
         if (response.data.success) {
