@@ -23,6 +23,7 @@ const corsOptions: CorsOptions = {
 	},
 	credentials: true, // Allow cookies to be sent
 	methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  exposedHeaders: ['set-cookie'],
 	allowedHeaders: [
 		"Origin",
 		"X-Requested-With",

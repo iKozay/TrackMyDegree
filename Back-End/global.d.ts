@@ -22,6 +22,9 @@ declare namespace NodeJS {
     EMAIL_USER          : string;     
     EMAIL_PASSWORD      : string;
 
+    //? Application Environment
+    NODE_ENV            : string;
+
     //? JWT Specific
     JWT_SECRET          : string;     
     JWT_EXPIRY          : number;      
