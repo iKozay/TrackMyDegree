@@ -237,9 +237,20 @@ export const restoreBackup = async (
           columns.forEach((col, idx) => {
             insertRequest.input(`p${idx}`, values[idx]);
           });
-          await insertRequest.query(
-            `INSERT INTO [${tableName}] (${columnsJoined}) VALUES (${placeholders})`,
-          );
+
+          try {
+            await insertRequest.query(
+              `INSERT INTO [${tableName}] (${columnsJoined}) VALUES (${placeholders})`,
+            );
+          } catch (error) {
+            if (error instanceof Error && error.message.includes('FOREIGN KEY constraint')) {
+              console.error(
+                `Foreign key constraint error while inserting into table "${tableName}". Record:`,
+                record,
+              );
+            }
+            throw error;
+          }
         }
       }
       await insertTx.commit();
@@ -744,14 +755,14 @@ async function upsertCourseXCoursePool(
     `);
     console.log(
       `Linked Course ${courseCode} to CoursePool ID: ${poolId}` +
-        (groupId ? ` with groupId: ${groupId}` : ''),
+      (groupId ? ` with groupId: ${groupId}` : ''),
     );
     return newId;
   } else {
     const cxcpId = result.recordset[0].id;
     console.log(
       `CourseXCoursePool already exists for Course ${courseCode} in Pool ID: ${poolId}` +
-        (groupId ? ` with groupId: ${groupId}` : ''),
+      (groupId ? ` with groupId: ${groupId}` : ''),
     );
     return cxcpId;
   }
@@ -799,32 +810,31 @@ async function upsertRequisite(
         @code1, 
         ${creditsRequired !== undefined ? 'NULL' : code2 ? '@code2' : 'NULL'}, 
         @type, 
-        ${
-          creditsRequired !== undefined
-            ? 'NULL'
-            : groupId
-              ? '@group_id'
-              : 'NULL'
-        }, 
+        ${creditsRequired !== undefined
+        ? 'NULL'
+        : groupId
+          ? '@group_id'
+          : 'NULL'
+      }, 
         ${creditsRequired !== undefined ? '@creditsRequired' : 'NULL'}
       )
     `);
     console.log(
       `Inserted Requisite: ${code1}` +
-        (code2
-          ? ` -> ${code2}`
-          : ` with Credits Required: ${creditsRequired}`) +
-        ` (${type})` +
-        (groupId ? ` Group ID: ${groupId}` : ''),
+      (code2
+        ? ` -> ${code2}`
+        : ` with Credits Required: ${creditsRequired}`) +
+      ` (${type})` +
+      (groupId ? ` Group ID: ${groupId}` : ''),
     );
   } else {
     console.log(
       `Requisite already exists: ${code1}` +
-        (code2
-          ? ` -> ${code2}`
-          : ` with Credits Required: ${creditsRequired}`) +
-        ` (${type})` +
-        (groupId ? ` Group ID: ${groupId}` : ''),
+      (code2
+        ? ` -> ${code2}`
+        : ` with Credits Required: ${creditsRequired}`) +
+      ` (${type})` +
+      (groupId ? ` Group ID: ${groupId}` : ''),
     );
   }
 }
