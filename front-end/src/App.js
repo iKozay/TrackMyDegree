@@ -1,31 +1,31 @@
-import "./middleware/sentry_instrument";
-import React, { useState } from "react";
+import './middleware/sentry_instrument';
+import React, { useState } from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
   useLocation,
   Routes,
   Route,
-} from "react-router-dom";
-import LandingPage from "./pages/LandingPage";
-import LogInPage from "./pages/LogInPage";
-import SignUpPage from "./pages/SignUpPage";
-import UserPage from "./pages/UserPage";
-import CourseList from "./pages/CourseListPage";
-import UploadTranscript from "./pages/UploadTranscriptPage";
-import UploadAcceptanceLetter from "./pages/UploadAcceptanceLetter";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import ProtectedRoute from "./components/ProtectedRoute";
-import { AuthProvider } from "./middleware/AuthContext";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import "./App.css";
-import TimelinePage from "./pages/TimelinePage";
-import ForgotPassPage from "./pages/ForgotPassPage";
-import ResetPassPage from "./pages/ResetPassPage";
-import AdminPage from "./pages/AdminPage";
-import { AnimatePresence } from "framer-motion";
+} from 'react-router-dom';
+import LandingPage from './pages/LandingPage';
+import LogInPage from './pages/LogInPage';
+import SignUpPage from './pages/SignUpPage';
+import UserPage from './pages/UserPage';
+import CourseList from './pages/CourseListPage';
+import UploadTranscript from './pages/UploadTranscriptPage';
+import UploadAcceptanceLetter from './pages/UploadAcceptanceLetter';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './middleware/AuthContext';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import './App.css';
+import TimelinePage from './pages/TimelinePage';
+import ForgotPassPage from './pages/ForgotPassPage';
+import ResetPassPage from './pages/ResetPassPage';
+import AdminPage from './pages/AdminPage';
+import { AnimatePresence } from 'framer-motion';
 
 function App() {
   const [degreeId, setDegreeId] = useState(null);
@@ -39,17 +39,16 @@ function App() {
       setDegreeId(data.degreeId); // Update degreeId
       setCreditsRequired(data.creditsRequired); // Update creditsRequired
       setIsExtendedCredit(data.isExtendedCredit); // Update is
-      
+
       console.log('app.js data.isExtendedCredit: ', data.isExtendedCredit);
       console.log('app.js isExtendedCredit: ', isExtendedCredit);
-    } 
-    else {
+    } else {
       // Clear the data
       setTimelineData([]);
       setDegreeId(null);
       setCreditsRequired([]);
       setIsExtendedCredit(false);
-      console.log('Timeline data cleared')
+      console.log('Timeline data cleared');
     }
   };
 
@@ -91,8 +90,12 @@ function App() {
           />
           <Route
             path="/timeline_initial"
-            element={<UploadAcceptanceLetter onDataProcessed={handleDataProcessed} />}
+            element={
+              <UploadAcceptanceLetter onDataProcessed={handleDataProcessed} />
+            }
           />
+          <Route path="/forgot-password" element={<ForgotPassPage />} />
+          <Route path="/reset-password" element={<ResetPassPage />} />
         </Routes>
       </AnimatePresence>
       <Footer />
@@ -100,9 +103,7 @@ function App() {
   );
 }
 
-const router = createBrowserRouter([
-  { path: "/*", element: <App /> },
-]);
+const router = createBrowserRouter([{ path: '/*', element: <App /> }]);
 
 export default function Root() {
   return (
