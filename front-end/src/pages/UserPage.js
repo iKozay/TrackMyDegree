@@ -26,68 +26,11 @@ const UserPage = ({ onDataProcessed }) => {
     if (user) {
       setUserInfo([
         { title: 'Full Name', value: user.fullname || 'NULL' },
-        { title: 'Email', value: user.email || 'NULL' },
+        { title: 'Email', value: user.email || 'NULL' }
       ]);
     }
   }, [user]);
 
-  // Commented out edit modde code
-  /*useEffect(() => {
-    if (userInfo) {
-      setEditedUserInfo(userInfo.map((item) => item.value));
-    }
-  }, [userInfo]);*/
-
-  /*const startEditing = () => {
-    setIsEditing(true);
-  };*/
-
-  /*const cancelEditing = () => {
-    setEditedUserInfo(userInfo.map((item) => item.value));
-    setIsEditing(false);
-  };*/
-
-  /*const saveChanges = async () => {
-    // add way to save changes here
-    const updatedInfo = userInfo.map((item, index) => ({
-      ...item,
-      value: editedUserInfo[index],
-    }));
-    try {
-      // Construct the payload
-      const payload = {
-        id: user.id,
-        fullname: updatedInfo[0].value,
-        email: updatedInfo[1].value,
-        type: user.type,
-      };
-
-      // Make the POST request to update user info
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER}/appUser/update`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      if (response.ok) {
-        console.log("User info updated successfully!");
-        setUserInfo(updatedInfo);
-        setIsEditing(false);
-      } else {
-        const errorData = await response.json();
-        console.error("Failed to update user info.", errorData);
-        setIsEditing(false);
-      }
-    } catch (error) {
-      console.error("Error updating user info:", error);
-      setIsEditing(false);
-    }
-  };*/
 
   const handleTimelineClick = (obj) => {
     const transcriptData = [];
@@ -119,18 +62,11 @@ const UserPage = ({ onDataProcessed }) => {
     navigate('/timeline_change');
   };
 
-  // Commented out edit modde code
-  /*const handleInputChange = (e, index) => {
-    const updatedValues = [...editedUserInfo];
-    updatedValues[index] = e.target.value;
-    setEditedUserInfo(updatedValues);
-  };*/
-
   // add way to get user timelines here
   const [userTimelines, setUserTimelines] = useState([]);
 
   useEffect(() => {
-    if (user) {
+    if (user.type === "student") {
       const getTimelines = async () => {
         const user_id = user.id;
         try {
@@ -253,12 +189,12 @@ const UserPage = ({ onDataProcessed }) => {
                     <h3 className="text-center text-2xl text-gray-900 font-medium leading-8">
                       {' '}
                       {/* Increased text size */}
-                      {userInfo[0]?.value || 'Full Name'}
+                      {user.fullname || 'Full Name'}
                     </h3>
                     <div className="text-center text-gray-400 text-sm font-semibold">
                       {' '}
                       {/* Increased text size */}
-                      <p>User</p>
+                      <p>{user.type || 'User'}</p>
                     </div>
                     <table className="text-sm my-4">
                       <tbody>
@@ -267,7 +203,7 @@ const UserPage = ({ onDataProcessed }) => {
                             Full Name
                           </td>
                           <td className="px-3 py-2">
-                            {userInfo[0]?.value || 'NULL'}
+                            {user.fullname || 'NULL'}
                           </td>
                         </tr>
                         <tr>
@@ -275,7 +211,7 @@ const UserPage = ({ onDataProcessed }) => {
                             Email
                           </td>
                           <td className="px-3 py-2">
-                            {userInfo[1]?.value || 'NULL'}
+                            {user.email || 'NULL'}
                           </td>
                         </tr>
                       </tbody>
@@ -370,3 +306,72 @@ const UserPage = ({ onDataProcessed }) => {
 };
 
 export default UserPage;
+
+
+
+
+ //! Commented out edit modde code
+  /*useEffect(() => {
+    if (userInfo) {
+      setEditedUserInfo(userInfo.map((item) => item.value));
+    }
+  }, [userInfo]);*/
+
+  /*const startEditing = () => {
+    setIsEditing(true);
+  };*/
+
+  /*const cancelEditing = () => {
+    setEditedUserInfo(userInfo.map((item) => item.value));
+    setIsEditing(false);
+  };*/
+
+  /*const saveChanges = async () => {
+    // add way to save changes here
+    const updatedInfo = userInfo.map((item, index) => ({
+      ...item,
+      value: editedUserInfo[index],
+    }));
+    try {
+      // Construct the payload
+      const payload = {
+        id: user.id,
+        fullname: updatedInfo[0].value,
+        email: updatedInfo[1].value,
+        type: user.type,
+      };
+
+      // Make the POST request to update user info
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER}/appUser/update`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (response.ok) {
+        console.log("User info updated successfully!");
+        setUserInfo(updatedInfo);
+        setIsEditing(false);
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to update user info.", errorData);
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error("Error updating user info:", error);
+      setIsEditing(false);
+    }
+  };*/
+
+
+  //! Commented out edit modde code
+  /*const handleInputChange = (e, index) => {
+    const updatedValues = [...editedUserInfo];
+    updatedValues[index] = e.target.value;
+    setEditedUserInfo(updatedValues);
+  };*/
