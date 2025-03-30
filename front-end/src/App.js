@@ -25,6 +25,7 @@ import TimelinePage from "./pages/TimelinePage";
 import ForgotPassPage from "./pages/ForgotPassPage";
 import ResetPassPage from "./pages/ResetPassPage";
 import AdminPage from "./pages/AdminPage";
+import ForbiddenPage from "./pages/Forbidden_403";
 import { AnimatePresence } from "framer-motion";
 
 function App() {
@@ -61,6 +62,7 @@ function App() {
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/403" element={<ForbiddenPage />} />
           <Route path="/signin" element={<LogInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route

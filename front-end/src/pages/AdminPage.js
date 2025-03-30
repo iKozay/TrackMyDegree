@@ -6,6 +6,7 @@ import SearchBar from '../components/SearchBar'; // Assuming you have a SearchBa
 import '../css/AdminPage.css'; // Import the CSS file
 import { motion } from 'framer-motion';
 import { AdminPageError } from '../middleware/SentryErrors';
+import { useNavigate } from 'react-router-dom';
 
 const AdminPage = () => {
   const [tables, setTables] = useState([]);
@@ -15,28 +16,28 @@ const AdminPage = () => {
   const [selectedTable, setSelectedTable] = useState(null);
   const [error, setError] = useState('');
   //const [keyword, setKeyword] = useState('');
+  const navigate = useNavigate();
 
   // Fetch the list of tables when the component mounts
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/tables`,
+        let response = await fetch(`${process.env.REACT_APP_SERVER}/admin/tables`,
           {
             method: 'POST',
             credentials: 'include'
           }
-        ) 
-        // await axios.post(
-        //   `${process.env.REACT_APP_SERVER}/admin/tables`,
-        //   {
-        //     withCredentials: true
-        //   }
-        // );
-        console.log('Tables Response:', response.data); // Debugging Line
+        );
 
-        if (response.data.success) {
-          if (Array.isArray(response.data.data)) {
-            setTables(response.data.data);
+        if( ! response.ok ) {
+          navigate("/403"); //! Forbidden
+        }
+
+        response = await response.json();
+
+        if (response.success) {
+          if (Array.isArray(response.data)) {
+            setTables(response.data);
           } else {
             throw new AdminPageError('Tables data is not an array');
           }
@@ -65,14 +66,20 @@ const AdminPage = () => {
         url += `?keyword=${encodeURIComponent(keyword)}`;
       }
 
-      const response = await axios.post(url);
-      console.log('Records Response:', response.data); // Debugging Line
+      let response = await fetch(url,
+        {
+          method: 'POST',
+          credentials: 'include'
+        }
+      );
 
-      if (response.data.success) {
-        if (Array.isArray(response.data.data)) {
-          setRecords(response.data.data);
-          if (response.data.data.length > 0) {
-            setColumns(Object.keys(response.data.data[0]));
+      response = await response.json();
+
+      if (response.success) {
+        if (Array.isArray(response.data)) {
+          setRecords(response.data);
+          if (response.data.length > 0) {
+            setColumns(Object.keys(response.data[0]));
           } else {
             setColumns([]);
           }
