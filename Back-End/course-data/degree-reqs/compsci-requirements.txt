@@ -1465,8 +1465,6 @@ GEOL 414
 GEOL 415
 GEOL 440
 GEOL 498
-
-[General Elective French (Max 6 credits only)]
 FRAN 211
 FRAN 212
 FRAN 215
