@@ -582,11 +582,13 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
                 >
                   <option value="">-- Select a Degree --</option>
                   {degrees && degrees.length > 0 ? (
-                    degrees.map((degree) => (
-                      <option key={degree.id} value={degree.id}>
-                        {degree.name}
-                      </option>
-                    ))
+                    degrees
+                      .sort((a, b) => a.name.localeCompare(b.name)) // Sort degrees alphabetically by name
+                      .map((degree) => (
+                        <option key={degree.id} value={degree.id}>
+                          {degree.name}
+                        </option>
+                      ))
                   ) : (
                     <option value="" disabled>
                       No degrees available
