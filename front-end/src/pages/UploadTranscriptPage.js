@@ -223,15 +223,23 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
   const extendedCreditRegex = /\s*Extended\s*Credit\s*Program\s*/g;
   let ecp = null;
   const degreeMapping = {
-    'Bachelor of Engineering, Aerospace Engineering': 'D1',
-    'Bachelor of Engineering, Building Engineering': 'D2',
-    'Bachelor of Engineering, Civil Engineering': 'D3',
-    'Bachelor of Engineering, Computer Engineering': 'D4',
-    'Bachelor of Computer Science, Computer Science': 'D5',
-    'Bachelor of Engineering, Electrical Engineering': 'D6',
-    'Bachelor of Engineering, Industrial Engineering': 'D7',
-    'Bachelor of Engineering, Mechanical Engineering': 'D8',
-    'Bachelor of Engineering, Software Engineering': 'D9',
+    'Bachelor of Engineering, Aerospace Engineering': 'AERO',
+    'Bachelor of Engineering, Aerospace Engineering Option A: Aerodynamics and Propulsion Core': 'AEROA',
+    'Bachelor of Engineering, Aerospace Engineering Option B: Aerospace Structures and Materials': 'AEROB',
+    'Bachelor of Engineering, Aerospace Engineering Option C: Avionics and Aerospace Systems': 'AEROC',
+    'Bachelor of Engineering, Building Engineering': 'BCEE',
+    'Bachelor of Engineering, Building Engineering Option A: Building Energy and Environment': 'BCEEA',
+    'Bachelor of Engineering, Building Engineering Option B: Building Structures and Construction': 'BCEEB',
+    'Bachelor of Engineering, Civil Engineering': 'CIVI',
+    'Bachelor of Engineering, Civil Engineering Option A: Civil Infrastructure': 'CIVIA',
+    'Bachelor of Engineering, Civil Engineering Option B: Environmental': 'CIVIB',
+    'Bachelor of Engineering, Civil Engineering Option C: Construction Engineering and Management': 'CIVIC',
+    'Bachelor of Engineering, Computer Engineering': 'COEN',
+    'Bachelor of Computer Science, Computer Science': 'CompSci',
+    'Bachelor of Engineering, Electrical Engineering': 'ELEC',
+    'Bachelor of Engineering, Industrial Engineering': 'INDU',
+    'Bachelor of Engineering, Mechanical Engineering': 'MECH',
+    'Bachelor of Engineering, Software Engineering': 'SOEN',
   };
   const degreeRegex = /Bachelor of [A-Za-z\s]+,\s*[A-Za-z]+\s[A-Za-z]+/g; // Matches "Bachelor of Software Engineering", etc.
   let degree = null;
