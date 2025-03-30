@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "@sentry/node": "^9.7.0",
+    "@sentry/node": "^9.10.1",
+    "@sentry/profiling-node": "^9.10.1",
     "@testing-library/jest-dom": "^6.6.3",
     "axios": "^1.8.4",
     "bcryptjs": "^2.4.3",

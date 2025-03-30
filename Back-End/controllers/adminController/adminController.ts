@@ -603,37 +603,29 @@ async function upsertDegree(
   isAddon: boolean,
 ): Promise<string> {
   const request = new sql.Request(t);
+  request.input('id', sql.VarChar, id);
   request.input('name', sql.VarChar, name);
   request.input('totalCredits', sql.Float, totalCredits);
   request.input('isAddon', sql.Bit, isAddon);
-  const result = await request.query(
-    'SELECT id FROM Degree WHERE name = @name',
-  );
+
+  const result = await request.query('SELECT id FROM Degree WHERE id = @id');
   if (result.recordset.length === 0) {
-    let newId: string;
-    if (isAddon) {
-      newId = id;
-      request.input('newId', sql.VarChar, newId);
-    } else {
-      newId = await generateNextId(t, 'Degree', 'D');
-      request.input('newId', sql.VarChar, newId);
-    }
+    // Insert a new degree with the provided ID
     await request.query(`
-      INSERT INTO Degree (id, name, totalCredits)
-      VALUES (@newId, @name, @totalCredits)
+      INSERT INTO Degree (id, name, totalCredits, isAddon)
+      VALUES (@id, @name, @totalCredits, @isAddon)
     `);
-    console.log(`Inserted Degree: ${name} with ID: ${newId}`);
-    return newId;
+    console.log(`Inserted Degree: ${name} with ID: ${id}`);
+    return id;
   } else {
-    const degreeId = result.recordset[0].id;
-    request.input('id', sql.VarChar, degreeId);
+    // Update the existing degree
     await request.query(`
       UPDATE Degree
-      SET totalCredits = @totalCredits
+      SET name = @name, totalCredits = @totalCredits, isAddon = @isAddon
       WHERE id = @id
     `);
-    console.log(`Updated Degree: ${name} with ID: ${degreeId}`);
-    return degreeId;
+    console.log(`Updated Degree: ${name} with ID: ${id}`);
+    return id;
   }
 }
 
