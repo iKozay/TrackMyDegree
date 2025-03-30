@@ -203,7 +203,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   let { degree_Id, startingSemester, credits_Required, extendedCredit } = location.state || {};
 
   console.log("degree_Id: " + degree_Id);
-  console.log("degreeId: " + degreeId);
+  console.log("credits_Required: " + credits_Required);
 
   // console.log("isExtendedCredit: " + isExtendedCredit);
   // console.log("extendedCredit: " + extendedCredit);
@@ -1113,9 +1113,15 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             unmetPrereqFound = true; // Mark unmet prerequisites but still count credits
           }
 
-          // Add credits to the pool’s assigned sum, up to the pool’s max
+          // Ensure the pool exists before accessing its properties
           const poolData = poolCreditMap[pool.poolId];
-          const newSum = poolData.assigned + (course.credits || 0);
+          if (!poolData) {
+            console.warn(`Pool data not found for poolId: ${pool.poolId}`);
+            return;
+          }
+
+          // Add credits to the pool’s assigned sum, up to the pool’s max
+          const newSum = (poolData.assigned || 0) + (course.credits || 0);
           poolData.assigned = Math.min(poolData.max, newSum);
         });
       }
@@ -2247,7 +2253,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         </DeleteModal>
         {showDeficiencyModal && (
           <div className="modal-overlay">
-            <div className="modal-content">
+            <div className="modal-content-def">
               <button className="close-button" onClick={() => setShowDeficiencyModal(false)}>✕</button>
               <h3>Add Deficiency Courses</h3>
               <input

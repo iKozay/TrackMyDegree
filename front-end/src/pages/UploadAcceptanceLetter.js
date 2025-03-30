@@ -58,6 +58,9 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     }
     const startingSemester = `${selectedTerm} ${selectedYear}`;
 
+    const matched_degree = degrees.find(d => d.id === selectedDegreeId);
+    const credits_Required = matched_degree.totalCredits;
+
     // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
     localStorage.setItem('Timeline_Name', null);
 
@@ -67,6 +70,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         degree_Id: selectedDegreeId,
         startingSemester: startingSemester,
         coOp: selectedRadio.coOp,
+        credits_Required: credits_Required,
         extendedCredit: selectedRadio.extendedCredit,
         creditDeficiency: selectedRadio.creditDeficiency,
       },
@@ -175,6 +179,9 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
           //const degreeInfo = extractedData.degree || "Unknown Degree";
           const degreeId = extractedData.degreeId || 'Unknown'; // Map degree to ID
 
+          const matched_degree = degrees.find(d => d.id === degreeId);
+          const credits_Required = matched_degree.totalCredits;
+
           if (transcriptData.length > 0) {
             localStorage.setItem('Timeline_Name', null);
             onDataProcessed({
@@ -185,6 +192,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
             navigate('/timeline_change', {
               state: {
                 coOp: selectedRadio.coOp,
+                credits_Required: credits_Required,
                 extendedCredit: extractedData.details.extendedCreditProgram,
                 creditDeficiency: extractedData.details.creditDeficiency,
               },
@@ -210,6 +218,8 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     degrees.forEach(({ name, id }) => {
       degreeMapping[name] = id;
     });
+
+    console.log("degrees", degrees)
 
     let degree = null;
     let degreeId = null;

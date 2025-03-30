@@ -22,6 +22,7 @@ function SignUpPage() {
 
     // Reset error state
     setError(null);
+    await new Promise((resolve) => setTimeout(resolve, 10));
 
     // Basic validation checks
     if (
@@ -165,13 +166,6 @@ function SignUpPage() {
               />
             </div>
 
-            {/* Display Error Message */}
-            {error && (
-              <div className="alert alert-danger" role="alert">
-                {error}
-              </div>
-            )}
-
             {/* Cancel and Register Buttons */}
             <div className="d-flex justify-content-between align-items-center mt-3">
               <Button
@@ -190,6 +184,13 @@ function SignUpPage() {
           {/* Link to Sign In */}
           <div className="text-center mt-4">
             <a href="/signin">Already have an account? Log in here!</a>
+            {/* Display Error Message */}
+            <br />
+            {error && (
+              <div className="alert alert-danger" role="alert">
+                {error}
+              </div>
+            )}
           </div>
         </div>
       </div>
