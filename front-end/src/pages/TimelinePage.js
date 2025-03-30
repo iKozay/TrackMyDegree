@@ -1113,9 +1113,15 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             unmetPrereqFound = true; // Mark unmet prerequisites but still count credits
           }
 
-          // Add credits to the pool’s assigned sum, up to the pool’s max
+          // Ensure the pool exists before accessing its properties
           const poolData = poolCreditMap[pool.poolId];
-          const newSum = poolData.assigned + (course.credits || 0);
+          if (!poolData) {
+            console.warn(`Pool data not found for poolId: ${pool.poolId}`);
+            return;
+          }
+
+          // Add credits to the pool’s assigned sum, up to the pool’s max
+          const newSum = (poolData.assigned || 0) + (course.credits || 0);
           poolData.assigned = Math.min(poolData.max, newSum);
         });
       }
