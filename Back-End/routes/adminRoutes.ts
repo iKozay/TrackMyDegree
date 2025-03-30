@@ -5,8 +5,9 @@ import { getTables, getTableRecords } from '@controllers/adminController/adminCo
 import { seedSoenDegree } from '@controllers/adminController/adminController';
 import {AdminCheck} from '@middleware/JWTAccessMiddleware';
 
-
 const router = express.Router();
+
+router.use(AdminCheck);
 
 // Route to get all tables
 router.post('/tables', getTables);
