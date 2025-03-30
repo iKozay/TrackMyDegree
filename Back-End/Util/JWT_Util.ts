@@ -13,6 +13,8 @@ export type JWTPayload = {
   type: Auth.UserType;
 };
 
+export type TokenPayload = JWTPayload & jwt.JwtPayload;
+
 export type JWTCookieModel = {
   name: string;
   value: string;
@@ -48,10 +50,10 @@ function generateToken(payload: JWTPayload): string {
   return jwt.sign(payload, secret, options);
 }
 
-export function verifyToken(access_token: string): JWTPayload {
+export function verifyToken(access_token: string): TokenPayload {
   const secret: string = getSecretKey();
 
-  return jwt.verify(access_token, secret) as JWTPayload;
+  return jwt.verify(access_token, secret) as TokenPayload;
 }
 
 export function setJWTCookie(result: Auth.UserInfo): JWTCookieModel {
@@ -73,4 +75,14 @@ export function setJWTCookie(result: Auth.UserInfo): JWTCookieModel {
       domain: domain_name
     },
   };
+}
+
+export function isTokenExpired(exp_time: number): boolean {
+  const current_time = Math.floor(Date.now() / 1000);
+
+  return exp_time < current_time
+}
+
+export function isOrgIdValid(org_id: string): boolean {
+  return org_id === process.env.JWT_ORG_ID;
 }
