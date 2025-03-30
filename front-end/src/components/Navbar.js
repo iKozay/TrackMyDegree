@@ -86,11 +86,17 @@ const Navbar = () => {
             <Link className="nav-link" to="/courselist">
               Courses
             </Link>
-            {/* <Link className="nav-link" to="/uploadTranscript">
-              Upload Transcript
-            </Link> */}
+            {(user && user.type === 'admin') ? 
+            ( 
+              <>
+              <p className={'nav-separator'}>|</p>
+              <Link className="nav-link" to="/adminpage">
+                Admin
+              </Link>
+              </>
+            ) : '' }
           </div>
-          {isLoggedIn ? (
+          {(isLoggedIn && user) ? (
               <>
                 <div className="navbar-right-buttons">
                   <Link to="/user">
