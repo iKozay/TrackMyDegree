@@ -3,6 +3,8 @@
 import express from 'express';
 import { getTables, getTableRecords } from '@controllers/adminController/adminController'; // Import controller methods
 import { seedSoenDegree } from '@controllers/adminController/adminController';
+import {AdminCheck} from '@middleware/JWTAccessMiddleware';
+
 
 const router = express.Router();
 
