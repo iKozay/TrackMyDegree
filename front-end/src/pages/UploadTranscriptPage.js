@@ -214,7 +214,7 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
   // Capture department (3-4 letters), course number (3 digits), then a flexible description
   // The grade group is now optional, so it may or may not appear.
   const courseRegex =
-    /([A-Za-z]{3,4})\s+(\d{3})\s+([A-Za-z\d{1,2}]{1,3})\s+([A-Za-z\s+\-./(),&]+)\s+([\d.]+)\s+([A-F][\s|+|-]+|PASS|EX)\s+([\d.]+)\b/g;
+    /([A-Za-z]{3,4})\s+(\d{3})\s+([A-Za-z\d{1,2}]{1,3})\s+([A-Za-z\s+\-./(),&]+)\s+([\d.]+)\s+([A-F][\s|+|-]+|PASS|EX|\s)\s+([\d.]+)\b/g;
 
   // Updated regex for exempted courses
   const exemp_course = /([A-Za-z]{3,4})\s+(\d{3})\s+(.+?)\s+(EX|TRC)\b/g;
