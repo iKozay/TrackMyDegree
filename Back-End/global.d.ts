@@ -1,5 +1,4 @@
 
-
 declare namespace NodeJS {
   interface ProcessEnv {
     //? User-defined
@@ -28,6 +27,9 @@ declare namespace NodeJS {
     //? JWT Specific
     JWT_SECRET          : string;     
     JWT_EXPIRY          : number;      
-    JWT_ORG_ID          : string;      
+    JWT_ORG_ID          : string;
+
+    //? Session specific
+    SESSION_ALGO        : string;
   }
 }

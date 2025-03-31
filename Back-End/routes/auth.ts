@@ -5,6 +5,7 @@ import Auth from '@controllers/authController/auth_types';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import { setJWTCookie } from '@Util/JWT_Util';
+import { UserHeaders } from '@Util/Session_Util';
 
 dotenv.config();
 
@@ -31,7 +32,18 @@ router.post('/login', async (req: Request, res: Response) => {
         .status(HTTP.UNAUTHORIZED)
         .json({ error: 'Incorrect email or password' });
     } else {
-      const cookie = setJWTCookie(result); //? Attach the JWT Cookie to the response
+      const headers: UserHeaders = {
+        agent: req.headers['user-agent'] || '',
+        ip_addr: req.ip || '',
+      };
+
+      const { id, type } = result;
+      if (!id) {
+        //? Check if ID is undefined
+        throw new Error();
+      }
+
+      const cookie = setJWTCookie({ id, type }, headers); //? Attach the JWT Cookie to the response
       res.cookie(cookie.name, cookie.value, cookie.config);
 
       res.status(HTTP.OK).json(result);
