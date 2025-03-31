@@ -43,7 +43,7 @@
   {
     "title": "ELEC 275 Principles of Electrical Engineering",
     "credits": 3.5,
-    "prerequisites": "ENGR 213.",
+    "prerequisites": "PHYS 205",
     "corequisites": "ENGR 213.",
     "description": "Fundamentals of electric circuits: Kirchoff's laws, voltage and current sources, Ohm's law, series and parallel circuits. Nodal and mesh analysis of DC circuits. Superposition theorem, Thevenin and Norton Equivalents. Use of operational amplifiers. Transient analysis of simple RC, RL and RLC circuits. Steady state analysis: Phasors and impedances, power and power factor. Single and three phase circuits. Magnetic circuits and transformers. Power generation and distribution.",
     "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 15 hours total",
@@ -186,7 +186,7 @@
   {
     "title": "ELEC 390 Electrical Engineering Product Design Project",
     "credits": 3,
-    "prerequisites": "Students must complete a minimum of 45 credits in the B Eng (Electrical) prior to enrolling, including the following courses: COEN 352; ELEC 311; ENGR 290.",
+    "prerequisites": "COEN 352; ELEC 311; ENGR 290.",
     "corequisites": "",
     "description": "The Product Design Project reinforces skills introduced in ENGR 290, which include teamwork, project management, engineering design for a complex problem, technical writing, and technical presentation in a team environment. It also introduces students to product development. Students are assigned to teams and each team develops, defines, designs and builds a system and/or device under broad constraints set by the Department. Students present their product definition and design, and demonstrate that their system/device works at the end of the term.",
     "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory Equivalent time, 6 hours per week",
@@ -604,7 +604,7 @@
   {
     "title": "ELEC 482 System Optimization",
     "credits": 3.5,
-    "prerequisites": "ENGR 391 / EMAT 391.",
+    "prerequisites": "ENGR 391",
     "corequisites": "",
     "description": "Linear least squares. Properties of quadratic functions with applications to steepest descent method, Newton's method and Quasi-Newton methods for nonlinear optimization. One-dimensional optimization. Introduction to constrained optimization, including the elements of Kuhn-Tucker conditions for optimality. Least pth and mini-max optimization. Application of optimization techniques to engineering problems.",
     "components": "Lecture 3 hours per week; Laboratory 15 hours total",

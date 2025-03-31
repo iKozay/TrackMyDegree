@@ -1,4 +1,4 @@
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 import express from 'express';
 import cors from 'cors';
 import corsOptions from '@middleware/corsMiddleware';
@@ -27,6 +27,7 @@ import Admin from '@routes/adminRoutes';
 import requisiteRouter from '@routes/requisite';
 import feedbackRouter from '@routes/feedback';
 import sessionRouter from '@routes/session';
+import sectionsRoutes from '@routes/sectionsRoutes';
 
 //Dev Consts
 const HOPPSCOTCH = 'chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld';
@@ -70,6 +71,7 @@ app.use('/admin', Admin);
 app.use('/requisite', requisiteRouter);
 app.use('/feedback', feedbackRouter);
 app.use('/session', sessionRouter);
+app.use('/section', sectionsRoutes);
 
 /**
  * DB test route
@@ -96,9 +98,17 @@ app.get('/test-db', async (req, res) => {
 
 //Handle 404
 app.use(notFoundHandler);
+
+//Global Error Handler
 app.use(errorHandler);
 
 //Listen for requests
 app.listen(PORT, () => {
   console.log(`Server listening on Port: ${PORT}`);
+});
+
+// This will make sure to capture unhandled async errors
+process.on('unhandledRejection', (reason: any) => {
+  Sentry.captureException(reason);
+  console.error('Unhandled Rejection:', reason);
 });

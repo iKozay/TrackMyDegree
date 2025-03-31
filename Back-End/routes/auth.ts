@@ -58,6 +58,7 @@ router.post('/login', async (req: Request, res: Response) => {
 // Sign-up
 router.post('/signup', async (req: Request, res: Response) => {
   if (!req.body) {
+
     res
       .status(HTTP.BAD_REQUEST)
       .json({ error: 'Request body cannot be empty' });
@@ -78,6 +79,7 @@ router.post('/signup', async (req: Request, res: Response) => {
   } catch (error) {
     const errMsg = 'Internal server error in /signup';
     console.error(errMsg, error);
+
     res.status(HTTP.SERVER_ERR).json({ error: errMsg });
   }
 });
@@ -104,6 +106,7 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
   } catch (error) {
     const errMsg = 'Internal server error in /forgot-password';
     console.error(errMsg, error);
+
     res.status(HTTP.SERVER_ERR).json({ error: errMsg });
   }
 });

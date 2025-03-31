@@ -6,6 +6,13 @@ const Footer = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [showAlert, setShowAlert] = useState('');
 
+  const redirectToFeedbackPage = () => {
+    window.open(
+      'https://docs.google.com/forms/d/e/1FAIpQLScr67TcEpPV1wNCTM5H53hPwRgplAvkYmxg72LKgHihCSmzKg/viewform',
+      '_blank',
+    );
+  };
+
   const handleSubmit = async () => {
     if (feedback === '') {
       return;
@@ -74,20 +81,7 @@ const Footer = () => {
       </p>
       <button
         className="feedback-button"
-        onClick={() => setShowPopup(true)}
-        style={{
-          backgroundColor: 'red',
-          color: 'white',
-          padding: '10px 20px',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-          fontSize: '16px',
-          transition: 'background-color 0.3s ease',
-          position: 'absolute',
-          right: '20px',
-          bottom: '10px',
-        }}
+        onClick={redirectToFeedbackPage}
       >
         Submit Feedback!
       </button>

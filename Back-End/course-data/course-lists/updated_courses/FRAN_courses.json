@@ -48,7 +48,7 @@
     "credits": 6,
     "prerequisites": "",
     "corequisites": "",
-    "description": "This course includes a comprehensive introduction to the basic structures and vocabulary of French and should enable students to acquire an ability to speak and understand simple conversational French. Both oral and written aspects of the language are presented, with special emphasis on oral skills. Notes: This course is restricted to students with no previous training in French. This course is not intended for students who have attended high school in Quebec. Students who have received credit for FRAI 201 , FRAN 200 or FRAN 201 may not take this course for credit.",
+    "description": "NOTE:(CompSci Students may only take a maximum of 6 credits of French Courses) This course includes a comprehensive introduction to the basic structures and vocabulary of French and should enable students to acquire an ability to speak and understand simple conversational French. Both oral and written aspects of the language are presented, with special emphasis on oral skills. Notes: This course is restricted to students with no previous training in French. This course is not intended for students who have attended high school in Quebec. Students who have received credit for FRAI 201 , FRAN 200 or FRAN 201 may not take this course for credit.",
     "components": null,
     "notes": "This course is restricted to students with no previous training in French. This course is not intended for students who have attended high school in Quebec. Students who have received credit for FRAI 201 , FRAN 200 or FRAN 201 may not take this course for credit.",
     "offeredIn": [
@@ -62,7 +62,7 @@
     "credits": 6,
     "prerequisites": "FRAI 201 or FRAN 211 ; or equivalent.",
     "corequisites": "",
-    "description": "The aim of this course is to provide students who have studied either one year of French at the university or post‑secondary level, or two years of French at the secondary level or equivalent, with an opportunity to improve their levels of comprehension and expression so that they will be able to communicate with greater ease in written and oral French. Students will expand their repertory of linguistic structures and vocabulary through in‑class directed conversation groups, homework, oral lab, and written exercises.",
+    "description":"NOTE:(CompSci Students may only take a maximum of 6 credits of French Courses)  The aim of this course is to provide students who have studied either one year of French at the university or post‑secondary level, or two years of French at the secondary level or equivalent, with an opportunity to improve their levels of comprehension and expression so that they will be able to communicate with greater ease in written and oral French. Students will expand their repertory of linguistic structures and vocabulary through in‑class directed conversation groups, homework, oral lab, and written exercises.",
     "components": "Lecture",
     "notes": "This course is designed to follow FRAN 211 , or may be taken if students have little previous training in French. This course is not intended for students who have attended high school in Quebec. Les étudiantes et étudiants qui ont suivi FRAI 202 ne peuvent obtenir de crédits pour ce cours.",
     "offeredIn": [
@@ -100,7 +100,7 @@
     "credits": 3,
     "prerequisites": "",
     "corequisites": "",
-    "description": "Ce cours est la suite du FRAN 214. Il vise à donner à l’étudiant une plus grande aisance dans son utilisation du français oral et écrit. Les travaux prendront la forme d’exercices variés de grammaire, de vocabulaire, de compréhension et production de textes écrits, et d’interaction orale.",
+    "description":"NOTE:(CompSci Students may only take a maximum of 6 credits of French Courses) Ce cours est la suite du FRAN 214. Il vise à donner à l’étudiant une plus grande aisance dans son utilisation du français oral et écrit. Les travaux prendront la forme d’exercices variés de grammaire, de vocabulaire, de compréhension et production de textes écrits, et d’interaction orale.",
     "components": "Lecture",
     "notes": "Les étudiantes et étudiants qui ont suivi FRAN 205 ou FRAN 213 ne peuvent obtenir de crédits pour ce cours .",
     "offeredIn": []

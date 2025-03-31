@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, act } from 'react';
 import { useNavigate, useLocation, useBlocker } from 'react-router-dom';
-import { motion } from 'framer-motion'
+import { motion, time } from 'framer-motion'
 import {
   DndContext,
   useDraggable,
@@ -24,6 +24,7 @@ import Accordion from 'react-bootstrap/Accordion';
 import Container from 'react-bootstrap/Container';
 import warningIcon from '../icons/warning.png'; // Import warning icon
 import downloadIcon from '../icons/download-icon.PNG';
+//import saveIcon from '../icons/saveIcon.png';
 import '../css/TimelinePage.css';
 import { groupPrerequisites } from '../utils/groupPrerequisites';
 import DeleteModal from "../components/DeleteModal";
@@ -31,6 +32,8 @@ import { TimelineError } from '../middleware/SentryErrors';
 import * as Sentry from '@sentry/react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import CourseSectionButton from '../components/SectionModal';
+import ShowInsights from '../components/ShowInsights';
 
 
 // DraggableCourse component for course list items
@@ -44,6 +47,7 @@ const DraggableCourse = ({
   onSelect,
   containerId,
   className: extraClassName, // NEW prop
+  isInTimeline, // NEW prop
 }) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: internalId,
@@ -67,6 +71,10 @@ const DraggableCourse = ({
       }}
     >
       {courseCode}
+      {isInTimeline && (
+        <span className="checkmark-icon">✔</span>
+        /* <img src={checkIcon} alt="In timeline" className="checkmark-icon" /> */
+      )}
     </div>
   );
 };
@@ -81,6 +89,7 @@ const SortableCourse = ({
   onSelect,
   containerId,
   prerequisitesMet, // New prop
+  isOffered, // New prop
   removeButton,
 }) => {
   const {
@@ -108,6 +117,17 @@ const SortableCourse = ({
     }${isDraggingFromSemester ? ' dragging-from-semester' : ''}${isSelected ? ' selected' : ''
     }`;
 
+  const getWarningMessage = () => {
+    const warnings = [];
+    if (!prerequisitesMet) {
+      warnings.push('Prerequisites not met');
+    }
+    if (!isOffered) {
+      warnings.push('Not offered in this term');
+    }
+    return warnings.join(', ');
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -121,12 +141,15 @@ const SortableCourse = ({
       }}
     >
       {courseCode}
-      {!prerequisitesMet && (
-        <img
-          src={warningIcon}
-          alt="Warning: prerequisites not met"
-          className="warning-icon"
-        />
+      {(!prerequisitesMet || !isOffered) && (
+        <div className='warning-container'>
+          <img
+            src={warningIcon}
+            alt="Warning: prerequisites not met"
+            className="warning-icon"
+          />
+          <div className={`warning-tooltip ${isSelected ? 'selected' : ''}`}>{getWarningMessage()}</div>
+        </div>
       )}
       {removeButton}
     </div>
@@ -160,7 +183,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const navigate = useNavigate();
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
-
+  const [showDeficiencyModal, setShowDeficiencyModal] = useState(false);
+  const [searchDeficiencyQuery, setSearchDeficiencyQuery] = useState('');
   const [semesters, setSemesters] = useState([]);
   const [semesterCourses, setSemesterCourses] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -174,10 +198,13 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const location = useLocation();
 
   const scrollWrapperRef = useRef(null);
-  const autoScrollInterval = useRef(null);
+  // const autoScrollInterval = useRef(null);
 
 
   let { degree_Id, startingSemester, credits_Required, extendedCredit } = location.state || {};
+
+  console.log("degree_Id: " + degree_Id);
+  console.log("credits_Required: " + credits_Required);
 
   // console.log("isExtendedCredit: " + isExtendedCredit);
   // console.log("extendedCredit: " + extendedCredit);
@@ -197,7 +224,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   }
 
   if (!credits_Required) {
-    if(creditsRequired && String(creditsRequired).trim()) {
+    if (creditsRequired && String(creditsRequired).trim()) {
       credits_Required = creditsRequired;
     }
     else {
@@ -429,37 +456,6 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           combinedData = primaryData.concat(extendedData);
         }
 
-        if (location.state?.creditDeficiency) {
-          const deficiencyPool = {
-            poolName: 'Deficiencies',
-            poolId: 'def-pool',
-            courses: [
-              {
-                code: 'ESL202',
-                title: 'ESL 202',
-                credits: 3,
-                description: 'Deficiency course',
-                requisites: [],
-              },
-              {
-                code: 'ESL204',
-                title: 'ESL 204',
-                credits: 4,
-                description: 'Deficiency course',
-                requisites: [],
-              },
-            ],
-          };
-          if (!combinedData.find((pool) => pool.poolId === 'def-pool')) {
-            combinedData = [...combinedData, deficiencyPool];
-            const totalDefCredits = deficiencyPool.courses.reduce(
-              (sum, course) => sum + (course.credits || 0),
-              0,
-            );
-            setDeficiencyCredits(totalDefCredits);
-          }
-        }
-
         setCoursePools(combinedData);
         setLoading(false);
       } catch (err) {
@@ -500,6 +496,50 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             data.season.trim().toLowerCase() === 'exempted' &&
             parseInt(data.year, 10) === 2020;
         }
+
+        console.log(timelineData);
+
+        if (data.term === "deficiencies 2020" && Array.isArray(data.courses)) {
+          setDeficiencyCourses(() => {
+            const newCourses = data.courses
+              .map((courseCode) => {
+                const genericCode = courseInstanceMap[courseCode] || courseCode;
+                const course = allCourses.find((c) => c.code === genericCode);
+                return course && course.code ? { code: course.code, credits: course.credits } : null;
+              })
+              .filter(Boolean); // Remove null values
+
+            //Calculate total deficiency credits
+            const totalDeficiencyCredits = newCourses.reduce(
+              (sum, course) => sum + (course.credits || 3),
+              0
+            );
+
+            setDeficiencyCredits(totalDeficiencyCredits);
+
+            return [...newCourses]; // Append to existing list
+          });
+
+          data.term = "";
+        }
+
+
+        // if(data.term == "deficiencies 2020"){
+        //   data.courses
+        // .map((courseCode) => {
+        //   const genericCode = courseInstanceMap[courseCode] || courseCode;
+        //   const course = allCourses.find((c) => c.code === genericCode);
+        //   return course && course.code ? { courseCode: course.code } : null;
+        // })
+        // .filter(Boolean);
+        //   setDeficiencyCourses(prevCourses => {
+        //     const newCourses = data.courses.filter(course => 
+        //         !prevCourses.some(c => c.code === course) // Avoid duplicates
+        //     ).map(course); // Assume 3 credits (modify as needed)
+
+        //     return [...prevCourses, ...newCourses];
+        //   });
+        // }
 
         if (isExempted) {
           // Extract courses from the exempted item.
@@ -758,13 +798,46 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   // ----------------------------------------------------------------------
   const isCourseAssigned = (courseCode) => {
     for (const semesterId in semesterCourses) {
+      // Skip the "courseList" container
       if (semesterId === 'courseList') continue;
-      if (semesterCourses[semesterId].includes(courseCode)) {
+
+      // For each instanceId, retrieve its base code from courseInstanceMap
+      const alreadyAssigned = semesterCourses[semesterId].some((instanceId) => {
+        const baseCode = courseInstanceMap[instanceId] || instanceId;
+        return baseCode === courseCode;
+      });
+
+      if (alreadyAssigned) {
+        console.log('Course already assigned:', courseCode);
         return true;
       }
     }
     return false;
   };
+
+  // Returns true if the course’s offeredIn data (array or string)
+  // includes the semester term (e.g. "Fall", "Winter", "Summer") – case-insensitive.
+  const isCourseOfferedInSemester = (course, semesterId) => {
+    // Extract the term from the semesterId (assumes format like "Fall 2025")
+    const semesterTerm = semesterId.split(" ")[0].toLowerCase();
+
+    if (Array.isArray(course.offeredIn) && course.offeredIn.length > 0) {
+      // Normalize terms to lowercase before checking.
+      const offeredTerms = course.offeredIn.map(term => term.toLowerCase());
+      return offeredTerms.includes(semesterTerm);
+    }
+
+    if (typeof course.offeredIn === "string" && course.offeredIn.trim() !== "") {
+      // If offeredIn is a comma-separated string.
+      const offeredTerms = course.offeredIn.split(",").map(term => term.trim().toLowerCase());
+      return offeredTerms.includes(semesterTerm);
+    }
+
+    // If there is no offering information, we assume the course is not offered in any term.
+    return false;
+  };
+
+
 
   const handleDragStart = (event) => {
     setReturning(false);
@@ -775,7 +848,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     } else {
       genericCode = courseInstanceMap[internalId] || internalId;
     }
-    const course = allCourses.find((c) => c.code === genericCode);
+    const course = allCourses.find((c) => c.code === genericCode) || deficiencyCourses.find((c) => c.code === genericCode);;
     if (course) {
       setSelectedCourse(course);
     }
@@ -804,8 +877,12 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     const sourceContainer = active.data.current.containerId;
     let draggedId = uniqueId; // initially, this is the generic course code if from courseList
     const draggedGeneric = active.data.current.courseCode;
+
+    // Check if course is from deficiency list
+    const isFromDeficiencyList = sourceContainer === "deficiencyList";
+
     // If dragged from the course list, generate a new unique instance ID
-    if (sourceContainer === 'courseList') {
+    if (sourceContainer === 'courseList' || isFromDeficiencyList) {
       const newUniqueId = `${draggedGeneric}-${uniqueIdCounter}`;
       setUniqueIdCounter((prev) => prev + 1);
       // Update the mapping so that the unique id points to the generic course code
@@ -963,13 +1040,14 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       const poolCreditMap = {};
 
       // Initialize each pool with a max credits limit
-      coursePools.forEach((pool) => {
-        const maxFromName = parseMaxCreditsFromPoolName(pool.poolName);
-        poolCreditMap[pool.poolId] = {
-          assigned: 0,
-          max: maxFromName,
-        };
-      });
+      coursePools
+        .filter((pool) => !pool.poolName.toLowerCase().includes("option"))
+        .forEach((pool) => {
+          poolCreditMap[pool.poolId] = {
+            assigned: 0,
+            max: parseMaxCreditsFromPoolName(pool.poolName),
+          };
+        });
 
       // Add remaining courses to the poolCreditMap with no pool-specific maximum
       remainingCourses.forEach((course) => {
@@ -1033,12 +1111,18 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             currentSemesterIndex,
           );
           if (!prerequisitesMet) {
-            unmetPrereqFound = true;
+            unmetPrereqFound = true; // Mark unmet prerequisites but still count credits
+          }
+
+          // Ensure the pool exists before accessing its properties
+          const poolData = poolCreditMap[pool.poolId];
+          if (!poolData) {
+            console.warn(`Pool data not found for poolId: ${pool.poolId}`);
+            return;
           }
 
           // Add credits to the pool’s assigned sum, up to the pool’s max
-          const poolData = poolCreditMap[pool.poolId];
-          const newSum = poolData.assigned + (course.credits || 0);
+          const newSum = (poolData.assigned || 0) + (course.credits || 0);
           poolData.assigned = Math.min(poolData.max, newSum);
         });
       }
@@ -1056,30 +1140,43 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     calculateTotalCredits();
   }, [semesterCourses, semesters, coursePools, deficiencyCredits]);
 
+  const addDeficiencyCourse = (course) => {
+    setDeficiencyCourses((prev) => {
+      if (prev.some((c) => c.code === course.code)) {
+        alert("Course already added to deficiencies!");
+        return prev;
+      }
+      alert("Course added to deficiencies!");
+      setDeficiencyCredits((prevCredits) => prevCredits + (course.credits || 0));
+      return [...prev, course];
+    });
+  };
+
+  const removeDeficiencyCourse = (course) => {
+    setDeficiencyCourses((prev) => prev.filter((c) => c.code !== course.code));
+    setDeficiencyCredits((prev) => prev - (course.credits || 0));
+  };
+
+
+
   // Function to check if prerequisites and corequisites are met
   const arePrerequisitesMet = (courseCode, currentSemesterIndex) => {
     const genericCode = courseInstanceMap[courseCode] || courseCode;
     const course = allCourses.find((c) => c.code === genericCode);
 
-    // console.log(`Checking prerequisites for course ${courseCode} in semester index ${currentSemesterIndex}`);
-
     if (!course || !course.requisites || course.requisites.length === 0) {
-      // console.log(`Course ${courseCode} has no requisites.`);
       return true;
     }
 
     // Separate prerequisites and corequisites
     const prerequisites = course.requisites.filter(
-      (r) => r.type.toLowerCase() === 'pre',
+      (r) => r.type.toLowerCase() === 'pre'
     );
     const corequisites = course.requisites.filter(
-      (r) => r.type.toLowerCase() === 'co',
+      (r) => r.type.toLowerCase() === 'co'
     );
 
-    // console.log(`Course ${courseCode} prerequisites:`, prerequisites);
-    // console.log(`Course ${courseCode} corequisites:`, corequisites);
-
-    // Collect all courses scheduled in semesters before the current one
+    // Collect courses from all previous semesters
     const completedCourses = [];
     for (let i = 0; i < currentSemesterIndex; i++) {
       const semesterId = semesters[i]?.id;
@@ -1090,47 +1187,38 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       });
     }
 
-    // console.log(`Completed courses before current semester:`, completedCourses);
-
-    // Check prerequisites
+    // Check prerequisites against completed courses only
     const prereqMet = prerequisites.every((prereq) => {
       if (prereq.group_id) {
-        // For grouped prerequisites, at least one in the group must be completed
+        // For grouped prerequisites, at least one in the group must be completed.
         const group = prerequisites.filter(
-          (p) => p.group_id === prereq.group_id,
+          (p) => p.group_id === prereq.group_id
         );
         return group.some((p) => completedCourses.includes(p.code2));
-        // console.log(`Group ${prereq.group_id} met:`, result);
-
       } else {
-        // Single prerequisite
         return completedCourses.includes(prereq.code2);
-
       }
     });
 
+    // For corequisites, check courses from previous semesters and current semester
     const currentSemesterId = semesters[currentSemesterIndex]?.id;
     const currentCourses = (semesterCourses[currentSemesterId] || []).map(
       (instanceId) => courseInstanceMap[instanceId] || instanceId
     );
+    const availableCourses = [...completedCourses, ...currentCourses];
 
-    // Check corequisites
     const coreqMet = corequisites.every((coreq) => {
       if (coreq.group_id) {
         const group = corequisites.filter((c) => c.group_id === coreq.group_id);
-        return group.some((c) => currentCourses.includes(c.code2));
+        return group.some((c) => availableCourses.includes(c.code2));
       } else {
-        return currentCourses.includes(coreq.code2);
+        return availableCourses.includes(coreq.code2);
       }
     });
 
-    // console.log(`Corequisites met for course ${courseCode}:`, corequisitesMet);
-
     return prereqMet && coreqMet;
-    // console.log(`Prerequisites and Corequisites met for course ${courseCode}:`, finalResult);
-
-
   };
+
 
   // The Gina Cody School of Engineering and Computer Science at Concordia University has the following credit limits for full-time students:
   // limit is 14 summer; Fall Winter 15.
@@ -1154,28 +1242,30 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   //   //console.log('Saved Timeline:', timelineData);
   // };
   const confirmSaveTimeline = async (tName) => {
-    // Ensure a valid timeline name is provided.
+    // Ensure required values are provided
     if (!tName.trim()) {
       alert('Timeline name is required!');
       return;
     }
-    setTimelineName(tName);
-
-    if (!user) {
-      //setHasUnsavedChanges(false); // Not sure what to do about this
+    if (!user || !user.id) {
+      alert('User must be logged in!');
       navigate('/signin');
       return;
     }
+    if (!degree_Id) {
+      alert('Degree ID is missing!');
+      return;
+    }
+
+    setTimelineName(tName);
 
     // Build final timeline data from all semesters.
     const finalTimelineData = [];
     const exempted_courses = [];
 
     semesters.forEach((semester) => {
-      // Split the semester name into season and year.
       const [season, year = '2020'] = semester.name.split(' ');
 
-      // If this semester is "Exempted" or "Transfered Courses", collect its courses.
       if (
         semester.id.trim().toLowerCase() === 'exempted' ||
         semester.id.trim().toLowerCase() === 'transfered courses'
@@ -1191,7 +1281,6 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         });
       }
 
-      // Build the courses array for this semester.
       const coursesForSemester = (semesterCourses[semester.id] || [])
         .map((courseCode) => {
           const genericCode = courseInstanceMap[courseCode] || courseCode;
@@ -1200,16 +1289,25 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         })
         .filter(Boolean);
 
-      // Convert year to integer.
       const yearInt = isNaN(parseInt(year, 10)) ? 2020 : parseInt(year, 10);
-
-      // Always include the semester, even if it has no courses.
-      finalTimelineData.push({
-        season,
-        year: yearInt,
-        courses: coursesForSemester,
-      });
+      finalTimelineData.push({ season, year: yearInt, courses: coursesForSemester });
     });
+
+    const deficiencyCoursescode = deficiencyCourses
+      .map((courseCode) => {
+        const genericCode = courseInstanceMap[courseCode.code] || courseCode.code;
+        const course = allCourses.find((c) => c.code === genericCode);
+        return course && course.code ? { courseCode: course.code } : null;
+      })
+      .filter(Boolean);
+    console.log(deficiencyCoursescode);
+    if (deficiencyCourses.length > 0) {
+      finalTimelineData.push({
+        season: 'deficiencies',
+        year: 2020,
+        courses: deficiencyCoursescode,
+      });
+    }
 
     if (finalTimelineData.length === 0 && exempted_courses.length === 0) {
       alert('No valid data to save.');
@@ -1231,12 +1329,22 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       },
     ];
 
+    // Debug: log the payload
+    console.log('Saving timeline with payload:', {
+      user_id: user.id,
+      name: tName,
+      items: userTimeline[0].items,
+      degree_id: degree_Id,
+      isExtendedCredit: extendedCredit || false,
+    });
+
     const user_id = userTimeline[0].user_id;
     const timelineNameToSend = userTimeline[0].name;
     const items = userTimeline[0].items;
-    const isExtendedCredit = userTimeline[0].isExtendedCredit;
+    const isExtended = userTimeline[0].isExtendedCredit;
+    const degreeId = degree_Id;
 
-    // Save Exempted Courses.
+    // Save Exempted Courses (if needed)
     try {
       const responseExemptions = await fetch(
         `${process.env.REACT_APP_SERVER}/exemption/create`,
@@ -1244,13 +1352,11 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ coursecodes: exempted_courses, user_id }),
-        },
+        }
       );
       const dataExemptions = await responseExemptions.json();
       if (!responseExemptions.ok) {
-        alert(
-          'Error saving Exempted Courses: ' + (dataExemptions.message || ''),
-        );
+        alert('Error saving Exempted Courses: ' + (dataExemptions.message || ''));
       }
     } catch (error) {
       Sentry.captureException(error);
@@ -1258,48 +1364,31 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       alert('An error occurred while saving your timeline.');
     }
 
-    // Save deficiency courses.
+    // Save the complete timeline.
     try {
-      const responseDeficiency = await fetch(
-        `${process.env.REACT_APP_SERVER}/deficiency/create`,
+      const responseTimeline = await fetch(
+        `${process.env.REACT_APP_SERVER}/timeline/save`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            coursepool: deficiencyCourses,
-            user_id,
-            creditsRequired: deficiencyCredits,
+            timeline: {
+              user_id,
+              name: timelineNameToSend,
+              items,
+              degree_id: degree_Id,
+              isExtendedCredit: isExtended,
+            },
           }),
-        },
+        }
       );
-      // Optionally check responseDeficiency here.
-    } catch (err) {
-      Sentry.captureException(err);
-      console.error('Error saving deficiency', err);
-    }
-
-    // Save the complete timeline.
-    try {
-      const responseTimeline = await fetch(`${process.env.REACT_APP_SERVER}/timeline/save`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            user_id,
-            name: timelineNameToSend,
-            items,
-            degree_id: degree_Id,
-            isExtendedCredit
-          }),
-      },
-    );
       const dataTimeline = await responseTimeline.json();
       if (responseTimeline.ok) {
         alert('Timeline saved successfully!');
         setHasUnsavedChanges(false);
-        setShowSaveModal(false); // Close the modal
-        // Navigate after saving
+        setShowSaveModal(false);
         setTimeout(() => {
-          navigate('/user');  // Trigger navigation after delay due to setHasUnsavedChanges(false)
+          navigate('/user');
         }, 250);
       } else {
         alert('Error saving Timeline: ' + (dataTimeline.message || ''));
@@ -1311,52 +1400,53 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     }
   };
 
+
   // Function to handle mouse move over the scrollable container
-  const handleScrollMouseMove = (e) => {
-    const wrapper = scrollWrapperRef.current;
-    if (!wrapper) return;
+  // const handleScrollMouseMove = (e) => {
+  //   const wrapper = scrollWrapperRef.current;
+  //   if (!wrapper) return;
+  //
+  //   const rect = wrapper.getBoundingClientRect();
+  //   // Calculate x position relative to the container
+  //   const mouseX = e.clientX - rect.left;
+  //   const threshold = 50;
+  //   let direction = 0;
+  //
+  //   if (mouseX < threshold) {
+  //     direction = -1;
+  //   } else if (mouseX > rect.width - threshold) {
+  //     direction = 1;
+  //   } else {
+  //     direction = 0;
+  //   }
+  //
+  //   if (direction !== 0) {
+  //     wrapper.classList.add('scrolling');
+  //     if (!autoScrollInterval.current) {
+  //       autoScrollInterval.current = setInterval(() => {
+  //         // Adjust the speed
+  //         wrapper.scrollLeft += direction * 15;
+  //       }, 30);
+  //     }
+  //   } else {
+  //     // Remove the visual cue and stop scrolling if mouse is not in the edge zone
+  //     wrapper.classList.remove('scrolling');
+  //     if (autoScrollInterval.current) {
+  //       clearInterval(autoScrollInterval.current);
+  //       autoScrollInterval.current = null;
+  //     }
+  //   }
+  // };
 
-    const rect = wrapper.getBoundingClientRect();
-    // Calculate x position relative to the container
-    const mouseX = e.clientX - rect.left;
-    const threshold = 50;
-    let direction = 0;
-
-    if (mouseX < threshold) {
-      direction = -1;
-    } else if (mouseX > rect.width - threshold) {
-      direction = 1;
-    } else {
-      direction = 0;
-    }
-
-    if (direction !== 0) {
-      wrapper.classList.add('scrolling');
-      if (!autoScrollInterval.current) {
-        autoScrollInterval.current = setInterval(() => {
-          // Adjust the speed
-          wrapper.scrollLeft += direction * 15;
-        }, 30);
-      }
-    } else {
-      // Remove the visual cue and stop scrolling if mouse is not in the edge zone
-      wrapper.classList.remove('scrolling');
-      if (autoScrollInterval.current) {
-        clearInterval(autoScrollInterval.current);
-        autoScrollInterval.current = null;
-      }
-    }
-  };
-
-  const handleScrollMouseLeave = () => {
-    const wrapper = scrollWrapperRef.current;
-    if (!wrapper) return;
-    wrapper.classList.remove('scrolling');
-    if (autoScrollInterval.current) {
-      clearInterval(autoScrollInterval.current);
-      autoScrollInterval.current = null;
-    }
-  };
+  // const handleScrollMouseLeave = () => {
+  //   const wrapper = scrollWrapperRef.current;
+  //   if (!wrapper) return;
+  //   wrapper.classList.remove('scrolling');
+  //   if (autoScrollInterval.current) {
+  //     clearInterval(autoScrollInterval.current);
+  //     autoScrollInterval.current = null;
+  //   }
+  // };
 
   const exportTimelineToPDF = () => {
     const input = document.querySelector('.timeline-middle-section');
@@ -1433,8 +1523,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         deleteButtons.forEach(btn => (btn.style.display = ''));
       });
   };
-;
-;
+  ;
+  ;
 
 
 
@@ -1477,6 +1567,30 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   {credits_Required + deficiencyCredits}
                 </h4>
                 <div className="timeline-buttons-container">
+                  <div>
+                    {coursePools != null &&
+                    semesterCourses != null &&
+                    totalCredits != null &&
+                    deficiencyCredits != null ? (
+                      <ShowInsights
+                        coursePools={coursePools}
+                        semesterCourses={semesterCourses}
+                        totalCredits={totalCredits}
+                        deficiencyCredits={deficiencyCredits}
+                        courseInstanceMap={courseInstanceMap}
+                      />
+                    ) : (
+                      <div>
+                        <p>Loading insights data... Please ensure all required data is available.</p>
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    className="add-deficiencies-button"
+                    onClick={() => setShowDeficiencyModal(true)}
+                  >
+                    Add Deficiencies
+                  </button>
                   <button
                     className="save-timeline-button"
                     onClick={() =>
@@ -1488,8 +1602,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                     Save Timeline
                   </button>
                   <button className="download-timeline-button" onClick={exportTimelineToPDF}>
-                    <img src={downloadIcon} alt="Download Icon" className="download-icon" />
-                    Download
+                    <img src={downloadIcon} alt="Download" className="button-icon download-icon" />
+                    <span className="button-text">Download</span>
                   </button>
                 </div>
               </div>
@@ -1499,12 +1613,12 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   className="courses-with-button"
                   id="courses-with-button"
                 >
-                  <div
+                <div
                     className={`timeline-left-bar ${showCourseList ? '' : 'hidden'}`}
                   >
                     {showCourseList && (
                       <div>
-                        <h4>Course List</h4>
+                        <h4 className='mt-1'>Course List</h4>
                         {/* Search input field */}
                         <input
                           type="text"
@@ -1567,6 +1681,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                               }
                                               onSelect={handleCourseSelect}
                                               containerId="courseList"
+                                              isInTimeline={isCourseAssigned(course.code)}
                                               className={
                                                 !courseMatches
                                                   ? 'hidden-course'
@@ -1608,26 +1723,49 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                           .includes(searchQuery.toLowerCase());
                                       return (
                                         <DraggableCourse
-                                          key={`${course.code}-${isCourseAssigned(course.code)}`}
-                                          id={course.code}
+                                          key={`source-${course.code}`}
+                                          internalId={`source-${course.code}`}
+                                          courseCode={course.code}
                                           title={course.code}
-                                          disabled={isCourseAssigned(
-                                            course.code,
-                                          )}
+                                          disabled={isCourseAssigned(course.code)}
                                           isReturning={returning}
-                                          isSelected={
-                                            selectedCourse?.code === course.code
-                                          }
+                                          isSelected={selectedCourse?.code === course.code}
                                           onSelect={handleCourseSelect}
                                           containerId="courseList"
-                                          className={
-                                            !courseMatches
-                                              ? 'hidden-course'
-                                              : ''
-                                          }
+                                          isInTimeline={isCourseAssigned(course.code)}
+                                          className={!courseMatches ? 'hidden-course' : ''}
                                         />
+
                                       );
                                     })}
+                                  </Container>
+                                </Accordion.Body>
+                              </Accordion.Item>
+                              <Accordion.Item eventKey="deficiencies">
+                                <Accordion.Header>Deficiency Courses</Accordion.Header>
+                                <Accordion.Body>
+                                  <Container>
+                                    {deficiencyCourses.map((course) => (
+                                      <div key={`source-${course.code}`} className={`course-item`}>
+                                        <DraggableCourse
+                                          internalId={`source-${course.code}`}
+                                          courseCode={course.code}
+                                          title={course.code}
+                                          disabled={isCourseAssigned(course.code)}
+                                          isReturning={returning}
+                                          isSelected={selectedCourse?.code === course.code}
+                                          onSelect={handleCourseSelect}
+                                          containerId="deficiencyList"
+                                          isInTimeline={isCourseAssigned(course.code)}
+                                        />
+                                        <button
+                                          className="remove-course-btn"
+                                          onClick={() => removeDeficiencyCourse(course)}
+                                        >
+                                          ❌
+                                        </button>
+                                      </div>
+                                    ))}
                                   </Container>
                                 </Accordion.Body>
                               </Accordion.Item>
@@ -1666,8 +1804,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   <div
                     className="timeline-scroll-wrapper"
                     ref={scrollWrapperRef}
-                    onMouseMove={handleScrollMouseMove}
-                    onMouseLeave={handleScrollMouseLeave}
+                    // onMouseMove={handleScrollMouseMove}
+                    // onMouseLeave={handleScrollMouseLeave}
                     onWheel={(e) => {
                       e.preventDefault();
                       e.currentTarget.scrollLeft += e.deltaY;
@@ -1682,15 +1820,16 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                           .startsWith('exempted');
 
                         const sumCredits = semesterCourses[semester.id]
-                          .map((cCode) => {
+                          .map((instanceId) => {
                             // Look for the course in both coursePools and remainingCourses
+                            const genericCode = courseInstanceMap[instanceId] || instanceId;
                             const courseInPool = coursePools
                               .flatMap((pool) => pool.courses)
-                              .find((c) => c.code === cCode);
+                              .find((c) => c.code === genericCode);
 
                             // If course is not in coursePools, check in remainingCourses
                             const courseInRemaining = remainingCourses.find(
-                              (c) => c.code === cCode,
+                              (c) => c.code === genericCode,
                             );
 
                             // Choose the course found in either pool or remaining courses
@@ -1739,6 +1878,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                     const prerequisitesMet =
                                       arePrerequisitesMet(course.code, index);
 
+                                    const offeredCheck = isCourseOfferedInSemester(course, semester.name);
+
 
                                     return (
                                       <SortableCourse
@@ -1754,9 +1895,10 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                         onSelect={handleCourseSelect}
                                         containerId={semester.id}
                                         prerequisitesMet={prerequisitesMet} // Pass the prop
+                                        isOffered={offeredCheck}
                                         removeButton={
                                           <button
-                                            className="remove-course-btn"
+                                            className={`remove-course-btn ${isSelected ? 'selected' : ''}`}
                                             onClick={() =>
                                               handleReturn(instanceId)
                                             }
@@ -1767,14 +1909,14 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                               viewBox="0 0 30 24"
                                               fill="red"
                                               xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                              <rect
-                                                x="2"
-                                                y="11"
-                                                width="22"
-                                                height="4"
-                                                fill="white"
-                                              />
+                                            >{isSelected ? <rect x="2" y="11" width="22" height="4" fill="#912338" /> : <rect
+                                              x="2"
+                                              y="11"
+                                              width="22"
+                                              height="4"
+                                              fill="white"
+                                            />}
+
                                             </svg>
                                           </button>
                                         }
@@ -1840,34 +1982,107 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   >
                     {selectedCourse ? (
                       <div>
-                        <h5>{selectedCourse.title}</h5>
-                        <p>Credits: {selectedCourse.credits}</p>
-                        <p data-testid="course-description">
-                          {selectedCourse.description}
-                        </p>
+                        <h5><strong>{selectedCourse.title}</strong></h5>
+                        <div><strong>Credits: </strong>{selectedCourse.credits}</div>
+                        <p></p>
+
+
+                        <div>
+                          <strong>Offered In: </strong>
+                          <p>
+                            {Array.isArray(selectedCourse.offeredIn)
+                              ? selectedCourse.offeredIn.length > 0
+                                ? selectedCourse.offeredIn.join(', ')
+                                : <i>None</i>
+                              : typeof selectedCourse.offeredIn === 'string' && selectedCourse.offeredIn.trim()
+                                ? selectedCourse.offeredIn
+                                : <i>None</i>
+                            }
+                          </p>
+                        </div>
+
 
                         {selectedCourse.requisites && (
                           <div>
-                            <h5>Prerequisites/Corequisites:</h5>
-                            <ul>
-                              {groupPrerequisites(
-                                selectedCourse.requisites,
-                              ).map((group, index) => (
-                                <li key={index}>
-                                  {group.type.toLowerCase() === 'pre'
-                                    ? 'Prerequisite: '
-                                    : 'Corequisite: '}
-                                  {group.codes.join(' or ')}
-                                </li>
-                              ))}
-                            </ul>
+                            {/* Display Prerequisites */}
+                            {selectedCourse.requisites.filter(r => r.type.toLowerCase() === 'pre').length > 0 && (
+                              <>
+                                <strong>Prerequisites:</strong>
+                                <ul>
+                                  {(() => {
+                                    const preGrouped = {};
+                                    const preNonGrouped = [];
+                                    selectedCourse.requisites
+                                      .filter(r => r.type.toLowerCase() === 'pre')
+                                      .forEach(r => {
+                                        if (r.group_id) {
+                                          if (!preGrouped[r.group_id]) {
+                                            preGrouped[r.group_id] = [];
+                                          }
+                                          preGrouped[r.group_id].push(r.code2);
+                                        } else {
+                                          preNonGrouped.push(r.code2);
+                                        }
+                                      });
+                                    return [
+                                      ...Object.entries(preGrouped).map(([groupId, codes]) => (
+                                        <li key={groupId}>{codes.join(' or ')}</li>
+                                      )),
+                                      ...preNonGrouped.map((code, i) => <li key={`pre-${i}`}>{code}</li>)
+                                    ];
+                                  })()}
+                                </ul>
+                              </>
+                            )}
+
+                            {/* Display Corequisites */}
+                            {selectedCourse.requisites.filter(r => r.type.toLowerCase() === 'co').length > 0 && (
+                              <>
+                                <strong>Corequisites:</strong>
+                                <ul>
+                                  {(() => {
+                                    const coGrouped = {};
+                                    const coNonGrouped = [];
+                                    selectedCourse.requisites
+                                      .filter(r => r.type.toLowerCase() === 'co')
+                                      .forEach(r => {
+                                        if (r.group_id) {
+                                          if (!coGrouped[r.group_id]) {
+                                            coGrouped[r.group_id] = [];
+                                          }
+                                          coGrouped[r.group_id].push(r.code2);
+                                        } else {
+                                          coNonGrouped.push(r.code2);
+                                        }
+                                      });
+                                    return [
+                                      ...Object.entries(coGrouped).map(([groupId, codes]) => (
+                                        <li key={groupId}>{codes.join(' or ')}</li>
+                                      )),
+                                      ...coNonGrouped.map((code, i) => <li key={`co-${i}`}>{code}</li>)
+                                    ];
+                                  })()}
+                                </ul>
+                              </>
+                            )}
+
                             {selectedCourse.requisites.length === 0 && (
-                              <ul>
-                                <li>None</li>
-                              </ul>
+                              <>
+                                <p><i>No Requisites</i></p>
+                              </>
                             )}
                           </div>
                         )}
+                        <p>
+                          <CourseSectionButton
+                            title={selectedCourse.title}
+                            hidden={showCourseDescription}
+                          />
+                        </p>
+                        <strong>Description:</strong>
+                        <p data-testid="course-description">
+                          {selectedCourse.description}
+                        </p>
                       </div>
                     ) : (
                       <p data-testid="course-description">
@@ -2037,6 +2252,36 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             </div>
           </div>
         </DeleteModal>
+        {showDeficiencyModal && (
+          <div className="modal-overlay">
+            <div className="modal-content-def">
+              <button className="close-button" onClick={() => setShowDeficiencyModal(false)}>✕</button>
+              <h3>Add Deficiency Courses</h3>
+              <input
+                type="text"
+                placeholder="Search courses..."
+                value={searchDeficiencyQuery}
+                onChange={(e) => setSearchDeficiencyQuery(e.target.value)}
+                className="course-search-input"
+              />
+              <div className="course-list-container">
+                {allCourses
+                  .filter(course => course.code.toLowerCase().includes(searchDeficiencyQuery.toLowerCase()))
+                  .map(course => (
+                    <div key={course.code} className="course-item">
+                      {course.code}
+                      <button
+                        className="add-course-btn"
+                        onClick={() => addDeficiencyCourse(course)}
+                      >
+                        +
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        )}
       </DndContext>
     </motion.div>
   );

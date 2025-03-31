@@ -27,7 +27,7 @@
   {
     "title": "MECH 344 Machine Element Design",
     "credits": 3,
-    "prerequisites": "MECH 343.",
+    "prerequisites": "ENGR 244, MECH 313/ MIAE 313.",
     "corequisites": "MECH 343.",
     "description": "This course presents the basic principles employed in the design of standard mechanical components such as spur gears, shafts and rolling element bearings subjected to operating force and moment fields. The course highlights the adaptation of theoretical stress relationships to practical design problems.",
     "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
@@ -92,7 +92,7 @@
   {
     "title": "MECH 370 Modelling and Analysis of Dynamic Systems",
     "credits": 3.5,
-    "prerequisites": "ENGR 311.",
+    "prerequisites": "PHYS 205, ENGR 213, ENGR 243 / ENGR 245.",
     "corequisites": "ENGR 311.",
     "description": "Definition and classification of dynamic systems and components. Modelling of dynamic systems containing individual or mixed mechanical, electrical, fluid and thermal elements. Block diagrams representation and simulation techniques using MATLAB/Simulink. Time domain analysis. Transient and steady-state characteristics of dynamic systems. Linearization. Transfer functions. Introduction to feedback control systems.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
@@ -145,7 +145,7 @@
   {
     "title": "MECH 390 Mechanical Engineering Design Project",
     "credits": 3.5,
-    "prerequisites": "MECH 344.",
+    "prerequisites": "MECH 311 / MIAE 311, MECH 343, MIAE 380.",
     "corequisites": "MECH 344.",
     "description": "This course covers the following topics: the design process; product cost, quality and time to market, open and concept design problems, problem description; geometric and type synthesis; direct and inverse design problems; material selection and load determination; mathematical modelling, analysis, and validation; introduction to Computer-Aided Design and Engineering (CAD and CAE); product evaluation for performance, tolerance, cost, manufacture, assembly, and other measures; design documentation. A team-based design project is an intrinsic part of this course.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 1 hour per week",
@@ -170,7 +170,7 @@
   {
     "title": "MECH 414 Computer Numerically Controlled Machining",
     "credits": 3.5,
-    "prerequisites": "MIAE 312.",
+    "prerequisites": "MECH 311 / MIAE 311.",
     "corequisites": "MIAE 312.",
     "description": "This course focuses on computer-aided design and manufacturing (CAD/CAM) hardware and software. The following topics are covered: essentials of Computer Numerical Control (CNC) machine tools and systems; process planning and tooling systems for CNC machining, theory of CNC programming of sculptured parts; multi-axis CNC tool path generation; project using CAD/CAM software; CATIA for complex mechanical parts design and a CNC machine tool to manufacture parts.",
     "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -228,7 +228,7 @@
   {
     "title": "MECH 424 MEMS — Design and Fabrication",
     "credits": 3.5,
-    "prerequisites": "MIAE 312.",
+    "prerequisites": "MECH 311 / MIAE 311, MECH 343.",
     "corequisites": "MIAE 312.",
     "description": "This course is an introduction to microsystems and devices; mechanical properties of materials used in microsystems; microfabrication and post-processing techniques; sacrificial and structural layers; lithography, deposition and etching; introduction and design of different types of sensors and actuators; micromotors and other microdevices; mechanical design, finite element modelling; design and fabrication of free-standing structures; microbearings; special techniques: double-sided lithography, electrochemical milling, laser machining, LIGA, influence of IC fabrication methods on mechanical properties; application examples in biomedical, industrial, and space technology areas; integration, bonding and packaging of MEMS devices.",
     "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -238,7 +238,7 @@
   {
     "title": "MECH 425 Manufacturing of Composites",
     "credits": 3.5,
-    "prerequisites": "MIAE 312.",
+    "prerequisites": "MECH 311 / MIAE 311.",
     "corequisites": "MIAE 312.",
     "description": "This course focuses on fibres and resins. The following topics are covered: hand lay up; autoclave curing; compression molding; filament winding; resin transfer molding; braiding. Injection molding; cutting; joining; thermoset and thermoplastic composites; Polymer Nanocomposites; process modelling and computer simulation; non-destructive evaluation techniques.",
     "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -283,7 +283,7 @@
   {
     "title": "MECH 447 Fundamentals of Vehicle System Design",
     "credits": 3,
-    "prerequisites": "MECH 375.",
+    "prerequisites": "MECH 343.",
     "corequisites": "MECH 375.",
     "description": "This course covers the following topics: tire mechanics; performance characteristics of road vehicles such as maximum acceleration, velocity and gradability; driving condition diagrams; brake system design, braking performance, ideal braking force distribution, braking efficiency, and antilock braking system; handling characteristics, steady-state and transient responses to steering inputs, transient measurement methods, and directional stability; ride analysis, suspension system design and modelling, and simple ride models. This course includes case studies using Car Sim and m ini projects.",
     "components": "Lecture 3 hours per week",
@@ -375,8 +375,8 @@
   {
     "title": "MECH 468 Wind Turbine Engineering",
     "credits": 3,
-    "prerequisites": "MECH 344.",
-    "corequisites": "MECH 344.",
+    "prerequisites": "MECH 343, MECH 361.",
+    "corequisites": "MECH 344, MECH 371.",
     "description": "This course is designed to cover the theoretical and practical areas pertinent to the operation of wind turbines. The following topics are covered: energy in the wind; aerodynamic drag and lift of turbine blades; horizontal axis and vertical axis wind turbine designs; generators; control systems; mechanical load analysis such as blade, tower, generator and gearbox; blade and tower design; turbine braking; economical, environmental and safety aspects. Notes: Students who have received credit for MECH 462 may not take this course for credit.",
     "components": null,
     "notes": null,
@@ -399,7 +399,7 @@
   {
     "title": "MECH 472 Mechatronics and Automation",
     "credits": 3.5,
-    "prerequisites": "MECH 371.",
+    "prerequisites": "MECH 215 / MIAE 215.",
     "corequisites": "MECH 371.",
     "description": "This course focuses on design and analysis of mechatronic and automation systems. The following topics are covered: selection and integration of actuators, sensors, hardware, and software; computer vision; programming and software design for mechatronic systems; modelling and simulation; design of logic control systems; finite state machine methods; feedback control and trajectory generation; safety logic systems; case studies including automation systems, mobile robots, and unmanned vehicle systems.",
     "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -435,8 +435,8 @@
   {
     "title": "MECH 476 Generative Design and Manufacturing in Engineering",
     "credits": 3,
-    "prerequisites": "AERO 390.",
-    "corequisites": "AERO 390.",
+    "prerequisites": "MECH 313 / MIAE 313.",
+    "corequisites": "AERO 390 / MECH 390.",
     "description": "Generative design is a form-finding process that can mimic nature's evolutionary approach to design. It can start with design goals and then explore innumerable possible permutations of a solution to find the best option. This course provides fundamental information on generative design and manufacturing in engineering. The core techniques from mathematics to artificial intelligence that are commonly used in the creative industry are discussed. The formal paradigms and algorithms used for generation as well as cloud computing are also covered.",
     "components": "Lecture 3 hours per week",
     "notes": null,

@@ -29,7 +29,7 @@
     {
         "title": "CIVI 341 Civil Engineering Systems",
         "credits": 3,
-        "prerequisites": "BCEE 231.",
+        "prerequisites": "",
         "corequisites": "BCEE 231.",
         "description": "Development of concepts and techniques commonly associated with systems engineering which are applicable to design and operation of systems that concern civil engineers. Design and planning process; problem formulation, optimization concepts, linear programming, decision analysis; system simulation; network planning and project scheduling; computer applications. The techniques developed are used to solve problems in transportation, water resources, structures, and construction management.",
         "components": "Lecture 3 hours per week",
@@ -74,8 +74,8 @@
     {
         "title": "CIVI 390 Civil Engineering Design Project",
         "credits": 3.5,
-        "prerequisites": "CIVI 361.",
-        "corequisites": "CIVI 361.",
+        "prerequisites": "ENCS 282.",
+        "corequisites": "CIVI 361 , BCEE 344, BCEE 345",
         "description": "The project of each team encompasses the various stages of design of a medium-size civil engineering project. Students learn civil engineering design process, methodology, identification of objectives, codes, formulation of design problems, and estimation of loads on structures. The topics of design include the development and evaluation of sustainable design alternatives; and the computer-aided design tools. Additionally, performance evaluation using modelling, sensitivity analysis, and cost estimation is presented.",
         "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
         "notes": null

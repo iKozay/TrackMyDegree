@@ -26,7 +26,7 @@
   {
     "title": "CIVI 321 Engineering Materials",
     "credits": 3.75,
-    "prerequisites": "CHEM 205 / equivalent.",
+    "prerequisites": "CHEM 205",
     "corequisites": "",
     "description": "Linear and nonlinear material behaviour, time-dependent behaviour; structural and engineering properties of structural metals; behaviour of wood; production and properties of concrete; bituminous materials, ceramics, plastics; introduction to composite materials.",
     "components": "Lecture 3 hours per week; Laboratory 3 hours per week, alternate weeks",
@@ -39,7 +39,7 @@
   {
     "title": "CIVI 341 Civil Engineering Systems",
     "credits": 3,
-    "prerequisites": "BCEE 231.",
+    "prerequisites": "",
     "corequisites": "BCEE 231.",
     "description": "Development of concepts and techniques commonly associated with systems engineering which are applicable to design and operation of systems that concern civil engineers. Design and planning process; problem formulation, optimization concepts, linear programming, decision analysis; system simulation; network planning and project scheduling; computer applications. The techniques developed are used to solve problems in transportation, water resources, structures, and construction management.",
     "components": "Lecture 3 hours per week",
@@ -90,7 +90,7 @@
   {
     "title": "CIVI 382 Water Resources Engineering",
     "credits": 3.5,
-    "prerequisites": "CIVI 381; ENGR 391 / EMAT 391.",
+    "prerequisites": "CIVI 381; ENGR 391",
     "corequisites": "",
     "description": "Sources of water: surface water, groundwater, water quantities and requirements. Water use cycle. Characteristics of water and wastewater. Demand forecast, water use prediction and planning. Groundwater withdrawal and well hydraulics. Water supply network analysis, design of distribution systems, storage, pumping. Sanitary and storm water quantities, urban hydrology. Design of sewer systems, interceptors, gravity sewer, computer applications. Sustainable use of water resources. Design case studies.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
@@ -102,8 +102,8 @@
   {
     "title": "CIVI 390 Civil Engineering Design Project",
     "credits": 3.5,
-    "prerequisites": "CIVI 361.",
-    "corequisites": "CIVI 361.",
+    "prerequisites": "ENCS 282",
+    "corequisites": "CIVI 361, BCEE 344, BCEE 345",
     "description": "The project of each team encompasses the various stages of design of a medium-size civil engineering project. Students learn civil engineering design process, methodology, identification of objectives, codes, formulation of design problems, and estimation of loads on structures. The topics of design include the development and evaluation of sustainable design alternatives; and the computer-aided design tools. Additionally, performance evaluation using modelling, sensitivity analysis, and cost estimation is presented.",
     "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
     "notes": null,
@@ -149,8 +149,8 @@
   {
     "title": "CIVI 453 Design of Reinforced Concrete Structures",
     "credits": 3.5,
-    "prerequisites": "CIVI 390.",
-    "corequisites": "CIVI 390.",
+    "prerequisites": "BCEE 345.",
+    "corequisites": "CIVI 390 / BLDG 390",
     "description": "This course covers a wide variety of topics on reinforced concrete including two-way slab systems (flat plate, flat slab and slab-on-beams); slender columns; columns subjected to biaxial bending; lateral loads resisting systems (moment-resisting frames, shear walls and coupled shear walls); prestressed concrete (losses, design requirements for flexure, shear, bond, anchorage and deflections). Design project.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
     "notes": null,
@@ -161,8 +161,8 @@
   {
     "title": "CIVI 454 Design of Steel Structures",
     "credits": 3.5,
-    "prerequisites": "CIVI 390.",
-    "corequisites": "CIVI 390.",
+    "prerequisites": "BCEE 344",
+    "corequisites": "CIVI 390 / BLDG 390",
     "description": "This course covers a wide variety of topics on steel structures: trends and developments in structural-steel design, framing systems, floor systems such as composite construction and plate girders, braced frames, and moment-resisting frames. The subject includes connections and P-Delta effects. A design project is required.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
     "notes": null,
@@ -293,7 +293,7 @@
   {
     "title": "CIVI 490 Capstone Civil Engineering Design Project",
     "credits": 6,
-    "prerequisites": "Students must complete a minimum of 75 credits in the B Eng (Civil) including the following courses: ENGR 301; CIVI 361, CIVI 390; BCEE 344, BCEE 345.",
+    "prerequisites": "ENGR 301, CIVI 361, CIVI 390, BCEE 344, BCEE 345.",
     "corequisites": "",
     "description": "The project of each team will encompass the integrated design of at least two sub-disciplines of civil engineering to achieve high performance at reasonable cost. Through case studies and literature survey, students learn the information gathering and decision/design process, problem resolution, and aspects related to management, teamwork, and communication. Students registering for this course must contact the course coordinator for the detailed procedure.",
     "components": "Lecture 3 hours per week, two terms",

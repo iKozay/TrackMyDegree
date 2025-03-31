@@ -16,8 +16,6 @@ COMP 348
 COMP 352
 COMP 354
 
-
-
 [BCompSc Complementary Core (6 credits)]
 ENCS 282
 ENCS 393
@@ -1467,53 +1465,9 @@ GEOL 414
 GEOL 415
 GEOL 440
 GEOL 498
-
-
-
-
-
-
-
-[General Elective French (Max 6 credits only)]
 FRAN 211
 FRAN 212
 FRAN 215
-
-
-[Artificial Intelligence Group: BCompSc]
-COMP 425
-COMP 432
-COMP 472
-COMP 473
-COMP 474
-COMP 479
-
-[Computer Games Group: BCompSc]
-COMP 345
-COMP 371
-COMP 376
-COMP 438
-COMP 475
-COMP 476
-COMP 477
-
-
-[Data Analytics Group: BCompSc]
-COMP 333
-COMP 353
-COMP 432
-COMP 479
-MAST 324
-SOEN 471
-
-
-[Web Services and Applications Group: BCompSc]
-COMP 353
-COMP 445
-COMP 479
-SOEN 287
-SOEN 387
-SOEN 487
 
 
 

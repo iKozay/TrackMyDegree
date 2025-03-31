@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import * as Sentry from '@sentry/react';
 
 // Set the worker source for PDF.js
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
 const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   const isFirstRender = useRef(true);
@@ -58,6 +58,9 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     }
     const startingSemester = `${selectedTerm} ${selectedYear}`;
 
+    const matched_degree = degrees.find(d => d.id === selectedDegreeId);
+    const credits_Required = matched_degree.totalCredits;
+
     // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
     localStorage.setItem('Timeline_Name', null);
 
@@ -67,6 +70,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         degree_Id: selectedDegreeId,
         startingSemester: startingSemester,
         coOp: selectedRadio.coOp,
+        credits_Required: credits_Required,
         extendedCredit: selectedRadio.extendedCredit,
         creditDeficiency: selectedRadio.creditDeficiency,
       },
@@ -175,6 +179,9 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
           //const degreeInfo = extractedData.degree || "Unknown Degree";
           const degreeId = extractedData.degreeId || 'Unknown'; // Map degree to ID
 
+          const matched_degree = degrees.find(d => d.id === degreeId);
+          const credits_Required = matched_degree.totalCredits;
+
           if (transcriptData.length > 0) {
             localStorage.setItem('Timeline_Name', null);
             onDataProcessed({
@@ -185,6 +192,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
             navigate('/timeline_change', {
               state: {
                 coOp: selectedRadio.coOp,
+                credits_Required: credits_Required,
                 extendedCredit: extractedData.details.extendedCreditProgram,
                 creditDeficiency: extractedData.details.creditDeficiency,
               },
@@ -202,35 +210,17 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   const extractAcceptanceDetails = (pagesData) => {
     const details = {};
 
-    // List of specific programs to check for
-    const programNames = [
-      'Aerospace Engineering',
-      'Building Engineering',
-      'Civil Engineering',
-      'Computer Engineering',
-      'Computer Science',
-      'Computer Science (Minor)',
-      'Computer Science - Computation Arts',
-      'Data Science',
-      'Electrical Engineering',
-      'Health and Life Sciences',
-      'Indigenous Bridging Program',
-      'Industrial Engineering',
-      'Mechanical Engineering',
-      'Science and Technology',
-      'Software Engineering',
-    ];
-    const degreeMapping = {
-      'Aerospace Engineering': 'D1',
-      'Building Engineering': 'D2',
-      'Civil Engineering': 'D3',
-      'Computer Engineering': 'D4',
-      'Computer Science': 'D5',
-      'Electrical Engineering': 'D6',
-      'Industrial Engineering': 'D7',
-      'Mechanical Engineering': 'D8',
-      'Software Engineering': 'D9',
-    };
+    // Prgram names
+    const programNames = degrees.map(degree => degree.name);
+
+    // Degree mapping
+    const degreeMapping = {};
+    degrees.forEach(({ name, id }) => {
+      degreeMapping[name] = id;
+    });
+
+    console.log("degrees", degrees)
+
     let degree = null;
     let degreeId = null;
 
@@ -592,11 +582,13 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
                 >
                   <option value="">-- Select a Degree --</option>
                   {degrees && degrees.length > 0 ? (
-                    degrees.map((degree) => (
-                      <option key={degree.id} value={degree.id}>
-                        {degree.name}
-                      </option>
-                    ))
+                    degrees
+                      .sort((a, b) => a.name.localeCompare(b.name)) // Sort degrees alphabetically by name
+                      .map((degree) => (
+                        <option key={degree.id} value={degree.id}>
+                          {degree.name}
+                        </option>
+                      ))
                   ) : (
                     <option value="" disabled>
                       No degrees available

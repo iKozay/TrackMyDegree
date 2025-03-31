@@ -1,0 +1,676 @@
+[
+  {
+    "title": "CHEM 203 Forensic Analysis",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course introduces the non‑science student to the fundamentals of chemical analysis as it is used in modern forensics. It introduces the basic concepts of the scientific method, molecules and chemical reactions, primarily focusing on chemical analysis. The key techniques used in modern forensics are presented with applications in drug, DNA, fingerprint, explosive and combustion/ arson analysis.",
+    "components": "Online",
+    "notes": "Students registered in a Chemistry or Biochemistry program may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 204 From Alchemy to Modern Chemistry: A Historical Evolution of Chemistry",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the development of chemistry before the 20th century from the Greek, Chinese and Islamic religions and philosophies to the development of measurement and instrumentation to analyze matter. The objective is to understand the roots of modern chemistry, and look at contributions and principles that are representative of the period in which they emerged.",
+    "components": "Online",
+    "notes": "This course is not a prerequisite for any Chemistry course. Students in programs leading to the BSc degree may take this course as an elective, but may not take this course for credit to be applied to their program of concentration.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 205 General Chemistry I",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This is a general chemistry course for science and engineering students. Topics include quantitative tools (measurements, precision, and accuracy), substances (formulas/names, composition, solutions, electrolytes, and properties of gases), chemical reactions (precipitation, acid-base, oxidation-reduction, and stoichiometry and analysis), properties of atoms (the quantum model, electron configurations, and periodic trends), and properties of molecules (orbitals and bonding, Lewis structures, and polarity).",
+    "components": "Lecture; Tutorial; Laboratory",
+    "notes": "Students in programs leading to the BSc degree may not take this course for credit to be applied to their program of concentration.This course requires a good grounding in secondary‑school mathematics (such as in advanced functions and pre-calculus), and physical science. Students who have successfully completed a similar chemistry course in Cegep should check on their Concordia student record if they have received an exemption and, if not exempt, submit a Student Request to have their Cegep course assessed for equivalence.",
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 206 General Chemistry II",
+    "credits": 3,
+    "prerequisites": "CHEM 205.",
+    "corequisites": "",
+    "description": "This course covers the principles of chemical reactivity from a fundamental and quantitative perspective. Topics include thermochemistry and driving forces, intermolecular forces, liquids and solubility, kinetics and reaction mechanisms, equilibrium and reaction outcomes, acid-base strengths and reactions, aqueous pH calculations, buffers, titrations, and solubility equilibria.",
+    "components": "Lecture; Tutorial; Laboratory",
+    "notes": "Students in programs leading to the BSc degree may not take this course for credit to be applied to their program of concentration.Students who have successfully completed the Cegep equivalent for this course should verify on their Concordia student record that they have received an exemption. Similarly, students who have successfully completed the equivalent course at another university should verify on their Concordia student record that they have received credit or exemption as appropriate for this course. If not, they should see the departmental advisor.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 208 Chemistry in Our Lives",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course is designed as an introduction to chemistry for non‑science students. It concentrates on establishing the chemical concepts and vocabulary necessary to understand the many roles chemistry plays in people’s daily lives. Issues to be presented will range from design and testing of drugs to protection of the ozone layer. The chemical phenomena, methodology, and theory will be presented as needed to understand the various issues covered in the course.",
+    "components": "Online",
+    "notes": "This course is not a prerequisite for any Chemistry course. This course may not be taken for credit by science students.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 209 Discovering Biotechnology",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "The course begins with an exploration of the roles of genes and proteins in life processes. It then proceeds to an examination of the basic scientific principles behind manipulation of biological molecules to produce desired changes. Students are introduced to the specific applications of the technology to medicine, agriculture, and the environment. Economic and ethical issues raised by biotechnology are also examined.",
+    "components": "Lecture",
+    "notes": "This course is intended for non‑scientists, and may not be taken for credit by Biochemistry or Biology students.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 212 Analytical Chemistry for Biology and Environmental and Sustainability Science",
+    "credits": 3,
+    "prerequisites": "CHEM 205, CHEM 206; PHYS 204, PHYS 206, PHYS 224, PHYS 226; MATH 205; or equivalents for all prerequisite courses.",
+    "corequisites": "",
+    "description": "This course introduces the basic concepts of analytical chemistry for biology and environmental and sustainability science students. Topics include treatment of analytical data; chemical equilibria and titrations; introduction to spectroscopy; separation science; electrochemistry.",
+    "components": "Lecture; Laboratory",
+    "notes": "This course may not be taken for credit by students registered in a Chemistry or Biochemistry program.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 217 Introductory Analytical Chemistry I",
+    "credits": 3,
+    "prerequisites": "CHEM 205, CHEM 206; PHYS 204, PHYS 206, PHYS 224, PHYS 226; MATH 203, MATH 205; or equivalents for all prerequisite courses.",
+    "corequisites": "",
+    "description": "This course introduces basic concepts in analytical chemistry. Topics may include precipitation methods and solubility products; activity, chemical equilibria, and titration curves of neutralization and complexation systems; treatment of analytical data; and introductory chromatography.",
+    "components": "Lecture; Laboratory",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "CHEM 218 Introductory Analytical Chemistry II",
+    "credits": 3,
+    "prerequisites": "CHEM 217.",
+    "corequisites": "",
+    "description": "Chemical equilibria and titration curves of oxidation‑reduction, precipitation, and non‑aqueous systems; potentiometry and potentiometric titrations; introduction to spectroscopy with emphasis on molecular and atomic absorption spectroscopy, fluorescence spectroscopy.",
+    "components": "Lecture; Laboratory",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 221 Introductory Organic Chemistry I",
+    "credits": 3,
+    "prerequisites": "CHEM 205, CHEM 206.",
+    "corequisites": "",
+    "description": "Basic aspects of orbitals and their role in covalent bonding; delocalization of electrons. Alkanes: structure, nomenclature, isomerism, reactions. Introductory stereochemistry: enantiomers, diastereomers, conformers, Fischer and Newman projections, specification of chirality, E/Z isomerism. Conformations of cyclic compounds. Alkylhalides: SN1; SN2; E1; E2 reaction mechanisms. Free‑radical reactions, organometallic compounds. Chemistry of alkenes, alkynes, and dienes.",
+    "components": "Lecture; Laboratory",
+    "notes": "Students who have successfully completed the Cegep equivalent for this course should verify on their Concordia student record that they have received an exemption. Similarly, students who have successfully completed the equivalent course at another university should verify on their Concordia student record that they have received credit or exemption as appropriate for this course. If not, they should see the departmental advisor.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 222 Introductory Organic Chemistry II",
+    "credits": 3,
+    "prerequisites": "CHEM 221.",
+    "corequisites": "",
+    "description": "Introduction to the use of IR and NMR spectroscopy for the identification of simple organic compounds. Benzene and aromatic compounds: aromaticity, electrophilic aromatic substitution, nucleophilic aromatic substitution, substituent effects. Chemistry of aldehydes and ketones: nucleophilic addition, oxidation, reduction, and condensation reactions, tautomerism. Chemistry of carboxylic acids and their derivatives. Chemistry of alcohols, ethers, and related compounds. Amines: basicity, reactions.",
+    "components": "Lecture; Laboratory",
+    "notes": "Students who have successfully completed the Cegep equivalent for this course should verify on their Concordia student record that they have received an exemption. Similarly, students who have successfully completed the equivalent course at another university should verify on their Concordia student record that they have received credit or exemption as appropriate for this course. If not, they should see the departmental advisor.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 234 Physical Chemistry I: Thermodynamics",
+    "credits": 3,
+    "prerequisites": "CHEM 205, CHEM 206; PHYS 204, PHYS 206, PHYS 224, PHYS 226; MATH 203, MATH 205; or equivalents for all prerequisite courses.",
+    "corequisites": "",
+    "description": "The properties of real gases; fugacities; first, second and third laws of thermodynamics; the Phase Rule; one‑ and two‑component systems; real solutions, and partial molal properties.",
+    "components": "Lecture; Tutorial",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 235 Physical Chemistry II: Kinetics of Chemical Reactions",
+    "credits": 3,
+    "prerequisites": "CHEM 234.",
+    "corequisites": "",
+    "description": "Mathematical treatment of experimental results; theories of reaction rates; unimolecular reactions; the steady‑state approximation; factors influencing rates of reactions in solution; acid‑base catalysis; catalysis by enzymes and the Michaelis‑Menten mechanism; free‑radical reactions; photochemical reactions; experimental methods and techniques.",
+    "components": "Lecture; Laboratory",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 241 Inorganic Chemistry I: Introduction to Periodicity and Valence Theory",
+    "credits": 3,
+    "prerequisites": "CHEM 205, CHEM 206; PHYS 204, PHYS 206, PHYS 224, PHYS 226; MATH 203, MATH 205; or equivalents for all prerequisite courses.",
+    "corequisites": "",
+    "description": "The structure of the atom; the periodic table; properties of atoms, covalent bonding treatments including Lewis theory, valence shell electron pair repulsion theory of structure, valence bond and molecular orbital theory. Crystal field theory applied to the structure and properties of transition metal complexes. Bonding theories of metallic materials and semi‑conductors.",
+    "components": "Lecture; Laboratory",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 242 Inorganic Chemistry II: The Chemistry of the Main Group Elements",
+    "credits": 3,
+    "prerequisites": "CHEM 241.",
+    "corequisites": "",
+    "description": "A survey of the properties and reactions of: hydrogen; Group 1, lithium to cesium; and Group 2, beryllium to radium; including the theory of ionic bonding and structure. The descriptive chemistry of Group 13, boron to thallium; Group 14, carbon to lead; Group 15, nitrogen to bismuth; Group 16, sulphur to polonium; Group 17, the halogens; and Group 18, the chemistry of the noble gases.",
+    "components": "Lecture; Laboratory",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 271 Biochemistry I",
+    "credits": 3,
+    "prerequisites": "CHEM 221.",
+    "corequisites": "",
+    "description": "An introduction to the essentials of biochemistry: protein structure, enzymology, carbohydrate metabolism, electron transport, integration and regulation of metabolism.",
+    "components": "Lecture; Tutorial; Laboratory",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 283 Air, Water and Soil Processes",
+    "credits": 3,
+    "prerequisites": "CHEM 212 or CHEM 217. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course is an introduction to environmental chemistry. It provides a solid understanding of environmental processes in the atmosphere, hydrosphere and soil including exchange processes at their interfaces. Students learn how sources and sinks of pollutants work and how to calculate fluxes between environmental compartments. The course also examines the analytical methods employed for monitoring these processes.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a CHEM 298 number may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 293 Spectroscopy and Structure of Organic Compounds",
+    "credits": 3,
+    "prerequisites": "CHEM 222.",
+    "corequisites": "",
+    "description": "This course examines the identification of organic compounds using methods based on electronic, vibrational, nuclear magnetic resonance and mass spectroscopies. In each case, there is an introduction to the principles of the spectroscopy and a discussion of how its spectra vary with structure. Particular emphasis is placed upon the UV‑visible spectra of conjugated molecules; the identification of functional groups by IR spectroscopy; the use of NMR spectroscopy, including 2D methods, for the determination of stereochemistry; and the use of mass spectrometry for ascertaining molecular constitution. The use of computer simulation and information retrieval for structure determination is introduced.",
+    "components": "Lecture; Laboratory",
+    "notes": "Students who have received credit for CHEM 393 may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 298 Selected Topics in Chemistry",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 312 Intermediate Analytical Chemistry",
+    "credits": 3,
+    "prerequisites": "CHEM 218 or CHEM 212.",
+    "corequisites": "",
+    "description": "This course is a continuation of introductory analytical chemistry courses, with emphasis on instrumental methods of analysis. Emission spectroscopy; X-ray spectroscopy; voltammetry and polarography; amperometric titrations; coulometry and coulometric titrations, conductometry; chromatography with particular emphasis on gas chromatography, and high-performance liquid chromatography.",
+    "components": "Lecture; Laboratory",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "summer"
+    ]
+  },
+  {
+    "title": "CHEM 324 Organic Chemistry III: Organic Reactions",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Topics in this course include a mechanistic survey of reactions of major synthetic utility, the determination of reaction mechanisms, and the importance of reactive intermediates including carbocations, carbanions, radicals, and carbenes.",
+    "components": "Lecture; Laboratory",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 325 Organic Chemistry IV: Organic Structure and Stereochemistry",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course focuses on organic structure and stereochemistry including the relationship of stereochemistry to physical properties and chemical reactivity, and the determination of organic structure and stereochemistry by chemical and spectroscopic means. The concept of molecular symmetry is also introduced.",
+    "components": "Lecture; Laboratory",
+    "notes": null,
+    "offeredIn": [
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 326 Natural Products",
+    "credits": 3,
+    "prerequisites": "CHEM 324.",
+    "corequisites": "",
+    "description": "The structures, mechanisms of action, and biosynthetic origins of biologically important compounds such as fatty acids, polyketides, terpenes, steroids, alkaloids, and beta‑lactam antibiotics are discussed. The role of traditional organic chemistry in the development of modern biochemistry and biotechnology is illustrated with examples from medicine and agriculture.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 327 Organic Chemistry of Polymers",
+    "credits": 3,
+    "prerequisites": "CHEM 222.",
+    "corequisites": "",
+    "description": "Introduction to the fundamental aspects of polymers and polymerization. Methods of preparation, reaction mechanisms and kinetics of polymer synthesis including condensation polymerization; addition polymerization: free radical, anionic, cationic; heterogeneous (Ziegler‑Natta) and homogeneous (metallocenes) coordination polymerization. Polymer characterization and uses. Lectures and problem sessions.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 333 Introduction to Quantum Theory",
+    "credits": 3,
+    "prerequisites": "CHEM 234, CHEM 241.",
+    "corequisites": "",
+    "description": "The course introduces students to the concept of quantum mechanics and the electronic structure of atoms and molecules. Topics include the origins and postulates of quantum theory, the Schrödinger equation and applications to simple systems such as the harmonic oscillator, rigid rotor and the hydrogen atom. The course looks at the quantum mechanical treatment of the chemical bond and provides an introduction to spectroscopy.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 335 Biophysical Chemistry",
+    "credits": 3,
+    "prerequisites": "CHEM 234, CHEM 235, CHEM 271, CHEM 293.",
+    "corequisites": "",
+    "description": "This course examines the physical basis for the structures of biomolecules (energetics of protein folding), the organization and structures of bio‑membranes and biologically relevant systems, and intermolecular interactions (e.g. ligand binding). Both fundamental theory and techniques used to characterize these physical properties are covered.",
+    "components": "Lecture; Laboratory",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "CHEM 341 Inorganic Chemistry III: The Transition Metals",
+    "credits": 3,
+    "prerequisites": "CHEM 217, CHEM 218, CHEM 241, CHEM 242.",
+    "corequisites": "",
+    "description": "Theories of bonding in transition metal complexes, including ligand field theory, applied to structure, physical properties, and reactivity of transition metal complexes: organometallic chemistry and catalysis. Metals in biological systems.",
+    "components": "Lecture; Laboratory",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "CHEM 375 Biochemistry II",
+    "credits": 3,
+    "prerequisites": "CHEM 221, CHEM 222, CHEM 271.",
+    "corequisites": "",
+    "description": "A survey of selected pathways in intermediary metabolism, including their regulation and physiological significance, lipid, amino acid and nucleoside metabolism, cholesterol biosynthesis, urea cycle and the biochemistry of protein synthesis.",
+    "components": "Lecture; Laboratory",
+    "notes": null,
+    "offeredIn": [
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 398 Selected Topics in Chemistry",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 411 Advanced Bioanalytical Chemistry",
+    "credits": 3,
+    "prerequisites": "Six credits of 300-level courses and CHEM 271 and CHEM 312. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course presents the concepts, tools and common instrumental techniques employed in modern bioanalytical chemistry for the quantitative analysis of drugs, metabolites, toxins, environmental contaminants, biomarkers, proteins, biotherapeutics and/or DNA in biological samples. Topics may include sample preparation, mass spectrometry, immunoassays, biosensors, microfluidics, bioanalytical method validation and discussion of emerging bioanalytical techniques and trends. The applications discussed encompass toxicology, forensics, pharmacokinetics, metabolism, clinical chemistry, environmental analysis, and biotechnology.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 412 Analytical Separations",
+    "credits": 3,
+    "prerequisites": "CHEM 218 and CHEM 312. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "High-performance liquid separations on an analytical (non-preparative) scale are surveyed. Fundamental separation mechanisms and application of the techniques are discussed. Emphasis is placed on separations of biologically relevant analytes which include peptides, proteins and nucleic acids.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for CHEM 415 or for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 414 Modern Aspects of Mass Spectrometry: Metabolomics and Proteomics",
+    "credits": 3,
+    "prerequisites": "Six credits of 300-level courses and CHEM 271 or CHEM 312. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course surveys and critically discusses the state-of the-art mass spectrometry-based approaches that are driving the metabolomics and proteomics revolution for applications such as shotgun proteomics, quantitative proteomics, posttranslational modifications, top-down proteomics, untargeted metabolomics, lipidomics, metallomics, structural biology and molecular structure characterization.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 419 Independent Study and Practicum",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "In collaboration with and under the direction of a member of Faculty, the student carries out independent study and practical work on a problem chosen from the student’s area of concentration. The student presents his or her work to the Department in the form of a scientific poster and submits a written report to the supervisor.",
+    "components": "Laboratory",
+    "notes": "During the academic session before the one in which this project is to be undertaken, the student must have obtained the consent of the Department, by consultation with the CHEM 419 coordinator, and must have also been accepted by a faculty supervisor. Independent study and practical work.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 421 Physical Organic Chemistry",
+    "credits": 3,
+    "prerequisites": "CHEM 222, CHEM 235; CHEM 324 or CHEM 325.",
+    "corequisites": "",
+    "description": "Determination of organic reaction mechanisms using kinetics, activation parameters, acid‑base catalysis, Bronsted catalysis law, solvent effects, medium effects, isotope effects, substitutent effects, and linear free energy relationships.",
+    "components": "Lecture; Laboratory",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 424 Organic Synthesis",
+    "credits": 3,
+    "prerequisites": "CHEM 324. Students must have completed 30 credits in chemistry prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course is designed to introduce students to advanced methods in organic molecule synthesis. It includes an introduction to retrosynthetic analysis, a survey of some important classes of reactions, with particular emphasis on mechanistic understanding and rationale for observed selectivity when appropriate. The strategic use of specific reactions in complex molecule synthesis is highlighted.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 425 Nucleic Acid Chemistry",
+    "credits": 3,
+    "prerequisites": "CHEM 222, CHEM 271.",
+    "corequisites": "",
+    "description": "This course introduces students to various topics in nucleic acid chemistry. The topics include nomenclature, structure and function of RNA and DNA; techniques and methods to investigate nucleic acid structure; DNA damage and repair; interaction of small molecules and proteins with nucleic acid; oligonucleotide‑based therapeutics (antisense, antigene, RNAi); synthesis of purines, pyrimidines and nucleosides; and solid‑phase oligonucleotide synthesis.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 427 Polymer Chemistry and Nanotechnology",
+    "credits": 3,
+    "prerequisites": "CHEM 222. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course introduces some basic aspects of polymer chemistry with an emphasis on polymer synthesis. Various methods are discussed, including classical step growth, free radical, and ring opening polymerization; and other more recent methods such as living anionic, living cationic, and living controlled/radical polymerization. Additionally, the design and development of functional polymers as building blocks to develop nanomaterials for bio‑related applications, particularly drug delivery applications, are presented. Other topics may include amphiphilic block copolymers, self‑assembly, micellar nanocarriers, cellular imaging, multifunctional drug delivery, cross‑linked nanogels/hydrogels, materials science, and biomedical engineering.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "CHEM 428 Medicinal Chemistry",
+    "credits": 3,
+    "prerequisites": "CHEM 293, CHEM 324.",
+    "corequisites": "",
+    "description": "This course provides an introduction to the small molecule drug discovery process, addressing early target identification, hit discovery, lead optimization, preclinical considerations, up to clinical trials. The course focuses primarily on the rational design and synthesis of drugs that employ multidisciplinary approaches to satisfy a multitude of specificity and safety requirements. The emphasis is on organic synthesis within the special context of medicinal chemistry that illustrates the challenges involved in leveraging the opportunities presented by high throughput, parallel and/or combinatorial synthesis in light of physical limitations imposed by processing large numbers of compounds. Case studies from the current literature are used to highlight how new technologies and strategies have overcome some of those limitations and are used to highlight recent innovations in the field. The course also charts the evolution of powerful techniques from structural research (NMR, X-ray crystallography, and computational modelling) as fully integrated medicinal chemistry tools for modern drug-discovery to highlight key advances.",
+    "components": null,
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 431 Computational Chemistry for Chemists and Biochemists",
+    "credits": 3,
+    "prerequisites": "CHEM 234, CHEM 241; CHEM 333 or CHEM 335. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course presents the concepts, tools, and techniques of modern computational chemistry, and provides a very broad overview of the various fields of application across chemistry and biochemistry. The course is divided into two parts: 1) Molecular structure, which covers molecular mechanics and elementary electronic structure theory of atoms and molecules; and 2) Chemical reactivity, which covers applications of quantum chemistry and molecular dynamics techniques to studies of chemical reactions. The applications discussed include organic molecules and their reactions, peptides and proteins, drug design, DNA, polymers, inorganics, and materials. The course includes a practical component where students acquire hands‑on experience with commonly used computational chemistry computer software.",
+    "components": "Lecture; Laboratory",
+    "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 435 Interfacial Phenomena",
+    "credits": 3,
+    "prerequisites": "CHEM 234, CHEM 235.",
+    "corequisites": "",
+    "description": "This course examines the physical chemistry of interfaces including surface and interfacial tensions, the absorption of surface active substances/surface excess properties, and surfactant self‑assembly. Topics covered may include Gibbs and Langmuir monolayers, micelle formation, emulsions, foams, surfactant liquid crystals, layer‑by‑layer polymer self‑assembly, and biological membranes. Techniques for characterization and applications (biological and industrial) of these systems are addressed.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 436 Molecular Modelling of Proteins",
+    "credits": 3,
+    "prerequisites": "CHEM 234, CHEM 271.",
+    "corequisites": "",
+    "description": "This course offers a hands‑on introduction to the computer tools used to predict the structure of a protein from its amino acid sequence, and to gain insight into its function. Students learn modelling techniques such as sequence alignment, homology modelling, computer visualization, molecular dynamics, and molecular docking. Computer laboratory with pre‑lab lectures.",
+    "components": "Lecture; Laboratory",
+    "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 443 Organometallic Chemistry",
+    "credits": 3,
+    "prerequisites": "CHEM 341",
+    "corequisites": "CHEM 324",
+    "description": "This course covers the structure and properties of organometallic compounds, their main reactions and their application in catalysis and organic chemistry.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 447 Solar Energy Conversion",
+    "credits": 3,
+    "prerequisites": "CHEM 234 and CHEM 241.",
+    "corequisites": "",
+    "description": "This course explores how chemistry enables solar energy conversion (as a source of alternative energy) through photochemistry/photobiology and photovoltaics (solar cells). In the first subject area, solar energy conversion through artificial photosynthesis, solar fuels catalysis, and photobiological fuel production is examined. In the second subject area, the fundamental principles governing solar energy to electricity conversion, efficiency of solar cells, different photovoltaic implementations (inorganic, organic, hybrid) and charge separation/transport are explored. Special focus topics include the design, synthesis and spectroscopic tools needed to study inorganic molecules and materials for solar fuels catalysis.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 450 Research Project and Thesis",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "The student works on a research project in the student’s area of concentration, selected in consultation with and conducted under the supervision of a faculty member of the Department. The student writes a thesis on the results and defends it before a departmental committee.",
+    "components": "Thesis Research",
+    "notes": "During the academic session before the one in which this project is to be undertaken, the student must have obtained the consent of the Department, by consultation with the CHEM 450 coordinator, and must have also been accepted by a faculty supervisor.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 451 Nanochemistry",
+    "credits": 3,
+    "prerequisites": "CHEM 217, CHEM 218, CHEM 221, CHEM 222, CHEM 234, CHEM 235, CHEM 241.",
+    "corequisites": "",
+    "description": "This modular course covers the areas of production, characterization and applications of nanoscale structures and materials. Each module is taught by a different professor as well as guest lecturers. Topics may include (but are not limited to) size dependent properties, synthesis of organic and inorganic nanostructures, self‑assembled structures, chemical patterning and functional nanopatterns, biomaterials. Nanometer scale fabrication techniques such as lithographic methods, nano‑stamping and patterned self‑assembly are discussed. Modern analysis techniques such as atomic force microscopy and electron microscopy, which are used to map and measure at the single molecule level, are introduced. Applications such as photonics, optical properties, biodetection and biosensors, micro‑ and nano‑fluidics, nanoelectronics and nanomachines are presented. The course includes a term project carried out using the nanoscience facilities held in the Department research labs.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 458 Aquatic Biogeochemistry",
+    "credits": 3,
+    "prerequisites": "CHEM 217, CHEM 218, and CHEM 312. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "The major aim of this course is to present a quantitative treatment of the variables that determine the composition of natural waters. Chemical equilibrium is the central theme of the course, but consideration is also given to kinetics, steady‑state and dynamic models. Related themes include global chemical cycles, air and water pollution, as well as current research topics in water chemistry and chemical oceanography.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for CHEM 418 or for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 470 Environmental Biochemistry",
+    "credits": 3,
+    "prerequisites": "BIOL 367; CHEM 271, CHEM 375. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course examines the biochemical effects of environmental stresses on organisms, and adaptations that allow organisms to face these stresses. Emphasis is placed on biochemical responses to toxic compounds such as aromatics, halogenated aliphatics, drugs, and heavy metals. Other topics may include adaptations to stresses such as temperature extremes, pathogens, and ionizing radiation. Applications to related biotechnological processes are also considered.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 471 Enzyme Kinetics and Mechanism",
+    "credits": 3,
+    "prerequisites": "CHEM 271, CHEM 375.",
+    "corequisites": "",
+    "description": "Steady‑state kinetics, including the use of initial velocity studies and product inhibition to establish a kinetic mechanism; nonsteady‑state kinetics, isotope effects, energy of activation, detailed mechanisms of selected enzymes.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 472 Chemical Toxicology",
+    "credits": 3,
+    "prerequisites": "CHEM 222, CHEM 271.",
+    "corequisites": "",
+    "description": "Introduction to the general principles of toxicology with emphasis on the toxic effects of chemicals in humans. Dose‑response relationship, types and routes of exposure, absorption and disposition of toxic substances, toxicokinetics, types of toxic response, and factors affecting toxic response. Toxicity testing, risk assessment, and interpretation of toxicological data.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 473 Protein-Protein Interactions",
+    "credits": 3,
+    "prerequisites": "CHEM 271, CHEM 375. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course provides an advanced examination of current topics in research related to understanding protein‑protein interactions in vitro and in vivo. Topics may include biological roles of protein‑protein interactions; evolution of protein‑protein interactions and correlated mutations; stable vs. transient interactions and their biological significance; interactomics; structural characteristics of protein‑protein interaction interfaces; targeted disruption of protein‑protein interactions and drug design; experimental approaches to measuring protein‑protein interactions.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "CHEM 474 Chemical Ecology",
+    "credits": 3,
+    "prerequisites": "CHEM 375 or BIOL 367. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course examines how natural products interact with their cellular targets, with a special emphasis on the role of antibiotics and anticancer drugs. It also explores the role of these compounds in their natural environment, with a focus on intra-species competition and symbiosis.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 475 Protein Engineering and Design",
+    "credits": 3,
+    "prerequisites": "CHEM 271, CHEM 375. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course examines the principles behind protein design, how techniques of protein engineering are used, and the methods used to assess protein properties. Examples include studies of protein stability, structure‑function relationships, and applications to drug design.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 476 Structure and Function of Biomembranes",
+    "credits": 3,
+    "prerequisites": "BIOL 266; CHEM 375. If prerequisites are not satisfied, permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course discusses what is known about how the membranes of biological organisms are assembled and the roles that these membranes play in a number of important processes. Emphasis is placed on the transport of proteins to and through biomembranes and the roles that membranes play in metabolite and ion transport. Where applicable, the significance of these processes is illustrated by examining the roles of membranes in health and disease.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 477 Advanced Laboratory in Biochemistry",
+    "credits": 3,
+    "prerequisites": "CHEM 271, CHEM 375.",
+    "corequisites": "",
+    "description": "Theory and practice of techniques in enzymology and protein chemistry, including steady‑state and stopped‑flow enzyme kinetics, ligand binding, immunological techniques, proteomics, computer modelling, and chemical modification of proteins.",
+    "components": "Tutorial; Laboratory",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "CHEM 481 Bioinorganic Chemistry",
+    "credits": 3,
+    "prerequisites": "CHEM 241, CHEM 271.",
+    "corequisites": "",
+    "description": "Role of metals in biochemical systems. Essential trace elements, zinc enzymes, oxygen transport and storage, metalloproteins and biological electron transfer, structure‑function relationships in heme enzymes, nitrogen fixation; model compounds for metallo‑proteins and metalloenzymes.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 487 Capstone Seminar in Environmental Science",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "The course is designed to integrate the knowledge from several courses and provide students an opportunity to apply this knowledge to a current issue in environmental sciences through experiential learning. Students work in small groups made up from participants of all streams and critically evaluate an environmental issue using the expertise of all participants. Examples could be the reclamation of a former mining site, plans for expansion of a landfill or plans for a new water treatment plant. Aspects evaluated include, but are not limited to, land use, impact on vegetation and biota, availability of critical chemical data (e.g. trace metals, water/runoff quality, and impact on the local population). The result is a detailed environmental assessment report prepared by students.Notes:Students who have received credit for BIOL 487 or GEOG 487 may not take this course for credit.",
+    "components": null,
+    "notes": "Students who have received credit for BIOL 487 or GEOG 487 may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 493 Magnetic Resonance Spectroscopy",
+    "credits": 3,
+    "prerequisites": "CHEM 222, CHEM 293.",
+    "corequisites": "",
+    "description": "This course is designed to provide the background in magnetic resonance theory necessary to understand modern high‑resolution NMR experiments and instrumentation. The basic theory in the introductory section also applies to electron spin resonance (ESR). Relaxation and through‑bond and through‑space interactions, and experiments to investigate them are considered. Spin manipulations and behaviour in multiple‑pulse, Fourier transform NMR techniques used for common spectral editing and two‑dimensional experiments are discussed.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 494 Mass Spectrometry",
+    "credits": 3,
+    "prerequisites": "CHEM 218, CHEM 222, CHEM 271.",
+    "corequisites": "",
+    "description": "Production and interpretation of mass spectra. Topics include ionization methods (electron impact, chemical ionization and fast‑atom bombardment); interpretation of mass spectra; introduction to quantitative analysis by mass spectrometry.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 495 Advanced Molecular Characterization",
+    "credits": 3,
+    "prerequisites": "CHEM 241, CHEM 293; six credits of 300‑level CHEM courses which must include either CHEM 325 or CHEM 341.",
+    "corequisites": "",
+    "description": "This course presents advanced techniques to characterize the geometric and electronic structures of molecules. Topics may include spectroscopic (rotational, vibrational, electronic, photoelectron, NMR, EPR, Mössbauer), diffraction and electrochemical methods. The course introduces the techniques and applies them to concrete case studies.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "CHEM 498 Advanced Topics in Chemistry",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "CHEM 499 Advanced Topics in Chemistry",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null,
+    "offeredIn": []
+  }
+]
