@@ -24,7 +24,7 @@ import Accordion from 'react-bootstrap/Accordion';
 import Container from 'react-bootstrap/Container';
 import warningIcon from '../icons/warning.png'; // Import warning icon
 import downloadIcon from '../icons/download-icon.PNG';
-import saveIcon from '../icons/saveIcon.png';
+//import saveIcon from '../icons/saveIcon.png';
 import '../css/TimelinePage.css';
 import { groupPrerequisites } from '../utils/groupPrerequisites';
 import DeleteModal from "../components/DeleteModal";
@@ -1599,8 +1599,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                         : setShowSaveModal(true)
                     }
                   >
-                    <img src={saveIcon} alt="Save" className="button-icon save-icon" />
-                    <span className="button-text">Save Timeline</span>
+                    Save Timeline
                   </button>
                   <button className="download-timeline-button" onClick={exportTimelineToPDF}>
                     <img src={downloadIcon} alt="Download" className="button-icon download-icon" />
