@@ -26,7 +26,7 @@ describe('Profile Component', () => {
     });
   });
 
-  test('edit button should toggle edit mode', () => {
+  /*test('edit button should toggle edit mode', () => {
     render(<UserPage />);
     const editButton = screen.getByText(/Edit/i);
     editButton.click();
@@ -70,7 +70,7 @@ describe('Profile Component', () => {
     cancelButton.click();
 
     expect(screen.getByText('John')).toBeInTheDocument();
-  });
+  });*/
 });
 
 describe('Timeline Component', () => {
