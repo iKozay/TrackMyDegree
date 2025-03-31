@@ -48,7 +48,7 @@
 }
 
 .course-list-container-timeline {
-  max-height: 450px;
+  max-height: 50vh;
   /* Adjust height as needed */
   overflow-y: auto;
   /* Enables vertical scrolling */
@@ -356,19 +356,29 @@
   background-color: #f5f5f5;
   text-align: center;
   margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .credits-display h4 {
-  padding-left: 25vw;
   margin: 10px;
   flex: 1;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 400px; /* Minimum width before wrapping */
+  font-size: clamp(0.8rem, 2vw, 1.5rem);
 }
 
 .timeline-buttons-container {
   display: flex;
   gap: 10px;
-  /* Space between buttons */
+  flex-wrap: wrap;
+  justify-content: flex-end; /* Align to right */
+  align-items: center;
+  flex-grow: 1; /* Take available space */
+  min-width: 0; /* Allow shrinking */
 }
 
 .save-timeline-button,
@@ -376,14 +386,19 @@
 .add-deficiencies-button{
   background-color: #800020;
   color: white;
-  /* White text */
   border: none;
   border-radius: 5px;
-  padding: 10px 20px;
+  padding: 10px;
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 44px; /* Minimum touch target size */
+  min-height: 44px;
 }
 
 .save-timeline-button:hover,
@@ -410,6 +425,23 @@
 
 .warning-icon {
   width: 25px;
+}
+
+/* Button icons */
+.button-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+/* Hide text on small screens */
+.button-text {
+  display: inline;
+}
+
+/* Hide icons on large screens (they'll be shown via media query) */
+.save-icon{
+  display: none;
 }
 
 .upload-transcript-button {
@@ -935,3 +967,45 @@
 .show-course-button.hidden {
   display: none;
 }
+
+@media (max-width: 992px) {
+  .button-text {
+    display: none;
+  }
+
+  .save-icon,
+  .download-icon {
+    display: block;
+  }
+
+  /* Make buttons square */
+  .save-timeline-button,
+  .download-timeline-button {
+    width: 40px;
+    padding: 10px;
+  }
+
+  /* Keep deficiencies button with text as it's important */
+  .add-deficiencies-button {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+}
+@media (max-width: 600px) {
+  .credits-display h4 {
+    font-size: 0.8rem;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 1200px) {
+  .credits-display h4 {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 1201px) {
+  .credits-display h4 {
+    font-size: 1.5rem;
+  }
+}
+

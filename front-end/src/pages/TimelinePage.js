@@ -24,6 +24,7 @@ import Accordion from 'react-bootstrap/Accordion';
 import Container from 'react-bootstrap/Container';
 import warningIcon from '../icons/warning.png'; // Import warning icon
 import downloadIcon from '../icons/download-icon.PNG';
+import saveIcon from '../icons/saveIcon.png';
 import '../css/TimelinePage.css';
 import { groupPrerequisites } from '../utils/groupPrerequisites';
 import DeleteModal from "../components/DeleteModal";
@@ -1568,9 +1569,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                 <div className="timeline-buttons-container">
                   <div>
                     {coursePools != null &&
-                      semesterCourses != null &&
-                      totalCredits != null &&
-                      deficiencyCredits != null ? (
+                    semesterCourses != null &&
+                    totalCredits != null &&
+                    deficiencyCredits != null ? (
                       <ShowInsights
                         coursePools={coursePools}
                         semesterCourses={semesterCourses}
@@ -1585,6 +1586,12 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                     )}
                   </div>
                   <button
+                    className="add-deficiencies-button"
+                    onClick={() => setShowDeficiencyModal(true)}
+                  >
+                    Add Deficiencies
+                  </button>
+                  <button
                     className="save-timeline-button"
                     onClick={() =>
                       timelineName
@@ -1592,17 +1599,12 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                         : setShowSaveModal(true)
                     }
                   >
-                    Save Timeline
+                    <img src={saveIcon} alt="Save" className="button-icon save-icon" />
+                    <span className="button-text">Save Timeline</span>
                   </button>
                   <button className="download-timeline-button" onClick={exportTimelineToPDF}>
-                    <img src={downloadIcon} alt="Download Icon" className="download-icon" />
-                    Download
-                  </button>
-                  <button
-                    className="add-deficiencies-button"
-                    onClick={() => setShowDeficiencyModal(true)}
-                  >
-                    Add Deficiencies
+                    <img src={downloadIcon} alt="Download" className="button-icon download-icon" />
+                    <span className="button-text">Download</span>
                   </button>
                 </div>
               </div>
@@ -1612,7 +1614,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   className="courses-with-button"
                   id="courses-with-button"
                 >
-                  <div
+                <div
                     className={`timeline-left-bar ${showCourseList ? '' : 'hidden'}`}
                   >
                     {showCourseList && (
