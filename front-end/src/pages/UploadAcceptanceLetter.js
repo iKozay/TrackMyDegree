@@ -33,6 +33,14 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     
   }, [onDataProcessed]);
 
+  // List of specific programs to check for
+  const programNames = [
+    'Aerospace Engineering', 'Building Engineering', 'Civil Engineering', 'Computer Engineering',
+    'Computer Science', 'Computer Science (Minor)', 'Computer Science - Computation Arts',
+    'Data Science', 'Electrical Engineering', 'Health and Life Sciences', 'Indigenous Bridging Program',
+    'Industrial Engineering', 'Mechanical Engineering', 'Science and Technology', 'Software Engineering'
+  ];
+
   const handleRadioChange = (group, value) => {
     setSelectedRadio((prev) => ({
       ...prev,
@@ -178,7 +186,6 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
           // Extract Degree Info
           //const degreeInfo = extractedData.degree || "Unknown Degree";
           const degreeId = extractedData.degreeId || 'Unknown'; // Map degree to ID
-
           const matched_degree = degrees.find(d => d.id === degreeId);
           const credits_Required = matched_degree.totalCredits;
 
@@ -210,13 +217,67 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   const extractAcceptanceDetails = (pagesData) => {
     const details = {};
 
-    // Prgram names
-    const programNames = degrees.map(degree => degree.name);
+    // List of specific programs to check for
+    const programNames = [
+      'Aerospace Engineering',
+      'Aerospace Engineering Option: Aerodynamics and Propulsion',
+      'Aerospace Engineering Option B: Aerospace Structures and Materials',
+      'Aerospace Engineering Option: Avionics and Aerospace Systems',
+      'Building Engineering',
+      'Building Engineering Option: Building Energy and Environment',
+      'Building Engineering Option: Building Structures and Construction',
+      'Civil Engineering',
+      'Civil Engineering Option: Civil Infrastructure',
+      'Civil Engineering Option: Environmental',
+      'Civil Engineering Option: Construction Engineering and Management',
+      'Computer Engineering',
+      'Computer Science',
+      'Electrical Engineering',
+      'Industrial Engineering',
+      'Mechanical Engineering',
+      'Software Engineering',
+    ];
+    const degreeMapping = {
+      'Aerospace Engineering': 'AERO',
+      'Aerospace Engineering Option: Aerodynamics and Propulsion': 'AEROA',
+      'Aerospace Engineering Option B: Aerospace Structures and Materials': 'AEROB',
+      'Aerospace Engineering Option: Avionics and Aerospace Systems': 'AEROC',
+      'Building Engineering': 'BCEE',
+      'Building Engineering Option: Building Energy and Environment': 'BCEEA',
+      'Building Engineering Option: Building Structures and Construction': 'BCEEB',
+      'Civil Engineering': 'CIVI',
+      'Civil Engineering Option: Civil Infrastructure': 'CIVIA',
+      'Civil Engineering Option: Environmental': 'CIVIB',
+      'Civil Engineering Option: Construction Engineering and Management': 'CIVIC',
+      'Computer Engineering': 'COEN',
+      'Computer Science': 'CompSci',
+      'Electrical Engineering': 'ELEC',
+      'Industrial Engineering': 'INDU',
+      'Mechanical Engineering': 'MECH',
+      'Software Engineering': 'SOEN',
+    };
 
-    // Degree mapping
-    const degreeMapping = {};
+    const degreeMapping_2 = {
+      'Bachelor of Engineering, Aerospace Engineering': 'AERO',
+      'Bachelor of Engineering, Aerospace Engineering Option: Aerodynamics and Propulsion': 'AEROA',
+      'Bachelor of Engineering, Aerospace Engineering Option B: Aerospace Structures and Materials': 'AEROB',
+      'Bachelor of Engineering, Aerospace Engineering Option: Avionics and Aerospace Systems': 'AEROC',
+      'Bachelor of Engineering, Building Engineering': 'BCEE',
+      'Bachelor of Engineering, Building Engineering Option: Building Energy and Environment': 'BCEEA',
+      'Bachelor of Engineering, Building Engineering Option: Building Structures and Construction': 'BCEEB',
+      'Bachelor of Engineering, Civil Engineering': 'CIVI',
+      'Bachelor of Engineering, Civil Engineering Option: Civil Infrastructure': 'CIVIA',
+      'Bachelor of Engineering, Civil Engineering Option: Environmental': 'CIVIB',
+      'Bachelor of Engineering, Civil Engineering Option: Construction Engineering and Management': 'CIVIC',
+      'Bachelor of Engineering, Computer Engineering': 'COEN',
+      'Bachelor of Computer Science, Computer Science': 'CompSci',
+      'Bachelor of Engineering, Electrical Engineering': 'ELEC',
+      'Bachelor of Engineering, Industrial Engineering': 'INDU',
+      'Bachelor of Engineering, Mechanical Engineering': 'MECH',
+      'Bachelor of Engineering, Software Engineering': 'SOEN',
+    };
     degrees.forEach(({ name, id }) => {
-      degreeMapping[name] = id;
+      degreeMapping_2[name] = id;
     });
 
     console.log("degrees", degrees)
@@ -240,7 +301,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       // Extract Degree Concentration (everything after Program/Plan(s) and before Academic Load)
       const degreeConcentrationMatch = text.match(
         /Program\/Plan\(s\):\s*([^\n]+)(?:\n([^\n]+))?[\s\S]*?Academic Load/,
-      );
+      )
 
       if (degreeConcentrationMatch) {
         // Combine the two parts (if any) into a single Degree Concentration string
@@ -250,7 +311,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
 
         // Check if any of the specific program names are present in the extracted Degree Concentration
         programNames.forEach((program) => {
-          if (degreeConcentration.includes(program)) {
+          if (degreeConcentration.trim().includes(program)) {
             degreeConcentration = `${program}`; // Add the program name to the Degree Concentration if it matches
           }
         });
@@ -258,6 +319,8 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         // Assign to details
         details.degreeConcentration = degreeId;
       }
+      
+      console.log(degreeId);
 
       // Check for "Co-op Recommendation: Congratulations!"
       const coopRecommendationMatch = text.match(
