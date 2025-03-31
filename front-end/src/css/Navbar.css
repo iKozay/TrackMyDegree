@@ -149,7 +149,7 @@
     top: 0;
     right: -100%;
     height: 100%;
-    width: 150px;
+    width: 170px;
     background-color: #912338;
     transition: right 0.3s ease;
     z-index: 1050;
@@ -175,7 +175,7 @@
 
     .close-nav {
       order: 1;
-      align-self: flex-end;
+      align-self: flex-start;
       margin: 0;
       padding: 0;
       background: none;
@@ -199,6 +199,17 @@
       padding: 5px;
       padding-left: 20px;
       padding-top: 0px;
+      position: relative;
+      padding-bottom: 25px; /* Add space for the separator */
+      margin-bottom: 15px; /* Space below the separator */
+    }
+    .navbar-right-buttons::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      height: 1px;
+      width: 220px;
+      background-color: rgb(250, 248, 249); /* Semi-transparent white */
     }
 
     .navbar-nav {
@@ -216,38 +227,47 @@
       order: 4;
       width: 100%;
       margin-top: auto; /* Push to the bottom */
-      padding: 5px 0;
+      padding: 15px 0;
       text-align: center;
-      margin-left:20px;
+      position: relative; /* Needed for the pseudo-element */
     }
 
     .feedback-button-mobile {
-      background-color: #aeaaaa;
-      color: white;
+      background-color: inherit;
+      padding: 1vh 0.5vw;
       border: none;
-      border-radius: 5px;
       cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.3s ease;
-      width: 80%;
+      font-size: calc(12px + 0.5vw); /* Responsive font size */
+      width: 90%;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .mobile-feedback::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      width: 270px;
+      background-color: rgb(250, 248, 249); /* Semi-transparent white */
     }
 
     .feedback-button-mobile:hover {
-      background-color: #595757;
+      /*background-color: #595757;*/
       transform: translateY(-3px) scale(1.05);
     }
   }
 
   .feedback-button-mobile {
-    background-color: #aeaaaa;
+    background-color: inherit;
     color: white;
-    padding: 10px 5px;
+    padding: 1vh 0.5vw;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-    width: 100%;
+    font-size: calc(12px + 0.5vw); /* Responsive font size */
+    width: 90%;
   }
 
   .custom-navbar .nav-link {
@@ -403,7 +423,7 @@
 
   .close-nav {
     order: 1;
-    align-self: flex-end;
+    align-self: flex-start;
     margin: 0;
     padding: 0;
     background: none;
@@ -421,6 +441,9 @@
     width: 100%;
     gap: 1.5vh; /* Responsive gap */
     padding: 0;
+    position: relative;
+    padding-bottom: 25px; /* Add space for the separator */
+    margin-bottom: 15px;
   }
 
   .navbar-nav {
@@ -437,22 +460,29 @@
   .mobile-feedback {
     order: 4;
     width: 100%;
-    margin-top: auto;
-    padding: 1.5vh 0;
+    margin-top: auto; /* Push to the bottom */
+    padding: 15px 0;
     text-align: center;
-    margin-left: 0;
+    position: relative; /* Needed for the pseudo-element */
   }
 
   .feedback-button-mobile {
-    background-color: #aeaaaa;
     color: white;
     padding: 1vh 0.5vw;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
     font-size: calc(12px + 0.5vw); /* Responsive font size */
-    transition: background-color 0.3s ease;
     width: 100%;
+  }
+  .mobile-feedback::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px; /* Match the other separator */
+    height: 1px;
+    background-color: rgb(250, 248, 249);
   }
 
   /* Active link indicator */

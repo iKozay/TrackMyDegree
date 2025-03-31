@@ -82,8 +82,7 @@ const Navbar = () => {
             &times;
           </button>
           <div className="mobile-feedback">
-            <button
-              className="feedback-button-mobile"
+            <Link
               onClick={() =>
                 window.open(
                   'https://docs.google.com/forms/d/e/1FAIpQLScr67TcEpPV1wNCTM5H53hPwRgplAvkYmxg72LKgHihCSmzKg/viewform',
@@ -91,8 +90,10 @@ const Navbar = () => {
                 )
               }
             >
-              Submit Feedback!
-            </button>
+              <button className="feedback-button-mobile">
+                Submit Feedback!
+              </button>
+            </Link>
           </div>
           <div className="navbar-nav custom-nav-links">
             <NavLink
