@@ -77,6 +77,24 @@ const Navbar = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
+          {/* Close button for mobile collapse */}
+          <button className="close-nav" onClick={toggleMenu}>
+            &times;
+          </button>
+          <div className="mobile-feedback">
+            <Link
+              onClick={() =>
+                window.open(
+                  'https://docs.google.com/forms/d/e/1FAIpQLScr67TcEpPV1wNCTM5H53hPwRgplAvkYmxg72LKgHihCSmzKg/viewform',
+                  '_blank'
+                )
+              }
+            >
+              <button className="feedback-button-mobile">
+                Submit Feedback!
+              </button>
+            </Link>
+          </div>
           <div className="navbar-nav custom-nav-links">
             <NavLink
               to="/"
