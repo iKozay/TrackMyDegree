@@ -22,11 +22,23 @@ export type JWTCookieModel = {
 };
 
 //* Functions
+/**
+ ** Function returns the application's secret key
+ * @returns
+ * - The secret key
+ */
 function getSecretKey(): string {
   //? Generate the Private key from the JWT secret
   return process.env.JWT_SECRET;
 }
 
+/**
+ ** Builds the payload from the provided parameters
+ * @param user_id
+ * @param user_type
+ * @returns
+ * - A `JWTPayload` object
+ */
 function getJWTPayload(
   user_id: string | undefined,
   user_type: Auth.UserType,
@@ -66,6 +78,12 @@ function generateToken(
   return jwt.sign(session_payload, secret, options);
 }
 
+/**
+ ** Function handles JWT verification
+ * @param access_token The JWT
+ * @returns
+ * - The decrypted JWT as a `TokenPayload` object
+ */
 export function verifyToken(access_token: string): TokenPayload {
   const secret: string = getSecretKey();
 
@@ -105,12 +123,26 @@ export function setJWTCookie(
   };
 }
 
+/**
+ ** Verify if the provided token is expired
+ * @param exp_time The expiry time (As an Epoch)
+ * @returns
+ * - TRUE: If the token is expired
+ * - FALSE: If the token is still valid
+ */
 export function isTokenExpired(exp_time: number): boolean {
   const current_time = Math.floor(Date.now() / 1000);
 
   return exp_time < current_time;
 }
 
+/**
+ ** VErifies if the organization ID encrypted in the token is valid
+ * @param org_id The organization ID from the token
+ * @returns
+ * - TRUE: If the org_id is valid
+ * - FALSE: If the org_id is invalid
+ */
 export function isOrgIdValid(org_id: string): boolean {
   return org_id === process.env.JWT_ORG_ID;
 }
