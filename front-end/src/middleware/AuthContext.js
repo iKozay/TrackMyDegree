@@ -4,13 +4,8 @@ import React, {createContext, useEffect, useState} from 'react';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); /*useState(() => {
-    return isLoggedIn;//localStorage.getItem('isLoggedIn') === 'true';
-  });*/
-  const [user, setUser] =  useState(null); //useState(() => {                   
-  //   const storedUser = localStorage.getItem('user');
-  //   return storedUser ? JSON.parse(storedUser) : null;
-  // });
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+  const [user, setUser] =  useState(null); 
   const [loading, setLoading] = useState(true);
 
   // Check local storage and set initial state for isLoggedIn
@@ -28,7 +23,6 @@ export const AuthProvider = ({children}) => {
   
         if(response.ok){
           const user_data = await response.json();
-          console.log('REFRESH: ', user_data);
     
           setIsLoggedIn(true);
           setUser(user_data);
@@ -47,28 +41,16 @@ export const AuthProvider = ({children}) => {
         setLoading(false); // Set loading to false after checking
       }
     };
-    
-    // const loggedInStatus = localStorage.getItem('isLoggedIn') === 'true';
-    // setIsLoggedIn(loggedInStatus);
-    // if (loggedInStatus === 'true') {
-    //   const storedUser = JSON.parse(localStorage.getItem('user'));
-    //   setUser(storedUser);
-    // }
-
+  
     verifySession();
   }, []);
 
   const login = (userData) => {
-    // localStorage.setItem('isLoggedIn', 'true');
-    // localStorage.setItem('user', JSON.stringify(userData));
-    //setUser(JSON.parse(localStorage.getItem('user')));
     setUser(userData);
     setIsLoggedIn(true);
   };
 
   const logout = () => {
-    // localStorage.removeItem('isLoggedIn');
-    // localStorage.removeItem('user');
     setUser(null);
     setIsLoggedIn(false);
   };
