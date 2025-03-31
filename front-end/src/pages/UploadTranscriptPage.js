@@ -224,16 +224,16 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
   let ecp = null;
   const degreeMapping = {
     'Bachelor of Engineering, Aerospace Engineering': 'AERO',
-    'Bachelor of Engineering, Aerospace Engineering Option A: Aerodynamics and Propulsion Core': 'AEROA',
+    'Bachelor of Engineering, Aerospace Engineering Option: Aerodynamics and Propulsion': 'AEROA',
     'Bachelor of Engineering, Aerospace Engineering Option B: Aerospace Structures and Materials': 'AEROB',
-    'Bachelor of Engineering, Aerospace Engineering Option C: Avionics and Aerospace Systems': 'AEROC',
+    'Bachelor of Engineering, Aerospace Engineering Option: Avionics and Aerospace Systems': 'AEROC',
     'Bachelor of Engineering, Building Engineering': 'BCEE',
-    'Bachelor of Engineering, Building Engineering Option A: Building Energy and Environment': 'BCEEA',
-    'Bachelor of Engineering, Building Engineering Option B: Building Structures and Construction': 'BCEEB',
+    'Bachelor of Engineering, Building Engineering Option: Building Energy and Environment': 'BCEEA',
+    'Bachelor of Engineering, Building Engineering Option: Building Structures and Construction': 'BCEEB',
     'Bachelor of Engineering, Civil Engineering': 'CIVI',
-    'Bachelor of Engineering, Civil Engineering Option A: Civil Infrastructure': 'CIVIA',
-    'Bachelor of Engineering, Civil Engineering Option B: Environmental': 'CIVIB',
-    'Bachelor of Engineering, Civil Engineering Option C: Construction Engineering and Management': 'CIVIC',
+    'Bachelor of Engineering, Civil Engineering Option: Civil Infrastructure': 'CIVIA',
+    'Bachelor of Engineering, Civil Engineering Option: Environmental': 'CIVIB',
+    'Bachelor of Engineering, Civil Engineering Option: Construction Engineering and Management': 'CIVIC',
     'Bachelor of Engineering, Computer Engineering': 'COEN',
     'Bachelor of Computer Science, Computer Science': 'CompSci',
     'Bachelor of Engineering, Electrical Engineering': 'ELEC',
@@ -241,7 +241,9 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
     'Bachelor of Engineering, Mechanical Engineering': 'MECH',
     'Bachelor of Engineering, Software Engineering': 'SOEN',
   };
-  const degreeRegex = /Bachelor of [A-Za-z\s]+,\s*[A-Za-z]+\s[A-Za-z]+/g; // Matches "Bachelor of Software Engineering", etc.
+  const degreeRegex = /Bachelor of [A-Za-z\s-]+,\s*[A-Za-z\s():-]+/g; // Updated regex to handle flexible degree variations
+  const coopRegex = /\b(?:COOPs|Co-op)\b/i; // Matches "COOPs" or "(Co-op)"
+  const ecpRegex = /\bExtended\s*Credit\s*Program\b/i; // Matches "Extended Credit Program"
   let degree = null;
   let degreeId = null;
 
@@ -250,11 +252,24 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
   let transcript = false;
   pagesData.forEach((pageData) => {
     const { page, text } = pageData;
-     
+
     const degreeMatch = text.match(degreeRegex);
     if (degreeMatch) {
-      degree = degreeMatch[0];
-      degreeId = degreeMapping[degree];
+      degree = degreeMatch[0]
+        .replace(coopRegex, '') // Remove "COOPs" or "(Co-op)" for base mapping
+        .replace(ecpRegex, '') // Remove "Extended Credit Program" for base mapping
+        .trim();
+
+      let baseDegreeId = degreeMapping[degree];
+      if (baseDegreeId) {
+        if (coopRegex.test(text)) {
+          //baseDegreeId += 'C'; // Append 'C' for Co-op
+        }
+        if (ecpRegex.test(text)) {
+          //baseDegreeId += 'E'; // Append 'E' for Extended Credit Program
+        }
+        degreeId = baseDegreeId;
+      }
     }
 
     // Check if text contains "OFFER OF ADMISSION"
@@ -314,8 +329,8 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
     }
   });
 
-  if(!transcript){
-    alert("Please choose Offer of Admission");     
+  if (!transcript) {
+    alert("Please choose Offer of Admission");
     return { results: [] };
   }
   console.log('Degree', degreeId);
