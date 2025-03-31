@@ -53,6 +53,25 @@ function getJWTPayload(
 }
 
 /**
+ ** Function returns the cookie options to set on the JWT cookie
+ * @returns 
+ * - `CookieOptions` for the JWT cookie
+ */
+export function getCookieOptions(): CookieOptions {
+  const security = process.env.NODE_ENV === 'production';
+  const domain_name = security ? undefined : 'localhost';
+
+  return  {
+    httpOnly: true,
+    secure: security,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 1000 * 60 * 60, //? 1 Hour
+    domain: domain_name,
+  } as CookieOptions;
+}
+
+/**
  ** Function responsible for generating the JSON Web Token (JWT)
  * @param payload Payload to encode into the token
  * @param user The client's request headers
@@ -105,21 +124,12 @@ export function setJWTCookie(
   const { id, type } = result;
   const payload: JWTPayload = getJWTPayload(id, type);
   const access_token = generateToken(payload, user, token);
-  const security = process.env.NODE_ENV === 'production';
-  const domain_name = security ? undefined : 'localhost';
 
   return {
     //? Return the Cookie with all of its configs
     name: 'access_token',
     value: access_token,
-    config: {
-      httpOnly: true,
-      secure: security,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 1000 * 60 * 60, //? 1 Hour
-      domain: domain_name,
-    },
+    config: getCookieOptions(),
   };
 }
 
