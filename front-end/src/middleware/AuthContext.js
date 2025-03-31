@@ -51,8 +51,30 @@ export const AuthProvider = ({children}) => {
   };
 
   const logout = () => {
-    setUser(null);
-    setIsLoggedIn(false);
+    const destrySession = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_SERVER}/session/destroy`,
+          {
+            method: 'GET',
+            credentials: 'include'
+          }
+        );
+
+        if(!response.ok) {
+          throw new Error();
+        }
+      } 
+      catch (error) {
+        console.error('Session destruction failed:', error);
+      }
+      finally {
+        setIsLoggedIn(false);
+        setUser(null);
+      }
+    };
+
+    destrySession();
   };
 
   return (
