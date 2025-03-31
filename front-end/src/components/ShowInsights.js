@@ -17,7 +17,9 @@ const ShowInsights = ({
   console.log('courseInstanceMap:', courseInstanceMap);
 
   if (!courseInstanceMap) {
-    console.warn('courseInstanceMap is undefined or not passed to ShowInsights');
+    console.warn(
+      'courseInstanceMap is undefined or not passed to ShowInsights',
+    );
   }
 
   const [showInsights, setShowInsights] = useState(false);
@@ -42,18 +44,26 @@ const ShowInsights = ({
     const totalPoolCredits = poolCourses
       .map((course) => course.credits || 0)
       .reduce((sum, credits) => sum + credits, 0);
-    console.warn(`Could not parse max credits from pool name "${poolName}". Using total pool credits: ${totalPoolCredits}`);
+    console.warn(
+      `Could not parse max credits from pool name "${poolName}". Using total pool credits: ${totalPoolCredits}`,
+    );
     return totalPoolCredits;
   };
 
   const calculatedCreditsRequired = useMemo(() => {
     return coursePools.reduce((sum, pool) => {
-      const maxCredits = parseMaxCreditsFromPoolName(pool.poolName, pool.courses);
+      const maxCredits = parseMaxCreditsFromPoolName(
+        pool.poolName,
+        pool.courses,
+      );
       return sum + maxCredits;
     }, 0);
   }, [coursePools]);
 
-  console.log('Calculated creditsRequired from coursePools:', calculatedCreditsRequired);
+  console.log(
+    'Calculated creditsRequired from coursePools:',
+    calculatedCreditsRequired,
+  );
 
   const calculateTotalCredits = () => {
     const poolCreditMap = {};
@@ -100,7 +110,9 @@ const ShowInsights = ({
         const poolData = poolCreditMap[pool.poolId];
         const newSum = poolData.assigned + (course.credits || 0);
         poolData.assigned = Math.min(poolData.max, newSum);
-        console.log(`Added ${course.credits} credits for ${genericCode} to pool ${pool.poolId}. New assigned: ${poolData.assigned}`);
+        console.log(
+          `Added ${course.credits} credits for ${genericCode} to pool ${pool.poolId}. New assigned: ${poolData.assigned}`,
+        );
       });
     });
 
@@ -125,10 +137,14 @@ const ShowInsights = ({
         .filter(([semesterId]) => semesterId.toLowerCase() !== 'exempted')
         .flatMap(([, instanceIds]) => instanceIds);
 
-      const assignedGenericCodes = [...new Set(allAssignedInstanceIds.map((instanceId) => {
-        const genericCode = courseInstanceMap[instanceId] || instanceId;
-        return genericCode;
-      }))]; // Ensure unique course codes
+      const assignedGenericCodes = [
+        ...new Set(
+          allAssignedInstanceIds.map((instanceId) => {
+            const genericCode = courseInstanceMap[instanceId] || instanceId;
+            return genericCode;
+          }),
+        ),
+      ];
 
       const assignedCourses = assignedGenericCodes.filter((cCode) =>
         pool.courses.some((c) => c.code === cCode),
@@ -141,7 +157,10 @@ const ShowInsights = ({
         })
         .reduce((sum, c) => sum + c, 0);
 
-      const maxCredits = parseMaxCreditsFromPoolName(pool.poolName, pool.courses);
+      const maxCredits = parseMaxCreditsFromPoolName(
+        pool.poolName,
+        pool.courses,
+      );
       const remainingCredits = Math.max(0, maxCredits - assignedCredits);
 
       const remainingCoursesInPool = pool.courses
@@ -152,12 +171,12 @@ const ShowInsights = ({
         poolName: pool.poolName,
         data: [
           {
-            name: "Completed",
+            name: 'Completed',
             value: assignedCredits,
             courses: assignedCourses,
           },
           {
-            name: "Remaining",
+            name: 'Remaining',
             value: remainingCredits,
             courses: remainingCoursesInPool,
           },
@@ -176,38 +195,64 @@ const ShowInsights = ({
     console.log('totalRequired:', totalRequired);
 
     if (totalRequired === 0) {
-      console.warn('totalRequired is 0; creditsRequired could not be calculated from coursePools');
+      console.warn(
+        'totalRequired is 0; creditsRequired could not be calculated from coursePools',
+      );
       return [
-        { name: "Completed", value: 0, courses: [] },
-        { name: "Remaining", value: 1, courses: [] },
+        { name: 'Completed', value: 0, courses: [] },
+        { name: 'Remaining', value: 1, courses: [] },
       ];
     }
 
     const assignedCourses = Object.keys(semesterCourses)
-      .filter((semesterId) => semesterId.toLowerCase() !== "exempted")
+      .filter((semesterId) => semesterId.toLowerCase() !== 'exempted')
       .flatMap((semesterId) =>
-        semesterCourses[semesterId].map((instanceId) => courseInstanceMap[instanceId] || instanceId)
+        semesterCourses[semesterId].map(
+          (instanceId) => courseInstanceMap[instanceId] || instanceId,
+        ),
       );
 
-    const allPoolCourses = coursePools.flatMap((pool) =>
-      pool.courses.map((course) => course.code)
+    // Identify pools with more than 100 courses
+    const largePools = coursePools.filter((pool) => pool.courses.length > 100);
+    const largePoolCourseCodes = new Set(
+      largePools.flatMap((pool) => pool.courses.map((course) => course.code)),
     );
 
-    const remainingCourses = allPoolCourses.filter(
-      (courseCode) => !assignedCourses.includes(courseCode)
+    // Get all course codes from all pools
+    const allPoolCourses = coursePools.flatMap((pool) =>
+      pool.courses.map((course) => course.code),
     );
+
+    // Calculate remaining courses, excluding those from large pools
+    let remainingCourses = allPoolCourses.filter(
+      (courseCode) =>
+        !assignedCourses.includes(courseCode) &&
+        !largePoolCourseCodes.has(courseCode),
+    );
+
+    // For each large pool, add a single "General Elective" entry to remainingCourses
+    largePools.forEach((pool) => {
+      // Check if any courses from this pool are unassigned
+      const poolCourses = pool.courses.map((course) => course.code);
+      const hasUnassignedCourses = poolCourses.some(
+        (courseCode) => !assignedCourses.includes(courseCode),
+      );
+      if (hasUnassignedCourses) {
+        remainingCourses.push('General Elective');
+      }
+    });
 
     const remainingCredits = Math.max(0, totalRequired - totalAssigned);
     console.log('remainingCredits:', remainingCredits);
 
     return [
       {
-        name: "Completed",
+        name: 'Completed',
         value: totalAssigned,
         courses: assignedCourses,
       },
       {
-        name: "Remaining",
+        name: 'Remaining',
         value: remainingCredits,
         courses: remainingCourses,
       },
@@ -225,7 +270,9 @@ const ShowInsights = ({
 
     return (
       <div className="custom-tooltip" onClick={(e) => e.stopPropagation()}>
-        <button className="tooltip-close-button" onClick={onClose}>✕</button>
+        <button className="tooltip-close-button" onClick={onClose}>
+          ✕
+        </button>
         <p className="tooltip-title">{`${name}: ${value} credits`}</p>
         {courses.length > 0 ? (
           <div>
@@ -274,6 +321,116 @@ const ShowInsights = ({
     }));
   };
 
+  const renderCharts = () => {
+    const poolProgress = calculatePoolProgress();
+    const totalProgress = calculateTotalCreditsProgress();
+    const allCharts = [
+      ...poolProgress.map((pool, index) => ({
+        type: 'pool',
+        poolName: pool.poolName,
+        data: pool.data,
+        maxCredits: pool.maxCredits,
+        index,
+      })),
+      {
+        type: 'total',
+        poolName: 'Total Credits Progress',
+        data: totalProgress,
+        maxCredits: calculatedCreditsRequired + deficiencyCredits,
+      },
+    ];
+
+    return allCharts.map((chart, idx) => {
+      const chartId =
+        chart.type === 'total' ? 'total-credits' : `pool-${chart.index}`;
+      const isTooltipVisible = activeTooltip === chartId;
+      const currentTooltipData = tooltipData[chartId];
+
+      return (
+        <div
+          key={idx}
+          className="chart-container"
+          style={{ minWidth: '250px' }}
+        >
+          <h6>{chart.poolName}</h6>
+          <PieChart width={500} height={200} margin={{ right: 50, left: 20 }}>
+            <Pie
+              data={chart.data}
+              cx="50%"
+              cy="50%"
+              innerRadius={120}
+              outerRadius={250}
+              fill="#8884d8"
+              dataKey="value"
+              labelLine={false}
+              label={(props) => {
+                const { cx, cy, midAngle, innerRadius, outerRadius, value } =
+                  props;
+                const RADIAN = Math.PI / 180;
+                const radius = 260;
+                const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                const percent = (value / chart.maxCredits) * 100;
+
+                return (
+                  <text
+                    x={x}
+                    y={y}
+                    fill="#333"
+                    textAnchor={x > cx ? 'start' : 'end'}
+                    dominantBaseline="central"
+                    style={{ fontSize: '35px', fontWeight: 'bold' }}
+                  >
+                    {`${percent.toFixed(0)}%`}
+                  </text>
+                );
+              }}
+              isAnimationActive={animationActive}
+              isUpdateAnimationActive={false}
+              onMouseEnter={(data) => {
+                toggleTooltipVisibility(chartId, data.name, true, {
+                  name: data.name,
+                  value: data.value,
+                  courses: data.courses,
+                });
+                setActiveTooltip(chartId);
+              }}
+            >
+              {chart.data.map((entry, i) => (
+                <Cell
+                  key={`cell-${i}`}
+                  fill={
+                    entry.name === 'Completed'
+                      ? chart.type === 'total'
+                        ? '#82ca9d'
+                        : '#4a90e2'
+                      : '#d3d3d3'
+                  }
+                />
+              ))}
+            </Pie>
+          </PieChart>
+          {isTooltipVisible && (
+            <div className="tooltip-wrapper">
+              <CustomTooltip
+                onClose={() => {
+                  toggleTooltipVisibility(chartId, null, false, null);
+                  setActiveTooltip(null);
+                }}
+                isVisible={isTooltipVisible}
+                chartId={chartId}
+                data={currentTooltipData}
+              />
+            </div>
+          )}
+          <p>
+            {chart.data[0].value} / {chart.maxCredits} credits
+          </p>
+        </div>
+      );
+    });
+  };
+
   return (
     <div>
       <button
@@ -294,483 +451,606 @@ const ShowInsights = ({
             </button>
             <div className="insights-section">
               <h2>Progress Insights</h2>
-              <hr style={{ marginBottom: '1rem' }} />
-
               <h5>Course Pool Progress</h5>
-              <div className="course-pool-charts">
-                {calculatePoolProgress().map((pool, index) => {
-                  const chartId = `pool-${index}`;
-                  const isTooltipVisible = activeTooltip === chartId;
-                  const currentTooltipData = tooltipData[chartId];
-
-                  return (
-                    <div key={index} className="chart-container" style={{ minWidth: '250px' }}>
-                      <h6>{pool.poolName}</h6>
-                      <PieChart width={500} height={200} margin={{ right: 50, left: 20 }}>
-                        <Pie
-                          data={pool.data}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={120}
-                          outerRadius={250}
-                          fill="#8884d8"
-                          dataKey="value"
-                          labelLine={false}
-                          label={(props) => {
-                            const { cx, cy, midAngle, innerRadius, outerRadius, value } = props;
-                            const RADIAN = Math.PI / 180;
-                            const radius = 260;
-                            const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                            const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                            const percent = (value / pool.maxCredits) * 100;
-
-                            return (
-                              <text
-                                x={x}
-                                y={y}
-                                fill="#333"
-                                textAnchor={x > cx ? "start" : "end"}
-                                dominantBaseline="central"
-                                style={{ fontSize: '35px', fontWeight: 'bold' }}
-                              >
-                                {`${percent.toFixed(0)}%`}
-                              </text>
-                            );
-                          }}
-                          isAnimationActive={animationActive}
-                          isUpdateAnimationActive={false}
-                        >
-                          {pool.data.map((entry, idx) => (
-                            <Cell
-                              key={`cell-${idx}`}
-                              fill={entry.name === "Completed" ? "#4a90e2" : "#d3d3d3"}
-                              onMouseEnter={() => {
-                                toggleTooltipVisibility(chartId, entry.name, true, {
-                                  name: entry.name,
-                                  value: entry.value,
-                                  courses: entry.courses,
-                                });
-                                setActiveTooltip(chartId);
-                              }}
-                            />
-                          ))}
-                        </Pie>
-                      </PieChart>
-
-                      {isTooltipVisible && (
-                        <div className="tooltip-wrapper">
-                          <CustomTooltip
-                            onClose={() => {
-                              toggleTooltipVisibility(chartId, null, false, null);
-                              setActiveTooltip(null);
-                            }}
-                            isVisible={isTooltipVisible}
-                            chartId={chartId}
-                            data={currentTooltipData}
-                          />
-                        </div>
-                      )}
-
-                      <p>{pool.data[0].value} / {pool.maxCredits} credits</p>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="chart-container">
-                <h5>Total Credits Progress</h5>
-                <PieChart width={300} height={300}>
-                  <Pie
-                    data={calculateTotalCreditsProgress()}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={120}
-                    fill="#82ca9d"
-                    dataKey="value"
-                    onMouseEnter={(data, index) => {
-                      const chartId = 'total-credits';
-                      toggleTooltipVisibility(chartId, data.name, true, {
-                        name: data.name,
-                        value: data.value,
-                        courses: data.courses,
-                      });
-                      setActiveTooltip(chartId);
-                    }}
-                  >
-                    {calculateTotalCreditsProgress().map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={index === 0 ? "#82ca9d" : "#d3d3d3"} />
-                    ))}
-                  </Pie>
-                  <Legend />
-                </PieChart>
-                {activeTooltip === 'total-credits' && (
-                  <div className="tooltip-wrapper">
-                    <CustomTooltip
-                      onClose={() => {
-                        toggleTooltipVisibility('total-credits', null, false, null);
-                        setActiveTooltip(null);
-                      }}
-                      isVisible={activeTooltip === 'total-credits'}
-                      chartId="total-credits"
-                      data={tooltipData['total-credits']}
-                    />
-                  </div>
-                )}
-                <p>
-                  {totalCredits} / {calculatedCreditsRequired + deficiencyCredits} credits
-                </p>
-              </div>
+              <div className="course-pool-charts">{renderCharts()}</div>
             </div>
           </div>
         </div>
       )}
 
       <style>{`
-        /* Modal Overlay (Backdrop) */
-        .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.5);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 1000;
-          overflow: auto;
-        }
+ /* Modal Overlay (Backdrop) */
 
-        /* Modal Card */
-        .modal-card {
-          background-color: #fff;
-          border-radius: 10px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-          width: 90%;
-          max-width: 1200px;
-          max-height: 80vh;
-          overflow-y: auto;
-          position: relative;
-          padding: 1rem;
-          box-sizing: border-box;
-        }
+.insights-section h2 {
 
-        /* Close Button for Modal */
-        .modal-close-button {
-          position: absolute;
-          top: 10px;
-          right: 10px;
-          background: none;
-          border: none;
-          font-size: 1.2rem;
-          color: #555;
-          cursor: pointer;
-          padding: 0.5rem;
-        }
+background-color: #921338;
+color: white;
+font-weight: bold;
 
-        .modal-close-button:hover {
-          color: #912338;
-        }
 
-        /* Adjust toggle button styling */
-        .toggle-insights-btn {
-          background-color: #1aa824;
-          color: white;
-          border: none;
-          border-radius: 5px;
-          padding: 10px 20px;
-          margin-left: 330px;
-          font-size: 16px;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+}
 
-        .insights-section {
-          max-width: 100%;
-          padding: 1rem;
-          box-sizing: border-box;
-          display: block;
-          background-color: #f9f9f9;
-        }
 
-        .course-pool-charts {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10rem;
-          padding: 1rem 0;
-          justify-content: flex-start;
-          align-items: flex-start;
-        }
 
-        .chart-container {
-          flex: 0 0 auto;
-          width: 300px;
-          min-width: 240px;
-          max-width: 400px;
-          height: 450px;
-          text-align: center;
-          padding: 1rem 0;
-          position: relative;
-          overflow: visible;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: space-between;
-          box-sizing: border-box;
-        }
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow: auto;
+  padding: 1rem;
+  box-sizing: border-box;
+}
 
-        .chart-container h6 {
-          font-size: 1rem;
-          margin-bottom: 0.5rem;
-          white-space: normal;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          max-height: 4rem;
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          flex-shrink: 0;
-        }
+/* Modal Card */
+.modal-card {
+  background-color: #912338 ;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 0;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
 
-        .chart-container .recharts-wrapper {
-          width: 200px !important;
-          height: 200px !important;
-          max-height: 200px !important;
-          margin: 0 auto;
-          display: block;
-          overflow: visible;
-          flex-shrink: 0;
-        }
+/* Close Button for Modal */
+.modal-close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #555;
+  cursor: pointer;
+  padding: 0.5rem;
+}
 
-        .chart-container p {
-          font-size: 0.9rem;
-          margin-top: 1rem;
-          color: #555;
-          text-align: center;
-          position: relative;
-          flex-shrink: 0;
-        }
+.modal-close-button:hover {
+  color: #912338;
+}
 
-        .insights-section > .chart-container:last-child {
-          flex: 0 0 auto;
-          width: 300px;
-          min-width: 300px;
-          max-width: 300px;
-          height: auto;
-          margin: 3rem auto;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: space-between;
-          box-sizing: border-box;
-        }
+/* Adjust toggle button styling */
+.toggle-insights-btn {
+  background-color: #1aa824;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: block;
+  width: fit-content;
+}
 
-        .insights-section > .chart-container:last-child .recharts-wrapper {
-          height: 300px !important;
-          max-height: 300px !important;
-          width: 250px !important;
-          margin: 0 auto;
-        }
+.insights-section {
+  background-color: #912338;
+  max-width: 100%;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  display: block;
+  border: 2px solid #921338; 
+}
 
-        .insights-section::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
+.course-pool-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); /* Reduced from 520px to allow more charts per row on medium screens */
+  gap: 2.5rem; /* Reduced from 3rem for better spacing on smaller screens */
+  padding: 1rem 0;
+  justify-content: center;
+  width: 100%;
+}
 
-        .insights-section::-webkit-scrollbar-thumb {
-          background-color: rgba(179, 163, 163, 0.8);
-          border-radius: 15px;
-          opacity: 0;
-          transition: opacity 0.3s ease;
-        }
+.chart-container {
+  width: 100%;
+  height: auto;
+  min-height: 300px; /* Reduced from 350px to make charts more compact */
+  text-align: center;
+  padding: 0.75rem; /* Reduced padding from 1rem */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
 
-        .insights-section::-webkit-scrollbar-thumb:hover {
-          opacity: 1;
-        }
+.chart-container h6 {
+  font-size: 0.95rem; /* Slightly reduced from 1rem */
+  margin-bottom: 0.4rem; /* Reduced from 0.5rem */
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 3.6rem; /* Reduced from 4rem */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  flex-shrink: 0;
+  width: 100%;
+}
 
-        .insights-section::-webkit-scrollbar-track {
-          border-radius: 10px;
-          background-color: rgba(145, 35, 56, 0.1);
-        }
+.chart-container .recharts-wrapper {
+  width: 100% !important;
+  max-width: 200px; /* Reduced from 250px to make charts smaller */
+  height: auto !important;
+  aspect-ratio: 1/1;
+  margin: 0 auto;
+  display: block;
+  overflow: visible;
+  flex-shrink: 0;
+}
 
-        @media (max-width: 768px) {
-          .course-pool-charts {
-            gap: 1.5rem;
-          }
+.chart-container p {
+  font-size: 0.85rem; /* Reduced from 0.9rem */
+  margin-top: 0.8rem; /* Reduced from 1rem */
+  color: #555;
+  text-align: center;
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+}
 
-          .chart-container {
-            width: 220px;
-            min-width: 220px;
-            max-width: 220px;
-            height: 430px;
-          }
+.insights-section > .chart-container:last-child {
+  width: 100%;
+  max-width: 350px; /* Reduced from 400px */
+  height: auto;
+  margin: 1.5rem auto; /* Reduced from 2rem */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
 
-          .chart-container h6 {
-            max-height: 4.5rem;
-          }
+.insights-section > .chart-container:last-child .recharts-wrapper {
+  height: auto !important;
+  max-height: none !important;
+  width: 100% !important;
+  max-width: 250px; /* Reduced from 300px */
+  aspect-ratio: 1/1;
+  margin: 0 auto;
+}
 
-          .chart-container .recharts-wrapper {
-            width: 200px !important;
-            height: 200px !important;
-            max-height: 200px !important;
-          }
+/* Scrollbar styles */
+.insights-section::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
 
-          .insights-section > .chart-container:last-child {
-            width: 250px;
-            min-width: 250px;
-            max-width: 250px;
-            margin: 2rem auto;
-          }
+.insights-section::-webkit-scrollbar-thumb {
+  background-color: rgba(179, 163, 163, 0.8);
+  border-radius: 15px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
 
-          .insights-section > .chart-container:last-child .recharts-wrapper {
-            height: 250px !important;
-            max-height: 250px !important;
-            width: 200px !important;
-          }
-        }
+.insights-section::-webkit-scrollbar-thumb:hover {
+  opacity: 1;
+}
 
-        .custom-tooltip {
-          background-color: #fff;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-          padding: 0.75rem;
-          padding-top: 1.5rem;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-          font-family: inherit;
-          max-width: 200px;
-          width: auto;
-          box-sizing: border-box;
-          z-index: 10;
-          text-align: center;
-        }
+.insights-section::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: rgba(145, 35, 56, 0.1);
+}
 
-        .tooltip-title {
-          margin: 0 0 0.5rem 0;
-          font-weight: bold;
-          font-size: 0.9rem;
-          color: #333;
-        }
+/* Tooltip styles */
+.custom-tooltip {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0.75rem;
+  padding-top: 1.5rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-family: inherit;
+  max-width: 200px;
+  width: auto;
+  box-sizing: border-box;
+  z-index: 10;
+  text-align: center;
+}
 
-        .tooltip-subtitle {
-          margin: 0 0 0.25rem 0;
-          font-size: 0.85rem;
-          font-weight: 500;
-          color: #555;
-        }
+.tooltip-title {
+  margin: 0 0 0.5rem 0;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: #333;
+}
 
-        .tooltip-course-list {
-          margin: 0;
-          padding: 0;
-          list-style-type: none;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-          justify-content: center;
-          max-height: 300px;
-          overflow-y: auto;
-        }
+.tooltip-subtitle {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #555;
+}
 
-        .tooltip-course-list li {
-          font-size: 0.8rem;
-          font-weight: bold;
-          color: white;
-          line-height: 1.2;
-          display: inline-block;
-          background-color: #912338;
-          padding: 0.2rem 0.5rem;
-          border-radius: 3px;
-        }
+.tooltip-course-list {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  max-height: 300px;
+  overflow-y: auto;
+}
 
-        .tooltip-empty {
-          margin: 0;
-          font-size: 0.8rem;
-          font-style: italic;
-          color: #777;
-        }
+.tooltip-course-list li {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: white;
+  line-height: 1.2;
+  display: inline-block;
+  background-color: #912338;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+}
 
-        .tooltip-close-button {
-          position: absolute;
-          top: 5px;
-          right: 5px;
-          background: none;
-          border: none;
-          font-size: 0.9rem;
-          color: #555;
-          cursor: pointer;
-          padding: 0;
-          line-height: 1;
-        }
+.tooltip-empty {
+  margin: 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: #777;
+}
 
-        .tooltip-close-button:hover {
-          color: #912338;
-        }
+.tooltip-close-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  color: #555;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
 
-        .tooltip-more-indicator {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-style: italic;
-          color: #777;
-        }
+.tooltip-close-button:hover {
+  color: #912338;
+}
 
-        .tooltip-load-more {
-          background: none;
-          border: none;
-          color: #4a90e2;
-          cursor: pointer;
-          padding: 0;
-          font-size: 0.8rem;
-          text-decoration: underline;
-        }
+.tooltip-more-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-style: italic;
+  color: #777;
+}
 
-        .tooltip-load-more:hover {
-          color: #357abd;
-        }
+.tooltip-load-more {
+  background: none;
+  border: none;
+  color: #4a90e2;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.8rem;
+  text-decoration: underline;
+}
 
-        .tooltip-wrapper {
-          position: absolute;
-          top: 50%;
-          left: 100%;
-          transform: translateY(-50%);
-          margin-left: 1rem;
-          z-index: 10;
-        }
+.tooltip-load-more:hover {
+  color: #357abd;
+}
 
-        .tooltip-course-list.expanded {
-          max-height: 200px;
-          overflow-y: auto;
-        }
+.tooltip-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 80%;
+  transform: translateY(-50%);
+  margin-left: 0.5rem;
+  z-index: 10;
+  width: auto;
+  max-width: 200px;
+}
 
-        .tooltip-course-list.expanded::-webkit-scrollbar {
-          width: 5px;
-        }
+.tooltip-course-list.expanded {
+  max-height: 200px;
+  overflow-y: auto;
+}
 
-        .tooltip-course-list.expanded::-webkit-scrollbar-thumb {
-          background-color: #ccc;
-          border-radius: 5px;
-        }
+.tooltip-course-list.expanded::-webkit-scrollbar {
+  width: 5px;
+}
 
-        .tooltip-course-list.expanded::-webkit-scrollbar-track {
-          background-color: #f0f0f0;
-        }
+.tooltip-course-list.expanded::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 5px;
+}
 
-        .recharts-surface {
-          overflow: visible !important;
-        }
+.tooltip-course-list.expanded::-webkit-scrollbar-track {
+  background-color: #f0f0f0;
+}
 
-        .recharts-pie-label {
-          opacity: 1 !important;
-          transition: none !important;
-        }
+.recharts-surface {
+  overflow: visible !important;
+}
 
-        .recharts-pie-label text {
-          dominant-baseline: middle !important;
-          text-anchor: middle !important;
-        }
-      `}</style>
+.recharts-pie-label {
+  opacity: 1 !important;
+  transition: none !important;
+}
+
+.recharts-pie-label text {
+  dominant-baseline: middle !important;
+  text-anchor: middle !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .modal-card {
+    max-width: 1000px;
+    padding: 0.9rem;
+  }
+
+  .course-pool-charts {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+  }
+
+  .chart-container {
+    min-height: 280px;
+  }
+
+  .insights-section > .chart-container:last-child {
+    max-width: 320px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .modal-card {
+    max-height: 85vh;
+    padding: 0.8rem;
+  }
+
+  .course-pool-charts {
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 1.8rem;
+  }
+
+  .chart-container {
+    min-height: 260px;
+  }
+
+  .chart-container .recharts-wrapper {
+    max-width: 180px;
+  }
+
+  .insights-section > .chart-container:last-child {
+    max-width: 300px;
+  }
+
+  .insights-section > .chart-container:last-child .recharts-wrapper {
+    max-width: 230px;
+  }
+}
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 0.5rem;
+  }
+
+  .modal-card {
+    max-height: 90vh;
+    padding: 0.7rem;
+  }
+
+  .course-pool-charts {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .chart-container {
+    min-height: 240px;
+    max-width: 280px;
+  }
+
+  .chart-container h6 {
+    font-size: 0.9rem;
+  }
+
+  .chart-container p {
+    font-size: 0.8rem;
+  }
+
+  .chart-container .recharts-wrapper {
+    max-width: 160px;
+  }
+
+  .insights-section > .chart-container:last-child {
+    max-width: 280px;
+  }
+
+  .insights-section > .chart-container:last-child .recharts-wrapper {
+    max-width: 210px;
+  }
+
+  .tooltip-wrapper {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin: 0.8rem auto;
+    width: 100%;
+    max-width: 180px;
+  }
+}
+
+@media (max-width: 600px) {
+  .modal-overlay {
+    padding: 0.4rem;
+  }
+
+  .modal-card {
+    padding: 0.6rem;
+  }
+
+  .course-pool-charts {
+    grid-template-columns: 1fr; /* Single column for very small screens */
+    gap: 1.2rem;
+  }
+
+  .chart-container {
+    min-height: 220px;
+    max-width: 260px;
+  }
+
+  .chart-container .recharts-wrapper {
+    max-width: 150px;
+  }
+
+  .insights-section > .chart-container:last-child {
+    max-width: 260px;
+  }
+
+  .insights-section > .chart-container:last-child .recharts-wrapper {
+    max-width: 200px;
+  }
+
+  .tooltip-wrapper {
+    max-width: 160px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-card {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 8px;
+  }
+
+  .course-pool-charts {
+    gap: 1rem;
+  }
+
+  .chart-container {
+    min-height: 200px;
+    max-width: 240px;
+    padding: 0.5rem;
+  }
+
+  .chart-container h6 {
+    font-size: 0.85rem;
+    max-height: 3.2rem;
+  }
+
+  .chart-container p {
+    font-size: 0.75rem;
+    margin-top: 0.6rem;
+  }
+
+  .chart-container .recharts-wrapper {
+    max-width: 140px;
+  }
+
+  .toggle-insights-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .insights-section > .chart-container:last-child {
+    max-width: 240px;
+    margin: 1rem auto;
+  }
+
+  .insights-section > .chart-container:last-child .recharts-wrapper {
+    max-width: 190px;
+  }
+
+  .tooltip-wrapper {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 360px) {
+  .modal-overlay {
+    padding: 0.3rem;
+  }
+
+  .modal-card {
+    padding: 0.4rem;
+  }
+
+  .chart-container {
+    min-height: 180px;
+    max-width: 220px;
+  }
+
+  .chart-container h6 {
+    font-size: 0.8rem;
+    max-height: 3rem;
+  }
+
+  .chart-container p {
+    font-size: 0.7rem;
+  }
+
+  .chart-container .recharts-wrapper {
+    max-width: 130px;
+  }
+
+  .insights-section > .chart-container:last-child {
+    max-width: 220px;
+  }
+
+  .insights-section > .chart-container:last-child .recharts-wrapper {
+    max-width: 180px;
+  }
+
+  .tooltip-wrapper {
+    max-width: 140px;
+    margin: 0.6rem auto;
+  }
+}
+
+@media (max-width: 320px) {
+  .modal-overlay {
+    padding: 0.2rem;
+  }
+
+  .modal-card {
+    padding: 0.3rem;
+  }
+
+  .chart-container {
+    min-height: 160px;
+    max-width: 200px;
+  }
+
+  .chart-container h6 {
+    font-size: 0.75rem;
+    max-height: 2.8rem;
+  }
+
+  .chart-container .recharts-wrapper {
+    max-width: 120px;
+  }
+
+  .insights-section > .chart-container:last-child {
+    max-width: 200px;
+  }
+
+  .insights-section > .chart-container:last-child .recharts-wrapper {
+    max-width: 170px;
+  }
+
+  .tooltip-wrapper {
+    max-width: 130px;
+  }
+}
+`}</style>
     </div>
   );
 };
