@@ -9,7 +9,7 @@ import userIcon from '../icons/userIcon2.png';
 import logoutIcon from '../icons/logoutIcon.png';
 
 const Navbar = () => {
-	const { isLoggedIn, logout, user } = useContext(AuthContext);
+	const { isLoggedIn, loading, logout, user } = useContext(AuthContext);
 	const navigate = useNavigate();
 	const menuRef = useRef(null);
 
@@ -96,7 +96,9 @@ const Navbar = () => {
               </>
             ) : '' }
           </div>
-          {(isLoggedIn && user) ? (
+          {!loading ? (
+            <>
+            {(isLoggedIn && user) ? (
               <>
                 <div className="navbar-right-buttons">
                   <Link to="/user">
@@ -137,6 +139,8 @@ const Navbar = () => {
                 </Link>
               </div>
             )}
+            </>
+          ) : ''}
           </div>
         </div>
       </nav>

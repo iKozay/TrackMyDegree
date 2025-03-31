@@ -14,33 +14,48 @@ export const AuthProvider = ({children}) => {
   const [loading, setLoading] = useState(true);
 
   // Check local storage and set initial state for isLoggedIn
-  useEffect(async () => {
-    const response = await fetch(
-        `${process.env.REACT_APP_SERVER}/session/refresh`,
-        {
-          method: 'GET',
-          credentials: 'include'
+  useEffect(() => {
+
+    const verifySession = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_SERVER}/session/refresh`,
+          {
+            method: 'GET',
+            credentials: 'include'
+          }
+        );
+  
+        if(response.ok){
+          const user_data = await response.json();
+          console.log('REFRESH: ', user_data);
+    
+          setIsLoggedIn(true);
+          setUser(user_data);
         }
-      );
-
-    if(response.ok){
-      const user_data = await response.json();
-      console.log("REFRESH: ", user_data);
-
-      setIsLoggedIn(true);
-      setUser(user_data);
-    }
-    else {
-      setIsLoggedIn(false);
-      setUser(null);
-    }
+        else {
+          setIsLoggedIn(false);
+          setUser(null);
+        }
+      } 
+      catch (error) {
+        console.error('Session verification failed:', error);
+        setIsLoggedIn(false);
+        setUser(null);
+      }
+      finally {
+        setLoading(false); // Set loading to false after checking
+      }
+    };
+    
     // const loggedInStatus = localStorage.getItem('isLoggedIn') === 'true';
     // setIsLoggedIn(loggedInStatus);
     // if (loggedInStatus === 'true') {
     //   const storedUser = JSON.parse(localStorage.getItem('user'));
     //   setUser(storedUser);
     // }
-    setLoading(false); // Set loading to false after checking
+
+    verifySession();
   }, []);
 
   const login = (userData) => {
