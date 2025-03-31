@@ -197,7 +197,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const location = useLocation();
 
   const scrollWrapperRef = useRef(null);
-  const autoScrollInterval = useRef(null);
+  // const autoScrollInterval = useRef(null);
 
 
   let { degree_Id, startingSemester, credits_Required, extendedCredit } = location.state || {};
@@ -1401,51 +1401,51 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
 
   // Function to handle mouse move over the scrollable container
-  const handleScrollMouseMove = (e) => {
-    const wrapper = scrollWrapperRef.current;
-    if (!wrapper) return;
+  // const handleScrollMouseMove = (e) => {
+  //   const wrapper = scrollWrapperRef.current;
+  //   if (!wrapper) return;
+  //
+  //   const rect = wrapper.getBoundingClientRect();
+  //   // Calculate x position relative to the container
+  //   const mouseX = e.clientX - rect.left;
+  //   const threshold = 50;
+  //   let direction = 0;
+  //
+  //   if (mouseX < threshold) {
+  //     direction = -1;
+  //   } else if (mouseX > rect.width - threshold) {
+  //     direction = 1;
+  //   } else {
+  //     direction = 0;
+  //   }
+  //
+  //   if (direction !== 0) {
+  //     wrapper.classList.add('scrolling');
+  //     if (!autoScrollInterval.current) {
+  //       autoScrollInterval.current = setInterval(() => {
+  //         // Adjust the speed
+  //         wrapper.scrollLeft += direction * 15;
+  //       }, 30);
+  //     }
+  //   } else {
+  //     // Remove the visual cue and stop scrolling if mouse is not in the edge zone
+  //     wrapper.classList.remove('scrolling');
+  //     if (autoScrollInterval.current) {
+  //       clearInterval(autoScrollInterval.current);
+  //       autoScrollInterval.current = null;
+  //     }
+  //   }
+  // };
 
-    const rect = wrapper.getBoundingClientRect();
-    // Calculate x position relative to the container
-    const mouseX = e.clientX - rect.left;
-    const threshold = 50;
-    let direction = 0;
-
-    if (mouseX < threshold) {
-      direction = -1;
-    } else if (mouseX > rect.width - threshold) {
-      direction = 1;
-    } else {
-      direction = 0;
-    }
-
-    if (direction !== 0) {
-      wrapper.classList.add('scrolling');
-      if (!autoScrollInterval.current) {
-        autoScrollInterval.current = setInterval(() => {
-          // Adjust the speed
-          wrapper.scrollLeft += direction * 15;
-        }, 30);
-      }
-    } else {
-      // Remove the visual cue and stop scrolling if mouse is not in the edge zone
-      wrapper.classList.remove('scrolling');
-      if (autoScrollInterval.current) {
-        clearInterval(autoScrollInterval.current);
-        autoScrollInterval.current = null;
-      }
-    }
-  };
-
-  const handleScrollMouseLeave = () => {
-    const wrapper = scrollWrapperRef.current;
-    if (!wrapper) return;
-    wrapper.classList.remove('scrolling');
-    if (autoScrollInterval.current) {
-      clearInterval(autoScrollInterval.current);
-      autoScrollInterval.current = null;
-    }
-  };
+  // const handleScrollMouseLeave = () => {
+  //   const wrapper = scrollWrapperRef.current;
+  //   if (!wrapper) return;
+  //   wrapper.classList.remove('scrolling');
+  //   if (autoScrollInterval.current) {
+  //     clearInterval(autoScrollInterval.current);
+  //     autoScrollInterval.current = null;
+  //   }
+  // };
 
   const exportTimelineToPDF = () => {
     const input = document.querySelector('.timeline-middle-section');
@@ -1803,8 +1803,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   <div
                     className="timeline-scroll-wrapper"
                     ref={scrollWrapperRef}
-                    onMouseMove={handleScrollMouseMove}
-                    onMouseLeave={handleScrollMouseLeave}
+                    // onMouseMove={handleScrollMouseMove}
+                    // onMouseLeave={handleScrollMouseLeave}
                     onWheel={(e) => {
                       e.preventDefault();
                       e.currentTarget.scrollLeft += e.deltaY;
