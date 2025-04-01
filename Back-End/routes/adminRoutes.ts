@@ -1,12 +1,22 @@
 // src/routes/adminRoutes.ts
 
 import express from 'express';
-import { getTables, getTableRecords, listBackups, restoreBackup, createBackup, deleteBackup } from '@controllers/adminController/adminController'; // Import controller methods
-import { seedSoenDegree } from '@controllers/adminController/adminController';
+import {
+  seedSoenDegree,
+  getTables,
+  getTableRecords, listBackups, restoreBackup, createBackup, deleteBackup,
+} from '@controllers/adminController/adminController'; // Import controller methods
+import { AdminCheck } from '@middleware/JWTAccessMiddleware';
+import { verifyAuth } from '@middleware/authMiddleware';
 import { create } from 'domain';
 
 const router = express.Router();
 
+//* Middleware
+router.use(verifyAuth);
+router.use(AdminCheck);
+
+//* Route handler
 // Route to get all tables
 router.post('/tables', getTables);
 

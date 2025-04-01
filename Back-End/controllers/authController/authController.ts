@@ -219,12 +219,37 @@ async function resetPassword(
   }
 }
 
+async function isAdmin(user_id: string): Promise<boolean | undefined> {
+  const authConn = await Database.getConnection();
+
+  if (authConn) {
+    try {
+      const result = await authConn
+        .request()
+        .input('id', Database.msSQL.VarChar, user_id)
+        .query('SELECT type FROM AppUser WHERE id = @id');
+
+      if (result.recordset && result.recordset.length > 0) {
+        const user = result.recordset[0];
+
+        return user.type === "admin";
+      }
+
+      return false;
+    } catch (error) {
+      Sentry.captureException({ error: 'Backend error - isAdmin' });
+      log('Error in isAdmin:\n', error);
+    }
+  }
+}
+
 //Namespace
 const authController = {
   authenticate,
   registerUser,
   forgotPassword,
   resetPassword,
+  isAdmin
 };
 
 //Default export

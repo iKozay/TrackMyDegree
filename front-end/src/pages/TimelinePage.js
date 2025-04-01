@@ -1,6 +1,6 @@
 // TimelinePage.js
 
-import React, { useState, useEffect, useRef, act } from 'react';
+import React, { useState, useEffect, useRef, act, useContext } from 'react';
 import { useNavigate, useLocation, useBlocker } from 'react-router-dom';
 import { motion, time } from 'framer-motion'
 import {
@@ -34,6 +34,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import CourseSectionButton from '../components/SectionModal';
 import ShowInsights from '../components/ShowInsights';
+import { AuthContext } from '../middleware/AuthContext';
 
 
 // DraggableCourse component for course list items
@@ -193,8 +194,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
   // Flatten and filter courses from all pools based on the search query
 
-  const userData = localStorage.getItem('user');
-  const user = JSON.parse(userData);
+  const { login, isLoggedIn, user } = useContext(AuthContext);
   const location = useLocation();
 
   const scrollWrapperRef = useRef(null);
@@ -1569,9 +1569,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                 <div className="timeline-buttons-container">
                   <div>
                     {coursePools != null &&
-                    semesterCourses != null &&
-                    totalCredits != null &&
-                    deficiencyCredits != null ? (
+                      semesterCourses != null &&
+                      totalCredits != null &&
+                      deficiencyCredits != null ? (
                       <ShowInsights
                         coursePools={coursePools}
                         semesterCourses={semesterCourses}
@@ -1613,7 +1613,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   className="courses-with-button"
                   id="courses-with-button"
                 >
-                <div
+                  <div
                     className={`timeline-left-bar ${showCourseList ? '' : 'hidden'}`}
                   >
                     {showCourseList && (

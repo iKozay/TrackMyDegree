@@ -1,41 +1,80 @@
 // src/AuthContext.js
-import React, { createContext, useState, useEffect } from 'react';
+import React, {createContext, useEffect, useState} from 'react';
 
 export const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem('isLoggedIn') === 'true';
-  });
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
+export const AuthProvider = ({children}) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+  const [user, setUser] =  useState(null); 
   const [loading, setLoading] = useState(true);
 
   // Check local storage and set initial state for isLoggedIn
   useEffect(() => {
-    const loggedInStatus = localStorage.getItem('isLoggedIn') === 'true';
-    setIsLoggedIn(loggedInStatus);
-    if (loggedInStatus === 'true') {
-      const storedUser = JSON.parse(localStorage.getItem('user'));
-      setUser(storedUser);
-    }
-    setLoading(false); // Set loading to false after checking
+
+    const verifySession = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_SERVER}/session/refresh`,
+          {
+            method: 'GET',
+            credentials: 'include'
+          }
+        );
+  
+        if(response.ok){
+          const user_data = await response.json();
+    
+          setIsLoggedIn(true);
+          setUser(user_data);
+        }
+        else {
+          setIsLoggedIn(false);
+          setUser(null);
+        }
+      } 
+      catch (error) {
+        console.error('Session verification failed:', error);
+        setIsLoggedIn(false);
+        setUser(null);
+      }
+      finally {
+        setLoading(false); // Set loading to false after checking
+      }
+    };
+  
+    verifySession();
   }, []);
 
   const login = (userData) => {
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(JSON.parse(localStorage.getItem('user')));
+    setUser(userData);
     setIsLoggedIn(true);
   };
 
   const logout = () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('user');
-    setUser(null);
-    setIsLoggedIn(false);
+    const destrySession = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_SERVER}/session/destroy`,
+          {
+            method: 'GET',
+            credentials: 'include'
+          }
+        );
+
+        if(!response.ok) {
+          throw new Error();
+        }
+      } 
+      catch (error) {
+        console.error('Session destruction failed:', error);
+      }
+      finally {
+        setIsLoggedIn(false);
+        setUser(null);
+      }
+    };
+
+    destrySession();
   };
 
   return (
