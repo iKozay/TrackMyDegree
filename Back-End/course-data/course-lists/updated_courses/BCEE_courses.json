@@ -2,7 +2,7 @@
   {
     "title": "BCEE 231 Structured Programming and Applications for Building and Civil Engineers",
     "credits": 3,
-    "prerequisites": "ENGR 242.",
+    "prerequisites": "MATH 204.",
     "corequisites": "ENGR 242.",
     "description": "Elements of procedural programming: variables, primitive data types, scope, operators and expressions, control structures, functions, derived data types and basic data structures. Program structure and development: specifications, analysis of requirements, flow charting, incremental development, testing, validation and program documenting. Application of procedural programming, graphics and numerical tool box to mathematics and building, civil and environmental engineering.",
     "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
@@ -142,7 +142,7 @@
   {
     "title": "BCEE 465 Construction Planning and Control",
     "credits": 3,
-    "prerequisites": "BCEE 478 / equivalent.",
+    "prerequisites": "BCEE 478.",
     "corequisites": "",
     "description": "This course covers the following topics: methods of delivering construction, contractual relationships and organizational structures, phases of project development, estimating resource requirements, costs and durations, bidding strategies, network analysis using CPM and PERT, time-cost trade-off, resource allocation, cash flow analysis, earned-value concept for integrated time and cost control, quality control, and value engineering.",
     "components": "Lecture 3 hours per week",

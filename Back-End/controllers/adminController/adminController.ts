@@ -11,11 +11,302 @@ import {
 } from '@controllers/adminController/admin_types';
 
 import fs from 'fs';
+import { promises as fsPromises } from 'fs';
 import path from 'path';
 import * as sql from 'mssql';
 import 'dotenv/config';
 import { readdir } from 'fs/promises';
 import * as Sentry from '@sentry/node';
+
+const allowedTables = [
+  'AppUser',
+  'Timeline',
+  'TimelineItems',
+  'TimelineItemXCourses',
+  'Feedback',
+];
+
+const allTablesReversed = [
+  'Feedback',
+  'Exemption',
+  'Deficiency',
+  'TimelineItemXCourses',
+  'TimelineItems',
+  'Timeline',
+  'AppUser',
+  'CourseXCoursePool',
+  'DegreeXCoursePool',
+  'CoursePool',
+  'Requisite',
+  'Course',
+  'Degree',
+];
+
+const getBackupDir = (): string => {
+  return process.env.BACKUP_DIR || path.join(__dirname, '../../backups');
+};
+
+export const createBackup = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const pool = await Database.getConnection();
+    if (!pool) {
+      res
+        .status(500)
+        .json({ success: false, message: 'Database connection failed' });
+      return;
+    }
+    // Query to get all table names in the current database
+    const tableQuery = `
+      SELECT TABLE_NAME 
+      FROM INFORMATION_SCHEMA.TABLES 
+      WHERE TABLE_TYPE = 'BASE TABLE' 
+        AND TABLE_CATALOG = '${process.env.SQL_SERVER_DATABASE}'
+        AND TABLE_NAME IN (${allowedTables.map((t) => `'${t}'`).join(',')})
+    `;
+    const tableResult = await pool.request().query(tableQuery);
+    const tables: string[] = tableResult.recordset.map(
+      (row: { TABLE_NAME: string }) => row.TABLE_NAME,
+    );
+
+    // Create an object mapping table names to their records
+    const backupData: Record<string, any[]> = {};
+    for (const tableName of tables) {
+      const result = await pool.request().query(`SELECT * FROM [${tableName}]`);
+      backupData[tableName] = result.recordset;
+    }
+
+    // Generate a backup filename with a timestamp (replace colons and dots)
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const backupFileName = `backup-${timestamp}.json`;
+    const backupDir = getBackupDir();
+
+    // Ensure the backup directory exists
+    if (!fs.existsSync(backupDir)) {
+      fs.mkdirSync(backupDir, { recursive: true });
+    }
+    const backupFilePath = path.join(backupDir, backupFileName);
+
+    // Write backup data as pretty-printed JSON
+    await fsPromises.writeFile(
+      backupFilePath,
+      JSON.stringify(backupData, null, 2),
+      'utf-8',
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Backup created successfully',
+      data: backupFileName,
+    });
+  } catch (error) {
+    Sentry.captureException(error);
+    console.error('Error creating backup:', error);
+    res
+      .status(500)
+      .json({ success: false, message: 'Error creating backup', data: error });
+  }
+};
+
+/**
+ * Lists the available backup files from the backup directory.
+ */
+export const listBackups = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const backupDir = getBackupDir();
+    // If the backup directory doesn't exist, return an empty list
+    if (!fs.existsSync(backupDir)) {
+      res.status(200).json({ success: true, data: [] });
+      return;
+    }
+    const files = await fsPromises.readdir(backupDir);
+    // Filter to include only .json files
+    const backups = files.filter((file) => file.endsWith('.json'));
+    res.status(200).json({ success: true, data: backups });
+  } catch (error) {
+    Sentry.captureException(error);
+    console.error('Error listing backups:', error);
+    res
+      .status(500)
+      .json({ success: false, message: 'Error listing backups', data: error });
+  }
+};
+
+/**
+ * Restores the database from the backup file.
+ * This function reads the JSON backup file, then for each table:
+ * 1. Deletes all records.
+ * 2. Inserts the backed-up records.
+ * All insertions are wrapped in a transaction.
+ */
+export const restoreBackup = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { backupName } = req.body;
+    if (!backupName) {
+      res
+        .status(400)
+        .json({ success: false, message: 'Backup name is required' });
+      return;
+    }
+    const backupDir = getBackupDir();
+    const backupFilePath = path.join(backupDir, backupName);
+    if (!fs.existsSync(backupFilePath)) {
+      res
+        .status(404)
+        .json({ success: false, message: 'Backup file not found' });
+      return;
+    }
+    const backupContent = await fsPromises.readFile(backupFilePath, 'utf-8');
+    const backupData = JSON.parse(backupContent);
+
+    // Filter backupData to only include allowed tables
+    const filteredBackupData: Record<string, any[]> = {};
+    for (const tableName of Object.keys(backupData)) {
+      if (allowedTables.includes(tableName)) {
+        filteredBackupData[tableName] = backupData[tableName];
+      }
+    }
+
+    const pool = await Database.getConnection();
+    if (!pool) {
+      res
+        .status(500)
+        .json({ success: false, message: 'Database connection failed' });
+      return;
+    }
+
+    // ========================================================
+    // Step 1: Delete records from ALL allowed tables in reverse order
+    // ========================================================
+    const deletionTx = pool.transaction();
+    await deletionTx.begin();
+    try {
+      for (const tableName of allTablesReversed) {
+        await deletionTx.request().query(`DELETE FROM [${tableName}]`);
+      }
+      await deletionTx.commit();
+      console.log('Allowed tables deleted successfully.');
+    } catch (deleteError) {
+      await deletionTx.rollback();
+      throw deleteError;
+    }
+
+    // ========================================================
+    // Step 2: Reseed the database using seedSoenDegree function
+    // ========================================================
+    console.log('Reseeding database...');
+    await seedSoenDegree();
+    console.log('Database reseeded successfully.');
+
+    const newPool = await Database.getConnection();
+    if (!newPool) {
+      res
+        .status(500)
+        .json({ success: false, message: 'Database connection failed' });
+      return;
+    }
+
+    // ========================================================
+    // Step 3: Insert backup data into allowed tables
+    // ========================================================
+    const insertTx = newPool.transaction();
+    await insertTx.begin();
+    try {
+      for (const tableName of Object.keys(filteredBackupData)) {
+        // Delete any leftover records (just in case)
+        await insertTx.request().query(`DELETE FROM [${tableName}]`);
+        const records: any[] = filteredBackupData[tableName];
+        if (records.length === 0) continue;
+        for (const record of records) {
+          const columns = Object.keys(record);
+          const values = columns.map((col) => record[col]);
+          const columnsJoined = columns.map((col) => `[${col}]`).join(', ');
+          const placeholders = columns.map((_, idx) => `@p${idx}`).join(', ');
+          const insertRequest = insertTx.request();
+          columns.forEach((col, idx) => {
+            insertRequest.input(`p${idx}`, values[idx]);
+          });
+
+          try {
+            await insertRequest.query(
+              `INSERT INTO [${tableName}] (${columnsJoined}) VALUES (${placeholders})`,
+            );
+          } catch (error) {
+            if (error instanceof Error && error.message.includes('FOREIGN KEY constraint')) {
+              console.error(
+                `Foreign key constraint error while inserting into table "${tableName}". Record:`,
+                record,
+              );
+            }
+            throw error;
+          }
+        }
+      }
+      await insertTx.commit();
+      console.log('Backup data inserted successfully.');
+      res
+        .status(200)
+        .json({ success: true, message: 'Database restored successfully' });
+    } catch (insertError) {
+      await insertTx.rollback();
+      throw insertError;
+    }
+  } catch (error) {
+    Sentry.captureException(error);
+    console.error('Error restoring backup:', error);
+    res
+      .status(500)
+      .json({ success: false, message: 'Error restoring backup', data: error });
+  }
+};
+
+/**
+ * Deletes a backup file from the backup directory.
+ */
+export const deleteBackup = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { backupName } = req.body;
+    if (!backupName) {
+      res
+        .status(400)
+        .json({ success: false, message: 'Backup name is required' });
+      return;
+    }
+    const backupDir = getBackupDir();
+    const backupFilePath = path.join(backupDir, backupName);
+    if (!fs.existsSync(backupFilePath)) {
+      res
+        .status(404)
+        .json({ success: false, message: 'Backup file not found' });
+      return;
+    }
+    await fsPromises.unlink(backupFilePath);
+    res
+      .status(200)
+      .json({ success: true, message: 'Backup deleted successfully' });
+  } catch (error) {
+    Sentry.captureException(error);
+    console.error('Error deleting backup:', error);
+    res
+      .status(500)
+      .json({ success: false, message: 'Error deleting backup', data: error });
+  }
+};
 
 /**
  * Fetches the list of all tables in the database.
@@ -152,6 +443,7 @@ interface CourseJson {
   description?: string;
   prerequisites?: string; // e.g., "COMP 248, MATH 201" or "COMP 248/MATH 201"
   corequisites?: string; // e.g., "MATH 203" or "MATH 203/ENGR 300"
+  offeredIn?: string[]; // e.g., ["Fall", "Winter"]
   // ... more if needed
 }
 
@@ -311,37 +603,29 @@ async function upsertDegree(
   isAddon: boolean,
 ): Promise<string> {
   const request = new sql.Request(t);
+  request.input('id', sql.VarChar, id);
   request.input('name', sql.VarChar, name);
   request.input('totalCredits', sql.Float, totalCredits);
   request.input('isAddon', sql.Bit, isAddon);
-  const result = await request.query(
-    'SELECT id FROM Degree WHERE name = @name',
-  );
+
+  const result = await request.query('SELECT id FROM Degree WHERE id = @id');
   if (result.recordset.length === 0) {
-    let newId: string;
-    if (isAddon) {
-      newId = id;
-      request.input('newId', sql.VarChar, newId);
-    } else {
-      newId = await generateNextId(t, 'Degree', 'D');
-      request.input('newId', sql.VarChar, newId);
-    }
+    // Insert a new degree with the provided ID
     await request.query(`
-      INSERT INTO Degree (id, name, totalCredits)
-      VALUES (@newId, @name, @totalCredits)
+      INSERT INTO Degree (id, name, totalCredits, isAddon)
+      VALUES (@id, @name, @totalCredits, @isAddon)
     `);
-    console.log(`Inserted Degree: ${name} with ID: ${newId}`);
-    return newId;
+    console.log(`Inserted Degree: ${name} with ID: ${id}`);
+    return id;
   } else {
-    const degreeId = result.recordset[0].id;
-    request.input('id', sql.VarChar, degreeId);
+    // Update the existing degree
     await request.query(`
       UPDATE Degree
-      SET totalCredits = @totalCredits
+      SET name = @name, totalCredits = @totalCredits, isAddon = @isAddon
       WHERE id = @id
     `);
-    console.log(`Updated Degree: ${name} with ID: ${degreeId}`);
-    return degreeId;
+    console.log(`Updated Degree: ${name} with ID: ${id}`);
+    return id;
   }
 }
 
@@ -376,25 +660,27 @@ async function upsertCourse(
   title: string,
   credits: number,
   description: string,
+  offeredIn: string,
 ): Promise<void> {
   const request = new sql.Request(t);
   request.input('code', sql.VarChar, code);
   request.input('title', sql.VarChar, title);
   request.input('credits', sql.Float, credits);
   request.input('description', sql.VarChar, description);
+  request.input('offeredIn', sql.VarChar, offeredIn);
   const result = await request.query(
     'SELECT code FROM Course WHERE code = @code',
   );
   if (result.recordset.length === 0) {
     await request.query(`
-      INSERT INTO Course (code, title, credits, description)
-      VALUES (@code, @title, @credits, @description)
+      INSERT INTO Course (code, title, credits, description, offeredIn)
+      VALUES (@code, @title, @credits, @description, @offeredIn)
     `);
     console.log(`Inserted Course: ${code}`);
   } else {
     await request.query(`
       UPDATE Course
-      SET title = @title, credits = @credits, description = @description
+      SET title = @title, credits = @credits, description = @description, offeredIn = @offeredIn
       WHERE code = @code
     `);
     console.log(`Updated Course: ${code}`);
@@ -461,14 +747,14 @@ async function upsertCourseXCoursePool(
     `);
     console.log(
       `Linked Course ${courseCode} to CoursePool ID: ${poolId}` +
-        (groupId ? ` with groupId: ${groupId}` : ''),
+      (groupId ? ` with groupId: ${groupId}` : ''),
     );
     return newId;
   } else {
     const cxcpId = result.recordset[0].id;
     console.log(
       `CourseXCoursePool already exists for Course ${courseCode} in Pool ID: ${poolId}` +
-        (groupId ? ` with groupId: ${groupId}` : ''),
+      (groupId ? ` with groupId: ${groupId}` : ''),
     );
     return cxcpId;
   }
@@ -516,32 +802,31 @@ async function upsertRequisite(
         @code1, 
         ${creditsRequired !== undefined ? 'NULL' : code2 ? '@code2' : 'NULL'}, 
         @type, 
-        ${
-          creditsRequired !== undefined
-            ? 'NULL'
-            : groupId
-              ? '@group_id'
-              : 'NULL'
-        }, 
+        ${creditsRequired !== undefined
+        ? 'NULL'
+        : groupId
+          ? '@group_id'
+          : 'NULL'
+      }, 
         ${creditsRequired !== undefined ? '@creditsRequired' : 'NULL'}
       )
     `);
     console.log(
       `Inserted Requisite: ${code1}` +
-        (code2
-          ? ` -> ${code2}`
-          : ` with Credits Required: ${creditsRequired}`) +
-        ` (${type})` +
-        (groupId ? ` Group ID: ${groupId}` : ''),
+      (code2
+        ? ` -> ${code2}`
+        : ` with Credits Required: ${creditsRequired}`) +
+      ` (${type})` +
+      (groupId ? ` Group ID: ${groupId}` : ''),
     );
   } else {
     console.log(
       `Requisite already exists: ${code1}` +
-        (code2
-          ? ` -> ${code2}`
-          : ` with Credits Required: ${creditsRequired}`) +
-        ` (${type})` +
-        (groupId ? ` Group ID: ${groupId}` : ''),
+      (code2
+        ? ` -> ${code2}`
+        : ` with Credits Required: ${creditsRequired}`) +
+      ` (${type})` +
+      (groupId ? ` Group ID: ${groupId}` : ''),
     );
   }
 }
@@ -585,22 +870,24 @@ function parseRequisites(
     );
     return [];
   }
-  const cleanedStr = requisiteStr.replace(/;/g, ',');
-  const parts = cleanedStr.split(',');
+  const cleanedStr = requisiteStr.replace(/[;\.]/g, ',');
+  const parts = cleanedStr
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean);
   const requisites: Requisite[] = [];
   for (const part of parts) {
-    const trimmedPart = part.trim().replace(/\./g, '');
-    if (trimmedPart.includes('/')) {
-      const alternatives = trimmedPart.split('/').map((c) => c.trim());
+    if (part.includes('/')) {
+      const alternatives = part.split('/').map((c) => c.trim());
       const groupId = `G${globalGroupCounter++}`;
       for (const alt of alternatives) {
         const code = alt.replace(/\s+/g, '').toUpperCase();
         if (/^[A-Z]{2,4}\d{3}$/.test(code)) {
           requisites.push({ code1, code2: code, type, groupId });
-        } else if (/^\d+CR$/.test(code)) {
+        } else if (/^\d+CR$/i.test(code)) {
           requisites.push({
             code1,
-            creditsRequired: parseFloat(code.replace('CR', '')),
+            creditsRequired: parseFloat(code.replace(/CR/i, '')),
             type,
             groupId,
           });
@@ -611,13 +898,13 @@ function parseRequisites(
         }
       }
     } else {
-      const code = trimmedPart.replace(/\s+/g, '').toUpperCase();
+      const code = part.replace(/\s+/g, '').toUpperCase();
       if (/^[A-Z]{2,4}\d{3}$/.test(code)) {
         requisites.push({ code1, code2: code, type });
-      } else if (/^\d+CR$/.test(code)) {
+      } else if (/^\d+CR$/i.test(code)) {
         requisites.push({
           code1,
-          creditsRequired: parseFloat(code.replace('CR', '')),
+          creditsRequired: parseFloat(code.replace(/CR/i, '')),
           type,
         });
       } else {
@@ -644,7 +931,7 @@ async function seedSoenDegree() {
     );
     const courseListsDir = path.join(
       __dirname,
-      '../../course-data/course-lists',
+      '../../course-data/course-lists/updated_courses',
     );
 
     // 2. READ ALL REQUIREMENT FILES
@@ -673,14 +960,22 @@ async function seedSoenDegree() {
 
     // Phase 1: Upsert Courses and Requisites (only once)
     try {
-      const courseTx = pool.transaction();
-      await courseTx.begin();
+      transaction = pool.transaction();
+      await transaction.begin();
       // Upsert Courses
       for (const [code, courseData] of courseMap.entries()) {
         const cTitle = courseData.title;
         const cCredits = courseData.credits ?? 3;
         const cDesc = courseData.description ?? `No description for ${code}`;
-        await upsertCourse(courseTx, code, cTitle, cCredits, cDesc);
+        const cOfferedIn = courseData.offeredIn?.join(', ') ?? 'Empty';
+        await upsertCourse(
+          transaction,
+          code,
+          cTitle,
+          cCredits,
+          cDesc,
+          cOfferedIn,
+        );
       }
       // Upsert Requisites (Prerequisites and Corequisites)
       for (const [code, courseData] of courseMap.entries()) {
@@ -700,7 +995,7 @@ async function seedSoenDegree() {
             );
             continue;
           }
-          await upsertRequisite(courseTx, preReq);
+          await upsertRequisite(transaction, preReq);
         }
         const corequisites = parseRequisites(
           code,
@@ -718,10 +1013,10 @@ async function seedSoenDegree() {
             );
             continue;
           }
-          await upsertRequisite(courseTx, coReq);
+          await upsertRequisite(transaction, coReq);
         }
       }
-      await courseTx.commit();
+      await transaction.commit();
       console.log('Courses and requisites upserted successfully.');
     } catch (err) {
       console.error('Error upserting courses and requisites:', err);

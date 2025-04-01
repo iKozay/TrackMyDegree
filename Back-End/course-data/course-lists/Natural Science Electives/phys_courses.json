@@ -209,7 +209,7 @@
     {
         "title": "PHYS 335 Methods of Theoretical Physics II",
         "credits": 3,
-        "prerequisites": "PHYS 232 or equivalent",
+        "prerequisites": "PHYS 232",
         "corequisites": "MAST 219",
         "description": "Function of a complex variable, Fourier series, applications to a vibrating string, heat conduction, Fourier transform, Laplace transform, application to differential equations, delta functions, eigenvalue problems.",
         "components": "Lecture",

@@ -35,8 +35,8 @@
   {
     "title": "COMP 228 System Hardware",
     "credits": 3,
-    "prerequisites": "MATH 203.",
-    "corequisites": "MATH 203.",
+    "prerequisites": "COMP 248",
+    "corequisites": "MATH 203, MATH 204.",
     "description": "Levels of system abstraction and von Neumann model. Basics of digital logic design. Data representation and manipulation. Instruction set architecture. Processor internals. Assembly language programming. Memory subsystem and cache management. I/O subsystem. Introduction to network organization and architecture.",
     "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
     "notes": "Students who have received credit for SOEN 228 may not take this course for credit.",
@@ -49,7 +49,7 @@
   {
     "title": "COMP 232 Mathematics for Computer Science",
     "credits": 3,
-    "prerequisites": "MATH 203 / Cegep Mathematics 103 / NYA; MATH 204 / Cegep Mathematics 105 / NYC.",
+    "prerequisites": "MATH 203, MATH 204.",
     "corequisites": "",
     "description": "Sets. Propositional logic and predicate calculus. Functions and relations. Elements of number theory. Mathematical reasoning. Proof techniques: direct proof, indirect proof, proof by contradiction, proof by induction.",
     "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
@@ -63,7 +63,7 @@
   {
     "title": "COMP 233 Probability and Statistics for Computer Science",
     "credits": 3,
-    "prerequisites": "MATH 205 / Cegep Mathematics 203 / NYB.",
+    "prerequisites": "MATH 205",
     "corequisites": "",
     "description": "Combinatorics. Axioms of probability. Conditional probability. Discrete and continuous probability distributions. Expectation and moments. Hypothesis testing. Parameter estimation. Correlation and linear regression. Applications to computer science.",
     "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
@@ -77,7 +77,7 @@
   {
     "title": "COMP 248 Object-Oriented Programming I",
     "credits": 3.5,
-    "prerequisites": "MATH 204.",
+    "prerequisites": "",
     "corequisites": "MATH 204.",
     "description": "Introduction to programming. Basic data types, variables, expressions, assignments, control flow. Classes, objects, methods. Information hiding, public vs. private visibility, data abstraction and encapsulation. References. Arrays.",
     "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 1 hour per week",
@@ -91,7 +91,7 @@
   {
     "title": "COMP 249 Object-Oriented Programming II",
     "credits": 3.5,
-    "prerequisites": "MATH 205.",
+    "prerequisites": "COMP 248, MATH 203",
     "corequisites": "MATH 205.",
     "description": "Design of classes. Inheritance. Polymorphism. Static and dynamic binding. Abstract classes. Exception handling. File I/O. Recursion. Interfaces and inner classes. Graphical user interfaces. Generics. Collections and iterators.",
     "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 1 hour per week",
@@ -130,7 +130,7 @@
   {
     "title": "COMP 335 Introduction to Theoretical Computer Science",
     "credits": 3,
-    "prerequisites": "COMP 232 / COEN 231; and COMP 249 / COEN 244.",
+    "prerequisites": "COMP 232 / COEN 231; COMP 249 / COEN 244.",
     "corequisites": "",
     "description": "This course covers the following topics: finite state automata and regular languages; push - down automata and context - free languages; pumping lemmas; applications to parsing; Turing machines; undecidability and decidability.",
     "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
@@ -144,7 +144,7 @@
   {
     "title": "COMP 339 Combinatorics",
     "credits": 3,
-    "prerequisites": "COMP 232; / students must complete have completed 18 credits in post-Cegep Mathematics prior to enrolling.",
+    "prerequisites": "COMP 232",
     "corequisites": "",
     "description": "General principles of counting, permutations, combinations, identities, partitions, generating functions, Fibonacci numbers, Stirling numbers, Catalan numbers, principle of inclusion-exclusion. Graphs, subgraphs, isomorphism, Euler graphs, Hamilton paths and cycles, planar graphs, Kuratowski's Theorem, trees, colouring, 5-colour theorem, matching, Hall's theorem.",
     "components": "Lecture; Tutorial",
@@ -156,7 +156,7 @@
   {
     "title": "COMP 345 Advanced Program Design with C++",
     "credits": 4,
-    "prerequisites": "COMP 352.",
+    "prerequisites": "",
     "corequisites": "COMP 352.",
     "description": "Introduction to C++. I/O with stream classes. Pointers and their uses. The Standard Template Library (STL): containers, algorithms, iterators, adaptors, function objects. Class design: constructors, destructors, operator overloading, inheritance, virtual functions, exception handling, memory management. Advanced topics: libraries, locales, STL conventions, concurrency, template metaprogramming. Applications of C++: systems, engineering, games programming. Project.",
     "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
@@ -197,7 +197,7 @@
   {
     "title": "COMP 352 Data Structures and Algorithms",
     "credits": 3,
-    "prerequisites": "COMP 232.",
+    "prerequisites": "COMP 249.",
     "corequisites": "COMP 232.",
     "description": "Abstract data types: stacks and queues, trees, priority queues, dictionaries. Data structures: arrays, linked lists, heaps, hash tables, search trees. Design and analysis of algorithms: asymptotic notation, recursive algorithms, searching and sorting, tree traversal, graph algorithms.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
@@ -211,9 +211,9 @@
   {
     "title": "COMP 353 Databases",
     "credits": 4,
-    "prerequisites": "COMP 232 / COEN 231; and COMP 352 / COEN 352.",
+    "prerequisites": "COMP 232 / COEN 231; COMP 352 / COEN 352.",
     "corequisites": "",
-    "description": "This course introduces database design, applications, and aspects of database management systems. It covers conceptual database design using the entity-relationship model. Students are introduced to the relational data model, relational algebra, as well as the SQL language, and their applications. Furthermore, the course covers the development of database applications. Students also learn about other data models, including Datalog and Object-oriented. A project is required.",
+    "description": "SOEN students cant take this course for credit, This course introduces database design, applications, and aspects of database management systems. It covers conceptual database design using the entity-relationship model. Students are introduced to the relational data model, relational algebra, as well as the SQL language, and their applications. Furthermore, the course covers the development of database applications. Students also learn about other data models, including Datalog and Object-oriented. A project is required.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week",
     "notes": "Students in the B Eng in Software Engineering program may not take this course for credit. Students who have received credit for SOEN 363 may not take this course for credit.",
     "offeredIn": [
@@ -252,7 +252,7 @@
   {
     "title": "COMP 367 Techniques in Symbolic Computation",
     "credits": 3,
-    "prerequisites": "MATH 222 / COMP 232 / equivalent; COMP 248 / equivalent.",
+    "prerequisites": "MATH 222 / COMP 232 ; COMP 248",
     "corequisites": "",
     "description": "This course is an application-oriented introduction to algebraic methods involved in symbolic computation, as it applies to number theory and modular algebra, and covering the following topics: numbers, primes, modular arithmetic, Diophantine equations; congruence classes and applications, finite fields and rings; Fermat's and Euler's theorems; Chinese Remainder theorem and applications; polynomial congruences and rings. Applications to: error-correcting codes (Humming codes), Hill Cryptosystem, public key encryption schemes, polynomial factorization, polynomial interpolation. A symbolic computation system (e. g. MAPLE), is used as a computational tool and a platform for writing all assignments and tests but not as an object of study itself.",
     "components": "Lecture",
@@ -529,7 +529,7 @@
   {
     "title": "COMP 492 Computer Science Project II",
     "credits": 3,
-    "prerequisites": "COMP 490.",
+    "prerequisites": "",
     "corequisites": "COMP 490.",
     "description": "Students work on a computer science project under the supervision of a faculty member and submit a suitable written report on the work carried out.",
     "components": "Lecture",
@@ -582,7 +582,7 @@
   {
     "title": "SOEN 228 System Hardware",
     "credits": 4,
-    "prerequisites": "MATH 203 / Cegep Mathematics 103, MATH 204 / Cegep Mathematics 105.",
+    "prerequisites": "MATH 203, MATH 204",
     "corequisites": "",
     "description": "This course covers the following topics: Boolean Algebra, Digital logic and the design of logic circuits; CPU design; addressing modes; instruction sets and sequencing; design of datapath and control units; memory systems and types; cache memory levels; I/O devices and their interconnection to the CPU; assembly language, and Interrupts.",
     "components": "Lecture 3 hours per week; Tutorial 2 hours per week; Laboratory 2 hours per week",
@@ -614,7 +614,10 @@
     "description": "Digital design exercises including assembly and testing corresponding to the SOEN 228 lab.",
     "components": "Laboratory 2 hours per week",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "winter",
+      "summer"
+    ]
   },
   {
     "title": "SOEN 321 Information Systems Security",
@@ -645,8 +648,8 @@
   {
     "title": "SOEN 341 Software Process and Practices",
     "credits": 4,
-    "prerequisites": "COMP 352.",
-    "corequisites": "COMP 352.",
+    "prerequisites": "",
+    "corequisites": "COMP 352 / COEN 352 , ENCS 282",
     "description": "This course covers the following topics: basic principles of software engineering; introduction to software process, including activities, phases, organization, roles, teamwork, and conflict resolution; notations used in software engineering; software development practices, including documentation, modern version control, review, testing, agile, and continuous integration.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week",
     "notes": "Students who have received credit for COMP 354 may not take this course for credit.",
@@ -671,8 +674,8 @@
   {
     "title": "SOEN 343 Software Architecture and Design",
     "credits": 4,
-    "prerequisites": "SOEN 341.",
-    "corequisites": "SOEN 341.",
+    "prerequisites": "",
+    "corequisites": "SOEN 341, SOEN 342",
     "description": "This course covers the following topics: from requirements to design to implementation; planned vs. evolutionary design and refactoring; model-driven design and Unified Modelling Language (UML); structural and behavioural design descriptions and specifications; general and domain-specific design principles, patterns and idioms; introduction to software architecture (styles and view models); design quality; architectural debt; design smells; refactoring Anti-Patterns to Patterns; design rationale.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week",
     "notes": null,
@@ -694,7 +697,7 @@
   {
     "title": "SOEN 345 Software Testing, Verification and Quality Assurance",
     "credits": 4,
-    "prerequisites": "SOEN 343.",
+    "prerequisites": "",
     "corequisites": "SOEN 343.",
     "description": "This course explores a range of essential testing and development practices, including unit testing, test-driven development, and legacy system testing. Students learn about mocking, dependency injection, and strategies for breaking system dependencies. The course also covers integration and system testing, along with test planning and management, including test prioritization and handling flaky tests. Advanced topics such as static analysis, bisection, fuzzing, and verification are introduced. Additionally, the course delves into continuous integration, continuous delivery, and Dev Ops testing, with a focus on practices like A/B testing.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week",
@@ -756,8 +759,8 @@
   {
     "title": "SOEN 387 Web-Based Enterprise Application Design",
     "credits": 3,
-    "prerequisites": "COMP 353.",
-    "corequisites": "COMP 353.",
+    "prerequisites": "COMP 354 / SOEN 341 , SOEN 287",
+    "corequisites": "COMP 353 / SOEN 363",
     "description": "This course introduces Hypertext Transfer Protocol (HTTP), and client/server and layered architectures for Web-based Enterprise Applications (WEA). The course covers Application, Presentation, Domain and Data Source design patterns. Students learn how to use Java servlets and Java Server Pages. The course also covers authentication, security and transaction processing, as well as system-level testing of web applications.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
     "notes": null,
@@ -768,8 +771,8 @@
   {
     "title": "SOEN 390 Software Engineering Team Design Project",
     "credits": 3.5,
-    "prerequisites": "SOEN 345.",
-    "corequisites": "SOEN 345.",
+    "prerequisites": "",
+    "corequisites": "SOEN 345, SOEN 357",
     "description": "Students work in teams to design and implement a software project from requirements provided by the coordinator. Each team will demonstrate the software and the testing of the software, and prepare adequate documentation for it. In addition, each team will generate a report based on the process of development.",
     "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 3 hours per week",
     "notes": null,
@@ -843,7 +846,9 @@
     "description": "Students work in teams of at least four members to construct a significant software application. The class meets at regular intervals. Team members will give a presentation of their contribution to the project.",
     "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "fall/winter"
+    ]
   },
   {
     "title": "SOEN 491 Software Engineering Project",
@@ -853,7 +858,9 @@
     "description": "Theoretical or practical project in an advanced topic in software engineering.",
     "components": "Lecture",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "winter"
+    ]
   },
   {
     "title": "SOEN 498 Topics in Software Engineering",

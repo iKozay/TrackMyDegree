@@ -7,6 +7,7 @@ import '../css/CourseListPage.css';
 import { motion } from 'framer-motion';
 import * as Sentry from '@sentry/react';
 import { CourseListPageError } from '../middleware/SentryErrors';
+import CourseSectionButton from '../components/SectionModal';
 
 function CourseListPage() {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth > 767);
@@ -17,7 +18,7 @@ function CourseListPage() {
   const [degrees, setDegrees] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // New state for search input
 
-	const fetchController = useRef(null);
+  const fetchController = useRef(null);
 
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth > 767);
@@ -25,119 +26,119 @@ function CourseListPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-	useEffect(() => {
-		const getDegrees = async () => {
-			try {
-				const response = await fetch(
-					`${process.env.REACT_APP_SERVER}/degree/getAllDegrees`,
-					{
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json",
-						},
-					}
-				);
-				const jsonData = await response.json();
-				setDegrees(jsonData.degrees);
-			} catch (err) {
-				Sentry.captureException(err);
-				console.error(err.message);
-			}
-		};
-		getDegrees();
-	}, []);
+  useEffect(() => {
+    const getDegrees = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_SERVER}/degree/getAllDegrees`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const jsonData = await response.json();
+        setDegrees(jsonData.degrees);
+      } catch (err) {
+        Sentry.captureException(err);
+        console.error(err.message);
+      }
+    };
+    getDegrees();
+  }, []);
 
-	useEffect(() => {
-		if (!isDesktop && selectedCourse) {
-			setShowPopup(true);
-		}
-	}, [isDesktop, selectedCourse]);
+  useEffect(() => {
+    if (!isDesktop && selectedCourse) {
+      setShowPopup(true);
+    }
+  }, [isDesktop, selectedCourse]);
 
-	// Fetch courses for a specific degree (grouped by pool)
-	const fetchCourses = async (degreeObj) => {
-		if (fetchController.current) {
-			fetchController.current.abort();
-		}
-		const controller = new AbortController();
-		fetchController.current = controller;
+  // Fetch courses for a specific degree (grouped by pool)
+  const fetchCourses = async (degreeObj) => {
+    if (fetchController.current) {
+      fetchController.current.abort();
+    }
+    const controller = new AbortController();
+    fetchController.current = controller;
 
-		setCourseList([]);
-		const degree = degreeObj.id;
-		try {
-			console.log("Fetching courses by degree:", degree);
-			const response = await fetch(
-				`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`,
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({ degree }),
-					signal: controller.signal,
-				}
-			);
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new CourseListPageError(
-					errorData.error || `HTTP error! status: ${response.status}`
-				);
-			}
-			const data = await response.json();
-			setCourseList(data);
-			console.log(data);
-		} catch (err) {
-			console.log("Error fetching courses:", err);
-		}
-	};
+    setCourseList([]);
+    const degree = degreeObj.id;
+    try {
+      console.log("Fetching courses by degree:", degree);
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ degree }),
+          signal: controller.signal,
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new CourseListPageError(
+          errorData.error || `HTTP error! status: ${response.status}`
+        );
+      }
+      const data = await response.json();
+      setCourseList(data);
+      console.log(data);
+    } catch (err) {
+      console.log("Error fetching courses:", err);
+    }
+  };
 
-	// Fetch all courses from /courses/getallcourses and wrap in a single group
-	const fetchAllCourses = async () => {
-		if (fetchController.current) {
-			fetchController.current.abort();
-		}
-		const controller = new AbortController();
-		fetchController.current = controller;
+  // Fetch all courses from /courses/getallcourses and wrap in a single group
+  const fetchAllCourses = async () => {
+    if (fetchController.current) {
+      fetchController.current.abort();
+    }
+    const controller = new AbortController();
+    fetchController.current = controller;
 
-		setCourseList([]);
-		try {
-			console.log("Fetching all courses");
-			const response = await fetch(
-				`${process.env.REACT_APP_SERVER}/courses/getallcourses`,
-				{
-					method: "POST", // Adjust method if necessary
-					headers: {
-						"Content-Type": "application/json",
-					},
-					signal: controller.signal,
-				}
-			);
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new CourseListPageError(
-					errorData.error || `HTTP error! status: ${response.status}`
-				);
-			}
-			const data = await response.json();
-			// Wrap the array in a group-like structure so CourseListAccordion can render it
-			const groupedData = [
-				{
-					poolId: "all",
-					poolName: "All Courses",
-					courses: data,
-				},
-			];
-			setCourseList(groupedData);
-			console.log(groupedData);
-		} catch (err) {
-			console.log("Error fetching all courses:", err);
-		}
-	};
+    setCourseList([]);
+    try {
+      console.log("Fetching all courses");
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER}/courses/getallcourses`,
+        {
+          method: "POST", // Adjust method if necessary
+          headers: {
+            "Content-Type": "application/json",
+          },
+          signal: controller.signal,
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new CourseListPageError(
+          errorData.error || `HTTP error! status: ${response.status}`
+        );
+      }
+      const data = await response.json();
+      // Wrap the array in a group-like structure so CourseListAccordion can render it
+      const groupedData = [
+        {
+          poolId: "all",
+          poolName: "All Courses",
+          courses: data,
+        },
+      ];
+      setCourseList(groupedData);
+      console.log(groupedData);
+    } catch (err) {
+      console.log("Error fetching all courses:", err);
+    }
+  };
 
-	// Handle selection from dropdown: either a degree or the "All Courses" option
-	const handleSelectDegree = (degree) => {
-		setSelectedDegree(degree.name);
-		fetchCourses(degree);
-	};
+  // Handle selection from dropdown: either a degree or the "All Courses" option
+  const handleSelectDegree = (degree) => {
+    setSelectedDegree(degree.name);
+    fetchCourses(degree);
+  };
 
   // Handle selecting "All Courses"
   const handleSelectAllCourses = () => {
@@ -145,10 +146,10 @@ function CourseListPage() {
     fetchAllCourses();
   };
 
-	function hidePopup() {
-		setShowPopup(false);
-		setSelectedCourse(null);
-	}
+  function hidePopup() {
+    setShowPopup(false);
+    setSelectedCourse(null);
+  }
 
   // Filter courseList based on the search term.
   // Here, we filter each group's courses by the course title.
@@ -200,17 +201,19 @@ function CourseListPage() {
             </Dropdown.Menu>
           </Dropdown>
           {/* Search Bar */}
-          <Form className="mt-3">
-            <Form.Control
-              type="text"
-              placeholder="Search courses..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </Form>
+          {selectedDegree !== 'Select Degree' && (
+            <Form className="search-course" onSubmit={(e) => e.preventDefault()}>
+              <Form.Control
+                type="text"
+                placeholder="Search courses, e.g., ENCS 282"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </Form>
+          )}
         </div>
 
-        <Row style={{ display: 'flex' }}>
+        <Row style={{ display: 'flex', flexWrap: 'nowrap', gap: '40px' }}>
           <Col sm={12} md={7}>
             {/* Only display course accordions if the courseList has data */}
             {filteredCourseList.length !== 0 && (
@@ -237,7 +240,7 @@ function CourseListPage() {
                       <b>Prerequisites/Corequisites:</b>
                     </p>
                     {selectedCourse.requisites &&
-                    selectedCourse.requisites.length > 0 ? (
+                      selectedCourse.requisites.length > 0 ? (
                       <ul>
                         {groupPrerequisites(selectedCourse.requisites).map(
                           (group, index) => (
@@ -253,6 +256,14 @@ function CourseListPage() {
                     ) : (
                       <p>None</p>
                     )}
+                  </Card.Text>
+                  <Card.Text>
+                    <p>
+                      <CourseSectionButton
+                        title={selectedCourse.title}
+                        hidden={true}
+                      />
+                    </p>
                   </Card.Text>
                   <Card.Text>
                     <b>Description:</b> {selectedCourse.description}

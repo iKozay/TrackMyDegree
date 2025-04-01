@@ -7,7 +7,7 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
-import { LoginError } from "../middleware/SentryErrors";
+import { LoginError } from '../middleware/SentryErrors';
 
 function LogInPage() {
   const [email, setEmail] = useState('');
@@ -29,6 +29,7 @@ function LogInPage() {
 
     // Reset error state
     setError(null);
+    await new Promise((resolve) => setTimeout(resolve, 10));
 
     // Basic validation checks
     if (email.trim() === '' || password.trim() === '') {
@@ -61,11 +62,11 @@ function LogInPage() {
         },
       );
 
-			if (!response.ok) {
-				// Extract error message from response
-				const errorData = await response.json();
-				throw new LoginError(errorData.message || "Failed to log in.");
-			}
+      if (!response.ok) {
+        // Extract error message from response
+        const errorData = await response.json();
+        throw new LoginError(errorData.message || 'Failed to log in.');
+      }
 
       const data = await response.json();
 
@@ -122,9 +123,6 @@ function LogInPage() {
                 />
               </div>
 
-              {/* Display Error Message */}
-              {error && <Alert variant="danger">{error}</Alert>}
-
               {/* Submit Button */}
               <div className="d-grid gap-2">
                 <Button
@@ -141,6 +139,10 @@ function LogInPage() {
             {/* Link to Sign Up */}
             <div className="text-center mt-3">
               <a href="/signup">Don't have an account? Register here!</a>
+              <br />
+              <a href="/forgot-password">Forgot your password?</a>
+              {/* Display Error Message */}
+              {error && <Alert variant="danger">{error}</Alert>}
             </div>
           </div>
         </div>

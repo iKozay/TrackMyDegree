@@ -14,7 +14,7 @@
   {
     "title": "BLDG 341 Building Engineering Systems",
     "credits": 3,
-    "prerequisites": "BCEE 231.",
+    "prerequisites": "",
     "corequisites": "BCEE 231.",
     "description": "Introduction to systematic solution of building engineering problems. Techniques treated include linear programming, network analysis, nonlinear programming. Introduction to decision analysis and simulation. Application of optimization methods for solution of design problems in building science, building environment, building structures, and construction management, taking into account sustainability issues.",
     "components": "Lecture 3 hours per week",
@@ -52,7 +52,7 @@
   {
     "title": "BLDG 371 Building Service Systems",
     "credits": 3.5,
-    "prerequisites": "BLDG 365.",
+    "prerequisites": "",
     "corequisites": "BLDG 365.",
     "description": "Principles of building service systems, including electrical, gas, communications, service-water supply and distribution; introduction to plans, codes, and standards for utility distribution systems.",
     "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
@@ -64,7 +64,7 @@
   {
     "title": "BLDG 390 Building Engineering Design Project",
     "credits": 3.5,
-    "prerequisites": "BCEE 344.",
+    "prerequisites": "BLDG 341, ENCS 282.",
     "corequisites": "BCEE 344.",
     "description": "The project of each team will encompass various stages of design of a medium-size building. Students learn building engineering design process, methodology, identification of objectives, building codes, formulation of design problems, and estimation of loads on buildings. The design topics encompass the development and evaluation of sustainable building design alternatives; conceptual building design of spatial requirements, design of space layout; and building design accounting for the synthesis and design of structures, enclosure systems, and services (HVAC, lighting, electrical distribution) using computer-aided design tools. Additionally, performance evaluation using modelling, sensitivity analysis and cost estimation is presented.",
     "components": "Lecture 3 hours per week; Laboratory 1 hours per week, alternate weeks",
@@ -112,7 +112,7 @@
   {
     "title": "BLDG 471 HVAC System Design",
     "credits": 4,
-    "prerequisites": "BLDG 476.",
+    "prerequisites": "BLDG 371.",
     "corequisites": "BLDG 476.",
     "description": "Principles of HVAC system design and analysis; sustainable design issues and impact on environment; component and system selection criteria including room air distribution, fans and air circulation, humidifying and dehumidifying processes, piping and ducting design. Air quality standards. Control systems and techniques; operational economics; computer applications.",
     "components": "Lecture 3 hours per week; Laboratory 2 hours per week",
@@ -124,7 +124,7 @@
   {
     "title": "BLDG 472 Energy Management in Buildings",
     "credits": 3,
-    "prerequisites": "BLDG 471.",
+    "prerequisites": "",
     "corequisites": "BLDG 471.",
     "description": "This course covers methods of assessment to compare energy performance of new and existing buildings. Prediction methods of life cycle energy use, demand and cost, and operational greenhouse gas (GHG) emissions are discussed. The course presents verification of compliance of the building and Heating, Ventilation, and Air Conditioning (HVAC) system design with standards requirements. Commissioning methods of HVAC systems in buildings and analysis of measurements data are explained. Prediction of the impact of energy-related retrofits and integration of passive or active solar systems, geothermal systems, and free cooling are discussed. The course introduces case studies of HVAC systems with high-energy performance and low GHG emissions and uses commercially available software packages for the assessment of building energy performance.",
     "components": "Lecture 3 hours per week",
@@ -160,7 +160,7 @@
   {
     "title": "BLDG 475 Indoor Air Quality and Ventilation",
     "credits": 3,
-    "prerequisites": "BLDG 371.",
+    "prerequisites": "",
     "corequisites": "BLDG 371.",
     "description": "This course introduces indoor air quality (IAQ) in building environmental comfort management. Physical-chemical characteristics and health effects of various inorganic, organic, and biological indoor air pollutants are covered. National and provincial standards and regulations for common indoor air pollutants are reviewed. The course presents strategies for moisture control and approaches to minimize the risk of the presence of particulate matter, radon, and asbestos in buildings. Design of ventilation systems for pollutant control, connections between outdoor and indoor air quality, and several air purification and filtration technologies are discussed.",
     "components": "Lecture 3 hours per week",
@@ -184,7 +184,7 @@
   {
     "title": "BLDG 477 Control Systems in Buildings",
     "credits": 3,
-    "prerequisites": "BLDG 371.",
+    "prerequisites": "",
     "corequisites": "BLDG 371.",
     "description": "Introduction to automatic control systems. Control issues related to energy conservation, indoor air quality and thermal comfort in buildings. Classification of HVAC control systems. Control system hardware: selection and sizing of sensors, actuators and controllers. Practical HVAC control systems; elementary local loop and complete control systems. Designing and tuning of controllers. Building automation systems. Case studies.",
     "components": "Lecture 3 hours per week",
@@ -196,7 +196,7 @@
   {
     "title": "BLDG 479 Commissioning of HVAC Systems in Buildings",
     "credits": 3,
-    "prerequisites": "BLDG 471.",
+    "prerequisites": "",
     "corequisites": "BLDG 471.",
     "description": "This course covers the following topics: introduction; scope of commissioning of Heating, Ventilating and Air Conditioning (HVAC) systems including commissioning, retro-commissioning, recommissioning, continuous commissioning, and ongoing commissioning; process vs. technical commissioning; instrumentation for the monitoring of HVAC operation and performance; uncertainty analysis of experimental data; mathematical models of different classes of virtual sensors; data mining techniques applied to measurements from HVAC systems; development of benchmarking models of the normal HVAC operation including correlation-based models, Artificial Neural Networks, and calibrated models; methods for the automated faults detection and diagnostic (FDD); forecasting models of the energy demand in buildings; recommissioning measures for HVAC systems; methods of estimation of energy and cost savings due to the commissioning of HVAC systems.",
     "components": "Lecture 3 hours per week",
@@ -256,7 +256,7 @@
   {
     "title": "BLDG 484 Diagnostics and Rehabilitation of Building Envelope",
     "credits": 3,
-    "prerequisites": "BLDG 463.",
+    "prerequisites": "",
     "corequisites": "BLDG 463.",
     "description": "This course covers the following topics: modes of failures including wood decay, mould growth, freeze-thaw, corrosion, chemical reaction, and movements; common failures in building envelopes including contemporary and traditional walls, windows, roofs and below-grade structures; performance assessment protocols including diagnostics procedures, laboratory and field test methods; remedy strategies and maintenance plan; relevant building codes and standards. A project is required.",
     "components": "Lecture 3 hours per week",
@@ -268,7 +268,7 @@
   {
     "title": "BLDG 490 Capstone Building Engineering Design Project",
     "credits": 6,
-    "prerequisites": "Students must complete a minimum of 75 credits in the B Eng (Bldg) program prior to enrolling, including ENCS 282; BCEE 344, BCEE 345; BLDG 371, BLDG 390; ENGR 301.",
+    "prerequisites": "ENCS 282, BCEE 344, BCEE 345, BLDG 371, BLDG 390, ENGR 301.",
     "corequisites": "",
     "description": "The project of each team encompasses the integrated design of at least three sub-systems of a new or retro-fitted building to achieve high performance and efficiency at reasonable cost; sustainable design and environmental impact issues are addressed in all projects. In the process, students learn, through case studies and literature survey, the information gathering and decision/design process, problem-resolution as well as aspects related to management, teamwork and communication. Students registering for this course must contact the course coordinator for the detailed procedure.",
     "components": "Lecture 3 hours per week, two terms",

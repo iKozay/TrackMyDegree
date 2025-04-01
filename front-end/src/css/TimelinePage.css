@@ -28,27 +28,38 @@
   /* padding: 10px; */
   border-radius: 25px;
   align-items: center;
-  width: 300px;
+  width: 320px;
   transition:
     width 0.3s ease,
     transform 0.3s ease;
-  overflow: hidden; /* Prevent scrolling on this element */
+  overflow: hidden;
+  /* Prevent scrolling on this element */
   position: relative;
 }
 
 .course-list-container {
   /* border-radius: 25px; */
-  max-height: 500px; /* or any value that suits your design */
+  max-height: 500px;
+  /* or any value that suits your design */
   /* border-radius: 5px; */
   overflow-y: auto;
   margin: 15px;
+  /* margin-top: 5px; */
 }
 
 .course-list-container-timeline {
-  max-height: 450px; /* Adjust height as needed */
-  overflow-y: auto; /* Enables vertical scrolling */
-  padding-right: 10px; /* Optional: Prevent scrollbar from covering content */
-  border: 1px solid #ccc; /* Optional: Adds a border for styling */
+  max-height: 50vh;
+  /* Adjust height as needed */
+  overflow-y: auto;
+  /* Enables vertical scrolling */
+  margin-right: 15px;
+  margin-left: 15px;
+  margin-top: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  /* Optional: Prevent scrollbar from covering content */
+  border: 1px solid #ccc; 
+  /* Optional: Adds a border for styling */
   /*background-color: #f9f9f9; /* Optional: Adds background color */
 }
 
@@ -62,7 +73,7 @@
   top: 50%;
   width: 30px;
   height: 30px;
-  right: -13px;
+  right: -15px;
   border: none;
   border-radius: 50%;
   background-color: lightgray;
@@ -82,7 +93,7 @@
   top: 50%;
   width: 30px;
   height: 30px;
-  left: -13px;
+  left: -15px;
   border: none;
   border-radius: 50%;
   background-color: lightgray;
@@ -99,7 +110,7 @@
 
 .semesters {
   flex-grow: 1;
-  display: flex !important;;
+  display: flex !important;
   gap: 15px;
   padding: 10px;
   margin: 0px;
@@ -111,6 +122,7 @@
   width: 100%;
   height: 90%;
   overflow: auto;
+  scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
   scrollbar-gutter: stable;
   transition: background-color 0.3s ease;
@@ -121,14 +133,16 @@
 }
 
 .timeline-scroll-wrapper::-webkit-scrollbar {
-  height: 8px; /* or adjust to your liking */
+  height: 8px;
   width: 8px;
 }
+
 .timeline-scroll-wrapper::-webkit-scrollbar-thumb {
   background-color: lightgray;
   border-radius: 5px;
   transition: background-color 0.3s ease;
 }
+
 .timeline-scroll-wrapper::-webkit-scrollbar-track {
   background-color: rgba(145, 35, 56, 0.1);
   border-radius: 10px;
@@ -171,16 +185,23 @@
   position: relative;
 }
 
+.description-section p,
+.description-section li {
+  color: #505050;
+}
+
 .description-section.hidden {
   white-space: nowrap;
-  width: 1px;
+  width: 10px;
+  padding: 0px;
   overflow: hidden;
   color: #f8f9fa;
   user-select: none;
 }
 
-.description-section.hidden p {
-  color: #f8f9fa;
+.description-section.hidden p,
+.description-section.hidden li {
+  color: #f8f9fa00;
 }
 
 .description-section::-webkit-scrollbar,
@@ -205,7 +226,7 @@
   display: flex;
   justify-content: space-evenly;
   max-height: 120px;
-  overflow: hidden;
+  overflow: visible;
   overflow-wrap: break-word;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -213,6 +234,7 @@
   color: #ffffff;
   font-weight: bold;
   font-size: 15px;
+  position: relative;
 }
 
 .course-item-overlay {
@@ -227,7 +249,8 @@
   /* z-index: 9; */
   /* max-width: 120px; */
   /* Optional: add some border radius */
-  box-shadow: #8db0d4 0px 0px 10px; /* Optional: add a shadow */
+  box-shadow: #8db0d4 0px 0px 10px;
+  /* Optional: add a shadow */
   color: #ffffff;
   font-weight: bold;
   font-size: 18px;
@@ -240,7 +263,7 @@
 
 .course-item.disabled {
   background-color: #ccc;
-  color: black;
+  color: rgba(0, 0, 0, 0.61);
   cursor: not-allowed;
   border: 0px;
 }
@@ -250,10 +273,17 @@
 }
 
 .course-item.selected {
-  border: 2px solid #912338; /* Adjust the color and thickness */
-  border-radius: 13px; /* Optional: add some border radius */
-  box-shadow: #b2c5bc 0px 0px 3px;
-  background-color: #912338;
+  border: 2px solid #912338;
+  /* Adjust the color and thickness */
+  border-radius: 13px;
+  /* Optional: add some border radius */
+  /* box-shadow: #eb3030 0px 0px 17px; */
+  background-color: #ffffff;
+  color: #912338;
+}
+
+.course-item.selected {
+  color: #912338;
 }
 
 .returning {
@@ -308,11 +338,14 @@
 
 /* Center the course items */
 .course-items-container {
-  flex-grow: 1; /* Allows the container to grow and fill available space */
+  flex-grow: 1;
+  /* Allows the container to grow and fill available space */
   display: flex;
   flex-direction: column;
-  align-items: center; /* Centers items horizontally */
-  justify-content: center; /* Centers items vertically */
+  align-items: center;
+  /* Centers items horizontally */
+  justify-content: center;
+  /* Centers items vertically */
 }
 
 .credits-display {
@@ -323,53 +356,92 @@
   background-color: #f5f5f5;
   text-align: center;
   margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .credits-display h4 {
-  padding-left: 25vw;
   margin: 10px;
   flex: 1;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 400px; /* Minimum width before wrapping */
+  font-size: clamp(0.8rem, 2vw, 1.5rem);
 }
 
 .timeline-buttons-container {
   display: flex;
-  gap: 10px; /* Space between buttons */
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end; /* Align to right */
+  align-items: center;
+  flex-grow: 1; /* Take available space */
+  min-width: 0; /* Allow shrinking */
 }
 
 .save-timeline-button,
-.download-timeline-button{
+.download-timeline-button,
+.add-deficiencies-button{
   background-color: #800020;
-  color: white; /* White text */
+  color: white;
   border: none;
   border-radius: 5px;
-  padding: 10px 20px;
+  padding: 10px;
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 44px; /* Minimum touch target size */
+  min-height: 44px;
 }
 
 .save-timeline-button:hover,
-.download-timeline-button:hover {
+.download-timeline-button:hover, 
+.add-deficiencies-button:hover{
   background-color: #9f5f6a;
 }
 
 /* Focus effect for accessibility */
-.save-timeline-button:focus ,
+.save-timeline-button:focus,
 .download-timeline-button:focus {
-  outline: 2px solid #fff; /* White outline on focus */
+  outline: 2px solid #fff;
+  /* White outline on focus */
   outline-offset: 2px;
 }
 
 .download-icon {
-  width: 18px; /* Adjust size as needed */
+  width: 18px;
+  /* Adjust size as needed */
   height: 18px;
-  margin-right: 5px; /* Space between icon and text */
+  margin-right: 5px;
+  /* Space between icon and text */
 }
 
 .warning-icon {
   width: 25px;
+}
+
+/* Button icons */
+.button-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+/* Hide text on small screens */
+.button-text {
+  display: inline;
+}
+
+/* Hide icons on large screens (they'll be shown via media query) */
+.save-icon{
+  display: none;
 }
 
 .upload-transcript-button {
@@ -385,6 +457,7 @@
 .upload-transcript-button:hover {
   background-color: #0056b3;
 }
+
 /*---------------------------K R-------------------------*/
 
 /* When modal is open, blur the background (optional) */
@@ -420,6 +493,18 @@
   font-weight: bold;
 }
 
+.modal-content-def {
+  background-color: #ffff;
+  padding: 1.9rem;
+  border-radius: 8px;
+  position: relative;
+  min-width: 60%;
+  max-width: 600px;
+  font-size: 18px;
+  color: rgb(78, 108, 91);
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+}
 /* ------------- Close Button ------------- */
 .close-button {
   position: absolute;
@@ -451,14 +536,17 @@
 
 .select-container {
   display: flex;
-  flex-direction: column; /* label on top, select below */
+  flex-direction: column;
+  /* label on top, select below */
 }
 
 .select-label {
-  margin-bottom: 6px; /* space between label & select */
+  margin-bottom: 6px;
+  /* space between label & select */
   font-size: 14px;
   font-family: Arial, sans-serif;
-  font-weight: normal; /* can keep bold if you prefer */
+  font-weight: normal;
+  /* can keep bold if you prefer */
   color: rgb(78, 108, 91);
 }
 
@@ -473,8 +561,10 @@
   background-color: white;
   cursor: pointer;
   outline: none;
-  -webkit-appearance: none; /* Remove default arrow in Chrome/Safari */
-  -moz-appearance: none; /* Remove default arrow in Firefox */
+  -webkit-appearance: none;
+  /* Remove default arrow in Chrome/Safari */
+  -moz-appearance: none;
+  /* Remove default arrow in Firefox */
   appearance: none;
   margin-right: 4px;
   transition: border-color 0.2s ease;
@@ -483,8 +573,7 @@
   width: 120px;
   border-color: rgba(156, 143, 143, 0.8);
   box-shadow: 0 0 3px rgba(156, 143, 143, 0.3);
-  background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWw0IDQgNC00IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+')
-    no-repeat right 0.75em center / 0.65em;
+  background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWw0IDQgNC00IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+') no-repeat right 0.75em center / 0.65em;
   transition: border-color 0.2s ease;
 }
 
@@ -496,6 +585,46 @@
 }
 
 .modal-content select option {
+  background-color: #fff;
+  color: rgb(78, 108, 91);
+  font-size: 16px;
+}
+
+/* ------------- Select Elements in the Modal ------------- */
+.modal-content-def select {
+  font-size: 16px;
+  font-family: Arial, sans-serif;
+  color: rgb(78, 108, 91);
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: none;
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  /* Remove default arrow in Chrome/Safari */
+  -moz-appearance: none;
+  /* Remove default arrow in Firefox */
+  appearance: none;
+  margin-right: 4px;
+  transition: border-color 0.2s ease;
+  margin-right: 4px;
+  margin-top: 5px;
+  width: 120px;
+  border-color: rgba(156, 143, 143, 0.8);
+  box-shadow: 0 0 3px rgba(156, 143, 143, 0.3);
+  background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWw0IDQgNC00IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+PC9zdmc+') no-repeat right 0.75em center / 0.65em;
+  transition: border-color 0.2s ease;
+}
+
+/* On focus (clicked) or hover, highlight border */
+.modal-content-def select:focus,
+.modal-content-def select:hover {
+  border-color: rgba(156, 143, 143, 0.8);
+  box-shadow: 0 0 3px rgba(156, 143, 143, 0.3);
+}
+
+.modal-content-def select option {
   background-color: #fff;
   color: rgb(78, 108, 91);
   font-size: 16px;
@@ -517,7 +646,7 @@
 }
 
 /* The + button at the top-right corner */
-.add-semester-button {
+.add-semester-button{
   width: min-content;
   height: min-content;
   white-space: nowrap;
@@ -531,6 +660,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.add-course-btn{
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 1rem;
+  font-style: bold;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: transform 0.2s ease-in-out;
+}
+
+
+.add-course-btn:hover {
+  transform: scale(1.2);
+  filter: drop-shadow(0px 0px 5px rgba(255, 0, 0, 0.6));
 }
 
 .add-semester-button:hover {
@@ -556,6 +706,7 @@
   font-weight: bold;
   color: rgb(78, 108, 91);
 }
+
 .over-limit-warning {
   color: #912338;
   font-weight: bold;
@@ -605,18 +756,23 @@
   0% {
     transform: translate(0, 0);
   }
+
   20% {
     transform: translate(-5px, 0);
   }
+
   40% {
     transform: translate(5px, 0);
   }
+
   60% {
     transform: translate(-5px, 0);
   }
+
   80% {
     transform: translate(5px, 0);
   }
+
   100% {
     transform: translate(0, 0);
   }
@@ -624,15 +780,24 @@
 
 /* General button styles */
 .save-timeline-button {
-  background-color: #800020; /* Green background */
-  color: white; /* White text */
-  border: none; /* Remove border */
-  border-radius: 5px; /* Rounded corners */
-  padding: 10px 20px; /* Padding for size */
-  font-size: 16px; /* Text size */
-  cursor: pointer; /* Pointer cursor on hover */
-  transition: background-color 0.3s ease; /* Smooth transition for background color */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  background-color: #800020;
+  /* Green background */
+  color: white;
+  /* White text */
+  border: none;
+  /* Remove border */
+  border-radius: 5px;
+  /* Rounded corners */
+  padding: 10px 20px;
+  /* Padding for size */
+  font-size: 16px;
+  /* Text size */
+  cursor: pointer;
+  /* Pointer cursor on hover */
+  transition: background-color 0.3s ease;
+  /* Smooth transition for background color */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow */
 }
 
 .course-search-input {
@@ -652,12 +817,14 @@
 }
 
 .course-search-input:focus {
-  border-color: #6a5acd; /* Slate blue */
+  border-color: #6a5acd;
+  /* Slate blue */
   box-shadow: 0 0 10px rgba(106, 90, 205, 0.5);
 }
 
 .course-search-input:hover {
-  border-color: #8a2be2; /* Blue violet */
+  border-color: #8a2be2;
+  /* Blue violet */
 }
 
 .course-search-input::placeholder {
@@ -674,8 +841,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  color: #c25757;
   transition: transform 0.2s ease-in-out;
+}
+
+.remove-course-btn .selected {
+  color: #912338;
 }
 
 .remove-course-btn:hover {
@@ -699,3 +870,142 @@
 .hidden-course {
   display: none;
 }
+
+.checkmark-icon {
+  position: absolute;
+  left: -25px;
+  /* Adjust this value to move the checkmark further left or right */
+  top: 50%;
+  /* Vertically center the checkmark */
+  transform: translateY(-50%);
+  color: green;
+  font-weight: bold;
+  z-index: 1000;
+}
+
+
+/* Container for the warning icon and tooltip */
+.warning-container {
+  display: inline-block;
+  position: relative;
+  margin-left: 8px;
+  /* adjust spacing as needed */
+  cursor: pointer;
+}
+
+/* The tooltip itself, initially hidden */
+.warning-tooltip {
+  visibility: hidden;
+  width: 200px;
+  /* fixed width */
+
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1000;
+  bottom: 165%;
+  /* Position above the icon */
+  left: 50%;
+  margin-left: -100px;
+  /* half of the width */
+  opacity: 0;
+  transition: opacity 0.3s;
+  white-space: normal;
+  /* allow text wrapping */
+  overflow-wrap: break-word;
+  /* break long words if needed */
+  border-width: 2px;
+  border-style: solid;
+  background-color: #912338;;
+  color: #ffffff;
+  /* border-color: #ffffff; */
+  /* Optional: add a blur in the background */
+  /* backdrop-filter: blur(1px); */
+}
+
+.warning-tooltip.selected {
+  background-color: #ffffff;
+  color: #912338;
+  border-color: #912338;
+}
+
+
+/* Arrow at the bottom of the tooltip */
+.warning-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -7px;
+  border-width: 7px;
+  border-style: solid;
+  border-color: #912338 transparent transparent transparent;
+}
+
+
+
+/* Show the tooltip when hovering over the warning container */
+.warning-container:hover .warning-tooltip {
+  visibility: visible;
+  opacity: 1;
+
+}
+
+.show-course-button {
+  background-color: #800020;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.show-course-button.hidden {
+  display: none;
+}
+
+@media (max-width: 992px) {
+  .button-text {
+    display: none;
+  }
+
+  .save-icon,
+  .download-icon {
+    display: block;
+  }
+
+  /* Make buttons square */
+  .save-timeline-button,
+  .download-timeline-button {
+    width: 40px;
+    padding: 10px;
+  }
+
+  /* Keep deficiencies button with text as it's important */
+  .add-deficiencies-button {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+}
+@media (max-width: 600px) {
+  .credits-display h4 {
+    font-size: 0.8rem;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 1200px) {
+  .credits-display h4 {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 1201px) {
+  .credits-display h4 {
+    font-size: 1.5rem;
+  }
+}
+

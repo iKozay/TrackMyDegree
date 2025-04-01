@@ -16,8 +16,8 @@ const CourseListAccordion = ({
           eventKey={courseSection.poolName}
           key={courseSection.poolName}
         >
-          <Accordion.Header style={{ margin: '0px' }}>
-            <b>{courseSection.poolName}</b>
+          <Accordion.Header>
+            <b className="course-section-title">{courseSection.poolName}</b>
           </Accordion.Header>
           <Accordion.Body>
             <Container className="course-list-container">
@@ -31,23 +31,22 @@ const CourseListAccordion = ({
                   className="cursor-pointer course-card"
                 >
                   <Card.Body className="course-list-card-body">
-                    <Card.Title>
+                    <Card.Title className="course-code">
                       {course.code.slice(0, 4)} {course.code.slice(4)}
                     </Card.Title>
-                    <Card.Subtitle style={{ color: 'gray' }}>
+                    <Card.Subtitle className="course-credits">
                       {course.credits} credits
                     </Card.Subtitle>
-                    <Card.Body style={{ padding: '10px' }}>
+                    <Card.Text className="course-title">
                       {course.title.slice(9)}
-                    </Card.Body>
+                    </Card.Text>
                   </Card.Body>
                 </Card>
               ))}
             </Container>
-            {/* If any course section has subcourses nested, use the same Accordion component to nest them in one accordion item */}
             {courseSection.subcourses !== undefined && (
-              <Container style={{ padding: '15px 25px' }}>
-                <h3>
+              <Container className="subcourse-container">
+                <h3 className="subcourse-title">
                   <b>{courseSection.subcourseTitle}</b> (Minimum of{' '}
                   {courseSection.subcourseCredits} credits)
                 </h3>

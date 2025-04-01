@@ -16,8 +16,8 @@ TERM_MAPPING = {
 }
 
 # Set your Basic Auth credentials (use environment variables for security)
-USERNAME = os.getenv("API_USERNAME", "user")
-PASSWORD = os.getenv("API_PASSWORD", "pass")
+USERNAME = os.getenv("OPENDATA_USERNAME", "user")
+PASSWORD = os.getenv("OPENDATA_PASSWORD", "pass")
 
 INPUT_DIR = "."  # Folder containing JSON files
 OUTPUT_DIR = "updated_courses"  # Folder where updated files will be saved
