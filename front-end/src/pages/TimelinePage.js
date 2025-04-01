@@ -1523,8 +1523,20 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         deleteButtons.forEach(btn => (btn.style.display = ''));
       });
   };
-  ;
-  ;
+
+// Compute the first occurrence for each course in the timeline (ignoring exempted semesters)
+  const firstOccurrence = {};
+  semesters.forEach((sem, index) => {
+    if (sem.id.toLowerCase() === 'exempted') return;
+    const courseInstances = semesterCourses[sem.id] || [];
+    courseInstances.forEach((instanceId) => {
+      const genericCode = courseInstanceMap[instanceId] || instanceId;
+      // Only set it once, for the first occurrence
+      if (firstOccurrence[genericCode] === undefined) {
+        firstOccurrence[genericCode] = index;
+      }
+    });
+  });
 
 
 
@@ -1820,10 +1832,15 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                           .toLowerCase()
                           .startsWith('exempted');
 
-                        const sumCredits = semesterCourses[semester.id]
+                        const currentSemesterIndex = semesters.findIndex((s) => s.id === semester.id);
+                        const sumCredits = (semesterCourses[semester.id] || [] )
                           .map((instanceId) => {
                             // Look for the course in both coursePools and remainingCourses
                             const genericCode = courseInstanceMap[instanceId] || instanceId;
+                            // Only count this course if this semester is the first occurrence.
+                            if (currentSemesterIndex !== firstOccurrence[genericCode]) {
+                              return 0;
+                            }
                             const courseInPool = coursePools
                               .flatMap((pool) => pool.courses)
                               .find((c) => c.code === genericCode);
