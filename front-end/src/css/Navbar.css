@@ -401,7 +401,7 @@
 }
 
 /*for screen getting smaller by height*/
-@media (min-height: 1200px) {
+@media (max-height: 500px) and (max-width: 990px) {
   .navbar-collapse {
     position: fixed;
     top: 0;
