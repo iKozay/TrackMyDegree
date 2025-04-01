@@ -23,10 +23,21 @@ const AdminPage = () => {
 
   const fetchBackups = async () => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_SERVER}/admin/fetch-backups`);
-      if (response.data.success) {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/fetch-backups`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        console.error('Failed to fetch backups');
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
         alert('Backups fetched successfully!');
-        setBackups(response.data.data);
+        setBackups(data.data);
       } else {
         console.error('Failed to fetch backups');
       }
@@ -42,8 +53,19 @@ const AdminPage = () => {
   // Function to create a new backup
   const handleCreateBackup = async () => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_SERVER}/admin/create-backup`);
-      if (response.data.success) {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/create-backup`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        alert('Failed to create backup');
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
         alert('Backup created successfully!');
         fetchBackups(); // refresh list after creating backup
       } else {
@@ -62,14 +84,24 @@ const AdminPage = () => {
       return;
     }
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_SERVER}/admin/restore-backup`,
-        { backupName: selectedBackup }
-      );
-      if (response.data.success) {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/restore-backup`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ backupName: selectedBackup }),
+      });
+
+      if (!response.ok) {
+        alert('Failed to restore backup');
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
         alert('Database restored successfully!');
       } else {
-        alert(`Restore failed: ${response.data.message}`);
+        alert(`Restore failed: ${data.message}`);
       }
     } catch (err) {
       console.error('Error restoring backup:', err);
@@ -84,16 +116,26 @@ const AdminPage = () => {
       return;
     }
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_SERVER}/admin/delete-backup`,
-        { backupName: selectedBackup }
-      );
-      if (response.data.success) {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/delete-backup`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ backupName: selectedBackup }),
+      });
+
+      if (!response.ok) {
+        alert('Failed to delete backup');
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
         alert('Backup deleted successfully!');
         setSelectedBackup('');
         fetchBackups();
       } else {
-        alert(`Deletion failed: ${response.data.message}`);
+        alert(`Deletion failed: ${data.message}`);
       }
     } catch (err) {
       console.error('Error deleting backup:', err);
@@ -112,7 +154,7 @@ const AdminPage = () => {
           }
         );
 
-        if( ! response.ok ) {
+        if (!response.ok) {
           navigate("/403"); //! Forbidden
         }
 
@@ -195,16 +237,25 @@ const AdminPage = () => {
 
   const handleSeedData = async () => {
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_SERVER}/admin/seed-data`,
-      );
-      if (response.data.success) {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/seed-data`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        alert('Failed to seed data');
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
         alert('Data seeding successful!');
       } else {
-        alert(`Data seeding failed: ${response.data.message}`);
+        alert(`Data seeding failed: ${data.message}`);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error seeding data:', err);
       alert(`Error seeding data: ${err.message}`);
     }
   };
