@@ -294,7 +294,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         return { results: [] };
       }  
       // Check if text contains "OFFER OF ADMISSION"
-      if (text.match("OFFER OF ADMISSION")) {
+      if (text.toUpperCase().match("OFFER OF ADMISSION")) {
            offer_of_Admission = true;
       }
 
@@ -302,6 +302,8 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       const degreeConcentrationMatch = text.match(
         /Program\/Plan\(s\):\s*([^\n]+)(?:\n([^\n]+))?[\s\S]*?Academic Load/,
       )
+
+      console.log("degree", degreeConcentrationMatch);
 
       if (degreeConcentrationMatch) {
         // Combine the two parts (if any) into a single Degree Concentration string
@@ -513,9 +515,16 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     const generateTerms = (startTerm, endTerm) => {
       const terms = ['Winter', 'Summer', 'Fall'];
       const startYear = parseInt(startTerm.split(' ')[1]); // Extracting the year
-      const endYear = parseInt(endTerm.split(' ')[1]); // Extracting the year
       const startSeason = startTerm.split(' ')[0]; // Extracting the season
-      const endSeason = endTerm.split(' ')[0]; // Extracting the season
+      let endYear,endSeason;
+      if (!endTerm || typeof endTerm !== 'string') {
+        endYear = startYear + 2;
+        endSeason = startSeason;
+       }
+      else{
+        endYear = parseInt(endTerm.split(' ')[1]); // Extracting the year
+        endSeason = endTerm.split(' ')[0]; // Extracting the season
+      }
 
       const resultTerms = [];
 
