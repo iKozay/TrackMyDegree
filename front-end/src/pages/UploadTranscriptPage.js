@@ -330,7 +330,7 @@ const extractTermsCoursesAndSeparators = (pagesData) => {
   });
 
   if (!transcript) {
-    alert("Please choose Offer of Admission");
+    alert("Please choose Transcript");
     return { results: [] };
   }
   console.log('Degree', degreeId);

@@ -9,7 +9,7 @@ import userIcon from '../icons/userIcon2.png';
 import logoutIcon from '../icons/logoutIcon.png';
 
 const Navbar = () => {
-	const { isLoggedIn, logout, user } = useContext(AuthContext);
+	const { isLoggedIn, loading, logout, user } = useContext(AuthContext);
 	const navigate = useNavigate();
 	const menuRef = useRef(null);
   const location = useLocation();
@@ -118,8 +118,19 @@ const Navbar = () => {
             >
               Courses
             </NavLink>
+            {(user && user.type === 'admin') ? 
+            ( 
+              <>
+              <p className={'nav-separator'}>|</p>
+              <Link className="nav-link" to="/adminpage">
+                Admin
+              </Link>
+              </>
+            ) : '' }
           </div>
-          {isLoggedIn ? (
+          {!loading ? (
+            <>
+            {(isLoggedIn && user) ? (
               <>
                 <div className="navbar-right-buttons">
                   <Link to="/user">
@@ -160,6 +171,8 @@ const Navbar = () => {
                 </Link>
               </div>
             )}
+            </>
+          ) : ''}
           </div>
         </div>
       </nav>

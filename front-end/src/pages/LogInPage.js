@@ -1,5 +1,5 @@
 // src/pages/SignInPage.js
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../middleware/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -12,11 +12,17 @@ import { LoginError } from '../middleware/SentryErrors';
 function LogInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login } = useContext(AuthContext);
+  const { login, isLoggedIn } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [error, setError] = useState(null); // To handle error messages
   const [loading, setLoading] = useState(false); // To handle loading state
+
+  useEffect(() => {
+    if(isLoggedIn) {
+      navigate("/user");
+    }
+  });
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -45,6 +51,7 @@ function LogInPage() {
         `${process.env.REACT_APP_SERVER}/auth/login`,
         {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },
