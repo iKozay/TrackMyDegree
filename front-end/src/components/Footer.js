@@ -75,16 +75,22 @@ const Footer = () => {
           </div>
         </div>
       )}
+      <div className="footer-content">
+        <p style={{ fontSize: '0.9em', fontWeight: 'italic' }}>
+          v0.3.2
+        </p>
+      </div>
       <p className="footer-text">
-        TrackMyDegree helps Concordia Engineering students visualize and plan
-        their courses with an easy-to-use and interactive UI.
-      </p>
-      <button
-        className="feedback-button"
-        onClick={redirectToFeedbackPage}
-      >
-        Submit Feedback!
-      </button>
+          TrackMyDegree helps Concordia Engineering students visualize and plan
+          their courses with an easy-to-use and interactive UI.
+        </p>
+        <button
+          className="feedback-button"
+          onClick={redirectToFeedbackPage}
+        >
+          Submit Feedback!
+        </button>
+
       {showAlert && <div className="alert">{showAlert}</div>}
     </footer>
   );

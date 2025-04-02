@@ -1848,7 +1848,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                           internalId={`source-${course.code}`}
                                           courseCode={course.code}
                                           title={course.code}
-                                          disabled={isCourseAssigned(course.code)}
+                                          disabled={false}
                                           isReturning={returning}
                                           isSelected={selectedCourse?.code === course.code}
                                           onSelect={handleCourseSelect}
