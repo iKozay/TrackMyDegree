@@ -1,12 +1,12 @@
-import HTTP from "@Util/HTTPCodes";
-import express, { Request, Response } from "express";
-import degreeController from "@controllers/degreeController/degreeController";
-import DegreeXCPController from "@controllers/DegreeXCPController/DegreeXCPController";
-import CourseXCPController from "@controllers/CourseXCPController/CourseXCPController";
+import HTTP from '@Util/HTTPCodes';
+import express, { Request, Response } from 'express';
+import degreeController from '@controllers/degreeController/degreeController';
+import DegreeXCPController from '@controllers/DegreeXCPController/DegreeXCPController';
+import CourseXCPController from '@controllers/CourseXCPController/CourseXCPController';
 
 const router = express.Router();
 
-router.post("/create", async (req: Request, res: Response) => {
+router.post('/create', async (req: Request, res: Response) => {
   const { id, name, totalCredits } = req.body;
 
   try {
@@ -14,13 +14,13 @@ router.post("/create", async (req: Request, res: Response) => {
     if (
       !id ||
       !name ||
-      typeof totalCredits !== "number" ||
-      typeof id !== "string" ||
-      typeof name !== "string"
+      typeof totalCredits !== 'number' ||
+      typeof id !== 'string' ||
+      typeof name !== 'string'
     ) {
       res.status(HTTP.BAD_REQUEST).json({
         error:
-          "Invalid input. Please provide id, name, and totalCredits as a number.",
+          'Invalid input. Please provide id, name, and totalCredits as a number.',
       });
       return;
     }
@@ -29,37 +29,37 @@ router.post("/create", async (req: Request, res: Response) => {
     const newDegree = await degreeController.createDegree(
       id,
       name,
-      totalCredits
+      totalCredits,
     );
 
     // Send success response
     res.status(HTTP.CREATED).json({
-      message: "Degree created successfully.",
+      message: 'Degree created successfully.',
       degree: newDegree,
     });
   } catch (error) {
     // Handle errors from the service
     if (
       error instanceof Error &&
-      error.message === "Degree with this id or name already exists."
+      error.message === 'Degree with this id or name already exists.'
     ) {
       res.status(HTTP.FORBIDDEN).json({ error: error.message });
     } else {
-      const errMsg = "Internal server error in /degree/create";
+      const errMsg = 'Internal server error in /degree/create';
       console.error(errMsg, error);
       res.status(HTTP.SERVER_ERR).json({ error: errMsg });
     }
   }
 });
 
-router.get("/read", async (req: Request, res: Response) => {
+router.get('/read', async (req: Request, res: Response) => {
   const { id } = req.body;
 
   try {
     // Validate input
-    if (!id || typeof id !== "string") {
+    if (!id || typeof id !== 'string') {
       res.status(HTTP.BAD_REQUEST).json({
-        error: "Invalid input. Please provide id as a string.",
+        error: 'Invalid input. Please provide id as a string.',
       });
       return;
     }
@@ -69,25 +69,25 @@ router.get("/read", async (req: Request, res: Response) => {
 
     // Send success response
     res.status(HTTP.OK).json({
-      message: "Degree read successfully.",
+      message: 'Degree read successfully.',
       degree: newDegree,
     });
   } catch (error) {
     // Handle errors from the service
     if (
       error instanceof Error &&
-      error.message === "Degree with this id does not exist."
+      error.message === 'Degree with this id does not exist.'
     ) {
       res.status(HTTP.FORBIDDEN).json({ error: error.message });
     } else {
-      const errMsg = "Internal server error in /degree/read";
+      const errMsg = 'Internal server error in /degree/read';
       console.error(errMsg, error);
       res.status(HTTP.SERVER_ERR).json({ error: errMsg });
     }
   }
 });
 
-router.put("/update", async (req: Request, res: Response) => {
+router.put('/update', async (req: Request, res: Response) => {
   const { id, name, totalCredits } = req.body;
 
   try {
@@ -95,12 +95,12 @@ router.put("/update", async (req: Request, res: Response) => {
     if (
       !id ||
       !name ||
-      typeof totalCredits !== "number" ||
-      typeof id !== "string" ||
-      typeof name !== "string"
+      typeof totalCredits !== 'number' ||
+      typeof id !== 'string' ||
+      typeof name !== 'string'
     ) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: "Invalid input.",
+        error: 'Invalid input.',
       });
       return;
     }
@@ -109,37 +109,37 @@ router.put("/update", async (req: Request, res: Response) => {
     const updatedDegree = await degreeController.updateDegree(
       id,
       name,
-      totalCredits
+      totalCredits,
     );
 
     // Send success response
     res.status(HTTP.OK).json({
-      message: "Degree updated successfully.",
+      message: 'Degree updated successfully.',
       degree: updatedDegree,
     });
   } catch (error) {
     // Handle errors from the service
     if (
       error instanceof Error &&
-      error.message === "Degree with this id does not exist."
+      error.message === 'Degree with this id does not exist.'
     ) {
       res.status(HTTP.FORBIDDEN).json({ error: error.message });
     } else {
-      const errMsg = "Internal server error in /degree/update";
+      const errMsg = 'Internal server error in /degree/update';
       console.error(errMsg, error);
       res.status(HTTP.SERVER_ERR).json({ error: errMsg });
     }
   }
 });
 
-router.post("/delete", async (req: Request, res: Response) => {
+router.post('/delete', async (req: Request, res: Response) => {
   const { id } = req.body;
 
   try {
     // Validate input
-    if (!id || typeof id !== "string") {
+    if (!id || typeof id !== 'string') {
       res.status(HTTP.BAD_REQUEST).json({
-        error: "Invalid input. Please provide id as a string.",
+        error: 'Invalid input. Please provide id as a string.',
       });
       return;
     }
@@ -149,31 +149,31 @@ router.post("/delete", async (req: Request, res: Response) => {
 
     // Send success response
     res.status(HTTP.OK).json({
-      message: "Degree deleted successfully.",
+      message: 'Degree deleted successfully.',
       degree: newDegree,
     });
   } catch (error) {
     // Handle errors from the service
     if (
       error instanceof Error &&
-      error.message === "Degree with this id does not exist."
+      error.message === 'Degree with this id does not exist.'
     ) {
       res.status(HTTP.FORBIDDEN).json({ error: error.message });
     } else {
-      const errMsg = "Internal server error in /degree/delete";
+      const errMsg = 'Internal server error in /degree/delete';
       console.error(errMsg, error);
       res.status(HTTP.SERVER_ERR).json({ error: errMsg });
     }
   }
 });
 
-router.post("/getPools", async (req: Request, res: Response) => {
+router.post('/getPools', async (req: Request, res: Response) => {
   const payload = req.body;
 
   if (!payload || Object.keys(payload).length < 1) {
     res
       .status(HTTP.BAD_REQUEST)
-      .json({ error: "Degree ID is required to get Course Pools." });
+      .json({ error: 'Degree ID is required to get Course Pools.' });
 
     return;
   }
@@ -181,7 +181,7 @@ router.post("/getPools", async (req: Request, res: Response) => {
   if (!payload.degree_id) {
     res
       .status(HTTP.BAD_REQUEST)
-      .json({ error: "Payload attributes cannot be empty" });
+      .json({ error: 'Payload attributes cannot be empty' });
 
     return;
   }
@@ -212,23 +212,50 @@ router.post("/getPools", async (req: Request, res: Response) => {
 
       res.status(HTTP.OK).json(degree_coursepools);
     } else {
-      res.status(HTTP.NOT_FOUND).json({ error: "No coursepools found" });
+      res.status(HTTP.NOT_FOUND).json({ error: 'No coursepools found' });
     }
   } catch (error) {
-    console.error("Error in /degree/getPools", error);
+    console.error('Error in /degree/getPools', error);
     res
       .status(HTTP.SERVER_ERR)
-      .json({ error: "Coursepools could not be fetched" });
+      .json({ error: 'Coursepools could not be fetched' });
   }
 });
 
-router.post("/getAllDegrees", async (req: Request, res: Response) => {
+router.post('/getAllDegrees', async (req: Request, res: Response) => {
   try {
     const degrees = await degreeController.readAllDegrees();
     res.status(HTTP.OK).json({ degrees });
   } catch (error) {
-    console.error("Error in /degree/getAllDegrees", error);
-    res.status(HTTP.SERVER_ERR).json({ error: "Internal server error" });
+    console.error('Error in /degree/getAllDegrees', error);
+    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+  }
+});
+
+router.post('/getCredits', async (req: Request, res: Response) => {
+  const payload = req.body;
+  if (!payload || Object.keys(payload).length < 1) {
+    res.status(HTTP.BAD_REQUEST).json({ error: 'Degree ID is required' });
+    return;
+  }
+  if (!payload.degree_id) {
+    res
+      .status(HTTP.BAD_REQUEST)
+      .json({ error: 'Payload attributes cannot be empty' });
+    return;
+  }
+  const { degree_id } = payload;
+  try {
+    const result = await degreeController.getCreditsForDegree(degree_id);
+    if (!result) {
+      res.status(HTTP.NOT_FOUND).json({ error: 'Degree not found' });
+      return;
+    }
+    const totalCredits  = result;
+    res.status(HTTP.OK).json({ totalCredits });
+  } catch (error) {
+    console.error('Error in /degree/getCredits', error);
+    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
   }
 });
 

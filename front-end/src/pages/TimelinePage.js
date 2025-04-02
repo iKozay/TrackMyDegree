@@ -1,6 +1,6 @@
 // TimelinePage.js
 
-import React, { useState, useEffect, useRef, act, useContext } from 'react';
+import React, { useState, useEffect, useRef, act, useContext, useMemo } from 'react';
 import { useNavigate, useLocation, useBlocker, useSearchParams } from 'react-router-dom';
 import { motion, time } from 'framer-motion'
 import {
@@ -197,6 +197,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const [history, setHistory] = useState([]);
   const [future, setFuture] = useState([]);
   const [isShareVisible, setIsShareVisible] = useState(false);
+  const [credsReq, setCredsReq] = useState(120);
 
   // Flatten and filter courses from all pools based on the search query
 
@@ -247,18 +248,20 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     degree_Id = degreeId;
   }
 
-  if (!credits_Required) {
-    if (creditsRequired && String(creditsRequired).trim()) {
-      credits_Required = creditsRequired;
-    }
-    else {
-      credits_Required = 120;
-    }
-  }
+  
 
-  if (extendedCredit) {
-    credits_Required += 30;
-  }
+  // if (!credits_Required) {
+  //   if (creditsRequired && String(creditsRequired).trim()) {
+  //     credits_Required = creditsRequired;
+  //   }
+  //   else {
+  //     credits_Required = 120;
+  //   }
+  // }
+
+  // if (extendedCredit) {
+  //   credits_Required += 30;
+  // }
 
   //console.log(degreeId);  // Logs the degreeId passed from UploadTranscriptPage.js
   //console.log(extendedCredit); // Logs the timelineData passed from UploadTranscriptPage.js
@@ -1574,9 +1577,36 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       }
     });
   });
+
+
+  useEffect(() => {
+     const calculatedCreditsRequired = () => {
+      let totalCredits = 0;
+      coursePools.forEach((pool) => {
+        const maxCredits = parseMaxCreditsFromPoolName(pool.poolName, pool.courses);
+        totalCredits += maxCredits;
+        if (totalCredits > 120) {
+          totalCredits = 120; // Cap at 120 credits
+        }
+      });
+      return totalCredits;
+    };
+    let creds = calculatedCreditsRequired();
+
+
+    if (extendedCredit) {
+      creds += ECP_EXTRA_CREDITS;
+    }
+
+
+    setCredsReq(creds);
+  }, [coursePools]);
+
+
   
 
   useEffect(() => {
+
     if (Object.keys(semesterCourses).length <= 1) {
       return;
     }
@@ -1684,7 +1714,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                 </button>
                 <h4>
                   Total Credits Earned: {totalCredits} /{' '}
-                  {credits_Required + deficiencyCredits}
+                  {credsReq + deficiencyCredits}
                 </h4>
                 <div className="timeline-buttons-container">
                   <div>

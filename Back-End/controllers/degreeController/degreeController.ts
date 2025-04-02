@@ -193,6 +193,33 @@ async function deleteDegree(id: string): Promise<string | undefined> {
   }
 }
 
+async function getCreditsForDegree(
+  degreeId: string,
+): Promise<number | undefined> {
+  const conn = await Database.getConnection();
+
+  if (conn) {
+    try {
+      // Check if a degree with the id exists
+      const degree = await conn
+        .request()
+        .input('id', Database.msSQL.VarChar, degreeId)
+        .query('SELECT * FROM Degree WHERE id = @id');
+
+      if (degree.recordset.length === 0) {
+        throw new Error('Degree with this id does not exist.');
+      }
+
+      return degree.recordset[0].totalCredits;
+    } catch (error) {
+      captureException(error);
+      throw error;
+    } finally {
+      conn.close();
+    }
+  }
+}
+
 //Namespace
 const degreeController = {
   createDegree,
@@ -200,6 +227,7 @@ const degreeController = {
   updateDegree,
   deleteDegree,
   readAllDegrees,
+  getCreditsForDegree,
 };
 
 export default degreeController;

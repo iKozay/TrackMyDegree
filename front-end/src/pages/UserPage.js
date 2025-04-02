@@ -32,13 +32,47 @@ const UserPage = ({ onDataProcessed }) => {
   }, [user]);
 
 
-  const handleTimelineClick = (obj) => {
+  const getDegreeCredits = async (degreeId) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER}/degree/getCredits`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ degreeId }),
+        },
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new UserPageError(
+          errorData.message || 'Failed to fetch degree credits.',
+        );
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (e) {
+      console.error('Error fetching degree credits:', e);
+    }
+  }
+
+
+
+  const handleTimelineClick = async (obj) => {
     const transcriptData = [];
     localStorage.setItem('Timeline_Name', JSON.stringify(obj.name));
 
     const degreeId = obj.degree_id;
     const items = obj.items;
-    const creditsRequired = 120;
+
+    let creditsRequired = await getDegreeCredits(degreeId);
+    if (!creditsRequired) {
+      console.error('Failed to fetch degree credits');
+      creditsRequired = 120;
+    };
     const isExtendedCredit = obj.isExtendedCredit;
 
     items.forEach((item) => {
@@ -64,6 +98,7 @@ const UserPage = ({ onDataProcessed }) => {
 
   // add way to get user timelines here
   const [userTimelines, setUserTimelines] = useState([]);
+
 
   useEffect(() => {
     if (user.type === "student") {
@@ -310,68 +345,68 @@ export default UserPage;
 
 
 
- //! Commented out edit modde code
-  /*useEffect(() => {
-    if (userInfo) {
-      setEditedUserInfo(userInfo.map((item) => item.value));
-    }
-  }, [userInfo]);*/
-
-  /*const startEditing = () => {
-    setIsEditing(true);
-  };*/
-
-  /*const cancelEditing = () => {
+//! Commented out edit modde code
+/*useEffect(() => {
+  if (userInfo) {
     setEditedUserInfo(userInfo.map((item) => item.value));
-    setIsEditing(false);
-  };*/
+  }
+}, [userInfo]);*/
 
-  /*const saveChanges = async () => {
-    // add way to save changes here
-    const updatedInfo = userInfo.map((item, index) => ({
-      ...item,
-      value: editedUserInfo[index],
-    }));
-    try {
-      // Construct the payload
-      const payload = {
-        id: user.id,
-        fullname: updatedInfo[0].value,
-        email: updatedInfo[1].value,
-        type: user.type,
-      };
+/*const startEditing = () => {
+  setIsEditing(true);
+};*/
 
-      // Make the POST request to update user info
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER}/appUser/update`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+/*const cancelEditing = () => {
+  setEditedUserInfo(userInfo.map((item) => item.value));
+  setIsEditing(false);
+};*/
 
-      if (response.ok) {
-        console.log("User info updated successfully!");
-        setUserInfo(updatedInfo);
-        setIsEditing(false);
-      } else {
-        const errorData = await response.json();
-        console.error("Failed to update user info.", errorData);
-        setIsEditing(false);
+/*const saveChanges = async () => {
+  // add way to save changes here
+  const updatedInfo = userInfo.map((item, index) => ({
+    ...item,
+    value: editedUserInfo[index],
+  }));
+  try {
+    // Construct the payload
+    const payload = {
+      id: user.id,
+      fullname: updatedInfo[0].value,
+      email: updatedInfo[1].value,
+      type: user.type,
+    };
+
+    // Make the POST request to update user info
+    const response = await fetch(
+      `${process.env.REACT_APP_SERVER}/appUser/update`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       }
-    } catch (error) {
-      console.error("Error updating user info:", error);
+    );
+
+    if (response.ok) {
+      console.log("User info updated successfully!");
+      setUserInfo(updatedInfo);
+      setIsEditing(false);
+    } else {
+      const errorData = await response.json();
+      console.error("Failed to update user info.", errorData);
       setIsEditing(false);
     }
-  };*/
+  } catch (error) {
+    console.error("Error updating user info:", error);
+    setIsEditing(false);
+  }
+};*/
 
 
-  //! Commented out edit modde code
-  /*const handleInputChange = (e, index) => {
-    const updatedValues = [...editedUserInfo];
-    updatedValues[index] = e.target.value;
-    setEditedUserInfo(updatedValues);
-  };*/
+//! Commented out edit modde code
+/*const handleInputChange = (e, index) => {
+  const updatedValues = [...editedUserInfo];
+  updatedValues[index] = e.target.value;
+  setEditedUserInfo(updatedValues);
+};*/
