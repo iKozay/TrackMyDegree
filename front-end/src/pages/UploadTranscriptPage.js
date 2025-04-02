@@ -7,7 +7,10 @@ import PdfImage from '../images/Pdf_image.png';
 import TransImage from '../images/Transc_image.png';
 import Button from 'react-bootstrap/Button';
 import { motion } from 'framer-motion';
-
+import {
+  extractTranscriptComponents,
+  matchCoursesToTerms,
+} from '../utils/transcriptUtils';
 
 // Set the worker source
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
@@ -69,9 +72,9 @@ const UploadTranscript = ({ onDataProcessed }) => {
           );
         }
         Promise.all(pagesPromises).then((pagesData) => {
-          // console.log('Raw PDF text:', text);
-          const extractedData = extractTermsCoursesAndSeparators(pagesData);
-          const transcriptData = matchTermsWithCourses(extractedData.results);
+          const extractedData = extractTranscriptComponents(pagesData);
+          const { terms, courses, separators } = extractedData;
+          const transcriptData = matchCoursesToTerms(terms, courses, separators);
 
           // Extract Degree Info
           const degreeInfo = extractedData.degree || 'Unknown Degree';
@@ -100,6 +103,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
         });
       });
     };
+
     reader.readAsArrayBuffer(file);
   };
 
@@ -205,192 +209,6 @@ const UploadTranscript = ({ onDataProcessed }) => {
       </div>
     </motion.div>
   );
-};
-
-// Functions to extract terms, courses, and match them
-const extractTermsCoursesAndSeparators = (pagesData) => {
-  const termRegex =
-    /((\s*(Winter|Summer|Fall|Fall\/Winter)\s*\d{4}\s\s)|(\s*(Fall\/Winter)\s*20(\d{2})-(?!\6)\d{2}))/g;
-  // Capture department (3-4 letters), course number (3 digits), then a flexible description
-  // The grade group is now optional, so it may or may not appear.
-  const courseRegex =
-    /([A-Za-z]{3,4})\s+(\d{3})\s+([A-Za-z\d{1,2}]{1,3})\s+([A-Za-z\s+\-./(),&]+)\s+([\d.]+)\s+([A-D][\s|+|-]+|PASS|EX|\s)\s+([\d.]+)\b/g;
-
-  // Updated regex for exempted courses
-  const exemp_course = /([A-Za-z]{3,4})\s+(\d{3})\s+(.+?)\s+(EX|TRC)\b/g;
-
-  const separatorRegex = /COURSE\s*DESCRIPTION\s*ATTEMPTED\s*GRADE\s*NOTATION/g;
-  const extendedCreditRegex = /\s*Extended\s*Credit\s*Program\s*/g;
-  let ecp = null;
-  const degreeMapping = {
-    'Bachelor of Engineering, Aerospace Engineering': 'AERO',
-    'Bachelor of Engineering, Aerospace Engineering Option: Aerodynamics and Propulsion': 'AEROA',
-    'Bachelor of Engineering, Aerospace Engineering Option B: Aerospace Structures and Materials': 'AEROB',
-    'Bachelor of Engineering, Aerospace Engineering Option: Avionics and Aerospace Systems': 'AEROC',
-    'Bachelor of Engineering, Building Engineering': 'BCEE',
-    'Bachelor of Engineering, Building Engineering Option: Building Energy and Environment': 'BCEEA',
-    'Bachelor of Engineering, Building Engineering Option: Building Structures and Construction': 'BCEEB',
-    'Bachelor of Engineering, Civil Engineering': 'CIVI',
-    'Bachelor of Engineering, Civil Engineering Option: Civil Infrastructure': 'CIVIA',
-    'Bachelor of Engineering, Civil Engineering Option: Environmental': 'CIVIB',
-    'Bachelor of Engineering, Civil Engineering Option: Construction Engineering and Management': 'CIVIC',
-    'Bachelor of Engineering, Computer Engineering': 'COEN',
-    'Bachelor of Computer Science, Computer Science': 'CompSci',
-    'Bachelor of Engineering, Electrical Engineering': 'ELEC',
-    'Bachelor of Engineering, Industrial Engineering': 'INDU',
-    'Bachelor of Engineering, Mechanical Engineering': 'MECH',
-    'Bachelor of Engineering, Software Engineering': 'SOEN',
-  };
-  const degreeRegex = /Bachelor of [A-Za-z\s-]+,\s*[A-Za-z\s():-]+/g; // Updated regex to handle flexible degree variations
-  const coopRegex = /\b(?:COOPs|Co-op)\b/i; // Matches "COOPs" or "(Co-op)"
-  const ecpRegex = /\bExtended\s*Credit\s*Program\b/i; // Matches "Extended Credit Program"
-  let degree = null;
-  let degreeId = null;
-
-  let results = [];
-
-  let transcript = false;
-  pagesData.forEach((pageData) => {
-    const { page, text } = pageData;
-
-    const degreeMatch = text.match(degreeRegex);
-    if (degreeMatch) {
-      degree = degreeMatch[0]
-        .replace(coopRegex, '') // Remove "COOPs" or "(Co-op)" for base mapping
-        .replace(ecpRegex, '') // Remove "Extended Credit Program" for base mapping
-        .trim();
-
-      let baseDegreeId = degreeMapping[degree];
-      if (baseDegreeId) {
-        if (coopRegex.test(text)) {
-          //baseDegreeId += 'C'; // Append 'C' for Co-op
-        }
-        if (ecpRegex.test(text)) {
-          //baseDegreeId += 'E'; // Append 'E' for Extended Credit Program
-        }
-        degreeId = baseDegreeId;
-      }
-    }
-
-    // Check if text contains "OFFER OF ADMISSION"
-    if (text.match("Student Record")) {
-      transcript = true;
-    }
-
-    if (!ecp && text.match(extendedCreditRegex)) {
-      ecp = true;
-    }
-
-    // console.log("text", text);
-
-    let termMatch;
-    while ((termMatch = termRegex.exec(text)) !== null) {
-      results.push({
-        name: termMatch[0].trim(),
-        page: page,
-        type: 'Term',
-        position: termMatch.index,
-      });
-    }
-
-    let courseMatch;
-    while ((courseMatch = courseRegex.exec(text)) !== null) {
-      results.push({
-        name: courseMatch[1] + courseMatch[2],
-        grade: courseMatch[6],
-        page: page,
-        type: 'Course',
-        position: courseMatch.index,
-      });
-      console.log('Course:', courseMatch[1] + courseMatch[2]);
-    }
-
-    let separatorMatch;
-    while ((separatorMatch = separatorRegex.exec(text)) !== null) {
-      results.push({
-        name: separatorMatch[0],
-        page: page,
-        type: 'Separator',
-        position: separatorMatch.index,
-      });
-    }
-
-    let exemptedMatch;
-    while ((exemptedMatch = exemp_course.exec(text)) !== null) {
-      results.push({
-        name: exemptedMatch[1] + exemptedMatch[2], // e.g. "MATH 201"
-        page: page,
-        type: 'Exempted Course',
-        position: exemptedMatch.index,
-        grade: exemptedMatch[4], // e.g. "EX" or "TRC" or "PASS"
-      });
-
-      console.log('Exempted Course:', exemptedMatch[1] + exemptedMatch[2]);
-    }
-  });
-
-  if (!transcript) {
-    alert("Please choose Offer of Admission");
-    return { results: [] };
-  }
-  console.log('Degree', degreeId);
-  console.log('Extended Credit Program:', ecp);
-  // console.log('Raw PDF text:', text);
-  return { results, degree, degreeId, ecp };
-};
-
-const matchTermsWithCourses = (data) => {
-  // First, gather all exempted course codes in a Set
-  const exemptedSet = new Set();
-  data.forEach((item) => {
-    if (item.type === 'Exempted Course') {
-      exemptedSet.add(item.name);
-    }
-  });
-
-  let matchedResults = [];
-  let currentTerm = data[0]?.name; // Use optional chaining to safely access `name`
-  let terms = [];
-
-  data.sort((a, b) =>
-    a.page !== b.page ? a.page - b.page : a.position - b.position,
-  );
-
-  data.forEach((item) => {
-    if (item && item.type === 'Term' && item.name) {
-      // Ensure `item` and `item.name` are defined
-      if (!terms.includes(item.name)) {
-        terms.push(item.name);
-      }
-    }
-
-    if (item && item.type === 'Exempted Course' && item.name) {
-      matchedResults.push({
-        term: 'Exempted 2020', // Force them all into “Exempted 2020”
-        course: item.name, // e.g. "MATH 201"
-        grade: item.grade, // e.g. "EX" or "TRC" or "PASS"
-      });
-    }
-
-    // Only add regular courses if they haven't already been marked as exempted
-    if (item && item.type === 'Course' && currentTerm && item.name) {
-      if (!exemptedSet.has(item.name)) {
-        // Check if course is not in exempted set
-        matchedResults.push({
-          term: currentTerm,
-          course: item.name,
-          grade: item.grade,
-        });
-      }
-    }
-
-    if (item && item.type === 'Separator') {
-      currentTerm = terms.shift() || null;
-    }
-  });
-
-  console.log('Grouped data: ', matchedResults);
-  return matchedResults;
 };
 
 export default UploadTranscript;

@@ -196,6 +196,52 @@ function extractAllCourses(text) {
 }
 
 /**
+ ** Functions to extract terms, courses, and separators from transcript
+ * @param {*} pagesData 
+ * @returns 
+ */
+ function extractTranscriptComponents(pagesData) {
+  let fullText = pagesData.map((p) => `[PAGE] ${p.text}`).join('\n');
+  let pages = cleanText(fullText);
+  let numPages = pages.length;
+  let transcript = false;
+  let ecp = null;
+
+  fullText = pages.join('');
+  const debug_text = pages.join('\n');
+  console.log(debug_text);
+
+  const degreeInfo = extractDegreeInfo(pages[numPages - 2] + pages[numPages - 1]);
+  const { name, id } = degreeInfo;
+  const terms = extractAcademicTerms(fullText);
+  const separators = extractTermSeparators(fullText);
+  const courses = extractAllCourses(fullText);
+  
+  // Check if text contains "OFFER OF ADMISSION"
+  if (regex.isTranscript(fullText)) {
+    transcript = true;
+  }
+
+  if (!ecp && fullText.match(regex.extendedCredits)) {
+    ecp = true;
+  }
+
+  if (!transcript) {
+    alert('Please choose Offer of Admission');
+    return { results: [] };
+  }
+
+  return {
+    terms,
+    courses,
+    separators,
+    degree: name,
+    degreeId: id,
+    ecp,
+  };
+}
+
+/**
  ** Match the extracted courses to the corresponding terms
  * @param {{ name: string; type: string; position: number; }[]} terms
  * @param {{ code: string; grade: string; position: number; type: string; }[]} courses
@@ -249,5 +295,6 @@ export {
   extractAcademicTerms,
   extractTermSeparators,
   extractAllCourses,
+  extractTranscriptComponents,
   matchCoursesToTerms,
 };
