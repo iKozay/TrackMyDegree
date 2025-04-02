@@ -37,6 +37,8 @@ import ShowInsights from '../components/ShowInsights';
 import { AuthContext } from '../middleware/AuthContext';
 import { compressTimeline, decompressTimeline } from '../components/CompressDegree';
 
+const REACT_APP_CLIENT = process.env.REACT_APP_CLIENT || 'localhost:3000' // Set client URL
+
 
 // DraggableCourse component for course list items
 const DraggableCourse = ({
@@ -1610,7 +1612,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     if (Object.keys(semesterCourses).length <= 1) {
       return;
     }
-    const newTimelineString = compressTimeline(semesterCourses, degree_Id, credits_Required, extendedCredit);
+    const newTimelineString = compressTimeline(semesterCourses, degreeId, credits_Required, extendedCredit);
     if (timelineString === null) {
       setTimelineString(newTimelineString);
       return;
@@ -1652,7 +1654,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   }
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(`${process.env.REACT_APP_SERVER}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id, credits_Required, extendedCredit)}`)
+    navigator.clipboard.writeText(`${process.env.REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id, credits_Required, extendedCredit)}`)
       .catch(() => alert("Something went wrong"));
     toggleShareDialog();
   }
@@ -2337,7 +2339,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
               <p>Share this timeline!</p>
               <div className="url-and-copy-btn">
                 <div className="url-box">
-                  <p style={{ fontSize: 'small', marginBottom: 0 }}>{`${process.env.REACT_APP_SERVER}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id)}`}</p>
+                  <p style={{ fontSize: 'small', marginBottom: 0 }}>{`${REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id)}`}</p>
                 </div>
                 <Button
                   onClick={copyToClipboard}
