@@ -381,6 +381,7 @@
   min-width: 0; /* Allow shrinking */
 }
 
+.share-timeline-button,
 .save-timeline-button,
 .download-timeline-button,
 .add-deficiencies-button{
@@ -401,6 +402,7 @@
   min-height: 44px;
 }
 
+.share-timeline-button:hover,
 .save-timeline-button:hover,
 .download-timeline-button:hover, 
 .add-deficiencies-button:hover{
@@ -966,6 +968,27 @@
 
 .show-course-button.hidden {
   display: none;
+}
+
+.url-box {
+  border: 1px solid #ccc;
+  padding: 10px;
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  background: #f7f7f7;
+}
+
+.url-and-copy-btn {
+  display: flex;
+  flex-direction: row;
+  margin-top: 15px;
+}
+
+.icon-btn {
+  border: none !important;
+  background-color: transparent !important;
+  color: #912338 !important;
 }
 
 @media (max-width: 992px) {
