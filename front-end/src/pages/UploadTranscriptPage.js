@@ -61,7 +61,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
         let pagesPromises = [];
         for (let i = 1; i <= pdf.numPages; i++) {
           pagesPromises.push(
-            pdf.getPage(i).then((page) => {
+            pdf.getPage(i).then(async (page) => {
               return page.getTextContent().then((textContentPage) => {
                 return {
                   page: i,
@@ -126,41 +126,25 @@ const UploadTranscript = ({ onDataProcessed }) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.7 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
       <div className="upload-container">
         {/* Instructions Section */}
         <div className="instructions">
           <h3>How to Download Your Transcript</h3>
           <ol>
             <li>
-              Go to <strong>Student Center</strong>, and under the{' '}
-              <strong>"Academics"</strong> section, click on{' '}
+              Go to <strong>Student Center</strong>, and under the <strong>"Academics"</strong> section, click on{' '}
               <em>"View Unofficial Transcript"</em>.
               <br />
-              <img
-                src={TransImage}
-                alt="Step 1"
-                className="instruction-image"
-              />
+              <img src={TransImage} alt="Step 1" className="instruction-image" />
             </li>
             <li>
-              Scroll till the end of the transcript and click on the{' '}
-              <strong>"Print"</strong> button.
+              Scroll till the end of the transcript and click on the <strong>"Print"</strong> button.
               <br />
-              <img
-                src={PrintImage}
-                alt="Step 2"
-                className="instruction-image"
-              />
+              <img src={PrintImage} alt="Step 2" className="instruction-image" />
             </li>
             <li>
-              In the <strong>"Print"</strong> prompt, for the{' '}
-              <em>"Destination"</em> field, please select{' '}
+              In the <strong>"Print"</strong> prompt, for the <em>"Destination"</em> field, please select{' '}
               <strong>"Save as PDF"</strong>.
               <br />
               <strong>Do not choose "Microsoft Print to PDF".</strong>
@@ -173,12 +157,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
         {/* Upload Section */}
         <div className="upload-section">
           <h2>Upload Transcript</h2>
-          <div
-            className="upload-box"
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
+          <div className="upload-box" onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
             <p>Drag and Drop file</p>
             or
             <label htmlFor="file-upload">Browse</label>

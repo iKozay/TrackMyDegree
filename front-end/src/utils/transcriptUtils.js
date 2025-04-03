@@ -107,12 +107,10 @@ function extractDegreeInfo(text) {
  * @returns
  */
 function extractAcademicTerms(text) {
-  const termPattern =
-    /(Fall|Winter|Summer|Fall\/Winter)\s*(?:20)?(\d{2})(?:\s*-\s*(\d{2}))?\s*(?=COURSE|Bachelor\s*)/gi;
   const terms = [];
   let matchTerm;
 
-  while ((matchTerm = termPattern.exec(text)) !== null) {
+  while ((matchTerm = regex.termPattern.exec(text)) !== null) {
     console.log('MATCH TERM: ', matchTerm); //! DEBUG**************************************
     const [fullMatch, season, year1, year2] = matchTerm;
     const year = year2 ? `20${year1}-${year2}` : `20${year1}`;
@@ -132,12 +130,11 @@ function extractAcademicTerms(text) {
  * @returns
  */
 function extractTermSeparators(text) {
-  const separatorPattern = /COURSE\s*DESCRIPTION\s*ATTEMPTED\s*GRADE\s*NOTATION/g;
   const separators = [];
   let matchSeparator;
   let test_text = text.split(`/${6}`);
 
-  while ((matchSeparator = separatorPattern.exec(text)) !== null) {
+  while ((matchSeparator = regex.separatorPattern.exec(text)) !== null) {
     separators.push({
       position: matchSeparator.index,
     });
@@ -156,16 +153,12 @@ function extractTermSeparators(text) {
  * @returns
  */
 function extractAllCourses(text) {
-  // Pattern matches: DEPT CODE GRADE CREDITS (with flexible spacing)
-  const coursePattern =
-  /([A-Z]{3,4})\s+(\d{3})\s+([A-Z0-9]+(?:-\s*\d+)?)\s+([A-Z][A-Za-z\s\-.()/,&+':]+?)\s+(\d\.\d{2})\s+([A-D][+-]\s*|PASS|EX|FNS|DISC|NR)?(?:\s+([\d.]+))?(?:\s+[\d.]+\s+\d+\s+[\d.]+)?/g;
-  // /([A-Za-z]{3,4})\s+(\d{3})\s+([A-Za-z\d{1,2}]{1,3})\s+([A-Za-z\s+\-./(),&]+)\s+([\d.]+)\s+([A-D][\s|+|-]+|PASS|EX|\s)\s+([\d.]+)\b/g;
-  const exemptPattern = /([A-Za-z]{3,4})\s+(\d{3})\s+(.+?)\s+(EX|TRC)\b/g;
+  
   const courses = [];
   let match;
 
   // Regular courses
-  while ((match = coursePattern.exec(text)) !== null) {
+  while ((match = regex.coursePattern.exec(text)) !== null) {
     console.log("COURSES MATCH: ", match);
     courses.push({
       code: `${match[1]}${match[2]}`,
@@ -177,7 +170,7 @@ function extractAllCourses(text) {
   }
 
   // Exempted courses
-  while ((match = exemptPattern.exec(text)) !== null) {
+  while ((match = regex.exemptPattern.exec(text)) !== null) {
     console.log("EXEMPTION MATCH: ", match);
     courses.push({
       code: `${match[1]}${match[2]}`,
