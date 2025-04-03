@@ -52,6 +52,7 @@ const DraggableCourse = ({
   containerId,
   className: extraClassName, // NEW prop
   isInTimeline, // NEW prop
+  removeButton,
 }) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: internalId,
@@ -79,6 +80,7 @@ const DraggableCourse = ({
         <span className="checkmark-icon">✔</span>
         /* <img src={checkIcon} alt="In timeline" className="checkmark-icon" /> */
       )}
+      {removeButton}
     </div>
   );
 };
@@ -226,7 +228,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     console.log(timelineStringParam);
     if (timelineStringParam) {
       const [decompressedTimeline, degreeFromUrl, creditsFromUrl, ecpFromUrl] = decompressTimeline(timelineStringParam);
-      
+
       setTimelineString(timelineStringParam);
       setSemesterCourses(decompressedTimeline);
       degree_Id = degreeFromUrl;
@@ -250,7 +252,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     degree_Id = degreeId;
   }
 
-  
+
 
   // if (!credits_Required) {
   //   if (creditsRequired && String(creditsRequired).trim()) {
@@ -302,6 +304,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
   const [courseInstanceMap, setCourseInstanceMap] = useState({});
   const [uniqueIdCounter, setUniqueIdCounter] = useState(0);
+  const [activeCourseCode, setActiveCourseCode] = useState(null);
+
 
   let DEFAULT_EXEMPTED_COURSES = [];
   if (!extendedCredit) {
@@ -530,7 +534,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         let isExempted = false;
         // Check the old format: data.term
         if (data.term && typeof data.term === 'string') {
-          isExempted = data.term.trim().toLowerCase() === 'exempted courses';
+          isExempted = data.term.trim().toLowerCase() === 'exempted 2020';
         }
         // Check the new format: data.season and data.year
         else if (data.season && data.year) {
@@ -588,9 +592,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           if (data.course && typeof data.course === 'string') {
             parsedExemptedCourses.push(data.course.trim());
           } else if (Array.isArray(data.courses)) {
-            data.courses.forEach((record) => {
-              if (typeof record.course === 'string') {
-                parsedExemptedCourses.push(record.course.trim());
+            data.courses.forEach((course) => {
+              if (typeof course === 'string') {
+                parsedExemptedCourses.push(course.trim());
               }
             });
           }
@@ -633,7 +637,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       // Default courses to an empty array if not provided.
       let courses = Array.isArray(data.courses)
         ? data.courses
-          .map((record) => (typeof record.course === 'string' ? record.course.trim() : ''))
+          .map((course) => (typeof course === 'string' ? course.trim() : ''))
           .filter(Boolean)
         : [];
 
@@ -884,13 +888,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const handleDragStart = (event) => {
     setReturning(false);
     const internalId = String(event.active.id);
-    let genericCode;
-    if (internalId.startsWith("source-")) {
-      genericCode = internalId.replace("source-", "");
-    } else {
-      genericCode = courseInstanceMap[internalId] || internalId;
-    }
-    const course = allCourses.find((c) => c.code === genericCode) || deficiencyCourses.find((c) => c.code === genericCode);;
+    const courseCode = event.active.data.current.courseCode;
+    setActiveCourseCode(courseCode); // Store it in state
+    const course = allCourses.find((c) => c.code === courseCode) || deficiencyCourses.find((c) => c.code === courseCode);;
     if (course) {
       setSelectedCourse(course);
     }
@@ -1566,7 +1566,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       });
   }
 
-// Compute the first occurrence for each course in the timeline (ignoring exempted semesters)
+  // Compute the first occurrence for each course in the timeline (ignoring exempted semesters)
   const firstOccurrence = {};
   semesters.forEach((sem, index) => {
     if (sem.id.toLowerCase() === 'exempted') return;
@@ -1582,7 +1582,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
 
   useEffect(() => {
-     const calculatedCreditsRequired = () => {
+    const calculatedCreditsRequired = () => {
       let totalCredits = 0;
       coursePools.forEach((pool) => {
         const maxCredits = parseMaxCreditsFromPoolName(pool.poolName, pool.courses);
@@ -1605,7 +1605,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   }, [coursePools]);
 
 
-  
+
 
   useEffect(() => {
 
@@ -1644,7 +1644,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       setTimelineString(nextStr);
       setHistory((prev) => [...prev, timelineString]);
       setFuture((prev) => prev.slice(1));
-      const [decompressedTimeline, ] = decompressTimeline(nextStr);
+      const [decompressedTimeline,] = decompressTimeline(nextStr);
       setSemesterCourses(decompressedTimeline);
     }
   }
@@ -1694,7 +1694,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             <>
               {/* Total Credits Display */}
               <div className="credits-display">
-              <Button 
+                <Button
                   onClick={handleUndo}
                   disabled={history.length === 0}
                   className="icon-btn"
@@ -1822,8 +1822,10 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                               );
                                           return (
                                             <DraggableCourse
-                                              key={`source-${course.code}`}
-                                              internalId={`source-${course.code}`}
+                                              key={`source-${coursePool.poolId}-${course.code}`
+                                              }
+                                              internalId={`source-${coursePool.poolId}-${course.code}`
+                                              }
                                               courseCode={course.code}
                                               title={course.code}
                                               disabled={false}
@@ -1876,8 +1878,10 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                           .includes(searchQuery.toLowerCase());
                                       return (
                                         <DraggableCourse
-                                          key={`source-${course.code}`}
-                                          internalId={`source-${course.code}`}
+                                          key={`source-remaining-${course.code}`
+                                          }
+                                          internalId={`source-remaining-${course.code}`
+                                          }
                                           courseCode={course.code}
                                           title={course.code}
                                           disabled={false}
@@ -1897,28 +1901,47 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                               <Accordion.Item eventKey="deficiencies">
                                 <Accordion.Header>Deficiency Courses</Accordion.Header>
                                 <Accordion.Body>
+
                                   <Container>
-                                    {deficiencyCourses.map((course) => (
-                                      <div key={`source-${course.code}`} className={`course-item`}>
-                                        <DraggableCourse
-                                          internalId={`source-${course.code}`}
-                                          courseCode={course.code}
-                                          title={course.code}
-                                          disabled={isCourseAssigned(course.code)}
-                                          isReturning={returning}
-                                          isSelected={selectedCourse?.code === course.code}
-                                          onSelect={handleCourseSelect}
-                                          containerId="deficiencyList"
-                                          isInTimeline={isCourseAssigned(course.code)}
-                                        />
-                                        <button
-                                          className="remove-course-btn"
-                                          onClick={() => removeDeficiencyCourse(course)}
-                                        >
-                                          ❌
-                                        </button>
-                                      </div>
-                                    ))}
+                                    {deficiencyCourses.map((course) => {
+                                      const isSelected = selectedCourse?.code === course.code;
+                                      return (
+                                        <div key={`source-deficiency-${course.code}`}>
+                                          <DraggableCourse
+                                            internalId={`source-deficiency-${course.code}`}
+                                            courseCode={course.code}
+                                            title={course.code}
+                                            disabled={isCourseAssigned(course.code)}
+                                            isReturning={returning}
+                                            isSelected={isSelected}
+                                            onSelect={handleCourseSelect}
+                                            containerId="deficiencyList"
+                                            isInTimeline={isCourseAssigned(course.code)}
+                                            removeButton={
+                                              <button
+                                                className={`remove-course-btn ${isSelected ? 'selected' : ''}`}
+                                                onClick={() => removeDeficiencyCourse(course)}
+                                              >
+                                                <svg
+                                                  width="25"
+                                                  height="20"
+                                                  viewBox="0 0 30 24"
+                                                  fill="red"
+                                                  xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                  {isSelected ? (
+                                                    <rect x="2" y="11" width="22" height="4" fill="#912338" />
+                                                  ) : (
+                                                    <rect x="2" y="11" width="22" height="4" fill="white" />
+                                                  )}
+                                                </svg>
+                                              </button>
+                                            }
+                                          />
+                                        </div>
+                                      );
+                                    })}
+
                                   </Container>
                                 </Accordion.Body>
                               </Accordion.Item>
@@ -1973,7 +1996,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                           .startsWith('exempted');
 
                         const currentSemesterIndex = semesters.findIndex((s) => s.id === semesterName);
-                        const sumCredits = (semesterCourses[semesterName] || [] )
+                        const sumCredits = (semesterCourses[semesterName] || [])
                           .map((instanceId) => {
                             // Look for the course in both coursePools and remainingCourses
                             const genericCode = courseInstanceMap[instanceId] || instanceId;
@@ -2252,18 +2275,11 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                 <DragOverlay dropAnimation={null}>
                   {activeId ? (
                     <div className="course-item-overlay selected">
-                      {
-                        allCourses.find((course) =>
-                          course.code === (
-                            activeId.startsWith("source-")
-                              ? activeId.replace("source-", "")
-                              : (courseInstanceMap[activeId] || activeId)
-                          )
-                        )?.code
-                      }
+                      {activeCourseCode}
                     </div>
                   ) : null}
                 </DragOverlay>
+
               </div>
             </>
           )}
