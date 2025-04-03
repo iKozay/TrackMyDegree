@@ -7,7 +7,9 @@
     "description": "A series of lectures, demonstrations, and seminars to provide non‑biologists with a general survey of the fundamental principles of life, with special emphasis on the structures and functions of human beings.",
     "components": "Lecture",
     "notes": "Students registered in a Biology or Biochemistry program may not take this course for credit. Students who have completed Cegep Biology 921/931 may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "winter"
+    ]
   },
   {
     "title": "BIOL 201 Introductory Biology",
@@ -169,7 +171,10 @@
     "description": "This course examines statistical methods for the biological sciences; experimental design; data description; binomial, Poisson and Normal distributions; statistical inference; hypothesis testing; chi‑square; one and two sample tests of the mean; analysis of variance including 2‑way and nested ANOVAs; correlation; regression; and analogous non‑parametric techniques.",
     "components": "Lecture; Laboratory",
     "notes": "Students who have received credit for COMM 215, ECON 222, GEOG 362, MAST 333, PSYC 316, SOCI 213 or STAT 250 may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
   },
   {
     "title": "BIOL 330 Vertebrate Biology",
@@ -179,7 +184,10 @@
     "description": "This course explores how the anatomy, physiology, life history, ecology and behaviour of vertebrates interact to generate animals that function effectively in their environments, and how different vertebrate groups have evolved over the past few hundred million years. Major vertebrate groups discussed are cartilaginous fishes, bony fishes, amphibians, reptiles, birds and mammals. Other special topics on vertebrate biology considered include the role of ecology in vertebrate speciation, vertebrate adaptations to extreme environments, seasonal migrations, human evolution, as well as conservation issues facing different vertebrate groups worldwide.",
     "components": "Lecture",
     "notes": "Students who have received credit for BIOL 387 may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "summer",
+      "winter"
+    ]
   },
   {
     "title": "BIOL 337 Invertebrate Biology",
@@ -259,7 +267,10 @@
     "description": "This course covers general and specialized processes at the molecular and cellular level in eukaryotes and prokaryotes; protein folding and degradation, signalling by nerves, bioenergetics (respiration and photosynthesis), cell motility, muscle contraction, eukaryotic cilia and flagella, sensory perception, and fundamental immunology.",
     "components": "Lecture",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
   },
   {
     "title": "BIOL 366 Mechanisms of Development",
@@ -294,7 +305,10 @@
     "description": "This course introduces students to the basic laboratory techniques of cell biology, microbiology, bacterial genetics, and molecular biology. Experiments include cell membrane functions in red blood cells, bacterial identification, mutagenesis, genetic transformation, gene mapping, DNA isolation and recombinant DNA techniques. Through tutorials, students learn the theory behind techniques and their use in research. Special focus is placed on lab manipulation skill, data organization, and data interpretation.",
     "components": "Lecture; Laboratory",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
   },
   {
     "title": "BIOL 371 Microbiology",
@@ -316,7 +330,9 @@
     "description": "The concept of a balanced diet is studied in relation to caloric content and to protein, lipid, carbohydrate, vitamin, and mineral requirements. The consequences of dietary deficiencies are examined. Special topics such as dieting, organic foods, vitamins, food additives, and toxins are discussed.",
     "components": "Lecture",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "summer"
+    ]
   },
   {
     "title": "BIOL 382 Comparative Animal Physiology",
@@ -384,7 +400,10 @@
     "description": "This course covers a survey of specialized topics in plant molecular genetics including plant disease resistance, flower induction, signal transduction, bioinformatics and genetically modified organisms (GMOs) which have strongly influenced plant improvement in modern agriculture through genetic engineering.",
     "components": "Lecture",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
   },
   {
     "title": "BIOL 450 Techniques in Ecology",
@@ -406,7 +425,9 @@
     "description": "This course is designed to give students practical experience working with field‑based community ecology. It involves one or two weeks of fieldwork in a research station (mandatory sleepover), followed by weekly meetings during the fall term. Students learn about sampling methods, experimental design, and statistical tools with the aim of estimating and comparing patterns of biological diversity. Students design and implement their own short study in the field. In the weekly meetings, students process samples collected in the field, perform analysis, present their results in the form of oral presentation as well as written assignment. Students reside in a field station during the field‑based portion of the course. They are expected to cover the cost of room and board, and other necessary fees. The location and cost of the fieldwork may change from year to year. Interested students must contact the instructor to obtain detailed information.",
     "components": "Tutorial",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "fall"
+    ]
   },
   {
     "title": "BIOL 452 Population and Conservation Genetics",
@@ -556,7 +577,9 @@
     "description": "This is an interdisciplinary course offered to students who are either in Biology or Electrical and Computer Engineering programs. Students are introduced to the emerging field of synthetic biology and learn to design computational machines that can be implemented in biological media. The term is divided into two phases. In Phase I, Biology students learn basic computer hardware and software concepts, while Engineering students are introduced to gene structure and recombinant DNA technology. In Phase II, all students learn the principles and various applications of cell‑based computational machines. Students work in teams to create a project proposal to describe the design of a computational machine using gene regulatory networks.",
     "components": "Lecture",
     "notes": "Students who have received credit for COEN 433 or for this topic under a BIOL 498 number may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "winter"
+    ]
   },
   {
     "title": "BIOL 476 Microfluidic Devices for Synthetic Biology",

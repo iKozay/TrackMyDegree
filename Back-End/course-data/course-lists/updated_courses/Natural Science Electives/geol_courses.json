@@ -73,7 +73,10 @@
     "description": "This course examines how place is constructed through subjective encounters of humans with each other and with the non‑human world. This focus reveals how the unique and contested identities of places are created and how space itself is socially constructed. The ways in which place, space and identity affect and are affected by political, economic, cultural and environmental changes are then examined within the context of existing patterns of geographical unevenness.",
     "components": "Lecture",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
   },
   {
     "title": "GEOG 260 Mapping the Environment",
@@ -175,7 +178,9 @@
     "description": "This course examines key issues in human displacement through refugee movements and migrations. Geographies of displacement centre around questions of human rights, nation‑state and the politics of belonging, as well as exile/home. While displacement is often framed as a political or humanitarian crisis, it also raises important issues regarding citizenship and exclusion, shelter and sanctuary, movement and confinement. This course offers geographic approaches to understanding how people experience displacement, as well as how displacement is managed at a policy level and/or represented in discourse.",
     "components": "Lecture",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "fall"
+    ]
   },
   {
     "title": "GEOG 315 Social and Cultural Geographies",
@@ -267,7 +272,9 @@
     "description": "This course introduces students to commonly employed methods and techniques for undertaking social science research. After reviewing the philosophical considerations underlying particular research traditions and the merits and limitations of distinct types of research strategies, the course examines specific sets of methods and the kinds of questions and research topics for which they are best suited. The focus is on qualitative methods but also examines the complementarity of qualitative and quantitative techniques and the broader research designs in which quantitative techniques can be employed. Readings are supplemented with in‑class and field exercises. Occasional involvement in fieldwork outside of class time is required.",
     "components": "Lecture",
     "notes": "Students who have received credit for GEOG 360 may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "fall"
+    ]
   },
   {
     "title": "GEOG 362 Statistical Methods",
@@ -302,7 +309,9 @@
     "description": "The objective of this course is to combine perspectives and principles originating in ecology and geography for application in conservation, restoration, and more sustainable land use. Students examine how natural processes and human activities interact and contribute to landscape change, and how landscape patterns influence the abundance and distribution of plants and animals. Topics include natural processes such as fire, water, and the movement of organisms; human activities such as transportation infrastructure and urban development; and methods for analyzing landscape structure such as patches, corridor networks, and landscape metrics.",
     "components": "Lecture; Laboratory",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "winter"
+    ]
   },
   {
     "title": "GEOG 374 Plant Ecology",
@@ -338,7 +347,9 @@
     "description": "This course examines the processes responsible for the development and evolution of the Earth’s landforms, including human modifications to those landforms. Topics include the study of fluvial, coastal, glacial, periglacial, and arid landforms.",
     "components": "Lecture; Tutorial; Laboratory",
     "notes": "Students are strongly encouraged to take GEOL 210.",
-    "offeredIn": []
+    "offeredIn": [
+      "fall"
+    ]
   },
   {
     "title": "GEOG 378 The Climate System",
@@ -372,7 +383,9 @@
     "description": "Specific topics for this course, and relevant prerequisites, are stated in the Undergraduate Class Schedule and Geography Course Guide.",
     "components": null,
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "winter"
+    ]
   },
   {
     "title": "GEOG 399 Selected Topics in Geography",
@@ -495,7 +508,10 @@
     "description": "This course introduces students to the world of programming for geospatial technologies and web mapping. Through a review of the main concepts, techniques, standards, libraries and languages, students learn how to use programming to improve the geospatial data analysis process and to design maps that enhance the user’s experience. Training is centred on programming languages for Geographical Information System (GIS) applications (e.g. Python) as well as for web mapping (e.g. HTML, CSS and JavaScript). These languages are used to automate workflows for GIS analysis and customize stylistic and meaningful online maps.",
     "components": "Lecture; Laboratory",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
   },
   {
     "title": "GEOG 465 Remote Sensing",
@@ -518,7 +534,9 @@
     "description": "This course introduces students to geospatial technologies that have dramatically changed the way one interacts with the environment. Students acquire the geovisualization skills required to design meaningful maps in the context of the Geoweb, and are exposed to the growing body of literature that critically envisions the socio‑political dimensions of these new forms of cartographic expression.",
     "components": "Seminar; Laboratory",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "fall"
+    ]
   },
   {
     "title": "GEOG 467 Environmental Modelling",
@@ -538,7 +556,9 @@
     "description": "This course provides students with an understanding and appreciation of the field of environmental management and its contribution to addressing the impacts of human activities on the natural environment. Assessment of the limitations associated with conventional command‑and‑control approaches to environmental management are considered. The course also focuses on emerging concepts and frameworks associated with a recent rethinking of environmental management approaches, including complex adaptive systems, social‑ecological systems, and resilience.",
     "components": "Seminar",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "winter"
+    ]
   },
   {
     "title": "GEOG 473 Environment and Health",
@@ -570,7 +590,10 @@
     "description": "This course examines the complexity of, and necessity for, better water resource management from the viewpoint of ecological and economic sustainability as well as social equity and basic human health and dignity. Topics include the qualities, values, and uses of water — consumptive and non‑consumptive, economic and environmental; major regional and global water management issues; factors affecting water supply reliability and challenges to maintain and improve long‑term quality and equitable service in different situations; and the ways domestic, industrial, and agricultural water users can conserve water.",
     "components": "Seminar",
     "notes": "Students who have received credit for this topic under a GEOG 498 number may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
   },
   {
     "title": "GEOG 476 Indigenous and Environmental History of Americas since 1492",
@@ -592,7 +615,9 @@
     "description": "This course examines the science, impacts and policy options surrounding recent and future global climate change. The first part of the course focuses on the basic science of global warming including the greenhouse effect, climate models, and predictions of future climate change, and an assessment of possible climate impacts. The course concludes with an overview of potential solutions to climate change, including national and international climate policy, energy alternatives, and technological approaches to reducing human impacts on the climate system.",
     "components": "Seminar",
     "notes": "Students who have received credit for this topic under a GEOG 498 number may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "winter"
+    ]
   },
   {
     "title": "GEOG 479 Primate Behaviour, Ecology and Conservation",

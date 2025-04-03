@@ -7,7 +7,11 @@
     "description": "This course focuses on basic functions (power functions, polynomials, rational and algebraic function, exponentials and logarithms, trigonometric functions), and operations on functions, including inverse functions, transformations and composition of functions. The course also includes a detailed study of trigonometry of angles, geometry of triangles and related trigonometric transformations.",
     "components": "Lecture; Tutorial",
     "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration. Students who have received credit or exemption for MATH 203 or equivalent, or for a course having MATH 203 or equivalent in its sequence of prerequisites, may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
   },
   {
     "title": "MATH 203 Differential and Integral Calculus I",
@@ -59,7 +63,11 @@
     "description": "Coordinate systems. Radicals and distance formula. Polynomials, factoring, and graphing. Relations and functions. Linear and quadratic functions, equations, and systems. Exponents, exponential and logarithmic functions and equations.",
     "components": "Lecture; Tutorial",
     "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration. Students who have received credit or exemption for a course at the level of MATH 201 or above may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
   },
   {
     "title": "MATH 208 Fundamental Mathematics I",
@@ -69,7 +77,11 @@
     "description": "Topics covered in this course include matrices, Gaussian elimination, input‑output analysis, progressions, compound interest, annuities, permutations and combinations, probability, exponential and logarithmic functions, inequalities, linear programming.",
     "components": "Lecture",
     "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration. This is a prerequisite course for John Molson School of Business students. See Section 61.20 Admission Requirements and Section 14.2.2 John Molson School of Business under Mature Entry. Students who have received credit or an exemption for a course at the level of ACTU 256 or above; MAST 218 or above; MATH 251 or above; STAT 249 or above; or for a course having any of these courses in its sequence of prerequisites, may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
   },
   {
     "title": "MATH 209 Fundamental Mathematics II",

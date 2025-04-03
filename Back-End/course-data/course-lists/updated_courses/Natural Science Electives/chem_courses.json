@@ -74,7 +74,9 @@
     "description": "This course introduces the basic concepts of analytical chemistry for biology and environmental and sustainability science students. Topics include treatment of analytical data; chemical equilibria and titrations; introduction to spectroscopy; separation science; electrochemistry.",
     "components": "Lecture; Laboratory",
     "notes": "This course may not be taken for credit by students registered in a Chemistry or Biochemistry program.",
-    "offeredIn": []
+    "offeredIn": [
+      "winter"
+    ]
   },
   {
     "title": "CHEM 217 Introductory Analytical Chemistry I",
@@ -160,7 +162,10 @@
     "description": "The structure of the atom; the periodic table; properties of atoms, covalent bonding treatments including Lewis theory, valence shell electron pair repulsion theory of structure, valence bond and molecular orbital theory. Crystal field theory applied to the structure and properties of transition metal complexes. Bonding theories of metallic materials and semi‑conductors.",
     "components": "Lecture; Laboratory",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
   },
   {
     "title": "CHEM 242 Inorganic Chemistry II: The Chemistry of the Main Group Elements",
@@ -170,7 +175,9 @@
     "description": "A survey of the properties and reactions of: hydrogen; Group 1, lithium to cesium; and Group 2, beryllium to radium; including the theory of ionic bonding and structure. The descriptive chemistry of Group 13, boron to thallium; Group 14, carbon to lead; Group 15, nitrogen to bismuth; Group 16, sulphur to polonium; Group 17, the halogens; and Group 18, the chemistry of the noble gases.",
     "components": "Lecture; Laboratory",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "winter"
+    ]
   },
   {
     "title": "CHEM 271 Biochemistry I",
@@ -243,7 +250,9 @@
     "description": "Topics in this course include a mechanistic survey of reactions of major synthetic utility, the determination of reaction mechanisms, and the importance of reactive intermediates including carbocations, carbanions, radicals, and carbenes.",
     "components": "Lecture; Laboratory",
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "fall"
+    ]
   },
   {
     "title": "CHEM 325 Organic Chemistry IV: Organic Structure and Stereochemistry",
@@ -355,7 +364,9 @@
     "description": "High-performance liquid separations on an analytical (non-preparative) scale are surveyed. Fundamental separation mechanisms and application of the techniques are discussed. Emphasis is placed on separations of biologically relevant analytes which include peptides, proteins and nucleic acids.",
     "components": "Lecture",
     "notes": "Students who have received credit for CHEM 415 or for this topic under a CHEM 498 number may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "winter"
+    ]
   },
   {
     "title": "CHEM 414 Modern Aspects of Mass Spectrometry: Metabolomics and Proteomics",
@@ -409,7 +420,9 @@
     "description": "This course introduces students to various topics in nucleic acid chemistry. The topics include nomenclature, structure and function of RNA and DNA; techniques and methods to investigate nucleic acid structure; DNA damage and repair; interaction of small molecules and proteins with nucleic acid; oligonucleotide‑based therapeutics (antisense, antigene, RNAi); synthesis of purines, pyrimidines and nucleosides; and solid‑phase oligonucleotide synthesis.",
     "components": "Lecture",
     "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "winter"
+    ]
   },
   {
     "title": "CHEM 427 Polymer Chemistry and Nanotechnology",
@@ -473,7 +486,9 @@
     "description": "This course covers the structure and properties of organometallic compounds, their main reactions and their application in catalysis and organic chemistry.",
     "components": "Lecture",
     "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "winter"
+    ]
   },
   {
     "title": "CHEM 447 Solar Energy Conversion",
@@ -587,7 +602,9 @@
     "description": "This course discusses what is known about how the membranes of biological organisms are assembled and the roles that these membranes play in a number of important processes. Emphasis is placed on the transport of proteins to and through biomembranes and the roles that membranes play in metabolite and ion transport. Where applicable, the significance of these processes is illustrated by examining the roles of membranes in health and disease.",
     "components": "Lecture",
     "notes": "Students who have received credit for this topic under a CHEM 498 number may not take this course for credit.",
-    "offeredIn": []
+    "offeredIn": [
+      "fall"
+    ]
   },
   {
     "title": "CHEM 477 Advanced Laboratory in Biochemistry",
@@ -661,7 +678,10 @@
     "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
     "components": null,
     "notes": null,
-    "offeredIn": []
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
   },
   {
     "title": "CHEM 499 Advanced Topics in Chemistry",
