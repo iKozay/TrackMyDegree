@@ -208,4 +208,4 @@ VALUES ('COMP335', 3, 'Introduction to Programming'),
 -- INSERT INTO Exemption (id, coursecode, user_id)
 -- VALUES ('1', 'COMP335', '1');  -- UserID 1 has an exemption
 
--- INSERT INTO AppUser (id, email, password, fullname, type) VALUES ('1', 'admin@example.com', '$2a$12$JNl/NHljMx9FYG9XMefwRupv8bmUfIC6nypwiNPtlUuWl0/nO0XU6', 'Admin User', 'admin');
+INSERT INTO AppUser (id, email, password, fullname, type) VALUES ('1', 'admin@example.com', '$2a$12$JNl/NHljMx9FYG9XMefwRupv8bmUfIC6nypwiNPtlUuWl0/nO0XU6', 'Admin User', 'admin');
