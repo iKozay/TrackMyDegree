@@ -301,6 +301,8 @@ const ShowInsights = ({
     );
   };
 
+
+
   const toggleTooltipVisibility = (chartId, segment, visible, data) => {
     if (visible === false && !data) {
       setTooltipVisibility((prev) => ({
@@ -459,19 +461,7 @@ const ShowInsights = ({
       )}
 
       <style>{`
- /* Modal Overlay (Backdrop) */
-
-.insights-section h2 {
-
-background-color: #921338;
-color: white;
-font-weight: bold;
-
-
-}
-
-
-
+ /* Modal Overlay */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -490,17 +480,18 @@ font-weight: bold;
 
 /* Modal Card */
 .modal-card {
-  background-color: #912338 ;
+  background-color: #f9f9f9;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   width: 100%;
-  max-width: 1200px;
-  max-height: 90vh;
+  max-width: 1200px; /* Default max-width */
+  max-height: 90vh; /* Fixed max-height */
   overflow-y: auto;
   position: relative;
   padding: 0;
   box-sizing: border-box;
   margin: 0 auto;
+  transition: max-width 0.3s ease; /* Transition only for max-width */
 }
 
 /* Close Button for Modal */
@@ -536,18 +527,17 @@ font-weight: bold;
 }
 
 .insights-section {
-  background-color: #912338;
+  background-color: #f9f9f9;
   max-width: 100%;
   padding: 0.5rem;
   box-sizing: border-box;
   display: block;
-  border: 2px solid #921338; 
 }
 
 .course-pool-charts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); /* Reduced from 520px to allow more charts per row on medium screens */
-  gap: 2.5rem; /* Reduced from 3rem for better spacing on smaller screens */
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 2.5rem;
   padding: 1rem 0;
   justify-content: center;
   width: 100%;
@@ -556,9 +546,9 @@ font-weight: bold;
 .chart-container {
   width: 100%;
   height: auto;
-  min-height: 300px; /* Reduced from 350px to make charts more compact */
+  min-height: 300px;
   text-align: center;
-  padding: 0.75rem; /* Reduced padding from 1rem */
+  padding: 0.75rem;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -569,12 +559,12 @@ font-weight: bold;
 }
 
 .chart-container h6 {
-  font-size: 0.95rem; /* Slightly reduced from 1rem */
-  margin-bottom: 0.4rem; /* Reduced from 0.5rem */
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
   white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: 3.6rem; /* Reduced from 4rem */
+  max-height: 3.6rem;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -584,7 +574,7 @@ font-weight: bold;
 
 .chart-container .recharts-wrapper {
   width: 100% !important;
-  max-width: 200px; /* Reduced from 250px to make charts smaller */
+  max-width: 200px;
   height: auto !important;
   aspect-ratio: 1/1;
   margin: 0 auto;
@@ -594,8 +584,8 @@ font-weight: bold;
 }
 
 .chart-container p {
-  font-size: 0.85rem; /* Reduced from 0.9rem */
-  margin-top: 0.8rem; /* Reduced from 1rem */
+  font-size: 0.85rem;
+  margin-top: 0.8rem;
   color: #555;
   text-align: center;
   position: relative;
@@ -605,9 +595,9 @@ font-weight: bold;
 
 .insights-section > .chart-container:last-child {
   width: 100%;
-  max-width: 350px; /* Reduced from 400px */
+  max-width: 350px;
   height: auto;
-  margin: 1.5rem auto; /* Reduced from 2rem */
+  margin: 1.5rem auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -619,7 +609,7 @@ font-weight: bold;
   height: auto !important;
   max-height: none !important;
   width: 100% !important;
-  max-width: 250px; /* Reduced from 300px */
+  max-width: 250px;
   aspect-ratio: 1/1;
   margin: 0 auto;
 }
@@ -658,8 +648,9 @@ font-weight: bold;
   max-width: 200px;
   width: auto;
   box-sizing: border-box;
-  z-index: 10;
+  z-index: 1000;
   text-align: center;
+  position: relative;
 }
 
 .tooltip-title {
@@ -684,7 +675,7 @@ font-weight: bold;
   flex-wrap: wrap;
   gap: 0.5rem;
   justify-content: center;
-  max-height: 300px;
+  max-height: 200px;
   overflow-y: auto;
 }
 
@@ -751,7 +742,7 @@ font-weight: bold;
   left: 80%;
   transform: translateY(-50%);
   margin-left: 0.5rem;
-  z-index: 10;
+  z-index: 1000;
   width: auto;
   max-width: 200px;
 }
@@ -898,7 +889,7 @@ font-weight: bold;
   }
 
   .course-pool-charts {
-    grid-template-columns: 1fr; /* Single column for very small screens */
+    grid-template-columns: 1fr;
     gap: 1.2rem;
   }
 
@@ -1050,6 +1041,7 @@ font-weight: bold;
     max-width: 130px;
   }
 }
+
 `}</style>
     </div>
   );
