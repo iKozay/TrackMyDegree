@@ -488,7 +488,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         let isExempted = false;
         // Check the old format: data.term
         if (data.term && typeof data.term === 'string') {
-          isExempted = data.term.trim().toLowerCase() === 'exempted 2020';
+          isExempted = data.term.trim().toLowerCase() === 'exempted courses';
         }
         // Check the new format: data.season and data.year
         else if (data.season && data.year) {
@@ -546,9 +546,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           if (data.course && typeof data.course === 'string') {
             parsedExemptedCourses.push(data.course.trim());
           } else if (Array.isArray(data.courses)) {
-            data.courses.forEach((course) => {
-              if (typeof course === 'string') {
-                parsedExemptedCourses.push(course.trim());
+            data.courses.forEach((record) => {
+              if (typeof record.course === 'string') {
+                parsedExemptedCourses.push(record.course.trim());
               }
             });
           }
@@ -591,7 +591,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       // Default courses to an empty array if not provided.
       let courses = Array.isArray(data.courses)
         ? data.courses
-          .map((course) => (typeof course === 'string' ? course.trim() : ''))
+          .map((record) => (typeof record.course === 'string' ? record.course.trim() : ''))
           .filter(Boolean)
         : [];
 
