@@ -16,11 +16,15 @@ TERM_MAPPING = {
 }
 
 # Set your Basic Auth credentials (use environment variables for security)
-USERNAME = os.getenv("OPENDATA_USERNAME", "user")
-PASSWORD = os.getenv("OPENDATA_PASSWORD", "pass")
+# USERNAME = os.getenv("OPENDATA_USERNAME", "user")
+# PASSWORD = os.getenv("OPENDATA_PASSWORD", "pass")
 
-INPUT_DIR = "."  # Folder containing JSON files
-OUTPUT_DIR = "updated_courses"  # Folder where updated files will be saved
+USERNAME = '866';
+PASSWORD = 'cc94383af23d42ea7f5dcc9d0e2c4edc';
+
+
+INPUT_DIR = "./updated_courses/Natural Science Electives"  # Folder containing JSON files
+OUTPUT_DIR = "updated_courses/Natural Science Electives"  # Folder where updated files will be saved
 
 def get_offered_terms(course_code, course_number):
     """Fetch offered terms from the Concordia API and map to human-readable names."""

@@ -177,6 +177,7 @@ function extractAllCourses(text) {
       grade: match[3],
       position: match.index,
       type: 'Exempted',
+      term: 'exempted 2020',
       status: match[6]
     });
   }
