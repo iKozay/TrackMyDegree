@@ -9,7 +9,7 @@ import userIcon from '../icons/userIcon2.png';
 import logoutIcon from '../icons/logoutIcon.png';
 
 const Navbar = () => {
-	const { isLoggedIn, logout, user } = useContext(AuthContext);
+	const { isLoggedIn, loading, logout, user } = useContext(AuthContext);
 	const navigate = useNavigate();
 	const menuRef = useRef(null);
   const location = useLocation();
@@ -77,6 +77,24 @@ const Navbar = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
+          {/* Close button for mobile collapse */}
+          <button className="close-nav" onClick={toggleMenu}>
+            &times;
+          </button>
+          <div className="mobile-feedback">
+            <Link
+              onClick={() =>
+                window.open(
+                  'https://docs.google.com/forms/d/e/1FAIpQLScr67TcEpPV1wNCTM5H53hPwRgplAvkYmxg72LKgHihCSmzKg/viewform',
+                  '_blank'
+                )
+              }
+            >
+              <button className="feedback-button-mobile">
+                Submit Feedback!
+              </button>
+            </Link>
+          </div>
           <div className="navbar-nav custom-nav-links">
             <NavLink
               to="/"
@@ -100,8 +118,19 @@ const Navbar = () => {
             >
               Courses
             </NavLink>
+            {(user && user.type === 'admin') ? 
+            ( 
+              <>
+              <p className={'nav-separator'}>|</p>
+              <Link className="nav-link" to="/adminpage">
+                Admin
+              </Link>
+              </>
+            ) : '' }
           </div>
-          {isLoggedIn ? (
+          {!loading ? (
+            <>
+            {(isLoggedIn && user) ? (
               <>
                 <div className="navbar-right-buttons">
                   <Link to="/user">
@@ -142,6 +171,8 @@ const Navbar = () => {
                 </Link>
               </div>
             )}
+            </>
+          ) : ''}
           </div>
         </div>
       </nav>

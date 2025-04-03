@@ -23,6 +23,7 @@
   margin: 0;
   font-weight: 400;
   color: white;
+  max-width: 70%;
 }
 
 .overlay {
@@ -116,16 +117,33 @@ textarea {
 }
 
 .feedback-button {
-  background-color: #007bff;
+  background-color: red;
   color: white;
-  padding: 10px 20px;
+  padding: 8px 10px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
   transition: background-color 0.3s ease;
+  position: absolute;
+  right: 20px;
+  bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .feedback-button:hover {
-  background-color: #0056b3;
+  background-color: #595757;
+  transform: translateY(-3px) scale(1.05);
+}
+@media (max-width: 990px) {
+  .feedback-button {
+    display: none;
+  }
+}
+
+.footer-content {
+  position: absolute;
+  left: 30px;
+  bottom: 10px;
+  margin-bottom: 5px;
 }

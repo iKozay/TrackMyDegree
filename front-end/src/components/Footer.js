@@ -75,49 +75,22 @@ const Footer = () => {
           </div>
         </div>
       )}
+      <div className="footer-content">
+        <p style={{ fontSize: '0.9em', fontWeight: 'italic' }}>
+          v0.3.2
+        </p>
+      </div>
       <p className="footer-text">
-        TrackMyDegree helps Concordia Engineering students visualize and plan
-        their courses with an easy-to-use and interactive UI.
-      </p>
-      {/* <button
-        className="feedback-button"
-        onClick={() => setShowPopup(true)}
-        style={{
-          backgroundColor: 'red',
-          color: 'white',
-          padding: '10px 20px',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-          fontSize: '16px',
-          transition: 'background-color 0.3s ease',
-          position: 'absolute',
-          right: '20px',
-          bottom: '10px',
-        }}
-      >
-        Submit Feedback!
-      </button> */}
+          TrackMyDegree helps Concordia Engineering students visualize and plan
+          their courses with an easy-to-use and interactive UI.
+        </p>
+        <button
+          className="feedback-button"
+          onClick={redirectToFeedbackPage}
+        >
+          Submit Feedback!
+        </button>
 
-      <button
-        className="feedback-button"
-        onClick={redirectToFeedbackPage}
-        style={{
-          backgroundColor: 'red',
-          color: 'white',
-          padding: '10px 20px',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-          fontSize: '16px',
-          transition: 'background-color 0.3s ease',
-          position: 'absolute',
-          right: '20px',
-          bottom: '10px',
-        }}
-      >
-        Submit Feedback!
-      </button>
       {showAlert && <div className="alert">{showAlert}</div>}
     </footer>
   );

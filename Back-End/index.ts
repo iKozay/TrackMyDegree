@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 import express from 'express';
 import cors from 'cors';
-import corsOptions from './middleware/corsMiddleware';
+import corsOptions from '@middleware/corsMiddleware';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import Database from '@controllers/DBController/DBController';
@@ -11,8 +11,8 @@ import {
   resetPasswordLimiter,
   loginLimiter,
   signupLimiter,
-} from './middleware/rateLimiter';
-import { notFoundHandler, errorHandler } from './middleware/errorHandler';
+} from '@middleware/rateLimiter';
+import { notFoundHandler, errorHandler } from '@middleware/errorHandler';
 
 //Routes import
 import authRouter from '@routes/auth';
@@ -26,6 +26,7 @@ import userDataRouter from '@routes/userData';
 import Admin from '@routes/adminRoutes';
 import requisiteRouter from '@routes/requisite';
 import feedbackRouter from '@routes/feedback';
+import sessionRouter from '@routes/session';
 import sectionsRoutes from '@routes/sectionsRoutes';
 
 //Dev Consts
@@ -69,6 +70,7 @@ app.use('/data', userDataRouter);
 app.use('/admin', Admin);
 app.use('/requisite', requisiteRouter);
 app.use('/feedback', feedbackRouter);
+app.use('/session', sessionRouter);
 app.use('/section', sectionsRoutes);
 
 /**

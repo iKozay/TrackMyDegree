@@ -284,42 +284,58 @@ function CourseListPage() {
           )}
           {/* Display a popup for screens narrower than 767px */}
           {!isDesktop && (
-            <Modal show={showPopup} onHide={hidePopup}>
-              <Modal.Header closeButton>
-                <Modal.Title>{selectedCourse?.title}</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                {selectedCourse ? (
-                  <>
-                    <p>
-                      <b>Credits:</b> {selectedCourse.credits}
-                    </p>
-                    <p>
-                      <b>Prerequisites:</b>{' '}
-                      {selectedCourse.requisites || 'None'}
-                    </p>
-                    <p>
-                      <b>Corequisites:</b>{' '}
-                      {selectedCourse.corequisites || 'None'}
-                    </p>
-                    <p>
-                      <b>Description:</b> {selectedCourse.description}
-                    </p>
-                    <p>
-                      <b>Notes:</b> {selectedCourse.notes}
-                    </p>
-                  </>
-                ) : (
-                  <p>No course selected.</p>
-                )}
-              </Modal.Body>
-              <Modal.Footer>
-                <button onClick={hidePopup} className="btn btn-secondary">
-                  Close
-                </button>
-              </Modal.Footer>
-            </Modal>
-          )}
+           <Modal show={showPopup} onHide={hidePopup}>
+           <Modal.Header closeButton>
+             <Modal.Title>{selectedCourse?.title}</Modal.Title>
+           </Modal.Header>
+           <Modal.Body>
+             {selectedCourse ? (
+               <>
+                 <p>
+                   <b>Credits:</b> {selectedCourse.credits}
+                 </p>
+                 <p>
+                   <b>Prerequisites/Corequisites:</b>
+                 </p>
+                 {selectedCourse.requisites && selectedCourse.requisites.length > 0 ? (
+                   <ul>
+                     {groupPrerequisites(selectedCourse.requisites).map((group, index) => (
+                       <li key={index}>
+                         {group.type.toLowerCase() === 'pre'
+                           ? 'Prerequisite: '
+                           : 'Corequisite: '}
+                         {group.codes.join(' or ')}
+                       </li>
+                     ))}
+                   </ul>
+                 ) : (
+                   <p>None</p>
+                 )}
+                 <p>
+                   <b>Description:</b> {selectedCourse.description}
+                 </p>
+                 {selectedCourse.components && (
+                   <p>
+                     <b>Components:</b> {selectedCourse.components}
+                   </p>
+                 )}
+                 {selectedCourse.notes && (
+                   <p>
+                     <b>Notes:</b> {selectedCourse.notes}
+                   </p>
+                 )}
+               </>
+             ) : (
+               <p>No course selected.</p>
+             )}
+           </Modal.Body>
+           <Modal.Footer>
+             <button onClick={hidePopup} className="btn btn-secondary">
+               Close
+             </button>
+           </Modal.Footer>
+         </Modal>
+       )}
         </Row>
       </Container>
     </motion.div>

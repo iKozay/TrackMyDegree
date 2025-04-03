@@ -3,6 +3,11 @@ import authController from '@controllers/authController/authController';
 import HTTP from '@Util/HTTPCodes';
 import Auth from '@controllers/authController/auth_types';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+import { setJWTCookie } from '@Util/JWT_Util';
+import { UserHeaders } from '@Util/Session_Util';
+
+dotenv.config();
 
 const router = express.Router();
 var salt = bcrypt.genSaltSync(10);
@@ -27,6 +32,20 @@ router.post('/login', async (req: Request, res: Response) => {
         .status(HTTP.UNAUTHORIZED)
         .json({ error: 'Incorrect email or password' });
     } else {
+      const headers: UserHeaders = {
+        agent: req.headers['user-agent'] || '',
+        ip_addr: req.ip || '',
+      };
+
+      const { id, type } = result;
+      if (!id) {
+        //? Check if ID is undefined
+        throw new Error();
+      }
+
+      const cookie = setJWTCookie({ id, type }, headers); //? Attach the JWT Cookie to the response
+      res.cookie(cookie.name, cookie.value, cookie.config);
+
       res.status(HTTP.OK).json(result);
     }
   } catch (error) {
@@ -38,14 +57,15 @@ router.post('/login', async (req: Request, res: Response) => {
 
 // Sign-up
 router.post('/signup', async (req: Request, res: Response) => {
-  const payload: Auth.UserInfo = req.body;
+  if (!req.body) {
 
-  if (Object.keys(payload).length === 0) {
     res
       .status(HTTP.BAD_REQUEST)
       .json({ error: 'Request body cannot be empty' });
     return; // Exit if validation fails
   }
+
+  const payload: Auth.UserInfo = req.body;
 
   try {
     payload.password = await bcrypt.hash(payload.password, salt);
@@ -58,6 +78,7 @@ router.post('/signup', async (req: Request, res: Response) => {
     }
   } catch (error) {
     const errMsg = 'Internal server error in /signup';
+    console.error(errMsg, error);
     res.status(HTTP.SERVER_ERR).json({ error: errMsg });
   }
 });
@@ -83,6 +104,7 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
     }
   } catch (error) {
     const errMsg = 'Internal server error in /forgot-password';
+    console.error(errMsg, error);
     res.status(HTTP.SERVER_ERR).json({ error: errMsg });
   }
 });

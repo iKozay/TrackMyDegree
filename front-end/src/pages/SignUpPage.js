@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../middleware/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -12,10 +12,16 @@ function SignUpPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const userType = 'student'; // Hardcoded to 'student'
-  const { login } = useContext(AuthContext);
+  const { login, isLoggedIn } = useContext(AuthContext);
   const navigate = useNavigate();
   const [error, setError] = useState(null); // To handle error messages
   //const [loading, setLoading] = useState(false); // To handle loading state
+
+  useEffect(() => {
+    if(isLoggedIn) {
+      navigate("/user");
+    }
+  });
 
   const handleSignUp = async (e) => {
     e.preventDefault();

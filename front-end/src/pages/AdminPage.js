@@ -6,6 +6,7 @@ import SearchBar from '../components/SearchBar'; // Assuming you have a SearchBa
 import '../css/AdminPage.css'; // Import the CSS file
 import { motion } from 'framer-motion';
 import { AdminPageError } from '../middleware/SentryErrors';
+import { useNavigate } from 'react-router-dom';
 import { Button, Form } from 'react-bootstrap';
 
 const AdminPage = () => {
@@ -18,14 +19,25 @@ const AdminPage = () => {
   const [backups, setBackups] = useState([]);
   const [selectedBackup, setSelectedBackup] = useState('');
   //const [keyword, setKeyword] = useState('');
-
+  const navigate = useNavigate();
 
   const fetchBackups = async () => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_SERVER}/admin/fetch-backups`);
-      if (response.data.success) {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/fetch-backups`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        console.error('Failed to fetch backups');
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
         alert('Backups fetched successfully!');
-        setBackups(response.data.data);
+        setBackups(data.data);
       } else {
         console.error('Failed to fetch backups');
       }
@@ -41,8 +53,19 @@ const AdminPage = () => {
   // Function to create a new backup
   const handleCreateBackup = async () => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_SERVER}/admin/create-backup`);
-      if (response.data.success) {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/create-backup`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        alert('Failed to create backup');
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
         alert('Backup created successfully!');
         fetchBackups(); // refresh list after creating backup
       } else {
@@ -61,14 +84,24 @@ const AdminPage = () => {
       return;
     }
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_SERVER}/admin/restore-backup`,
-        { backupName: selectedBackup }
-      );
-      if (response.data.success) {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/restore-backup`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ backupName: selectedBackup }),
+      });
+
+      if (!response.ok) {
+        alert('Failed to restore backup');
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
         alert('Database restored successfully!');
       } else {
-        alert(`Restore failed: ${response.data.message}`);
+        alert(`Restore failed: ${data.message}`);
       }
     } catch (err) {
       console.error('Error restoring backup:', err);
@@ -83,16 +116,26 @@ const AdminPage = () => {
       return;
     }
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_SERVER}/admin/delete-backup`,
-        { backupName: selectedBackup }
-      );
-      if (response.data.success) {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/delete-backup`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ backupName: selectedBackup }),
+      });
+
+      if (!response.ok) {
+        alert('Failed to delete backup');
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
         alert('Backup deleted successfully!');
         setSelectedBackup('');
         fetchBackups();
       } else {
-        alert(`Deletion failed: ${response.data.message}`);
+        alert(`Deletion failed: ${data.message}`);
       }
     } catch (err) {
       console.error('Error deleting backup:', err);
@@ -100,19 +143,26 @@ const AdminPage = () => {
     }
   };
 
-
   // Fetch the list of tables when the component mounts
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        const response = await axios.post(
-          `${process.env.REACT_APP_SERVER}/admin/tables`,
+        let response = await fetch(`${process.env.REACT_APP_SERVER}/admin/tables`,
+          {
+            method: 'POST',
+            credentials: 'include'
+          }
         );
-        console.log('Tables Response:', response.data); // Debugging Line
 
-        if (response.data.success) {
-          if (Array.isArray(response.data.data)) {
-            setTables(response.data.data);
+        if (!response.ok) {
+          navigate("/403"); //! Forbidden
+        }
+
+        response = await response.json();
+
+        if (response.success) {
+          if (Array.isArray(response.data)) {
+            setTables(response.data);
           } else {
             throw new AdminPageError('Tables data is not an array');
           }
@@ -141,14 +191,20 @@ const AdminPage = () => {
         url += `?keyword=${encodeURIComponent(keyword)}`;
       }
 
-      const response = await axios.post(url);
-      console.log('Records Response:', response.data); // Debugging Line
+      let response = await fetch(url,
+        {
+          method: 'POST',
+          credentials: 'include'
+        }
+      );
 
-      if (response.data.success) {
-        if (Array.isArray(response.data.data)) {
-          setRecords(response.data.data);
-          if (response.data.data.length > 0) {
-            setColumns(Object.keys(response.data.data[0]));
+      response = await response.json();
+
+      if (response.success) {
+        if (Array.isArray(response.data)) {
+          setRecords(response.data);
+          if (response.data.length > 0) {
+            setColumns(Object.keys(response.data[0]));
           } else {
             setColumns([]);
           }
@@ -181,16 +237,25 @@ const AdminPage = () => {
 
   const handleSeedData = async () => {
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_SERVER}/admin/seed-data`,
-      );
-      if (response.data.success) {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/seed-data`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        alert('Failed to seed data');
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
         alert('Data seeding successful!');
       } else {
-        alert(`Data seeding failed: ${response.data.message}`);
+        alert(`Data seeding failed: ${data.message}`);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error seeding data:', err);
       alert(`Error seeding data: ${err.message}`);
     }
   };
