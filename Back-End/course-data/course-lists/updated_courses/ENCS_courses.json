@@ -42,7 +42,7 @@
   {
     "title": "ENCS 393 Social and Ethical Dimensions of Information and Communication Technologies",
     "credits": 3,
-    "prerequisites": "ENCS 282 ",
+    "prerequisites": "ENCS 282",
     "corequisites": "",
     "description": "This course covers the following topics : e thics in an information society; surveillance and privacy; economic globalization and intellectual property in a digital world: the digital divide; computer-based profiling and hacking; electronic democracy; computer-mediated experience; and information productivity and the work/life balance.",
     "components": "Lecture 3 hours per week",
