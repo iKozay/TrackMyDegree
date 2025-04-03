@@ -1072,16 +1072,14 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
   const ECP_EXTRA_CREDITS = 30; // Extra credits for ECP students
 
-  // Calculate total credits whenever semesterCourses changes
   useEffect(() => {
     const calculateTotalCredits = () => {
       let unmetPrereqFound = false;
-
-      // Build a map: poolId -> { assigned: number, max: number }
-      // assigned is how many credits we've added so far
-      // max is parsed from the pool name
       const poolCreditMap = {};
-
+  
+      // Log coursePools to debug
+      console.log('Course Pools:', coursePools);
+  
       // Initialize each pool with a max credits limit
       coursePools
         .filter((pool) => !pool.poolName.toLowerCase().includes("option"))
@@ -1090,98 +1088,64 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             assigned: 0,
             max: parseMaxCreditsFromPoolName(pool.poolName),
           };
+          console.log(`Initialized pool ${pool.poolId}: max = ${parseMaxCreditsFromPoolName(pool.poolName)}`);
         });
-
-      // Add remaining courses to the poolCreditMap with no pool-specific maximum
-      remainingCourses.forEach((course) => {
-        const poolId = 'remaining'; // A generic pool for remaining courses
-        if (!poolCreditMap[poolId]) {
-          poolCreditMap[poolId] = {
-            assigned: 0,
-            max: Infinity, // No max limit for remaining courses
-          };
-        }
-      });
-
-      const lastOccurrence = {};
-      semesters.forEach((sem, index) => {
-        if (sem.id.toLowerCase() === 'exempted') return;
-        const courseInstances = semesterCourses[sem.id] || [];
-        courseInstances.forEach((instanceId) => {
-          const genericCode = courseInstanceMap[instanceId] || instanceId;
-          // Always override, so the last (largest index) is stored.
-          lastOccurrence[genericCode] = index;
-        });
-      });
-
-      // Go through each semester (EXCEPT 'Exempted') and sum assigned credits
+  
+      // Initialize 'remaining' pool
+      if (!poolCreditMap['remaining']) {
+        poolCreditMap['remaining'] = { assigned: 0, max: Infinity };
+        console.log("Initialized 'remaining' pool: max = Infinity");
+      }
+  
       for (const semesterId in semesterCourses) {
-        if (semesterId.toLowerCase() === 'exempted') {
-          // Skip counting courses in 'Exempted'
-          continue;
-        }
-
+        if (semesterId.toLowerCase() === 'exempted') continue;
         const courseCodes = semesterCourses[semesterId];
-        const currentSemesterIndex = semesters.findIndex(
-          (s) => s.id === semesterId,
-        );
-
+        const currentSemesterIndex = semesters.findIndex((s) => s.id === semesterId);
+        console.log(`Processing semester: ${semesterId} (index ${currentSemesterIndex})`);
+  
         courseCodes.forEach((instanceId) => {
           const genericCode = courseInstanceMap[instanceId] || instanceId;
-          if (currentSemesterIndex !== lastOccurrence[genericCode]) {
-            return; // Skip if not the last occurrence
-          }
-
-          // Find which pool this course belongs to
-          let pool = coursePools.find((p) =>
-            p.courses.some((c) => c.code === genericCode),
-          );
-
-          // If not in coursePools, check if it belongs to remainingCourses
-          if (!pool) {
-            pool = { poolId: 'remaining', courses: remainingCourses }; // Use the remaining pool
-          }
-
-          if (!pool) return; // course not found in any pool (shouldn't happen, but just in case)
-
-          // Find the actual course object
-          const course = pool.courses.find((c) => c.code === genericCode);
-          if (!course) return;
-
-          // Check prerequisites
-          const prerequisitesMet = arePrerequisitesMet(
-            genericCode,
-            currentSemesterIndex,
-          );
-          if (!prerequisitesMet) {
-            unmetPrereqFound = true; // Mark unmet prerequisites but still count credits
-          }
-
-          // Ensure the pool exists before accessing its properties
-          const poolData = poolCreditMap[pool.poolId];
-          if (!poolData) {
-            console.warn(`Pool data not found for poolId: ${pool.poolId}`);
+          const pool = coursePools.find((p) =>
+            p.courses.some((c) => c.code === genericCode)
+          ) || { poolId: 'remaining', courses: remainingCourses };
+  
+          const course = pool.courses.find((c) => c.code === genericCode) || allCourses.find((c) => c.code === genericCode);
+          if (!course) {
+            console.warn(`Course ${genericCode} not found`);
             return;
           }
-
-          // Add credits to the pool’s assigned sum, up to the pool’s max
-          const newSum = (poolData.assigned || 0) + (course.credits || 0);
-          poolData.assigned = Math.min(poolData.max, newSum);
+  
+          const credits = course.credits !== undefined ? course.credits : 3;
+          console.log(`Course ${genericCode}: credits = ${credits}`);
+  
+          const prerequisitesMet = arePrerequisitesMet(genericCode, currentSemesterIndex);
+          if (!prerequisitesMet) unmetPrereqFound = true;
+  
+          // Dynamically add the pool if it doesn't exist
+          if (!poolCreditMap[pool.poolId]) {
+            poolCreditMap[pool.poolId] = { assigned: 0, max: Infinity };
+            console.log(`Dynamically added pool ${pool.poolId} with max = Infinity`);
+          }
+  
+          const poolData = poolCreditMap[pool.poolId];
+          poolData.assigned = Math.min(poolData.max, poolData.assigned + credits);
+          console.log(`Pool ${pool.poolId}: assigned ${credits}, total now ${poolData.assigned} (max ${poolData.max})`);
         });
       }
-
-      // Sum up the assigned credits from all pools
+  
       const total = Object.values(poolCreditMap).reduce(
         (sum, poolData) => sum + poolData.assigned,
-        0,
+        0
       );
-
+      console.log('Final Pool Credit Map:', poolCreditMap);
+      console.log('Calculated Total Credits:', total);
+  
       setTotalCredits(total);
       setHasUnmetPrerequisites(unmetPrereqFound);
     };
-
+  
     calculateTotalCredits();
-  }, [semesterCourses, semesters, coursePools, deficiencyCredits]);
+  }, [semesterCourses, semesters, coursePools, remainingCourses, courseInstanceMap, allCourses]);
 
   const addDeficiencyCourse = (course) => {
     setDeficiencyCourses((prev) => {
@@ -1716,7 +1680,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   Share
                 </button>
                 <h4>
-                  Total Credits Earned: {totalCredits} /{' '}
+                  Total Credits Earned: {totalCredits + deficiencyCredits
+                  } /{' '}
                   {credsReq + deficiencyCredits}
                 </h4>
                 <div className="timeline-buttons-container">
