@@ -1680,7 +1680,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   Share
                 </button>
                 <h4>
-                  Total Credits Earned: {totalCredits} /{' '}
+                  Total Credits Earned: {totalCredits + deficiencyCredits
+                  } /{' '}
                   {credsReq + deficiencyCredits}
                 </h4>
                 <div className="timeline-buttons-container">
