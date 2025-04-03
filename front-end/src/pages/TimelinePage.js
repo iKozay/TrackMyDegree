@@ -694,7 +694,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     const sortedSemesters = Array.from(semesterNames).sort((a, b) => {
       if (a.trim().toLowerCase() === 'exempted') return -1;
       if (b.trim().toLowerCase() === 'exempted') return 1;
-      const order = { Winter: 1, Summer: 2, Fall: 3, Fall_Winter: 4 };
+      const order = { Winter: 1, "Fall/Winter": 2, Summer: 3, Fall: 4 };
       const [seasonA, yearA] = a.split(' ');
       const [seasonB, yearB] = b.split(' ');
       if (yearA !== yearB) {
@@ -769,9 +769,10 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   // ---------------- ADD / REMOVE Semesters ----------------
   const SEASON_ORDER = {
     Winter: 1,
-    Summer: 2,
-    Fall: 3,
-    Fall_Winter: 4,
+    Fall_Winter: 2,
+    Summer: 3,
+    Fall: 4,
+    
   };
 
   function compareSemesters(a, b) {
