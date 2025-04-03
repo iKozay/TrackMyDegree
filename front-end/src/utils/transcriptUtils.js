@@ -235,6 +235,46 @@ function extractAllCourses(text) {
   };
 }
 
+
+function transformGradesData(transcriptData) {
+  //? First, group courses by term
+  const termsMap = transcriptData.reduce((acc, entry) => {
+      if (!acc[entry.term]) {
+          acc[entry.term] = {
+              courses: [],
+              grades: []
+          };
+      }
+      acc[entry.term].courses.push(entry.course);
+      acc[entry.term].grades.push(parseFloat(entry.grade));
+      return acc;
+  }, {});
+
+  const result = Object.keys(termsMap).map(term => {
+      const termData = termsMap[term];
+      const totalCredits = termData.grades.reduce((sum, grade) => sum + grade, 0);
+      
+      return {
+          term,
+          courses: termData.courses,
+          grade: totalCredits.toString()
+      };
+  });
+
+  //? Sort by term (chronological order)
+  result.sort((a, b) => {
+      const [aSeason, aYear] = a.term.split(' ');
+      const [bSeason, bYear] = b.term.split(' ');
+      
+      if (aYear !== bYear) return aYear - bYear;
+      
+      const seasonOrder = { 'Summer': 1, 'Fall': 2, 'Winter': 3 };
+      return seasonOrder[aSeason] - seasonOrder[bSeason];
+  });
+
+  return result;
+}
+
 /**
  ** Match the extracted courses to the corresponding terms
  * @param {{ name: string; type: string; position: number; }[]} terms
@@ -243,26 +283,25 @@ function extractAllCourses(text) {
  * @returns
  */
 function matchCoursesToTerms(terms, courses, separators) {
-  const results = [];
+  const exemptions = [];
   let currentTermIndex = 0;
   let currentTerm = terms[currentTermIndex]?.name || 'Unknown Term';
-
+  
   // Group exempted courses separately
   const exemptedCourses = courses.filter((c) => c.type === 'Exempted');
   if (exemptedCourses.length > 0) {
-    results.push({
-      term: 'Exempted Courses',
-      courses: exemptedCourses.map((c) => ({
-        course: c.code,
-        grade: c.grade,
-      })),
+    exemptions.push({
+      term: 'Exempted 2020',
+      courses: exemptedCourses.map((c) => (c.code)),
+      grade: "A",
     });
   }
-
+  
   // Match regular courses to terms
   const regularCourses = courses.filter((c) => c.type === 'Course');
   const termBoundaries = separators; //terms.map((t) => t.position);
-
+  
+  let records = [];
   for (const course of regularCourses) {
     // Advance to the current term if course is after next term boundary
     while (
@@ -272,14 +311,18 @@ function matchCoursesToTerms(terms, courses, separators) {
       currentTermIndex++;
       currentTerm = terms[currentTermIndex]?.name;
     }
-
-    results.push({
+    
+    records.push({
       term: currentTerm,
       course: course.code,
       grade: course.grade,
     });
   }
-
+  
+  records = transformGradesData(records);
+  
+  const results = [...exemptions, ...records];
+  
   return results;
 }
 
