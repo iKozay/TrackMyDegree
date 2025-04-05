@@ -116,7 +116,7 @@ function SignUpPage() {
             {/* Name Field */}
             <div className="mb-3">
               <label htmlFor="fullname" className="form-label">
-                Full Name:{' '}
+                Full Name{' '}
               </label>
               <input
                 type="fullname"
@@ -131,7 +131,7 @@ function SignUpPage() {
             {/* Email Field*/}
             <div className="mb-3">
               <label htmlFor="email" className="form-label">
-                Email address:{' '}
+                Email address{' '}
               </label>
               <input
                 type="email"
@@ -146,7 +146,7 @@ function SignUpPage() {
             {/* Password Field */}
             <div className="mb-3">
               <label htmlFor="password" className="form-label">
-                Password:
+                Password
               </label>
               <input
                 type="password"
@@ -161,7 +161,7 @@ function SignUpPage() {
             {/* Confirm Password Field */}
             <div className="mb-3">
               <label htmlFor="confirmPassword" className="form-label">
-                Confirm Password:
+                Confirm Password
               </label>
               <input
                 type="password"
