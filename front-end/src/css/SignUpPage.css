@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+.SignUpPage {
+    background-color: #ffffff; 
+    padding: 20px; 
+    align-content: center;
+}
+
+.custom-header {
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-size: 2rem;
+}
+  
+.custom-input {
+    border-radius: 100px;
+    border-color: black;
+}
+
+.SignUpPage h2{
+    font-size: 5vh;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 20px;
+} 
+
+.label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.input,
+.form-control {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.custom-alert {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
