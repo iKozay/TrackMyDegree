@@ -308,7 +308,7 @@
 
   .nav-link {
     padding: 10px 0;
-    width: auto;
+    width: 100%;
     text-align: center;
   }
 
@@ -318,6 +318,12 @@
     flex-direction: row;
     align-items: center;
     padding-right: 15px;
+  }
+
+  /* No wrapping of text for the Sign In and Register button */
+  .navbar-button {
+    white-space: nowrap;
+    margin-left: 10 px;
   }
 
 }
