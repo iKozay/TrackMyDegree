@@ -276,7 +276,7 @@
   }
 }
 
-@media (max-width: 1400px) {
+@media  (min-width: 991px) and (max-width: 1400px) {
   /* Adjust navbar links for smaller screens */
   .custom-nav-links {
     margin-left: 0;
