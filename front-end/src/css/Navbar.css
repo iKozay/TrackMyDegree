@@ -326,16 +326,16 @@
   font-weight: 700;
   font-size: 15px;
   padding: 10px 15px;
-  border-radius: 25px;
+  border-radius: 15px;
   text-align: center;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .navbar-button-signin {
   background-color: white;
   color: black;
   border: 2px solid black;
-  transition: all 0.3s ease;
 }
 
 .navbar-button-signin:hover {
@@ -344,10 +344,9 @@
 }
 
 .navbar-button-register {
-  background-color: #ffffff;
-  color: #1c1717;
+  background-color: white;
+  color: black;
   border: 2px solid black;
-  transition: all 0.3s ease;
 }
 
 .navbar-button-register:hover {
