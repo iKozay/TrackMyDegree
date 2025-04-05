@@ -308,9 +308,18 @@
 
   .nav-link {
     padding: 10px 0;
-    width: 100%;
+    width: auto;
     text-align: center;
   }
+
+  /* Updating the Sign in and Register Buttons */
+  .navbar-right-buttons {
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    padding-right: 15px;
+  }
+
 }
 
 /* Sign in and Register Buttons */
