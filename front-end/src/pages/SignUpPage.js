@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../middleware/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import '../css/SignUpPage.css';
 import Button from 'react-bootstrap/Button';
 import { motion } from 'framer-motion';
 import { SignUpError } from '../middleware/SentryErrors';
