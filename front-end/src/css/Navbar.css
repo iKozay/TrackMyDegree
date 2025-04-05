@@ -98,6 +98,12 @@
 }
 
 @media (max-width: 990px) {
+  .custom-navbar .custom-nav-links {
+    margin-left: 0;
+    text-align: center;
+    font-size: 18px;
+  }
+
   /* Remove the underline for mobile */
   .custom-navbar .nav-link.active::after {
     display: none;
