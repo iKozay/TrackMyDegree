@@ -278,7 +278,9 @@
 
   .custom-navbar .nav-link {
     margin: 0;
-    padding: 8px 0;
+    padding: 10px 0;
+    width: 100%;
+    text-align: center;
   }
 }
 
