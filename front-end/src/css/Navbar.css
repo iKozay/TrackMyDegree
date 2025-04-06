@@ -98,6 +98,12 @@
 }
 
 @media (max-width: 990px) {
+  .custom-navbar .custom-nav-links {
+    margin-left: 0;
+    text-align: center;
+    font-size: 18px;
+  }
+
   /* Remove the underline for mobile */
   .custom-navbar .nav-link.active::after {
     display: none;
@@ -272,11 +278,13 @@
 
   .custom-navbar .nav-link {
     margin: 0;
-    padding: 8px 0;
+    padding: 10px 0;
+    width: 100%;
+    text-align: center;
   }
 }
 
-@media (max-width: 1400px) {
+@media  (min-width: 991px) and (max-width: 1400px) {
   /* Adjust navbar links for smaller screens */
   .custom-nav-links {
     margin-left: 0;
@@ -311,6 +319,21 @@
     width: 100%;
     text-align: center;
   }
+
+  /* Updating the Sign in and Register Buttons */
+  .navbar-right-buttons {
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    padding-right: 15px;
+  }
+
+  /* No wrapping of text for the Sign In and Register button */
+  .navbar-button {
+    white-space: nowrap;
+    margin-left: 10 px;
+  }
+
 }
 
 /* Sign in and Register Buttons */
@@ -326,16 +349,16 @@
   font-weight: 700;
   font-size: 15px;
   padding: 10px 15px;
-  border-radius: 25px;
+  border-radius: 10px;
   text-align: center;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .navbar-button-signin {
   background-color: white;
   color: black;
   border: 2px solid black;
-  transition: all 0.3s ease;
 }
 
 .navbar-button-signin:hover {
@@ -344,10 +367,9 @@
 }
 
 .navbar-button-register {
-  background-color: #ffffff;
-  color: #1c1717;
+  background-color: white;
+  color: black;
   border: 2px solid black;
-  transition: all 0.3s ease;
 }
 
 .navbar-button-register:hover {
