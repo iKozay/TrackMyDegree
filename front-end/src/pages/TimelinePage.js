@@ -537,10 +537,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           isExempted = data.term.trim().toLowerCase() === 'exempted 2020';
         }
         // Check the new format: data.season and data.year
-        else if (data.season && data.year) {
-          isExempted =
-            data.season.trim().toLowerCase() === 'exempted' &&
-            parseInt(data.year, 10) === 2020;
+        else if (data.season) {
+          isExempted = data.season.trim().toLowerCase() === 'exempted';
         }
 
         // console.log(timelineData);
@@ -1619,7 +1617,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   }
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(`${process.env.REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id, credits_Required, extendedCredit)}`)
+    navigator.clipboard.writeText(`${REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id, credits_Required, extendedCredit)}`)
       .catch(() => alert("Something went wrong"));
     toggleShareDialog();
   }
@@ -2321,7 +2319,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
               <p>Share this timeline!</p>
               <div className="url-and-copy-btn">
                 <div className="url-box">
-                  <p style={{ fontSize: 'small', marginBottom: 0 }}>{`${REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id)}`}</p>
+                  <p style={{ fontSize: 'small', marginBottom: 0 }}>
+                    {`${REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id, credits_Required, extendedCredit)}`}
+                  </p>
                 </div>
                 <Button
                   onClick={copyToClipboard}

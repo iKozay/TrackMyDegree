@@ -184,8 +184,8 @@ function decompressTimelineV1(data) {
         return;
       } else {
         //exempted
+        currentSemester = EXPAND_DATA.semesters[compressedSemester[0]];
         courses = compressedSemester.slice(2);
-        currentSemester = EXPAND_DATA.semesters[compressedSemester[0]]
       }
     } else {
       courses = compressedSemester.slice(3);
