@@ -4,9 +4,13 @@ import '../css/LandingPage.css';
 import ImageCarousel from '../components/ImageCarousel';
 import Typewriter from 'typewriter-effect';
 import { motion } from 'framer-motion';
+import {useState} from 'react';
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const [showPopup, setShowPopup] = useState(true);
+  const handleClosePopup = () => setShowPopup(false);
+
 
   return (
     <motion.div
@@ -15,6 +19,19 @@ const LandingPage = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.7 }}
     >
+
+      {showPopup && (
+      <div className ="popup-container">
+        <div className = "popup">
+          <h2> Disclaimer</h2>
+          <p>
+            TrackMyDegree🎓 is a tool to assist students in making informed decisions!
+          </p>
+          <button type = "button" onClick={handleClosePopup}>OK</button>
+        </div>
+      </div>
+      )}
+      
       <div className="landing-section">
         <Typewriter
           options={{
