@@ -27,7 +27,7 @@ const LandingPage = () => {
           <p>
             TrackMyDegree🎓 is a tool to assist students in making informed decisions!
           </p>
-          <button type = "button" onClick={handleClosePopup}>Acknowledge</button>
+          <button type = "button" className= "popup-button" onClick={handleClosePopup}>Acknowledge</button>
         </div>
       </div>
       )}

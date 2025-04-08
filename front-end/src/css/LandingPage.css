@@ -45,6 +45,15 @@
   text-align: center;
 }
 
+.popup h2{
+  font-size: 35px;
+  font-weight: 500;
+  margin-top: 5px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 10px;
+}
+
 @media (max-width: 768px) {
   .Typewriter__wrapper {
     font-size: 30px;
