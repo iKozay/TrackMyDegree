@@ -23,10 +23,15 @@ const LandingPage = () => {
       {showPopup && (
       <div className ="popup-container">
         <div className = "popup">
-          <h2> Disclaimer</h2>
+          <h2>DISCLAIMER</h2>
           <p>
-            TrackMyDegree🎓 is a tool to assist students in making informed decisions!
+            TrackMyDegree🎓 can make mistakes. Please check important information. 
+            Note that this webiste is an independent helper tool and is not affiliated with Concordia University. 
+            It is designed to provide supplementary assistance and should not solely relied upon for acaemic or administrative decisions.
           </p>
+          {/* <p>
+            It is not a concordia affiliated product. 
+          </p> */}
           <button type = "button" className= "popup-button" onClick={handleClosePopup}>Acknowledge</button>
         </div>
       </div>
