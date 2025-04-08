@@ -46,11 +46,25 @@
 }
 
 .popup h2{
-  font-size: 35px;
+  font-size: 25px;
   font-weight: 500;
   margin-top: 5px;
   margin-left: 20px;
   margin-right: 20px;
+  margin-bottom: 10px;
+}
+
+.popup p{
+  text-align: justify;
+  text-justify: auto; 
+}
+
+.popup-container .popup .popup-button{
+  background-color: #912338;
+  color: white;
+  padding: 3px; 
+  border-radius: 5px;
+  margin-top: 10px;
   margin-bottom: 10px;
 }
 
