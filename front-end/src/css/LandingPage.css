@@ -26,6 +26,17 @@
   align-items: center;
 }
 
+.popup-container{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 400px;
+  background-color: rgb(250, 248, 249);
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
 @media (max-width: 768px) {
   .Typewriter__wrapper {
     font-size: 30px;
