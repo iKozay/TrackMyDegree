@@ -190,6 +190,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
   const [showDeficiencyModal, setShowDeficiencyModal] = useState(false);
+  const [showExemptionsModal, setShowExemptionsModal] = useState(false);
   const [searchDeficiencyQuery, setSearchDeficiencyQuery] = useState('');
   const [semesters, setSemesters] = useState([]);
   const [semesterCourses, setSemesterCourses] = useState({});
@@ -287,6 +288,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const [coursePools, setCoursePools] = useState([]);
   const [deficiencyCredits, setDeficiencyCredits] = useState(0);
   const [deficiencyCourses, setDeficiencyCourses] = useState([]);
+  const [exemptionCredits, setExemptionCredits] = useState(0);
+  const [exemptionCourses, setExemptionCrouses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const toggleCourseList = () => setShowCourseList((prev) => !prev);
@@ -294,7 +297,6 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     setShowCourseDescription((prev) => !prev);
 
   const [allCourses, setAllCourses] = useState([]);
-  const [showExempted, setShowExempted] = useState(true);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false); // Track if changes
   const [nextPath, setNextPath] = useState(null); // Track what new page should be
   const [showSaveModal, setShowSaveModal] = useState(false); // Popup for save
@@ -1165,6 +1167,23 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   };
 
 
+  const addExemptionCourse = (course) => {
+    setExemptionCrouses((prev) => {
+      if (prev.some((c) => c.code === course.code)) {
+        alert("Course already added to exemptions!");
+        return prev;
+      }
+      alert("Course added to exemptions!");
+      setExemptionCredits((prevCredits) => prevCredits + (course.credits || 0));
+      return [...prev, course];
+    });
+  };
+
+  const removeExemptionCourse = (course) => {
+    setExemptionCrouses((prev) => prev.filter((c) => c.code !== course.code));
+    setExemptionCredits((prev) => prev - (course.credits || 0));
+  };
+
 
   // Function to check if prerequisites and corequisites are met
   const arePrerequisitesMet = (courseCode, currentSemesterIndex) => {
@@ -1619,7 +1638,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   }
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(`${process.env.REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id, credits_Required, extendedCredit)}`)
+    navigator.clipboard.writeText(`${REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id, credits_Required, extendedCredit)}`)
       .catch(() => alert("Something went wrong"));
     toggleShareDialog();
   }
@@ -1659,30 +1678,34 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             <>
               {/* Total Credits Display */}
               <div className="credits-display">
-                <Button
-                  onClick={handleUndo}
-                  disabled={history.length === 0}
-                  className="icon-btn"
-                >
-                  <FaUndo size={25} />
-                </Button>
-                <Button
-                  onClick={handleRedo}
-                  disabled={future.length === 0}
-                  className="icon-btn"
-                >
-                  <FaRedo size={25} />
-                </Button>
-                <button
-                  className='share-timeline-button'
-                  onClick={toggleShareDialog}
-                >
-                  Share
-                </button>
+                <div>
+                  <Button
+                    onClick={handleUndo}
+                    disabled={history.length === 0}
+                    className="icon-btn"
+                    >
+                    <FaUndo size={25} />
+                  </Button>
+                  <Button
+                    onClick={handleRedo}
+                    disabled={future.length === 0}
+                    className="icon-btn"
+                    >
+                    <FaRedo size={25} />
+                  </Button>
+                  <button
+                    className='share-timeline-button'
+                    onClick={toggleShareDialog}
+                    >
+                    Share
+                  </button>
+                  <button className="download-timeline-button" onClick={exportTimelineToPDF}>
+                    <img src={downloadIcon} alt="Download" className="button-icon download-icon" />
+                    <span className="button-text">Download</span>
+                  </button>
+                </div>
                 <h4>
-                  Total Credits Earned: {totalCredits + deficiencyCredits
-                  } /{' '}
-                  {credsReq + deficiencyCredits}
+                  Total Credits Earned: {totalCredits + deficiencyCredits} /{' '}{credsReq + deficiencyCredits - exemptionCredits}
                 </h4>
                 <div className="timeline-buttons-container">
                   <div>
@@ -1710,6 +1733,12 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                     Add Deficiencies
                   </button>
                   <button
+                    className="add-exemptions-button"
+                    onClick={() => setShowExemptionsModal(true)}
+                  >
+                    Add Exemptions
+                  </button>
+                  <button
                     className="save-timeline-button"
                     onClick={() =>
                       timelineName
@@ -1719,10 +1748,6 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   >
                     <img src={saveIcon} alt="Save" className="button-icon save-icon" />
                     <span className="button-text">Save Timeline</span>
-                  </button>
-                  <button className="download-timeline-button" onClick={exportTimelineToPDF}>
-                    <img src={downloadIcon} alt="Download" className="button-icon download-icon" />
-                    <span className="button-text">Download</span>
                   </button>
                 </div>
               </div>
@@ -1864,53 +1889,102 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                   </Container>
                                 </Accordion.Body>
                               </Accordion.Item>
-                              <Accordion.Item eventKey="deficiencies">
-                                <Accordion.Header>Deficiency Courses</Accordion.Header>
-                                <Accordion.Body>
-
-                                  <Container>
-                                    {deficiencyCourses.map((course) => {
-                                      const isSelected = selectedCourse?.code === course.code;
-                                      return (
-                                        <div key={`source-deficiency-${course.code}`}>
-                                          <DraggableCourse
-                                            internalId={`source-deficiency-${course.code}`}
-                                            courseCode={course.code}
-                                            title={course.code}
-                                            disabled={isCourseAssigned(course.code)}
-                                            isReturning={returning}
-                                            isSelected={isSelected}
-                                            onSelect={handleCourseSelect}
-                                            containerId="deficiencyList"
-                                            isInTimeline={isCourseAssigned(course.code)}
-                                            removeButton={
-                                              <button
-                                                className={`remove-course-btn ${isSelected ? 'selected' : ''}`}
-                                                onClick={() => removeDeficiencyCourse(course)}
-                                              >
-                                                <svg
-                                                  width="25"
-                                                  height="20"
-                                                  viewBox="0 0 30 24"
-                                                  fill="red"
-                                                  xmlns="http://www.w3.org/2000/svg"
+                              {deficiencyCredits !== 0 &&
+                                <Accordion.Item eventKey="deficiencies">
+                                  <Accordion.Header>Deficiency Courses</Accordion.Header>
+                                  <Accordion.Body>
+                                    <Container>
+                                      {deficiencyCourses.map((course) => {
+                                        const isSelected = selectedCourse?.code === course.code;
+                                        return (
+                                          <div key={`source-deficiency-${course.code}`}>
+                                            <DraggableCourse
+                                              internalId={`source-deficiency-${course.code}`}
+                                              courseCode={course.code}
+                                              title={course.code}
+                                              disabled={isCourseAssigned(course.code)}
+                                              isReturning={returning}
+                                              isSelected={isSelected}
+                                              onSelect={handleCourseSelect}
+                                              containerId="deficiencyList"
+                                              isInTimeline={isCourseAssigned(course.code)}
+                                              removeButton={
+                                                <button
+                                                  className={`remove-course-btn ${isSelected ? 'selected' : ''}`}
+                                                  onClick={() => removeDeficiencyCourse(course)}
                                                 >
-                                                  {isSelected ? (
-                                                    <rect x="2" y="11" width="22" height="4" fill="#912338" />
-                                                  ) : (
-                                                    <rect x="2" y="11" width="22" height="4" fill="white" />
-                                                  )}
-                                                </svg>
-                                              </button>
-                                            }
-                                          />
-                                        </div>
-                                      );
-                                    })}
+                                                  <svg
+                                                    width="25"
+                                                    height="20"
+                                                    viewBox="0 0 30 24"
+                                                    fill="red"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                  >
+                                                    {isSelected ? (
+                                                      <rect x="2" y="11" width="22" height="4" fill="#912338" />
+                                                    ) : (
+                                                      <rect x="2" y="11" width="22" height="4" fill="white" />
+                                                    )}
+                                                  </svg>
+                                                </button>
+                                              }
+                                            />
+                                          </div>
+                                        );
+                                      })}
 
-                                  </Container>
-                                </Accordion.Body>
-                              </Accordion.Item>
+                                    </Container>
+                                  </Accordion.Body>
+                                </Accordion.Item>
+                              }
+                              {exemptionCredits !== 0 &&
+                                <Accordion.Item eventKey="deficiencies">
+                                  <Accordion.Header>Exempted Courses</Accordion.Header>
+                                  <Accordion.Body>
+                                    <Container>
+                                      {exemptionCourses.map((course) => {
+                                        const isSelected = selectedCourse?.code === course.code;
+                                        return (
+                                          <div key={`source-exemption-${course.code}`}>
+                                            <DraggableCourse
+                                              internalId={`source-exemption-${course.code}`}
+                                              courseCode={course.code}
+                                              title={course.code}
+                                              disabled={isCourseAssigned(course.code)}
+                                              isReturning={returning}
+                                              isSelected={isSelected}
+                                              onSelect={handleCourseSelect}
+                                              containerId="exemptionList"
+                                              isInTimeline={isCourseAssigned(course.code)}
+                                              removeButton={
+                                                <button
+                                                  className={`remove-course-btn ${isSelected ? 'selected' : ''}`}
+                                                  onClick={() => removeExemptionCourse(course)}
+                                                >
+                                                  <svg
+                                                    width="25"
+                                                    height="20"
+                                                    viewBox="0 0 30 24"
+                                                    fill="red"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                  >
+                                                    {isSelected ? (
+                                                      <rect x="2" y="11" width="22" height="4" fill="#912338" />
+                                                    ) : (
+                                                      <rect x="2" y="11" width="22" height="4" fill="white" />
+                                                    )}
+                                                  </svg>
+                                                </button>
+                                              }
+                                            />
+                                          </div>
+                                        );
+                                      })}
+
+                                    </Container>
+                                  </Accordion.Body>
+                                </Accordion.Item>
+                              }
                             </Accordion>
                           </Droppable>
                         </div>
@@ -2435,6 +2509,36 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                       <button
                         className="add-course-btn"
                         onClick={() => addDeficiencyCourse(course)}
+                      >
+                        +
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {showExemptionsModal && (
+          <div className="modal-overlay">
+            <div className="modal-content-def">
+              <button className="close-button" onClick={() => setShowExemptionsModal(false)}>✕</button>
+              <h3>Add Exempted Courses</h3>
+              <input
+                type="text"
+                placeholder="Search courses..."
+                value={searchDeficiencyQuery}
+                onChange={(e) => setSearchDeficiencyQuery(e.target.value)}
+                className="course-search-input"
+              />
+              <div className="course-list-container">
+                {allCourses
+                  .filter(course => course.code.toLowerCase().includes(searchDeficiencyQuery.toLowerCase()))
+                  .map(course => (
+                    <div key={course.code} className="course-item">
+                      {course.code}
+                      <button
+                        className="add-course-btn"
+                        onClick={() => addExemptionCourse(course)}
                       >
                         +
                       </button>
