@@ -32,9 +32,17 @@
   left: 0;
   width: 400px;
   background-color: rgb(250, 248, 249);
+  display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.popup{
   border-radius: 10px;
+  border: 0;
+  padding: 15%;
+  box-shadow: rgba(0, 0, 0, 1);
+  text-align: center;
 }
 
 @media (max-width: 768px) {
