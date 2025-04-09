@@ -21,7 +21,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Accordion, Button, Container } from "react-bootstrap";
-import { FaUndo, FaRedo, FaClipboard } from "react-icons/fa";
+import { FaUndo, FaRedo, FaClipboard, FaShareSquare  } from "react-icons/fa";
 import warningIcon from '../icons/warning.png'; // Import warning icon
 import downloadIcon from '../icons/download-icon.PNG';
 import saveIcon from '../icons/saveIcon.png';
@@ -1678,7 +1678,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             <>
               {/* Total Credits Display */}
               <div className="credits-display">
-                <div>
+                <div className="timeline-buttons-container">
                   <Button
                     onClick={handleUndo}
                     disabled={history.length === 0}
@@ -1694,10 +1694,11 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                     <FaRedo size={25} />
                   </Button>
                   <button
-                    className='share-timeline-button'
+                    className='download-timeline-button'
                     onClick={toggleShareDialog}
-                    >
-                    Share
+                  >
+                    <FaShareSquare />
+                    <span className="button-text">Share</span>
                   </button>
                   <button className="download-timeline-button" onClick={exportTimelineToPDF}>
                     <img src={downloadIcon} alt="Download" className="button-icon download-icon" />
@@ -1733,7 +1734,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                     Add Deficiencies
                   </button>
                   <button
-                    className="add-exemptions-button"
+                    className="add-deficiencies-button"
                     onClick={() => setShowExemptionsModal(true)}
                   >
                     Add Exemptions
