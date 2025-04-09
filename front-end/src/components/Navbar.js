@@ -7,6 +7,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '../css/Navbar.css';
 import userIcon from '../icons/userIcon2.png';
 import logoutIcon from '../icons/logoutIcon.png';
+import logo from '../images/trackmydegreelogo.png'; // Adjust the path to your logo image
 
 const Navbar = () => {
 	const { isLoggedIn, loading, logout, user } = useContext(AuthContext);
@@ -64,8 +65,8 @@ const Navbar = () => {
     <nav className="navbar navbar-expand-lg custom-navbar custom-navbar-height custom-navbar-padding">
       <div className="container-fluid custom-navbar-left-align">
         <Link className="navbar-brand custom-navbar-brand-left" to="/">
-          <span className="brand-text">TrackMyDegree🎓</span>
-          <span className="brand-emoji">🎓</span>
+        <span className="brand-text">TrackMyDegree</span>
+        <img src={logo} alt="TrackMyDegree Logo" className="navbar-logo" />
         </Link>
         <button
           className="navbar-toggler"
