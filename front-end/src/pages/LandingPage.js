@@ -8,8 +8,14 @@ import {useState} from 'react';
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const [showPopup, setShowPopup] = useState(true);
-  const handleClosePopup = () => setShowPopup(false);
+  const [showPopup, setShowPopup] = useState(() => {
+    return localStorage.getItem('disclaimerAcknowledged') !== 'true';    
+  });
+
+  const handleClosePopup = () => {
+    localStorage.setItem('disclaimerAcknowledged', 'true');
+    setShowPopup(false);
+  };
 
 
   return (
