@@ -81,8 +81,7 @@ const Footer = () => {
         </p>
       </div>
       <p className="footer-text">
-          TrackMyDegree helps Concordia Engineering students visualize and plan
-          their courses with an easy-to-use and interactive UI.
+          Disclaimer: TrackMyDegree🎓 can make mistakes. Click here for more information.
         </p>
         <button
           className="feedback-button"

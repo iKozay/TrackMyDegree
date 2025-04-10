@@ -17,7 +17,6 @@ const LandingPage = () => {
     setShowPopup(false);
   };
 
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -35,9 +34,6 @@ const LandingPage = () => {
             Note that this webiste is an independent helper tool and is not affiliated with Concordia University. 
             It is designed to provide supplementary assistance and should not solely relied upon for acaemic or administrative decisions.
           </p>
-          {/* <p>
-            It is not a concordia affiliated product. 
-          </p> */}
           <button type = "button" className= "popup-button" onClick={handleClosePopup}>Acknowledge</button>
         </div>
       </div>
