@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../middleware/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import '../css/SignUpPage.css';
 import Button from 'react-bootstrap/Button';
 import { motion } from 'framer-motion';
 import { SignUpError } from '../middleware/SentryErrors';
@@ -115,7 +116,7 @@ function SignUpPage() {
             {/* Name Field */}
             <div className="mb-3">
               <label htmlFor="fullname" className="form-label">
-                Full Name:{' '}
+                Full Name{' '}
               </label>
               <input
                 type="fullname"
@@ -130,7 +131,7 @@ function SignUpPage() {
             {/* Email Field*/}
             <div className="mb-3">
               <label htmlFor="email" className="form-label">
-                Email address:{' '}
+                Email address{' '}
               </label>
               <input
                 type="email"
@@ -145,7 +146,7 @@ function SignUpPage() {
             {/* Password Field */}
             <div className="mb-3">
               <label htmlFor="password" className="form-label">
-                Password:
+                Password
               </label>
               <input
                 type="password"
@@ -160,7 +161,7 @@ function SignUpPage() {
             {/* Confirm Password Field */}
             <div className="mb-3">
               <label htmlFor="confirmPassword" className="form-label">
-                Confirm Password:
+                Confirm Password
               </label>
               <input
                 type="password"

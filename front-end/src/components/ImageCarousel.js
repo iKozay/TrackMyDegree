@@ -10,7 +10,7 @@ const images = [pic1, pic2, pic3, pic4];
 
 const ImageCarousel = () => {
   return (
-    <Carousel data-bs-theme="dark" className="carousel-surround">
+    <Carousel pause={false} data-bs-theme="dark" className="carousel-surround">
       {images.map((image, index) => (
         <Carousel.Item key={index}>
           <img
