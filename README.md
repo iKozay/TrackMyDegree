@@ -78,10 +78,15 @@ Port already in use:
 - You can change the port to an available one in the docker compose yml file;
 - Re-run the code from step #2.
 
-### Equity and Diversity Statement
+## Equity and Diversity Statement
 
 At TrackMyDegree, our core belief is that we welcome users from diverse backgrounds, cultural perspectives, races, castes, and genders. We value people with diverse ideas and experiences and intend to provide a safe environment. 
   
 The app is designed to make it intuitive and simple to navigate for all users, regardless of their technical ability. We are dedicated to catering to all groups and providing every user with equal opportunities to plan and use the app without any barriers.
 
+## Disclaimer
+
+TrackMyDegree🎓 can make mistakes. Please check the important information. 
+Note that this website is an independent helper tool and is not affiliated with Concordia University. 
+It is designed to provide supplementary assistance and should not be solely relied upon for academic or administrative decisions.
 
