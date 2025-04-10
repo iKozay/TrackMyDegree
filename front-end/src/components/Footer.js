@@ -89,9 +89,9 @@ const Footer = () => {
                   <>
                     <h3>DISCLAIMER</h3>
                     <p>
-                      TrackMyDegree🎓 can make mistakes. Please check important information. 
-                      Note that this webiste is an independent helper tool and is not affiliated with Concordia University. 
-                      It is designed to provide supplementary assistance and should not solely relied upon for acaemic or administrative decisions.
+                      TrackMyDegree🎓 can make mistakes. Please check the important information. 
+                      Note that this website is an independent helper tool and is not affiliated with Concordia University. 
+                      It is designed to provide supplementary assistance and should not be solely relied upon for academic or administrative decisions.
                     </p>
                     <div className="popup-buttons">
                       <button onClick={hidePopup}>Acknowledge</button>
