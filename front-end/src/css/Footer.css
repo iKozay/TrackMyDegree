@@ -26,6 +26,17 @@
   max-width: 70%;
 }
 
+.disclaimer-button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: white;
+  text-decoration: underline;
+  display: inline;
+  font-size: inherit;
+  cursor: pointer;
+}
+
 .overlay {
   position: fixed;
   top: 0;
