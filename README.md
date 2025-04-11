@@ -12,7 +12,7 @@ TrackMyDegree targets Concordia’s students and advisors, starting with the Gin
 
 ### Demo Video Release 3
 
-https://drive.google.com/file/d/1lEBt27Ah2McjI5Mi5ZY4E11rHdWULGPI/view (video link is open to anyone) Video cannot be embedded in readme, file too large
+https://drive.google.com/file/d/1z2gWQxT7gyvGFVIIjarnzztK6kC56oS7/view?usp=drive_link (video link is open to anyone) Video cannot be embedded in readme, file too large
 
 ### Mockups
 
