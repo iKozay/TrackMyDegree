@@ -83,8 +83,81 @@ describe('SignUpPage', () => {
     expect(screen.getByPlaceholderText('* Confirm your password')).toBeInTheDocument();
   });
 
+  // check alerts
   test('shows alert when fields are empty', () => {
     renderComponent();
+
+    fireEvent.click(screen.getByText('Register'));
+
+    expect(screen.getByText('All fields are required.')).toBeInTheDocument();
+  });
+
+  test('shows alert when name field is missing', () => {
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText('* Enter your email'), {
+      target: { value: 'user@example.com' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
+      target: { value: 'password123' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
+      target: { value: 'password456' },
+    });
+
+    fireEvent.click(screen.getByText('Register'));
+
+    expect(screen.getByText('All fields are required.')).toBeInTheDocument();
+  });
+
+  test('shows alert when email field is missing', () => {
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText('* Enter your full name'), {
+      target: { value: 'John Doe' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
+      target: { value: 'password123' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
+      target: { value: 'password456' },
+    });
+
+    fireEvent.click(screen.getByText('Register'));
+
+    expect(screen.getByText('All fields are required.')).toBeInTheDocument();
+  });
+
+  test('shows alert when password field is missing', () => {
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText('* Enter your full name'), {
+      target: { value: 'John Doe' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your email'), {
+      target: { value: 'user@example.com' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
+      target: { value: 'password456' },
+    });
+
+    fireEvent.click(screen.getByText('Register'));
+
+    expect(screen.getByText('All fields are required.')).toBeInTheDocument();
+  });
+
+  test('shows alert when confirm password field is missing', () => {
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText('* Enter your full name'), {
+      target: { value: 'John Doe' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your email'), {
+      target: { value: 'user@example.com' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
+      target: { value: 'password123' },
+    });
 
     fireEvent.click(screen.getByText('Register'));
 
