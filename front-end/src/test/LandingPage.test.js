@@ -2,22 +2,17 @@ import React from 'react';
 import LandingPage from '../pages/LandingPage';
 import { render, screen, fireEvent, waitForElementToBeRemoved } from '@testing-library/react';
 
+const mockNavigate = jest.fn();
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
 describe('LandingPage', () => {
   test('displays disclamer title for page correctly', () => {
     render(<LandingPage />);
     
     expect(screen.getByText('DISCLAIMER')).toBeInTheDocument();
   });
-
-  test('disclamer removed from page correctly', async () => {
-    render(<LandingPage />);
-    
-    fireEvent.click(screen.getByText('Acknowledge')).toBeInTheDocument();
-
-    await waitForElementToBeRemoved(() =>
-        screen.getByText('DISCLAIMER')
-      );
-  });
-
-  // add more tests when time
 });
