@@ -12,10 +12,10 @@ describe('CourseListPage', () => {
   test('changes degrees in button text', async () => {
     render(<CourseListPage />);
     userEvent.click(screen.getByTestId('degree-dropdown'));
-    userEvent.click(screen.getByText('Computer Engineering'));
+    userEvent.click(screen.getByText('BCompSc Computer Engineering'));
     await waitFor(() => {
       expect(
-        screen.getAllByText('Computer Engineering')[0],
+        screen.getAllByText('BCompSc Computer Engineering')[0],
       ).toBeInTheDocument();
     });
   });
@@ -23,9 +23,9 @@ describe('CourseListPage', () => {
   test('displays accordion on degree selection', async () => {
     render(<CourseListPage />);
     userEvent.click(screen.getByTestId('degree-dropdown'));
-    userEvent.click(screen.getByText('Software Engineering'));
+    userEvent.click(screen.getByText('BEng Software Engineering'));
     await waitFor(() => {
-      expect(screen.getByText('Engineering Core')).toBeInTheDocument();
+      expect(screen.getByText('SOEN - Engineering Core (24.5 credits)')).toBeInTheDocument();
     });
   });
 });
