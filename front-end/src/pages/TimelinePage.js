@@ -215,29 +215,13 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
   let { degree_Id, startingSemester, credits_Required, extendedCredit } = location.state || {};
 
-  console.log("degree_Id: " + degree_Id);
-  console.log("credits_Required: " + credits_Required);
+  // console.log("degree_Id: " + degree_Id);
+  // console.log("credits_Required: " + credits_Required);
 
   // console.log("isExtendedCredit: " + isExtendedCredit);
   // console.log("extendedCredit: " + extendedCredit);
 
-  //load timeline from url
-  useEffect(() => {
-    console.log('location.search changed');
-    const params = new URLSearchParams(location.search);
-    const timelineStringParam = params.get('tstring');
-    console.log(timelineStringParam);
-    if (timelineStringParam) {
-      const [decompressedTimeline, degreeFromUrl, creditsFromUrl, ecpFromUrl] = decompressTimeline(timelineStringParam);
-
-      setTimelineString(timelineStringParam);
-      setSemesterCourses(decompressedTimeline);
-      degree_Id = degreeFromUrl;
-      startingSemester = Object.keys(decompressedTimeline)[1];
-      credits_Required = creditsFromUrl;
-      extendedCredit = ecpFromUrl;
-    }
-  }, [location.search]);
+  
 
   if (isExtendedCredit) {
     extendedCredit = true;
@@ -289,7 +273,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const [deficiencyCredits, setDeficiencyCredits] = useState(0);
   const [deficiencyCourses, setDeficiencyCourses] = useState([]);
   const [exemptionCredits, setExemptionCredits] = useState(0);
-  const [exemptionCourses, setExemptionCrouses] = useState([]);
+  const [exemptionCourses, setExemptionCourses] = useState([]);
+  const [exemptionCodes, setExemptionCodes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const toggleCourseList = () => setShowCourseList((prev) => !prev);
@@ -303,7 +288,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const [showLeaveModal, setShowLeaveModal] = useState(false); // Popup for leave
   const [timelineName, setTimelineName] = useState('');
   const [tempName, setTempName] = useState('');
-
+  const [tempDegId, setTempDegId] = useState(null);
   const [courseInstanceMap, setCourseInstanceMap] = useState({});
   const [uniqueIdCounter, setUniqueIdCounter] = useState(0);
   const [activeCourseCode, setActiveCourseCode] = useState(null);
@@ -328,6 +313,72 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       'MATH206',
     ]
   }
+
+  //load timeline from url
+  useEffect(() => {
+    console.log('location.search changed');
+    const params = new URLSearchParams(location.search);
+    const timelineStringParam = params.get('tstring');
+    console.log(timelineStringParam);
+    if (timelineStringParam) {
+      const [decompressedTimeline, degreeFromUrl, creditsFromUrl, ecpFromUrl] = decompressTimeline(timelineStringParam);
+
+      setTimelineString(timelineStringParam);
+      setSemesterCourses(decompressedTimeline);
+      console.log('reading from url', decompressedTimeline);
+      if (decompressedTimeline.Exempted) {
+        console.log('here');
+        setExemptionCodes(decompressedTimeline.Exempted);
+        // for (const courseCode of decompressedTimeline.Exempted) {
+        //   // addExemptionCourse(allCourses[courseCode]);
+        //   console.log(courseCode);
+        //   console.log(allCourses[courseCode]);
+
+        // }
+      }
+      // console.log('done');
+      degree_Id = degreeFromUrl;
+      setTempDegId(degreeFromUrl)
+      startingSemester = Object.keys(decompressedTimeline)[1];
+      credits_Required = creditsFromUrl;
+      setCredsReq(creditsFromUrl);
+      extendedCredit = ecpFromUrl;
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    const tempId = tempDegId || degree_Id;
+    console.log('allCourses', allCourses);
+    console.log('tempDegId', tempDegId);
+    console.log('exemptionCodes', exemptionCodes);
+    if (allCourses.length > 0 && tempId !== null && exemptionCodes.length > 0) {
+      fetch(`/degree-reqs/${tempId}-requirements.txt`)
+        .then(res => res.text())
+        .then(data => {
+          const courseListData = data.split('\n').map(s => s.trim().replaceAll(' ', ''));
+          console.log(courseListData);
+          for (const code of exemptionCodes) {
+            if (courseListData.includes(code)) {
+              console.log('added', code);
+              addExemptionCourse(allCourses.find(course => course.code === code));
+            }
+          }
+        });
+    }
+  }, [allCourses, tempDegId, degree_Id, exemptionCodes]);
+
+  useEffect(() => {
+    console.log('timelineData', timelineData);
+    if (timelineData.length > 0) {
+      setExemptionCodes(
+        (timelineData.find((semester) => semester.term.toLowerCase() === 'exempted 2020') || {}).courses,
+      );
+    }
+  }, [timelineData]);
+
+  useEffect(() => {
+    console.log('exemptionCodes1', exemptionCodes);
+  }, [exemptionCodes]);
 
   // Handle internal navigation (React)
   useBlocker(({ nextLocation }) => {
@@ -401,6 +452,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       pool.courses.map((course) => course.code.trim().toUpperCase()),
     ),
   );
+
 
   const remainingCourses = allCourses.filter(
     (course) =>
@@ -539,10 +591,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           isExempted = data.term.trim().toLowerCase() === 'exempted 2020';
         }
         // Check the new format: data.season and data.year
-        else if (data.season && data.year) {
-          isExempted =
-            data.season.trim().toLowerCase() === 'exempted' &&
-            parseInt(data.year, 10) === 2020;
+        else if (data.season) {
+          isExempted = data.season.trim().toLowerCase() === 'exempted';
+            //&& parseInt(data.year, 10) === 2020;
         }
 
         // console.log(timelineData);
@@ -1080,7 +1131,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       const poolCreditMap = {};
   
       // Log coursePools to debug
-      console.log('Course Pools:', coursePools);
+      // console.log('Course Pools:', coursePools);
   
       // Initialize each pool with a max credits limit
       coursePools
@@ -1090,20 +1141,20 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             assigned: 0,
             max: parseMaxCreditsFromPoolName(pool.poolName),
           };
-          console.log(`Initialized pool ${pool.poolId}: max = ${parseMaxCreditsFromPoolName(pool.poolName)}`);
+          // console.log(`Initialized pool ${pool.poolId}: max = ${parseMaxCreditsFromPoolName(pool.poolName)}`);
         });
   
       // Initialize 'remaining' pool
       if (!poolCreditMap['remaining']) {
         poolCreditMap['remaining'] = { assigned: 0, max: Infinity };
-        console.log("Initialized 'remaining' pool: max = Infinity");
+        // console.log("Initialized 'remaining' pool: max = Infinity");
       }
   
       for (const semesterId in semesterCourses) {
         if (semesterId.toLowerCase() === 'exempted') continue;
         const courseCodes = semesterCourses[semesterId];
         const currentSemesterIndex = semesters.findIndex((s) => s.id === semesterId);
-        console.log(`Processing semester: ${semesterId} (index ${currentSemesterIndex})`);
+        // console.log(`Processing semester: ${semesterId} (index ${currentSemesterIndex})`);
   
         courseCodes.forEach((instanceId) => {
           const genericCode = courseInstanceMap[instanceId] || instanceId;
@@ -1118,7 +1169,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           }
   
           const credits = course.credits !== undefined ? course.credits : 3;
-          console.log(`Course ${genericCode}: credits = ${credits}`);
+          // console.log(`Course ${genericCode}: credits = ${credits}`);
   
           const prerequisitesMet = arePrerequisitesMet(genericCode, currentSemesterIndex);
           if (!prerequisitesMet) unmetPrereqFound = true;
@@ -1126,12 +1177,12 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           // Dynamically add the pool if it doesn't exist
           if (!poolCreditMap[pool.poolId]) {
             poolCreditMap[pool.poolId] = { assigned: 0, max: Infinity };
-            console.log(`Dynamically added pool ${pool.poolId} with max = Infinity`);
+            // console.log(`Dynamically added pool ${pool.poolId} with max = Infinity`);
           }
   
           const poolData = poolCreditMap[pool.poolId];
           poolData.assigned = Math.min(poolData.max, poolData.assigned + credits);
-          console.log(`Pool ${pool.poolId}: assigned ${credits}, total now ${poolData.assigned} (max ${poolData.max})`);
+          // console.log(`Pool ${pool.poolId}: assigned ${credits}, total now ${poolData.assigned} (max ${poolData.max})`);
         });
       }
   
@@ -1139,8 +1190,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         (sum, poolData) => sum + poolData.assigned,
         0
       );
-      console.log('Final Pool Credit Map:', poolCreditMap);
-      console.log('Calculated Total Credits:', total);
+      // console.log('Final Pool Credit Map:', poolCreditMap);
+      // console.log('Calculated Total Credits:', total);
   
       setTotalCredits(total);
       setHasUnmetPrerequisites(unmetPrereqFound);
@@ -1168,19 +1219,19 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
 
   const addExemptionCourse = (course) => {
-    setExemptionCrouses((prev) => {
+    setExemptionCourses((prev) => {
       if (prev.some((c) => c.code === course.code)) {
         alert("Course already added to exemptions!");
         return prev;
       }
-      alert("Course added to exemptions!");
+      // alert("Course added to exemptions!");
       setExemptionCredits((prevCredits) => prevCredits + (course.credits || 0));
       return [...prev, course];
     });
   };
 
   const removeExemptionCourse = (course) => {
-    setExemptionCrouses((prev) => prev.filter((c) => c.code !== course.code));
+    setExemptionCourses((prev) => prev.filter((c) => c.code !== course.code));
     setExemptionCredits((prev) => prev - (course.credits || 0));
   };
 
@@ -1326,7 +1377,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         return course && course.code ? { courseCode: course.code } : null;
       })
       .filter(Boolean);
-    console.log(deficiencyCoursescode);
+    // console.log(deficiencyCoursescode);
     if (deficiencyCourses.length > 0) {
       finalTimelineData.push({
         season: 'deficiencies',
@@ -1356,13 +1407,13 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     ];
 
     // Debug: log the payload
-    console.log('Saving timeline with payload:', {
-      user_id: user.id,
-      name: tName,
-      items: userTimeline[0].items,
-      degree_id: degree_Id,
-      isExtendedCredit: extendedCredit || false,
-    });
+    // console.log('Saving timeline with payload:', {
+    //   user_id: user.id,
+    //   name: tName,
+    //   items: userTimeline[0].items,
+    //   degree_id: degree_Id,
+    //   isExtendedCredit: extendedCredit || false,
+    // });
 
     const user_id = userTimeline[0].user_id;
     const timelineNameToSend = userTimeline[0].name;
@@ -1638,7 +1689,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   }
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(`${REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id, credits_Required, extendedCredit)}`)
+    navigator.clipboard.writeText(`${REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id, credsReq, extendedCredit)}`)
       .catch(() => alert("Something went wrong"));
     toggleShareDialog();
   }
@@ -2396,7 +2447,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
               <p>Share this timeline!</p>
               <div className="url-and-copy-btn">
                 <div className="url-box">
-                  <p style={{ fontSize: 'small', marginBottom: 0 }}>{`${REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id)}`}</p>
+                  <p style={{ fontSize: 'small', marginBottom: 0 }}>{`${REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id, credsReq, extendedCredit)}`}</p>
                 </div>
                 <Button
                   onClick={copyToClipboard}
