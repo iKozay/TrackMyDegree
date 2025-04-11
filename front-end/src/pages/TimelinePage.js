@@ -316,29 +316,18 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
   //load timeline from url
   useEffect(() => {
-    console.log('location.search changed');
     const params = new URLSearchParams(location.search);
     const timelineStringParam = params.get('tstring');
-    console.log(timelineStringParam);
     if (timelineStringParam) {
       const [decompressedTimeline, degreeFromUrl, creditsFromUrl, ecpFromUrl] = decompressTimeline(timelineStringParam);
 
       setTimelineString(timelineStringParam);
       setSemesterCourses(decompressedTimeline);
-      console.log('reading from url', decompressedTimeline);
       if (decompressedTimeline.Exempted) {
-        console.log('here');
         setExemptionCodes(decompressedTimeline.Exempted);
-        // for (const courseCode of decompressedTimeline.Exempted) {
-        //   // addExemptionCourse(allCourses[courseCode]);
-        //   console.log(courseCode);
-        //   console.log(allCourses[courseCode]);
-
-        // }
       }
-      // console.log('done');
       degree_Id = degreeFromUrl;
-      setTempDegId(degreeFromUrl)
+      setTempDegId(degreeFromUrl);
       startingSemester = Object.keys(decompressedTimeline)[1];
       credits_Required = creditsFromUrl;
       setCredsReq(creditsFromUrl);
@@ -348,9 +337,6 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
   useEffect(() => {
     const tempId = tempDegId || degree_Id;
-    console.log('allCourses', allCourses);
-    console.log('tempDegId', tempDegId);
-    console.log('exemptionCodes', exemptionCodes);
     if (allCourses.length > 0 && tempId !== null && exemptionCodes.length > 0) {
       fetch(`/degree-reqs/${tempId}-requirements.txt`)
         .then(res => res.text())
@@ -368,17 +354,12 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   }, [allCourses, tempDegId, degree_Id, exemptionCodes]);
 
   useEffect(() => {
-    console.log('timelineData', timelineData);
     if (timelineData.length > 0) {
       setExemptionCodes(
         (timelineData.find((semester) => semester.term.toLowerCase() === 'exempted 2020') || {}).courses,
       );
     }
   }, [timelineData]);
-
-  useEffect(() => {
-    console.log('exemptionCodes1', exemptionCodes);
-  }, [exemptionCodes]);
 
   // Handle internal navigation (React)
   useBlocker(({ nextLocation }) => {
