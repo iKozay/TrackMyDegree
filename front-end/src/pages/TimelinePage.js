@@ -574,7 +574,6 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         // Check the new format: data.season and data.year
         else if (data.season) {
           isExempted = data.season.trim().toLowerCase() === 'exempted';
-            //&& parseInt(data.year, 10) === 2020;
         }
 
         // console.log(timelineData);
