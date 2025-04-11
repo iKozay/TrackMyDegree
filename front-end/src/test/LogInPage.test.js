@@ -28,12 +28,27 @@ describe('LogInPage', () => {
     mockNavigate.mockClear();
   });
 
-  test('should render the LogInPage correctly', () => {
+  test('should render the signin text for LogInPage correctly', () => {
     renderComponent();
 
     expect(screen.getByText(/Sign In/i)).toBeInTheDocument();
+  });
+
+  test('should render the email label for LogInPage correctly', () => {
+    renderComponent();
+
     expect(screen.getByLabelText(/Email address/i)).toBeInTheDocument();
+  });
+
+  test('should render the password label for LogInPage correctly', () => {
+    renderComponent();
+
     expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
+  });
+
+  test('should render the submit button for LogInPage correctly', () => {
+    renderComponent();
+
     expect(screen.getByRole('button', { name: /Submit/i })).toBeInTheDocument();
   });
 
