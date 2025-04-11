@@ -377,7 +377,7 @@
   flex-wrap: wrap;
   justify-content: flex-end; /* Align to right */
   align-items: center;
-  flex-grow: 1; /* Take available space */
+  /* flex-grow: 1; */
   min-width: 0; /* Allow shrinking */
 }
 
