@@ -2,7 +2,7 @@ import React from 'react';
 import LandingPage from '../pages/LandingPage';
 import { render, screen, fireEvent, waitForElementToBeRemoved } from '@testing-library/react';
 
-describe('ForgotPassPage', () => {
+describe('LandingPage', () => {
   test('displays disclamer title for page correctly', () => {
     render(<LandingPage />);
     
