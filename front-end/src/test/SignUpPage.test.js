@@ -224,4 +224,18 @@ describe('SignUpPage', () => {
     });
     expect(mockNavigate).toHaveBeenCalledWith('/user');
   });
+
+  // check sign in link
+  test('renders already havea account text for page correctly', async () => {
+    renderComponent();
+
+    expect(screen.getByText('Already have an account? Log in here!')).toBeInTheDocument();
+  });
+
+  test('calls navigate to login on link click', async () => {
+    renderComponent();
+
+    await fireEvent.click(screen.getByText('Already have an account? Log in here!'));
+    expect(mockNavigate).toHaveBeenCalledWith('/signin');
+  });
 });
