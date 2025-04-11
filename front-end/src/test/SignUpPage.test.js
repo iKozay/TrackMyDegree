@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import SignUpPage from '../pages/SignUpPage';
-import { AuthContext } from '../AuthContext'; // Correct path to AuthContext
+import { AuthContext } from '../middleware/AuthContext';
 
 // Mocking the login function and navigate
 const mockLogin = jest.fn();
