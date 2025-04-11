@@ -21,7 +21,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Accordion, Button, Container } from "react-bootstrap";
-import { FaUndo, FaRedo, FaClipboard } from "react-icons/fa";
+import { FaUndo, FaRedo, FaClipboard, FaShareSquare  } from "react-icons/fa";
 import warningIcon from '../icons/warning.png'; // Import warning icon
 import downloadIcon from '../icons/download-icon.PNG';
 import saveIcon from '../icons/saveIcon.png';
@@ -190,6 +190,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
   const [showDeficiencyModal, setShowDeficiencyModal] = useState(false);
+  const [showExemptionsModal, setShowExemptionsModal] = useState(false);
   const [searchDeficiencyQuery, setSearchDeficiencyQuery] = useState('');
   const [semesters, setSemesters] = useState([]);
   const [semesterCourses, setSemesterCourses] = useState({});
@@ -214,29 +215,13 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
   let { degree_Id, startingSemester, credits_Required, extendedCredit } = location.state || {};
 
-  console.log("degree_Id: " + degree_Id);
-  console.log("credits_Required: " + credits_Required);
+  // console.log("degree_Id: " + degree_Id);
+  // console.log("credits_Required: " + credits_Required);
 
   // console.log("isExtendedCredit: " + isExtendedCredit);
   // console.log("extendedCredit: " + extendedCredit);
 
-  //load timeline from url
-  useEffect(() => {
-    console.log('location.search changed');
-    const params = new URLSearchParams(location.search);
-    const timelineStringParam = params.get('tstring');
-    console.log(timelineStringParam);
-    if (timelineStringParam) {
-      const [decompressedTimeline, degreeFromUrl, creditsFromUrl, ecpFromUrl] = decompressTimeline(timelineStringParam);
-
-      setTimelineString(timelineStringParam);
-      setSemesterCourses(decompressedTimeline);
-      degree_Id = degreeFromUrl;
-      startingSemester = Object.keys(decompressedTimeline)[1];
-      credits_Required = creditsFromUrl;
-      extendedCredit = ecpFromUrl;
-    }
-  }, [location.search]);
+  
 
   if (isExtendedCredit) {
     extendedCredit = true;
@@ -287,6 +272,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const [coursePools, setCoursePools] = useState([]);
   const [deficiencyCredits, setDeficiencyCredits] = useState(0);
   const [deficiencyCourses, setDeficiencyCourses] = useState([]);
+  const [exemptionCredits, setExemptionCredits] = useState(0);
+  const [exemptionCourses, setExemptionCourses] = useState([]);
+  const [exemptionCodes, setExemptionCodes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const toggleCourseList = () => setShowCourseList((prev) => !prev);
@@ -294,14 +282,13 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     setShowCourseDescription((prev) => !prev);
 
   const [allCourses, setAllCourses] = useState([]);
-  const [showExempted, setShowExempted] = useState(true);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false); // Track if changes
   const [nextPath, setNextPath] = useState(null); // Track what new page should be
   const [showSaveModal, setShowSaveModal] = useState(false); // Popup for save
   const [showLeaveModal, setShowLeaveModal] = useState(false); // Popup for leave
   const [timelineName, setTimelineName] = useState('');
   const [tempName, setTempName] = useState('');
-
+  const [tempDegId, setTempDegId] = useState(null);
   const [courseInstanceMap, setCourseInstanceMap] = useState({});
   const [uniqueIdCounter, setUniqueIdCounter] = useState(0);
   const [activeCourseCode, setActiveCourseCode] = useState(null);
@@ -326,6 +313,53 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       'MATH206',
     ]
   }
+
+  //load timeline from url
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const timelineStringParam = params.get('tstring');
+    if (timelineStringParam) {
+      const [decompressedTimeline, degreeFromUrl, creditsFromUrl, ecpFromUrl] = decompressTimeline(timelineStringParam);
+
+      setTimelineString(timelineStringParam);
+      setSemesterCourses(decompressedTimeline);
+      if (decompressedTimeline.Exempted) {
+        setExemptionCodes(decompressedTimeline.Exempted);
+      }
+      degree_Id = degreeFromUrl;
+      setTempDegId(degreeFromUrl);
+      startingSemester = Object.keys(decompressedTimeline)[1];
+      credits_Required = creditsFromUrl;
+      setCredsReq(creditsFromUrl);
+      extendedCredit = ecpFromUrl;
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    const tempId = tempDegId || degree_Id;
+    if (allCourses.length > 0 && tempId !== null && exemptionCodes.length > 0) {
+      fetch(`/degree-reqs/${tempId}-requirements.txt`)
+        .then(res => res.text())
+        .then(data => {
+          const courseListData = data.split('\n').map(s => s.trim().replaceAll(' ', ''));
+          console.log(courseListData);
+          for (const code of exemptionCodes) {
+            if (courseListData.includes(code)) {
+              console.log('added', code);
+              addExemptionCourse(allCourses.find(course => course.code === code));
+            }
+          }
+        });
+    }
+  }, [allCourses, tempDegId, degree_Id, exemptionCodes]);
+
+  useEffect(() => {
+    if (timelineData.length > 0) {
+      setExemptionCodes(
+        (timelineData.find((semester) => semester.term.toLowerCase() === 'exempted 2020') || {}).courses,
+      );
+    }
+  }, [timelineData]);
 
   // Handle internal navigation (React)
   useBlocker(({ nextLocation }) => {
@@ -399,6 +433,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       pool.courses.map((course) => course.code.trim().toUpperCase()),
     ),
   );
+
 
   const remainingCourses = allCourses.filter(
     (course) =>
@@ -537,10 +572,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           isExempted = data.term.trim().toLowerCase() === 'exempted 2020';
         }
         // Check the new format: data.season and data.year
-        else if (data.season && data.year) {
-          isExempted =
-            data.season.trim().toLowerCase() === 'exempted' &&
-            parseInt(data.year, 10) === 2020;
+        else if (data.season) {
+          isExempted = data.season.trim().toLowerCase() === 'exempted';
         }
 
         // console.log(timelineData);
@@ -1078,7 +1111,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       const poolCreditMap = {};
   
       // Log coursePools to debug
-      console.log('Course Pools:', coursePools);
+      // console.log('Course Pools:', coursePools);
   
       // Initialize each pool with a max credits limit
       coursePools
@@ -1088,20 +1121,20 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             assigned: 0,
             max: parseMaxCreditsFromPoolName(pool.poolName),
           };
-          console.log(`Initialized pool ${pool.poolId}: max = ${parseMaxCreditsFromPoolName(pool.poolName)}`);
+          // console.log(`Initialized pool ${pool.poolId}: max = ${parseMaxCreditsFromPoolName(pool.poolName)}`);
         });
   
       // Initialize 'remaining' pool
       if (!poolCreditMap['remaining']) {
         poolCreditMap['remaining'] = { assigned: 0, max: Infinity };
-        console.log("Initialized 'remaining' pool: max = Infinity");
+        // console.log("Initialized 'remaining' pool: max = Infinity");
       }
   
       for (const semesterId in semesterCourses) {
         if (semesterId.toLowerCase() === 'exempted') continue;
         const courseCodes = semesterCourses[semesterId];
         const currentSemesterIndex = semesters.findIndex((s) => s.id === semesterId);
-        console.log(`Processing semester: ${semesterId} (index ${currentSemesterIndex})`);
+        // console.log(`Processing semester: ${semesterId} (index ${currentSemesterIndex})`);
   
         courseCodes.forEach((instanceId) => {
           const genericCode = courseInstanceMap[instanceId] || instanceId;
@@ -1116,7 +1149,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           }
   
           const credits = course.credits !== undefined ? course.credits : 3;
-          console.log(`Course ${genericCode}: credits = ${credits}`);
+          // console.log(`Course ${genericCode}: credits = ${credits}`);
   
           const prerequisitesMet = arePrerequisitesMet(genericCode, currentSemesterIndex);
           if (!prerequisitesMet) unmetPrereqFound = true;
@@ -1124,12 +1157,12 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           // Dynamically add the pool if it doesn't exist
           if (!poolCreditMap[pool.poolId]) {
             poolCreditMap[pool.poolId] = { assigned: 0, max: Infinity };
-            console.log(`Dynamically added pool ${pool.poolId} with max = Infinity`);
+            // console.log(`Dynamically added pool ${pool.poolId} with max = Infinity`);
           }
   
           const poolData = poolCreditMap[pool.poolId];
           poolData.assigned = Math.min(poolData.max, poolData.assigned + credits);
-          console.log(`Pool ${pool.poolId}: assigned ${credits}, total now ${poolData.assigned} (max ${poolData.max})`);
+          // console.log(`Pool ${pool.poolId}: assigned ${credits}, total now ${poolData.assigned} (max ${poolData.max})`);
         });
       }
   
@@ -1137,8 +1170,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         (sum, poolData) => sum + poolData.assigned,
         0
       );
-      console.log('Final Pool Credit Map:', poolCreditMap);
-      console.log('Calculated Total Credits:', total);
+      // console.log('Final Pool Credit Map:', poolCreditMap);
+      // console.log('Calculated Total Credits:', total);
   
       setTotalCredits(total);
       setHasUnmetPrerequisites(unmetPrereqFound);
@@ -1164,6 +1197,23 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     setDeficiencyCredits((prev) => prev - (course.credits || 0));
   };
 
+
+  const addExemptionCourse = (course) => {
+    setExemptionCourses((prev) => {
+      if (prev.some((c) => c.code === course.code)) {
+        alert("Course already added to exemptions!");
+        return prev;
+      }
+      // alert("Course added to exemptions!");
+      setExemptionCredits((prevCredits) => prevCredits + (course.credits || 0));
+      return [...prev, course];
+    });
+  };
+
+  const removeExemptionCourse = (course) => {
+    setExemptionCourses((prev) => prev.filter((c) => c.code !== course.code));
+    setExemptionCredits((prev) => prev - (course.credits || 0));
+  };
 
 
   // Function to check if prerequisites and corequisites are met
@@ -1307,7 +1357,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         return course && course.code ? { courseCode: course.code } : null;
       })
       .filter(Boolean);
-    console.log(deficiencyCoursescode);
+    // console.log(deficiencyCoursescode);
     if (deficiencyCourses.length > 0) {
       finalTimelineData.push({
         season: 'deficiencies',
@@ -1337,13 +1387,13 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     ];
 
     // Debug: log the payload
-    console.log('Saving timeline with payload:', {
-      user_id: user.id,
-      name: tName,
-      items: userTimeline[0].items,
-      degree_id: degree_Id,
-      isExtendedCredit: extendedCredit || false,
-    });
+    // console.log('Saving timeline with payload:', {
+    //   user_id: user.id,
+    //   name: tName,
+    //   items: userTimeline[0].items,
+    //   degree_id: degree_Id,
+    //   isExtendedCredit: extendedCredit || false,
+    // });
 
     const user_id = userTimeline[0].user_id;
     const timelineNameToSend = userTimeline[0].name;
@@ -1619,7 +1669,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   }
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(`${process.env.REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id, credits_Required, extendedCredit)}`)
+    navigator.clipboard.writeText(`${REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id, credsReq, extendedCredit)}`)
       .catch(() => alert("Something went wrong"));
     toggleShareDialog();
   }
@@ -1659,30 +1709,35 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             <>
               {/* Total Credits Display */}
               <div className="credits-display">
-                <Button
-                  onClick={handleUndo}
-                  disabled={history.length === 0}
-                  className="icon-btn"
-                >
-                  <FaUndo size={25} />
-                </Button>
-                <Button
-                  onClick={handleRedo}
-                  disabled={future.length === 0}
-                  className="icon-btn"
-                >
-                  <FaRedo size={25} />
-                </Button>
-                <button
-                  className='share-timeline-button'
-                  onClick={toggleShareDialog}
-                >
-                  Share
-                </button>
+                <div className="timeline-buttons-container">
+                  <Button
+                    onClick={handleUndo}
+                    disabled={history.length === 0}
+                    className="icon-btn"
+                    >
+                    <FaUndo size={25} />
+                  </Button>
+                  <Button
+                    onClick={handleRedo}
+                    disabled={future.length === 0}
+                    className="icon-btn"
+                    >
+                    <FaRedo size={25} />
+                  </Button>
+                  <button
+                    className='download-timeline-button'
+                    onClick={toggleShareDialog}
+                  >
+                    <FaShareSquare />
+                    <span className="button-text">Share</span>
+                  </button>
+                  <button className="download-timeline-button" onClick={exportTimelineToPDF}>
+                    <img src={downloadIcon} alt="Download" className="button-icon download-icon" />
+                    <span className="button-text">Download</span>
+                  </button>
+                </div>
                 <h4>
-                  Total Credits Earned: {totalCredits + deficiencyCredits
-                  } /{' '}
-                  {credsReq + deficiencyCredits}
+                  Total Credits Earned: {totalCredits + deficiencyCredits} /{' '}{credsReq + deficiencyCredits - exemptionCredits}
                 </h4>
                 <div className="timeline-buttons-container">
                   <div>
@@ -1710,6 +1765,12 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                     Add Deficiencies
                   </button>
                   <button
+                    className="add-deficiencies-button"
+                    onClick={() => setShowExemptionsModal(true)}
+                  >
+                    Add Exemptions
+                  </button>
+                  <button
                     className="save-timeline-button"
                     onClick={() =>
                       timelineName
@@ -1719,10 +1780,6 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   >
                     <img src={saveIcon} alt="Save" className="button-icon save-icon" />
                     <span className="button-text">Save Timeline</span>
-                  </button>
-                  <button className="download-timeline-button" onClick={exportTimelineToPDF}>
-                    <img src={downloadIcon} alt="Download" className="button-icon download-icon" />
-                    <span className="button-text">Download</span>
                   </button>
                 </div>
               </div>
@@ -1864,53 +1921,102 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                                   </Container>
                                 </Accordion.Body>
                               </Accordion.Item>
-                              <Accordion.Item eventKey="deficiencies">
-                                <Accordion.Header>Deficiency Courses</Accordion.Header>
-                                <Accordion.Body>
-
-                                  <Container>
-                                    {deficiencyCourses.map((course) => {
-                                      const isSelected = selectedCourse?.code === course.code;
-                                      return (
-                                        <div key={`source-deficiency-${course.code}`}>
-                                          <DraggableCourse
-                                            internalId={`source-deficiency-${course.code}`}
-                                            courseCode={course.code}
-                                            title={course.code}
-                                            disabled={isCourseAssigned(course.code)}
-                                            isReturning={returning}
-                                            isSelected={isSelected}
-                                            onSelect={handleCourseSelect}
-                                            containerId="deficiencyList"
-                                            isInTimeline={isCourseAssigned(course.code)}
-                                            removeButton={
-                                              <button
-                                                className={`remove-course-btn ${isSelected ? 'selected' : ''}`}
-                                                onClick={() => removeDeficiencyCourse(course)}
-                                              >
-                                                <svg
-                                                  width="25"
-                                                  height="20"
-                                                  viewBox="0 0 30 24"
-                                                  fill="red"
-                                                  xmlns="http://www.w3.org/2000/svg"
+                              {deficiencyCredits !== 0 &&
+                                <Accordion.Item eventKey="deficiencies">
+                                  <Accordion.Header>Deficiency Courses</Accordion.Header>
+                                  <Accordion.Body>
+                                    <Container>
+                                      {deficiencyCourses.map((course) => {
+                                        const isSelected = selectedCourse?.code === course.code;
+                                        return (
+                                          <div key={`source-deficiency-${course.code}`}>
+                                            <DraggableCourse
+                                              internalId={`source-deficiency-${course.code}`}
+                                              courseCode={course.code}
+                                              title={course.code}
+                                              disabled={isCourseAssigned(course.code)}
+                                              isReturning={returning}
+                                              isSelected={isSelected}
+                                              onSelect={handleCourseSelect}
+                                              containerId="deficiencyList"
+                                              isInTimeline={isCourseAssigned(course.code)}
+                                              removeButton={
+                                                <button
+                                                  className={`remove-course-btn ${isSelected ? 'selected' : ''}`}
+                                                  onClick={() => removeDeficiencyCourse(course)}
                                                 >
-                                                  {isSelected ? (
-                                                    <rect x="2" y="11" width="22" height="4" fill="#912338" />
-                                                  ) : (
-                                                    <rect x="2" y="11" width="22" height="4" fill="white" />
-                                                  )}
-                                                </svg>
-                                              </button>
-                                            }
-                                          />
-                                        </div>
-                                      );
-                                    })}
+                                                  <svg
+                                                    width="25"
+                                                    height="20"
+                                                    viewBox="0 0 30 24"
+                                                    fill="red"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                  >
+                                                    {isSelected ? (
+                                                      <rect x="2" y="11" width="22" height="4" fill="#912338" />
+                                                    ) : (
+                                                      <rect x="2" y="11" width="22" height="4" fill="white" />
+                                                    )}
+                                                  </svg>
+                                                </button>
+                                              }
+                                            />
+                                          </div>
+                                        );
+                                      })}
 
-                                  </Container>
-                                </Accordion.Body>
-                              </Accordion.Item>
+                                    </Container>
+                                  </Accordion.Body>
+                                </Accordion.Item>
+                              }
+                              {exemptionCredits !== 0 &&
+                                <Accordion.Item eventKey="deficiencies">
+                                  <Accordion.Header>Exempted Courses</Accordion.Header>
+                                  <Accordion.Body>
+                                    <Container>
+                                      {exemptionCourses.map((course) => {
+                                        const isSelected = selectedCourse?.code === course.code;
+                                        return (
+                                          <div key={`source-exemption-${course.code}`}>
+                                            <DraggableCourse
+                                              internalId={`source-exemption-${course.code}`}
+                                              courseCode={course.code}
+                                              title={course.code}
+                                              disabled={isCourseAssigned(course.code)}
+                                              isReturning={returning}
+                                              isSelected={isSelected}
+                                              onSelect={handleCourseSelect}
+                                              containerId="exemptionList"
+                                              isInTimeline={isCourseAssigned(course.code)}
+                                              removeButton={
+                                                <button
+                                                  className={`remove-course-btn ${isSelected ? 'selected' : ''}`}
+                                                  onClick={() => removeExemptionCourse(course)}
+                                                >
+                                                  <svg
+                                                    width="25"
+                                                    height="20"
+                                                    viewBox="0 0 30 24"
+                                                    fill="red"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                  >
+                                                    {isSelected ? (
+                                                      <rect x="2" y="11" width="22" height="4" fill="#912338" />
+                                                    ) : (
+                                                      <rect x="2" y="11" width="22" height="4" fill="white" />
+                                                    )}
+                                                  </svg>
+                                                </button>
+                                              }
+                                            />
+                                          </div>
+                                        );
+                                      })}
+
+                                    </Container>
+                                  </Accordion.Body>
+                                </Accordion.Item>
+                              }
                             </Accordion>
                           </Droppable>
                         </div>
@@ -2321,7 +2427,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
               <p>Share this timeline!</p>
               <div className="url-and-copy-btn">
                 <div className="url-box">
-                  <p style={{ fontSize: 'small', marginBottom: 0 }}>{`${REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id)}`}</p>
+                  <p style={{ fontSize: 'small', marginBottom: 0 }}>{`${REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(semesterCourses, degree_Id, credsReq, extendedCredit)}`}</p>
                 </div>
                 <Button
                   onClick={copyToClipboard}
@@ -2435,6 +2541,36 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                       <button
                         className="add-course-btn"
                         onClick={() => addDeficiencyCourse(course)}
+                      >
+                        +
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {showExemptionsModal && (
+          <div className="modal-overlay">
+            <div className="modal-content-def">
+              <button className="close-button" onClick={() => setShowExemptionsModal(false)}>✕</button>
+              <h3>Add Exempted Courses</h3>
+              <input
+                type="text"
+                placeholder="Search courses..."
+                value={searchDeficiencyQuery}
+                onChange={(e) => setSearchDeficiencyQuery(e.target.value)}
+                className="course-search-input"
+              />
+              <div className="course-list-container">
+                {allCourses
+                  .filter(course => course.code.toLowerCase().includes(searchDeficiencyQuery.toLowerCase()))
+                  .map(course => (
+                    <div key={course.code} className="course-item">
+                      {course.code}
+                      <button
+                        className="add-course-btn"
+                        onClick={() => addExemptionCourse(course)}
                       >
                         +
                       </button>

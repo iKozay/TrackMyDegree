@@ -8,9 +8,14 @@ import {useState} from 'react';
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const [showPopup, setShowPopup] = useState(true);
-  const handleClosePopup = () => setShowPopup(false);
+  const [showPopup, setShowPopup] = useState(() => {
+    return localStorage.getItem('disclaimerAcknowledged') !== 'true';    
+  });
 
+  const handleClosePopup = () => {
+    localStorage.setItem('disclaimerAcknowledged', 'true');
+    setShowPopup(false);
+  };
 
   return (
     <motion.div
@@ -25,13 +30,10 @@ const LandingPage = () => {
         <div className = "popup">
           <h2>DISCLAIMER</h2>
           <p>
-            TrackMyDegree🎓 can make mistakes. Please check important information. 
-            Note that this webiste is an independent helper tool and is not affiliated with Concordia University. 
-            It is designed to provide supplementary assistance and should not solely relied upon for acaemic or administrative decisions.
+            TrackMyDegree🎓 can make mistakes. Please check the important information. 
+            Note that this website is an independent helper tool and is not affiliated with Concordia University. 
+            It is designed to provide supplementary assistance and should not be solely relied upon for academic or administrative decisions.
           </p>
-          {/* <p>
-            It is not a concordia affiliated product. 
-          </p> */}
           <button type = "button" className= "popup-button" onClick={handleClosePopup}>Acknowledge</button>
         </div>
       </div>

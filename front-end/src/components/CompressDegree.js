@@ -162,7 +162,7 @@ function decompressTimelineV1(data) {
 
   const parts = data.split(/(?=FW-\d{2})|(?=[FWS]\d{2})|(?=E_)/g);
 
-  console.log('parts:', parts);
+  // console.log('parts:', parts);
 
 
 
@@ -184,8 +184,8 @@ function decompressTimelineV1(data) {
         return;
       } else {
         //exempted
+        currentSemester = EXPAND_DATA.semesters[compressedSemester[0]];
         courses = compressedSemester.slice(2);
-        currentSemester = EXPAND_DATA.semesters[compressedSemester[0]]
       }
     } else {
       courses = compressedSemester.slice(3);

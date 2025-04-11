@@ -26,7 +26,7 @@ const degreeMap = {
  * @returns
  */
 function cleanText(text) {
-  console.log('RAW PAGES: ', text);
+  // console.log('RAW PAGES: ', text);
   // text = text.replace(/^[\s\S]*?(?=Beginning of Undergraduate Record)/, '');
   // text = text.replace(/SPECIAL NOTE:.*?(?=Term GPA)/gis, ''); //? Remove all SPECIAL NOTE sections
   // text = text.replace(/Student Record Web Page.*?(?=\d{1}\/\d{1})/gis, ''); //? Remove all URLs
@@ -54,7 +54,7 @@ function cleanText(text) {
   text = text.replace(/\d{1,2}\/\d{1,2}\/\d{2,4}, \d{1,2}:\d{2} [AP]M/g, '');
   text = text.replace(/Student Record Web Page[\s\S]*?(?=COURSE|(Winter|Fall|Summer) \d{4})/gi, '');
 
-  console.log('PAGES: ', text);
+  // console.log('PAGES: ', text);
   let pages = text.split('[PAGE]');
 
   // for (let i = 0; i < pages.length; i++) {
@@ -111,7 +111,7 @@ function extractAcademicTerms(text) {
   let matchTerm;
 
   while ((matchTerm = regex.termPattern.exec(text)) !== null) {
-    console.log('MATCH TERM: ', matchTerm); //! DEBUG**************************************
+    // console.log('MATCH TERM: ', matchTerm); //! DEBUG**************************************
     const [fullMatch, season, year1, year2] = matchTerm;
     const year = year2 ? `20${year1}-${year2}` : `20${year1}`;
     terms.push({
@@ -141,8 +141,8 @@ function extractTermSeparators(text) {
 
     test_text[matchSeparator.index - 1] = `\n${separators.length - 1}`;
   }
-  console.log('SEPARATOR: ', separators);
-  console.log('TEST TEXT: ', test_text.join(''));
+  // console.log('SEPARATOR: ', separators);
+  // console.log('TEST TEXT: ', test_text.join(''));
 
   return separators;
 }
@@ -159,7 +159,7 @@ function extractAllCourses(text) {
 
   // Regular courses
   while ((match = regex.coursePattern.exec(text)) !== null) {
-    console.log("COURSES MATCH: ", match);
+    // console.log("COURSES MATCH: ", match);
     courses.push({
       code: `${match[1]}${match[2]}`,
       grade: match[5],
@@ -171,7 +171,7 @@ function extractAllCourses(text) {
 
   // Exempted courses
   while ((match = regex.exemptPattern.exec(text)) !== null) {
-    console.log("EXEMPTION MATCH: ", match);
+    // console.log("EXEMPTION MATCH: ", match);
     courses.push({
       code: `${match[1]}${match[2]}`,
       grade: match[3],
@@ -182,7 +182,7 @@ function extractAllCourses(text) {
     });
   }
 
-  console.log('COURSES INFO: ', courses.sort((a, b) => a.position - b.position)); //! DEBUG**************************************
+  // console.log('COURSES INFO: ', courses.sort((a, b) => a.position - b.position)); //! DEBUG**************************************
   const passedCourses = courses.filter((course) => course.status !== "FNS" && course.status !== "DISC" && course.status !== "NR");
 
 
@@ -203,7 +203,7 @@ function extractAllCourses(text) {
 
   fullText = pages.join('');
   const debug_text = pages.join('\n');
-  console.log(debug_text);
+  // console.log(debug_text);
 
   const degreeInfo = extractDegreeInfo(pages[numPages - 2] + pages[numPages - 1]);
   const { name, id } = degreeInfo;

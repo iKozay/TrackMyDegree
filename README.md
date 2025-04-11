@@ -78,10 +78,40 @@ Port already in use:
 - You can change the port to an available one in the docker compose yml file;
 - Re-run the code from step #2.
 
-### Equity and Diversity Statement
+## Equity and Diversity Statement
 
 At TrackMyDegree, our core belief is that we welcome users from diverse backgrounds, cultural perspectives, races, castes, and genders. We value people with diverse ideas and experiences and intend to provide a safe environment. 
   
 The app is designed to make it intuitive and simple to navigate for all users, regardless of their technical ability. We are dedicated to catering to all groups and providing every user with equal opportunities to plan and use the app without any barriers.
 
+## Disclaimer
+
+TrackMyDegree🎓 can make mistakes. Please check the important information. 
+Note that this website is an independent helper tool and is not affiliated with Concordia University. 
+It is designed to provide supplementary assistance and should not be solely relied upon for academic or administrative decisions.
+
+## Privacy Statement for TrackMyDegree.com
+
+**Effective Date:** 2025-04-02
+
+At TrackMyDegree.com, we take your privacy seriously. This privacy statement outlines how we handle and protect your data when using our website.
+
+### Data Collection & Storage
+We only store data essential to providing our services. Specifically:
+- **Account Information:** If you choose to create an account, we store only the necessary credentials to facilitate login and access to your saved data.
+- **Course Sequence Data:** We store non-identifiable course sequences that users voluntarily save. This includes courses taken and their respective dates but does not contain personally identifiable information.
+- **Acceptance Letter/Transcript Uploads:** Users may upload transcripts to extract course information. While transcripts may contain personal data, we do not store, retain, or even view this information. Any personal data is stripped out immediately during processing.
+
+We do not collect or store any personal data unless you explicitly save your course information.
+
+### Data Usage & Sharing
+- Your data is used solely for the purpose of helping you track your degree progress.
+- We do not share, sell, or disclose any stored data to third parties.
+- All stored data is anonymized and cannot be linked to individual users.
+
+### User Control & Deletion
+- You have full control over your saved data.
+- You may delete your course history at any time, after which the data will be permanently removed from our system.
+
+If you have any questions, please contact us at trackmydegree@gmail.com
 
