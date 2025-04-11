@@ -135,6 +135,34 @@ describe('LogInPage', () => {
     expect(mockLogin).not.toHaveBeenCalled();
   });
 
+  // check sign up link
+  test('renders don\'t have an account text for page correctly', async () => {
+    renderComponent();
+
+    expect(screen.getByText('Don\'t have an account? Register here!')).toBeInTheDocument();
+  });
+
+  test('calls navigate to register on link click', async () => {
+    renderComponent();
+
+    await fireEvent.click(screen.getByText('Don\'t have an account? Register here!'));
+    expect(mockNavigate).toHaveBeenCalledWith('/signup');
+  });
+
+  // check forogt password link
+  test('renders forgot password text for page correctly', async () => {
+    renderComponent();
+
+    expect(screen.getByText('Forgot your password?')).toBeInTheDocument();
+  });
+
+  test('calls navigate to forgot password link click', async () => {
+    renderComponent();
+
+    await fireEvent.click(screen.getByText('Forgot your password?'));
+    expect(mockNavigate).toHaveBeenCalledWith('/forgot-password');
+  });
+
   afterAll(() => {
     // Clean up the mock
     global.fetch.mockRestore();
