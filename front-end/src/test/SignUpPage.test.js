@@ -58,6 +58,12 @@ describe('SignUpPage', () => {
     expect(screen.getByText('Confirm Password')).toBeInTheDocument();
   });
 
+  test('renders register button for page correctly', () => {
+    renderComponent();
+
+    expect(screen.getByText('Register')).toBeInTheDocument();
+  });
+
   // field checks
   test('renders enter name placeholder text for page correctly', () => {
     renderComponent();
