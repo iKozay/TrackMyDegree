@@ -9,12 +9,12 @@ const ShowInsights = ({
   deficiencyCredits,
   courseInstanceMap = {},
 }) => {
-  console.log('ShowInsights Props:');
-  console.log('coursePools:', coursePools);
-  console.log('semesterCourses:', semesterCourses);
-  console.log('creditsRequiredProp:', creditsRequiredProp);
-  console.log('deficiencyCredits:', deficiencyCredits);
-  console.log('courseInstanceMap:', courseInstanceMap);
+  // console.log('ShowInsights Props:');
+  // console.log('coursePools:', coursePools);
+  // console.log('semesterCourses:', semesterCourses);
+  // console.log('creditsRequiredProp:', creditsRequiredProp);
+  // console.log('deficiencyCredits:', deficiencyCredits);
+  // console.log('courseInstanceMap:', courseInstanceMap);
 
   if (!courseInstanceMap) {
     console.warn(
@@ -60,10 +60,10 @@ const ShowInsights = ({
     }, 0);
   }, [coursePools]);
 
-  console.log(
-    'Calculated creditsRequired from coursePools:',
-    calculatedCreditsRequired,
-  );
+  // console.log(
+  //   'Calculated creditsRequired from coursePools:',
+  //   calculatedCreditsRequired,
+  // );
 
   const calculateTotalCredits = () => {
     const poolCreditMap = {};
@@ -75,7 +75,7 @@ const ShowInsights = ({
       };
     });
 
-    console.log('Initialized poolCreditMap:', poolCreditMap);
+    // console.log('Initialized poolCreditMap:', poolCreditMap);
 
     const semesterOrder = Object.keys(semesterCourses)
       .filter((semesterId) => semesterId.toLowerCase() !== 'exempted')
@@ -110,9 +110,9 @@ const ShowInsights = ({
         const poolData = poolCreditMap[pool.poolId];
         const newSum = poolData.assigned + (course.credits || 0);
         poolData.assigned = Math.min(poolData.max, newSum);
-        console.log(
-          `Added ${course.credits} credits for ${genericCode} to pool ${pool.poolId}. New assigned: ${poolData.assigned}`,
-        );
+        // console.log(
+        //   `Added ${course.credits} credits for ${genericCode} to pool ${pool.poolId}. New assigned: ${poolData.assigned}`,
+        // );
       });
     });
 
@@ -121,8 +121,8 @@ const ShowInsights = ({
       0,
     );
 
-    console.log('Final poolCreditMap:', poolCreditMap);
-    console.log('Total credits calculated:', total);
+    // console.log('Final poolCreditMap:', poolCreditMap);
+    // console.log('Total credits calculated:', total);
 
     return total;
   };
@@ -190,9 +190,9 @@ const ShowInsights = ({
     const totalAssigned = totalCredits;
     const totalRequired = calculatedCreditsRequired + deficiencyCredits;
 
-    console.log('calculateTotalCreditsProgress:');
-    console.log('totalAssigned:', totalAssigned);
-    console.log('totalRequired:', totalRequired);
+    // console.log('calculateTotalCreditsProgress:');
+    // console.log('totalAssigned:', totalAssigned);
+    // console.log('totalRequired:', totalRequired);
 
     if (totalRequired === 0) {
       console.warn(
@@ -243,7 +243,7 @@ const ShowInsights = ({
     });
 
     const remainingCredits = Math.max(0, totalRequired - totalAssigned);
-    console.log('remainingCredits:', remainingCredits);
+    // console.log('remainingCredits:', remainingCredits);
 
     return [
       {

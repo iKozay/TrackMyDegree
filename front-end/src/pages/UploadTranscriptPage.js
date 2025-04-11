@@ -89,17 +89,17 @@ const UploadTranscript = ({ onDataProcessed }) => {
               degreeId,
               isExtendedCredit,
             }); // Send grouped data to parent
-            console.log('transcriptData from PDF:', transcriptData);
-            console.log('Degree:', degreeInfo);
-            console.log('Degree ID:', degreeId);
-            console.log('Ecp', extractedData.ecp);
+            // console.log('transcriptData from PDF:', transcriptData);
+            // console.log('Degree:', degreeInfo);
+            // console.log('Degree ID:', degreeId);
+            // console.log('Ecp', extractedData.ecp);
             navigate('/timeline_change', {
               state: { coOp: null, extendedCreditCourses: extractedData.ecp },
             }); // Navigate to TimelinePage
           } else {
             setOutput(`<h3>There are no courses to show!</h3>`);
           }
-          console.log(degreeId);
+          // console.log(degreeId);
         });
       });
     };
