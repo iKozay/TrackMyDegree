@@ -2,6 +2,13 @@ import React from 'react';
 import ResetPassPage from '../pages/ResetPassPage';
 import { render, screen, fireEvent } from '@testing-library/react';
 
+const mockNavigate = jest.fn();
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
 describe('ResetPassPage', () => {
   test('displays title for page correctly', () => {
     render(<ResetPassPage />);
