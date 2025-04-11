@@ -162,7 +162,7 @@ function decompressTimelineV1(data) {
 
   const parts = data.split(/(?=FW-\d{2})|(?=[FWS]\d{2})|(?=E_)/g);
 
-  console.log('parts:', parts);
+  // console.log('parts:', parts);
 
 
 
