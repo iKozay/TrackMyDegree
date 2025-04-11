@@ -90,7 +90,7 @@ describe('ResetPassPage', () => {
     expect(screen.getByText('All fields are required.')).toBeInTheDocument();
   });
 
-  test('shows alert when confirm passowrd field is missing', () => {
+  test('shows alert when confirm password field is missing', () => {
     render(<ResetPassPage />);
   
     fireEvent.change(screen.getByPlaceholderText('* Enter your OTP'), {
@@ -108,6 +108,9 @@ describe('ResetPassPage', () => {
   test('shows alert when passwords do not match', () => {
     render(<ResetPassPage />);
   
+    fireEvent.change(screen.getByPlaceholderText('* Enter your OTP'), {
+        target: { value: '1234' },
+      });
     fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
       target: { value: 'password123' },
     });
