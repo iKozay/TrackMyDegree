@@ -1,7 +1,7 @@
 import React from 'react';
 import LogInPage from '../pages/LogInPage';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { AuthContext } from '../AuthContext';
+import { AuthContext } from '../middleware/AuthContext';
 
 // Mocking the login function and useNavigate hook
 const mockLogin = jest.fn();
@@ -28,26 +28,49 @@ describe('LogInPage', () => {
     mockNavigate.mockClear();
   });
 
-  test('should render the LogInPage correctly', () => {
+  test('should render the signin text for LogInPage correctly', () => {
     renderComponent();
 
     expect(screen.getByText(/Sign In/i)).toBeInTheDocument();
+  });
+
+  test('should render the email label for LogInPage correctly', () => {
+    renderComponent();
+
     expect(screen.getByLabelText(/Email address/i)).toBeInTheDocument();
+  });
+
+  test('should render the password label for LogInPage correctly', () => {
+    renderComponent();
+
     expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
+  });
+
+  test('should render the submit button for LogInPage correctly', () => {
+    renderComponent();
+
     expect(screen.getByRole('button', { name: /Submit/i })).toBeInTheDocument();
   });
 
-  test('should update email and password fields correctly', () => {
+  test('should update email field correctly', () => {
     renderComponent();
 
     const emailInput = screen.getByLabelText(/Email address/i);
-    const passwordInput = screen.getByLabelText(/Password/i);
 
     fireEvent.change(emailInput, { target: { value: 'admin@gmail.com' } });
+
+    // email value is updated
+    expect(emailInput.value).toBe('admin@gmail.com');
+  });
+
+  test('should update password field correctly', () => {
+    renderComponent();
+
+    const passwordInput = screen.getByLabelText(/Password/i);
+
     fireEvent.change(passwordInput, { target: { value: 'admin' } });
 
-    // email and password values are updated
-    expect(emailInput.value).toBe('admin@gmail.com');
+    // password value is updated
     expect(passwordInput.value).toBe('admin');
   });
 
@@ -110,6 +133,34 @@ describe('LogInPage', () => {
 
     expect(await screen.findByText('Invalid credentials.')).toBeInTheDocument();
     expect(mockLogin).not.toHaveBeenCalled();
+  });
+
+  // check sign up link
+  test('renders don\'t have an account text for page correctly', async () => {
+    renderComponent();
+
+    expect(screen.getByText('Don\'t have an account? Register here!')).toBeInTheDocument();
+  });
+
+  test('calls navigate to register on link click', async () => {
+    renderComponent();
+
+    await fireEvent.click(screen.getByText('Don\'t have an account? Register here!'));
+    expect(mockNavigate).toHaveBeenCalledWith('/signup');
+  });
+
+  // check forogt password link
+  test('renders forgot password text for page correctly', async () => {
+    renderComponent();
+
+    expect(screen.getByText('Forgot your password?')).toBeInTheDocument();
+  });
+
+  test('calls navigate to forgot password link click', async () => {
+    renderComponent();
+
+    await fireEvent.click(screen.getByText('Forgot your password?'));
+    expect(mockNavigate).toHaveBeenCalledWith('/forgot-password');
   });
 
   afterAll(() => {

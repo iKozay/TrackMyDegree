@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import SignUpPage from '../pages/SignUpPage';
-import { AuthContext } from '../AuthContext'; // Correct path to AuthContext
+import { AuthContext } from '../middleware/AuthContext';
 
 // Mocking the login function and navigate
 const mockLogin = jest.fn();
@@ -27,24 +27,143 @@ describe('SignUpPage', () => {
     global.alert = jest.fn();
   });
 
-  test('renders page correctly', () => {
+  // text checks
+  test('renders signup text for page correctly', () => {
     renderComponent();
 
-    // Check if elements are rendered correctly
     expect(screen.getByText('Sign Up')).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('* Enter your email'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('* Enter your password'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText('* Confirm your password'),
-    ).toBeInTheDocument();
   });
 
+  test('renders enter name label for page correctly', () => {
+    renderComponent();
+
+    expect(screen.getByText('Full Name')).toBeInTheDocument();
+  });
+
+  test('renders enter email label for page correctly', () => {
+    renderComponent();
+
+    expect(screen.getByText('Email Address')).toBeInTheDocument();
+  });
+
+  test('renders enter password label for page correctly', () => {
+    renderComponent();
+
+    expect(screen.getByText('Password')).toBeInTheDocument();
+  });
+
+  test('renders confirm password label for page correctly', () => {
+    renderComponent();
+
+    expect(screen.getByText('Confirm Password')).toBeInTheDocument();
+  });
+
+  test('renders register button for page correctly', () => {
+    renderComponent();
+
+    expect(screen.getByText('Register')).toBeInTheDocument();
+  });
+
+  // field checks
+  test('renders enter name placeholder text for page correctly', () => {
+    renderComponent();
+
+    expect(screen.getByPlaceholderText('* Enter your full name')).toBeInTheDocument();
+  });
+
+  test('renders enter email placeholder text for page correctly', () => {
+    renderComponent();
+
+    expect(screen.getByPlaceholderText('* Enter your email')).toBeInTheDocument();
+  });
+
+  test('renders enter password placeholder text for page correctly', () => {
+    renderComponent();
+
+    expect(screen.getByPlaceholderText('* Enter your password')).toBeInTheDocument();
+  });
+
+  test('renders confirm password placeholder text for page correctly', () => {
+    renderComponent();
+
+    expect(screen.getByPlaceholderText('* Confirm your password')).toBeInTheDocument();
+  });
+
+  // check alerts
   test('shows alert when fields are empty', () => {
     renderComponent();
+
+    fireEvent.click(screen.getByText('Register'));
+
+    expect(screen.getByText('All fields are required.')).toBeInTheDocument();
+  });
+
+  test('shows alert when name field is missing', () => {
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText('* Enter your email'), {
+      target: { value: 'user@example.com' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
+      target: { value: 'password123' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
+      target: { value: 'password123' },
+    });
+
+    fireEvent.click(screen.getByText('Register'));
+
+    expect(screen.getByText('All fields are required.')).toBeInTheDocument();
+  });
+
+  test('shows alert when email field is missing', () => {
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText('* Enter your full name'), {
+      target: { value: 'John Doe' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
+      target: { value: 'password123' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
+      target: { value: 'password123' },
+    });
+
+    fireEvent.click(screen.getByText('Register'));
+
+    expect(screen.getByText('All fields are required.')).toBeInTheDocument();
+  });
+
+  test('shows alert when password field is missing', () => {
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText('* Enter your full name'), {
+      target: { value: 'John Doe' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your email'), {
+      target: { value: 'user@example.com' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
+      target: { value: 'password456' },
+    });
+
+    fireEvent.click(screen.getByText('Register'));
+
+    expect(screen.getByText('All fields are required.')).toBeInTheDocument();
+  });
+
+  test('shows alert when confirm password field is missing', () => {
+    renderComponent();
+
+    fireEvent.change(screen.getByPlaceholderText('* Enter your full name'), {
+      target: { value: 'John Doe' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your email'), {
+      target: { value: 'user@example.com' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
+      target: { value: 'password123' },
+    });
 
     fireEvent.click(screen.getByText('Register'));
 
@@ -110,5 +229,19 @@ describe('SignUpPage', () => {
       });
     });
     expect(mockNavigate).toHaveBeenCalledWith('/user');
+  });
+
+  // check sign in link
+  test('renders already havea account text for page correctly', async () => {
+    renderComponent();
+
+    expect(screen.getByText('Already have an account? Log in here!')).toBeInTheDocument();
+  });
+
+  test('calls navigate to login on link click', async () => {
+    renderComponent();
+
+    await fireEvent.click(screen.getByText('Already have an account? Log in here!'));
+    expect(mockNavigate).toHaveBeenCalledWith('/signin');
   });
 });
