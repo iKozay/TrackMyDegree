@@ -108,7 +108,7 @@ describe('SignUpPage', () => {
       target: { value: 'password123' },
     });
     fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
-      target: { value: 'password456' },
+      target: { value: 'password123' },
     });
 
     fireEvent.click(screen.getByText('Register'));
@@ -126,7 +126,7 @@ describe('SignUpPage', () => {
       target: { value: 'password123' },
     });
     fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
-      target: { value: 'password456' },
+      target: { value: 'password123' },
     });
 
     fireEvent.click(screen.getByText('Register'));
