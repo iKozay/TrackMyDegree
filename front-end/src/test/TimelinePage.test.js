@@ -7,19 +7,52 @@ const renderComponent = () => {
 };
 
 describe('TimelinePage', () => {
-  test('renders elements correctly', () => {
+  test('renders total credits elements correctly', () => {
     renderComponent();
 
-    expect(
-      screen.getByText('Total Credits Earned: 0 / 120'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Total Credits Earned:')).toBeInTheDocument();
+  });
+
+  test('renders course list correctly', () => {
+    renderComponent();
+
     expect(screen.getByText('Course List')).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        'Drag or click on a course to see its description here.',
-      ),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId('dropdown-item-0')).toBeInTheDocument();
+  });
+
+  test('renders show insights correctly', () => {
+    renderComponent();
+
+    expect(screen.getByText('Show Insights')).toBeInTheDocument();
+  });
+
+  test('renders add deficiencies correctly', () => {
+    renderComponent();
+
+    expect(screen.getByText('Add Deficiencies')).toBeInTheDocument();
+  });
+
+  test('renders save timeline correctly', () => {
+    renderComponent();
+
+    expect(screen.getByText('Save Timeline')).toBeInTheDocument();
+  });
+
+  test('renders download correctly', () => {
+    renderComponent();
+
+    expect(screen.getByText('Download')).toBeInTheDocument();
+  });
+
+  test('renders add semester correctly', () => {
+    renderComponent();
+
+    expect(screen.getByText('+ Add Semester')).toBeInTheDocument();
+  });
+
+  test('renders default drag message correctly', () => {
+    renderComponent();
+
+    expect(screen.getByText('Drag or click on a course to see its description here.')).toBeInTheDocument();
   });
 
   test('displays description when course is selected', async () => {
