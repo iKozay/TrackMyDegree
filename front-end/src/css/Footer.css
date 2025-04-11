@@ -26,6 +26,17 @@
   max-width: 70%;
 }
 
+.disclaimer-button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: white;
+  text-decoration: underline;
+  display: inline;
+  font-size: inherit;
+  cursor: pointer;
+}
+
 .overlay {
   position: fixed;
   top: 0;
@@ -45,17 +56,18 @@
   left: 50%;
   transform: translate(-50%, -50%);
   background: white;
-  padding: 2vh 2vw;
+  padding: 20px;
   border-radius: 10px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
   z-index: 1000;
   width: 30vw;
+  min-width: 300px;
 }
 
 .popup-content {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
 }
 
 textarea {
@@ -67,7 +79,8 @@ textarea {
 
 .popup-buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  margin-top: 10px;
 }
 
 .popup-buttons button {
