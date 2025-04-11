@@ -52,17 +52,25 @@ describe('LogInPage', () => {
     expect(screen.getByRole('button', { name: /Submit/i })).toBeInTheDocument();
   });
 
-  test('should update email and password fields correctly', () => {
+  test('should update email field correctly', () => {
     renderComponent();
 
     const emailInput = screen.getByLabelText(/Email address/i);
-    const passwordInput = screen.getByLabelText(/Password/i);
 
     fireEvent.change(emailInput, { target: { value: 'admin@gmail.com' } });
+
+    // email value is updated
+    expect(emailInput.value).toBe('admin@gmail.com');
+  });
+
+  test('should update password field correctly', () => {
+    renderComponent();
+
+    const passwordInput = screen.getByLabelText(/Password/i);
+
     fireEvent.change(passwordInput, { target: { value: 'admin' } });
 
-    // email and password values are updated
-    expect(emailInput.value).toBe('admin@gmail.com');
+    // password value is updated
     expect(passwordInput.value).toBe('admin');
   });
 
