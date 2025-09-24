@@ -10,6 +10,7 @@ chown -R mssql /var/opt/mssql/data
 sleep 10
 
 # Run the initialization script
+# Needs change to pass the password securely. Also the connection is encrypted with '-C' but the password is in plain text.
 /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P 'MySecureP@ss123' -i /docker-entrypoint-initdb.d/init.sql -C
 
 # Wait for SQL Server to exit

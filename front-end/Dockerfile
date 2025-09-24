@@ -11,6 +11,7 @@ COPY package.json ./
 COPY *lock* ./
 
 # Install dependencies
+# npm was previously used but now switched to yarn. I don't know if there was any specific reason for that.
 RUN yarn
 # npm install
 

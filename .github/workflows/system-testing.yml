@@ -1,14 +1,16 @@
+# This workflow focuses on testing but I dont see anything related to creating the docker image for deployment.
+
 name: System Test
 
 on:
   push:
     branches:
       - main
-      - Dev-Release-2
+      - Dev-Release-2 # I think they had a dev branch for each release. We can apply same strategy or just create one single dev branch
   pull_request:
     branches:
       - main
-      - Dev-Release-2
+      - Dev-Release-2 # Same as above
   workflow_dispatch:
 
 jobs:
@@ -19,11 +21,13 @@ jobs:
       - name: Clone Repo
         uses: actions/checkout@v2
 
+      # May need to look into healthchecks for each service to ensure they're fully up before testing instead of a fixed sleep
       - name: Start services with Docker Compose
         run: |
           docker compose -f docker-compose.yml up --build -d
           sleep 10  # Wait briefly to ensure all services are up
-
+      
+      # They have a dedicated container that runs the tests. It then checks its exit code to determine success or failure.
       - name: Run Tests
         run: |
           docker logs $(docker ps -a -q --filter "name=trackmydegree-tests")  # Print test logs for visibility
@@ -33,6 +37,9 @@ jobs:
           fi
           echo "Tests passed successfully."
 
+      # I am not sure what this step is doing. Tried running the command locally and it says invalid filter
+      # I think what they meant to do: docker ps --filter "status=exited"
+      # See: https://docs.docker.com/reference/cli/docker/container/ls/#status
       - name: Check for errors in logs
         run: |
           if [ -n "$(docker ps --filter "status=stopped")" ]; then
@@ -40,5 +47,6 @@ jobs:
             exit 1
           fi
 
+      # Stop and clean up
       - name: Stop and remove Docker Compose services
         run: docker compose down
