@@ -16,6 +16,7 @@ jobs:
     steps:
       # A quick search shows that Droplet is a term used by DigitalOcean for their virtual private servers (VPS).
       # This step connects to the Droplet using SSH and deploys the latest changes using Docker Compose.
+      # TODO: Get access to the server and set up SSH keys in GitHub secrets.
       - name: SSH into Droplet and Deploy
         uses: appleboy/ssh-action@master
         with:

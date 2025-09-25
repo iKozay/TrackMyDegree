@@ -3,6 +3,7 @@ version: '3.8'
 services:
   tests:
     # This builds the test container using a specific Dockerfile for testing. I do not see any Dockerfile.test for front-end.
+    # TODO: include front-end tests as well
     build:
       context: ./Back-End
       dockerfile: Dockerfile.test
@@ -64,7 +65,7 @@ services:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=MySecureP@ss123
       - MSSQL_PID=Developer
-      # This allows the FRONTEND to access the DATABASE directly (potentially bypassing the backend) for CORS using PUBLIC IP
+      # This allows the FRONTEND to talk to the DATABASE directly (potentially bypassing the backend) for CORS using PUBLIC IP
       - CORS_ORIGIN=http://167.71.165.174:3000
     # This exposes port 1433 on the host machine meaning that it is accessible EXTERNALLY. Need to check firewall configurations deployed on server
     ports:

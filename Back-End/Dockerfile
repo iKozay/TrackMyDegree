@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package.json ./
 
 # Prevent ESLint from blocking the build
-# Why??. linting should be done/checked in CI pipeline, not disabled in the Dockerfile.
+# TODO: linting should be done/checked in CI pipeline
 ENV ESLINT_NO_DEV_ERRORS=true
 
 # Clear npm cache and install dependencies

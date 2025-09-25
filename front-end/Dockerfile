@@ -11,7 +11,7 @@ COPY package.json ./
 COPY *lock* ./
 
 # Install dependencies
-# npm was previously used but now switched to yarn. I don't know if there was any specific reason for that.
+# npm was previously used but now switched to yarn. There was an issue with node version and sqlserver. See commmit: 65dca7b3f1ac5c1b7e71232431119c367f57cf2d
 RUN yarn
 # npm install
 
