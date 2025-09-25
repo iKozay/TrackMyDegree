@@ -15,13 +15,14 @@ import {
 // Set the worker source
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
+// UploadTranscript Component - Handles file upload, drag-and-drop, and processing of PDF transcripts
 const UploadTranscript = ({ onDataProcessed }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileName, setFileName] = useState('No file chosen');
   const [output, setOutput] = useState('');
   const fileInputRef = useRef(null); // Reference for the file input
   const navigate = useNavigate(); // Hook to navigate to TimelinePage
-
+    // Handle drag-and-drop events over the upload box
   const handleDragOver = (e) => {
     e.preventDefault();
     e.target.classList.add('dragover');
@@ -30,7 +31,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
   const handleDragLeave = (e) => {
     e.target.classList.remove('dragover');
   };
-
+    // Handle file selection via the file input via the "Browse" button
   const handleDrop = (e) => {
     e.preventDefault();
     e.target.classList.remove('dragover');
@@ -52,7 +53,14 @@ const UploadTranscript = ({ onDataProcessed }) => {
       alert('Please select a valid PDF file.');
     }
   };
-
+    /*
+    * Process the selected PDF file to extract transcript data
+    * @param {File} file - The PDF file to process
+    * Uses extractTranscriptComponents to get terms, courses, separators, degree, and ecp
+    * Uses matchCoursesToTerms to group courses under their respective terms
+    * Stores the transcript data, degree ID, and extended credit info in localStorage
+    * Navigates to TimelinePage with the extracted data
+    * */
   const processFile = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
