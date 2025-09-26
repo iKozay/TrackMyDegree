@@ -3,6 +3,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import UploadTranscript from '../pages/UploadTranscriptPage';
 import { useNavigate } from 'react-router-dom';
+/*
+* UploadTranscriptPage.test.js
+* Unit tests for the UploadTranscriptPage component
+* Tests rendering, file input handling, drag-and-drop, and cancel file upload functionality
+*/
 
 // Mock react-pdf and react-router-dom
 jest.mock('react-pdf', () => ({
@@ -27,11 +32,11 @@ jest.mock('react-pdf', () => ({
     }),
   },
 }));
-
+// Mocking useNavigate from react-router-dom - used for navigation in the component
 jest.mock('react-router-dom', () => ({
   useNavigate: jest.fn(),
 }));
-
+// Test suite for the UploadTranscriptPage component, sets up mocks and resets state before each test
 describe('UploadTranscriptPage', () => {
   let onDataProcessedMock;
   let navigateMock;
@@ -43,7 +48,10 @@ describe('UploadTranscriptPage', () => {
 
     global.alert = jest.fn();
   });
-
+/*
+* test for rendering the component successfully
+* checks for presence of key text elements in the document
+ */
   it('renders the component without crashing', () => {
     render(<UploadTranscript onDataProcessed={onDataProcessedMock} />);
 
@@ -53,7 +61,12 @@ describe('UploadTranscriptPage', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/Upload Transcript/i)).toBeInTheDocument();
   });
-
+/*
+* test for file input change - valid PDF file
+* creates a fake file with .pdf extension and application/pdf type
+* simulates changing the file input to this valid file
+* expects the file name to be displayed as selected
+ */
   it('handles file input change correctly (PDF file)', () => {
     render(<UploadTranscript onDataProcessed={onDataProcessedMock} />);
 
@@ -65,7 +78,12 @@ describe('UploadTranscriptPage', () => {
 
     expect(screen.getByText('File Selected: example.pdf')).toBeInTheDocument();
   });
-
+/*
+* test for file input change - invalid file type
+* creates a fake file with .txt extension and text/plain type
+* simulates changing the file input to this invalid file
+* expects an alert to be shown with the message about valid PDF file
+ */
   it('alerts user for invalid file type', () => {
     render(<UploadTranscript onDataProcessed={onDataProcessedMock} />);
 
@@ -80,7 +98,11 @@ describe('UploadTranscriptPage', () => {
       'Please select a valid PDF file.',
     );
   });
-
+/*
+* test for drag-and-drop file upload - valid PDF file
+* simulates dragging over and dropping a valid PDF file onto the drop box
+* expects the file name to be displayed as selected
+ */
   it('handles drag and drop file upload correctly', () => {
     render(<UploadTranscript onDataProcessed={onDataProcessedMock} />);
 
@@ -95,7 +117,11 @@ describe('UploadTranscriptPage', () => {
 
     expect(screen.getByText('File Selected: example.pdf')).toBeInTheDocument();
   });
-
+/*
+* test for drag-and-drop file upload - invalid file type
+* simulates dropping an invalid .txt file onto the drop box
+* expects an alert to be shown with the message about valid PDF file
+ */
   it('alerts user for invalid drag-and-drop file type', () => {
     render(<UploadTranscript onDataProcessed={onDataProcessedMock} />);
 
@@ -130,7 +156,11 @@ describe('UploadTranscriptPage', () => {
   //   // Ensure navigation occurred
   //   expect(navigateMock).toHaveBeenCalledWith('/timeline_change');
   // });
-
+/*
+* test for cancel button - resets form state
+* simulates selecting a valid PDF file and then clicking the Cancel button
+* expects the file input to be reset and no file selected message to be shown
+ */
   it('resets the form state on cancel', () => {
     render(<UploadTranscript onDataProcessed={onDataProcessedMock} />);
 

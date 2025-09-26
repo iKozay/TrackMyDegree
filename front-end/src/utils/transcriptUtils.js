@@ -102,7 +102,9 @@ function extractDegreeInfo(text) {
 }
 
 /**
- ** Extracts only the acadamic terms from the provided transcript text
+ ** Extracts only the academic terms from the provided transcript text
+ * Used to find all term matches using the term regex pattern defined in regexUtils.js
+ * Terms are returned in the order they were found in the transcript
  * @param {string} text
  * @returns
  */
@@ -125,14 +127,16 @@ function extractAcademicTerms(text) {
 }
 
 /**
- ** Extracts only the separators (headers) of acadamic terms from the provided transcript text
+ ** Extracts only the separators of academic terms from the provided transcript text
+ * Used to find all term separator matches using the separator regex pattern defined in regexUtils.js
+ * Separators are returned in the order they were found in the transcript
  * @param {string} text
  * @returns
  */
 function extractTermSeparators(text) {
   const separators = [];
   let matchSeparator;
-  let test_text = text.split(`/${6}`);
+  let test_text = text.split(`/${6}`); // used in debugging only
 
   while ((matchSeparator = regex.separatorPattern.exec(text)) !== null) {
     separators.push({
@@ -148,7 +152,11 @@ function extractTermSeparators(text) {
 }
 
 /**
- ** Ectract all courses from the transcript text
+ ** Extract all courses from the transcript text
+ * Used to find all course matches using the course regex pattern defined in regexUtils.js
+ * Regular courses and exempted courses are handled separately - they are distinguished by the type field ; Course or Exempted
+ * Only passed and exempted courses are returned (FNS, DISC, NR are filtered out)
+ * Courses are returned in the order they were found in the transcript
  * @param {string} text
  * @returns
  */
@@ -157,7 +165,7 @@ function extractAllCourses(text) {
   const courses = [];
   let match;
 
-  // Regular courses
+  // Find all course matches for regular courses
   while ((match = regex.coursePattern.exec(text)) !== null) {
     // console.log("COURSES MATCH: ", match);
     courses.push({
@@ -169,47 +177,47 @@ function extractAllCourses(text) {
     });
   }
 
-  // Exempted courses
+  // Find all course matches for exempted courses
   while ((match = regex.exemptPattern.exec(text)) !== null) {
     // console.log("EXEMPTION MATCH: ", match);
     courses.push({
       code: `${match[1]}${match[2]}`,
-      grade: match[3],
+      grade: match[3], // this actually holds the course description EX or TRC not the grade - misleading naming
       position: match.index,
       type: 'Exempted',
-      term: 'exempted 2020',
+      term: 'exempted 2020', // all exempted courses are grouped under this term by default
       status: match[6]
     });
   }
 
   // console.log('COURSES INFO: ', courses.sort((a, b) => a.position - b.position)); //! DEBUG**************************************
-  const passedCourses = courses.filter((course) => course.status !== "FNS" && course.status !== "DISC" && course.status !== "NR");
+  const passedCourses = courses.filter((course) => course.status !== "FNS" && course.status !== "DISC" && course.status !== "NR"); // Save only passed and exempted courses (filter out FNS, DISC, NR)
 
 
-  return passedCourses.sort((a, b) => a.position - b.position);
+  return passedCourses.sort((a, b) => a.position - b.position); // returns courses in the order they were found in the transcript
 }
 
 /**
- ** Functions to extract terms, courses, and separators from transcript
- * @param {*} pagesData 
- * @returns 
+ ** Functions to extract terms, courses, and separators from transcript. Used in src/pages/UploadTranscriptPage
+ * @param {*} pagesData
+ * @returns an object containing terms, courses, separators, degree name, degree ID, and extended credit program (ecp) status
  */
  function extractTranscriptComponents(pagesData) {
   let fullText = pagesData.map((p) => `[PAGE] ${p.text}`).join('\n');
-  let pages = cleanText(fullText);
+  let pages = cleanText(fullText); // create an array of pages with only relevant text
   let numPages = pages.length;
   let transcript = false;
   let ecp = null;
 
-  fullText = pages.join('');
+  fullText = pages.join(''); // combine cleaned pages back into a single text block
   const debug_text = pages.join('\n');
   // console.log(debug_text);
 
   const degreeInfo = extractDegreeInfo(pages[numPages - 2] + pages[numPages - 1]);
-  const { name, id } = degreeInfo;
-  const terms = extractAcademicTerms(fullText);
-  const separators = extractTermSeparators(fullText);
-  const courses = extractAllCourses(fullText);
+  const { name, id } = degreeInfo; // destructure degree name and id from the extracted degree info
+  const terms = extractAcademicTerms(fullText); // extract all terms from transcript text
+  const separators = extractTermSeparators(fullText); // find all positions of term separators
+  const courses = extractAllCourses(fullText); // extract all courses (regular and exempted)
   
   // Check if text contains "OFFER OF ADMISSION"
   if (regex.isTranscript(fullText)) {
@@ -235,7 +243,13 @@ function extractAllCourses(text) {
   };
 }
 
-
+/*
+    ** Transform the raw transcript data into the desired format
+    * @param {{ term: string; course: string; grade: string; }[]} transcriptData
+    * @returns {{ term: string; courses: string[]; grade: string; }[]} - Array of objects with term, courses, and total grade (as string)
+    * Groups courses by term and sums their grades
+    * Sorts the result by term in chronological order
+*/
 function transformGradesData(transcriptData) {
   //? First, group courses by term
   const termsMap = transcriptData.reduce((acc, entry) => {
@@ -251,8 +265,8 @@ function transformGradesData(transcriptData) {
   }, {});
 
   const result = Object.keys(termsMap).map(term => {
-      const termData = termsMap[term];
-      const totalCredits = termData.grades.reduce((sum, grade) => sum + grade, 0);
+      const termData = termsMap[term]; // array of courses and credits for the term
+      const totalCredits = termData.grades.reduce((sum, grade) => sum + grade, 0);  // this is in fact total credits using the field named grade from the regex match which contains the credits for the regular course
       
       return {
           term,
@@ -277,10 +291,12 @@ function transformGradesData(transcriptData) {
 
 /**
  ** Match the extracted courses to the corresponding terms
+ * Groups courses under their respective terms based on position
+ * Handles exempted courses separately
  * @param {{ name: string; type: string; position: number; }[]} terms
  * @param {{ code: string; grade: string; position: number; type: string; }[]} courses
  * @param {{ position: number; }[]} separators
- * @returns
+ * @returns {{ term: string; courses: string[]; grade: string; }[]} - Array of objects with term, courses, and total term credits - note that grade is in fact credits
  */
 function matchCoursesToTerms(terms, courses, separators) {
   const exemptions = [];
