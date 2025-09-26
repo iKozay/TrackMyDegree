@@ -4,6 +4,11 @@ import json
 import requests
 import re
 
+#----------------------------------
+#There is code for scraping course data in course data/ Scraping. It might be duplicated with this file.
+#This scraper includes function for cleaning and normalizing text with proper spacing.
+#----------------------------------
+
 # URL of the Concordia Mechanical Engineering courses page
 url = "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-60-engineering-course-descriptions/aerospace-engineering-courses.html#3560"
 

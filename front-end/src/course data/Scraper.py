@@ -4,6 +4,9 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 
+#This Scraper is implemented multiple times in different folders: Course Data, Back-End, Front-End. 
+#This should be cleaned up in the future.
+
 # Set up Chrome options for headless browsing
 chrome_options = Options()
 chrome_options.add_argument('--headless')  # Run browser in headless mode (no GUI)

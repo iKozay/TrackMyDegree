@@ -21,3 +21,5 @@ const soenCourses = [
 ];
 
 export default soenCourses;
+//This is the data for SOEN courses. It seems that this project highly focuses on SOEN program.
+//While other programs have scraper tools to collect data but not provide in detailed courses structure like SOEN program.

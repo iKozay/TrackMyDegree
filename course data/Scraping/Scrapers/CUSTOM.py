@@ -2,6 +2,10 @@ from bs4 import BeautifulSoup
 import json
 import requests
 
+#----------------------------------
+#This CUSTOM SCRAPER is in fact the scraper for scraping English as a Second Language (ESL) courses.
+#----------------------------------
+
 url="https://www.concordia.ca/academics/undergraduate/calendar/current/section-31-faculty-of-arts-and-science/section-31-090-department-of-education/english-as-a-second-language-courses.html#18944"
 
 response = requests.get(url)
@@ -95,5 +99,7 @@ for block in course_blocks:
 output_path = 'esl_courses.json'
 with open(output_path, 'w', encoding='utf-8') as json_file:
     json.dump(courses, json_file, indent=4, ensure_ascii=False)
+#The course data for ESL courses are not displayed in course data/Scraping/course-lists/esl_courses.json. It could be the testing data set does not include
+#students who has ESL courses in their degree plan, so the scraper did not run.
 
 print(f"Scraped data has been saved to {output_path}")
