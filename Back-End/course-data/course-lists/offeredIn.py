@@ -19,12 +19,18 @@ TERM_MAPPING = {
 # USERNAME = os.getenv("OPENDATA_USERNAME", "user")
 # PASSWORD = os.getenv("OPENDATA_PASSWORD", "pass")
 
+
+#This credentials is tested on September 26th 2025 and still working. Data of courses are retrrieved successfully.
+#Using https://opendata.concordia.ca/API/v1/course/schedule/filter/*/BIOL/201 as a test link.
+
 USERNAME = '866';
 PASSWORD = 'cc94383af23d42ea7f5dcc9d0e2c4edc';
 
 
 INPUT_DIR = "./updated_courses/Natural Science Electives"  # Folder containing JSON files
 OUTPUT_DIR = "updated_courses/Natural Science Electives"  # Folder where updated files will be saved
+
+# This getting offered terms offers by Concordia API. Link: https://github.com/opendataConcordiaU/documentation/blob/master/v1/courses/schedule.md
 
 def get_offered_terms(course_code, course_number):
     """Fetch offered terms from the Concordia API and map to human-readable names."""
@@ -103,6 +109,7 @@ def process_file(input_path):
     except Exception as e:
         print(f"[ERROR] Failed to save {output_path}: {str(e)}")
 
+#Multi-threading is implemeted to speed up the processing of files. 
 def process_all_files():
     """Finds all JSON files in the input directory and processes them concurrently."""
     json_files = [os.path.join(INPUT_DIR, f) for f in os.listdir(INPUT_DIR) if f.endswith(".json")]
