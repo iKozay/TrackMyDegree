@@ -184,7 +184,28 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
   );
 };
 
-// Main component
+/**
+ * TimelinePage Component - Interactive timeline builder and editor
+ * 
+ * Data Input Sources:
+ * - UploadTranscript: Receives parsed transcript data (courses, terms, degree info, ECP status)
+ * - UploadAcceptanceLetter: Receives degree selection, starting semester, program flags, exemptions
+ * 
+ * Core Function:
+ * Transforms the extracted/selected data from upload pages into an interactive drag-and-drop 
+ * academic timeline where students can:
+ * - View parsed courses organized by semester
+ * - Drag courses between semesters to plan their schedule  
+ * - Add/remove semesters as needed
+ * - Validate prerequisites and course offerings
+ * - Monitor credit limits and degree progress
+ * 
+ * Key Outputs:
+ * - Visual semester-by-semester course layout
+ * - Academic validation (prerequisites, credit limits, course availability)
+ * - Saveable timeline to backend database
+ * - Shareable timeline URLs and PDF exports
+ */
 const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredit }) => {
   const navigate = useNavigate();
   const [showCourseList, setShowCourseList] = useState(true);
