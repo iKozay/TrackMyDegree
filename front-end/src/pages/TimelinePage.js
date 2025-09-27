@@ -201,10 +201,8 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
  * - Monitor credit limits and degree progress
  * 
  * Key Outputs:
- * - Visual semester-by-semester course layout
- * - Academic validation (prerequisites, credit limits, course availability)
- * - Saveable timeline to backend database
- * - Shareable timeline URLs and PDF exports
+ * Saveable timeline to backend database - this means that the transcript/acceptance data is not 
+ * directly stored, only the timeline of courses is sent to the backend and saved in the database
  */
 const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredit }) => {
   const navigate = useNavigate();
