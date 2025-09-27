@@ -123,6 +123,7 @@ const log = console.log;
 //   }
 // }
 
+// Yassine : This function is to long. It updates, delete, and creates!!
 async function saveTimeline(
   timeline: TimelineTypes.Timeline,
 ): Promise<TimelineTypes.Timeline | undefined> {
@@ -273,7 +274,7 @@ async function getTimelinesByUser(
 
     const timelinesRecords = timelinesResult.recordset;
     if (timelinesRecords.length === 0) return [];
-
+    // Yassine: We need to consider bulk insert!
     const timelines: TimelineTypes.Timeline[] = [];
     for (const tl of timelinesRecords) {
       const itemsResult = await dbConn
