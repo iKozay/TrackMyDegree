@@ -34,7 +34,7 @@ async function updateAppUser(
 ): Promise<appUserTypes.AppUser | undefined> {
   // Establish a database connection
   const conn = await Database.getConnection();
-// consider throwing or returning a specific error value here?
+  // consider throwing or returning a specific error value here?
   if (conn) {
     try {
       // Check if an AppUser with the given id exists
@@ -65,7 +65,7 @@ async function updateAppUser(
                 type = @type 
             WHERE id = @id`,
         );
-// Stores passwords directly on plaintext which could be a security risk here, suggest hashing
+      // Stores passwords directly on plaintext which could be a security risk here, suggest hashing
       // Retrieve and return the updated user data
       const updatedAppUser = await conn
         .request()
@@ -94,14 +94,14 @@ async function updateAppUser(
  */
 async function deleteAppUser(id: string): Promise<string | undefined> {
   const conn = await Database.getConnection();
-// Again, consider throwing or returning a specific error value here
+  // Again, consider throwing or returning a specific error value here
   if (conn) {
     try {
       // Check if an AppUser with the given id exists
       const appUser = await conn
         .request()
         .input('id', Database.msSQL.VarChar, id)
-        .query('SELECT * Fing OM AppUser WHERE id = @id');
+        .query('SELECT * FROM AppUser WHERE id = @id');
 
       if (appUser.recordset.length === 0) {
         throw new Error('AppUser with this id does not exist.');
