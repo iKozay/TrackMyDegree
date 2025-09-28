@@ -42,7 +42,7 @@ Figma: [Here](https://www.figma.com/design/SBv0R8mN0K9N2jVbV42wol/TrackMyDegree-
 | Omar Hammodan                    | 40246598   |                                                   | omar.hammodan@gmail.com        |
 | Sadee Mohammad Shadman           | 40236919   |                                                   | sadeeshadman@gmail.com         |
 | Syed Ayaan Jilani                | 40209519   |                                                   | asadrubina.ra@gmail.com        |
-| Yassine Ibhir                    | 40251116   |                                                   | yibhir101@gmail.com            |
+| Yassine Ibhir                    | 40251116   |  [Yibhir0](https://github.com/Yibhir0)                                                 | yibhir101@gmail.com            |
 | Zeiad Badawy                     | 40247477   | [iKozay](https://github.com/iKozay)               | zeiad.badawy@mail.concordia.ca |
 
 ## Developer Setup Guide
