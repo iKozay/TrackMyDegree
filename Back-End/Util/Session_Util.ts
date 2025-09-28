@@ -61,6 +61,8 @@ function decryptToken(token: SessionToken): string {
  * - FALSE: If the token is invalid
  */
 function verifySession(session: UserHeaders, user: UserHeaders): boolean {
+  // SECURITY: Verify session by comparing user-agent and IP address
+  // This prevents token theft and ensures session is tied to specific device/network
   let valid_session =
     session.agent === user.agent && session.ip_addr === user.ip_addr;
 
