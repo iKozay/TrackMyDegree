@@ -1,7 +1,7 @@
-import Database from '@controllers/DBController/DBController';
+import Database from '@controllers/DBController/DBController'; //Mocro : // database connection manager
 import TimelineTypes from '@controllers/timelineController/timeline_types';
-import { v4 as uuidv4 } from 'uuid';
-import * as Sentry from '@sentry/node';
+import { v4 as uuidv4 } from 'uuid';   // Mocro : generates unique IDs
+import * as Sentry from '@sentry/node'; // Mocro : error monitoring/logging
 
 const log = console.log;
 
