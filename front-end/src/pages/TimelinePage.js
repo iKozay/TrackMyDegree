@@ -998,6 +998,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     const isFromDeficiencyList = sourceContainer === "deficiencyList";
 
     // If dragged from the course list, generate a new unique instance ID
+    // BUG?: The logic mixes instance ID generation with existing ID handling
     if (sourceContainer === 'courseList' || isFromDeficiencyList) {
       const newUniqueId = `${draggedGeneric}-${uniqueIdCounter}`;
       setUniqueIdCounter((prev) => prev + 1);
@@ -1022,6 +1023,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       const updatedSemesters = { ...prevSemesters };
       let overSemesterId, overIndex;
 
+      // TODO: Refactor to reduce duplication using a helper function
       if (over.data.current?.type === 'semester') {
         overSemesterId = over.data.current.containerId;
         // Ensure the target semester exists.
@@ -1078,6 +1080,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       }
 
       // Check if we exceed the limit
+      // TODO: Credit limit checking is mixed into drag-drop logic
+      // Refactor to validateAndWarnCreditLimit(semesterId, courses)
       const overSemesterObj = semesters.find(
         (s) => s.id === overSemesterId,
       );
@@ -1118,6 +1122,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     setReturning(true);
     setHasUnsavedChanges(true);
 
+    // TODO: This filters ALL semesters on every course removal
+    // For timelines with many semesters, this is inefficient (O(n*m))
+    // Consider maintaining a reverse lookup: Map<courseInstanceId, semesterId>
     setSemesterCourses((prevSemesters) => {
       const updatedSemesters = { ...prevSemesters };
       for (const semesterId in updatedSemesters) {
@@ -1146,7 +1153,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   // TODO: Move to constants file
   const ECP_EXTRA_CREDITS = 30; // Extra credits for ECP students
 
-  // TODO: This useEffect is 200+ lines and does too much:
+  // TODO: This useEffect is 200+ lines and is highly inefficient:
   // 1. Parses exempted vs regular courses
   // 2. Builds semester map from timeline data
   // 3. Generates missing empty semesters
@@ -1154,7 +1161,6 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   // 5. Updates multiple state variables
   // TODO: Break into smaller functions: parseExemptions(), buildSemesterMap(), etc.
   // Or extract to custom hook: useTimelineDataProcessor()
-
   useEffect(() => {
     const calculateTotalCredits = () => {
       let unmetPrereqFound = false;
@@ -1267,6 +1273,11 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
 
   // Function to check if prerequisites and corequisites are met
+  // TODO: This function has complex nested logic for checking prerequisites and corequisites
+  // Should be split into:
+  // - checkPrerequisites(course, completedCourses) 
+  // - checkCorequisites(course, availableCourses)
+  // - checkGroupedRequisites(requisites, availableCourses)
   const arePrerequisitesMet = (courseCode, currentSemesterIndex) => {
     const genericCode = courseInstanceMap[courseCode] || courseCode;
     const course = allCourses.find((c) => c.code === genericCode);
@@ -1452,6 +1463,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     const degreeId = degree_Id;
 
     // Save Exempted Courses (if needed)
+    // TODO: Two separate try-catch blocks for exemptions and timeline saves
+    // Consider using Promise.all() to save both simultaneously
+    // Or combine into single transaction with better error recovery
     try {
       const responseExemptions = await fetch(
         `${process.env.REACT_APP_SERVER}/exemption/create`,
