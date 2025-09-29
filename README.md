@@ -31,19 +31,19 @@ Figma: [Here](https://www.figma.com/design/SBv0R8mN0K9N2jVbV42wol/TrackMyDegree-
 
 ### Team members
 
-| Name                             | Student ID | Github ID                                         | Email Adress                   |
-|----------------------------------|------------|---------------------------------------------------|--------------------------------|
-| Abdelmalek Mouhamou              | 40255934   |                                                   | abdelmalekmou@gmail.com        |
-| Anh Thien Nguyen                 | 40122030   | [chrisanhthien](https://github.com/chrisanhthien) | nathien2310@gmail.com          |
-| Beaudelaire Tsoungui Nzodoumkouo | 40216598   | [Tsounguinzo](https://github.com/Tsounguinzo)     | beaudelaire.dev@gmail.com      |
-| Jessica Beauchemin               | 40188873   | [JBeauche](https://github.com/JBeauche)           | jessica.beauchemin01@gmail.com |
-| Miskat Mahmud                    | 40250110   |                                                   | miskatmahmud0@gmail.com        |
-| Mohamed Saidi                    | 40248103   |   [Mohadgb](https://github.com/Mohadgb)                                                | Saidimoha.pro@gmail.com        |
-| Omar Hammodan                    | 40246598   |     [Vega32](https://github.com/Vega32)                                              | omar.hammodan@gmail.com        |
-| Sadee Mohammad Shadman           | 40236919   |   [sadeeshadman](https://github.com/sadeeshadman)                                                | sadeeshadman@gmail.com         |
-| Syed Ayaan Jilani                | 40209519   |    [CS-ION](https://github.com/CS-ION)                                               | asadrubina.ra@gmail.com        |
-| Yassine Ibhir                    | 40251116   |  [Yibhir0](https://github.com/Yibhir0)                                                 | yibhir101@gmail.com            |
-| Zeiad Badawy                     | 40247477   | [iKozay](https://github.com/iKozay)               | zeiad.badawy@mail.concordia.ca |
+| Name                             | Student ID | Github ID                                                   | Email Adress                   |
+|----------------------------------|------------|-------------------------------------------------------------|--------------------------------|
+| Abdelmalek Mouhamou              | 40255934   | [AbdelmalekMouhamou](https://github.com/AbdelmalekMouhamou) | abdelmalekmou@gmail.com        |
+| Anh Thien Nguyen                 | 40122030   | [chrisanhthien](https://github.com/chrisanhthien)           | nathien2310@gmail.com          |
+| Beaudelaire Tsoungui Nzodoumkouo | 40216598   | [Tsounguinzo](https://github.com/Tsounguinzo)               | beaudelaire.dev@gmail.com      |
+| Jessica Beauchemin               | 40188873   | [JBeauche](https://github.com/JBeauche)                     | jessica.beauchemin01@gmail.com |
+| Miskat Mahmud                    | 40250110   | [codedsami](https://github.com/codedsami)                   | miskatmahmud0@gmail.com        |
+| Mohamed Saidi                    | 40248103   | [Mohadgb](https://github.com/Mohadgb)                       | Saidimoha.pro@gmail.com        |
+| Omar Hammodan                    | 40246598   | [Vega32](https://github.com/Vega32)                         | omar.hammodan@gmail.com        |
+| Sadee Mohammad Shadman           | 40236919   | [sadeeshadman](https://github.com/sadeeshadman)             | sadeeshadman@gmail.com         |
+| Syed Ayaan Jilani                | 40209519   | [CS-ION](https://github.com/CS-ION)                         | asadrubina.ra@gmail.com        |
+| Yassine Ibhir                    | 40251116   | [Yibhir0](https://github.com/Yibhir0)                       | yibhir101@gmail.com            |
+| Zeiad Badawy                     | 40247477   | [iKozay](https://github.com/iKozay)                         | zeiad.badawy@mail.concordia.ca |
 
 ## Developer Setup Guide
 
