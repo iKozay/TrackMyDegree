@@ -9,23 +9,26 @@ import * as Sentry from '@sentry/react';
 import { CourseListPageError } from '../middleware/SentryErrors';
 import CourseSectionButton from '../components/SectionModal';
 
+//This page is used to brows courses depending on degree and see relevant data about them
 function CourseListPage() {
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 767);
-  const [showPopup, setShowPopup] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth > 767); //Keeps track of if the site is on desktop or mobile using screen width
+  const [showPopup, setShowPopup] = useState(false); //Used to control a modal (Popup) on mobile
   const [selectedDegree, setSelectedDegree] = useState('Select Degree');
   const [selectedCourse, setSelectedCourse] = useState(null);
-  const [courseList, setCourseList] = useState([]);
-  const [degrees, setDegrees] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); // New state for search input
+  const [courseList, setCourseList] = useState([]); //Courses fetched from the server
+  const [degrees, setDegrees] = useState([]); //List of degrees fetched from the server
+  const [searchTerm, setSearchTerm] = useState(""); //Used to filter courses by title
 
-  const fetchController = useRef(null);
+  const fetchController = useRef(null); //Used to cancel a current search if a new one is being made
 
+  //Checks if the page is loaded on a desktop or smartphone using width
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth > 767);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  //Get degrees from server at the start
   useEffect(() => {
     const getDegrees = async () => {
       try {
@@ -48,13 +51,14 @@ function CourseListPage() {
     getDegrees();
   }, []);
 
+  //This opens a popup if the site is loaded on a smartphone and a course has bee selected
   useEffect(() => {
     if (!isDesktop && selectedCourse) {
       setShowPopup(true);
     }
   }, [isDesktop, selectedCourse]);
 
-  // Fetch courses for a specific degree (grouped by pool)
+  // Fetch courses for a specific degree (grouped by pool). This also cancels any previous searches
   const fetchCourses = async (degreeObj) => {
     if (fetchController.current) {
       fetchController.current.abort();

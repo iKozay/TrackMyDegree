@@ -7,6 +7,7 @@ import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
 import { ForgotPassError } from '../middleware/SentryErrors';
 
+//This page is used to help users that forgot their password. It checks if the email already exists in the database and if it does it redirects them to the ResetPassword page
 function ForgotPassPage() {
   const [email, setEmail] = useState('');
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ function ForgotPassPage() {
 
     // Reset error state
     setError(null);
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 10));//This timeout is most likely to allow React to refresh
 
     // Basic validation checks
     if (email.trim() === '') {

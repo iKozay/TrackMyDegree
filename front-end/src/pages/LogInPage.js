@@ -9,6 +9,7 @@ import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
 import { LoginError } from '../middleware/SentryErrors';
 
+//This is the login page with a standard form that is sent to the server for validation. Redirects to UserPage.js upon success
 function LogInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

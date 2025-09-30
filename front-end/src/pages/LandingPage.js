@@ -6,8 +6,11 @@ import Typewriter from 'typewriter-effect';
 import { motion } from 'framer-motion';
 import {useState} from 'react';
 
+//This is the website's landing page. It serves the purpose of making sure the user acknowledges the disclaimer and allows them to be redirected to the UploadAcceptanceLetter.js page
 const LandingPage = () => {
   const navigate = useNavigate();
+  
+  //This checks local storage to find if the user has acknowledged the disclaimer and pops it up if they didn't
   const [showPopup, setShowPopup] = useState(() => {
     return localStorage.getItem('disclaimerAcknowledged') !== 'true';    
   });
@@ -24,7 +27,7 @@ const LandingPage = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.7 }}
     >
-
+      
       {showPopup && (
       <div className ="popup-container">
         <div className = "popup">

@@ -15,6 +15,8 @@ import {
 // Set the worker source
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
+//Operates the same way as the UploadAcceptanceLetter.js page but with transcripts
+// UploadTranscript Component - Handles file upload, drag-and-drop, and processing of PDF transcripts
 /**
  * UploadTranscript Component - Client-side transcript processing page
  * 
