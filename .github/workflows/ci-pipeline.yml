@@ -71,9 +71,20 @@ jobs:
         run: |
           npm install
 
+      - name: Install dependencies for backend
+        working-directory: ./Back-End
+        run: |
+          npm install
+
       # Here I am running tests again for coverage reporting to SonarCloud
       - name: Run frontend tests with coverage
         working-directory: ./front-end
+        run: |
+          npm test -- --coverage
+
+      # Here I am running tests again for coverage reporting to SonarCloud
+      - name: Run backend tests with coverage
+        working-directory: ./Back-End
         run: |
           npm test -- --coverage
 
