@@ -1,3 +1,15 @@
+/**
+ * Purpose:
+ *  - Small helper/controller module that talks to the CourseXCoursePool (long for XCP part) table.
+ *    Provides functions to create, read, update and delete the mapping between
+ *    courses and course pools.
+ *
+ * Notes:
+ *  - Functions return a DB_OPS enum indicating high-level outcome
+ *  - Errors are logged with console.log and sent to Sentry for monitoring.
+ *  - They separated types for inputs which are declared in CourseXCP_types.d.ts.
+ */
+
 import Database from '@controllers/DBController/DBController';
 import CourseXCPTypes from '@controllers/CourseXCPController/CourseXCP_types';
 import DB_OPS from '@Util/DB_Ops';
@@ -6,6 +18,12 @@ import * as Sentry from '@sentry/node';
 
 const log = console.log;
 
+/**
+ * Insert a new cours in CoursePool record.
+ * - Expects: CourseXCPTypes.CourseXCP { coursecode, coursepool_id, group_id }
+ * - Reults in inserting a row in CourseXCoursePool.
+ * - Returns: DB_OPS.SUCCESS / DB_OPS.MOSTLY_OK / DB_OPS.FAILURE
+ */
 async function createCourseXCP(
   new_record: CourseXCPTypes.CourseXCP,
 ): Promise<DB_OPS> {
@@ -21,6 +39,7 @@ async function createCourseXCP(
         .input('id', Database.msSQL.VarChar, record_id)
         .input('coursecode', Database.msSQL.VarChar, coursecode)
         .input('coursepool', Database.msSQL.VarChar, coursepool_id)
+        // The `|| ''` here doesnt really change the type and is confusing — it ends up using the DB type
         .input('group_id', Database.msSQL.VarChar || '', group_id)
         .query(
           'INSERT INTO CourseXCoursePool \
@@ -31,6 +50,7 @@ async function createCourseXCP(
         );
 
       if (undefined === result.recordset) {
+        // INSERT ran but didnt return the inserted id for some reason
         log('Error inserting courseXcoursepool record: ' + result.recordset);
         Sentry.captureMessage(
           'Error inserting courseXcoursepool record: ' + result.recordset,
@@ -47,13 +67,12 @@ async function createCourseXCP(
 
   return DB_OPS.FAILURE;
 }
-/**
- * Retrieves all course codes for a given course pool ID.
- *
- * @param {string} coursepool_id - The ID of the course pool.
- * @returns {Promise<{ course_codes: string[] } | undefined>}
- */
 
+/**
+ * Fetch all course codes for a given course pool id
+ * - Input: coursepool_id (string)
+ * - Output: { course_codes: string[] } on success, or undefined on error
+ */
 async function getAllCourseXCP(
   coursepool_id: string,
 ): Promise<{ course_codes: string[] } | undefined> {
@@ -69,6 +88,7 @@ async function getAllCourseXCP(
               WHERE coursepool = @coursepool',
         );
 
+      // this essentially builds a simple array of codes from the returned rows
       const codes = [];
       for (let i = 0; i < result.recordset.length; i++) {
         codes.push(result.recordset[i].coursecode);
@@ -85,11 +105,15 @@ async function getAllCourseXCP(
 
   return undefined;
 }
+
 /**
- * Updates a CourseXCoursePool record.
+ * Update existing CourseXCoursePool row.
+ * - Expects: CourseXCPTypes.CourseXCPItem { id, coursecode, coursepool_id, group_id }
+ * - Results in updating row in DB
+ * - Returns: DB_OPS.SUCCESS / DB_OPS.MOSTLY_OK / DB_OPS.FAILURE
  *
- * @param {CourseXCPTypes.CourseXCPItem} update_record - The updated record details.
- * @returns {Promise<DB_OPS>}
+ * SET clause in the SQL should have commas between assignments but
+ *       As written now, SQL lines seems like they lack commas and might cause  syntax error
  */
 async function updateCourseXCP(
   update_record: CourseXCPTypes.CourseXCPItem,
@@ -129,14 +153,15 @@ async function updateCourseXCP(
 
   return DB_OPS.FAILURE;
 }
-/**
- * Removes a CourseXCoursePool record.
- *
- * @param {CourseXCPTypes.CourseXCP} delete_record - The record details to delete.
- * @returns {Promise<DB_OPS>}
- */
 
-async function removeDegreeXCP(
+/**
+ * Delete a CourseXCoursePool mapping
+ *
+ * - Expects: CourseXCPTypes.CourseXCP { coursecode, coursepool_id, group_id }
+ * - Results in deletng row(s) in the DB and retrns deleted.coursecode via OUTPUT.
+ * - Returns: DB_OPS enum signaling result
+ */
+async function removeDegreeXCP( // should be removeCourseXCP?? seems confusing
   delete_record: CourseXCPTypes.CourseXCP,
 ): Promise<DB_OPS> {
   const dbConn = await Database.getConnection();
@@ -175,6 +200,8 @@ async function removeDegreeXCP(
   return DB_OPS.FAILURE;
 }
 
+
+// Exported controller API
 const CourseXCPController = {
   createCourseXCP,
   getAllCourseXCP,

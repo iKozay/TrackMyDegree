@@ -1,3 +1,13 @@
+/**
+ * Purpose:
+ *  - Helpers that read/write the DegreeXCoursePool table.
+ *  - Provides create, read (list), update and delete operations for degree ↔ coursepool mappings.
+ * Notes:
+ *  - Functions return a DB_OPS enum to signal high-level outcome.
+ *  - Errors are logged to console and reported to Sentry.
+ *  - Types for inputs are defined in DegreeXCP_types.d.ts and CoursePool types in coursepool_types.
+ */
+
 import Database from '@controllers/DBController/DBController';
 import DegreeXCPTypes from '@controllers/DegreeXCPController/DegreeXCP_types';
 import CoursePoolTypes from '@controllers/coursepoolController/coursepool_types';
@@ -36,7 +46,7 @@ async function createDegreeXCP(
               (@id, @degree, @coursepool, @creditsRequired)',
         );
 
-      if (undefined === result.recordset) {
+      if (undefined === result.recordset) { // if insert didn't return expected insert id
         log('Error inserting degreeXcoursepool record: ' + result.recordset);
         Sentry.captureMessage(
           'Error inserting degreeXcoursepool record: ' + result.recordset,
@@ -93,6 +103,8 @@ async function getAllDegreeXCP(
  *
  * @param {DegreeXCPTypes.DegreeXCPItem} update_record - The degreeXcoursepool record with updated information.
  * @returns {Promise<DB_OPS>} - The result of the operation (SUCCESS, MOSTLY_OK, or FAILURE).
+ *
+ * here the SET clause in SQL should include commas which it lacks at the moment
  */
 async function updateDegreeXCP(
   update_record: DegreeXCPTypes.DegreeXCPItem,
@@ -176,6 +188,7 @@ async function removeDegreeXCP(
   return DB_OPS.FAILURE;
 }
 
+// Exported controller API
 const DegreeXCPController = {
   createDegreeXCP,
   getAllDegreeXCP,

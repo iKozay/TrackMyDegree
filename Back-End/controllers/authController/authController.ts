@@ -1,3 +1,14 @@
+/**
+ * Purpose:
+ *  - Authentication controller responsible for handling user login, registration,
+ *    password recovery, and role validation (admin check).
+ * Notes:
+ *  - Uses bcrypt for password hashing/validation and nodemailer for email-based OTP.
+ *  - Depends on DBController for database connections.
+ *  - Sentry is used for error tracking across all methods.
+ *  - Types (e.g., Auth.UserInfo) are imported from auth_types.d.ts.
+ */
+
 import Database from '@controllers/DBController/DBController';
 import { randomUUID } from 'crypto';
 import Auth from '@controllers/authController/auth_types'; //types import
@@ -9,6 +20,7 @@ import * as Sentry from '@sentry/node';
 dotenv.config();
 const log = console.log;
 var salt = bcrypt.genSaltSync(10);
+// salt here is generated once at startup nd reused for password hashing.
 
 /**
  * Authenticates a user by verifying their email and password.
@@ -26,6 +38,7 @@ async function authenticate(
   if (authConn) {
     try {
       // Step 1: Query the database for the user by email only
+	  // Only email is queried here, password verification done later via bcrypt.
       const result = await authConn
         .request()
         .input('email', Database.msSQL.VarChar, email)
@@ -124,7 +137,7 @@ async function forgotPassword(
     // Generate OTP (one time pass)
     const otp = Math.floor(1000 + Math.random() * 9000);
     const otpExpire = new Date();
-    otpExpire.setMinutes(otpExpire.getMinutes() + 2); // Set OTP expiry to 2 minutes
+    otpExpire.setMinutes(otpExpire.getMinutes() + 2); // Set OTP expiry to 2 minutes (hard coded)
 
     // Update user record with OTP and expiry
     await authConn
@@ -155,6 +168,9 @@ async function forgotPassword(
 			\nIf you did not request this, please ignore this email.`,
     }; // Change this to URL before adding to production
 
+	  // Email sending logic is coupled directly into this controller
+	  // We should consider moving to a dedicated mailer utility.
+	  
     // Send email
     await transporter.sendMail(mailOptions);
 
@@ -233,6 +249,7 @@ async function isAdmin(user_id: string): Promise<boolean | undefined> {
         const user = result.recordset[0];
 
         return user.type === "admin";
+		  // isAdmin simply checks the "type" field in DB
       }
 
       return false;
@@ -254,3 +271,4 @@ const authController = {
 
 //Default export
 export default authController;
+

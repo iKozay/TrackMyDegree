@@ -1,3 +1,13 @@
+/**
+ * Purpose:
+ *  - Controller module for the AppUser table.
+ *  - Provides functions to update and delete user records.
+ * Notes:
+ *  - Relies on type definitions from appUser_types.d.ts for AppUser shape and roles
+ *  - Errors are logged to Sentry and then rethrown.
+ *  - If `Database.getConnection()` fails, functions just return `undefined` silently.
+ */
+
 import Database from '@controllers/DBController/DBController';
 import appUserTypes from '@controllers/appUserController/appUser_types';
 import * as Sentry from '@sentry/node';
@@ -24,7 +34,7 @@ async function updateAppUser(
 ): Promise<appUserTypes.AppUser | undefined> {
   // Establish a database connection
   const conn = await Database.getConnection();
-
+  // consider throwing or returning a specific error value here?
   if (conn) {
     try {
       // Check if an AppUser with the given id exists
@@ -55,7 +65,7 @@ async function updateAppUser(
                 type = @type 
             WHERE id = @id`,
         );
-
+      // Stores passwords directly on plaintext which could be a security risk here, suggest hashing
       // Retrieve and return the updated user data
       const updatedAppUser = await conn
         .request()
@@ -67,6 +77,9 @@ async function updateAppUser(
       Sentry.captureException(error);
       throw error; // Rethrow any errors encountered
     } finally {
+      // I'd suggest consider awaiting it through
+      // `await conn.close();`
+      // ensures the connection is fully closed before this function resolves
       conn.close(); // Ensure the database connection is closed
     }
   }
@@ -81,7 +94,7 @@ async function updateAppUser(
  */
 async function deleteAppUser(id: string): Promise<string | undefined> {
   const conn = await Database.getConnection();
-
+  // Again, consider throwing or returning a specific error value here
   if (conn) {
     try {
       // Check if an AppUser with the given id exists
@@ -106,6 +119,7 @@ async function deleteAppUser(id: string): Promise<string | undefined> {
       Sentry.captureException(error);
       throw error; // Rethrow any errors encountered
     } finally {
+      // again consider `await conn.close();` to be sure connection has ended
       conn.close(); // Ensure the database connection is always closed
     }
   }
