@@ -1,8 +1,25 @@
+/**
+ * Purpose:
+ *  - Controller module for the Requisite table.
+ *  - Provides functions to create, read, update, and delete course requisites.
+ * Notes:
+ *  - Uses type definitions from requisite_types.d.ts for Requisite shape.
+ *  - Errors are logged to Sentry and then rethrown.
+ *  - If `Database.getConnection()` fails, functions return undefined.
+ *  - Validates courses exist and prevents duplicate requisites.
+ */
+
+
 import Database from '@controllers/DBController/DBController';
 import RequisiteTypes from '@controllers/requisiteController/requisite_types';
 import { randomUUID } from 'crypto';
 import * as Sentry from '@sentry/node';
 
+
+/**
+ * Creates a new course requisite if it does not already exist.
+ * Throws an error if either course does not exist or the requisite is duplicate.
+ */
 async function createRequisite(
   code1: string,
   code2: string,
@@ -12,9 +29,11 @@ async function createRequisite(
 
   if (conn) {
     try {
-      // generate random id
+      // Generate a unique ID for this new requisite entry
+
       const id = randomUUID();
-      // Check if both courses exist
+
+      // Make sure both courses exist in the Course table before linking them
       const coursesCheck = await conn
         .request()
         .input('code1', Database.msSQL.VarChar, code1)
@@ -30,7 +49,7 @@ async function createRequisite(
         );
       }
 
-      // Check if a requisite with the same course combination already exists
+      // Check if this exact course-to-course requisite already exists to avoid duplicates
       const existingRequisite = await conn
         .request()
         .input('code1', Database.msSQL.VarChar, code1)
@@ -46,6 +65,7 @@ async function createRequisite(
         );
       }
 
+      // Insert the new requisite into the database
       await conn
         .request()
         .input('id', Database.msSQL.VarChar, id)
@@ -66,6 +86,8 @@ async function createRequisite(
   }
 }
 
+// This function fetches requisites for a given course.
+// If code2 and type are also provided, it narrows the search further.
 async function readRequisite(
   code1: string,
   code2?: string, // Make code2 optional
@@ -76,7 +98,7 @@ async function readRequisite(
 
   if (conn) {
     try {
-      // Check if code1 exists
+      // Validate that code1 actually exists in the Course table
       const coursesCheck = await conn
         .request()
         .input('code1', Database.msSQL.VarChar, code1).query(`
@@ -89,7 +111,7 @@ async function readRequisite(
         throw new Error(`Course '${code1}' does not exist.`);
       }
 
-      // If code2 and type are provided, search using all parameters
+      // If both code2 and type are provided, search using all parameters
       if (code2 && type) {
         const existingRequisite = await conn
           .request()
@@ -102,7 +124,7 @@ async function readRequisite(
 
         return existingRequisite.recordset; // Return all matching requisites
       } else {
-        // If only code1 is provided, search for requisites with code1
+        // Otherwise, return all requisites where code1 is the first course
         const existingRequisite = await conn
           .request()
           .input('code1', Database.msSQL.VarChar, code1)
@@ -119,6 +141,7 @@ async function readRequisite(
   }
 }
 
+// Update an existing requisite with new course and type values
 async function updateRequisite(
   code1: string,
   code2: string,
@@ -128,7 +151,7 @@ async function updateRequisite(
 
   if (conn) {
     try {
-      // Check if both courses exist
+      // Confirm both courses exist before updating
       const coursesCheck = await conn
         .request()
         .input('code1', Database.msSQL.VarChar, code1)
@@ -144,7 +167,7 @@ async function updateRequisite(
         );
       }
 
-      // Check if a requisite with the same course combination already exists
+      // Check if the new combination already exists to prevent duplicates
       const existingRequisite = await conn
         .request()
         .input('code1', Database.msSQL.VarChar, code1)
@@ -161,6 +184,7 @@ async function updateRequisite(
       }
 
       // Update the requisite with the new attributes
+      // Perform the update on the Requisite table
       await conn
         .request()
         .input('code1', Database.msSQL.VarChar, code1)
@@ -171,6 +195,7 @@ async function updateRequisite(
         );
 
       // Return the updated requisite
+      // Fetch and return the updated requisite entry
       const updatedRequisite = await conn
         .request()
         .input('code1', Database.msSQL.VarChar, code1)
@@ -190,6 +215,7 @@ async function updateRequisite(
   }
 }
 
+// Delete a requisite if it exists for the given course combination and type
 async function deleteRequisite(
   code1: string,
   code2: string,
@@ -199,7 +225,7 @@ async function deleteRequisite(
 
   if (conn) {
     try {
-      // Check if a requisite with the given id exists
+      // First, check if this requisite actually exists
       const requisite = await conn
         .request()
         .input('code1', Database.msSQL.VarChar, code1)
@@ -213,7 +239,7 @@ async function deleteRequisite(
         throw new Error('Requisite with this id does not exist.');
       }
 
-      // Delete the requisite
+      // If it exists, delete the entry from the table
       await conn
         .request()
         .input('code1', Database.msSQL.VarChar, code1)
@@ -223,7 +249,7 @@ async function deleteRequisite(
           'DELETE FROM Requisite WHERE code1 = @code1 AND code2 = @code2 AND type = @type',
         );
 
-      // Return success message
+      // Confirm deletion with a success message
       return `Requisite with the course combination provided has been successfully deleted.`;
     } catch (error) {
       Sentry.captureException(error);
