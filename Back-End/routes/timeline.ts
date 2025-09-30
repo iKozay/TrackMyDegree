@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import timelineController from '@controllers/timelineController/timelineController';
 import HTTP from '@Util/HTTPCodes';
-
+//Yassine: The router can be just call the appropriate controller to handle everything. 
 const router = express.Router();
 
 // Mocro : POST /save → Save or update a timeline
@@ -15,6 +15,9 @@ const router = express.Router();
 //        1. Move validation to a middleware to remove repeated code
 //        2. Use a centralized async error handler instead of try/catch in each route
 //        3. Consider using PUT for updates and POST for creation to follow REST
+// Yassine: We need to use proper http methods!
+// Save (or update) a timeline.
+// The entire timeline (including items and courses) is passed in the JSON body.
 router.post('/save', async (req: Request, res: Response) => {
   const { timeline } = req.body;
   if (!timeline || Object.keys(timeline).length === 0) {
@@ -46,6 +49,7 @@ router.post('/save', async (req: Request, res: Response) => {
 //        2. Move validation to middleware
 //        3. Use centralized async handler to remove try/catch
 //        4. Add pagination if user has many timelines
+// get not post
 router.post('/getAll', async (req: Request, res: Response) => {
   const { user_id } = req.body;
   if (!user_id || Object.keys(user_id).length === 0) {
@@ -78,6 +82,7 @@ router.post('/getAll', async (req: Request, res: Response) => {
 //        2. Move validation to middleware
 //        3. Centralize async error handling
 //        4. Standardize HTTP responses instead of parsing result string
+//delete not post
 router.post('/delete', async (req: Request, res: Response) => {
   const { timeline_id } = req.body;
 

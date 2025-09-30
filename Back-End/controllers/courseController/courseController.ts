@@ -1,3 +1,14 @@
+/**
+ * Purpose:
+ *  - Course controller responsible for managing courses and their requisites.
+ *    Provides functions to fetch, add, delete, and group courses
+ * Notes:
+ *  - Integrates Redis for caching heavy queries (getAll, byDegree, etc.).
+ *  - Relies on DBController for SQL Server interactions
+ *  - Sentry is used for eror tracking and monitoring.
+ *  - Types (e.g., CourseTypes.CourseInfo) are imported from course_types.d.ts.
+ */
+
 import Database from '@controllers/DBController/DBController';
 import CourseTypes from './course_types';
 import * as Sentry from '@sentry/node';
@@ -88,6 +99,8 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
           };
         }
 
+        // Only pushes requisites when both code1 and code2 exist. 
+        // If there is a requisite with only one side populated it will be skipped.
 
         if (course.requisite_code1 && course.requisite_code2) {
           acc[courseCode].requisites.push({
@@ -198,6 +211,9 @@ async function addCourse(
   if (dbConn) {
     const { code, title, credits, description } = courseInfo;
 
+    // using a boolean check for credits will reject 0. Although I believe 0 credit courses do not exist
+    // non credits courses may be confused with and hence rejected
+    // consider checking credits == null instead.
     if (!code || !title || !credits || !description) {
       throw new Error('Missing required course data');
     }
@@ -363,6 +379,8 @@ async function getCoursesByDegreeGrouped(
 
     try {
       // Cache the result in Redis for 3600 seconds (1 hour)
+      // This comment above says 1 hour but in reality I believe they later extended to 604800s (1 week)
+      // We may change TTL if needed
       await redisClient.setEx(cacheKey, 604800, JSON.stringify(resultData));
     } catch (cacheError) {
       Sentry.captureException(new Error('Error writing to Redis cache'));
@@ -457,6 +475,7 @@ async function getAllCoursesInDB(): Promise<
       const resultData = Object.values(coursesMap) as CourseTypes.CourseInfo[];
 
       // Cache the result in Redis for 1 hour (3600 seconds)
+      // Also 1 week here
       try {
         await redisClient.setEx(cacheKey, 604800, JSON.stringify(resultData));
       } catch (cacheError) {

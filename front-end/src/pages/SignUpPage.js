@@ -7,6 +7,7 @@ import Button from 'react-bootstrap/Button';
 import { motion } from 'framer-motion';
 import { SignUpError } from '../middleware/SentryErrors';
 
+//Similar to the login page. It's just a form that sends the data to the server to be treated there. Redirects to UserPage.js on success
 function SignUpPage() {
   const [fullname, setfullname] = useState('');
   const [email, setEmail] = useState('');

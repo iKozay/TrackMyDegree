@@ -39,6 +39,7 @@ import { compressTimeline, decompressTimeline } from '../components/CompressDegr
 
 const REACT_APP_CLIENT = process.env.REACT_APP_CLIENT || 'localhost:3000' // Set client URL
 
+// TODO: Exxtracting these components to a separate file (components/DraggableCourse.js etc.)
 
 // DraggableCourse component for course list items
 const DraggableCourse = ({
@@ -123,6 +124,7 @@ const SortableCourse = ({
     }${isDraggingFromSemester ? ' dragging-from-semester' : ''}${isSelected ? ' selected' : ''
     }`;
 
+  // TODO: This function is recreated on every render, move outside component
   const getWarningMessage = () => {
     const warnings = [];
     if (!prerequisitesMet) {
@@ -184,8 +186,36 @@ const Droppable = ({ id, children, className = 'semester-spot' }) => {
   );
 };
 
-// Main component
+// TODO: This component is too large. Should be split into (in my opinion):
+// - TimelineHeader (title, credits, action buttons)
+// - CourseSidebar (left panel with course pools)
+// - SemesterGrid (main drag-drop area)
+// - CourseDescriptionPanel (right sidebar)
+// This would improve maintainability and enable better code reuse
+
+/**
+ * TimelinePage Component - Interactive timeline builder and editor
+ * 
+ * Data Input Sources:
+ * - UploadTranscript: Receives parsed transcript data (courses, terms, degree info, ECP status)
+ * - UploadAcceptanceLetter: Receives degree selection, starting semester, program flags, exemptions
+ * 
+ * Core Function:
+ * Transforms the extracted/selected data from upload pages into an interactive drag-and-drop 
+ * academic timeline where students can:
+ * - View parsed courses organized by semester
+ * - Drag courses between semesters to plan their schedule  
+ * - Add/remove semesters as needed
+ * - Validate prerequisites and course offerings
+ * - Monitor credit limits and degree progress
+ * 
+ * Key Outputs:
+ * Saveable timeline to backend database - this means that the transcript/acceptance data is not 
+ * directly stored, only the timeline of courses is sent to the backend and saved in the database
+ */
 const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredit }) => {
+
+  // TODO: Too many use state hooks that are tighly coupled, consider useReducer or splitting into smaller components
   const navigate = useNavigate();
   const [showCourseList, setShowCourseList] = useState(true);
   const [showCourseDescription, setShowCourseDescription] = useState(true);
@@ -293,7 +323,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const [uniqueIdCounter, setUniqueIdCounter] = useState(0);
   const [activeCourseCode, setActiveCourseCode] = useState(null);
 
-
+  // TODO: This class contains a lot of lists that can be moved to a separate config file
   let DEFAULT_EXEMPTED_COURSES = [];
   if (!extendedCredit) {
     DEFAULT_EXEMPTED_COURSES = [
@@ -456,6 +486,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const sensors = useSensors(mouseSensor, touchSensor);
 
   // Helper function to generate 2 years of semesters (6 semesters for 3 terms per year)
+  // TODO: Extract to a utility file - this function has no dependency
+  // TODO: 12 should be constant: NUM_SEMESTERS_TO_GENERATE
   const generateFourYearSemesters = (startSem) => {
     const termOrder = ['Winter', 'Summer', 'Fall'];
     const parts = startSem.split(' ');
@@ -564,6 +596,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         })
         : null);
 
+    // TODO: Use Array.reduce() or flatMap() for clearer data transformation
     if (timlineInfo) {
       timlineInfo.forEach((data) => {
         let isExempted = false;
@@ -800,6 +833,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const [shakingSemesterId, setShakingSemesterId] = useState(null);
 
   // ---------------- ADD / REMOVE Semesters ----------------
+  // TODO: Extract to config file
+  // BUG?: SEASON_ORDER uses Fall_Winter, but rest of code uses "Fall/Winter" 
   const SEASON_ORDER = {
     Winter: 1,
     Fall_Winter: 2,
@@ -947,6 +982,11 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     }, 2000);
   };
 
+  // TODO: Extract into smaller functions:
+  // - determineDropTarget(over) -> returns {semesterId, index}
+  // - validateCoursePlacement(course, semesterId) -> returns {valid, reason}
+  // - updateCoursesInSemester(semesterId, courses) -> handles state update
+  // - checkAndWarnCreditLimit(semesterId) -> validates credit constraints
   const handleDragEnd = (event) => {
     const { active, over } = event;
     const uniqueId = String(active.id); // courseCode
@@ -958,6 +998,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     const isFromDeficiencyList = sourceContainer === "deficiencyList";
 
     // If dragged from the course list, generate a new unique instance ID
+    // BUG?: The logic mixes instance ID generation with existing ID handling
     if (sourceContainer === 'courseList' || isFromDeficiencyList) {
       const newUniqueId = `${draggedGeneric}-${uniqueIdCounter}`;
       setUniqueIdCounter((prev) => prev + 1);
@@ -982,6 +1023,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       const updatedSemesters = { ...prevSemesters };
       let overSemesterId, overIndex;
 
+      // TODO: Refactor to reduce duplication using a helper function
       if (over.data.current?.type === 'semester') {
         overSemesterId = over.data.current.containerId;
         // Ensure the target semester exists.
@@ -1038,6 +1080,8 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       }
 
       // Check if we exceed the limit
+      // TODO: Credit limit checking is mixed into drag-drop logic
+      // Refactor to validateAndWarnCreditLimit(semesterId, courses)
       const overSemesterObj = semesters.find(
         (s) => s.id === overSemesterId,
       );
@@ -1078,6 +1122,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     setReturning(true);
     setHasUnsavedChanges(true);
 
+    // TODO: This filters ALL semesters on every course removal
+    // For timelines with many semesters, this is inefficient (O(n*m))
+    // Consider maintaining a reverse lookup: Map<courseInstanceId, semesterId>
     setSemesterCourses((prevSemesters) => {
       const updatedSemesters = { ...prevSemesters };
       for (const semesterId in updatedSemesters) {
@@ -1103,8 +1150,17 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   };
 
 
+  // TODO: Move to constants file
   const ECP_EXTRA_CREDITS = 30; // Extra credits for ECP students
 
+  // TODO: This useEffect is 200+ lines and is highly inefficient:
+  // 1. Parses exempted vs regular courses
+  // 2. Builds semester map from timeline data
+  // 3. Generates missing empty semesters
+  // 4. Sorts all semesters
+  // 5. Updates multiple state variables
+  // TODO: Break into smaller functions: parseExemptions(), buildSemesterMap(), etc.
+  // Or extract to custom hook: useTimelineDataProcessor()
   useEffect(() => {
     const calculateTotalCredits = () => {
       let unmetPrereqFound = false;
@@ -1217,6 +1273,11 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
 
   // Function to check if prerequisites and corequisites are met
+  // TODO: This function has complex nested logic for checking prerequisites and corequisites
+  // Should be split into:
+  // - checkPrerequisites(course, completedCourses) 
+  // - checkCorequisites(course, availableCourses)
+  // - checkGroupedRequisites(requisites, availableCourses)
   const arePrerequisitesMet = (courseCode, currentSemesterIndex) => {
     const genericCode = courseInstanceMap[courseCode] || courseCode;
     const course = allCourses.find((c) => c.code === genericCode);
@@ -1402,6 +1463,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     const degreeId = degree_Id;
 
     // Save Exempted Courses (if needed)
+    // TODO: Two separate try-catch blocks for exemptions and timeline saves
+    // Consider using Promise.all() to save both simultaneously
+    // Or combine into single transaction with better error recovery
     try {
       const responseExemptions = await fetch(
         `${process.env.REACT_APP_SERVER}/exemption/create`,
