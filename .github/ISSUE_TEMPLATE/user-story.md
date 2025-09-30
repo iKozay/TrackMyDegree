@@ -13,12 +13,6 @@ assignees: ''
 **I want** [goal/action]  
 **So that** [benefit/value]  
 
-## Story Details
-- **Story Points:**  
-- **Ideal Hours:**  
-- **Priority (1–5):**  
-- **Risk (Low / Medium / High):**  
-
 ## Linked Epic
 Epic: #
 
