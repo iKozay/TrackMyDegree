@@ -18,7 +18,7 @@ What needs to be done?
 - [ ] Step 3
 
 ## Linked User Story
-Story: #
+- #123
 
 ## Definition of Done
 - [ ] Code complete
