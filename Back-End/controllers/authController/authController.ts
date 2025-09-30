@@ -54,6 +54,7 @@ async function authenticate(
         if (isPasswordValid) {
           return user; // Authentication successful
         } else {
+          // SECURITY: password should not be logged
           log('Incorrect email or password', email, password);
         }
       } else {
@@ -74,6 +75,8 @@ async function authenticate(
  * @param {Auth.UserInfo} userInfo - Object containing user details (email, password, fullname, type).
  * @returns {Promise<{ id: string } | undefined>} - The newly created user's ID, or undefined if registration fails.
  */
+// IMPROVEMENT: verify user email - maybe use magic link
+// IMPROVEMENT: strong password enforcement
 async function registerUser(
   userInfo: Auth.UserInfo,
 ): Promise<{ id: string } | undefined> {

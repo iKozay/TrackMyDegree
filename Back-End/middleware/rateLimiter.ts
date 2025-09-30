@@ -22,7 +22,7 @@ const resetPasswordLimiter = rateLimit({
 const loginLimiter = rateLimit({
 	windowMs: 1 * 60 * 1000, // 1 min window
 	max: 5, // Attempt to login in 5 times a minute
-	message: { error: "Too many password reset attempts. Try again later." },
+	message: { error: "Too many login attempts. Try again later." },
 	standardHeaders: true,
 	legacyHeaders: false,
 });
@@ -31,7 +31,7 @@ const loginLimiter = rateLimit({
 const signupLimiter = rateLimit({
 	windowMs: 1 * 60 * 1000,
 	max: 5,
-	message: { error: "Too many password reset attempts. Try again later." },
+	message: { error: "Too many signup attempts. Try again later." },
 	standardHeaders: true,
 	legacyHeaders: false,
 });
