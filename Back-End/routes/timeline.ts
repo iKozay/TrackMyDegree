@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express';
 import timelineController from '@controllers/timelineController/timelineController';
 import HTTP from '@Util/HTTPCodes';
+import { validateTimelineBody, validateUserId, validateTimelineId } from '@middleware/timelineValidators';
+
 //Yassine: The router can be just call the appropriate controller to handle everything. 
 const router = express.Router();
 
