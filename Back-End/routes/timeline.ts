@@ -37,6 +37,31 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
+router.put('/:timelineId', async (req: Request, res: Response) => {
+  const { timelineId } = req.params;
+  const { timeline } = req.body;
+
+  if (!timeline || Object.keys(timeline).length === 0) {
+    return res.status(400).json({ error: 'Timeline data is required' });
+  }
+
+  try {
+    // Reuse existing saveTimeline for update
+    timeline.id = timelineId; // Ensure the timeline object has the correct ID
+    const savedTimeline = await timelineController.saveTimeline(timeline);
+
+    if (savedTimeline) {
+      return res.status(200).json(savedTimeline);
+    } else {
+      return res.status(500).json({ error: 'Could not save/update timeline' });
+    }
+  } catch (error) {
+    console.error('Error updating timeline:', error);
+    return res.status(500).json({ error: 'Could not save/update timeline' });
+  }
+});
+
+
 // Mocro : POST /getAll → Get all timelines for a user
 // Mocro : Expects 'user_id' in the JSON body
 // Mocro : Current behavior:
