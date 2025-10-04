@@ -6,7 +6,12 @@ import { validateTimelineBody, validateUserId, validateTimelineId } from '@middl
 
 const router = express.Router();
 
-// POST / → Save a new timeline
+/**
+ * POST /api/timeline
+ * Creates a new timeline.
+ * Body: { timeline: {...} }
+ */
+
 router.post(
   '/',
   validateTimelineBody,
@@ -27,7 +32,12 @@ router.post(
   })
 );
 
-// PUT /:timelineId → Update a timeline
+/**
+ * PUT /api/timeline/:timelineId
+ * Updates an existing timeline using the provided ID.
+ * Body: { timeline: {...} }
+ */
+
 router.put(
   '/:timelineId',
   validateTimelineBody,
@@ -50,7 +60,11 @@ router.put(
   })
 );
 
-// GET /user/:userId → Get timelines for a user
+/**
+ * GET /api/timeline/user/:userId
+ * Retrieves all timelines for the specified user.
+ */
+
 router.get(
   '/user/:userId',
   validateUserId,
@@ -66,7 +80,11 @@ router.get(
   })
 );
 
-// DELETE /:timelineId → Delete a timeline
+/**
+ * DELETE /api/timeline/:timelineId
+ * Deletes a timeline by its ID.
+ */
+
 router.delete(
   '/:timelineId',
   validateTimelineId,
