@@ -18,7 +18,7 @@ const router = express.Router();
 // Yassine: We need to use proper http methods!
 // Save (or update) a timeline.
 // The entire timeline (including items and courses) is passed in the JSON body.
-router.post('/save', async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   const { timeline } = req.body;
   if (!timeline || Object.keys(timeline).length === 0) {
     res.status(HTTP.BAD_REQUEST).json({ error: 'Timeline data is required' });
@@ -50,7 +50,8 @@ router.post('/save', async (req: Request, res: Response) => {
 //        3. Use centralized async handler to remove try/catch
 //        4. Add pagination if user has many timelines
 // get not post
-router.post('/getAll', async (req: Request, res: Response) => {
+router.get('/user/:userId', async (req: Request, res: Response) => {
+  const { userId } = req.params;
   const { user_id } = req.body;
   if (!user_id || Object.keys(user_id).length === 0) {
     res.status(HTTP.BAD_REQUEST).json({ error: 'User ID is required' });
@@ -83,7 +84,8 @@ router.post('/getAll', async (req: Request, res: Response) => {
 //        3. Centralize async error handling
 //        4. Standardize HTTP responses instead of parsing result string
 //delete not post
-router.post('/delete', async (req: Request, res: Response) => {
+router.delete('/:timelineId', async (req: Request, res: Response) => {
+  const { timelineId } = req.params;
   const { timeline_id } = req.body;
 
   if (!timeline_id) {
