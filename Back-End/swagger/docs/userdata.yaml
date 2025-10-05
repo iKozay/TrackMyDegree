@@ -1,5 +1,5 @@
 paths:
-  /userdata/userdata:
+  /data/userdata:
     post:
       summary: Get user data by user ID
       tags:

@@ -39,7 +39,7 @@ paths:
     get:
       summary: Destroy user session and clear JWT cookie
       tags:
-        - Auth
+        - Session
       responses:
         '200':
           description: Session destroyed successfully

@@ -1,3 +1,9 @@
+openapi: 3.0.0
+info:
+  title: Deficiency API
+  version: 1.0.0
+  description: API for managing user deficiencies
+
 paths:
   /deficiency/create:
     post:
@@ -90,3 +96,31 @@ paths:
           description: Forbidden (deficiency does not exist)
         500:
           description: Internal server error
+
+components:
+  schemas:
+    DeficiencyResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Deficiency created successfully'
+        deficiency:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 'd123'
+            user_id:
+              type: string
+              example: '12345'
+            coursepool:
+              type: string
+              example: 'SOEN-Core'
+            creditsRequired:
+              type: number
+              example: 6
+            createdAt:
+              type: string
+              format: date-time
+              example: '2025-10-04T12:00:00Z'
