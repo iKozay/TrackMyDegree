@@ -61,7 +61,7 @@ services:
     user: root  # Ensure the container runs as root for initialization
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD_FILE=/run/secrets/sql_server_password
+      - MSSQL_SA_PASSWORD_FILE=/run/secrets/sql_server_password
       - MSSQL_PID=Developer
       # This allows the FRONTEND to talk to the DATABASE directly (potentially bypassing the backend) for CORS using PUBLIC IP
       - CORS_ORIGIN=http://167.71.165.174:3000

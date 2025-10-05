@@ -424,11 +424,9 @@ export const getTableRecords = async (
 
 let dbPassword = process.env.DB_PASSWORD; // default to env var
 // If SQL_SERVER_PASSWORD_FILE is set, read the password from the specified file
-console.log('Default dbPassword from .env file', dbPassword);
 if (process.env.SQL_SERVER_PASSWORD_FILE) {
   try {
     dbPassword = fs.readFileSync(process.env.SQL_SERVER_PASSWORD_FILE, 'utf-8').trim();
-    console.log('dbPassword overridden from file:', process.env.SQL_SERVER_PASSWORD_FILE, ' value:', dbPassword);
     } catch (e) {
       console.error('Error reading dbPassword from file:', e);
   }
