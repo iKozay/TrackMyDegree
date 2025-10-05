@@ -13,7 +13,7 @@ async function getCourseSchedule(subject: string, catalog: string) {
         // Build the authentication header using credentials stored in environment variables
         // The API requires Basic Auth, so we encode username:password as base64
         const authHeader = 'Basic ' + Buffer.from(
-            `${process.env.SCHEDULE_USER}:${process.env.SCHEDULE_PASS}`
+            `${process.env.SCHEDULE_USER}:${process.env.SCHEDULE_PASS!}`
         ).toString('base64');
 
         // Send GET request to Concordia's schedule API with subject + catalog

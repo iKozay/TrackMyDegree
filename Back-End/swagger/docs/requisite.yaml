@@ -1,0 +1,172 @@
+openapi: 3.0.0
+info:
+  title: Requisite API
+  version: 1.0.0
+  description: API for managing course requisites
+
+tags:
+  - name: Requisite
+    description: Routes for creating, reading, updating, and deleting requisites
+
+paths:
+  /requisite/create:
+    post:
+      summary: Create a new course requisite
+      tags:
+        - Requisite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code1:
+                  type: string
+                  example: 'COMP248'
+                code2:
+                  type: string
+                  example: 'MATH204'
+                type:
+                  type: string
+                  example: 'prerequisite'
+      responses:
+        '201':
+          description: Requisite created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  requisite:
+                    type: object
+        '400':
+          description: Invalid input
+        '403':
+          description: Requisite already exists
+        '500':
+          description: Internal server error
+
+  /requisite/read:
+    post:
+      summary: Read requisites for a course
+      tags:
+        - Requisite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code1:
+                  type: string
+                  example: 'COMP248'
+                code2:
+                  type: string
+                  nullable: true
+                  example: 'MATH204'
+                type:
+                  type: string
+                  nullable: true
+                  example: 'prerequisite'
+      responses:
+        '200':
+          description: Requisites read successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  requisites:
+                    type: array
+                    items:
+                      type: object
+        '400':
+          description: Invalid input
+        '403':
+          description: Requisite does not exist
+        '500':
+          description: Internal server error
+
+  /requisite/update:
+    post:
+      summary: Update an existing course requisite
+      tags:
+        - Requisite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code1:
+                  type: string
+                  example: 'COMP248'
+                code2:
+                  type: string
+                  example: 'MATH204'
+                type:
+                  type: string
+                  example: 'prerequisite'
+      responses:
+        '200':
+          description: Requisite updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  requisite:
+                    type: object
+        '400':
+          description: Invalid input
+        '403':
+          description: Requisite does not exist
+        '500':
+          description: Internal server error
+
+  /requisite/delete:
+    post:
+      summary: Delete a course requisite
+      tags:
+        - Requisite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code1:
+                  type: string
+                  example: 'COMP248'
+                code2:
+                  type: string
+                  example: 'MATH204'
+                type:
+                  type: string
+                  example: 'prerequisite'
+      responses:
+        '200':
+          description: Requisite deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Invalid input
+        '403':
+          description: Requisite does not exist
+        '500':
+          description: Internal server error

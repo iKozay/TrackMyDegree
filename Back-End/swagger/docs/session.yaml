@@ -1,0 +1,52 @@
+paths:
+  /session/refresh:
+    get:
+      summary: Refresh user session and JWT cookie
+      tags:
+        - Session
+      responses:
+        '200':
+          description: Session refreshed successfully, returns user info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  type:
+                    type: string
+        '401':
+          description: Unauthorized. Invalid or expired token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /session/destroy:
+    get:
+      summary: Destroy user session and clear JWT cookie
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Session destroyed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string

@@ -1,0 +1,180 @@
+openapi: 3.0.0
+info:
+  title: Auth API
+  version: 1.0.0
+paths:
+  /auth/login:
+    post:
+      summary: Login a user
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  example: myPassword123
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: '1234'
+                  email:
+                    type: string
+                    example: user@example.com
+                  fullname:
+                    type: string
+                    example: John Doe
+                  degree:
+                    type: string
+                    example: SOEN
+                  type:
+                    type: string
+                    example: student
+        '400':
+          description: Email and password are required
+        '401':
+          description: Incorrect email or password
+        '500':
+          description: Internal server error
+
+  /auth/signup:
+    post:
+      summary: Sign up a new user
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - fullname
+                - type
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: newuser@example.com
+                password:
+                  type: string
+                  format: password
+                  example: myPassword123
+                fullname:
+                  type: string
+                  example: John Doe
+                degree:
+                  type: string
+                  example: SOEN
+                type:
+                  type: string
+                  enum: [student, advisor, admin]
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: '1234'
+                  email:
+                    type: string
+                    example: newuser@example.com
+                  fullname:
+                    type: string
+                    example: John Doe
+                  degree:
+                    type: string
+                    example: SOEN
+                  type:
+                    type: string
+                    example: student
+        '400':
+          description: Invalid input
+        '500':
+          description: Internal server error
+
+  /auth/forgot-password:
+    post:
+      summary: Request a password reset email
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+      responses:
+        '202':
+          description: Password reset email sent
+        '400':
+          description: Request body cannot be empty
+        '500':
+          description: Internal server error
+
+  /auth/reset-password:
+    post:
+      summary: Reset a user password
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - otp
+                - password
+                - confirmPassword
+              properties:
+                otp:
+                  type: string
+                  example: '123456'
+                password:
+                  type: string
+                  format: password
+                  example: newPassword123
+                confirmPassword:
+                  type: string
+                  format: password
+                  example: newPassword123
+      responses:
+        '202':
+          description: Password reset successfully
+        '400':
+          description: Request body cannot be empty
+        '500':
+          description: Internal server error

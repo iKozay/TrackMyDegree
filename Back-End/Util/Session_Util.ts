@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-const session_algo = process.env.SESSION_ALGO as crypto.CipherGCMTypes;
+const session_algo = process.env.SESSION_ALGO! as crypto.CipherGCMTypes;
 
 export type SessionToken = {
   key: string;
@@ -14,7 +14,7 @@ export type UserHeaders = {
 };
 
 function getEncryptionKey() {
-  const secret = process.env.JWT_SECRET || 'default-secret';
+  const secret = process.env.JWT_SECRET! || 'default-secret';
   return crypto
     .createHash('sha256')
     .update(secret)

@@ -28,6 +28,11 @@ import requisiteRouter from '@routes/requisite';
 import feedbackRouter from '@routes/feedback';
 import sessionRouter from '@routes/session';
 import sectionsRoutes from '@routes/sectionsRoutes';
+import {
+  seedSoenDegree,
+} from '@controllers/adminController/adminController'; 
+
+import { setupSwagger } from './swagger/swagger';
 
 //Dev Consts
 const HOPPSCOTCH = 'chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld';
@@ -35,8 +40,8 @@ const HOPPSCOTCH = 'chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld';
 //Express Init
 dotenv.config(); //Load environment variables from .env file
 const app = express();
-const PORT = process.env.PORT || 8000;
-const CLIENT = process.env.CLIENT || 'http://localhost:3000';
+const PORT = process.env.PORT! || 8000;
+const CLIENT = process.env.CLIENT! || 'http://localhost:3000';
 
 Sentry.setupExpressErrorHandler(app);
 
@@ -72,6 +77,8 @@ app.use('/requisite', requisiteRouter);
 app.use('/feedback', feedbackRouter);
 app.use('/session', sessionRouter);
 app.use('/section', sectionsRoutes);
+// Setup Swagger
+setupSwagger(app);
 
 /**
  * DB test route
@@ -102,9 +109,19 @@ app.use(notFoundHandler);
 //Global Error Handler
 app.use(errorHandler);
 
-//Listen for requests
 app.listen(PORT, () => {
   console.log(`Server listening on Port: ${PORT}`);
+
+  // IIFE to use await
+  // Comment this code once you db is populated
+  // (async () => {
+  //   try {
+  //     await seedSoenDegree();
+  //     console.log('Seeded SOEN degree successfully');
+  //   } catch (err) {
+  //     console.error('Error seeding SOEN degree', err);
+  //   }
+  // })();
 });
 
 // This will make sure to capture unhandled async errors

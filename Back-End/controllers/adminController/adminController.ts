@@ -61,7 +61,7 @@ const allTablesReversed = [
 
 // helper to resolve where backups should be stored. Falls back to ./backups if no env var is provided.
 const getBackupDir = (): string => {
-  return process.env.BACKUP_DIR || path.join(__dirname, '../../backups');
+  return process.env.BACKUP_DIR! || path.join(__dirname, '../../backups');
 };
 
 /**
@@ -85,7 +85,7 @@ export const createBackup = async (
       SELECT TABLE_NAME 
       FROM INFORMATION_SCHEMA.TABLES 
       WHERE TABLE_TYPE = 'BASE TABLE' 
-        AND TABLE_CATALOG = '${process.env.SQL_SERVER_DATABASE}'
+        AND TABLE_CATALOG = '${process.env.SQL_SERVER_DATABASE!}'
         AND TABLE_NAME IN (${allowedTables.map((t) => `'${t}'`).join(',')})
     `;
     const tableResult = await pool.request().query(tableQuery);
@@ -352,7 +352,7 @@ export const getTables = async (
       SELECT TABLE_NAME 
       FROM INFORMATION_SCHEMA.TABLES 
       WHERE TABLE_TYPE = 'BASE TABLE' 
-        AND TABLE_CATALOG = '${process.env.SQL_SERVER_DATABASE}'
+        AND TABLE_CATALOG = '${process.env.SQL_SERVER_DATABASE!}'
     `;
 
     const result = await pool.request().query(query);
@@ -423,10 +423,10 @@ export const getTableRecords = async (
 };
 
 const dbConfig: sql.config = {
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  server: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER!,
+  password: process.env.DB_PASSWORD!,
+  database: process.env.DB_NAME!,
+  server: process.env.DB_HOST! || 'localhost',
   options: {
     trustServerCertificate: true,
   },
@@ -1003,7 +1003,7 @@ async function seedSoenDegree() {
     console.log(`[SEED] Connected to database: ${connectedDbName}`);
     if (connectedDbName !== process.env.DB_NAME) {
       throw new Error(
-        `Connected to incorrect database "${connectedDbName}". Expected "${process.env.DB_NAME}".`,
+        `Connected to incorrect database "${connectedDbName}". Expected "${process.env.DB_NAME!}".`,
       );
     }
 

@@ -1,0 +1,141 @@
+/courses/get:
+  post:
+    summary: Get a course by code
+    tags:
+      - Courses
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                example: 'COMP248'
+    responses:
+      200:
+        description: Course found
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+      400:
+        description: Missing course code
+      404:
+        description: Course not found
+      500:
+        description: Internal server error
+
+/courses/remove:
+  post:
+    summary: Remove a course by code
+    tags:
+      - Courses
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                example: 'COMP248'
+    responses:
+      200:
+        description: Course removed successfully
+      400:
+        description: Missing course code
+      404:
+        description: Course not found
+      500:
+        description: Internal server error
+
+/courses/add:
+  post:
+    summary: Add a new course
+    tags:
+      - Courses
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Course'
+    responses:
+      201:
+        description: Course created
+      400:
+        description: Invalid course data
+      500:
+        description: Internal server error
+
+/courses/getAll:
+  post:
+    summary: Get all courses
+    tags:
+      - Courses
+    responses:
+      200:
+        description: List of all courses
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Course'
+      404:
+        description: No courses found
+      500:
+        description: Internal server error
+
+/courses/getByDegreeGrouped:
+  post:
+    summary: Get courses grouped by degree
+    tags:
+      - Courses
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              degree:
+                type: string
+                example: 'SOEN'
+    responses:
+      200:
+        description: List of courses grouped by degree
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Course'
+      400:
+        description: Degree is required
+      404:
+        description: No courses found
+      500:
+        description: Internal server error
+
+/courses/getAllCourses:
+  post:
+    summary: Get all courses from DB
+    tags:
+      - Courses
+    responses:
+      200:
+        description: List of all courses in DB
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Course'
+      404:
+        description: No courses found
+      500:
+        description: Internal server error
