@@ -150,13 +150,5 @@ async function removeUserTimeline(timeline_id: string): Promise<string> {
 }
 
 
+export default { saveTimeline, getTimelinesByUser, removeUserTimeline };
 
-
-
-const timelineController = {
-  saveTimeline,
-  getTimelinesByUser,
-  removeUserTimeline,
-};
-
-export default timelineController;
