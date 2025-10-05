@@ -43,7 +43,6 @@ async function saveTimeline(
       throw new Error('User ID, timeline name, and degree ID are required');
     }
 
-    let timelineId: string;
     const lastModified = new Date();
 
     // Mocro : Check if timeline exists
@@ -54,32 +53,9 @@ async function saveTimeline(
 const timelineId = await TimelineRepository.upsertTimeline(transaction, timeline);
 
 
-    // Mocro : Insert timeline items and courses
-    for (const item of items) {
-      const timelineItemId = uuidv4();
-      await transaction
-        .request()
-        .input('id', Database.msSQL.VarChar, timelineItemId)
-        .input('timelineId', Database.msSQL.VarChar, timelineId)
-        .input('season', Database.msSQL.VarChar, item.season)
-        .input('year', Database.msSQL.Int, item.year)
-        .query(
-          `INSERT INTO TimelineItems (id, timeline_id, season, year) 
-           VALUES (@id, @timelineId, @season, @year)`,
-        );
+   // Mocro : Insert timeline items using repository
+await TimelineRepository.insertTimelineItems(transaction, timelineId, items);
 
-      // Mocro : Deduplicate courses to avoid duplicate key conflicts
-      const uniqueCourses = Array.from(new Set(item.courses));
-      for (const courseCode of uniqueCourses) {
-        await transaction
-          .request()
-          .input('timelineItemId', Database.msSQL.VarChar, timelineItemId)
-          .input('courseCode', Database.msSQL.VarChar, courseCode)
-          .query(
-            `INSERT INTO TimelineItemXCourses (timeline_item_id, coursecode) 
-             VALUES (@timelineItemId, @courseCode)`,
-          );
-      }
     }
 
     await transaction.commit();
