@@ -2,8 +2,15 @@ import Database from '@controllers/DBController/DBController';
 import { v4 as uuidv4 } from 'uuid';
 import TimelineTypes from './timeline_types';
 
-
 export default class TimelineRepository {
+  // Utility to start a transaction
+  static async startTransaction() {
+    const dbConn = await Database.getConnection();
+    if (!dbConn) throw new Error('Failed to establish database connection.');
+    const transaction = await dbConn.transaction();
+    await transaction.begin();
+    return transaction;
+  }
 
   // Find timeline by user_id + name
   static async findTimelineByUserAndName(transaction: any, user_id: string, name: string) {
@@ -14,27 +21,14 @@ export default class TimelineRepository {
       .query(`SELECT id FROM Timeline WHERE user_id = @user_id AND name = @name`);
   }
 
-  // Utility to start a transaction (shared across controllers)
-  static async startTransaction() {
-    const dbConn = await Database.getConnection();
-    if (!dbConn) throw new Error('Failed to establish database connection.');
-  
-    const transaction = await dbConn.transaction();
-    await transaction.begin();
-    return transaction;
-  }
-
-  // Upsert timeline: insert new or update existing timeline metadata
+  // Upsert timeline metadata
   static async upsertTimeline(transaction: any, timeline: TimelineTypes.Timeline): Promise<string> {
     const { user_id, name, degree_id, isExtendedCredit } = timeline;
     const lastModified = new Date();
-
     const existing = await this.findTimelineByUserAndName(transaction, user_id, name);
 
     if (existing.recordset.length > 0) {
       const timelineId = existing.recordset[0].id;
-
-      // Update metadata
       await transaction
         .request()
         .input('timelineId', Database.msSQL.VarChar, timelineId)
@@ -44,9 +38,8 @@ export default class TimelineRepository {
         .query(
           `UPDATE Timeline 
            SET last_modified = @lastModified, degree_id = @degree_id, isExtendedCredit = @isExtendedCredit
-           WHERE id = @timelineId`,
+           WHERE id = @timelineId`
         );
-
       return timelineId;
     } else {
       const timelineId = uuidv4();
@@ -60,13 +53,13 @@ export default class TimelineRepository {
         .input('isExtendedCredit', Database.msSQL.Bit, isExtendedCredit)
         .query(
           `INSERT INTO Timeline (id, user_id, degree_id, name, last_modified, isExtendedCredit)
-           VALUES (@id, @user_id, @degree_id, @name, @lastModified, @isExtendedCredit)`,
+           VALUES (@id, @user_id, @degree_id, @name, @lastModified, @isExtendedCredit)`
         );
       return timelineId;
     }
   }
 
-  // Delete timeline items and associated courses
+  // Delete timeline items and their courses
   static async deleteTimelineItems(transaction: any, timelineId: string) {
     const itemsResult = await transaction
       .request()
@@ -76,14 +69,14 @@ export default class TimelineRepository {
     const timelineItemIds = itemsResult.recordset.map((i: any) => i.id);
     if (timelineItemIds.length === 0) return;
 
-    // Delete courses linked to items
+    // Delete linked courses
     await transaction.request().query(
       `DELETE FROM TimelineItemXCourses WHERE timeline_item_id IN (${timelineItemIds
         .map((id: string) => `'${id}'`)
-        .join(',')})`,
+        .join(',')})`
     );
 
-    // Delete timeline items
+    // Delete items
     await transaction
       .request()
       .input('timelineId', Database.msSQL.VarChar, timelineId)
@@ -99,8 +92,7 @@ export default class TimelineRepository {
       .input('timelineId', Database.msSQL.VarChar, timelineId)
       .input('season', Database.msSQL.VarChar, item.season)
       .input('year', Database.msSQL.Int, item.year)
-      .query(`INSERT INTO TimelineItems (id, timeline_id, season, year)
-              VALUES (@id, @timelineId, @season, @year)`);
+      .query(`INSERT INTO TimelineItems (id, timeline_id, season, year) VALUES (@id, @timelineId, @season, @year)`);
 
     const uniqueCourses = Array.from(new Set(item.courses));
     for (const courseCode of uniqueCourses) {
@@ -108,8 +100,7 @@ export default class TimelineRepository {
         .request()
         .input('timelineItemId', Database.msSQL.VarChar, timelineItemId)
         .input('courseCode', Database.msSQL.VarChar, courseCode)
-        .query(`INSERT INTO TimelineItemXCourses (timeline_item_id, coursecode)
-                VALUES (@timelineItemId, @courseCode)`);
+        .query(`INSERT INTO TimelineItemXCourses (timeline_item_id, coursecode) VALUES (@timelineItemId, @courseCode)`);
     }
   }
 
@@ -120,14 +111,55 @@ export default class TimelineRepository {
     }
   }
 
-  // Delete timeline
+  // Fetch all timelines for a user, including items and courses
+  static async getTimelinesByUser(transaction: any, user_id: string): Promise<TimelineTypes.Timeline[]> {
+    const result = await transaction
+      .request()
+      .input('user_id', Database.msSQL.VarChar, user_id)
+      .query(`
+        SELECT t.id, t.user_id, t.degree_id, t.name, t.last_modified, t.isExtendedCredit,
+               ti.id AS itemId, ti.season, ti.year, tic.coursecode
+        FROM Timeline t
+        LEFT JOIN TimelineItems ti ON t.id = ti.timeline_id
+        LEFT JOIN TimelineItemXCourses tic ON ti.id = tic.timeline_item_id
+        WHERE t.user_id = @user_id
+        ORDER BY ti.year, ti.season
+      `);
+
+    const timelinesMap: { [id: string]: TimelineTypes.Timeline } = {};
+    result.recordset.forEach((row: any) => {
+      if (!timelinesMap[row.id]) {
+        timelinesMap[row.id] = {
+          id: row.id,
+          user_id: row.user_id,
+          degree_id: row.degree_id,
+          name: row.name,
+          last_modified: row.last_modified,
+          isExtendedCredit: row.isExtendedCredit,
+          items: [],
+        };
+      }
+      if (row.itemId) {
+        let item = timelinesMap[row.id].items.find(i => i.id === row.itemId);
+        if (!item) {
+          item = { id: row.itemId, season: row.season, year: row.year, courses: [] };
+          timelinesMap[row.id].items.push(item);
+        }
+        if (row.coursecode) {
+          item.courses.push(row.coursecode);
+        }
+      }
+    });
+
+    return Object.values(timelinesMap);
+  }
+
+  // Delete a timeline
   static async deleteTimeline(transaction: any, timelineId: string) {
-    return transaction
+    const result = await transaction
       .request()
       .input('id', Database.msSQL.VarChar, timelineId)
       .query(`DELETE FROM Timeline OUTPUT DELETED.id WHERE id = @id`);
+    return result.rowsAffected[0];
   }
-
-
-  
 }

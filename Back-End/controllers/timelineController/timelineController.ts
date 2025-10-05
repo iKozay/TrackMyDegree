@@ -63,14 +63,14 @@ async function getTimelinesByUser(
   if (!dbConn) return undefined;
 
   try {
-    const timelinesResult = await dbConn
-      .request()
+    const result = await dbConn
+    .request()
       .input('user_id', Database.msSQL.VarChar, user_id)
       .query(
         `SELECT id, user_id, degree_id, name, last_modified, isExtendedCredit FROM Timeline WHERE user_id = @user_id`,
       );
 
-    const timelinesRecords = timelinesResult.recordset;
+    const timelinesRecords = result.recordset;
     if (timelinesRecords.length === 0) return [];
     // Yassine: We need to consider bulk insert!
     const timelines: TimelineTypes.Timeline[] = [];
