@@ -138,11 +138,10 @@ async function removeUserTimeline(timeline_id: string): Promise<string> {
     const result = await TimelineRepository.deleteTimeline(dbConn, timeline_id);
 
 
-    if (result.recordset.length > 0) {
-      return `Timeline with id: ${result.recordset[0].id} deleted successfully`;
-    } else {
-      return `No timeline found with id: ${timeline_id}`;
-    }
+    return result.rowsAffected[0] > 0
+  ? `Timeline ${timeline_id} deleted successfully`
+  : `Timeline ${timeline_id} not found`;
+
   } catch (error) {
     Sentry.captureException(error);
     log('Error removing timeline item\n', error);
