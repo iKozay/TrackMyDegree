@@ -49,6 +49,10 @@ async function saveTimeline(
     // Delegate timeline metadata insert/update to repository
 const timelineId = await TimelineRepository.upsertTimeline(transaction, timeline);
 
+// Mocro : If existing timeline, clean up old items before reinserting
+await TimelineRepository.deleteTimelineItems(transaction, timelineId);
+
+
 
    // Mocro : Insert timeline items using repository
 await TimelineRepository.insertTimelineItems(transaction, timelineId, items);
