@@ -132,7 +132,8 @@ jobs:
 
       - name: Build and Push ${{ matrix.name }} Image
         run: |
-          IMAGE=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE=ghcr.io/$OWNER/${{ matrix.image }}
           echo "🔨 Building $IMAGE..."
           docker build -t $IMAGE:latest ${{ matrix.context }}
           echo "📦 Pushing $IMAGE..."
