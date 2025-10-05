@@ -38,15 +38,8 @@ await TimelineRepository.insertTimelineItems(transaction, timelineId, items);
 
     await transaction.commit();
 
-    return {
-      id: timelineId,
-      user_id,
-      degree_id,
-      name,
-      last_modified: lastModified,
-      items,
-      isExtendedCredit,
-    };
+    return { ...timeline, id: timelineId, last_modified: lastModified };
+
   } catch (error) {
     Sentry.captureException(error);
     await transaction.rollback();
