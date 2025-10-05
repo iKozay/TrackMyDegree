@@ -45,10 +45,7 @@ async function saveTimeline(
 
     const lastModified = new Date();
 
-    // Mocro : Check if timeline exists
-    const existingTimelineResult = await TimelineRepository.findTimelineByUserAndName(transaction, user_id, name);
-
-
+  
     // Delegate timeline metadata insert/update to repository
 const timelineId = await TimelineRepository.upsertTimeline(transaction, timeline);
 
