@@ -4,33 +4,10 @@ import { v4 as uuidv4 } from 'uuid';   // Mocro : Generates unique IDs
 import * as Sentry from '@sentry/node'; // Mocro : Error monitoring and logging
 import TimelineRepository from './timelineRepository';
 
-
 const log = console.log;
 
-// Mocro : saveTimeline → Creates or updates a timeline for a user
-// Mocro : Expected input: Timeline object with user_id, name, degree_id, items, and optional isExtendedCredit
-// Mocro : Current behavior:
-//        1. Opens database connection and transaction
-//        2. Checks if timeline already exists for the user + name
-//        3. If exists:
-//             - Delete existing timeline items and courses
-//             - Update timeline metadata (last_modified, degree_id, isExtendedCredit)
-//        4. If not exists:
-//             - Insert new timeline with metadata
-//        5. Insert all timeline items and their associated courses
-//        6. Commit transaction
-// Mocro : Error handling: Sentry logs the error, transaction is rolled back
-// Mocro : Refactoring opportunities:
-//        - Move database queries to a separate repository layer to reduce controller responsibilities
-//        - Consider batch inserts for TimelineItemXCourses to reduce multiple queries per item
-//        - Add input validation before starting transaction to fail fast
-//        - Consider breaking this function into smaller private functions for clarity
+async function saveTimeline(timeline: TimelineTypes.Timeline): Promise<TimelineTypes.Timeline | undefined> {
 
-
-// Yassine : This function is to long. It updates, delete, and creates!!
-async function saveTimeline(
-  timeline: TimelineTypes.Timeline,
-): Promise<TimelineTypes.Timeline | undefined> {
   const dbConn = await Database.getConnection();
   if (!dbConn) return undefined;
 
@@ -57,7 +34,7 @@ await TimelineRepository.deleteTimelineItems(transaction, timelineId);
    // Mocro : Insert timeline items using repository
 await TimelineRepository.insertTimelineItems(transaction, timelineId, items);
 
-    }
+    
 
     await transaction.commit();
 
