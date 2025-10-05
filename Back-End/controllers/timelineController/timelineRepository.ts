@@ -2,7 +2,9 @@ import Database from '@controllers/DBController/DBController';
 import { v4 as uuidv4 } from 'uuid';
 import TimelineTypes from './timeline_types';
 
+
 export default class TimelineRepository {
+
   // Find timeline by user_id + name
   static async findTimelineByUserAndName(transaction: any, user_id: string, name: string) {
     return transaction
@@ -10,6 +12,16 @@ export default class TimelineRepository {
       .input('user_id', Database.msSQL.VarChar, user_id)
       .input('name', Database.msSQL.VarChar, name)
       .query(`SELECT id FROM Timeline WHERE user_id = @user_id AND name = @name`);
+  }
+
+  // Utility to start a transaction (shared across controllers)
+  static async startTransaction() {
+    const dbConn = await Database.getConnection();
+    if (!dbConn) throw new Error('Failed to establish database connection.');
+  
+    const transaction = await dbConn.transaction();
+    await transaction.begin();
+    return transaction;
   }
 
   // Upsert timeline: insert new or update existing timeline metadata
@@ -115,4 +127,7 @@ export default class TimelineRepository {
       .input('id', Database.msSQL.VarChar, timelineId)
       .query(`DELETE FROM Timeline OUTPUT DELETED.id WHERE id = @id`);
   }
+
+
+  
 }

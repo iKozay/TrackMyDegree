@@ -11,8 +11,8 @@ async function saveTimeline(timeline: TimelineTypes.Timeline): Promise<TimelineT
   const dbConn = await Database.getConnection();
   if (!dbConn) return undefined;
 
-  const transaction = await dbConn.transaction();
-  await transaction.begin();
+  const transaction = await TimelineRepository.startTransaction();
+
 
   try {
     const { user_id, name, degree_id, items, isExtendedCredit } = timeline;
