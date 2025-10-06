@@ -11,6 +11,7 @@ services:
       - backend
       - sqlserver
       - redis
+      - mongodb
     networks:
       - app-network
     entrypoint: >
@@ -47,12 +48,17 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_URL=redis://redis:6379
+      - MONGODB_URI=mongodb://admin:changeme123@mongodb:27017/trackmydegree
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
+      - MONGODB_DATABASE=trackmydegree
     volumes:
       # I don't know what this backup folder is for.
       - ./backups:/var/backups
     depends_on:
       - sqlserver
       - redis
+      - mongodb
     networks:
       - app-network
 
@@ -89,6 +95,20 @@ services:
     networks:
       - app-network
 
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      # Should look into using secrets for sensitive info like passwords
+      # See: https://docs.docker.com/compose/how-tos/use-secrets/
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=changeme123
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
@@ -96,3 +116,4 @@ networks:
 volumes:
   mssql-data:
   redis-data:
+  mongodb-data:
