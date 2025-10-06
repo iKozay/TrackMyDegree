@@ -11,47 +11,14 @@ import {
   extractTranscriptComponents,
   matchCoursesToTerms,
 } from '../utils/transcriptUtils';
+import UploadBox from "../components/UploadBox";
 
 // Set the worker source
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
 const UploadTranscript = ({ onDataProcessed }) => {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [fileName, setFileName] = useState('No file chosen');
-  const [output, setOutput] = useState('');
-  const fileInputRef = useRef(null); // Reference for the file input
   const navigate = useNavigate(); // Hook to navigate to TimelinePage
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.target.classList.add('dragover');
-  };
-
-  const handleDragLeave = (e) => {
-    e.target.classList.remove('dragover');
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.target.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    if (file && file.type === 'application/pdf') {
-      setFileName(`File Selected: ${file.name}`);
-      setSelectedFile(file);
-    } else {
-      alert('Please drop a valid PDF file.');
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type === 'application/pdf') {
-      setFileName(`File Selected: ${file.name}`);
-      setSelectedFile(file);
-    } else {
-      alert('Please select a valid PDF file.');
-    }
-  };
 
   const processFile = (file) => {
     const reader = new FileReader();
@@ -88,18 +55,13 @@ const UploadTranscript = ({ onDataProcessed }) => {
               transcriptData,
               degreeId,
               isExtendedCredit,
-            }); // Send grouped data to parent
-            // console.log('transcriptData from PDF:', transcriptData);
-            // console.log('Degree:', degreeInfo);
-            // console.log('Degree ID:', degreeId);
-            // console.log('Ecp', extractedData.ecp);
+            });
             navigate('/timeline_change', {
               state: { coOp: null, extendedCreditCourses: extractedData.ecp },
             }); // Navigate to TimelinePage
           } else {
-            setOutput(`<h3>There are no courses to show!</h3>`);
+            alert('There are no courses to show!');
           }
-          // console.log(degreeId);
         });
       });
     };
@@ -107,23 +69,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
     reader.readAsArrayBuffer(file);
   };
 
-  const handleSubmit = () => {
-    if (!selectedFile) {
-      alert('Please choose a file to upload!');
-      return;
-    }
-    processFile(selectedFile);
-  };
 
-  const handleCancel = () => {
-    setSelectedFile(null);
-    setFileName('No file chosen');
-    setOutput('');
-    // Reset the file input by clearing its value
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''; // This clears the file input field
-    }
-  };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
@@ -157,33 +103,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
         {/* Upload Section */}
         <div className="upload-section">
           <h2>Upload Transcript</h2>
-          <div className="upload-box" onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
-            <p>Drag and Drop file</p>
-            or
-            <label htmlFor="file-upload">Browse</label>
-            <input
-              type="file"
-              id="file-upload"
-              accept="application/pdf"
-              onChange={handleFileChange}
-              ref={fileInputRef}
-              style={{ display: 'none' }}
-            />
-            <p className="file-name">{fileName}</p>
-          </div>
-
-          <div className="button-group">
-            <Button variant="danger" onClick={handleCancel}>
-              {' '}
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleSubmit}>
-              {' '}
-              Submit{' '}
-            </Button>
-          </div>
-
-          <div id="output" dangerouslySetInnerHTML={{ __html: output }}></div>
+          <UploadBox processFile={processFile} />
         </div>
       </div>
     </motion.div>

@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import * as Sentry from '@sentry/react';
 import InformationForm from "../components/InformationForm";
+import Button from "react-bootstrap/Button";
+import UploadBox from "../components/UploadBox";
 
 // Set the worker source for PDF.js
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
@@ -33,11 +35,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   const isFirstRender = useRef(true);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [fileName, setFileName] = useState('No file chosen');
-  const [output, setOutput] = useState('');
   const [degrees, setDegrees] = useState([]);
-  const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const [selectedRadio, setSelectedRadio] = useState({
     coOp: null,
@@ -86,47 +84,9 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     getDegrees();
   }, []);
 
-  // Handle drag events
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.target.classList.add('dragover');
-  };
 
-  const handleDragLeave = (e) => {
-    e.target.classList.remove('dragover');
-  };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.target.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    validateAndSetFile(file);
-  };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    validateAndSetFile(file);
-  };
-
-  const validateAndSetFile = (file) => {
-    if (file && file.type === 'application/pdf') {
-      setFileName(`File Selected: ${file.name}`);
-      setSelectedFile(file);
-    } else {
-      alert('Please select a valid PDF file.');
-      setFileName('No file chosen');
-      setSelectedFile(null);
-    }
-  };
-
-  const handleSubmit = () => {
-    if (!selectedFile) {
-      alert('Please choose a file to upload!');
-      return;
-    }
-    processFile(selectedFile);
-    alert('File uploaded Successfully!');
-  };
 
 
   //Reads the PDF as an array buffer. The text is extracted using PDF.js
@@ -152,7 +112,6 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         Promise.all(pagesPromises).then((pagesData) => {
           const extractedData = extractAcceptanceDetails(pagesData);
           const transcriptData = matchTermsWithCourses(extractedData.results);
-          //setOutput(generateOutput(extractedData));
           // Extract Degree Info
           //const degreeInfo = extractedData.degree || "Unknown Degree";
           const degreeId = extractedData.degreeId || 'Unknown'; // Map degree to ID
@@ -175,7 +134,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
               },
             }); // Navigate to TimelinePage
           } else {
-            setOutput(`<h3>There are no data to show!</h3>`);
+            //There is no data
           }
           console.log(degreeId);
         });
@@ -616,41 +575,12 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
               Upload your acceptance letter to automatically fill out the
               required information
             </p>
-            <div
-              className="upload-box-al"
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-            >
-              <p>Drag and Drop file</p>
-              or
-              <label htmlFor="file-upload" className="file-label">
-                Browse
-              </label>
-              <input
-                type="file"
-                id="file-upload"
-                accept="application/pdf"
-                onChange={handleFileChange}
-                ref={fileInputRef}
-                style={{ display: 'none' }}
-              />
-              <p className="file-name">{fileName}</p>
-            </div>
+            <UploadBox processFile={processFile}/>
 
-            <button className="create-button" onClick={handleSubmit}>
-              Create Timeline
-            </button>
-            {output && (
-              <div
-                id="output"
-                dangerouslySetInnerHTML={{ __html: output }}
-              ></div>
-            )}
             <p>To upload your unofficial transcript, please click here!</p>
             <button
-              className="upload-transcript-button"
-              onClick={() => navigate('/uploadTranscript')}
+                className="upload-transcript-button"
+                onClick={() => navigate('/uploadTranscript')}
             >
               Upload Transcript
             </button>
