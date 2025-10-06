@@ -12,6 +12,7 @@ const corsOptions: CorsOptions = {
 			"https://trackmydegree.com",
 			"chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld",
 			"https://hoppscotch.io",
+			"http://localhost:8000"
 		];
 
 		// Allow requests with no origin (like Postman or server-to-server calls)

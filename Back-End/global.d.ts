@@ -26,7 +26,7 @@ declare namespace NodeJS {
 
     //? JWT Specific
     JWT_SECRET          : string;     
-    JWT_EXPIRY          : number;      
+    JWT_EXPIRY          : string;      
     JWT_ORG_ID          : string;
 
     //? Session specific

@@ -1,0 +1,68 @@
+paths:
+  /appUser/update:
+    get:
+      summary: Update an AppUser
+      tags:
+        - AppUser
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: email
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: password
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: fullname
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: degree
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [student, advisor, admin]
+          required: true
+      responses:
+        '200':
+          description: AppUser updated successfully
+        '400':
+          description: Invalid input
+        '403':
+          description: AppUser does not exist
+        '500':
+          description: Internal server error
+
+  /appUser/delete:
+    get:
+      summary: Delete an AppUser
+      tags:
+        - AppUser
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: AppUser deleted successfully
+        '400':
+          description: Invalid input
+        '403':
+          description: AppUser does not exist
+        '500':
+          description: Internal server error

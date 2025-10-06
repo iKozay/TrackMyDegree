@@ -1,0 +1,140 @@
+openapi: 3.0.0
+info:
+  title: CoursePool API
+  version: 1.0.0
+paths:
+  /coursepool/create:
+    post:
+      summary: Create a new course pool
+      tags:
+        - CoursePool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  example: 'Computer Science Core'
+      responses:
+        '201':
+          description: New CoursePool added successfully
+        '400':
+          description: Payload containing name is required or attributes are empty
+        '500':
+          description: CoursePool could not be created
+
+  /coursepool/getAll:
+    get:
+      summary: Get all course pools
+      tags:
+        - CoursePool
+      responses:
+        '200':
+          description: List of all course pools
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: '1'
+                    name:
+                      type: string
+                      example: 'Computer Science Core'
+        '404':
+          description: No Course pools found
+        '500':
+          description: Course Pools could not be fetched
+
+  /coursepool/get:
+    post:
+      summary: Get a course pool by ID
+      tags:
+        - CoursePool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - course_pool_id
+              properties:
+                course_pool_id:
+                  type: string
+                  example: '1'
+      responses:
+        '200':
+          description: Course pool found
+        '400':
+          description: Course Pool ID is required
+        '404':
+          description: Course Pool not found
+        '500':
+          description: Could not retrieve Course Pool
+
+  /coursepool/update:
+    post:
+      summary: Update a course pool item
+      tags:
+        - CoursePool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - name
+              properties:
+                id:
+                  type: string
+                  example: '1'
+                name:
+                  type: string
+                  example: 'Computer Science Core Updated'
+      responses:
+        '200':
+          description: CoursePool item updated successfully
+        '400':
+          description: Payload attributes cannot be empty
+        '404':
+          description: Item not found in CoursePool
+        '500':
+          description: CoursePool item could not be updated
+
+  /coursepool/delete:
+    post:
+      summary: Delete a course pool item
+      tags:
+        - CoursePool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - course_pool_id
+              properties:
+                course_pool_id:
+                  type: string
+                  example: '1'
+      responses:
+        '200':
+          description: Item removed from CoursePool
+        '400':
+          description: Payload attributes cannot be empty or ID required
+        '404':
+          description: Item not found in CoursePool
+        '500':
+          description: CoursePool item could not be deleted

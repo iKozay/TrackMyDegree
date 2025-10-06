@@ -1,0 +1,173 @@
+paths:
+  /degree/create:
+    post:
+      summary: Create a new degree
+      tags:
+        - Degree
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 'COMP_SCI_2025'
+                name:
+                  type: string
+                  example: 'Computer Science'
+                totalCredits:
+                  type: number
+                  example: 120
+      responses:
+        201:
+          description: Degree created successfully
+        400:
+          description: Invalid input
+        403:
+          description: Degree with this id or name already exists
+        500:
+          description: Internal server error
+
+  /degree/read:
+    get:
+      summary: Get a degree by ID
+      tags:
+        - Degree
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 'COMP_SCI_2025'
+      responses:
+        200:
+          description: Degree read successfully
+        400:
+          description: Invalid input
+        403:
+          description: Degree with this id does not exist
+        500:
+          description: Internal server error
+
+  /degree/update:
+    put:
+      summary: Update a degree
+      tags:
+        - Degree
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 'COMP_SCI_2025'
+                name:
+                  type: string
+                  example: 'Computer Science Updated'
+                totalCredits:
+                  type: number
+                  example: 124
+      responses:
+        200:
+          description: Degree updated successfully
+        400:
+          description: Invalid input
+        403:
+          description: Degree with this id does not exist
+        500:
+          description: Internal server error
+
+  /degree/delete:
+    post:
+      summary: Delete a degree
+      tags:
+        - Degree
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 'COMP_SCI_2025'
+      responses:
+        200:
+          description: Degree deleted successfully
+        400:
+          description: Invalid input
+        403:
+          description: Degree with this id does not exist
+        500:
+          description: Internal server error
+
+  /degree/getPools:
+    post:
+      summary: Get all course pools for a degree
+      tags:
+        - Degree
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                degree_id:
+                  type: string
+                  example: 'COMP_SCI_2025'
+      responses:
+        200:
+          description: Course pools retrieved successfully
+        400:
+          description: Degree ID is required
+        404:
+          description: No course pools found
+        500:
+          description: Internal server error
+
+  /degree/getAllDegrees:
+    post:
+      summary: Get all degrees
+      tags:
+        - Degree
+      responses:
+        200:
+          description: Degrees retrieved successfully
+        500:
+          description: Internal server error
+
+  /degree/getCredits:
+    post:
+      summary: Get total credits for a degree
+      tags:
+        - Degree
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                degree_id:
+                  type: string
+                  example: 'COMP_SCI_2025'
+      responses:
+        200:
+          description: Total credits retrieved successfully
+        400:
+          description: Degree ID is required
+        404:
+          description: Degree not found
+        500:
+          description: Internal server error

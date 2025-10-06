@@ -1,0 +1,46 @@
+paths:
+  /section/schedule:
+    get:
+      summary: Fetch course schedule by subject and catalog
+      tags:
+        - Section
+      parameters:
+        - in: query
+          name: subject
+          required: true
+          schema:
+            type: string
+            example: 'COMP'
+          description: Subject code of the course
+        - in: query
+          name: catalog
+          required: true
+          schema:
+            type: string
+            example: '248'
+          description: Catalog number of the course
+      responses:
+        '200':
+          description: Course schedule fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid input. Subject or catalog missing or not a string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string

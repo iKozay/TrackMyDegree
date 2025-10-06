@@ -29,7 +29,7 @@ export type JWTCookieModel = {
  */
 function getSecretKey(): string {
   //? Generate the Private key from the JWT secret
-  return process.env.JWT_SECRET;
+  return process.env.JWT_SECRET!;
 }
 
 /**
@@ -44,7 +44,7 @@ function getJWTPayload(
   user_type: Auth.UserType,
 ): JWTPayload {
   const payload: JWTPayload = {
-    orgId: process.env.JWT_ORG_ID,
+    orgId: process.env.JWT_ORG_ID!,
     userId: user_id || 'defaultID',
     type: user_type,
   };
@@ -58,7 +58,7 @@ function getJWTPayload(
  * - `CookieOptions` for the JWT cookie
  */
 export function getCookieOptions(): CookieOptions {
-  const security = process.env.NODE_ENV === 'production';
+  const security = process.env.NODE_ENV! === 'production';
   const domain_name = security ? undefined : 'localhost';
 
   return  {
@@ -86,7 +86,7 @@ function generateToken(
   const secret: string = getSecretKey();
 
   const options: SignOptions = {
-    expiresIn: process.env.JWT_EXPIRY || '1h',
+    expiresIn: process.env.JWT_EXPIRY! || '1h',
   };
 
   const session_payload = {
@@ -154,5 +154,5 @@ export function isTokenExpired(exp_time: number): boolean {
  * - FALSE: If the org_id is invalid
  */
 export function isOrgIdValid(org_id: string): boolean {
-  return org_id === process.env.JWT_ORG_ID;
+  return org_id === process.env.JWT_ORG_ID!;
 }

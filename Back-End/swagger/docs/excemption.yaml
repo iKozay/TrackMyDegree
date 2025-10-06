@@ -1,0 +1,112 @@
+paths:
+  /exemption/create:
+    post:
+      summary: Create new exemptions for a user
+      tags:
+        - Exemption
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                coursecodes:
+                  type: array
+                  items:
+                    type: string
+                  example: ['COMP248', 'MATH203']
+                user_id:
+                  type: string
+                  example: 'user123'
+      responses:
+        '201':
+          description: Exemptions created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  exemptions:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: Invalid input
+        '403':
+          description: Forbidden / error from service
+        '500':
+          description: Internal server error
+
+  /exemption/getAll:
+    post:
+      summary: Get all exemptions for a user
+      tags:
+        - Exemption
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                  example: 'user123'
+      responses:
+        '200':
+          description: Exemptions fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  exemption:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: Invalid input
+        '403':
+          description: Forbidden / error from service
+        '500':
+          description: Internal server error
+
+  /exemption/delete:
+    post:
+      summary: Delete an exemption for a user by coursecode
+      tags:
+        - Exemption
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                coursecode:
+                  type: string
+                  example: 'COMP248'
+                user_id:
+                  type: string
+                  example: 'user123'
+      responses:
+        '200':
+          description: Exemption deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Invalid input
+        '403':
+          description: Forbidden / error from service
+        '500':
+          description: Internal server error

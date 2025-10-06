@@ -1,0 +1,35 @@
+paths:
+  /feedback:
+    post:
+      summary: Submit user feedback
+      tags:
+        - Feedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: 'The app is great!'
+                user_id:
+                  type: string
+                  example: 'user123'
+      responses:
+        '201':
+          description: Feedback submitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  feedback:
+                    type: object
+        '400':
+          description: Invalid input
+        '500':
+          description: Internal server error

@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable no-undef */
 // TimelinePage.js
 
 import React, { useState, useEffect, useRef, act, useContext, useMemo } from 'react';
@@ -21,7 +23,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Accordion, Button, Container } from "react-bootstrap";
-import { FaUndo, FaRedo, FaClipboard, FaShareSquare  } from "react-icons/fa";
+import { FaUndo, FaRedo, FaClipboard, FaShareSquare } from "react-icons/fa";
 import warningIcon from '../icons/warning.png'; // Import warning icon
 import downloadIcon from '../icons/download-icon.PNG';
 import saveIcon from '../icons/saveIcon.png';
@@ -251,7 +253,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   // console.log("isExtendedCredit: " + isExtendedCredit);
   // console.log("extendedCredit: " + extendedCredit);
 
-  
+
 
   if (isExtendedCredit) {
     extendedCredit = true;
@@ -583,9 +585,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     const nonExemptedData = [];
     let parsedExemptedCourses = [];
 
-    const timlineInfo = timelineData.length > 0 
+    const timlineInfo = timelineData.length > 0
       ? timelineData
-      : (Object.keys(semesterCourses).length > 0 
+      : (Object.keys(semesterCourses).length > 0
         ? Object.entries(semesterCourses).map(([key, courses]) => {
           const [season, year] = key.split(' ');
           return {
@@ -840,7 +842,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     Fall_Winter: 2,
     Summer: 3,
     Fall: 4,
-    
+
   };
 
   function compareSemesters(a, b) {
@@ -1165,10 +1167,10 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     const calculateTotalCredits = () => {
       let unmetPrereqFound = false;
       const poolCreditMap = {};
-  
+
       // Log coursePools to debug
       // console.log('Course Pools:', coursePools);
-  
+
       // Initialize each pool with a max credits limit
       coursePools
         .filter((pool) => !pool.poolName.toLowerCase().includes("option"))
@@ -1179,60 +1181,60 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           };
           // console.log(`Initialized pool ${pool.poolId}: max = ${parseMaxCreditsFromPoolName(pool.poolName)}`);
         });
-  
+
       // Initialize 'remaining' pool
       if (!poolCreditMap['remaining']) {
         poolCreditMap['remaining'] = { assigned: 0, max: Infinity };
         // console.log("Initialized 'remaining' pool: max = Infinity");
       }
-  
+
       for (const semesterId in semesterCourses) {
         if (semesterId.toLowerCase() === 'exempted') continue;
         const courseCodes = semesterCourses[semesterId];
         const currentSemesterIndex = semesters.findIndex((s) => s.id === semesterId);
         // console.log(`Processing semester: ${semesterId} (index ${currentSemesterIndex})`);
-  
+
         courseCodes.forEach((instanceId) => {
           const genericCode = courseInstanceMap[instanceId] || instanceId;
           const pool = coursePools.find((p) =>
             p.courses.some((c) => c.code === genericCode)
           ) || { poolId: 'remaining', courses: remainingCourses };
-  
+
           const course = pool.courses.find((c) => c.code === genericCode) || allCourses.find((c) => c.code === genericCode);
           if (!course) {
             console.warn(`Course ${genericCode} not found`);
             return;
           }
-  
+
           const credits = course.credits !== undefined ? course.credits : 3;
           // console.log(`Course ${genericCode}: credits = ${credits}`);
-  
+
           const prerequisitesMet = arePrerequisitesMet(genericCode, currentSemesterIndex);
           if (!prerequisitesMet) unmetPrereqFound = true;
-  
+
           // Dynamically add the pool if it doesn't exist
           if (!poolCreditMap[pool.poolId]) {
             poolCreditMap[pool.poolId] = { assigned: 0, max: Infinity };
             // console.log(`Dynamically added pool ${pool.poolId} with max = Infinity`);
           }
-  
+
           const poolData = poolCreditMap[pool.poolId];
           poolData.assigned = Math.min(poolData.max, poolData.assigned + credits);
           // console.log(`Pool ${pool.poolId}: assigned ${credits}, total now ${poolData.assigned} (max ${poolData.max})`);
         });
       }
-  
+
       const total = Object.values(poolCreditMap).reduce(
         (sum, poolData) => sum + poolData.assigned,
         0
       );
       // console.log('Final Pool Credit Map:', poolCreditMap);
       // console.log('Calculated Total Credits:', total);
-  
+
       setTotalCredits(total);
       setHasUnmetPrerequisites(unmetPrereqFound);
     };
-  
+
     calculateTotalCredits();
   }, [semesterCourses, semesters, coursePools, remainingCourses, courseInstanceMap, allCourses]);
 
@@ -1778,14 +1780,14 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                     onClick={handleUndo}
                     disabled={history.length === 0}
                     className="icon-btn"
-                    >
+                  >
                     <FaUndo size={25} />
                   </Button>
                   <Button
                     onClick={handleRedo}
                     disabled={future.length === 0}
                     className="icon-btn"
-                    >
+                  >
                     <FaRedo size={25} />
                   </Button>
                   <button

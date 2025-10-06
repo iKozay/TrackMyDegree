@@ -1,0 +1,131 @@
+paths:
+  /timeline/save:
+    post:
+      summary: Save or update a timeline
+      tags:
+        - Timeline
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timeline:
+                  type: object
+                  description: Timeline object including items and courses
+      responses:
+        '200':
+          description: Timeline saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Timeline data is missing or invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Could not save timeline
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /timeline/getAll:
+    post:
+      summary: Get all timelines for a user
+      tags:
+        - Timeline
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+      responses:
+        '200':
+          description: List of timelines or message if none found
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                  - type: array
+                    items:
+                      type: object
+        '400':
+          description: User ID is missing or invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Could not retrieve timelines
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+  /timeline/delete:
+    post:
+      summary: Delete a timeline by ID
+      tags:
+        - Timeline
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timeline_id:
+                  type: string
+      responses:
+        '200':
+          description: Timeline deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Timeline not found or ID missing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Failed to delete timeline
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
