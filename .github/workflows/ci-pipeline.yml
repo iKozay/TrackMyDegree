@@ -21,6 +21,11 @@ jobs:
       - name: Clone Repo
         uses: actions/checkout@v2
 
+      - name: Create Docker secret for SQL Server
+        run: |
+          mkdir -p secrets
+          echo "${{ secrets.SQL_SERVER_PASSWORD }}" > secrets/sql_server_password.txt
+
       # May need to look into healthchecks for each service to ensure they're fully up before testing instead of a fixed sleep
       - name: Start services with Docker Compose
         run: |
