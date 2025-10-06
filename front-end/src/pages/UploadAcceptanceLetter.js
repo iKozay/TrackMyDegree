@@ -4,9 +4,32 @@ import { pdfjs } from 'react-pdf';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import * as Sentry from '@sentry/react';
+import InformationForm from "../components/InformationForm";
 
 // Set the worker source for PDF.js
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
+
+
+//This page creates an initial timeline using either manually entered information or by parsing an acceptance letter
+/**
+ * UploadAcceptanceLetterPage Component - Dual-mode timeline creation page
+ * 
+ * Two creation paths:
+ * 1. Manual Form: User selects degree, starting term/year, and program options (Co-op/Extended Credit)
+ * 2. PDF Upload: Processes acceptance letter PDFs to auto-extract degree, terms, exemptions, and program info
+ * 
+ * Backend Integration:
+ * - Fetches available degrees from server API (/degree/getAllDegrees)
+ * - Uses Sentry for error tracking
+ * 
+ * PDF Processing (client-side):
+ * - Extracts degree concentration, starting/graduation terms, co-op eligibility
+ * - Identifies exempted courses, transfer credits, and credit deficiencies
+ * - Validates document is an "Offer of Admission" letter
+ * 
+ * Navigation: Redirects to TimelinePage (/timeline_change) with extracted/selected data
+ * Storage: Clears previous timeline data in localStorage before processing
+ */
 
 const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   const isFirstRender = useRef(true);
@@ -14,9 +37,6 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   const [fileName, setFileName] = useState('No file chosen');
   const [output, setOutput] = useState('');
   const [degrees, setDegrees] = useState([]);
-  const [selectedDegreeId, setSelectedDegreeId] = useState(null);
-  const [selectedTerm, setSelectedTerm] = useState(''); // No default value
-  const [selectedYear, setSelectedYear] = useState(''); // No default value
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const [selectedRadio, setSelectedRadio] = useState({
@@ -33,56 +53,12 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     
   }, [onDataProcessed]);
 
-  // List of specific programs to check for
-  const programNames = [
-    'Aerospace Engineering', 'Building Engineering', 'Civil Engineering', 'Computer Engineering',
-    'Computer Science', 'Computer Science (Minor)', 'Computer Science - Computation Arts',
-    'Data Science', 'Electrical Engineering', 'Health and Life Sciences', 'Indigenous Bridging Program',
-    'Industrial Engineering', 'Mechanical Engineering', 'Science and Technology', 'Software Engineering'
-  ];
 
   const handleRadioChange = (group, value) => {
     setSelectedRadio((prev) => ({
       ...prev,
       [group]: prev[group] === value ? null : value, // Toggle selection
     }));
-  };
-
-  const handleDegreeChange = (e) => {
-    setSelectedDegreeId(e.target.value);
-  };
-
-  // Navigate on Next button click, passing the selected degree and combined starting semester
-  const handleNextButtonClick = () => {
-    // Example check to ensure something is selected:
-    if (!selectedDegreeId) {
-      alert('Please select a degree before continuing.');
-      return;
-    }
-
-    if (!selectedTerm || !selectedYear) {
-      alert('Please select both a term and a year for your starting semester.');
-      return;
-    }
-    const startingSemester = `${selectedTerm} ${selectedYear}`;
-
-    const matched_degree = degrees.find(d => d.id === selectedDegreeId);
-    const credits_Required = matched_degree.totalCredits;
-
-    // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
-    localStorage.setItem('Timeline_Name', null);
-
-    console.log('select: ', selectedRadio.extendedCredit);
-    navigate('/timeline_change', {
-      state: {
-        degree_Id: selectedDegreeId,
-        startingSemester: startingSemester,
-        coOp: selectedRadio.coOp,
-        credits_Required: credits_Required,
-        extendedCredit: selectedRadio.extendedCredit,
-        creditDeficiency: selectedRadio.creditDeficiency,
-      },
-    });
   };
 
   useEffect(() => {
@@ -152,15 +128,9 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     alert('File uploaded Successfully!');
   };
 
-  const handleCancel = () => {
-    setSelectedFile(null);
-    setFileName('No file chosen');
-    setOutput('');
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
 
+  //Reads the PDF as an array buffer. The text is extracted using PDF.js
+  // TODO: Move processing logic to seeparate utility file
   const processFile = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -636,93 +606,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     >
       <div className="top-down">
         <div className="g-container">
-          <div className="form-container-al">
-            <h2>Required Information</h2>
-            <p>
-              Manually fill out the following information so we can help you
-              create the perfect timeline
-            </p>
-            <form>
-              <div>
-                <label htmlFor="degree-concentration">
-                  Degree Concentration:
-                </label>
-                <select
-                  id="degree-concentration"
-                  className="input-field"
-                  onChange={handleDegreeChange}
-                >
-                  <option value="">-- Select a Degree --</option>
-                  {degrees && degrees.length > 0 ? (
-                    degrees
-                      .sort((a, b) => a.name.localeCompare(b.name)) // Sort degrees alphabetically by name
-                      .map((degree) => (
-                        <option key={degree.id} value={degree.id}>
-                          {degree.name}
-                        </option>
-                      ))
-                  ) : (
-                    <option value="" disabled>
-                      No degrees available
-                    </option>
-                  )}
-                </select>
-              </div>
-              <div>
-                <div>
-                  <label htmlFor="starting-term">Starting Term:</label>
-                  <select
-                    id="starting-term"
-                    className="input-field"
-                    value={selectedTerm}
-                    onChange={(e) => setSelectedTerm(e.target.value)}
-                  >
-                    <option value="">-- Select Term --</option>
-                    <option value="Winter">Winter</option>
-                    <option value="Summer">Summer</option>
-                    <option value="Fall">Fall</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label htmlFor="starting-year">Starting Year:</label>
-                <select
-                  id="starting-year"
-                  className="input-field"
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                >
-                  <option value="">-- Select Year --</option>
-                  {Array.from({ length: 2031 - 2017 + 1 }).map((_, index) => {
-                    const year = 2017 + index;
-                    return (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-              <div className="radio-group">
-                <span className="cooo">Extended Credit Program? </span>
-                <label>
-                  <input
-                    type="checkbox"
-                    name="extended-credit"
-                    value="yes"
-                    checked={selectedRadio.extendedCredit === true}
-                    onChange={() => handleRadioChange('extendedCredit', true)}
-                  />
-                </label>
-              </div>
-            </form>
-            <button className="cancel-button" onClick={handleCancel}>
-              Cancel
-            </button>
-            <button onClick={handleNextButtonClick} className="next-button">
-              Next
-            </button>
-          </div>
+          <InformationForm degrees={degrees}/>
 
           <div className="or-divider">OR</div>
 
