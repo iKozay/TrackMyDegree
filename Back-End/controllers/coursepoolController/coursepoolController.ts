@@ -1,3 +1,14 @@
+/**
+ * Purpose:
+ *  - Controller for managing CoursePool entities (create, read, update, delete).
+ *  - Encapsulates all DB operations tied to course pools.
+ * Notes:
+ *  - Returns DB_OPS enum to standardize operation results (SUCCESS, FAILURE, etc.)
+ *  - Relies on DBController for SQL Server connections.
+ *  - Errors logged locally and reported to Sentry.
+ *  - Uses coursepool_types.d.ts for strong typing of course pool objects.
+ */
+
 import Database from '@controllers/DBController/DBController';
 import DB_OPS from '@Util/DB_Ops';
 import CoursePoolTypes from '@controllers/coursepoolController/coursepool_types';
@@ -31,6 +42,9 @@ async function createCoursePool(pool_name: string): Promise<DB_OPS> {
               OUTPUT INSERTED.id\
               VALUES                 (@id, @name)',
         );
+      // INSERT uses OUTPUT INSERTED.id so we expect result.recordset to contain the inserted id.
+      // If result.recordset is undefined the code treats it as a partial success (MOSTLY_OK).
+      // This is how almost all the MOSTLY_OK returns behave in this file and other controllers till now.
 
       if (undefined === result.recordset) {
         log('Error inserting coursepool record: ' + result.recordset);
@@ -60,7 +74,7 @@ async function getAllCoursePools(): Promise<
   if (dbConn) {
     try {
       const result = await dbConn.request().query('SELECT * FROM CoursePool');
-
+      // returns empty array of table is empty
       return {
         course_pools: result.recordset,
       };

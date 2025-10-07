@@ -7,9 +7,10 @@ import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
 import { ResetPassError } from '../middleware/SentryErrors';
 
+//This is the page where the users can reset their password. This is just a form because the reset happens on the server side
 function ResetPassPage() {
-  const [otp, setOTP] = useState('');
-  const [password, setPassword] = useState('');
+  const [otp, setOTP] = useState(''); //This is the one-time password sent to the user via email
+  const [password, setPassword] = useState(''); 
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
@@ -46,6 +47,7 @@ function ResetPassPage() {
 
     setLoading(true); // Start loading
 
+    //The password reset process is done in the backend so the data from the form is being sent there
     try {
       const response = await fetch(
         `${process.env.REACT_APP_SERVER}/auth/reset-password`,

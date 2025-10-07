@@ -22,6 +22,7 @@ const UserPage = ({ onDataProcessed }) => {
 
   const navigate = useNavigate();
 
+  //Updates userInfo whenever the user changes to keep the information correct
   useEffect(() => {
     if (user) {
       setUserInfo([
@@ -31,7 +32,7 @@ const UserPage = ({ onDataProcessed }) => {
     }
   }, [user]);
 
-
+  //Sends a request to the server for the credits for a degree. Sends in the degreeID
   const getDegreeCredits = async (degreeId) => {
     try {
       const response = await fetch(
@@ -60,7 +61,7 @@ const UserPage = ({ onDataProcessed }) => {
   }
 
 
-
+  //handler for when the user clicks on a timeline. Passes data and redirects the user to timeline edit
   const handleTimelineClick = async (obj) => {
     const transcriptData = [];
     localStorage.setItem('Timeline_Name', JSON.stringify(obj.name));
@@ -71,7 +72,7 @@ const UserPage = ({ onDataProcessed }) => {
     let creditsRequired = await getDegreeCredits(degreeId);
     if (!creditsRequired) {
       console.error('Failed to fetch degree credits');
-      creditsRequired = 120;
+      creditsRequired = 120; //Defaults to 120 if the credits cannot be obtained
     };
     const isExtendedCredit = obj.isExtendedCredit;
 
@@ -86,6 +87,7 @@ const UserPage = ({ onDataProcessed }) => {
 
     console.log('isExtendedCredit user page', isExtendedCredit);
 
+    //This is a passed in function
     onDataProcessed({
       transcriptData,
       degreeId,
@@ -99,7 +101,7 @@ const UserPage = ({ onDataProcessed }) => {
   // add way to get user timelines here
   const [userTimelines, setUserTimelines] = useState([]);
 
-
+  //If the user is a student, this fetches all timelines belonging to them and sorts them by last modified
   useEffect(() => {
     if (user.type === "student") {
       const getTimelines = async () => {
@@ -153,6 +155,7 @@ const UserPage = ({ onDataProcessed }) => {
     setShowModal(true);
   };
 
+  //Opens a popup when trying to delete a timeline. Requests deletion from the server
   const handleDelete = async (timeline_id) => {
     try {
       // delete timeline
@@ -344,7 +347,7 @@ export default UserPage;
 
 
 
-
+//This code used to be for updating timelines but seems to be dead code at time point
 //! Commented out edit modde code
 /*useEffect(() => {
   if (userInfo) {

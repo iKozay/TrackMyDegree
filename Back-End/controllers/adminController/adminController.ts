@@ -1,5 +1,15 @@
 // src/controllers/adminController.ts
 
+/**
+ * This controller handles all the admin-facing database operations such as
+ * - Creating JSON backups of key tables
+ * - Listing, restoring, and deleting backups
+ * - Seeding the DB with requirement + course data
+ * - Utility endpoints for fetching tables and records
+ * The idea here is to give admins tools to snapshot the DB state,
+ * roll back if needed, and keep course/degree data fresh
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import Database from '@controllers/DBController/DBController'; // Your database connection utility
 import {
@@ -18,6 +28,8 @@ import 'dotenv/config';
 import { readdir } from 'fs/promises';
 import * as Sentry from '@sentry/node';
 
+// only tables we actually backup or restore
+// restricted on purpose to avoid wiping out unrelated DB state
 const allowedTables = [
   'AppUser',
   'Timeline',
@@ -26,6 +38,11 @@ const allowedTables = [
   'Feedback',
 ];
 
+/**
+ * below is the reverse order well delete tables in when restoring
+ * because oforeign key constraints. Delete child tables first,
+ * to avoid errors from parent references.
+ */
 const allTablesReversed = [
   'Feedback',
   'Exemption',
@@ -42,10 +59,14 @@ const allTablesReversed = [
   'Degree',
 ];
 
+// helper to resolve where backups should be stored. Falls back to ./backups if no env var is provided.
 const getBackupDir = (): string => {
   return process.env.BACKUP_DIR || path.join(__dirname, '../../backups');
 };
 
+/**
+ * Create a full JSON backup of all allowed tables. Each tables data dumped into one big JSON file with timestamp.
+ */
 export const createBackup = async (
   req: Request,
   res: Response,
@@ -308,6 +329,8 @@ export const deleteBackup = async (
   }
 };
 
+// Admin Utilities 
+
 /**
  * Fetches the list of all tables in the database.
  */
@@ -399,9 +422,19 @@ export const getTableRecords = async (
   }
 };
 
+let dbPassword = process.env.DB_PASSWORD; // default to env var for backward compatibility
+// if docker secret file is provided, read the password from there
+if (process.env.SQL_SERVER_PASSWORD_FILE) {
+  try {
+    dbPassword = fs.readFileSync(process.env.SQL_SERVER_PASSWORD_FILE, 'utf-8').trim();
+    } catch (e) {
+      console.error('Error reading dbPassword from file:', e);
+  }
+}
+
 const dbConfig: sql.config = {
   user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+  password: dbPassword,
   database: process.env.DB_NAME,
   server: process.env.DB_HOST || 'localhost',
   options: {
@@ -450,6 +483,10 @@ interface CourseJson {
 // -------------------------------------
 // 3) Parse the Requirements Text File
 // -------------------------------------
+/**
+ * Parses a plaintext degree requirements file into a structured object.
+ * and returns a full DegreeData object with requirements array
+ */
 function parseRequirementsFile(filePath: string): DegreeData {
   const text = fs.readFileSync(filePath, 'utf-8');
   const lines = text.split('\n').map((l) => l.trim());
@@ -515,6 +552,10 @@ function parseRequirementsFile(filePath: string): DegreeData {
 // -------------------------------------
 // 4) Parse the JSON (Course Data)
 // -------------------------------------
+/**
+ * Loads every course JSON file in the given directory (recursively)
+ * and warns if duplicates are found
+ */
 function loadAllCourseJsons(dirPath: string): Map<string, CourseJson> {
   const courseMap = new Map<string, CourseJson>();
   function recurseDirectory(currentPath: string) {
@@ -555,6 +596,8 @@ function extractCodeFromTitle(title: string): string {
   return `${match[1]}${match[2]}`.toUpperCase();
 }
 
+
+// this validates loaded courses mainly by format checks on titles
 function validateCourseData(courseMap: Map<string, CourseJson>): void {
   for (const [code, courseData] of courseMap.entries()) {
     if (!/^[A-Z]{2,4}\s*\d{3}/.test(courseData.title)) {
@@ -577,6 +620,18 @@ function validateCourseData(courseMap: Map<string, CourseJson>): void {
 // -------------------------------------
 // 5) Upsert Helpers (SQL Statements)
 // -------------------------------------
+/**
+ * basically insert rows if they don’t exist, or update them if they do.
+ * this have been used  for:
+ *   - Degrees
+ *   - CoursePools
+ *   - Courses
+ *   - DegreeXCoursePool
+ *   - CourseXCoursePool
+ *   - Requisites
+ */
+
+// they use this to generate the next incremental ID for a table using a prefix.
 async function generateNextId(
   t: sql.Transaction,
   tableName: string,
@@ -920,6 +975,10 @@ function parseRequisites(
 // -------------------------------------
 // 6) Main Seed Function
 // -------------------------------------
+/**
+ * main seeding function that
+ * basically brings the DB up to date with what’s in course-data/.
+ */
 async function seedSoenDegree() {
   let transaction: sql.Transaction | null = null;
   let pool: sql.ConnectionPool | null = null;

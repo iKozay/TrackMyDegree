@@ -1,6 +1,6 @@
 import '../css/UploadAcceptanceLetter.css';
 import React, { useState, useRef, useEffect } from 'react';
-import { pdfjs } from 'react-pdf';
+import { pdfjs } from 'react-pdf'; //This allows the code to parse PDF files
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import * as Sentry from '@sentry/react';
@@ -10,7 +10,6 @@ import UploadBox from "../components/UploadBox";
 
 // Set the worker source for PDF.js
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
-
 
 //This page creates an initial timeline using either manually entered information or by parsing an acceptance letter
 /**
@@ -32,7 +31,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
  * Navigation: Redirects to TimelinePage (/timeline_change) with extracted/selected data
  * Storage: Clears previous timeline data in localStorage before processing
  */
-
 const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   const isFirstRender = useRef(true);
   const [degrees, setDegrees] = useState([]);
@@ -52,16 +50,19 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   }, [onDataProcessed]);
 
 
+  //The radio mentioned is the "Extended Credit Program" radio button
   const handleRadioChange = (group, value) => {
     setSelectedRadio((prev) => ({
       ...prev,
-      [group]: prev[group] === value ? null : value, // Toggle selection
+      [group]: prev[group] === value ? null : value, // Toggle selection. If clicked twice it's deselected
     }));
   };
 
   useEffect(() => {
     // get a list of all degrees by name
+    // TODO: Add loader while fetching degrees from API
     const getDegrees = async () => {
+      // TODO: Add proper error handling and user feedback for API failures
       try {
         const response = await fetch(
           `${process.env.REACT_APP_SERVER}/degree/getAllDegrees`,
@@ -143,8 +144,14 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     reader.readAsArrayBuffer(file);
   };
 
+  //This is a helper function used to get the details about the program (Mapped to an id), Coop/Extended Credit/Credit deficiency, starting term, exemptions/transfer credits/deficiencies.
+  //This function generates all terms between the start end expected end terms
+  //Returns a structured object
+  // TODO: Refactor to simplify this complex function
   const extractAcceptanceDetails = (pagesData) => {
     const details = {};
+
+    // TODO: Move all these lists/mapping to to a config file
 
     // List of specific programs to check for
     const programNames = [
@@ -185,7 +192,6 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       'Mechanical Engineering': 'MECH',
       'Software Engineering': 'SOEN',
     };
-
     const degreeMapping_2 = {
       'Bachelor of Engineering, Aerospace Engineering': 'AERO',
       'Bachelor of Engineering, Aerospace Engineering Option: Aerodynamics and Propulsion': 'AEROA',
@@ -501,6 +507,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     return { results, degree, degreeId, details };
   };
 
+  //Groups data from the PDF into a format for the timeline
   const matchTermsWithCourses = (data) => {
     let matchedResults = [];
     let currentTerm = data[0]?.name; // Use optional chaining to safely access `name`

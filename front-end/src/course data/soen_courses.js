@@ -7,6 +7,9 @@ import humanities from '../course data/general_education_electives/humanities.js
 import otherStudies from '../course data/general_education_electives/other_complementary_studies.json';
 import socialSciences from '../course data/general_education_electives/social_sciences.json';
 
+//Comparing to Course data, Back-End, here in Front-End, the project focuses on SOEN program only. 
+//The other programs do not have supported course data as in Back-End. 
+
 const genEdElec = [
   { title: 'Humanities', courseList: humanities },
   { title: 'Social Sciences', courseList: socialSciences },

@@ -16,6 +16,22 @@ import UploadBox from "../components/UploadBox";
 // Set the worker source
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
+//Operates the same way as the UploadAcceptanceLetter.js page but with transcripts
+// UploadTranscript Component - Handles file upload, drag-and-drop, and processing of PDF transcripts
+/**
+ * UploadTranscript Component - Client-side transcript processing page
+ * 
+ * Functionality:
+ * - Allows users to upload PDF transcripts via drag-drop or file browser
+ * - Processes PDFs entirely on the frontend using PDF.js (no backend communication)
+ * - Extracts academic data: terms, courses, degree info, and extended credit status
+ * - Groups courses under their respective terms chronologically
+ * - Stores processed data in localStorage for persistence
+ * - Navigates to TimelinePage (/timeline_change) with extracted transcript data
+ * - Passes data to parent component via onDataProcessed callback
+ * 
+ * Note: All transcript processing happens client-side for privacy - no data sent to servers
+ */
 const UploadTranscript = ({ onDataProcessed }) => {
   const navigate = useNavigate(); // Hook to navigate to TimelinePage
 
@@ -38,6 +54,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
             }),
           );
         }
+        // TODO: Consider using Web Workers for heavy PDF processing to avoid blocking UI
         Promise.all(pagesPromises).then((pagesData) => {
           const extractedData = extractTranscriptComponents(pagesData);
           const { terms, courses, separators } = extractedData;

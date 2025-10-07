@@ -9,18 +9,21 @@ import { AdminPageError } from '../middleware/SentryErrors';
 import { useNavigate } from 'react-router-dom';
 import { Button, Form } from 'react-bootstrap';
 
+
+//This page is an admin dashboard for manipulating the database (CRUD). The page performs backups, deletes or restores them and can make the server seed data
 const AdminPage = () => {
-  const [tables, setTables] = useState([]);
-  const [records, setRecords] = useState([]);
-  const [columns, setColumns] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedTable, setSelectedTable] = useState(null);
-  const [error, setError] = useState('');
-  const [backups, setBackups] = useState([]);
-  const [selectedBackup, setSelectedBackup] = useState('');
+  const [tables, setTables] = useState([]); //list of all tables
+  const [records, setRecords] = useState([]); //records of the currently selected database
+  const [columns, setColumns] = useState([]); //table column names for displaying records
+  const [loading, setLoading] = useState(true); //manages the spinner while the database loads
+  const [selectedTable, setSelectedTable] = useState(null); //which table the user selected
+  const [error, setError] = useState(''); //stores error message
+  const [backups, setBackups] = useState([]); //list of backups
+  const [selectedBackup, setSelectedBackup] = useState(''); //backup selected for manipulations
   //const [keyword, setKeyword] = useState('');
   const navigate = useNavigate();
 
+  //This function is ran once at the start. It calls the backend to get a list of backups and stores them in the "backups" variable
   const fetchBackups = async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/fetch-backups`, {
@@ -235,6 +238,9 @@ const AdminPage = () => {
     fetchRecords(tableName);
   };
 
+  /**This function is used to seed data into the database.
+   *  The data is not being send from the client.
+   *  Rather the server is using .json files that  are already present on the server (Back-End/course-data/course-list/updated_courses).**/
   const handleSeedData = async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/seed-data`, {

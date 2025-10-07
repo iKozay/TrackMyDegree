@@ -1,9 +1,21 @@
 import express, { Request, Response } from 'express';
 import timelineController from '@controllers/timelineController/timelineController';
 import HTTP from '@Util/HTTPCodes';
-
+//Yassine: The router can be just call the appropriate controller to handle everything. 
 const router = express.Router();
 
+// Mocro : POST /save → Save or update a timeline
+// Mocro : Expects a 'timeline' object in the JSON body, including items and courses
+// Mocro : Current behavior:
+//        - Checks if timeline exists in body; returns 400 if missing
+//        - Calls controller to save timeline
+//        - Returns 200 with saved timeline if successful
+//        - Returns 500 if save fails or exception occurs
+// Mocro : How it can be refactored:
+//        1. Move validation to a middleware to remove repeated code
+//        2. Use a centralized async error handler instead of try/catch in each route
+//        3. Consider using PUT for updates and POST for creation to follow REST
+// Yassine: We need to use proper http methods!
 // Save (or update) a timeline.
 // The entire timeline (including items and courses) is passed in the JSON body.
 router.post('/save', async (req: Request, res: Response) => {
@@ -25,6 +37,19 @@ router.post('/save', async (req: Request, res: Response) => {
   }
 });
 
+// Mocro : POST /getAll → Get all timelines for a user
+// Mocro : Expects 'user_id' in the JSON body
+// Mocro : Current behavior:
+//        - Validates presence of user_id; returns 400 if missing
+//        - Calls controller to fetch timelines
+//        - Returns 200 with timelines or message if none found
+//        - Logs error and returns 500 if exception occurs
+// Mocro : How it can be refactored:
+//        1. Change method to GET and pass user_id as URL param for REST compliance
+//        2. Move validation to middleware
+//        3. Use centralized async handler to remove try/catch
+//        4. Add pagination if user has many timelines
+// get not post
 router.post('/getAll', async (req: Request, res: Response) => {
   const { user_id } = req.body;
   if (!user_id || Object.keys(user_id).length === 0) {
@@ -45,6 +70,19 @@ router.post('/getAll', async (req: Request, res: Response) => {
   }
 });
 
+// Mocro : POST /delete → Delete a timeline
+// Mocro : Expects 'timeline_id' in the JSON body
+// Mocro : Current behavior:
+//        - Validates timeline_id; returns 404 if missing
+//        - Calls controller to remove timeline
+//        - Checks controller message to determine HTTP response
+//        - Returns 200 if deleted, 404 if not found, 500 for other errors
+// Mocro : How it can be refactored:
+//        1. Use DELETE method with timeline_id as URL param
+//        2. Move validation to middleware
+//        3. Centralize async error handling
+//        4. Standardize HTTP responses instead of parsing result string
+//delete not post
 router.post('/delete', async (req: Request, res: Response) => {
   const { timeline_id } = req.body;
 

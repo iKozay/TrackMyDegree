@@ -2,6 +2,9 @@ from bs4 import BeautifulSoup
 import json
 import re
 
+#This Parser is implemented multiple times in different folders: Course Data, Back-End, Front-End. 
+#This should be cleaned up in the future.
+
 # Read the HTML content from a file
 with open('scraped_page.html', 'r', encoding='utf-8') as file:
     html_content = file.read()

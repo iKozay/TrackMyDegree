@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/ErrorPage.css';
 
+//This page shows up if an action was made without proper permissions (non-admin)
 const ForbiddenPage = () => {
   const navigate = useNavigate();
 

@@ -66,7 +66,7 @@ export function getCookieOptions(): CookieOptions {
     secure: security,
     sameSite: 'lax',
     path: '/',
-    maxAge: 1000 * 60 * 60, //? 1 Hour
+    maxAge: 1000 * 60 * 60, //? 1 Hour - JWT token lifetime
     domain: domain_name,
   } as CookieOptions;
 }
