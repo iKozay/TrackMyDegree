@@ -14,6 +14,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      #Step 1 — Debug: confirm secrets are visible
+      - name: Check if DROPLET_IP is visible
+        run: |
+          if [ -z "${{ secrets.DROPLET_IP }}" ]; then
+            echo "❌ DROPLET_IP not found!"
+          else
+            echo "✅ DROPLET_IP is set."
+          fi
+
       # A quick search shows that Droplet is a term used by DigitalOcean for their virtual private servers (VPS).
       # This step connects to the Droplet using SSH and deploys the latest changes using Docker Compose.
       # TODO: Get access to the server and set up SSH keys in GitHub secrets.
