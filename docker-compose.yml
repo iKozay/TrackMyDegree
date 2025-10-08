@@ -33,9 +33,6 @@ services:
   backend:
     image: ghcr.io/<your-username-lower>/trackmydegree-backend:latest
     restart: unless-stopped
-    # This exposes port 8000 on the host machine meaning that it is accessible EXTERNALLY. Need to check firewall configurations deployed on server
-    ports:
-      - "8000:8000"
     environment:
       - SQL_SERVER_HOST=sqlserver
       - SQL_SERVER_USER=sa
