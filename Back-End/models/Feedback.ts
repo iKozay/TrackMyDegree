@@ -1,13 +1,8 @@
 import { Schema, model } from 'mongoose';
 
 const FeedbackSchema = new Schema({
-  _id: { type: String },
-  user: {
-    id: { type: String, ref: 'User', default: null },
-    fullname: { type: String, default: null }
-  },
+  user_id: { type: String, ref: 'User', required: true },
   message: { type: String, required: true },
-  submittedAt: { type: Date, default: Date.now }
-});
+}, { timestamps: { createdAt: 'submitted_at' } }); // Automatically adds submitted_at
 
 export const Feedback = model('Feedback', FeedbackSchema);
