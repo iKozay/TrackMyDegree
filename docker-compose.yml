@@ -31,7 +31,7 @@ services:
       - app-network
 
   backend:
-    image: ghcr.io/<your-username-lower>/trackmydegree-backend:latest
+    image: ghcr.io/ikozay/trackmydegree-backend:latest
     restart: unless-stopped
     environment:
       - SQL_SERVER_HOST=sqlserver
