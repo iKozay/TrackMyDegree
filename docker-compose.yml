@@ -31,10 +31,8 @@ services:
       - app-network
 
   backend:
-    # This builds the backend container using its Dockerfile
-    build:
-      context: ./Back-End
-      dockerfile: Dockerfile
+    image: ghcr.io/<your-username-lower>/trackmydegree-backend:latest
+    restart: unless-stopped
     # This exposes port 8000 on the host machine meaning that it is accessible EXTERNALLY. Need to check firewall configurations deployed on server
     ports:
       - "8000:8000"
@@ -47,15 +45,14 @@ services:
       - REDIS_PORT=6379
       - REDIS_URL=redis://redis:6379
     volumes:
-      # I don't know what this backup folder is for.
       - ./backups:/var/backups
     depends_on:
       - sqlserver
       - redis
-    networks:
-      - app-network
     secrets:
       - sql_server_password
+    networks:
+      - app-network
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
