@@ -24,7 +24,27 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            set -e
             cd /root/TrackMyDegree
             git pull origin main
-            docker-compose down
-            docker-compose up --build -d
+
+            if docker compose version >/dev/null 2>&1; then
+              DC="docker compose"
+            else
+              DC="docker-compose"
+            fi
+
+            if [ -n "$GHCR_USER" ] && [ -n "$GHCR_TOKEN" ]; then
+              echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+            fi
+
+            echo "Pulling latest images from GHCR..."
+            $DC -f docker-compose.prod.yml pull
+
+            echo "Recreating containers..."
+            $DC -f docker-compose.prod.yml up -d --remove-orphans
+
+            echo "Cleaning up unused images..."
+            docker image prune -f
+
+            echo "✅ Deployment complete!"
