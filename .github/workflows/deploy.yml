@@ -23,6 +23,9 @@ jobs:
           host: ${{ secrets.DROPLET_IP }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          #set -e: if any command fails, the script will exit immediately with a non-zero status.
+          #if docker compose version...: Detects Docker Compose command exists on Droplet
+          #if [ -n "$GHCR_USER" ] && [ -n "$GHCR_TOKEN" ]; then...: Log in to GitHub Container Registry (GHCR) if credentials are provided
           script: |
             set -e
             cd /root/TrackMyDegree
