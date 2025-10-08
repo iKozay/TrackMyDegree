@@ -20,14 +20,15 @@ services:
       "
 
   frontend:
-    build:
-      context: ./front-end
-      dockerfile: Dockerfile
+    image: ghcr.io/ikozay/trackmydegree-frontend:latest
+    restart: unless-stopped
     ports:
-      # This exposes port 3000 on the host machine meaning. I do not know what proxy solution they are using for SSL and port mapping (443-->3000)
+          # This exposes port 3000 on the host machine meaning. I do not know what proxy solution they are using for SSL and port mapping (443-->3000)
       - "3000:3000"
     depends_on:
       - backend
+    networks:
+      - app-network
 
   backend:
     # This builds the backend container using its Dockerfile
