@@ -1,4 +1,4 @@
-import { Feedback } from "models";
+import { Feedback } from "../../models/Feedback";
 
 /**
  * Submits feedback to the database.
@@ -12,12 +12,13 @@ import { Feedback } from "models";
  */
 export default async function submitFeedback(
   message: string,
-  user_id: string,
+  user_id?: string,
 ) {
+    // TODO: Validate user_id if provided
 
     const feedback = await Feedback.create({
         message,
-        user_id
+        user_id,
     });
 
     return {
