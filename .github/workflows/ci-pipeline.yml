@@ -96,6 +96,7 @@ jobs:
         # TODO: remove continue-on-error after fixing all test errors
         continue-on-error: true
         run: |
+          npm run build
           npm test -- --coverage
 
       - name: Run SonarCloud Scan
