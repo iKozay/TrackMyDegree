@@ -19,24 +19,68 @@ services:
       npm test
       "
 
+  traefik:
+    image: traefik:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      # Dashboard only accessible from localhost
+      - "127.0.0.1:8080:8080"
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
+    command:
+      # Enable Traefik dashboard through http
+      - --api.dashboard=true
+      - --api.insecure=true
+      # Enable Docker provider. Automatically discover services. See labels under frontend container.
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      # Define entrypoints for HTTP and HTTPS
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      # Let's Encrypt configuration
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@${DOMAIN:-localhost}}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      # Redirect HTTP to HTTPS
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+    volumes:
+      - letsencrypt-data:/letsencrypt
+      # Mount Docker socket as read-only to allow Traefik to discover services
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN:-localhost}`)"
+
   frontend:
     build:
       context: ./front-end
       dockerfile: Dockerfile
-    ports:
-      # This exposes port 3000 on the host machine meaning. I do not know what proxy solution they are using for SSL and port mapping (443-->3000)
-      - "3000:3000"
+    expose:
+      - "3000"
     depends_on:
       - backend
+      - traefik
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
 
   backend:
     # This builds the backend container using its Dockerfile
     build:
       context: ./Back-End
       dockerfile: Dockerfile
-    # This exposes port 8000 on the host machine meaning that it is accessible EXTERNALLY. Need to check firewall configurations deployed on server
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     environment:
       - SQL_SERVER_HOST=sqlserver
       - SQL_SERVER_USER=sa
@@ -55,6 +99,8 @@ services:
       - app-network
     secrets:
       - sql_server_password
+    labels:
+      - "traefik.enable=false"
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -65,9 +111,8 @@ services:
       - MSSQL_PID=Developer
       # This allows the FRONTEND to talk to the DATABASE directly (potentially bypassing the backend) for CORS using PUBLIC IP
       - CORS_ORIGIN=http://167.71.165.174:3000
-    # This exposes port 1433 on the host machine meaning that it is accessible EXTERNALLY. Need to check firewall configurations deployed on server
-    ports:
-      - "1433:1433"
+    expose:
+      - "1433"
     volumes:
       - mssql-data:/var/opt/mssql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -77,17 +122,20 @@ services:
       - app-network
     secrets:
       - sql_server_password
+    labels:
+      - "traefik.enable=false"
 
   redis:
     image: redis:latest
     container_name: my-redis
-    # This exposes port 6379 on the host machine meaning that it is accessible EXTERNALLY. Need to check firewall configurations deployed on server
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     volumes:
       - redis-data:/data
     networks:
       - app-network
+    labels:
+      - "traefik.enable=false"
 
 networks:
   app-network:
