@@ -3,10 +3,19 @@ from bs4.dammit import EncodingDetector
 import json
 import requests
 import re
+import sys
 
-# URL of the Concordia Computer Science courses page
-url = "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-70-department-of-computer-science-and-software-engineering/section-71-70-10-computer-science-and-software-engineering-courses.html#3645"
+#Arguments
+#argv[1] is the url of the page to be scraped for course data
+#argv[2] is for the name of the output file
 
+#----------------------------------
+#There is code for scraping course data in course data/ Scraping. It might be duplicated with this file.
+#This scraper includes function for cleaning and normalizing text with proper spacing.
+#----------------------------------
+
+# URL of the Concordia courses page
+url = sys.argv[1]
 
 # Set a user agent to mimic a real browser
 USERAGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -157,7 +166,7 @@ for block in course_blocks:
         print(f"Error processing course block: {e}")
 
 # Save to JSON file
-output_path = 'COMP_courses.json'
+output_path = sys.argv[2]
 with open(output_path, 'w', encoding='utf-8') as json_file:
     json.dump(courses, json_file, indent=4, ensure_ascii=False)
 
