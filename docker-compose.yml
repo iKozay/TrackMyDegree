@@ -57,9 +57,8 @@ services:
       - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN:-localhost}`)"
 
   frontend:
-    build:
-      context: ./front-end
-      dockerfile: Dockerfile
+    image: ghcr.io/ikozay/trackmydegree-frontend:latest
+    restart: unless-stopped
     expose:
       - "3000"
     depends_on:
@@ -75,10 +74,8 @@ services:
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
 
   backend:
-    # This builds the backend container using its Dockerfile
-    build:
-      context: ./Back-End
-      dockerfile: Dockerfile
+    image: ghcr.io/ikozay/trackmydegree-backend:latest
+    restart: unless-stopped
     expose:
       - "8000"
     environment:
@@ -90,13 +87,10 @@ services:
       - REDIS_PORT=6379
       - REDIS_URL=redis://redis:6379
     volumes:
-      # I don't know what this backup folder is for.
       - ./backups:/var/backups
     depends_on:
       - sqlserver
       - redis
-    networks:
-      - app-network
     secrets:
       - sql_server_password
     labels:
@@ -137,6 +131,22 @@ services:
     labels:
       - "traefik.enable=false"
 
+  # Add Watchtower for automatic updates
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 60  # check every minute
+    environment:
+      - WATCHTOWER_CLEANUP=true  # remove old images
+      - WATCHTOWER_NOTIFICATIONS_LEVEL=info
+      - WATCHTOWER_DEBUG=false
+      - WATCHTOWER_REGISTRY_AUTH=true
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
@@ -144,6 +154,7 @@ networks:
 volumes:
   mssql-data:
   redis-data:
+  letsencrypt-data:
 
 secrets:
   sql_server_password:

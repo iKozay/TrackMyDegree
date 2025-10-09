@@ -58,7 +58,6 @@ router.post('/login', async (req: Request, res: Response) => {
 // Sign-up
 router.post('/signup', async (req: Request, res: Response) => {
   if (!req.body) {
-
     res
       .status(HTTP.BAD_REQUEST)
       .json({ error: 'Request body cannot be empty' });

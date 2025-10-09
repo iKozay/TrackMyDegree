@@ -251,7 +251,7 @@ router.post('/getCredits', async (req: Request, res: Response) => {
       res.status(HTTP.NOT_FOUND).json({ error: 'Degree not found' });
       return;
     }
-    const totalCredits  = result;
+    const totalCredits = result;
     res.status(HTTP.OK).json({ totalCredits });
   } catch (error) {
     console.error('Error in /degree/getCredits', error);

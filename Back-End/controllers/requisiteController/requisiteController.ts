@@ -9,12 +9,10 @@
  *  - Validates courses exist and prevents duplicate requisites.
  */
 
-
 import Database from '@controllers/DBController/DBController';
 import RequisiteTypes from '@controllers/requisiteController/requisite_types';
 import { randomUUID } from 'crypto';
 import * as Sentry from '@sentry/node';
-
 
 /**
  * Creates a new course requisite if it does not already exist.

@@ -1,7 +1,12 @@
 import { CookieOptions } from 'express';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import Auth from '@controllers/authController/auth_types';
-import { createSessionToken, refreshSession, SessionToken, UserHeaders } from './Session_Util';
+import {
+  createSessionToken,
+  refreshSession,
+  SessionToken,
+  UserHeaders,
+} from './Session_Util';
 
 // * Typedef
 export type JWTPayload = {
@@ -54,14 +59,14 @@ function getJWTPayload(
 
 /**
  ** Function returns the cookie options to set on the JWT cookie
- * @returns 
+ * @returns
  * - `CookieOptions` for the JWT cookie
  */
 export function getCookieOptions(): CookieOptions {
   const security = process.env.NODE_ENV === 'production';
   const domain_name = security ? undefined : 'localhost';
 
-  return  {
+  return {
     httpOnly: true,
     secure: security,
     sameSite: 'lax',
@@ -91,7 +96,9 @@ function generateToken(
 
   const session_payload = {
     ...payload,
-    session_token: (!token) ? createSessionToken(user) : refreshSession(token, user),
+    session_token: !token
+      ? createSessionToken(user)
+      : refreshSession(token, user),
   };
 
   return jwt.sign(session_payload, secret, options);

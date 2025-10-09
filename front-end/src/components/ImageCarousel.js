@@ -13,11 +13,7 @@ const ImageCarousel = () => {
     <Carousel pause={false} data-bs-theme="dark" className="carousel-surround">
       {images.map((image, index) => (
         <Carousel.Item key={index}>
-          <img
-            className="carousel-img"
-            src={image}
-            alt={`Slide ${index + 1}`}
-          />
+          <img className="carousel-img" src={image} alt={`Slide ${index + 1}`} />
         </Carousel.Item>
       ))}
     </Carousel>

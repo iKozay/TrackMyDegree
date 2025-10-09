@@ -61,9 +61,7 @@ describe('TimelinePage', () => {
     var accordion = screen.getByTestId('dropdown-item-0');
     var course = screen.getByText('ELEC 275');
 
-    expect(desc.innerHTML).toBe(
-      'Drag or click on a course to see its description here.',
-    );
+    expect(desc.innerHTML).toBe('Drag or click on a course to see its description here.');
     fireEvent.click(accordion);
     fireEvent.click(course);
     desc = screen.getByTestId('course-description');
