@@ -3,7 +3,7 @@ Back-End/node_modules/*
 backups/*
 Back-End/yarn.lock
 Back-End/dist
-Back-End/coverage
+Back-End/coverage/**
 front-end/yarn.lock
 package-lock.json
 node_modules
