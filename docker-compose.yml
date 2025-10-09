@@ -84,6 +84,24 @@ services:
     networks:
       - app-network
 
+  # Watchtower for auto-updates
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    ports:
+      - "8080:8080"  # for manual trigger
+    command: --interval 3600 --http-api-update
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config/config.json
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_REGISTRY_AUTH=true
+      - REGISTRY_AUTH_FILE=/config/config.json
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
