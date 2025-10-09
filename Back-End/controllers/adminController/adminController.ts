@@ -422,9 +422,19 @@ export const getTableRecords = async (
   }
 };
 
+let dbPassword = process.env.DB_PASSWORD; // default to env var for backward compatibility
+// if docker secret file is provided, read the password from there
+if (process.env.SQL_SERVER_PASSWORD_FILE) {
+  try {
+    dbPassword = fs.readFileSync(process.env.SQL_SERVER_PASSWORD_FILE, 'utf-8').trim();
+    } catch (e) {
+      console.error('Error reading dbPassword from file:', e);
+  }
+}
+
 const dbConfig: sql.config = {
   user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+  password: dbPassword,
   database: process.env.DB_NAME,
   server: process.env.DB_HOST || 'localhost',
   options: {
