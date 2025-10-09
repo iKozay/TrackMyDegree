@@ -84,24 +84,6 @@ services:
     networks:
       - app-network
 
-  # Add Watchtower
-  watchtower:
-    image: containrrr/watchtower
-    container_name: watchtower
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 3600  # check every hour
-    environment:
-      - WATCHTOWER_CLEANUP=true  # remove old images
-      - WATCHTOWER_LABEL_ENABLE=true
-      - WATCHTOWER_NOTIFICATIONS_LEVEL=info
-      - WATCHTOWER_DEBUG=false
-      - WATCHTOWER_REGISTRY_AUTH=true
-      - REGISTRY_AUTH_FILE=/config/config.json
-    networks:
-      - app-network
-
 networks:
   app-network:
     driver: bridge
