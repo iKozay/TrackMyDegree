@@ -1,6 +1,6 @@
 import Database from '@controllers/DBController/DBController'; // Mocro : Database connection manager
 import TimelineTypes from '@controllers/timelineController/timeline_types'; // Mocro : Type definitions for timeline and items
-import { v4 as uuidv4 } from 'uuid';   // Mocro : Generates unique IDs
+import { v4 as uuidv4 } from 'uuid'; // Mocro : Generates unique IDs
 import * as Sentry from '@sentry/node'; // Mocro : Error monitoring and logging
 
 const log = console.log;
@@ -165,7 +165,9 @@ async function saveTimeline(
       .request()
       .input('user_id', Database.msSQL.VarChar, user_id)
       .input('name', Database.msSQL.VarChar, name)
-      .query(`SELECT id FROM Timeline WHERE user_id = @user_id AND name = @name`);
+      .query(
+        `SELECT id FROM Timeline WHERE user_id = @user_id AND name = @name`,
+      );
 
     if (existingTimelineResult.recordset.length > 0) {
       timelineId = existingTimelineResult.recordset[0].id;
