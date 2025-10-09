@@ -82,16 +82,16 @@ jobs:
           npm install
 
       - name: Run ESLint for frontend
-          working-directory: ./front-end
-          continue-on-error: true
-          run: |
-              npm run lint
+        working-directory: ./front-end
+        continue-on-error: true
+        run: |
+          npm run lint
 
       - name: Run ESLint for backend
-          working-directory: ./Back-End
-          continue-on-error: true
-          run: |
-            npm run lint
+        working-directory: ./Back-End
+        continue-on-error: true
+        run: |
+          npm run lint
 
   # TODO: Optimize this by running tests only once and sharing coverage data
   sonarcloud:
