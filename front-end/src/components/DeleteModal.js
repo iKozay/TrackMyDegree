@@ -17,10 +17,7 @@ export default function DeleteModal({ open, onClose, children }) {
           ${open ? 'tw-scale-100 tw-opacity-100' : 'tw-scale-125 tw-opacity-0'}
         `}
       >
-        <button
-          onClick={onClose}
-          className="tw-absolute tw-top-2 tw-right-2 tw-text-gray-400 tw-hover:text-gray-600"
-        >
+        <button onClick={onClose} className="tw-absolute tw-top-2 tw-right-2 tw-text-gray-400 tw-hover:text-gray-600">
           <X />
         </button>
         {children}

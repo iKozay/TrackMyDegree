@@ -20,8 +20,8 @@ function LogInPage() {
   const [loading, setLoading] = useState(false); // To handle loading state
 
   useEffect(() => {
-    if(isLoggedIn) {
-      navigate("/user");
+    if (isLoggedIn) {
+      navigate('/user');
     }
   });
 
@@ -48,20 +48,17 @@ function LogInPage() {
     setLoading(true); // Start loading
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER}/auth/login`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/login`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
       if (!response.ok) {
         // Extract error message from response
@@ -82,12 +79,7 @@ function LogInPage() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.7 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
       <>
         {/* <Navbar /> Include Navbar if needed */}
         <div className="LogInPage">
@@ -126,12 +118,7 @@ function LogInPage() {
 
               {/* Submit Button */}
               <div className="d-grid gap-2">
-                <Button
-                  className="button-outline"
-                  variant="primary"
-                  type="submit"
-                  disabled={loading}
-                >
+                <Button className="button-outline" variant="primary" type="submit" disabled={loading}>
                   {loading ? 'Logging in...' : 'Submit'}
                 </Button>
               </div>

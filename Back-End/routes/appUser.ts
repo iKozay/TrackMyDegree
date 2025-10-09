@@ -1,7 +1,7 @@
-import HTTP from "@Util/HTTPCodes";
-import express, { Request, Response } from "express";
-import appUserController from "@controllers/appUserController/appUserController";
-import appUserTypes from "@controllers/appUserController/appUser_types"
+import HTTP from '@Util/HTTPCodes';
+import express, { Request, Response } from 'express';
+import appUserController from '@controllers/appUserController/appUserController';
+import appUserTypes from '@controllers/appUserController/appUser_types';
 
 const router = express.Router();
 
@@ -18,10 +18,20 @@ router.get('/update', async (req: Request, res: Response) => {
   try {
     // Validate input
     if (
-      !id || !email || !password || !fullname || !degree || !type ||
-      typeof id !== 'string' || typeof email !== 'string' || typeof password !== 'string' ||
-      typeof fullname !== 'string' || typeof degree !== 'string' ||
-      !Object.values(appUserTypes.UserType).includes(type as appUserTypes.UserType)
+      !id ||
+      !email ||
+      !password ||
+      !fullname ||
+      !degree ||
+      !type ||
+      typeof id !== 'string' ||
+      typeof email !== 'string' ||
+      typeof password !== 'string' ||
+      typeof fullname !== 'string' ||
+      typeof degree !== 'string' ||
+      !Object.values(appUserTypes.UserType).includes(
+        type as appUserTypes.UserType,
+      )
     ) {
       res.status(HTTP.BAD_REQUEST).json({
         error: 'Invalid input.',
@@ -30,7 +40,14 @@ router.get('/update', async (req: Request, res: Response) => {
     }
 
     // Call the service function
-    const updatedAppUser = await appUserController.updateAppUser(id, email, password, fullname, degree, type);
+    const updatedAppUser = await appUserController.updateAppUser(
+      id,
+      email,
+      password,
+      fullname,
+      degree,
+      type,
+    );
 
     // Send success response
     res.status(HTTP.OK).json({
@@ -39,7 +56,10 @@ router.get('/update', async (req: Request, res: Response) => {
     });
   } catch (error) {
     // Handle errors from the service
-    if (error instanceof Error && error.message === 'AppUser with this id does not exist.') {
+    if (
+      error instanceof Error &&
+      error.message === 'AppUser with this id does not exist.'
+    ) {
       res.status(HTTP.FORBIDDEN).json({ error: error.message });
     } else {
       const errMsg = 'Internal server error in /appUser/update';
@@ -70,7 +90,10 @@ router.get('/delete', async (req: Request, res: Response) => {
     });
   } catch (error) {
     // Handle errors from the service
-    if (error instanceof Error && error.message === 'AppUser with this id does not exist.') {
+    if (
+      error instanceof Error &&
+      error.message === 'AppUser with this id does not exist.'
+    ) {
       res.status(HTTP.FORBIDDEN).json({ error: error.message });
     } else {
       const errMsg = 'Internal server error in /appUser/delete';
