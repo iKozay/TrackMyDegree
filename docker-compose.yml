@@ -25,14 +25,9 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      # Dashboard only accessible from localhost
-      - "127.0.0.1:8080:8080"
     environment:
       - DOMAIN=${DOMAIN:-localhost}
     command:
-      # Enable Traefik dashboard through http
-      - --api.dashboard=true
-      - --api.insecure=true
       # Enable Docker provider. Automatically discover services. See labels under frontend container.
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
@@ -53,8 +48,7 @@ services:
     networks:
       - app-network
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN:-localhost}`)"
+      - "traefik.enable=false"
 
   frontend:
     image: ghcr.io/ikozay/trackmydegree-frontend:latest
@@ -106,7 +100,7 @@ services:
       - MSSQL_SA_PASSWORD_FILE=/run/secrets/sql_server_password
       - MSSQL_PID=Developer
       # This allows the FRONTEND to talk to the DATABASE directly (potentially bypassing the backend) for CORS using PUBLIC IP
-      - CORS_ORIGIN=http://167.71.165.174:3000
+      - CORS_ORIGIN=https://${DOMAIN:-frontend:3000}
     expose:
       - "1433"
     volumes:
