@@ -97,6 +97,8 @@ services:
       - WATCHTOWER_LABEL_ENABLE=true
       - WATCHTOWER_NOTIFICATIONS_LEVEL=info
       - WATCHTOWER_DEBUG=false
+      - WATCHTOWER_REGISTRY_AUTH=true
+      - REGISTRY_AUTH_FILE=/config/config.json
     networks:
       - app-network
 
