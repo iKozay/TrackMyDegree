@@ -32,10 +32,12 @@ async function createDegreeXCP(
     // Add the new course pool to the degree
     degree.coursePools.push({
         id: coursepool_id,
-        name: '', // TODO: Set name appropriately
+        name: "<CoursePool Name>", // TODO: Set name appropriately
         creditsRequired: credits,
         courses: []
     });
+
+    await degree.save();
 
     return DB_OPS.SUCCESS;
 }
