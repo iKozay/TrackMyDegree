@@ -69,7 +69,15 @@ Ensure you have the following installed on your machine:
    cd TrackMyDegree
    ```
 
-2. **Build and Run the Application**:
+2. **Set up SQL Server password secret**:
+   Create a file named `sql_server_password.txt` in the `./secrets` directory and add the SQL Server password to it. Make sure the passwords meets the MS SQL Server password requirements (see example below).
+    
+   ```bash
+    mkdir -p secrets
+    echo "MySecureP@ss123!" > secrets/sql_server_password.txt
+    ```
+   
+3. **Build and Run the Application**:
    Run the following command to start all components:
 
    ```bash
@@ -78,7 +86,8 @@ Ensure you have the following installed on your machine:
 
    This will:
 
-    - Build the docker images
+    - Build the docker images.
+    - Mount the secret from `./secrets/sql_server_password.txt` for the database and backend.
     - Start the frontend, backend and database components.
     - The application should now be running locally.
 

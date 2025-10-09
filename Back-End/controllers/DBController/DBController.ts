@@ -13,13 +13,26 @@ import msSQL from 'mssql';
 import SQL from '@controllers/DBController/DB_types';
 import dotenv from 'dotenv';
 import * as Sentry from '@sentry/node';
+import fs from 'fs';
 
 dotenv.config(); // load environment variables from .env file
 
+
+let sqlPassword = process.env.SQL_SERVER_PASSWORD; // default to env var for backward compatibility
+// if docker secret file is provided, read the password from there
+if (process.env.SQL_SERVER_PASSWORD_FILE) {
+  try {
+    sqlPassword = fs
+      .readFileSync(process.env.SQL_SERVER_PASSWORD_FILE, 'utf-8')
+      .trim();
+  } catch (e) {
+    console.error('Error reading SQL_SERVER_PASSWORD_FILE:', e);
+  }
+}
 // Database connection configuration
 const sqlConfig: SQL.Config = {
   user: process.env.SQL_SERVER_USER,
-  password: process.env.SQL_SERVER_PASSWORD,
+  password: sqlPassword,
   database: process.env.SQL_SERVER_DATABASE,
   server: process.env.SQL_SERVER_HOST,
   options: {
