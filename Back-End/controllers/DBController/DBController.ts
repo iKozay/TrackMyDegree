@@ -18,10 +18,10 @@ dotenv.config(); // load environment variables from .env file
 
 // Database connection configuration
 const sqlConfig: SQL.Config = {
-  user: process.env.SQL_SERVER_USER,
-  password: process.env.SQL_SERVER_PASSWORD,
-  database: process.env.SQL_SERVER_DATABASE,
-  server: process.env.SQL_SERVER_HOST,
+  user: process.env.SQL_SERVER_USER || '',
+  password: process.env.SQL_SERVER_PASSWORD || '',
+  database: process.env.SQL_SERVER_DATABASE || '',
+  server: process.env.SQL_SERVER_HOST || '',
   options: {
     encrypt: true, // for Azure SQL
     trustServerCertificate: true, // change to true for local dev/self-signed certs

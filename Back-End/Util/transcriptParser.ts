@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import PDFParser from 'pdf2json';
+import pdfParse from 'pdf-parse';
 import type {
   TransferCredit,
   TranscriptCourse,
@@ -53,79 +54,234 @@ export class TranscriptParser {
 
   /**
    * Parse a transcript from a Buffer
+   * Uses BOTH pdf-parse (for term detection) and pdf2json (for structured course data)
    */
   async parseFromBuffer(buffer: Buffer): Promise<ParsedTranscript> {
-    return new Promise((resolve, reject) => {
-      const pdfParser = new (PDFParser as any)(null, 1);
+    try {
+      // Step 1: Use pdf-parse to get clean text with correct reading order
+      const pdfParseData = await pdfParse(buffer);
+      const cleanText = pdfParseData.text;
+      
+      // Step 2: Use pdf2json to get structured data with columns
+      const pdf2jsonData = await new Promise<any>((resolve, reject) => {
+        const pdfParser = new (PDFParser as any)(null, 1);
 
-      pdfParser.on('pdfParser_dataError', (errData: any) => {
-        reject(new Error(`PDF parsing error: ${errData.parserError}`));
+        pdfParser.on('pdfParser_dataError', (errData: any) => {
+          reject(new Error(`PDF parsing error: ${errData.parserError}`));
+        });
+
+        pdfParser.on('pdfParser_dataReady', (pdfData: any) => {
+          resolve(pdfData);
+        });
+
+        // pdf2json expects a file path, so we need to write temp file
+        const tempPath = path.join('/tmp', `transcript_${Date.now()}.pdf`);
+        fs.writeFileSync(tempPath, buffer);
+        
+        pdfParser.loadPDF(tempPath);
+        
+        // Clean up temp file after a delay
+        setTimeout(() => {
+          try {
+            fs.unlinkSync(tempPath);
+          } catch (e) {
+            // Ignore cleanup errors
+          }
+        }, 5000);
       });
 
-      pdfParser.on('pdfParser_dataReady', (pdfData: any) => {
-        try {
-          const transcript = this.parseTranscriptData(pdfData);
-          resolve(transcript);
-        } catch (error) {
-          reject(error);
-        }
-      });
+      // Step 3: Parse using both sources
+      const transcript = this.parseTranscriptDataHybrid(cleanText, pdf2jsonData);
+      return transcript;
+      
+    } catch (error) {
+      throw new Error(`Failed to parse transcript: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
 
-      // pdf2json expects a file path, so we need to write temp file
-      const tempPath = path.join('/tmp', `transcript_${Date.now()}.pdf`);
-      fs.writeFileSync(tempPath, buffer);
+  /**
+   * Hybrid parsing method using both pdf-parse and pdf2json
+   */
+  private parseTranscriptDataHybrid(cleanText: string, pdf2jsonData: any): ParsedTranscript {
+    // Use pdf-parse to find term boundaries
+    const lines = cleanText.split('\n');
+    const termBoundaries = this.findTermBoundariesFromText(lines);
+    
+    // Use pdf2json to get structured course data
+    const structuredLines = this.extractStructuredLines(pdf2jsonData);
+    
+    // Build student info and metadata from clean text
+    const studentInfo = this.extractStudentInfo(structuredLines);
+    const programHistory = this.extractProgramHistory(structuredLines);
+    const additionalInfo = this.extractAcademicSummary(structuredLines);
+    const transferCredits = this.extractTransferCredits(structuredLines);
+    
+    // Extract courses using term boundaries from pdf-parse and structure from pdf2json
+    const terms = this.extractTermsHybrid(termBoundaries, structuredLines);
+
+    return {
+      studentInfo,
+      programHistory,
+      transferCredits,
+      terms,
+      additionalInfo
+    };
+  }
+
+  /**
+   * Find term boundaries from pdf-parse text (correct reading order)
+   */
+  private findTermBoundariesFromText(lines: string[]): Array<{ term: string; year: string; lineIndex: number; gpa?: number }> {
+    const termBoundaries: Array<{ term: string; year: string; lineIndex: number; gpa?: number }> = [];
+    let inCourseSection = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
       
-      pdfParser.loadPDF(tempPath);
+      if (line.includes('Beginning of Undergraduate Record')) {
+        inCourseSection = true;
+        continue;
+      }
       
-      // Clean up temp file after a delay
-      setTimeout(() => {
-        try {
-          fs.unlinkSync(tempPath);
-        } catch (e) {
-          // Ignore cleanup errors
+      if (line.includes('End of Student Record')) {
+        break;
+      }
+      
+      if (!inCourseSection) continue;
+      
+      // Match term headers
+      const termMatch = line.match(/^(Winter|Summer|Fall|Spring|Fall\/Winter|Winter\/Summer)\s+(\d{4}(?:-\d{2})?)$/);
+      if (termMatch) {
+        termBoundaries.push({
+          term: termMatch[1],
+          year: termMatch[2],
+          lineIndex: i
+        });
+      }
+      
+      // Match Term GPA and associate with last term
+      if (line.startsWith('Term GPA') && termBoundaries.length > 0) {
+        const gpaMatch = line.match(/Term GPA\s+(\d+\.?\d*)/);
+        if (gpaMatch) {
+          termBoundaries[termBoundaries.length - 1].gpa = parseFloat(gpaMatch[1]);
         }
-      }, 5000);
+      }
+    }
+    
+    return termBoundaries;
+  }
+
+  /**
+   * Extract structured lines from pdf2json (with column separation)
+   * CRITICAL: Use ORIGINAL pdf2json order, NOT Y-sorted!
+   */
+  private extractStructuredLines(pdfData: any): string[] {
+    // Extract text from all pages in ORIGINAL ORDER
+    const allTextItems: Array<{ page: number; order: number; y: number; text: string }> = [];
+    const pages = pdfData.Pages || [];
+
+    pages.forEach((page: any, pageIndex: number) => {
+      if (page.Texts) {
+        page.Texts.forEach((textItem: any, itemIndex: number) => {
+          const y = textItem.y;
+          const text = decodeURIComponent(textItem.R?.[0]?.T || '');
+          allTextItems.push({ page: pageIndex, order: itemIndex, y, text });
+        });
+      }
     });
+
+    // Sort by page first, then by ORIGINAL ORDER (NOT Y coordinate)
+    // This preserves pdf2json's reading order which is correct
+    allTextItems.sort((a, b) => {
+      if (a.page !== b.page) {
+        return a.page - b.page;
+      }
+      return a.order - b.order;
+    });
+
+    // Build lines by grouping consecutive text items with similar Y
+    const lines: string[] = [];
+    let currentLine: string[] = [];
+    let lastY = -999;
+    const Y_THRESHOLD = 0.5;
+
+    allTextItems.forEach(item => {
+      if (Math.abs(item.y - lastY) > Y_THRESHOLD && currentLine.length > 0) {
+        lines.push(currentLine.join(' | '));
+        currentLine = [];
+      }
+      
+      if (item.text.trim().length > 0) {
+        currentLine.push(item.text);
+        lastY = item.y;
+      }
+    });
+    
+    if (currentLine.length > 0) {
+      lines.push(currentLine.join(' | '));
+    }
+
+    return lines;
   }
 
   /**
    * Parse the PDF data structure from pdf2json
+   * IMPORTANT: Preserve original order for items at same Y coordinate
    */
   private parseTranscriptData(pdfData: any): ParsedTranscript {
-    // Extract text from all pages
-    const allText: string[] = [];
+    // Extract text from all pages, preserving original order within each page
+    const allTextItems: Array<{ page: number; order: number; y: number; text: string }> = [];
     const pages = pdfData.Pages || [];
 
-    pages.forEach((page: any) => {
+    pages.forEach((page: any, pageIndex: number) => {
       if (page.Texts) {
-        // Group texts by Y coordinate to reconstruct lines
-        const textsByY = new Map<number, Array<{ x: number; text: string }>>();
-
-        page.Texts.forEach((textItem: any) => {
-          const y = Math.round(textItem.y * 100);
-          const x = textItem.x;
+        page.Texts.forEach((textItem: any, itemIndex: number) => {
+          const y = textItem.y;
           const text = decodeURIComponent(textItem.R?.[0]?.T || '');
-
-          if (!textsByY.has(y)) {
-            textsByY.set(y, []);
-          }
-          textsByY.get(y)!.push({ x, text });
+          allTextItems.push({ page: pageIndex, order: itemIndex, y, text });
         });
-
-        // Sort by Y and then X to reconstruct lines
-        // Use | as separator to preserve column structure (like in table)
-        const sortedLines = Array.from(textsByY.entries())
-          .sort((a, b) => a[0] - b[0])
-          .map(([y, texts]) => {
-            const sortedTexts = texts.sort((a, b) => a.x - b.x);
-            return sortedTexts.map(t => t.text).join(' | ');
-          });
-
-        allText.push(...sortedLines);
       }
     });
 
-    const lines = allText.filter(line => line.trim().length > 0);
+    // Sort by page first, then by Y coordinate (top to bottom)
+    // Lower Y values (including negative) come first
+    allTextItems.sort((a, b) => {
+      if (a.page !== b.page) {
+        return a.page - b.page;
+      }
+      // Within same page, sort by Y coordinate
+      // This puts negative Y (course tables) before positive Y (footers/headers)
+      if (Math.abs(a.y - b.y) > 0.1) {
+        return a.y - b.y;
+      }
+      // If same Y, preserve original order
+      return a.order - b.order;
+    });
+
+    // Build lines by grouping consecutive text items, using pipe separator
+    // Group items that are very close in Y coordinate
+    const lines: string[] = [];
+    let currentLine: string[] = [];
+    let lastY = -999;
+    const Y_THRESHOLD = 0.5; // Group items within 0.5 units of Y
+
+    allTextItems.forEach(item => {
+      // If Y coordinate changes significantly, start a new line
+      if (Math.abs(item.y - lastY) > Y_THRESHOLD && currentLine.length > 0) {
+        lines.push(currentLine.join(' | '));
+        currentLine = [];
+      }
+      
+      if (item.text.trim().length > 0) {
+        currentLine.push(item.text);
+        lastY = item.y;
+      }
+    });
+    
+    // Add the last line
+    if (currentLine.length > 0) {
+      lines.push(currentLine.join(' | '));
+    }
 
     const studentInfo = this.extractStudentInfo(lines);
     const programHistory = this.extractProgramHistory(lines);
@@ -329,78 +485,172 @@ export class TranscriptParser {
   }
 
   /**
-   * Extract terms and courses using improved table parsing
+   * Extract terms using hybrid approach:
+   * - Term boundaries from pdf-parse (correct order  with line indices)
+   * - Course data from pdf2json (structured columns)
+   */
+  private extractTermsHybrid(
+    termBoundaries: Array<{ term: string; year: string; lineIndex: number; gpa?: number }>,
+    structuredLines: string[]
+  ): TranscriptTerm[] {
+    const terms: TranscriptTerm[] = [];
+    
+    // Extract ALL courses from structured lines once
+    const allCourses: TranscriptCourse[] = [];
+    structuredLines.forEach(line => {
+      const courses = this.extractCoursesFromLine(line);
+      allCourses.push(...courses);
+    });
+    
+    console.log(`\nDEBUG: Found ${allCourses.length} total courses from pdf2json`);
+    console.log(`DEBUG: Found ${termBoundaries.length} terms from pdf-parse`);
+    
+    // Simple approach: divide courses evenly based on term count
+    // This assumes courses appear in same order in both sources
+    const coursesPerTerm = Math.floor(allCourses.length / termBoundaries.length);
+    const remainder = allCourses.length % termBoundaries.length;
+    
+    let courseIndex = 0;
+    termBoundaries.forEach((boundary, index) => {
+      const term: TranscriptTerm = {
+        term: boundary.term,
+        year: boundary.year,
+        courses: [],
+        termGPA: boundary.gpa,
+        termCredits: undefined
+      };
+      
+      // Assign courses - give each term roughly equal number
+      // Last term gets any remaining courses
+      let numCoursesForTerm = coursesPerTerm;
+      if (index < remainder) {
+        numCoursesForTerm++; // Distribute remainder across first terms
+      }
+      
+      for (let i = 0; i < numCoursesForTerm && courseIndex < allCourses.length; i++) {
+        const course = allCourses[courseIndex];
+        course.term = term.term;
+        course.year = term.year;
+        term.courses.push(course);
+        courseIndex++;
+      }
+      
+      terms.push(term);
+    });
+    
+    return this.cleanupTerms(terms);
+  }
+
+  /**
+   * Extract terms and courses using a GPA-based approach
+   * Key insight: Term GPA marks the END of each term
    */
   private extractTerms(lines: string[]): TranscriptTerm[] {
-    const terms: TranscriptTerm[] = [];
-    let currentTerm: TranscriptTerm | null = null;
-    let inProgramHistory = false;
-
+    // Find the course section
+    let courseSecStart = -1;
+    let courseSecEnd = lines.length;
+    
     for (let i = 0; i < lines.length; i++) {
+      if (lines[i].includes('Beginning of Undergraduate Record')) {
+        courseSecStart = i + 1;
+      }
+      if (lines[i].includes('End of Student Record')) {
+        courseSecEnd = i;
+        break;
+      }
+    }
+
+    if (courseSecStart === -1) {
+      return [];
+    }
+
+    // First pass: find all term headers and their GPAs
+    const termInfo: Array<{ index: number; term: string; year: string; gpaIndex?: number; gpa?: number }> = [];
+    
+    for (let i = courseSecStart; i < courseSecEnd; i++) {
       const line = lines[i];
       
-      // Track if we're in program history section
-      if (line.includes('Active in Program') || line.includes('Program History')) {
-        inProgramHistory = true;
+      // Find term headers
+      const termMatch = line.match(/^(Winter|Summer|Fall|Spring|Fall\/Winter|Winter\/Summer)\s+(\d{4}(?:-\d{2})?)$/);
+      if (termMatch) {
+        termInfo.push({
+          index: i,
+          term: termMatch[1],
+          year: termMatch[2]
+        });
       }
       
-      // Exit program history when we hit academic info or transfer credits
-      if (line.includes('Cumulative GPA') || line.includes('Transfer Credits') || 
-          line.includes('Min. Credits Required') || line.includes('COURSE') && line.includes('DESCRIPTION')) {
-        inProgramHistory = false;
-      }
-
-      // Detect term headers (but NOT when in program history section)
-      const termMatch = line.match(/^(Winter|Summer|Fall|Spring)\s+(\d{4})$/);
-      if (termMatch && !inProgramHistory) {
-        // Additional safety: make sure this is not right after "Admit Term"
-        const isAdmitTerm = i > 0 && lines[i - 1].includes('Admit Term');
-        
-        if (!isAdmitTerm) {
-          if (currentTerm) {
-            terms.push(currentTerm);
-          }
-          
-          currentTerm = {
-            term: termMatch[1],
-            year: termMatch[2],
-            courses: [],
-            termGPA: undefined,
-            termCredits: undefined
-          };
-          continue;
-        }
-      }
-
-      if (currentTerm) {
-        // Parse course lines - may contain multiple courses in one line
-        const courses = this.extractCoursesFromLine(line);
-        if (courses.length > 0) {
-          courses.forEach(course => {
-            course.term = currentTerm!.term;
-            course.year = currentTerm!.year;
-            currentTerm!.courses.push(course);
-          });
-        }
-
-        // Extract term GPA
-        if (line.startsWith('Term GPA')) {
-          const gpaMatch = line.match(/Term GPA\s+(\d+\.?\d*)/);
-          if (gpaMatch) {
-            currentTerm.termGPA = parseFloat(gpaMatch[1]);
-          }
+      // Find Term GPA and associate with the most recent term
+      if (line.startsWith('Term GPA') && termInfo.length > 0) {
+        const gpaMatch = line.match(/Term GPA\s+(\d+\.?\d*)/);
+        if (gpaMatch) {
+          const lastTerm = termInfo[termInfo.length - 1];
+          lastTerm.gpaIndex = i;
+          lastTerm.gpa = parseFloat(gpaMatch[1]);
         }
       }
     }
 
-    if (currentTerm) {
-      terms.push(currentTerm);
-    }
+    // Second pass: extract courses for each term
+    // Courses belong to a term if they appear BETWEEN:
+    // - The term header and its Term GPA line (if it has one)
+    // - OR the term header and the next term header (if no GPA)
+    const terms: TranscriptTerm[] = [];
+    
+    termInfo.forEach((termData, index) => {
+      const term: TranscriptTerm = {
+        term: termData.term,
+        year: termData.year,
+        courses: [],
+        termGPA: termData.gpa,
+        termCredits: undefined
+      };
 
-    // Merge duplicate terms (same term and year)
-    const mergedTerms = this.mergeDuplicateTerms(terms);
+      // Define the range for course extraction
+      const startIndex = termData.index + 1;
+      let endIndex: number;
+      
+      if (termData.gpaIndex) {
+        // If this term has a GPA, courses are between header and GPA
+        endIndex = termData.gpaIndex;
+      } else {
+        // If no GPA, courses extend until the next term header or end of section
+        const nextTerm = termInfo[index + 1];
+        endIndex = nextTerm ? nextTerm.index : courseSecEnd;
+      }
 
-    return mergedTerms;
+      // Extract courses from lines in this range
+      for (let i = startIndex; i < endIndex; i++) {
+        const courses = this.extractCoursesFromLine(lines[i]);
+        courses.forEach(course => {
+          course.term = term.term;
+          course.year = term.year;
+          term.courses.push(course);
+        });
+      }
+
+      terms.push(term);
+    });
+
+    return this.cleanupTerms(terms);
+  }
+
+  /**
+   * Clean up terms - remove empty terms and fix term assignments
+   */
+  private cleanupTerms(terms: TranscriptTerm[]): TranscriptTerm[] {
+    // Remove empty terms
+    const nonEmptyTerms = terms.filter(term => term.courses.length > 0);
+    
+    // Sort terms by year and term order
+    const termOrder = { 'Winter': 1, 'Spring': 2, 'Summer': 3, 'Fall': 4 };
+    nonEmptyTerms.sort((a, b) => {
+      const yearDiff = parseInt(a.year) - parseInt(b.year);
+      if (yearDiff !== 0) return yearDiff;
+      return (termOrder[a.term as keyof typeof termOrder] || 0) - (termOrder[b.term as keyof typeof termOrder] || 0);
+    });
+
+    return nonEmptyTerms;
   }
 
   /**
@@ -504,7 +754,10 @@ export class TranscriptParser {
     if (titleIndex >= parts.length) {
       return null;
     }
-    const grade = parts[titleIndex].toUpperCase();
+    let grade = parts[titleIndex].toUpperCase();
+    
+    // Handle future courses - if grade is "0.00" or empty, keep as is (future courses)
+    // Don't change the grade, just keep it as "0.00" for future courses
     titleIndex++;
 
     let gpa: number | undefined;
@@ -513,8 +766,8 @@ export class TranscriptParser {
     let programCredits: number | undefined;
     let other: string | undefined;
 
-    // For letter grades (not PASS, EX, etc.), we have GPA, AVG, SIZE, EARNED
-    if (grade !== 'PASS' && grade !== 'EX') {
+    // For letter grades (not PASS, EX, 0.00, etc.), we have GPA, AVG, SIZE, EARNED
+    if (grade !== 'PASS' && grade !== 'EX' && grade !== '0.00' && grade !== '0' && grade !== '0.0') {
       // GPA
       if (titleIndex < parts.length && /^\d+\.\d{2}$/.test(parts[titleIndex])) {
         gpa = parseFloat(parts[titleIndex]);
@@ -536,6 +789,12 @@ export class TranscriptParser {
       // Program Credits Earned
       if (titleIndex < parts.length && /^\d+\.\d{2}$/.test(parts[titleIndex])) {
         programCredits = parseFloat(parts[titleIndex]);
+        titleIndex++;
+      }
+    } else if (grade === '0.00' || grade === '0' || grade === '0.0') {
+      // For future courses (0.00 grade), don't try to parse GPA/class info
+      // Just skip to the end
+      while (titleIndex < parts.length && !['WKRT', 'RPT', 'EX'].includes(parts[titleIndex])) {
         titleIndex++;
       }
     } else {
@@ -565,7 +824,6 @@ export class TranscriptParser {
       gpa,
       classAvg,
       classSize,
-      gradePoints: gpa ? gpa * credits : undefined,
       term: '',
       year: '',
       other

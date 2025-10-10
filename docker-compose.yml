@@ -26,8 +26,12 @@ services:
     ports:
       # This exposes port 3000 on the host machine meaning. I do not know what proxy solution they are using for SSL and port mapping (443-->3000)
       - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://backend:8000
     depends_on:
       - backend
+    networks:
+      - app-network
 
   backend:
     # This builds the backend container using its Dockerfile

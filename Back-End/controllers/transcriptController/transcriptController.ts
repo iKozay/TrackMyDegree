@@ -13,9 +13,17 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
+    console.log('🔍 DEBUG: Multer fileFilter called');
+    console.log('🔍 DEBUG: File fieldname:', file.fieldname);
+    console.log('🔍 DEBUG: File originalname:', file.originalname);
+    console.log('🔍 DEBUG: File mimetype:', file.mimetype);
+    console.log('🔍 DEBUG: File size:', file.size);
+    
     if (file.mimetype === 'application/pdf') {
+      console.log('✅ DEBUG: PDF file accepted by multer');
       cb(null, true);
     } else {
+      console.log('❌ DEBUG: File rejected by multer - not a PDF');
       cb(new Error('Only PDF files are allowed'));
     }
   },
@@ -32,7 +40,13 @@ class TranscriptController {
    */
   async parseTranscript(req: Request, res: Response): Promise<void> {
     try {
+      console.log('🔍 DEBUG: parseTranscript called');
+      console.log('🔍 DEBUG: Request body keys:', Object.keys(req.body || {}));
+      console.log('🔍 DEBUG: Request file:', req.file ? 'File present' : 'No file');
+      console.log('🔍 DEBUG: Request headers:', req.headers);
+      
       if (!req.file) {
+        console.log('❌ DEBUG: No file uploaded');
         res.status(HTTP.BAD_REQUEST).json({
           success: false,
           message: 'No file uploaded',
@@ -40,16 +54,21 @@ class TranscriptController {
         return;
       }
 
-      console.log(`📄 Parsing transcript: ${req.file.originalname}`);
+      console.log(`📄 DEBUG: Parsing transcript: ${req.file.originalname}`);
+      console.log(`📄 DEBUG: File size: ${req.file.size} bytes`);
+      console.log(`📄 DEBUG: File mimetype: ${req.file.mimetype}`);
 
+      console.log('🔍 DEBUG: Creating TranscriptParser');
       const parser = new TranscriptParser({
         validateCourseCode: true,
         extractGPA: true,
         extractTermInfo: true,
       });
 
+      console.log('🔍 DEBUG: Starting to parse from buffer');
       // Parse from buffer
       const transcript = await parser.parseFromBuffer(req.file.buffer);
+      console.log('🔍 DEBUG: Parsing completed successfully');
 
       // Calculate additional statistics
       const totalCourses = transcript.terms.reduce(
@@ -66,6 +85,7 @@ class TranscriptController {
         0
       );
 
+      console.log('🔍 DEBUG: Creating response object');
       const response: ParseTranscriptResponse = {
         success: true,
         message: 'Transcript parsed successfully',
@@ -80,9 +100,12 @@ class TranscriptController {
         },
       };
 
+      console.log('🔍 DEBUG: Sending successful response');
       res.status(HTTP.OK).json(response);
     } catch (error) {
-      console.error('❌ Error parsing transcript:', error);
+      console.error('❌ DEBUG: Error parsing transcript:', error);
+      console.error('❌ DEBUG: Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      console.error('❌ DEBUG: Error name:', error instanceof Error ? error.name : 'Unknown error type');
 
       res.status(HTTP.SERVER_ERR).json({
         success: false,
