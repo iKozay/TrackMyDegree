@@ -8,7 +8,7 @@ const CoursePoolSchema = new Schema({
 });
 
 const DegreeSchema = new Schema({
-  _id: { type: String },
+  _id: { type: String, required: true },
   name: { type: String, required: true, unique: true },
   totalCredits: { type: Number, required: true },
   isAddon: { type: Boolean, default: false },

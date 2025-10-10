@@ -12,3 +12,4 @@ myenv/
 .gitignore
 entrypoint-sql.sh
 secrets/sql_server_password.txt
+TrackMyDegree.code-workspace
