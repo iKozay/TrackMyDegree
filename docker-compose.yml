@@ -21,29 +21,23 @@ services:
       "
 
   frontend:
-    build:
-      context: ./front-end
-      dockerfile: Dockerfile
+    image: ghcr.io/ikozay/trackmydegree-frontend:latest
+    restart: unless-stopped
     ports:
-      # This exposes port 3000 on the host machine meaning. I do not know what proxy solution they are using for SSL and port mapping (443-->3000)
+          # This exposes port 3000 on the host machine meaning. I do not know what proxy solution they are using for SSL and port mapping (443-->3000)
       - "3000:3000"
     depends_on:
       - backend
+    networks:
+      - app-network
 
   backend:
-    # This builds the backend container using its Dockerfile
-    build:
-      context: ./Back-End
-      dockerfile: Dockerfile
-    # This exposes port 8000 on the host machine meaning that it is accessible EXTERNALLY. Need to check firewall configurations deployed on server
-    ports:
-      - "8000:8000"
-    # Should look into using secrets for sensitive info like passwords
-    # See: https://docs.docker.com/compose/how-tos/use-secrets/
+    image: ghcr.io/ikozay/trackmydegree-backend:latest
+    restart: unless-stopped
     environment:
       - SQL_SERVER_HOST=sqlserver
       - SQL_SERVER_USER=sa
-      - SQL_SERVER_PASSWORD=MySecureP@ss123
+      - SQL_SERVER_PASSWORD_FILE=/run/secrets/sql_server_password
       - SQL_SERVER_DATABASE=master
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -53,7 +47,6 @@ services:
       - MONGODB_PORT=27017
       - MONGODB_DATABASE=trackmydegree
     volumes:
-      # I don't know what this backup folder is for.
       - ./backups:/var/backups
     depends_on:
       - sqlserver
@@ -65,11 +58,9 @@ services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
     user: root  # Ensure the container runs as root for initialization
-    # Should look into using secrets for sensitive info like passwords
-    # See: https://docs.docker.com/compose/how-tos/use-secrets/
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=MySecureP@ss123
+      - MSSQL_SA_PASSWORD_FILE=/run/secrets/sql_server_password
       - MSSQL_PID=Developer
       # This allows the FRONTEND to talk to the DATABASE directly (potentially bypassing the backend) for CORS using PUBLIC IP
       - CORS_ORIGIN=http://167.71.165.174:3000
@@ -83,6 +74,8 @@ services:
     entrypoint: ["/bin/sh", "/usr/src/app/entrypoint-sql.sh"]
     networks:
       - app-network
+    secrets:
+      - sql_server_password
 
   redis:
     image: redis:latest
@@ -95,20 +88,6 @@ services:
     networks:
       - app-network
 
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    environment:
-      # Should look into using secrets for sensitive info like passwords
-      # See: https://docs.docker.com/compose/how-tos/use-secrets/
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=changeme123
-    volumes:
-      - mongodb-data:/data/db
-    networks:
-      - app-network
-
 networks:
   app-network:
     driver: bridge
@@ -117,3 +96,7 @@ volumes:
   mssql-data:
   redis-data:
   mongodb-data:
+
+secrets:
+  sql_server_password:
+    file: ./secrets/sql_server_password.txt

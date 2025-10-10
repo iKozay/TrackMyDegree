@@ -22,6 +22,11 @@ jobs:
       - name: Clone Repo
         uses: actions/checkout@v4
 
+      - name: Create Docker secret for SQL Server
+        run: |
+          mkdir -p secrets
+          echo "${{ secrets.SQL_SERVER_PASSWORD }}" > secrets/sql_server_password.txt
+
       # May need to look into healthchecks for each service to ensure they're fully up before testing instead of a fixed sleep
       - name: Start services with Docker Compose
         run: |
@@ -51,6 +56,42 @@ jobs:
       # Stop and clean up
       - name: Stop and remove Docker Compose services
         run: docker compose down
+
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: Install dependencies for frontend
+        working-directory: ./front-end
+        run: |
+          npm install
+
+      - name: Install dependencies for backend
+        working-directory: ./Back-End
+        run: |
+          npm install
+
+      - name: Run ESLint for frontend
+        working-directory: ./front-end
+        continue-on-error: true
+        run: |
+          npm run lint
+
+      - name: Run ESLint for backend
+        working-directory: ./Back-End
+        continue-on-error: true
+        run: |
+          npm run lint
 
   # TODO: Optimize this by running tests only once and sharing coverage data
   sonarcloud:
@@ -91,6 +132,7 @@ jobs:
         # TODO: remove continue-on-error after fixing all test errors
         continue-on-error: true
         run: |
+          npm run build
           npm test -- --coverage
 
       - name: Run SonarCloud Scan
