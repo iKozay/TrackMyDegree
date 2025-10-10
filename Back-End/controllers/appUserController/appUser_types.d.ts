@@ -8,7 +8,7 @@ declare namespace appUserTypes {
   }
 
   type AppUser = {
-    id: string;
+    _id: string;
     email: string;
     password: string;
     fullname: string;
