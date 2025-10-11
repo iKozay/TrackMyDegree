@@ -1,9 +1,20 @@
 import TimelineTypes from '@controllers/timelineController/timeline_types';
 import * as Sentry from '@sentry/node';
 import TimelineRepository from './timelineRepository';
+import { MongoClient, ObjectId } from 'mongodb';
+
 
 const log = console.log;
+let timelinesCollection: any;
 
+async function initDb() {
+  const client = new MongoClient('mongodb://localhost:27017'); // remplace par ton URI
+  await client.connect();
+  const db = client.db('yourDbName'); // remplace par le nom de ta DB
+  timelinesCollection = db.collection('timelines');
+}
+
+initDb().catch(err => log('DB connection error', err));
 /**
  * Save or update a timeline
  */
