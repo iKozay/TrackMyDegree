@@ -11,6 +11,7 @@ services:
       - backend
       - sqlserver
       - redis
+      - mongodb
     networks:
       - app-network
     entrypoint: >
@@ -41,6 +42,10 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_URL=redis://redis:6379
+      - MONGODB_URI=mongodb://admin:changeme123@mongodb:27017/trackmydegree
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
+      - MONGODB_DATABASE=trackmydegree
     volumes:
       - ./backups:/var/backups
     depends_on:
@@ -84,19 +89,17 @@ services:
     networks:
       - app-network
 
-      # Add Watchtower
-  watchtower:
-    image: containrrr/watchtower
-    container_name: watchtower
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 60  # check every minute
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
     environment:
-      - WATCHTOWER_CLEANUP=true  # remove old images
-      - WATCHTOWER_NOTIFICATIONS_LEVEL=info
-      - WATCHTOWER_DEBUG=false
-      - WATCHTOWER_REGISTRY_AUTH=true
+      # Should look into using secrets for sensitive info like passwords
+      # See: https://docs.docker.com/compose/how-tos/use-secrets/
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=changeme123
+    volumes:
+      - mongodb-data:/data/db
     networks:
       - app-network
 
@@ -107,6 +110,7 @@ networks:
 volumes:
   mssql-data:
   redis-data:
+  mongodb-data:
 
 secrets:
   sql_server_password:
