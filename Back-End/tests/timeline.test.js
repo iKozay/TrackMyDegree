@@ -40,3 +40,21 @@ describe('POST /timeline/save', () => {
     expect(response.body).toHaveProperty('error', 'Could not save timeline');
   });
 });
+
+describe('POST /timeline/getAll', () => {
+  it('should return timeline items grouped by semester', async () => {
+    timelineController.getTimelinesByUser.mockResolvedValue(['Fall 2024', 'Winter 2025']);
+    const response = await request(app).post('/timeline/getAll').send({ user_id: '1' }).expect(200);
+  });
+
+  it('should return 200 even when no timelines found', async () => {
+    timelineController.getTimelinesByUser.mockResolvedValue(null);
+    const response = await request(app).post('/timeline/getAll').send({ user_id: '1' }).expect(200);
+    expect(response.body).toHaveProperty('message', 'No timelines found');
+  });
+
+  it('should return 400 when user_id is missing', async () => {
+    const response = await request(app).post('/timeline/getAll').send({}).expect(400);
+    expect(response.body).toHaveProperty('error', 'User ID is required');
+  });
+});
