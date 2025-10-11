@@ -1,16 +1,11 @@
+/* eslint-disable no-undef */
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 
 const { Degree } = require('../dist/models/Degree');
 const CourseXCPController = require('../dist/controllers/CourseXCPController/CourseXCPController_mongoose').default;
 
-
-// DB_OPS enum
-const DB_OPS = {
-  SUCCESS: 0,
-  MOSTLY_OK: 1,
-  FAILURE: 2
-};
+const DB_OPS = require('../dist/Util/DB_Ops').default;
 
 describe('CourseXCPController Mongoose', () => {
   let mongoServer;
