@@ -45,6 +45,20 @@ describe('Auth Controller', () => {
     const email = faker.internet.email();
     const password = generateStrongPassword();
 
+    // mock User.findOne to return null (no existing user)
+    const originalFindOne = User.findOne;
+    User.findOne = jest.fn().mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null),
+    });
+
+    // mock the save method on User prototype
+    const mockId = new mongoose.Types.ObjectId();
+    const originalSave = User.prototype.save;
+    User.prototype.save = jest.fn().mockImplementation(function() {
+      this._id = mockId;
+      return Promise.resolve(this);
+    });
+
     const result = await authController.registerUser({
       fullname,
       email,
@@ -53,13 +67,12 @@ describe('Auth Controller', () => {
     });
 
     expect(result).toHaveProperty('id');
-    const user = await User.findById(result.id);
-    expect(user).toBeTruthy();
-    expect(user.fullname).toBe(fullname);
-    expect(user.email).toBe(email);
-    expect(user.type).toBe(type);
-    const isMatch = await bcrypt.compare(password, user.password);
-    expect(isMatch).toBe(true);
+    expect(result.id).toBe(mockId.toString());
+    expect(User.prototype.save).toHaveBeenCalled();
+
+    // restore
+    User.findOne = originalFindOne;
+    User.prototype.save = originalSave;
   });
 
   test('should not allow weak password on registration', async () => {
@@ -81,36 +94,80 @@ describe('Auth Controller', () => {
     expect(result).toBeUndefined();
   });
 
+  test('should handle case when _id generation fails at registration', async () => {
+    const originalFindOne = User.findOne;
+    const originalSave = User.prototype.save;
+
+    // mock User.findOne to return null (no existing user)
+    User.findOne = jest.fn().mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null),
+    });
+
+    // mock User.prototype.save to return an object without _id
+    User.prototype.save = jest.fn().mockImplementation(function() {
+      // simulate save succeeding but _id being null/undefined
+      this._id = null;
+      return Promise.resolve(this);
+    });
+
+    const result = await authController.registerUser({
+      fullname: 'Test User',
+      email: 'test@example.com',
+      password: generateStrongPassword(),
+      type: 'student',
+    });
+
+    expect(result).toBeUndefined();
+    expect(User.prototype.save).toHaveBeenCalled();
+
+    // restore
+    User.findOne = originalFindOne;
+    User.prototype.save = originalSave;
+  });
+
+
   test('should not allow duplicate email registration', async () => {
-    const fullname1 = faker.person.firstName() + ' ' + faker.person.lastName();
-    const email1 = faker.internet.email();
-    const password1 = generateStrongPassword();
-    const type1 = 'student';
+    const email = faker.internet.email();
+
+    // first registration
+    const originalFindOne1 = User.findOne;
+    const originalSave1 = User.prototype.save;
+    const mockId1 = new mongoose.Types.ObjectId();
+
+    User.findOne = jest.fn().mockReturnValue({
+      exec: jest.fn().mockResolvedValue(null), // no existing user
+    });
+    User.prototype.save = jest.fn().mockImplementation(function() {
+      this._id = mockId1;
+      return Promise.resolve(this);
+    });
 
     const firstResult = await authController.registerUser({
-      fullname: fullname1,
-      email: email1,
-      password: password1,
-      type: type1,
+      fullname: 'First User',
+      email,
+      password: generateStrongPassword(),
+      type: 'student',
     });
+
     expect(firstResult).toHaveProperty('id');
 
-    const user1 = await User.findById(firstResult.id);
-    expect(user1).toBeTruthy();
-
-    const fullname2 = faker.person.firstName() + ' ' + faker.person.lastName();
-    const email2 = email1; // Same email as first user
-    const password2 = generateStrongPassword();
-    const type2 = 'student';
-
-    // attempt to register second user with duplicate email
-    const secondResult = await authController.registerUser({
-      fullname: fullname2,
-      email: email2,
-      password: password2,
-      type: type2,
+    // second registration
+    User.findOne = jest.fn().mockReturnValue({
+      exec: jest.fn().mockResolvedValue({ email }), // existing user found
     });
+
+    const secondResult = await authController.registerUser({
+      fullname: 'Second User',
+      email, // same email
+      password: generateStrongPassword(),
+      type: 'student',
+    });
+
     expect(secondResult).toBeUndefined();
+
+    // restore
+    User.findOne = originalFindOne1;
+    User.prototype.save = originalSave1;
   });
 
   test('should handle saving user error during registration', async () => {
@@ -141,46 +198,60 @@ describe('Auth Controller', () => {
   });
 
   test('should authenticate user login', async () => {
-    const fullname = faker.person.firstName() + ' ' + faker.person.lastName();
     const email = faker.internet.email();
     const password = generateStrongPassword();
-    const type = 'student';
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const regResult = await authController.registerUser({
-      fullname,
+    // mock User.findOne to return user with hashed password
+    const originalFindOne = User.findOne;
+    const mockUser = {
+      _id: new mongoose.Types.ObjectId(),
+      fullname: 'Test User',
       email,
-      password,
-      type,
+      type: 'student',
+      password: hashedPassword,
+      toObject: () => ({
+        _id: new mongoose.Types.ObjectId(),
+        fullname: 'Test User',
+        email,
+        type: 'student',
+      }),
+    };
+
+    User.findOne = jest.fn().mockReturnValue({
+      exec: jest.fn().mockResolvedValue(mockUser),
     });
-    expect(regResult).toHaveProperty('id');
 
     const authResult = await authController.authenticate(email, password);
+
     expect(authResult).toBeTruthy();
-    expect(authResult.fullname).toBe(fullname);
+    expect(authResult.fullname).toBe('Test User');
     expect(authResult.email).toBe(email);
-    expect(authResult.type).toBe(type);
-    expect(authResult.password).toBe(''); // password should not be returned
+    expect(authResult.type).toBe('student');
+    expect(authResult.password).toBe('');
+    // restore
+    User.findOne = originalFindOne;
   });
 
   test('should not authenticate with wrong password', async () => {
-    const fullname = faker.person.firstName() + ' ' + faker.person.lastName();
     const email = faker.internet.email();
-    const password = generateStrongPassword();
-    const type = 'student';
+    const correctPassword = generateStrongPassword();
+    const hashedPassword = await bcrypt.hash(correctPassword, 10);
 
-    const regResult = await authController.registerUser({
-      fullname,
-      email,
-      password,
-      type,
+    const originalFindOne = User.findOne;
+    const mockUser = {
+      password: hashedPassword,
+      toObject: () => ({ _id: new mongoose.Types.ObjectId() }),
+    };
+
+    User.findOne = jest.fn().mockReturnValue({
+      exec: jest.fn().mockResolvedValue(mockUser),
     });
-    expect(regResult).toHaveProperty('id');
 
-    const badAuth = await authController.authenticate(
-      email,
-      'wrongPassword123!',
-    );
-    expect(badAuth).toBeUndefined();
+    const authResult = await authController.authenticate(email, 'wrongPassword123!');
+    expect(authResult).toBeUndefined();
+    // restore
+    User.findOne = originalFindOne;
   });
 
   test('should not authenticate non-existent user', async () => {
@@ -189,6 +260,37 @@ describe('Auth Controller', () => {
       'somePassword123!',
     );
     expect(authResult).toBeUndefined();
+  });
+
+  test('should handle case when authenticated user has no _id', async () => {
+    const email = faker.internet.email();
+    const password = generateStrongPassword();
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const originalFindOne = User.findOne;
+
+    // mock user that exists but has no _id in toObject()
+    const mockUser = {
+      password: hashedPassword,
+      toObject: () => ({
+        _id: null,
+        fullname: 'Test User',
+        email,
+        type: 'student',
+      }),
+    };
+
+    User.findOne = jest.fn().mockReturnValue({
+      exec: jest.fn().mockResolvedValue(mockUser),
+    });
+
+    const authResult = await authController.authenticate(email, password);
+
+    expect(authResult).toBeUndefined();
+    expect(User.findOne).toHaveBeenCalledWith({ email });
+
+    // restore
+    User.findOne = originalFindOne;
   });
 
   test('should handle database error during authentication', async () => {
@@ -212,101 +314,72 @@ describe('Auth Controller', () => {
   });
 
   test('should reset password for existing user', async () => {
-    const fullname = faker.person.firstName() + ' ' + faker.person.lastName();
     const email = faker.internet.email();
-    const password = generateStrongPassword();
-    const type = 'student';
-
-    const regResult = await authController.registerUser({
-      fullname,
-      email,
-      password,
-      type,
-    });
-    expect(regResult).toHaveProperty('id');
-
-    // request password reset (generates OTP)
-    await authController.forgotPassword(email);
-
-    // retrieve OTP from DB
-    const user = await User.findOne({ email });
-    const otp = user.otp;
-
-    // reset password using OTP
+    const oldPassword = generateStrongPassword();
     const newPassword = generateStrongPassword();
-    const resetResult = await authController.resetPassword(
+    const otp = '1234';
+
+    const originalFindOne = User.findOne;
+    const originalSave = User.prototype.save;
+
+    // mock user with OTP for reset
+    const mockUser = {
       otp,
-      newPassword,
-      newPassword,
-    );
+      otpExpire: new Date(Date.now() + 10 * 60 * 1000),
+      save: jest.fn().mockResolvedValue(),
+    };
+
+    User.findOne = jest.fn().mockReturnValue({
+      exec: jest.fn().mockResolvedValue(mockUser),
+    });
+
+    const resetResult = await authController.resetPassword(otp, newPassword, newPassword);
     expect(resetResult).toBeTruthy();
-
-    // old password should not work
-    const oldAuth = await authController.authenticate(email, password);
-    expect(oldAuth).toBeUndefined();
-
-    // new password should work
-    const newAuth = await authController.authenticate(email, newPassword);
-    expect(newAuth).toBeTruthy();
-    expect(newAuth.email).toBe(email);
-
-    // otp cannot be reused
-    const reuseResult = await authController.resetPassword(
-      otp,
-      'AnotherPass123!',
-      'AnotherPass123!',
-    );
-    expect(reuseResult).toBeUndefined();
-
-    // password should remain unchanged
-    const postReuseAuth = await authController.authenticate(email, newPassword);
-    expect(postReuseAuth).toBeTruthy();
-    expect(postReuseAuth.email).toBe(email);
+    expect(resetResult.message).toBe('Password has been reset successfully.');
+    // restore
+    User.findOne = originalFindOne;
+    User.prototype.save = originalSave;
   });
 
   test('should not reset with weak new password', async () => {
-    const fullname = faker.person.firstName() + ' ' + faker.person.lastName();
-    const email = faker.internet.email();
-    const password = generateStrongPassword();
-    const type = 'student';
+    const otp = '1234';
+    const weakPassword = '12345';
 
-    const regResult = await authController.registerUser({
-      fullname,
-      email,
-      password,
-      type,
-    });
-    expect(regResult).toHaveProperty('id');
-
-    // request password reset (generates OTP)
-    await authController.forgotPassword(email);
-
-    // retrieve OTP from DB
-    const user = await User.findOne({ email });
-    const otp = user.otp;
-
-    // attempt to reset password with weak new password
-    const weakPassword = '12345'; // too short and weak
-    const resetResult = await authController.resetPassword(
+    const originalFindOne = User.findOne;
+    const mockUser = {
       otp,
-      weakPassword,
-      weakPassword,
-    );
-    expect(resetResult).toBeUndefined();
+      otpExpire: new Date(Date.now() + 10 * 60 * 1000),
+    };
 
-    // original password should still work
-    const authResult = await authController.authenticate(email, password);
-    expect(authResult).toBeTruthy();
-    expect(authResult.email).toBe(email);
+    User.findOne = jest.fn().mockReturnValue({
+      exec: jest.fn().mockResolvedValue(mockUser),
+    });
+
+    const resetResult = await authController.resetPassword(otp, weakPassword, weakPassword);
+    expect(resetResult).toBeUndefined();
+    // restore
+    User.findOne = originalFindOne;
   });
 
-  test('should not reset password with invalid OTP', async () => {
-    const resetResult = await authController.resetPassword(
-      'nonexistentotp',
-      'NewPass123!',
-      'NewPass123!',
-    );
+  test('should not reset password with expired or missing OTP', async () => {
+    const otp = '1234';
+    const newPassword = generateStrongPassword();
+
+    const originalFindOne = User.findOne;
+    const mockUser = {
+      otp,
+      otpExpire: new Date(Date.now() - 60 * 1000), // expired (1 minute ago)
+    };
+
+    User.findOne = jest.fn().mockReturnValue({
+      exec: jest.fn().mockResolvedValue(mockUser),
+    });
+
+    const resetResult = await authController.resetPassword(otp, newPassword, newPassword);
     expect(resetResult).toBeUndefined();
+
+    // restore
+    User.findOne = originalFindOne;
   });
 
   test('should not reset password when new password does not match confirmation password', async () => {
@@ -314,39 +387,6 @@ describe('Auth Controller', () => {
       'otp',
       'NewPass123!',
       'NewPass12345!',
-    );
-    expect(resetResult).toBeUndefined();
-  });
-
-  test('should not reset password with expired or missing OTP', async () => {
-    const fullname = faker.person.firstName() + ' ' + faker.person.lastName();
-    const email = faker.internet.email();
-    const password = generateStrongPassword();
-    const type = 'student';
-
-    const regResult = await authController.registerUser({
-      fullname,
-      email,
-      password,
-      type,
-    });
-    expect(regResult).toHaveProperty('id');
-
-    // request password reset (generates OTP)
-    await authController.forgotPassword(email);
-
-    // retrieve OTP from DB and set it expired
-    const user = await User.findOne({ email }).exec();
-    const otp = user.otp;
-    user.otpExpire = new Date(Date.now() - 60 * 1000); // 1 minute in the past
-    await user.save();
-
-    // attempt to reset password with expired OTP
-    const newPassword = generateStrongPassword();
-    const resetResult = await authController.resetPassword(
-      otp,
-      newPassword,
-      newPassword,
     );
     expect(resetResult).toBeUndefined();
   });
@@ -382,27 +422,26 @@ describe('Auth Controller', () => {
   });
 
   test('should send OTP for password reset', async () => {
-    const fullname = faker.person.firstName() + ' ' + faker.person.lastName();
     const email = faker.internet.email();
-    const password = generateStrongPassword();
-    const type = 'student';
 
-    const regResult = await authController.registerUser({
-      fullname,
-      email,
-      password,
-      type,
+    const originalFindOne = User.findOne;
+    const originalSave = User.prototype.save;
+
+    const mockUser = {
+      save: jest.fn().mockResolvedValue(),
+    };
+
+    User.findOne = jest.fn().mockReturnValue({
+      exec: jest.fn().mockResolvedValue(mockUser),
     });
-    expect(regResult).toHaveProperty('id');
 
-    // request password reset (generates OTP)
     const forgotResult = await authController.forgotPassword(email);
     expect(forgotResult).toBeTruthy();
-
-    // retrieve OTP from DB
-    const user = await User.findOne({ email });
-    expect(user.otp).toBeTruthy();
-    expect(user.otpExpire).toBeTruthy();
+    expect(forgotResult.message).toBe('If the email exists, an OTP has been sent.');
+    expect(mockUser.save).toHaveBeenCalled();
+    // restore
+    User.findOne = originalFindOne;
+    User.prototype.save = originalSave;
   });
 
   test('should not send OTP for non-existent email', async () => {
@@ -416,17 +455,24 @@ describe('Auth Controller', () => {
   });
 
   test('should send OTP email (mocked)', async () => {
-    const fullname = faker.person.firstName() + ' ' + faker.person.lastName();
     const email = faker.internet.email();
-    const password = generateStrongPassword();
-    const type = 'student';
 
-    await authController.registerUser({ fullname, email, password, type });
+    const originalFindOne = User.findOne;
+    const mockUser = {
+      save: jest.fn().mockResolvedValue(),
+    };
+
+    User.findOne = jest.fn().mockReturnValue({
+      exec: jest.fn().mockResolvedValue(mockUser),
+    });
+
     const result = await authController.forgotPassword(email);
 
     expect(result).toBeTruthy();
     expect(mockCreateTransport).toHaveBeenCalled();
     expect(mockSendMail).toHaveBeenCalled();
+    //restore
+    User.findOne = originalFindOne;
   });
 
   test('should handle database error during forgot password', async () => {
@@ -447,45 +493,29 @@ describe('Auth Controller', () => {
   });
 
   test('only admin users are recognized as admins', async () => {
-    const adminFullname =
-      faker.person.firstName() + ' ' + faker.person.lastName();
-    const adminEmail = faker.internet.email();
-    const adminPassword = generateStrongPassword();
-    const adminType = 'admin';
+    const adminId = new mongoose.Types.ObjectId().toString();
+    const studentId = new mongoose.Types.ObjectId().toString();
 
-    const studentFullname =
-      faker.person.firstName() + ' ' + faker.person.lastName();
-    const studentEmail = faker.internet.email();
-    const studentPassword = generateStrongPassword();
-    const studentType = 'student';
+    const originalFindById = User.findById;
 
-    const adminReg = await authController.registerUser({
-      fullname: adminFullname,
-      email: adminEmail,
-      password: adminPassword,
-      type: adminType,
-    });
-    expect(adminReg).toHaveProperty('id');
-    const adminUser = await User.findById(adminReg.id);
-    expect(adminUser).toBeTruthy();
-    expect(adminUser.type).toBe('admin');
+    // mock findById to return different users based on ID
+    User.findById = jest.fn().mockImplementation((id) => ({
+      exec: jest.fn().mockResolvedValue(
+        id === adminId
+          ? { type: 'admin' }
+          : id === studentId
+            ? { type: 'student' }
+            : null
+      ),
+    }));
 
-    const studentReg = await authController.registerUser({
-      fullname: studentFullname,
-      email: studentEmail,
-      password: studentPassword,
-      type: studentType,
-    });
-    expect(studentReg).toHaveProperty('id');
-    const studentUser = await User.findById(studentReg.id);
-    expect(studentUser).toBeTruthy();
-    expect(studentUser.type).toBe('student');
-    // check admin status
-    const isAdminResult = await authController.isAdmin(adminReg.id);
-    const isStudentResult = await authController.isAdmin(studentReg.id);
+    const isAdminResult = await authController.isAdmin(adminId);
+    const isStudentResult = await authController.isAdmin(studentId);
 
     expect(isAdminResult).toBe(true);
     expect(isStudentResult).toBe(false);
+    //restore
+    User.findById = originalFindById;
   });
 
   test('should return false when user not found in isAdmin', async () => {

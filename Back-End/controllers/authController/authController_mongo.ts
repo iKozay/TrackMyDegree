@@ -1,6 +1,5 @@
 import { User } from '../../models';
 import bcrypt from 'bcryptjs';
-import { randomUUID } from 'node:crypto';
 import Sentry from '@sentry/node';
 import nodemailer from 'nodemailer';
 import { setTimeout as setTimeoutPromise } from 'node:timers/promises';
@@ -49,8 +48,11 @@ async function authenticate(
 
     if (user && passwordMatch) {
       const { _id, fullname, email, type } = user.toObject();
+      if (!_id) {
+        return undefined;
+      }
       return {
-        id: _id,
+        id: _id.toString(),
         fullname,
         email,
         type: type as UserType,
@@ -100,15 +102,16 @@ async function registerUser(
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
-      _id: randomUUID(),
       email,
       password: hashedPassword,
       fullname,
       type,
     });
     await newUser.save();
-
-    return { id: newUser._id as string };
+    if (!newUser._id) {
+      throw new Error('Failed to save user');
+    }
+    return { id: newUser._id.toString() };
   } catch (error) {
     Sentry.captureException({
       error: 'Backend error - register user (mongo)',
