@@ -97,5 +97,18 @@ async function removeUserTimeline(timeline_id: string): Promise<{ success: boole
   }
 }
 
+async function updateTimelineItem(timeline_id: string, item: TimelineTypes.TimelineItem) {
+  try {
+    await timelinesCollection.updateOne(
+      { _id: new ObjectId(timeline_id), 'items.id': new ObjectId(item.id) },
+      { $set: { 'items.$': item } }
+    );
+  } catch (error) {
+    Sentry.captureException(error);
+    log('Error updating timeline item:', error);
+    throw error;
+  }
+}
 
-export default { saveTimeline, getTimelinesByUser, removeUserTimeline };
+
+export default { saveTimeline, getTimelinesByUser, removeUserTimeline, updateTimelineItem };
