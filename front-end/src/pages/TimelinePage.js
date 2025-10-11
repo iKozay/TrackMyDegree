@@ -37,7 +37,8 @@ import ShowInsights from '../components/ShowInsights';
 import { AuthContext } from '../middleware/AuthContext';
 import { compressTimeline, decompressTimeline } from '../components/CompressDegree';
 
-const REACT_APP_CLIENT = process.env.REACT_APP_CLIENT || 'localhost:3000' // Set client URL
+const REACT_APP_CLIENT = process.env.REACT_APP_CLIENT || 'localhost:3000'; // Set client URL
+const REACT_APP_SERVER = process.env.REACT_APP_SERVER||'http://localhost:8000';
 
 // TODO: Exxtracting these components to a separate file (components/DraggableCourse.js etc.)
 
@@ -350,7 +351,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     const timelineStringParam = params.get('tstring');
     if (timelineStringParam) {
       const [decompressedTimeline, degreeFromUrl, creditsFromUrl, ecpFromUrl] = decompressTimeline(timelineStringParam);
-
+      console.log("DECOMPRESSED TIMELINE:",decompressedTimeline);
       setTimelineString(timelineStringParam);
       setSemesterCourses(decompressedTimeline);
       if (decompressedTimeline.Exempted) {
@@ -366,8 +367,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   }, [location.search]);
 
   useEffect(() => {
+    console.log("EXEMPTIONCODES:",exemptionCodes)
     const tempId = tempDegId || degree_Id;
-    if (allCourses.length > 0 && tempId !== null && exemptionCodes.length > 0) {
+    if (allCourses.length > 0 && tempId !== null && exemptionCodes?.length > 0) {
       fetch(`/degree-reqs/${tempId}-requirements.txt`)
         .then(res => res.text())
         .then(data => {
@@ -376,7 +378,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           for (const code of exemptionCodes) {
             if (courseListData.includes(code)) {
               console.log('added', code);
-              addExemptionCourse(allCourses.find(course => course.code === code));
+              addExemptionCourse(allCourses.find((course) => course.code === code));
             }
           }
         });
@@ -385,9 +387,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
   useEffect(() => {
     if (timelineData.length > 0) {
-      setExemptionCodes(
-        (timelineData.find((semester) => semester.term.toLowerCase() === 'exempted 2020') || {}).courses,
-      );
+      let exempted_courses = timelineData.filter((semester) => semester.term.toLowerCase().includes('exempted'));
+      let exemption_codes = exempted_courses.courses ?? exempted_courses.map(item => item.course)
+      setExemptionCodes(exemption_codes);
     }
   }, [timelineData]);
 
@@ -418,7 +420,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     const fetchAllCourses = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_SERVER}/courses/getAllCourses`,
+          `${REACT_APP_SERVER}/courses/getAllCourses`,
           {
             method: 'POST',
             headers: {
@@ -515,7 +517,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       try {
         // console.log('Fetching courses by degree:', degreeId);
         const primaryResponse = await fetch(
-          `${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`,
+          `${REACT_APP_SERVER}/courses/getByDegreeGrouped`,
           {
             method: 'POST',
             headers: {
@@ -536,7 +538,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
         if (extendedCredit) {
           const extendedResponse = await fetch(
-            `${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`,
+            `${REACT_APP_SERVER}/courses/getByDegreeGrouped`,
             {
               method: 'POST',
               headers: {
@@ -602,7 +604,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         let isExempted = false;
         // Check the old format: data.term
         if (data.term && typeof data.term === 'string') {
-          isExempted = data.term.trim().toLowerCase() === 'exempted 2020';
+          isExempted = data.term.trim().toLowerCase().includes('exempted');
         }
         // Check the new format: data.season and data.year
         else if (data.season) {
@@ -754,6 +756,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           semesterMap[exemptedKey].push(courseCode);
         }
       });
+      console.log('Exempted courses added:', semesterMap[exemptedKey]);
     }
 
     // --- Step 4. Sort the semesters ---
@@ -1398,7 +1401,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
           }
         });
       }
-
+      console.log('EXEMPTED COURSES:', exempted_courses);
       const coursesForSemester = (semesterCourses[semester.id] || [])
         .map((courseCode) => {
           const genericCode = courseInstanceMap[courseCode] || courseCode;
@@ -1468,7 +1471,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     // Or combine into single transaction with better error recovery
     try {
       const responseExemptions = await fetch(
-        `${process.env.REACT_APP_SERVER}/exemption/create`,
+        `${REACT_APP_SERVER}/exemption/create`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1488,7 +1491,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     // Save the complete timeline.
     try {
       const responseTimeline = await fetch(
-        `${process.env.REACT_APP_SERVER}/timeline/save`,
+        `${REACT_APP_SERVER}/timeline/save`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
