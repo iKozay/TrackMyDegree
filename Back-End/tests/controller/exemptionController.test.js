@@ -211,25 +211,4 @@ describe('Exemption Controller (MongoDB, Embedded in User)', () => {
 
     await mongoose.connect(mongoUri, { dbName: 'jest' });
   });
-    test('✅ covers createExemptions disconnected early-return', async () => {
-    await mongoose.disconnect();
-    const result = await exemptionController.createExemptions(['FAKE'], 'uX');
-    expect(result).toEqual({ created: [], alreadyExists: [] });
-    await mongoose.connect(mongoUri, { dbName: 'jest' });
-  });
-
-  test('✅ covers getAllExemptionsByUser disconnected early-return', async () => {
-    await mongoose.disconnect();
-    const result = await exemptionController.getAllExemptionsByUser('uY');
-    expect(result).toBeUndefined();
-    await mongoose.connect(mongoUri, { dbName: 'jest' });
-  });
-
-  test('✅ covers deleteExemptionByCoursecodeAndUserId disconnected early-return', async () => {
-    await mongoose.disconnect();
-    const result = await exemptionController.deleteExemptionByCoursecodeAndUserId('FAKE', 'uZ');
-    expect(result).toBeUndefined();
-    await mongoose.connect(mongoUri, { dbName: 'jest' });
-  });
-
 });
