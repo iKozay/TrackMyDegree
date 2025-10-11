@@ -110,5 +110,19 @@ async function updateTimelineItem(timeline_id: string, item: TimelineTypes.Timel
   }
 }
 
+async function deleteTimelineItem(timeline_id: string, item_id: string) {
+  try {
+    await timelinesCollection.updateOne(
+      { _id: new ObjectId(timeline_id) },
+      { $pull: { items: { id: new ObjectId(item_id) } } }
+    );
+  } catch (error) {
+    Sentry.captureException(error);
+    log('Error deleting timeline item:', error);
+    throw error;
+  }
+}
 
-export default { saveTimeline, getTimelinesByUser, removeUserTimeline, updateTimelineItem };
+
+
+export default { saveTimeline, getTimelinesByUser, removeUserTimeline, updateTimelineItem, deleteTimelineItem };
