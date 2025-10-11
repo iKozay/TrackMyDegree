@@ -117,7 +117,7 @@ export class TranscriptParser {
     const transferCredits = this.extractTransferCredits(structuredLines);
     
     // Extract courses using term boundaries from pdf-parse and structure from pdf2json
-    const terms = this.extractTermsHybrid(termBoundaries, structuredLines);
+    const terms = this.extractTermsHybrid(termBoundaries, pdf2jsonData);
 
     return {
       studentInfo,
@@ -130,6 +130,7 @@ export class TranscriptParser {
 
   /**
    * Find term boundaries from pdf-parse text (correct reading order)
+   * NOTE: This only extracts actual course terms, not the admit term from program history
    */
   private findTermBoundariesFromText(lines: string[]): Array<{ term: string; year: string; lineIndex: number; gpa?: number }> {
     const termBoundaries: Array<{ term: string; year: string; lineIndex: number; gpa?: number }> = [];
@@ -138,6 +139,8 @@ export class TranscriptParser {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       
+      // Course section starts after "Beginning of Undergraduate Record"
+      // This ensures we skip the program history section (which contains admit term)
       if (line.includes('Beginning of Undergraduate Record')) {
         inCourseSection = true;
         continue;
@@ -149,7 +152,7 @@ export class TranscriptParser {
       
       if (!inCourseSection) continue;
       
-      // Match term headers
+      // Match term headers (only actual course terms, not admit term)
       const termMatch = line.match(/^(Winter|Summer|Fall|Spring|Fall\/Winter|Winter\/Summer)\s+(\d{4}(?:-\d{2})?)$/);
       if (termMatch) {
         termBoundaries.push({
@@ -486,32 +489,33 @@ export class TranscriptParser {
 
   /**
    * Extract terms using hybrid approach:
-   * - Term boundaries from pdf-parse (correct order  with line indices)
-   * - Course data from pdf2json (structured columns)
+   * - Term boundaries from pdf-parse (correct order with line indices)
+   * - Course data from pdf2json (structured columns with order preservation)
    */
   private extractTermsHybrid(
     termBoundaries: Array<{ term: string; year: string; lineIndex: number; gpa?: number }>,
-    structuredLines: string[]
+    pdf2jsonData: any
   ): TranscriptTerm[] {
     const terms: TranscriptTerm[] = [];
     
-    // Extract ALL courses from structured lines once
-    const allCourses: TranscriptCourse[] = [];
-    structuredLines.forEach(line => {
-      const courses = this.extractCoursesFromLine(line);
-      allCourses.push(...courses);
+    // Extract courses from pdf2json data preserving page and order
+    const coursesByPage = this.extractCoursesFromPdf2json(pdf2jsonData);
+    
+    // Flatten all courses with their metadata
+    const allCourses: Array<TranscriptCourse & { page: number; order: number }> = [];
+    coursesByPage.forEach((coursesOnPage, page) => {
+      coursesOnPage.forEach(courseInfo => {
+        allCourses.push({ ...courseInfo.course, page, order: courseInfo.order });
+      });
     });
     
     console.log(`\nDEBUG: Found ${allCourses.length} total courses from pdf2json`);
     console.log(`DEBUG: Found ${termBoundaries.length} terms from pdf-parse`);
     
-    // Simple approach: divide courses evenly based on term count
-    // This assumes courses appear in same order in both sources
-    const coursesPerTerm = Math.floor(allCourses.length / termBoundaries.length);
-    const remainder = allCourses.length % termBoundaries.length;
-    
+    // Assign courses to terms based on gaps and page changes
+    // Key insight: A term boundary occurs AFTER a course when there's a large gap (>20) or page change to the NEXT course
     let courseIndex = 0;
-    termBoundaries.forEach((boundary, index) => {
+    termBoundaries.forEach((boundary, termIdx) => {
       const term: TranscriptTerm = {
         term: boundary.term,
         year: boundary.year,
@@ -520,25 +524,209 @@ export class TranscriptParser {
         termCredits: undefined
       };
       
-      // Assign courses - give each term roughly equal number
-      // Last term gets any remaining courses
-      let numCoursesForTerm = coursesPerTerm;
-      if (index < remainder) {
-        numCoursesForTerm++; // Distribute remainder across first terms
-      }
-      
-      for (let i = 0; i < numCoursesForTerm && courseIndex < allCourses.length; i++) {
-        const course = allCourses[courseIndex];
-        course.term = term.term;
-        course.year = term.year;
-        term.courses.push(course);
+      // Collect courses for this term
+      while (courseIndex < allCourses.length) {
+        const currentCourse = allCourses[courseIndex];
+        
+        // Add current course to this term
+        const { page, order, ...cleanCourse } = currentCourse;
+        cleanCourse.term = term.term;
+        cleanCourse.year = term.year;
+        term.courses.push(cleanCourse);
+        
+        if (termIdx <= 2) {
+          console.log(`Term ${termIdx} (${boundary.term} ${boundary.year}): Added course ${term.courses.length}: ${cleanCourse.courseCode}`);
+        }
+        
         courseIndex++;
+        
+        // Check if there's a boundary AFTER this course (before the next one)
+        const nextCourse = courseIndex < allCourses.length ? allCourses[courseIndex] : null;
+        
+        if (!nextCourse) {
+          // No more courses, we're done
+          if (termIdx <= 2) console.log(`  -> No more courses, breaking`);
+          break;
+        }
+        
+        // Check for term boundary indicators
+        const samePage = currentCourse.page === nextCourse.page;
+        const gap = nextCourse.order - currentCourse.order;
+        
+        if (termIdx <= 2) {
+          console.log(`  -> Next: ${nextCourse.courseCode}, samePage: ${samePage}, gap: ${gap}`);
+        }
+        
+        // A large gap (>20) on the same page OR a page change indicates a term boundary
+        const isTermBoundary = (samePage && gap > 20) || !samePage;
+        
+        if (termIdx <= 2) {
+          console.log(`  -> isTermBoundary: ${isTermBoundary}, termIdx: ${termIdx}, maxTermIdx: ${termBoundaries.length - 1}`);
+        }
+        
+        if (isTermBoundary && termIdx < termBoundaries.length - 1) {
+          // There's a boundary after this course, move to next term
+          if (termIdx <= 2) console.log(`  -> BREAKING due to boundary`);
+          break;
+        }
       }
       
       terms.push(term);
     });
     
     return this.cleanupTerms(terms);
+  }
+  
+  /**
+   * Extract courses directly from pdf2json data, preserving page and order information
+   */
+  private extractCoursesFromPdf2json(pdf2jsonData: any): Map<number, Array<{ course: TranscriptCourse; order: number }>> {
+    const coursesByPage = new Map<number, Array<{ course: TranscriptCourse; order: number }>>();
+    
+    const pages = pdf2jsonData.Pages || [];
+    
+    pages.forEach((page: any, pageIdx: number) => {
+      const coursesOnPage: Array<{ course: TranscriptCourse; order: number }> = [];
+      const texts = page.Texts || [];
+      
+      // Iterate through texts to find course patterns
+      for (let i = 0; i < texts.length - 2; i++) {
+        const item = texts[i];
+        const next1 = texts[i + 1];
+        const next2 = texts[i + 2];
+        
+        const itemText = decodeURIComponent(item.R?.[0]?.T || '');
+        const next1Text = decodeURIComponent(next1.R?.[0]?.T || '');
+        const next2Text = decodeURIComponent(next2.R?.[0]?.T || '');
+        
+        // Only look at items with negative Y (course data section)
+        if (item.y < 0 &&
+            /^[A-Z]{2,4}$/.test(itemText) && itemText.length <= 4 &&
+            !['COURSE', 'GRADE', 'GPA', 'AVG', 'SIZE', 'OTHER', 'NOTATION', 'CLASS', 'PROGRAM', 'EARNED', 'EX', 'NA'].includes(itemText) &&
+            /^\d{3}$/.test(next1Text) &&
+            /^[A-Z0-9]{1,3}$/.test(next2Text)) {
+          
+          // Found a course! Now parse its full details
+          const course = this.parseCoursePdf2jsonData(texts, i);
+          if (course) {
+            coursesOnPage.push({ course, order: i });
+          }
+        }
+      }
+      
+      if (coursesOnPage.length > 0) {
+        coursesByPage.set(pageIdx, coursesOnPage);
+      }
+    });
+    
+    return coursesByPage;
+  }
+  
+  /**
+   * Parse a course from pdf2json raw data starting at the given index
+   */
+  private parseCoursePdf2jsonData(texts: any[], startIndex: number): TranscriptCourse | null {
+    if (startIndex + 5 >= texts.length) {
+      return null;
+    }
+    
+    const dept = decodeURIComponent(texts[startIndex].R?.[0]?.T || '');
+    const number = decodeURIComponent(texts[startIndex + 1].R?.[0]?.T || '');
+    const section = decodeURIComponent(texts[startIndex + 2].R?.[0]?.T || '');
+    const courseCode = `${dept} ${number}`;
+    
+    // Collect title parts until we hit a credits value (N.NN format)
+    let courseTitle = '';
+    let titleIndex = startIndex + 3;
+    while (titleIndex < texts.length && !/^\d+\.\d{2}$/.test(decodeURIComponent(texts[titleIndex].R?.[0]?.T || ''))) {
+      const part = decodeURIComponent(texts[titleIndex].R?.[0]?.T || '');
+      courseTitle += part + ' ';
+      titleIndex++;
+      // Safety: stop if we've gone too far
+      if (titleIndex - startIndex > 15) break;
+    }
+    courseTitle = courseTitle.trim();
+    
+    // Next should be credits
+    if (titleIndex >= texts.length || !/^\d+\.\d{2}$/.test(decodeURIComponent(texts[titleIndex].R?.[0]?.T || ''))) {
+      return null;
+    }
+    const credits = parseFloat(decodeURIComponent(texts[titleIndex].R?.[0]?.T || ''));
+    titleIndex++;
+    
+    // Next should be grade
+    if (titleIndex >= texts.length) {
+      return null;
+    }
+    let grade = decodeURIComponent(texts[titleIndex].R?.[0]?.T || '').toUpperCase();
+    titleIndex++;
+    
+    let gpa: number | undefined;
+    let classAvg: number | undefined;
+    let classSize: number | undefined;
+    let programCredits: number | undefined;
+    let other: string | undefined;
+    
+    // For letter grades (not PASS, EX, 0.00, etc.), we have GPA, AVG, SIZE, EARNED
+    if (grade !== 'PASS' && grade !== 'EX' && grade !== '0.00' && grade !== '0' && grade !== '0.0') {
+      // GPA
+      if (titleIndex < texts.length && /^\d+\.\d{2}$/.test(decodeURIComponent(texts[titleIndex].R?.[0]?.T || ''))) {
+        gpa = parseFloat(decodeURIComponent(texts[titleIndex].R?.[0]?.T || ''));
+        titleIndex++;
+      }
+      
+      // Class Average
+      if (titleIndex < texts.length && /^\d+\.\d{2}$/.test(decodeURIComponent(texts[titleIndex].R?.[0]?.T || ''))) {
+        classAvg = parseFloat(decodeURIComponent(texts[titleIndex].R?.[0]?.T || ''));
+        titleIndex++;
+      }
+      
+      // Class Size
+      if (titleIndex < texts.length && /^\d{1,4}$/.test(decodeURIComponent(texts[titleIndex].R?.[0]?.T || ''))) {
+        classSize = parseInt(decodeURIComponent(texts[titleIndex].R?.[0]?.T || ''));
+        titleIndex++;
+      }
+      
+      // Program Credits Earned
+      if (titleIndex < texts.length && /^\d+\.\d{2}$/.test(decodeURIComponent(texts[titleIndex].R?.[0]?.T || ''))) {
+        programCredits = parseFloat(decodeURIComponent(texts[titleIndex].R?.[0]?.T || ''));
+        titleIndex++;
+      }
+    } else if (grade === '0.00' || grade === '0' || grade === '0.0') {
+      // For future courses (0.00 grade), skip parsing extra fields
+      while (titleIndex < texts.length && !['WKRT', 'RPT', 'EX'].includes(decodeURIComponent(texts[titleIndex].R?.[0]?.T || ''))) {
+        titleIndex++;
+      }
+    } else {
+      // For PASS/EX grades, skip to earned credits
+      while (titleIndex < texts.length && !/^\d+\.\d{2}$/.test(decodeURIComponent(texts[titleIndex].R?.[0]?.T || ''))) {
+        titleIndex++;
+      }
+      if (titleIndex < texts.length) {
+        programCredits = parseFloat(decodeURIComponent(texts[titleIndex].R?.[0]?.T || ''));
+        titleIndex++;
+      }
+    }
+    
+    // Check for OTHER field (WKRT, RPT, etc.)
+    if (titleIndex < texts.length && ['WKRT', 'RPT', 'EX'].includes(decodeURIComponent(texts[titleIndex].R?.[0]?.T || ''))) {
+      other = decodeURIComponent(texts[titleIndex].R?.[0]?.T || '');
+    }
+    
+    return {
+      courseCode,
+      section,
+      courseTitle,
+      credits,
+      grade,
+      notation: undefined,
+      gpa,
+      classAvg,
+      classSize,
+      term: '',
+      year: '',
+      other
+    };
   }
 
   /**
