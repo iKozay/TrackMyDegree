@@ -27,7 +27,7 @@ async function ensureBackupDir(): Promise<void> {
 // -------------------------------------
 // Create Backup (User Data Only)
 // -------------------------------------
-export async function createBackup(): Promise<void> {
+export async function createBackup(): Promise<string> {
   try {
     const db = mongoose.connection.db;
     if (!db) throw new Error('No database connection available');
@@ -62,6 +62,7 @@ export async function createBackup(): Promise<void> {
     );
 
     console.log(`Backup created successfully at: ${filePath}`);
+    return fileName;
   } catch (error) {
     Sentry.captureException(error);
     console.error('Error creating backup:', error);
