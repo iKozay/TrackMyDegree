@@ -9,7 +9,6 @@
  *  - Connects automatically on import and exports the client for use in other modules.
  */
 
-
 import { createClient } from 'redis';
 import Sentry from '@sentry/node';
 

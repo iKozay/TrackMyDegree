@@ -11,20 +11,20 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 //This page creates an initial timeline using either manually entered information or by parsing an acceptance letter
 /**
  * UploadAcceptanceLetterPage Component - Dual-mode timeline creation page
- * 
+ *
  * Two creation paths:
  * 1. Manual Form: User selects degree, starting term/year, and program options (Co-op/Extended Credit)
  * 2. PDF Upload: Processes acceptance letter PDFs to auto-extract degree, terms, exemptions, and program info
- * 
+ *
  * Backend Integration:
  * - Fetches available degrees from server API (/degree/getAllDegrees)
  * - Uses Sentry for error tracking
- * 
+ *
  * PDF Processing (client-side):
  * - Extracts degree concentration, starting/graduation terms, co-op eligibility
  * - Identifies exempted courses, transfer credits, and credit deficiencies
  * - Validates document is an "Offer of Admission" letter
- * 
+ *
  * Navigation: Redirects to TimelinePage (/timeline_change) with extracted/selected data
  * Storage: Clears previous timeline data in localStorage before processing
  */
@@ -50,16 +50,26 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       onDataProcessed(); // Clear old timeline data on load
       isFirstRender.current = false;
     }
-    
   }, [onDataProcessed]);
 
   // List of specific programs to check for. This variable is never used
   // TODO: Duplicate list - consider moving to config file
   const programNames = [
-    'Aerospace Engineering', 'Building Engineering', 'Civil Engineering', 'Computer Engineering',
-    'Computer Science', 'Computer Science (Minor)', 'Computer Science - Computation Arts',
-    'Data Science', 'Electrical Engineering', 'Health and Life Sciences', 'Indigenous Bridging Program',
-    'Industrial Engineering', 'Mechanical Engineering', 'Science and Technology', 'Software Engineering'
+    'Aerospace Engineering',
+    'Building Engineering',
+    'Civil Engineering',
+    'Computer Engineering',
+    'Computer Science',
+    'Computer Science (Minor)',
+    'Computer Science - Computation Arts',
+    'Data Science',
+    'Electrical Engineering',
+    'Health and Life Sciences',
+    'Indigenous Bridging Program',
+    'Industrial Engineering',
+    'Mechanical Engineering',
+    'Science and Technology',
+    'Software Engineering',
   ];
 
   //The radio mentioned is the "Extended Credit Program" radio button
@@ -88,7 +98,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     }
     const startingSemester = `${selectedTerm} ${selectedYear}`;
 
-    const matched_degree = degrees.find(d => d.id === selectedDegreeId);
+    const matched_degree = degrees.find((d) => d.id === selectedDegreeId);
     const credits_Required = matched_degree.totalCredits;
 
     // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
@@ -113,15 +123,12 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     const getDegrees = async () => {
       // TODO: Add proper error handling and user feedback for API failures
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_SERVER}/degree/getAllDegrees`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+        const response = await fetch(`${process.env.REACT_APP_SERVER}/degree/getAllDegrees`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-        );
+        });
 
         const jsonData = await response.json();
         console.log(jsonData);
@@ -148,7 +155,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     e.preventDefault();
     e.target.classList.remove('dragover');
     const file = e.dataTransfer.files[0];
-    validateAndSetFile(file);//Checks if the file is a PDF
+    validateAndSetFile(file); //Checks if the file is a PDF
   };
 
   const handleFileChange = (e) => {
@@ -213,7 +220,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
           // Extract Degree Info
           //const degreeInfo = extractedData.degree || "Unknown Degree";
           const degreeId = extractedData.degreeId || 'Unknown'; // Map degree to ID
-          const matched_degree = degrees.find(d => d.id === degreeId);
+          const matched_degree = degrees.find((d) => d.id === degreeId);
           const credits_Required = matched_degree.totalCredits;
 
           if (transcriptData.length > 0) {
@@ -312,7 +319,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       degreeMapping_2[name] = id;
     });
 
-    console.log("degrees", degrees)
+    console.log('degrees', degrees);
 
     let degree = null;
     let degreeId = null;
@@ -324,24 +331,20 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       if (!pagesData || pagesData.length === 0) {
         console.error('No pages data available');
         return { results: [] };
-      }  
+      }
       // Check if text contains "OFFER OF ADMISSION"
-      if (text.toUpperCase().match("OFFER OF ADMISSION")) {
-           offer_of_Admission = true;
+      if (text.toUpperCase().match('OFFER OF ADMISSION')) {
+        offer_of_Admission = true;
       }
 
       // Extract Degree Concentration (everything after Program/Plan(s) and before Academic Load)
-      const degreeConcentrationMatch = text.match(
-        /Program\/Plan\(s\):\s*([^\n]+)(?:\n([^\n]+))?[\s\S]*?Academic Load/,
-      )
+      const degreeConcentrationMatch = text.match(/Program\/Plan\(s\):\s*([^\n]+)(?:\n([^\n]+))?[\s\S]*?Academic Load/);
 
-      console.log("degree", degreeConcentrationMatch);
+      console.log('degree', degreeConcentrationMatch);
 
       if (degreeConcentrationMatch) {
         // Combine the two parts (if any) into a single Degree Concentration string
-        let degreeConcentration = (
-          degreeConcentrationMatch[1] + (degreeConcentrationMatch[2] || '')
-        ).trim();
+        let degreeConcentration = (degreeConcentrationMatch[1] + (degreeConcentrationMatch[2] || '')).trim();
 
         // Check if any of the specific program names are present in the extracted Degree Concentration
         programNames.forEach((program) => {
@@ -353,13 +356,11 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         // Assign to details
         details.degreeConcentration = degreeId;
       }
-      
+
       console.log(degreeId);
 
       // Check for "Co-op Recommendation: Congratulations!"
-      const coopRecommendationMatch = text.match(
-        /Co-op Recommendation:\s*Congratulations!/,
-      );
+      const coopRecommendationMatch = text.match(/Co-op Recommendation:\s*Congratulations!/);
       if (coopRecommendationMatch) {
         details.coopProgram = 'Yes';
         details.extendedCreditProgram = 'No';
@@ -384,14 +385,10 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       // Check if both Session and Minimum Program Length are present
       if (sessionIndex !== -1 && minProgramLengthIndex !== -1) {
         // Extract the substring between Session and Minimum Program Length
-        const textBetweenSessionAndMinLength = text.substring(
-          sessionIndex,
-          minProgramLengthIndex,
-        );
+        const textBetweenSessionAndMinLength = text.substring(sessionIndex, minProgramLengthIndex);
 
         // Regular expression to match the term (Winter, Summer, Fall, Fall/Winter)
-        const termRegex =
-          /(\s*(Winter|Summer|Fall)\s*\d{4}\s*)|(\s*(Fall\/Winter)\s*20(\d{2})-(?!\6)\d{2})/;
+        const termRegex = /(\s*(Winter|Summer|Fall)\s*\d{4}\s*)|(\s*(Fall\/Winter)\s*20(\d{2})-(?!\6)\d{2})/;
         const termMatchstart = textBetweenSessionAndMinLength.match(termRegex);
 
         if (termMatchstart) {
@@ -406,14 +403,10 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
 
       if (expectedGradTermIndex !== -1 && admissionStatusIndex !== -1) {
         // Extract the substring between Expected Graduation Term and Admission Status
-        const textBetweenExpectedGradTermAndStatus = text.substring(
-          expectedGradTermIndex,
-          admissionStatusIndex,
-        );
+        const textBetweenExpectedGradTermAndStatus = text.substring(expectedGradTermIndex, admissionStatusIndex);
 
         // Regex for matching terms like Winter 2024, Fall/Winter 2023-2024
-        const termRegex =
-          /(\s*(Winter|Summer|Fall)\s*\d{4}\s*)|(\s*(Fall\/Winter)\s*20(\d{2})-(?!\6)\d{2})/;
+        const termRegex = /(\s*(Winter|Summer|Fall)\s*\d{4}\s*)|(\s*(Fall\/Winter)\s*20(\d{2})-(?!\6)\d{2})/;
         const termMatch = textBetweenExpectedGradTermAndStatus.match(termRegex);
 
         if (termMatch) {
@@ -428,10 +421,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
 
       if (exemptionsIndex !== -1 && deficienciesIndex !== -1) {
         // Extract the substring between Exemptions and Deficiencies
-        const textBetweenExemptionsAndDeficiencies = text.substring(
-          exemptionsIndex,
-          deficienciesIndex,
-        );
+        const textBetweenExemptionsAndDeficiencies = text.substring(exemptionsIndex, deficienciesIndex);
 
         // Regex for matching course codes (e.g., MATH 101)
         const courseRegex = /([A-Za-z]{3,4})\s+(\d{3})\s+/g;
@@ -439,11 +429,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         const exemptionsCourses = [];
 
         // Find all course matches
-        while (
-          (courseMatch = courseRegex.exec(
-            textBetweenExemptionsAndDeficiencies,
-          )) !== null
-        ) {
+        while ((courseMatch = courseRegex.exec(textBetweenExemptionsAndDeficiencies)) !== null) {
           results.push({
             name: courseMatch[0].replace(/\s+/g, ''),
             page: 1,
@@ -465,10 +451,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
 
       if (deficienciesMatchIndex !== -1 && transferCreditsIndex !== -1) {
         // Extract the substring between Deficiencies and Transfer Credits
-        const textBetweenDeficienciesAndTransferCredits = text.substring(
-          deficienciesMatchIndex,
-          transferCreditsIndex,
-        );
+        const textBetweenDeficienciesAndTransferCredits = text.substring(deficienciesMatchIndex, transferCreditsIndex);
 
         // Regex for matching course codes (e.g., MATH 101)
         const courseRegex = /([A-Za-z]{3,4})\s+((\d{3})|[A-Z]{1,2})\s+/g;
@@ -476,11 +459,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         const deficienciesCourses = [];
 
         // Find all course matches
-        while (
-          (courseMatch = courseRegex.exec(
-            textBetweenDeficienciesAndTransferCredits,
-          )) !== null
-        ) {
+        while ((courseMatch = courseRegex.exec(textBetweenDeficienciesAndTransferCredits)) !== null) {
           deficienciesCourses.push(courseMatch[0].trim());
         }
 
@@ -495,10 +474,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       const noteIndex = text.indexOf('NOTE:');
 
       if (transferCreditsIndex !== -1 && noteIndex !== -1) {
-        const textBetweenTransferAndNote = text.substring(
-          transferCreditsIndex,
-          noteIndex,
-        );
+        const textBetweenTransferAndNote = text.substring(transferCreditsIndex, noteIndex);
 
         // Regex for matching courses (e.g., COMM A, ECON 201)
         const courseRegex = /(\s+[A-Z]{3,4})\s+((\d{3})|[A-Z]{1,2})\s+/g;
@@ -507,19 +483,13 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
         let courseMatch;
         const transferCredits = [];
 
-        while (
-          (courseMatch = courseRegex.exec(textBetweenTransferAndNote)) !== null
-        ) {
+        while ((courseMatch = courseRegex.exec(textBetweenTransferAndNote)) !== null) {
           const course = courseMatch[0].trim();
           // Look for the credits on the same line as the course
-          const lineContainingCourse = textBetweenTransferAndNote
-            .split('\n')
-            .find((line) => line.includes(course));
+          const lineContainingCourse = textBetweenTransferAndNote.split('\n').find((line) => line.includes(course));
 
           const creditMatch = lineContainingCourse?.match(creditRegex);
-          const credits = creditMatch
-            ? `${creditMatch[1]} crs`
-            : 'Credits not found';
+          const credits = creditMatch ? `${creditMatch[1]} crs` : 'Credits not found';
           results.push({
             name: course.replace(/\s+/g, ''),
             page: 1,
@@ -535,8 +505,8 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       }
     }); // pages end
 
-    if(!offer_of_Admission){
-      alert("Please choose Offer of Admission");     
+    if (!offer_of_Admission) {
+      alert('Please choose Offer of Admission');
       return { results: [] };
     }
 
@@ -548,12 +518,11 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       const terms = ['Winter', 'Summer', 'Fall'];
       const startYear = parseInt(startTerm.split(' ')[1]); // Extracting the year
       const startSeason = startTerm.split(' ')[0]; // Extracting the season
-      let endYear,endSeason;
+      let endYear, endSeason;
       if (!endTerm || typeof endTerm !== 'string') {
         endYear = startYear + 2;
         endSeason = startSeason;
-       }
-      else{
+      } else {
         endYear = parseInt(endTerm.split(' ')[1]); // Extracting the year
         endSeason = endTerm.split(' ')[0]; // Extracting the season
       }
@@ -564,11 +533,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       let currentSeasonIndex = terms.indexOf(startSeason); // Find index of start season in the list
 
       // Loop to generate all terms from start to end
-      while (
-        currentYear < endYear ||
-        (currentYear === endYear &&
-          currentSeasonIndex <= terms.indexOf(endSeason))
-      ) {
+      while (currentYear < endYear || (currentYear === endYear && currentSeasonIndex <= terms.indexOf(endSeason))) {
         const term = `${terms[currentSeasonIndex]} ${currentYear}`;
         resultTerms.push(term);
 
@@ -610,9 +575,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     let currentTerm = data[0]?.name; // Use optional chaining to safely access `name`
     let terms = [];
 
-    data.sort((a, b) =>
-      a.page !== b.page ? a.page - b.page : a.position - b.position,
-    );
+    data.sort((a, b) => (a.page !== b.page ? a.page - b.page : a.position - b.position));
 
     data.forEach((item) => {
       if (item && item.type === 'Term' && item.name) {
@@ -661,30 +624,16 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
       <div className="top-down">
         <div className="g-container">
           <div className="form-container-al">
             <h2>Required Information</h2>
-            <p>
-              Manually fill out the following information so we can help you
-              create the perfect timeline
-            </p>
+            <p>Manually fill out the following information so we can help you create the perfect timeline</p>
             <form>
               <div>
-                <label htmlFor="degree-concentration">
-                  Degree Concentration:
-                </label>
-                <select
-                  id="degree-concentration"
-                  className="input-field"
-                  onChange={handleDegreeChange}
-                >
+                <label htmlFor="degree-concentration">Degree Concentration:</label>
+                <select id="degree-concentration" className="input-field" onChange={handleDegreeChange}>
                   <option value="">-- Select a Degree --</option>
                   {degrees && degrees.length > 0 ? (
                     degrees
@@ -761,10 +710,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
 
           <div className="upload-container-al">
             <h2>Upload Acceptance Letter</h2>
-            <p>
-              Upload your acceptance letter to automatically fill out the
-              required information
-            </p>
+            <p>Upload your acceptance letter to automatically fill out the required information</p>
             <div
               className="upload-box-al"
               onDragOver={handleDragOver}
@@ -790,17 +736,9 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
             <button className="create-button" onClick={handleSubmit}>
               Create Timeline
             </button>
-            {output && (
-              <div
-                id="output"
-                dangerouslySetInnerHTML={{ __html: output }}
-              ></div>
-            )}
+            {output && <div id="output" dangerouslySetInnerHTML={{ __html: output }}></div>}
             <p>To upload your unofficial transcript, please click here!</p>
-            <button
-              className="upload-transcript-button"
-              onClick={() => navigate('/uploadTranscript')}
-            >
+            <button className="upload-transcript-button" onClick={() => navigate('/uploadTranscript')}>
               Upload Transcript
             </button>
           </div>

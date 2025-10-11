@@ -8,10 +8,6 @@ WORKDIR /app
 # Comment above mentions package-lock.json but it's not being copied here.
 COPY package.json ./
 
-# Prevent ESLint from blocking the build
-# TODO: linting should be done/checked in CI pipeline
-ENV ESLINT_NO_DEV_ERRORS=true
-
 # Clear npm cache and install dependencies
 # npm was previously used but now switched to yarn. There was an issue with node version and sqlserver. See commmit: 65dca7b3f1ac5c1b7e71232431119c367f57cf2d
 RUN yarn

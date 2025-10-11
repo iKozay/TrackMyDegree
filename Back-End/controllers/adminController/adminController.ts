@@ -264,7 +264,10 @@ export const restoreBackup = async (
               `INSERT INTO [${tableName}] (${columnsJoined}) VALUES (${placeholders})`,
             );
           } catch (error) {
-            if (error instanceof Error && error.message.includes('FOREIGN KEY constraint')) {
+            if (
+              error instanceof Error &&
+              error.message.includes('FOREIGN KEY constraint')
+            ) {
               console.error(
                 `Foreign key constraint error while inserting into table "${tableName}". Record:`,
                 record,
@@ -329,7 +332,7 @@ export const deleteBackup = async (
   }
 };
 
-// Admin Utilities 
+// Admin Utilities
 
 /**
  * Fetches the list of all tables in the database.
@@ -422,9 +425,21 @@ export const getTableRecords = async (
   }
 };
 
+let dbPassword = process.env.DB_PASSWORD; // default to env var for backward compatibility
+// if docker secret file is provided, read the password from there
+if (process.env.SQL_SERVER_PASSWORD_FILE) {
+  try {
+    dbPassword = fs
+      .readFileSync(process.env.SQL_SERVER_PASSWORD_FILE, 'utf-8')
+      .trim();
+  } catch (e) {
+    console.error('Error reading dbPassword from file:', e);
+  }
+}
+
 const dbConfig: sql.config = {
   user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+  password: dbPassword,
   database: process.env.DB_NAME,
   server: process.env.DB_HOST || 'localhost',
   options: {
@@ -585,7 +600,6 @@ function extractCodeFromTitle(title: string): string {
   if (!match) throw new Error(`Invalid course title format: "${title}"`);
   return `${match[1]}${match[2]}`.toUpperCase();
 }
-
 
 // this validates loaded courses mainly by format checks on titles
 function validateCourseData(courseMap: Map<string, CourseJson>): void {
@@ -792,14 +806,14 @@ async function upsertCourseXCoursePool(
     `);
     console.log(
       `Linked Course ${courseCode} to CoursePool ID: ${poolId}` +
-      (groupId ? ` with groupId: ${groupId}` : ''),
+        (groupId ? ` with groupId: ${groupId}` : ''),
     );
     return newId;
   } else {
     const cxcpId = result.recordset[0].id;
     console.log(
       `CourseXCoursePool already exists for Course ${courseCode} in Pool ID: ${poolId}` +
-      (groupId ? ` with groupId: ${groupId}` : ''),
+        (groupId ? ` with groupId: ${groupId}` : ''),
     );
     return cxcpId;
   }
@@ -847,31 +861,32 @@ async function upsertRequisite(
         @code1, 
         ${creditsRequired !== undefined ? 'NULL' : code2 ? '@code2' : 'NULL'}, 
         @type, 
-        ${creditsRequired !== undefined
-        ? 'NULL'
-        : groupId
-          ? '@group_id'
-          : 'NULL'
-      }, 
+        ${
+          creditsRequired !== undefined
+            ? 'NULL'
+            : groupId
+              ? '@group_id'
+              : 'NULL'
+        }, 
         ${creditsRequired !== undefined ? '@creditsRequired' : 'NULL'}
       )
     `);
     console.log(
       `Inserted Requisite: ${code1}` +
-      (code2
-        ? ` -> ${code2}`
-        : ` with Credits Required: ${creditsRequired}`) +
-      ` (${type})` +
-      (groupId ? ` Group ID: ${groupId}` : ''),
+        (code2
+          ? ` -> ${code2}`
+          : ` with Credits Required: ${creditsRequired}`) +
+        ` (${type})` +
+        (groupId ? ` Group ID: ${groupId}` : ''),
     );
   } else {
     console.log(
       `Requisite already exists: ${code1}` +
-      (code2
-        ? ` -> ${code2}`
-        : ` with Credits Required: ${creditsRequired}`) +
-      ` (${type})` +
-      (groupId ? ` Group ID: ${groupId}` : ''),
+        (code2
+          ? ` -> ${code2}`
+          : ` with Credits Required: ${creditsRequired}`) +
+        ` (${type})` +
+        (groupId ? ` Group ID: ${groupId}` : ''),
     );
   }
 }

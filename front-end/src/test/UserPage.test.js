@@ -95,9 +95,7 @@ describe('Timeline Component', () => {
   });
 
   test('delete button should trigger popup', () => {
-    const userTimelines = [
-      { id: 1, name: 'Timeline 1', modifiedDate: '2025-01-10 10:12am' },
-    ];
+    const userTimelines = [{ id: 1, name: 'Timeline 1', modifiedDate: '2025-01-10 10:12am' }];
 
     render(<UserPage userTimelines={userTimelines} />);
     const deleteButton = screen.getByText(/X/i);
@@ -111,9 +109,7 @@ describe('Timeline Component', () => {
   });
 
   test('timeline deleted after confirm is clicked', () => {
-    const userTimelines = [
-      { id: 1, name: 'Timeline 1', modifiedDate: '2025-01-10 10:12am' },
-    ];
+    const userTimelines = [{ id: 1, name: 'Timeline 1', modifiedDate: '2025-01-10 10:12am' }];
 
     render(<UserPage userTimelines={userTimelines} />);
     const deleteButton = screen.getByText(/X/i);
@@ -126,9 +122,7 @@ describe('Timeline Component', () => {
   });
 
   test('timeline not deleted after cancel is clicked', () => {
-    const userTimelines = [
-      { id: 1, name: 'Timeline 1', modifiedDate: '2025-01-10 10:12am' },
-    ];
+    const userTimelines = [{ id: 1, name: 'Timeline 1', modifiedDate: '2025-01-10 10:12am' }];
 
     render(<UserPage userTimelines={userTimelines} />);
     const deleteButton = screen.getByText(/X/i);
@@ -141,9 +135,7 @@ describe('Timeline Component', () => {
   });
 
   test('link to create new timeline displayed when none exist for user', () => {
-    const userTimelines = [
-      { id: 1, name: 'Timeline 1', modifiedDate: '2025-01-10 10:12am' },
-    ];
+    const userTimelines = [{ id: 1, name: 'Timeline 1', modifiedDate: '2025-01-10 10:12am' }];
 
     render(<UserPage userTimelines={userTimelines} />);
     const deleteButton = screen.getByText(/X/i);
@@ -152,17 +144,11 @@ describe('Timeline Component', () => {
     const confirmButton = screen.getByText(/Confirm/i);
     confirmButton.click();
 
-    expect(
-      screen.getByText(
-        "You haven't saved any timelines yet, click here to start now!",
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText("You haven't saved any timelines yet, click here to start now!")).toBeInTheDocument();
   });
 
   test('should navigate to timeline page when clicked', () => {
-    const userTimelines = [
-      { id: 1, name: 'Timeline 1', modifiedDate: '2025-01-10 10:12am' },
-    ];
+    const userTimelines = [{ id: 1, name: 'Timeline 1', modifiedDate: '2025-01-10 10:12am' }];
 
     render(
       <MemoryRouter initialEntries={['/user']}>

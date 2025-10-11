@@ -12,13 +12,13 @@ jest.mock('react-router-dom', () => ({
 describe('UploadAcceptanceLetter', () => {
   test('displays title for page correctly', () => {
     render(<UploadAcceptanceLetter />);
-    
+
     expect(screen.getByText('Required Information')).toBeInTheDocument();
   });
 
   test('renders upload title for page correctly', () => {
     render(<UploadAcceptanceLetter />);
-  
+
     expect(screen.getByPlaceholderText('Upload Acceptance Letter')).toBeInTheDocument();
   });
 });
