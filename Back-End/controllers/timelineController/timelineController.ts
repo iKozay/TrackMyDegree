@@ -15,17 +15,36 @@ async function initDb() {
 }
 
 initDb().catch(err => log('DB connection error', err));
+
+
 /**
  * Save or update a timeline
  */
 async function saveTimeline(timeline: TimelineTypes.Timeline): Promise<TimelineTypes.Timeline> {
-  const transaction = await TimelineRepository.startTransaction();
-
   try {
-    const { user_id, name, degree_id, items } = timeline;
-    if (!user_id || !name || !degree_id) {
+    if (!timeline.user_id || !timeline.name || !timeline.degree_id) {
       throw new Error('User ID, timeline name, and degree ID are required');
     }
+
+    const timelineId = timeline.id ? new ObjectId(timeline.id) : new ObjectId();
+
+    await timelinesCollection.updateOne(
+      { _id: timelineId },
+      {
+        $set: { ...timeline, last_modified: new Date() },
+        $push: { items: { $each: timeline.items.map(item => ({ ...item, id: new ObjectId() })) } }
+      },
+      { upsert: true }
+    );
+
+    return { ...timeline, id: timelineId.toString(), last_modified: new Date() };
+  } catch (error) {
+    Sentry.captureException(error);
+    log('Error saving timeline:', error);
+    throw error;
+  }
+}
+
 
     // Upsert timeline metadata
     const timelineId = await TimelineRepository.upsertTimeline(transaction, timeline);
