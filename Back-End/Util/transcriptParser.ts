@@ -260,8 +260,6 @@ export class TranscriptParser {
   private extractStudentInfo(lines: string[]): StudentInfo {
     const studentInfo: StudentInfo = {};
 
-    console.log('[DEBUG extractStudentInfo] Input lines:', lines.length);
-    
     // Handle case where lines are pipe-separated (all text has same Y coordinate)
     // Split each line by " | " to get individual fields
     const expandedLines: string[] = [];
@@ -588,8 +586,8 @@ export class TranscriptParser {
         const samePage = currentCourse.page === nextCourse.page;
         const gap = nextCourse.order - currentCourse.order;
 
-        // A large gap (>20) on the same page OR a page change indicates a term boundary
-        const isTermBoundary = (samePage && gap > 20) || !samePage;
+        // A large gap (>=20) on the same page OR a page change indicates a term boundary
+        const isTermBoundary = (samePage && gap >= 20) || !samePage;
 
         if (isTermBoundary && termIdx < termBoundaries.length - 1) {
           // There's a boundary after this course, move to next term
@@ -848,7 +846,14 @@ export class TranscriptParser {
     const nonEmptyTerms = terms.filter((term) => term.courses.length > 0);
 
     // Sort terms by year and term order
-    const termOrder = { Winter: 1, Spring: 2, Summer: 3, Fall: 4 };
+    // Fall/Winter spans two semesters, so it comes after Fall but represents the transition to Winter
+    const termOrder = {
+      Winter: 1,
+      Spring: 2,
+      Summer: 3,
+      Fall: 4,
+      'Fall/Winter': 4.5,
+    };
     nonEmptyTerms.sort((a, b) => {
       const yearDiff = parseInt(a.year) - parseInt(b.year);
       if (yearDiff !== 0) return yearDiff;
