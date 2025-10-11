@@ -1,48 +1,139 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1742866081301" clover="3.2.0">
-  <project timestamp="1742866081301" name="All files">
-    <metrics statements="31" coveredstatements="28" conditionals="18" coveredconditionals="15" methods="10" coveredmethods="6" elements="59" coveredelements="49" complexity="0" loc="31" ncloc="31" packages="2" files="2" classes="2"/>
+<coverage generated="1760156614624" clover="3.2.0">
+  <project timestamp="1760156614625" name="All files">
+    <metrics statements="116" coveredstatements="110" conditionals="90" coveredconditionals="72" methods="30" coveredmethods="27" elements="236" coveredelements="209" complexity="0" loc="116" ncloc="116" packages="3" files="3" classes="3"/>
     <package name="Util">
-      <metrics statements="11" coveredstatements="11" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-      <file name="HTTPCodes.js" path="/Users/dkaragiannakis/Documents/TrackMyDegree/Back-End/dist/Util/HTTPCodes.js">
-        <metrics statements="11" coveredstatements="11" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+      <file name="DB_Ops.js" path="C:\Users\yassi\School\Concordia\490\capstone\TrackMyDegree\Back-End\dist\Util\DB_Ops.js">
+        <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
         <line num="3" count="1" type="stmt"/>
         <line num="5" count="1" type="stmt"/>
         <line num="6" count="1" type="stmt"/>
         <line num="7" count="1" type="stmt"/>
-        <line num="9" count="1" type="stmt"/>
-        <line num="10" count="1" type="stmt"/>
-        <line num="11" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
         <line num="12" count="1" type="stmt"/>
-        <line num="14" count="1" type="stmt"/>
-        <line num="15" count="1" type="stmt"/>
-        <line num="26" count="1" type="stmt"/>
       </file>
     </package>
-    <package name="routes">
-      <metrics statements="20" coveredstatements="17" conditionals="18" coveredconditionals="15" methods="10" coveredmethods="6"/>
-      <file name="userData.js" path="/Users/dkaragiannakis/Documents/TrackMyDegree/Back-End/dist/routes/userData.js">
-        <metrics statements="20" coveredstatements="17" conditionals="18" coveredconditionals="15" methods="10" coveredmethods="6"/>
-        <line num="2" count="1" type="cond" truecount="3" falsecount="0"/>
-        <line num="3" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="4" count="2" type="cond" truecount="2" falsecount="0"/>
-        <line num="5" count="0" type="stmt"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="7" count="2" type="cond" truecount="1" falsecount="1"/>
-        <line num="8" count="2" type="cond" truecount="2" falsecount="0"/>
-        <line num="11" count="1" type="cond" truecount="3" falsecount="0"/>
-        <line num="12" count="3" type="cond" truecount="4" falsecount="0"/>
-        <line num="14" count="1" type="stmt"/>
-        <line num="15" count="1" type="stmt"/>
-        <line num="16" count="1" type="stmt"/>
-        <line num="17" count="1" type="stmt"/>
+    <package name="controllers.CourseXCPController">
+      <metrics statements="104" coveredstatements="98" conditionals="88" coveredconditionals="70" methods="29" coveredmethods="26"/>
+      <file name="CourseXCPController_mongoose.js" path="C:\Users\yassi\School\Concordia\490\capstone\TrackMyDegree\Back-End\dist\controllers\CourseXCPController\CourseXCPController_mongoose.js">
+        <metrics statements="104" coveredstatements="98" conditionals="88" coveredconditionals="70" methods="29" coveredmethods="26"/>
+        <line num="11" count="1" type="cond" truecount="4" falsecount="1"/>
+        <line num="12" count="144" type="cond" truecount="1" falsecount="1"/>
+        <line num="13" count="144" type="stmt"/>
+        <line num="14" count="144" type="cond" truecount="5" falsecount="3"/>
+        <line num="15" count="144" type="stmt"/>
+        <line num="17" count="144" type="stmt"/>
+        <line num="19" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="22" count="1" type="cond" truecount="4" falsecount="1"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="27" count="1" type="cond" truecount="3" falsecount="0"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="29" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="31" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="37" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="39" count="144" type="cond" truecount="2" falsecount="2"/>
+        <line num="40" count="1" type="stmt"/>
+        <line num="41" count="1" type="stmt"/>
+        <line num="44" count="1" type="cond" truecount="3" falsecount="0"/>
+        <line num="45" count="18" type="cond" truecount="2" falsecount="0"/>
+        <line num="46" count="15" type="cond" truecount="2" falsecount="0"/>
+        <line num="47" count="14" type="stmt"/>
+        <line num="48" count="4" type="stmt"/>
+        <line num="49" count="33" type="cond" truecount="2" falsecount="0"/>
+        <line num="50" count="15" type="cond" truecount="2" falsecount="0"/>
+        <line num="53" count="1" type="cond" truecount="3" falsecount="0"/>
+        <line num="54" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="57" count="1" type="stmt"/>
+        <line num="58" count="1" type="stmt"/>
+        <line num="59" count="1" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="65" count="4" type="stmt"/>
+        <line num="66" count="4" type="stmt"/>
+        <line num="67" count="4" type="stmt"/>
+        <line num="68" count="4" type="stmt"/>
+        <line num="69" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="70" count="1" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="74" count="2" type="stmt"/>
+        <line num="75" count="2" type="cond" truecount="4" falsecount="0"/>
+        <line num="76" count="1" type="stmt"/>
+        <line num="77" count="1" type="stmt"/>
+        <line num="78" count="1" type="stmt"/>
+        <line num="81" count="1" type="stmt"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="86" count="1" type="stmt"/>
+        <line num="87" count="1" type="stmt"/>
+        <line num="95" count="3" type="stmt"/>
+        <line num="96" count="3" type="stmt"/>
+        <line num="97" count="3" type="stmt"/>
+        <line num="98" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="99" count="1" type="stmt"/>
+        <line num="101" count="1" type="stmt"/>
+        <line num="102" count="1" type="stmt"/>
+        <line num="103" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="104" count="1" type="stmt"/>
+        <line num="105" count="2" type="stmt"/>
+        <line num="108" count="1" type="stmt"/>
+        <line num="113" count="1" type="stmt"/>
+        <line num="114" count="1" type="stmt"/>
+        <line num="115" count="1" type="stmt"/>
+        <line num="123" count="4" type="stmt"/>
+        <line num="124" count="4" type="stmt"/>
+        <line num="125" count="4" type="stmt"/>
+        <line num="126" count="4" type="stmt"/>
+        <line num="127" count="3" type="stmt"/>
+        <line num="128" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="129" count="1" type="stmt"/>
+        <line num="131" count="2" type="stmt"/>
+        <line num="132" count="2" type="cond" truecount="7" falsecount="1"/>
+        <line num="133" count="1" type="stmt"/>
+        <line num="134" count="1" type="stmt"/>
+        <line num="135" count="1" type="stmt"/>
+        <line num="138" count="1" type="stmt"/>
+        <line num="142" count="1" type="stmt"/>
+        <line num="143" count="1" type="stmt"/>
+        <line num="144" count="1" type="stmt"/>
+        <line num="152" count="4" type="stmt"/>
+        <line num="153" count="4" type="stmt"/>
+        <line num="154" count="4" type="stmt"/>
+        <line num="155" count="4" type="stmt"/>
+        <line num="156" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="157" count="1" type="stmt"/>
+        <line num="159" count="2" type="stmt"/>
+        <line num="160" count="2" type="cond" truecount="3" falsecount="1"/>
+        <line num="161" count="2" type="stmt"/>
+        <line num="162" count="2" type="cond" truecount="5" falsecount="0"/>
+        <line num="163" count="1" type="stmt"/>
+        <line num="164" count="1" type="stmt"/>
+        <line num="165" count="1" type="stmt"/>
+        <line num="168" count="1" type="stmt"/>
+        <line num="172" count="1" type="stmt"/>
+        <line num="173" count="1" type="stmt"/>
+        <line num="174" count="1" type="stmt"/>
+        <line num="178" count="1" type="stmt"/>
+        <line num="184" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="models">
+      <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="Degree.js" path="C:\Users\yassi\School\Concordia\490\capstone\TrackMyDegree\Back-End\dist\models\Degree.js">
+        <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
         <line num="18" count="1" type="stmt"/>
-        <line num="20" count="2" type="stmt"/>
-        <line num="21" count="2" type="stmt"/>
-        <line num="23" count="2" type="stmt"/>
-        <line num="26" count="2" type="stmt"/>
-        <line num="27" count="2" type="stmt"/>
-        <line num="30" count="1" type="stmt"/>
       </file>
     </package>
   </project>
