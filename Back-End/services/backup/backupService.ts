@@ -5,8 +5,9 @@ import path from 'path';
 import * as Sentry from '@sentry/node';
 import { seedDatabase } from '../seed/seedService';
 
-const BACKUP_DIR =
-  process.env.BACKUP_DIR || path.join(__dirname, '../../backups');
+const BACKUP_DIR = (
+  process.env.BACKUP_DIR || path.join(__dirname, '../../backups')
+).trim();
 
 // Collections to backup (USER DATA ONLY - excludes courses and degrees)
 const USER_DATA_COLLECTIONS = ['users', 'timelines', 'feedback'];
@@ -93,7 +94,7 @@ export async function restoreBackup(backupFileName: string): Promise<void> {
     const filePath = path.join(BACKUP_DIR, backupFileName);
 
     if (!fs.existsSync(filePath)) {
-      throw new Error(`Backup file not found: ${backupFileName}`);
+      throw new Error(`Backup file not found: ${filePath}`);
     }
 
     const db = mongoose.connection.db;
