@@ -1,0 +1,17 @@
+{
+  "name": "@trackmydegree/shared",
+  "version": "1.0.0",
+  "description": "Shared types and utilities for TrackMyDegree",
+  "main": "types/index.ts",
+  "types": "types/index.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": ["types", "shared"],
+  "author": "TrackMyDegree Team",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
+

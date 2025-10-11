@@ -28,6 +28,7 @@ import requisiteRouter from '@routes/requisite';
 import feedbackRouter from '@routes/feedback';
 import sessionRouter from '@routes/session';
 import sectionsRoutes from '@routes/sectionsRoutes';
+import transcriptRouter from '@routes/transcript';
 
 //Dev Consts
 const HOPPSCOTCH = 'chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld';
@@ -72,6 +73,7 @@ app.use('/requisite', requisiteRouter);
 app.use('/feedback', feedbackRouter);
 app.use('/session', sessionRouter);
 app.use('/section', sectionsRoutes);
+app.use('/transcript', transcriptRouter);
 
 /**
  * DB test route
