@@ -1,7 +1,7 @@
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
-const { Course } = require('../dist/models/Course');
-const requisiteController = require('../dist/controllers/requisiteController/requisiteController_mongoose').default;
+const { Course } = require('../../dist/models/Course');
+const requisiteController = require('../../dist/controllers/requisiteController/requisiteController_mongoose').default;
 describe('RequisiteController Mongoose', () => {
   let mongoServer;
 
@@ -25,10 +25,10 @@ describe('RequisiteController Mongoose', () => {
       // Mock Course.findById to throw an error to trigger Sentry logging
       const originalFindById = Course.findById;
       Course.findById = jest.fn().mockRejectedValue(new Error('Mock database error'));
-      
+
       await expect(requisiteController.createRequisite('SOEN490', 'SOEN390', 'pre'))
         .rejects.toThrow('Mock database error');
-      
+
       Course.findById = originalFindById;
     });
 
@@ -37,13 +37,13 @@ describe('RequisiteController Mongoose', () => {
         { _id: 'SOEN490', title: 'Capstone', credits: 4, description: 'Final project', prerequisites: [], corequisites: [] },
         { _id: 'SOEN390', title: 'Software Engineering', credits: 3, description: 'SE course', prerequisites: [], corequisites: [] }
       ]);
-      
+
       const originalUpdate = Course.findByIdAndUpdate;
       Course.findByIdAndUpdate = jest.fn().mockRejectedValue(new Error('Update error'));
-      
+
       await expect(requisiteController.createRequisite('SOEN490', 'SOEN390', 'pre'))
         .rejects.toThrow('Update error');
-      
+
       Course.findByIdAndUpdate = originalUpdate;
     });
     it('should create a prerequisite successfully', async () => {
@@ -107,10 +107,10 @@ describe('RequisiteController Mongoose', () => {
     it('should trigger Sentry logging in readRequisite', async () => {
       const originalFindById = Course.findById;
       Course.findById = jest.fn().mockRejectedValue(new Error('Read error'));
-      
+
       await expect(requisiteController.readRequisite('SOEN490'))
         .rejects.toThrow('Read error');
-      
+
       Course.findById = originalFindById;
     });
     beforeEach(async () => {
@@ -156,10 +156,10 @@ describe('RequisiteController Mongoose', () => {
     it('should trigger Sentry logging in updateRequisite', async () => {
       const originalFindById = Course.findById;
       Course.findById = jest.fn().mockRejectedValue(new Error('Update error'));
-      
+
       await expect(requisiteController.updateRequisite('SOEN490', 'SOEN390', 'pre'))
         .rejects.toThrow('Update error');
-      
+
       Course.findById = originalFindById;
     });
     it('should update requisite successfully', async () => {
@@ -201,10 +201,10 @@ describe('RequisiteController Mongoose', () => {
     it('should trigger Sentry logging in deleteRequisite', async () => {
       const originalFindById = Course.findById;
       Course.findById = jest.fn().mockRejectedValue(new Error('Delete error'));
-      
+
       await expect(requisiteController.deleteRequisite('SOEN490', 'SOEN390', 'pre'))
         .rejects.toThrow('Delete error');
-      
+
       Course.findById = originalFindById;
     });
     beforeEach(async () => {
