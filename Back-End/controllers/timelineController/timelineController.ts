@@ -6,14 +6,13 @@ const log = console.log;
 let timelinesCollection: any;
 
 async function initDb() {
-  const client = new MongoClient('mongodb://localhost:27017'); // ton URI
+  const client = new MongoClient('mongodb://localhost:27017'); // Mocro : what's our URL
   await client.connect();
-  const db = client.db('yourDbName'); // ton DB name
+  const db = client.db('DbName'); // Our DB name
   timelinesCollection = db.collection('timelines');
 }
 
 initDb().catch(err => log('DB connection error', err));
-
 
 
 /** Save or upsert a timeline with items */
