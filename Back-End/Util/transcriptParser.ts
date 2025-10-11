@@ -3,14 +3,13 @@ import path from 'path';
 import PDFParser from 'pdf2json';
 import pdfParse from 'pdf-parse';
 import type {
-  TransferCredit,
-  TranscriptCourse,
-  TranscriptTerm,
-  StudentInfo,
-  ProgramInfo,
   AdditionalInfo,
   ParsedTranscript,
-  TranscriptParserOptions,
+  ProgramInfo,
+  StudentInfo,
+  TranscriptCourse,
+  TranscriptTerm,
+  TransferCredit,
 } from '@shared/types';
 
 
@@ -29,16 +28,6 @@ import type {
  * ```
  */
 export class TranscriptParser {
-  private options: TranscriptParserOptions;
-
-  constructor(options: TranscriptParserOptions = {}) {
-    this.options = {
-      validateCourseCode: true,
-      extractGPA: true,
-      extractTermInfo: true,
-      ...options
-    };
-  }
 
   /**
    * Parse a transcript from a PDF file path
@@ -91,8 +80,7 @@ export class TranscriptParser {
       });
 
       // Step 3: Parse using both sources
-      const transcript = this.parseTranscriptDataHybrid(cleanText, pdf2jsonData);
-      return transcript;
+      return this.parseTranscriptDataHybrid(cleanText, pdf2jsonData);
       
     } catch (error) {
       throw new Error(`Failed to parse transcript: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -225,80 +213,6 @@ export class TranscriptParser {
     }
 
     return lines;
-  }
-
-  /**
-   * Parse the PDF data structure from pdf2json
-   * IMPORTANT: Preserve original order for items at same Y coordinate
-   */
-  private parseTranscriptData(pdfData: any): ParsedTranscript {
-    // Extract text from all pages, preserving original order within each page
-    const allTextItems: Array<{ page: number; order: number; y: number; text: string }> = [];
-    const pages = pdfData.Pages || [];
-
-    pages.forEach((page: any, pageIndex: number) => {
-      if (page.Texts) {
-        page.Texts.forEach((textItem: any, itemIndex: number) => {
-          const y = textItem.y;
-          const text = decodeURIComponent(textItem.R?.[0]?.T || '');
-          allTextItems.push({ page: pageIndex, order: itemIndex, y, text });
-        });
-      }
-    });
-
-    // Sort by page first, then by Y coordinate (top to bottom)
-    // Lower Y values (including negative) come first
-    allTextItems.sort((a, b) => {
-      if (a.page !== b.page) {
-        return a.page - b.page;
-      }
-      // Within same page, sort by Y coordinate
-      // This puts negative Y (course tables) before positive Y (footers/headers)
-      if (Math.abs(a.y - b.y) > 0.1) {
-        return a.y - b.y;
-      }
-      // If same Y, preserve original order
-      return a.order - b.order;
-    });
-
-    // Build lines by grouping consecutive text items, using pipe separator
-    // Group items that are very close in Y coordinate
-    const lines: string[] = [];
-    let currentLine: string[] = [];
-    let lastY = -999;
-    const Y_THRESHOLD = 0.5; // Group items within 0.5 units of Y
-
-    allTextItems.forEach(item => {
-      // If Y coordinate changes significantly, start a new line
-      if (Math.abs(item.y - lastY) > Y_THRESHOLD && currentLine.length > 0) {
-        lines.push(currentLine.join(' | '));
-        currentLine = [];
-      }
-      
-      if (item.text.trim().length > 0) {
-        currentLine.push(item.text);
-        lastY = item.y;
-      }
-    });
-    
-    // Add the last line
-    if (currentLine.length > 0) {
-      lines.push(currentLine.join(' | '));
-    }
-
-    const studentInfo = this.extractStudentInfo(lines);
-    const programHistory = this.extractProgramHistory(lines);
-    const additionalInfo = this.extractAcademicSummary(lines);
-    const transferCredits = this.extractTransferCredits(lines);
-    const terms = this.extractTerms(lines);
-
-    return {
-      studentInfo,
-      programHistory,
-      transferCredits,
-      terms,
-      additionalInfo
-    };
   }
 
   /**
@@ -509,9 +423,6 @@ export class TranscriptParser {
       });
     });
     
-    console.log(`\nDEBUG: Found ${allCourses.length} total courses from pdf2json`);
-    console.log(`DEBUG: Found ${termBoundaries.length} terms from pdf-parse`);
-    
     // Assign courses to terms based on gaps and page changes
     // Key insight: A term boundary occurs AFTER a course when there's a large gap (>20) or page change to the NEXT course
     let courseIndex = 0;
@@ -534,10 +445,6 @@ export class TranscriptParser {
         cleanCourse.year = term.year;
         term.courses.push(cleanCourse);
         
-        if (termIdx <= 2) {
-          console.log(`Term ${termIdx} (${boundary.term} ${boundary.year}): Added course ${term.courses.length}: ${cleanCourse.courseCode}`);
-        }
-        
         courseIndex++;
         
         // Check if there's a boundary AFTER this course (before the next one)
@@ -545,7 +452,6 @@ export class TranscriptParser {
         
         if (!nextCourse) {
           // No more courses, we're done
-          if (termIdx <= 2) console.log(`  -> No more courses, breaking`);
           break;
         }
         
@@ -553,20 +459,11 @@ export class TranscriptParser {
         const samePage = currentCourse.page === nextCourse.page;
         const gap = nextCourse.order - currentCourse.order;
         
-        if (termIdx <= 2) {
-          console.log(`  -> Next: ${nextCourse.courseCode}, samePage: ${samePage}, gap: ${gap}`);
-        }
-        
         // A large gap (>20) on the same page OR a page change indicates a term boundary
         const isTermBoundary = (samePage && gap > 20) || !samePage;
         
-        if (termIdx <= 2) {
-          console.log(`  -> isTermBoundary: ${isTermBoundary}, termIdx: ${termIdx}, maxTermIdx: ${termBoundaries.length - 1}`);
-        }
-        
         if (isTermBoundary && termIdx < termBoundaries.length - 1) {
           // There's a boundary after this course, move to next term
-          if (termIdx <= 2) console.log(`  -> BREAKING due to boundary`);
           break;
         }
       }
@@ -730,100 +627,6 @@ export class TranscriptParser {
   }
 
   /**
-   * Extract terms and courses using a GPA-based approach
-   * Key insight: Term GPA marks the END of each term
-   */
-  private extractTerms(lines: string[]): TranscriptTerm[] {
-    // Find the course section
-    let courseSecStart = -1;
-    let courseSecEnd = lines.length;
-    
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].includes('Beginning of Undergraduate Record')) {
-        courseSecStart = i + 1;
-      }
-      if (lines[i].includes('End of Student Record')) {
-        courseSecEnd = i;
-        break;
-      }
-    }
-
-    if (courseSecStart === -1) {
-      return [];
-    }
-
-    // First pass: find all term headers and their GPAs
-    const termInfo: Array<{ index: number; term: string; year: string; gpaIndex?: number; gpa?: number }> = [];
-    
-    for (let i = courseSecStart; i < courseSecEnd; i++) {
-      const line = lines[i];
-      
-      // Find term headers
-      const termMatch = line.match(/^(Winter|Summer|Fall|Spring|Fall\/Winter|Winter\/Summer)\s+(\d{4}(?:-\d{2})?)$/);
-      if (termMatch) {
-        termInfo.push({
-          index: i,
-          term: termMatch[1],
-          year: termMatch[2]
-        });
-      }
-      
-      // Find Term GPA and associate with the most recent term
-      if (line.startsWith('Term GPA') && termInfo.length > 0) {
-        const gpaMatch = line.match(/Term GPA\s+(\d+\.?\d*)/);
-        if (gpaMatch) {
-          const lastTerm = termInfo[termInfo.length - 1];
-          lastTerm.gpaIndex = i;
-          lastTerm.gpa = parseFloat(gpaMatch[1]);
-        }
-      }
-    }
-
-    // Second pass: extract courses for each term
-    // Courses belong to a term if they appear BETWEEN:
-    // - The term header and its Term GPA line (if it has one)
-    // - OR the term header and the next term header (if no GPA)
-    const terms: TranscriptTerm[] = [];
-    
-    termInfo.forEach((termData, index) => {
-      const term: TranscriptTerm = {
-        term: termData.term,
-        year: termData.year,
-        courses: [],
-        termGPA: termData.gpa,
-        termCredits: undefined
-      };
-
-      // Define the range for course extraction
-      const startIndex = termData.index + 1;
-      let endIndex: number;
-      
-      if (termData.gpaIndex) {
-        // If this term has a GPA, courses are between header and GPA
-        endIndex = termData.gpaIndex;
-      } else {
-        // If no GPA, courses extend until the next term header or end of section
-        const nextTerm = termInfo[index + 1];
-        endIndex = nextTerm ? nextTerm.index : courseSecEnd;
-      }
-
-      // Extract courses from lines in this range
-      for (let i = startIndex; i < endIndex; i++) {
-        const courses = this.extractCoursesFromLine(lines[i]);
-        courses.forEach(course => {
-          course.term = term.term;
-          course.year = term.year;
-          term.courses.push(course);
-        });
-      }
-
-      terms.push(term);
-    });
-
-    return this.cleanupTerms(terms);
-  }
-
-  /**
    * Clean up terms - remove empty terms and fix term assignments
    */
   private cleanupTerms(terms: TranscriptTerm[]): TranscriptTerm[] {
@@ -839,183 +642,6 @@ export class TranscriptParser {
     });
 
     return nonEmptyTerms;
-  }
-
-  /**
-   * Merge duplicate terms with the same term and year
-   * This handles cases where the transcript mentions the same term multiple times
-   */
-  private mergeDuplicateTerms(terms: TranscriptTerm[]): TranscriptTerm[] {
-    const termMap = new Map<string, TranscriptTerm>();
-
-    terms.forEach(term => {
-      const key = `${term.term}-${term.year}`;
-      
-      if (termMap.has(key)) {
-        // Merge into existing term
-        const existing = termMap.get(key)!;
-        existing.courses.push(...term.courses);
-        
-        // Use the GPA from the term that has one (prefer non-undefined)
-        if (term.termGPA !== undefined && existing.termGPA === undefined) {
-          existing.termGPA = term.termGPA;
-        }
-        if (term.termCredits !== undefined && existing.termCredits === undefined) {
-          existing.termCredits = term.termCredits;
-        }
-      } else {
-        // New term
-        termMap.set(key, { ...term });
-      }
-    });
-
-    return Array.from(termMap.values());
-  }
-
-  /**
-   * Extract all courses from a line (may contain multiple courses)
-   * The line format from pdf2json has courses with pipe separators:
-   * ... | DEPT | NUMBER | SECTION | TITLE_PARTS | ... | CREDITS | GRADE | GPA | AVG | SIZE | EARNED | OTHER | ...
-   */
-  private extractCoursesFromLine(line: string): TranscriptCourse[] {
-    const courses: TranscriptCourse[] = [];
-    
-    // Skip lines without pipe separators
-    if (!line.includes(' | ')) {
-      return courses;
-    }
-
-    // Split by pipe separator
-    const parts = line.split(' | ').map(p => p.trim());
-
-    // Scan through parts looking for course patterns: DEPT | NUMBER | SECTION
-    for (let i = 0; i < parts.length - 2; i++) {
-      const dept = parts[i];
-      const number = parts[i + 1];
-      const section = parts[i + 2];
-
-      // Check if this looks like a course: DEPT (2-4 letters) | NUMBER (3 digits) | SECTION (1-3 chars)
-      if (/^[A-Z]{2,4}$/.test(dept) && /^\d{3}$/.test(number) && /^[A-Z0-9]{1,3}$/.test(section)) {
-        const course = this.parseCourseFromParts(parts, i);
-        if (course) {
-          courses.push(course);
-        }
-      }
-    }
-
-    return courses;
-  }
-
-  /**
-   * Parse a single course starting at the given index in the parts array
-   * Expected format: DEPT | NUMBER | SECTION | TITLE_PARTS... | CREDITS | GRADE | [GPA | AVG | SIZE | EARNED] | [OTHER]
-   */
-  private parseCourseFromParts(parts: string[], startIndex: number): TranscriptCourse | null {
-    if (startIndex + 5 >= parts.length) {
-      return null; // Not enough parts
-    }
-
-    const dept = parts[startIndex];
-    const number = parts[startIndex + 1];
-    const section = parts[startIndex + 2];
-    const courseCode = `${dept} ${number}`;
-
-    // Collect title parts until we hit a credits value (N.NN format)
-    let courseTitle = '';
-    let titleIndex = startIndex + 3;
-    while (titleIndex < parts.length && !/^\d+\.\d{2}$/.test(parts[titleIndex])) {
-      courseTitle += parts[titleIndex] + ' ';
-      titleIndex++;
-      // Safety: stop if we've gone too far
-      if (titleIndex - startIndex > 15) break;
-    }
-    courseTitle = courseTitle.trim();
-
-    // Next should be credits
-    if (titleIndex >= parts.length || !/^\d+\.\d{2}$/.test(parts[titleIndex])) {
-      return null;
-    }
-    const credits = parseFloat(parts[titleIndex]);
-    titleIndex++;
-
-    // Next should be grade
-    if (titleIndex >= parts.length) {
-      return null;
-    }
-    let grade = parts[titleIndex].toUpperCase();
-    
-    // Handle future courses - if grade is "0.00" or empty, keep as is (future courses)
-    // Don't change the grade, just keep it as "0.00" for future courses
-    titleIndex++;
-
-    let gpa: number | undefined;
-    let classAvg: number | undefined;
-    let classSize: number | undefined;
-    let programCredits: number | undefined;
-    let other: string | undefined;
-
-    // For letter grades (not PASS, EX, 0.00, etc.), we have GPA, AVG, SIZE, EARNED
-    if (grade !== 'PASS' && grade !== 'EX' && grade !== '0.00' && grade !== '0' && grade !== '0.0') {
-      // GPA
-      if (titleIndex < parts.length && /^\d+\.\d{2}$/.test(parts[titleIndex])) {
-        gpa = parseFloat(parts[titleIndex]);
-        titleIndex++;
-      }
-
-      // Class Average
-      if (titleIndex < parts.length && /^\d+\.\d{2}$/.test(parts[titleIndex])) {
-        classAvg = parseFloat(parts[titleIndex]);
-        titleIndex++;
-      }
-
-      // Class Size
-      if (titleIndex < parts.length && /^\d{1,4}$/.test(parts[titleIndex])) {
-        classSize = parseInt(parts[titleIndex]);
-        titleIndex++;
-      }
-
-      // Program Credits Earned
-      if (titleIndex < parts.length && /^\d+\.\d{2}$/.test(parts[titleIndex])) {
-        programCredits = parseFloat(parts[titleIndex]);
-        titleIndex++;
-      }
-    } else if (grade === '0.00' || grade === '0' || grade === '0.0') {
-      // For future courses (0.00 grade), don't try to parse GPA/class info
-      // Just skip to the end
-      while (titleIndex < parts.length && !['WKRT', 'RPT', 'EX'].includes(parts[titleIndex])) {
-        titleIndex++;
-      }
-    } else {
-      // For PASS/EX grades, skip to earned credits
-      // Skip ahead to find the credits earned (should be N.NN)
-      while (titleIndex < parts.length && !/^\d+\.\d{2}$/.test(parts[titleIndex])) {
-        titleIndex++;
-      }
-      if (titleIndex < parts.length) {
-        programCredits = parseFloat(parts[titleIndex]);
-        titleIndex++;
-      }
-    }
-
-    // Check for OTHER field (WKRT, RPT, etc.)
-    if (titleIndex < parts.length && ['WKRT', 'RPT', 'EX'].includes(parts[titleIndex])) {
-      other = parts[titleIndex];
-    }
-
-    return {
-      courseCode,
-      section,
-      courseTitle,
-      credits,
-      grade,
-      notation: undefined,
-      gpa,
-      classAvg,
-      classSize,
-      term: '',
-      year: '',
-      other
-    };
   }
 }
 

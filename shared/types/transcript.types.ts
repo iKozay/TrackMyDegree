@@ -83,16 +83,6 @@ export interface AdditionalInfo {
 }
 
 /**
- * Statistics calculated from the transcript
- */
-export interface TranscriptStatistics {
-  totalCourses: number;
-  completedCourses: number;
-  totalCreditsEarned: number;
-  transferCredits: number;
-}
-
-/**
  * Represents the complete parsed transcript data
  */
 export interface ParsedTranscript {
@@ -101,16 +91,6 @@ export interface ParsedTranscript {
   transferCredits: TransferCredit[];
   terms: TranscriptTerm[];
   additionalInfo: AdditionalInfo;
-  statistics?: TranscriptStatistics;
-}
-
-/**
- * Configuration options for the transcript parser
- */
-export interface TranscriptParserOptions {
-  validateCourseCode?: boolean;
-  extractGPA?: boolean;
-  extractTermInfo?: boolean;
 }
 
 /**
@@ -126,13 +106,5 @@ export interface ApiResponse<T = any> {
 
 export interface ParseTranscriptResponse extends ApiResponse<ParsedTranscript> {
   data: ParsedTranscript;
-}
-
-export interface ValidateTranscriptResponse extends ApiResponse {
-  valid?: boolean;
-  preview?: {
-    studentName?: string;
-    studentId?: string;
-  };
 }
 

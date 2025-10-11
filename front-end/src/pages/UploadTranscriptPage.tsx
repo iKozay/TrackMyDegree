@@ -5,7 +5,6 @@ import axios from 'axios';
 import type { ParsedTranscript, ParseTranscriptResponse } from '@shared/types';
 import { Upload, FileText, CheckCircle, AlertCircle, X, Loader, Info, ChevronDown } from 'lucide-react';
 
-
 interface UploadTranscriptProps {
   onDataProcessed?: (data: ParsedTranscript) => void;
 }
@@ -27,28 +26,43 @@ const UploadTranscriptPage: React.FC<UploadTranscriptProps> = ({ onDataProcessed
   const steps = [
     {
       id: 1,
-      title: "Access Portal",
-      shortDesc: "Log into Concordia Portal",
-      detailedDesc: "Log into your Concordia Student Portal using your credentials. Navigate to the Student Center section where you can access all your academic information.",
-      image: "/transcript/transcript.png",
-      tips: ["Make sure you're using the official Concordia portal", "Keep your login credentials secure", "If you have trouble logging in, contact IT support"]
+      title: 'Access Portal',
+      shortDesc: 'Log into Concordia Portal',
+      detailedDesc:
+        'Log into your Concordia Student Portal using your credentials. Navigate to the Student Center section where you can access all your academic information.',
+      image: '/transcript/transcript.png',
+      tips: [
+        "Make sure you're using the official Concordia portal",
+        'Keep your login credentials secure',
+        'If you have trouble logging in, contact IT support',
+      ],
     },
     {
       id: 2,
-      title: "View Transcript",
-      shortDesc: "My Academics → Transcript",
-      detailedDesc: "From the Student Center, click on 'My Academics' in the navigation menu, then select 'View My Unofficial Transcript' to access your complete academic record.",
-      image: "/transcript/print.png",
-      tips: ["The unofficial transcript contains all the same information as the official one", "You can view transcripts for different terms", "Make sure all your courses are showing"]
+      title: 'View Transcript',
+      shortDesc: 'My Academics → Transcript',
+      detailedDesc:
+        "From the Student Center, click on 'My Academics' in the navigation menu, then select 'View My Unofficial Transcript' to access your complete academic record.",
+      image: '/transcript/print.png',
+      tips: [
+        'The unofficial transcript contains all the same information as the official one',
+        'You can view transcripts for different terms',
+        'Make sure all your courses are showing',
+      ],
     },
     {
       id: 3,
-      title: "Save as PDF",
-      shortDesc: "Print → Save as PDF",
-      detailedDesc: "Once your transcript is displayed, click the 'Print' button in your browser or use Ctrl+P (Cmd+P on Mac). Choose 'Save as PDF' as your destination and save the file to your computer.",
-      image: "/transcript/pdf.png",
-      tips: ["Make sure to save the complete transcript (all pages)", "Choose a memorable filename", "Verify the PDF contains all your courses before uploading"]
-    }
+      title: 'Save as PDF',
+      shortDesc: 'Print → Save as PDF',
+      detailedDesc:
+        "Once your transcript is displayed, click the 'Print' button in your browser or use Ctrl+P (Cmd+P on Mac). Choose 'Save as PDF' as your destination and save the file to your computer.",
+      image: '/transcript/pdf.png',
+      tips: [
+        'Make sure to save the complete transcript (all pages)',
+        'Choose a memorable filename',
+        'Verify the PDF contains all your courses before uploading',
+      ],
+    },
   ];
 
   // Format file size helper
@@ -161,7 +175,7 @@ const UploadTranscriptPage: React.FC<UploadTranscriptProps> = ({ onDataProcessed
   const handleContinue = () => {
     setUploadState('idle');
     setParsedData(null);
-    navigate('/timeline');
+    navigate('/timeline_initial');
   };
 
   const handleCloseModal = () => {
@@ -445,32 +459,14 @@ const UploadTranscriptPage: React.FC<UploadTranscriptProps> = ({ onDataProcessed
                 <div className="rounded-2xl border border-gray-200 bg-gray-50/80 p-4">
                   <h3 className="mb-2 text-xs uppercase tracking-[0.2em] text-gray-400">Student</h3>
                   <p className="text-sm text-gray-600">
-                    <strong className="font-medium text-gray-800">Name:</strong> {parsedData.studentInfo.studentName || 'N/A'}
+                    <strong className="font-medium text-gray-800">Name:</strong>{' '}
+                    {parsedData.studentInfo.studentName || 'N/A'}
                   </p>
                   <p className="text-sm text-gray-600">
-                    <strong className="font-medium text-gray-800">ID:</strong> {parsedData.studentInfo.studentId || 'N/A'}
+                    <strong className="font-medium text-gray-800">ID:</strong>{' '}
+                    {parsedData.studentInfo.studentId || 'N/A'}
                   </p>
                 </div>
-
-                {parsedData.statistics && (
-                  <div className="rounded-2xl border border-gray-200 bg-gray-50/80 p-4">
-                    <h3 className="mb-2 text-xs uppercase tracking-[0.2em] text-gray-400">Summary</h3>
-                    <p className="text-sm text-gray-600">
-                      <strong className="font-medium text-gray-800">Total courses:</strong> {parsedData.statistics.totalCourses}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <strong className="font-medium text-gray-800">Completed:</strong> {parsedData.statistics.completedCourses}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <strong className="font-medium text-gray-800">Credits earned:</strong> {parsedData.statistics.totalCreditsEarned}
-                    </p>
-                    {parsedData.additionalInfo.overallGPA && (
-                      <p className="text-sm text-gray-600">
-                        <strong className="font-medium text-gray-800">GPA:</strong> {parsedData.additionalInfo.overallGPA}
-                      </p>
-                    )}
-                  </div>
-                )}
               </div>
 
               <div className="mt-8 flex flex-wrap justify-center gap-3">
