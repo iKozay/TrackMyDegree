@@ -11,9 +11,6 @@ const BACKUP_DIR =
 // Collections to backup (USER DATA ONLY - excludes courses and degrees)
 const USER_DATA_COLLECTIONS = ['users', 'timelines', 'feedback'];
 
-// Collections that are always seeded from files (STATIC DATA)
-const STATIC_DATA_COLLECTIONS = ['courses', 'degrees'];
-
 // -------------------------------------
 // Ensure Backup Directory Exists
 // -------------------------------------
