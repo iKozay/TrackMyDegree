@@ -1,5 +1,6 @@
 import Button from 'react-bootstrap/Button';
 import React, { useRef, useState } from 'react';
+import PropTypes from "prop-types";
 
 const UploadBox = ({ processFile }) => {
   const [fileName, setFileName] = useState('No file chosen');
@@ -83,7 +84,9 @@ const UploadBox = ({ processFile }) => {
     </>
   );
 };
-
+UploadBox.propTypes = {
+  processFile: PropTypes.func.isRequired
+};
 export default UploadBox;
 
 /*   <div className="button-group">
