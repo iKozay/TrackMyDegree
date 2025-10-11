@@ -13,7 +13,10 @@ import * as Sentry from '@sentry/node';
 import { User } from '../../models/User';
 import { Course } from '../../models/Course';
 
-
+export interface ExemptionDoc {
+  coursecode: string;
+  user_id: string;
+}
 
 /**
  * Creates exemptions for a list of courses for a specific user.
