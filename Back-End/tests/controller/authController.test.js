@@ -318,7 +318,7 @@ describe('Auth Controller', () => {
   test('should not send OTP for non-existent email', async () => {
     const forgotResult = await authController.forgotPassword('notanemail@example.com');
     // function returns a message regardless of email existence for security
-    expect(forgotResult).toEqual({ message: 'If the email exists, an OTP has been sent' });
+    expect(forgotResult).toEqual({ message: 'If the email exists, an OTP has been sent.' });
   });
 
   test('should send OTP email (mocked)', async () => {

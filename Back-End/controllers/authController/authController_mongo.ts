@@ -72,6 +72,7 @@ async function authenticate(
   * Catches and logs backend errors to Sentry
   * Future improvement: email verification via magic link
   * Future improvement: enforce maximum password length according to OWASP guidelines (64 chars)
+  * Future improvement: integrate with Pwned to suggest more secure passwords
   * @param userInfo - object containing email, password, fullname, and type
   * @returns object with new user ID or undefined
  */
@@ -86,7 +87,7 @@ async function registerUser(
      // user already exists
      return;
    }
-    // strong password enforcement - using OWASP recommended regex
+    // strong password enforcement
     if (!isStrongPassword(password)) {
       // don't log the password
       return;
@@ -122,38 +123,38 @@ async function forgotPassword(
   email: string,
 ): Promise<{ message : string } | undefined> {
   try {
-    const user = await User.findOne({ email }).exec();
-    if (!user) {
-      // don't reveal that the email doesn't exist
-      return { message: 'If the email exists, an OTP has been sent' };
-    }
+      const user = await User.findOne({ email }).exec();
+      // always generate OTP and send email to maintain consistent timing regardless of user existence
+      // generate OTP and expiry - 10 minutes
+      const otp = Math.floor(1000 + Math.random() * 9000).toString();
+      const otpExpire = new Date(Date.now() + 10 * 60 * 1000);
+      // configure nodemailer transporter
+      const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+              user: process.env.EMAIL_USER,
+              pass: process.env.EMAIL_PASSWORD,
+          },
+      });
+      if (user) {
+          // save OTP and expiry to user record
+          user.otp = otp;
+          user.otpExpire = otpExpire;
+          await user.save(); // update user record with otp and expiry
 
-    // generate OTP and expiry - 10 minutes
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    const otpExpire = new Date(Date.now() + 10 * 60 * 1000);
-    // save OTP and expiry to user record
-    user.otp = otp;
-    user.otpExpire = otpExpire;
-    await user.save(); // update user record with otp and expiry
-
-    // send OTP email using transporter
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-
-    // configure mailing options
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Password Reset',
-      text: `Your One Time Password (expires in 10 minutes): ${otp}\nIf you did not request this, please ignore this email.`,
-    };
-    // send the email
-    await transporter.sendMail(mailOptions);
+          // configure mailing options
+          const mailOptions = {
+              from: process.env.EMAIL_USER,
+              to: email,
+              subject: 'Password Reset',
+              text: `Your One Time Password (expires in 10 minutes): ${otp}\nIf you did not request this, please ignore this email.`,
+          };
+          // send the email
+          await transporter.sendMail(mailOptions);
+      } else {
+          // simulate db save and email send time to prevent timing attacks
+          await new Promise(resolve => setTimeout(resolve, 200));
+      }
     return { message: 'If the email exists, an OTP has been sent.' }
   } catch (error) {
     Sentry.captureException({ error: 'Backend error - forgot password (mongo)', details: error });
@@ -191,7 +192,7 @@ async function resetPassword(
       return;
     }
 
-    // strong password enforcement - using OWASP recommended regex
+    // strong password enforcement
     if (!isStrongPassword(password)) {
       // don't log the password
       return;
