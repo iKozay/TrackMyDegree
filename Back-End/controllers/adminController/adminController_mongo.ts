@@ -14,8 +14,8 @@ export const adminController = {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const path = await createBackup();
-      res.json({ message: 'Backup created', path });
+      const fileName = await createBackup();
+      res.json({ message: 'Backup created', data: fileName });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       res.status(500).json({ error: message });
