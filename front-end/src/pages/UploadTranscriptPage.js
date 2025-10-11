@@ -7,10 +7,7 @@ import PdfImage from '../images/Pdf_image.png';
 import TransImage from '../images/Transc_image.png';
 import Button from 'react-bootstrap/Button';
 import { motion } from 'framer-motion';
-import {
-  extractTranscriptComponents,
-  matchCoursesToTerms,
-} from '../utils/transcriptUtils';
+import { extractTranscriptComponents, matchCoursesToTerms } from '../utils/transcriptUtils';
 
 // Set the worker source
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
@@ -19,7 +16,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pd
 // UploadTranscript Component - Handles file upload, drag-and-drop, and processing of PDF transcripts
 /**
  * UploadTranscript Component - Client-side transcript processing page
- * 
+ *
  * Functionality:
  * - Allows users to upload PDF transcripts via drag-drop or file browser
  * - Processes PDFs entirely on the frontend using PDF.js (no backend communication)
@@ -28,7 +25,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pd
  * - Stores processed data in localStorage for persistence
  * - Navigates to TimelinePage (/timeline_change) with extracted transcript data
  * - Passes data to parent component via onDataProcessed callback
- * 
+ *
  * Note: All transcript processing happens client-side for privacy - no data sent to servers
  */
 const UploadTranscript = ({ onDataProcessed }) => {
@@ -37,7 +34,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
   const [output, setOutput] = useState('');
   const fileInputRef = useRef(null); // Reference for the file input
   const navigate = useNavigate(); // Hook to navigate to TimelinePage
-    // Handle drag-and-drop events over the upload box
+  // Handle drag-and-drop events over the upload box
   const handleDragOver = (e) => {
     e.preventDefault();
     e.target.classList.add('dragover');
@@ -46,7 +43,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
   const handleDragLeave = (e) => {
     e.target.classList.remove('dragover');
   };
-    // Handle file selection via the file input via the "Browse" button
+  // Handle file selection via the file input via the "Browse" button
   const handleDrop = (e) => {
     e.preventDefault();
     e.target.classList.remove('dragover');
@@ -68,14 +65,14 @@ const UploadTranscript = ({ onDataProcessed }) => {
       alert('Please select a valid PDF file.');
     }
   };
-    /*
-    * Process the selected PDF file to extract transcript data
-    * @param {File} file - The PDF file to process
-    * Uses extractTranscriptComponents to get terms, courses, separators, degree, and ecp
-    * Uses matchCoursesToTerms to group courses under their respective terms
-    * Stores the transcript data, degree ID, and extended credit info in localStorage
-    * Navigates to TimelinePage with the extracted data
-    * */
+  /*
+   * Process the selected PDF file to extract transcript data
+   * @param {File} file - The PDF file to process
+   * Uses extractTranscriptComponents to get terms, courses, separators, degree, and ecp
+   * Uses matchCoursesToTerms to group courses under their respective terms
+   * Stores the transcript data, degree ID, and extended credit info in localStorage
+   * Navigates to TimelinePage with the extracted data
+   * */
   const processFile = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => {

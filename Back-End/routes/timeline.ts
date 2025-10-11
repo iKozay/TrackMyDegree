@@ -11,7 +11,6 @@ const router = express.Router();
  * Creates a new timeline.
  * Body: { timeline: {...} }
  */
-
 router.post(
   '/',
   validateTimelineBody,
@@ -37,7 +36,6 @@ router.post(
  * Updates an existing timeline using the provided ID.
  * Body: { timeline: {...} }
  */
-
 router.put(
   '/:timelineId',
   validateTimelineBody,
@@ -64,7 +62,6 @@ router.put(
  * GET /api/timeline/user/:userId
  * Retrieves all timelines for the specified user.
  */
-
 router.get(
   '/user/:userId',
   validateUserId,
@@ -84,7 +81,6 @@ router.get(
  * DELETE /api/timeline/:timelineId
  * Deletes a timeline by its ID.
  */
-
 router.delete(
   '/:timelineId',
   validateTimelineId,
@@ -92,14 +88,17 @@ router.delete(
     const { timelineId } = req.params;
     const result = await timelineController.removeUserTimeline(timelineId);
 
-    if (!result) {
-      return res.status(HTTP.NOT_FOUND).json({ message: result });
+    // ✅ Defensive check
+    if (!result || typeof result !== 'object' || !('message' in result)) {
+      return res.status(HTTP.SERVER_ERR).json({ error: 'Unexpected response from controller' });
     }
 
-    if (result.includes('deleted successfully')) {
-      return res.status(HTTP.OK).json({ message: result });
-    } else if (result.includes('No timeline found')) {
-      return res.status(HTTP.NOT_FOUND).json({ error: result });
+    const { success, message } = result;
+
+    if (success && message.includes('deleted successfully')) {
+      return res.status(HTTP.OK).json({ message });
+    } else if (message.includes('No timeline found')) {
+      return res.status(HTTP.NOT_FOUND).json({ error: message });
     } else {
       return res.status(HTTP.SERVER_ERR).json({ error: 'Internal Server Error' });
     }

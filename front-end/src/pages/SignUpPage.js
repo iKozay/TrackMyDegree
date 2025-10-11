@@ -20,8 +20,8 @@ function SignUpPage() {
   //const [loading, setLoading] = useState(false); // To handle loading state
 
   useEffect(() => {
-    if(isLoggedIn) {
-      navigate("/user");
+    if (isLoggedIn) {
+      navigate('/user');
     }
   });
 
@@ -33,12 +33,7 @@ function SignUpPage() {
     await new Promise((resolve) => setTimeout(resolve, 10));
 
     // Basic validation checks
-    if (
-      fullname === '' ||
-      email === '' ||
-      password === '' ||
-      confirmPassword === ''
-    ) {
+    if (fullname === '' || email === '' || password === '' || confirmPassword === '') {
       setError('All fields are required.');
       return;
     }
@@ -64,22 +59,19 @@ function SignUpPage() {
     //setLoading(true); // Start loading
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER}/auth/signup`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            fullname,
-            email,
-            password,
-            type: userType,
-          }),
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/signup`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify({
+          fullname,
+          email,
+          password,
+          type: userType,
+        }),
+      });
 
       console.log(response);
       if (!response.ok) {
@@ -102,12 +94,7 @@ function SignUpPage() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.7 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
       <div className="SignUpPage">
         <div className="container my-5 sign-in-container">
           <h2 className="text-center mb-6" style={{ fontSize: '5vh' }}>
@@ -176,11 +163,7 @@ function SignUpPage() {
 
             {/* Cancel and Register Buttons */}
             <div className="d-flex justify-content-between align-items-center mt-3">
-              <Button
-                className="btn-secondary"
-                type="button"
-                onClick={() => navigate('/signin')}
-              >
+              <Button className="btn-secondary" type="button" onClick={() => navigate('/signin')}>
                 Cancel
               </Button>
               <Button className="btn-danger" type="submit">
