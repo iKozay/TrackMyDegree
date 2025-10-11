@@ -7,11 +7,9 @@ import PdfImage from '../images/Pdf_image.png';
 import TransImage from '../images/Transc_image.png';
 import Button from 'react-bootstrap/Button';
 import { motion } from 'framer-motion';
-import {
-  extractTranscriptComponents,
-  matchCoursesToTerms,
-} from '../utils/transcriptUtils';
-import UploadBox from "../components/UploadBox";
+import { extractTranscriptComponents, matchCoursesToTerms } from '../utils/transcriptUtils';
+import UploadBox from '../components/UploadBox';
+import { parsePdfFile } from '../utils/AcceptanceUtils';
 
 // Set the worker source
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
@@ -20,7 +18,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pd
 // UploadTranscript Component - Handles file upload, drag-and-drop, and processing of PDF transcripts
 /**
  * UploadTranscript Component - Client-side transcript processing page
- * 
+ *
  * Functionality:
  * - Allows users to upload PDF transcripts via drag-drop or file browser
  * - Processes PDFs entirely on the frontend using PDF.js (no backend communication)
@@ -29,64 +27,40 @@ pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pd
  * - Stores processed data in localStorage for persistence
  * - Navigates to TimelinePage (/timeline_change) with extracted transcript data
  * - Passes data to parent component via onDataProcessed callback
- * 
+ *
  * Note: All transcript processing happens client-side for privacy - no data sent to servers
  */
 const UploadTranscript = ({ onDataProcessed }) => {
   const navigate = useNavigate(); // Hook to navigate to TimelinePage
 
-
   const processFile = (file) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const typedArray = new Uint8Array(e.target.result);
-      pdfjs.getDocument(typedArray).promise.then((pdf) => {
-        let pagesPromises = [];
-        for (let i = 1; i <= pdf.numPages; i++) {
-          pagesPromises.push(
-            pdf.getPage(i).then(async (page) => {
-              return page.getTextContent().then((textContentPage) => {
-                return {
-                  page: i,
-                  text: textContentPage.items.map((item) => item.str).join(' '),
-                };
-              });
-            }),
-          );
-        }
-        // TODO: Consider using Web Workers for heavy PDF processing to avoid blocking UI
-        Promise.all(pagesPromises).then((pagesData) => {
-          const extractedData = extractTranscriptComponents(pagesData);
-          const { terms, courses, separators } = extractedData;
-          const transcriptData = matchCoursesToTerms(terms, courses, separators);
+    parsePdfFile(file).then((pagesData) => {
+      const extractedData = extractTranscriptComponents(pagesData);
+      const { terms, courses, separators } = extractedData;
+      const transcriptData = matchCoursesToTerms(terms, courses, separators);
 
-          // Extract Degree Info
-          const degreeInfo = extractedData.degree || 'Unknown Degree';
-          const degreeId = extractedData.degreeId || 'Unknown'; // Map degree to ID
-          const isExtendedCredit = extractedData.ecp || false;
+      // Extract Degree Info
+      const degreeInfo = extractedData.degree || 'Unknown Degree';
+      const degreeId = extractedData.degreeId || 'Unknown'; // Map degree to ID
+      const isExtendedCredit = extractedData.ecp || false;
+      console.log('TRANSCRIPT DATA:', transcriptData);
 
-          if (transcriptData.length > 0) {
-            localStorage.setItem('Timeline_Name', null);
+      if (transcriptData.length > 0) {
+        localStorage.setItem('Timeline_Name', null);
 
-            onDataProcessed({
-              transcriptData,
-              degreeId,
-              isExtendedCredit,
-            });
-            navigate('/timeline_change', {
-              state: { coOp: null, extendedCreditCourses: extractedData.ecp },
-            }); // Navigate to TimelinePage
-          } else {
-            alert('There are no courses to show!');
-          }
+        onDataProcessed({
+          transcriptData,
+          degreeId,
+          isExtendedCredit,
         });
-      });
-    };
-
-    reader.readAsArrayBuffer(file);
+        navigate('/timeline_change', {
+          state: { coOp: null, extendedCreditCourses: extractedData.ecp },
+        }); // Navigate to TimelinePage
+      } else {
+        alert('There are no courses to show!');
+      }
+    });
   };
-
-
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
