@@ -70,19 +70,16 @@ async function saveTimeline(timeline: TimelineTypes.Timeline): Promise<TimelineT
  * Fetch all timelines for a user
  */
 async function getTimelinesByUser(user_id: string): Promise<TimelineTypes.Timeline[]> {
-  const transaction = await TimelineRepository.startTransaction();
-
   try {
-    const timelines = await TimelineRepository.getTimelinesByUser(transaction, user_id);
-    await transaction.commit();
-    return timelines;
+    const timelines = await timelinesCollection.find({ user_id }).toArray();
+    return timelines.map(t => ({ ...t, id: t._id.toString() }));
   } catch (error) {
-    await transaction.rollback();
     Sentry.captureException(error);
     log('Error fetching timelines for user:', error);
     throw error;
   }
 }
+
 
 /**
  * Remove a timeline by ID
