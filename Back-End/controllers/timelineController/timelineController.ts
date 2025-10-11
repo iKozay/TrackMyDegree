@@ -89,7 +89,17 @@ async function upsertTimelineItem(timeline_id: string, item: TimelineTypes.Timel
 async function getTimelinesByUser(user_id: string): Promise<TimelineTypes.Timeline[]> {
   try {
     const timelines = await timelinesCollection.find({ user_id }).toArray();
-    return timelines.map(t => ({ ...t, id: t._id.toString() }));
+
+    // Typage explicite pour t
+    return timelines.map((t: any) => ({
+      id: t._id.toString(),
+      user_id: t.user_id,
+      name: t.name,
+      degree_id: t.degree_id,
+      last_modified: t.last_modified,
+      isExtendedCredit: t.isExtendedCredit,
+      items: t.items || [],
+    }));
   } catch (error) {
     Sentry.captureException(error);
     log('Error fetching timelines for user:', error);
