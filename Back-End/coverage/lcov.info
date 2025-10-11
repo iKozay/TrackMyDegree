@@ -1,5 +1,5 @@
 TN:
-SF:dist/Util/DB_Ops.js
+SF:dist\Util\DB_Ops.js
 FN:5,(anonymous_0)
 FNF:1
 FNH:1
@@ -18,7 +18,7 @@ BRF:2
 BRH:2
 end_of_record
 TN:
-SF:dist/controllers/CourseXCPController/CourseXCPController_mongoose.js
+SF:dist\controllers\CourseXCPController\CourseXCPController_mongoose.js
 FN:11,(anonymous_0)
 FN:15,(anonymous_1)
 FN:18,(anonymous_2)
@@ -277,7 +277,7 @@ BRF:88
 BRH:70
 end_of_record
 TN:
-SF:dist/models/Degree.js
+SF:dist\models\Degree.js
 FNF:0
 FNH:0
 DA:2,1

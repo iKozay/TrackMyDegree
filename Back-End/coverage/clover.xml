@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1760154897645" clover="3.2.0">
-  <project timestamp="1760154897645" name="All files">
+<coverage generated="1760156614624" clover="3.2.0">
+  <project timestamp="1760156614625" name="All files">
     <metrics statements="116" coveredstatements="110" conditionals="90" coveredconditionals="72" methods="30" coveredmethods="27" elements="236" coveredelements="209" complexity="0" loc="116" ncloc="116" packages="3" files="3" classes="3"/>
     <package name="Util">
       <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
-      <file name="DB_Ops.js" path="/home/eibhyas/Documents/ppp/TrackMyDegree/Back-End/dist/Util/DB_Ops.js">
+      <file name="DB_Ops.js" path="C:\Users\yassi\School\Concordia\490\capstone\TrackMyDegree\Back-End\dist\Util\DB_Ops.js">
         <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
         <line num="3" count="1" type="stmt"/>
         <line num="5" count="1" type="stmt"/>
@@ -16,7 +16,7 @@
     </package>
     <package name="controllers.CourseXCPController">
       <metrics statements="104" coveredstatements="98" conditionals="88" coveredconditionals="70" methods="29" coveredmethods="26"/>
-      <file name="CourseXCPController_mongoose.js" path="/home/eibhyas/Documents/ppp/TrackMyDegree/Back-End/dist/controllers/CourseXCPController/CourseXCPController_mongoose.js">
+      <file name="CourseXCPController_mongoose.js" path="C:\Users\yassi\School\Concordia\490\capstone\TrackMyDegree\Back-End\dist\controllers\CourseXCPController\CourseXCPController_mongoose.js">
         <metrics statements="104" coveredstatements="98" conditionals="88" coveredconditionals="70" methods="29" coveredmethods="26"/>
         <line num="11" count="1" type="cond" truecount="4" falsecount="1"/>
         <line num="12" count="144" type="cond" truecount="1" falsecount="1"/>
@@ -126,7 +126,7 @@
     </package>
     <package name="models">
       <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-      <file name="Degree.js" path="/home/eibhyas/Documents/ppp/TrackMyDegree/Back-End/dist/models/Degree.js">
+      <file name="Degree.js" path="C:\Users\yassi\School\Concordia\490\capstone\TrackMyDegree\Back-End\dist\models\Degree.js">
         <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
