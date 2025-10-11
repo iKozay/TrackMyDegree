@@ -52,7 +52,8 @@ async function updateAppUser(
 
     await existingUser.save();
 
-    return existingUser.toObject() as appUserTypes.AppUser;
+    const userObj = existingUser.toObject();
+    return { ...userObj, id: userObj._id } as appUserTypes.AppUser;
   } catch (error) {
     Sentry.captureException(error);
     throw error;
