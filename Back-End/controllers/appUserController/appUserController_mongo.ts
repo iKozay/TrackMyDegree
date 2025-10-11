@@ -31,7 +31,7 @@ async function updateAppUser(
   password: string,
   fullname: string,
   degree: string,
-  type: appUserTypes.UserType
+  type: appUserTypes.UserType,
 ): Promise<appUserTypes.AppUser | undefined> {
   // Check MongoDB connection state (1 = connected)
   if (mongoose.connection.readyState !== 1) {
