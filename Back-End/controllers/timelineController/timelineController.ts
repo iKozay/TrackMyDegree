@@ -1,38 +1,50 @@
 import TimelineTypes from '@controllers/timelineController/timeline_types';
 import * as Sentry from '@sentry/node';
-import TimelineRepository from './timelineRepository';
 import { MongoClient, ObjectId } from 'mongodb';
-
 
 const log = console.log;
 let timelinesCollection: any;
 
 async function initDb() {
-  const client = new MongoClient('mongodb://localhost:27017'); // remplace par ton URI
+  const client = new MongoClient('mongodb://localhost:27017'); // ton URI
   await client.connect();
-  const db = client.db('yourDbName'); // remplace par le nom de ta DB
+  const db = client.db('yourDbName'); // ton DB name
   timelinesCollection = db.collection('timelines');
 }
 
 initDb().catch(err => log('DB connection error', err));
 
 
-/**
- * Save or update a timeline
- */
+
+/** Save or upsert a timeline with items */
 async function saveTimeline(timeline: TimelineTypes.Timeline): Promise<TimelineTypes.Timeline> {
   try {
     if (!timeline.user_id || !timeline.name || !timeline.degree_id) {
       throw new Error('User ID, timeline name, and degree ID are required');
     }
 
+    // timelineId existant ou nouveau
     const timelineId = timeline.id ? new ObjectId(timeline.id) : new ObjectId();
 
+    // Gestion des items : assigner un id si inexistant
+    const itemsWithIds = timeline.items.map(item => ({
+      ...item,
+      id: item.id ? new ObjectId(item.id) : new ObjectId()
+    }));
+
+    // Upsert de la timeline
     await timelinesCollection.updateOne(
       { _id: timelineId },
       {
-        $set: { ...timeline, last_modified: new Date() },
-        $push: { items: { $each: timeline.items.map(item => ({ ...item, id: new ObjectId() })) } }
+        $set: {
+          user_id: timeline.user_id,
+          name: timeline.name,
+          degree_id: timeline.degree_id,
+          isExtendedCredit: timeline.isExtendedCredit,
+          last_modified: new Date()
+        },
+        $setOnInsert: { created_at: new Date() },
+        $addToSet: { items: { $each: itemsWithIds } } // ajoute seulement les items qui n'existent pas encore
       },
       { upsert: true }
     );
@@ -46,25 +58,30 @@ async function saveTimeline(timeline: TimelineTypes.Timeline): Promise<TimelineT
 }
 
 
-    // Upsert timeline metadata
-    const timelineId = await TimelineRepository.upsertTimeline(transaction, timeline);
 
-    // Remove old timeline items before reinserting
-    await TimelineRepository.deleteTimelineItems(transaction, timelineId);
+/** Upsert ou update un item spécifique */
+async function upsertTimelineItem(timeline_id: string, item: TimelineTypes.TimelineItem) {
+  try {
+    const itemId = item.id ? new ObjectId(item.id) : new ObjectId();
+    await timelinesCollection.updateOne(
+      { _id: new ObjectId(timeline_id), 'items.id': itemId },
+      { $set: { 'items.$': { ...item, id: itemId } } }
+    );
 
-    // Insert new timeline items
-    await TimelineRepository.insertTimelineItems(transaction, timelineId, items);
+    // Si l'item n'existait pas, on l'ajoute
+    await timelinesCollection.updateOne(
+      { _id: new ObjectId(timeline_id), 'items.id': { $ne: itemId } },
+      { $push: { items: { ...item, id: itemId } } }
+    );
 
-    await transaction.commit();
-
-    return { ...timeline, id: timelineId, last_modified: new Date() };
+    return { ...item, id: itemId.toString() };
   } catch (error) {
-    await transaction.rollback();
     Sentry.captureException(error);
-    log('Error saving timeline:', error);
+    log('Error upserting timeline item:', error);
     throw error;
   }
 }
+
 
 /**
  * Fetch all timelines for a user
@@ -125,4 +142,4 @@ async function deleteTimelineItem(timeline_id: string, item_id: string) {
 
 
 
-export default { saveTimeline, getTimelinesByUser, removeUserTimeline, updateTimelineItem, deleteTimelineItem };
+export default { saveTimeline, getTimelinesByUser, removeUserTimeline, updateTimelineItem, deleteTimelineItem, upsertTimelineItem };
