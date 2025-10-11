@@ -11,8 +11,8 @@
  */
 
 import { Degree } from '../../models/Degree';
-import DB_OPS from '@Util/DB_Ops';
-import CoursePoolTypes from '@controllers/coursepoolController/coursepool_types';
+import DB_OPS from '../../Util/DB_Ops';
+import CoursePoolTypes from './coursepool_types';
 import { randomUUID } from 'crypto';
 import * as Sentry from '@sentry/node';
 
@@ -20,8 +20,9 @@ const log = console.log;
 
 /**
  * Creates a new course pool.
- * Since coursePools are embedded in Degree documents, this creates a standalone reference
- * that can be added to degrees later.
+ * NOTE: In MongoDB implementation, course pools are embedded in Degree documents.
+ * This function only generates and logs a new pool ID. To actually use the pool,
+ * it must be added to a Degree document via DegreeXCPController.
  *
  * @param {string} pool_name - The name of the course pool.
  * @returns {Promise<DB_OPS>} - Returns a DB operation status.
@@ -156,26 +157,24 @@ async function updateCoursePool(
 async function removeCoursePool(pool_id: string): Promise<DB_OPS> {
   try {
     const degrees = await Degree.find({ 'coursePools.id': pool_id });
-
     if (degrees.length === 0) {
       log(`CoursePool with id '${pool_id}' not found in any degree`);
       return DB_OPS.MOSTLY_OK;
     }
-
     let removed = false;
-
     await Promise.all(
-    degrees.map(async degree => {
+      degrees.map(async degree => {
         const initialLength = degree.coursePools.length;
-        degree.coursePools.pull({ id: pool_id });
-
-        if (degree.coursePools.length < initialLength) {
-        await degree.save();
-        removed = true;
+        
+        // Find the index and remove using splice
+        const index = degree.coursePools.findIndex(cp => cp.id === pool_id);
+        if (index !== -1) {
+          degree.coursePools.splice(index, 1);
+          await degree.save();
+          removed = true;
         }
-    }),
+      }),
     );
-
     return removed ? DB_OPS.SUCCESS : DB_OPS.MOSTLY_OK;
   } catch (error) {
     Sentry.captureException(error);
