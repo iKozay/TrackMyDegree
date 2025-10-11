@@ -85,21 +85,17 @@ async function getTimelinesByUser(user_id: string): Promise<TimelineTypes.Timeli
  * Remove a timeline by ID
  */
 async function removeUserTimeline(timeline_id: string): Promise<{ success: boolean; message: string }> {
-  const transaction = await TimelineRepository.startTransaction();
-
   try {
-    const deletedCount = await TimelineRepository.deleteTimeline(transaction, timeline_id);
-    await transaction.commit();
-
-    return deletedCount > 0
+    const result = await timelinesCollection.deleteOne({ _id: new ObjectId(timeline_id) });
+    return result.deletedCount > 0
       ? { success: true, message: `Timeline ${timeline_id} deleted successfully` }
       : { success: false, message: `Timeline ${timeline_id} not found` };
   } catch (error) {
-    await transaction.rollback();
     Sentry.captureException(error);
     log('Error removing timeline:', error);
     return { success: false, message: 'Error occurred while deleting timeline.' };
   }
 }
+
 
 export default { saveTimeline, getTimelinesByUser, removeUserTimeline };
