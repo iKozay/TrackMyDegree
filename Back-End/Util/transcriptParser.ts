@@ -625,9 +625,9 @@ export class TranscriptParser {
         const next1 = texts[i + 1];
         const next2 = texts[i + 2];
 
-        const itemText = decodeURIComponent(item.R?.[0]?.T || '');
-        const next1Text = decodeURIComponent(next1.R?.[0]?.T || '');
-        const next2Text = decodeURIComponent(next2.R?.[0]?.T || '');
+        const itemText = decodeURIComponent(item.R?.[0]?.T || '').trim();
+        const next1Text = decodeURIComponent(next1.R?.[0]?.T || '').trim();
+        const next2Text = decodeURIComponent(next2.R?.[0]?.T || '').trim();
 
         // Only look at items with negative Y (course data section)
         if (
@@ -680,7 +680,9 @@ export class TranscriptParser {
 
     const dept = decodeURIComponent(texts[startIndex].R?.[0]?.T || '');
     const number = decodeURIComponent(texts[startIndex + 1].R?.[0]?.T || '');
-    const section = decodeURIComponent(texts[startIndex + 2].R?.[0]?.T || '');
+    const section = decodeURIComponent(
+      texts[startIndex + 2].R?.[0]?.T || '',
+    ).trim();
     const courseCode = `${dept} ${number}`;
 
     // Collect title parts until we hit a credits value (N.NN format)
