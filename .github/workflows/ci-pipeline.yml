@@ -107,7 +107,7 @@ jobs:
           source venv/bin/activate
           pip install -r requirements.txt
           coverage run -m pytest
-          coverage lcov -o coverage.lcov
+          coverage xml -o coverage.xml
           deactivate
 
       - name: Run SonarCloud Scan
