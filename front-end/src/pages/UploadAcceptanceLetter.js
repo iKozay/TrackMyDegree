@@ -9,6 +9,8 @@ import Button from 'react-bootstrap/Button';
 import UploadBox from '../components/UploadBox';
 import { parsePdfFile, extractAcceptanceDetails } from '../utils/AcceptanceUtils';
 
+const REACT_APP_SERVER = process.env.REACT_APP_SERVER || 'http://localhost:8000';
+
 //This page creates an initial timeline using either manually entered information or by parsing an acceptance letter
 /**
  * UploadAcceptanceLetterPage Component - Dual-mode timeline creation page
@@ -47,7 +49,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     const getDegrees = async () => {
       // TODO: Add proper error handling and user feedback for API failures
       try {
-        const response = await fetch(`http://localhost:8000/degree/getAllDegrees`, {
+        const response = await fetch(`${REACT_APP_SERVER}/degree/getAllDegrees`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

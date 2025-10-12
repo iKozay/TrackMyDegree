@@ -8,7 +8,8 @@ import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
 import { LoginError } from '../middleware/SentryErrors';
-const REACT_APP_SERVER = process.env.REACT_APP_SERVER||'http://localhost:8000';
+
+const REACT_APP_SERVER = process.env.REACT_APP_SERVER || 'http://localhost:8000';
 //This is the login page with a standard form that is sent to the server for validation. Redirects to UserPage.js upon success
 function LogInPage() {
   const [email, setEmail] = useState('');
@@ -20,8 +21,8 @@ function LogInPage() {
   const [loading, setLoading] = useState(false); // To handle loading state
 
   useEffect(() => {
-    if(isLoggedIn) {
-      navigate("/user");
+    if (isLoggedIn) {
+      navigate('/user');
     }
   },[isLoggedIn]);
 
@@ -48,20 +49,17 @@ function LogInPage() {
     setLoading(true); // Start loading
 
     try {
-      const response = await fetch(
-        `${REACT_APP_SERVER}/auth/login`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
+      const response = await fetch(`${REACT_APP_SERVER}/auth/login`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
       if (!response.ok) {
         // Extract error message from response
@@ -82,12 +80,7 @@ function LogInPage() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.7 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
       <>
         {/* <Navbar /> Include Navbar if needed */}
         <div className="LogInPage">
@@ -126,12 +119,7 @@ function LogInPage() {
 
               {/* Submit Button */}
               <div className="d-grid gap-2">
-                <Button
-                  className="button-outline"
-                  variant="primary"
-                  type="submit"
-                  disabled={loading}
-                >
+                <Button className="button-outline" variant="primary" type="submit" disabled={loading}>
                   {loading ? 'Logging in...' : 'Submit'}
                 </Button>
               </div>

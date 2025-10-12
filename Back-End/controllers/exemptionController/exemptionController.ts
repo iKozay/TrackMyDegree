@@ -9,7 +9,6 @@
  *  - Keeps track of exemptions that already exist to avoid duplicates.
  */
 
-
 import Database from '@controllers/DBController/DBController';
 import ExemptionTypes from '@controllers/exemptionController/exemption_types';
 import { randomUUID } from 'crypto';
@@ -82,7 +81,7 @@ async function createExemptions(
             'INSERT INTO Exemption (id, coursecode, user_id) VALUES (@id, @coursecode, @user_id)',
           );
 
-          // Add to our "created" results array.
+        // Add to our "created" results array.
         createdExemptions.push({ id, coursecode, user_id });
       }
 
@@ -102,7 +101,7 @@ async function createExemptions(
 /**
  * Retrieves all exemptions associated with a specific user.
  * Useful to display which courses the student doesn’t need to complete.
- * 
+ *
  * @param {string} user_id - The ID of the user whose exemptions are to be fetched.
  * @returns {Promise<ExemptionTypes.Exemption[] | undefined>} - A list of exemptions associated with the user, or undefined if none found.
  */

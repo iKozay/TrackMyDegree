@@ -1,9 +1,7 @@
-
 declare namespace DegreeXCPTypes {
-
   type DegreeXCP = {
-    degree_id     : string;
-    coursepool_id : string;
+    degree_id: string;
+    coursepool_id: string;
   };
 
   type NewDegreeXCP = DegreeXCP & {
@@ -13,7 +11,6 @@ declare namespace DegreeXCPTypes {
   type DegreeXCPItem = NewDegreeXCP & {
     id: string;
   };
-
 }
 
 export default DegreeXCPTypes;
