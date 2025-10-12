@@ -19,7 +19,7 @@ async function createDeficiency(
 ): Promise<DeficiencyTypes.Deficiency | undefined> {
   try {
     // 1) Verify user exists
-    const user = await User.findOne({ id: user_id });
+    const user = await User.findOne({ _id: user_id });
     if (!user) {
       throw new Error('AppUser does not exist.');
     }
@@ -37,26 +37,22 @@ async function createDeficiency(
       throw new Error('CoursePool does not exist.');
     }
 
-    // 4) Create new deficiency object and embed it in the user
-    const id = randomUUID();
-    const newDeficiency: DeficiencyTypes.Deficiency = {
-      id,
+    user.deficiencies = user.deficiencies || [];
+    user.deficiencies.push({
       coursepool,
-      user_id,
-      creditsRequired,
-    };
-
-    if (!Array.isArray(user.deficiencies)) {
-      user.deficiencies = [];
-    }
-
-    user.deficiencies.push(newDeficiency);
+      creditsRequired
+    });
 
     // 5) Save the updated user document
     await user.save();
 
     // Return the created deficiency (plain object)
-    return newDeficiency;
+    return {
+      id: randomUUID(),
+      coursepool,
+      user_id,
+      creditsRequired
+    };
   } catch (error) {
     Sentry.captureException(error);
     throw error;
@@ -72,14 +68,19 @@ async function getAllDeficienciesByUser(
 ): Promise<DeficiencyTypes.Deficiency[] | undefined> {
   try {
     // Confirm the user exists and fetch deficiencies
-    const user = await User.findOne({ id: user_id }).lean();
+    const user = await User.findOne({ _id: user_id }).lean();
     if (!user) {
       throw new Error('AppUser does not exist.');
     }
 
-    const allDeficiencies = Array.isArray(user.deficiencies) ? user.deficiencies : [];
+    const allDeficiencies = (user.deficiencies || []).map(def => ({
+      id: randomUUID(),
+      coursepool: def.coursepool,
+      user_id: user_id,
+      creditsRequired: def.creditsRequired
+    }));
 
-    return allDeficiencies.length > 0 ? allDeficiencies : undefined;
+    return allDeficiencies;
   } catch (error) {
     Sentry.captureException(error);
     throw error;
@@ -95,7 +96,7 @@ async function deleteDeficiencyByCoursepoolAndUserId(
 ): Promise<string | undefined> {
   try {
     // Find the user document (we will mutate it and save)
-    const user = await User.findOne({ id: user_id });
+    const user = await User.findOne({ _id: user_id });
     if (!user) {
       throw new Error('AppUser does not exist.');
     }
@@ -104,7 +105,7 @@ async function deleteDeficiencyByCoursepoolAndUserId(
       throw new Error('Deficiency with this id does not exist.');
     }
 
-    const idx = user.deficiencies.findIndex(d => d.coursepool === coursepool && d.user_id === user_id);
+    const idx = user.deficiencies.findIndex(d => d.coursepool === coursepool);
 
     if (idx === -1) {
       throw new Error('Deficiency with this id does not exist.');
