@@ -2,9 +2,9 @@
 declare namespace DegreeTypes {
 
     type Degree = {
-        id: string;
-        name: string;
-        totalCredits: number;
+        id: string | null;
+        name: string | null;
+        totalCredits: number | null;
       }
 
   }
