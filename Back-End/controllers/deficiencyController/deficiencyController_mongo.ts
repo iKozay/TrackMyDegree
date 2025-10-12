@@ -1,12 +1,16 @@
-import DeficiencyModel from '../../models/deficiencyModel'; // Adjust path
-import AppUserModel from '../../models/appUserModel'; // Adjust path
-import CoursePoolModel from '../../models/coursePoolModel'; // Adjust path
-import DeficiencyTypes from '@controllers/deficiencyController/deficiency_types';
+// controllers/deficiencyController/deficiencyController_mongo.ts
+
 import { randomUUID } from 'crypto';
 import * as Sentry from '@sentry/node';
+import DeficiencyTypes from '@controllers/deficiencyController/deficiency_types';
+
+// Use existing models
+import { User } from '../../models/User';
+import { Degree } from '../../models/Degree';
 
 /**
  * Creates a new deficiency for a user and coursepool.
+ * - Deficiencies are stored embedded inside the User document (user.deficiencies).
  */
 async function createDeficiency(
   coursepool: string,
@@ -14,38 +18,45 @@ async function createDeficiency(
   creditsRequired: number,
 ): Promise<DeficiencyTypes.Deficiency | undefined> {
   try {
-    // Step 1: Check if this deficiency already exists (handled by compound index, but explicit check is clearer)
-    const existingDeficiency = await DeficiencyModel.findOne({ coursepool, user_id });
-    if (existingDeficiency) {
+    // 1) Verify user exists
+    const user = await User.findOne({ id: user_id });
+    if (!user) {
+      throw new Error('AppUser does not exist.');
+    }
+
+    // 2) Check if the deficiency already exists on the user (embedded)
+    if (Array.isArray(user.deficiencies) && user.deficiencies.some(d => d.coursepool === coursepool)) {
       throw new Error(
         'Deficiency with this coursepool and user_id already exists. Please use the update endpoint',
       );
     }
 
-    // Step 2: Make sure the course pool actually exists.
-    const existingCoursePool = await CoursePoolModel.findOne({ id: coursepool });
-    if (!existingCoursePool) {
+    // 3) Verify course pool exists somewhere in degrees (assumes Degree.coursePools[] with id field)
+    const degreeContainingPool = await Degree.findOne({ 'coursePools.id': coursepool }).lean();
+    if (!degreeContainingPool) {
       throw new Error('CoursePool does not exist.');
     }
 
-    // Step 3: Make sure the user exists in the system.
-    const existingAppUser = await AppUserModel.findOne({ id: user_id });
-    if (!existingAppUser) {
-      throw new Error('AppUser does not exist.');
-    }
-
-    // Step 4: Generate a unique ID and create the new deficiency.
+    // 4) Create new deficiency object and embed it in the user
     const id = randomUUID();
-    const newDeficiency = new DeficiencyModel({
+    const newDeficiency: DeficiencyTypes.Deficiency = {
       id,
       coursepool,
       user_id,
       creditsRequired,
-    });
+    };
 
-    // Step 5: Save the new deficiency.
-    await newDeficiency.save();
-    return newDeficiency.toObject();
+    if (!Array.isArray(user.deficiencies)) {
+      user.deficiencies = [];
+    }
+
+    user.deficiencies.push(newDeficiency);
+
+    // 5) Save the updated user document
+    await user.save();
+
+    // Return the created deficiency (plain object)
+    return newDeficiency;
   } catch (error) {
     Sentry.captureException(error);
     throw error;
@@ -54,21 +65,20 @@ async function createDeficiency(
 
 /**
  * Retrieves all deficiencies for a specific user.
+ * Returns `undefined` if none found (keeps previous behaviour).
  */
 async function getAllDeficienciesByUser(
   user_id: string,
 ): Promise<DeficiencyTypes.Deficiency[] | undefined> {
   try {
-    // First, confirm that the user exists.
-    const existingAppUser = await AppUserModel.findOne({ id: user_id });
-    if (!existingAppUser) {
+    // Confirm the user exists and fetch deficiencies
+    const user = await User.findOne({ id: user_id }).lean();
+    if (!user) {
       throw new Error('AppUser does not exist.');
     }
 
-    // Fetch all deficiencies tied to this user.
-    const allDeficiencies = await DeficiencyModel.find({ user_id }).lean();
+    const allDeficiencies = Array.isArray(user.deficiencies) ? user.deficiencies : [];
 
-    // Replicate original logic: return undefined if no deficiencies are found.
     return allDeficiencies.length > 0 ? allDeficiencies : undefined;
   } catch (error) {
     Sentry.captureException(error);
@@ -84,15 +94,25 @@ async function deleteDeficiencyByCoursepoolAndUserId(
   user_id: string,
 ): Promise<string | undefined> {
   try {
-    // findOneAndDelete is an atomic operation.
-    const deletedDeficiency = await DeficiencyModel.findOneAndDelete({
-      coursepool,
-      user_id,
-    });
+    // Find the user document (we will mutate it and save)
+    const user = await User.findOne({ id: user_id });
+    if (!user) {
+      throw new Error('AppUser does not exist.');
+    }
 
-    if (!deletedDeficiency) {
+    if (!Array.isArray(user.deficiencies)) {
       throw new Error('Deficiency with this id does not exist.');
     }
+
+    const idx = user.deficiencies.findIndex(d => d.coursepool === coursepool && d.user_id === user_id);
+
+    if (idx === -1) {
+      throw new Error('Deficiency with this id does not exist.');
+    }
+
+    // Remove the deficiency and save
+    user.deficiencies.splice(idx, 1);
+    await user.save();
 
     return `Deficiency with appUser ${user_id} and coursepool ${coursepool} has been successfully deleted.`;
   } catch (error) {
