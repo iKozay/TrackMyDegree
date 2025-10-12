@@ -49,7 +49,7 @@ def test_scraper_creates_valid_json(monkeypatch, fake_html, tmp_path):
     test_args = ["script_name.py", fake_url, str(output_file)]
 
     monkeypatch.setattr(sys, "argv", test_args)
-    runpy.run_path("course-data/Scraping/Scrapers/course_data_scraper.py")
+    runpy.run_path("Scrapers/course_data_scraper.py")
 
     # Assertions
     assert output_file.exists(), "Scraper did not create output file."

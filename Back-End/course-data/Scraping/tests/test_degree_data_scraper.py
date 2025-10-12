@@ -63,7 +63,7 @@ def test_degree_scraper_creates_json_files(monkeypatch, fake_html, tmp_path):
     monkeypatch.setattr(sys, "argv", test_args)
 
     # Run the scraper script dynamically
-    runpy.run_path("course-data/Scraping/Scrapers/degree_data_scraper.py")
+    runpy.run_path("Scrapers/degree_data_scraper.py")
 
     
     # Assertions
