@@ -4,9 +4,24 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import type { ParsedTranscript, ParseTranscriptResponse } from '@shared/types';
 import { Upload, FileText, CheckCircle, AlertCircle, X, Loader, Info, ChevronDown } from 'lucide-react';
+import { degreeMap } from '../utils/transcriptUtils';
+
+// Old format for transcript records (matching matchCoursesToTerms output)
+interface TranscriptRecord {
+  term: string;
+  course?: string;
+  courses?: string[];
+  grade: string;
+}
+
+interface ProcessedTranscriptData {
+  transcriptData: TranscriptRecord[];
+  degreeId: string;
+  isExtendedCredit: boolean;
+}
 
 interface UploadTranscriptProps {
-  onDataProcessed?: (data: ParsedTranscript) => void;
+  onDataProcessed?: (data: ProcessedTranscriptData) => void;
 }
 
 type UploadState = 'idle' | 'uploading' | 'success' | 'error';
@@ -154,13 +169,6 @@ const UploadTranscriptPage: React.FC<UploadTranscriptProps> = ({ onDataProcessed
         setParsedData(response.data.data);
         setUploadState('success');
 
-        // Store in localStorage
-        localStorage.setItem('transcriptData', JSON.stringify(response.data.data));
-
-        // Call callback if provided
-        if (onDataProcessed) {
-          onDataProcessed(response.data.data);
-        }
       } else {
         throw new Error(response.data.message || 'Failed to parse transcript');
       }
@@ -173,9 +181,57 @@ const UploadTranscriptPage: React.FC<UploadTranscriptProps> = ({ onDataProcessed
 
   // Handle success modal close and navigation
   const handleContinue = () => {
-    setUploadState('idle');
-    setParsedData(null);
-    navigate('/timeline_initial');
+    if (parsedData?.terms.length || parsedData?.transferCredits.length) {
+      // Transform new parsed data to match the old format (matching matchCoursesToTerms output)
+      const transcriptData: TranscriptRecord[] = [];
+
+      // Handle transfer credits as exempted courses
+      if (parsedData.transferCredits.length > 0) {
+        // Get the earliest year from transfer credits or use a default
+        const exemptYear = parsedData.terms[0].year;
+        transcriptData.push({
+          term: `Exempted ${exemptYear}`,
+          courses: parsedData.transferCredits.map((tc) => tc.courseCode),
+          grade: 'EX',
+        });
+      }
+
+      for (const term of parsedData.terms) {
+        const termName = `${term.term} ${term.year}`;
+
+        for (const course of term.courses) {
+          transcriptData.push({
+            term: termName,
+            course: course.courseCode,
+            grade: course.grade,
+          });
+        }
+      }
+
+      // Extract degree ID from program history
+      let degreeName = `${parsedData.programHistory[parsedData.programHistory.length - 1]?.degreeType}, ${parsedData.programHistory[parsedData.programHistory.length - 1]?.major}`;
+      const coop = degreeName.indexOf(" (Co-op)");
+      degreeName = coop == -1 ? degreeName : degreeName.slice(0, coop);
+      const degreeId = (degreeMap as Record<string, string>)[degreeName] || 'UNKN';
+
+      // Call the callback with the data in the expected format
+      if (onDataProcessed) {
+        onDataProcessed({
+          transcriptData,
+          degreeId,
+          isExtendedCredit: false,
+        });
+      }
+
+      // Navigate to timeline_change with the required state
+      navigate('/timeline_change', {
+        state: { coOp: null, extendedCreditCourses: false },
+      });
+    } else {
+      // If no courses found, just close the modal
+      setUploadState('idle');
+      setParsedData(null);
+    }
   };
 
   const handleCloseModal = () => {
