@@ -98,3 +98,5 @@ with open(output_path+"/course_pool.json", 'w', encoding='utf-8') as json_file:
     json.dump(course_pool, json_file, indent=4, ensure_ascii=False)
 with open(output_path+"/degree.json", 'w', encoding='utf-8') as json_file:
     json.dump(degree, json_file, indent=4, ensure_ascii=False)
+
+print(f"Scraped data has been saved to {output_path}")
