@@ -1,185 +1,230 @@
 // tests/controller/deficiencyController_mongo.test.js
 
-// Increase timeout for mongodb-memory-server or slow CI environments (optional)
 jest.setTimeout(20000);
 
-// Auto-mock the compiled model modules (we will override methods below)
-jest.mock('../../dist/models/deficiencyModel');
-jest.mock('../../dist/models/appUserModel');
-jest.mock('../../dist/models/coursePoolModel');
+const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 
-// Mock Sentry to avoid noisy logs
-jest.mock('@sentry/node', () => ({
-  captureException: jest.fn(),
-}));
+// Require compiled controller and models from dist (support default and named exports)
+const deficiencyControllerModule = require('../../dist/controllers/deficiencyController/deficiencyController_mongo');
+const deficiencyController = deficiencyControllerModule && deficiencyControllerModule.default ? deficiencyControllerModule.default : deficiencyControllerModule;
 
-const { captureException } = require('@sentry/node');
+const UserModule = require('../../dist/models/User');
+const DegreeModule = require('../../dist/models/Degree');
 
-// Require the compiled controller and models from dist
-const deficiencyControllerMongo = require('../../dist/controllers/deficiencyController/deficiencyController_mongo').default;
-const DeficiencyModelModule = require('../../dist/models/deficiencyModel');
-const AppUserModelModule = require('../../dist/models/appUserModel');
-const CoursePoolModelModule = require('../../dist/models/coursePoolModel');
+const User = UserModule && UserModule.User ? UserModule.User : (UserModule.default ? UserModule.default : UserModule);
+const Degree = DegreeModule && DegreeModule.Degree ? DegreeModule.Degree : (DegreeModule.default ? DegreeModule.default : DegreeModule);
 
-// Support both module.exports = model and export default
-const DeficiencyModel = DeficiencyModelModule && DeficiencyModelModule.default ? DeficiencyModelModule.default : DeficiencyModelModule;
-const AppUserModel = AppUserModelModule && AppUserModelModule.default ? AppUserModelModule.default : AppUserModelModule;
-const CoursePoolModel = CoursePoolModelModule && CoursePoolModelModule.default ? CoursePoolModelModule.default : CoursePoolModelModule;
+describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () => {
+  let mongoServer;
+  let mongoUri;
 
-describe('deficiencyControllerMongo', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-    jest.resetAllMocks();
+  beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create();
+    mongoUri = mongoServer.getUri();
+    await mongoose.connect(mongoUri, {
+      // options to silence deprecation warnings
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
   });
 
-  // Reusable mock objects
-  const mockUser = {
-    id: 'user-1',
-    email: 'user@example.com',
-    fullname: 'Test User',
-  };
+  afterAll(async () => {
+    await mongoose.disconnect();
+    await mongoServer.stop();
+  });
 
-  const mockCoursePool = {
-    id: 'pool-1',
-    name: 'Core Courses',
-    creditsRequired: 60,
-    courses: ['CS101', 'CS102'],
-  };
+  beforeEach(async () => {
+    // Clean DB collections used
+    await User.deleteMany({});
+    await Degree.deleteMany({});
+  });
 
-  const mockDeficiency = {
-    id: 'def-1',
-    coursepool: 'pool-1',
-    user_id: 'user-1',
-    creditsRequired: 12,
-    toObject: () => ({ id: 'def-1', coursepool: 'pool-1', user_id: 'user-1', creditsRequired: 12 }),
-  };
-
-  // == CREATE DEFICIENCY =====================================================
   describe('createDeficiency', () => {
-    it('should create and return a deficiency if none exists', async () => {
-      // No existing deficiency
-      DeficiencyModel.findOne = jest.fn().mockResolvedValue(null);
-      // Course pool exists
-      CoursePoolModel.findOne = jest.fn().mockResolvedValue(mockCoursePool);
-      // App user exists
-      AppUserModel.findOne = jest.fn().mockResolvedValue(mockUser);
-
-      // Mock constructor behavior: new DeficiencyModel().save() and toObject()
-      const saveMock = jest.fn().mockResolvedValue(mockDeficiency);
-      if (DeficiencyModel.mock && DeficiencyModel.mockImplementation) {
-        DeficiencyModel.mockImplementation(() => ({
-          save: saveMock,
-          toObject: mockDeficiency.toObject,
-        }));
-      } else {
-        DeficiencyModel.mockImplementation = jest.fn().mockImplementation(() => ({
-          save: saveMock,
-          toObject: mockDeficiency.toObject,
-        }));
-      }
-
-      const result = await deficiencyControllerMongo.createDeficiency('pool-1', 'user-1', 12);
-
-      expect(DeficiencyModel.findOne).toHaveBeenCalledWith({ coursepool: 'pool-1', user_id: 'user-1' });
-      expect(CoursePoolModel.findOne).toHaveBeenCalledWith({ id: 'pool-1' });
-      expect(AppUserModel.findOne).toHaveBeenCalledWith({ id: 'user-1' });
-      expect(saveMock).toHaveBeenCalled();
-      expect(result).toEqual({
-        id: 'def-1',
-        coursepool: 'pool-1',
-        user_id: 'user-1',
-        creditsRequired: 12,
+    it('creates and returns a deficiency when user and coursepool exist', async () => {
+      // Create a degree with the course pool
+      const degree = new Degree({
+        id: 'deg-1',
+        name: 'CS',
+        totalCredits: 120,
+        isAddon: false,
+        coursePools: [
+          { id: 'pool-1', name: 'Core', creditsRequired: 60, courses: ['CS101', 'CS102'] }
+        ]
       });
+      await degree.save();
+
+      // Create a user without deficiencies
+      const user = new User({
+        id: 'user-1',
+        email: 'user@example.com',
+        password: 'pw',
+        fullname: 'Test User',
+        type: 'student',
+        degree: 'deg-1',
+        deficiencies: [],
+        exemptions: []
+      });
+      await user.save();
+
+      const result = await deficiencyController.createDeficiency('pool-1', 'user-1', 12);
+
+      expect(result).toHaveProperty('id');
+      expect(result.coursepool).toBe('pool-1');
+      expect(result.user_id).toBe('user-1');
+      expect(result.creditsRequired).toBe(12);
+
+      const updatedUser = await User.findOne({ id: 'user-1' }).lean();
+      expect(Array.isArray(updatedUser.deficiencies)).toBe(true);
+      expect(updatedUser.deficiencies).toHaveLength(1);
+      expect(updatedUser.deficiencies[0].coursepool).toBe('pool-1');
     });
 
-    it('should throw if deficiency already exists', async () => {
-      DeficiencyModel.findOne = jest.fn().mockResolvedValue(mockDeficiency);
-      CoursePoolModel.findOne = jest.fn().mockResolvedValue(mockCoursePool);
-      AppUserModel.findOne = jest.fn().mockResolvedValue(mockUser);
+    it('throws if deficiency already exists for user and coursepool', async () => {
+      // Seed degree and user with an existing deficiency
+      const degree = new Degree({
+        id: 'deg-1',
+        name: 'CS',
+        totalCredits: 120,
+        isAddon: false,
+        coursePools: [{ id: 'pool-1', name: 'Core', creditsRequired: 60, courses: [] }]
+      });
+      await degree.save();
 
-      await expect(
-        deficiencyControllerMongo.createDeficiency('pool-1', 'user-1', 12)
-      ).rejects.toThrow('Deficiency with this coursepool and user_id already exists. Please use the update endpoint');
+      const user = new User({
+        id: 'user-1',
+        email: 'user@example.com',
+        password: 'pw',
+        fullname: 'Test User',
+        type: 'student',
+        degree: 'deg-1',
+        deficiencies: [{ id: 'def-1', coursepool: 'pool-1', user_id: 'user-1', creditsRequired: 12 }],
+        exemptions: []
+      });
+      await user.save();
 
-      expect(captureException).toHaveBeenCalled();
+      await expect(deficiencyController.createDeficiency('pool-1', 'user-1', 12))
+        .rejects.toThrow('Deficiency with this coursepool and user_id already exists. Please use the update endpoint');
     });
 
-    it('should throw if coursepool does not exist', async () => {
-      DeficiencyModel.findOne = jest.fn().mockResolvedValue(null);
-      CoursePoolModel.findOne = jest.fn().mockResolvedValue(null); // missing
-      AppUserModel.findOne = jest.fn().mockResolvedValue(mockUser);
+    it('throws when coursepool does not exist in any degree', async () => {
+      // Create user but no degree/coursepool
+      const user = new User({
+        id: 'user-1',
+        email: 'user@example.com',
+        password: 'pw',
+        fullname: 'Test User',
+        type: 'student',
+        degree: null,
+        deficiencies: [],
+        exemptions: []
+      });
+      await user.save();
 
-      await expect(
-        deficiencyControllerMongo.createDeficiency('missing-pool', 'user-1', 12)
-      ).rejects.toThrow('CoursePool does not exist.');
-
-      expect(captureException).toHaveBeenCalled();
+      await expect(deficiencyController.createDeficiency('missing-pool', 'user-1', 12))
+        .rejects.toThrow('CoursePool does not exist.');
     });
 
-    it('should throw if app user does not exist', async () => {
-      DeficiencyModel.findOne = jest.fn().mockResolvedValue(null);
-      CoursePoolModel.findOne = jest.fn().mockResolvedValue(mockCoursePool);
-      AppUserModel.findOne = jest.fn().mockResolvedValue(null); // missing user
+    it('throws when user does not exist', async () => {
+      // Create degree with pool but no user
+      const degree = new Degree({
+        id: 'deg-1',
+        name: 'CS',
+        totalCredits: 120,
+        isAddon: false,
+        coursePools: [{ id: 'pool-1', name: 'Core', creditsRequired: 60, courses: [] }]
+      });
+      await degree.save();
 
-      await expect(
-        deficiencyControllerMongo.createDeficiency('pool-1', 'missing-user', 12)
-      ).rejects.toThrow('AppUser does not exist.');
-
-      expect(captureException).toHaveBeenCalled();
+      await expect(deficiencyController.createDeficiency('pool-1', 'missing-user', 12))
+        .rejects.toThrow('AppUser does not exist.');
     });
   });
 
-  // == GET ALL DEFICIENCIES BY USER ==========================================
   describe('getAllDeficienciesByUser', () => {
-    it('should return deficiencies array when found', async () => {
-      AppUserModel.findOne = jest.fn().mockResolvedValue(mockUser);
-      const defs = [
-        { id: 'd1', coursepool: 'pool-1', user_id: 'user-1', creditsRequired: 12 },
-        { id: 'd2', coursepool: 'pool-2', user_id: 'user-1', creditsRequired: 6 },
-      ];
-      DeficiencyModel.find = jest.fn().mockReturnValue({
-        lean: jest.fn().mockResolvedValue(defs),
+    it('returns deficiencies array when found', async () => {
+      // Seed user with deficiencies
+      const user = new User({
+        id: 'user-1',
+        email: 'user@example.com',
+        password: 'pw',
+        fullname: 'Test User',
+        type: 'student',
+        degree: null,
+        deficiencies: [
+          { id: 'd1', coursepool: 'pool-1', user_id: 'user-1', creditsRequired: 12 },
+          { id: 'd2', coursepool: 'pool-2', user_id: 'user-1', creditsRequired: 6 }
+        ],
+        exemptions: []
       });
+      await user.save();
 
-      const result = await deficiencyControllerMongo.getAllDeficienciesByUser('user-1');
-      expect(AppUserModel.findOne).toHaveBeenCalledWith({ id: 'user-1' });
-      expect(DeficiencyModel.find).toHaveBeenCalledWith({ user_id: 'user-1' });
-      expect(result).toEqual(defs);
+      const result = await deficiencyController.getAllDeficienciesByUser('user-1');
+      expect(Array.isArray(result)).toBe(true);
+      expect(result).toHaveLength(2);
+      expect(result.find(d => d.id === 'd1')).toBeTruthy();
     });
 
-    it('should return undefined when no deficiencies found', async () => {
-      AppUserModel.findOne = jest.fn().mockResolvedValue(mockUser);
-      DeficiencyModel.find = jest.fn().mockReturnValue({
-        lean: jest.fn().mockResolvedValue([]),
+    it('returns undefined when no deficiencies exist', async () => {
+      const user = new User({
+        id: 'user-2',
+        email: 'user2@example.com',
+        password: 'pw',
+        fullname: 'No Def User',
+        type: 'student',
+        degree: null,
+        deficiencies: [],
+        exemptions: []
       });
+      await user.save();
 
-      const result = await deficiencyControllerMongo.getAllDeficienciesByUser('user-1');
+      const result = await deficiencyController.getAllDeficienciesByUser('user-2');
       expect(result).toBeUndefined();
     });
 
-    it('should throw if user does not exist', async () => {
-      AppUserModel.findOne = jest.fn().mockResolvedValue(null); // missing user
-
-      await expect(deficiencyControllerMongo.getAllDeficienciesByUser('missing-user')).rejects.toThrow('AppUser does not exist.');
-      expect(captureException).toHaveBeenCalled();
+    it('throws when user does not exist', async () => {
+      await expect(deficiencyController.getAllDeficienciesByUser('missing-user'))
+        .rejects.toThrow('AppUser does not exist.');
     });
   });
 
-  // == DELETE DEFICIENCY ====================================================
   describe('deleteDeficiencyByCoursepoolAndUserId', () => {
-    it('should delete and return success message when found', async () => {
-      DeficiencyModel.findOneAndDelete = jest.fn().mockResolvedValue(mockDeficiency);
+    it('deletes an existing deficiency and returns success message', async () => {
+      const user = new User({
+        id: 'user-1',
+        email: 'user@example.com',
+        password: 'pw',
+        fullname: 'Test User',
+        type: 'student',
+        degree: null,
+        deficiencies: [{ id: 'd1', coursepool: 'pool-1', user_id: 'user-1', creditsRequired: 12 }],
+        exemptions: []
+      });
+      await user.save();
 
-      const result = await deficiencyControllerMongo.deleteDeficiencyByCoursepoolAndUserId('pool-1', 'user-1');
-      expect(DeficiencyModel.findOneAndDelete).toHaveBeenCalledWith({ coursepool: 'pool-1', user_id: 'user-1' });
+      const result = await deficiencyController.deleteDeficiencyByCoursepoolAndUserId('pool-1', 'user-1');
       expect(result).toBe('Deficiency with appUser user-1 and coursepool pool-1 has been successfully deleted.');
+
+      const updatedUser = await User.findOne({ id: 'user-1' }).lean();
+      expect(Array.isArray(updatedUser.deficiencies)).toBe(true);
+      expect(updatedUser.deficiencies).toHaveLength(0);
     });
 
-    it('should throw if deficiency not found', async () => {
-      DeficiencyModel.findOneAndDelete = jest.fn().mockResolvedValue(null);
+    it('throws when deficiency to delete does not exist', async () => {
+      const user = new User({
+        id: 'user-1',
+        email: 'user@example.com',
+        password: 'pw',
+        fullname: 'Test User',
+        type: 'student',
+        degree: null,
+        deficiencies: [],
+        exemptions: []
+      });
+      await user.save();
 
-      await expect(deficiencyControllerMongo.deleteDeficiencyByCoursepoolAndUserId('pool-1', 'user-1')).rejects.toThrow('Deficiency with this id does not exist.');
-      expect(captureException).toHaveBeenCalled();
+      await expect(deficiencyController.deleteDeficiencyByCoursepoolAndUserId('pool-1', 'user-1'))
+        .rejects.toThrow('Deficiency with this id does not exist.');
     });
   });
 });
