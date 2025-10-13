@@ -165,8 +165,8 @@ function extractTermFromText({ text, startLabel, endLabel, targetField, details 
 //Helper function to extract courses between two labels (text markers in the document that indicate the start and end of a section)
 function extractCoursesFromText({ text, startLabel, endLabel, courseType, results, targetField, details }) {
   // Regex for matching courses (e.g., COMM A, ECON 201)
-  const courseRegex = /(\s+[A-Z]{3,4})\s+((\d{3})|[A-Z]{1,2})\s+/g;
-  const creditRegex = /(\d+)\s+crs/; // Regex for matching credits (e.g., "3 crs")
+  const courseRegex = /[A-Z]{3,4}\s+\d{3}/g;
+  const creditRegex = /\b\d{1,5}\s{1,3}crs\b/; // Regex for matching credits (e.g., "3 crs")
   const sectionText = getSectionBetweenLabels(text, startLabel, endLabel);
   const courses = [];
   let match;
