@@ -12,7 +12,7 @@ jest.mock('react-router-dom', () => ({
 describe('LandingPage', () => {
   test('displays disclamer title for page correctly', () => {
     render(<LandingPage />);
-
+    
     expect(screen.getByText('DISCLAIMER')).toBeInTheDocument();
   });
 });

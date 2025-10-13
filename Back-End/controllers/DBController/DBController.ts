@@ -17,6 +17,7 @@ import fs from 'fs';
 
 dotenv.config(); // load environment variables from .env file
 
+
 let sqlPassword = process.env.SQL_SERVER_PASSWORD; // default to env var for backward compatibility
 // if docker secret file is provided, read the password from there
 if (process.env.SQL_SERVER_PASSWORD_FILE) {

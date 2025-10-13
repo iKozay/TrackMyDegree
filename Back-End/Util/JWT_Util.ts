@@ -1,12 +1,7 @@
 import { CookieOptions } from 'express';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import Auth from '@controllers/authController/auth_types';
-import {
-  createSessionToken,
-  refreshSession,
-  SessionToken,
-  UserHeaders,
-} from './Session_Util';
+import { createSessionToken, refreshSession, SessionToken, UserHeaders } from './Session_Util';
 
 // * Typedef
 export type JWTPayload = {
@@ -34,7 +29,7 @@ export type JWTCookieModel = {
  */
 function getSecretKey(): string {
   //? Generate the Private key from the JWT secret
-  return process.env.JWT_SECRET || '';
+  return process.env.JWT_SECRET;
 }
 
 /**
@@ -49,7 +44,7 @@ function getJWTPayload(
   user_type: Auth.UserType,
 ): JWTPayload {
   const payload: JWTPayload = {
-    orgId: process.env.JWT_ORG_ID || '',
+    orgId: process.env.JWT_ORG_ID,
     userId: user_id || 'defaultID',
     type: user_type,
   };
@@ -59,14 +54,14 @@ function getJWTPayload(
 
 /**
  ** Function returns the cookie options to set on the JWT cookie
- * @returns
+ * @returns 
  * - `CookieOptions` for the JWT cookie
  */
 export function getCookieOptions(): CookieOptions {
   const security = process.env.NODE_ENV === 'production';
   const domain_name = security ? undefined : 'localhost';
 
-  return {
+  return  {
     httpOnly: true,
     secure: security,
     sameSite: 'lax',
@@ -91,14 +86,12 @@ function generateToken(
   const secret: string = getSecretKey();
 
   const options: SignOptions = {
-    expiresIn: (process.env.JWT_EXPIRY || '1h') as any,
+    expiresIn: process.env.JWT_EXPIRY || '1h',
   };
 
   const session_payload = {
     ...payload,
-    session_token: !token
-      ? createSessionToken(user)
-      : refreshSession(token, user),
+    session_token: (!token) ? createSessionToken(user) : refreshSession(token, user),
   };
 
   return jwt.sign(session_payload, secret, options);

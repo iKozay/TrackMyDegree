@@ -136,16 +136,16 @@ describe('LogInPage', () => {
   });
 
   // check sign up link
-  test("renders don't have an account text for page correctly", async () => {
+  test('renders don\'t have an account text for page correctly', async () => {
     renderComponent();
 
-    expect(screen.getByText("Don't have an account? Register here!")).toBeInTheDocument();
+    expect(screen.getByText('Don\'t have an account? Register here!')).toBeInTheDocument();
   });
 
   test('calls navigate to register on link click', async () => {
     renderComponent();
 
-    await fireEvent.click(screen.getByText("Don't have an account? Register here!"));
+    await fireEvent.click(screen.getByText('Don\'t have an account? Register here!'));
     expect(mockNavigate).toHaveBeenCalledWith('/signup');
   });
 

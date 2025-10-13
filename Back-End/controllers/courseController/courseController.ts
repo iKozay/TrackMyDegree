@@ -99,7 +99,7 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
           };
         }
 
-        // Only pushes requisites when both code1 and code2 exist.
+        // Only pushes requisites when both code1 and code2 exist. 
         // If there is a requisite with only one side populated it will be skipped.
 
         if (course.requisite_code1 && course.requisite_code2) {
@@ -157,6 +157,7 @@ async function getCourseByCode(
           'SELECT code, title, credits, description, offeredIn FROM Course WHERE code = @code',
         );
 
+
       const course = courseResult.recordset[0];
       if (!course) {
         return undefined;
@@ -185,6 +186,7 @@ async function getCourseByCode(
           description: row.requisiteDescription,
         })),
       };
+
     } catch (error) {
       Sentry.captureException(new Error('Error fetching course by code'));
       console.error('Error fetching course by code\n', error);

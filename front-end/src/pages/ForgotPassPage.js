@@ -20,7 +20,7 @@ function ForgotPassPage() {
 
     // Reset error state
     setError(null);
-    await new Promise((resolve) => setTimeout(resolve, 10)); //This timeout is most likely to allow React to refresh
+    await new Promise((resolve) => setTimeout(resolve, 10));//This timeout is most likely to allow React to refresh
 
     // Basic validation checks
     if (email.trim() === '') {
@@ -38,15 +38,18 @@ function ForgotPassPage() {
     setLoading(true); // Start loading
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/forgot-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER}/auth/forgot-password`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+          }),
         },
-        body: JSON.stringify({
-          email,
-        }),
-      });
+      );
 
       if (!response.ok) {
         // Extract error message from response
@@ -66,7 +69,12 @@ function ForgotPassPage() {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.7 }}
+    >
       <>
         {/* Same styling as LogInPage.css */}
         <div className="LogInPage">
@@ -88,7 +96,12 @@ function ForgotPassPage() {
 
               {/* Submit Button */}
               <div className="d-grid gap-2">
-                <Button className="button-outline" variant="primary" type="submit" disabled={loading}>
+                <Button
+                  className="button-outline"
+                  variant="primary"
+                  type="submit"
+                  disabled={loading}
+                >
                   {loading ? 'Sending email...' : 'Submit'}
                 </Button>
               </div>

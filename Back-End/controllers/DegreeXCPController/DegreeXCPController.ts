@@ -46,8 +46,7 @@ async function createDegreeXCP(
               (@id, @degree, @coursepool, @creditsRequired)',
         );
 
-      if (undefined === result.recordset) {
-        // if insert didn't return expected insert id
+      if (undefined === result.recordset) { // if insert didn't return expected insert id
         log('Error inserting degreeXcoursepool record: ' + result.recordset);
         Sentry.captureMessage(
           'Error inserting degreeXcoursepool record: ' + result.recordset,

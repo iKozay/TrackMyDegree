@@ -1,10 +1,11 @@
+
 /* DB Operations responses */
 
 enum DB_OPS {
   SUCCESS,
   MOSTLY_OK,
-  FAILURE,
-}
+  FAILURE
+};
 
 //Default export
 export default DB_OPS;

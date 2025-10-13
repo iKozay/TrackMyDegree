@@ -32,7 +32,7 @@ async function createDeficiency(
 
   if (conn) {
     try {
-      // Step 1: Check if this deficiency already exists (same coursepool + user).
+      // Step 1: Check if this deficiency already exists (same coursepool + user). 
       // If yes, we don't create a duplicate → the user should update instead.
       const existingDeficiency = await conn
         .request()
@@ -47,7 +47,7 @@ async function createDeficiency(
           'Deficiency with this coursepool and user_id already exists. Please use the update endpoint',
         );
       }
-
+ 
       // Step 2: Make sure the course pool actually exists.
       const existingCoursePool = await conn
         .request()
@@ -97,7 +97,7 @@ async function createDeficiency(
 /**
  * Retrieves all deficiencies for a specific user.
  * This allows us to see which course pools still require credits.
- *
+ * 
  * @param {string} user_id - The ID of the user.
  * @returns {Promise<DeficiencyTypes.Deficiency[] | undefined>} - List of deficiencies or undefined if not found.
  */
@@ -123,7 +123,7 @@ async function getAllDeficienciesByUser(
         .request()
         .input('user_id', Database.msSQL.VarChar, user_id)
         .query('SELECT * FROM Deficiency WHERE user_id = @user_id');
-
+      
       // Return the list if found, otherwise undefined.
       return allDeficiencies.recordset.length > 0
         ? allDeficiencies.recordset
@@ -139,7 +139,7 @@ async function getAllDeficienciesByUser(
 /**
  * Deletes a deficiency based on course pool and user ID.
  * Useful if the deficiency is resolved or was created by mistake.
- *
+ * 
  * @param {string} coursepool - The ID of the course pool.
  * @param {string} user_id - The ID of the user.
  * @returns {Promise<string | undefined>} - Success message or undefined if deletion fails.

@@ -1,8 +1,10 @@
+
 declare namespace appUserTypes {
+
   enum UserType {
-    STUDENT = 'student',
-    ADVISOR = 'advisor',
-    ADMIN = 'admin',
+    STUDENT = "student",
+    ADVISOR = "advisor",
+    ADMIN = "admin"
   }
 
   type AppUser = {

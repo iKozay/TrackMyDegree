@@ -1,9 +1,9 @@
 const payload_create = {
-  name: 'Basic & Natural Sciences',
+  name: 'Basic & Natural Sciences'
 };
 
 const payload_create_empty = {
-  name: '',
+  name: ''
 };
 
 const payload_get = {
@@ -20,12 +20,12 @@ const payload_delete = {
 };
 
 const response_getall = {
-  course_pools: [{ id: 'ppol id', name: 'pool name' }],
+  course_pools: [{id: 'ppol id', name: 'pool name'}]
 };
 
 const response_get = {
   id: 'pool id',
-  name: 'pool name',
+  name: 'pool name'
 };
 
 const coursepool_mocks = {
@@ -35,7 +35,7 @@ const coursepool_mocks = {
   payload_update,
   payload_delete,
   response_getall,
-  response_get,
+  response_get
 };
 
 module.exports = coursepool_mocks;

@@ -4,11 +4,7 @@ import express from 'express';
 import {
   seedSoenDegree,
   getTables,
-  getTableRecords,
-  listBackups,
-  restoreBackup,
-  createBackup,
-  deleteBackup,
+  getTableRecords, listBackups, restoreBackup, createBackup, deleteBackup,
 } from '@controllers/adminController/adminController'; // Import controller methods
 import { AdminCheck } from '@middleware/JWTAccessMiddleware';
 import { verifyAuth } from '@middleware/authMiddleware';

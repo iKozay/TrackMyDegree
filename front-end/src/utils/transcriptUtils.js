@@ -161,6 +161,7 @@ function extractTermSeparators(text) {
  * @returns
  */
 function extractAllCourses(text) {
+  
   const courses = [];
   let match;
 
@@ -172,7 +173,7 @@ function extractAllCourses(text) {
       grade: match[5],
       position: match.index,
       type: 'Course',
-      status: match[6],
+      status: match[6]
     });
   }
 
@@ -185,14 +186,13 @@ function extractAllCourses(text) {
       position: match.index,
       type: 'Exempted',
       term: 'exempted 2020', // all exempted courses are grouped under this term by default
-      status: match[6],
+      status: match[6]
     });
   }
 
   // console.log('COURSES INFO: ', courses.sort((a, b) => a.position - b.position)); //! DEBUG**************************************
-  const passedCourses = courses.filter(
-    (course) => course.status !== 'FNS' && course.status !== 'DISC' && course.status !== 'NR',
-  ); // Save only passed and exempted courses (filter out FNS, DISC, NR)
+  const passedCourses = courses.filter((course) => course.status !== "FNS" && course.status !== "DISC" && course.status !== "NR"); // Save only passed and exempted courses (filter out FNS, DISC, NR)
+
 
   return passedCourses.sort((a, b) => a.position - b.position); // returns courses in the order they were found in the transcript
 }
@@ -202,7 +202,7 @@ function extractAllCourses(text) {
  * @param {*} pagesData
  * @returns an object containing terms, courses, separators, degree name, degree ID, and extended credit program (ecp) status
  */
-function extractTranscriptComponents(pagesData) {
+ function extractTranscriptComponents(pagesData) {
   let fullText = pagesData.map((p) => `[PAGE] ${p.text}`).join('\n');
   let pages = cleanText(fullText); // create an array of pages with only relevant text
   let numPages = pages.length;
@@ -218,7 +218,7 @@ function extractTranscriptComponents(pagesData) {
   const terms = extractAcademicTerms(fullText); // extract all terms from transcript text
   const separators = extractTermSeparators(fullText); // find all positions of term separators
   const courses = extractAllCourses(fullText); // extract all courses (regular and exempted)
-
+  
   // Check if text contains "OFFER OF ADMISSION"
   if (regex.isTranscript(fullText)) {
     transcript = true;
@@ -244,46 +244,46 @@ function extractTranscriptComponents(pagesData) {
 }
 
 /*
- ** Transform the raw transcript data into the desired format
- * @param {{ term: string; course: string; grade: string; }[]} transcriptData
- * @returns {{ term: string; courses: string[]; grade: string; }[]} - Array of objects with term, courses, and total grade (as string)
- * Groups courses by term and sums their grades
- * Sorts the result by term in chronological order
- */
+    ** Transform the raw transcript data into the desired format
+    * @param {{ term: string; course: string; grade: string; }[]} transcriptData
+    * @returns {{ term: string; courses: string[]; grade: string; }[]} - Array of objects with term, courses, and total grade (as string)
+    * Groups courses by term and sums their grades
+    * Sorts the result by term in chronological order
+*/
 function transformGradesData(transcriptData) {
   //? First, group courses by term
   const termsMap = transcriptData.reduce((acc, entry) => {
-    if (!acc[entry.term]) {
-      acc[entry.term] = {
-        courses: [],
-        grades: [],
-      };
-    }
-    acc[entry.term].courses.push(entry.course);
-    acc[entry.term].grades.push(parseFloat(entry.grade));
-    return acc;
+      if (!acc[entry.term]) {
+          acc[entry.term] = {
+              courses: [],
+              grades: []
+          };
+      }
+      acc[entry.term].courses.push(entry.course);
+      acc[entry.term].grades.push(parseFloat(entry.grade));
+      return acc;
   }, {});
 
-  const result = Object.keys(termsMap).map((term) => {
-    const termData = termsMap[term]; // array of courses and credits for the term
-    const totalCredits = termData.grades.reduce((sum, grade) => sum + grade, 0); // this is in fact total credits using the field named grade from the regex match which contains the credits for the regular course
-
-    return {
-      term,
-      courses: termData.courses,
-      grade: totalCredits.toString(),
-    };
+  const result = Object.keys(termsMap).map(term => {
+      const termData = termsMap[term]; // array of courses and credits for the term
+      const totalCredits = termData.grades.reduce((sum, grade) => sum + grade, 0);  // this is in fact total credits using the field named grade from the regex match which contains the credits for the regular course
+      
+      return {
+          term,
+          courses: termData.courses,
+          grade: totalCredits.toString()
+      };
   });
 
   //? Sort by term (chronological order)
   result.sort((a, b) => {
-    const [aSeason, aYear] = a.term.split(' ');
-    const [bSeason, bYear] = b.term.split(' ');
-
-    if (aYear !== bYear) return aYear - bYear;
-
-    const seasonOrder = { Summer: 1, Fall: 2, Winter: 3 };
-    return seasonOrder[aSeason] - seasonOrder[bSeason];
+      const [aSeason, aYear] = a.term.split(' ');
+      const [bSeason, bYear] = b.term.split(' ');
+      
+      if (aYear !== bYear) return aYear - bYear;
+      
+      const seasonOrder = { 'Summer': 1, 'Fall': 2, 'Winter': 3 };
+      return seasonOrder[aSeason] - seasonOrder[bSeason];
   });
 
   return result;
@@ -302,21 +302,21 @@ function matchCoursesToTerms(terms, courses, separators) {
   const exemptions = [];
   let currentTermIndex = 0;
   let currentTerm = terms[currentTermIndex]?.name || 'Unknown Term';
-
+  
   // Group exempted courses separately
   const exemptedCourses = courses.filter((c) => c.type === 'Exempted');
   if (exemptedCourses.length > 0) {
     exemptions.push({
       term: 'Exempted 2020',
-      courses: exemptedCourses.map((c) => c.code),
-      grade: 'A',
+      courses: exemptedCourses.map((c) => (c.code)),
+      grade: "A",
     });
   }
-
+  
   // Match regular courses to terms
   const regularCourses = courses.filter((c) => c.type === 'Course');
   const termBoundaries = separators; //terms.map((t) => t.position);
-
+  
   let records = [];
   for (const course of regularCourses) {
     // Advance to the current term if course is after next term boundary
@@ -327,23 +327,22 @@ function matchCoursesToTerms(terms, courses, separators) {
       currentTermIndex++;
       currentTerm = terms[currentTermIndex]?.name;
     }
-
+    
     records.push({
       term: currentTerm,
       course: course.code,
       grade: course.grade,
     });
   }
-
+  
   records = transformGradesData(records);
-
+  
   const results = [...exemptions, ...records];
-
+  
   return results;
 }
 
 export {
-  degreeMap,
   cleanText,
   extractDegreeInfo,
   extractAcademicTerms,

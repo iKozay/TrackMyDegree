@@ -10,7 +10,7 @@ import { ResetPassError } from '../middleware/SentryErrors';
 //This is the page where the users can reset their password. This is just a form because the reset happens on the server side
 function ResetPassPage() {
   const [otp, setOTP] = useState(''); //This is the one-time password sent to the user via email
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState(''); 
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
@@ -25,7 +25,11 @@ function ResetPassPage() {
     await new Promise((resolve) => setTimeout(resolve, 10));
 
     // Basic validation checks
-    if (otp.trim() === '' || password.trim() === '' || confirmPassword.trim() === '') {
+    if (
+      otp.trim() === '' ||
+      password.trim() === '' ||
+      confirmPassword.trim() === ''
+    ) {
       setError('All fields are required.');
       return;
     }
@@ -45,22 +49,27 @@ function ResetPassPage() {
 
     //The password reset process is done in the backend so the data from the form is being sent there
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER}/auth/reset-password`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            otp,
+            password,
+            confirmPassword,
+          }),
         },
-        body: JSON.stringify({
-          otp,
-          password,
-          confirmPassword,
-        }),
-      });
+      );
 
       if (!response.ok) {
         // Extract error message from response
         const errorData = await response.json();
-        throw new ResetPassError(errorData.message || 'Error resetting password!');
+        throw new ResetPassError(
+          errorData.message || 'Error resetting password!',
+        );
       }
 
       const data = await response.json();
@@ -75,7 +84,12 @@ function ResetPassPage() {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.7 }}
+    >
       <>
         {/* Same styling as LogInPage.css */}
         <div className="LogInPage">
@@ -139,7 +153,12 @@ function ResetPassPage() {
 
                 {/* Submit Button */}
                 <div className="d-grid gap-2">
-                  <Button className="button-outline" variant="primary" type="submit" disabled={loading}>
+                  <Button
+                    className="button-outline"
+                    variant="primary"
+                    type="submit"
+                    disabled={loading}
+                  >
                     {loading ? 'Resetting Password...' : 'Submit'}
                   </Button>
                 </div>

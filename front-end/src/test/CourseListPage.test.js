@@ -26,7 +26,9 @@ describe('CourseListPage', () => {
     const dropdown = await screen.findByText('BCompSc Computer Engineering');
     userEvent.click(dropdown);
     await waitFor(() => {
-      expect(screen.getAllByText('BCompSc Computer Engineering')[0]).toBeInTheDocument();
+      expect(
+        screen.getAllByText('BCompSc Computer Engineering')[0],
+      ).toBeInTheDocument();
     });
   });
 

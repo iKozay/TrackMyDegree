@@ -15,7 +15,10 @@ export type UserHeaders = {
 
 function getEncryptionKey() {
   const secret = process.env.JWT_SECRET || 'default-secret';
-  return crypto.createHash('sha256').update(secret).digest();
+  return crypto
+    .createHash('sha256')
+    .update(secret)
+    .digest();
 }
 
 /**
@@ -49,7 +52,7 @@ function decryptToken(token: SessionToken): string {
 }
 
 /**
- ** This function is responsible for the verification of session tokens,
+ ** This function is responsible for the verification of session tokens, 
  ** based on the information encrypted in the token and the user's request headers
  * @param session The headers contained in the session token
  * @param user The user's request headers (User-agent and IP address)

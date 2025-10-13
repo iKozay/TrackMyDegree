@@ -1,9 +1,7 @@
 {
   "env": {
     "browser": true,
-    "es2021": true,
-    "jest": true,
-    "node": true
+    "es2021": true
   },
   "extends": [
     "eslint:recommended",
@@ -31,25 +29,5 @@
     "react": {
       "version": "detect"
     }
-  },
-  "overrides": [
-    {
-      "files": ["**/*.test.js", "**/*.test.ts", "**/*.spec.js", "**/*.spec.ts"],
-      "env": {
-        "jest": true
-      },
-      "globals": {
-        "global": "readonly"
-      }
-    },
-    {
-      "files": ["tailwind.config.js", "craco.config.js", "**/__mocks__/**"],
-      "env": {
-        "node": true
-      },
-      "rules": {
-        "@typescript-eslint/no-var-requires": "off"
-      }
-    }
-  ]
+  }
 }
