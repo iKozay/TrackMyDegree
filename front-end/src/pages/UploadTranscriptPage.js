@@ -60,14 +60,11 @@ const UploadTranscript = ({ onDataProcessed }) => {
 
           for (const term of parsedData.terms) {
             const termName = `${term.term} ${term.year}`;
-
-            for (const course of term.courses) {
-              transcriptData.push({
-                term: termName,
-                course: course.courseCode.replace(/\s+/g, ''),
-                grade: course.grade,
-              });
-            }
+            transcriptData.push({
+              term: termName,
+              courses: term.courses.map((tc) => tc.courseCode.replace(/\s+/g, '')),
+              grade: term.termGPA,
+            });
           }
 
           // Extract degree ID from program history
