@@ -97,6 +97,17 @@ jobs:
         continue-on-error: true
         run: |
           npm test -- --coverage
+      
+      # Running tests for Python scraper
+      - name: Run scraper tests with coverage
+        working-directory: ./Back-End/course-data/Scraping
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          coverage run -m pytest
+          coverage xml -o coverage.xml
+          deactivate
 
       - name: Run SonarCloud Scan
         uses: sonarsource/sonarqube-scan-action@v6

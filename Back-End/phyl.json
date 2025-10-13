@@ -1,0 +1,776 @@
+[
+    {
+        "title": "PHIL 201 Problems of Philosophy",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "In this course, students are introduced to philosophical problems such as: What is the nature of reality? How does one know what is real, and how is it distinct from misleading appearances or illusion? What is knowledge? Does knowledge require certainty? How is knowledge distinct from belief? Are people free? That is to say, do they choose their actions or are their actions determined by causes beyond their control? If people are not free, then how can they be held responsible for their actions? Can God's existence be proven? How is the mind related to the body, if at all? What is it to be a morally good person?",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 210 Critical Thinking",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course is an introduction to argumentation and reasoning. It focuses on the kinds of arguments one is likely to encounter in academic work, in the media, and in philosophical, social, and political debate. The course aims to improve students' ability to advance arguments persuasively and their ability to respond critically to the arguments of others. Students will find the skills they gain in this course useful in virtually every area of study.",
+        "components": "Online",
+        "notes": null
+    },
+    {
+        "title": "PHIL 214 Deductive Logic",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course presents the modern symbolic systems of sentential and predicate logic. Students transcribe English sentences into a logical form, analyze the concepts of logical truth, consistency, and validity, as well as learn to construct derivations in each system.",
+        "components": "Lecture; Conference",
+        "notes": "This course may not be taken for credit by students who have taken PHIL 212."
+    },
+    {
+        "title": "PHIL 216 Introduction to the Philosophy of Language",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course provides an introduction to the main problems in the philosophy of language, concerned with the analysis of the concepts of meaning, reference, truth, necessity.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 220 Introduction to the Philosophy of Science",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course provides an introduction to the main problems in the philosophy of science. These include the structure of scientific theories, various models of scientific method and explanation, and the existence of unobservables.",
+        "components": "Lecture; Conference",
+        "notes": "Students who have received credit for INTE 250 or PHIL 228 may not take this course for credit."
+    },
+    {
+        "title": "PHIL 226 Introduction to Philosophy of Mind",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course examines philosophical problems about mind, and competing solutions. Topics may include: How does the mind relate to the brain or body? Could computers think? How can one know what other minds are thinking? What is the nature of conscious experience? Which animals are conscious? What determines what one's thoughts are about?",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 232 Introduction to Ethics",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Philosophical discussions of ethics have both practical significance (What should one do?) and theoretical interest (What does imean to say, “That's the right thing to do”?). In this course, students are introduced to some representative approaches to ethical thought and action. General questions about the nature of ethical reasoning are also considered. For example: Are there objective ethical truths or are ethical judgments merely relative to social norms? An effort is made to incorporate those ethical issues which are of specific importance to contemporary society.",
+        "components": "Lecture; Conference",
+        "notes": null
+    },
+    {
+        "title": "PHIL 233 Applied Ethics",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course focuses on ethical theory and its application to contemporary issues. The course covers central ethical theories such as virtue ethics (Aristotle), deontology (Kant), and utilitarianism (Mill). It applies these theories to contemporary moral issues such as humans' relation to the environment and nonhuman animals, abortion, consumerism, the use of recreational drugs, the rationing of health-care resources, and national and international distributive justice.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a PHIL 298 number may not take this course for credit."
+    },
+    {
+        "title": "PHIL 235 Biomedical Ethics",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course is primarily concerned with contemporary biomedical debates, many of which are of current social and political significance: euthanasia and physician-assisted suicide, patients' rights, animal experimentation, organ donation and transplantation, palliative care, abortion, genetic engineering, and new reproductive technologies.",
+        "components": "Online",
+        "notes": null
+    },
+    {
+        "title": "PHIL 236 Environmental Ethics",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course examines recent developments in ethical theories as they are applied to questions of environmental practices. Topics discussed may include the moral significance of nonhuman nature, duties to respond to climate change, economics and sustainable environmental protection, and environmental justice.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a PHIL 298 or PHIL 398 number may not take this course for credit."
+    },
+    {
+        "title": "PHIL 241 Philosophy of Human Rights",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course investigates basic philosophical questions regarding human rights, such as their status between morality and law, their scope and the problem of relativism, the concept of human dignity, their relation to democracy, whether national or cosmopolitan, and the debate over the justifiability and feasibility of socio-economic rights as human rights.",
+        "components": "Lecture; Conference",
+        "notes": "Students who have received credit for this topic under a PHIL 298 number may not take this course for credit."
+    },
+    {
+        "title": "PHIL 260 Presocratics and Plato",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course is a study of ancient Greek philosophy from its beginnings to Plato.",
+        "components": "Lecture; Conference",
+        "notes": null
+    },
+    {
+        "title": "PHIL 261 Aristotle and Hellenistic Philosophy",
+        "credits": 3,
+        "prerequisites": "PHIL 260.",
+        "corequisites": "",
+        "description": "This course is an introduction to Aristotle and the main lines of thought in Hellenistic philosophy, including Stoicism, Epicureanism and Scepticism.",
+        "components": "Lecture; Conference",
+        "notes": null
+    },
+    {
+        "title": "PHIL 263 Introduction to Epistemology",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "An introduction to the basic concepts and problems in epistemology, including belief, knowledge, scepticism, perception, and intentionality.",
+        "components": "Lecture; Conference",
+        "notes": null
+    },
+    {
+        "title": "PHIL 265 Introduction to Metaphysics",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course is an introduction to metaphysics and the attempt to understand a mind-independent reality. This involves distinguishing those aspects of reality that are dependent on the mind from those aspects that are independent of the mind. For example, are colours mind-independent properties? Are there universal values and if so, are they mind-independent? Is there a God, and if so, what must that God be like?",
+        "components": "Lecture; Conference",
+        "notes": null
+    },
+    {
+        "title": "PHIL 266 Introduction to Philosophy of Religion",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course examines the nature of religion and spirituality, and their role in human experience. It addresses topics such as the existence of sacred reality; whether belief in the divine can be rational; the self, rebirth, and reincarnation; evil and divine justice; and religious pluralism. These topics are explored through a wide range of theistic and non-theistic religious traditions, including Christianity, Judaism, Islam, Buddhism, Hinduism, Daoism, and Indigenous religions.",
+        "components": "Online",
+        "notes": null
+    },
+    {
+        "title": "PHIL 275 From Modern to Postmodern: Philosophical Thought and Cultural Critique",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course focuses on key developments in modern and postmodern philosophy and their cultural influences. The course provides an introduction to philosophers (such as Kant, Nietzsche, and Foucault) and philosophical movements (such as empiricism, existentialism, and post-structuralism) of the modern era. It also introduces students to the tremendous influence that philosophical theory has had on the arts, on social and political movements, and on virtually every field of study in the humanities and social sciences.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 280 Classical Chinese Philosophy",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course introduces the philosophical traditions of the ancient period of Chinese history of philosophy, namely the Pre-Qin period (before 202 BCE).",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 281 Philosophy in the Islamic World",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "An introduction to philosophy in classical and modern Islamic contexts. Authors may include al-Fārābī, ibn Sīnā, ibn Tufayl, al-Ghazālī, and ibn Rushd (classical); Muhammad Iqbal, Rokeya Sakhawat Hosein, Amina Wadud, Kecia Ali, and Abdol Karim Soroush (modern). Topics may include cosmology, the nature of God, causation, skepticism and certainty, authority and democracy, gender and sexuality, and environmental ethics.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 285 World Philosophy",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course explores philosophical traditions or problems from a diversity of cultures and historical periods from around the world.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 298 Introductory Topics in Philosophy",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+        "components": null,
+        "notes": null
+    },
+    {
+        "title": "PHIL 299 Introductory Topics in Philosophy",
+        "credits": 6,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+        "components": null,
+        "notes": null
+    },
+    {
+        "title": "PHIL 316 Intermediate Logic",
+        "credits": 3,
+        "prerequisites": "PHIL 214.",
+        "corequisites": "",
+        "description": "This course is intended for students who are interested in extending their knowledge of logic beyond what is taught in an introductory course. Topics may include metatheory, computability, alternative logics or modal logics.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for PHIL 314 or 315 may not take this course for credit."
+    },
+    {
+        "title": "PHIL 317 Inductive and Abductive Logic",
+        "credits": 3,
+        "prerequisites": "PHIL 210 / PHIL 214.",
+        "corequisites": "",
+        "description": "This course introduces approaches to inductive and abductive logic, such as probabilistic approaches. Topics may include classic and new problems for everyday and scientific induction, causal reasoning, the nature of evidence, and how to interpret probabilities.",
+        "components": "Lecture",
+        "notes": "Students who received credit for PHIL 218 may not take this course for credit."
+    },
+    {
+        "title": "PHIL 318 Philosophy of Biology",
+        "credits": 3,
+        "prerequisites": "Students must have completed three credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines a variety of philosophical issues in biology. Topics covered may include: fitness, function, units of selection, the nature of species, reductionism, biological explanation of human behaviour and the ethical and epistemological consequences of evolutionary theory.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 324 Philosophy of Social Science",
+        "credits": 3,
+        "prerequisites": "Students must have completed three credits in Philosophy / 12 credits in social science prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course offers a philosophical examination of the structure and methodology of the social sciences.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 325 Philosophical Psychology",
+        "credits": 3,
+        "prerequisites": "PHIL 226.",
+        "corequisites": "",
+        "description": "This course philosophically investigates the psychology of mind and cognition. Example questions: Which model of the mind's architecture is best? Could all of psychology eventually be reduced to physics? How do sensory-motor systems and the environment shape cognition? How does one ascribe beliefs and desires to others? How well does one know one's own beliefs?",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 327 Kinds of Minds",
+        "credits": 3,
+        "prerequisites": "Students must have completed three credits in Philosophy, / Computer Science, / Psychology, / Biology prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course explores human, animal, and artificial minds by combining philosophy, artificial intelligence, and neurobiology. Topics may include: What distinguishes human minds from those of non-human animals? Could robots endowed with human-like sensory systems exhibit mental traits? How do evolution and experience combine to explain the origin of cognition?",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 328 Intermediate Philosophy of Science",
+        "credits": 3,
+        "prerequisites": "Students must have completed three credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course provides an in-depth study of the nature of justification in science, theories of scientific explanation, the rationality of theory change, and debates concerning realism and antirealism.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 330 Contemporary Ethical Theory",
+        "credits": 3,
+        "prerequisites": "PHIL 232 / PHIL 233 / PHIL 235 / PHIL 236 / PHIL 241.",
+        "corequisites": "",
+        "description": "This course provides an examination of contemporary ethical theories such as deontology, utilitarianism, virtue theory, feminist ethics, and narrative ethics.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a PHIL 398 number may not take this course for credit."
+    },
+    {
+        "title": "PHIL 333 Philosophical Ideas in Literature",
+        "credits": 3,
+        "prerequisites": "Students must have completed three credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course presents a comparative approach to philosophical ideas in literature, which may involve authors from different historical time frames, different world views, or different perspectives of a single author.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 339 Aesthetics",
+        "credits": 3,
+        "prerequisites": "Students must have completed three credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "A survey of aesthetic theories in philosophy, with particular attention to major developments in the modern and contemporary periods.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 342 Political Philosophy",
+        "credits": 3,
+        "prerequisites": "Students must have completed three credits in Philosophy / Political Science prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course provides analyses of important political and philosophical concepts such as globalization, nationalism, power, multiculturalism, tolerance, liberty, equality, community, economic justice, and democracy.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 343 Philosophy of Law: General Jurisprudence",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course provides a philosophical study of natural law theory, legal positivism, and legal realism. The associated issues of legal moralism, legal justice, legal obligation and its limits, and legal reasoning are addressed and applied to cases.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 345 Legal Philosophy: Legal Rights and Duties",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course offers a philosophical study of the nature, sources, and functions of rights and duties. Attention is given to the particular rights associated with contract and property, and their abuse, to duties arising by law alone, to excuses and justifications for failure to fulfill duties, and to enforcement, punishment, and compromise.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 352 Philosophy of History",
+        "credits": 3,
+        "prerequisites": "Students must have completed three credits in History / Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "An analysis of the nature of historical knowledge and explanation is followed by a study of classical and contemporary attempts to elucidate the meaning of history. Authors may include Augustine, Vico, Kant, Hegel, Marx, Spengler, Popper, Toynbee, Arendt.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 356 Philosophy of Education",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course examines philosophical principles underlying educational theories and problems arising from the practical implementation of those theories.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 360 Early Modern Philosophy I: 17 th Century",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy including PHIL 260 and PHIL 261 prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course is a study of central metaphysical, epistemological, and ethical themes in the work of authors such as Descartes, Hobbes, Cavendish, Spinoza, Conway, Malebranche, Locke, and Leibniz.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 361 Early Modern Philosophy II: 18 th Century",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy including PHIL 260 and PHIL 261 to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course is a study of central metaphysical, epistemological, and ethical themes in the work of authors such as Locke, Leibniz, Astell, Masham, Wolff, Berkeley, du Châtelet, Hume, Reid, and Kant.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 362 Medieval Philosophy",
+        "credits": 3,
+        "prerequisites": "PHIL 260 / PHIL 261.",
+        "corequisites": "",
+        "description": "This course is an introduction to central themes in logic, physics, metaphysics, and moral and political philosophy from the fourth to the 14 th century. Authors examined may include Augustine, Boethius, Anselm, ibn Sīnā, ibn Rushd, Thomas Aquinas, Moses ben Maimon, Duns Scotus, and William of Occam.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for PHIL 363 may not take this course for credit."
+    },
+    {
+        "title": "PHIL 364 Intermediate Epistemology",
+        "credits": 3,
+        "prerequisites": "Students must have completed three credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course presents an intermediate study of major contemporary issues in the theory of knowledge, such as scepticism, nonempirical knowledge, contextualism, virtue epistemology, experimental epistemology, and debates between internalists and externalists concerning justification and knowledge.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 365 Intermediate Metaphysics",
+        "credits": 3,
+        "prerequisites": "Students must have completed three credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course presents an intermediate study of major contemporary issues in metaphysics, such as realism vs. anti-realism concerning the external world; mental causation, personhood and theories of human nature; universals, essences and natural kinds.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 371 Philosophy of Feminism",
+        "credits": 3,
+        "prerequisites": "PHIL 232 / PHIL 263.",
+        "corequisites": "",
+        "description": "This course provides an introduction to some of the central issues in contemporary feminist philosophy. The key arguments in feminist epistemology, feminist ethics, and sex and gender studies are discussed from a variety of perspectives.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 372 Philosophy of Race",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course introduces philosophical approaches to concepts of race and racism. The course may explore metaphysical, epistemological, moral, social, political, scientific, or historical topics concerning race.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 374 Kant and 19 th-Century Philosophy",
+        "credits": 3,
+        "prerequisites": "Students must have completed six credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines Kant and some of the main currents of post-Kantian philosophy, possibly including Hegel and post-Hegelians, the romantic reaction, positivism, and pragmatism.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 377 20 th-Century Continental Philosophy",
+        "credits": 3,
+        "prerequisites": "Students must have completed six credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines 20 th-century French and German philosophy. Philosophers examined may include Husserl, Heidegger, Merleau-Ponty, Foucault, Derrida, and Habermas.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 378 American Pragmatism",
+        "credits": 3,
+        "prerequisites": "Students must have completed six credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course provides an analysis of some classical American pragmatists, such as Peirce, Dewey, James and C. I. Lewis, together with exponents of contemporary neopragmatism, such as Putnam, Rorty, and Quine.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 380 Chinese Philosophy: From Han to the 19 th Century",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course introduces the philosophical traditions of Chinese philosophy from 202 BCE to the 19 th century. It examines the development of Confucianism, Daoism, and Buddhism and discusses topics in ethics, political philosophy, metaphysics, and epistemology.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 385 Marxism",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course provides a critical analysis of the ideas of Marx and their modern development.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 387 Existentialism",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course acquaints the student with the fundamentals of the existentialist movement as a philosophical perspective. Philosophers considered may include Kierkegaard, Nietzsche, Heidegger, Sartre, Merleau-Ponty, Jaspers, Marcel, and Berdyaev.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 389 Epistemology and Ethics in the Digital Age",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course examines epistemological and ethical implications of digital technologies (e. g. surveillance, artificial intelligence, and big data) in areas such as privacy, power relations, and the generation and sharing of knowledge.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a PHIL 398 number may not take this course for credit."
+    },
+    {
+        "title": "PHIL 398 Intermediate Special Topics in Philosophy",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+        "components": null,
+        "notes": null
+    },
+    {
+        "title": "PHIL 399 Intermediate Special Topics in Philosophy",
+        "credits": 6,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+        "components": null,
+        "notes": null
+    },
+    {
+        "title": "PHIL 414 Advanced Topics in Logic",
+        "credits": 3,
+        "prerequisites": "PHIL 214.",
+        "corequisites": "",
+        "description": "This course presents the fundamentals of an advanced topic in logic.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 416 Philosophy of Language",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course is an advanced study of a central problem in recent philosophy of language.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 420 Advanced Philosophy of Science",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course explores advanced topics in the philosophy of science, such as theory change and justification, realism and anti-realism, or reductionism; or specific issues in philosophy of physics or biology, such as evolution and development.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 425 Philosophy of Mind: Cognitive Science",
+        "credits": 3,
+        "prerequisites": "PHIL 226 / PHIL 325 / PHIL 327.",
+        "corequisites": "",
+        "description": "This interdisciplinary course combines the philosophical study of mind with current research in psychology, neuroscience, linguistics, and computer science.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 429 Values and Biotechnology",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy including PHIL 232 / PHIL 233 / PHIL 235 / PHIL 318 / PHIL 330 / PHIL 441 prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines normative issues around genetic engineering or other biotechnologies, including moral, metaphysical, epistemic or political questions.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a PHIL 498 number may not take this course for credit."
+    },
+    {
+        "title": "PHIL 430 Advanced Studies in Ethics",
+        "credits": 3,
+        "prerequisites": "PHIL 232 / PHIL 330.",
+        "corequisites": "",
+        "description": "This course offers a study of one or more of the following ethical theories: deontology, utilitarianism, virtue theory, feminist ethics, care ethics, narrative ethics, contractualism, and discourse ethics, with a focus on ethical reasoning and motivation.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 440 Advanced Political Philosophy",
+        "credits": 3,
+        "prerequisites": "PHIL 241 / PHIL 342.",
+        "corequisites": "",
+        "description": "This course uses selected historical or contemporary writings in political philosophy to treat topics such as those of power, freedom, equality, distributive justice, law, and the boundaries of the political. Specific topics for this course are stated in the Undergraduate Class Schedule.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 441 Philosophical Foundations of Biology",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course helps students critically engage biology's philosophical foundations. Topics typically include the nature of scientific reasoning, testing, and evidence in biology; how best to discover, define, and apply biological concepts; and how to structure the aims of biology to fit our diverse and changing societies.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for BIOL 421 may not take this course for credit."
+    },
+    {
+        "title": "PHIL 463 Current Research in Epistemology",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy including PHIL 263 / PHIL 265 / PHIL 364 / PHIL 365 prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course presents an intensive study of major contemporary issues in the theory of knowledge.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 464 Advanced Studies in Epistemology",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy including PHIL 263 / PHIL 265 / PHIL 364 / PHIL 365 prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines a cross-section of important epistemological issues, such as those about justification, evidence, reason, rationality, or knowledge.",
+        "components": "Lecture",
+        "notes": "This course may be taken more than one time for credit, provided the subject matter is different."
+    },
+    {
+        "title": "PHIL 465 Current Research in Metaphysics",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy including PHIL 263 / PHIL 265 / PHIL 364 / PHIL 365 prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course presents an intensive study of major contemporary issues in metaphysics.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 467 Advanced Studies in Metaphysics",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy including PHIL 263 / PHIL 265 / PHIL 364 / PHIL 365 prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines a cross-section of important issues in metaphysics, such as those about the nature of causation, time, necessity, possibility, constitution, identity, persistence, properties, being, existence, structure, nature, or substance.",
+        "components": "Lecture",
+        "notes": "This course may be taken more than one time for credit, provided the subject matter is different."
+    },
+    {
+        "title": "PHIL 471 Advanced Topics in Feminist Theory",
+        "credits": 3,
+        "prerequisites": "PHIL 371.",
+        "corequisites": "",
+        "description": "An examination of recent issues in one of feminist ethics, epistemology or metaphysics. Subject will vary from year to year.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 472 Advanced Topics in Phenomenology",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course studies themes or topics in recent research in phenomenology, such as nature, life, place, body, mind, illness, and disability.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a PHIL 498 number may not take this course for credit."
+    },
+    {
+        "title": "PHIL 473 Advanced Topics in Continental Philosophy",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy including PHIL 374 / PHIL 377 prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course focuses on a selected theme or topic within or via the texts of the tradition of continental philosophy. Example topics include language, the world, animality, social or environmental justice, the political, violence, and memory.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a PHIL 498 number may not take this course for credit."
+    },
+    {
+        "title": "PHIL 474 Current Research Topics in Continental Philosophy",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy including PHIL 374 / PHIL 377. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines recent research on major figures, or relations between major authors, in continental philosophy",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a PHIL 498 number may not take this course for credit."
+    },
+    {
+        "title": "PHIL 475 Contemporary Issues in Analytic Philosophy",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course addresses work by contemporary analytic philosophers on a chosen topic.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a PHIL 498 number may not take this course for credit."
+    },
+    {
+        "title": "PHIL 480 Plato",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy including PHIL 260 and PHIL 261 prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "Selected themes in the major dialogues of Plato are analyzed in depth.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 481 Aristotle",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy including PHIL 260 and PHIL 261 prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "Selected passages from the major works of Aristotle are analyzed in depth.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 482 Advanced Topics in Ancient Philosophy",
+        "credits": 3,
+        "prerequisites": "PHIL 260 and PHIL 261.",
+        "corequisites": "",
+        "description": "An in - depth study of principal figures or important topics in ancient Greek or Roman philosophy.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 483 Advanced Topics in the History of Philosophy",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course presents an intensive study of selected topics in the history of philosophy.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 484 Advanced Topics in World Philosophy",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course presents an intensive study of selected topics in world philosophy.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 485 Kant",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course is an intensive study of Kant's Critique of Pure Reason and related works.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 486 Hegel",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course is an analysis of selected themes from Hegel's works.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 487 Origins of Analytic Philosophy",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course investigates selected philosophical problems and methodologies in the late-19 th- and early-20 th-century traditions that developed into analytic philosophy.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 488 Topics in 20 th-Century Analytic Philosophy",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course focuses on figures in 20 th-century analytic philosophy and/or the topics that attracted their attention.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 489 Phenomenology",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines classic themes, texts and methodological issues in phenomenology, typically focusing on the work of figures such as Husserl, Heidegger, and Merleau-Ponty.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 490 Continental Philosophy",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy including PHIL 374 / PHIL 377. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course investigates selected philosophical problems and methodologies as they arose in the late-19 th- and early-20 th-century traditions that came to be called continental philosophy.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "PHIL 495 Honours Essay",
+        "credits": 3,
+        "prerequisites": "Students must have completed 30 credits in Philosophy and be enrolled in Honours Philosophy. Permission of the Department is required.",
+        "corequisites": "",
+        "description": "With permission of the Department, an honours student may arrange a tutorial program with a faculty member culminating in a research project not exceeding 40 pages.",
+        "components": "Research",
+        "notes": null
+    },
+    {
+        "title": "PHIL 496 Tutorial in Philosophy",
+        "credits": 3,
+        "prerequisites": "Permission of the Department is required.",
+        "corequisites": "",
+        "description": "This is an opportunity to carry out a personal project under the supervision of a faculty member. An intensive reading program is undertaken in the student's area of special interest. Tutorials may be arranged with any faculty member, and the student must make these arrangements and obtain written permission in advance of registration.",
+        "components": "Tutorial",
+        "notes": "Students who have received credit for PHIL 497 may take this tutorial for credit provided the subject matter is different."
+    },
+    {
+        "title": "PHIL 497 Tutorial in Philosophy",
+        "credits": 3,
+        "prerequisites": "Permission of the Department is required.",
+        "corequisites": "",
+        "description": "This is an opportunity to carry out a personal project under the supervision of a faculty member. An intensive reading program is undertaken in the student's area of special interest. Tutorials may be arranged with any faculty member, and the student must make these arrangements and obtain written permission in advance of registration.",
+        "components": "Tutorial",
+        "notes": "Students who have received credit for PHIL 496 may take this tutorial for credit provided the subject matter is different."
+    },
+    {
+        "title": "PHIL 498 Advanced Topics in Philosophy",
+        "credits": 3,
+        "prerequisites": "Students must have completed 12 credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+        "components": null,
+        "notes": null
+    },
+    {
+        "title": "PHIL 499 Advanced Topics in Philosophy",
+        "credits": 6,
+        "prerequisites": "Students must have completed 12 credits in Philosophy prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+        "components": null,
+        "notes": null
+    }
+]
