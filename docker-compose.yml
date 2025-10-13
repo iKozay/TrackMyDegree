@@ -5,8 +5,8 @@ services:
     # This builds the test container using a specific Dockerfile for testing. I do not see any Dockerfile.test for front-end.
     # TODO: include front-end tests as well
     build:
-      context: ./Back-End
-      dockerfile: Dockerfile.test
+      context: .
+      dockerfile: Back-End/Dockerfile.test
     depends_on:
       - backend
       - sqlserver
@@ -51,7 +51,9 @@ services:
       - "traefik.enable=false"
 
   frontend:
-    image: ghcr.io/ikozay/trackmydegree-frontend:latest
+    build:
+      context: .
+      dockerfile: front-end/Dockerfile
     restart: unless-stopped
     expose:
       - "3000"
@@ -70,7 +72,9 @@ services:
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
 
   backend:
-    image: ghcr.io/ikozay/trackmydegree-backend:latest
+    build:
+      context: .
+      dockerfile: Back-End/Dockerfile
     restart: unless-stopped
     expose:
       - "8000"

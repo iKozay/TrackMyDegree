@@ -2,11 +2,15 @@ FROM node:22
 
 WORKDIR /app
 
-COPY package.json ./
+# Copy shared module to maintain directory structure
+COPY shared/ ./shared/
 
+# Copy Back-End files to maintain directory structure
+COPY Back-End/ ./Back-End/
+
+# Set working directory to Back-End
+WORKDIR /app/Back-End
 
 RUN yarn
-
-COPY . .
 
 CMD ["npm", "test"]
