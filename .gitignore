@@ -12,3 +12,9 @@ myenv/
 .gitignore
 entrypoint-sql.sh
 secrets/sql_server_password.txt
+Back-End/course-data/Scraping/Scrapers/__pycache__
+Back-End/course-data/Scraping/tests/__pycache__
+Back-End/course-data/Scraping/venv
+Back-End/course-data/Scraping/.coverage
+Back-End/course-data/Scraping/coverage.*
+.DS_Store

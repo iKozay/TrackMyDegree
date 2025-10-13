@@ -32,7 +32,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pd
  */
 const UploadTranscript = ({ onDataProcessed }) => {
   const navigate = useNavigate(); // Hook to navigate to TimelinePage
-
   const processFile = (file) => {
     parsePdfFile(file).then((pagesData) => {
       const extractedData = extractTranscriptComponents(pagesData);

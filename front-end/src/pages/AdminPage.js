@@ -150,15 +150,13 @@ const AdminPage = () => {
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        let response = await fetch(`${REACT_APP_SERVER}/admin/tables`,
-          {
-            method: 'POST',
-            credentials: 'include'
-          }
-        );
+        let response = await fetch(`${REACT_APP_SERVER}/admin/tables`, {
+          method: 'POST',
+          credentials: 'include',
+        });
 
         if (!response.ok) {
-          navigate("/403"); //! Forbidden
+          navigate('/403'); //! Forbidden
         }
 
         response = await response.json();
@@ -194,12 +192,10 @@ const AdminPage = () => {
         url += `?keyword=${encodeURIComponent(keyword)}`;
       }
 
-      let response = await fetch(url,
-        {
-          method: 'POST',
-          credentials: 'include'
-        }
-      );
+      let response = await fetch(url, {
+        method: 'POST',
+        credentials: 'include',
+      });
 
       response = await response.json();
 
@@ -285,12 +281,7 @@ const AdminPage = () => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
       <div className="admin-container">
         <Row className="mt-4">
           {/* Tables List Column */}
@@ -301,8 +292,7 @@ const AdminPage = () => {
                 tables.map((table) => (
                   <li
                     key={table}
-                    className={`list-group-item list-group-item-action ${selectedTable === table ? 'active' : ''
-                      }`}
+                    className={`list-group-item list-group-item-action ${selectedTable === table ? 'active' : ''}`}
                     onClick={() => handleTableSelect(table)}
                     style={{ cursor: 'pointer' }}
                   >
@@ -326,13 +316,7 @@ const AdminPage = () => {
                 {records.length === 0 ? (
                   <Alert variant="info">No records found.</Alert>
                 ) : (
-                  <Table
-                    striped
-                    bordered
-                    hover
-                    responsive
-                    className="records-table"
-                  >
+                  <Table striped bordered hover responsive className="records-table">
                     <thead>
                       <tr>
                         {columns.map((col) => (

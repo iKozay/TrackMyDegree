@@ -27,7 +27,7 @@ const UserPage = ({ onDataProcessed }) => {
     if (user) {
       setUserInfo([
         { title: 'Full Name', value: user.fullname || 'NULL' },
-        { title: 'Email', value: user.email || 'NULL' }
+        { title: 'Email', value: user.email || 'NULL' },
       ]);
     }
   }, [user]);
@@ -35,22 +35,17 @@ const UserPage = ({ onDataProcessed }) => {
   //Sends a request to the server for the credits for a degree. Sends in the degreeID
   const getDegreeCredits = async (degreeId) => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER}/degree/getCredits`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ degreeId }),
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/degree/getCredits`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify({ degreeId }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new UserPageError(
-          errorData.message || 'Failed to fetch degree credits.',
-        );
+        throw new UserPageError(errorData.message || 'Failed to fetch degree credits.');
       }
 
       const data = await response.json();
@@ -58,8 +53,7 @@ const UserPage = ({ onDataProcessed }) => {
     } catch (e) {
       console.error('Error fetching degree credits:', e);
     }
-  }
-
+  };
 
   //handler for when the user clicks on a timeline. Passes data and redirects the user to timeline edit
   const handleTimelineClick = async (obj) => {
@@ -73,7 +67,7 @@ const UserPage = ({ onDataProcessed }) => {
     if (!creditsRequired) {
       console.error('Failed to fetch degree credits');
       creditsRequired = 120; //Defaults to 120 if the credits cannot be obtained
-    };
+    }
     const isExtendedCredit = obj.isExtendedCredit;
 
     items.forEach((item) => {
@@ -103,35 +97,28 @@ const UserPage = ({ onDataProcessed }) => {
 
   //If the user is a student, this fetches all timelines belonging to them and sorts them by last modified
   useEffect(() => {
-    if (user.type === "student") {
+    if (user.type === 'student') {
       const getTimelines = async () => {
         const user_id = user.id;
         try {
-          const response = await fetch(
-            `${process.env.REACT_APP_SERVER}/timeline/getAll`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ user_id }),
+          const response = await fetch(`${process.env.REACT_APP_SERVER}/timeline/getAll`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
             },
-          );
+            body: JSON.stringify({ user_id }),
+          });
 
           if (!response.ok) {
             const errorData = await response.json();
-            throw new UserPageError(
-              errorData.message || 'Failed to fetch user timelines.',
-            );
+            throw new UserPageError(errorData.message || 'Failed to fetch user timelines.');
           }
 
           const data = await response.json();
 
           if (Array.isArray(data)) {
             // Sort by modified date in descending order
-            const sortedTimelines = data.sort(
-              (a, b) => new Date(b.last_modified) - new Date(a.last_modified),
-            );
+            const sortedTimelines = data.sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified));
 
             setUserTimelines(sortedTimelines);
           } else {
@@ -159,22 +146,17 @@ const UserPage = ({ onDataProcessed }) => {
   const handleDelete = async (timeline_id) => {
     try {
       // delete timeline
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER}/timeline/delete`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ timeline_id }),
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/timeline/delete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify({ timeline_id }),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new UserPageError(
-          errorData.message || 'Failed to delete user timeline.',
-        );
+        throw new UserPageError(errorData.message || 'Failed to delete user timeline.');
       }
       // remove from page
       setUserTimelines(userTimelines.filter((obj) => obj.id !== timeline_id));
@@ -195,12 +177,7 @@ const UserPage = ({ onDataProcessed }) => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.7 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
       <div className="container-fluid">
         <div className="row vh-100">
           <div className="col-12 col-md-4 d-flex flex-column align-items-center text-center mx-auto">
@@ -237,20 +214,12 @@ const UserPage = ({ onDataProcessed }) => {
                     <table className="text-sm my-4">
                       <tbody>
                         <tr>
-                          <td className="px-3 py-2 text-gray-500 font-semibold">
-                            Full Name
-                          </td>
-                          <td className="px-3 py-2">
-                            {user.fullname || 'NULL'}
-                          </td>
+                          <td className="px-3 py-2 text-gray-500 font-semibold">Full Name</td>
+                          <td className="px-3 py-2">{user.fullname || 'NULL'}</td>
                         </tr>
                         <tr>
-                          <td className="px-3 py-2 text-gray-500 font-semibold">
-                            Email
-                          </td>
-                          <td className="px-3 py-2">
-                            {user.email || 'NULL'}
-                          </td>
+                          <td className="px-3 py-2 text-gray-500 font-semibold">Email</td>
+                          <td className="px-3 py-2">{user.email || 'NULL'}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -266,35 +235,23 @@ const UserPage = ({ onDataProcessed }) => {
             <h2 className="mb-5">My Timelines</h2>
             {userTimelines.length === 0 ? (
               <Link to="/timeline_initial">
-                <p>
-                  You haven't saved any timelines yet, click here to start now!
-                </p>
+                <p>You haven't saved any timelines yet, click here to start now!</p>
               </Link>
             ) : (
               <div className="list-group">
                 {userTimelines.map((obj) => (
-                  <div
-                    key={obj.id}
-                    className="timeline-box d-flex align-items-center justify-content-between"
-                  >
-                    <span
-                      className="timeline-link"
-                      onClick={() => handleTimelineClick(obj)}
-                    >
+                  <div key={obj.id} className="timeline-box d-flex align-items-center justify-content-between">
+                    <span className="timeline-link" onClick={() => handleTimelineClick(obj)}>
                       <span className="timeline-text">{obj.name}</span>
                       <span className="timeline-text">
-                        Last Modified:{' '}
-                        {moment(obj.last_modified).format(
-                          'MMM DD, YYYY h:mm A',
-                        )}
+                        Last Modified: {moment(obj.last_modified).format('MMM DD, YYYY h:mm A')}
                       </span>
                     </span>
                     <button
                       onClick={() => handleDeleteClick(obj)}
                       className="timeline-delete btn btn-lg p-0 border-0 bg-transparent"
                     >
-                      <TrashLogo size={25} className="me-1 text-danger" />{' '}
-                      {/* Added text-danger for red icon */}
+                      <TrashLogo size={25} className="me-1 text-danger" /> {/* Added text-danger for red icon */}
                     </button>
                   </div>
                 ))}
@@ -312,12 +269,8 @@ const UserPage = ({ onDataProcessed }) => {
           <div className="tw-text-center tw-w-56">
             <TrashLogo size={56} className="tw-mx-auto tw-text-red-500" />
             <div className="tw-mx-auto tw-my-4 tw-w-48">
-              <h3 className="tw-text-lg tw-font-black tw-text-gray-800">
-                Confirm Delete
-              </h3>
-              <p className="tw-text-sm tw-text-gray-500">
-                Are you sure you want to delete "{timelineToDelete?.name}"?
-              </p>
+              <h3 className="tw-text-lg tw-font-black tw-text-gray-800">Confirm Delete</h3>
+              <p className="tw-text-sm tw-text-gray-500">Are you sure you want to delete "{timelineToDelete?.name}"?</p>
             </div>
             <div className="tw-flex tw-gap-4">
               <button
@@ -329,10 +282,7 @@ const UserPage = ({ onDataProcessed }) => {
               >
                 Delete
               </button>
-              <button
-                className="btn btn-light tw-w-full"
-                onClick={() => setShowModal(false)}
-              >
+              <button className="btn btn-light tw-w-full" onClick={() => setShowModal(false)}>
                 Cancel
               </button>
             </div>
@@ -344,8 +294,6 @@ const UserPage = ({ onDataProcessed }) => {
 };
 
 export default UserPage;
-
-
 
 //This code used to be for updating timelines but seems to be dead code at time point
 //! Commented out edit modde code
@@ -405,7 +353,6 @@ export default UserPage;
     setIsEditing(false);
   }
 };*/
-
 
 //! Commented out edit modde code
 /*const handleInputChange = (e, index) => {

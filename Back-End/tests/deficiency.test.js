@@ -38,7 +38,7 @@ describe('Deficiency Routes', () => {
         .post('/deficiency/create')
         .send(def_mocks.payload_create)
         .expect('Content-Type', /json/)
-        .expect(HTTP.CREATED)  ;
+        .expect(HTTP.CREATED);
 
       expect(response.body).toHaveProperty(
         'message',
@@ -69,8 +69,10 @@ describe('Deficiency Routes', () => {
   // Test for getting all deficiencies by user_id
   describe('POST /deficiency/getAll', () => {
     it('should return deficiencies related a specific user', async () => {
-      controller.getAllDeficienciesByUser.mockResolvedValue(def_mocks.response_getall)
-      
+      controller.getAllDeficienciesByUser.mockResolvedValue(
+        def_mocks.response_getall,
+      );
+
       const response = await request(app)
         .post('/deficiency/getAll')
         .send(def_mocks.payload_getall)
