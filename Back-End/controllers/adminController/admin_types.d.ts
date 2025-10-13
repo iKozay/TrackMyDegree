@@ -4,9 +4,9 @@
  * Represents the structure of the JSON response body.
  */
 export interface StandardResponse {
-    success: boolean;
-    message?: string;
-    data?: any;
+  success: boolean;
+  message?: string;
+  data?: any;
 }
 
 /**
@@ -23,7 +23,7 @@ export type TableListResponse = TableName[];
  * Represents a single record from a database table.
  */
 export interface TableRecord {
-    [column: string]: string | number | boolean | null;
+  [column: string]: string | number | boolean | null;
 }
 
 /**
@@ -36,9 +36,10 @@ export type TableRecordsResponse = TableRecord[];
  */
 import { Request } from 'express';
 
-export interface GetTableRecordsRequest extends Request<
+export interface GetTableRecordsRequest
+  extends Request<
     { tableName: string }, // Route parameters
-    any,                   // Response body (not used here)
-    any,                   // Request body (not used here)
-    { keyword?: string }   // Query parameters
-> {}
+    any, // Response body (not used here)
+    any, // Request body (not used here)
+    { keyword?: string } // Query parameters
+  > {}

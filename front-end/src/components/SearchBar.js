@@ -19,12 +19,7 @@ const SearchBar = ({ onSearch }) => {
   return (
     <Form onSubmit={handleSubmit} className="mb-3">
       <InputGroup>
-        <Form.Control
-          type="text"
-          placeholder="Search by keyword..."
-          value={keyword}
-          onChange={handleInputChange}
-        />
+        <Form.Control type="text" placeholder="Search by keyword..." value={keyword} onChange={handleInputChange} />
         <Button variant="primary" type="submit">
           Search
         </Button>
