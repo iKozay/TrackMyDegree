@@ -429,3 +429,279 @@ describe('parseCourses', () => {
     });
 });
 
+//sort
+// sortSemesters.test.js
+import { sortSemesters } from '../utils/timelineUtils';
+
+describe('sortSemesters', () => {
+    test('sorts semesters in correct order', () => {
+        const semesters = new Set([
+            'Fall 2025',
+            'Winter 2025',
+            'Summer 2025',
+            'Fall/Winter 2025',
+        ]);
+
+        const sorted = sortSemesters(semesters);
+        expect(sorted).toEqual([
+            'Winter 2025',
+            'Fall/Winter 2025',
+            'Summer 2025',
+            'Fall 2025',
+        ]);
+    });
+
+    test('puts Exempted first', () => {
+        const semesters = new Set([
+            'Winter 2025',
+            'Exempted',
+            'Fall 2026',
+        ]);
+
+        const sorted = sortSemesters(semesters);
+        expect(sorted[0]).toBe('Exempted');
+        expect(sorted.slice(1)).toEqual(['Winter 2025', 'Fall 2026']);
+    });
+
+    test('handles same year with different seasons', () => {
+        const semesters = new Set([
+            'Fall 2025',
+            'Summer 2025',
+            'Winter 2025',
+        ]);
+
+        const sorted = sortSemesters(semesters);
+        expect(sorted).toEqual(['Winter 2025', 'Summer 2025', 'Fall 2025']);
+    });
+
+    test('works with trimmed and extra spaces', () => {
+        const semesters = new Set([
+            'Exempted',
+            'Winter 2025',
+            'Fall 2025',
+        ]);
+
+        const sorted = sortSemesters(semesters);
+        expect(sorted).toEqual(['Exempted', 'Winter 2025', 'Fall 2025']);
+    });
+});
+
+
+
+// isTheCourseAssigned.test.js
+import { isTheCourseAssigned } from '../utils/timelineUtils';
+
+describe('isTheCourseAssigned', () => {
+    const courseInstanceMap = {
+        'MATH101-A': 'MATH101',
+        'CS102-B': 'CS102',
+    };
+
+    const semesterCourses = {
+        'Fall2025': ['MATH101-A', 'CS102-B'],
+        'Winter2026': ['PHYS101'],
+        courseList: ['ignored-entry'],
+    };
+
+    test('returns true if course is assigned in any semester', () => {
+        expect(isTheCourseAssigned('MATH101', semesterCourses, courseInstanceMap)).toBe(true);
+        expect(isTheCourseAssigned('CS102', semesterCourses, courseInstanceMap)).toBe(true);
+        expect(isTheCourseAssigned('PHYS101', semesterCourses, {})).toBe(true);
+    });
+
+    test('returns false if course is not assigned', () => {
+        expect(isTheCourseAssigned('CHEM101', semesterCourses, courseInstanceMap)).toBe(false);
+    });
+
+    test('ignores "courseList" property', () => {
+        const courses = {
+            ...semesterCourses,
+            courseList: ['CHEM101'],
+        };
+        expect(isTheCourseAssigned('CHEM101', courses, {})).toBe(false);
+    });
+});
+
+// generateUniqueId.test.js
+import { generateUniqueId } from '../utils/timelineUtils';
+
+describe('generateUniqueId', () => {
+    test('generates a unique ID by combining course code and counter', () => {
+        expect(generateUniqueId('MATH101', 1)).toBe('MATH101-1');
+        expect(generateUniqueId('CS102', 42)).toBe('CS102-42');
+        expect(generateUniqueId('PHYS205', 0)).toBe('PHYS205-0');
+    });
+
+    test('works with alphanumeric course codes', () => {
+        expect(generateUniqueId('BIO-201A', 7)).toBe('BIO-201A-7');
+    });
+})
+
+
+// removeCourseFromSemester.test.js
+import { removeCourseFromSemester } from '../utils/timelineUtils';
+
+describe('removeCourseFromSemester', () => {
+    test('removes a course from all semesters', () => {
+        const semesterCourses = {
+            Fall2025: ['MATH101', 'CS102'],
+            Winter2026: ['CS102', 'PHYS101'],
+            Summer2026: ['MATH101'],
+        };
+
+        const result = removeCourseFromSemester('CS102', semesterCourses);
+
+        expect(result).toEqual({
+            Fall2025: ['MATH101'],
+            Winter2026: ['PHYS101'],
+            Summer2026: ['MATH101'],
+        });
+    });
+
+    test('returns unchanged semesters if course not found', () => {
+        const semesterCourses = {
+            Fall2025: ['MATH101'],
+            Winter2026: ['PHYS101'],
+        };
+
+        const result = removeCourseFromSemester('CS102', semesterCourses);
+
+        expect(result).toEqual(semesterCourses);
+    });
+
+    test('does not mutate the original object', () => {
+        const semesterCourses = {
+            Fall2025: ['MATH101', 'CS102'],
+        };
+
+        const copy = { ...semesterCourses };
+        removeCourseFromSemester('CS102', semesterCourses);
+
+        expect(semesterCourses).toEqual(copy);
+    });
+});
+
+// calculateSemesterCredits.test.js
+import { calculateSemesterCredits } from '../utils/timelineUtils';
+
+describe('calculateSemesterCredits', () => {
+    const allCourses = [
+        { code: 'MATH101', credits: 3 },
+        { code: 'CS102', credits: 4 },
+        { code: 'PHYS101', credits: 2 },
+    ];
+
+    const courseInstanceMap = {
+        'MATH101-1': 'MATH101',
+        'CS102-1': 'CS102',
+    };
+
+    const semesterCourses = {
+        Fall2025: ['MATH101', 'CS102-1'],
+        Winter2026: ['PHYS101'],
+        Summer2026: [],
+    };
+
+    test('calculates total credits for a semester with courses', () => {
+        const total = calculateSemesterCredits('Fall2025', semesterCourses, courseInstanceMap, allCourses);
+        expect(total).toBe(7); // 3 + 4
+    });
+
+    test('calculates total credits for a semester with a single course', () => {
+        const total = calculateSemesterCredits('Winter2026', semesterCourses, courseInstanceMap, allCourses);
+        expect(total).toBe(2);
+    });
+
+    test('returns 0 for a semester with no courses', () => {
+        const total = calculateSemesterCredits('Summer2026', semesterCourses, courseInstanceMap, allCourses);
+        expect(total).toBe(0);
+    });
+
+    test('returns 0 if semester does not exist', () => {
+        const total = calculateSemesterCredits('Spring2027', semesterCourses, courseInstanceMap, allCourses);
+        expect(total).toBe(0);
+    });
+});
+
+// getMaxCreditsForSemesterName.test.js
+import { getMaxCreditsForSemesterName } from '../utils/timelineUtils';
+
+describe('getMaxCreditsForSemesterName', () => {
+    test('returns 15 for Summer semester', () => {
+        expect(getMaxCreditsForSemesterName('Summer 2025')).toBe(15);
+        expect(getMaxCreditsForSemesterName('summer 2026')).toBe(15); // case-insensitive
+    });
+
+    test('returns 19 for non-Summer semesters', () => {
+        expect(getMaxCreditsForSemesterName('Fall 2025')).toBe(19);
+        expect(getMaxCreditsForSemesterName('Winter 2026')).toBe(19);
+        expect(getMaxCreditsForSemesterName('Fall/Winter 2025')).toBe(19);
+    });
+});
+
+// parseMaxCreditsFromPoolName.test.js 
+import { parseMaxCreditsFromPoolName } from '../utils/timelineUtils';
+
+describe('parseMaxCreditsFromPoolName', () => {
+    test('parses number correctly from pool name', () => {
+        expect(parseMaxCreditsFromPoolName('Math Pool (47.5 credits)')).toBe(47.5);
+        expect(parseMaxCreditsFromPoolName('Science Pool (30 credits)')).toBe(30);
+        expect(parseMaxCreditsFromPoolName('History Pool (12.0 credits)')).toBe(12);
+    });
+
+    test('returns Infinity when no number is found', () => {
+        expect(parseMaxCreditsFromPoolName('Miscellaneous Pool')).toBe(Infinity);
+        expect(parseMaxCreditsFromPoolName('Another Pool ()')).toBe(Infinity);
+    });
+
+
+});
+
+import { areRequisitesMet } from '../utils/timelineUtils';
+
+describe('areRequisitesMet', () => {
+    const allCourses = [
+        { code: 'COMP101', requisites: [] },
+        { code: 'COMP102', requisites: [{ type: 'pre', code2: 'COMP101' }] },
+        { code: 'COMP103', requisites: [{ type: 'co', code2: 'COMP101' }] },
+        { code: 'COMP104', requisites: [{ type: 'pre', code2: 'COMP101', group_id: 1 }, { type: 'pre', code2: 'COMP102', group_id: 1 }] }
+    ];
+
+    const semesters = [
+        { id: 'sem1' },
+        { id: 'sem2' },
+        { id: 'sem3' }
+    ];
+
+    const courseInstanceMap = {};
+
+    test('returns true for course with no requisites', () => {
+        const semesterCourses = { sem1: ['COMP101'] };
+        expect(areRequisitesMet('COMP101', 1, courseInstanceMap, allCourses, semesters, semesterCourses)).toBe(true);
+    });
+
+    test('returns true if prerequisites met', () => {
+        const semesterCourses = { sem1: ['COMP101'] };
+        expect(areRequisitesMet('COMP102', 1, courseInstanceMap, allCourses, semesters, semesterCourses)).toBe(true);
+    });
+
+    test('returns false if prerequisites not met', () => {
+        const semesterCourses = { sem1: [] };
+        expect(areRequisitesMet('COMP102', 1, courseInstanceMap, allCourses, semesters, semesterCourses)).toBe(false);
+    });
+
+    test('returns true if corequisites are met in the same semester', () => {
+        const semesterCourses = { sem1: ['COMP101', 'COMP103'] };
+        expect(areRequisitesMet('COMP103', 0, courseInstanceMap, allCourses, semesters, semesterCourses)).toBe(true);
+    });
+
+    test('grouped prerequisites require at least one course from the group', () => {
+        const semesterCourses = { sem1: ['COMP101'] };
+        expect(areRequisitesMet('COMP104', 1, courseInstanceMap, allCourses, semesters, semesterCourses)).toBe(true);
+    });
+
+    test('grouped prerequisites not met if none from the group completed', () => {
+        const semesterCourses = { sem1: [] };
+        expect(areRequisitesMet('COMP104', 1, courseInstanceMap, allCourses, semesters, semesterCourses)).toBe(false);
+    });
+});
