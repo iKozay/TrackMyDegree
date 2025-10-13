@@ -3,7 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 import CourseTypes from './course_types';
 
 // ==========================
-// 📘 Définition du modèle Mongoose
+// Définition du modèle Mongoose
 // ==========================
 
 interface CourseDocument extends CourseTypes.CourseInfoDB, Document {}
@@ -26,7 +26,7 @@ const CourseSchema = new Schema<CourseDocument>({
 const CourseModel = mongoose.model<CourseDocument>('Course', CourseSchema);
 
 // ==========================
-// 🎓 Contrôleur MongoDB
+// Contrôleur MongoDB
 // ==========================
 
 export default class CourseController_Mongo {
@@ -44,7 +44,7 @@ export default class CourseController_Mongo {
   }
 
   /**
-   * 🔹 Récupère un cours par son code
+   *  Récupère un cours par son code
    */
   static async getCourseByCode(req: Request, res: Response): Promise<Response> {
     try {
@@ -63,7 +63,7 @@ export default class CourseController_Mongo {
   }
 
   /**
-   * 🔹 Crée un nouveau cours
+   *  Crée un nouveau cours
    */
   static async createCourse(req: Request, res: Response): Promise<Response> {
     try {
@@ -84,7 +84,7 @@ export default class CourseController_Mongo {
   }
 
   /**
-   * 🔹 Met à jour un cours existant
+   *  Met à jour un cours existant
    */
   static async updateCourse(req: Request, res: Response): Promise<Response> {
     try {
@@ -103,7 +103,7 @@ export default class CourseController_Mongo {
   }
 
   /**
-   * 🔹 Supprime un cours
+   *  Supprime un cours
    */
   static async deleteCourse(req: Request, res: Response): Promise<Response> {
     try {
@@ -121,7 +121,7 @@ export default class CourseController_Mongo {
   }
 
   /**
-   * 🔹 Récupère les cours selon un "pool"
+   *  Récupère les cours selon un "pool"
    */
   static async getCoursesByPool(req: Request, res: Response): Promise<Response> {
     try {
