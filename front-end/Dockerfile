@@ -6,17 +6,19 @@ FROM node:22
 # Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package.json ./
-COPY *lock* ./
+# Copy shared module to maintain directory structure
+COPY shared/ ./shared/
+
+# Copy front-end files to maintain directory structure
+COPY front-end/ ./front-end/
+
+# Set working directory to front-end
+WORKDIR /app/front-end
 
 # Install dependencies
 # npm was previously used but now switched to yarn. There was an issue with node version and sqlserver. See commmit: 65dca7b3f1ac5c1b7e71232431119c367f57cf2d
 RUN yarn
 # npm install
-
-# Copy the rest of the application code
-COPY . .
 
 # Build the React app
 RUN yarn build
