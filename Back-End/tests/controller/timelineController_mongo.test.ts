@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import TimelineController from '../controllers/timelineController/timelineController_mongo';
-import TimelineTypes from '../controllers/timelineController/timeline_types';
+import TimelineController from '../../controllers/timelineController/timelineController_mongo';
+import TimelineTypes from '../../controllers/timelineController/timeline_types';
 
 describe('TimelineController (MongoDB)', () => {
   let mongoServer: any;
