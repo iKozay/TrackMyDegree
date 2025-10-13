@@ -343,6 +343,7 @@ function matchCoursesToTerms(terms, courses, separators) {
 }
 
 export {
+  degreeMap,
   cleanText,
   extractDegreeInfo,
   extractAcademicTerms,
