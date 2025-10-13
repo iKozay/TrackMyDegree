@@ -4,7 +4,11 @@ const {spawn} = require("child_process");
 //Arguments would vary by script check each script for a comment there
 function runScraper(scriptPath, args = []) {
   return new Promise((resolve, reject) => {
-    const process = spawn("python", [scriptPath, ...args]);
+    const PYTHON_PATH = "/usr/bin/python3";
+    const process = spawn(PYTHON_PATH, [scriptPath, ...args], {
+      shell:false,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
 
     let output = "";
     let errorOutput = "";
