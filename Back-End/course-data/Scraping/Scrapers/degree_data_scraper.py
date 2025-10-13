@@ -36,22 +36,6 @@ def get_page(url):
 
 soup = get_page(sys.argv[1])
 
-# Function to clean and normalize text with proper spacing
-def clean_text(text):
-    if not text:
-        return ""
-    text = re.sub(r'\s+', ' ', text)  # Collapse multiple spaces into one
-    text = re.sub(r'([a-zA-Z0-9])([A-Z][a-z])', r'\1 \2', text)  # Space before capital letters
-    text = re.sub(r'([a-zA-Z])(\d)', r'\1 \2', text)  # Space between letters and numbers
-    text = re.sub(r'(\d)([a-zA-Z])', r'\1 \2', text)  # Space between numbers and letters
-    text = text.replace('\u2011', '-')  # Non-breaking hyphen to regular hyphen
-    text = text.replace('\u2019', "'")  # Right single quote to straight quote
-    text = text.replace('\u2014', ' — ')  # En dash with spaces
-    text = text.replace('\u00a0', ' ')  # Non-breaking space to regular space
-    text = re.sub(r'\s*([.,:;])\s*', r'\1 ', text)  # Single space after punctuation
-    text = re.sub(r'\s+', ' ', text.strip())  # Final cleanup
-    return text
-
 def get_courses(url, pool_name):
     output = []
     if temp_url in sys.argv[1]:
@@ -91,6 +75,7 @@ try:
     degree["totalCredits"] = int(match.group(2))
 except Exception as e:
     print(f"Error processing course block: {e}")
+    sys.exit(1)
 
 #Save to JSON files
 output_path = sys.argv[2]

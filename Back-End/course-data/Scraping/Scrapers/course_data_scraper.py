@@ -36,7 +36,7 @@ encoding = html_encoding or http_encoding
 soup = BeautifulSoup(resp.content, 'lxml', from_encoding=encoding)
 
 # Prepare the list to hold extracted course data
-courses = []
+courses = [] 
 
 # Function to clean and normalize text with proper spacing
 def clean_text(text):
