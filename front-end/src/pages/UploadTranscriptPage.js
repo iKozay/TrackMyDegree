@@ -1,18 +1,13 @@
 import '../css/UploadTranscriptPage.css';
-import React, { useState, useRef } from 'react';
-import { pdfjs } from 'react-pdf';
+import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
 import PrintImage from '../images/Print_image.png';
 import PdfImage from '../images/Pdf_image.png';
 import TransImage from '../images/Transc_image.png';
-import Button from 'react-bootstrap/Button';
 import { motion } from 'framer-motion';
-import { extractTranscriptComponents, matchCoursesToTerms } from '../utils/transcriptUtils';
 import UploadBox from '../components/UploadBox';
-import { parsePdfFile } from '../utils/AcceptanceUtils';
-
-// Set the worker source
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
+import axios from 'axios';
+import { degreeMap } from '../utils/transcriptUtils';
 
 //Operates the same way as the UploadAcceptanceLetter.js page but with transcripts
 // UploadTranscript Component - Handles file upload, drag-and-drop, and processing of PDF transcripts
@@ -30,37 +25,76 @@ pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pd
  *
  * Note: All transcript processing happens client-side for privacy - no data sent to servers
  */
+const REACT_APP_SERVER = process.env.REACT_APP_SERVER || 'http://localhost:8000';
+
 const UploadTranscript = ({ onDataProcessed }) => {
   const navigate = useNavigate(); // Hook to navigate to TimelinePage
-  const processFile = (file) => {
-    parsePdfFile(file).then((pagesData) => {
-      const extractedData = extractTranscriptComponents(pagesData);
-      const { terms, courses, separators } = extractedData;
-      const transcriptData = matchCoursesToTerms(terms, courses, separators);
+  const processFile = async (file) => {
+    const formData = new FormData();
+    formData.append('transcript', file);
 
-      // Extract Degree Info
-      const degreeInfo = extractedData.degree || 'Unknown Degree';
-      const degreeId = extractedData.degreeId || 'Unknown'; // Map degree to ID
-      const isExtendedCredit = extractedData.ecp || false;
-      console.log('TRANSCRIPT DATA:', transcriptData);
+    try {
+      const response = await axios.post(`${REACT_APP_SERVER}/transcript/parse`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
-      if (transcriptData.length > 0) {
-        localStorage.setItem('Timeline_Name', null);
+      if (response.data.success && response.data.data) {
+        const parsedData = response.data.data;
 
-        onDataProcessed({
-          transcriptData,
-          degreeId,
-          isExtendedCredit,
-        });
-        navigate('/timeline_change', {
-          state: { coOp: null, extendedCreditCourses: extractedData.ecp },
-        }); // Navigate to TimelinePage
-      } else {
-        alert('There are no courses to show!');
+        if (parsedData?.terms.length || parsedData?.transferCredits.length) {
+          // Transform new parsed data to match the old format (matching matchCoursesToTerms output)
+          const transcriptData = [];
+
+          // Handle transfer credits as exempted courses
+          if (parsedData.transferCredits.length > 0) {
+            // Get the earliest year from transfer credits or use a default
+            const exemptYear = parsedData.terms[0].year;
+            transcriptData.push({
+              term: `Exempted ${exemptYear}`,
+              courses: parsedData.transferCredits.map((tc) => tc.courseCode.replace(/\s+/g, '')),
+              grade: 'EX',
+            });
+          }
+
+          for (const term of parsedData.terms) {
+            const termName = `${term.term} ${term.year}`;
+
+            for (const course of term.courses) {
+              transcriptData.push({
+                term: termName,
+                course: course.courseCode.replace(/\s+/g, ''),
+                grade: course.grade,
+              });
+            }
+          }
+
+          // Extract degree ID from program history
+          let degreeName = `${parsedData.programHistory[parsedData.programHistory.length - 1]?.degreeType}, ${parsedData.programHistory[parsedData.programHistory.length - 1]?.major}`;
+          const coop = degreeName.indexOf(' (Co-op)');
+          degreeName = coop === -1 ? degreeName : degreeName.slice(0, coop);
+          const degreeId = degreeMap[degreeName] || 'UNKN';
+
+          onDataProcessed({
+            transcriptData,
+            degreeId,
+            isExtendedCredit: false,
+          });
+
+          // Navigate to timeline_change with the required state
+          navigate('/timeline_change', {
+            state: { coOp: null, extendedCreditCourses: false },
+          }); // Navigate to TimelinePage
+        } else {
+          alert('There are no courses to show!');
+        }
       }
-    });
+    } catch (err) {
+      console.error('Error uploading transcript:', err);
+      alert(err.response?.data?.message || err.message || 'Failed to parse transcript. Please try again.');
+    }
   };
-
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
       <div className="upload-container">
