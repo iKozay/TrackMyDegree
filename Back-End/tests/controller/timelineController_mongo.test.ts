@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import CourseController from '../../controllers/courseController/courseController_mongo';
-import CourseTypes from '../../controllers/courseController/course_types';
+import TimelineController from '../../controllers/timelineController/timelineController_mongo';
+import TimelineTypes from '../../controllers/timelineController/timeline_types';
 
-describe('CourseController (MongoDB)', () => {
+describe('TimelineController (MongoDB)', () => {
   let mongoServer: any;
 
   beforeAll(async () => {
@@ -17,53 +17,50 @@ describe('CourseController (MongoDB)', () => {
     await mongoServer.stop();
   });
 
-  let createdCourseId: string;
+  let createdTimelineId: string;
 
-  const testCourse: CourseTypes.Course = {
-    code: 'COMP479',
-    title: 'Software Engineering',
-    credits: 3,
-    department: 'Computer Science',
-    prerequisites: ['COMP101'],
+  const testTimeline: TimelineTypes.Timeline = {
+    user_id: 'user123',
+    name: 'Test Timeline',
+    degree_id: 'degreeABC',
+    items: [
+      {
+        season: 'fall',
+        year: 2025,
+        courses: ['COMP479', 'COMP6791'],
+      },
+    ],
+    isExtendedCredit: false,
   };
 
-  it('should save a new course', async () => {
-    const saved = await CourseController.saveCourse(testCourse);
+  it('should save a new timeline', async () => {
+    const saved = await TimelineController.saveTimeline(testTimeline);
     expect(saved).toHaveProperty('id');
-    expect(saved.code).toBe(testCourse.code);
-    expect(saved.title).toBe(testCourse.title);
-    createdCourseId = saved.id!;
+    expect(saved.user_id).toBe(testTimeline.user_id);
+    expect(saved.items.length).toBe(1);
+    createdTimelineId = saved.id!;
   });
 
-  it('should fetch courses by code', async () => {
-    const courses = await CourseController.getCoursesByCode(testCourse.code);
-    expect(courses.length).toBeGreaterThan(0);
-    const fetched = courses.find((c) => c.id === createdCourseId);
+  it('should fetch timelines by user', async () => {
+    const timelines = await TimelineController.getTimelinesByUser(testTimeline.user_id);
+    expect(timelines.length).toBeGreaterThan(0);
+    const fetched = timelines.find((t) => t.id === createdTimelineId);
     expect(fetched).toBeDefined();
-    expect(fetched?.title).toBe(testCourse.title);
+    expect(fetched?.name).toBe(testTimeline.name);
   });
 
-  it('should update a course', async () => {
-    const updatedTitle = 'Advanced Software Engineering';
-    const updated = await CourseController.updateCourse(createdCourseId, {
-      ...testCourse,
-      title: updatedTitle,
-    });
-    expect(updated.title).toBe(updatedTitle);
-  });
-
-  it('should delete a course', async () => {
-    const result = await CourseController.removeCourse(createdCourseId);
+  it('should delete a timeline', async () => {
+    const result = await TimelineController.removeUserTimeline(createdTimelineId);
     expect(result.success).toBe(true);
     expect(result.message).toMatch(/deleted successfully/);
 
-    const coursesAfterDelete = await CourseController.getCoursesByCode(testCourse.code);
-    const deleted = coursesAfterDelete.find((c) => c.id === createdCourseId);
+    const timelinesAfterDelete = await TimelineController.getTimelinesByUser(testTimeline.user_id);
+    const deleted = timelinesAfterDelete.find((t) => t.id === createdTimelineId);
     expect(deleted).toBeUndefined();
   });
 
-  it('should return failure if deleting non-existing course', async () => {
-    const result = await CourseController.removeCourse('nonexistentid123');
+  it('should return failure if deleting non-existing timeline', async () => {
+    const result = await TimelineController.removeUserTimeline('nonexistentid123');
     expect(result.success).toBe(false);
     expect(result.message).toMatch(/not found|Error occurred/);
   });
