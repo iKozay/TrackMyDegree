@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const CourseController_Mongo = require('../../controllers/courseController/courseController_mongo');
-const CourseTypes = require('../../controllers/courseController/course_types');
+const CourseController_Mongo = require('../dist/controllers/courseController/courseController_mongo').default;
 
 // Helper pour simuler Request et Response Express
 const mockResponse = () => {

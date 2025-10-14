@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const exemptionController =
-  require('../../dist/controllers/exemptionController/exemptionController_mongo').default;
-const { User } = require('../../dist/models/User');
-const { Course } = require('../../dist/models/Course');
+  require('../dist/controllers/exemptionController/exemptionController_mongo').default;
+const { User } = require('../dist/models/User');
+const { Course } = require('../dist/models/Course');
 const Sentry = require('@sentry/node');
 
 jest.spyOn(Sentry, 'captureException').mockImplementation(() => {}); // silence Sentry

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const TimelineController = require('../../controllers/timelineController/timelineController_mongo');
+const TimelineController = require('../dist/controllers/timelineController/timelineController_mongo').default;
 
 describe('TimelineController (MongoDB)', () => {
   let mongoServer;

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const submitFeedback = require('../../dist/controllers/feedbackController/feedbackController_mongo').default;
-const { Feedback } = require('../../dist/models/Feedback');
+const submitFeedback = require('../dist/controllers/feedbackController/feedbackController_mongo').default;
+const { Feedback } = require('../dist/models/Feedback');
 
 describe('Feedback Controller', () => {
   let mongoServer, mongoUri;

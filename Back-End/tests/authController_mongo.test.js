@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const authController =
-  require('../../dist/controllers/authController/authController_mongo').default;
-const { User } = require('../../dist/models/User');
+  require('../dist/controllers/authController/authController_mongo').default;
+const { User } = require('../dist/models/User');
 const { faker } = require('@faker-js/faker');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');

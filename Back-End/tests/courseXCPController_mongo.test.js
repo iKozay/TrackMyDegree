@@ -2,10 +2,10 @@
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 
-const { Degree } = require('../../dist/models/Degree');
-const CourseXCPController = require('../../dist/controllers/CourseXCPController/CourseXCPController_mongoose').default;
+const { Degree } = require('../dist/models/Degree');
+const CourseXCPController = require('../dist/controllers/CourseXCPController/CourseXCPController_mongoose').default;
 
-const DB_OPS = require('../../dist/Util/DB_Ops').default;
+const DB_OPS = require('../dist/Util/DB_Ops').default;
 
 describe('CourseXCPController Mongoose', () => {
   let mongoServer;

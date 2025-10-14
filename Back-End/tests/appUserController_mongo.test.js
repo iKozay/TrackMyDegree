@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const appUserController =
-  require('../../dist/controllers/appUserController/appUserController_mongo').default;
-const { User } = require('../../dist/models/User');
+  require('../dist/controllers/appUserController/appUserController_mongo').default;
+const { User } = require('../dist/models/User');
 
 describe('AppUser Controller', () => {
   let mongoServer;

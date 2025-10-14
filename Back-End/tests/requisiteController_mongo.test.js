@@ -1,7 +1,7 @@
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
-const { Course } = require('../../dist/models/Course');
-const requisiteController = require('../../dist/controllers/requisiteController/requisiteController_mongoose').default;
+const { Course } = require('../dist/models/Course');
+const requisiteController = require('../dist/controllers/requisiteController/requisiteController_mongoose').default;
 describe('RequisiteController Mongoose', () => {
   let mongoServer;
 

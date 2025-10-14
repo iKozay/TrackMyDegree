@@ -6,10 +6,10 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
 // Require compiled controller and Degree model from dist (support default and named exports)
-const degreeControllerModule = require('../../dist/controllers/degreeController/degreeController_mongo');
+const degreeControllerModule = require('../dist/controllers/degreeController/degreeController_mongo');
 const degreeController = degreeControllerModule && degreeControllerModule.default ? degreeControllerModule.default : degreeControllerModule;
 
-const DegreeModule = require('../../dist/models/Degree');
+const DegreeModule = require('../dist/models/Degree');
 const Degree = DegreeModule && DegreeModule.Degree ? DegreeModule.Degree : (DegreeModule.default ? DegreeModule.default : DegreeModule);
 
 describe('degreeControllerMongo (integration with in-memory MongoDB)', () => {

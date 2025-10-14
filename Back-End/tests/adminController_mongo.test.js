@@ -4,11 +4,11 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const fs = require('fs');
 const path = require('path');
-const { User } = require('../../dist/models/User');
-const { Timeline } = require('../../dist/models/Timeline');
-const { Feedback } = require('../../dist/models/Feedback');
-const { Course } = require('../../dist/models/Course');
-const { Degree } = require('../../dist/models/Degree');
+const { User } = require('../dist/models/User');
+const { Timeline } = require('../dist/models/Timeline');
+const { Feedback } = require('../dist/models/Feedback');
+const { Course } = require('../dist/models/Course');
+const { Degree } = require('../dist/models/Degree');
 
 // Mock backup directory
 const BACKUP_DIR = path.join(__dirname, '../../test-backups');
@@ -16,7 +16,7 @@ process.env.BACKUP_DIR = BACKUP_DIR;
 
 const {
   adminController,
-} = require('../../dist/controllers/adminController/adminController_mongo');
+} = require('../dist/controllers/adminController/adminController_mongo');
 
 describe('Admin Controller', () => {
   let mongoServer, mongoUri;
