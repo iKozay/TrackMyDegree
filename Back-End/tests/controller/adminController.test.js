@@ -9,12 +9,14 @@ const { Timeline } = require('../../dist/models/Timeline');
 const { Feedback } = require('../../dist/models/Feedback');
 const { Course } = require('../../dist/models/Course');
 const { Degree } = require('../../dist/models/Degree');
-const {
-  adminController,
-} = require('../../dist/controllers/adminController/adminController_mongo');
 
 // Mock backup directory
 const BACKUP_DIR = path.join(__dirname, '../../test-backups');
+process.env.BACKUP_DIR = BACKUP_DIR;
+
+const {
+  adminController,
+} = require('../../dist/controllers/adminController/adminController_mongo');
 
 describe('Admin Controller', () => {
   let mongoServer, mongoUri;
@@ -30,9 +32,6 @@ describe('Admin Controller', () => {
     if (!fs.existsSync(BACKUP_DIR)) {
       fs.mkdirSync(BACKUP_DIR, { recursive: true });
     }
-
-    // Set BACKUP_DIR env variable for tests
-    process.env.BACKUP_DIR = BACKUP_DIR;
   });
 
   afterAll(async () => {

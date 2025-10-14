@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const express = require('express');
-const { User } = require('../dist/models/User');
-const { Degree } = require('../dist/models/Degree');
-const { Timeline } = require('../dist/models/Timeline');
-const getUserData = require('../dist/controllers/userDataController/userDataController_mongo').default;
+const { User } = require('../../dist/models/User');
+const { Degree } = require('../../dist/models/Degree');
+const { Timeline } = require('../../dist/models/Timeline');
+const getUserData = require('../../dist/controllers/userDataController/userDataController_mongo').default;
 describe('UserDataController', () => {
   let mongoServer;
   let app;

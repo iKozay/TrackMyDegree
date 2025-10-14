@@ -1,10 +1,9 @@
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import TimelineController from '../../controllers/timelineController/timelineController_mongo';
-import TimelineTypes from '../../controllers/timelineController/timeline_types';
+const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const TimelineController = require('../../controllers/timelineController/timelineController_mongo');
 
 describe('TimelineController (MongoDB)', () => {
-  let mongoServer: any;
+  let mongoServer;
 
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
@@ -17,9 +16,9 @@ describe('TimelineController (MongoDB)', () => {
     await mongoServer.stop();
   });
 
-  let createdTimelineId: string;
+  let createdTimelineId;
 
-  const testTimeline: TimelineTypes.Timeline = {
+  const testTimeline = {
     user_id: 'user123',
     name: 'Test Timeline',
     degree_id: 'degreeABC',
@@ -38,7 +37,7 @@ describe('TimelineController (MongoDB)', () => {
     expect(saved).toHaveProperty('id');
     expect(saved.user_id).toBe(testTimeline.user_id);
     expect(saved.items.length).toBe(1);
-    createdTimelineId = saved.id!;
+    createdTimelineId = saved.id;
   });
 
   it('should fetch timelines by user', async () => {
@@ -46,7 +45,7 @@ describe('TimelineController (MongoDB)', () => {
     expect(timelines.length).toBeGreaterThan(0);
     const fetched = timelines.find((t) => t.id === createdTimelineId);
     expect(fetched).toBeDefined();
-    expect(fetched?.name).toBe(testTimeline.name);
+    expect(fetched.name).toBe(testTimeline.name);
   });
 
   it('should delete a timeline', async () => {

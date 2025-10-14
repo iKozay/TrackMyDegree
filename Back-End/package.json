@@ -27,7 +27,7 @@
   },
   "scripts": {
     "prepare": "npx ts-patch install -s",
-    "build": "tsc && cpx \"course-data/**/*\" dist/course-data/",
+    "build": "tsc && cpx \"course-data/!(Scraping)/**/*\" dist/course-data/ && cpx \"course-data/Scraping/Scrapers/**/*\" dist/course-data/Scraping/Scrapers/",
     "start": "node dist/index.js",
     "dev": "ts-node index.ts",
     "launch": "yarn build && yarn start",
@@ -41,6 +41,7 @@
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.25.9",
     "@babel/preset-typescript": "^7.26.0",
+    "@faker-js/faker": "^8.4.1",
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/cookie-parser": "^1.4.7",
