@@ -95,8 +95,6 @@ services:
       - app-network
     secrets:
       - sql_server_password
-    networks:
-      - app-network
     labels:
       - "traefik.enable=false"
 
