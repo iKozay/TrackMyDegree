@@ -1,4 +1,3 @@
-
 /**
  * Purpose:
  *  - Controller module to fetch comprehensive user data.
@@ -48,7 +47,7 @@ export const getUserData = async (
                  WHERE id = @id`,
       );
 
-      // If no user is found, return 404 Not Found
+    // If no user is found, return 404 Not Found
     if (userCheckResult.recordset.length === 0) {
       res.status(404).json({ message: 'User not found' });
       return;
@@ -97,7 +96,7 @@ export const getUserData = async (
                  WHERE AppUser.id = @id`,
       );
 
-   // Combine all retrieved data into a structured response object
+    // Combine all retrieved data into a structured response object
     const response: UserDataResponse = {
       user: {
         id: userData.id,

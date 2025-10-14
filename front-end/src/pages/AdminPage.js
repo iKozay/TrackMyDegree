@@ -9,7 +9,7 @@ import { AdminPageError } from '../middleware/SentryErrors';
 import { useNavigate } from 'react-router-dom';
 import { Button, Form } from 'react-bootstrap';
 
-
+const REACT_APP_SERVER = process.env.REACT_APP_SERVER||'http://localhost:8000';
 //This page is an admin dashboard for manipulating the database (CRUD). The page performs backups, deletes or restores them and can make the server seed data
 const AdminPage = () => {
   const [tables, setTables] = useState([]); //list of all tables
@@ -26,7 +26,7 @@ const AdminPage = () => {
   //This function is ran once at the start. It calls the backend to get a list of backups and stores them in the "backups" variable
   const fetchBackups = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/fetch-backups`, {
+      const response = await fetch(`${REACT_APP_SERVER}/admin/fetch-backups`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -56,7 +56,7 @@ const AdminPage = () => {
   // Function to create a new backup
   const handleCreateBackup = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/create-backup`, {
+      const response = await fetch(`${REACT_APP_SERVER}/admin/create-backup`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -87,7 +87,7 @@ const AdminPage = () => {
       return;
     }
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/restore-backup`, {
+      const response = await fetch(`${REACT_APP_SERVER}/admin/restore-backup`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -119,7 +119,7 @@ const AdminPage = () => {
       return;
     }
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/delete-backup`, {
+      const response = await fetch(`${REACT_APP_SERVER}/admin/delete-backup`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -150,15 +150,13 @@ const AdminPage = () => {
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        let response = await fetch(`${process.env.REACT_APP_SERVER}/admin/tables`,
-          {
-            method: 'POST',
-            credentials: 'include'
-          }
-        );
+        let response = await fetch(`${REACT_APP_SERVER}/admin/tables`, {
+          method: 'POST',
+          credentials: 'include',
+        });
 
         if (!response.ok) {
-          navigate("/403"); //! Forbidden
+          navigate('/403'); //! Forbidden
         }
 
         response = await response.json();
@@ -189,17 +187,15 @@ const AdminPage = () => {
     setLoading(true);
     setError('');
     try {
-      let url = `${process.env.REACT_APP_SERVER}/admin/tables/${tableName}`;
+      let url = `${REACT_APP_SERVER}/admin/tables/${tableName}`;
       if (keyword) {
         url += `?keyword=${encodeURIComponent(keyword)}`;
       }
 
-      let response = await fetch(url,
-        {
-          method: 'POST',
-          credentials: 'include'
-        }
-      );
+      let response = await fetch(url, {
+        method: 'POST',
+        credentials: 'include',
+      });
 
       response = await response.json();
 
@@ -243,7 +239,7 @@ const AdminPage = () => {
    *  Rather the server is using .json files that  are already present on the server (Back-End/course-data/course-list/updated_courses).**/
   const handleSeedData = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/seed-data`, {
+      const response = await fetch(`${REACT_APP_SERVER}/admin/seed-data`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -285,12 +281,7 @@ const AdminPage = () => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
       <div className="admin-container">
         <Row className="mt-4">
           {/* Tables List Column */}
@@ -301,8 +292,7 @@ const AdminPage = () => {
                 tables.map((table) => (
                   <li
                     key={table}
-                    className={`list-group-item list-group-item-action ${selectedTable === table ? 'active' : ''
-                      }`}
+                    className={`list-group-item list-group-item-action ${selectedTable === table ? 'active' : ''}`}
                     onClick={() => handleTableSelect(table)}
                     style={{ cursor: 'pointer' }}
                   >
@@ -326,13 +316,7 @@ const AdminPage = () => {
                 {records.length === 0 ? (
                   <Alert variant="info">No records found.</Alert>
                 ) : (
-                  <Table
-                    striped
-                    bordered
-                    hover
-                    responsive
-                    className="records-table"
-                  >
+                  <Table striped bordered hover responsive className="records-table">
                     <thead>
                       <tr>
                         {columns.map((col) => (

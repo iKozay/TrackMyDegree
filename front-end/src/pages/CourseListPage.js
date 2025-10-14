@@ -17,7 +17,7 @@ function CourseListPage() {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [courseList, setCourseList] = useState([]); //Courses fetched from the server
   const [degrees, setDegrees] = useState([]); //List of degrees fetched from the server
-  const [searchTerm, setSearchTerm] = useState(""); //Used to filter courses by title
+  const [searchTerm, setSearchTerm] = useState(''); //Used to filter courses by title
 
   const fetchController = useRef(null); //Used to cancel a current search if a new one is being made
 
@@ -32,15 +32,12 @@ function CourseListPage() {
   useEffect(() => {
     const getDegrees = async () => {
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_SERVER}/degree/getAllDegrees`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(`${process.env.REACT_APP_SERVER}/degree/getAllDegrees`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
         const jsonData = await response.json();
         setDegrees(jsonData.degrees);
       } catch (err) {
@@ -69,29 +66,24 @@ function CourseListPage() {
     setCourseList([]);
     const degree = degreeObj.id;
     try {
-      console.log("Fetching courses by degree:", degree);
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ degree }),
-          signal: controller.signal,
-        }
-      );
+      console.log('Fetching courses by degree:', degree);
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/courses/getByDegreeGrouped`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ degree }),
+        signal: controller.signal,
+      });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new CourseListPageError(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
+        throw new CourseListPageError(errorData.error || `HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
       setCourseList(data);
       console.log(data);
     } catch (err) {
-      console.log("Error fetching courses:", err);
+      console.log('Error fetching courses:', err);
     }
   };
 
@@ -105,36 +97,31 @@ function CourseListPage() {
 
     setCourseList([]);
     try {
-      console.log("Fetching all courses");
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER}/courses/getallcourses`,
-        {
-          method: "POST", // Adjust method if necessary
-          headers: {
-            "Content-Type": "application/json",
-          },
-          signal: controller.signal,
-        }
-      );
+      console.log('Fetching all courses');
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/courses/getallcourses`, {
+        method: 'POST', // Adjust method if necessary
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+      });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new CourseListPageError(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
+        throw new CourseListPageError(errorData.error || `HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
       // Wrap the array in a group-like structure so CourseListAccordion can render it
       const groupedData = [
         {
-          poolId: "all",
-          poolName: "All Courses",
+          poolId: 'all',
+          poolName: 'All Courses',
           courses: data,
         },
       ];
       setCourseList(groupedData);
       console.log(groupedData);
     } catch (err) {
-      console.log("Error fetching all courses:", err);
+      console.log('Error fetching all courses:', err);
     }
   };
 
@@ -158,46 +145,30 @@ function CourseListPage() {
   // Filter courseList based on the search term.
   // Here, we filter each group's courses by the course title.
   const filteredCourseList = courseList
-    .map(group => ({
+    .map((group) => ({
       ...group,
-      courses: group.courses.filter(course =>
-        course.title.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      courses: group.courses.filter((course) => course.title.toLowerCase().includes(searchTerm.toLowerCase())),
     }))
-    .filter(group => group.courses.length > 0);
+    .filter((group) => group.courses.length > 0);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
       <Container fluid>
         <div className="course-list-div">
           <h3>Select Degree</h3>
           <Dropdown>
-            <Dropdown.Toggle
-              id="dropdown-basic"
-              data-testid="degree-dropdown"
-              className="course-list-dropdown-toggle"
-            >
+            <Dropdown.Toggle id="dropdown-basic" data-testid="degree-dropdown" className="course-list-dropdown-toggle">
               {selectedDegree}
             </Dropdown.Toggle>
             <Dropdown.Menu>
               {/* Option for All Courses */}
-              <Dropdown.Item onClick={handleSelectAllCourses}>
-                All Courses
-              </Dropdown.Item>
+              <Dropdown.Item onClick={handleSelectAllCourses}>All Courses</Dropdown.Item>
               {/* List individual degrees */}
               {degrees.length === 0 ? (
                 <Dropdown.Item disabled>Loading...</Dropdown.Item>
               ) : (
                 degrees.map((degree, index) => (
-                  <Dropdown.Item
-                    key={index}
-                    onClick={() => handleSelectDegree(degree)}
-                  >
+                  <Dropdown.Item key={index} onClick={() => handleSelectDegree(degree)}>
                     {degree.name}
                   </Dropdown.Item>
                 ))
@@ -243,19 +214,14 @@ function CourseListPage() {
                     <p>
                       <b>Prerequisites/Corequisites:</b>
                     </p>
-                    {selectedCourse.requisites &&
-                      selectedCourse.requisites.length > 0 ? (
+                    {selectedCourse.requisites && selectedCourse.requisites.length > 0 ? (
                       <ul>
-                        {groupPrerequisites(selectedCourse.requisites).map(
-                          (group, index) => (
-                            <li key={index}>
-                              {group.type.toLowerCase() === 'pre'
-                                ? 'Prerequisite: '
-                                : 'Corequisite: '}
-                              {group.codes.join(' or ')}
-                            </li>
-                          ),
-                        )}
+                        {groupPrerequisites(selectedCourse.requisites).map((group, index) => (
+                          <li key={index}>
+                            {group.type.toLowerCase() === 'pre' ? 'Prerequisite: ' : 'Corequisite: '}
+                            {group.codes.join(' or ')}
+                          </li>
+                        ))}
                       </ul>
                     ) : (
                       <p>None</p>
@@ -263,10 +229,7 @@ function CourseListPage() {
                   </Card.Text>
                   <Card.Text>
                     <p>
-                      <CourseSectionButton
-                        title={selectedCourse.title}
-                        hidden={true}
-                      />
+                      <CourseSectionButton title={selectedCourse.title} hidden={true} />
                     </p>
                   </Card.Text>
                   <Card.Text>
@@ -288,58 +251,56 @@ function CourseListPage() {
           )}
           {/* Display a popup for screens narrower than 767px */}
           {!isDesktop && (
-           <Modal show={showPopup} onHide={hidePopup}>
-           <Modal.Header closeButton>
-             <Modal.Title>{selectedCourse?.title}</Modal.Title>
-           </Modal.Header>
-           <Modal.Body>
-             {selectedCourse ? (
-               <>
-                 <p>
-                   <b>Credits:</b> {selectedCourse.credits}
-                 </p>
-                 <p>
-                   <b>Prerequisites/Corequisites:</b>
-                 </p>
-                 {selectedCourse.requisites && selectedCourse.requisites.length > 0 ? (
-                   <ul>
-                     {groupPrerequisites(selectedCourse.requisites).map((group, index) => (
-                       <li key={index}>
-                         {group.type.toLowerCase() === 'pre'
-                           ? 'Prerequisite: '
-                           : 'Corequisite: '}
-                         {group.codes.join(' or ')}
-                       </li>
-                     ))}
-                   </ul>
-                 ) : (
-                   <p>None</p>
-                 )}
-                 <p>
-                   <b>Description:</b> {selectedCourse.description}
-                 </p>
-                 {selectedCourse.components && (
-                   <p>
-                     <b>Components:</b> {selectedCourse.components}
-                   </p>
-                 )}
-                 {selectedCourse.notes && (
-                   <p>
-                     <b>Notes:</b> {selectedCourse.notes}
-                   </p>
-                 )}
-               </>
-             ) : (
-               <p>No course selected.</p>
-             )}
-           </Modal.Body>
-           <Modal.Footer>
-             <button onClick={hidePopup} className="btn btn-secondary">
-               Close
-             </button>
-           </Modal.Footer>
-         </Modal>
-       )}
+            <Modal show={showPopup} onHide={hidePopup}>
+              <Modal.Header closeButton>
+                <Modal.Title>{selectedCourse?.title}</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                {selectedCourse ? (
+                  <>
+                    <p>
+                      <b>Credits:</b> {selectedCourse.credits}
+                    </p>
+                    <p>
+                      <b>Prerequisites/Corequisites:</b>
+                    </p>
+                    {selectedCourse.requisites && selectedCourse.requisites.length > 0 ? (
+                      <ul>
+                        {groupPrerequisites(selectedCourse.requisites).map((group, index) => (
+                          <li key={index}>
+                            {group.type.toLowerCase() === 'pre' ? 'Prerequisite: ' : 'Corequisite: '}
+                            {group.codes.join(' or ')}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>None</p>
+                    )}
+                    <p>
+                      <b>Description:</b> {selectedCourse.description}
+                    </p>
+                    {selectedCourse.components && (
+                      <p>
+                        <b>Components:</b> {selectedCourse.components}
+                      </p>
+                    )}
+                    {selectedCourse.notes && (
+                      <p>
+                        <b>Notes:</b> {selectedCourse.notes}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p>No course selected.</p>
+                )}
+              </Modal.Body>
+              <Modal.Footer>
+                <button onClick={hidePopup} className="btn btn-secondary">
+                  Close
+                </button>
+              </Modal.Footer>
+            </Modal>
+          )}
         </Row>
       </Container>
     </motion.div>

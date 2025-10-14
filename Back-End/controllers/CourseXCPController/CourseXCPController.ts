@@ -200,7 +200,6 @@ async function removeDegreeXCP( // should be removeCourseXCP?? seems confusing
   return DB_OPS.FAILURE;
 }
 
-
 // Exported controller API
 const CourseXCPController = {
   createCourseXCP,

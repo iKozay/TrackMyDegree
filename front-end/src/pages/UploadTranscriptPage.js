@@ -1,25 +1,19 @@
 import '../css/UploadTranscriptPage.css';
-import React, { useState, useRef } from 'react';
-import { pdfjs } from 'react-pdf';
+import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
 import PrintImage from '../images/Print_image.png';
 import PdfImage from '../images/Pdf_image.png';
 import TransImage from '../images/Transc_image.png';
-import Button from 'react-bootstrap/Button';
 import { motion } from 'framer-motion';
-import {
-  extractTranscriptComponents,
-  matchCoursesToTerms,
-} from '../utils/transcriptUtils';
-
-// Set the worker source
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
+import UploadBox from '../components/UploadBox';
+import axios from 'axios';
+import { degreeMap } from '../utils/transcriptUtils';
 
 //Operates the same way as the UploadAcceptanceLetter.js page but with transcripts
 // UploadTranscript Component - Handles file upload, drag-and-drop, and processing of PDF transcripts
 /**
  * UploadTranscript Component - Client-side transcript processing page
- * 
+ *
  * Functionality:
  * - Allows users to upload PDF transcripts via drag-drop or file browser
  * - Processes PDFs entirely on the frontend using PDF.js (no backend communication)
@@ -28,127 +22,76 @@ pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pd
  * - Stores processed data in localStorage for persistence
  * - Navigates to TimelinePage (/timeline_change) with extracted transcript data
  * - Passes data to parent component via onDataProcessed callback
- * 
+ *
  * Note: All transcript processing happens client-side for privacy - no data sent to servers
  */
+const REACT_APP_SERVER = process.env.REACT_APP_SERVER || 'http://localhost:8000';
+
 const UploadTranscript = ({ onDataProcessed }) => {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [fileName, setFileName] = useState('No file chosen');
-  const [output, setOutput] = useState('');
-  const fileInputRef = useRef(null); // Reference for the file input
   const navigate = useNavigate(); // Hook to navigate to TimelinePage
-    // Handle drag-and-drop events over the upload box
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.target.classList.add('dragover');
-  };
+  const processFile = async (file) => {
+    const formData = new FormData();
+    formData.append('transcript', file);
 
-  const handleDragLeave = (e) => {
-    e.target.classList.remove('dragover');
-  };
-    // Handle file selection via the file input via the "Browse" button
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.target.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    if (file && file.type === 'application/pdf') {
-      setFileName(`File Selected: ${file.name}`);
-      setSelectedFile(file);
-    } else {
-      alert('Please drop a valid PDF file.');
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file.type === 'application/pdf') {
-      setFileName(`File Selected: ${file.name}`);
-      setSelectedFile(file);
-    } else {
-      alert('Please select a valid PDF file.');
-    }
-  };
-    /*
-    * Process the selected PDF file to extract transcript data
-    * @param {File} file - The PDF file to process
-    * Uses extractTranscriptComponents to get terms, courses, separators, degree, and ecp
-    * Uses matchCoursesToTerms to group courses under their respective terms
-    * Stores the transcript data, degree ID, and extended credit info in localStorage
-    * Navigates to TimelinePage with the extracted data
-    * */
-  const processFile = (file) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const typedArray = new Uint8Array(e.target.result);
-      pdfjs.getDocument(typedArray).promise.then((pdf) => {
-        let pagesPromises = [];
-        for (let i = 1; i <= pdf.numPages; i++) {
-          pagesPromises.push(
-            pdf.getPage(i).then(async (page) => {
-              return page.getTextContent().then((textContentPage) => {
-                return {
-                  page: i,
-                  text: textContentPage.items.map((item) => item.str).join(' '),
-                };
-              });
-            }),
-          );
-        }
-        // TODO: Consider using Web Workers for heavy PDF processing to avoid blocking UI
-        Promise.all(pagesPromises).then((pagesData) => {
-          const extractedData = extractTranscriptComponents(pagesData);
-          const { terms, courses, separators } = extractedData;
-          const transcriptData = matchCoursesToTerms(terms, courses, separators);
-
-          // Extract Degree Info
-          const degreeInfo = extractedData.degree || 'Unknown Degree';
-          const degreeId = extractedData.degreeId || 'Unknown'; // Map degree to ID
-          const isExtendedCredit = extractedData.ecp || false;
-
-          if (transcriptData.length > 0) {
-            localStorage.setItem('Timeline_Name', null);
-
-            onDataProcessed({
-              transcriptData,
-              degreeId,
-              isExtendedCredit,
-            }); // Send grouped data to parent
-            // console.log('transcriptData from PDF:', transcriptData);
-            // console.log('Degree:', degreeInfo);
-            // console.log('Degree ID:', degreeId);
-            // console.log('Ecp', extractedData.ecp);
-            navigate('/timeline_change', {
-              state: { coOp: null, extendedCreditCourses: extractedData.ecp },
-            }); // Navigate to TimelinePage
-          } else {
-            setOutput(`<h3>There are no courses to show!</h3>`);
-          }
-          // console.log(degreeId);
-        });
+    try {
+      const response = await axios.post(`${REACT_APP_SERVER}/transcript/parse`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
-    };
 
-    reader.readAsArrayBuffer(file);
-  };
+      if (response.data.success && response.data.data) {
+        const parsedData = response.data.data;
 
-  const handleSubmit = () => {
-    if (!selectedFile) {
-      alert('Please choose a file to upload!');
-      return;
+        if (parsedData?.terms.length || parsedData?.transferCredits.length) {
+          // Transform new parsed data to match the old format (matching matchCoursesToTerms output)
+          const transcriptData = [];
+
+          // Handle transfer credits as exempted courses
+          if (parsedData.transferCredits.length > 0) {
+            // Get the earliest year from transfer credits or use a default
+            const exemptYear = parsedData.terms[0].year;
+            transcriptData.push({
+              term: `Exempted ${exemptYear}`,
+              courses: parsedData.transferCredits.map((tc) => tc.courseCode.replace(/\s+/g, '')),
+              grade: 'EX',
+            });
+          }
+
+          for (const term of parsedData.terms) {
+            const termName = `${term.term} ${term.year}`;
+            transcriptData.push({
+              term: termName,
+              courses: term.courses.map((tc) => tc.courseCode.replace(/\s+/g, '')),
+              grade: term.termGPA,
+            });
+          }
+
+          // Extract degree ID from program history
+          let degreeName = `${parsedData.programHistory[parsedData.programHistory.length - 1]?.degreeType}, ${parsedData.programHistory[parsedData.programHistory.length - 1]?.major}`;
+          const coop = degreeName.indexOf(' (Co-op)');
+          degreeName = coop === -1 ? degreeName : degreeName.slice(0, coop);
+          const degreeId = degreeMap[degreeName] || 'UNKN';
+
+          onDataProcessed({
+            transcriptData,
+            degreeId,
+            isExtendedCredit: false,
+          });
+
+          // Navigate to timeline_change with the required state
+          navigate('/timeline_change', {
+            state: { coOp: null, extendedCreditCourses: false },
+          }); // Navigate to TimelinePage
+        } else {
+          alert('There are no courses to show!');
+        }
+      }
+    } catch (err) {
+      console.error('Error uploading transcript:', err);
+      alert(err.response?.data?.message || err.message || 'Failed to parse transcript. Please try again.');
     }
-    processFile(selectedFile);
   };
-
-  const handleCancel = () => {
-    setSelectedFile(null);
-    setFileName('No file chosen');
-    setOutput('');
-    // Reset the file input by clearing its value
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''; // This clears the file input field
-    }
-  };
-
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
       <div className="upload-container">
@@ -181,33 +124,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
         {/* Upload Section */}
         <div className="upload-section">
           <h2>Upload Transcript</h2>
-          <div className="upload-box" onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
-            <p>Drag and Drop file</p>
-            or
-            <label htmlFor="file-upload">Browse</label>
-            <input
-              type="file"
-              id="file-upload"
-              accept="application/pdf"
-              onChange={handleFileChange}
-              ref={fileInputRef}
-              style={{ display: 'none' }}
-            />
-            <p className="file-name">{fileName}</p>
-          </div>
-
-          <div className="button-group">
-            <Button variant="danger" onClick={handleCancel}>
-              {' '}
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleSubmit}>
-              {' '}
-              Submit{' '}
-            </Button>
-          </div>
-
-          <div id="output" dangerouslySetInnerHTML={{ __html: output }}></div>
+          <UploadBox processFile={processFile} />
         </div>
       </div>
     </motion.div>
