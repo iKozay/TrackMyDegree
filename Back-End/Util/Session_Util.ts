@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 const session_algo = process.env.SESSION_ALGO as crypto.CipherGCMTypes;
 
@@ -25,7 +25,7 @@ function getEncryptionKey() {
  * - A string containing the decrypted information
  */
 function decryptToken(token: SessionToken): string {
-  const { key, iv, salt } = token;
+  const { key, iv } = token;
   const session_key = getEncryptionKey();
 
   const message = Buffer.from(key, 'base64');
@@ -127,7 +127,7 @@ export function refreshSession(
     return null;
   }
 
-  const new_token: SessionToken = createSessionToken(user, parseInt(salt));
+  const new_token: SessionToken = createSessionToken(user, Number.parseInt(salt));
 
   return new_token;
 }

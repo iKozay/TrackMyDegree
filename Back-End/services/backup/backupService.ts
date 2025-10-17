@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import fs from 'fs';
-import { promises as fsPromises } from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import fsPromises = fs.promises;
+import path from 'node:path';
 import * as Sentry from '@sentry/node';
 import { seedDatabase } from '../seed/seedService';
 
@@ -44,12 +44,16 @@ export async function createBackup(): Promise<string> {
           `Backed up ${data.length} documents from ${collectionName}`,
         );
       } catch (error) {
-        console.warn(`Collection ${collectionName} not found, skipping...`);
+        // log error for each collection
+        console.warn(
+          `Error accessing collection ${collectionName}:`,
+          (error as Error).message
+        );
         backupData[collectionName] = [];
       }
     }
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const timestamp = new Date().toISOString().replaceAll(/[:.]/g, '-');
     const fileName = `backup-${timestamp}.json`;
     const filePath = path.join(BACKUP_DIR, fileName);
 

@@ -32,7 +32,7 @@ async function createDegreeXCP(
     // Add the new course pool to the degree
     degree.coursePools.push({
         id: coursepool_id,
-        name: "<CoursePool Name>", // TODO: Set name appropriately
+        name: "<CoursePool Name>", // NOSONAR TODO: Set name appropriately
         creditsRequired: credits,
         courses: []
     });
@@ -76,7 +76,7 @@ async function updateDegreeXCP(
     // Destructure the update_record object
     // Here we ignore the id field because it refers to the DegreeXCoursePool record itself
     // and we don't need it for the MongoDB operation
-    const { id, degree_id, coursepool_id, credits } = update_record;
+    const { degree_id, coursepool_id, credits } = update_record;
 
     // Find the degree that currently contains the coursepool_id
     let degree = await findCoursePool(coursepool_id);

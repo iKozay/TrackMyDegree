@@ -7,7 +7,7 @@ export default class TimelineRepository {
   static async startTransaction() {
     const dbConn = await Database.getConnection();
     if (!dbConn) throw new Error('Failed to establish database connection.');
-    const transaction = await dbConn.transaction();
+    const transaction = dbConn.transaction();
     await transaction.begin();
     return transaction;
   }
@@ -127,7 +127,7 @@ export default class TimelineRepository {
       `);
 
     const timelinesMap: { [id: string]: TimelineTypes.Timeline } = {};
-    result.recordset.forEach((row: any) => {
+    for (const row of result.recordset) {
       if (!timelinesMap[row.id]) {
         timelinesMap[row.id] = {
           id: row.id,
@@ -149,7 +149,7 @@ export default class TimelineRepository {
           item.courses.push(row.coursecode);
         }
       }
-    });
+    }
 
     return Object.values(timelinesMap);
   }

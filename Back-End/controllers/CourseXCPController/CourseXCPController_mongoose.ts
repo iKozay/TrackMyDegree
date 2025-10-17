@@ -62,8 +62,8 @@ async function getAllCourseXCP(
     const codes = [];
 
     if (coursePool && coursePool.courses) {
-      for (let i = 0; i < coursePool.courses.length; i++) {
-        codes.push(coursePool.courses[i]);
+      for (const course of coursePool.courses) {
+        codes.push(course);
       }
     }
 

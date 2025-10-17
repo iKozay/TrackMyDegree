@@ -29,9 +29,7 @@ router.get('/update', async (req: Request, res: Response) => {
       typeof password !== 'string' ||
       typeof fullname !== 'string' ||
       typeof degree !== 'string' ||
-      !Object.values(appUserTypes.UserType).includes(
-        type as appUserTypes.UserType,
-      )
+      !Object.values(appUserTypes.UserType).includes(type)
     ) {
       res.status(HTTP.BAD_REQUEST).json({
         error: 'Invalid input.',

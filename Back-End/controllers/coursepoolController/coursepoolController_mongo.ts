@@ -13,7 +13,7 @@
 import { Degree } from '../../models/Degree';
 import DB_OPS from '../../Util/DB_Ops';
 import CoursePoolTypes from './coursepool_types';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import * as Sentry from '@sentry/node';
 
 const log = console.log;
@@ -164,8 +164,6 @@ async function removeCoursePool(pool_id: string): Promise<DB_OPS> {
     let removed = false;
     await Promise.all(
       degrees.map(async degree => {
-        const initialLength = degree.coursePools.length;
-        
         // Find the index and remove using splice
         const index = degree.coursePools.findIndex(cp => cp.id === pool_id);
         if (index !== -1) {

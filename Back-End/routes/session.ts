@@ -53,7 +53,7 @@ router.get('/refresh', async (req: Request, res: Response) => {
       if (result.recordset && result.recordset.length > 0) {
         res.status(HTTP.OK).json(result.recordset[0]);
       } else {
-        throw new Error(); //? User not found
+        throw new Error('User not found');
       }
     }
 

@@ -3,7 +3,6 @@ import ts from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import prettier from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
-import { defineConfig } from 'eslint/config';
 
 export default [
   js.configs.recommended,

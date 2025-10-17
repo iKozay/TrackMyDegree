@@ -10,7 +10,7 @@
 
 import { Course } from '../../models';
 import RequisiteTypes from '@controllers/requisiteController/requisite_types';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import * as Sentry from '@sentry/node';
 
 /**
@@ -87,23 +87,23 @@ async function readRequisite(
     }
 
     // Return all requisites for code1
-    course.prerequisites.forEach((prereq: string) => {
+    for (const prereq of course.prerequisites) {
       requisites.push({
         id: randomUUID(),
         code1,
         code2: prereq,
         type: 'pre'
       });
-    });
+    }
 
-    course.corequisites.forEach((coreq: string) => {
+    for (const coreq of course.corequisites) {
       requisites.push({
         id: randomUUID(),
         code1,
         code2: coreq,
         type: 'co'
       });
-    });
+    }
 
     return requisites;
   } catch (error) {
@@ -114,8 +114,11 @@ async function readRequisite(
 
 /**
  * Updates an existing requisite.
+ * This function has the same implementation as createRequisite because
+ * adding a requisite is effectively the same as updating it in this schema.
+ * NOTE - This is intentional to maintain the same method signature as the SQL version. Refactor later.
  */
-async function updateRequisite(
+async function updateRequisite( // NOSONAR S4144 - Intentional duplicate implementation
   code1: string,
   code2: string,
   type: RequisiteTypes.RequisiteType,

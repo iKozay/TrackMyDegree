@@ -12,7 +12,6 @@ import {
 } from '@controllers/adminController/adminController'; // Import controller methods
 import { AdminCheck } from '@middleware/JWTAccessMiddleware';
 import { verifyAuth } from '@middleware/authMiddleware';
-import { create } from 'domain';
 
 const router = express.Router();
 

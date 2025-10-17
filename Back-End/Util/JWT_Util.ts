@@ -96,9 +96,9 @@ function generateToken(
 
   const session_payload = {
     ...payload,
-    session_token: !token
-      ? createSessionToken(user)
-      : refreshSession(token, user),
+    session_token: token
+      ? refreshSession(token, user)
+      : createSessionToken(user),
   };
 
   return jwt.sign(session_payload, secret, options);

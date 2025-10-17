@@ -83,6 +83,8 @@ describe('Exemption Routes', () => {
         })
         .expect('Content-Type', /json/)
         .expect(403);
+
+      expect(response.body).toHaveProperty('error', 'Service error');
     });
   });
 
