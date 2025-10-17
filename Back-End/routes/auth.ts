@@ -10,7 +10,7 @@ import { UserHeaders } from '@Util/Session_Util';
 dotenv.config();
 
 const router = express.Router();
-var salt = bcrypt.genSaltSync(10);
+const salt = bcrypt.genSaltSync(10);
 
 /**Routes */
 // Login
@@ -40,7 +40,7 @@ router.post('/login', async (req: Request, res: Response) => {
       const { id, type } = result;
       if (!id) {
         //? Check if ID is undefined
-        throw new Error();
+        throw new Error("User ID is undefined");
       }
 
       const cookie = setJWTCookie({ id, type }, headers); //? Attach the JWT Cookie to the response
@@ -70,10 +70,10 @@ router.post('/signup', async (req: Request, res: Response) => {
     payload.password = await bcrypt.hash(payload.password, salt);
     const result = await authController.registerUser(payload);
 
-    if (!result) {
-      throw new Error('Insertion result is undefined');
-    } else {
+    if (result) {
       res.status(HTTP.CREATED).json(result);
+    } else {
+      throw new Error('Insertion result is undefined');
     }
   } catch (error) {
     const errMsg = 'Internal server error in /signup';
@@ -96,10 +96,10 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
   try {
     const result = await authController.forgotPassword(email);
 
-    if (!result) {
-      throw new Error('Email check returns undefined');
-    } else {
+    if (result) {
       res.status(HTTP.ACCEPTED).json(result);
+    } else {
+      throw new Error('Email check returns undefined');
     }
   } catch (error) {
     const errMsg = 'Internal server error in /forgot-password';
@@ -128,10 +128,10 @@ router.post('/reset-password', async (req: Request, res: Response) => {
       confirmPassword,
     );
 
-    if (!result) {
-      throw new Error('Reset password returns undefined');
-    } else {
+    if (result) {
       res.status(HTTP.ACCEPTED).json(result);
+    } else {
+      throw new Error('Reset password returns undefined');
     }
   } catch (error) {
     const errMsg = 'Internal server error in /reset-password';

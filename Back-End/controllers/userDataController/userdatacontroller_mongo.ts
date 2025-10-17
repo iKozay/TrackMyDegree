@@ -92,7 +92,7 @@ export const getUserData = async (
       exemptions,
       degree: degree
         ? {
-            id: degree.id as string,
+            id: degree.id,
             name: degree.name,
             totalCredits: degree.totalCredits
           }

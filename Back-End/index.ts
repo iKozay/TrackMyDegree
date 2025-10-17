@@ -47,7 +47,6 @@ app.use(cors(corsOptions));
 // Preflight handling for all routes
 app.options('*', cors(corsOptions));
 
-// app.use(cors({ origin: [HOPPSCOTCH, CLIENT, "*"] }));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
@@ -66,7 +65,6 @@ app.use('/exemption', exemptionRouter);
 app.use('/deficiency', deficiencyRouter);
 app.use('/timeline', timelineRouter);
 app.use('/coursepool', coursepoolRouter);
-//app.use("/appUser", AppUser);
 app.use('/data', userDataRouter);
 app.use('/admin', Admin);
 app.use('/requisite', requisiteRouter);

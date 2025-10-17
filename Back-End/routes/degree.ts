@@ -195,11 +195,10 @@ router.post('/getPools', async (req: Request, res: Response) => {
       const { course_pools } = result;
       let degree_coursepools: any = {};
 
-      for (let i = 0; i < course_pools.length; i++) {
-        const { id, name } = course_pools[i];
+      for (const { id, name } of course_pools) {
         const pools = Object.keys(degree_coursepools);
 
-        if (!pools.find((item) => name === item)) {
+        if (!pools.includes(name)) {
           degree_coursepools[name] = [];
         }
 

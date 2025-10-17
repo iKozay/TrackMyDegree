@@ -14,7 +14,7 @@ export default async function submitFeedback(
   message: string,
   user_id?: string,
 ) {
-    // TODO: Validate user_id if provided
+    // NOSONAR TODO: Validate user_id if provided
 
     const feedback = await Feedback.create({
         message,

@@ -1,6 +1,6 @@
 // controllers/deficiencyController/deficiencyController_mongo.ts
 
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import * as Sentry from '@sentry/node';
 import DeficiencyTypes from '@controllers/deficiencyController/deficiency_types';
 
@@ -102,7 +102,7 @@ async function deleteDeficiencyByCoursepoolAndUserId(
     }
 
     if (!Array.isArray(user.deficiencies)) {
-      throw new Error('Deficiency with this id does not exist.');
+      throw new TypeError('Deficiency with this id does not exist.');
     }
 
     const idx = user.deficiencies.findIndex(d => d.coursepool === coursepool);

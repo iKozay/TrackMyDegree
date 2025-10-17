@@ -29,7 +29,7 @@ const CourseModel = mongoose.model<CourseDocument>('Course', CourseSchema);
 // Contrôleur MongoDB
 // ==========================
 
-export default class CourseController_Mongo {
+export default class CourseControllerMongo {
   /**
    * 🔹 Récupère tous les cours
    */
