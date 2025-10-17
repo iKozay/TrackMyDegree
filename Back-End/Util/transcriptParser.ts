@@ -460,7 +460,7 @@ export class TranscriptParser {
         /^[A-Z]{2,4}$/.test(dept) &&
         /^\d{3}$/.test(number) &&
         (grade === 'EX' || grade === 'PASS') &&
-        /^\d+\.?\d*$/.test(creditsStr)
+        /^\d+(?:\.\d+)?$/.test(creditsStr)
       ) {
         transferCredits.push({
           courseCode: `${dept} ${number}`,
@@ -478,17 +478,35 @@ export class TranscriptParser {
    * Extract academic summary
    */
   private extractAcademicSummary(lines: string[]): AdditionalInfo {
-      const info: AdditionalInfo = {};
-      const expandedLines = this.expandPipeSeparatedLines(lines);
+    const info: AdditionalInfo = {};
+    const expandedLines = this.expandPipeSeparatedLines(lines);
 
-      for (let i = 0; i < expandedLines.length; i++) {
-          this.trySetNumericField(info, expandedLines, i, 'Min. Credits Required:', 'minCreditsRequired');
-          this.trySetNumericField(info, expandedLines, i, 'Program Credits Earned:', 'programCreditsEarned');
-          this.trySetNumericField(info, expandedLines, i, 'Cumulative GPA:', 'overallGPA');
-          this.trySetWritingSkillsRequirement(info, expandedLines[i]);
-      }
+    for (let i = 0; i < expandedLines.length; i++) {
+      this.trySetNumericField(
+        info,
+        expandedLines,
+        i,
+        'Min. Credits Required:',
+        'minCreditsRequired',
+      );
+      this.trySetNumericField(
+        info,
+        expandedLines,
+        i,
+        'Program Credits Earned:',
+        'programCreditsEarned',
+      );
+      this.trySetNumericField(
+        info,
+        expandedLines,
+        i,
+        'Cumulative GPA:',
+        'overallGPA',
+      );
+      this.trySetWritingSkillsRequirement(info, expandedLines[i]);
+    }
 
-      return info;
+    return info;
   }
 
   private trySetNumericField(
@@ -496,7 +514,7 @@ export class TranscriptParser {
     lines: string[],
     i: number,
     label: string,
-    field: 'overallGPA' | 'minCreditsRequired' | 'programCreditsEarned'
+    field: 'overallGPA' | 'minCreditsRequired' | 'programCreditsEarned',
   ) {
     if (lines[i] === label && i + 1 < lines.length) {
       const nextLine = lines[i + 1].trim();
@@ -508,99 +526,107 @@ export class TranscriptParser {
   }
 
   private trySetWritingSkillsRequirement(info: AdditionalInfo, line: string) {
-        if (line.startsWith('Writing Skills Requirement:')) {
-            const reqRegex = /Writing Skills Requirement:\s*(.+)/;
-            const reqMatch = reqRegex.exec(line);
-            if (reqMatch) info.writingSkillsRequirement = reqMatch[1].trim();
-        }
+    if (line.startsWith('Writing Skills Requirement:')) {
+      const reqRegex = /Writing Skills Requirement:\s*(.+)/;
+      const reqMatch = reqRegex.exec(line);
+      if (reqMatch) info.writingSkillsRequirement = reqMatch[1].trim();
     }
+  }
 
-    /**
+  /**
    * Extract terms using hybrid approach:
    * - Term boundaries from pdf-parse (correct order with line indices)
    * - Course data from pdf2json (structured columns with order preservation)
    */
-    private extractTermsHybrid(
-        termBoundaries: Array<{
-            term: string;
-            year: string;
-            lineIndex: number;
-            gpa?: number;
-        }>,
-        pdf2jsonData: any,
-    ): TranscriptTerm[] {
-        const allCourses = this.flattenCoursesByPage(this.extractCoursesFromPdf2json(pdf2jsonData));
-        let courseIndex = 0;
-        const terms: TranscriptTerm[] = [];
+  private extractTermsHybrid(
+    termBoundaries: Array<{
+      term: string;
+      year: string;
+      lineIndex: number;
+      gpa?: number;
+    }>,
+    pdf2jsonData: any,
+  ): TranscriptTerm[] {
+    const allCourses = this.flattenCoursesByPage(
+      this.extractCoursesFromPdf2json(pdf2jsonData),
+    );
+    let courseIndex = 0;
+    const terms: TranscriptTerm[] = [];
 
-        for (const [termIdx, boundary] of termBoundaries.entries()) {
-            const term: TranscriptTerm = {
-                term: boundary.term,
-                year: boundary.year,
-                courses: [],
-                termGPA: boundary.gpa,
-                termCredits: undefined,
-            };
+    for (const [termIdx, boundary] of termBoundaries.entries()) {
+      const term: TranscriptTerm = {
+        term: boundary.term,
+        year: boundary.year,
+        courses: [],
+        termGPA: boundary.gpa,
+        termCredits: undefined,
+      };
 
-            courseIndex = this.assignCoursesToTerm(
-                allCourses,
-                courseIndex,
-                term,
-                termIdx,
-                termBoundaries.length
-            );
+      courseIndex = this.assignCoursesToTerm(
+        allCourses,
+        courseIndex,
+        term,
+        termIdx,
+        termBoundaries.length,
+      );
 
-            terms.push(term);
-        }
-
-        return this.cleanupTerms(terms);
+      terms.push(term);
     }
 
-    private flattenCoursesByPage(
-        coursesByPage: Map<number, Array<{ course: TranscriptCourse; order: number }>>
-    ): Array<TranscriptCourse & { page: number; order: number }> {
-        const allCourses: Array<TranscriptCourse & { page: number; order: number }> = [];
-        for (const [page, coursesOnPage] of coursesByPage) {
-            for (const courseInfo of coursesOnPage) {
-                allCourses.push({
-                    ...courseInfo.course,
-                    page,
-                    order: courseInfo.order,
-                });
-            }
-        }
-        return allCourses;
+    return this.cleanupTerms(terms);
+  }
+
+  private flattenCoursesByPage(
+    coursesByPage: Map<
+      number,
+      Array<{ course: TranscriptCourse; order: number }>
+    >,
+  ): Array<TranscriptCourse & { page: number; order: number }> {
+    const allCourses: Array<
+      TranscriptCourse & { page: number; order: number }
+    > = [];
+    for (const [page, coursesOnPage] of coursesByPage) {
+      for (const courseInfo of coursesOnPage) {
+        allCourses.push({
+          ...courseInfo.course,
+          page,
+          order: courseInfo.order,
+        });
+      }
     }
+    return allCourses;
+  }
 
-    private assignCoursesToTerm(
-        allCourses: Array<TranscriptCourse & { page: number; order: number }>,
-        startIdx: number,
-        term: TranscriptTerm,
-        termIdx: number,
-        totalTerms: number
-    ): number {
-        let courseIndex = startIdx;
-        while (courseIndex < allCourses.length) {
-            const currentCourse = allCourses[courseIndex];
-            const { page, order, ...cleanCourse } = currentCourse;
-            cleanCourse.term = term.term;
-            cleanCourse.year = term.year;
-            term.courses.push(cleanCourse);
+  private assignCoursesToTerm(
+    allCourses: Array<TranscriptCourse & { page: number; order: number }>,
+    startIdx: number,
+    term: TranscriptTerm,
+    termIdx: number,
+    totalTerms: number,
+  ): number {
+    let courseIndex = startIdx;
+    while (courseIndex < allCourses.length) {
+      const currentCourse = allCourses[courseIndex];
+      const { page, order, ...cleanCourse } = currentCourse;
+      cleanCourse.term = term.term;
+      cleanCourse.year = term.year;
+      term.courses.push(cleanCourse);
 
-            courseIndex++;
-            const nextCourse = courseIndex < allCourses.length ? allCourses[courseIndex] : null;
-            if (!nextCourse) break;
+      courseIndex++;
+      const nextCourse =
+        courseIndex < allCourses.length ? allCourses[courseIndex] : null;
+      if (!nextCourse) break;
 
-            const samePage = currentCourse.page === nextCourse.page;
-            const gap = nextCourse.order - currentCourse.order;
-            const isTermBoundary = (samePage && gap >= 20) || !samePage;
+      const samePage = currentCourse.page === nextCourse.page;
+      const gap = nextCourse.order - currentCourse.order;
+      const isTermBoundary = (samePage && gap >= 20) || !samePage;
 
-            if (isTermBoundary && termIdx < totalTerms - 1) break;
-        }
-        return courseIndex;
+      if (isTermBoundary && termIdx < totalTerms - 1) break;
     }
+    return courseIndex;
+  }
 
-    /**
+  /**
    * Extract courses directly from pdf2json data, preserving page and order information
    */
   private extractCoursesFromPdf2json(
@@ -670,156 +696,163 @@ export class TranscriptParser {
    * Parse a course from pdf2json raw data starting at the given index
    */
   private parseCoursePdf2jsonData(
-      texts: any[],
-      startIndex: number,
+    texts: any[],
+    startIndex: number,
   ): TranscriptCourse | null {
-      if (startIndex + 5 >= texts.length) return null;
+    if (startIndex + 5 >= texts.length) return null;
 
-      const dept = this.decodeText(texts, startIndex);
-      const number = this.decodeText(texts, startIndex + 1);
-      const section = this.decodeText(texts, startIndex + 2).trim();
-      const courseCode = `${dept} ${number}`;
+    const dept = this.decodeText(texts, startIndex);
+    const number = this.decodeText(texts, startIndex + 1);
+    const section = this.decodeText(texts, startIndex + 2).trim();
+    const courseCode = `${dept} ${number}`;
 
-      const { title, nextIndex } = this.collectCourseTitle(texts, startIndex + 3);
-      let titleIndex = nextIndex;
+    const { title, nextIndex } = this.collectCourseTitle(texts, startIndex + 3);
+    let titleIndex = nextIndex;
 
-      if (!this.isCreditsField(texts, titleIndex)) return null;
-      const credits = Number.parseFloat(this.decodeText(texts, titleIndex));
-      titleIndex++;
+    if (!this.isCreditsField(texts, titleIndex)) return null;
+    const credits = Number.parseFloat(this.decodeText(texts, titleIndex));
+    titleIndex++;
 
-      if (titleIndex >= texts.length) return null;
-      const grade = this.decodeText(texts, titleIndex).toUpperCase();
-      titleIndex++;
+    if (titleIndex >= texts.length) return null;
+    const grade = this.decodeText(texts, titleIndex).toUpperCase();
+    titleIndex++;
 
-      let gpa, classAvg, classSize, other;
+    let gpa, classAvg, classSize, other;
 
-      if (!this.isSpecialGrade(grade)) {
-      ({ gpa, classAvg, classSize, titleIndex } =
-        this.parseLetterGradeFields(texts, titleIndex));
-      } else if (this.isZeroGrade(grade)) {
-          titleIndex = this.skipToOtherField(texts, titleIndex);
-      } else {
-          ({ titleIndex } = this.parsePassExemptedCredits(texts, titleIndex));
-      }
+    if (!this.isSpecialGrade(grade)) {
+      ({ gpa, classAvg, classSize, titleIndex } = this.parseLetterGradeFields(
+        texts,
+        titleIndex,
+      ));
+    } else if (this.isZeroGrade(grade)) {
+      titleIndex = this.skipToOtherField(texts, titleIndex);
+    } else {
+      ({ titleIndex } = this.parsePassExemptedCredits(texts, titleIndex));
+    }
 
-      other = this.parseOtherField(texts, titleIndex);
+    other = this.parseOtherField(texts, titleIndex);
 
-      return {
-          courseCode,
-          section,
-          courseTitle: title,
-          credits,
-          grade,
-          notation: undefined,
-          gpa,
-          classAvg,
-          classSize,
-          term: '',
-          year: '',
-          other,
-      };
+    return {
+      courseCode,
+      section,
+      courseTitle: title,
+      credits,
+      grade,
+      notation: undefined,
+      gpa,
+      classAvg,
+      classSize,
+      term: '',
+      year: '',
+      other,
+    };
   }
 
-    private decodeText(texts: any[], idx: number): string {
-        return decodeURIComponent(texts[idx]?.R?.[0]?.T || '');
-    }
+  private decodeText(texts: any[], idx: number): string {
+    return decodeURIComponent(texts[idx]?.R?.[0]?.T || '');
+  }
 
-    private collectCourseTitle(texts: any[], idx: number): { title: string; nextIndex: number } {
-        let title = '';
-        let count = 0;
-        while (
-            idx < texts.length &&
-            !/^\d+\.\d{2}$/.test(this.decodeText(texts, idx))
-            ) {
-            title += this.decodeText(texts, idx) + ' ';
-            idx++;
-            count++;
-            if (count > 15) break;
-        }
-        return { title: title.trim(), nextIndex: idx };
+  private collectCourseTitle(
+    texts: any[],
+    idx: number,
+  ): { title: string; nextIndex: number } {
+    let title = '';
+    let count = 0;
+    while (
+      idx < texts.length &&
+      !/^\d+\.\d{2}$/.test(this.decodeText(texts, idx))
+    ) {
+      title += this.decodeText(texts, idx) + ' ';
+      idx++;
+      count++;
+      if (count > 15) break;
     }
+    return { title: title.trim(), nextIndex: idx };
+  }
 
-    private isCreditsField(texts: any[], idx: number): boolean {
-        return (
-            idx < texts.length &&
-            /^\d+\.\d{2}$/.test(this.decodeText(texts, idx))
-        );
+  private isCreditsField(texts: any[], idx: number): boolean {
+    return (
+      idx < texts.length && /^\d+\.\d{2}$/.test(this.decodeText(texts, idx))
+    );
+  }
+
+  private isSpecialGrade(grade: string): boolean {
+    return ['PASS', 'EX', '0.00', '0', '0.0'].includes(grade);
+  }
+
+  private isZeroGrade(grade: string): boolean {
+    return ['0.00', '0', '0.0'].includes(grade);
+  }
+
+  private parseLetterGradeFields(
+    texts: any[],
+    idx: number,
+  ): {
+    gpa?: number;
+    classAvg?: number;
+    classSize?: number;
+    programCredits?: number;
+    titleIndex: number;
+  } {
+    let gpa, classAvg, classSize, programCredits;
+    if (this.isCreditsField(texts, idx)) {
+      gpa = Number.parseFloat(this.decodeText(texts, idx));
+      idx++;
     }
-
-    private isSpecialGrade(grade: string): boolean {
-        return ['PASS', 'EX', '0.00', '0', '0.0'].includes(grade);
+    if (this.isCreditsField(texts, idx)) {
+      classAvg = Number.parseFloat(this.decodeText(texts, idx));
+      idx++;
     }
-
-    private isZeroGrade(grade: string): boolean {
-        return ['0.00', '0', '0.0'].includes(grade);
+    if (idx < texts.length && /^\d{1,4}$/.test(this.decodeText(texts, idx))) {
+      classSize = Number.parseInt(this.decodeText(texts, idx));
+      idx++;
     }
-
-    private parseLetterGradeFields(
-        texts: any[],
-        idx: number
-    ): { gpa?: number; classAvg?: number; classSize?: number; programCredits?: number; titleIndex: number } {
-        let gpa, classAvg, classSize, programCredits;
-        if (this.isCreditsField(texts, idx)) {
-            gpa = Number.parseFloat(this.decodeText(texts, idx));
-            idx++;
-        }
-        if (this.isCreditsField(texts, idx)) {
-            classAvg = Number.parseFloat(this.decodeText(texts, idx));
-            idx++;
-        }
-        if (
-            idx < texts.length &&
-            /^\d{1,4}$/.test(this.decodeText(texts, idx))
-        ) {
-            classSize = Number.parseInt(this.decodeText(texts, idx));
-            idx++;
-        }
-        if (this.isCreditsField(texts, idx)) {
-            programCredits = Number.parseFloat(this.decodeText(texts, idx));
-            idx++;
-        }
-        return { gpa, classAvg, classSize, programCredits, titleIndex: idx };
+    if (this.isCreditsField(texts, idx)) {
+      programCredits = Number.parseFloat(this.decodeText(texts, idx));
+      idx++;
     }
+    return { gpa, classAvg, classSize, programCredits, titleIndex: idx };
+  }
 
-    private skipToOtherField(texts: any[], idx: number): number {
-        while (
-            idx < texts.length &&
-            !['WKRT', 'RPT', 'EX'].includes(this.decodeText(texts, idx))
-            ) {
-            idx++;
-        }
-        return idx;
+  private skipToOtherField(texts: any[], idx: number): number {
+    while (
+      idx < texts.length &&
+      !['WKRT', 'RPT', 'EX'].includes(this.decodeText(texts, idx))
+    ) {
+      idx++;
     }
+    return idx;
+  }
 
-    private parsePassExemptedCredits(
-        texts: any[],
-        idx: number
-    ): { programCredits?: number; titleIndex: number } {
-        while (
-            idx < texts.length &&
-            !/^\d+\.\d{2}$/.test(this.decodeText(texts, idx))
-            ) {
-            idx++;
-        }
-        let programCredits;
-        if (idx < texts.length) {
-            programCredits = Number.parseFloat(this.decodeText(texts, idx));
-            idx++;
-        }
-        return { programCredits, titleIndex: idx };
+  private parsePassExemptedCredits(
+    texts: any[],
+    idx: number,
+  ): { programCredits?: number; titleIndex: number } {
+    while (
+      idx < texts.length &&
+      !/^\d+\.\d{2}$/.test(this.decodeText(texts, idx))
+    ) {
+      idx++;
     }
-
-    private parseOtherField(texts: any[], idx: number): string | undefined {
-        if (
-            idx < texts.length &&
-            ['WKRT', 'RPT', 'EX'].includes(this.decodeText(texts, idx))
-        ) {
-            return this.decodeText(texts, idx);
-        }
-        return undefined;
+    let programCredits;
+    if (idx < texts.length) {
+      programCredits = Number.parseFloat(this.decodeText(texts, idx));
+      idx++;
     }
+    return { programCredits, titleIndex: idx };
+  }
 
-    /**
+  private parseOtherField(texts: any[], idx: number): string | undefined {
+    if (
+      idx < texts.length &&
+      ['WKRT', 'RPT', 'EX'].includes(this.decodeText(texts, idx))
+    ) {
+      return this.decodeText(texts, idx);
+    }
+    return undefined;
+  }
+
+  /**
    * Clean up terms - remove empty terms and fix term assignments
    */
   private cleanupTerms(terms: TranscriptTerm[]): TranscriptTerm[] {
