@@ -30,9 +30,8 @@ export const SortableCourse = ({
     transition,
   };
 
-  const className = `course-item${disabled ? ' disabled' : ''}${
-    isDragging ? ' dragging' : ''
-  }${isDraggingFromSemester ? ' dragging-from-semester' : ''}${isSelected ? ' selected' : ''}`;
+  const className = `course-item${disabled ? ' disabled' : ''}${isDragging ? ' dragging' : ''
+    }${isDraggingFromSemester ? ' dragging-from-semester' : ''}${isSelected ? ' selected' : ''}`;
 
   const getWarningMessage = () => {
     const warnings = [];
@@ -55,6 +54,12 @@ export const SortableCourse = ({
       onClick={(e) => {
         e.stopPropagation();
         onSelect(courseCode);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(courseCode);
+        }
       }}
     >
       {courseCode}

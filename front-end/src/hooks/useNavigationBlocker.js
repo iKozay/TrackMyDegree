@@ -3,18 +3,14 @@ import { useEffect } from 'react';
 import { useBlocker } from 'react-router-dom';
 
 export const useNavigationBlocker = (shouldBlock, onBlock) => {
-  useEffect(() => {
-    if (!shouldBlock) return;
 
-    const unblock = useBlocker(({ nextLocation }) => {
-      if (onBlock) onBlock(nextLocation.pathname);
+  useBlocker(({ nextLocation }) => {
+    if (shouldBlock) {
+      onBlock?.(nextLocation.pathname);
       return true; // Block navigation
-    });
-
-    return () => {
-      unblock?.(); // Cleanup blocker
-    };
-  }, [shouldBlock, onBlock]);
+    }
+    return false; // Allow navigation
+  });
 
   // External navigation (refresh/close)
   useEffect(() => {

@@ -23,7 +23,7 @@ export const DraggableCourse = ({
         }${isSelected && !isDragging && !disabled ? ' selected' : ''}${extraClassName ? ' ' + extraClassName : ''}`;
 
     return (
-        <div
+        <button
             ref={setNodeRef}
             {...attributes}
             {...listeners}
@@ -36,6 +36,6 @@ export const DraggableCourse = ({
             {courseCode}
             {isInTimeline && <span className="checkmark-icon">✔</span>}
             {removeButton}
-        </div>
+        </button>
     );
 };
