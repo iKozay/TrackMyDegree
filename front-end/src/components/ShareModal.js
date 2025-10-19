@@ -18,7 +18,7 @@ export const ShareModal = ({
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content">
         <button className="close-button" onClick={onClose}>
           ✕
         </button>
