@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { X } from 'react-feather';
-
+import React from 'react';
 export const ConfirmModal = ({
     open,
     onClose,

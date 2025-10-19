@@ -1,12 +1,12 @@
-/* eslint-disable prettier/prettier */
 // TimelineHeader.js
+import React from 'react';
 export const TimelineHeader = ({ timelineName, addButtonText, onAddSemester }) => (
-    <div className="timeline-header">
-        <div className="timeline-title">
-            <h2>{timelineName && timelineName !== 'null' ? timelineName : 'My Timeline'}</h2>
-        </div>
-        <button className="add-semester-button" onClick={onAddSemester}>
-            {addButtonText}
-        </button>
+  <div className="timeline-header">
+    <div className="timeline-title">
+      <h2>{timelineName && timelineName !== 'null' ? timelineName : 'My Timeline'}</h2>
     </div>
+    <button className="add-semester-button" onClick={onAddSemester}>
+      {addButtonText}
+    </button>
+  </div>
 );

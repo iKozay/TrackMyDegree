@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 // src/components/timeline/utils/TrashIcon.js
-
+import React from 'react';
 export const TrashButton = ({ onTrash, id }) => (
     <button
         className="remove-semester-btn"

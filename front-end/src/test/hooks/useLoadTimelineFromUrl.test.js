@@ -4,52 +4,51 @@ import { decompressTimeline } from '../../components/CompressDegree';
 import { useLocation } from 'react-router-dom';
 
 jest.mock('react-router-dom', () => ({
-    useLocation: jest.fn(),
+  useLocation: jest.fn(),
 }));
 
 jest.mock('../../components/CompressDegree', () => ({
-    decompressTimeline: jest.fn(),
+  decompressTimeline: jest.fn(),
 }));
 
 describe('useLoadTimelineFromUrl', () => {
-    const mockDispatch = jest.fn();
+  const mockDispatch = jest.fn();
 
-    beforeEach(() => {
-        jest.clearAllMocks();
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('loads and decompresses timeline from URL', async () => {
+    useLocation.mockReturnValue({
+      search: '?tstring=mockString',
     });
 
-    test('loads and decompresses timeline from URL', async () => {
-        useLocation.mockReturnValue({
-            search: '?tstring=mockString',
-        });
+    decompressTimeline.mockReturnValue([
+      { Fall2025: ['COMP101'] }, // decompressedTimeline
+      'DEG1', // degreeFromUrl
+      120, // creditsFromUrl
+      true, // ecpValue
+    ]);
 
-        decompressTimeline.mockReturnValue([
-            { Fall2025: ['COMP101'] }, // decompressedTimeline
-            'DEG1', // degreeFromUrl
-            120, // creditsFromUrl
-            true, // ecpValue
-        ]);
+    const { result } = renderHook(() => useLoadTimelineFromUrl(mockDispatch));
 
-        const { result } = renderHook(() => useLoadTimelineFromUrl(mockDispatch));
+    // Wait a tick for useEffect to run
+    await Promise.resolve();
 
-        // Wait a tick for useEffect to run
-        await Promise.resolve();
+    expect(decompressTimeline).toHaveBeenCalledWith('mockString');
 
-        expect(decompressTimeline).toHaveBeenCalledWith('mockString');
+    expect(result.current).toBe(true);
+  });
 
+  test('returns null if no tstring param', async () => {
+    useLocation.mockReturnValue({ search: '' });
 
-        expect(result.current).toBe(true);
-    });
+    const { result } = renderHook(() => useLoadTimelineFromUrl(mockDispatch));
 
-    test('returns null if no tstring param', async () => {
-        useLocation.mockReturnValue({ search: '' });
+    await Promise.resolve();
 
-        const { result } = renderHook(() => useLoadTimelineFromUrl(mockDispatch));
-
-        await Promise.resolve();
-
-        expect(result.current).toBe(null);
-        expect(mockDispatch).not.toHaveBeenCalled();
-        expect(decompressTimeline).not.toHaveBeenCalled();
-    });
+    expect(result.current).toBe(null);
+    expect(mockDispatch).not.toHaveBeenCalled();
+    expect(decompressTimeline).not.toHaveBeenCalled();
+  });
 });

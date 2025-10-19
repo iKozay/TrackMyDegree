@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 // DraggableCourse component for course list items
 export const DraggableCourse = ({

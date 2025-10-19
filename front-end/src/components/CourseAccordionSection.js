@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-
+import React from 'react';
 import { Accordion, Container } from "react-bootstrap";
 import { DraggableCourse } from "./DraggableCourse";
 import { RemoveButton } from "./RemoveButton";

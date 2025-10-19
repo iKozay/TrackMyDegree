@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 export const ItemAddingModal = ({ title, allCourses, onClose, onAdd }) => {
 

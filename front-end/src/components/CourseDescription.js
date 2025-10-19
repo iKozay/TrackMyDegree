@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-
+import React from "react";
 import { CourseScheduleModal } from "./CourseScheduleModal";
 
 export const CourseDescription = ({

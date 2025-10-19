@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import React from 'react';
 import { Accordion } from "react-bootstrap";
 import CourseAccordionSection from "./CourseAccordionSection";
 import { Droppable } from "./Droppable"; // your Droppable component

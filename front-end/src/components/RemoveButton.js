@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 // src/components/timeline/utils/RemoveButton.js
-
+import React from 'react';
 export const RemoveButton = ({ isSelected, onRemove }) => (
     <button
         className={`remove-course-btn ${isSelected ? 'selected' : ''}`}

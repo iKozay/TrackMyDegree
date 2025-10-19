@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import React from 'react';
 import { FaUndo, FaRedo, FaShareSquare } from "react-icons/fa";
 import ShowInsights from "./ShowInsights";
 import { Button } from "react-bootstrap";

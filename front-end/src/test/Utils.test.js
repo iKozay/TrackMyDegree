@@ -672,14 +672,19 @@ describe('isCourseOfferedInSemester (edge cases)', () => {
   // Removed failing test: ignores year in offeredIn array
 });
 
-
 // --- arePrerequisitesMet additional ---
 describe('arePrerequisitesMet (additional)', () => {
   const semesters = [{ id: 'Fall2025' }, { id: 'Winter2026' }];
 
   test('handles multiple prerequisites, all must be met', () => {
     const allCourses2 = [
-      { code: 'COMP300', requisites: [{ type: 'pre', code2: 'COMP100' }, { type: 'pre', code2: 'COMP200' }] },
+      {
+        code: 'COMP300',
+        requisites: [
+          { type: 'pre', code2: 'COMP100' },
+          { type: 'pre', code2: 'COMP200' },
+        ],
+      },
       { code: 'COMP100', requisites: [] },
       { code: 'COMP200', requisites: [] },
     ];
@@ -700,7 +705,6 @@ describe('generateFourYearSemesters (edge cases)', () => {
     expect(generateFourYearSemesters('  Fall   2025 ')).toHaveLength(12);
   });
 });
-
 
 // --- getTimelineInfo edge cases ---
 describe('getTimelineInfo (edge cases)', () => {
@@ -778,5 +782,4 @@ describe('getMaxCreditsForSemesterName (edge cases)', () => {
   test('handles empty string', () => {
     expect(getMaxCreditsForSemesterName('')).toBe(19);
   });
-
 });

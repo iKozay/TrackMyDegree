@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 
 export const Droppable = ({ id, children, className = 'semester-spot' }) => {

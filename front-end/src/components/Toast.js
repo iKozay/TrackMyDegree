@@ -10,13 +10,13 @@ export const notifyInfo = (message) => toast.info(message);
 export const notifyWarning = (message) => toast.warning(message);
 
 export const Toast = () => (
-    <ToastContainer
-        position="top-right"
-        autoClose={1000}   // auto close after 3 seconds
-        hideProgressBar={false}
-        newestOnTop={true}
-        closeOnClick
-        pauseOnHover
-        draggable
-    />
+  <ToastContainer
+    position="top-right"
+    autoClose={1000} // auto close after 3 seconds
+    hideProgressBar={false}
+    newestOnTop={true}
+    closeOnClick
+    pauseOnHover
+    draggable
+  />
 );

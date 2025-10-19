@@ -1,7 +1,4 @@
-/* eslint-disable no-undef */
-/* eslint-disable prettier/prettier */
-// TimelinePage.js
-/*eslint no-undef: "error"*/
+
 import React from 'react';
 
 import { useRef, useContext, useReducer } from 'react';
