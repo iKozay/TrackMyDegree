@@ -28,6 +28,8 @@ import { setTimeout } from 'node:timers';
  * ```
  */
 export class TranscriptParser {
+  private static readonly STUDENT_ID_STRING = 'Student ID:';
+  private static readonly ACTIVE_STRING = 'Active in Program';
   /**
    * Parse a transcript from a PDF file path
    */
@@ -288,7 +290,7 @@ export class TranscriptParser {
     const line = lines[i];
     if (
       i < lines.length - 1 &&
-      lines[i + 1].startsWith('Student ID:') &&
+      lines[i + 1].startsWith(TranscriptParser.STUDENT_ID_STRING) &&
       !line.includes('http') &&
       !line.includes('Page') &&
       !line.includes('Student Record') &&
@@ -300,7 +302,7 @@ export class TranscriptParser {
   }
 
   private trySetStudentId(info: StudentInfo, line: string) {
-    if (line.startsWith('Student ID:')) {
+    if (line.startsWith(TranscriptParser.STUDENT_ID_STRING)) {
       const idMatch = /Student ID:\s*(\d+)/.exec(line);
       if (idMatch) info.studentId = idMatch[1];
     }
@@ -310,7 +312,7 @@ export class TranscriptParser {
     const line = lines[i];
     if (
       i > 0 &&
-      lines[i - 1].startsWith('Student ID:') &&
+      lines[i - 1].startsWith(TranscriptParser.STUDENT_ID_STRING) &&
       !line.includes(',') &&
       !line.includes('Canada') &&
       !line.startsWith('Birthdate') &&
@@ -378,11 +380,11 @@ export class TranscriptParser {
     const programs: ProgramInfo[] = [];
 
     for (let i = 0; i < expandedLines.length; i++) {
-      if (expandedLines[i] === 'Active in Program') {
+      if (expandedLines[i] === TranscriptParser.ACTIVE_STRING) {
         const date = i + 1 < expandedLines.length ? expandedLines[i + 1] : '';
         const details = this.extractProgramDetails(expandedLines, i + 2);
         programs.push({
-          status: 'Active in Program',
+          status: TranscriptParser.ACTIVE_STRING,
           startDate: date,
           admitTerm: details.admitTerm,
           degreeType: details.degreeType,
@@ -426,7 +428,7 @@ export class TranscriptParser {
       ) {
         note = line;
       } else if (
-        line === 'Active in Program' ||
+        line === TranscriptParser.ACTIVE_STRING ||
         line.includes('Min. Credits Required')
       ) {
         break;
