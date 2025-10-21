@@ -10,7 +10,7 @@
 
 import { Course } from '../../models';
 import RequisiteTypes from '@controllers/requisiteController/requisite_types';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import * as Sentry from '@sentry/node';
 
 /**
@@ -25,29 +25,33 @@ async function createRequisite(
     // Check if both courses exist
     const [course1, course2] = await Promise.all([
       Course.findById(code1),
-      Course.findById(code2)
+      Course.findById(code2),
     ]);
 
     if (!course1 || !course2) {
-      throw new Error(`One or both courses ('${code1}', '${code2}') do not exist.`);
+      throw new Error(
+        `One or both courses ('${code1}', '${code2}') do not exist.`,
+      );
     }
 
     // Check if requisite already exists
     const field = type === 'pre' ? 'prerequisites' : 'corequisites';
     if (course1[field].includes(code2)) {
-      throw new Error('Requisite with this combination of courses already exists.');
+      throw new Error(
+        'Requisite with this combination of courses already exists.',
+      );
     }
 
     // Add requisite
     await Course.findByIdAndUpdate(code1, {
-      $addToSet: { [field]: code2 }
+      $addToSet: { [field]: code2 },
     });
 
     return {
       id: randomUUID(),
       code1,
       code2,
-      type
+      type,
     };
   } catch (error) {
     Sentry.captureException(error);
@@ -80,30 +84,30 @@ async function readRequisite(
           id: randomUUID(),
           code1,
           code2,
-          type
+          type,
         });
       }
       return requisites;
     }
 
     // Return all requisites for code1
-    course.prerequisites.forEach((prereq: string) => {
+    for (const prereq of course.prerequisites) {
       requisites.push({
         id: randomUUID(),
         code1,
         code2: prereq,
-        type: 'pre'
+        type: 'pre',
       });
-    });
+    }
 
-    course.corequisites.forEach((coreq: string) => {
+    for (const coreq of course.corequisites) {
       requisites.push({
         id: randomUUID(),
         code1,
         code2: coreq,
-        type: 'co'
+        type: 'co',
       });
-    });
+    }
 
     return requisites;
   } catch (error) {
@@ -114,8 +118,11 @@ async function readRequisite(
 
 /**
  * Updates an existing requisite.
+ * This function has the same implementation as createRequisite because
+ * adding a requisite is effectively the same as updating it in this schema.
+ * TODO - This is intentional to maintain the same method signature as the SQL version. Refactor as part of https://github.com/iKozay/TrackMyDegree/issues/114
  */
-async function updateRequisite(
+async function updateRequisite( // NOSONAR S4144 - Intentional duplicate implementation
   code1: string,
   code2: string,
   type: RequisiteTypes.RequisiteType,
@@ -124,30 +131,34 @@ async function updateRequisite(
     // Check if both courses exist
     const [course1, course2] = await Promise.all([
       Course.findById(code1),
-      Course.findById(code2)
+      Course.findById(code2),
     ]);
 
     if (!course1 || !course2) {
-      throw new Error(`One or both courses ('${code1}', '${code2}') do not exist.`);
+      throw new Error(
+        `One or both courses ('${code1}', '${code2}') do not exist.`,
+      );
     }
 
     const field = type === 'pre' ? 'prerequisites' : 'corequisites';
 
     // Check if requisite already exists
     if (course1[field].includes(code2)) {
-      throw new Error('Requisite with this combination of courses already exists.');
+      throw new Error(
+        'Requisite with this combination of courses already exists.',
+      );
     }
 
     // Add the requisite
     await Course.findByIdAndUpdate(code1, {
-      $addToSet: { [field]: code2 }
+      $addToSet: { [field]: code2 },
     });
 
     return {
       id: randomUUID(),
       code1,
       code2,
-      type
+      type,
     };
   } catch (error) {
     Sentry.captureException(error);
@@ -177,7 +188,7 @@ async function deleteRequisite(
 
     // Remove requisite
     await Course.findByIdAndUpdate(code1, {
-      $pull: { [field]: code2 }
+      $pull: { [field]: code2 },
     });
 
     return `Requisite with the course combination provided has been successfully deleted.`;

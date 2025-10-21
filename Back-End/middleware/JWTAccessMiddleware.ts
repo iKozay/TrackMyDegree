@@ -3,7 +3,6 @@ import HTTP from '@Util/HTTPCodes';
 import {
   isOrgIdValid,
   isTokenExpired,
-  TokenPayload,
   verifyToken,
 } from '@Util/JWT_Util';
 import authController from '@controllers/authController/authController';

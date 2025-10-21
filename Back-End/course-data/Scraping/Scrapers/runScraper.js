@@ -1,4 +1,4 @@
-const {spawn} = require("child_process");
+const {spawn} = require("node:child_process");
 
 //This function allows the server to run any scraper (there is only one for now) by giving the path to the script and the arguments
 //Arguments would vary by script check each script for a comment there
