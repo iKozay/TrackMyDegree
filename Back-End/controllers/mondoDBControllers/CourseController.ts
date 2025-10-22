@@ -1,13 +1,24 @@
 /**
  * Optimized Course Controller
  *
- * Extends BaseMongoController to provide course-specific operations.
+ * Provides course-specific operations using MongoDB.
+ * Decoupled from Express for better reusability.
  */
 
-import { Request, Response } from 'express';
 import { BaseMongoController } from './BaseMongoController';
 import { Course } from '../../models';
-import CourseTypes from '../courseController/course_types';
+
+export interface CourseData {
+  _id?: string;
+  code?: string;
+  title: string;
+  description?: string;
+  credits: number;
+  prerequisites?: string[];
+  corequisites?: string[];
+  offeredIn?: string[];
+  [key: string]: unknown;
+}
 
 export class CourseController extends BaseMongoController<any> {
   constructor() {
@@ -15,133 +26,147 @@ export class CourseController extends BaseMongoController<any> {
   }
 
   /**
-   * Get all courses with optional filtering
+   * Get all courses with optional filtering and pagination
    */
-  async getAllCourses(req: Request, res: Response): Promise<Response> {
+  async getAllCourses(
+    params: {
+      pool?: string;
+      search?: string;
+      page?: number;
+      limit?: number;
+      sort?: string;
+    } = {},
+  ) {
     try {
-      const { pool, search, page, limit, sort } = req.query;
+      const { pool, search, page, limit, sort } = params;
 
-      const filter: any = {};
+      const filter: Record<string, unknown> = {};
       if (pool) {
         filter.offeredIn = pool;
       }
 
       const options = {
-        page: page ? parseInt(page as string) : undefined,
-        limit: limit ? parseInt(limit as string) : undefined,
-        sort: sort ? { [sort as string]: 1 as 1 } : { title: 1 as 1 },
-        search: search as string,
+        page,
+        limit,
+        sort: sort ? { [sort]: 1 as const } : { title: 1 as const },
+        search,
         fields: ['title', 'description', '_id'],
       };
 
       const result = await this.findAll(filter, options);
-
-      if (!result.success) {
-        return res.status(404).json(result);
-      }
-
-      return res.status(200).json(result.data);
+      return result.data || [];
     } catch (error) {
-      return res.status(500).json({ error: (error as Error).message });
+      this.handleError(error, 'getAllCourses');
     }
   }
 
   /**
    * Get course by code
    */
-  async getCourseByCode(req: Request, res: Response): Promise<Response> {
+  async getCourseByCode(code: string) {
     try {
-      const { code } = req.params;
       const result = await this.findById(code);
 
       if (!result.success) {
-        return res.status(404).json(result);
+        throw new Error(result.error || 'Course not found');
       }
 
-      return res.status(200).json(result.data);
+      return result.data;
     } catch (error) {
-      return res.status(500).json({ error: (error as Error).message });
+      this.handleError(error, 'getCourseByCode');
     }
   }
 
   /**
    * Create new course
    */
-  async createCourse(req: Request, res: Response): Promise<Response> {
+  async createCourse(courseData: CourseData) {
     try {
-      const courseData: CourseTypes.CourseInfoDB = req.body;
-
       // Check if course already exists
-      const existsResult = await this.exists({ _id: courseData.code });
-      if (existsResult.success && existsResult.data) {
-        return res.status(400).json({ error: 'Course already exists' });
+      const existsResult = await this.exists({
+        _id: courseData.code || courseData._id,
+      });
+      if (existsResult.data) {
+        throw new Error('Course already exists');
       }
 
       const result = await this.create(courseData);
 
       if (!result.success) {
-        return res.status(400).json(result);
+        throw new Error(result.error || 'Failed to create course');
       }
 
-      return res.status(201).json(result.data);
+      return result.data;
     } catch (error) {
-      return res.status(500).json({ error: (error as Error).message });
+      this.handleError(error, 'createCourse');
     }
   }
 
   /**
-   * Update course
+   * Update course by code
    */
-  async updateCourse(req: Request, res: Response): Promise<Response> {
+  async updateCourse(code: string, updates: Partial<CourseData>) {
     try {
-      const { code } = req.params;
-      const updates = req.body;
-
       const result = await this.updateById(code, updates);
 
       if (!result.success) {
-        return res.status(404).json(result);
+        throw new Error(result.error || 'Failed to update course');
       }
 
-      return res.status(200).json(result.data);
+      return result.data;
     } catch (error) {
-      return res.status(500).json({ error: (error as Error).message });
+      this.handleError(error, 'updateCourse');
     }
   }
 
   /**
-   * Delete course
+   * Delete course by code
    */
-  async deleteCourse(req: Request, res: Response): Promise<Response> {
+  async deleteCourse(code: string) {
     try {
-      const { code } = req.params;
       const result = await this.deleteById(code);
 
       if (!result.success) {
-        return res.status(404).json(result);
+        throw new Error(result.error || 'Failed to delete course');
       }
 
-      return res.status(200).json({ message: result.message });
+      return result.message;
     } catch (error) {
-      return res.status(500).json({ error: (error as Error).message });
+      this.handleError(error, 'deleteCourse');
     }
   }
 
   /**
    * Get courses by pool
    */
-  async getCoursesByPool(req: Request, res: Response): Promise<Response> {
+  async getCoursesByPool(poolName: string) {
     try {
-      const { poolName } = req.params;
       const result = await this.findAll({ offeredIn: poolName });
 
       if (!result.success) {
-        return res.status(404).json(result);
+        throw new Error(result.error || 'Failed to fetch courses');
       }
 
-      return res.status(200).json(result.data);
+      return result.data || [];
     } catch (error) {
-      return res.status(500).json({ error: (error as Error).message });
+      this.handleError(error, 'getCoursesByPool');
+    }
+  }
+
+  /**
+   * Bulk create courses
+   */
+  async bulkCreateCourses(courses: CourseData[]) {
+    try {
+      const result = await this.bulkCreate(courses);
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to bulk create courses');
+      }
+
+      return result.data;
+    } catch (error) {
+      this.handleError(error, 'bulkCreateCourses');
     }
   }
 }

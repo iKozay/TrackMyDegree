@@ -1,15 +1,26 @@
 /**
  * Optimized DegreeXCP Controller
  *
- * Handles degree-coursepool mappings with improved error handling.
+ * Handles degree-coursepool mappings with improved performance.
+ * Manages course pools within degree documents.
  */
 
 import { BaseMongoController } from './BaseMongoController';
 import { Degree } from '../../models';
-import DegreeXCPTypes from '../DegreeXCPController/DegreeXCP_types';
-import CoursePoolTypes from '../coursepoolController/coursepool_types';
-import DB_OPS from '@Util/DB_Ops';
 import * as Sentry from '@sentry/node';
+
+export interface DegreeXCPData {
+  degree_id: string;
+  coursepool_id: string;
+  credits: number;
+}
+
+export interface CoursePoolInfo {
+  id: string;
+  name: string;
+  creditsRequired: number;
+  courses: string[];
+}
 
 export class DegreeXCPController extends BaseMongoController<any> {
   constructor() {
@@ -17,190 +28,186 @@ export class DegreeXCPController extends BaseMongoController<any> {
   }
 
   /**
-   * Creates a new DegreeXCoursePool record in the database.
+   * Add a course pool to a degree
+   * Optimized with atomic operation
    */
   async createDegreeXCP(
-    new_record: DegreeXCPTypes.NewDegreeXCP,
-  ): Promise<DB_OPS> {
-    try {
-      // Destructure the new_record object
-      const { degree_id, coursepool_id, credits } = new_record;
-
-      // Check if the degree exists
-      const degree = await Degree.findById(degree_id);
-      if (!degree) {
-        console.log(`Degree with id ${degree_id} not found.`);
-        return DB_OPS.FAILURE;
-      }
-
-      // Check if the course pool already exists in the degree
-      const coursePool = degree.coursePools.find(
-        (cp) => cp.id === coursepool_id,
-      );
-      if (coursePool) {
-        console.log(
-          `CoursePool with id ${coursepool_id} already exists in Degree ${degree_id}.`,
-        );
-        return DB_OPS.FAILURE;
-      }
-
-      // Add the new course pool to the degree
-      degree.coursePools.push({
-        id: coursepool_id,
-        name: '<CoursePool Name>', // TODO: Set name appropriately
-        creditsRequired: credits,
-        courses: [],
-      });
-
-      await degree.save();
-
-      return DB_OPS.SUCCESS;
-    } catch (error) {
-      Sentry.captureException(error);
-      console.log('Error creating DegreeXCP:', error);
-      return DB_OPS.FAILURE;
-    }
-  }
-
-  /**
-   * Retrieves all course pools associated with a specific degree.
-   */
-  async getAllDegreeXCP(
     degree_id: string,
-  ): Promise<{ course_pools: CoursePoolTypes.CoursePoolItem[] }> {
+    coursepool_id: string,
+    name: string,
+    credits: number,
+  ): Promise<boolean> {
     try {
-      const degree = await Degree.findById(degree_id);
-      if (degree) {
-        return {
-          course_pools: degree.coursePools as CoursePoolTypes.CoursePoolItem[],
-        };
-      } else {
-        console.log(`Degree with id ${degree_id} not found.`);
+      // Check if pool already exists in this degree
+      const exists = await Degree.exists({
+        _id: degree_id,
+        'coursePools.id': coursepool_id,
+      }).exec();
+
+      if (exists) {
+        console.error(
+          `[DegreeXCPController] Pool ${coursepool_id} already exists in degree ${degree_id}`,
+        );
+        return false;
       }
 
-      return { course_pools: [] };
+      const result = await Degree.updateOne(
+        { _id: degree_id },
+        {
+          $push: {
+            coursePools: {
+              id: coursepool_id,
+              name,
+              creditsRequired: credits,
+              courses: [],
+            },
+          },
+        },
+      ).exec();
+
+      return (result.modifiedCount || 0) > 0;
     } catch (error) {
       Sentry.captureException(error);
-      console.log('Error fetching DegreeXCP:', error);
-      return { course_pools: [] };
+      console.error(
+        '[DegreeXCPController] Error creating degree-pool mapping:',
+        error,
+      );
+      return false;
     }
   }
 
   /**
-   * Updates an existing DegreeXCoursePool record.
+   * Get all course pools for a specific degree
+   */
+  async getAllDegreeXCP(degree_id: string): Promise<CoursePoolInfo[]> {
+    try {
+      const degree = await Degree.findById(degree_id)
+        .select('coursePools')
+        .lean()
+        .exec();
+
+      if (!degree || !degree.coursePools) {
+        return [];
+      }
+
+      return degree.coursePools.map((cp: any) => ({
+        id: cp.id,
+        name: cp.name,
+        creditsRequired: cp.creditsRequired,
+        courses: cp.courses || [],
+      }));
+    } catch (error) {
+      Sentry.captureException(error);
+      console.error(
+        '[DegreeXCPController] Error fetching degree course pools:',
+        error,
+      );
+      return [];
+    }
+  }
+
+  /**
+   * Update course pool credits for a degree
    */
   async updateDegreeXCP(
-    update_record: DegreeXCPTypes.DegreeXCPItem,
-  ): Promise<DB_OPS> {
+    degree_id: string,
+    coursepool_id: string,
+    credits: number,
+  ): Promise<boolean> {
     try {
-      // Destructure the update_record object
-      const { id, degree_id, coursepool_id, credits } = update_record;
+      const result = await Degree.updateOne(
+        { _id: degree_id, 'coursePools.id': coursepool_id },
+        { $set: { 'coursePools.$.creditsRequired': credits } },
+      ).exec();
 
-      // Find the degree that currently contains the coursepool_id
-      let degree = await this.findCoursePool(coursepool_id);
-      const coursePool = degree?.coursePools.find(
-        (cp) => cp.id === coursepool_id,
-      );
-
-      // If course pool not found in any degree
-      if (!degree || !coursePool) {
-        console.log(
-          `CoursePool with id ${coursepool_id} not found in any degree.`,
-        );
-        return DB_OPS.FAILURE;
-      }
-
-      // If the course pool is already in the target degree, just update it
-      if (degree._id.toString() === degree_id) {
-        coursePool.creditsRequired = credits;
-        await degree.save();
-        return DB_OPS.SUCCESS;
-      }
-
-      // If different degrees, move the course pool
-      // First, check if target degree exists
-      const targetDegree = await Degree.findById(degree_id);
-      if (!targetDegree) {
-        console.log(`Target degree with id ${degree_id} not found.`);
-        return DB_OPS.FAILURE;
-      }
-
-      // Remove from current degree
-      degree.coursePools.pull({ id: coursepool_id });
-      await degree.save();
-
-      // Add to target degree with updated credits
-      targetDegree.coursePools.push({
-        id: coursepool_id,
-        name: coursePool.name,
-        creditsRequired: credits,
-        courses: coursePool.courses,
-      });
-
-      await targetDegree.save();
-
-      return DB_OPS.SUCCESS;
+      return (result.modifiedCount || 0) > 0;
     } catch (error) {
       Sentry.captureException(error);
-      console.log('Error updating DegreeXCP:', error);
-      return DB_OPS.FAILURE;
+      console.error(
+        '[DegreeXCPController] Error updating degree-pool mapping:',
+        error,
+      );
+      return false;
     }
   }
 
   /**
-   * Removes a DegreeXCoursePool record from the database.
+   * Remove a course pool from a degree
    */
   async removeDegreeXCP(
-    delete_record: DegreeXCPTypes.DegreeXCP,
-  ): Promise<DB_OPS> {
+    degree_id: string,
+    coursepool_id: string,
+  ): Promise<boolean> {
     try {
-      const { degree_id, coursepool_id } = delete_record;
+      const result = await Degree.updateOne(
+        { _id: degree_id },
+        { $pull: { coursePools: { id: coursepool_id } } },
+      ).exec();
 
-      // Find the degree that contains the coursepool_id
-      const degree = await Degree.findById(degree_id);
-      const coursePool = degree?.coursePools.find(
-        (cp) => cp.id === coursepool_id,
-      );
-      if (!degree || !coursePool) {
-        console.log(
-          `CoursePool with id ${coursepool_id} not found in Degree ${degree_id}.`,
-        );
-        return DB_OPS.FAILURE;
-      }
-
-      // Remove the course pool from the degree
-      degree.coursePools.pull({ id: coursepool_id });
-      await degree.save();
-
-      return DB_OPS.SUCCESS;
+      return (result.modifiedCount || 0) > 0;
     } catch (error) {
       Sentry.captureException(error);
-      console.log('Error removing DegreeXCP:', error);
-      return DB_OPS.FAILURE;
+      console.error(
+        '[DegreeXCPController] Error removing degree-pool mapping:',
+        error,
+      );
+      return false;
     }
   }
 
   /**
-   * Helper method to find a course pool across all degrees
+   * Check if a course pool exists in a degree
    */
-  private async findCoursePool(
+  async degreeHasCoursePool(
+    degree_id: string,
     coursepool_id: string,
-  ): Promise<InstanceType<typeof Degree> | null> {
+  ): Promise<boolean> {
     try {
-      const allDegrees = await Degree.find();
-      for (const degree of allDegrees) {
-        const foundCoursePool = degree.coursePools.find(
-          (cp) => cp.id === coursepool_id,
-        );
-        if (foundCoursePool) {
-          return degree;
-        }
-      }
-      return null;
+      const exists = await Degree.exists({
+        _id: degree_id,
+        'coursePools.id': coursepool_id,
+      }).exec();
+
+      return !!exists;
     } catch (error) {
       Sentry.captureException(error);
-      console.log('Error finding course pool:', error);
-      return null;
+      console.error(
+        '[DegreeXCPController] Error checking degree-pool mapping:',
+        error,
+      );
+      return false;
+    }
+  }
+
+  /**
+   * Get credits required for a specific pool in a degree
+   */
+  async getPoolCredits(
+    degree_id: string,
+    coursepool_id: string,
+  ): Promise<number | undefined> {
+    try {
+      const result = await this.aggregate([
+        { $match: { _id: degree_id } },
+        { $unwind: '$coursePools' },
+        { $match: { 'coursePools.id': coursepool_id } },
+        {
+          $project: {
+            _id: 0,
+            creditsRequired: '$coursePools.creditsRequired',
+          },
+        },
+      ]);
+
+      // @ts-ignore
+      return result.data?.[0]?.creditsRequired;
+    } catch (error) {
+      Sentry.captureException(error);
+      console.error(
+        '[DegreeXCPController] Error fetching pool credits:',
+        error,
+      );
+      return undefined;
     }
   }
 }

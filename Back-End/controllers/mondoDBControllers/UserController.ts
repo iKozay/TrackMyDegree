@@ -1,22 +1,46 @@
 /**
  * Optimized User Controller
  *
- * Extends BaseMongoController and consolidates user-related operations including deficiencies and exemptions
+ * Provides user-specific operations including deficiencies and exemptions.
  */
 
 import { BaseMongoController } from './BaseMongoController';
 import { User, Course, Degree, Timeline } from '../../models';
-import appUserTypes from '../appUserController/appUser_types';
-import DeficiencyTypes from '../deficiencyController/deficiency_types';
-import { randomUUID } from 'crypto';
-import {
-  TimelineEntry,
-  UserDataResponse,
-} from '@controllers/userDataController/user_data_types';
 
-export interface ExemptionDoc {
+export interface UserData {
+  id?: string;
+  email: string;
+  password?: string;
+  fullname: string;
+  degree?: string;
+  type: 'student' | 'advisor' | 'admin';
+  deficiencies?: Array<{ coursepool: string; creditsRequired: number }>;
+  exemptions?: string[];
+}
+
+export interface DeficiencyData {
+  coursepool: string;
+  user_id: string;
+  creditsRequired: number;
+}
+
+export interface ExemptionData {
   coursecode: string;
   user_id: string;
+}
+
+export interface UserDataResponse {
+  user: {
+    id: string;
+    email: string;
+    fullname: string;
+    type: string;
+    degree: string | null;
+  };
+  timeline: Array<{ season: string; year: number; coursecode: string }>;
+  deficiencies: Array<{ coursepool: string; creditsRequired: number }>;
+  exemptions: Array<{ coursecode: string }>;
+  degree: { id: string; name: string; totalCredits: number } | null;
 }
 
 export class UserController extends BaseMongoController<any> {
@@ -27,25 +51,12 @@ export class UserController extends BaseMongoController<any> {
   /**
    * Update user information
    */
-  async updateUser(
-    id: string,
-    email: string,
-    password: string,
-    fullname: string,
-    degree: string,
-    type: appUserTypes.UserType,
-  ): Promise<appUserTypes.AppUser | undefined> {
+  async updateUser(id: string, updates: Partial<UserData>) {
     try {
-      const result = await this.updateById(id, {
-        email,
-        password,
-        fullname,
-        degree,
-        type,
-      });
+      const result = await this.updateById(id, updates);
 
       if (!result.success) {
-        throw new Error('AppUser with this id does not exist.');
+        throw new Error('User with this id does not exist.');
       }
 
       return {
@@ -57,71 +68,80 @@ export class UserController extends BaseMongoController<any> {
         type: result.data.type,
       };
     } catch (error) {
-      this.handleError(error, 'updateAppUser');
+      this.handleError(error, 'updateUser');
     }
   }
 
   /**
    * Delete user
    */
-  async deleteUser(id: string): Promise<string | undefined> {
+  async deleteUser(id: string) {
     try {
       const result = await this.deleteById(id);
 
       if (!result.success) {
-        throw new Error('AppUser with this id does not exist.');
+        throw new Error('User with this id does not exist.');
       }
 
-      return `AppUser with id ${id} has been successfully deleted.`;
+      return `User with id ${id} has been successfully deleted.`;
     } catch (error) {
-      this.handleError(error, 'deleteAppUser');
+      this.handleError(error, 'deleteUser');
     }
   }
 
   /**
-   * Get user data including profile, timeline, deficiencies, exemptions, and degree info
+   * Get comprehensive user data including timeline, deficiencies, exemptions, and degree info
+   * Optimized with parallel queries
    */
   async getUserData(id: string): Promise<UserDataResponse> {
     try {
-      // Check if the user exists and retrieve basic profile info
-      const user = await User.findById(id);
+      // Fetch user and timeline in parallel
+      const [userResult, timelineResult] = await Promise.all([
+        this.findById(id),
+        Timeline.find({ userId: id }).lean().exec(),
+      ]);
 
-      if (!user) {
+      if (!userResult.success || !userResult.data) {
         throw new Error('User with this id does not exist.');
       }
 
-      // Fetch the user's timeline (flatten nested structure to match SQL output format)
-      const timelineResult = await Timeline.find({ userId: id });
-      const timeline: TimelineEntry[] = [];
+      const user = userResult.data;
 
-      // Flatten timeline items to match the SQL structure (season, year, coursecode)
+      // Flatten timeline structure
+      const timeline: Array<{
+        season: string;
+        year: number;
+        coursecode: string;
+      }> = [];
       for (const tl of timelineResult) {
-        for (const item of tl.items) {
-          for (const coursecode of item.courses) {
+        for (const item of tl.items || []) {
+          for (const coursecode of item.courses || []) {
             timeline.push({
               season: item.season,
               year: item.year,
-              coursecode: coursecode,
+              coursecode,
             });
           }
         }
       }
 
-      // Fetch all deficiencies from the user document (already embedded)
-      const deficiencies = user.deficiencies.map((def) => ({
-        coursepool: def.coursepool,
-        creditsRequired: def.creditsRequired,
+      // Process deficiencies
+      const deficiencies = (user.deficiencies || []).map(
+        (def: { coursepool: string; creditsRequired: number }) => ({
+          coursepool: def.coursepool,
+          creditsRequired: def.creditsRequired,
+        }),
+      );
+
+      // Process exemptions
+      const exemptions = (user.exemptions || []).map((coursecode: string) => ({
+        coursecode,
       }));
 
-      // Fetch all exemptions from the user document (already embedded as course references)
-      const exemptions = user.exemptions.map((coursecode) => ({
-        coursecode: coursecode,
-      }));
-
-      // Fetch detailed degree information if user has a degree assigned
+      // Fetch degree info if available
       let degree = null;
       if (user.degree) {
-        const degreeDoc = await Degree.findById(user.degree);
+        const degreeDoc = await Degree.findById(user.degree).lean().exec();
         if (degreeDoc) {
           degree = {
             id: degreeDoc._id,
@@ -131,7 +151,6 @@ export class UserController extends BaseMongoController<any> {
         }
       }
 
-      // Combine all retrieved data into a structured response object
       return {
         user: {
           id: user._id as string,
@@ -143,13 +162,7 @@ export class UserController extends BaseMongoController<any> {
         timeline,
         deficiencies,
         exemptions,
-        degree: degree
-          ? {
-              id: degree.id as string,
-              name: degree.name,
-              totalCredits: degree.totalCredits,
-            }
-          : null,
+        degree,
       };
     } catch (error) {
       this.handleError(error, 'getUserData');
@@ -167,48 +180,41 @@ export class UserController extends BaseMongoController<any> {
     coursepool: string,
     user_id: string,
     creditsRequired: number,
-  ): Promise<DeficiencyTypes.Deficiency | undefined> {
+  ): Promise<DeficiencyData> {
     try {
-      // Verify user exists
       const userResult = await this.findById(user_id);
       if (!userResult.success) {
-        throw new Error('AppUser does not exist.');
+        throw new Error('User does not exist.');
       }
 
-      // Check if deficiency already exists
       const user = userResult.data;
+
+      // Check if deficiency already exists
       if (
-        Array.isArray(user.deficiencies) &&
-        user.deficiencies.some((d: any) => d.coursepool === coursepool)
+        user.deficiencies?.some(
+          (d: { coursepool: string }) => d.coursepool === coursepool,
+        )
       ) {
         throw new Error(
-          'Deficiency with this coursepool and user_id already exists. Please use the update endpoint',
+          'Deficiency with this coursepool already exists. Please use the update endpoint',
         );
       }
 
-      // Verify course pool exists in degrees
-      const degreeResult = await Degree.findOne({
-        'coursePools.id': coursepool,
-      }).lean();
-      if (!degreeResult) {
-        throw new Error('CoursePool does not exist.');
-      }
+      // Add deficiency using atomic operation
+      const updateResult = await this.model
+        .findByIdAndUpdate(
+          user_id,
+          { $push: { deficiencies: { coursepool, creditsRequired } } },
+          { new: true },
+        )
+        .lean()
+        .exec();
 
-      // Add deficiency to user
-      const deficiencies = user.deficiencies || [];
-      deficiencies.push({ coursepool, creditsRequired });
-
-      const updateResult = await this.updateById(user_id, { deficiencies });
-      if (!updateResult.success) {
+      if (!updateResult) {
         throw new Error('Failed to update user deficiencies');
       }
 
-      return {
-        id: randomUUID(),
-        coursepool,
-        user_id,
-        creditsRequired,
-      };
+      return { coursepool, user_id, creditsRequired };
     } catch (error) {
       this.handleError(error, 'createDeficiency');
     }
@@ -217,66 +223,74 @@ export class UserController extends BaseMongoController<any> {
   /**
    * Get all deficiencies for user
    */
-  async getAllDeficienciesByUser(
-    user_id: string,
-  ): Promise<DeficiencyTypes.Deficiency[] | undefined> {
+  async getAllDeficienciesByUser(user_id: string): Promise<DeficiencyData[]> {
     try {
-      const result = await this.findById(user_id);
+      const result = await this.findById(user_id, 'deficiencies');
       if (!result.success) {
-        throw new Error('AppUser does not exist.');
+        throw new Error('User does not exist.');
       }
 
-      const user = result.data;
-      const allDeficiencies = (user.deficiencies || []).map((def: any) => ({
-        id: randomUUID(),
-        coursepool: def.coursepool,
-        user_id: user_id,
-        creditsRequired: def.creditsRequired,
-      }));
-
-      return allDeficiencies;
+      return (result.data?.deficiencies || []).map(
+        (def: { coursepool: string; creditsRequired: number }) => ({
+          coursepool: def.coursepool,
+          user_id,
+          creditsRequired: def.creditsRequired,
+        }),
+      );
     } catch (error) {
       this.handleError(error, 'getAllDeficienciesByUser');
     }
   }
 
   /**
-   * Delete deficiency
+   * Update deficiency
    */
-  async deleteDeficiencyByCoursepoolAndUserId(
+  async updateDeficiency(
     coursepool: string,
     user_id: string,
-  ): Promise<string | undefined> {
+    creditsRequired: number,
+  ): Promise<DeficiencyData> {
     try {
-      const result = await this.findById(user_id);
-      if (!result.success) {
-        throw new Error('AppUser does not exist.');
+      const result = await this.model
+        .findOneAndUpdate(
+          { _id: user_id, 'deficiencies.coursepool': coursepool },
+          { $set: { 'deficiencies.$.creditsRequired': creditsRequired } },
+          { new: true },
+        )
+        .lean()
+        .exec();
+
+      if (!result) {
+        throw new Error('Deficiency not found.');
       }
 
-      const user = result.data;
-      if (!Array.isArray(user.deficiencies)) {
-        throw new Error('Deficiency with this id does not exist.');
-      }
-
-      const idx = user.deficiencies.findIndex(
-        (d: any) => d.coursepool === coursepool,
-      );
-      if (idx === -1) {
-        throw new Error('Deficiency with this id does not exist.');
-      }
-
-      // Remove deficiency and update user
-      const deficiencies = [...user.deficiencies];
-      deficiencies.splice(idx, 1);
-
-      const updateResult = await this.updateById(user_id, { deficiencies });
-      if (!updateResult.success) {
-        throw new Error('Failed to update user deficiencies');
-      }
-
-      return `Deficiency with appUser ${user_id} and coursepool ${coursepool} has been successfully deleted.`;
+      return { coursepool, user_id, creditsRequired };
     } catch (error) {
-      this.handleError(error, 'deleteDeficiencyByCoursepoolAndUserId');
+      this.handleError(error, 'updateDeficiency');
+    }
+  }
+
+  /**
+   * Delete deficiency
+   */
+  async deleteDeficiency(coursepool: string, user_id: string): Promise<string> {
+    try {
+      const result = await this.model
+        .findByIdAndUpdate(
+          user_id,
+          { $pull: { deficiencies: { coursepool } } },
+          { new: true },
+        )
+        .lean()
+        .exec();
+
+      if (!result) {
+        throw new Error('User does not exist.');
+      }
+
+      return `Deficiency with coursepool ${coursepool} has been successfully deleted.`;
+    } catch (error) {
+      this.handleError(error, 'deleteDeficiency');
     }
   }
 
@@ -285,48 +299,45 @@ export class UserController extends BaseMongoController<any> {
   // ==========================
 
   /**
-   * Create exemptions for user
+   * Create exemptions for user (bulk operation)
    */
-  async createExemptions(
-    coursecodes: string[],
-    user_id: string,
-  ): Promise<{ created: ExemptionDoc[]; alreadyExists: string[] }> {
+  async createExemptions(coursecodes: string[], user_id: string) {
     try {
-      if (!this.checkConnection()) {
-        return { created: [], alreadyExists: [] };
+      const userResult = await this.findById(user_id, 'exemptions');
+      if (!userResult.success) {
+        throw new Error(`User with id '${user_id}' does not exist.`);
       }
 
-      const result = await this.findById(user_id);
-      if (!result.success) {
-        throw new Error(`AppUser with id '${user_id}' does not exist.`);
-      }
-
-      const user = result.data;
-      const created: ExemptionDoc[] = [];
+      const existingExemptions = new Set(userResult.data?.exemptions || []);
+      const created: ExemptionData[] = [];
       const alreadyExists: string[] = [];
 
-      for (const code of coursecodes) {
-        // Verify course exists
-        const courseResult = await Course.findById(code);
-        if (!courseResult) {
+      // Validate all courses exist (parallel query)
+      const courseChecks = await Promise.all(
+        coursecodes.map((code) => Course.exists({ _id: code }).exec()),
+      );
+
+      coursecodes.forEach((code, index) => {
+        if (!courseChecks[index]) {
           throw new Error(`Course with code '${code}' does not exist.`);
         }
 
-        if (user.exemptions.includes(code)) {
+        if (existingExemptions.has(code)) {
           alreadyExists.push(code);
-          continue;
+        } else {
+          created.push({ coursecode: code, user_id });
         }
-
-        user.exemptions.push(code);
-        created.push({ coursecode: code, user_id });
-      }
-
-      // Update user with new exemptions
-      const updateResult = await this.updateById(user_id, {
-        exemptions: user.exemptions,
       });
-      if (!updateResult.success) {
-        throw new Error('Failed to update user exemptions');
+
+      // Bulk add new exemptions
+      if (created.length > 0) {
+        await this.model
+          .findByIdAndUpdate(user_id, {
+            $addToSet: {
+              exemptions: { $each: created.map((e) => e.coursecode) },
+            },
+          })
+          .exec();
       }
 
       return { created, alreadyExists };
@@ -338,25 +349,18 @@ export class UserController extends BaseMongoController<any> {
   /**
    * Get all exemptions for user
    */
-  async getAllExemptionsByUser(
-    user_id: string,
-  ): Promise<ExemptionDoc[] | undefined> {
+  async getAllExemptionsByUser(user_id: string): Promise<ExemptionData[]> {
     try {
-      if (!this.checkConnection()) {
-        return undefined;
-      }
-
-      const result = await this.findById(user_id);
+      const result = await this.findById(user_id, 'exemptions');
       if (!result.success) {
-        throw new Error(`AppUser with id '${user_id}' does not exist.`);
+        throw new Error(`User with id '${user_id}' does not exist.`);
       }
 
-      const user = result.data;
-      if (!user.exemptions || user.exemptions.length === 0) {
-        throw new Error(`No exemptions found for user with id '${user_id}'.`);
+      if (!result.data?.exemptions || result.data.exemptions.length === 0) {
+        return [];
       }
 
-      return user.exemptions.map((code: string) => ({
+      return result.data.exemptions.map((code: string) => ({
         coursecode: code,
         user_id,
       }));
@@ -368,39 +372,24 @@ export class UserController extends BaseMongoController<any> {
   /**
    * Delete exemption
    */
-  async deleteExemptionByCoursecodeAndUserId(
-    coursecode: string,
-    user_id: string,
-  ): Promise<string | undefined> {
+  async deleteExemption(coursecode: string, user_id: string): Promise<string> {
     try {
-      if (!this.checkConnection()) {
-        return undefined;
+      const result = await this.model
+        .findByIdAndUpdate(
+          user_id,
+          { $pull: { exemptions: coursecode } },
+          { new: true },
+        )
+        .lean()
+        .exec();
+
+      if (!result) {
+        throw new Error(`User with id '${user_id}' does not exist.`);
       }
 
-      const result = await this.findById(user_id);
-      if (!result.success) {
-        throw new Error(`AppUser with id '${user_id}' does not exist.`);
-      }
-
-      const user = result.data;
-      if (!user.exemptions.includes(coursecode)) {
-        throw new Error(
-          'Exemption with this coursecode and user_id does not exist.',
-        );
-      }
-
-      const exemptions = user.exemptions.filter(
-        (c: string) => c !== coursecode,
-      );
-      const updateResult = await this.updateById(user_id, { exemptions });
-
-      if (!updateResult.success) {
-        throw new Error('Failed to update user exemptions');
-      }
-
-      return `Exemption with appUser ${user_id} and coursecode ${coursecode} has been successfully deleted.`;
+      return `Exemption with coursecode ${coursecode} has been successfully deleted.`;
     } catch (error) {
-      this.handleError(error, 'deleteExemptionByCoursecodeAndUserId');
+      this.handleError(error, 'deleteExemption');
     }
   }
 }

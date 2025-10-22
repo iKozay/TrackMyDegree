@@ -1,10 +1,10 @@
 /**
  * Generic Base MongoDB Controller
  *
- * Provides common CRUD operations and utilities for all MongoDB controllers.
+ * Provides optimized CRUD operations and utilities for all MongoDB controllers.
  */
 
-import mongoose, { Document, Model } from 'mongoose';
+import { Document, Model, FilterQuery, UpdateQuery } from 'mongoose';
 import * as Sentry from '@sentry/node';
 
 export interface BaseDocument extends Document {
@@ -29,6 +29,11 @@ export interface SearchOptions {
   fields?: string[];
 }
 
+export interface QueryOptions extends PaginationOptions, SearchOptions {
+  /** Fields to select/project from the query */
+  select?: string | string[];
+}
+
 /**
  * Generic base controller class for MongoDB operations
  */
@@ -42,19 +47,21 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   }
 
   /**
-   * Generic error handler
+   * Generic error handler with Sentry integration
    */
-  protected handleError(error: any, operation: string): never {
-    Sentry.captureException(error);
-    console.error(`Error in ${this.modelName} ${operation}:`, error);
+  protected handleError(error: unknown, operation: string): never {
+    Sentry.captureException(error, {
+      tags: {
+        model: this.modelName,
+        operation,
+      },
+    });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(
+      `[${this.modelName}] Error in ${operation}:`,
+      errorMessage,
+    );
     throw error;
-  }
-
-  /**
-   * Check MongoDB connection
-   */
-  protected checkConnection(): boolean {
-    return mongoose.connection.readyState === 1;
   }
 
   /**
@@ -62,92 +69,102 @@ export abstract class BaseMongoController<T extends BaseDocument> {
    */
   async create(data: Partial<T>): Promise<ControllerResponse<T>> {
     try {
-      if (!this.checkConnection()) {
-        return { success: false, error: 'Database connection not available' };
-      }
-
-      const document = new this.model(data);
-      const saved = await document.save();
+      const document = await this.model.create(data);
 
       return {
         success: true,
-        data: saved,
+        data: document.toObject() as T,
         message: `${this.modelName} created successfully`,
       };
     } catch (error) {
-      this.handleError(error, 'create');
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Creation failed',
+      };
     }
   }
 
   /**
-   * Find document by ID
+   * Find document by ID with optional field selection
    */
-  async findById(id: string): Promise<ControllerResponse<T>> {
+  async findById(
+    id: string,
+    select?: string | string[],
+  ): Promise<ControllerResponse<T>> {
     try {
-      if (!this.checkConnection()) {
-        return { success: false, error: 'Database connection not available' };
+      let query = this.model.findById(id);
+
+      if (select) {
+        query = query.select(select);
       }
 
-      const document = await this.model.findById(id).lean();
+      const document = await query.lean<T>().exec();
 
       if (!document) {
         return { success: false, error: `${this.modelName} not found` };
       }
 
-      return {
-        success: true,
-        data: document as T,
-      };
+      return { success: true, data: document };
     } catch (error) {
-      this.handleError(error, 'findById');
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Query failed',
+      };
     }
   }
 
   /**
    * Find document by custom filter
    */
-  async findOne(filter: any): Promise<ControllerResponse<T>> {
+  async findOne(
+    filter: FilterQuery<T>,
+    select?: string | string[],
+  ): Promise<ControllerResponse<T>> {
     try {
-      if (!this.checkConnection()) {
-        return { success: false, error: 'Database connection not available' };
+      let query = this.model.findOne(filter);
+
+      if (select) {
+        query = query.select(select);
       }
 
-      const document = await this.model.findOne(filter).lean();
+      const document = await query.lean<T>().exec();
 
       if (!document) {
         return { success: false, error: `${this.modelName} not found` };
       }
 
-      return {
-        success: true,
-        data: document as T,
-      };
+      return { success: true, data: document };
     } catch (error) {
-      this.handleError(error, 'findOne');
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Query failed',
+      };
     }
   }
 
   /**
-   * Find all documents with optional filtering and pagination
+   * Find all documents with optional filtering, search, and pagination
+   * Optimized with lean() and proper indexing
    */
   async findAll(
-    filter: any = {},
-    options: PaginationOptions & SearchOptions = {},
+    filter: FilterQuery<T> = {},
+    options: QueryOptions = {},
   ): Promise<ControllerResponse<T[]>> {
     try {
-      if (!this.checkConnection()) {
-        return { success: false, error: 'Database connection not available' };
-      }
-
       let query = this.model.find(filter);
 
       // Apply search if provided
-      if (options.search && options.fields) {
+      if (options.search && options.fields && options.fields.length > 0) {
         const searchRegex = new RegExp(options.search, 'i');
         const searchConditions = options.fields.map((field) => ({
           [field]: searchRegex,
         }));
-        query = query.or(searchConditions as any);
+        query = query.or(searchConditions as FilterQuery<T>[]);
+      }
+
+      // Apply field selection
+      if (options.select) {
+        query = query.select(options.select);
       }
 
       // Apply sorting
@@ -161,29 +178,32 @@ export abstract class BaseMongoController<T extends BaseDocument> {
         query = query.skip(skip).limit(options.limit);
       }
 
-      const documents = await query.lean();
+      const documents = await query.lean<T[]>().exec();
 
-      return {
-        success: true,
-        data: documents as T[],
-      };
+      return { success: true, data: documents };
     } catch (error) {
-      this.handleError(error, 'findAll');
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Query failed',
+      };
     }
   }
 
   /**
    * Update document by ID
    */
-  async updateById(id: string, update: any): Promise<ControllerResponse<T>> {
+  async updateById(
+    id: string,
+    update: UpdateQuery<T>,
+  ): Promise<ControllerResponse<T>> {
     try {
-      if (!this.checkConnection()) {
-        return { success: false, error: 'Database connection not available' };
-      }
-
       const document = await this.model
-        .findByIdAndUpdate(id, update, { new: true, runValidators: true })
-        .lean();
+        .findByIdAndUpdate(id, update, {
+          new: true,
+          runValidators: true,
+        })
+        .lean<T>()
+        .exec();
 
       if (!document) {
         return { success: false, error: `${this.modelName} not found` };
@@ -191,26 +211,33 @@ export abstract class BaseMongoController<T extends BaseDocument> {
 
       return {
         success: true,
-        data: document as T,
+        data: document,
         message: `${this.modelName} updated successfully`,
       };
     } catch (error) {
-      this.handleError(error, 'updateById');
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Update failed',
+      };
     }
   }
 
   /**
    * Update document by custom filter
    */
-  async updateOne(filter: any, update: any): Promise<ControllerResponse<T>> {
+  async updateOne(
+    filter: FilterQuery<T>,
+    update: UpdateQuery<T>,
+  ): Promise<ControllerResponse<T>> {
     try {
-      if (!this.checkConnection()) {
-        return { success: false, error: 'Database connection not available' };
-      }
-
       const document = await this.model
-        .findOneAndUpdate(filter, update, { new: true, runValidators: true })
-        .lean();
+        .findOneAndUpdate(filter, update, {
+          new: true,
+          runValidators: true,
+          upsert: false,
+        })
+        .lean<T>()
+        .exec();
 
       if (!document) {
         return { success: false, error: `${this.modelName} not found` };
@@ -218,11 +245,44 @@ export abstract class BaseMongoController<T extends BaseDocument> {
 
       return {
         success: true,
-        data: document as T,
+        data: document,
         message: `${this.modelName} updated successfully`,
       };
     } catch (error) {
-      this.handleError(error, 'updateOne');
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Update failed',
+      };
+    }
+  }
+
+  /**
+   * Update or create document (upsert)
+   */
+  async upsert(
+    filter: FilterQuery<T>,
+    update: UpdateQuery<T>,
+  ): Promise<ControllerResponse<T>> {
+    try {
+      const document = await this.model
+        .findOneAndUpdate(filter, update, {
+          new: true,
+          upsert: true,
+          runValidators: true,
+        })
+        .lean<T>()
+        .exec();
+
+      return {
+        success: true,
+        data: document!,
+        message: `${this.modelName} saved successfully`,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Upsert failed',
+      };
     }
   }
 
@@ -231,11 +291,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
    */
   async deleteById(id: string): Promise<ControllerResponse<string>> {
     try {
-      if (!this.checkConnection()) {
-        return { success: false, error: 'Database connection not available' };
-      }
-
-      const document = await this.model.findByIdAndDelete(id);
+      const document = await this.model.findByIdAndDelete(id).exec();
 
       if (!document) {
         return { success: false, error: `${this.modelName} not found` };
@@ -246,20 +302,21 @@ export abstract class BaseMongoController<T extends BaseDocument> {
         message: `${this.modelName} deleted successfully`,
       };
     } catch (error) {
-      this.handleError(error, 'deleteById');
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Delete failed',
+      };
     }
   }
 
   /**
    * Delete document by custom filter
    */
-  async deleteOne(filter: any): Promise<ControllerResponse<string>> {
+  async deleteOne(
+    filter: FilterQuery<T>,
+  ): Promise<ControllerResponse<string>> {
     try {
-      if (!this.checkConnection()) {
-        return { success: false, error: 'Database connection not available' };
-      }
-
-      const document = await this.model.findOneAndDelete(filter);
+      const document = await this.model.findOneAndDelete(filter).exec();
 
       if (!document) {
         return { success: false, error: `${this.modelName} not found` };
@@ -270,47 +327,113 @@ export abstract class BaseMongoController<T extends BaseDocument> {
         message: `${this.modelName} deleted successfully`,
       };
     } catch (error) {
-      this.handleError(error, 'deleteOne');
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Delete failed',
+      };
+    }
+  }
+
+  /**
+   * Delete multiple documents
+   */
+  async deleteMany(
+    filter: FilterQuery<T>,
+  ): Promise<ControllerResponse<number>> {
+    try {
+      const result = await this.model.deleteMany(filter).exec();
+
+      return {
+        success: true,
+        data: result.deletedCount,
+        message: `${result.deletedCount} ${this.modelName}(s) deleted successfully`,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Delete failed',
+      };
     }
   }
 
   /**
    * Count documents with optional filter
+   * Uses countDocuments (not deprecated count method)
    */
-  async count(filter: any = {}): Promise<ControllerResponse<number>> {
+  async count(
+    filter: FilterQuery<T> = {},
+  ): Promise<ControllerResponse<number>> {
     try {
-      if (!this.checkConnection()) {
-        return { success: false, error: 'Database connection not available' };
-      }
+      const count = await this.model.countDocuments(filter).exec();
 
-      const count = await this.model.countDocuments(filter);
-
-      return {
-        success: true,
-        data: count,
-      };
+      return { success: true, data: count };
     } catch (error) {
-      this.handleError(error, 'count');
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Count failed',
+      };
     }
   }
 
   /**
-   * Check if document exists
+   * Check if document exists (optimized - only checks _id field)
    */
-  async exists(filter: any): Promise<ControllerResponse<boolean>> {
+  async exists(filter: FilterQuery<T>): Promise<ControllerResponse<boolean>> {
     try {
-      if (!this.checkConnection()) {
-        return { success: false, error: 'Database connection not available' };
-      }
+      const exists = await this.model.exists(filter).exec();
 
-      const exists = await this.model.exists(filter);
+      return { success: true, data: !!exists };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Exists check failed',
+      };
+    }
+  }
+
+  /**
+   * Bulk create documents
+   */
+  async bulkCreate(
+    documents: Partial<T>[],
+  ): Promise<ControllerResponse<T[]>> {
+    try {
+      const created = await this.model.insertMany(documents, {
+        ordered: false,
+        rawResult: false,
+      });
 
       return {
         success: true,
-        data: !!exists,
+        data: created.map((doc) => doc.toObject()) as T[],
+        message: `${created.length} ${this.modelName}(s) created successfully`,
       };
     } catch (error) {
-      this.handleError(error, 'exists');
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Bulk create failed',
+      };
+    }
+  }
+
+  /**
+   * Aggregate query helper
+   */
+  async aggregate<R = unknown>(
+    pipeline: Record<string, unknown>[],
+  ): Promise<ControllerResponse<R[]>> {
+    try {
+      // Type assertion needed for flexibility with aggregation pipelines
+      const results = await this.model
+        .aggregate<R>(pipeline as any[])
+        .exec();
+
+      return { success: true, data: results };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Aggregation failed',
+      };
     }
   }
 }

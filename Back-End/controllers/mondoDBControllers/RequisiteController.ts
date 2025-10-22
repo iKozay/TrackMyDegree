@@ -1,14 +1,20 @@
 /**
- * Requisite Controller
+ * Optimized Requisite Controller
  *
- * Handles course requisites with improved error handling.
+ * Handles course prerequisites and corequisites with improved performance.
  */
 
 import { BaseMongoController } from './BaseMongoController';
 import { Course } from '../../models';
-import RequisiteTypes from '../requisiteController/requisite_types';
-import { randomUUID } from 'crypto';
 import * as Sentry from '@sentry/node';
+
+export type RequisiteType = 'pre' | 'co';
+
+export interface RequisiteData {
+  code1: string;
+  code2: string;
+  type: RequisiteType;
+}
 
 export class RequisiteController extends BaseMongoController<any> {
   constructor() {
@@ -16,184 +22,200 @@ export class RequisiteController extends BaseMongoController<any> {
   }
 
   /**
-   * Creates a new course requisite if it does not already exist.
+   * Create a new course requisite
+   * Optimized with atomic operation and validation
    */
   async createRequisite(
     code1: string,
     code2: string,
-    type: RequisiteTypes.RequisiteType,
-  ): Promise<RequisiteTypes.Requisite | undefined> {
+    type: RequisiteType,
+  ): Promise<RequisiteData> {
     try {
-      // Check if both courses exist
-      const [course1, course2] = await Promise.all([
-        Course.findById(code1),
-        Course.findById(code2),
+      // Validate both courses exist (parallel query)
+      const [exists1, exists2] = await Promise.all([
+        Course.exists({ _id: code1 }).exec(),
+        Course.exists({ _id: code2 }).exec(),
       ]);
 
-      if (!course1 || !course2) {
+      if (!exists1 || !exists2) {
         throw new Error(
           `One or both courses ('${code1}', '${code2}') do not exist.`,
         );
       }
 
-      // Check if requisite already exists
       const field = type === 'pre' ? 'prerequisites' : 'corequisites';
-      if (course1[field].includes(code2)) {
-        throw new Error(
-          'Requisite with this combination of courses already exists.',
-        );
+
+      // Add requisite atomically (won't add if already exists)
+      const result = await Course.updateOne(
+        { _id: code1 },
+        { $addToSet: { [field]: code2 } },
+      ).exec();
+
+      if (result.modifiedCount === 0) {
+        throw new Error('Requisite already exists or course not found.');
       }
 
-      // Add requisite
-      await Course.findByIdAndUpdate(code1, {
-        $addToSet: { [field]: code2 },
-      });
-
-      return {
-        id: randomUUID(),
-        code1,
-        code2,
-        type,
-      };
+      return { code1, code2, type };
     } catch (error) {
-      Sentry.captureException(error);
-      throw error;
+      this.handleError(error, 'createRequisite');
     }
   }
 
   /**
-   * Reads requisites for a given course.
+   * Get all requisites for a course
+   * Optimized with field projection
    */
-  async readRequisite(
-    code1: string,
-    code2?: string,
-    type?: RequisiteTypes.RequisiteType,
-  ): Promise<RequisiteTypes.Requisite[] | undefined> {
+  async getRequisites(code1: string): Promise<RequisiteData[]> {
     try {
-      // Validate course exists
-      const course = await Course.findById(code1);
+      const course = await Course.findById(code1)
+        .select('prerequisites corequisites')
+        .lean()
+        .exec();
+
       if (!course) {
         throw new Error(`Course '${code1}' does not exist.`);
       }
 
-      const requisites: RequisiteTypes.Requisite[] = [];
+      const requisites: RequisiteData[] = [];
 
-      // If specific code2 and type provided
-      if (code2 && type) {
-        const field = type === 'pre' ? 'prerequisites' : 'corequisites';
-        if (course[field].includes(code2)) {
-          requisites.push({
-            id: randomUUID(),
-            code1,
-            code2,
-            type,
-          });
-        }
-        return requisites;
-      }
-
-      // Return all requisites for code1
-      course.prerequisites.forEach((prereq: string) => {
-        requisites.push({
-          id: randomUUID(),
-          code1,
-          code2: prereq,
-          type: 'pre',
-        });
+      // Add prerequisites
+      (course.prerequisites || []).forEach((code2: string) => {
+        requisites.push({ code1, code2, type: 'pre' });
       });
 
-      course.corequisites.forEach((coreq: string) => {
-        requisites.push({
-          id: randomUUID(),
-          code1,
-          code2: coreq,
-          type: 'co',
-        });
+      // Add corequisites
+      (course.corequisites || []).forEach((code2: string) => {
+        requisites.push({ code1, code2, type: 'co' });
       });
 
       return requisites;
     } catch (error) {
-      Sentry.captureException(error);
-      throw error;
+      this.handleError(error, 'getRequisites');
     }
   }
 
   /**
-   * Updates an existing requisite.
+   * Check if a specific requisite exists
    */
-  async updateRequisite(
+  async requisiteExists(
     code1: string,
     code2: string,
-    type: RequisiteTypes.RequisiteType,
-  ): Promise<RequisiteTypes.Requisite | undefined> {
+    type: RequisiteType,
+  ): Promise<boolean> {
     try {
-      // Check if both courses exist
-      const [course1, course2] = await Promise.all([
-        Course.findById(code1),
-        Course.findById(code2),
-      ]);
-
-      if (!course1 || !course2) {
-        throw new Error(
-          `One or both courses ('${code1}', '${code2}') do not exist.`,
-        );
-      }
-
       const field = type === 'pre' ? 'prerequisites' : 'corequisites';
 
-      // Check if requisite already exists
-      if (course1[field].includes(code2)) {
-        throw new Error(
-          'Requisite with this combination of courses already exists.',
-        );
-      }
+      const exists = await Course.exists({
+        _id: code1,
+        [field]: code2,
+      }).exec();
 
-      // Add the requisite
-      await Course.findByIdAndUpdate(code1, {
-        $addToSet: { [field]: code2 },
-      });
-
-      return {
-        id: randomUUID(),
-        code1,
-        code2,
-        type,
-      };
+      return !!exists;
     } catch (error) {
       Sentry.captureException(error);
-      throw error;
+      console.error('[RequisiteController] Error checking requisite:', error);
+      return false;
     }
   }
 
   /**
-   * Deletes a requisite.
+   * Delete a requisite
+   * Optimized with atomic operation
    */
   async deleteRequisite(
     code1: string,
     code2: string,
-    type: RequisiteTypes.RequisiteType,
-  ): Promise<string | undefined> {
+    type: RequisiteType,
+  ): Promise<string> {
     try {
-      const course = await Course.findById(code1);
-      if (!course) {
-        throw new Error('Course does not exist.');
-      }
-
       const field = type === 'pre' ? 'prerequisites' : 'corequisites';
 
-      if (!course[field].includes(code2)) {
-        throw new Error('Requisite with this id does not exist.');
+      const result = await Course.updateOne(
+        { _id: code1 },
+        { $pull: { [field]: code2 } },
+      ).exec();
+
+      if (result.modifiedCount === 0) {
+        throw new Error('Requisite not found or already deleted.');
       }
 
-      // Remove requisite
-      await Course.findByIdAndUpdate(code1, {
-        $pull: { [field]: code2 },
-      });
+      return `Requisite deleted successfully.`;
+    } catch (error) {
+      this.handleError(error, 'deleteRequisite');
+    }
+  }
 
-      return `Requisite with the course combination provided has been successfully deleted.`;
+  /**
+   * Get all courses that have a specific course as prerequisite
+   */
+  async getCoursesRequiring(coursecode: string): Promise<string[]> {
+    try {
+      const courses = await Course.find({
+        $or: [{ prerequisites: coursecode }, { corequisites: coursecode }],
+      })
+        .select('_id')
+        .lean()
+        .exec();
+
+      return courses.map((c) => c._id).filter((id): id is string => id != null);
     } catch (error) {
       Sentry.captureException(error);
-      throw error;
+      console.error(
+        '[RequisiteController] Error fetching dependent courses:',
+        error,
+      );
+      return [];
+    }
+  }
+
+  /**
+   * Bulk add prerequisites to a course
+   */
+  async bulkAddPrerequisites(
+    code1: string,
+    prerequisites: string[],
+  ): Promise<number> {
+    try {
+      const result = await Course.updateOne(
+        { _id: code1 },
+        { $addToSet: { prerequisites: { $each: prerequisites } } },
+      ).exec();
+
+      return result.modifiedCount || 0;
+    } catch (error) {
+      Sentry.captureException(error);
+      console.error(
+        '[RequisiteController] Error bulk adding prerequisites:',
+        error,
+      );
+      return 0;
+    }
+  }
+
+  /**
+   * Remove all requisites for a course
+   */
+  async clearRequisites(code1: string, type?: RequisiteType): Promise<boolean> {
+    try {
+      const update: any = {};
+
+      if (!type || type === 'pre') {
+        update.prerequisites = [];
+      }
+      if (!type || type === 'co') {
+        update.corequisites = [];
+      }
+
+      const result = await Course.updateOne(
+        { _id: code1 },
+        { $set: update },
+      ).exec();
+
+      return (result.modifiedCount || 0) > 0;
+    } catch (error) {
+      Sentry.captureException(error);
+      console.error('[RequisiteController] Error clearing requisites:', error);
+      return false;
     }
   }
 }

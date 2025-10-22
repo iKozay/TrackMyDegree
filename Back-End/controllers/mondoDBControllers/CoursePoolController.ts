@@ -2,14 +2,19 @@
  * Optimized Course Pool Controller
  *
  * Handles course pool operations with improved error handling.
+ * Note: Course pools are embedded in Degree documents in MongoDB.
  */
 
 import { BaseMongoController } from './BaseMongoController';
 import { Degree } from '../../models';
-import DB_OPS from '@Util/DB_Ops';
-import CoursePoolTypes from '../coursepoolController/coursepool_types';
-import { randomUUID } from 'crypto';
 import * as Sentry from '@sentry/node';
+
+export interface CoursePoolData {
+  id: string;
+  name: string;
+  creditsRequired?: number;
+  courses?: string[];
+}
 
 export class CoursePoolController extends BaseMongoController<any> {
   constructor() {
@@ -17,154 +22,146 @@ export class CoursePoolController extends BaseMongoController<any> {
   }
 
   /**
-   * Creates a new course pool.
-   * NOTE: In MongoDB implementation, course pools are embedded in Degree documents.
-   * This function only generates and logs a new pool ID. To actually use the pool,
-   * it must be added to a Degree document via DegreeXCPController.
+   * Get all course pools from all degrees (aggregated and deduplicated)
+   * Optimized with aggregation pipeline
    */
-  async createCoursePool(pool_name: string): Promise<DB_OPS> {
+  async getAllCoursePools(): Promise<CoursePoolData[]> {
     try {
-      const record: CoursePoolTypes.CoursePoolItem = {
-        id: randomUUID(),
-        name: pool_name,
-      };
+      const result = await this.aggregate<CoursePoolData>([
+        { $unwind: '$coursePools' },
+        {
+          $group: {
+            _id: '$coursePools.id',
+            name: { $first: '$coursePools.name' },
+            creditsRequired: { $first: '$coursePools.creditsRequired' },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            id: '$_id',
+            name: 1,
+            creditsRequired: 1,
+          },
+        },
+        { $sort: { name: 1 } },
+      ]);
 
-      // Placeholder: actual persistence logic may depend on Degree model usage
-      console.log(
-        `CoursePool '${pool_name}' with id '${record.id}' created successfully`,
-      );
-      return DB_OPS.SUCCESS;
+      return result.data || [];
     } catch (error) {
       Sentry.captureException(error);
-      console.log('Error in coursepool creation\n', error);
-      return DB_OPS.FAILURE;
+      console.error(
+        '[CoursePoolController] Error fetching all course pools:',
+        error,
+      );
+      return [];
     }
   }
 
   /**
-   * Retrieves all course pools from all degrees.
-   * Aggregates coursePools from all Degree documents and removes duplicates.
+   * Get a specific course pool by ID
+   * Optimized to find in any degree
    */
-  async getAllCoursePools(): Promise<
-    { course_pools: CoursePoolTypes.CoursePoolItem[] } | undefined
-  > {
+  async getCoursePool(pool_id: string): Promise<CoursePoolData | undefined> {
     try {
-      const degrees = await Degree.find().lean();
+      const result = await this.aggregate<CoursePoolData>([
+        { $unwind: '$coursePools' },
+        { $match: { 'coursePools.id': pool_id } },
+        {
+          $project: {
+            _id: 0,
+            id: '$coursePools.id',
+            name: '$coursePools.name',
+            creditsRequired: '$coursePools.creditsRequired',
+            courses: '$coursePools.courses',
+          },
+        },
+        { $limit: 1 },
+      ]);
 
-      const allPoolsMap = new Map<string, CoursePoolTypes.CoursePoolItem>();
-      for (const degree of degrees) {
-        if (!degree.coursePools) continue;
-        for (const pool of degree.coursePools) {
-          if (!allPoolsMap.has(pool.id)) {
-            allPoolsMap.set(pool.id, { id: pool.id, name: pool.name });
-          }
-        }
-      }
-
-      const course_pools = Array.from(allPoolsMap.values());
-      return { course_pools };
+      return result.data?.[0];
     } catch (error) {
       Sentry.captureException(error);
-      console.log('Error fetching all course pools\n', error);
+      console.error(
+        '[CoursePoolController] Error fetching course pool:',
+        error,
+      );
       return undefined;
     }
   }
 
   /**
-   * Retrieves a specific course pool by ID.
+   * Update a course pool across all degrees that contain it
+   * Optimized with bulk update
    */
-  async getCoursePool(
-    pool_id: string,
-  ): Promise<CoursePoolTypes.CoursePoolItem | undefined> {
+  async updateCoursePool(pool_id: string, name: string): Promise<boolean> {
     try {
-      const degrees = await Degree.find({ 'coursePools.id': pool_id }).lean();
+      const result = await Degree.updateMany(
+        { 'coursePools.id': pool_id },
+        { $set: { 'coursePools.$[elem].name': name } },
+        { arrayFilters: [{ 'elem.id': pool_id }] },
+      ).exec();
 
-      if (degrees.length === 0) {
-        console.log(`CoursePool with id '${pool_id}' not found`);
-        return undefined;
-      }
-
-      for (const degree of degrees) {
-        const pool = degree.coursePools?.find((cp) => cp.id === pool_id);
-        if (pool) {
-          return { id: pool.id, name: pool.name };
-        }
-      }
-
-      return undefined;
+      return (result.modifiedCount || 0) > 0;
     } catch (error) {
       Sentry.captureException(error);
-      console.log('Error fetching course pool by ID\n', error);
-      return undefined;
+      console.error(
+        '[CoursePoolController] Error updating course pool:',
+        error,
+      );
+      return false;
     }
   }
 
   /**
-   * Updates an existing course pool across all degrees that contain it.
+   * Remove a course pool from all degrees
+   * Optimized with single bulk operation
    */
-  async updateCoursePool(
-    update_info: CoursePoolTypes.CoursePoolItem,
-  ): Promise<DB_OPS> {
-    const { id, name } = update_info;
-
+  async removeCoursePool(pool_id: string): Promise<boolean> {
     try {
-      const degrees = await Degree.find({ 'coursePools.id': id });
+      const result = await Degree.updateMany(
+        { 'coursePools.id': pool_id },
+        { $pull: { coursePools: { id: pool_id } } },
+      ).exec();
 
-      if (degrees.length === 0) {
-        console.log(`CoursePool with id '${id}' not found in any degree`);
-        return DB_OPS.MOSTLY_OK;
-      }
-
-      let updated = false;
-
-      await Promise.all(
-        degrees.map(async (degree) => {
-          const pool = degree.coursePools.find((cp) => cp.id === id);
-          if (pool) {
-            pool.name = name;
-            await degree.save();
-            updated = true;
-          }
-        }),
-      );
-
-      return updated ? DB_OPS.SUCCESS : DB_OPS.MOSTLY_OK;
+      return (result.modifiedCount || 0) > 0;
     } catch (error) {
       Sentry.captureException(error);
-      console.log('Error in updating course pool item\n', error);
-      return DB_OPS.FAILURE;
+      console.error(
+        '[CoursePoolController] Error removing course pool:',
+        error,
+      );
+      return false;
     }
   }
 
   /**
-   * Removes a course pool by ID from all degrees.
+   * Get all course pools for a specific degree
    */
-  async removeCoursePool(pool_id: string): Promise<DB_OPS> {
+  async getCoursePoolsByDegree(degree_id: string): Promise<CoursePoolData[]> {
     try {
-      const degrees = await Degree.find({ 'coursePools.id': pool_id });
-      if (degrees.length === 0) {
-        console.log(`CoursePool with id '${pool_id}' not found in any degree`);
-        return DB_OPS.MOSTLY_OK;
-      }
-      let removed = false;
-      await Promise.all(
-        degrees.map(async (degree) => {
-          const initialLength = degree.coursePools.length;
+      const degree = await Degree.findById(degree_id)
+        .select('coursePools')
+        .lean()
+        .exec();
 
-          // Find the index and remove using splice
-          const index = degree.coursePools.findIndex((cp) => cp.id === pool_id);
-          if (index !== -1) {
-            degree.coursePools.splice(index, 1);
-            await degree.save();
-            removed = true;
-          }
-        }),
-      );
-      return removed ? DB_OPS.SUCCESS : DB_OPS.MOSTLY_OK;
+      if (!degree || !degree.coursePools) {
+        return [];
+      }
+
+      return degree.coursePools.map((cp: any) => ({
+        id: cp.id,
+        name: cp.name,
+        creditsRequired: cp.creditsRequired,
+        courses: cp.courses,
+      }));
     } catch (error) {
       Sentry.captureException(error);
-      console.log('Error in deleting course pool item\n', error);
-      return DB_OPS.FAILURE;
+      console.error(
+        '[CoursePoolController] Error fetching degree course pools:',
+        error,
+      );
+      return [];
     }
   }
 }

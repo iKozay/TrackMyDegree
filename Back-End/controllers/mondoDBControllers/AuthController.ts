@@ -7,27 +7,35 @@
 import { User } from '../../models';
 import bcrypt from 'bcryptjs';
 import * as Sentry from '@sentry/node';
-import nodemailer from 'nodemailer';
-import { setTimeout as setTimeoutPromise } from 'node:timers/promises';
 
-enum UserType {
+export enum UserType {
   STUDENT = 'student',
   ADVISOR = 'advisor',
   ADMIN = 'admin',
 }
 
-type Credentials = {
+export interface Credentials {
   email: string;
   password: string;
-};
+}
 
-type UserInfo = Credentials & {
+export interface UserInfo extends Credentials {
   id?: string;
   fullname: string;
   type: UserType;
-};
+}
+
+export interface PasswordResetRequest {
+  email: string;
+  otp?: string;
+  newPassword?: string;
+}
 
 export class AuthController {
+  private readonly SALT_ROUNDS = 10;
+  private readonly OTP_EXPIRY_MINUTES = 10;
+  private readonly DUMMY_HASH = '$2a$10$invalidsaltinvalidsaltinv';
+
   /**
    * Authenticates a user by verifying their email and password
    * Prevents timing attacks by using a dummy hash when user not found
@@ -37,31 +45,32 @@ export class AuthController {
     password: string,
   ): Promise<UserInfo | undefined> {
     try {
-      const user = await User.findOne({ email }).exec();
+      const user = await User.findOne({ email })
+        .select('+password')
+        .lean()
+        .exec();
 
-      const hash = user ? user.password : '$2a$10$invalidsaltinvalidsaltinv'; // use dummy hash if user is not found to prevent timing attacks
+      // Use dummy hash if user is not found to prevent timing attacks
+      const hash = user ? user.password : this.DUMMY_HASH;
       const passwordMatch = await bcrypt.compare(password, hash);
 
-      if (user && passwordMatch) {
-        const { _id, fullname, email, type } = user.toObject();
-        if (!_id) {
-          return undefined;
-        }
+      if (user && passwordMatch && user._id) {
         return {
-          id: _id.toString(),
-          fullname,
-          email,
-          type: type as UserType,
-          password: '', // don't return password
-        } as UserInfo; // Authentication successful
+          id: user._id.toString(),
+          fullname: user.fullname,
+          email: user.email,
+          type: user.type as UserType,
+          password: '', // never return password
+        };
       }
-      return undefined; // always return undefined for invalid login credentials
+
+      return undefined; // always return undefined for invalid credentials
     } catch (error) {
-      Sentry.captureException({
-        error: 'Backend error - authenticate (mongo)',
-        details: error,
+      Sentry.captureException(error, {
+        tags: { operation: 'authenticate' },
+        level: 'error',
       });
-      console.error('Authenticate error'); // only log generic error
+      console.error('[AuthController] Authentication error');
       return undefined;
     }
   }
@@ -74,166 +83,185 @@ export class AuthController {
     const { email, password, fullname, type } = userInfo;
 
     try {
-      const existingUser = await User.findOne({ email }).exec();
+      // Check if user already exists
+      const existingUser = await User.exists({ email }).exec();
       if (existingUser) {
-        // user already exists
-        return;
+        return undefined;
       }
-      // strong password enforcement
-      if (!this.isStrongPassword(password)) {
-        // don't log the password
-        return;
-      }
-      // hash the password before saving
-      const hashedPassword = await bcrypt.hash(password, 10);
 
-      const newUser = new User({
+      // Validate password strength
+      if (!this.isStrongPassword(password)) {
+        return undefined;
+      }
+
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
+
+      // Create new user
+      const newUser = await User.create({
         email,
         password: hashedPassword,
         fullname,
         type,
       });
-      await newUser.save();
+
       if (!newUser._id) {
-        throw new Error('Failed to save user');
+        return undefined;
       }
+
       return { id: newUser._id.toString() };
     } catch (error) {
-      Sentry.captureException({
-        error: 'Backend error - register user (mongo)',
-        details: error,
+      Sentry.captureException(error, {
+        tags: { operation: 'registerUser' },
+        level: 'error',
       });
-      console.error('Register user error'); // only log generic error
-      return;
+      console.error('[AuthController] Registration error');
+      return undefined;
     }
   }
 
   /**
-   * Initiates password reset by generating OTP and sending email
+   * Initiates password reset by generating OTP
    * OTP is valid for 10 minutes
    */
   async forgotPassword(
     email: string,
-  ): Promise<{ message: string } | undefined> {
+  ): Promise<{ otp?: string; message: string }> {
     try {
       const user = await User.findOne({ email }).exec();
-      // always generate OTP and send email to maintain consistent timing regardless of user existence
-      // generate OTP and expiry - 10 minutes
+
+      // Generate OTP - 4 digits
       const otp = Math.floor(1000 + Math.random() * 9000).toString();
-      const otpExpire = new Date(Date.now() + 10 * 60 * 1000);
-      // configure nodemailer transporter
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASSWORD,
-        },
-      });
+      const otpExpire = new Date(
+        Date.now() + this.OTP_EXPIRY_MINUTES * 60 * 1000,
+      );
+
       if (user) {
-        // save OTP and expiry to user record
+        // Save OTP and expiry to user record
         user.otp = otp;
         user.otpExpire = otpExpire;
-        await user.save(); // update user record with otp and expiry
+        await user.save();
 
-        // configure mailing options
-        const mailOptions = {
-          from: process.env.EMAIL_USER,
-          to: email,
-          subject: 'Password Reset',
-          text: `Your One Time Password (expires in 10 minutes): ${otp}\nIf you did not request this, please ignore this email.`,
+        return {
+          otp, // Return OTP for testing/email service to handle
+          message: 'OTP generated successfully',
         };
-        // send the email
-        await transporter.sendMail(mailOptions);
-      } else {
-        // simulate db save and email send time to prevent timing attacks
-        await setTimeoutPromise(200);
       }
-      return { message: 'If the email exists, an OTP has been sent.' };
+
+      // Don't reveal whether email exists
+      return {
+        message: 'If the email exists, an OTP has been sent.',
+      };
     } catch (error) {
-      Sentry.captureException({
-        error: 'Backend error - forgot password (mongo)',
-        details: error,
+      Sentry.captureException(error, {
+        tags: { operation: 'forgotPassword' },
+        level: 'error',
       });
-      console.error('Forgot password error'); // only log generic error
-      return;
+      console.error('[AuthController] Password reset error');
+      return {
+        message: 'An error occurred. Please try again later.',
+      };
     }
   }
 
   /**
-   * Resets user password after validating OTP and new password
-   * Enforces strong password policy
+   * Verifies OTP and resets password
    */
   async resetPassword(
+    email: string,
     otp: string,
-    password: string,
-    confirmPassword: string,
-  ): Promise<{ message: string } | undefined> {
+    newPassword: string,
+  ): Promise<boolean> {
     try {
-      if (password !== confirmPassword) {
-        console.log('Passwords do not match');
-        return;
+      const user = await User.findOne({ email }).exec();
+
+      if (!user || !user.otp || !user.otpExpire) {
+        return false;
       }
 
-      const user = await User.findOne({ otp }).exec();
-      //add a check to see if otp is expired
-      if (!user || !user.otpExpire || user.otpExpire < new Date()) {
-        console.log('Invalid or expired OTP');
-        return;
+      // Check if OTP is valid and not expired
+      if (user.otp !== otp || new Date() > user.otpExpire) {
+        return false;
       }
 
-      // strong password enforcement
-      if (!this.isStrongPassword(password)) {
-        // don't log the password
-        return;
+      // Validate new password strength
+      if (!this.isStrongPassword(newPassword)) {
+        return false;
       }
-      // hash the new password before saving
-      const hashedPassword = await bcrypt.hash(password, 10);
 
-      user.password = hashedPassword;
-      (user as any).otp = null;
-      (user as any).otpExpire = null;
-      await user.save(); // update user record
+      // Hash new password and clear OTP
+      user.password = await bcrypt.hash(newPassword, this.SALT_ROUNDS);
+      user.otp = '';
+      user.otpExpire = new Date(0);
+      await user.save();
 
-      return { message: 'Password has been reset successfully.' };
+      return true;
     } catch (error) {
-      Sentry.captureException({
-        error: 'Backend error - reset password (mongo)',
-        details: error,
+      Sentry.captureException(error, {
+        tags: { operation: 'resetPassword' },
+        level: 'error',
       });
-      console.error('Reset password error'); // only log generic error
-      return;
+      console.error('[AuthController] Password reset error');
+      return false;
     }
   }
 
   /**
-   * Checks if a user is an admin based on user ID
+   * Change user password (when already authenticated)
    */
-  async isAdmin(user_id: string): Promise<boolean | undefined> {
+  async changePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<boolean> {
     try {
-      const user = await User.findById(user_id).exec();
-      if (user) {
-        return user.type === UserType.ADMIN;
+      const user = await User.findById(userId).select('+password').exec();
+
+      if (!user) {
+        return false;
       }
-      return false; // user not found
+
+      // Verify old password
+      const passwordMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!passwordMatch) {
+        return false;
+      }
+
+      // Validate new password strength
+      if (!this.isStrongPassword(newPassword)) {
+        return false;
+      }
+
+      // Hash and save new password
+      user.password = await bcrypt.hash(newPassword, this.SALT_ROUNDS);
+      await user.save();
+
+      return true;
     } catch (error) {
-      Sentry.captureException({
-        error: 'Backend error - isAdmin (mongo)',
-        details: error,
+      Sentry.captureException(error, {
+        tags: { operation: 'changePassword' },
+        level: 'error',
       });
-      console.error('isAdmin error'); // only log generic error
-      return;
+      console.error('[AuthController] Password change error');
+      return false;
     }
   }
 
   /**
-   * Helper function that validates password strength using regex
-   * Requires minimum 8 characters, at least one uppercase letter,
-   * one lowercase letter, one number, and one special character
+   * Validates password strength
+   * Requirements: min 8 chars, uppercase, lowercase, number, special char
    */
   private isStrongPassword(password: string): boolean {
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return passwordRegex.test(password);
+    if (password.length < 8) return false;
+
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(
+      password,
+    );
+
+    return hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
   }
 }
 

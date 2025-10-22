@@ -1,12 +1,17 @@
 /**
  * Optimized Degree Controller
  *
- * Extends BaseMongoController to provide degree-specific operations.
+ * Provides degree-specific operations with improved error handling and query optimization.
  */
 
 import { BaseMongoController } from './BaseMongoController';
 import { Degree } from '../../models';
-import DegreeTypes from '../degreeController/degree_types';
+
+export interface DegreeData {
+  id: string;
+  name: string;
+  totalCredits: number;
+}
 
 export class DegreeController extends BaseMongoController<any> {
   constructor() {
@@ -20,19 +25,15 @@ export class DegreeController extends BaseMongoController<any> {
     id: string,
     name: string,
     totalCredits: number,
-  ): Promise<DegreeTypes.Degree | undefined> {
+  ): Promise<DegreeData> {
     try {
-      // Check if degree already exists
+      // Check if degree already exists (optimized with single query)
       const existsResult = await this.exists({ $or: [{ _id: id }, { name }] });
-      if (existsResult.success && existsResult.data) {
+      if (existsResult.data) {
         throw new Error('Degree with this id or name already exists.');
       }
 
-      const result = await this.create({
-        _id: id,
-        name,
-        totalCredits,
-      });
+      const result = await this.create({ _id: id, name, totalCredits });
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to create degree');
@@ -51,9 +52,9 @@ export class DegreeController extends BaseMongoController<any> {
   /**
    * Get degree by ID
    */
-  async readDegree(id: string): Promise<DegreeTypes.Degree | undefined> {
+  async readDegree(id: string): Promise<DegreeData> {
     try {
-      const result = await this.findById(id);
+      const result = await this.findById(id, 'name totalCredits');
 
       if (!result.success) {
         throw new Error('Degree with this id does not exist.');
@@ -72,15 +73,18 @@ export class DegreeController extends BaseMongoController<any> {
   /**
    * Get all degrees (excluding ECP)
    */
-  async readAllDegrees(): Promise<DegreeTypes.Degree[] | undefined> {
+  async readAllDegrees(): Promise<DegreeData[]> {
     try {
-      const result = await this.findAll({ _id: { $ne: 'ECP' } });
+      const result = await this.findAll(
+        { _id: { $ne: 'ECP' } },
+        { select: 'name totalCredits', sort: { name: 1 } },
+      );
 
       if (!result.success) {
         throw new Error('Failed to fetch degrees');
       }
 
-      return result.data?.map((degree) => ({
+      return (result.data || []).map((degree) => ({
         id: degree._id,
         name: degree.name,
         totalCredits: degree.totalCredits,
@@ -97,7 +101,7 @@ export class DegreeController extends BaseMongoController<any> {
     id: string,
     name: string,
     totalCredits: number,
-  ): Promise<DegreeTypes.Degree | undefined> {
+  ): Promise<DegreeData> {
     try {
       const result = await this.updateById(id, { name, totalCredits });
 
@@ -118,7 +122,7 @@ export class DegreeController extends BaseMongoController<any> {
   /**
    * Delete degree
    */
-  async deleteDegree(id: string): Promise<string | undefined> {
+  async deleteDegree(id: string): Promise<string> {
     try {
       const result = await this.deleteById(id);
 
@@ -133,11 +137,11 @@ export class DegreeController extends BaseMongoController<any> {
   }
 
   /**
-   * Get credits for degree
+   * Get credits for degree (optimized - only fetches totalCredits field)
    */
-  async getCreditsForDegree(degreeId: string): Promise<number | undefined> {
+  async getCreditsForDegree(degreeId: string): Promise<number> {
     try {
-      const result = await this.findById(degreeId);
+      const result = await this.findById(degreeId, 'totalCredits');
 
       if (!result.success) {
         throw new Error('Degree with this id does not exist.');

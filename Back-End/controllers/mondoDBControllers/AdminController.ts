@@ -1,156 +1,71 @@
 /**
  * Optimized Admin Controller
  *
- * Handles admin operations including database management and backup operations.
+ * Handles admin operations including database management.
  */
 
-import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { BaseMongoController } from './BaseMongoController';
-import {
-  createBackup,
-  restoreBackup,
-  listBackups,
-  deleteBackup,
-} from '../../services/backup';
+import * as Sentry from '@sentry/node';
 
 export class AdminController extends BaseMongoController<any> {
   constructor() {
-    // Admin controller doesn't use a specific model, so we pass null
+    // Admin controller doesn't use a specific model
     super(null as any, 'Admin');
   }
 
   /**
-   * Create database backup
+   * Get all collections in the database
    */
-  async createBackup(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const fileName = await createBackup();
-      res.json({ message: 'Backup created', data: fileName });
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      res.status(500).json({ error: message });
-    }
-  }
-
-  /**
-   * Restore database backup
-   */
-  async restoreBackup(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const { file } = req.body;
-      await restoreBackup(file);
-      res.json({ message: 'Backup restored successfully' });
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      res.status(500).json({ error: message });
-    }
-  }
-
-  /**
-   * List all backups
-   */
-  async listBackups(req: Request, res: Response): Promise<void> {
-    try {
-      const backups = await listBackups();
-      res.json({ success: true, data: backups });
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      res.status(500).json({ error: message });
-    }
-  }
-
-  /**
-   * Delete backup
-   */
-  async deleteBackup(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const { file } = req.body;
-      await deleteBackup(file);
-      res.json({ message: 'Backup deleted' });
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      res.status(500).json({ error: message });
-    }
-  }
-
-  /**
-   * Get all collections
-   */
-  async getCollections(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
+  async getCollections(): Promise<string[]> {
     try {
       const db = mongoose.connection.db;
       if (!db) {
-        res.status(500).json({
-          success: false,
-          message: 'Database connection not available',
-          data: null,
-        });
-        return;
+        throw new Error('Database connection not available');
       }
-      const collections = await db.listCollections().toArray();
-      const collectionNames = collections.map((col) => col.name);
 
-      res.status(200).json({ success: true, data: collectionNames });
-    } catch (err: unknown) {
-      console.error('Error fetching collections:', err);
-      res.status(500).json({
-        success: false,
-        message: 'Error fetching documents from collection',
-        data: err instanceof Error ? err.message : err,
-      });
+      const collections = await db.listCollections().toArray();
+      return collections.map((col) => col.name);
+    } catch (error) {
+      Sentry.captureException(error);
+      throw new Error('Error fetching collections');
     }
   }
 
   /**
-   * Get documents from a collection
+   * Get documents from a collection with optional search
+   * Optimized with pagination and field projection
    */
   async getCollectionDocuments(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    const { collectionName } = req.params;
-    const { keyword } = req.query;
-
+    collectionName: string,
+    options: {
+      keyword?: string;
+      page?: number;
+      limit?: number;
+      select?: string[];
+    } = {},
+  ): Promise<any[]> {
     try {
       const db = mongoose.connection.db;
       if (!db) {
-        res.status(500).json({
-          success: false,
-          message: 'Database connection not available',
-          data: null,
-        });
-        return;
+        throw new Error('Database connection not available');
       }
-      const collection = db.collection(collectionName);
 
-      let filter = {};
-      if (keyword && typeof keyword === 'string') {
-        // Build filter for string fields
+      const collection = db.collection(collectionName);
+      const { keyword, page = 1, limit = 100, select } = options;
+
+      let query: Record<string, unknown> = {};
+
+      // Build search filter if keyword provided
+      if (keyword) {
         const sampleDoc = await collection.findOne({});
         if (sampleDoc) {
           const stringFields = Object.keys(sampleDoc).filter(
             (key) => typeof sampleDoc[key] === 'string',
           );
+
           if (stringFields.length > 0) {
-            filter = {
+            query = {
               $or: stringFields.map((field) => ({
                 [field]: { $regex: keyword, $options: 'i' },
               })),
@@ -159,16 +74,90 @@ export class AdminController extends BaseMongoController<any> {
         }
       }
 
-      const documents = await collection.find(filter).toArray();
-      res.status(200).json({ success: true, data: documents });
-    } catch (err: unknown) {
-      console.error('Error fetching collection documents:', err);
-      res.status(500).json({
-        success: false,
-        message: 'Error fetching documents from collection',
-        data: err instanceof Error ? err.message : err,
-      });
+      // Build projection
+      const projection = select
+        ? select.reduce(
+            (acc, field) => ({ ...acc, [field]: 1 }),
+            {} as Record<string, number>,
+          )
+        : {};
+
+      // Execute query with pagination
+      const skip = (page - 1) * limit;
+      const documents = await collection
+        .find(query, { projection })
+        .skip(skip)
+        .limit(limit)
+        .toArray();
+
+      return documents as any[];
+    } catch (error) {
+      Sentry.captureException(error);
+      throw new Error('Error fetching documents from collection');
     }
+  }
+
+  /**
+   * Get collection statistics using countDocuments
+   */
+  async getCollectionStats(collectionName: string): Promise<{
+    count: number;
+    size: number;
+    avgDocSize: number;
+  }> {
+    try {
+      const db = mongoose.connection.db;
+      if (!db) {
+        throw new Error('Database connection not available');
+      }
+
+
+      const stats = await db.command({
+        collStats: collectionName,
+      });
+
+      return {
+        count: stats.count || 0,
+        size: stats.size || 0,
+        avgDocSize: stats.avgObjSize || 0,
+      };
+    } catch (error) {
+      Sentry.captureException(error);
+      throw new Error('Error fetching collection statistics');
+    }
+  }
+
+  /**
+   * Clear all documents from a collection (dangerous - use with caution)
+   */
+  async clearCollection(collectionName: string): Promise<number> {
+    try {
+      const db = mongoose.connection.db;
+      if (!db) {
+        throw new Error('Database connection not available');
+      }
+
+      const result = await db.collection(collectionName).deleteMany({});
+      return result.deletedCount || 0;
+    } catch (error) {
+      Sentry.captureException(error);
+      throw new Error('Error clearing collection');
+    }
+  }
+
+  /**
+   * Get database connection status
+   */
+  getConnectionStatus(): {
+    connected: boolean;
+    readyState: number;
+    name?: string;
+  } {
+    return {
+      connected: mongoose.connection.readyState === 1,
+      readyState: mongoose.connection.readyState,
+      name: mongoose.connection.name,
+    };
   }
 }
 

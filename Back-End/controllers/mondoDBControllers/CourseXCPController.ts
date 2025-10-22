@@ -1,14 +1,18 @@
 /**
  * Optimized CourseXCP Controller
  *
- * Handles course-coursepool mappings with improved error handling.
+ * Handles course-coursepool mappings with improved performance.
+ * Manages the relationship between courses and course pools within degrees.
  */
 
 import { BaseMongoController } from './BaseMongoController';
 import { Degree } from '../../models';
-import CourseXCPTypes from '../CourseXCPController/CourseXCP_types';
-import DB_OPS from '@Util/DB_Ops';
 import * as Sentry from '@sentry/node';
+
+export interface CourseXCPData {
+  coursecode: string;
+  coursepool_id: string;
+}
 
 export class CourseXCPController extends BaseMongoController<any> {
   constructor() {
@@ -16,137 +20,127 @@ export class CourseXCPController extends BaseMongoController<any> {
   }
 
   /**
-   * Insert a new course in CoursePool record.
+   * Add a course to a course pool
+   * Optimized with atomic array update
    */
-  async createCourseXCP(new_record: CourseXCPTypes.CourseXCP): Promise<DB_OPS> {
-    try {
-      const { coursecode, coursepool_id } = new_record;
-
-      const degree = await Degree.findOne({ 'coursePools.id': coursepool_id });
-      if (!degree) {
-        console.log('CoursePool not found: ' + coursepool_id);
-        Sentry.captureMessage('CoursePool not found: ' + coursepool_id);
-        return DB_OPS.MOSTLY_OK;
-      }
-
-      const coursePool = degree.coursePools.find(
-        (pool) => pool.id === coursepool_id,
-      );
-      if (coursePool && !coursePool.courses.includes(coursecode)) {
-        coursePool.courses.push(coursecode);
-        await degree.save();
-        return DB_OPS.SUCCESS;
-      } else {
-        return DB_OPS.MOSTLY_OK;
-      }
-    } catch (error) {
-      Sentry.captureException(error);
-      console.log('Error in courseXcoursepool creation\n', error);
-      return DB_OPS.FAILURE;
-    }
-  }
-
-  /**
-   * Fetch all course codes for a given course pool id
-   */
-  async getAllCourseXCP(
+  async createCourseXCP(
+    coursecode: string,
     coursepool_id: string,
-  ): Promise<{ course_codes: string[] } | undefined> {
+  ): Promise<boolean> {
     try {
-      const degree = await Degree.findOne({ 'coursePools.id': coursepool_id });
-      if (!degree) {
-        return { course_codes: [] };
-      }
+      const result = await Degree.updateOne(
+        { 'coursePools.id': coursepool_id },
+        { $addToSet: { 'coursePools.$.courses': coursecode } },
+      ).exec();
 
-      const coursePool = degree.coursePools.find(
-        (pool) => pool.id === coursepool_id,
-      );
-      const codes = [];
-
-      if (coursePool && coursePool.courses) {
-        for (let i = 0; i < coursePool.courses.length; i++) {
-          codes.push(coursePool.courses[i]);
-        }
-      }
-
-      return {
-        course_codes: codes,
-      };
+      return (result.modifiedCount || 0) > 0;
     } catch (error) {
       Sentry.captureException(error);
-      console.log(
-        'Error fetching all course codes for given coursepool id\n',
+      console.error(
+        '[CourseXCPController] Error creating course-pool mapping:',
         error,
       );
-      return undefined;
+      return false;
     }
   }
 
   /**
-   * Update existing CourseXCoursePool row.
+   * Get all courses for a given course pool
+   * Optimized with aggregation
    */
-  async updateCourseXCP(
-    update_record: CourseXCPTypes.CourseXCPItem,
-  ): Promise<DB_OPS> {
+  async getAllCourseXCP(coursepool_id: string): Promise<string[]> {
     try {
-      const { coursecode, coursepool_id } = update_record;
+      const result = await this.aggregate([
+        { $unwind: '$coursePools' },
+        { $match: { 'coursePools.id': coursepool_id } },
+        {
+          $project: {
+            _id: 0,
+            courses: '$coursePools.courses',
+          },
+        },
+        { $limit: 1 },
+      ]);
 
-      const degree = await Degree.findOne({ 'coursePools.id': coursepool_id });
-      console.log(degree);
-      if (!degree) {
-        return DB_OPS.MOSTLY_OK;
-      }
-
-      const coursePool = degree.coursePools.find(
-        (pool) => pool.id === coursepool_id,
-      );
-      if (coursePool && !coursePool?.courses.includes(coursecode)) {
-        coursePool.courses.push(coursecode);
-        await degree.save();
-        return DB_OPS.SUCCESS;
-      } else {
-        return DB_OPS.MOSTLY_OK;
-      }
+      // @ts-ignore
+      return result.data?.[0]?.courses || [];
     } catch (error) {
       Sentry.captureException(error);
-      console.log('Error in updating courseXcoursepool item\n', error);
-      return DB_OPS.FAILURE;
+      console.error(
+        '[CourseXCPController] Error fetching courses for pool:',
+        error,
+      );
+      return [];
     }
   }
 
   /**
-   * Delete a CourseXCoursePool mapping
+   * Remove a course from a course pool
+   * Optimized with atomic operation
    */
   async removeCourseXCP(
-    delete_record: CourseXCPTypes.CourseXCP,
-  ): Promise<DB_OPS> {
+    coursecode: string,
+    coursepool_id: string,
+  ): Promise<boolean> {
     try {
-      const { coursecode, coursepool_id } = delete_record;
+      const result = await Degree.updateOne(
+        { 'coursePools.id': coursepool_id },
+        { $pull: { 'coursePools.$.courses': coursecode } },
+      ).exec();
 
-      const degree = await Degree.findOne({ 'coursePools.id': coursepool_id });
-
-      if (!degree) {
-        return DB_OPS.MOSTLY_OK;
-      }
-
-      const coursePool = degree.coursePools.find(
-        (pool) => pool.id === coursepool_id,
-      );
-      const courseIndex = coursePool?.courses.indexOf(coursecode);
-
-      console.log(courseIndex);
-
-      if (coursePool && courseIndex && courseIndex > -1) {
-        coursePool.courses.splice(courseIndex, 1);
-        await degree.save();
-        return DB_OPS.SUCCESS;
-      } else {
-        return DB_OPS.MOSTLY_OK;
-      }
+      return (result.modifiedCount || 0) > 0;
     } catch (error) {
       Sentry.captureException(error);
-      console.log('Error in deleting courseXcoursepool item\n', error);
-      return DB_OPS.FAILURE;
+      console.error(
+        '[CourseXCPController] Error removing course from pool:',
+        error,
+      );
+      return false;
+    }
+  }
+
+  /**
+   * Check if a course exists in a pool
+   */
+  async courseExistsInPool(
+    coursecode: string,
+    coursepool_id: string,
+  ): Promise<boolean> {
+    try {
+      const exists = await Degree.exists({
+        'coursePools.id': coursepool_id,
+        'coursePools.courses': coursecode,
+      }).exec();
+
+      return !!exists;
+    } catch (error) {
+      Sentry.captureException(error);
+      console.error(
+        '[CourseXCPController] Error checking course in pool:',
+        error,
+      );
+      return false;
+    }
+  }
+
+  /**
+   * Bulk add courses to a pool
+   */
+  async bulkCreateCourseXCP(
+    coursecodes: string[],
+    coursepool_id: string,
+  ): Promise<number> {
+    try {
+      const result = await Degree.updateOne(
+        { 'coursePools.id': coursepool_id },
+        { $addToSet: { 'coursePools.$.courses': { $each: coursecodes } } },
+      ).exec();
+
+      return result.modifiedCount || 0;
+    } catch (error) {
+      Sentry.captureException(error);
+      console.error('[CourseXCPController] Error bulk adding courses:', error);
+      return 0;
     }
   }
 }
