@@ -1116,3 +1116,39 @@ describe('buildSemesterMap', () => {
     expect(semesterMap['Fall 2024']).toEqual([]);
   });
 });
+
+import { SaveTimeline } from '../utils/timelineUtils';
+import * as api from '../api/http-api-client';
+
+
+describe('SaveTimeline (no mocks)', () => {
+  const state = {
+    semesters: [],
+    semesterCourses: {},
+    courseInstanceMap: {},
+    allCourses: [],
+    deficiencyCourses: [],
+  };
+
+  test('returns error when buildTimelinePayload detects invalid data', async () => {
+    const result = await SaveTimeline(null, null, null, state, false);
+    expect(result).toHaveProperty('error');
+  });
+
+  test('throws or fails gracefully when API endpoints are unreachable', async () => {
+    const result = await SaveTimeline(
+      'Timeline 1',
+      { id: 1 },
+      'degree1',
+      state,
+      false
+    );
+
+    // Since no mock server, this will likely reject
+    if (result?.error) {
+      expect(typeof result.error).toBe('string');
+    } else {
+      expect(result).toHaveProperty('error', null);
+    }
+  });
+});

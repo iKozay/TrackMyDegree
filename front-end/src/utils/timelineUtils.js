@@ -564,7 +564,7 @@ import { api } from '../api/http-api-client';
 import * as Sentry from '@sentry/react';
 import { notifySuccess, notifyError } from '../components/Toast';
 
-export const SaveTimeline = async (tName, user, degree_Id, state, extendedCredit, navigate, dispatch) => {
+export const SaveTimeline = async (tName, user, degree_Id, state, extendedCredit) => {
 
     const { user_id, timelineNameToSend, items, isExtended, exempted_courses, error } = buildTimelinePayload({
         tName,
@@ -587,52 +587,26 @@ export const SaveTimeline = async (tName, user, degree_Id, state, extendedCredit
     });
 
     if (error) {
-        notifyError(error);
-        if (error === "No valid data to save.") {
-            dispatch({ type: 'SET', payload: { hasUnsavedChanges: false } });
-
-        }
-        else if (error === "User must be logged in!") {
-            navigate('/signin');
-        }
-        return;
+        return { error: error };
     }
 
-    try {
-        await Promise.all([
-            api.post("/exemption/create", {
-                coursecodes: exempted_courses,
+    // try {
+    await Promise.all([
+        api.post("/exemption/create", {
+            coursecodes: exempted_courses,
+            user_id,
+        }),
+        api.post("/timeline/save", {
+            timeline: {
                 user_id,
-            }),
-            api.post("/timeline/save", {
-                timeline: {
-                    user_id,
-                    name: timelineNameToSend,
-                    items,
-                    degree_id: degree_Id,
-                    isExtendedCredit: isExtended,
-                },
-            }),
-        ]);
-
-        notifySuccess("Timeline and exemptions saved successfully!");
-        dispatch({
-            type: 'SET',
-            payload: {
-                hasUnsavedChanges: false,
-                showSaveModal: false,
-                timelineName: tName,
+                name: timelineNameToSend,
+                items,
+                degree_id: degree_Id,
+                isExtendedCredit: isExtended,
             },
-        });
-
-        setTimeout(() => {
-            navigate("/user");
-        }, 250);
-    } catch (error) {
-        Sentry.captureException(error);
-        console.error("Error saving timeline or exemptions:", error);
-        notifyError(`An error occurred while saving: ${error.message}`);
-    }
+        }),
+    ]);
+    return { error: null };
 };
 
 

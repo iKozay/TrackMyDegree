@@ -30,7 +30,7 @@ import {
   SaveTimeline,
 } from '../utils/timelineUtils';
 import { compressTimeline } from '../components/CompressDegree';
-import { Toast, notifyError } from '../components/Toast';
+import { Toast, notifyError, notifySuccess } from '../components/Toast';
 import { timelineReducer, initialState } from '../reducers/timelineReducer';
 
 import { useFetchCoursesByDegree } from '../hooks/useFetchCoursesByDegree';
@@ -50,6 +50,8 @@ import { useDegreeInitialization } from '../hooks/useDegreeInitialization';
 import { useNavigationBlocker } from '../hooks/useNavigationBlocker';
 import { useDragSensors } from '../hooks/useDragSensors';
 import { useCourseDrag } from '../hooks/useCourseDrag';
+import * as Sentry from '@sentry/react';
+import { useBlocker } from 'react-router-dom';
 
 const REACT_APP_CLIENT = process.env.REACT_APP_CLIENT || 'localhost:3000' // Set client URL
 
@@ -102,7 +104,41 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
     return areRequisitesMet(courseCode, currentSemesterIndex, state.courseInstanceMap, state.allCourses, state.semesters, state.semesterCourses);
   };
   const confirmSaveTimeline = async (tName) => {
-    await SaveTimeline(tName, user, degree_Id, state, extendedCredit, navigate, dispatch);
+    try {
+      const { error } = await SaveTimeline(tName, user, degree_Id, state, extendedCredit);
+      if (error) {
+        notifyError(error);
+        if (error === "No valid data to save.") {
+          dispatch({ type: 'SET', payload: { hasUnsavedChanges: false } });
+        }
+        else if (error === "User must be logged in!") {
+          dispatch({ type: 'SET', payload: { hasUnsavedChanges: false } });
+          setTimeout(() => {
+            navigate('/signin');
+          }, 250);
+        }
+        return;
+      }
+      notifySuccess("Timeline and exemptions saved successfully!");
+      dispatch({
+        type: 'SET',
+        payload: {
+          hasUnsavedChanges: false,
+          showSaveModal: false,
+          timelineName: tName,
+        },
+      });
+
+      setTimeout(() => {
+        navigate("/user");
+      }, 250);
+    }
+    catch (err) {
+      Sentry.captureException(err);
+      console.error("Error saving timeline or exemptions:", err);
+      notifyError(`An error occurred while saving: ${err.message}`);
+    }
+
   };
 
 
@@ -130,8 +166,14 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const { handleUndo, handleRedo } = useTimelineNavigation(state, dispatch);
 
   // --------------- block or unblock navigation ----------------------
-  useNavigationBlocker(state.hasUnsavedChanges, (nextPath) => {
-    dispatch({ type: 'SET', payload: { nextPath, showLeaveModal: true } });
+  useNavigationBlocker(state.hasUnsavedChanges);
+  // Handle internal navigation (React)
+  useBlocker(({ nextLocation }) => {
+    if (state.hasUnsavedChanges) {
+      dispatch({ type: 'SET', payload: { nextPath: nextLocation.pathname, showLeaveModal: true } });
+      return true; // Block navigation
+    }
+    return false; // Allow navigation
   });
 
   //----------------- window size reponsivness-----------------

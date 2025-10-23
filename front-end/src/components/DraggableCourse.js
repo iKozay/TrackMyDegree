@@ -23,23 +23,22 @@ export const DraggableCourse = ({
         }${isSelected && !isDragging && !disabled ? ' selected' : ''}${extraClassName ? ' ' + extraClassName : ''}`;
 
     return (
-        <>
-            <div
-                ref={setNodeRef}
-                {...attributes}
-                {...listeners}
-                className={className}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    onSelect(courseCode);
-                }}
-            >
-                {courseCode}
-                {isInTimeline && <span className="checkmark-icon">✔</span>}
+        <button
+            ref={setNodeRef}
+            {...attributes}
+            {...listeners}
+            className={className}
+            onClick={(e) => {
+                e.stopPropagation();
+                onSelect(courseCode);
+            }}
+        >
+            {courseCode}
+            {isInTimeline && <span className="checkmark-icon">✔</span>}
+            <span>
                 {removeButton}
-            </div>
+            </span>
 
-        </>
-
+        </button>
     );
 };
