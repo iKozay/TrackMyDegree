@@ -158,6 +158,7 @@ describe('arePrerequisitesMet', () => {
 
 // -------------------------Semester utils--------------------
 import { generateFourYearSemesters } from '../utils/SemesterUtils';
+
 describe('generateFourYearSemesters', () => {
   test('generates 12 semesters starting from Fall 2025', () => {
     const result = generateFourYearSemesters('Fall 2025');
@@ -603,6 +604,47 @@ describe('parseMaxCreditsFromPoolName', () => {
   });
 });
 
+import { findSemesterIdByCourseCode } from '../utils/timelineUtils';
+
+describe('findSemesterIdByCourseCode', () => {
+  const mockSemesters = {
+    'Fall 2024': ['COMP 232', 'MATH 101'],
+    'Winter 2025': ['PHYS 101', 'ENGL 101'],
+    'Summer 2025': ['CHEM 101'],
+  };
+
+  test('returns correct semesterId for an existing course', () => {
+    expect(findSemesterIdByCourseCode('COMP 232', mockSemesters)).toBe('Fall 2024');
+    expect(findSemesterIdByCourseCode('PHYS 101', mockSemesters)).toBe('Winter 2025');
+    expect(findSemesterIdByCourseCode('CHEM 101', mockSemesters)).toBe('Summer 2025');
+  });
+
+  test('returns null if the course is not found', () => {
+    expect(findSemesterIdByCourseCode('BIO 101', mockSemesters)).toBeNull();
+  });
+
+  test('handles empty semesters object', () => {
+    expect(findSemesterIdByCourseCode('COMP 232', {})).toBeNull();
+  });
+
+  test('handles empty course arrays', () => {
+    const emptySemesters = {
+      'Fall 2024': [],
+      'Winter 2025': [],
+    };
+    expect(findSemesterIdByCourseCode('COMP 232', emptySemesters)).toBeNull();
+  });
+
+  test('handles multiple courses in a semester', () => {
+    const semestersWithMultiple = {
+      'Fall 2024': ['COMP 232', 'COMP 248'],
+      'Winter 2025': ['MATH 101', 'PHYS 101'],
+    };
+    expect(findSemesterIdByCourseCode('COMP 248', semestersWithMultiple)).toBe('Fall 2024');
+  });
+});
+
+
 import { areRequisitesMet } from '../utils/timelineUtils';
 import jsPDF from 'jspdf';
 
@@ -654,7 +696,245 @@ describe('areRequisitesMet', () => {
     expect(areRequisitesMet('COMP104', 1, courseInstanceMap, allCourses, semesters, semesterCourses)).toBe(false);
   });
 });
-// Additional tests for Utils and Timeline utilities
+import { calculatedCreditsRequired } from '../utils/timelineUtils';
+
+
+
+describe('calculatedCreditsRequired', () => {
+  test('calculates total credits for multiple pools', () => {
+    const coursePools = [
+      { poolName: 'Pool A (3.5 credits)' },
+      { poolName: 'Pool B (4 credits)' },
+      { poolName: 'Pool C (2 credits)' },
+    ];
+    expect(calculatedCreditsRequired(coursePools)).toBe(9.5);
+  });
+
+  test('caps total credits at 120', () => {
+    const coursePools = [
+      { poolName: 'Pool A (50 credits)' },
+      { poolName: 'Pool B (60 credits)' },
+      { poolName: 'Pool C (30 credits)' },
+    ];
+    expect(calculatedCreditsRequired(coursePools)).toBe(120);
+  });
+
+  test('returns 0 for empty coursePools array', () => {
+    expect(calculatedCreditsRequired([])).toBe(0);
+  });
+
+  test('handles decimal credits correctly', () => {
+    const coursePools = [
+      { poolName: 'Pool A (3.5 credits)' },
+      { poolName: 'Pool B (4.5 credits)' },
+    ];
+    expect(calculatedCreditsRequired(coursePools)).toBe(8);
+  });
+});
+import { calculateTotalCredits2 } from '../utils/timelineUtils';
+
+describe('calculateTotalCredits2', () => {
+  const semesters = [
+    { id: 'Fall 2025' },
+    { id: 'Winter 2026' },
+    { id: 'Summer 2026' },
+  ];
+
+  const coursePools = [
+    {
+      poolId: 'core',
+      poolName: 'Core Courses (10)',
+      courses: [
+        { code: 'COMP 101', credits: 3 },
+        { code: 'MATH 101', credits: 4 },
+      ],
+    },
+    {
+      poolId: 'electives',
+      poolName: 'Electives (6)',
+      courses: [
+        { code: 'HIST 101', credits: 3 },
+        { code: 'PHYS 101', credits: 3 },
+      ],
+    },
+    {
+      poolId: 'option',
+      poolName: 'Optional Courses (6)',
+      courses: [
+        { code: 'ART 101', credits: 3 },
+      ],
+    },
+  ];
+
+  const allCourses = [
+    { code: 'COMP 101', credits: 3 },
+    { code: 'MATH 101', credits: 4 },
+    { code: 'HIST 101', credits: 3 },
+    { code: 'PHYS 101', credits: 3 },
+    { code: 'ART 101', credits: 3 },
+  ];
+
+  const courseInstanceMap = {
+    'inst1': 'COMP 101',
+    'inst2': 'MATH 101',
+    'inst3': 'HIST 101',
+    'inst4': 'PHYS 101',
+    'inst5': 'ART 101',
+  };
+
+  const semesterCourses = {
+    'Fall 2025': ['inst1', 'inst3'],
+    'Winter 2026': ['inst2', 'inst4'],
+    'Exempted': ['inst5'],
+  };
+
+  const remainingCourses = [];
+
+  test('calculates total credits correctly and ignores exempted courses', () => {
+    const { total, unmetPrereqFound } = calculateTotalCredits2(
+      semesterCourses,
+      semesters,
+      coursePools,
+      remainingCourses,
+      courseInstanceMap,
+      allCourses
+    );
+
+    // Core courses: COMP 101 + MATH 101 = 3 + 4 = 7 (max 10)
+    // Electives: HIST 101 + PHYS 101 = 3 + 3 = 6 (max 6)
+    // ART 101 is exempted → ignored
+    // Total = 7 + 6 = 13
+    expect(total).toBe(13);
+    expect(unmetPrereqFound).toBe(false);
+  });
+});
+
+import { formatSemesters } from '../utils/timelineUtils';
+
+describe('formatSemesters', () => {
+  test('formats regular semesters correctly', () => {
+    const input = ['Fall 2025', 'Winter 2026', 'Summer 2026'];
+    const result = formatSemesters(input);
+
+    expect(result).toEqual([
+      { id: 'Fall 2025', name: 'Fall 2025' },
+      { id: 'Winter 2026', name: 'Winter 2026' },
+      { id: 'Summer 2026', name: 'Summer 2026' },
+    ]);
+  });
+
+  test('formats Fall/Winter semesters correctly', () => {
+    const input = ['Fall/Winter 2025'];
+    const result = formatSemesters(input);
+
+    expect(result).toEqual([
+      { id: 'Fall/Winter 2025', name: 'Fall/Winter 2025-26' },
+    ]);
+  });
+
+  test('handles empty input', () => {
+    const result = formatSemesters([]);
+    expect(result).toEqual([]);
+  });
+
+  test('handles multiple Fall/Winter semesters', () => {
+    const input = ['Fall/Winter 2025', 'Fall/Winter 2026'];
+    const result = formatSemesters(input);
+
+    expect(result).toEqual([
+      { id: 'Fall/Winter 2025', name: 'Fall/Winter 2025-26' },
+      { id: 'Fall/Winter 2026', name: 'Fall/Winter 2026-27' },
+    ]);
+  });
+
+  test('handles extra spaces in input', () => {
+    const input = ['  Fall 2025 ', ' Winter 2026'];
+    const result = formatSemesters(input.map(s => s.trim()));
+
+    expect(result).toEqual([
+      { id: 'Fall 2025', name: 'Fall 2025' },
+      { id: 'Winter 2026', name: 'Winter 2026' },
+    ]);
+  });
+});
+
+import { generateSemesterCourses } from '../utils/timelineUtils';
+
+describe('generateSemesterCourses', () => {
+  test('generates unique course instances for each semester', () => {
+    const sortedSemesters = ['Fall 2025', 'Winter 2026'];
+    const semesterMap = {
+      'Fall 2025': ['COMP 232', 'MATH 101'],
+      'Winter 2026': ['PHYS 101', 'COMP 232'],
+    };
+
+    const { newSemesterCourses, newCourseInstanceMap, newUniqueCounter } =
+      generateSemesterCourses(sortedSemesters, semesterMap, {}, 0);
+
+    // Each semester should have unique instance IDs
+    expect(Object.keys(newSemesterCourses)).toEqual(sortedSemesters);
+    expect(newSemesterCourses['Fall 2025'].length).toBe(2);
+    expect(newSemesterCourses['Winter 2026'].length).toBe(2);
+
+    // Check that courseInstanceMap correctly maps IDs to codes
+    Object.values(newSemesterCourses).flat().forEach((id) => {
+      expect(newCourseInstanceMap[id]).toMatch(/COMP 232|MATH 101|PHYS 101/);
+    });
+
+    // Check unique counter increment
+    expect(newUniqueCounter).toBe(4);
+  });
+
+  test('handles empty semester map', () => {
+    const { newSemesterCourses, newCourseInstanceMap, newUniqueCounter } =
+      generateSemesterCourses(['Fall 2025'], {}, {}, 0);
+
+    expect(newSemesterCourses['Fall 2025']).toEqual([]);
+    expect(newCourseInstanceMap).toEqual({});
+    expect(newUniqueCounter).toBe(0);
+  });
+});
+
+import { buildTimelineState } from '../utils/timelineUtils';
+
+describe('buildTimelineState', () => {
+  test('builds timeline state for minimal input', () => {
+    const timelineData = [
+      { term: 'Fall 2025', course: 'COMP 232' },
+      { term: 'Winter 2026', course: 'MATH 101' },
+    ];
+
+    const state = {
+      semesterCourses: {},
+      courseInstanceMap: {},
+      allCourses: [
+        { code: 'COMP 232', credits: 3 },
+        { code: 'MATH 101', credits: 3 },
+      ],
+      uniqueIdCounter: 0,
+    };
+
+    const startingSemester = 'Fall 2025';
+    const extendedCredit = 0;
+
+    const result = buildTimelineState(timelineData, state, startingSemester, extendedCredit);
+
+    // Basic checks
+    expect(result.formattedSemesters.length).toBeGreaterThan(0);
+    expect(result.newUniqueCounter).toBeGreaterThan(0);
+
+    // Check course instance mapping
+    Object.values(result.newSemesterCourses).flat().forEach((id) => {
+      expect(result.newCourseInstanceMap[id]).toMatch(/COMP 232|MATH 101/);
+    });
+
+    // Deficiency and extendedC should exist
+    expect(result).toHaveProperty('deficiency');
+    expect(result).toHaveProperty('extendedC');
+  });
+});
+
+
 
 // --- isCourseOfferedInSemester edge cases ---
 describe('isCourseOfferedInSemester (edge cases)', () => {
@@ -781,5 +1061,58 @@ describe('calculateSemesterCredits (edge cases)', () => {
 describe('getMaxCreditsForSemesterName (edge cases)', () => {
   test('handles empty string', () => {
     expect(getMaxCreditsForSemesterName('')).toBe(19);
+  });
+});
+
+
+// Mock generateFourYearSemesters
+// jest.mock('../utils/SemesterUtils', () => {
+//   const originalModule = jest.requireActual('../utils/SemesterUtils');
+//   return {
+//     ...originalModule,
+//     generateFourYearSemesters: jest.fn((startingSemester) => [
+//       startingSemester,
+//       'Fall 2025',
+//       'Winter 2026',
+//       'Summer 2026',
+//     ]),
+//   };
+// });
+
+
+// buildSemesterMap.test.js
+import { buildSemesterMap } from '../utils/timelineUtils';
+
+describe('buildSemesterMap', () => {
+  it('builds semesterMap with non-exempted and exempted courses', () => {
+    const nonExemptedData = [
+      { term: 'Fall 2024', course: 'COMP 232' },
+      { season: 'Winter', year: '2025', courses: ['MATH 101', 'PHYS 101'] },
+    ];
+    const parsedExemptedCourses = ['ENGL 101'];
+    const startingSemester = 'Fall 2024';
+
+    const { semesterMap, semesterNames } = buildSemesterMap(
+      nonExemptedData,
+      parsedExemptedCourses,
+      startingSemester
+    );
+
+    expect(semesterNames.has('Fall 2024')).toBe(true);
+    expect(semesterNames.has('Winter 2025')).toBe(true);
+    expect(semesterNames.has('Exempted')).toBe(true);
+
+    expect(semesterMap['Fall 2024']).toEqual(['COMP 232']);
+    expect(semesterMap['Winter 2025']).toEqual(['MATH 101', 'PHYS 101']);
+    expect(semesterMap['Exempted']).toEqual(['ENGL 101']);
+
+    // Check that a future semester is created using the real generateFourYearSemesters
+    expect(semesterMap['Summer 2026']).toEqual([]);
+  });
+
+  it('creates empty semesters if nonExemptedData is empty', () => {
+    const { semesterMap, semesterNames } = buildSemesterMap([], [], 'Fall 2024');
+    expect(semesterNames.has('Fall 2024')).toBe(true);
+    expect(semesterMap['Fall 2024']).toEqual([]);
   });
 });
