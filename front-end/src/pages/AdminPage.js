@@ -9,7 +9,7 @@ import { AdminPageError } from '../middleware/SentryErrors';
 import { useNavigate } from 'react-router-dom';
 import { Button, Form } from 'react-bootstrap';
 
-const REACT_APP_SERVER = process.env.REACT_APP_SERVER||'http://localhost:8000';
+const REACT_APP_SERVER = process.env.REACT_APP_SERVER || 'http://localhost:8000';
 //This page is an admin dashboard for manipulating the database (CRUD). The page performs backups, deletes or restores them and can make the server seed data
 const AdminPage = () => {
   const [tables, setTables] = useState([]); //list of all tables

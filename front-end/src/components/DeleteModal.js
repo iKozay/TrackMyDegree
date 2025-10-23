@@ -1,4 +1,5 @@
 // DeleteModal.js
+import React from 'react';
 import { X } from 'react-feather';
 
 export default function DeleteModal({ open, onClose, children }) {
