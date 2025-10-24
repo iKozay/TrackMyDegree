@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/node';
 
 // Use existing Degree model
 import { Degree } from '../../models/Degree';
-
+const notExistString = 'Degree with this id does not exist.';
 /**
  * Creates a new degree in the database.
  */
@@ -16,7 +16,9 @@ async function createDegree(
 ): Promise<DegreeTypes.Degree | undefined> {
   try {
     // Check if a degree with the same id or name already exists
-    const existingDegree = await Degree.findOne({ $or: [{ _id: id }, { name }] });
+    const existingDegree = await Degree.findOne({
+      $or: [{ _id: id }, { name }],
+    });
 
     if (existingDegree) {
       throw new Error('Degree with this id or name already exists.');
@@ -35,7 +37,7 @@ async function createDegree(
       id: newDegree._id,
       name: newDegree.name,
       totalCredits: newDegree.totalCredits,
-    }
+    };
   } catch (error) {
     Sentry.captureException(error);
     throw error;
@@ -50,14 +52,14 @@ async function readDegree(id: string): Promise<DegreeTypes.Degree | undefined> {
     const degree = await Degree.findOne({ _id: id }).lean();
 
     if (!degree) {
-      throw new Error('Degree with this id does not exist.');
+      throw new Error(notExistString);
     }
 
     return {
       id: degree._id,
       name: degree.name,
       totalCredits: degree.totalCredits,
-    }
+    };
   } catch (error) {
     Sentry.captureException(error);
     throw error;
@@ -70,7 +72,7 @@ async function readDegree(id: string): Promise<DegreeTypes.Degree | undefined> {
 async function readAllDegrees(): Promise<DegreeTypes.Degree[] | undefined> {
   try {
     const degrees = await Degree.find({ _id: { $ne: 'ECP' } }).lean();
-    return degrees.map(degree => ({
+    return degrees.map((degree) => ({
       id: degree._id,
       name: degree.name,
       totalCredits: degree.totalCredits,
@@ -97,7 +99,7 @@ async function updateDegree(
     ).lean();
 
     if (!updatedDegree) {
-      throw new Error('Degree with this id does not exist.');
+      throw new Error(notExistString);
     }
 
     return {
@@ -119,7 +121,7 @@ async function deleteDegree(id: string): Promise<string | undefined> {
     const deletedDegree = await Degree.findOneAndDelete({ _id: id });
 
     if (!deletedDegree) {
-      throw new Error('Degree with this id does not exist.');
+      throw new Error(notExistString);
     }
 
     return `Degree with id ${id} has been successfully deleted.`;
@@ -136,7 +138,7 @@ async function getCreditsForDegree(
     const degree = await Degree.findOne({ _id: degreeId }).lean();
 
     if (!degree) {
-      throw new Error('Degree with this id does not exist.');
+      throw new Error(notExistString);
     }
 
     return degree.totalCredits;

@@ -6,7 +6,7 @@ import {
   listBackups,
   deleteBackup,
 } from '../../services/backup';
-
+const unknownErrorString = 'Unknown error'
 export const adminController = {
   async createBackup(
     req: Request,
@@ -17,7 +17,7 @@ export const adminController = {
       const fileName = await createBackup();
       res.json({ message: 'Backup created', data: fileName });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
+      const message = err instanceof Error ? err.message : unknownErrorString;
       res.status(500).json({ error: message });
     }
   },
@@ -32,7 +32,7 @@ export const adminController = {
       await restoreBackup(file);
       res.json({ message: 'Backup restored successfully' });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
+      const message = err instanceof Error ? err.message : unknownErrorString;
       res.status(500).json({ error: message });
     }
   },
@@ -42,7 +42,7 @@ export const adminController = {
       const backups = await listBackups();
       res.json({ success: true, data: backups });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
+      const message = err instanceof Error ? err.message : unknownErrorString;
       res.status(500).json({ error: message });
     }
   },
@@ -57,7 +57,7 @@ export const adminController = {
       await deleteBackup(file);
       res.json({ message: 'Backup deleted' });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
+      const message = err instanceof Error ? err.message : unknownErrorString;
       res.status(500).json({ error: message });
     }
   },

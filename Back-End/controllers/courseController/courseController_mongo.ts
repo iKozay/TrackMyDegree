@@ -24,19 +24,21 @@ const CourseSchema = new Schema<CourseDocument>({
 });
 
 const CourseModel = mongoose.model<CourseDocument>('Course', CourseSchema);
-
+const courseNotFoundString = 'Course not found';
 // ==========================
 // Contrôleur MongoDB
 // ==========================
 
-export default class CourseController_Mongo {
+export default class CourseControllerMongo {
   /**
    * 🔹 Récupère tous les cours
    */
   static async getAllCourses(req: Request, res: Response): Promise<Response> {
     try {
       const courses = await CourseModel.find();
-      const formatted = courses.map((c) => c.toObject() as CourseTypes.CourseInfoDB);
+      const formatted = courses.map(
+        (c) => c.toObject() as CourseTypes.CourseInfoDB,
+      );
       return res.status(200).json(formatted);
     } catch (err: any) {
       return res.status(500).json({ error: err.message });
@@ -52,7 +54,7 @@ export default class CourseController_Mongo {
       const courseDoc = await CourseModel.findOne({ code });
 
       if (!courseDoc) {
-        return res.status(404).json({ error: 'Course not found' });
+        return res.status(404).json({ error: courseNotFoundString });
       }
 
       const course = courseDoc.toObject() as CourseTypes.CourseInfoDB;
@@ -77,7 +79,9 @@ export default class CourseController_Mongo {
       const newCourse = new CourseModel(newCourseData);
       await newCourse.save();
 
-      return res.status(201).json(newCourse.toObject() as CourseTypes.CourseInfoDB);
+      return res
+        .status(201)
+        .json(newCourse.toObject() as CourseTypes.CourseInfoDB);
     } catch (err: any) {
       return res.status(500).json({ error: err.message });
     }
@@ -91,12 +95,16 @@ export default class CourseController_Mongo {
       const { code } = req.params;
       const updates: Partial<CourseTypes.CourseInfoDB> = req.body;
 
-      const updated = await CourseModel.findOneAndUpdate({ code }, updates, { new: true });
+      const updated = await CourseModel.findOneAndUpdate({ code }, updates, {
+        new: true,
+      });
       if (!updated) {
-        return res.status(404).json({ error: 'Course not found' });
+        return res.status(404).json({ error: courseNotFoundString });
       }
 
-      return res.status(200).json(updated.toObject() as CourseTypes.CourseInfoDB);
+      return res
+        .status(200)
+        .json(updated.toObject() as CourseTypes.CourseInfoDB);
     } catch (err: any) {
       return res.status(500).json({ error: err.message });
     }
@@ -111,7 +119,7 @@ export default class CourseController_Mongo {
 
       const deleted = await CourseModel.findOneAndDelete({ code });
       if (!deleted) {
-        return res.status(404).json({ error: 'Course not found' });
+        return res.status(404).json({ error: courseNotFoundString });
       }
 
       return res.status(200).json({ message: 'Course deleted successfully' });
@@ -123,12 +131,17 @@ export default class CourseController_Mongo {
   /**
    *  Récupère les cours selon un "pool"
    */
-  static async getCoursesByPool(req: Request, res: Response): Promise<Response> {
+  static async getCoursesByPool(
+    req: Request,
+    res: Response,
+  ): Promise<Response> {
     try {
       const { poolName } = req.params;
       const courses = await CourseModel.find({ offeredIn: poolName });
 
-      const formatted = courses.map((c) => c.toObject() as CourseTypes.CourseInfoDB);
+      const formatted = courses.map(
+        (c) => c.toObject() as CourseTypes.CourseInfoDB,
+      );
       return res.status(200).json(formatted);
     } catch (err: any) {
       return res.status(500).json({ error: err.message });

@@ -16,16 +16,17 @@ import sys
 
 
 
-# Prepare the list to hold extracted course data
-
 # Function to clean and normalize text with proper spacing
 def clean_text(text):
     if not text:
         return ""
+
+    SPACE_REPLACEMENT = r'\1 \2'
+
     text = re.sub(r'\s+', ' ', text)  # Collapse multiple spaces into one
-    text = re.sub(r'([a-zA-Z0-9])([A-Z][a-z])', r'\1 \2', text)  # Space before capital letters
-    text = re.sub(r'([a-zA-Z])(\d)', r'\1 \2', text)  # Space between letters and numbers
-    text = re.sub(r'(\d)([a-zA-Z])', r'\1 \2', text)  # Space between numbers and letters
+    text = re.sub(r'([a-zA-Z0-9])([A-Z][a-z])', SPACE_REPLACEMENT, text)  # Space before capital letters
+    text = re.sub(r'([a-zA-Z])(\d)', SPACE_REPLACEMENT, text)  # Space between letters and numbers
+    text = re.sub(r'(\d)([a-zA-Z])', SPACE_REPLACEMENT, text)  # Space between numbers and letters
     text = text.replace('\u2011', '-')  # Non-breaking hyphen to regular hyphen
     text = text.replace('\u2019', "'")  # Right single quote to straight quote
     text = text.replace('\u2014', ' — ')  # En dash with spaces

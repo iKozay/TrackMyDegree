@@ -10,7 +10,11 @@ import { UserHeaders } from '@Util/Session_Util';
 dotenv.config();
 
 const router = express.Router();
-var salt = bcrypt.genSaltSync(10);
+const salt = bcrypt.genSaltSync(10);
+const ERROR_MESSAGES = {
+  EMPTY_REQUEST_BODY: 'Request body cannot be empty',
+  INTERNAL_SERVER_ERROR: (route: string) => `Internal server error in ${route}`,
+} as const;
 
 /**Routes */
 // Login
@@ -40,7 +44,7 @@ router.post('/login', async (req: Request, res: Response) => {
       const { id, type } = result;
       if (!id) {
         //? Check if ID is undefined
-        throw new Error();
+        throw new Error('User ID is undefined');
       }
 
       const cookie = setJWTCookie({ id, type }, headers); //? Attach the JWT Cookie to the response
@@ -49,7 +53,7 @@ router.post('/login', async (req: Request, res: Response) => {
       res.status(HTTP.OK).json(result);
     }
   } catch (error) {
-    const errMsg = 'Internal server error in /login';
+    const errMsg = ERROR_MESSAGES.INTERNAL_SERVER_ERROR('/login');
     console.error(errMsg, error);
     res.status(HTTP.SERVER_ERR).json({ error: errMsg });
   }
@@ -60,7 +64,7 @@ router.post('/signup', async (req: Request, res: Response) => {
   if (!req.body) {
     res
       .status(HTTP.BAD_REQUEST)
-      .json({ error: 'Request body cannot be empty' });
+      .json({ error: ERROR_MESSAGES.EMPTY_REQUEST_BODY });
     return; // Exit if validation fails
   }
 
@@ -70,13 +74,13 @@ router.post('/signup', async (req: Request, res: Response) => {
     payload.password = await bcrypt.hash(payload.password, salt);
     const result = await authController.registerUser(payload);
 
-    if (!result) {
-      throw new Error('Insertion result is undefined');
-    } else {
+    if (result) {
       res.status(HTTP.CREATED).json(result);
+    } else {
+      throw new Error('Insertion result is undefined');
     }
   } catch (error) {
-    const errMsg = 'Internal server error in /signup';
+    const errMsg = ERROR_MESSAGES.INTERNAL_SERVER_ERROR('/signup');
     console.error(errMsg, error);
     res.status(HTTP.SERVER_ERR).json({ error: errMsg });
   }
@@ -87,7 +91,7 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
   if (!req.body) {
     res
       .status(HTTP.BAD_REQUEST)
-      .json({ error: 'Request body cannot be empty' });
+      .json({ error: ERROR_MESSAGES.EMPTY_REQUEST_BODY });
     return; // Exit if validation fails
   }
 
@@ -96,13 +100,13 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
   try {
     const result = await authController.forgotPassword(email);
 
-    if (!result) {
-      throw new Error('Email check returns undefined');
-    } else {
+    if (result) {
       res.status(HTTP.ACCEPTED).json(result);
+    } else {
+      throw new Error('Email check returns undefined');
     }
   } catch (error) {
-    const errMsg = 'Internal server error in /forgot-password';
+    const errMsg = ERROR_MESSAGES.INTERNAL_SERVER_ERROR('/forgot-password');
     console.error(errMsg, error);
     res.status(HTTP.SERVER_ERR).json({ error: errMsg });
   }
@@ -113,7 +117,7 @@ router.post('/reset-password', async (req: Request, res: Response) => {
   if (!req.body) {
     res
       .status(HTTP.BAD_REQUEST)
-      .json({ error: 'Request body cannot be empty' });
+      .json({ error: ERROR_MESSAGES.EMPTY_REQUEST_BODY });
     return; // Exit if validation fails
   }
 
@@ -128,13 +132,13 @@ router.post('/reset-password', async (req: Request, res: Response) => {
       confirmPassword,
     );
 
-    if (!result) {
-      throw new Error('Reset password returns undefined');
-    } else {
+    if (result) {
       res.status(HTTP.ACCEPTED).json(result);
+    } else {
+      throw new Error('Reset password returns undefined');
     }
   } catch (error) {
-    const errMsg = 'Internal server error in /reset-password';
+    const errMsg = ERROR_MESSAGES.INTERNAL_SERVER_ERROR('/reset-password');
     console.error(errMsg, error);
     res.status(HTTP.SERVER_ERR).json({ error: errMsg });
   }
