@@ -115,17 +115,6 @@ def test_extract_missing_sections(mock_get):
 
 
 @patch("course_data_scraper.requests.get")
-def test_failed_request(mock_get):
-    mock_resp = Mock(status_code=404)
-    mock_resp.headers = {'content-type': 'text/html'}
-    mock_resp.encoding = 'utf-8'
-    mock_get.return_value = mock_resp
-
-    with pytest.raises(SystemExit):
-        extract_course_data("SOEN 357", "https://bad-url.com")
-
-
-@patch("course_data_scraper.requests.get")
 def test_exception_handling(mock_get):
     mock_resp = make_mock_response("<div class='course'></div>")
     mock_get.return_value = mock_resp

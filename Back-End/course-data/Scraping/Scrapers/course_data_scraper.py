@@ -36,144 +36,108 @@ def clean_text(text):
     return text
 
 def extract_course_data(course, url):
+    """Extract structured course data (id, title, credits, prereqs, etc.) from a course catalog page."""
 
-    # Set a user agent to mimic a real browser
-    USERAGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-    headers = {"User-Agent": USERAGENT}
+    def fetch_html(url):
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/91.0.4472.124 Safari/537.36"
+            )
+        }
+        resp = requests.get(url, headers=headers)
+        if resp.status_code != 200:
+            print(f"Failed to fetch webpage: {resp.status_code}")
+            return None
+        encoding = (
+            EncodingDetector.find_declared_encoding(resp.content, is_html=True)
+            or (resp.encoding if 'charset' in resp.headers.get('content-type', '').lower() else None)
+        )
+        return BeautifulSoup(resp.content, 'lxml', from_encoding=encoding)
 
-    # Fetch the webpage content
-    resp = requests.get(url, headers=headers)
-    if resp.status_code != 200:
-        print(f"Failed to fetch the webpage. Status code: {resp.status_code}")
-        exit()
+    def parse_title_and_credits(title_text):
+        """Extract course ID, title, and credits from the header text."""
+        match = re.match(r'^([A-Z]{4}\s*\d+)\s+(.+?)\s*\((\d*\.?\d+)\s*credits\)$', title_text)
+        if match:
+            course_id = clean_text(match.group(1))
+            title = clean_text(match.group(2))
+            credit_str = match.group(3)
+            course_credits = float(credit_str) if '.' in credit_str else int(credit_str)
+        else:
+            course_id, title, course_credits = None, clean_text(title_text), None
+        return course_id, title, course_credits
 
-    # Detect encoding
-    http_encoding = resp.encoding if 'charset' in resp.headers.get('content-type', '').lower() else None
-    html_encoding = EncodingDetector.find_declared_encoding(resp.content, is_html=True)
-    encoding = html_encoding or http_encoding
+    def split_sections(text):
+        """Split text into known labeled sections."""
+        markers = ["Prerequisite/Corequisite:", "Description:", "Component(s):", "Notes:"]
+        sections, remaining = {}, text
+        for i, marker in enumerate(markers):
+            start = remaining.find(marker)
+            if start == -1:
+                sections[marker] = ""
+                continue
+            start += len(marker)
+            end = remaining.find(markers[i + 1]) if i < len(markers) - 1 else len(remaining)
+            if end == -1:
+                end = len(remaining)
+            sections[marker] = clean_text(remaining[start:end].strip())
+            remaining = remaining[end:]
+        return sections
 
-    # Parse the HTML content with the detected encoding
-    soup = BeautifulSoup(resp.content, 'lxml', from_encoding=encoding)
+    def parse_prereq_coreq(text):
+        """Extract prerequisites and corequisites from combined text."""
+        prereq, coreq = "", ""
+        both = re.search(r'previously\s+or\s+concurrently[: ]+([A-Z]{4}\s+\d{3}[^.]*)', text, re.I)
+        pre = re.search(r'previously[: ]+([^.]*)', text, re.I)
+        co = re.search(r'concurrently[: ]+([A-Z]{4}\s+\d{3}[^.]*)', text, re.I)
 
-    # Extract course blocks
-    course_blocks = soup.find_all('div', class_='course')
+        if both:
+            prereq = coreq = clean_text(both.group(1) + '.')
+        elif pre:
+            prereq = clean_text(pre.group(1) + '.')
+        elif co:
+            coreq = clean_text(co.group(1) + '.')
+        else:
+            cleaned = re.sub(r'(previously|or concurrently)[: ]+', '', text, flags=re.I)
+            prereq = clean_text(cleaned)
 
-    # Process each course block
-    for block in course_blocks:
+        if prereq:
+            prereq = re.sub(r'\s+or\s+', ' / ', prereq, flags=re.I)
+
+        return prereq, coreq
+
+    # --- Main Logic ---
+    soup = fetch_html(url)
+    if not soup:
+        return None
+
+    for block in soup.find_all('div', class_='course'):
         try:
-            # Extract course ID, title, and credits
-            title_element = block.find('h3', class_='accordion-header xlarge')
-            if title_element:
-                title_text = ' '.join(title_element.stripped_strings)
+            title_el = block.find('h3', class_='accordion-header xlarge')
+            if not title_el:
+                continue
 
-                # Match pattern like "SOEN 357 User Interface Design (3 credits)"
-                title_match = re.match(r'^([A-Z]{4}\s*\d+)\s+(.+?)\s*\((\d*\.?\d+)\s*credits\)$', title_text)
-
-                if title_match:
-                    course_id = clean_text(title_match.group(1).strip())
-                    title = clean_text(title_match.group(2).strip())
-                    credit_str = title_match.group(3)
-                    credits = float(credit_str) if '.' in credit_str else int(credit_str)
-                else:
-                    # Fallback if format is different
-                    course_id = None
-                    title = clean_text(title_text)
-                    credits = None
-            else:
-                course_id = None
-                title = None
-                credits = None
-
+            title_text = ' '.join(title_el.stripped_strings)
+            course_id, title, credits = parse_title_and_credits(title_text)
             if course_id != course:
                 continue
 
-            # Extract full content
-            content_element = block.find('div', class_='accordion-body')
-            if content_element:
-                full_text = ' '.join(content_element.stripped_strings)
-                full_text = clean_text(full_text)
-            else:
-                full_text = ""
+            content_el = block.find('div', class_='accordion-body')
+            full_text = clean_text(' '.join(content_el.stripped_strings)) if content_el else ""
+            sections = split_sections(full_text)
 
-            # Initialize fields
-            prerequisites = ""
-            corequisites = ""
-            description = ""
-            components = None
-            notes = None
-
-            # Define section markers
-            markers = [
-                "Prerequisite/Corequisite:",
-                "Description:",
-                "Component(s):",
-                "Notes:"
-            ]
-
-            # Split text into sections using markers
-            sections = {}
-            remaining_text = full_text
-            for i, marker in enumerate(markers):
-                if marker in remaining_text:
-                    start_idx = remaining_text.index(marker) + len(marker)
-                    end_idx = len(remaining_text) if i == len(markers) - 1 else remaining_text.find(markers[i + 1], start_idx)
-                    if end_idx == -1:
-                        end_idx = len(remaining_text)
-                    sections[marker] = clean_text(remaining_text[start_idx:end_idx].strip())
-                    remaining_text = remaining_text[end_idx:] if end_idx < len(remaining_text) else ""
-                else:
-                    sections[marker] = ""
-
-            # Process prerequisites and corequisites
-            prereq_coreq_text = sections.get("Prerequisite/Corequisite:", "")
-            if prereq_coreq_text:
-                # Handle "previously or concurrently" case
-                both_match = re.search(r'previously\s+or\s+concurrently[: ]+([A-Z]{4}\s+\d{3}(?:\s+\([^)]*\))?)\.?', prereq_coreq_text, re.IGNORECASE)
-                # Handle "previously" only
-                prereq_only_match = re.search(r'previously[: ]+([^.]*)\.?', prereq_coreq_text, re.IGNORECASE)
-                # Handle "concurrently" only
-                coreq_only_match = re.search(r'(?:or\s+)?concurrently[: ]+([A-Z]{4}\s+\d{3}(?:\s+\([^)]*\))?)\.?', prereq_coreq_text, re.IGNORECASE)
-
-                if both_match:
-                    # If "previously or concurrently" is found, put the course in both fields
-                    course_code = clean_text(both_match.group(1) + '.')
-                    prerequisites = course_code
-                    corequisites = course_code
-                elif prereq_only_match:
-                    # If only "previously", put it in prerequisites
-                    prerequisites = clean_text(prereq_only_match.group(1) + '.')
-                elif coreq_only_match:
-                    # If only "concurrently", put it in corequisites
-                    corequisites = clean_text(coreq_only_match.group(1) + '.')
-                else:
-                    # Fallback for cases without "previously" or "concurrently"
-                    prereq_clean = re.sub(r'^(The following course must be completed\s+)?', '', prereq_coreq_text)
-                    prereq_clean = re.sub(r'(previously|or concurrently)[: ]+', '', prereq_clean, flags=re.IGNORECASE)
-                    prerequisites = clean_text(prereq_clean)
-
-                # Replace "or" with "/" in prerequisites
-                if prerequisites:
-                    prerequisites = re.sub(r'\s+or\s+', ' / ', prerequisites, flags=re.IGNORECASE)
-
-            # Assign other sections
-            description = sections.get("Description:", "")
-            components = sections.get("Component(s):") or None
-            notes = sections.get("Notes:") or None
-
-            # Prepare course data
+            prereq, coreq = parse_prereq_coreq(sections.get("Prerequisite/Corequisite:", ""))
             course_data = {
                 "id": course_id,
                 "title": title,
                 "credits": credits,
-                "description": description,
+                "description": sections.get("Description:", ""),
                 "offeredIN": [""],
-                "prerequisites": prerequisites,
-                "corequisites": corequisites,
-                
+                "prerequisites": prereq,
+                "corequisites": coreq,
             }
-
-            # Append to courses list
-            return(course_data)
+            return course_data
 
         except Exception as e:
             print(f"Error processing course block: {e}")
