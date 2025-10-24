@@ -5,6 +5,7 @@ import json
 import requests
 import re
 import sys
+import course_data_scraper
 
 # Set a user agent to mimic a real browser
 USERAGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -35,6 +36,10 @@ def get_page(url):
 
 
 soup = get_page(sys.argv[1])
+
+def get_course_data(course, url):
+    page_html = get_page(url)
+
 
 def get_courses(url, pool_name):
     output = []
