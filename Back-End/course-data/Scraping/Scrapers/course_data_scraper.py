@@ -58,7 +58,7 @@ def extract_course_data(course, url):
 
     def parse_title_and_credits(title_text):
         """Extract course ID, title, and credits from the header text."""
-        match = re.match(r'^([A-Z]{4}\s*\d+)\s+(.+?)\s*\((\d*\.?\d+)\s*credits\)$', title_text)
+        match = re.match(r'^([A-Z]{4}\s*\d+)\s+([^(]+?)\s*\((\d+(?:\.\d+)?)\s*credits\)$', title_text)
         if match:
             course_id = clean_text(match.group(1))
             title = clean_text(match.group(2))
@@ -103,7 +103,7 @@ def extract_course_data(course, url):
             prereq = clean_text(cleaned)
 
         if prereq:
-            prereq = re.sub(r'\s+or\s+', ' / ', prereq, flags=re.I)
+            prereq = re.sub(r'\s{0,5}or\s{0,5}', ' / ', prereq, flags=re.I)
 
         return prereq, coreq
 
@@ -119,7 +119,7 @@ def extract_course_data(course, url):
                 continue
 
             title_text = ' '.join(title_el.stripped_strings)
-            course_id, title, credits = parse_title_and_credits(title_text)
+            course_id, title, course_credits = parse_title_and_credits(title_text)
             if course_id != course:
                 continue
 
@@ -131,7 +131,7 @@ def extract_course_data(course, url):
             course_data = {
                 "id": course_id,
                 "title": title,
-                "credits": credits,
+                "credits": course_credits,
                 "description": sections.get("Description:", ""),
                 "offeredIN": [""],
                 "prerequisites": prereq,
