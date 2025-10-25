@@ -1,4 +1,3 @@
-// Back-End/tests/__mocks__/pdf-parse.js
 /* global Buffer */
 
 const mockPdfParse = jest.fn(async (buffer) => {
@@ -92,10 +91,10 @@ End of Student Record`;
     info: {
       PDFFormatVersion: '1.4',
       IsAcroFormPresent: false,
-      IsXFAPresent: false
+      IsXFAPresent: false,
     },
     metadata: null,
-    version: '1.10.100'
+    version: '1.10.100',
   };
 });
 
