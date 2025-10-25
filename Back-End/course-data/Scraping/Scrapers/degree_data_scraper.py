@@ -5,6 +5,7 @@ import json
 import requests
 import re
 import sys
+import course_data_scraper
 
 # Set a user agent to mimic a real browser
 USERAGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -36,6 +37,7 @@ def get_page(url):
 
 soup = get_page(sys.argv[1])
 
+
 def get_courses(url, pool_name):
     output = []
     if temp_url in sys.argv[1]:
@@ -43,6 +45,7 @@ def get_courses(url, pool_name):
         course_list = course_list.find_all('div', class_="formatted-course")
         for course in course_list:
             output.append(course.find('span', class_="course-code-number").find('a').text)
+            courses.append(course_data_scraper.extract_course_data(course.find('span', class_="course-code-number").find('a').text, urljoin(sys.argv[1],course.find('span', class_="course-code-number").find('a').get('href'))))
     else:
         page_html=get_page(urljoin(sys.argv[1], url))
         course_list=page_html.find_all('div', class_="formatted-course")
@@ -83,5 +86,7 @@ with open(output_path+"/course_pool.json", 'w', encoding='utf-8') as json_file:
     json.dump(course_pool, json_file, indent=4, ensure_ascii=False)
 with open(output_path+"/degree.json", 'w', encoding='utf-8') as json_file:
     json.dump(degree, json_file, indent=4, ensure_ascii=False)
+with open(output_path+"/courses.json", 'w', encoding='utf-8') as json_file:
+    json.dump(courses, json_file, indent=4, ensure_ascii=False)
 
 print(f"Scraped data has been saved to {output_path}")
