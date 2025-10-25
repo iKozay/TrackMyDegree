@@ -4,8 +4,8 @@ import HTTP from '@Util/HTTPCodes';
 import Auth from '@controllers/authController/auth_types';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
-import { setJWTCookie } from '@Util/JWT_Util';
-import { UserHeaders } from '@Util/Session_Util';
+import { jwtService } from '../services/jwtService';
+import { UserHeaders, verifySession } from '@Util/Session_Util';
 
 dotenv.config();
 
@@ -16,47 +16,94 @@ const ERROR_MESSAGES = {
   INTERNAL_SERVER_ERROR: (route: string) => `Internal server error in ${route}`,
 } as const;
 
+function extractUserHeaders(req: Request): UserHeaders {
+  return {
+    agent: req.headers['user-agent'] || '',
+    ip_addr: req.ip || '',
+  };
+}
+
 /**Routes */
 // Login
 router.post('/login', async (req: Request, res: Response) => {
   const { email, password } = req.body;
-
-  if (!email || !password) {
-    res
+  if (!email || !password)
+    return res
       .status(HTTP.BAD_REQUEST)
-      .json({ error: 'Email and password are required' });
-    return; // Exit if validation fails
-  }
+      .json({ error: 'Email and password required' });
 
   try {
-    const result = await authController.authenticate(email, password);
-
-    if (undefined === result) {
-      res
+    const user = await authController.authenticate(email, password);
+    if (!user)
+      return res
         .status(HTTP.UNAUTHORIZED)
-        .json({ error: 'Incorrect email or password' });
-    } else {
-      const headers: UserHeaders = {
-        agent: req.headers['user-agent'] || '',
-        ip_addr: req.ip || '',
-      };
+        .json({ error: 'Invalid credentials' });
 
-      const { id, type } = result;
-      if (!id) {
-        //? Check if ID is undefined
-        throw new Error('User ID is undefined');
-      }
+    const userHeaders = extractUserHeaders(req);
+    const accessToken = jwtService.generateToken(
+      { orgId: process.env.JWT_ORG_ID!, userId: user.id!, type: user.type },
+      userHeaders,
+    );
+    const refreshToken = jwtService.generateToken(
+      { orgId: process.env.JWT_ORG_ID!, userId: user.id!, type: user.type },
+      userHeaders,
+      undefined,
+      true,
+    );
 
-      const cookie = setJWTCookie({ id, type }, headers); //? Attach the JWT Cookie to the response
-      res.cookie(cookie.name, cookie.value, cookie.config);
+    const accessCookie = jwtService.setAccessCookie(accessToken);
+    const refreshCookie = jwtService.setRefreshCookie(refreshToken);
 
-      res.status(HTTP.OK).json(result);
-    }
-  } catch (error) {
-    const errMsg = ERROR_MESSAGES.INTERNAL_SERVER_ERROR('/login');
-    console.error(errMsg, error);
-    res.status(HTTP.SERVER_ERR).json({ error: errMsg });
+    res.cookie(accessCookie.name, accessCookie.value, accessCookie.config);
+    res.cookie(refreshCookie.name, refreshCookie.value, refreshCookie.config);
+
+    res.status(HTTP.OK).json(user);
+  } catch (err) {
+    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
   }
+});
+
+// Refresh
+router.post('/refresh', async (req: Request, res: Response) => {
+  const token = req.cookies?.refresh_token;
+  const userHeaders = extractUserHeaders(req);
+  if (!token)
+    return res
+      .status(HTTP.UNAUTHORIZED)
+      .json({ error: 'Missing refresh token' });
+
+  const payload = jwtService.verifyRefreshToken(token);
+  if (!payload)
+    return res
+      .status(HTTP.UNAUTHORIZED)
+      .json({ error: 'Invalid or expired refresh token' });
+
+  if (
+    payload.session_token &&
+    !verifySession(payload.session_token, userHeaders)
+  ) {
+    return res.status(HTTP.UNAUTHORIZED).json({ error: 'Session mismatch' });
+  }
+
+  const newAccessToken = jwtService.generateToken(
+    payload,
+    userHeaders,
+    payload.session_token,
+  );
+  const newRefreshToken = jwtService.generateToken(
+    payload,
+    userHeaders,
+    payload.session_token,
+    true,
+  );
+
+  const accessCookie = jwtService.setAccessCookie(newAccessToken);
+  const refreshCookie = jwtService.setRefreshCookie(newRefreshToken);
+
+  res.cookie(accessCookie.name, accessCookie.value, accessCookie.config);
+  res.cookie(refreshCookie.name, refreshCookie.value, refreshCookie.config);
+
+  res.status(HTTP.OK).json({ message: 'Tokens refreshed' });
 });
 
 // Sign-up
