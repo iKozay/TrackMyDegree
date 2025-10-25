@@ -555,7 +555,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
         // console.log(timelineData);
 
-        if (data.term === 'deficiencies 2020' && Array.isArray(data.courses)) {
+        if (data.term.includes('deficiencies') && Array.isArray(data.courses)) {
           setDeficiencyCourses(() => {
             const newCourses = data.courses
               .map((courseCode) => {
