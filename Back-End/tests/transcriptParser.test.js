@@ -7,6 +7,12 @@ jest.mock('node:timers', () => ({
 
 const fs = require('fs');
 const { TranscriptParser } = require('../dist/Util/transcriptParser.js');
+const mockTranscriptData = require('./__fixtures__/data/mockTranscriptData');
+const { createMockPdfParser } = require('./__fixtures__/factories/mockPdfParserFactory');
+const edgeCaseTranscriptData = require('./__fixtures__/data/edgeCaseTranscriptData');
+
+/* ===================== Test Constants ===================== */
+const TEMP_PDF_REGEX = /[\\/]tmp[\\/]transcript_\d+\.pdf$/;
 
 /* ===================== Helper Functions ===================== */
 
@@ -71,11 +77,7 @@ const assertAdditionalInfo = (result, expected) => {
 };
 
 // temp file write assertion
-const assertTempFileWrite = (
-  spy,
-  buffer,
-  dirPattern = /[\\/]tmp[\\/]transcript_\d+\.pdf$/,
-) => {
+const assertTempFileWrite = (spy, buffer, dirPattern = TEMP_PDF_REGEX) => {
   expect(spy).toHaveBeenCalledWith(expect.stringMatching(dirPattern), buffer);
 };
 
@@ -155,36 +157,16 @@ describe('TranscriptParser', () => {
     expect(writeSpy).toHaveBeenCalledTimes(1);
     expect(unlinkSpy).toBeDefined();
 
-    assertStudentInfo(result, {
-      studentName: 'John Doe Student',
-      studentId: '123456789',
-      city: 'Montreal',
-      province: 'QC',
-    });
+    assertStudentInfo(result, mockTranscriptData.studentInfo);
 
-    assertTermBasics(result, 0, {
-      term: 'Fall',
-      year: '2020',
-      courseCount: 3,
-      termGPA: 3.67,
-    });
+    assertTermBasics(result, 0, mockTranscriptData.terms[0]);
 
     const firstCourse = result.terms[0].courses[0];
-    assertCourse(firstCourse, {
-      courseCode: 'COMP 248',
-      grade: 'A-',
-    });
+    assertCourse(firstCourse, mockTranscriptData.terms[0].courses[0]);
 
-    assertTransferCredits(result, [
-      { courseCode: 'MATH 101', grade: 'EX' },
-      { courseCode: 'PHYS 101', grade: 'PASS' },
-    ]);
+    assertTransferCredits(result, mockTranscriptData.transferCredits);
 
-    assertAdditionalInfo(result, {
-      overallGPA: 3.75,
-      minCreditsRequired: 120.0,
-      programCreditsEarned: 90.5,
-    });
+    assertAdditionalInfo(result, mockTranscriptData.additionalInfo);
   });
 
   it('should parse transcript from file', async () => {
@@ -202,14 +184,18 @@ describe('TranscriptParser', () => {
 
     expect(readSpy).toHaveBeenCalledWith(filePath);
     assertTempFileWrite(writeSpy, mockBuffer, /transcript_\d+\.pdf$/);
-    expect(result).toBeValidTranscript({ termCount: 3, firstTerm: 'Fall' });
-    assertStudentInfo(result, {
-      studentName: 'John Doe Student',
-      studentId: '123456789',
+    expect(result).toBeValidTranscript({
+      termCount: mockTranscriptData.terms.length,
+      firstTerm: mockTranscriptData.terms[0].term,
     });
-    assertTermBasics(result, 0, { term: 'Fall' });
-    expect(result.transferCredits).toHaveLength(2);
-    expect(result.additionalInfo.overallGPA).toBe(3.75);
+    assertStudentInfo(result, mockTranscriptData.studentInfo);
+    assertTermBasics(result, 0, mockTranscriptData.terms[0]);
+    expect(result.transferCredits).toHaveLength(
+      mockTranscriptData.transferCredits.length,
+    );
+    expect(result.additionalInfo.overallGPA).toBe(
+      mockTranscriptData.additionalInfo.overallGPA,
+    );
   }, 100000);
 
   it('should handle errors when reading file', async () => {
@@ -266,7 +252,7 @@ describe('TranscriptParser', () => {
       expect.any(Function),
     );
     expect(mockInstance.loadPDF).toHaveBeenCalledWith(
-      expect.stringMatching(/[\\/]tmp[\\/]transcript_\d+\.pdf$/),
+      expect.stringMatching(TEMP_PDF_REGEX),
     );
     assertTempFileWrite(writeSpy, mockBuffer);
   }, 10000);
@@ -281,21 +267,17 @@ describe('TranscriptParser', () => {
     const mockBuffer = Buffer.from('mock pdf content');
     const result = await parser.parseFromBuffer(mockBuffer);
     assertHybridInvocation(mockBuffer);
-    expect(result).toBeValidTranscript({ termCount: 3, firstTerm: 'Fall' });
-    assertTermBasics(result, 0, { year: '2020' });
-    assertCourse(result.terms[0].courses[0], {
-      courseCode: 'COMP 248',
-      grade: 'A-',
-      credits: 3.0,
+    expect(result).toBeValidTranscript({
+      termCount: mockTranscriptData.terms.length,
+      firstTerm: mockTranscriptData.terms[0].term,
     });
-    assertStudentInfo(result, {
-      studentName: 'John Doe Student',
-      studentId: '123456789',
-    });
-    assertTransferCredits(result, [
-      { courseCode: 'MATH 101' },
-      { courseCode: 'PHYS 101' },
-    ]);
+    assertTermBasics(result, 0, mockTranscriptData.terms[0].year);
+    assertCourse(
+      result.terms[0].courses[0],
+      mockTranscriptData.terms[0].courses[0],
+    );
+    assertStudentInfo(result, mockTranscriptData.studentInfo);
+    assertTransferCredits(result, mockTranscriptData.transferCredits);
     assertTempFileWrite(writeSpy, mockBuffer);
   }, 10000);
 
@@ -327,144 +309,81 @@ describe('TranscriptParser', () => {
   it('should handle missing program details gracefully', async () => {
     const mockPdfParse = jest.fn().mockResolvedValue({
       text: `Beginning of Undergraduate Record
-        Active in Program
-        Fall 2020
-        Min. Credits Required
-        Fall 2023
-        End of Student Record`,
+      Active in Program
+      Fall 2020
+      Min. Credits Required
+      Fall 2023
+      End of Student Record`,
     });
     jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
     jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
     require('pdf-parse').mockImplementation(mockPdfParse);
+
     const MockPDFParser = require('pdf2json');
-    MockPDFParser.mockImplementationOnce(() => {
-      const inst = {
-        on: jest.fn((e, cb) => e === 'pdfParser_dataReady' && (inst._cb = cb)),
-        loadPDF: jest.fn(() =>
-          process.nextTick(() =>
-            inst._cb?.({
-              Pages: [
-                {
-                  Texts: [
-                    { y: 10, R: [{ T: 'John%20Doe%20Student' }] },
-                    { y: 5, R: [{ T: 'Student%20ID:%20123456789' }] },
-                    { y: 0, R: [{ T: 'Active%20in%20Program' }] },
-                    // missing degree information
-                    { y: -5, R: [{ T: 'Fall%202020' }] },
-                    { y: -10, R: [{ T: 'Min.%20Credits%20Required' }] },
-                  ],
-                },
-              ],
-            }),
-          ),
-        ),
-      };
-      return inst;
-    });
+    MockPDFParser.mockImplementationOnce(() =>
+      createMockPdfParser(
+        require('./__fixtures__/payloads/programMissingDetailsPayload'),
+      ),
+    );
 
     const result = await parser.parseFromBuffer(
       Buffer.from('mock pdf content'),
     );
+
     expect(result.programHistory).toHaveLength(1);
     const program = result.programHistory[0];
-    expect(program).toMatchObject({
-      status: 'Active in Program',
-      startDate: 'Fall 2020',
-      // expected missing fields to be empty strings
-      degreeType: '',
-      major: '',
-      admitTerm: '',
-      note: '',
-    });
+
+    // Use fixture data for verification
+    expect(program).toMatchObject(edgeCaseTranscriptData.programMissingDetails);
   });
 
   it('should handle course parsing courses with other field and minimal fields', async () => {
-    const mockPdfParse = jest.fn().mockResolvedValue({
-      text: `Beginning of Undergraduate Record
-           Fall 2023
-           End of Student Record`,
-    });
     jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
     jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
-    require('pdf-parse').mockImplementation(mockPdfParse);
+
     const MockPDFParser = require('pdf2json');
-    // custom complex instance
-    MockPDFParser.mockImplementationOnce(() => {
-      return {
-        on: jest.fn((e, cb) => {
-          if (e === 'pdfParser_dataReady') {
-            cb({
-              Pages: [
-                {
-                  Texts: [
-                    { y: -20, R: [{ T: 'ENGR' }] },
-                    { y: -20, R: [{ T: '101' }] },
-                    { y: -20, R: [{ T: 'C' }] },
-                    { y: -20, R: [{ T: 'Engineering%20Basics' }] },
-                    { y: -20, R: [{ T: '3.00' }] },
-                    { y: -20, R: [{ T: 'B+' }] },
-                    { y: -20, R: [{ T: '3.30' }] },
-                    { y: -20, R: [{ T: '2.75' }] },
-                    { y: -20, R: [{ T: '150' }] },
-                    { y: -20, R: [{ T: '3.00' }] },
-                    { y: -20, R: [{ T: 'WKRT' }] },
-                    { y: -25, R: [{ T: 'PHYS' }] },
-                    { y: -25, R: [{ T: '101' }] },
-                    { y: -25, R: [{ T: 'D' }] },
-                    { y: -25, R: [{ T: 'Physics%20Lab' }] },
-                    { y: -25, R: [{ T: '1.00' }] },
-                    { y: -25, R: [{ T: 'C' }] },
-                    { y: -25, R: [{ T: '1.00' }] },
-                  ],
-                },
-              ],
-            });
-          }
-        }),
-        loadPDF: jest.fn(),
-      };
-    });
+    MockPDFParser.mockImplementationOnce(() =>
+      createMockPdfParser(
+        require('./__fixtures__/payloads/courseWithExtraAndMinimalFieldsPayload'),
+      ),
+    );
 
     const result = await parser.parseFromBuffer(
       Buffer.from('mock pdf content'),
     );
+
+    expect(result.terms.length).toBeGreaterThan(0);
     const courses = result.terms.flatMap((t) => t.courses);
-    expect(courses.length).toBeGreaterThan(0);
-    courses.forEach((c) => {
-      expect(c).toHaveProperty('courseCode');
-      expect(c).toHaveProperty('grade');
-      expect(typeof c.credits).toBe('number');
-      if (['PASS', 'EX'].includes(c.grade)) expect(c.gpa).toBeUndefined();
-    });
+
+    const courseWithOther = courses.find(
+      (c) => c.courseCode === edgeCaseTranscriptData.courseWithOther.courseCode,
+    );
+    expect(courseWithOther).toBeDefined();
+    expect(courseWithOther).toMatchObject(
+      edgeCaseTranscriptData.courseWithOther,
+    );
+
+    const minimalFieldsCourse = courses.find(
+      (c) =>
+        c.courseCode === edgeCaseTranscriptData.minimalFieldsCourse.courseCode,
+    );
+    expect(minimalFieldsCourse).toBeDefined();
+    expect(minimalFieldsCourse).toMatchObject(
+      edgeCaseTranscriptData.minimalFieldsCourse,
+    );
   });
 
   it('should handle course parsing with long title collection limit', async () => {
+    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
+    jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
+
     const MockPDFParser = require('pdf2json');
-    MockPDFParser.mockImplementationOnce(() => {
-      return {
-        on: jest.fn((e, cb) => {
-          if (e === 'pdfParser_dataReady') {
-            cb({
-              Pages: [
-                {
-                  Texts: [
-                    { y: -1, R: [{ T: 'COMP' }] },
-                    { y: -1, R: [{ T: '248' }] },
-                    { y: -1, R: [{ T: 'AA' }] },
-                    ...'Very Long Course Title That Goes On And On For Many Words More Words Even More'
-                      .split(' ')
-                      .map((w) => ({ y: -1, R: [{ T: w }] })),
-                    { y: -1, R: [{ T: '3.00' }] },
-                    { y: -1, R: [{ T: 'A-' }] },
-                  ],
-                },
-              ],
-            });
-          }
-        }),
-        loadPDF: jest.fn(),
-      };
-    });
+    MockPDFParser.mockImplementationOnce(() =>
+      createMockPdfParser(
+        require('./__fixtures__/payloads/longTitleCoursePayload'),
+      ),
+    );
+
     const result = await parser.parseFromBuffer(
       Buffer.from('mock pdf content'),
     );
@@ -472,204 +391,98 @@ describe('TranscriptParser', () => {
   });
 
   it('should handle course with zero grade parsing', async () => {
-    const MockPDFParser = require('pdf2json');
-    MockPDFParser.mockImplementationOnce(() => {
-      return {
-        on: jest.fn((e, cb) => {
-          if (e === 'pdfParser_dataReady') {
-            cb({
-              Pages: [
-                {
-                  Texts: [
-                    { y: -1, R: [{ T: 'MATH' }] },
-                    { y: -1, R: [{ T: '101' }] },
-                    { y: -1, R: [{ T: 'AA' }] },
-                    { y: -1, R: [{ T: 'Calculus' }] },
-                    { y: -1, R: [{ T: '3.00' }] },
-                    { y: -1, R: [{ T: '0.00' }] },
-                    { y: -1, R: [{ T: '0.00' }] },
-                    { y: -1, R: [{ T: '0.00' }] },
-                    { y: -1, R: [{ T: '0' }] },
-                    { y: -1, R: [{ T: '3.00' }] },
-                    { y: -1, R: [{ T: 'WKRT' }] },
-                  ],
-                },
-              ],
-            });
-          }
-        }),
-        loadPDF: jest.fn(),
-      };
-    });
-
     jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
     jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
+
+    const MockPDFParser = require('pdf2json');
+    MockPDFParser.mockImplementationOnce(() =>
+      createMockPdfParser(
+        require('./__fixtures__/payloads/zeroGradeCoursePayload'),
+      ),
+    );
 
     const result = await parser.parseFromBuffer(
       Buffer.from('mock pdf content'),
     );
-    const zero = result.terms
-      .flatMap((t) => t.courses)
-      .find((c) => c.grade === '0.00');
-    expect(zero).toBeDefined();
-    expect(zero.other).toBe('WKRT');
+
+    expect(result.terms.length).toBeGreaterThan(0);
+    const courses = result.terms.flatMap((t) => t.courses);
+
+    const zeroGradeCourse = courses.find(
+      (c) => c.courseCode === edgeCaseTranscriptData.zeroGradeCourse.courseCode,
+    );
+    expect(zeroGradeCourse).toBeDefined();
+    expect(zeroGradeCourse).toMatchObject(
+      edgeCaseTranscriptData.zeroGradeCourse,
+    );
   });
 
   it('should handle PASS/EX grade and program credits', async () => {
-    const MockPDFParser = require('pdf2json');
-    MockPDFParser.mockImplementationOnce(() => {
-      return {
-        on: jest.fn((e, cb) => {
-          if (e === 'pdfParser_dataReady') {
-            cb({
-              Pages: [
-                {
-                  Texts: [
-                    // PASS grade course
-                    { y: -1, R: [{ T: 'PHYS' }] },
-                    { y: -1, R: [{ T: '101' }] },
-                    { y: -1, R: [{ T: 'AA' }] },
-                    { y: -1, R: [{ T: 'Physics' }] },
-                    { y: -1, R: [{ T: '3.00' }] },
-                    { y: -1, R: [{ T: 'PASS' }] },
-                    { y: -1, R: [{ T: '3.00' }] },
-                    // EX grade course
-                    { y: -20, R: [{ T: 'ENGR' }] },
-                    { y: -20, R: [{ T: '101' }] },
-                    { y: -20, R: [{ T: 'BB' }] },
-                    { y: -20, R: [{ T: 'Engineering%20Basics' }] },
-                    { y: -20, R: [{ T: '3.00' }] },
-                    { y: -20, R: [{ T: 'EX' }] },
-                    { y: -20, R: [{ T: '3.00' }] },
-                  ],
-                },
-              ],
-            });
-          }
-        }),
-        loadPDF: jest.fn(),
-      };
-    });
-
     jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
     jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
+
+    const MockPDFParser = require('pdf2json');
+    MockPDFParser.mockImplementationOnce(() =>
+      createMockPdfParser(
+        require('./__fixtures__/payloads/passExCoursesPayload'),
+      ),
+    );
 
     const result = await parser.parseFromBuffer(
       Buffer.from('mock pdf content'),
     );
-    const passCourse = result.terms
-      .flatMap((t) => t.courses)
-      .find((c) => c.grade === 'PASS');
+
+    expect(result.terms.length).toBeGreaterThan(0);
+    const courses = result.terms.flatMap((t) => t.courses);
+
+    const passCourse = courses.find(
+      (c) => c.courseCode === edgeCaseTranscriptData.passCourse.courseCode,
+    );
     expect(passCourse).toBeDefined();
+    expect(passCourse.grade).toBe(edgeCaseTranscriptData.passCourse.grade);
     assertCourse(passCourse, { gpaDefined: false });
+
+    const exCourse = courses.find(
+      (c) => c.courseCode === edgeCaseTranscriptData.exCourse.courseCode,
+    );
+    expect(exCourse).toBeDefined();
+    expect(exCourse.grade).toBe(edgeCaseTranscriptData.exCourse.grade);
+    assertCourse(exCourse, { gpaDefined: false });
   });
 
   it('should handle course with RPT other field', async () => {
+    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
+    jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
+
     const MockPDFParser = require('pdf2json');
-    MockPDFParser.mockImplementationOnce(() => {
-      return {
-        on: jest.fn((e, cb) => {
-          if (e === 'pdfParser_dataReady') {
-            cb({
-              Pages: [
-                {
-                  Texts: [
-                    { y: -1, R: [{ T: 'HIST' }] },
-                    { y: -1, R: [{ T: '101' }] },
-                    { y: -1, R: [{ T: 'A01' }] },
-                    { y: -1, R: [{ T: 'History' }] },
-                    { y: -1, R: [{ T: '3.00' }] },
-                    { y: -1, R: [{ T: 'B+' }] },
-                    { y: -1, R: [{ T: '3.30' }] },
-                    { y: -1, R: [{ T: '3.10' }] },
-                    { y: -1, R: [{ T: '45' }] },
-                    { y: -1, R: [{ T: '3.00' }] },
-                    { y: -1, R: [{ T: 'RPT' }] },
-                  ],
-                },
-              ],
-            });
-          }
-        }),
-        loadPDF: jest.fn(),
-      };
-    });
+    MockPDFParser.mockImplementationOnce(() =>
+      createMockPdfParser(require('./__fixtures__/payloads/rptCoursePayload')),
+    );
+
     const result = await parser.parseFromBuffer(
       Buffer.from('mock pdf content'),
     );
-    const rpt = result.terms
-      .flatMap((t) => t.courses)
-      .find((c) => c.other === 'RPT');
-    expect(rpt.courseCode).toBe('HIST 101');
+
+    expect(result.terms.length).toBeGreaterThan(0);
+    const courses = result.terms.flatMap((t) => t.courses);
+
+    const rptCourse = courses.find(
+      (c) => c.courseCode === edgeCaseTranscriptData.rptCourse.courseCode,
+    );
+    expect(rptCourse).toBeDefined();
+    expect(rptCourse).toMatchObject(edgeCaseTranscriptData.rptCourse);
   });
 
   it('should handle grades with unexpected or malformed values', async () => {
-    const MockPDFParser = require('pdf2json');
-    MockPDFParser.mockImplementationOnce(() => {
-      let callback;
-      return {
-        on: jest.fn((e, cb) => {
-          if (e === 'pdfParser_dataReady') {
-            callback = cb;
-          }
-        }),
-        loadPDF: jest.fn(() =>
-          process.nextTick(() =>
-            callback?.({
-              Pages: [
-                {
-                  Texts: [
-                    // course with empty string grade
-                    { y: -1, R: [{ T: 'COMP' }] },
-                    { y: -1, R: [{ T: '101' }] },
-                    { y: -1, R: [{ T: 'AA' }] },
-                    { y: -1, R: [{ T: 'Programming' }] },
-                    { y: -1, R: [{ T: '3.00' }] },
-                    { y: -1, R: [{ T: '' }] }, // empty grade
-                    { y: -1, R: [{ T: '3.00' }] },
-                    // course with unknown grade code
-                    { y: -10, R: [{ T: 'MATH' }] },
-                    { y: -10, R: [{ T: '201' }] },
-                    { y: -10, R: [{ T: 'BB' }] },
-                    { y: -10, R: [{ T: 'Calculus' }] },
-                    { y: -10, R: [{ T: '4.00' }] },
-                    { y: -10, R: [{ T: 'XYZ' }] }, // unknown grade code
-                    { y: -10, R: [{ T: '4.00' }] },
-                    // course with special characters in grade
-                    { y: -20, R: [{ T: 'PHYS' }] },
-                    { y: -20, R: [{ T: '101' }] },
-                    { y: -20, R: [{ T: 'CC' }] },
-                    { y: -20, R: [{ T: 'Physics' }] },
-                    { y: -20, R: [{ T: '3.00' }] },
-                    { y: -20, R: [{ T: 'A*#' }] }, // grade with special chars
-                    { y: -20, R: [{ T: '3.00' }] },
-                    // course with numeric-like but invalid grade
-                    { y: -30, R: [{ T: 'CHEM' }] },
-                    { y: -30, R: [{ T: '101' }] },
-                    { y: -30, R: [{ T: 'DD' }] },
-                    { y: -30, R: [{ T: 'Chemistry' }] },
-                    { y: -30, R: [{ T: '3.00' }] },
-                    { y: -30, R: [{ T: '99.99' }] }, // invalid numeric grade
-                    { y: -30, R: [{ T: '3.00' }] },
-                    // course with null-like grade
-                    { y: -40, R: [{ T: 'BIOL' }] },
-                    { y: -40, R: [{ T: '101' }] },
-                    { y: -40, R: [{ T: 'EE' }] },
-                    { y: -40, R: [{ T: 'Biology' }] },
-                    { y: -40, R: [{ T: '3.00' }] },
-                    { y: -40, R: [{ T: 'null' }] }, // string "null"
-                    { y: -40, R: [{ T: '3.00' }] },
-                  ],
-                },
-              ],
-            }),
-          ),
-        ),
-      };
-    });
-
     jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
     jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
+
+    const MockPDFParser = require('pdf2json');
+    MockPDFParser.mockImplementationOnce(() =>
+      createMockPdfParser(
+        require('./__fixtures__/payloads/malformedGradesPayload'),
+      ),
+    );
 
     const result = await parser.parseFromBuffer(
       Buffer.from('mock pdf content'),
@@ -679,35 +492,25 @@ describe('TranscriptParser', () => {
     expect(courses.length).toBeGreaterThan(0);
 
     // find courses with malformed grades
-    const emptyGradeCourse = courses.find((c) => c.courseCode === 'COMP 101');
-    const unknownGradeCourse = courses.find((c) => c.courseCode === 'MATH 201');
-    const specialCharGradeCourse = courses.find(
-      (c) => c.courseCode === 'PHYS 101',
+    const expectedMalformedGrades = edgeCaseTranscriptData.malformedGrades;
+    const foundCourses = expectedMalformedGrades.map((expectedCourse) =>
+      courses.find((c) => c.courseCode === expectedCourse.courseCode),
     );
-    const invalidNumericGradeCourse = courses.find(
-      (c) => c.courseCode === 'CHEM 101',
-    );
-    const nullGradeCourse = courses.find((c) => c.courseCode === 'BIOL 101');
-
-    // verify courses exist and have expected properties
-    expect(emptyGradeCourse).toBeDefined();
-    expect(unknownGradeCourse).toBeDefined();
-    expect(specialCharGradeCourse).toBeDefined();
-    expect(invalidNumericGradeCourse).toBeDefined();
-    expect(nullGradeCourse).toBeDefined();
-
-    // verify each course has a grade property (even if malformed)
+    // verify all malformed grade courses exist
+    foundCourses.forEach((course, index) => {
+      expect(course).toBeDefined();
+      expect(course.courseCode).toBe(expectedMalformedGrades[index].courseCode);
+    });
+    // verify each course has required properties
     courses.forEach((course) => {
       expect(course).toHaveProperty('grade');
       expect(course).toHaveProperty('courseCode');
       expect(typeof course.credits).toBe('number');
     });
-
-    // verify malformed grades are preserved as-is
-    expect(emptyGradeCourse.grade).toBe('');
-    expect(unknownGradeCourse.grade).toBe('XYZ');
-    expect(specialCharGradeCourse.grade).toBe('A*#');
-    expect(invalidNumericGradeCourse.grade).toBe('99.99');
-    expect(nullGradeCourse.grade).toBe('NULL');
+    // verify malformed grades are preserved
+    expectedMalformedGrades.forEach((expectedCourse, index) => {
+      const actualCourse = foundCourses[index];
+      expect(actualCourse.grade).toBe(expectedCourse.grade);
+    });
   });
 });
