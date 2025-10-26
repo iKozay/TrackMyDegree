@@ -1,9 +1,6 @@
 /* eslint-disable prettier/prettier */
 
 export const request = async (url, options = {}) => {
-
-    console.log("Making request to:", url);
-    console.log("With options:", options);
     const response = await fetch(url, options);
 
     if (!response.ok) {

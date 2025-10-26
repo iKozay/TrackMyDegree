@@ -24,9 +24,6 @@ export const TopBar = ({
     setShowExemptionsModal,
     setShowSaveModal,
 }) => {
-
-    console.log(deficiencyCredits);
-    console.log(exemptionCredits);
     return (
         <div className="credits-display">
             {/* Left section: undo/redo/share/download */}

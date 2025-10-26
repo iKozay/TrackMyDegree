@@ -76,8 +76,6 @@ export const buildTimelinePayload = ({
         });
     }
 
-    console.log("Final Timeline Data:", finalTimelineData);
-
     if (finalTimelineData.length === 0 && exempted_courses.length === 0) {
         return {
             error: "No valid data to save."
@@ -179,8 +177,6 @@ export const parseCourses = (timelineInfo, courseInstanceMap, allCourses, extend
         if (extendedCredit === null) {
             extendedCredit = false;
         }
-        // console.log("eC: " + extendedCredit);
-        // No timeline data available; use preset exempted courses.
         if (!extendedCredit) {
             parsedExemptedCourses = [
                 'MATH201',
@@ -256,7 +252,6 @@ export const buildSemesterMap = (nonExemptedData, parsedExemptedCourses, startin
                 semesterMap[exemptedKey].push(courseCode);
             }
         });
-        console.log('Exempted courses added:', semesterMap[exemptedKey]);
     }
 
     return { semesterMap, semesterNames };
@@ -342,8 +337,6 @@ export const findSemesterIdByCourseCode = (courseCode, updatedSemesters) => {
 export const areRequisitesMet = (courseCode, currentSemesterIndex, courseInstanceMap, allCourses, semesters, semesterCourses) => {
     const genericCode = courseInstanceMap[courseCode] || courseCode;
     const course = allCourses.find((c) => c.code === genericCode);
-
-    console.log(courseInstanceMap);
 
     if (!course || !course.requisites || course.requisites.length === 0) {
         return true;
@@ -576,14 +569,6 @@ export const SaveTimeline = async (tName, user, degree_Id, state, extendedCredit
         allCourses: state.allCourses,
         deficiencyCourses: state.deficiencyCourses,
         extendedCredit,
-    });
-
-    console.log("Payload:", {
-        user_id,
-        timelineNameToSend,
-        items,
-        isExtended,
-        exempted_courses
     });
 
     if (error) {

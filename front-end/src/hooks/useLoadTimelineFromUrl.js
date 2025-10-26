@@ -10,7 +10,6 @@ export const useLoadTimelineFromUrl = (dispatch) => {
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const timelineStringParam = params.get('tstring');
-        console.log("Timeline string from URL:", timelineStringParam);
 
         if (timelineStringParam) {
             const [decompressedTimeline, degreeFromUrl, creditsFromUrl, ecpValue] =

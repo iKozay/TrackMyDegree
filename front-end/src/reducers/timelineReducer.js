@@ -43,8 +43,6 @@ export const initialState = {
 };
 
 export const timelineReducer = (state, action) => {
-    console.log("Reducer action:", action);
-    console.log("Current state:", state);
     switch (action.type) {
         case 'SET':
             return { ...state, ...action.payload };

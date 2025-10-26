@@ -24,7 +24,6 @@ export const SemesterColumn = ({
   index,
   shakingSemesterId,
 }) => {
-  console.log('Rendering SemesterColumn:', index, courses);
   const isExempted = semesterName.trim().toLowerCase().startsWith('exempted');
   const sumCredits = courses
     .map((instanceId) => {

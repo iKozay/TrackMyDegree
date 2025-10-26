@@ -11,7 +11,6 @@ export const useFetchCoursesByDegree = (degree_Id, extendedCredit, dispatch) => 
             try {
 
                 if (!degree_Id) {
-                    console.log('No degree ID provided, skipping course fetch.');
                     return;
                 }
 
@@ -26,11 +25,8 @@ export const useFetchCoursesByDegree = (degree_Id, extendedCredit, dispatch) => 
                     const extendedData = await api.post("/courses/getByDegreeGrouped", {
                         degree: "ECP",
                     });
-                    console.log('Fetched extended course data:', extendedData);
                     combinedData = [...primaryData, ...extendedData];
                 }
-
-                console.log('Fetched course pools:', combinedData);
 
                 dispatch({ type: 'SET', payload: { coursePools: combinedData, loading: false } });
 
