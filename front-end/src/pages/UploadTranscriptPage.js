@@ -1,5 +1,6 @@
 import '../css/UploadTranscriptPage.css';
 import React from 'react';
+import PropTypes from "prop-types";
 import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
 import PrintImage from '../images/Print_image.png';
 import PdfImage from '../images/Pdf_image.png';
@@ -42,7 +43,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
 
       if (response.data.success && response.data.data) {
         const parsedData = response.data.data;
-
+        console.log('Parsed Transcript Data:', parsedData);
         if (parsedData?.terms.length || parsedData?.transferCredits.length) {
           // Transform new parsed data to match the old format (matching matchCoursesToTerms output)
           const transcriptData = [];
@@ -122,7 +123,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
         </div>
 
         {/* Upload Section */}
-        <div className="upload-section">
+        <div className="upload-container-al">
           <h2>Upload Transcript</h2>
           <UploadBox processFile={processFile} />
         </div>
@@ -130,5 +131,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
     </motion.div>
   );
 };
-
+UploadTranscript.propTypes = {
+  onDataProcessed: PropTypes.func,
+};
 export default UploadTranscript;

@@ -1,11 +1,10 @@
 import '../css/UploadAcceptanceLetter.css';
 import React, { useState, useRef, useEffect } from 'react';
-import { pdfjs } from 'react-pdf'; //This allows the code to parse PDF files
+import PropTypes from "prop-types";
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import * as Sentry from '@sentry/react';
 import InformationForm from '../components/InformationForm';
-import Button from 'react-bootstrap/Button';
 import UploadBox from '../components/UploadBox';
 import { parsePdfFile, extractAcceptanceDetails } from '../utils/AcceptanceUtils';
 
@@ -29,6 +28,8 @@ import { parsePdfFile, extractAcceptanceDetails } from '../utils/AcceptanceUtils
  * Navigation: Redirects to TimelinePage (/timeline_change) with extracted/selected data
  * Storage: Clears previous timeline data in localStorage before processing
  */
+const REACT_APP_SERVER = process.env.REACT_APP_SERVER || 'http://localhost:8000';
+
 const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   const isFirstRender = useRef(true);
   const [degrees, setDegrees] = useState([]);
@@ -47,7 +48,7 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     const getDegrees = async () => {
       // TODO: Add proper error handling and user feedback for API failures
       try {
-        const response = await fetch(`${process.env.REACT_APP_SERVER}/degree/getAllDegrees`, {
+        const response = await fetch(`${REACT_APP_SERVER}/degree/getAllDegrees`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -66,18 +67,15 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
   }, []);
 
   const processFile = (file) => {
-    parsePdfFile(file).then((pagesData) => {
-      const extractedData = extractAcceptanceDetails(pagesData);
+    parsePdfFile(file).then((data) => {
+      const extractedData = extractAcceptanceDetails(data);
       const transcriptData = extractedData.results;
-      // Extract Degree Info
-      //const degreeInfo = extractedData.degree || "Unknown Degree";
       const degree = extractedData.details?.degreeConcentration.toLowerCase() || 'Unknown Degree';
-      console.log('Extracted data:', extractedData);
       const matched_degree = degrees.find(
         (d) => degree.toLowerCase().includes(d.name.split(' ').slice(1).join(' ').toLowerCase()), // remove first word (BcompsC/Beng/etc.) and match rest
       );
-      const credits_Required = matched_degree?.totalCredits;
-      const isExtendedCredit = extractedData.details.extendedCreditProgram === 'Yes';
+      const credits_Required = extractedData.details?.minimumProgramLength || matched_degree?.totalCredits;
+      const isExtendedCredit = extractedData.details?.extendedCreditProgram || false;
       const degreeId = matched_degree?.id || 'Unknown';
 
       if (transcriptData.length > 0) {
@@ -97,11 +95,8 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
           },
         }); // Navigate to TimelinePage
       } else {
-        console.log('No transcript data extracted.');
         alert('No transcript data extracted. Please ensure the PDF is a valid transcript.');
-        // onDataProcessed(null); // Clear data in parent component
       }
-      console.log(degreeId);
     });
   };
 
@@ -129,6 +124,9 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
       </div>
     </motion.div>
   );
+};
+UploadAcceptanceLetterPage.propTypes = {
+  onDataProcessed: PropTypes.func,
 };
 
 export default UploadAcceptanceLetterPage;
