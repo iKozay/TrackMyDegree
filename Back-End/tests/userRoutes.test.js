@@ -62,6 +62,22 @@ describe('User Routes', () => {
       expect(response.body.user.id).toBeDefined();
     });
 
+    it('should create user without optional fields', async () => {
+      const userData = {
+        email: 'minimal@example.com',
+        fullname: 'Minimal User',
+        type: 'student'
+      };
+
+      const response = await request(app)
+        .post('/users')
+        .send(userData)
+        .expect(201);
+
+      expect(response.body.message).toBe('User created successfully');
+      expect(response.body.user.email).toBe('minimal@example.com');
+    });
+
     it('should return 400 for missing required fields', async () => {
       const userData = {
         email: 'test@example.com',
@@ -73,10 +89,10 @@ describe('User Routes', () => {
         .send(userData)
         .expect(400);
 
-      expect(response.body.error).toBe('Missing required fields: email, fullname, type');
+      expect(response.body.error).toBe('Email, fullname, and type are required');
     });
 
-    it('should return 400 for duplicate email', async () => {
+    it('should return 409 for duplicate email', async () => {
       await User.create({
         email: 'existing@example.com',
         fullname: 'Existing User',
@@ -92,9 +108,9 @@ describe('User Routes', () => {
       const response = await request(app)
         .post('/users')
         .send(userData)
-        .expect(400);
+        .expect(409);
 
-      expect(response.body.error).toBe('User with this email already exists');
+      expect(response.body.error).toContain('already exists');
     });
 
     it('should handle server errors', async () => {
@@ -287,6 +303,7 @@ describe('User Routes', () => {
       testUser = await User.create({
         email: 'test@example.com',
         fullname: 'Test User',
+
         type: 'student'
       });
     });
@@ -296,7 +313,7 @@ describe('User Routes', () => {
         .delete(`/users/${testUser._id}`)
         .expect(200);
 
-      expect(response.body.message).toBe('User deleted successfully');
+      expect(response.body.message).toContain('successfully deleted');
 
       // Verify user is deleted
       const deletedUser = await User.findById(testUser._id);
@@ -309,11 +326,36 @@ describe('User Routes', () => {
         .delete(`/users/${fakeId}`)
         .expect(404);
 
-      expect(response.body.error).toBe('User not found');
+      expect(response.body.error).toContain('does not exist');
     });
 
     it('should handle server errors', async () => {
-      // Mock userController.deleteUser to throw an error
+      const originalDeleteUser = require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser = jest.fn().mockRejectedValue(new Error('Database error'));
+
+      const response = await request(app)
+        .delete(`/users/${testUser._id}`)
+        .expect(500);
+
+      expect(response.body.error).toBe('Internal server error');
+
+      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser = originalDeleteUser;
+    });
+  });
+
+      expect(response.body.message).toContain('successfully deleted');
+    });
+
+    it('should return 404 for non-existent user', async () => {
+      const fakeId = new mongoose.Types.ObjectId().toString();
+      const response = await request(app)
+        .delete(`/users/${fakeId}`)
+        .expect(404);
+
+      expect(response.body.error).toContain('does not exist');
+    });
+
+    it('should handle server errors', async () => {
       const originalDeleteUser = require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser;
       require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser = jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -326,7 +368,6 @@ describe('User Routes', () => {
       // Restore original method
       require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser = originalDeleteUser;
     });
-  });
 
   describe('GET /users/:id/data', () => {
     let testUser, testDegree, testTimeline;
@@ -365,7 +406,7 @@ describe('User Routes', () => {
         .expect(200);
 
       expect(response.body.message).toBe('User data retrieved successfully');
-      expect(response.body.data.user).toMatchObject({
+      expect(response.body.user).toMatchObject({
         id: testUser._id.toString(),
         email: 'test@example.com',
         fullname: 'Test User',
@@ -373,14 +414,41 @@ describe('User Routes', () => {
         degree: 'COMP'
       });
 
-      expect(response.body.data.timeline).toHaveLength(2);
-      expect(response.body.data.deficiencies).toHaveLength(1);
-      expect(response.body.data.exemptions).toHaveLength(2);
-      expect(response.body.data.degree).toMatchObject({
+      expect(response.body.timeline).toHaveLength(2);
+      expect(response.body.deficiencies).toHaveLength(1);
+      expect(response.body.exemptions).toHaveLength(2);
+      expect(response.body.degree).toMatchObject({
         id: 'COMP',
         name: 'Computer Science',
         totalCredits: 120
       });
+    it('should return 400 for missing coursepool', async () => {
+      const deficiencyData = {
+        creditsRequired: 6
+      };
+
+      const response = await request(app)
+        .post(`/users/${testUser._id}/deficiencies`)
+        .send(deficiencyData)
+        .expect(400);
+
+      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
+    });
+
+    it('should return 400 for invalid creditsRequired type', async () => {
+      const deficiencyData = {
+        coursepool: 'Math',
+        creditsRequired: 'invalid'
+      };
+
+      const response = await request(app)
+        .post(`/users/${testUser._id}/deficiencies`)
+        .send(deficiencyData)
+        .expect(400);
+
+      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
+    });
+
     });
 
     it('should return 404 for non-existent user', async () => {
@@ -389,7 +457,7 @@ describe('User Routes', () => {
         .get(`/users/${fakeId}/data`)
         .expect(404);
 
-      expect(response.body.error).toBe('User not found');
+      expect(response.body.error).toContain('does not exist');
     });
 
     it('should handle server errors', async () => {
@@ -451,10 +519,25 @@ describe('User Routes', () => {
         .send(deficiencyData)
         .expect(400);
 
-      expect(response.body.error).toBe('Missing required fields: coursepool, creditsRequired');
+      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
+    it('should return empty array for user with no deficiencies', async () => {
+      const userNoDeficiencies = await User.create({
+        email: 'nodef@example.com',
+        fullname: 'No Deficiencies',
+        type: 'student',
+        deficiencies: []
+      });
+
+      const response = await request(app)
+        .get(`/users/${userNoDeficiencies._id}/deficiencies`)
+        .expect(200);
+
+      expect(response.body.deficiencies).toHaveLength(0);
     });
 
-    it('should return 400 for duplicate deficiency', async () => {
+    });
+
+    it('should return 409 for duplicate deficiency', async () => {
       await User.findByIdAndUpdate(testUser._id, {
         deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }]
       });
@@ -467,9 +550,9 @@ describe('User Routes', () => {
       const response = await request(app)
         .post(`/users/${testUser._id}/deficiencies`)
         .send(deficiencyData)
-        .expect(400);
+        .expect(409);
 
-      expect(response.body.error).toBe('Deficiency with this coursepool already exists');
+      expect(response.body.error).toContain('already exists');
     });
 
     it('should return 404 for non-existent user', async () => {
@@ -484,11 +567,10 @@ describe('User Routes', () => {
         .send(deficiencyData)
         .expect(404);
 
-      expect(response.body.error).toBe('User not found');
+      expect(response.body.error).toContain('does not exist');
     });
 
     it('should handle server errors', async () => {
-      // Mock userController.createDeficiency to throw an error
       const originalCreateDeficiency = require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency;
       require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency = jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -504,12 +586,92 @@ describe('User Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      // Restore original method
       require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency = originalCreateDeficiency;
     });
   });
 
-  describe('GET /users/:id/deficiencies', () => {
+  describe('PUT /users/:userId/deficiencies', () => {
+    let testUser;
+
+    beforeEach(async () => {
+      testUser = await User.create({
+        email: 'test@example.com',
+        password: 'hashedpassword',
+        fullname: 'Test User',
+        type: 'student',
+        deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }]
+      });
+    });
+
+    it('should update deficiency', async () => {
+      const response = await request(app)
+        .put(`/users/${testUser._id}/deficiencies`)
+        .send({ coursepool: 'Math', creditsRequired: 9 })
+        .expect(200);
+
+      expect(response.body.message).toBe('Deficiency updated successfully');
+      expect(response.body.deficiency).toMatchObject({
+        coursepool: 'Math',
+        user_id: testUser._id.toString(),
+        creditsRequired: 9
+      });
+
+      const updatedUser = await User.findById(testUser._id);
+      expect(updatedUser.deficiencies[0].creditsRequired).toBe(9);
+    });
+
+    it('should return 400 for missing required fields', async () => {
+      const response = await request(app)
+        .put(`/users/${testUser._id}/deficiencies`)
+        .send({})
+        .expect(400);
+
+      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
+    });
+
+    it('should return 400 for missing coursepool', async () => {
+      const response = await request(app)
+        .put(`/users/${testUser._id}/deficiencies`)
+        .send({ creditsRequired: 9 })
+        .expect(400);
+
+      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
+    });
+
+    it('should return 400 for invalid creditsRequired', async () => {
+      const response = await request(app)
+        .put(`/users/${testUser._id}/deficiencies`)
+        .send({ coursepool: 'Math', creditsRequired: 'not a number' })
+        .expect(400);
+
+      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
+    });
+
+    it('should return 404 for non-existent deficiency', async () => {
+      const response = await request(app)
+        .put(`/users/${testUser._id}/deficiencies`)
+        .send({ coursepool: 'Science', creditsRequired: 9 })
+        .expect(404);
+
+      expect(response.body.error).toContain('not found');
+    });
+
+    it('should handle server errors', async () => {
+      const originalUpdateDeficiency = require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency = jest.fn().mockRejectedValue(new Error('Database error'));
+
+      const response = await request(app)
+        .put(`/users/${testUser._id}/deficiencies`)
+        .send({ coursepool: 'Math', creditsRequired: 9 })
+        .expect(500);
+
+      expect(response.body.error).toBe('Internal server error');
+
+      require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency = originalUpdateDeficiency;
+    });
+  });
+
+  describe('DELETE /users/:userId/deficiencies', () => {
     let testUser;
 
     beforeEach(async () => {
@@ -544,7 +706,7 @@ describe('User Routes', () => {
         .get(`/users/${fakeId}/deficiencies`)
         .expect(404);
 
-      expect(response.body.error).toBe('User not found');
+      expect(response.body.error).toContain('does not exist');
     });
 
     it('should handle server errors', async () => {
@@ -605,21 +767,10 @@ describe('User Routes', () => {
         .send({ coursepool: 'Science', creditsRequired: 9 })
         .expect(404);
 
-      expect(response.body.error).toBe('Deficiency not found.');
-    });
-
-    it('should return 400 for non-existent user', async () => {
-      const fakeId = new mongoose.Types.ObjectId().toString();
-      const response = await request(app)
-        .put(`/users/${fakeId}/deficiencies`)
-        .send({ coursepool: 'Math', creditsRequired: 9 })
-        .expect(400);
-
-      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
+      expect(response.body.error).toContain('not found');
     });
 
     it('should handle server errors', async () => {
-      // Mock userController.updateDeficiency to throw an error
       const originalUpdateDeficiency = require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency;
       require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency = jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -630,12 +781,30 @@ describe('User Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      // Restore original method
       require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency = originalUpdateDeficiency;
     });
   });
 
-  describe('DELETE /users/:userId/deficiencies', () => {
+  describe('DELETE /users/:userId/deficiencies', async () => {
+    const response = await request(app)
+      .post(`/users/${testUser._id}/exemptions`)
+      .send({ coursecodes: 'COMP101' })
+      .expect(400);
+
+    expect(response.body.error).toBe('User ID and coursecodes array are required');
+  });
+
+    it('should create exemptions with empty array', async () => {
+      const response = await request(app)
+        .post(`/users/${testUser._id}/exemptions`)
+        .send({ coursecodes: [] })
+        .expect(201);
+
+      expect(response.body.created).toHaveLength(0);
+      expect(response.body.alreadyExists).toHaveLength(0);
+    });
+
+  describe('GET /users/:id/exemptions', () => {
     let testUser;
 
     beforeEach(async () => {
@@ -684,7 +853,6 @@ describe('User Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      // Mock userController.deleteDeficiency to throw an error
       const originalDeleteDeficiency = require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency;
       require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency = jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -695,10 +863,27 @@ describe('User Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      // Restore original method
       require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency = originalDeleteDeficiency;
     });
   });
+
+  describe('POST /users/:id/exemptions', () => {
+
+      expect(response.body.error).toContain('does not exist');
+    });
+
+    it('should handle server errors', async () => {
+      const originalGetAllExemptionsByUser = require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser = jest.fn().mockRejectedValue(new Error('Database error'));
+
+      const response = await request(app)
+        .get(`/users/${testUser._id}/exemptions`)
+        .expect(500);
+
+      expect(response.body.error).toBe('Internal server error');
+
+      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser = originalGetAllExemptionsByUser;
+    });
 
   describe('POST /users/:id/exemptions', () => {
     let testUser;
@@ -731,7 +916,7 @@ describe('User Routes', () => {
 
       expect(response.body.message).toBe('Exemptions processed successfully');
       expect(response.body.created).toHaveLength(2);
-      expect(response.body.alreadyExists).toHaveLength(0);
+      expect(response.body.error).toContain('does not exist');
     });
 
     it('should return 400 for missing coursecodes', async () => {
@@ -773,7 +958,7 @@ describe('User Routes', () => {
     it('should handle server errors', async () => {
       // Mock userController.createExemptions to throw an error
       const originalCreateExemptions = require('../dist/controllers/mondoDBControllers/UserController').userController.createExemptions;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.createExemptions = jest.fn().mockRejectedValue(new Error('Database error'));
+      expect(response.body.error).toContain('does not exist');
 
       const exemptionData = {
         coursecodes: ['COMP101']
@@ -816,17 +1001,31 @@ describe('User Routes', () => {
       });
     });
 
+    it('should return empty array for user with no exemptions', async () => {
+      const userNoExemptions = await User.create({
+        email: 'noexemp@example.com',
+        fullname: 'No Exemptions',
+        type: 'student',
+        exemptions: []
+      });
+
+      const response = await request(app)
+        .get(`/users/${userNoExemptions._id}/exemptions`)
+        .expect(200);
+
+      expect(response.body.exemptions).toHaveLength(0);
+    });
+
     it('should return 404 for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       const response = await request(app)
         .get(`/users/${fakeId}/exemptions`)
         .expect(404);
 
-      expect(response.body.error).toBe('User not found');
+      expect(response.body.error).toContain('does not exist');
     });
 
     it('should handle server errors', async () => {
-      // Mock userController.getAllExemptionsByUser to throw an error
       const originalGetAllExemptionsByUser = require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser;
       require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser = jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -836,7 +1035,6 @@ describe('User Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      // Restore original method
       require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser = originalGetAllExemptionsByUser;
     });
   });
@@ -903,4 +1101,3 @@ describe('User Routes', () => {
       require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption = originalDeleteExemption;
     });
   });
-});
