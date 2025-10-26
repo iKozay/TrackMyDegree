@@ -859,24 +859,6 @@ describe('User Routes', () => {
   });
 
   describe('POST /users/:id/exemptions', () => {
-
-      expect(response.body.error).toContain('does not exist');
-    });
-
-    it('should handle server errors', async () => {
-      const originalGetAllExemptionsByUser = require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser = jest.fn().mockRejectedValue(new Error('Database error'));
-
-      const response = await request(app)
-        .get(`/users/${testUser._id}/exemptions`)
-        .expect(500);
-
-      expect(response.body.error).toBe('Internal server error');
-
-      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser = originalGetAllExemptionsByUser;
-    });
-
-  describe('POST /users/:id/exemptions', () => {
     let testUser;
 
     beforeEach(async () => {
