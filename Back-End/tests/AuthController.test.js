@@ -93,6 +93,31 @@ describe('AuthController', () => {
       // Should take similar time as valid authentication due to dummy hash comparison
       expect(endTime - startTime).toBeLessThan(1000); // Should be fast
     });
+
+    it('should return undefined when user has no _id', async () => {
+      // Mock User.findOne to return user without _id
+      const originalFindOne = User.findOne;
+      User.findOne = jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          lean: jest.fn().mockReturnValue({
+            exec: jest.fn().mockResolvedValue({
+              email: 'test@example.com',
+              password: await require('bcryptjs').hash('TestPass123!', 10),
+              fullname: 'Test User',
+              type: 'student'
+              // _id is missing
+            })
+          })
+        })
+      });
+
+      const result = await authController.authenticate('test@example.com', 'TestPass123!');
+
+      expect(result).toBeUndefined();
+
+      // Restore original method
+      User.findOne = originalFindOne;
+    });
   });
 
   describe('registerUser', () => {
@@ -352,6 +377,17 @@ describe('AuthController', () => {
       expect(result).toBe(false);
     });
 
+    it('should return false when user has no otp field', async () => {
+      // Create user without otp
+      await User.findByIdAndUpdate(testUser._id, {
+        $unset: { otp: 1, otpExpire: 1 }
+      });
+
+      const result = await authController.resetPassword('test@example.com', '1234', 'NewPass123!');
+
+      expect(result).toBe(false);
+    });
+
     it('should handle database errors gracefully', async () => {
       // Mock User.findOne to throw an error
       const originalFindOne = User.findOne;
@@ -463,6 +499,82 @@ describe('AuthController', () => {
       const isStrongPassword = authController.isStrongPassword.bind(authController);
       
       expect(isStrongPassword('WeakPass123')).toBe(false);
+    });
+  });
+
+  describe('Additional Edge Cases for Coverage', () => {
+    it('should handle registerUser when User.create throws error', async () => {
+      const originalCreate = User.create;
+      User.create = jest.fn().mockRejectedValue(new Error('Create failed'));
+
+      const userInfo = {
+        email: 'test@example.com',
+        password: 'StrongPass123!',
+        fullname: 'Test User',
+        type: UserType.STUDENT
+      };
+
+      const result = await authController.registerUser(userInfo);
+      expect(result).toBeUndefined();
+
+      User.create = originalCreate;
+    });
+
+    it('should handle forgotPassword when user.save() throws error', async () => {
+      const originalFindOne = User.findOne;
+      const mockUser = {
+        _id: 'test123',
+        email: 'test@example.com',
+        save: jest.fn().mockRejectedValue(new Error('Save failed'))
+      };
+      User.findOne = jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(mockUser)
+      });
+
+      const result = await authController.forgotPassword('test@example.com');
+      expect(result.message).toBe('An error occurred. Please try again later.');
+
+      User.findOne = originalFindOne;
+    });
+
+    it('should handle resetPassword when user.save() throws error', async () => {
+      const originalFindOne = User.findOne;
+      const mockUser = {
+        _id: 'test123',
+        email: 'test@example.com',
+        otp: '1234',
+        otpExpire: new Date(Date.now() + 10 * 60 * 1000),
+        password: 'oldpass',
+        save: jest.fn().mockRejectedValue(new Error('Save failed'))
+      };
+      User.findOne = jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(mockUser)
+      });
+
+      const result = await authController.resetPassword('test@example.com', '1234', 'NewPass123!');
+      expect(result).toBe(false);
+
+      User.findOne = originalFindOne;
+    });
+
+    it('should handle changePassword when user.save() throws error', async () => {
+      const hashedPassword = await require('bcryptjs').hash('OldPass123!', 10);
+      const originalFindById = User.findById;
+      const mockUser = {
+        _id: 'test123',
+        password: hashedPassword,
+        save: jest.fn().mockRejectedValue(new Error('Save failed'))
+      };
+      User.findById = jest.fn().mockReturnValue({
+        select: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue(mockUser)
+        })
+      });
+
+      const result = await authController.changePassword('test123', 'OldPass123!', 'NewPass123!');
+      expect(result).toBe(false);
+
+      User.findById = originalFindById;
     });
   });
 });

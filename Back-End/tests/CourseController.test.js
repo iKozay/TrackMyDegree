@@ -73,6 +73,12 @@ describe('CourseController', () => {
       expect(result[0]).toHaveProperty('_id');
     });
 
+    it('should get all courses with empty params object', async () => {
+      const result = await courseController.getAllCourses({});
+
+      expect(result).toHaveLength(3);
+    });
+
     it('should filter courses by pool', async () => {
       const result = await courseController.getAllCourses({ pool: 'Fall' });
 
@@ -410,6 +416,70 @@ describe('CourseController', () => {
 
       // Restore original method
       Course.updateOne = originalUpdateOne;
+    });
+  });
+
+  describe('Additional Edge Cases for Coverage', () => {
+    it('should handle getAllCourses when findAll returns no data', async () => {
+      const originalFindAll = courseController.findAll;
+      courseController.findAll = jest.fn().mockResolvedValue({
+        success: true,
+        data: null
+      });
+
+      const result = await courseController.getAllCourses();
+      expect(result).toEqual([]);
+
+      courseController.findAll = originalFindAll;
+    });
+
+    it('should handle getCoursesByPool when findAll returns no data', async () => {
+      const originalFindAll = courseController.findAll;
+      courseController.findAll = jest.fn().mockResolvedValue({
+        success: true,
+        data: null
+      });
+
+      const result = await courseController.getCoursesByPool('TestPool');
+      expect(result).toEqual([]);
+
+      courseController.findAll = originalFindAll;
+    });
+
+    it('should handle getCoursesByPool when findAll returns error', async () => {
+      const originalFindAll = courseController.findAll;
+      courseController.findAll = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Test error'
+      });
+
+      await expect(courseController.getCoursesByPool('TestPool'))
+        .rejects.toThrow('Test error');
+
+      courseController.findAll = originalFindAll;
+    });
+
+    it('should handle getCourseByCode when findById returns error without message', async () => {
+      const originalFindById = courseController.findById;
+      courseController.findById = jest.fn().mockResolvedValue({
+        success: false,
+        error: null
+      });
+
+      await expect(courseController.getCourseByCode('TEST'))
+        .rejects.toThrow('Course not found');
+
+      courseController.findById = originalFindById;
+    });
+
+    it('should handle getRequisites with course having undefined prerequisites/corequisites', async () => {
+      await Course.create({
+        _id: 'COMP999',
+        title: 'Test Course'
+      });
+
+      const result = await courseController.getRequisites('COMP999');
+      expect(Array.isArray(result)).toBe(true);
     });
   });
 });

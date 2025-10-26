@@ -333,4 +333,94 @@ describe('AdminController', () => {
       await mongoose.connect(mongoUri);
     });
   });
+
+  describe('Additional Edge Cases for Coverage', () => {
+    beforeEach(async () => {
+      await User.create([
+        {
+          email: 'test1@example.com',
+          fullname: 'Test User 1',
+          type: 'student'
+        },
+        {
+          email: 'test2@example.com',
+          fullname: 'Test User 2',
+          type: 'advisor'
+        }
+      ]);
+    });
+
+    it('should handle getCollectionDocuments with keyword when no string fields exist', async () => {
+      // Create a collection with only non-string fields
+      const db = mongoose.connection.db;
+      const testCollection = db.collection('numericonly');
+      await testCollection.insertOne({ value: 123, count: 456 });
+
+      const result = await adminController.getCollectionDocuments('numericonly', {
+        keyword: 'test'
+      });
+
+      expect(Array.isArray(result)).toBe(true);
+
+      // Cleanup
+      await testCollection.drop();
+    });
+
+    it('should handle getCollectionDocuments with keyword when collection is empty', async () => {
+      const db = mongoose.connection.db;
+      const emptyCollection = db.collection('empty');
+
+      const result = await adminController.getCollectionDocuments('empty', {
+        keyword: 'test'
+      });
+
+      expect(result).toHaveLength(0);
+    });
+
+    it('should handle getCollectionDocuments with pagination on second page', async () => {
+      const result = await adminController.getCollectionDocuments('users', {
+        page: 2,
+        limit: 1
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].email).toBe('test2@example.com');
+    });
+
+    it('should handle getCollectionStats when stats command returns undefined values', async () => {
+      const originalDb = mongoose.connection.db;
+      const mockDb = {
+        command: jest.fn().mockResolvedValue({
+          // count, size, avgObjSize are undefined
+        })
+      };
+      mongoose.connection.db = mockDb;
+
+      const result = await adminController.getCollectionStats('users');
+
+      expect(result.count).toBe(0);
+      expect(result.size).toBe(0);
+      expect(result.avgDocSize).toBe(0);
+
+      mongoose.connection.db = originalDb;
+    });
+
+    it('should handle clearCollection when result has undefined deletedCount', async () => {
+      const originalDb = mongoose.connection.db;
+      const mockDb = {
+        collection: jest.fn().mockReturnValue({
+          deleteMany: jest.fn().mockResolvedValue({
+            // deletedCount is undefined
+          })
+        })
+      };
+      mongoose.connection.db = mockDb;
+
+      const result = await adminController.clearCollection('users');
+
+      expect(result).toBe(0);
+
+      mongoose.connection.db = originalDb;
+    });
+  });
 });

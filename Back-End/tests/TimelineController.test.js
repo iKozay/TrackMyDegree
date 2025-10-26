@@ -516,4 +516,154 @@ describe('TimelineController', () => {
       expect(result.items[0].courses).toHaveLength(0);
     });
   });
+
+  describe('Additional Edge Cases for Coverage', () => {
+    it('should handle saveTimeline when upsert returns error', async () => {
+      const originalUpsert = timelineController.upsert;
+      timelineController.upsert = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Upsert failed'
+      });
+
+      const timelineData = {
+        user_id: 'user123',
+        name: 'Test Timeline',
+        degree_id: 'COMP',
+        items: [],
+        isExtendedCredit: false
+      };
+
+      await expect(timelineController.saveTimeline(timelineData))
+        .rejects.toThrow('Failed to save timeline');
+
+      timelineController.upsert = originalUpsert;
+    });
+
+    it('should handle getTimelinesByUser when findAll returns no data', async () => {
+      const originalFindAll = timelineController.findAll;
+      timelineController.findAll = jest.fn().mockResolvedValue({
+        success: true,
+        data: null
+      });
+
+      const result = await timelineController.getTimelinesByUser('user123');
+      expect(result).toEqual([]);
+
+      timelineController.findAll = originalFindAll;
+    });
+
+    it('should handle getTimelinesByUser when findAll returns error', async () => {
+      const originalFindAll = timelineController.findAll;
+      timelineController.findAll = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Test error'
+      });
+
+      await expect(timelineController.getTimelinesByUser('user123'))
+        .rejects.toThrow('Failed to fetch timelines');
+
+      timelineController.findAll = originalFindAll;
+    });
+
+    it('should handle getTimelineById when findById returns error', async () => {
+      const originalFindById = timelineController.findById;
+      timelineController.findById = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Not found'
+      });
+
+      await expect(timelineController.getTimelineById('test123'))
+        .rejects.toThrow('Timeline not found');
+
+      timelineController.findById = originalFindById;
+    });
+
+    it('should handle updateTimeline when updateById returns error', async () => {
+      const originalUpdateById = timelineController.updateById;
+      timelineController.updateById = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Update failed'
+      });
+
+      await expect(timelineController.updateTimeline('test123', { name: 'Updated' }))
+        .rejects.toThrow('Timeline not found');
+
+      timelineController.updateById = originalUpdateById;
+    });
+
+    it('should handle deleteAllUserTimelines when deleteMany returns no data', async () => {
+      const originalDeleteMany = timelineController.deleteMany;
+      timelineController.deleteMany = jest.fn().mockResolvedValue({
+        success: true,
+        data: null
+      });
+
+      const result = await timelineController.deleteAllUserTimelines('user123');
+      expect(result).toBe(0);
+
+      timelineController.deleteMany = originalDeleteMany;
+    });
+
+    it('should handle deleteAllUserTimelines when deleteMany returns error', async () => {
+      const originalDeleteMany = timelineController.deleteMany;
+      timelineController.deleteMany = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Delete failed'
+      });
+
+      await expect(timelineController.deleteAllUserTimelines('user123'))
+        .rejects.toThrow('Failed to delete timelines');
+
+      timelineController.deleteMany = originalDeleteMany;
+    });
+
+    it('should handle formatTimelineResponse with items having undefined _id', async () => {
+      const timelineData = {
+        user_id: 'user123',
+        name: 'Test Timeline',
+        degree_id: 'COMP',
+        items: [
+          {
+            season: 'fall',
+            year: 2023,
+            courses: ['COMP101']
+            // _id is undefined
+          }
+        ],
+        isExtendedCredit: false
+      };
+
+      const result = await timelineController.saveTimeline(timelineData);
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0].season).toBe('fall');
+    });
+
+    it('should handle formatTimelineResponse with undefined items array', async () => {
+      await Timeline.create({
+        user_id: 'user123',
+        name: 'No Items Timeline',
+        degree_id: 'COMP',
+        isExtendedCredit: false
+        // items is undefined
+      });
+
+      const result = await timelineController.getTimelinesByUser('user123');
+      expect(result).toHaveLength(1);
+      expect(result[0].items).toEqual([]);
+    });
+
+    it('should handle removeUserTimeline when deleteById returns success false', async () => {
+      const originalDeleteById = timelineController.deleteById;
+      timelineController.deleteById = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Not found'
+      });
+
+      const result = await timelineController.removeUserTimeline('fake123');
+      expect(result.success).toBe(false);
+      expect(result.message).toContain('not found');
+
+      timelineController.deleteById = originalDeleteById;
+    });
+  });
 });

@@ -465,4 +465,106 @@ describe('DegreeController', () => {
       Degree.findById = originalFindById;
     });
   });
+
+  describe('Additional Edge Cases for Coverage', () => {
+    it('should handle readDegree when findById returns error without message', async () => {
+      const originalFindById = degreeController.findById;
+      degreeController.findById = jest.fn().mockResolvedValue({
+        success: false,
+        error: null
+      });
+
+      await expect(degreeController.readDegree('TEST'))
+        .rejects.toThrow('Degree with this id does not exist');
+
+      degreeController.findById = originalFindById;
+    });
+
+    it('should handle readAllDegrees when findAll returns error without message', async () => {
+      const originalFindAll = degreeController.findAll;
+      degreeController.findAll = jest.fn().mockResolvedValue({
+        success: false,
+        error: null
+      });
+
+      await expect(degreeController.readAllDegrees())
+        .rejects.toThrow('Failed to fetch degrees');
+
+      degreeController.findAll = originalFindAll;
+    });
+
+    it('should handle readAllDegrees when findAll returns null data', async () => {
+      const originalFindAll = degreeController.findAll;
+      degreeController.findAll = jest.fn().mockResolvedValue({
+        success: true,
+        data: null
+      });
+
+      const result = await degreeController.readAllDegrees();
+      expect(result).toEqual([]);
+
+      degreeController.findAll = originalFindAll;
+    });
+
+    it('should handle getCreditsForDegree when findById returns error without message', async () => {
+      const originalFindById = degreeController.findById;
+      degreeController.findById = jest.fn().mockResolvedValue({
+        success: false,
+        error: null
+      });
+
+      await expect(degreeController.getCreditsForDegree('TEST'))
+        .rejects.toThrow('Degree with this id does not exist');
+
+      degreeController.findById = originalFindById;
+    });
+
+    it('should handle getAllCoursePools when aggregate returns no data', async () => {
+      const originalAggregate = degreeController.aggregate;
+      degreeController.aggregate = jest.fn().mockResolvedValue({
+        success: true,
+        data: null
+      });
+
+      const result = await degreeController.getAllCoursePools();
+      expect(result).toEqual([]);
+
+      degreeController.aggregate = originalAggregate;
+    });
+
+    it('should handle getCoursePool when aggregate returns array with no data', async () => {
+      const originalAggregate = degreeController.aggregate;
+      degreeController.aggregate = jest.fn().mockResolvedValue({
+        success: true,
+        data: []
+      });
+
+      const result = await degreeController.getCoursePool('TEST');
+      expect(result).toBeUndefined();
+
+      degreeController.aggregate = originalAggregate;
+    });
+
+    it('should handle getCoursePoolsByDegree when degree has null coursePools', async () => {
+      await Degree.create({
+        _id: 'NULLPOOLS',
+        name: 'Null Pools Degree',
+        coursePools: null
+      });
+
+      const result = await degreeController.getCoursePoolsByDegree('NULLPOOLS');
+      expect(result).toEqual([]);
+    });
+
+    it('should handle getAllDegreeXCP when degree has null coursePools', async () => {
+      await Degree.create({
+        _id: 'NULLPOOLS2',
+        name: 'Null Pools Degree 2',
+        coursePools: null
+      });
+
+      const result = await degreeController.getAllDegreeXCP('NULLPOOLS2');
+      expect(result).toEqual([]);
+    });
+  });
 });
