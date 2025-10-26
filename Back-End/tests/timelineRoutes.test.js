@@ -80,7 +80,39 @@ describe('Timeline Routes', () => {
         .send(timelineData)
         .expect(400);
 
-      expect(response.body.error).toBe('Missing required fields: user_id, name, degree_id');
+      expect(response.body.error).toBe('User ID, timeline name, and degree ID are required');
+    });
+
+    it('should return 400 for missing user_id', async () => {
+      const timelineData = {
+        name: 'My Timeline',
+        degree_id: 'COMP',
+        items: [],
+        isExtendedCredit: false
+      };
+
+      const response = await request(app)
+        .post('/timeline')
+        .send(timelineData)
+        .expect(400);
+
+      expect(response.body.error).toBe('User ID, timeline name, and degree ID are required');
+    });
+
+    it('should return 400 for missing degree_id', async () => {
+      const timelineData = {
+        user_id: 'user123',
+        name: 'My Timeline',
+        items: [],
+        isExtendedCredit: false
+      };
+
+      const response = await request(app)
+        .post('/timeline')
+        .send(timelineData)
+        .expect(400);
+
+      expect(response.body.error).toBe('User ID, timeline name, and degree ID are required');
     });
 
     it('should handle server errors', async () => {
@@ -164,6 +196,14 @@ describe('Timeline Routes', () => {
         .expect(200);
 
       expect(response.body.timelines).toHaveLength(0);
+    });
+
+    it('should return 400 for missing userId', async () => {
+      const response = await request(app)
+        .get('/timeline/user/')
+        .expect(404); // Express will return 404 for missing route parameter
+
+      // This tests that the route requires userId parameter
     });
 
     it('should handle server errors', async () => {

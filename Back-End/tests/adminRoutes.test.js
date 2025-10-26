@@ -278,6 +278,24 @@ describe('Admin Routes', () => {
       expect(response.body.message).toBe('Connection status retrieved successfully');
       expect(response.body).toHaveProperty('connected');
       expect(response.body).toHaveProperty('readyState');
+      expect(response.body).toHaveProperty('name');
+    });
+
+    it('should handle server errors', async () => {
+      // Mock adminController.getConnectionStatus to throw an error
+      const originalGetConnectionStatus = require('../dist/controllers/mondoDBControllers/AdminController').adminController.getConnectionStatus;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getConnectionStatus = jest.fn().mockImplementation(() => {
+        throw new Error('Database error');
+      });
+
+      const response = await request(app)
+        .get('/admin/connection-status')
+        .expect(500);
+
+      expect(response.body.error).toBe('Internal server error');
+
+      // Restore original method
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getConnectionStatus = originalGetConnectionStatus;
     });
   });
 
@@ -311,6 +329,47 @@ describe('Admin Routes', () => {
     });
   });
 
+
+    it('should handle database connection not available error', async () => {
+      const originalClearCollection = require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection = jest.fn().mockRejectedValue(new Error('Database connection not available'));
+
+      const response = await request(app)
+        .delete('/admin/collections/users/clear')
+        .expect(500);
+
+      expect(response.body.error).toBe('Database connection not available');
+
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection = originalClearCollection;
+    });
+  });
+
+  describe('Additional error handling', () => {
+    it('should handle database connection not available in GET /admin/collections', async () => {
+      const originalGetCollections = require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections = jest.fn().mockRejectedValue(new Error('Database connection not available'));
+
+      const response = await request(app)
+        .get('/admin/collections')
+        .expect(500);
+
+      expect(response.body.error).toBe('Database connection not available');
+
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections = originalGetCollections;
+    });
+
+    it('should handle database connection not available in GET /admin/collections/:collectionName/stats', async () => {
+      const originalGetCollectionStats = require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats = jest.fn().mockRejectedValue(new Error('Database connection not available'));
+
+      const response = await request(app)
+        .get('/admin/collections/users/stats')
+        .expect(500);
+
+      expect(response.body.error).toBe('Database connection not available');
+
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats = originalGetCollectionStats;
+    });
   describe('DELETE /admin/collections/:collectionName/clear edge cases', () => {
     beforeEach(async () => {
       await User.create([
