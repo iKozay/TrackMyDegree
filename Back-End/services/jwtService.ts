@@ -33,7 +33,15 @@ function getSecretKey(): string {
   return secret;
 }
 
-function getCookieOptions(isRefresh: boolean = false): CookieOptions {
+function parseExpiryToMs(exp: string): number {
+  // Converts "1h", "7d", etc. to milliseconds
+  const num = parseInt(exp);
+  if (exp.endsWith('h')) return num * 60 * 60 * 1000;
+  if (exp.endsWith('d')) return num * 24 * 60 * 60 * 1000;
+  return num * 1000;
+}
+
+export function getCookieOptions(isRefresh: boolean = false): CookieOptions {
   const isProd = process.env.NODE_ENV === 'production';
 
   return {
@@ -46,14 +54,6 @@ function getCookieOptions(isRefresh: boolean = false): CookieOptions {
       : parseExpiryToMs(ACCESS_EXPIRY),
     domain: isProd ? process.env.COOKIE_DOMAIN : undefined,
   };
-}
-
-function parseExpiryToMs(exp: string): number {
-  // Converts "1h", "7d", etc. to milliseconds
-  const num = parseInt(exp);
-  if (exp.endsWith('h')) return num * 60 * 60 * 1000;
-  if (exp.endsWith('d')) return num * 24 * 60 * 60 * 1000;
-  return num * 1000;
 }
 
 export const jwtService = {
