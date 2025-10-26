@@ -71,7 +71,8 @@ router.post('/signup', async (req: Request, res: Response) => {
   const payload: Auth.UserInfo = req.body;
 
   try {
-    payload.password = await bcrypt.hash(payload.password, salt);
+    // Password is hashed on the client-side
+    //payload.password = await bcrypt.hash(payload.password, salt);
     const result = await authController.registerUser(payload);
 
     if (result) {

@@ -54,8 +54,7 @@ async function authenticate(
         if (isPasswordValid) {
           return user; // Authentication successful
         } else {
-          // SECURITY: password should not be logged
-          log('Incorrect email or password', email, password);
+          log('Incorrect email or password', email);
         }
       } else {
         log('User not found', email);
