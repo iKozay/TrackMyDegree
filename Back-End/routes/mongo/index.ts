@@ -5,7 +5,6 @@ import userRoutes from './userRoutes';
 import feedbackRoutes from './feedbackRoutes';
 import timelineRoutes from './timelineRoutes';
 import adminRoutes from './adminRoutes';
-import courseXCPRoutes from './courseXCPRoutes';
 
 const router = express.Router();
 
@@ -15,7 +14,6 @@ router.use('/users', userRoutes);
 router.use('/feedback', feedbackRoutes);
 router.use('/timeline', timelineRoutes);
 router.use('/admin', adminRoutes);
-router.use('/', courseXCPRoutes); // CourseXCP routes at root level
 
 export default router;
 

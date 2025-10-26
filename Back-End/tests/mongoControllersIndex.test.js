@@ -10,7 +10,6 @@ describe('MongoDB Controllers Index', () => {
     expect(mongoControllers.FeedbackController).toBeDefined();
     expect(mongoControllers.AdminController).toBeDefined();
     expect(mongoControllers.AuthController).toBeDefined();
-    expect(mongoControllers.CourseXCPController).toBeDefined();
   });
 
   it('should export all controller instances', () => {
@@ -21,7 +20,6 @@ describe('MongoDB Controllers Index', () => {
     expect(mongoControllers.feedbackController).toBeDefined();
     expect(mongoControllers.adminController).toBeDefined();
     expect(mongoControllers.authController).toBeDefined();
-    expect(mongoControllers.courseXCPController).toBeDefined();
   });
 
   it('should export UserType enum', () => {
@@ -42,7 +40,6 @@ describe('MongoDB Controllers Index', () => {
     expect(typeof mongoControllers.FeedbackController).toBe('function');
     expect(typeof mongoControllers.AdminController).toBe('function');
     expect(typeof mongoControllers.AuthController).toBe('function');
-    expect(typeof mongoControllers.CourseXCPController).toBe('function');
   });
 
   it('should export controller instances as objects', () => {
@@ -53,6 +50,5 @@ describe('MongoDB Controllers Index', () => {
     expect(typeof mongoControllers.feedbackController).toBe('object');
     expect(typeof mongoControllers.adminController).toBe('object');
     expect(typeof mongoControllers.authController).toBe('object');
-    expect(typeof mongoControllers.courseXCPController).toBe('object');
   });
 });

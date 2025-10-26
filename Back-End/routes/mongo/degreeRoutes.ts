@@ -1,7 +1,7 @@
 /**
  * Degree Routes
  * 
- * Handles degree, course pool, and degree-course pool operations
+ * Handles degree operations
  */
 
 import HTTP from '@Util/HTTPCodes';
@@ -88,84 +88,5 @@ router.get('/:id/credits', async (req: Request, res: Response) => {
   }
 });
 
-// ==========================
-// COURSE POOL ROUTES
-// ==========================
-
-/**
- * GET /course-pools - Get all course pools
- */
-router.get('/course-pools', async (req: Request, res: Response) => {
-  try {
-    const coursePools = await degreeController.getAllCoursePools();
-    res.status(HTTP.OK).json({
-      message: 'Course pools retrieved successfully',
-      coursePools,
-    });
-  } catch (error) {
-    console.error('Error in GET /course-pools', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
-  }
-});
-
-/**
- * GET /course-pools/:id - Get course pool by ID
- */
-router.get('/course-pools/:id', async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-
-    if (!id) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: 'Course pool ID is required',
-      });
-      return;
-    }
-
-    const coursePool = await degreeController.getCoursePool(id);
-
-    if (!coursePool) {
-      res.status(HTTP.NOT_FOUND).json({ error: 'Course pool not found' });
-      return;
-    }
-
-    res.status(HTTP.OK).json({
-      message: 'Course pool retrieved successfully',
-      coursePool,
-    });
-  } catch (error) {
-    console.error('Error in GET /course-pools/:id', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
-  }
-});
-
-/**
- * GET /degree/:degreeId/course-pools - Get course pools for degree
- */
-router.get(
-  '/:degreeId/course-pools',
-  async (req: Request, res: Response) => {
-    try {
-      const { degreeId } = req.params;
-
-      if (!degreeId) {
-        res.status(HTTP.BAD_REQUEST).json({
-          error: 'Degree ID is required',
-        });
-        return;
-      }
-
-      const coursePools =
-        await degreeController.getCoursePoolsByDegree(degreeId);
-      res.status(HTTP.OK).json({
-        message: 'Course pools retrieved successfully',
-        coursePools,
-      });
-    } catch (error) {
-      console.error('Error in GET /degree/:degreeId/course-pools', error);
-      res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
-    }
-  },
-);
 
 export default router;
