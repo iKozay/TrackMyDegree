@@ -58,7 +58,7 @@ def extract_course_data(course, url):
 
     def parse_title_and_credits(title_text):
         """Extract course ID, title, and credits from the header text."""
-        match = re.match(r'^([A-Z]{4}\s*\d+)\s+([^()]+?)\s*\(\s*([0-9]+(?:\.[0-9]+)?)\s*credits\s*\)$', title_text)
+        match = re.match(r'^([A-Z]{4}\s*\d+)\s+([^()]+?)\s*\(\s*(\d+(?:\.\d+)?)\s*credits\s*\)$', title_text)
         if match:
             course_id = clean_text(match.group(1))
             title = clean_text(match.group(2))
