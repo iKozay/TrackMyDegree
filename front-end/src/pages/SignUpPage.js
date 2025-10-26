@@ -5,7 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../css/SignUpPage.css';
 import Button from 'react-bootstrap/Button';
 import { motion } from 'framer-motion';
-import { SignUpError } from '../middleware/SentryErrors';
+import { signupUser } from '../api/auth_api';
+import { validateSignupForm, hashPassword } from '../utils/authUtils';
 
 //Similar to the login page. It's just a form that sends the data to the server to be treated there. Redirects to UserPage.js on success
 function SignUpPage() {
@@ -32,55 +33,18 @@ function SignUpPage() {
     setError(null);
     await new Promise((resolve) => setTimeout(resolve, 10));
 
-    // Basic validation checks
-    if (fullname === '' || email === '' || password === '' || confirmPassword === '') {
-      setError('All fields are required.');
-      return;
-    }
-
-    // Simple email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address.');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
-
-    // Additional password strength validation (optional)
-    if (password.length < 6) {
-      setError('Password should be at least 6 characters long.');
+    // Validate form using authUtils
+    const validationErrors = validateSignupForm(fullname, email, password, confirmPassword);
+    if (validationErrors.length > 0) {
+      setError(validationErrors[0]); // Display first error
       return;
     }
 
     //setLoading(true); // Start loading
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/signup`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fullname,
-          email,
-          password,
-          type: userType,
-        }),
-      });
-
-      console.log(response);
-      if (!response.ok) {
-        // Extract error message from response
-        const errorData = await response.json();
-        throw new SignUpError(errorData.message || 'Failed to sign up.');
-      }
-
-      const data = await response.json();
+      // Use API function from auth_api.js
+      const data = await signupUser(fullname, email, hashPassword(password), userType);
 
       // Assuming the API returns some form of authentication token or user data
       // You might want to store the token in context or localStorage here
