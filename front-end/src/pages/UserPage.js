@@ -88,7 +88,7 @@ const UserPage = ({ onDataProcessed }) => {
 
       navigate('/timeline_change');
     },
-    [getDegreeCredits, navigate, onDataProcessed]
+    [getDegreeCredits, navigate, onDataProcessed],
   );
 
   // Load timelines (students only)
@@ -119,9 +119,7 @@ const UserPage = ({ onDataProcessed }) => {
 
         const data = await response.json();
         if (Array.isArray(data)) {
-          const sorted = data
-            .slice()
-            .sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified));
+          const sorted = data.slice().sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified));
           setUserTimelines(sorted);
         } else {
           setUserTimelines([]);

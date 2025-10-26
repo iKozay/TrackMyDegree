@@ -31,8 +31,7 @@ jest.mock('framer-motion', () => {
 
 /* -------------------- Mock DeleteModal and TrashLogo ------------------------- */
 jest.mock('../../src/components/DeleteModal', () => {
-  const DeleteModalMock = ({ open, children }) =>
-    open ? <div data-testid="delete-modal">{children}</div> : null;
+  const DeleteModalMock = ({ open, children }) => (open ? <div data-testid="delete-modal">{children}</div> : null);
   DeleteModalMock.displayName = 'DeleteModalMock';
   return { __esModule: true, default: DeleteModalMock };
 });
@@ -50,7 +49,10 @@ jest.mock('../../src/icons/trashlogo', () => {
 function deferred() {
   /** @type {(v:any)=>void} */ let resolve;
   /** @type {(e:any)=>void} */ let reject;
-  const promise = new Promise((res, rej) => { resolve = res; reject = rej; });
+  const promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
   return { promise, resolve, reject };
 }
 
@@ -152,11 +154,7 @@ describe('UserPage', () => {
     expect(screen.getByText(/loading timelines/i)).toBeInTheDocument();
 
     d.resolve(jsonResponse([], true));
-    await waitFor(() =>
-      expect(
-        screen.getByText(/You haven't saved any timelines yet/i)
-      ).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByText(/You haven't saved any timelines yet/i)).toBeInTheDocument());
   });
 
   test('renders timelines list with formatted dates', async () => {
@@ -250,9 +248,7 @@ describe('UserPage', () => {
 
     renderWithProviders({ user: baseUser });
 
-    await waitFor(() =>
-      expect(screen.getByRole('alert')).toHaveTextContent(/could not load timelines/i)
-    );
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent(/could not load timelines/i));
   });
 
   test('non-student does not fetch timelines and still shows empty state link', async () => {
@@ -264,9 +260,7 @@ describe('UserPage', () => {
     // no fetch made
     expect(global.fetch).not.toHaveBeenCalled();
     // empty-state link is shown (component behavior)
-    expect(
-      screen.getByText(/You haven't saved any timelines yet/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/You haven't saved any timelines yet/i)).toBeInTheDocument();
   });
 
   test('degree credits failure falls back to 120 and still navigates', async () => {
