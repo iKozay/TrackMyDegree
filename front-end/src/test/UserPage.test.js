@@ -255,5 +255,42 @@ describe('UserPage', () => {
     );
   });
 
-  
+  test('non-student does not fetch timelines and still shows empty state link', async () => {
+    setupFetchRoutes({ getAll: [] }); // will not be used
+
+    const advisor = { ...baseUser, type: 'advisor' };
+    renderWithProviders({ user: advisor });
+
+    // no fetch made
+    expect(global.fetch).not.toHaveBeenCalled();
+    // empty-state link is shown (component behavior)
+    expect(
+      screen.getByText(/You haven't saved any timelines yet/i)
+    ).toBeInTheDocument();
+  });
+
+  test('degree credits failure falls back to 120 and still navigates', async () => {
+    const timelines = [
+      {
+        id: 't1',
+        name: 'Plan A',
+        last_modified: '2025-10-02T10:00:00Z',
+        items: [{ season: 'Fall', year: '2025', courses: [] }],
+        degree_id: 'deg-1',
+      },
+    ];
+    setupFetchRoutes({
+      getAll: timelines,
+      getCredits: () => Promise.reject(new Error('Credits API down')),
+    });
+
+    const onDataProcessed = jest.fn();
+    renderWithProviders({ user: baseUser, onDataProcessed });
+
+    const btn = await screen.findByRole('button', { name: /open timeline plan a/i });
+    fireEvent.click(btn);
+
+    await waitFor(() => expect(onDataProcessed).toHaveBeenCalled());
+    expect(Router.__mocked.navigate).toHaveBeenCalledWith('/timeline_change');
+  });
 });
