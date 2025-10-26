@@ -200,5 +200,60 @@ describe('UserPage', () => {
     expect(Router.__mocked.navigate).toHaveBeenCalledWith('/timeline_change');
   });
 
+  test('clicking trash button does not open timeline and opens modal', async () => {
+    const timelines = [{ id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z', items: [] }];
+    setupFetchRoutes({ getAll: timelines });
+
+    const onDataProcessed = jest.fn();
+    renderWithProviders({ user: baseUser, onDataProcessed });
+
+    const rowTitle = await screen.findByText('Plan A');
+    const row = rowTitle.closest('.timeline-box') || rowTitle.parentElement;
+
+    const trash = within(row).getByTestId('trash-logo');
+    const deleteBtn = trash.closest('button');
+    fireEvent.click(deleteBtn);
+
+    await waitFor(() => expect(screen.getByTestId('delete-modal')).toBeInTheDocument());
+    expect(onDataProcessed).not.toHaveBeenCalled();
+    expect(Router.__mocked.navigate).not.toHaveBeenCalled();
+  });
+
+  test('confirm delete removes the timeline and calls delete endpoint', async () => {
+    const timelines = [
+      { id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z', items: [] },
+      { id: 't2', name: 'Plan B', last_modified: '2025-10-01T10:00:00Z', items: [] },
+    ];
+    setupFetchRoutes({
+      getAll: timelines,
+      delete: jsonResponse({}, true),
+    });
+
+    renderWithProviders({ user: baseUser });
+
+    const delBtn = await screen.findByRole('button', { name: /delete timeline plan a/i });
+    fireEvent.click(delBtn);
+
+    const modal = await screen.findByTestId('delete-modal');
+    const confirm = within(modal).getByRole('button', { name: /^delete$/i });
+    fireEvent.click(confirm);
+
+    // After deletion, Plan A should be gone
+    await waitFor(() => expect(screen.queryByText('Plan A')).not.toBeInTheDocument());
+    expect(screen.getByText('Plan B')).toBeInTheDocument();
+  });
+
+  test('error during timelines load shows alert', async () => {
+    setupFetchRoutes({
+      getAll: () => Promise.reject(new Error('Boom')),
+    });
+
+    renderWithProviders({ user: baseUser });
+
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent(/could not load timelines/i)
+    );
+  });
+
   
 });
