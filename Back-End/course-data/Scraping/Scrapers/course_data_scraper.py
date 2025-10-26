@@ -67,8 +67,8 @@ def parse_title_and_credits(title_text, clean_text):
     course_id = clean_text(match.group(1))
     title = clean_text(match.group(2))
     credit_str = match.group(3)
-    credits = float(credit_str) if '.' in credit_str else int(credit_str)
-    return course_id, title, credits
+    course_credits = float(credit_str) if '.' in credit_str else int(credit_str)
+    return course_id, title, course_credits
 
 
 def split_sections(text, clean_text):
@@ -131,7 +131,7 @@ def extract_course_data(course, url):
             continue
 
         title_text = ' '.join(title_el.stripped_strings)
-        course_id, title, credits = parse_title_and_credits(title_text, clean_text)
+        course_id, title, course_credits = parse_title_and_credits(title_text, clean_text)
 
         if course_id != course:
             continue
@@ -145,7 +145,7 @@ def extract_course_data(course, url):
         return {
             "id": course_id,
             "title": title,
-            "credits": credits,
+            "credits": course_credits,
             "description": sections.get("Description:", ""),
             "offeredIN": [""],
             "prerequisites": prereq,
