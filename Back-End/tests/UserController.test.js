@@ -748,4 +748,347 @@ describe('UserController', () => {
       User.findByIdAndUpdate = originalFindByIdAndUpdate;
     });
   });
+
+  describe('Additional Edge Cases for Coverage', () => {
+    let testUser, testDegree;
+
+    beforeEach(async () => {
+      testDegree = await Degree.create({
+        _id: 'COMP',
+        name: 'Computer Science',
+        totalCredits: 120
+      });
+
+      testUser = await User.create({
+        email: 'test@example.com',
+        fullname: 'Test User',
+        type: 'student',
+        degree: 'COMP',
+        deficiencies: [],
+        exemptions: []
+      });
+    });
+
+    it('should handle createUser when exists check returns data', async () => {
+      const originalExists = userController.exists;
+      userController.exists = jest.fn().mockResolvedValue({
+        success: true,
+        data: true
+      });
+
+      const userData = {
+        email: 'duplicate@example.com',
+        password: 'password123',
+        fullname: 'Duplicate User',
+        type: 'student'
+      };
+
+      await expect(userController.createUser(userData))
+        .rejects.toThrow('User with this email already exists');
+
+      userController.exists = originalExists;
+    });
+
+    it('should handle createUser when create returns error without message', async () => {
+      const originalExists = userController.exists;
+      const originalCreate = userController.create;
+
+      userController.exists = jest.fn().mockResolvedValue({ success: true, data: false });
+      userController.create = jest.fn().mockResolvedValue({
+        success: false,
+        error: null
+      });
+
+      const userData = {
+        email: 'test2@example.com',
+        password: 'password123',
+        fullname: 'Test User 2',
+        type: 'student'
+      };
+
+      await expect(userController.createUser(userData))
+        .rejects.toThrow('Failed to create user');
+
+      userController.exists = originalExists;
+      userController.create = originalCreate;
+    });
+
+    it('should handle getAllUsers when findAll returns null data', async () => {
+      const originalFindAll = userController.findAll;
+      userController.findAll = jest.fn().mockResolvedValue({
+        success: true,
+        data: null
+      });
+
+      const result = await userController.getAllUsers();
+      expect(result).toEqual([]);
+
+      userController.findAll = originalFindAll;
+    });
+
+    it('should handle getAllUsers when findAll returns error without message', async () => {
+      const originalFindAll = userController.findAll;
+      userController.findAll = jest.fn().mockResolvedValue({
+        success: false,
+        error: null
+      });
+
+      await expect(userController.getAllUsers())
+        .rejects.toThrow('Failed to fetch users');
+
+      userController.findAll = originalFindAll;
+    });
+
+    it('should handle getUserData with user having no degree field', async () => {
+      await User.findByIdAndUpdate(testUser._id, { $unset: { degree: 1 } });
+      const result = await userController.getUserData(testUser._id.toString());
+
+      expect(result.user.degree).toBeNull();
+      expect(result.degree).toBeNull();
+    });
+
+    it('should handle getUserData with user having invalid degree reference', async () => {
+      await User.findByIdAndUpdate(testUser._id, { degree: 'NONEXISTENT' });
+      const result = await userController.getUserData(testUser._id.toString());
+
+      expect(result.degree).toBeNull();
+    });
+
+    it('should handle getUserData with timeline items having no courses', async () => {
+      await Timeline.create({
+        userId: testUser._id.toString(),
+        items: [
+          {
+            season: 'Fall',
+            year: 2023,
+            courses: []
+          }
+        ]
+      });
+
+      const result = await userController.getUserData(testUser._id.toString());
+      expect(result.timeline).toHaveLength(0);
+    });
+
+    it('should handle getUserData with timeline items having undefined courses', async () => {
+      await Timeline.create({
+        userId: testUser._id.toString(),
+        items: [
+          {
+            season: 'Fall',
+            year: 2023
+            // courses is undefined
+          }
+        ]
+      });
+
+      const result = await userController.getUserData(testUser._id.toString());
+      expect(result.timeline).toHaveLength(0);
+    });
+
+    it('should handle getUserData with user having undefined deficiencies', async () => {
+      await User.findByIdAndUpdate(testUser._id, { $unset: { deficiencies: 1 } });
+      const result = await userController.getUserData(testUser._id.toString());
+
+      expect(result.deficiencies).toEqual([]);
+    });
+
+    it('should handle getUserData with user having undefined exemptions', async () => {
+      await User.findByIdAndUpdate(testUser._id, { $unset: { exemptions: 1 } });
+      const result = await userController.getUserData(testUser._id.toString());
+
+      expect(result.exemptions).toEqual([]);
+    });
+
+    it('should handle getUserData when findById returns error without data', async () => {
+      const originalFindById = userController.findById;
+      userController.findById = jest.fn().mockResolvedValue({
+        success: false,
+        data: null
+      });
+
+      await expect(userController.getUserData('fake123'))
+        .rejects.toThrow('User with this id does not exist');
+
+      userController.findById = originalFindById;
+    });
+
+    it('should handle createDeficiency when user has undefined deficiencies array', async () => {
+      const userWithoutDeficiencies = await User.create({
+        email: 'nodef@example.com',
+        fullname: 'No Def User',
+        type: 'student'
+        // deficiencies is undefined
+      });
+
+      const result = await userController.createDeficiency('Math', userWithoutDeficiencies._id.toString(), 6);
+      expect(result).toMatchObject({
+        coursepool: 'Math',
+        user_id: userWithoutDeficiencies._id.toString(),
+        creditsRequired: 6
+      });
+    });
+
+    it('should handle createDeficiency when findByIdAndUpdate returns null', async () => {
+      const originalFindByIdAndUpdate = User.findByIdAndUpdate;
+      User.findByIdAndUpdate = jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue(null)
+        })
+      });
+
+      await expect(userController.createDeficiency('Math', testUser._id.toString(), 6))
+        .rejects.toThrow('Failed to update user deficiencies');
+
+      User.findByIdAndUpdate = originalFindByIdAndUpdate;
+    });
+
+    it('should handle getAllDeficienciesByUser with user having undefined deficiencies', async () => {
+      const originalFindById = userController.findById;
+      userController.findById = jest.fn().mockResolvedValue({
+        success: true,
+        data: {
+          _id: testUser._id,
+          // deficiencies is undefined
+        }
+      });
+
+      const result = await userController.getAllDeficienciesByUser(testUser._id.toString());
+      expect(result).toEqual([]);
+
+      userController.findById = originalFindById;
+    });
+
+    it('should handle getAllExemptionsByUser with user having undefined exemptions', async () => {
+      const originalFindById = userController.findById;
+      userController.findById = jest.fn().mockResolvedValue({
+        success: true,
+        data: {
+          _id: testUser._id,
+          exemptions: undefined
+        }
+      });
+
+      const result = await userController.getAllExemptionsByUser(testUser._id.toString());
+      expect(result).toEqual([]);
+
+      userController.findById = originalFindById;
+    });
+
+    it('should handle createExemptions with user having undefined exemptions field', async () => {
+      const originalFindById = userController.findById;
+      userController.findById = jest.fn().mockResolvedValue({
+        success: true,
+        data: {
+          _id: testUser._id,
+          // exemptions is undefined
+        }
+      });
+
+      await Course.create({ _id: 'COMP201', title: 'Test Course' });
+
+      const result = await userController.createExemptions(['COMP201'], testUser._id.toString());
+      expect(result.created).toHaveLength(1);
+      expect(result.alreadyExists).toHaveLength(0);
+
+      userController.findById = originalFindById;
+    });
+
+    it('should handle createExemptions when no courses need to be created', async () => {
+      await User.findByIdAndUpdate(testUser._id, { exemptions: ['COMP101'] });
+      await Course.create({ _id: 'COMP101', title: 'Test Course' });
+
+      const result = await userController.createExemptions(['COMP101'], testUser._id.toString());
+      expect(result.created).toHaveLength(0);
+      expect(result.alreadyExists).toHaveLength(1);
+    });
+
+    it('should handle createExemptions when Course.exists throws error', async () => {
+      const originalExists = Course.exists;
+      Course.exists = jest.fn().mockRejectedValue(new Error('Database error'));
+
+      await expect(userController.createExemptions(['COMP999'], testUser._id.toString()))
+        .rejects.toThrow('Database error');
+
+      Course.exists = originalExists;
+    });
+
+    it('should handle deleteUser when deleteById returns error without message', async () => {
+      const originalDeleteById = userController.deleteById;
+      userController.deleteById = jest.fn().mockResolvedValue({
+        success: false,
+        error: null
+      });
+
+      await expect(userController.deleteUser(testUser._id.toString()))
+        .rejects.toThrow('User with this id does not exist');
+
+      userController.deleteById = originalDeleteById;
+    });
+
+    it('should handle updateUser when updateById returns error without message', async () => {
+      const originalUpdateById = userController.updateById;
+      userController.updateById = jest.fn().mockResolvedValue({
+        success: false,
+        error: null
+      });
+
+      await expect(userController.updateUser(testUser._id.toString(), { fullname: 'Updated' }))
+        .rejects.toThrow('User with this id does not exist');
+
+      userController.updateById = originalUpdateById;
+    });
+
+    it('should handle getUserById when findById returns error without message', async () => {
+      const originalFindById = userController.findById;
+      userController.findById = jest.fn().mockResolvedValue({
+        success: false,
+        error: null
+      });
+
+      await expect(userController.getUserById('fake123'))
+        .rejects.toThrow('User with this id does not exist');
+
+      userController.findById = originalFindById;
+    });
+
+    it('should handle getAllDeficienciesByUser when findById returns error without message', async () => {
+      const originalFindById = userController.findById;
+      userController.findById = jest.fn().mockResolvedValue({
+        success: false,
+        error: null
+      });
+
+      await expect(userController.getAllDeficienciesByUser('fake123'))
+        .rejects.toThrow('User does not exist');
+
+      userController.findById = originalFindById;
+    });
+
+    it('should handle getAllExemptionsByUser when findById returns error without message', async () => {
+      const originalFindById = userController.findById;
+      userController.findById = jest.fn().mockResolvedValue({
+        success: false,
+        error: null
+      });
+
+      await expect(userController.getAllExemptionsByUser('fake123'))
+        .rejects.toThrow(`User with id 'fake123' does not exist`);
+
+      userController.findById = originalFindById;
+    });
+
+    it('should handle createExemptions when findById returns error without message', async () => {
+      const originalFindById = userController.findById;
+      userController.findById = jest.fn().mockResolvedValue({
+        success: false,
+        error: null
+      });
+
+      await expect(userController.createExemptions(['COMP101'], 'fake123'))
+        .rejects.toThrow(`User with id 'fake123' does not exist`);
+
+      userController.findById = originalFindById;
+    });
+  });
 });
