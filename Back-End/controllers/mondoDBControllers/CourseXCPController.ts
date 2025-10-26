@@ -1,6 +1,4 @@
 /**
- * Optimized CourseXCP Controller
- *
  * Handles course-coursepool mappings with improved performance.
  * Manages the relationship between courses and course pools within degrees.
  */

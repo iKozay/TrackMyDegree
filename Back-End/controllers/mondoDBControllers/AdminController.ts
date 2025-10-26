@@ -1,6 +1,4 @@
 /**
- * Optimized Admin Controller
- *
  * Handles admin operations including database management.
  */
 

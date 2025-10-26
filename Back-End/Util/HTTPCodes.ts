@@ -23,6 +23,7 @@ const HTTP = {
   FORBIDDEN,
   NOT_FOUND,
   SERVER_ERR,
+  CONFLICT: 409,
 };
 
 //Default Export

@@ -1,6 +1,4 @@
 /**
- * Optimized Timeline Controller
- *
  * Provides timeline-specific operations with improved performance and consistency.
  */
 

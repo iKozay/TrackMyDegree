@@ -1,7 +1,6 @@
 /**
- * Optimized Course Controller
- *
  * Provides course-specific operations using MongoDB.
+ * Includes requisite (prerequisites/corequisites) functionality.
  * Decoupled from Express for better reusability.
  */
 
@@ -20,10 +19,22 @@ export interface CourseData {
   [key: string]: unknown;
 }
 
+export type RequisiteType = 'pre' | 'co';
+
+export interface RequisiteData {
+  code1: string;
+  code2: string;
+  type: RequisiteType;
+}
+
 export class CourseController extends BaseMongoController<any> {
   constructor() {
     super(Course, 'Course');
   }
+
+  // ==========================
+  // COURSE OPERATIONS
+  // ==========================
 
   /**
    * Get all courses with optional filtering and pagination
@@ -78,65 +89,6 @@ export class CourseController extends BaseMongoController<any> {
   }
 
   /**
-   * Create new course
-   */
-  async createCourse(courseData: CourseData) {
-    try {
-      // Check if course already exists
-      const existsResult = await this.exists({
-        _id: courseData.code || courseData._id,
-      });
-      if (existsResult.data) {
-        throw new Error('Course already exists');
-      }
-
-      const result = await this.create(courseData);
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to create course');
-      }
-
-      return result.data;
-    } catch (error) {
-      this.handleError(error, 'createCourse');
-    }
-  }
-
-  /**
-   * Update course by code
-   */
-  async updateCourse(code: string, updates: Partial<CourseData>) {
-    try {
-      const result = await this.updateById(code, updates);
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to update course');
-      }
-
-      return result.data;
-    } catch (error) {
-      this.handleError(error, 'updateCourse');
-    }
-  }
-
-  /**
-   * Delete course by code
-   */
-  async deleteCourse(code: string) {
-    try {
-      const result = await this.deleteById(code);
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to delete course');
-      }
-
-      return result.message;
-    } catch (error) {
-      this.handleError(error, 'deleteCourse');
-    }
-  }
-
-  /**
    * Get courses by pool
    */
   async getCoursesByPool(poolName: string) {
@@ -153,20 +105,105 @@ export class CourseController extends BaseMongoController<any> {
     }
   }
 
-  /**
-   * Bulk create courses
-   */
-  async bulkCreateCourses(courses: CourseData[]) {
-    try {
-      const result = await this.bulkCreate(courses);
+  // ==========================
+  // REQUISITE OPERATIONS
+  // ==========================
 
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to bulk create courses');
+  /**
+   * Create a new course requisite
+   */
+  async createRequisite(
+    code1: string,
+    code2: string,
+    type: RequisiteType,
+  ): Promise<RequisiteData> {
+    try {
+      // Validate both courses exist (parallel query)
+      const [exists1, exists2] = await Promise.all([
+        Course.exists({ _id: code1 }).exec(),
+        Course.exists({ _id: code2 }).exec(),
+      ]);
+
+      if (!exists1 || !exists2) {
+        throw new Error(
+          `One or both courses ('${code1}', '${code2}') do not exist.`,
+        );
       }
 
-      return result.data;
+      const field = type === 'pre' ? 'prerequisites' : 'corequisites';
+
+      // Add requisite atomically (won't add if already exists)
+      const result = await Course.updateOne(
+        { _id: code1 },
+        { $addToSet: { [field]: code2 } },
+      ).exec();
+
+      if (result.modifiedCount === 0) {
+        throw new Error('Requisite already exists or course not found.');
+      }
+
+      return { code1, code2, type };
     } catch (error) {
-      this.handleError(error, 'bulkCreateCourses');
+      this.handleError(error, 'createRequisite');
+    }
+  }
+
+  /**
+   * Get all requisites for a course
+   */
+  async getRequisites(code1: string): Promise<RequisiteData[]> {
+    try {
+      const course = await Course.findById(code1)
+        .select('prerequisites corequisites')
+        .lean()
+        .exec();
+
+      if (!course) {
+        throw new Error(`Course '${code1}' does not exist.`);
+      }
+
+      const requisites: RequisiteData[] = [];
+
+      // Add prerequisites
+      (course.prerequisites || []).forEach((code2: string) => {
+        requisites.push({ code1, code2, type: 'pre' });
+      });
+
+      // Add corequisites
+      (course.corequisites || []).forEach((code2: string) => {
+        requisites.push({ code1, code2, type: 'co' });
+      });
+
+      return requisites;
+    } catch (error) {
+      this.handleError(error, 'getRequisites');
+    }
+  }
+
+  /**
+   * Delete a requisite
+   * Optimized with atomic operation
+   */
+  async deleteRequisite(
+    code1: string,
+    code2: string,
+    type: RequisiteType,
+  ): Promise<string> {
+    try {
+      const field = type === 'pre' ? 'prerequisites' : 'corequisites';
+
+      const result = await Course.updateOne(
+        { _id: code1 },
+        { $pull: { [field]: code2 } },
+      ).exec();
+
+      if (result.modifiedCount === 0) {
+        throw new Error('Requisite not found or already deleted.');
+      }
+
+      return `Requisite deleted successfully.`;
+    } catch (error) {
+      this.handleError(error, 'deleteRequisite');
     }
   }
 }

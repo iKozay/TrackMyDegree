@@ -1,6 +1,4 @@
 /**
- * Optimized Feedback Controller
- *
  * Provides simple feedback operations with consistent interface.
  */
 

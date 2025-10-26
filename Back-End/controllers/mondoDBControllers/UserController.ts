@@ -1,6 +1,4 @@
 /**
- * Optimized User Controller
- *
  * Provides user-specific operations including deficiencies and exemptions.
  */
 
@@ -48,6 +46,91 @@ export class UserController extends BaseMongoController<any> {
     super(User, 'User');
   }
 
+  // ==========================
+  // USER CRUD OPERATIONS
+  // ==========================
+
+  /**
+   * Create a new user
+   */
+  async createUser(userData: UserData): Promise<UserData> {
+    try {
+      // Check if user already exists
+      const existsResult = await this.exists({ email: userData.email });
+      if (existsResult.data) {
+        throw new Error('User with this email already exists.');
+      }
+
+      const result = await this.create(userData);
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to create user');
+      }
+
+      return {
+        id: result.data._id,
+        email: result.data.email,
+        fullname: result.data.fullname,
+        degree: result.data.degree,
+        type: result.data.type,
+        deficiencies: result.data.deficiencies,
+        exemptions: result.data.exemptions,
+      };
+    } catch (error) {
+      this.handleError(error, 'createUser');
+    }
+  }
+
+  /**
+   * Get user by ID
+   */
+  async getUserById(id: string): Promise<UserData> {
+    try {
+      const result = await this.findById(id);
+
+      if (!result.success) {
+        throw new Error('User with this id does not exist.');
+      }
+
+      return {
+        id: result.data._id,
+        email: result.data.email,
+        fullname: result.data.fullname,
+        degree: result.data.degree,
+        type: result.data.type,
+        deficiencies: result.data.deficiencies,
+        exemptions: result.data.exemptions,
+      };
+    } catch (error) {
+      this.handleError(error, 'getUserById');
+    }
+  }
+
+  /**
+   * Get all users
+   */
+  async getAllUsers(): Promise<UserData[]> {
+    try {
+      const result = await this.findAll({}, { select: 'email fullname degree type' });
+
+      if (!result.success) {
+        throw new Error('Failed to fetch users');
+      }
+
+      return (result.data || []).map((user) => ({
+        id: user._id,
+        email: user.email,
+        fullname: user.fullname,
+        degree: user.degree,
+        type: user.type,
+        deficiencies: user.deficiencies,
+        exemptions: user.exemptions,
+      }));
+    } catch (error) {
+      this.handleError(error, 'getAllUsers');
+    }
+  }
+
   /**
    * Update user information
    */
@@ -91,7 +174,6 @@ export class UserController extends BaseMongoController<any> {
 
   /**
    * Get comprehensive user data including timeline, deficiencies, exemptions, and degree info
-   * Optimized with parallel queries
    */
   async getUserData(id: string): Promise<UserDataResponse> {
     try {

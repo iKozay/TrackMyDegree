@@ -1,6 +1,4 @@
 /**
- * Optimized Auth Controller
- *
  * Handles authentication operations with improved error handling and security.
  */
 
