@@ -135,6 +135,22 @@ describe('BaseMongoController', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
     });
+
+    it('should handle database errors in findById catch block', async () => {
+      // Mock findOne to throw an error
+      const originalFindOne = TestModel.findOne;
+      TestModel.findOne = jest.fn().mockImplementation(() => {
+        throw new Error('Database query failed');
+      });
+
+      const result = await testController.findById(new mongoose.Types.ObjectId().toString());
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Database query failed');
+
+      // Restore original method
+      TestModel.findOne = originalFindOne;
+    });
   });
 
   describe('findOne', () => {
@@ -315,6 +331,22 @@ describe('BaseMongoController', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBe('TestModel not found');
     });
+
+    it('should handle database errors in updateOne catch block', async () => {
+      // Mock findOneAndUpdate to throw an error
+      const originalFindOneAndUpdate = TestModel.findOneAndUpdate;
+      TestModel.findOneAndUpdate = jest.fn().mockImplementation(() => {
+        throw new Error('Update failed');
+      });
+
+      const result = await testController.updateOne({ email: 'test@example.com' }, { age: 25 });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Update failed');
+
+      // Restore original method
+      TestModel.findOneAndUpdate = originalFindOneAndUpdate;
+    });
   });
 
   describe('upsert', () => {
@@ -375,6 +407,22 @@ describe('BaseMongoController', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBe('TestModel not found');
     });
+
+    it('should handle database errors in deleteById catch block', async () => {
+      // Mock findByIdAndDelete to throw an error
+      const originalFindByIdAndDelete = TestModel.findByIdAndDelete;
+      TestModel.findByIdAndDelete = jest.fn().mockImplementation(() => {
+        throw new Error('Delete failed');
+      });
+
+      const result = await testController.deleteById(new mongoose.Types.ObjectId().toString());
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Delete failed');
+
+      // Restore original method
+      TestModel.findByIdAndDelete = originalFindByIdAndDelete;
+    });
   });
 
   describe('deleteOne', () => {
@@ -404,6 +452,22 @@ describe('BaseMongoController', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('TestModel not found');
+    });
+
+    it('should handle database errors in deleteOne catch block', async () => {
+      // Mock findOneAndDelete to throw an error
+      const originalFindOneAndDelete = TestModel.findOneAndDelete;
+      TestModel.findOneAndDelete = jest.fn().mockImplementation(() => {
+        throw new Error('Delete failed');
+      });
+
+      const result = await testController.deleteOne({ email: 'delete@example.com' });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Delete failed');
+
+      // Restore original method
+      TestModel.findOneAndDelete = originalFindOneAndDelete;
     });
   });
 
@@ -437,6 +501,22 @@ describe('BaseMongoController', () => {
       expect(result.data).toBe(0);
       expect(result.message).toBe('0 TestModel(s) deleted successfully');
     });
+
+    it('should handle database errors in deleteMany catch block', async () => {
+      // Mock deleteMany to throw an error
+      const originalDeleteMany = TestModel.deleteMany;
+      TestModel.deleteMany = jest.fn().mockImplementation(() => {
+        throw new Error('Delete failed');
+      });
+
+      const result = await testController.deleteMany({ age: 20 });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Delete failed');
+
+      // Restore original method
+      TestModel.deleteMany = originalDeleteMany;
+    });
   });
 
   describe('count', () => {
@@ -460,6 +540,22 @@ describe('BaseMongoController', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toBe(2);
+    });
+
+    it('should handle database errors in count catch block', async () => {
+      // Mock countDocuments to throw an error
+      const originalCountDocuments = TestModel.countDocuments;
+      TestModel.countDocuments = jest.fn().mockImplementation(() => {
+        throw new Error('Count failed');
+      });
+
+      const result = await testController.count();
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Count failed');
+
+      // Restore original method
+      TestModel.countDocuments = originalCountDocuments;
     });
   });
 
@@ -519,6 +615,27 @@ describe('BaseMongoController', () => {
       expect(result.success).toBe(true);
       expect(result.data).toHaveLength(2); // Only valid documents
       expect(result.message).toBe('2 TestModel(s) created successfully');
+    });
+
+    it('should handle database errors in bulkCreate catch block', async () => {
+      // Mock insertMany to throw an error
+      const originalInsertMany = TestModel.insertMany;
+      TestModel.insertMany = jest.fn().mockImplementation(() => {
+        throw new Error('Bulk create failed');
+      });
+
+      const documents = [
+        { name: 'User 1', email: 'user1@example.com', age: 20 },
+        { name: 'User 2', email: 'user2@example.com', age: 30 }
+      ];
+
+      const result = await testController.bulkCreate(documents);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Bulk create failed');
+
+      // Restore original method
+      TestModel.insertMany = originalInsertMany;
     });
   });
 

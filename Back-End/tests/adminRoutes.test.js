@@ -72,6 +72,21 @@ describe('Admin Routes', () => {
       // Restore original method
       require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections = originalGetCollections;
     });
+
+    it('should handle general errors not containing "not available"', async () => {
+      // Mock adminController.getCollections to throw a general error
+      const originalGetCollections = require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections = jest.fn().mockRejectedValue(new Error('Some other error'));
+
+      const response = await request(app)
+        .get('/admin/collections')
+        .expect(500);
+
+      expect(response.body.error).toBe('Internal server error');
+
+      // Restore original method
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections = originalGetCollections;
+    });
   });
 
   describe('GET /admin/collections/:collectionName', () => {
@@ -204,6 +219,21 @@ describe('Admin Routes', () => {
       // Mock adminController.getCollectionStats to throw an error
       const originalGetCollectionStats = require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats;
       require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats = jest.fn().mockRejectedValue(new Error('Database error'));
+
+      const response = await request(app)
+        .get('/admin/collections/users/stats')
+        .expect(500);
+
+      expect(response.body.error).toBe('Internal server error');
+
+      // Restore original method
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats = originalGetCollectionStats;
+    });
+
+    it('should handle general errors not containing "not available"', async () => {
+      // Mock adminController.getCollectionStats to throw a general error
+      const originalGetCollectionStats = require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats = jest.fn().mockRejectedValue(new Error('Some other error'));
 
       const response = await request(app)
         .get('/admin/collections/users/stats')
@@ -387,6 +417,19 @@ describe('Admin Routes', () => {
         .expect(400);
 
       expect(response.body.error).toBe('Collection name is required');
+    });
+
+    it('should handle general errors not containing "not available"', async () => {
+      const originalClearCollection = require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection = jest.fn().mockRejectedValue(new Error('Some other error'));
+
+      const response = await request(app)
+        .delete('/admin/collections/users/clear')
+        .expect(500);
+
+      expect(response.body.error).toBe('Internal server error');
+
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection = originalClearCollection;
     });
   });
 });

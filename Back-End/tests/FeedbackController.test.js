@@ -162,6 +162,34 @@ describe('FeedbackController', () => {
       // Restore original method
       Feedback.find = originalFind;
     });
+
+    it('should throw error when findAll returns success: false', async () => {
+      // Mock the findAll method to return success: false
+      const originalFindAll = feedbackController.findAll;
+      feedbackController.findAll = jest.fn().mockResolvedValue({ success: false });
+
+      await expect(feedbackController.getAllFeedback())
+        .rejects.toThrow('Failed to fetch feedback');
+
+      // Restore original method
+      feedbackController.findAll = originalFindAll;
+    });
+
+    it('should handle errors from findAll with handleError', async () => {
+      // Mock the findAll method to throw an error
+      const originalFindAll = feedbackController.findAll;
+      const handleErrorSpy = jest.spyOn(feedbackController, 'handleError');
+      feedbackController.findAll = jest.fn().mockRejectedValue(new Error('Database query failed'));
+
+      await expect(feedbackController.getAllFeedback())
+        .rejects.toThrow();
+
+      expect(handleErrorSpy).toHaveBeenCalledWith(expect.any(Error), 'getAllFeedback');
+
+      // Restore original method
+      feedbackController.findAll = originalFindAll;
+      handleErrorSpy.mockRestore();
+    });
   });
 
   describe('getFeedbackById', () => {
@@ -302,6 +330,34 @@ describe('FeedbackController', () => {
 
       // Restore original method
       Feedback.deleteMany = originalDeleteMany;
+    });
+
+    it('should throw error when deleteMany returns success: false', async () => {
+      // Mock the deleteMany method to return success: false
+      const originalDeleteMany = feedbackController.deleteMany;
+      feedbackController.deleteMany = jest.fn().mockResolvedValue({ success: false });
+
+      await expect(feedbackController.deleteUserFeedback('user123'))
+        .rejects.toThrow('Failed to delete feedback');
+
+      // Restore original method
+      feedbackController.deleteMany = originalDeleteMany;
+    });
+
+    it('should handle errors from deleteMany with handleError', async () => {
+      // Mock the deleteMany method to throw an error
+      const originalDeleteMany = feedbackController.deleteMany;
+      const handleErrorSpy = jest.spyOn(feedbackController, 'handleError');
+      feedbackController.deleteMany = jest.fn().mockRejectedValue(new Error('Delete operation failed'));
+
+      await expect(feedbackController.deleteUserFeedback('user123'))
+        .rejects.toThrow();
+
+      expect(handleErrorSpy).toHaveBeenCalledWith(expect.any(Error), 'deleteUserFeedback');
+
+      // Restore original method
+      feedbackController.deleteMany = originalDeleteMany;
+      handleErrorSpy.mockRestore();
     });
   });
 });
