@@ -37,7 +37,6 @@ const parsePdfFile = (file) => {
 //This is a helper function used to get the details about the program (Mapped to an id), Coop/Extended Credit/Credit deficiency, starting term, exemptions/transfer credits/deficiencies.
 //This function generates all terms between the start end expected end terms
 //Returns a structured object
-// TODO: Refactor to simplify this complex function
 const extractAcceptanceDetails = (text) => {
   const details = {};
 
@@ -49,7 +48,7 @@ const extractAcceptanceDetails = (text) => {
   }
   // Check if text contains "OFFER OF ADMISSION"
   if (!text.toUpperCase().match('OFFER OF ADMISSION')) {
-    alert('Please choose Offer of Admission');
+    alert('Please upload an acceptance letter');
     return { results, details };
   }
 
@@ -115,16 +114,15 @@ function extractTermFromText({ text, startLabel, endLabel }) {
   const section = getSectionBetweenLabels(text, startLabel, endLabel);
   if (!section) return;
   // Regex for matching academic terms like "Winter 2024" or "Fall/Winter 2023-2024"
-  const termRegex = /(\s*(Winter|Summer|Fall)\s*\d{4}\s*)|(\s*(Fall\/Winter)\s*20(\d{2})-(?!\6)\d{2})/;
+  const termRegex = /\b((Winter|Summer|Fall)\s*\d{4}|Fall\/Winter\s*20\d{2}-\d{2})\b/;
   const match = section.match(termRegex);
-
   if (match) {
     return match[0].trim();
   }
   return null;
 }
 //Helper function to extract courses between two labels (text markers in the document that indicate the start and end of a section)
-function getCoursesFromText({ text, startLabel, endLabel, courseType }) {
+function getCoursesFromText({ text, startLabel, endLabel }) {
   // Regex for matching courses (e.g., COMM A, ECON 201)
   const courseRegex = /[A-Z]{3,4}\s+\d{3}/g;
   const sectionText = getSectionBetweenLabels(text, startLabel, endLabel);
