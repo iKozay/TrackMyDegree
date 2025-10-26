@@ -5,6 +5,7 @@
 import { User } from '../../models';
 import bcrypt from 'bcryptjs';
 import * as Sentry from '@sentry/node';
+import { randomInt } from 'crypto';
 
 export enum UserType {
   STUDENT = 'student',
@@ -129,7 +130,7 @@ export class AuthController {
       const user = await User.findOne({ email }).exec();
 
       // Generate OTP - 4 digits
-      const otp = Math.floor(1000 + Math.random() * 9000).toString();
+      const otp = randomInt(1000, 10000).toString();
       const otpExpire = new Date(
         Date.now() + this.OTP_EXPIRY_MINUTES * 60 * 1000,
       );
