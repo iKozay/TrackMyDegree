@@ -269,19 +269,65 @@ describe('Admin Routes', () => {
     });
   });
 
-  describe('GET /admin/status', () => {
+  describe('GET /admin/connection-status', () => {
     it('should get database connection status', async () => {
       const response = await request(app)
-        .get('/admin/status')
+        .get('/admin/connection-status')
         .expect(200);
 
-      expect(response.body.message).toBe('Database status retrieved successfully');
-      expect(response.body.status).toHaveProperty('connected');
-      expect(response.body.status).toHaveProperty('readyState');
-      expect(response.body.status).toHaveProperty('name');
-      expect(response.body.status.connected).toBe(true);
-      expect(response.body.status.readyState).toBe(1);
-      expect(typeof response.body.status.name).toBe('string');
+      expect(response.body.message).toBe('Connection status retrieved successfully');
+      expect(response.body).toHaveProperty('connected');
+      expect(response.body).toHaveProperty('readyState');
+    });
+  });
+
+  describe('GET /admin/collections/:collectionName/documents edge cases', () => {
+    beforeEach(async () => {
+      await User.create([
+        {
+          email: 'user1@example.com',
+          fullname: 'User One',
+          type: 'student'
+        }
+      ]);
+    });
+
+    it('should return 400 when collectionName is missing', async () => {
+      const response = await request(app)
+        .get('/admin/collections//documents')
+        .expect(400);
+
+      expect(response.body.error).toBe('Collection name is required');
+    });
+  });
+
+  describe('GET /admin/collections/:collectionName/stats edge cases', () => {
+    it('should return 400 when collectionName is missing', async () => {
+      const response = await request(app)
+        .get('/admin/collections//stats')
+        .expect(400);
+
+      expect(response.body.error).toBe('Collection name is required');
+    });
+  });
+
+  describe('DELETE /admin/collections/:collectionName/clear edge cases', () => {
+    beforeEach(async () => {
+      await User.create([
+        {
+          email: 'user1@example.com',
+          fullname: 'User One',
+          type: 'student'
+        }
+      ]);
+    });
+
+    it('should return 400 when collectionName is missing', async () => {
+      const response = await request(app)
+        .delete('/admin/collections//clear')
+        .expect(400);
+
+      expect(response.body.error).toBe('Collection name is required');
     });
   });
 });

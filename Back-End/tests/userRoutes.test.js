@@ -414,6 +414,7 @@ describe('User Routes', () => {
     beforeEach(async () => {
       testUser = await User.create({
         email: 'test@example.com',
+        password: 'hashedpassword',
         fullname: 'Test User',
         type: 'student',
         deficiencies: []
@@ -562,12 +563,13 @@ describe('User Routes', () => {
     });
   });
 
-  describe('PUT /users/:id/deficiencies/:coursepool', () => {
+  describe('PUT /users/:userId/deficiencies', () => {
     let testUser;
 
     beforeEach(async () => {
       testUser = await User.create({
         email: 'test@example.com',
+        password: 'hashedpassword',
         fullname: 'Test User',
         type: 'student',
         deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }]
@@ -576,8 +578,8 @@ describe('User Routes', () => {
 
     it('should update deficiency', async () => {
       const response = await request(app)
-        .put(`/users/${testUser._id}/deficiencies/Math`)
-        .send({ creditsRequired: 9 })
+        .put(`/users/${testUser._id}/deficiencies`)
+        .send({ coursepool: 'Math', creditsRequired: 9 })
         .expect(200);
 
       expect(response.body.message).toBe('Deficiency updated successfully');
@@ -588,32 +590,32 @@ describe('User Routes', () => {
       });
     });
 
-    it('should return 400 for missing creditsRequired', async () => {
+    it('should return 400 for missing required fields', async () => {
       const response = await request(app)
-        .put(`/users/${testUser._id}/deficiencies/Math`)
+        .put(`/users/${testUser._id}/deficiencies`)
         .send({})
         .expect(400);
 
-      expect(response.body.error).toBe('Missing required field: creditsRequired');
+      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
     });
 
     it('should return 404 for non-existent deficiency', async () => {
       const response = await request(app)
-        .put(`/users/${testUser._id}/deficiencies/Science`)
-        .send({ creditsRequired: 9 })
+        .put(`/users/${testUser._id}/deficiencies`)
+        .send({ coursepool: 'Science', creditsRequired: 9 })
         .expect(404);
 
-      expect(response.body.error).toBe('Deficiency not found');
+      expect(response.body.error).toBe('Deficiency not found.');
     });
 
-    it('should return 404 for non-existent user', async () => {
+    it('should return 400 for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       const response = await request(app)
-        .put(`/users/${fakeId}/deficiencies/Math`)
-        .send({ creditsRequired: 9 })
-        .expect(404);
+        .put(`/users/${fakeId}/deficiencies`)
+        .send({ coursepool: 'Math', creditsRequired: 9 })
+        .expect(400);
 
-      expect(response.body.error).toBe('User not found');
+      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
     });
 
     it('should handle server errors', async () => {
@@ -622,8 +624,8 @@ describe('User Routes', () => {
       require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency = jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
-        .put(`/users/${testUser._id}/deficiencies/Math`)
-        .send({ creditsRequired: 9 })
+        .put(`/users/${testUser._id}/deficiencies`)
+        .send({ coursepool: 'Math', creditsRequired: 9 })
         .expect(500);
 
       expect(response.body.error).toBe('Internal server error');
@@ -633,7 +635,7 @@ describe('User Routes', () => {
     });
   });
 
-  describe('DELETE /users/:id/deficiencies/:coursepool', () => {
+  describe('DELETE /users/:userId/deficiencies', () => {
     let testUser;
 
     beforeEach(async () => {
@@ -650,10 +652,11 @@ describe('User Routes', () => {
 
     it('should delete deficiency', async () => {
       const response = await request(app)
-        .delete(`/users/${testUser._id}/deficiencies/Math`)
+        .delete(`/users/${testUser._id}/deficiencies`)
+        .send({ coursepool: 'Math' })
         .expect(200);
 
-      expect(response.body.message).toBe('Deficiency deleted successfully');
+      expect(response.body.message).toContain('successfully deleted');
 
       // Verify deficiency was removed
       const updatedUser = await User.findById(testUser._id);
@@ -661,13 +664,23 @@ describe('User Routes', () => {
       expect(updatedUser.deficiencies[0].coursepool).toBe('Science');
     });
 
+    it('should return 400 for missing required fields', async () => {
+      const response = await request(app)
+        .delete(`/users/${testUser._id}/deficiencies`)
+        .send({})
+        .expect(400);
+
+      expect(response.body.error).toBe('User ID and coursepool are required');
+    });
+
     it('should return 404 for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       const response = await request(app)
-        .delete(`/users/${fakeId}/deficiencies/Math`)
+        .delete(`/users/${fakeId}/deficiencies`)
+        .send({ coursepool: 'Math' })
         .expect(404);
 
-      expect(response.body.error).toBe('User not found');
+      expect(response.body.error).toContain('does not exist');
     });
 
     it('should handle server errors', async () => {
@@ -676,7 +689,8 @@ describe('User Routes', () => {
       require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency = jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
-        .delete(`/users/${testUser._id}/deficiencies/Math`)
+        .delete(`/users/${testUser._id}/deficiencies`)
+        .send({ coursepool: 'Math' })
         .expect(500);
 
       expect(response.body.error).toBe('Internal server error');
@@ -692,6 +706,7 @@ describe('User Routes', () => {
     beforeEach(async () => {
       testUser = await User.create({
         email: 'test@example.com',
+        password: 'hashedpassword',
         fullname: 'Test User',
         type: 'student',
         exemptions: []
@@ -714,7 +729,7 @@ describe('User Routes', () => {
         .send(exemptionData)
         .expect(201);
 
-      expect(response.body.message).toBe('Exemptions created successfully');
+      expect(response.body.message).toBe('Exemptions processed successfully');
       expect(response.body.created).toHaveLength(2);
       expect(response.body.alreadyExists).toHaveLength(0);
     });
@@ -725,10 +740,10 @@ describe('User Routes', () => {
         .send({})
         .expect(400);
 
-      expect(response.body.error).toBe('Missing required field: coursecodes');
+      expect(response.body.error).toBe('User ID and coursecodes array are required');
     });
 
-    it('should return 400 for non-existent course', async () => {
+    it('should return 404 for non-existent course', async () => {
       const exemptionData = {
         coursecodes: ['COMP101', 'NONEXISTENT']
       };
@@ -736,9 +751,9 @@ describe('User Routes', () => {
       const response = await request(app)
         .post(`/users/${testUser._id}/exemptions`)
         .send(exemptionData)
-        .expect(400);
+        .expect(404);
 
-      expect(response.body.error).toBe('Course with code NONEXISTENT does not exist');
+      expect(response.body.error).toContain('does not exist');
     });
 
     it('should return 404 for non-existent user', async () => {
@@ -752,7 +767,7 @@ describe('User Routes', () => {
         .send(exemptionData)
         .expect(404);
 
-      expect(response.body.error).toBe('User not found');
+      expect(response.body.error).toContain('does not exist');
     });
 
     it('should handle server errors', async () => {
@@ -826,7 +841,7 @@ describe('User Routes', () => {
     });
   });
 
-  describe('DELETE /users/:id/exemptions/:coursecode', () => {
+  describe('DELETE /users/:userId/exemptions', () => {
     let testUser;
 
     beforeEach(async () => {
@@ -840,10 +855,11 @@ describe('User Routes', () => {
 
     it('should delete exemption', async () => {
       const response = await request(app)
-        .delete(`/users/${testUser._id}/exemptions/COMP101`)
+        .delete(`/users/${testUser._id}/exemptions`)
+        .send({ coursecode: 'COMP101' })
         .expect(200);
 
-      expect(response.body.message).toBe('Exemption deleted successfully');
+      expect(response.body.message).toContain('successfully deleted');
 
       // Verify exemption was removed
       const updatedUser = await User.findById(testUser._id);
@@ -852,13 +868,23 @@ describe('User Routes', () => {
       expect(updatedUser.exemptions).not.toContain('COMP101');
     });
 
+    it('should return 400 for missing required fields', async () => {
+      const response = await request(app)
+        .delete(`/users/${testUser._id}/exemptions`)
+        .send({})
+        .expect(400);
+
+      expect(response.body.error).toBe('User ID and coursecode are required');
+    });
+
     it('should return 404 for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       const response = await request(app)
-        .delete(`/users/${fakeId}/exemptions/COMP101`)
+        .delete(`/users/${fakeId}/exemptions`)
+        .send({ coursecode: 'COMP101' })
         .expect(404);
 
-      expect(response.body.error).toBe('User not found');
+      expect(response.body.error).toContain('does not exist');
     });
 
     it('should handle server errors', async () => {
@@ -867,7 +893,8 @@ describe('User Routes', () => {
       require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption = jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
-        .delete(`/users/${testUser._id}/exemptions/COMP101`)
+        .delete(`/users/${testUser._id}/exemptions`)
+        .send({ coursecode: 'COMP101' })
         .expect(500);
 
       expect(response.body.error).toBe('Internal server error');

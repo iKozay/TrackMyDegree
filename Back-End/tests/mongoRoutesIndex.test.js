@@ -1,29 +1,83 @@
+const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const request = require('supertest');
 const express = require('express');
-const mongoRoutes = require('../dist/routes/mongo/index').default;
+const mongoRouter = require('../dist/routes/mongo/index').default;
 
-describe('MongoDB Routes Index', () => {
-  let app;
+// Create test app
+const app = express();
+app.use(express.json());
+app.use('/mongo', mongoRouter);
 
-  beforeEach(() => {
-    app = express();
-    app.use('/api', mongoRoutes);
+describe('Mongo Routes Index', () => {
+  let mongoServer;
+
+  beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create();
+    const uri = mongoServer.getUri();
+    await mongoose.connect(uri);
   });
 
-  it('should mount all route modules', () => {
-    // Test that the router is properly configured
-    expect(mongoRoutes).toBeDefined();
-    expect(typeof mongoRoutes).toBe('function');
+  afterAll(async () => {
+    await mongoose.disconnect();
+    await mongoServer.stop();
   });
 
-  it('should have all expected route paths', () => {
-    // This test verifies that the router is properly configured
-    // by checking that it's a function (Express router)
-    expect(mongoRoutes).toBeInstanceOf(Function);
+  it('should mount all route modules', async () => {
+    // Test that routes are accessible
+    const response = await request(app)
+      .get('/mongo/degree')
+      .expect(404); // Should return 404 since no degree exists
+
+    // The route should exist (404 means route exists but no data found)
+    expect(response.status).toBe(404);
   });
 
-  it('should export router as default', () => {
-    // Verify the module exports a router function
-    expect(mongoRoutes).toBeDefined();
-    expect(typeof mongoRoutes).toBe('function');
+  it('should have /mongo/degree route', async () => {
+    const response = await request(app)
+      .get('/mongo/degree')
+      .expect(200);
+
+    expect(response.body.message).toBeDefined();
+  });
+
+  it('should have /mongo/courses route', async () => {
+    const response = await request(app)
+      .get('/mongo/courses')
+      .expect(200);
+
+    expect(response.body).toBeDefined();
+  });
+
+  it('should have /mongo/users route', async () => {
+    const response = await request(app)
+      .get('/mongo/users')
+      .expect(200);
+
+    expect(response.body).toBeDefined();
+  });
+
+  it('should have /mongo/feedback route', async () => {
+    const response = await request(app)
+      .get('/mongo/feedback')
+      .expect(200);
+
+    expect(response.body).toBeDefined();
+  });
+
+  it('should have /mongo/timeline route', async () => {
+    const response = await request(app)
+      .get('/mongo/timeline/user/testuser')
+      .expect(200);
+
+    expect(response.body).toBeDefined();
+  });
+
+  it('should have /mongo/admin route', async () => {
+    const response = await request(app)
+      .get('/mongo/admin/collections')
+      .expect(200);
+
+    expect(response.body).toBeDefined();
   });
 });
