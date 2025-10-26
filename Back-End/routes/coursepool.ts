@@ -4,6 +4,7 @@ import CoursePoolTypes from '@controllers/coursepoolController/coursepool_types'
 import DB_OPS from '@Util/DB_Ops';
 import HTTP from '@Util/HTTPCodes';
 
+const EMPTY_PAYLOAD = 'Payload attributes cannot be empty';
 const router = express.Router();
 
 router.post('/create', async (req: Request, res: Response) => {
@@ -18,9 +19,7 @@ router.post('/create', async (req: Request, res: Response) => {
   }
 
   if (!payload.name) {
-    res
-      .status(HTTP.BAD_REQUEST)
-      .json({ error: 'Payload attributes cannot be empty' });
+    res.status(HTTP.BAD_REQUEST).json({ error: EMPTY_PAYLOAD });
 
     return;
   }
@@ -107,9 +106,7 @@ router.post('/update', async (req: Request, res: Response) => {
   }
 
   if (!payload.id || !payload.name) {
-    res
-      .status(HTTP.BAD_REQUEST)
-      .json({ error: 'Payload attributes cannot be empty' });
+    res.status(HTTP.BAD_REQUEST).json({ error: EMPTY_PAYLOAD });
 
     return;
   }
@@ -150,9 +147,7 @@ router.post('/delete', async (req: Request, res: Response) => {
   }
 
   if (!payload.course_pool_id) {
-    res
-      .status(HTTP.BAD_REQUEST)
-      .json({ error: 'Payload attributes cannot be empty' });
+    res.status(HTTP.BAD_REQUEST).json({ error: EMPTY_PAYLOAD });
 
     return;
   }

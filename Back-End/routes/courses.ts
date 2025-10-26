@@ -3,6 +3,11 @@ import courseController from '@controllers/courseController/courseController';
 import CourseTypes from '@controllers/courseController/course_types';
 import HTTP from '@Util/HTTPCodes';
 
+const ERROR_MESSAGE = {
+  NO_COURSE_FOUND: 'No courses found',
+  GET_ALL_COURSE: 'Error in /courses/getAll',
+  RETRIEVE_COURSE: 'Could not retrieve courses',
+} as const;
 const router = express.Router();
 
 // Get course by code and number (via request body)
@@ -84,11 +89,11 @@ router.post('/getAll', async (req: Request, res: Response) => {
     if (courses && courses.length > 0) {
       res.status(HTTP.OK).json(courses);
     } else {
-      res.status(HTTP.NOT_FOUND).json({ error: 'No courses found' });
+      res.status(HTTP.NOT_FOUND).json({ error: ERROR_MESSAGE.NO_COURSE_FOUND });
     }
   } catch (error) {
-    console.error('Error in /courses/getAll', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Could not retrieve courses' });
+    console.error(ERROR_MESSAGE.GET_ALL_COURSE, error);
+    res.status(HTTP.SERVER_ERR).json({ error: ERROR_MESSAGE.RETRIEVE_COURSE });
   }
 });
 
@@ -106,11 +111,11 @@ router.post('/getByDegreeGrouped', async (req: Request, res: Response) => {
     if (courses && courses.length > 0) {
       res.status(HTTP.OK).json(courses);
     } else {
-      res.status(HTTP.NOT_FOUND).json({ error: 'No courses found' });
+      res.status(HTTP.NOT_FOUND).json({ error: ERROR_MESSAGE.NO_COURSE_FOUND });
     }
   } catch (error) {
     console.error('Error in /courses/getByDegree', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Could not retrieve courses' });
+    res.status(HTTP.SERVER_ERR).json({ error: ERROR_MESSAGE.RETRIEVE_COURSE });
   }
 });
 
@@ -121,11 +126,11 @@ router.post('/getAllCourses', async (req: Request, res: Response) => {
     if (courses && courses.length > 0) {
       res.status(HTTP.OK).json(courses);
     } else {
-      res.status(HTTP.NOT_FOUND).json({ error: 'No courses found' });
+      res.status(HTTP.NOT_FOUND).json({ error: ERROR_MESSAGE.NO_COURSE_FOUND });
     }
   } catch (error) {
-    console.error('Error in /courses/getAll', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Could not retrieve courses' });
+    console.error(ERROR_MESSAGE.GET_ALL_COURSE, error);
+    res.status(HTTP.SERVER_ERR).json({ error: ERROR_MESSAGE.RETRIEVE_COURSE });
   }
 });
 

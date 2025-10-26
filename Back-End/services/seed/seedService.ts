@@ -1,6 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-import { readdir } from 'fs/promises';
+import fs from 'node:fs';
+import path from 'node:path';
+import { readdir } from 'node:fs/promises';
 import { Course } from '../../models/Course';
 import { Degree } from '../../models/Degree';
 import * as Sentry from '@sentry/node';
@@ -54,44 +54,59 @@ function parseRequirementsFile(filePath: string): DegreeData {
       requirements.push({
         poolId: uniquePoolName
           .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/-credits/g, ''),
+          .replaceAll(/[^a-z0-9]+/g, '-')
+          .replaceAll('-credits', ''),
         poolName: uniquePoolName,
         creditsRequired: currentCredits,
-        courseCodes: currentCourseCodes.filter((cc) => cc),
+        courseCodes: currentCourseCodes.filter(Boolean),
       });
     }
   }
 
-  for (const line of lines) {
-    if (!line || line.startsWith('#')) continue;
+  function processConfigLine(line: string) {
     if (line.includes('DegreeID=')) {
       degreeId = line.split('=')[1].trim();
-      continue;
+      return true;
     }
     if (line.includes('DegreeName=')) {
       degreeName = line.split('=')[1].trim();
-      continue;
+      return true;
     }
     if (line.includes('TotalCredits=')) {
-      totalCredits = parseFloat(line.split('=')[1].trim());
-      continue;
+      totalCredits = Number.parseFloat(line.split('=')[1].trim());
+      return true;
     }
     if (line.includes('Addon')) {
       isAddon = true;
-      continue;
+      return true;
     }
-    const bracketMatch = line.match(/^\[(.*)\]$/);
+    return false;
+  }
+
+  function processBracketLine(line: string) {
+    const bracketRegex = /^\[(.*)\]$/;
+    const bracketMatch = bracketRegex.exec(line);
     if (bracketMatch) {
       pushCurrentPool();
       currentPoolName = bracketMatch[1];
       currentCourseCodes = [];
-      const creditsMatch = currentPoolName.match(/\(([\d\.]+)\s*credits?\)/i);
-      currentCredits = creditsMatch ? parseFloat(creditsMatch[1]) : 0;
-      continue;
+      const creditsRegex = /\(([\d.]+)\s*credits?\)/i;
+      const creditsMatch = creditsRegex.exec(currentPoolName);
+      currentCredits = creditsMatch ? Number.parseFloat(creditsMatch[1]) : 0;
+      return true;
     }
+    return false;
+  }
+
+  for (const line of lines) {
+    if (!line || line.startsWith('#')) continue;
+
+    if (processConfigLine(line)) continue;
+    if (processBracketLine(line)) continue;
+
     currentCourseCodes.push(line);
   }
+
   pushCurrentPool();
   return { degreeId, degreeName, totalCredits, requirements, isAddon };
 }
@@ -136,9 +151,19 @@ function loadAllCourseJsons(dirPath: string): Map<string, CourseJson> {
 }
 
 function extractCodeFromTitle(title: string): string {
-  const match = title.match(/^([A-Z]{2,4})\s*(\d{3})/);
+  const titleRegex = /^([A-Z]{2,4})\s*(\d{3})/
+  const match = titleRegex.exec(title);
   if (!match) throw new Error(`Invalid course title format: "${title}"`);
   return `${match[1]}${match[2]}`.toUpperCase();
+}
+
+// isValidCourseCode checks if the code matches patterns like "CS101" or "MATH240"
+function isValidCourseCode(code: string): boolean {
+  return /^[A-Z]{2,4}\d{3}$/.test(code);
+}
+// isCreditRequirement checks if the code matches patterns like "60CR"
+function isCreditRequirement(code: string): boolean {
+  return /^\d+CR$/i.test(code);
 }
 
 // -------------------------------------
@@ -153,7 +178,7 @@ function parseRequisites(requisiteStr: string | undefined): string[] {
     return [];
   }
 
-  const cleanedStr = requisiteStr.replace(/[;\.]/g, ',');
+  const cleanedStr = requisiteStr.replaceAll(/[;.]/g, ',');
   const parts = cleanedStr
     .split(',')
     .map((part) => part.trim())
@@ -161,27 +186,29 @@ function parseRequisites(requisiteStr: string | undefined): string[] {
 
   const requisites: string[] = [];
 
+  function processCode(code: string): void {
+    const normalizedCode = code.replaceAll(/\s+/g, '').toUpperCase();
+    if (isValidCourseCode(normalizedCode)) {
+      requisites.push(normalizedCode);
+    } else if (!isCreditRequirement(normalizedCode)) {
+      console.warn(
+        `Invalid course code "${normalizedCode}" in requisites. Skipping.`,
+      );
+    }
+  }
+
+  function processAlternatives(part: string): void {
+    const alternatives = part.split('/').map((c) => c.trim());
+    for (const alt of alternatives) {
+      processCode(alt);
+    }
+  }
+
   for (const part of parts) {
-    // Handle alternatives with '/'
     if (part.includes('/')) {
-      const alternatives = part.split('/').map((c) => c.trim());
-      for (const alt of alternatives) {
-        const code = alt.replace(/\s+/g, '').toUpperCase();
-        if (/^[A-Z]{2,4}\d{3}$/.test(code)) {
-          requisites.push(code);
-        } else if (!/^\d+CR$/i.test(code)) {
-          console.warn(
-            `Invalid course code "${code}" in requisites. Skipping.`,
-          );
-        }
-      }
+      processAlternatives(part);
     } else {
-      const code = part.replace(/\s+/g, '').toUpperCase();
-      if (/^[A-Z]{2,4}\d{3}$/.test(code)) {
-        requisites.push(code);
-      } else if (!/^\d+CR$/i.test(code)) {
-        console.warn(`Invalid course code "${code}" in requisites. Skipping.`);
-      }
+      processCode(part);
     }
   }
 
@@ -243,12 +270,12 @@ async function upsertDegree(
           const separator = codeStr.includes('/') ? '/' : ',';
           const alternatives = codeStr
             .split(separator)
-            .map((c) => c.trim().toUpperCase().replace(/\s+/g, ''));
+            .map((c) => c.trim().toUpperCase().replaceAll(/\s+/g, ''));
           courses.push(
             ...alternatives.filter((c) => /^[A-Z]{2,4}\d{3}$/.test(c)),
           );
         } else {
-          const code = codeStr.toUpperCase().replace(/\s+/g, '');
+          const code = codeStr.toUpperCase().replaceAll(/\s+/g, '');
           // Only add valid course codes (skip credit requirements like "60CR")
           if (/^[A-Z]{2,4}\d{3}$/.test(code)) {
             courses.push(code);
@@ -365,13 +392,14 @@ export async function seedDatabase(): Promise<void> {
 
 // If running from command line: `ts-node seedService.ts`
 if (require.main === module) {
-  seedDatabase()
-    .then(() => {
+  (async () => { // NOSONAR - need to use async IIFE here due to top-level await not being supported everywhere
+    try {
+      await seedDatabase();
       console.log('Seed completed');
       process.exit(0);
-    })
-    .catch((err) => {
+    } catch (err) {
       console.error('Seed failed:', err);
       process.exit(1);
-    });
+    }
+  })();
 }

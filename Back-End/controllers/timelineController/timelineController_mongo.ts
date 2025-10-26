@@ -72,15 +72,14 @@ export async function saveTimeline(
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     ).lean();
-
     return {
-      id: updatedTimeline._id.toString(),
+      id: updatedTimeline._id.toString(), // NOSONAR - must convert ObjectId to string
       user_id: updatedTimeline.user_id,
       name: updatedTimeline.name,
       degree_id: updatedTimeline.degree_id,
       items: updatedTimeline.items.map((item: ITimelineItem) => ({
         id: item._id?.toString(),
-        season: item.season as TimelineTypes.TimelineItem['season'],
+        season: item.season,
         year: item.year,
         courses: item.courses,
       })),
@@ -104,13 +103,13 @@ export async function getTimelinesByUser(
     const timelines = await TimelineModel.find({ user_id }).lean();
 
     return timelines.map((t) => ({
-      id: t._id.toString(),
+      id: t._id.toString(), // NOSONAR - must convert ObjectId to string
       user_id: t.user_id,
       name: t.name,
       degree_id: t.degree_id,
       items: t.items.map((item: ITimelineItem) => ({
         id: item._id?.toString(),
-        season: item.season as TimelineTypes.TimelineItem['season'],
+        season: item.season,
         year: item.year,
         courses: item.courses,
       })),
