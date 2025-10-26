@@ -142,6 +142,9 @@ describe('UserPage', () => {
       expect(screen.getByText('Plan A')).toBeInTheDocument();
       expect(screen.getByText('Plan B')).toBeInTheDocument();
     });
+
+    // "+" Add New Timeline link should exist when list is rendered
+    expect(screen.getByText('+')).toBeInTheDocument();
   });
 
   test('clicking a timeline calls utils and navigates to /timeline_change', async () => {
@@ -159,6 +162,11 @@ describe('UserPage', () => {
     getDegreeCredits.mockResolvedValueOnce(120);
 
     const onDataProcessed = jest.fn();
+
+    // Spy on localStorage writes (UserPage writes Timeline_Name twice)
+    const lsSpy = jest.spyOn(window.localStorage.__proto__, 'setItem');
+    lsSpy.mockImplementation(() => {});
+
     renderWithProviders({ user: baseUser, onDataProcessed });
 
     const name = await screen.findByText('Plan A');
@@ -168,6 +176,12 @@ describe('UserPage', () => {
     expect(getDegreeCredits).toHaveBeenCalledWith('deg-1');
     expect(buildTranscriptData).toHaveBeenCalledWith(timelines[0].items);
     expect(Router.__mocked.navigate).toHaveBeenCalledWith('/timeline_change');
+
+    // Ensure both setItem calls occurred for Timeline_Name
+    const timelineNameCalls = lsSpy.mock.calls.filter(([k]) => k === 'Timeline_Name');
+    expect(timelineNameCalls.length).toBeGreaterThanOrEqual(1);
+
+    lsSpy.mockRestore();
   });
 
   test('clicking trash opens modal and does not navigate', async () => {
@@ -213,6 +227,53 @@ describe('UserPage', () => {
     expect(screen.getByText('Plan B')).toBeInTheDocument();
   });
 
+  test('cancel in delete modal does not delete', async () => {
+    const timelines = [{ id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z', items: [] }];
+    getUserTimelines.mockResolvedValueOnce(timelines);
+
+    renderWithProviders({ user: baseUser });
+
+    const rowTitle = await screen.findByText('Plan A');
+    const row = rowTitle.closest('.timeline-box') || rowTitle.parentElement;
+    const trash = within(row).getByTestId('trash-logo');
+    const delBtn = trash.closest('button');
+    fireEvent.click(delBtn);
+
+    const modal = await screen.findByTestId('delete-modal');
+    const cancel = within(modal).getByRole('button', { name: /^Cancel$/i });
+    fireEvent.click(cancel);
+
+    expect(deleteTimelineById).not.toHaveBeenCalled();
+    // modal closed
+    await waitFor(() => expect(screen.queryByTestId('delete-modal')).not.toBeInTheDocument());
+  });
+
+  test('degree credits failure falls back to 120 and still navigates', async () => {
+    const timelines = [
+      {
+        id: 't1',
+        name: 'Plan A',
+        last_modified: '2025-10-02T10:00:00Z',
+        degree_id: 'deg-1',
+        isExtendedCredit: false,
+        items: [{ season: 'Fall', year: '2025', courses: [] }],
+      },
+    ];
+    getUserTimelines.mockResolvedValueOnce(timelines);
+    getDegreeCredits.mockResolvedValueOnce(null); // simulate failure -> fallback to 120
+
+    const onDataProcessed = jest.fn();
+    renderWithProviders({ user: baseUser, onDataProcessed });
+
+    const name = await screen.findByText('Plan A');
+    fireEvent.click(name);
+
+    await waitFor(() => expect(onDataProcessed).toHaveBeenCalled());
+    const payload = onDataProcessed.mock.calls[0][0];
+    expect(payload.creditsRequired).toBe(120);
+    expect(Router.__mocked.navigate).toHaveBeenCalledWith('/timeline_change');
+  });
+
   test('non-student does not fetch timelines and shows empty state link', async () => {
     const advisor = { ...baseUser, type: 'advisor' };
     renderWithProviders({ user: advisor });
@@ -221,5 +282,11 @@ describe('UserPage', () => {
     await waitFor(() =>
       expect(screen.getByText(/You haven't saved any timelines yet/i)).toBeInTheDocument()
     );
+  });
+
+  test('redirects to /signin when user is falsy and renders nothing', async () => {
+    renderWithProviders({ user: null });
+    // useEffect should call navigate('/signin')
+    await waitFor(() => expect(Router.__mocked.navigate).toHaveBeenCalledWith('/signin'));
   });
 });
