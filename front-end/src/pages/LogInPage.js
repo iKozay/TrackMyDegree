@@ -44,7 +44,8 @@ function LogInPage() {
 
     try {
       // Use API function from auth_api.js
-      const data = await loginUser(email, hashPassword(password));
+      const hashed_password = await hashPassword(password);
+      const data = await loginUser(email, hashed_password);
 
       // Assuming the API returns an authentication token and user data
       login(data); // Pass the received data to the login function

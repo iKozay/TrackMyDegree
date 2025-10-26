@@ -44,7 +44,8 @@ function SignUpPage() {
 
     try {
       // Use API function from auth_api.js
-      const data = await signupUser(fullname, email, hashPassword(password), userType);
+      const hashedPassword = await hashPassword(password);
+      const data = await signupUser(fullname, email, hashedPassword, userType);
 
       // Assuming the API returns some form of authentication token or user data
       // You might want to store the token in context or localStorage here
