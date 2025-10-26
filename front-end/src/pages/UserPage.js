@@ -16,7 +16,7 @@ import {
   getUserTimelines,
   deleteTimelineById,
   buildTranscriptData,
-} from '../utils/UserPageUtils';
+} from '../api/UserPageApi';
 
 const UserPage = ({ onDataProcessed }) => {
   const { user } = useContext(AuthContext);

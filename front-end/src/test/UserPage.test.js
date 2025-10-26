@@ -42,7 +42,7 @@ jest.mock('../icons/trashlogo', () => {
 });
 
 /* ---------------- Mock utils used by UserPage ---------------- */
-jest.mock('../utils/UserPageUtils', () => ({
+jest.mock('../api/UserPageApi', () => ({
   getDegreeCredits: jest.fn(),
   getUserTimelines: jest.fn(),
   deleteTimelineById: jest.fn(),
@@ -54,7 +54,7 @@ import {
   getUserTimelines,
   deleteTimelineById,
   buildTranscriptData,
-} from '../utils/UserPageUtils';
+} from '../api/UserPageApi';
 
 /* ---------------- Helpers ---------------- */
 function renderWithProviders({ user, onDataProcessed = jest.fn() } = {}) {
