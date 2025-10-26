@@ -88,6 +88,18 @@ describe('BaseMongoController', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
     });
+
+    it('should handle non-Error exceptions during create', async () => {
+      const originalCreate = TestModel.create;
+      TestModel.create = jest.fn().mockRejectedValue('String error');
+
+      const result = await testController.create({ name: 'Test', email: 'test@example.com' });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Creation failed');
+
+      TestModel.create = originalCreate;
+    });
   });
 
   describe('findById', () => {
@@ -187,6 +199,22 @@ describe('BaseMongoController', () => {
       expect(result.success).toBe(false);
       expect(result.error).toBe('TestModel not found');
     });
+
+    it('should handle database errors in findOne catch block', async () => {
+      const originalFindOne = TestModel.findOne;
+      TestModel.findOne = jest.fn(() => ({
+        select: jest.fn().mockReturnThis(),
+        lean: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockRejectedValue(new Error('Query failed')),
+      }));
+
+      const result = await testController.findOne({ email: 'alice@example.com' });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Query failed');
+
+      TestModel.findOne = originalFindOne;
+    });
   });
 
   describe('findAll', () => {
@@ -224,6 +252,25 @@ describe('BaseMongoController', () => {
       expect(result.data[0].name).toBe('Alice');
     });
 
+    it('should skip search when fields are not provided', async () => {
+      const result = await testController.findAll({}, {
+        search: 'alice'
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.data).toHaveLength(4);
+    });
+
+    it('should skip search when fields array is empty', async () => {
+      const result = await testController.findAll({}, {
+        search: 'alice',
+        fields: []
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.data).toHaveLength(4);
+    });
+
     it('should find documents with pagination', async () => {
       const result = await testController.findAll({}, {
         page: 1,
@@ -232,6 +279,24 @@ describe('BaseMongoController', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toHaveLength(2);
+    });
+
+    it('should ignore pagination when limit is missing', async () => {
+      const result = await testController.findAll({}, {
+        page: 1
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.data).toHaveLength(4);
+    });
+
+    it('should ignore pagination when page is missing', async () => {
+      const result = await testController.findAll({}, {
+        limit: 2
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.data).toHaveLength(4);
     });
 
     it('should find documents with sorting', async () => {
@@ -263,6 +328,26 @@ describe('BaseMongoController', () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toHaveLength(2);
+    });
+
+    it('should handle database errors in findAll catch block', async () => {
+      const originalFind = TestModel.find;
+      TestModel.find = jest.fn(() => ({
+        or: jest.fn().mockReturnThis(),
+        select: jest.fn().mockReturnThis(),
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        lean: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockRejectedValue(new Error('Query failed')),
+      }));
+
+      const result = await testController.findAll();
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Query failed');
+
+      TestModel.find = originalFind;
     });
   });
 
@@ -301,6 +386,21 @@ describe('BaseMongoController', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
+    });
+
+    it('should handle database errors in updateById catch block', async () => {
+      const originalFindByIdAndUpdate = TestModel.findByIdAndUpdate;
+      TestModel.findByIdAndUpdate = jest.fn(() => ({
+        lean: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockRejectedValue(new Error('Update failed')),
+      }));
+
+      const result = await testController.updateById(testDoc._id.toString(), { name: 'New Name' });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Update failed');
+
+      TestModel.findByIdAndUpdate = originalFindByIdAndUpdate;
     });
   });
 
@@ -375,6 +475,21 @@ describe('BaseMongoController', () => {
       expect(result.success).toBe(true);
       expect(result.data.age).toBe(25);
       expect(result.data.name).toBe('Existing User');
+    });
+
+    it('should handle database errors in upsert catch block', async () => {
+      const originalFindOneAndUpdate = TestModel.findOneAndUpdate;
+      TestModel.findOneAndUpdate = jest.fn(() => ({
+        lean: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockRejectedValue(new Error('Upsert failed')),
+      }));
+
+      const result = await testController.upsert({ email: 'test@example.com' }, { age: 25 });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Upsert failed');
+
+      TestModel.findOneAndUpdate = originalFindOneAndUpdate;
     });
   });
 
@@ -581,6 +696,20 @@ describe('BaseMongoController', () => {
       expect(result.success).toBe(true);
       expect(result.data).toBe(false);
     });
+
+    it('should handle database errors in exists catch block', async () => {
+      const originalExists = TestModel.exists;
+      TestModel.exists = jest.fn(() => ({
+        exec: jest.fn().mockRejectedValue(new Error('Exists check failed')),
+      }));
+
+      const result = await testController.exists({ email: 'test@example.com' });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Exists check failed');
+
+      TestModel.exists = originalExists;
+    });
   });
 
   describe('bulkCreate', () => {
@@ -671,6 +800,20 @@ describe('BaseMongoController', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
+    });
+
+    it('should handle non-Error exceptions during aggregate', async () => {
+      const originalAggregate = TestModel.aggregate;
+      TestModel.aggregate = jest.fn(() => ({
+        exec: jest.fn().mockRejectedValue('String error'),
+      }));
+
+      const result = await testController.aggregate([{ $match: {} }]);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Aggregation failed');
+
+      TestModel.aggregate = originalAggregate;
     });
   });
 
