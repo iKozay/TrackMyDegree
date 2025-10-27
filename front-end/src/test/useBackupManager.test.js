@@ -1,5 +1,5 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
-import useBackupManager from '../useBackupManager';
+import useBackupManager from '../pages/AdminPage/hooks/useBackupManager';
 
 // Mock fetch
 global.fetch = jest.fn();

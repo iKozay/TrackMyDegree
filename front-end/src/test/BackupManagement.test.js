@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import BackupManagement from '../BackupManagement';
+import BackupManagement from '../pages/AdminPage/components/BackupManagement';
 
 // Mock window.alert
 global.alert = jest.fn();
