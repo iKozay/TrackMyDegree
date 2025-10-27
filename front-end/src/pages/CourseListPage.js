@@ -7,7 +7,7 @@ import CourseListAccordion from '../components/CourseListAccordion';
 import './css/CourseListPage.css';
 
 // Custom hooks
-import useDegrees from './CourseListPage/hooks/useDegrees';
+import useDegrees from './CourseListPage/hooks/useDegree';
 import useCourses from './CourseListPage/hooks/useCourses';
 import useResponsive from './CourseListPage/hooks/useResponsive';
 
