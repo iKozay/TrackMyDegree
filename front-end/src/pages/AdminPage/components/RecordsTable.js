@@ -1,6 +1,6 @@
 import React from 'react';
 import { Col, Table, Alert } from 'react-bootstrap';
-import SearchBar from './SearchBar';
+import SearchBar from '../../../components/SearchBar';
 
 /**
  * Component for displaying table records

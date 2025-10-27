@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { AdminPageError } from '../middleware/SentryErrors';
+import { AdminPageError } from '../../../middleware/SentryErrors';
 
 /**
  * Custom hook for fetching and managing table records
