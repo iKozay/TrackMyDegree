@@ -8,7 +8,7 @@ const DeficiencySchema = new Schema({
 const UserSchema = new Schema({
   _id: { type: String },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String, default: null },
   fullname: { type: String, required: true },
   degree: { type: String, ref: 'Degree' },
   type: { type: String, enum: ['student', 'advisor', 'admin'], required: true },

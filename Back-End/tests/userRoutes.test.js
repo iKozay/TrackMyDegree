@@ -94,6 +94,7 @@ describe('User Routes', () => {
 
     it('should return 409 for duplicate email', async () => {
       await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'existing@example.com',
         fullname: 'Existing User',
         type: 'student'
@@ -141,6 +142,7 @@ describe('User Routes', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
@@ -194,12 +196,14 @@ describe('User Routes', () => {
     beforeEach(async () => {
       await User.create([
         {
+          _id: new mongoose.Types.ObjectId().toString(),
           email: 'user1@example.com',
           fullname: 'User One',
           type: 'student',
           degree: 'COMP'
         },
         {
+          _id: new mongoose.Types.ObjectId().toString(),
           email: 'user2@example.com',
           fullname: 'User Two',
           type: 'advisor',
@@ -243,6 +247,7 @@ describe('User Routes', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
@@ -301,6 +306,7 @@ describe('User Routes', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         fullname: 'Test User',
 
@@ -378,6 +384,7 @@ describe('User Routes', () => {
       });
 
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
@@ -420,34 +427,32 @@ describe('User Routes', () => {
         name: 'Computer Science',
         totalCredits: 120
       });
-    it('should return 400 for missing coursepool', async () => {
-      const deficiencyData = {
-        creditsRequired: 6
-      };
+    });
+
+    it('should return 404 for non-existent user', async () => {
+      const fakeId = new mongoose.Types.ObjectId().toString();
+      const response = await request(app)
+        .get(`/users/${fakeId}/data`)
+        .expect(404);
+
+      expect(response.body.error).toContain('does not exist');
+    });
+
+    it('should handle server errors', async () => {
+      // Mock userController.getUserData to throw an error
+      const originalGetUserData = require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData = jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
-        .post(`/users/${testUser._id}/deficiencies`)
-        .send(deficiencyData)
-        .expect(400);
+        .get(`/users/${testUser._id}/data`)
+        .expect(500);
 
-      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
+      expect(response.body.error).toBe('Internal server error');
+
+      // Restore original method
+      require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData = originalGetUserData;
     });
-
-    it('should return 400 for invalid creditsRequired type', async () => {
-      const deficiencyData = {
-        coursepool: 'Math',
-        creditsRequired: 'invalid'
-      };
-
-      const response = await request(app)
-        .post(`/users/${testUser._id}/deficiencies`)
-        .send(deficiencyData)
-        .expect(400);
-
-      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
-    });
-
-    });
+  });
 
     it('should return 404 for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
@@ -479,6 +484,7 @@ describe('User Routes', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: 'hashedpassword',
         fullname: 'Test User',
@@ -518,21 +524,6 @@ describe('User Routes', () => {
         .expect(400);
 
       expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
-    it('should return empty array for user with no deficiencies', async () => {
-      const userNoDeficiencies = await User.create({
-        email: 'nodef@example.com',
-        fullname: 'No Deficiencies',
-        type: 'student',
-        deficiencies: []
-      });
-
-      const response = await request(app)
-        .get(`/users/${userNoDeficiencies._id}/deficiencies`)
-        .expect(200);
-
-      expect(response.body.deficiencies).toHaveLength(0);
-    });
-
     });
 
     it('should return 409 for duplicate deficiency', async () => {
@@ -593,6 +584,7 @@ describe('User Routes', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: 'hashedpassword',
         fullname: 'Test User',
@@ -674,6 +666,7 @@ describe('User Routes', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
@@ -728,6 +721,7 @@ describe('User Routes', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: 'hashedpassword',
         fullname: 'Test User',
@@ -800,6 +794,7 @@ describe('User Routes', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
@@ -863,6 +858,7 @@ describe('User Routes', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: 'hashedpassword',
         fullname: 'Test User',
@@ -954,6 +950,7 @@ describe('User Routes', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
@@ -976,6 +973,7 @@ describe('User Routes', () => {
 
     it('should return empty array for user with no exemptions', async () => {
       const userNoExemptions = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'noexemp@example.com',
         fullname: 'No Exemptions',
         type: 'student',
@@ -1017,6 +1015,7 @@ describe('User Routes', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
@@ -1081,6 +1080,7 @@ describe('User Routes', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
@@ -1489,6 +1489,4 @@ describe('User Routes', () => {
       });
     });
   });
-});
-
 });

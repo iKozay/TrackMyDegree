@@ -353,11 +353,6 @@ router.post(
       console.error('Error in POST /users/:userId/exemptions', error);
       if (error instanceof Error && error.message.includes('does not exist')) {
         res.status(HTTP.NOT_FOUND).json({ error: error.message });
-      } else if (
-        error instanceof Error &&
-        error.message.includes('does not exist')
-      ) {
-        res.status(HTTP.NOT_FOUND).json({ error: error.message });
       } else {
         res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
       }
