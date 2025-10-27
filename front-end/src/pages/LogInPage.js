@@ -32,41 +32,19 @@ function LogInPage() {
     setError(null);
     await new Promise((resolve) => setTimeout(resolve, 10));
 
-    // Basic validation checks
-    if (email.trim() === '' || password.trim() === '') {
-      setError('Both email and password are required.');
-      return;
-    }
-
-    // Simple email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address.');
+    // Validate form using authUtils
+    const validationErrors = validateLoginForm(email, password);
+    if (validationErrors.length > 0) {
+      setError(validationErrors[0]); // Display first error
       return;
     }
 
     setLoading(true); // Start loading
 
     try {
-      const response = await fetch(`${REACT_APP_SERVER}/auth/login`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      if (!response.ok) {
-        // Extract error message from response
-        const errorData = await response.json();
-        throw new LoginError(errorData.message || 'Failed to log in.');
-      }
-
-      const data = await response.json();
+      // Use API function from auth_api.js
+      const hashed_password = await hashPassword(password);
+      const data = await loginUser(email, hashed_password);
 
       // Assuming the API returns an authentication token and user data
       login(data); // Pass the received data to the login function
