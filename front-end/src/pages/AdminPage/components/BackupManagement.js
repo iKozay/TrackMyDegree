@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Row, Col, Button, Form } from 'react-bootstrap';
 
 /**
@@ -6,8 +7,8 @@ import { Row, Col, Button, Form } from 'react-bootstrap';
  * Displays controls for creating, restoring, and deleting backups
  */
 const BackupManagement = ({
-  backups,
-  selectedBackup,
+  backups = [],
+  selectedBackup = '',
   onBackupSelect,
   onCreateBackup,
   onRestoreBackup,
@@ -41,6 +42,7 @@ const BackupManagement = ({
           >
             Create Backup
           </Button>
+
           <Form.Select
             value={selectedBackup}
             onChange={(e) => onBackupSelect(e.target.value)}
@@ -48,12 +50,13 @@ const BackupManagement = ({
             disabled={loading}
           >
             <option value="">Select a backup...</option>
-            {backups.map((backup) => (
+            {Array.isArray(backups) && backups.map((backup) => (
               <option key={backup} value={backup}>
                 {backup}
               </option>
             ))}
           </Form.Select>
+
           <Button
             variant="success"
             onClick={handleRestore}
@@ -61,6 +64,7 @@ const BackupManagement = ({
           >
             Restore Backup
           </Button>
+
           <Button
             variant="danger"
             onClick={handleDelete}
@@ -72,6 +76,16 @@ const BackupManagement = ({
       </Col>
     </Row>
   );
+};
+
+BackupManagement.propTypes = {
+  backups: PropTypes.arrayOf(PropTypes.string),
+  selectedBackup: PropTypes.string,
+  onBackupSelect: PropTypes.func.isRequired,
+  onCreateBackup: PropTypes.func.isRequired,
+  onRestoreBackup: PropTypes.func.isRequired,
+  onDeleteBackup: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
 };
 
 export default BackupManagement;
