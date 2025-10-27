@@ -1,6 +1,7 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Col, Table, Alert } from 'react-bootstrap';
-import SearchBar from './SearchBar';
+import SearchBar from '../../../components/SearchBar';
 
 /**
  * Component for displaying table records
@@ -8,8 +9,8 @@ import SearchBar from './SearchBar';
  */
 const RecordsTable = ({
   selectedTable,
-  records,
-  columns,
+  records = [],
+  columns = [],
   onSearch,
 }) => {
   if (!selectedTable) {
@@ -33,27 +34,46 @@ const RecordsTable = ({
           <Table striped bordered hover responsive className="records-table">
             <thead>
               <tr>
-                {columns.map((col) => (
-                  <th key={col}>{col}</th>
-                ))}
+                {Array.isArray(columns) &&
+                  columns.map((col) => (
+                    <th key={col}>{col}</th>
+                  ))}
               </tr>
             </thead>
             <tbody>
-              {records.map((record, idx) => (
-                <tr key={idx}>
-                  {columns.map((col) => (
-                    <td key={col} data-label={col}>
-                      {record[col]}
-                    </td>
-                  ))}
-                </tr>
-              ))}
+              {Array.isArray(records) &&
+                records.map((record) => (
+                  <tr key={record.id || record._id || JSON.stringify(record)}>
+                    {columns.map((col) => (
+                      <td key={col} data-label={col}>
+                        {record[col]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
             </tbody>
           </Table>
         )}
       </div>
     </Col>
   );
+};
+
+/**
+ * Prop type validation for RecordsTable
+ */
+RecordsTable.propTypes = {
+  /** Name of the selected table */
+  selectedTable: PropTypes.string,
+
+  /** Array of record objects to display */
+  records: PropTypes.arrayOf(PropTypes.object),
+
+  /** Array of column names to display as headers */
+  columns: PropTypes.arrayOf(PropTypes.string),
+
+  /** Function triggered when user searches */
+  onSearch: PropTypes.func,
 };
 
 export default RecordsTable;

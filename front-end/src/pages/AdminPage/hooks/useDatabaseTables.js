@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AdminPageError } from '../middleware/SentryErrors';
+import { AdminPageError } from '../../../middleware/SentryErrors';
 
 /**
  * Custom hook for managing database tables

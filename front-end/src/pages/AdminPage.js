@@ -1,12 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Spinner, Alert, Button } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import { AdminPageError } from '../middleware/SentryErrors';
-import { useNavigate } from 'react-router-dom';
-import { Button, Form } from 'react-bootstrap';
+import '../css/AdminPage.css';
 
-const REACT_APP_SERVER = process.env.REACT_APP_SERVER || 'http://localhost:8000';
-//This page is an admin dashboard for manipulating the database (CRUD). The page performs backups, deletes or restores them and can make the server seed data
+// Custom hooks
+import useBackupManager from 'front-end/src/pages/AdminPage/hooks/useBackupManager';
+import useDatabaseTables from 'front-end/src/pages/AdminPage/hooks/useDatabaseTables';
+import useTableRecords from 'front-end/src/pages/AdminPage/hooks/useTableRecords';
+
+// Components
+import BackupManagement from 'front-end/src/pages/AdminPage/components/BackupManagement';
+import TablesList from 'front-end/src/pages/AdminPage/components/TableList';
+import RecordsTable from 'front-end/src/pages/AdminPage/components/RecordsTable';
+
+/**
+ * Admin dashboard for database management
+ * Handles CRUD operations, backups, and data seeding
+ */
 const AdminPage = () => {
   // Custom hooks for state management
   const backupManager = useBackupManager();
@@ -30,7 +40,7 @@ const AdminPage = () => {
   const handleSeedData = async () => {
     setSeedLoading(true);
     try {
-      const response = await fetch(`${REACT_APP_SERVER}/admin/seed-data`, {
+      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/seed-data`, {
         method: 'POST',
         credentials: 'include',
       });
