@@ -133,10 +133,18 @@ export class UserController extends BaseMongoController<any> {
 
   /**
    * Update user information
+   * Note: User type cannot be updated through this method for security reasons
    */
   async updateUser(id: string, updates: Partial<UserData>) {
     try {
-      const result = await this.updateById(id, updates);
+      // Remove type from updates to prevent unauthorized user type changes
+      const { type, ...safeUpdates } = updates;
+      
+      if (type !== undefined) {
+        console.warn(`Attempted to update user type for user ${id}. This change was blocked.`);
+      }
+
+      const result = await this.updateById(id, safeUpdates);
 
       if (!result.success) {
         throw new Error('User with this id does not exist.');
@@ -148,7 +156,6 @@ export class UserController extends BaseMongoController<any> {
         password: result.data.password,
         fullname: result.data.fullname,
         degree: result.data.degree,
-        type: result.data.type,
       };
     } catch (error) {
       this.handleError(error, 'updateUser');
