@@ -1,7 +1,7 @@
 // src/test/useDatabaseTables.test.js
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useNavigate } from 'react-router-dom';
-import useDatabaseTables from '../pages/AdminPage/hooks/useDatabaseTables';
+import useDatabaseTables from '../../pages/AdminPage/hooks/useDatabaseTables';
 
 // Mock fetch and useNavigate
 global.fetch = jest.fn();

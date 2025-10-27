@@ -1,6 +1,6 @@
 // src/pages/AdminPage/hooks/__tests__/useTableRecords.test.js
 import { renderHook, act, waitFor } from '@testing-library/react';
-import useTableRecords from '../pages/AdminPage/hooks/useTableRecords';
+import useTableRecords from '../../pages/AdminPage/hooks/useTableRecords';
 
 // Mock fetch
 global.fetch = jest.fn();

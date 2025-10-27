@@ -1,7 +1,7 @@
 // src/test/TablesList.test.js
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import TablesList from '../pages/AdminPage/components/TableList';
+import TablesList from '../../pages/AdminPage/components/TableList';
 
 describe('TablesList Component', () => {
   const mockTables = ['users', 'courses', 'degrees', 'prerequisites'];

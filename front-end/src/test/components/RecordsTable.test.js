@@ -1,10 +1,11 @@
 // src/test/RecordsTable.test.js
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import RecordsTable from '../pages/AdminPage/components/RecordsTable';
+import RecordsTable from '../../pages/AdminPage/components/RecordsTable';
+
 
 // Mock SearchBar component
-jest.mock('../components/SearchBar', () => {
+jest.mock('front-end/src/components/SearchBar', () => {
   return function MockSearchBar({ onSearch }) {
     return (
       <input

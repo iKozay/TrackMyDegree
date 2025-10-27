@@ -2,7 +2,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import AdminPage from '../AdminPage';
+import AdminPage from 'front-end/src/pages/AdminPage';
 
 // Mock fetch
 global.fetch = jest.fn();
@@ -16,7 +16,7 @@ jest.mock('framer-motion', () => ({
 }));
 
 // Mock SearchBar
-jest.mock('../SearchBar', () => {
+jest.mock('../components/SearchBar', () => {
   return function MockSearchBar({ onSearch }) {
     return (
       <input
