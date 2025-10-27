@@ -4,6 +4,7 @@ import degreeController from '@controllers/degreeController/degreeController';
 import DegreeXCPController from '@controllers/DegreeXCPController/DegreeXCPController';
 import CourseXCPController from '@controllers/CourseXCPController/CourseXCPController';
 
+const DEGREE_NOT_EXIST = 'Degree with this id does not exist.';
 const router = express.Router();
 
 router.post('/create', async (req: Request, res: Response) => {
@@ -74,10 +75,7 @@ router.get('/read', async (req: Request, res: Response) => {
     });
   } catch (error) {
     // Handle errors from the service
-    if (
-      error instanceof Error &&
-      error.message === 'Degree with this id does not exist.'
-    ) {
+    if (error instanceof Error && error.message === DEGREE_NOT_EXIST) {
       res.status(HTTP.FORBIDDEN).json({ error: error.message });
     } else {
       const errMsg = 'Internal server error in /degree/read';
@@ -119,10 +117,7 @@ router.put('/update', async (req: Request, res: Response) => {
     });
   } catch (error) {
     // Handle errors from the service
-    if (
-      error instanceof Error &&
-      error.message === 'Degree with this id does not exist.'
-    ) {
+    if (error instanceof Error && error.message === DEGREE_NOT_EXIST) {
       res.status(HTTP.FORBIDDEN).json({ error: error.message });
     } else {
       const errMsg = 'Internal server error in /degree/update';
@@ -154,10 +149,7 @@ router.post('/delete', async (req: Request, res: Response) => {
     });
   } catch (error) {
     // Handle errors from the service
-    if (
-      error instanceof Error &&
-      error.message === 'Degree with this id does not exist.'
-    ) {
+    if (error instanceof Error && error.message === DEGREE_NOT_EXIST) {
       res.status(HTTP.FORBIDDEN).json({ error: error.message });
     } else {
       const errMsg = 'Internal server error in /degree/delete';
@@ -193,13 +185,12 @@ router.post('/getPools', async (req: Request, res: Response) => {
 
     if (result && result.course_pools.length > 0) {
       const { course_pools } = result;
-      let degree_coursepools: any = {};
+      let degree_coursepools: Record<string, string[]> = {};
 
-      for (let i = 0; i < course_pools.length; i++) {
-        const { id, name } = course_pools[i];
+      for (const { id, name } of course_pools) {
         const pools = Object.keys(degree_coursepools);
 
-        if (!pools.find((item) => name === item)) {
+        if (!pools.includes(name)) {
           degree_coursepools[name] = [];
         }
 
@@ -251,7 +242,7 @@ router.post('/getCredits', async (req: Request, res: Response) => {
       res.status(HTTP.NOT_FOUND).json({ error: 'Degree not found' });
       return;
     }
-    const totalCredits  = result;
+    const totalCredits = result;
     res.status(HTTP.OK).json({ totalCredits });
   } catch (error) {
     console.error('Error in /degree/getCredits', error);

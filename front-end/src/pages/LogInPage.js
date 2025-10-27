@@ -7,7 +7,8 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
-import { LoginError } from '../middleware/SentryErrors';
+import { loginUser } from '../api/auth_api';
+import { validateLoginForm, hashPassword } from '../utils/authUtils';
 
 //This is the login page with a standard form that is sent to the server for validation. Redirects to UserPage.js upon success
 function LogInPage() {
@@ -20,10 +21,10 @@ function LogInPage() {
   const [loading, setLoading] = useState(false); // To handle loading state
 
   useEffect(() => {
-    if(isLoggedIn) {
-      navigate("/user");
+    if (isLoggedIn) {
+      navigate('/user');
     }
-  });
+  },[isLoggedIn]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -32,44 +33,19 @@ function LogInPage() {
     setError(null);
     await new Promise((resolve) => setTimeout(resolve, 10));
 
-    // Basic validation checks
-    if (email.trim() === '' || password.trim() === '') {
-      setError('Both email and password are required.');
-      return;
-    }
-
-    // Simple email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address.');
+    // Validate form using authUtils
+    const validationErrors = validateLoginForm(email, password);
+    if (validationErrors.length > 0) {
+      setError(validationErrors[0]); // Display first error
       return;
     }
 
     setLoading(true); // Start loading
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER}/auth/login`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        // Extract error message from response
-        const errorData = await response.json();
-        throw new LoginError(errorData.message || 'Failed to log in.');
-      }
-
-      const data = await response.json();
+      // Use API function from auth_api.js
+      const hashed_password = await hashPassword(password);
+      const data = await loginUser(email, hashed_password);
 
       // Assuming the API returns an authentication token and user data
       login(data); // Pass the received data to the login function
@@ -82,12 +58,7 @@ function LogInPage() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.7 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
       <>
         {/* <Navbar /> Include Navbar if needed */}
         <div className="LogInPage">
@@ -126,12 +97,7 @@ function LogInPage() {
 
               {/* Submit Button */}
               <div className="d-grid gap-2">
-                <Button
-                  className="button-outline"
-                  variant="primary"
-                  type="submit"
-                  disabled={loading}
-                >
+                <Button className="button-outline" variant="primary" type="submit" disabled={loading}>
                   {loading ? 'Logging in...' : 'Submit'}
                 </Button>
               </div>
