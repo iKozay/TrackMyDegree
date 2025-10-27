@@ -133,6 +133,19 @@ describe('Course Routes (MongoDB)', () => {
 
       spy.mockRestore();
     });
+
+    it('should handle errors in getAllCourses directly', async () => {
+      const originalFindAll = courseController.findAll;
+      courseController.findAll = jest.fn().mockImplementation(() => {
+        throw new Error('Direct database error');
+      });
+
+      await expect(
+        courseController.getAllCourses({}),
+      ).rejects.toThrow('Direct database error');
+
+      courseController.findAll = originalFindAll;
+    });
   });
 
   describe('GET /courses/:code', () => {
@@ -188,6 +201,306 @@ describe('Course Routes (MongoDB)', () => {
       expect(response.body).toHaveProperty('error');
       spy.mockRestore();
       Course.findById = originalFindById;
+    });
+  });
+
+  describe('CourseController - Direct Tests', () => {
+    beforeEach(async () => {
+      await Course.create([
+        {
+          _id: 'COMP101',
+          title: 'Intro to Programming',
+          description: 'Basic programming',
+          credits: 3,
+          prerequisites: [],
+          corequisites: [],
+        },
+        {
+          _id: 'COMP201',
+          title: 'Data Structures',
+          description: 'Advanced data structures',
+          credits: 4,
+          prerequisites: [],
+          corequisites: [],
+        },
+        {
+          _id: 'MATH101',
+          title: 'Calculus I',
+          description: 'Introduction to calculus',
+          credits: 3,
+          prerequisites: [],
+          corequisites: [],
+        },
+      ]);
+    });
+
+    describe('getCoursesByPool', () => {
+      beforeEach(async () => {
+        await Course.deleteMany({});
+        await Course.create([
+          {
+            _id: 'COMP101',
+            title: 'Intro to Programming',
+            description: 'Basic programming course',
+            credits: 3,
+            offeredIn: 'Fall',
+          },
+          {
+            _id: 'COMP201',
+            title: 'Data Structures',
+            description: 'Advanced data structures course',
+            credits: 4,
+            offeredIn: 'Winter',
+          },
+          {
+            _id: 'MATH101',
+            title: 'Calculus I',
+            description: 'Introduction to calculus course',
+            credits: 3,
+            offeredIn: 'Fall',
+          },
+        ]);
+      });
+
+      it('should get courses by pool', async () => {
+        const courses = await courseController.getCoursesByPool('Fall');
+
+        expect(courses).toBeDefined();
+        expect(Array.isArray(courses)).toBe(true);
+        expect(courses.length).toBe(2);
+        expect(courses.some((c) => c._id === 'COMP101')).toBe(true);
+        expect(courses.some((c) => c._id === 'MATH101')).toBe(true);
+      });
+
+      it('should return empty array for non-existent pool', async () => {
+        const courses = await courseController.getCoursesByPool('Summer');
+
+        expect(courses).toEqual([]);
+      });
+
+      it('should handle errors gracefully', async () => {
+        const originalFindAll = courseController.findAll;
+        courseController.findAll = jest.fn().mockResolvedValue({
+          success: false,
+          error: 'Database error',
+        });
+
+        await expect(
+          courseController.getCoursesByPool('Fall'),
+        ).rejects.toThrow('Database error');
+
+        courseController.findAll = originalFindAll;
+      });
+    });
+
+    describe('getCourseByCode', () => {
+      it('should get course by code directly', async () => {
+        const course = await courseController.getCourseByCode('COMP101');
+
+        expect(course).toBeDefined();
+        expect(course._id).toBe('COMP101');
+        expect(course.title).toBe('Intro to Programming');
+      });
+
+      it('should throw error for non-existent course', async () => {
+        await expect(
+          courseController.getCourseByCode('NONEXIST'),
+        ).rejects.toThrow('Course not found');
+      });
+
+      it('should handle errors gracefully', async () => {
+        const originalFindById = courseController.findById;
+        courseController.findById = jest.fn().mockResolvedValue({
+          success: false,
+          error: 'Database error',
+        });
+
+        await expect(
+          courseController.getCourseByCode('COMP101'),
+        ).rejects.toThrow();
+
+        courseController.findById = originalFindById;
+      });
+    });
+
+    describe('createRequisite', () => {
+      it('should create a prerequisite successfully', async () => {
+        const result = await courseController.createRequisite(
+          'COMP201',
+          'COMP101',
+          'pre',
+        );
+
+        expect(result).toBeDefined();
+        expect(result.code1).toBe('COMP201');
+        expect(result.code2).toBe('COMP101');
+        expect(result.type).toBe('pre');
+
+        const course = await Course.findById('COMP201');
+        expect(course.prerequisites).toContain('COMP101');
+      });
+
+      it('should create a corequisite successfully', async () => {
+        const result = await courseController.createRequisite(
+          'COMP201',
+          'COMP101',
+          'co',
+        );
+
+        expect(result).toBeDefined();
+        expect(result.type).toBe('co');
+
+        const course = await Course.findById('COMP201');
+        expect(course.corequisites).toContain('COMP101');
+      });
+
+      it('should throw error if code1 does not exist', async () => {
+        await expect(
+          courseController.createRequisite('NONEXIST', 'COMP101', 'pre'),
+        ).rejects.toThrow("One or both courses ('NONEXIST', 'COMP101') do not exist.");
+      });
+
+      it('should throw error if code2 does not exist', async () => {
+        await expect(
+          courseController.createRequisite('COMP201', 'NONEXIST', 'pre'),
+        ).rejects.toThrow("One or both courses ('COMP201', 'NONEXIST') do not exist.");
+      });
+
+      it('should throw error if requisite already exists', async () => {
+        // First create the requisite
+        await courseController.createRequisite('COMP201', 'COMP101', 'pre');
+
+        // Try to create it again - should fail
+        await expect(
+          courseController.createRequisite('COMP201', 'COMP101', 'pre'),
+        ).rejects.toThrow('Requisite already exists or course not found.');
+      });
+
+      it('should handle errors gracefully', async () => {
+        // Mock Course.exists to throw an error
+        const originalExists = Course.exists;
+        Course.exists = jest.fn().mockImplementation(() => ({
+          exec: jest.fn().mockRejectedValue(new Error('Database error')),
+        }));
+
+        await expect(
+          courseController.createRequisite('COMP201', 'COMP101', 'pre'),
+        ).rejects.toThrow('Database error');
+
+        Course.exists = originalExists;
+      });
+    });
+
+    describe('getRequisites', () => {
+      beforeEach(async () => {
+        await Course.findByIdAndUpdate('COMP201', {
+          prerequisites: ['COMP101'],
+          corequisites: ['MATH101'],
+        });
+      });
+
+      it('should get all requisites for a course', async () => {
+        const requisites = await courseController.getRequisites('COMP201');
+
+        expect(requisites).toBeDefined();
+        expect(Array.isArray(requisites)).toBe(true);
+        expect(requisites.length).toBe(2);
+
+        const preReq = requisites.find(
+          (r) => r.code2 === 'COMP101' && r.type === 'pre',
+        );
+        const coReq = requisites.find(
+          (r) => r.code2 === 'MATH101' && r.type === 'co',
+        );
+
+        expect(preReq).toBeDefined();
+        expect(coReq).toBeDefined();
+      });
+
+      it('should throw error for non-existent course', async () => {
+        await expect(
+          courseController.getRequisites('NONEXIST'),
+        ).rejects.toThrow("Course 'NONEXIST' does not exist.");
+      });
+
+      it('should handle courses with no requisites', async () => {
+        const requisites = await courseController.getRequisites('COMP101');
+
+        expect(requisites).toBeDefined();
+        expect(Array.isArray(requisites)).toBe(true);
+        expect(requisites.length).toBe(0);
+      });
+
+      it('should handle errors gracefully', async () => {
+        const originalFindById = Course.findById;
+        Course.findById = jest.fn().mockReturnValue({
+          select: jest.fn().mockReturnValue({
+            lean: jest.fn().mockReturnValue({
+              exec: jest.fn().mockRejectedValue(new Error('Database error')),
+            }),
+          }),
+        });
+
+        await expect(
+          courseController.getRequisites('COMP201'),
+        ).rejects.toThrow();
+
+        Course.findById = originalFindById;
+      });
+    });
+
+    describe('deleteRequisite', () => {
+      beforeEach(async () => {
+        await Course.findByIdAndUpdate('COMP201', {
+          prerequisites: ['COMP101'],
+          corequisites: ['MATH101'],
+        });
+      });
+
+      it('should delete a prerequisite successfully', async () => {
+        const result = await courseController.deleteRequisite(
+          'COMP201',
+          'COMP101',
+          'pre',
+        );
+
+        expect(result).toBe('Requisite deleted successfully.');
+
+        const course = await Course.findById('COMP201');
+        expect(course.prerequisites).not.toContain('COMP101');
+      });
+
+      it('should delete a corequisite successfully', async () => {
+        const result = await courseController.deleteRequisite(
+          'COMP201',
+          'MATH101',
+          'co',
+        );
+
+        expect(result).toBe('Requisite deleted successfully.');
+
+        const course = await Course.findById('COMP201');
+        expect(course.corequisites).not.toContain('MATH101');
+      });
+
+      it('should throw error for non-existent requisite', async () => {
+        await expect(
+          courseController.deleteRequisite('COMP201', 'NONEXIST', 'pre'),
+        ).rejects.toThrow('Requisite not found or already deleted.');
+      });
+
+      it('should handle errors gracefully', async () => {
+        const originalUpdateOne = Course.updateOne;
+        Course.updateOne = jest.fn().mockReturnValue({
+          exec: jest.fn().mockRejectedValue(new Error('Database error')),
+        });
+
+        await expect(
+          courseController.deleteRequisite('COMP201', 'COMP101', 'pre'),
+        ).rejects.toThrow();
+
+        Course.updateOne = originalUpdateOne;
+      });
     });
   });
 });

@@ -385,5 +385,210 @@ describe('Admin Routes (MongoDB)', () => {
       }
     });
   });
+
+  describe('AdminController - Direct Tests and Edge Cases', () => {
+    let { adminController } = require('../dist/controllers/mondoDBControllers');
+
+    describe('getCollectionDocuments edge cases', () => {
+      beforeEach(async () => {
+        await User.create([
+          {
+            _id: 'user1',
+            email: 'test1@example.com',
+            password: 'pass1',
+            fullname: 'Test User 1',
+            type: 'student',
+          },
+          {
+            _id: 'user2',
+            email: 'test2@example.com',
+            password: 'pass2',
+            fullname: 'Test User 2',
+            type: 'student',
+          },
+          {
+            _id: 'user3',
+            email: 'admin@example.com',
+            password: 'pass3',
+            fullname: 'Admin User',
+            type: 'admin',
+          },
+        ]);
+      });
+
+      it('should handle projection correctly', async () => {
+        const documents = await adminController.getCollectionDocuments('users', {
+          select: ['email', 'type'],
+        });
+
+        expect(documents).toBeDefined();
+        expect(documents.length).toBeGreaterThan(0);
+        documents.forEach((doc) => {
+          expect(doc).toHaveProperty('email');
+          expect(doc).toHaveProperty('type');
+          expect(doc).not.toHaveProperty('fullname');
+        });
+      });
+
+      it('should handle empty collection with keyword search', async () => {
+        await User.deleteMany({});
+
+        const documents = await adminController.getCollectionDocuments('users', {
+          keyword: 'test',
+        });
+
+        expect(documents).toEqual([]);
+      });
+
+      it('should handle findOne returning undefined for no sample doc', async () => {
+        const originalFindOne = mongoose.connection.db.collection('users').findOne;
+        let callCount = 0;
+        
+        mongoose.connection.db.collection('users').findOne = jest.fn(() => {
+          if (callCount === 0) {
+            callCount++;
+            return Promise.resolve(undefined);
+          }
+          return originalFindOne.call(mongoose.connection.db.collection('users'));
+        });
+
+        const documents = await adminController.getCollectionDocuments('users', {
+          keyword: 'nonexistent',
+        });
+
+        expect(documents).toEqual([]);
+
+        mongoose.connection.db.collection('users').findOne = originalFindOne;
+      });
+
+      it('should handle sample doc with no string fields', async () => {
+        await User.deleteMany({});
+        await User.create({
+          _id: 'user1',
+          email: 'test@example.com',
+          password: 'pass',
+          fullname: 'Test',
+          type: 'student',
+          age: 25,
+          active: true,
+        });
+
+        const originalFindOne = mongoose.connection.db.collection('users').findOne;
+        mongoose.connection.db.collection('users').findOne = jest.fn().mockResolvedValueOnce({
+          _id: 'test',
+          age: 25,
+          active: true,
+        });
+
+        const documents = await adminController.getCollectionDocuments('users', {
+          keyword: 'test',
+        });
+
+        expect(documents).toEqual([]);
+
+        mongoose.connection.db.collection('users').findOne = originalFindOne;
+      });
+
+      it('should handle search with specific page and limit', async () => {
+        const documents = await adminController.getCollectionDocuments('users', {
+          page: 1,
+          limit: 2,
+        });
+
+        expect(documents.length).toBeLessThanOrEqual(2);
+      });
+
+      it('should handle database connection errors', async () => {
+        const originalDb = mongoose.connection.db;
+        mongoose.connection.db = null;
+
+        await expect(
+          adminController.getCollectionDocuments('users', {}),
+        ).rejects.toThrow('Database connection not available');
+
+        mongoose.connection.db = originalDb;
+      });
+    });
+
+    describe('getCollectionStats edge cases', () => {
+      it('should handle stats with zero values', async () => {
+        await User.deleteMany({});
+
+        const stats = await adminController.getCollectionStats('users');
+
+        expect(stats).toBeDefined();
+        expect(stats.count).toBe(0);
+        expect(stats.size).toBeGreaterThanOrEqual(0);
+        expect(stats.avgDocSize).toBeGreaterThanOrEqual(0);
+      });
+
+      it('should handle stats with missing fields', async () => {
+        const originalCommand = mongoose.connection.db.command;
+        mongoose.connection.db.command = jest.fn().mockResolvedValue({
+          // Missing count, size, avgObjSize
+        });
+
+        const stats = await adminController.getCollectionStats('users');
+
+        expect(stats.count).toBe(0);
+        expect(stats.size).toBe(0);
+        expect(stats.avgDocSize).toBe(0);
+
+        mongoose.connection.db.command = originalCommand;
+      });
+
+      it('should handle database connection errors', async () => {
+        const originalDb = mongoose.connection.db;
+        mongoose.connection.db = null;
+
+        await expect(
+          adminController.getCollectionStats('users'),
+        ).rejects.toThrow('Database connection not available');
+
+        mongoose.connection.db = originalDb;
+      });
+    });
+
+    describe('clearCollection edge cases', () => {
+      it('should handle database connection errors', async () => {
+        const originalDb = mongoose.connection.db;
+        mongoose.connection.db = null;
+
+        await expect(
+          adminController.clearCollection('users'),
+        ).rejects.toThrow('Database connection not available');
+
+        mongoose.connection.db = originalDb;
+      });
+
+      it('should handle deleteMany returning undefined deletedCount', async () => {
+        await User.deleteMany({});
+
+        const originalDeleteMany = mongoose.connection.db.collection('users').deleteMany;
+        mongoose.connection.db.collection('users').deleteMany = jest.fn().mockResolvedValue({
+          // Missing deletedCount
+        });
+
+        const count = await adminController.clearCollection('users');
+
+        expect(count).toBe(0);
+
+        mongoose.connection.db.collection('users').deleteMany = originalDeleteMany;
+      });
+    });
+
+    describe('getCollections edge cases', () => {
+      it('should handle database connection errors', async () => {
+        const originalDb = mongoose.connection.db;
+        mongoose.connection.db = null;
+
+        await expect(
+          adminController.getCollections(),
+        ).rejects.toThrow('Database connection not available');
+
+        mongoose.connection.db = originalDb;
+      });
+    });
+  });
 });
 
