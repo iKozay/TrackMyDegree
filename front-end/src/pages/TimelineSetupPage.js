@@ -1,4 +1,4 @@
-import '../css/UploadAcceptanceLetter.css';
+import '../css/TimelineSetupPage.css';
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from "prop-types";
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +10,7 @@ import { parsePdfFile, extractAcceptanceDetails } from '../utils/AcceptanceUtils
 
 //This page creates an initial timeline using either manually entered information or by parsing an acceptance letter
 /**
- * UploadAcceptanceLetterPage Component - Dual-mode timeline creation page
+ * TimelineSetupPage Component - Dual-mode timeline creation page
  *
  * Two creation paths:
  * 1. Manual Form: User selects degree, starting term/year, and program options (Co-op/Extended Credit)
@@ -30,7 +30,7 @@ import { parsePdfFile, extractAcceptanceDetails } from '../utils/AcceptanceUtils
  */
 const REACT_APP_SERVER = process.env.REACT_APP_SERVER || 'http://localhost:8000';
 
-const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
+const TimelineSetupPage = ({ onDataProcessed }) => {
   const isFirstRender = useRef(true);
   const [degrees, setDegrees] = useState([]);
   const navigate = useNavigate();
@@ -125,8 +125,8 @@ const UploadAcceptanceLetterPage = ({ onDataProcessed }) => {
     </motion.div>
   );
 };
-UploadAcceptanceLetterPage.propTypes = {
+TimelineSetupPage.propTypes = {
   onDataProcessed: PropTypes.func,
 };
 
-export default UploadAcceptanceLetterPage;
+export default TimelineSetupPage;

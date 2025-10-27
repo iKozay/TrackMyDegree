@@ -1,4 +1,4 @@
-import '../css/UploadAcceptanceLetter.css';
+import '../css/TimelineSetupPage.css';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 

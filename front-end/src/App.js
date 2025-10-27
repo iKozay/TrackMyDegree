@@ -7,7 +7,7 @@ import SignUpPage from './pages/SignUpPage';
 import UserPage from './pages/UserPage';
 import CourseList from './pages/CourseListPage';
 import UploadTranscript from './pages/UploadTranscriptPage';
-import UploadAcceptanceLetter from './pages/UploadAcceptanceLetter';
+import TimelineSetupPage from './pages/TimelineSetupPage';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -81,7 +81,7 @@ function App() {
           />
           <Route path="/courselist" element={<CourseList />} />
           <Route path="/uploadTranscript" element={<UploadTranscript onDataProcessed={handleDataProcessed} />} />
-          <Route path="/timeline_initial" element={<UploadAcceptanceLetter onDataProcessed={handleDataProcessed} />} />
+          <Route path="/timeline_initial" element={<TimelineSetupPage onDataProcessed={handleDataProcessed} />} />
           <Route path="/forgot-password" element={<ForgotPassPage />} />
           <Route path="/reset-password" element={<ResetPassPage />} />
         </Routes>
