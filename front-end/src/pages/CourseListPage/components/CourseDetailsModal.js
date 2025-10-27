@@ -1,5 +1,6 @@
 // src/pages/CourseListPage/components/CourseDetailsModal.js
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import CourseDetailsCard from './CourseDetailsCard';
 
@@ -22,6 +23,21 @@ const CourseDetailsModal = ({ show, onHide, course }) => {
       </Modal.Footer>
     </Modal>
   );
+};
+
+CourseDetailsModal.propTypes = {
+  show: PropTypes.bool.isRequired,
+  onHide: PropTypes.func.isRequired,
+  course: PropTypes.shape({
+    title: PropTypes.string,
+    code: PropTypes.string,
+    description: PropTypes.string,
+    credits: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }),
+};
+
+CourseDetailsModal.defaultProps = {
+  course: null,
 };
 
 export default CourseDetailsModal;
