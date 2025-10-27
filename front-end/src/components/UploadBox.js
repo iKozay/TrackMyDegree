@@ -1,6 +1,7 @@
 import Button from 'react-bootstrap/Button';
 import React, { useRef, useState } from 'react';
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import '../css/UploadBox.css';
 
 const UploadBox = ({ processFile }) => {
   const [fileName, setFileName] = useState('No file chosen');
@@ -57,12 +58,7 @@ const UploadBox = ({ processFile }) => {
 
   return (
     <>
-      <div
-        className="upload-box-al upload-box"
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
+      <div className="upload-box-al" onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
         <p>Drag and Drop file</p>
         or
         <label htmlFor="file-upload" className="file-label">
@@ -79,10 +75,10 @@ const UploadBox = ({ processFile }) => {
         <p className="file-name">{fileName}</p>
       </div>
 
-      <Button variant="danger" onClick={handleCancel}>
-        {' '}
+      <button className='cancel-button' onClick={handleCancel}>
         Cancel
-      </Button>
+      </button>
+       {' '}
       <button className="create-button" onClick={handleSubmit}>
         Create Timeline
       </button>
@@ -93,14 +89,3 @@ UploadBox.propTypes = {
   processFile: PropTypes.func.isRequired,
 };
 export default UploadBox;
-
-/*   <div className="button-group">
-        <Button variant="danger" onClick={handleCancel}>
-            {' '}
-            Cancel
-        </Button>
-        <Button variant="primary" onClick={handleSubmit}>
-            {' '}
-            Submit{' '}
-        </Button>
-    </div>*/

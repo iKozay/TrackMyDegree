@@ -1,12 +1,12 @@
-import '../css/UploadAcceptanceLetter.css';
+import '../css/TimelineSetupPage.css';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 //TODO: add checkboxes for coop and credit deficiency(there is only extended credit program)
 const InformationForm = ({ degrees }) => {
   const [selectedDegreeId, setSelectedDegreeId] = useState('');
-  const [selectedTerm, setSelectedTerm] = useState(''); // No default value
-  const [selectedYear, setSelectedYear] = useState(''); // No default value
+  const [selectedTerm, setSelectedTerm] = useState('');
+  const [selectedYear, setSelectedYear] = useState('');
   const navigate = useNavigate();
   const [selectedRadio, setSelectedRadio] = useState({
     coOp: null,
@@ -118,6 +118,7 @@ const InformationForm = ({ degrees }) => {
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
           >
+            {/*TODO: update years dynamically  */}
             <option value="">-- Select Year --</option>
             {Array.from({ length: 2031 - 2017 + 1 }).map((_, index) => {
               const year = 2017 + index;
