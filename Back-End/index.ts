@@ -28,6 +28,7 @@ import requisiteRouter from '@routes/requisite';
 import feedbackRouter from '@routes/feedback';
 import sessionRouter from '@routes/session';
 import sectionsRoutes from '@routes/sectionsRoutes';
+import transcriptRouter from '@routes/transcript';
 
 //Dev Consts
 const HOPPSCOTCH = 'chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld';
@@ -46,7 +47,6 @@ app.use(cors(corsOptions));
 // Preflight handling for all routes
 app.options('*', cors(corsOptions));
 
-// app.use(cors({ origin: [HOPPSCOTCH, CLIENT, "*"] }));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
@@ -65,13 +65,13 @@ app.use('/exemption', exemptionRouter);
 app.use('/deficiency', deficiencyRouter);
 app.use('/timeline', timelineRouter);
 app.use('/coursepool', coursepoolRouter);
-//app.use("/appUser", AppUser);
 app.use('/data', userDataRouter);
 app.use('/admin', Admin);
 app.use('/requisite', requisiteRouter);
 app.use('/feedback', feedbackRouter);
 app.use('/session', sessionRouter);
 app.use('/section', sectionsRoutes);
+app.use('/transcript', transcriptRouter);
 
 /**
  * DB test route

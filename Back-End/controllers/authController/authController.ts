@@ -38,7 +38,7 @@ async function authenticate(
   if (authConn) {
     try {
       // Step 1: Query the database for the user by email only
-	  // Only email is queried here, password verification done later via bcrypt.
+      // Only email is queried here, password verification done later via bcrypt.
       const result = await authConn
         .request()
         .input('email', Database.msSQL.VarChar, email)
@@ -54,8 +54,7 @@ async function authenticate(
         if (isPasswordValid) {
           return user; // Authentication successful
         } else {
-          // SECURITY: password should not be logged
-          log('Incorrect email or password', email, password);
+          log('Incorrect email or password', email);
         }
       } else {
         log('User not found', email);
@@ -171,9 +170,9 @@ async function forgotPassword(
 			\nIf you did not request this, please ignore this email.`,
     }; // Change this to URL before adding to production
 
-	  // Email sending logic is coupled directly into this controller
-	  // We should consider moving to a dedicated mailer utility.
-	  
+    // Email sending logic is coupled directly into this controller
+    // We should consider moving to a dedicated mailer utility.
+
     // Send email
     await transporter.sendMail(mailOptions);
 
@@ -251,8 +250,8 @@ async function isAdmin(user_id: string): Promise<boolean | undefined> {
       if (result.recordset && result.recordset.length > 0) {
         const user = result.recordset[0];
 
-        return user.type === "admin";
-		  // isAdmin simply checks the "type" field in DB
+        return user.type === 'admin';
+        // isAdmin simply checks the "type" field in DB
       }
 
       return false;
@@ -269,9 +268,8 @@ const authController = {
   registerUser,
   forgotPassword,
   resetPassword,
-  isAdmin
+  isAdmin,
 };
 
 //Default export
 export default authController;
-

@@ -5,8 +5,6 @@ import { render, screen } from '@testing-library/react';
 describe('App page', () => {
   test('renders landing page text', () => {
     render(<App />);
-    expect(
-      screen.getByText('Organize your course sequence'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Organize your course sequence')).toBeInTheDocument();
   });
 });

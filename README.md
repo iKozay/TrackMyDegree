@@ -81,7 +81,7 @@ Ensure you have the following installed on your machine:
    Run the following command to start all components:
 
    ```bash
-   docker compose up --build
+   docker compose up -d
    ```
 
    This will:
@@ -96,6 +96,62 @@ Port already in use:
 
 - You can change the port to an available one in the docker compose yml file;
 - Re-run the code from step #2.
+
+## Production Deployment
+
+For production deployment with SSL/HTTPS support, follow these additional steps:
+
+### Prerequisites for Production
+
+- A domain name pointing to your server
+- Docker and Docker Compose installed on your production server
+
+### Production Setup Instructions
+
+1. **Complete the development setup steps** (steps 1-2 from the Developer Setup Guide above)
+
+2. **Create environment configuration**:
+   Create a `.env` file in the root directory of the project:
+
+   ```bash
+   touch .env
+   ```
+
+3. **Configure production environment variables**:
+   Add the following variables to your `.env` file:
+
+   ```env
+   DOMAIN=yourdomain.com
+   ACME_EMAIL=your-email@example.com
+   ```
+
+   Replace:
+   - `yourdomain.com` with your actual domain name
+   - `your-email@example.com` with your email address (used for Let's Encrypt SSL certificate registration)
+
+4. **Deploy the application**:
+   Run the production deployment command:
+
+   ```bash
+   docker compose up -d
+   ```
+
+   This will:
+   - Build and start all services in detached mode
+   - Automatically obtain SSL certificates via Let's Encrypt
+   - Configure HTTPS redirection
+   - Set up the reverse proxy with SSL termination
+
+5. **Verify deployment**:
+   - Your application should be accessible at `https://yourdomain.com`
+   - HTTP traffic will automatically redirect to HTTPS
+   - SSL certificates will auto-renew before expiration
+
+**Production Notes:**
+- Ensure your domain's DNS A record points to your server's IP address
+- Allow ports 80 (HTTP) and 443 (HTTPS) through your firewall
+- The initial SSL certificate generation may take a few minutes
+- Monitor logs with `docker compose logs -f` if needed
 
 ## Equity and Diversity Statement
 

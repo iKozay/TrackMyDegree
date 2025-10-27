@@ -5,7 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../css/SignUpPage.css';
 import Button from 'react-bootstrap/Button';
 import { motion } from 'framer-motion';
-import { SignUpError } from '../middleware/SentryErrors';
+import { signupUser } from '../api/auth_api';
+import { validateSignupForm, hashPassword } from '../utils/authUtils';
 
 //Similar to the login page. It's just a form that sends the data to the server to be treated there. Redirects to UserPage.js on success
 function SignUpPage() {
@@ -20,8 +21,8 @@ function SignUpPage() {
   //const [loading, setLoading] = useState(false); // To handle loading state
 
   useEffect(() => {
-    if(isLoggedIn) {
-      navigate("/user");
+    if (isLoggedIn) {
+      navigate('/user');
     }
   });
 
@@ -32,63 +33,19 @@ function SignUpPage() {
     setError(null);
     await new Promise((resolve) => setTimeout(resolve, 10));
 
-    // Basic validation checks
-    if (
-      fullname === '' ||
-      email === '' ||
-      password === '' ||
-      confirmPassword === ''
-    ) {
-      setError('All fields are required.');
-      return;
-    }
-
-    // Simple email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address.');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
-
-    // Additional password strength validation (optional)
-    if (password.length < 6) {
-      setError('Password should be at least 6 characters long.');
+    // Validate form using authUtils
+    const validationErrors = validateSignupForm(fullname, email, password, confirmPassword);
+    if (validationErrors.length > 0) {
+      setError(validationErrors[0]); // Display first error
       return;
     }
 
     //setLoading(true); // Start loading
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER}/auth/signup`,
-        {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            fullname,
-            email,
-            password,
-            type: userType,
-          }),
-        },
-      );
-
-      console.log(response);
-      if (!response.ok) {
-        // Extract error message from response
-        const errorData = await response.json();
-        throw new SignUpError(errorData.message || 'Failed to sign up.');
-      }
-
-      const data = await response.json();
+      // Use API function from auth_api.js
+      const hashedPassword = await hashPassword(password);
+      const data = await signupUser(fullname, email, hashedPassword, userType);
 
       // Assuming the API returns some form of authentication token or user data
       // You might want to store the token in context or localStorage here
@@ -102,12 +59,7 @@ function SignUpPage() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.7 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
       <div className="SignUpPage">
         <div className="container my-5 sign-in-container">
           <h2 className="text-center mb-6" style={{ fontSize: '5vh' }}>
@@ -176,11 +128,7 @@ function SignUpPage() {
 
             {/* Cancel and Register Buttons */}
             <div className="d-flex justify-content-between align-items-center mt-3">
-              <Button
-                className="btn-secondary"
-                type="button"
-                onClick={() => navigate('/signin')}
-              >
+              <Button className="btn-secondary" type="button" onClick={() => navigate('/signin')}>
                 Cancel
               </Button>
               <Button className="btn-danger" type="submit">
