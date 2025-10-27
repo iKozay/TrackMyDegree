@@ -64,28 +64,8 @@ body {
   margin: 10px; /* Optional: spacing around the image */
 }
 
-/* Styling the upload box */
-.upload-section {
-  flex-grow: 1;
-  width: 60%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-right: 10em;
-}
-
 p {
   margin-top: 0.8em;
-}
-.upload-section h2 {
-  margin-bottom: 15px; /* Add spacing below "Upload Transcript" */
-  font-size: 24px;
-}
-
-.upload-section p {
-  margin-bottom: 10px; /* Add spacing between elements */
-  font-size: 16px;
-  color: #555;
 }
 
 .navbar {
@@ -102,36 +82,6 @@ h1 {
 
 h2 {
   margin: 20px 0;
-}
-
-.upload-box {
-  border: 2px dashed #ccc;
-  width: 100%;
-  max-width: 400px;
-  height: 150px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 20px;
-  font-size: 16px;
-  color: #333;
-  cursor: pointer;
-  text-align: center;
-}
-
-.upload-box.dragover {
-  border-color: #4caf50;
-  background-color: #e8f5e9;
-}
-
-.upload-box label {
-  background-color: #4caf50; /* Green background */
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 10px;
 }
 
 .file-name {

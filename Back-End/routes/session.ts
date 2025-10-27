@@ -1,19 +1,18 @@
 import express, { Request, Response } from 'express';
 import HTTP from '@Util/HTTPCodes';
 import Database from '@controllers/DBController/DBController';
-import { verifyAuth } from '@middleware/authMiddleware';
+import { authMiddleware } from '@middleware/authMiddleware';
 import {
-  getCookieOptions,
-  setJWTCookie,
+  jwtService,
   TokenPayload,
-  verifyToken,
-} from '@Util/JWT_Util';
+  getCookieOptions,
+} from '../services/jwtService';
 import { refreshSession, UserHeaders } from '@Util/Session_Util';
 
 const router = express.Router();
 
 //* Middleware
-router.use(verifyAuth);
+router.use(authMiddleware);
 
 //* Route handlers
 router.get('/refresh', async (req: Request, res: Response) => {
@@ -24,19 +23,24 @@ router.get('/refresh', async (req: Request, res: Response) => {
       agent: req.headers['user-agent'] || '',
       ip_addr: req.ip || '',
     };
-    const payload: TokenPayload = verifyToken(access_token);
+    const payload: TokenPayload = jwtService.verifyAccessToken(access_token)!;
     const session_token = refreshSession(payload.session_token, headers);
 
     if (!session_token) {
       throw new Error('Unauthorized');
     }
 
-    const user_info = {
-      id: payload.userId,
-      type: payload.type,
-    };
+    const accessToken = jwtService.generateToken(
+      {
+        orgId: process.env.JWT_ORG_ID!,
+        userId: payload.id!,
+        type: payload.type,
+      },
+      headers,
+      session_token,
+    );
 
-    const cookie = setJWTCookie(user_info, headers, session_token);
+    const cookie = jwtService.setAccessCookie(accessToken);
 
     res.clearCookie(cookie.name, getCookieOptions()); //? Clear previous session
     res.cookie(cookie.name, cookie.value, cookie.config); //? Set new JWT cookie
@@ -64,7 +68,7 @@ router.get('/refresh', async (req: Request, res: Response) => {
 });
 
 router.get('/destroy', (req: Request, res: Response) => {
-  res.clearCookie('access_token', getCookieOptions());
+  res.clearCookie('access_token');
 
   res.status(HTTP.OK).json({ message: 'session destroyed' });
 });

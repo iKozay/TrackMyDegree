@@ -7,9 +7,8 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
-import { loginUser } from '../api/auth_api';
-import { validateLoginForm, hashPassword } from '../utils/authUtils';
-
+import { LoginError } from '../middleware/SentryErrors';
+const REACT_APP_SERVER = process.env.REACT_APP_SERVER || 'http://localhost:8000';
 //This is the login page with a standard form that is sent to the server for validation. Redirects to UserPage.js upon success
 function LogInPage() {
   const [email, setEmail] = useState('');
@@ -24,7 +23,7 @@ function LogInPage() {
     if (isLoggedIn) {
       navigate('/user');
     }
-  },[isLoggedIn]);
+  }, [isLoggedIn]);
 
   const handleLogin = async (e) => {
     e.preventDefault();

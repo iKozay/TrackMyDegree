@@ -10,14 +10,16 @@ import {
   createBackup,
   deleteBackup,
 } from '@controllers/adminController/adminController'; // Import controller methods
-import { AdminCheck } from '@middleware/JWTAccessMiddleware';
-import { verifyAuth } from '@middleware/authMiddleware';
+import {
+  authMiddleware,
+  adminCheckMiddleware,
+} from '@middleware/authMiddleware';
 
 const router = express.Router();
 
 //* Middleware
-router.use(verifyAuth);
-router.use(AdminCheck);
+router.use(authMiddleware);
+router.use(adminCheckMiddleware);
 
 //* Route handler
 // Route to get all tables

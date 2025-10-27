@@ -1,22 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Spinner, Alert, Button } from 'react-bootstrap';
 import { motion } from 'framer-motion';
-import '../css/AdminPage.css';
+import { AdminPageError } from '../middleware/SentryErrors';
+import { useNavigate } from 'react-router-dom';
+import { Button, Form } from 'react-bootstrap';
 
-// Custom hooks
-import useBackupManager from '../AdminPage/hooks/useBackupManager';
-import useDatabaseTables from '../AdminPage/hooks/useDatabaseTables';
-import useTableRecords from '../AdminPage/hooks/useTableRecords';
-
-// Components
-import BackupManagement from './AdminPage/components/BackupManagement';
-import TablesList from './AdminPage/components/TablesList';
-import RecordsTable from './AdminPage/components/RecordsTable';
-
-/**
- * Admin dashboard for database management
- * Handles CRUD operations, backups, and data seeding
- */
+const REACT_APP_SERVER = process.env.REACT_APP_SERVER || 'http://localhost:8000';
+//This page is an admin dashboard for manipulating the database (CRUD). The page performs backups, deletes or restores them and can make the server seed data
 const AdminPage = () => {
   // Custom hooks for state management
   const backupManager = useBackupManager();
