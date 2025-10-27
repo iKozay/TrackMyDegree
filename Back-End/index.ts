@@ -29,6 +29,7 @@ import feedbackRouter from '@routes/feedback';
 import sessionRouter from '@routes/session';
 import sectionsRoutes from '@routes/sectionsRoutes';
 import transcriptRouter from '@routes/transcript';
+import mongoRouter from '@routes/mongo';
 
 //Dev Consts
 const HOPPSCOTCH = 'chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld';
@@ -72,6 +73,9 @@ app.use('/feedback', feedbackRouter);
 app.use('/session', sessionRouter);
 app.use('/section', sectionsRoutes);
 app.use('/transcript', transcriptRouter);
+
+// MongoDB consolidated routes
+app.use('/v2', mongoRouter);
 
 /**
  * DB test route
