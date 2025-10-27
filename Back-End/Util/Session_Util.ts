@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 const session_algo = process.env.SESSION_ALGO as crypto.CipherGCMTypes;
 
@@ -15,10 +15,7 @@ export type UserHeaders = {
 
 function getEncryptionKey() {
   const secret = process.env.JWT_SECRET || 'default-secret';
-  return crypto
-    .createHash('sha256')
-    .update(secret)
-    .digest();
+  return crypto.createHash('sha256').update(secret).digest();
 }
 
 /**
@@ -28,7 +25,7 @@ function getEncryptionKey() {
  * - A string containing the decrypted information
  */
 function decryptToken(token: SessionToken): string {
-  const { key, iv, salt } = token;
+  const { key, iv } = token;
   const session_key = getEncryptionKey();
 
   const message = Buffer.from(key, 'base64');
@@ -52,7 +49,7 @@ function decryptToken(token: SessionToken): string {
 }
 
 /**
- ** This function is responsible for the verification of session tokens, 
+ ** This function is responsible for the verification of session tokens,
  ** based on the information encrypted in the token and the user's request headers
  * @param session The headers contained in the session token
  * @param user The user's request headers (User-agent and IP address)
@@ -130,7 +127,7 @@ export function refreshSession(
     return null;
   }
 
-  const new_token: SessionToken = createSessionToken(user, parseInt(salt));
+  const new_token: SessionToken = createSessionToken(user, Number.parseInt(salt));
 
   return new_token;
 }

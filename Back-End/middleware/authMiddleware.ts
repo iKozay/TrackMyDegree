@@ -3,9 +3,9 @@ import HTTP from '@Util/HTTPCodes';
 
 /**
  ** Function to verify presence of access token
- * @param req 
- * @param res 
- * @param next 
+ * @param req
+ * @param res
+ * @param next
  */
 export function verifyAuth(req: Request, res: Response, next: NextFunction) {
   const cookies = req.cookies;

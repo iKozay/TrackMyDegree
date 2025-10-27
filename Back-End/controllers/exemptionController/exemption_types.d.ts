@@ -1,12 +1,9 @@
-
 declare namespace ExemptionTypes {
+  type Exemption = {
+    id: string;
+    coursecode: string;
+    user_id: string;
+  };
+}
 
-    type Exemption = {
-        id: string;
-        coursecode: string;
-        user_id: string;
-      }
-
-  }
-  
-  export default ExemptionTypes;
+export default ExemptionTypes;

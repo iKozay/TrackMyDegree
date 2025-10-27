@@ -40,7 +40,7 @@ const AdminPage = () => {
   const handleSeedData = async () => {
     setSeedLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/seed-data`, {
+      const response = await fetch(`${REACT_APP_SERVER}/admin/seed-data`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -86,12 +86,7 @@ const AdminPage = () => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
       <div className="admin-container">
         <Row className="mt-4">
           <TablesList
