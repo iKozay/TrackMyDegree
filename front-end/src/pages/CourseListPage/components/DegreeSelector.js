@@ -1,5 +1,5 @@
-// src/pages/CourseListPage/components/DegreeSelector.js
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Dropdown, Form } from 'react-bootstrap';
 
 /**
@@ -29,14 +29,14 @@ const DegreeSelector = ({
           <Dropdown.Item onClick={onAllCoursesSelect}>
             All Courses
           </Dropdown.Item>
-          
+
           {/* List individual degrees */}
           {degrees.length === 0 ? (
             <Dropdown.Item disabled>Loading...</Dropdown.Item>
           ) : (
-            degrees.map((degree, index) => (
+            degrees.map((degree) => (
               <Dropdown.Item
-                key={index}
+                key={degree.id || degree.name} // use unique id or name instead of index
                 onClick={() => onDegreeSelect(degree)}
               >
                 {degree.name}
@@ -59,6 +59,28 @@ const DegreeSelector = ({
       )}
     </div>
   );
+};
+
+//PropTypes validation
+DegreeSelector.propTypes = {
+  degrees: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      name: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  selectedDegree: PropTypes.string.isRequired,
+  searchTerm: PropTypes.string.isRequired,
+  onDegreeSelect: PropTypes.func.isRequired,
+  onAllCoursesSelect: PropTypes.func.isRequired,
+  onSearchChange: PropTypes.func.isRequired,
+};
+
+// Default props
+DegreeSelector.defaultProps = {
+  degrees: [],
+  selectedDegree: 'Select Degree',
+  searchTerm: '',
 };
 
 export default DegreeSelector;
