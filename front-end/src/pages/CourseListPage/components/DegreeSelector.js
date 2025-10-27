@@ -76,11 +76,5 @@ DegreeSelector.propTypes = {
   onSearchChange: PropTypes.func.isRequired,
 };
 
-// Default props
-DegreeSelector.defaultProps = {
-  degrees: [],
-  selectedDegree: 'Select Degree',
-  searchTerm: '',
-};
 
 export default DegreeSelector;
