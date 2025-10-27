@@ -57,17 +57,11 @@ function decryptToken(token: SessionToken): string {
  * - TRUE: If the token is valid
  * - FALSE: If the token is invalid
  */
-function verifySession(session: UserHeaders, user: UserHeaders): boolean {
+export function verifySession(token: SessionToken, user: UserHeaders): boolean {
   // SECURITY: Verify session by comparing user-agent and IP address
   // This prevents token theft and ensures session is tied to specific device/network
-  let valid_session =
-    session.agent === user.agent && session.ip_addr === user.ip_addr;
-
-  if (valid_session) {
-    return true;
-  }
-
-  return false;
+  const [agent, ip_addr] = decryptToken(token).split('|');
+  return agent === user.agent && ip_addr === user.ip_addr;
 }
 
 /**
@@ -117,17 +111,13 @@ export function refreshSession(
   token: SessionToken,
   user: UserHeaders,
 ): SessionToken | null {
-  const session_info = decryptToken(token);
+  if (!verifySession(token, user)) return null;
 
-  const [agent, ip_addr, salt] = session_info.split('|');
-
-  let valid_session = verifySession({ agent, ip_addr }, user);
-
-  if (!valid_session) {
-    return null;
-  }
-
-  const new_token: SessionToken = createSessionToken(user, Number.parseInt(salt));
+  const salt = decryptToken(token).split('|')[2];
+  const new_token: SessionToken = createSessionToken(
+    user,
+    Number.parseInt(salt),
+  );
 
   return new_token;
 }

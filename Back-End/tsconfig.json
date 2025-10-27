@@ -30,6 +30,10 @@
 
     "outDir": "./dist",                                   /* Specify an output folder for all emitted files. */
 
+    /* Emit */
+    "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
+    "inlineSources": true,                            /* Include source code in the source maps inside the emitted JavaScript. */
+
     /* Interop Constraints */
     "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
     "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */

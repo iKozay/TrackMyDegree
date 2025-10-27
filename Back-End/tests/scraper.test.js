@@ -76,7 +76,13 @@ describe("runScraper", () => {
   });
 
   test("spawn called with correct arguments", async () => {
-    runScraper("my_script.py", ["arg1", "arg2"]);
-    expect(mockSpawn).toHaveBeenCalledWith("python", ["my_script.py", "arg1", "arg2"]);
+    runScraper("../Scraping/Scrapers/course_data_scraper.py", ["arg1", "arg2"], {
+      shell:false,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    expect(mockSpawn).toHaveBeenCalledWith("/usr/bin/python3", ["../Scraping/Scrapers/course_data_scraper.py", "arg1", "arg2"], {
+      shell:false,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
   });
 });

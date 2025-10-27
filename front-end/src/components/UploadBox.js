@@ -86,6 +86,6 @@ const UploadBox = ({ processFile }) => {
   );
 };
 UploadBox.propTypes = {
-  processFile: PropTypes.func.isRequired
+  processFile: PropTypes.func.isRequired,
 };
 export default UploadBox;
