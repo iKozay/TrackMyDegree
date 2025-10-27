@@ -100,7 +100,7 @@ const extractAcceptanceDetails = (pagesData) => {
       targetField: 'expectedGraduationTerm',
       details,
     });
-    // Extract Exempted Courses 
+    // Extract Exempted Courses
     extractCoursesFromText({
       text,
       startLabel: 'Exemptions',

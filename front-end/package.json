@@ -23,6 +23,7 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^6.27.0",
     "react-scripts": "^5.0.1",
+    "react-toastify": "^11.0.5",
     "recharts": "^2.15.1",
     "sentry": "^0.1.2",
     "typewriter-effect": "^2.21.0",
