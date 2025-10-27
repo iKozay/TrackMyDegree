@@ -75,7 +75,7 @@ app.use('/section', sectionsRoutes);
 app.use('/transcript', transcriptRouter);
 
 // MongoDB consolidated routes
-app.use('/mongo', mongoRouter);
+app.use('/v2', mongoRouter);
 
 /**
  * DB test route

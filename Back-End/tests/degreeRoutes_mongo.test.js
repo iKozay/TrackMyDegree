@@ -349,10 +349,10 @@ describe('Degree Routes (MongoDB)', () => {
       });
     });
 
-    describe('getAllDegreeXCP', () => {
-      it('should get all course pools for a degree (alias method)', async () => {
+    describe('getCoursePoolsByDegree', () => {
+      it('should get all course pools for a degree', async () => {
         const { degreeController } = require('../dist/controllers/mondoDBControllers');
-        const pools = await degreeController.getAllDegreeXCP('CS');
+        const pools = await degreeController.getCoursePoolsByDegree('CS');
 
         expect(pools).toBeDefined();
         expect(Array.isArray(pools)).toBe(true);
@@ -365,7 +365,7 @@ describe('Degree Routes (MongoDB)', () => {
 
       it('should return empty array for non-existent degree', async () => {
         const { degreeController } = require('../dist/controllers/mondoDBControllers');
-        const pools = await degreeController.getAllDegreeXCP('NONEXIST');
+        const pools = await degreeController.getCoursePoolsByDegree('NONEXIST');
 
         expect(pools).toEqual([]);
       });
@@ -386,7 +386,7 @@ describe('Degree Routes (MongoDB)', () => {
         });
 
         const { degreeController } = require('../dist/controllers/mondoDBControllers');
-        const pools = await degreeController.getAllDegreeXCP('EE');
+        const pools = await degreeController.getCoursePoolsByDegree('EE');
 
         expect(pools).toBeDefined();
         expect(pools.length).toBe(1);
@@ -398,7 +398,7 @@ describe('Degree Routes (MongoDB)', () => {
         Degree.findById = jest.fn().mockRejectedValue(new Error('Database error'));
 
         const { degreeController } = require('../dist/controllers/mondoDBControllers');
-        const pools = await degreeController.getAllDegreeXCP('CS');
+        const pools = await degreeController.getCoursePoolsByDegree('CS');
 
         expect(pools).toEqual([]);
 

@@ -379,7 +379,7 @@ describe('DegreeController', () => {
     });
   });
 
-  describe('getAllDegreeXCP', () => {
+  describe('getCoursePoolsByDegree', () => {
     beforeEach(async () => {
       await Degree.create({
         _id: 'COMP',
@@ -401,8 +401,8 @@ describe('DegreeController', () => {
       });
     });
 
-    it('should get all course pools for specific degree (alias method)', async () => {
-      const result = await degreeController.getAllDegreeXCP('COMP');
+    it('should get all course pools for specific degree', async () => {
+      const result = await degreeController.getCoursePoolsByDegree('COMP');
 
       expect(result).toHaveLength(2);
       expect(result[0]).toMatchObject({
@@ -420,7 +420,7 @@ describe('DegreeController', () => {
     });
 
     it('should return empty array for non-existent degree', async () => {
-      const result = await degreeController.getAllDegreeXCP('NONEXISTENT');
+      const result = await degreeController.getCoursePoolsByDegree('NONEXISTENT');
 
       expect(result).toHaveLength(0);
     });
@@ -439,7 +439,7 @@ describe('DegreeController', () => {
         ]
       });
 
-      const result = await degreeController.getAllDegreeXCP('NOCOURSES');
+      const result = await degreeController.getCoursePoolsByDegree('NOCOURSES');
 
       expect(result).toHaveLength(1);
       expect(result[0]).toMatchObject({
@@ -457,7 +457,7 @@ describe('DegreeController', () => {
         throw new Error('Database connection failed');
       });
 
-      const result = await degreeController.getAllDegreeXCP('COMP');
+      const result = await degreeController.getCoursePoolsByDegree('COMP');
 
       expect(result).toHaveLength(0);
 
@@ -556,14 +556,14 @@ describe('DegreeController', () => {
       expect(result).toEqual([]);
     });
 
-    it('should handle getAllDegreeXCP when degree has null coursePools', async () => {
+    it('should handle getCoursePoolsByDegree when degree has null coursePools', async () => {
       await Degree.create({
         _id: 'NULLPOOLS2',
         name: 'Null Pools Degree 2',
         coursePools: null
       });
 
-      const result = await degreeController.getAllDegreeXCP('NULLPOOLS2');
+      const result = await degreeController.getCoursePoolsByDegree('NULLPOOLS2');
       expect(result).toEqual([]);
     });
   });

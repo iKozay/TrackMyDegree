@@ -31,7 +31,6 @@ export interface PasswordResetRequest {
 }
 
 export class AuthController {
-  private readonly SALT_ROUNDS = 10;
   private readonly OTP_EXPIRY_MINUTES = 10;
   private readonly DUMMY_HASH = '$2a$10$invalidsaltinvalidsaltinv';
 
@@ -88,18 +87,10 @@ export class AuthController {
         return undefined;
       }
 
-      // Validate password strength
-      if (!this.isStrongPassword(password)) {
-        return undefined;
-      }
-
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
-
-      // Create new user
+      // Create new user (password is already hashed from frontend)
       const newUser = await User.create({
         email,
-        password: hashedPassword,
+        password, // password is already hashed from frontend
         fullname,
         type,
       });
@@ -183,13 +174,8 @@ export class AuthController {
         return false;
       }
 
-      // Validate new password strength
-      if (!this.isStrongPassword(newPassword)) {
-        return false;
-      }
-
-      // Hash new password and clear OTP
-      user.password = await bcrypt.hash(newPassword, this.SALT_ROUNDS);
+      // Set new password (already hashed from frontend) and clear OTP
+      user.password = newPassword; // password is already hashed from frontend
       user.otp = '';
       user.otpExpire = new Date(0);
       await user.save();
@@ -226,13 +212,8 @@ export class AuthController {
         return false;
       }
 
-      // Validate new password strength
-      if (!this.isStrongPassword(newPassword)) {
-        return false;
-      }
-
-      // Hash and save new password
-      user.password = await bcrypt.hash(newPassword, this.SALT_ROUNDS);
+      // Save new password (already hashed from frontend)
+      user.password = newPassword; // password is already hashed from frontend
       await user.save();
 
       return true;
@@ -244,23 +225,6 @@ export class AuthController {
       console.error('[AuthController] Password change error');
       return false;
     }
-  }
-
-  /**
-   * Validates password strength
-   * Requirements: min 8 chars, uppercase, lowercase, number, special char
-   */
-  private isStrongPassword(password: string): boolean {
-    if (password.length < 8) return false;
-
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasNumber = /[0-9]/.test(password);
-    const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(
-      password,
-    );
-
-    return hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
   }
 }
 

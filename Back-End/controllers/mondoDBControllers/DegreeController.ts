@@ -205,39 +205,6 @@ export class DegreeController extends BaseMongoController<any> {
     }
   }
 
-  // ==========================
-  // DEGREE-COURSE POOL MAPPING OPERATIONS
-  // ==========================
-
-  /**
-   * Get all course pools for a specific degree (alias for getCoursePoolsByDegree)
-   */
-  async getAllDegreeXCP(degree_id: string): Promise<CoursePoolInfo[]> {
-    try {
-      const degree = await Degree.findById(degree_id)
-        .select('coursePools')
-        .lean()
-        .exec();
-
-      if (!degree || !degree.coursePools) {
-        return [];
-      }
-
-      return degree.coursePools.map((cp: any) => ({
-        id: cp.id,
-        name: cp.name,
-        creditsRequired: cp.creditsRequired,
-        courses: cp.courses || [],
-      }));
-    } catch (error) {
-      Sentry.captureException(error);
-      console.error(
-        '[DegreeController] Error fetching degree course pools:',
-        error,
-      );
-      return [];
-    }
-  }
 }
 
 export const degreeController = new DegreeController();
