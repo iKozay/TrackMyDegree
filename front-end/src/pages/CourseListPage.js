@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Col, Row, Container } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import CourseListAccordion from '../components/CourseListAccordion';
-import './css/CourseListPage.css';
+import '../css/CourseListPage.css';
 
 // Custom hooks
 import useDegrees from './CourseListPage/hooks/useDegree';
