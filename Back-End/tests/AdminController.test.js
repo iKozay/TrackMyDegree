@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const {
   AdminController,
-} = require('../dist/controllers/mondoDBControllers/AdminController');
-const { User } = require('../dist/models/User');
-const { Course } = require('../dist/models/Course');
+} = require('../controllers/mondoDBControllers/AdminController');
+const { User } = require('../models/User');
+const { Course } = require('../models/Course');
 
 describe('AdminController', () => {
   let mongoServer, mongoUri, adminController;
