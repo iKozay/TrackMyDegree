@@ -50,7 +50,6 @@ jobs:
       - name: Run frontend tests with coverage
         working-directory: ./front-end
         run: |
-          npm run build
           npm test -- --coverage
 
       - name: Run backend tests with coverage
