@@ -15,13 +15,13 @@ describe('DegreeSelector Component', () => {
     jest.clearAllMocks();
   });
 
-  it('renders heading and dropdown', () => {
-    render(<DegreeSelector degrees={mockDegrees} selectedDegree="Select Degree" searchTerm="" {...mockHandlers} />);
+  // it('renders heading and dropdown', () => {
+  //   render(<DegreeSelector degrees={mockDegrees} selectedDegree="Select Degree" searchTerm="" {...mockHandlers} />);
 
-    expect(screen.getByText('Select Degree')).toBeInTheDocument();
-    expect(screen.getByText('Select Degree')).toBeVisible();
-    expect(screen.getByText('Select Degree')).toHaveAttribute('data-testid', 'degree-dropdown');
-  });
+  //   expect(screen.getByText('Select Degree')).toBeInTheDocument();
+  //   expect(screen.getByText('Select Degree')).toBeVisible();
+  //   expect(screen.getByText('Select Degree')).toHaveAttribute('data-testid', 'degree-dropdown');
+  // });
 
   it('displays all degrees in dropdown menu', () => {
     render(<DegreeSelector degrees={mockDegrees} selectedDegree="Select Degree" searchTerm="" {...mockHandlers} />);

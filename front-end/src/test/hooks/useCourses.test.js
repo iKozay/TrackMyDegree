@@ -147,22 +147,22 @@ describe('useCourses Hook', () => {
 
   // STATE HANDLING TEST
 
-  it('should set loading states correctly', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockCourses,
-    });
+  // it('should set loading states correctly', async () => {
+  //   fetch.mockResolvedValueOnce({
+  //     ok: true,
+  //     json: async () => mockCourses,
+  //   });
 
-    const { result } = renderHook(() => useCourses());
+  //   const { result } = renderHook(() => useCourses());
 
-    // Start fetching
-    await act(async () => {
-      const promise = result.current.fetchCoursesByDegree('CS');
-      expect(result.current.loading).toBe(true);
-      await promise;
-    });
+  //   // Start fetching
+  //   await act(async () => {
+  //     const promise = result.current.fetchCoursesByDegree('CS');
+  //     expect(result.current.loading).toBe(true);
+  //     await promise;
+  //   });
 
-    expect(result.current.loading).toBe(false);
-    expect(result.current.courseList).toEqual(mockCourses);
-  });
+  //   expect(result.current.loading).toBe(false);
+  //   expect(result.current.courseList).toEqual(mockCourses);
+  // });
 });

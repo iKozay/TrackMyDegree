@@ -1,4 +1,4 @@
-import { parsePdfFile, extractAcceptanceDetails } from '../AcceptanceUtils.js'; // adjust path
+import { parsePdfFile, extractAcceptanceDetails } from '../../utils/AcceptanceUtils'; // adjust path
 import { pdfjs } from 'react-pdf';
 
 // Mock PDF.js getDocument
@@ -114,7 +114,7 @@ describe('PDF parsing and acceptance details', () => {
     it('should alert if "OFFER OF ADMISSION" not present', () => {
       global.alert = jest.fn();
       const { results } = extractAcceptanceDetails('Some other text');
-      expect(global.alert).toHaveBeenCalledWith('Please choose Offer of Admission');
+      expect(global.alert).toHaveBeenCalledWith('Please upload an acceptance letter');
       expect(results).toEqual([]);
     });
   });
