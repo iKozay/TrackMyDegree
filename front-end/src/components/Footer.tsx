@@ -1,22 +1,19 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import '../css/Footer.css';
+import { api } from '../api/http-api-client';
+import { Feedback } from '~/shared/types/apiTypes';
 
 const Footer = () => {
-  const [feedback, setFeedback] = useState('');
-  const [showPopup, setShowPopup] = useState(false);
-  const [showAlert, setShowAlert] = useState('');
-  const [popupType, setPopupType] = useState('');
+  const [feedback, setFeedback] = useState<string>('');
+  const [showPopup, setShowPopup] = useState<boolean>(false);
+  const [showAlert, setShowAlert] = useState<string>('');
+  const [popupType, setPopupType] = useState<string>('');
 
   const redirectToFeedbackPage = () => {
     window.open(
       'https://docs.google.com/forms/d/e/1FAIpQLScr67TcEpPV1wNCTM5H53hPwRgplAvkYmxg72LKgHihCSmzKg/viewform',
       '_blank',
     );
-  };
-
-  const handleShowFeedback = () => {
-    setShowPopup(true);
-    setPopupType('feedback');
   };
 
   const handleShowDisclaimer = () => {
@@ -35,26 +32,16 @@ const Footer = () => {
     }
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/feedback`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: feedback, user_id: '' }),
-      });
+      const resData = await api.post<Feedback>('/feedback', { message: feedback, user_id: '' });
 
-      if (!response.ok) {
-        setShowAlert('Error submitting feedback');
-      } else {
-        const resData = await response.json();
-        console.log(resData);
-        setShowAlert(resData.message);
-      }
+      console.log(resData);
+      setShowAlert(resData.message);
 
       setTimeout(() => {
         setShowAlert('');
       }, 2500);
     } catch (err) {
+      setShowAlert('Error submitting feedback');
       console.error('Error submitting feedback:', err);
     }
 
@@ -72,7 +59,7 @@ const Footer = () => {
                 <>
                   <h3>Submit Feedback</h3>
                   <textarea
-                    rows="4"
+                    rows={4}
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
                     placeholder="Enter your feedback..."

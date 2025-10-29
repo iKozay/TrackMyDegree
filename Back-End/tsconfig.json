@@ -1,4 +1,5 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
     
@@ -13,7 +14,8 @@
       "@controllers/*"  : ["./controllers/*"],
       "@routes/*"       : ["./routes/*"],
       "@Util/*"         : ["./Util/*"],
-      "@middleware/*"   : ["./middleware/*"]
+      "@middleware/*"   : ["./middleware/*"],
+      "~/shared/*"      : ["../shared/*"]
      },                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
     "plugins": [
          {

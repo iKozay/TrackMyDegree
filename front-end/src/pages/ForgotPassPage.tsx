@@ -5,17 +5,17 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
-import { ForgotPassError } from '../middleware/SentryErrors';
+import { api } from '~/frontend/api/http-api-client';
 
 //This page is used to help users that forgot their password. It checks if the email already exists in the database and if it does it redirects them to the ResetPassword page
 function ForgotPassPage() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState<string>('');
   const navigate = useNavigate();
 
-  const [error, setError] = useState(null); // To handle error messages
-  const [loading, setLoading] = useState(false); // To handle loading state
+  const [error, setError] = useState<string | null>(null); // To handle error messages
+  const [loading, setLoading] = useState<boolean>(false); // To handle loading state
 
-  const handleForgotPassword = async (e) => {
+  const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Reset error state
@@ -38,28 +38,18 @@ function ForgotPassPage() {
     setLoading(true); // Start loading
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/forgot-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-        }),
+      const data = await api.post<{ message: string }>('/auth/forgot-password', {
+        email,
       });
-
-      if (!response.ok) {
-        // Extract error message from response
-        const errorData = await response.json();
-        throw new ForgotPassError(errorData.message || 'Email does not exist.');
-      }
-
-      const data = await response.json();
       console.log(data);
       // API returns a success message and we can redirect to reset pass page
       navigate('/reset-password');
     } catch (err) {
-      setError(err.message);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     } finally {
       setLoading(false); // End loading
     }

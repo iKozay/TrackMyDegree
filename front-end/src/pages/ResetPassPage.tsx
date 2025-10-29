@@ -5,19 +5,19 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
-import { ResetPassError } from '../middleware/SentryErrors';
+import { api } from '~/frontend/api/http-api-client';
 
 //This is the page where the users can reset their password. This is just a form because the reset happens on the server side
-function ResetPassPage() {
-  const [otp, setOTP] = useState(''); //This is the one-time password sent to the user via email
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+function ResetPassPage(): React.ReactElement {
+  const [otp, setOTP] = useState<string>(''); //This is the one-time password sent to the user via email
+  const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
   const navigate = useNavigate();
 
-  const [error, setError] = useState(null); // To handle error messages
-  const [loading, setLoading] = useState(false); // To handle loading state
+  const [error, setError] = useState<string | null>(null); // To handle error messages
+  const [loading, setLoading] = useState<boolean>(false); // To handle loading state
 
-  const handleResetPassword = async (e) => {
+  const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
 
     // Reset error state
@@ -45,30 +45,16 @@ function ResetPassPage() {
 
     //The password reset process is done in the backend so the data from the form is being sent there
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          otp,
-          password,
-          confirmPassword,
-        }),
+      const data = await api.post<{ message: string }>('/auth/reset-password', {
+        otp,
+        password,
+        confirmPassword,
       });
-
-      if (!response.ok) {
-        // Extract error message from response
-        const errorData = await response.json();
-        throw new ResetPassError(errorData.message || 'Error resetting password!');
-      }
-
-      const data = await response.json();
       console.log(data);
       // API returns a success message and we can redirect to login page
       navigate('/signin');
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
       setLoading(false); // End loading
     }
@@ -94,7 +80,7 @@ function ResetPassPage() {
                     id="otp"
                     placeholder="* Enter your OTP"
                     value={otp}
-                    onChange={(e) => {
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       setOTP(e.target.value);
                       setError(null);
                     }}
@@ -112,7 +98,7 @@ function ResetPassPage() {
                     id="password"
                     placeholder="* Enter your password"
                     value={password}
-                    onChange={(e) => {
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       setPassword(e.target.value);
                       setError(null);
                     }}
@@ -130,7 +116,7 @@ function ResetPassPage() {
                     id="confirmPassword"
                     placeholder="* Confirm your password"
                     value={confirmPassword}
-                    onChange={(e) => {
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       setConfirmPassword(e.target.value);
                       setError(null);
                     }}

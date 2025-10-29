@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "noEmit": true,
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "module": "es2020",
+    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "baseUrl": "./",
+    "paths": {
+      "~/backend/*": ["./Back-End/*"],
+      "~/shared/*": ["./shared/*"],
+      "~/frontend/*": ["./front-end/src/*"]
+    }
+  },
+  "include": ["front-end/src/**/*", "Back-End/**/*", "shared/**/*"],
+  "exclude": ["node_modules"]
+}

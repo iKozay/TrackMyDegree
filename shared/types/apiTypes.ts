@@ -1,3 +1,31 @@
+// Feedback
+
+export interface Feedback {
+    id: string;
+    message: string;
+    user_id: string | null;
+    submitted_at: string;
+}
+
+// User
+
+export enum UserType {
+    STUDENT = 'student',
+    ADVISOR = 'advisor',
+    ADMIN = 'admin',
+}
+
+export interface User {
+    id: string;
+    email: string;
+    password: string;
+    fullname: string;
+    degree?: string;
+    type: UserType;
+}
+
+// Transcript
+
 /**
  * Represents a transfer credit from prior institutions
  */
@@ -88,17 +116,16 @@ export interface ParsedTranscript {
     additionalInfo: AdditionalInfo;
 }
 
-/**
- * API Response types
- */
-
-export interface ApiResponse<T = any> {
-    success: boolean;
-    message: string;
-    data?: T;
-    error?: string;
+export interface ParseTranscriptResponse {
+    success: boolean,
+    message: string,
+    data: ParsedTranscript,
 }
 
-export interface ParseTranscriptResponse extends ApiResponse<ParsedTranscript> {
-    data: ParsedTranscript;
+// Degree
+
+export interface Degree {
+    id: string | null;
+    name: string | null;
+    totalCredits: number | null;
 }
