@@ -49,18 +49,12 @@ jobs:
 
       - name: Run frontend tests with coverage
         working-directory: ./front-end
-        # TODO: Do we fix all the eslint warnings to set CI to true?
-        env:
-          CI: 'false'
         run: |
           npm run build
           npm test -- --coverage
 
       - name: Run backend tests with coverage
         working-directory: ./Back-End
-        # TODO: Do we fix all the eslint warnings to set CI to true?
-        env:
-          CI: 'false'
         run: |
           npm run build
           npm test -- --coverage
