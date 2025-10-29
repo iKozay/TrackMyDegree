@@ -18,13 +18,7 @@ jest.mock('framer-motion', () => ({
 // Mock SearchBar
 jest.mock('../components/SearchBar', () => {
   return function MockSearchBar({ onSearch }) {
-    return (
-      <input
-        data-testid="search-bar"
-        placeholder="Search..."
-        onChange={(e) => onSearch(e.target.value)}
-      />
-    );
+    return <input data-testid="search-bar" placeholder="Search..." onChange={(e) => onSearch(e.target.value)} />;
   };
 });
 
@@ -65,14 +59,8 @@ describe('AdminPage Integration Tests', () => {
       renderWithRouter(<AdminPage />);
 
       await waitFor(() => {
-        expect(fetch).toHaveBeenCalledWith(
-          'http://localhost:5000/admin/fetch-backups',
-          expect.any(Object)
-        );
-        expect(fetch).toHaveBeenCalledWith(
-          'http://localhost:5000/admin/tables',
-          expect.any(Object)
-        );
+        expect(fetch).toHaveBeenCalledWith('http://localhost:5000/admin/fetch-backups', expect.any(Object));
+        expect(fetch).toHaveBeenCalledWith('http://localhost:5000/admin/tables', expect.any(Object));
       });
     });
   });
@@ -178,10 +166,7 @@ describe('AdminPage Integration Tests', () => {
       fireEvent.change(searchBar, { target: { value: 'john' } });
 
       await waitFor(() => {
-        expect(fetch).toHaveBeenCalledWith(
-          'http://localhost:5000/admin/tables/users?keyword=john',
-          expect.any(Object)
-        );
+        expect(fetch).toHaveBeenCalledWith('http://localhost:5000/admin/tables/users?keyword=john', expect.any(Object));
       });
     });
   });
@@ -233,10 +218,7 @@ describe('AdminPage Integration Tests', () => {
       fireEvent.click(createButton);
 
       await waitFor(() => {
-        expect(fetch).toHaveBeenCalledWith(
-          'http://localhost:5000/admin/create-backup',
-          expect.any(Object)
-        );
+        expect(fetch).toHaveBeenCalledWith('http://localhost:5000/admin/create-backup', expect.any(Object));
         expect(alert).toHaveBeenCalledWith(expect.stringContaining('successfully'));
       });
     });
@@ -288,10 +270,7 @@ describe('AdminPage Integration Tests', () => {
       fireEvent.click(seedButton);
 
       await waitFor(() => {
-        expect(fetch).toHaveBeenCalledWith(
-          'http://localhost:5000/admin/seed-data',
-          expect.any(Object)
-        );
+        expect(fetch).toHaveBeenCalledWith('http://localhost:5000/admin/seed-data', expect.any(Object));
         expect(alert).toHaveBeenCalledWith('Data seeding successful!');
       });
     });

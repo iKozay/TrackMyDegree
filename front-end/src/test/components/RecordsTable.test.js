@@ -3,17 +3,10 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import RecordsTable from '../../pages/AdminPage/components/RecordsTable';
 
-
 // Mock SearchBar component
 jest.mock('front-end/src/components/SearchBar', () => {
   return function MockSearchBar({ onSearch }) {
-    return (
-      <input
-        data-testid="search-bar"
-        placeholder="Search..."
-        onChange={(e) => onSearch(e.target.value)}
-      />
-    );
+    return <input data-testid="search-bar" placeholder="Search..." onChange={(e) => onSearch(e.target.value)} />;
   };
 });
 
@@ -31,39 +24,20 @@ describe('RecordsTable Component', () => {
 
   describe('when no table is selected', () => {
     it('should show info message', () => {
-      render(
-        <RecordsTable
-          selectedTable={null}
-          records={[]}
-          columns={[]}
-          onSearch={mockOnSearch}
-        />
-      );
+      render(<RecordsTable selectedTable={null} records={[]} columns={[]} onSearch={mockOnSearch} />);
 
       expect(screen.getByText('Select a table to view its records.')).toBeInTheDocument();
     });
 
     it('should not render search bar', () => {
-      render(
-        <RecordsTable
-          selectedTable={null}
-          records={[]}
-          columns={[]}
-          onSearch={mockOnSearch}
-        />
-      );
+      render(<RecordsTable selectedTable={null} records={[]} columns={[]} onSearch={mockOnSearch} />);
 
       expect(screen.queryByTestId('search-bar')).not.toBeInTheDocument();
     });
 
     it('should not render table', () => {
       const { container } = render(
-        <RecordsTable
-          selectedTable={null}
-          records={[]}
-          columns={[]}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable={null} records={[]} columns={[]} onSearch={mockOnSearch} />,
       );
 
       expect(container.querySelector('table')).not.toBeInTheDocument();
@@ -73,12 +47,7 @@ describe('RecordsTable Component', () => {
   describe('when table is selected', () => {
     it('should render table name as header', () => {
       render(
-        <RecordsTable
-          selectedTable="users"
-          records={mockRecords}
-          columns={mockColumns}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="users" records={mockRecords} columns={mockColumns} onSearch={mockOnSearch} />,
       );
 
       expect(screen.getByText('users')).toBeInTheDocument();
@@ -86,12 +55,7 @@ describe('RecordsTable Component', () => {
 
     it('should render search bar', () => {
       render(
-        <RecordsTable
-          selectedTable="users"
-          records={mockRecords}
-          columns={mockColumns}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="users" records={mockRecords} columns={mockColumns} onSearch={mockOnSearch} />,
       );
 
       expect(screen.getByTestId('search-bar')).toBeInTheDocument();
@@ -99,12 +63,7 @@ describe('RecordsTable Component', () => {
 
     it('should call onSearch when searching', () => {
       render(
-        <RecordsTable
-          selectedTable="users"
-          records={mockRecords}
-          columns={mockColumns}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="users" records={mockRecords} columns={mockColumns} onSearch={mockOnSearch} />,
       );
 
       const searchInput = screen.getByTestId('search-bar');
@@ -115,12 +74,7 @@ describe('RecordsTable Component', () => {
 
     it('should render all column headers', () => {
       render(
-        <RecordsTable
-          selectedTable="users"
-          records={mockRecords}
-          columns={mockColumns}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="users" records={mockRecords} columns={mockColumns} onSearch={mockOnSearch} />,
       );
 
       mockColumns.forEach((col) => {
@@ -131,12 +85,7 @@ describe('RecordsTable Component', () => {
 
     it('should render all records', () => {
       render(
-        <RecordsTable
-          selectedTable="users"
-          records={mockRecords}
-          columns={mockColumns}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="users" records={mockRecords} columns={mockColumns} onSearch={mockOnSearch} />,
       );
 
       expect(screen.getByText('John Doe')).toBeInTheDocument();
@@ -147,12 +96,7 @@ describe('RecordsTable Component', () => {
 
     it('should render correct number of rows', () => {
       const { container } = render(
-        <RecordsTable
-          selectedTable="users"
-          records={mockRecords}
-          columns={mockColumns}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="users" records={mockRecords} columns={mockColumns} onSearch={mockOnSearch} />,
       );
 
       const rows = container.querySelectorAll('tbody tr');
@@ -161,12 +105,7 @@ describe('RecordsTable Component', () => {
 
     it('should render correct number of cells per row', () => {
       const { container } = render(
-        <RecordsTable
-          selectedTable="users"
-          records={mockRecords}
-          columns={mockColumns}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="users" records={mockRecords} columns={mockColumns} onSearch={mockOnSearch} />,
       );
 
       const firstRow = container.querySelector('tbody tr');
@@ -175,26 +114,14 @@ describe('RecordsTable Component', () => {
     });
 
     it('should show no records message when records array is empty', () => {
-      render(
-        <RecordsTable
-          selectedTable="users"
-          records={[]}
-          columns={[]}
-          onSearch={mockOnSearch}
-        />
-      );
+      render(<RecordsTable selectedTable="users" records={[]} columns={[]} onSearch={mockOnSearch} />);
 
       expect(screen.getByText('No records found.')).toBeInTheDocument();
     });
 
     it('should not render table when no records', () => {
       const { container } = render(
-        <RecordsTable
-          selectedTable="users"
-          records={[]}
-          columns={[]}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="users" records={[]} columns={[]} onSearch={mockOnSearch} />,
       );
 
       expect(container.querySelector('table')).not.toBeInTheDocument();
@@ -202,12 +129,7 @@ describe('RecordsTable Component', () => {
 
     it('should have responsive table class', () => {
       const { container } = render(
-        <RecordsTable
-          selectedTable="users"
-          records={mockRecords}
-          columns={mockColumns}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="users" records={mockRecords} columns={mockColumns} onSearch={mockOnSearch} />,
       );
 
       const table = container.querySelector('table');
@@ -216,12 +138,7 @@ describe('RecordsTable Component', () => {
 
     it('should add data-label attribute to cells', () => {
       const { container } = render(
-        <RecordsTable
-          selectedTable="users"
-          records={mockRecords}
-          columns={mockColumns}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="users" records={mockRecords} columns={mockColumns} onSearch={mockOnSearch} />,
       );
 
       const firstCell = container.querySelector('tbody tr td');
@@ -236,12 +153,7 @@ describe('RecordsTable Component', () => {
       const mixedColumns = ['id', 'name', 'age', 'active'];
 
       render(
-        <RecordsTable
-          selectedTable="users"
-          records={mixedRecords}
-          columns={mixedColumns}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="users" records={mixedRecords} columns={mixedColumns} onSearch={mockOnSearch} />,
       );
 
       expect(screen.getByText('25')).toBeInTheDocument();
@@ -257,12 +169,7 @@ describe('RecordsTable Component', () => {
       const singleColumns = ['id', 'name'];
 
       const { container } = render(
-        <RecordsTable
-          selectedTable="users"
-          records={singleRecord}
-          columns={singleColumns}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="users" records={singleRecord} columns={singleColumns} onSearch={mockOnSearch} />,
       );
 
       const rows = container.querySelectorAll('tbody tr');
@@ -274,12 +181,7 @@ describe('RecordsTable Component', () => {
       const columns = ['id'];
 
       const { container } = render(
-        <RecordsTable
-          selectedTable="users"
-          records={records}
-          columns={columns}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="users" records={records} columns={columns} onSearch={mockOnSearch} />,
       );
 
       const headerCells = container.querySelectorAll('thead th');
@@ -287,36 +189,22 @@ describe('RecordsTable Component', () => {
     });
 
     it('should handle null or undefined values in records', () => {
-      const recordsWithNull = [
-        { id: 1, name: null, email: undefined },
-      ];
+      const recordsWithNull = [{ id: 1, name: null, email: undefined }];
       const columns = ['id', 'name', 'email'];
 
       render(
-        <RecordsTable
-          selectedTable="users"
-          records={recordsWithNull}
-          columns={columns}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="users" records={recordsWithNull} columns={columns} onSearch={mockOnSearch} />,
       );
 
       expect(screen.getByText('users')).toBeInTheDocument();
     });
 
     it('should handle empty string values', () => {
-      const recordsWithEmpty = [
-        { id: 1, name: '', email: 'test@test.com' },
-      ];
+      const recordsWithEmpty = [{ id: 1, name: '', email: 'test@test.com' }];
       const columns = ['id', 'name', 'email'];
 
       const { container } = render(
-        <RecordsTable
-          selectedTable="users"
-          records={recordsWithEmpty}
-          columns={columns}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="users" records={recordsWithEmpty} columns={columns} onSearch={mockOnSearch} />,
       );
 
       const rows = container.querySelectorAll('tbody tr');
@@ -324,27 +212,13 @@ describe('RecordsTable Component', () => {
     });
 
     it('should render with undefined selectedTable as falsy', () => {
-      render(
-        <RecordsTable
-          selectedTable={undefined}
-          records={[]}
-          columns={[]}
-          onSearch={mockOnSearch}
-        />
-      );
+      render(<RecordsTable selectedTable={undefined} records={[]} columns={[]} onSearch={mockOnSearch} />);
 
       expect(screen.getByText('Select a table to view its records.')).toBeInTheDocument();
     });
 
     it('should render with empty string selectedTable as truthy', () => {
-      render(
-        <RecordsTable
-          selectedTable=""
-          records={[]}
-          columns={[]}
-          onSearch={mockOnSearch}
-        />
-      );
+      render(<RecordsTable selectedTable="" records={[]} columns={[]} onSearch={mockOnSearch} />);
 
       // Empty string is truthy in this context, so search bar should render
       expect(screen.queryByTestId('search-bar')).toBeInTheDocument();
@@ -355,12 +229,7 @@ describe('RecordsTable Component', () => {
       const record = manyColumns.reduce((acc, col) => ({ ...acc, [col]: 'value' }), {});
 
       const { container } = render(
-        <RecordsTable
-          selectedTable="test"
-          records={[record]}
-          columns={manyColumns}
-          onSearch={mockOnSearch}
-        />
+        <RecordsTable selectedTable="test" records={[record]} columns={manyColumns} onSearch={mockOnSearch} />,
       );
 
       const headerCells = container.querySelectorAll('thead th');

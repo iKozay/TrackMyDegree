@@ -8,15 +8,14 @@ jest.mock('../../utils/groupPrerequisites', () => ({
   groupPrerequisites: jest.fn((requisites) => {
     // Simple mock implementation
     const grouped = {};
-    requisites.forEach(req => {
+    requisites.forEach((req) => {
       const key = req.type;
       if (!grouped[key]) grouped[key] = { type: req.type, codes: [] };
       grouped[key].codes.push(req.code);
     });
     return Object.values(grouped);
-  })
+  }),
 }));
-
 
 jest.mock('../../components/SectionModal', () => {
   return function MockCourseSectionButton({ title }) {
@@ -31,10 +30,10 @@ describe('CourseDetailsCard Component', () => {
     description: 'Introduction to Programming',
     requisites: [
       { type: 'pre', code: 'MATH 200' },
-      { type: 'pre', code: 'MATH 201' }
+      { type: 'pre', code: 'MATH 201' },
     ],
     components: 'Lecture 3h, Lab 2h',
-    notes: 'Required for CS majors'
+    notes: 'Required for CS majors',
   };
 
   beforeEach(() => {
@@ -181,7 +180,7 @@ describe('CourseDetailsCard Component', () => {
       const minimalCourse = {
         title: 'COMP 100',
         credits: 3,
-        description: 'Basic course'
+        description: 'Basic course',
       };
       render(<CourseDetailsCard course={minimalCourse} />);
       expect(screen.getByText('COMP 100')).toBeInTheDocument();

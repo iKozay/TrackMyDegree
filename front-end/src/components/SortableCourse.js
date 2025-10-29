@@ -30,8 +30,9 @@ export const SortableCourse = ({
     transition,
   };
 
-  const className = `course-item${disabled ? ' disabled' : ''}${isDragging ? ' dragging' : ''
-    }${isDraggingFromSemester ? ' dragging-from-semester' : ''}${isSelected ? ' selected' : ''}`;
+  const className = `course-item${disabled ? ' disabled' : ''}${
+    isDragging ? ' dragging' : ''
+  }${isDraggingFromSemester ? ' dragging-from-semester' : ''}${isSelected ? ' selected' : ''}`;
 
   const getWarningMessage = () => {
     const warnings = [];

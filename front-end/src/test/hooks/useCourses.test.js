@@ -25,7 +25,6 @@ describe('useCourses Hook', () => {
     process.env.REACT_APP_SERVER = SERVER_URL;
   });
 
-
   // FETCH COURSES BY DEGREE TESTS
 
   it('should fetch courses by degree successfully', async () => {
@@ -45,7 +44,7 @@ describe('useCourses Hook', () => {
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({ degree: 'CS' }),
-      })
+      }),
     );
 
     expect(result.current.courseList).toEqual(mockCourses);
@@ -85,7 +84,6 @@ describe('useCourses Hook', () => {
     expect(result.current.courseList).toEqual([]);
   });
 
-
   // FETCH ALL COURSES TESTS
 
   it('should fetch all courses successfully', async () => {
@@ -102,7 +100,7 @@ describe('useCourses Hook', () => {
 
     expect(fetch).toHaveBeenCalledWith(
       `${SERVER_URL}/courses/getallcourses`,
-      expect.objectContaining({ method: 'POST' })
+      expect.objectContaining({ method: 'POST' }),
     );
 
     expect(result.current.courseList).toEqual([
@@ -147,9 +145,8 @@ describe('useCourses Hook', () => {
     expect(result.current.courseList).toEqual([]);
   });
 
-
   // STATE HANDLING TEST
- 
+
   it('should set loading states correctly', async () => {
     fetch.mockResolvedValueOnce({
       ok: true,
