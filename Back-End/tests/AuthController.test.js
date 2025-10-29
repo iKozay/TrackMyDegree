@@ -30,7 +30,6 @@ describe('AuthController', () => {
 
   describe('Constructor', () => {
     it('should initialize with correct constants', () => {
-      expect(authController.SALT_ROUNDS).toBe(10);
       expect(authController.OTP_EXPIRY_MINUTES).toBe(10);
       expect(authController.DUMMY_HASH).toBe(
         '$2a$10$invalidsaltinvalidsaltinv',
@@ -44,6 +43,7 @@ describe('AuthController', () => {
     beforeEach(async () => {
       const hashedPassword = await bcrypt.hash('TestPass123!', 10);
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: hashedPassword,
         fullname: 'Test User',
@@ -166,6 +166,7 @@ describe('AuthController', () => {
 
     it('should return undefined for existing email', async () => {
       await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'existing@example.com',
         password: 'hashedpassword',
         fullname: 'Existing User',
@@ -175,71 +176,6 @@ describe('AuthController', () => {
       const userInfo = {
         email: 'existing@example.com',
         password: 'StrongPass123!',
-        fullname: 'New User',
-        type: UserType.STUDENT,
-      };
-
-      const result = await authController.registerUser(userInfo);
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should return undefined for weak password', async () => {
-      const userInfo = {
-        email: 'newuser@example.com',
-        password: 'weak', // Too short
-        fullname: 'New User',
-        type: UserType.STUDENT,
-      };
-
-      const result = await authController.registerUser(userInfo);
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should return undefined for password without uppercase', async () => {
-      const userInfo = {
-        email: 'newuser@example.com',
-        password: 'weakpass123!', // No uppercase
-        fullname: 'New User',
-        type: UserType.STUDENT,
-      };
-
-      const result = await authController.registerUser(userInfo);
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should return undefined for password without lowercase', async () => {
-      const userInfo = {
-        email: 'newuser@example.com',
-        password: 'WEAKPASS123!', // No lowercase
-        fullname: 'New User',
-        type: UserType.STUDENT,
-      };
-
-      const result = await authController.registerUser(userInfo);
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should return undefined for password without number', async () => {
-      const userInfo = {
-        email: 'newuser@example.com',
-        password: 'WeakPass!', // No number
-        fullname: 'New User',
-        type: UserType.STUDENT,
-      };
-
-      const result = await authController.registerUser(userInfo);
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should return undefined for password without special character', async () => {
-      const userInfo = {
-        email: 'newuser@example.com',
-        password: 'WeakPass123', // No special character
         fullname: 'New User',
         type: UserType.STUDENT,
       };
@@ -302,6 +238,7 @@ describe('AuthController', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: 'hashedpassword',
         fullname: 'Test User',
@@ -353,6 +290,7 @@ describe('AuthController', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: 'oldpassword',
         fullname: 'Test User',
@@ -412,16 +350,6 @@ describe('AuthController', () => {
       expect(result).toBe(false);
     });
 
-    it('should return false for weak new password', async () => {
-      const result = await authController.resetPassword(
-        'test@example.com',
-        '1234',
-        'weak',
-      );
-
-      expect(result).toBe(false);
-    });
-
     it('should return false when user has no otp field', async () => {
       // Create user without otp
       await User.findByIdAndUpdate(testUser._id, {
@@ -463,6 +391,7 @@ describe('AuthController', () => {
     beforeEach(async () => {
       const hashedPassword = await bcrypt.hash('OldPass123!', 10);
       testUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: hashedPassword,
         fullname: 'Test User',
@@ -509,16 +438,6 @@ describe('AuthController', () => {
       expect(result).toBe(false);
     });
 
-    it('should return false for weak new password', async () => {
-      const result = await authController.changePassword(
-        testUser._id.toString(),
-        'OldPass123!',
-        'weak',
-      );
-
-      expect(result).toBe(false);
-    });
-
     it('should handle database errors gracefully', async () => {
       // Mock User.findById to throw an error
       const originalFindById = User.findById;
@@ -536,51 +455,6 @@ describe('AuthController', () => {
 
       // Restore original method
       User.findById = originalFindById;
-    });
-  });
-
-  describe('isStrongPassword', () => {
-    it('should return true for strong password', () => {
-      // Access private method through the class instance
-      const isStrongPassword =
-        authController.isStrongPassword.bind(authController);
-
-      expect(isStrongPassword('StrongPass123!')).toBe(true);
-    });
-
-    it('should return false for password too short', () => {
-      const isStrongPassword =
-        authController.isStrongPassword.bind(authController);
-
-      expect(isStrongPassword('Short1!')).toBe(false);
-    });
-
-    it('should return false for password without uppercase', () => {
-      const isStrongPassword =
-        authController.isStrongPassword.bind(authController);
-
-      expect(isStrongPassword('weakpass123!')).toBe(false);
-    });
-
-    it('should return false for password without lowercase', () => {
-      const isStrongPassword =
-        authController.isStrongPassword.bind(authController);
-
-      expect(isStrongPassword('WEAKPASS123!')).toBe(false);
-    });
-
-    it('should return false for password without number', () => {
-      const isStrongPassword =
-        authController.isStrongPassword.bind(authController);
-
-      expect(isStrongPassword('WeakPass!')).toBe(false);
-    });
-
-    it('should return false for password without special character', () => {
-      const isStrongPassword =
-        authController.isStrongPassword.bind(authController);
-
-      expect(isStrongPassword('WeakPass123')).toBe(false);
     });
   });
 

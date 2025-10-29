@@ -6,6 +6,7 @@ import { User } from '../../models';
 import bcrypt from 'bcryptjs';
 import * as Sentry from '@sentry/node';
 import { randomInt } from 'crypto';
+import mongoose from 'mongoose';
 
 export enum UserType {
   STUDENT = 'student',
@@ -75,7 +76,6 @@ export class AuthController {
 
   /**
    * Registers a new user after validating input
-   * Enforces strong password policy and checks for existing email
    */
   async registerUser(userInfo: UserInfo): Promise<{ id: string } | undefined> {
     const { email, password, fullname, type } = userInfo;
@@ -87,8 +87,9 @@ export class AuthController {
         return undefined;
       }
 
-      // Create new user (password is already hashed from frontend)
+      // Create new user with generated _id (password is already hashed from frontend)
       const newUser = await User.create({
+        _id: new mongoose.Types.ObjectId().toString(),
         email,
         password, // password is already hashed from frontend
         fullname,
