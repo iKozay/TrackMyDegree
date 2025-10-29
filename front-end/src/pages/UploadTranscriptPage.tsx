@@ -1,14 +1,15 @@
 import '../css/UploadTranscriptPage.css';
 import React from 'react';
-import PropTypes from "prop-types";
-import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
-import PrintImage from '../images/Print_image.png';
-import PdfImage from '../images/Pdf_image.png';
-import TransImage from '../images/Transc_image.png';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import UploadBox from '../components/UploadBox';
-import axios from 'axios';
 import { degreeMap } from '../utils/transcriptUtils';
+import { api } from '~/frontend/api/http-api-client';
+import { ParseTranscriptResponse } from '~/shared/types/apiTypes';
+
+interface UploadTranscriptProps {
+  onDataProcessed: (data: ProcessedData) => void;
+}
 
 //Operates the same way as the UploadAcceptanceLetter.js page but with transcripts
 // UploadTranscript Component - Handles file upload, drag-and-drop, and processing of PDF transcripts
@@ -26,32 +27,32 @@ import { degreeMap } from '../utils/transcriptUtils';
  *
  * Note: All transcript processing happens client-side for privacy - no data sent to servers
  */
-const REACT_APP_SERVER = process.env.REACT_APP_SERVER || 'http://localhost:8000';
 
-const UploadTranscript = ({ onDataProcessed }) => {
-  const navigate = useNavigate(); // Hook to navigate to TimelinePage
-  const processFile = async (file) => {
+const UploadTranscript: React.FC<UploadTranscriptProps> = ({ onDataProcessed }) => {
+  const navigate = useNavigate();
+
+  const processFile = async (file: File): Promise<void> => {
     const formData = new FormData();
     formData.append('transcript', file);
 
     try {
-      const response = await axios.post(`${REACT_APP_SERVER}/transcript/parse`, formData, {
+      const response = await api.post<ParseTranscriptResponse>('/transcript/parse', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      if (response.data.success && response.data.data) {
-        const parsedData = response.data.data;
+      if (response.success && response.data) {
+        const parsedData = response.data;
         console.log('Parsed Transcript Data:', parsedData);
         if (parsedData?.terms.length || parsedData?.transferCredits.length) {
           // Transform new parsed data to match the old format (matching matchCoursesToTerms output)
-          const transcriptData = [];
+          const transcriptData: TranscriptTermData[] = [];
 
           // Handle transfer credits as exempted courses
           if (parsedData.transferCredits.length > 0) {
             // Get the earliest year from transfer credits or use a default
-            const exemptYear = parsedData.terms[0].year;
+            const exemptYear = parsedData.terms[0]?.year || 'Unknown';
             transcriptData.push({
               term: `Exempted ${exemptYear}`,
               courses: parsedData.transferCredits.map((tc) => tc.courseCode.replace(/\s+/g, '')),
@@ -64,15 +65,16 @@ const UploadTranscript = ({ onDataProcessed }) => {
             transcriptData.push({
               term: termName,
               courses: term.courses.map((tc) => tc.courseCode.replace(/\s+/g, '')),
-              grade: term.termGPA,
+              grade: term.termGPA ?? 'N/A',
             });
           }
 
           // Extract degree ID from program history
-          let degreeName = `${parsedData.programHistory[parsedData.programHistory.length - 1]?.degreeType}, ${parsedData.programHistory[parsedData.programHistory.length - 1]?.major}`;
+          const lastProgram = parsedData.programHistory[parsedData.programHistory.length - 1];
+          let degreeName = lastProgram ? `${lastProgram.degreeType}, ${lastProgram.major}` : '';
           const coop = degreeName.indexOf(' (Co-op)');
           degreeName = coop === -1 ? degreeName : degreeName.slice(0, coop);
-          const degreeId = degreeMap[degreeName] || 'UNKN';
+          const degreeId = (degreeMap as Record<string, string>)[degreeName] || 'UNKN';
 
           onDataProcessed({
             transcriptData,
@@ -83,14 +85,24 @@ const UploadTranscript = ({ onDataProcessed }) => {
           // Navigate to timeline_change with the required state
           navigate('/timeline_change', {
             state: { coOp: null, extendedCreditCourses: false },
-          }); // Navigate to TimelinePage
+          });
         } else {
           alert('There are no courses to show!');
         }
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error uploading transcript:', err);
-      alert(err.response?.data?.message || err.message || 'Failed to parse transcript. Please try again.');
+
+      let errorMessage = 'Failed to parse transcript. Please try again.';
+
+      if (err && typeof err === 'object' && 'response' in err) {
+        const errorResponse = err as { response?: { data?: { message?: string } }; message?: string };
+        errorMessage = errorResponse.response?.data?.message || errorResponse.message || errorMessage;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
+      alert(errorMessage);
     }
   };
   return (
@@ -104,12 +116,12 @@ const UploadTranscript = ({ onDataProcessed }) => {
               Go to <strong>Student Center</strong>, and under the <strong>"Academics"</strong> section, click on{' '}
               <em>"View Unofficial Transcript"</em>.
               <br />
-              <img src={TransImage} alt="Step 1" className="instruction-image" />
+              <img src="../images/Transc_image.png" alt="Step 1" className="instruction-image" />
             </li>
             <li>
               Scroll till the end of the transcript and click on the <strong>"Print"</strong> button.
               <br />
-              <img src={PrintImage} alt="Step 2" className="instruction-image" />
+              <img src="../images/Print_image.png" alt="Step 2" className="instruction-image" />
             </li>
             <li>
               In the <strong>"Print"</strong> prompt, for the <em>"Destination"</em> field, please select{' '}
@@ -117,7 +129,7 @@ const UploadTranscript = ({ onDataProcessed }) => {
               <br />
               <strong>Do not choose "Microsoft Print to PDF".</strong>
               <br />
-              <img src={PdfImage} alt="Step 3" className="instruction-image" />
+              <img src="../images/Pdf_image.png" alt="Step 3" className="instruction-image" />
             </li>
           </ol>
         </div>
@@ -131,7 +143,5 @@ const UploadTranscript = ({ onDataProcessed }) => {
     </motion.div>
   );
 };
-UploadTranscript.propTypes = {
-  onDataProcessed: PropTypes.func,
-};
+
 export default UploadTranscript;

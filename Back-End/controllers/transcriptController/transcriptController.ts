@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { TranscriptParser } from '@Util/transcriptParser';
 import HTTP from '@Util/HTTPCodes';
-import type { ParseTranscriptResponse } from '../../types/transcript';
+import type { ParseTranscriptResponse } from '~/shared/types/apiTypes';
 import multer from 'multer';
 
 // Configure multer for file upload

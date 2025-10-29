@@ -10,7 +10,7 @@ import type {
   TranscriptCourse,
   TranscriptTerm,
   TransferCredit,
-} from '../types/transcript';
+} from '~/shared/types/apiTypes';
 import { setTimeout } from 'node:timers';
 
 /**

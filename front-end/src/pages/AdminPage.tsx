@@ -12,19 +12,24 @@ import useTableRecords from './AdminPage/hooks/useTableRecords';
 import BackupManagement from './AdminPage/components/BackupManagement';
 import TablesList from './AdminPage/components/TableList';
 import RecordsTable from './AdminPage/components/RecordsTable';
+import { api } from '~/frontend/api/http-api-client';
+
+interface SeedDataResponse {
+  message: string;
+}
 
 /**
  * Admin dashboard for database management
  * Handles CRUD operations, backups, and data seeding
  */
-const AdminPage = () => {
+const AdminPage: React.FC = () => {
   // Custom hooks for state management
   const backupManager = useBackupManager();
   const tableManager = useDatabaseTables();
   const recordsManager = useTableRecords();
 
   // Seed data functionality
-  const [seedLoading, setSeedLoading] = useState(false);
+  const [seedLoading, setSeedLoading] = useState<boolean>(false);
 
   // Fetch records when table is selected
   useEffect(() => {
@@ -33,33 +38,27 @@ const AdminPage = () => {
     }
   }, [tableManager.selectedTable, recordsManager]);
 
-  const handleSearch = (searchKeyword) => {
-    recordsManager.handleSearch(tableManager.selectedTable, searchKeyword);
+  const handleSearch = (searchKeyword: string): void => {
+    if (tableManager.selectedTable) {
+      recordsManager.handleSearch(tableManager.selectedTable, searchKeyword);
+    }
   };
 
-  const handleSeedData = async () => {
+  const handleSeedData = async (): Promise<void> => {
     setSeedLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/seed-data`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        alert('Failed to seed data');
-        return;
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        alert('Data seeding successful!');
-      } else {
-        alert(`Data seeding failed: ${data.message}`);
-      }
+      await api.post<SeedDataResponse>(
+        '/admin/seed-data',
+        {},
+        {
+          credentials: 'include',
+        },
+      );
+      alert('Data seeding successful!');
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
       console.error('Error seeding data:', err);
-      alert(`Error seeding data: ${err.message}`);
+      alert(`Error seeding data: ${errorMessage}`);
     } finally {
       setSeedLoading(false);
     }
@@ -113,11 +112,7 @@ const AdminPage = () => {
         />
 
         <div style={{ marginTop: '20px' }}>
-          <Button
-            variant="primary"
-            onClick={handleSeedData}
-            disabled={seedLoading}
-          >
+          <Button variant="primary" onClick={handleSeedData} disabled={seedLoading}>
             {seedLoading ? 'Seeding...' : 'Seed Database with JSON'}
           </Button>
         </div>
