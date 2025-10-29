@@ -4,14 +4,14 @@ import { motion } from 'framer-motion';
 import '../css/AdminPage.css';
 
 // Custom hooks
-import useBackupManager from 'front-end/src/pages/AdminPage/hooks/useBackupManager';
-import useDatabaseTables from 'front-end/src/pages/AdminPage/hooks/useDatabaseTables';
-import useTableRecords from 'front-end/src/pages/AdminPage/hooks/useTableRecords';
+import useBackupManager from './AdminPage/hooks/useBackupManager';
+import useDatabaseTables from './AdminPage/hooks/useDatabaseTables';
+import useTableRecords from './AdminPage/hooks/useTableRecords';
 
 // Components
-import BackupManagement from 'front-end/src/pages/AdminPage/components/BackupManagement';
-import TablesList from 'front-end/src/pages/AdminPage/components/TableList';
-import RecordsTable from 'front-end/src/pages/AdminPage/components/RecordsTable';
+import BackupManagement from './AdminPage/components/BackupManagement';
+import TablesList from './AdminPage/components/TableList';
+import RecordsTable from './AdminPage/components/RecordsTable';
 
 /**
  * Admin dashboard for database management

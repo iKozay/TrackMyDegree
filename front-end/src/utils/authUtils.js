@@ -1,3 +1,5 @@
+import bcrypt from 'bcryptjs';
+
 // Email validation using regex pattern
 export const validateEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -63,8 +65,6 @@ export const validateSignupForm = (fullname, email, password, confirmPassword) =
 };
 
 export const hashPassword = async (password) => {
-  const bcrypt = require('bcryptjs');
-  
   try {
     // Generate salt and hash password
     const salt = await bcrypt.genSalt(10);

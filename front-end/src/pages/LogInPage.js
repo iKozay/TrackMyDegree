@@ -7,7 +7,8 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
-import { LoginError } from '../middleware/SentryErrors';
+import { hashPassword, validateLoginForm } from '../utils/authUtils';
+import { loginUser } from '../api/auth_api';
 const REACT_APP_SERVER = process.env.REACT_APP_SERVER || 'http://localhost:8000';
 //This is the login page with a standard form that is sent to the server for validation. Redirects to UserPage.js upon success
 function LogInPage() {
