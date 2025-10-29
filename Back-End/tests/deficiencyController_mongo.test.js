@@ -7,13 +7,26 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 
 // Require compiled controller and models from dist (support default and named exports)
 const deficiencyControllerModule = require('../dist/controllers/deficiencyController/deficiencyController_mongo');
-const deficiencyController = deficiencyControllerModule && deficiencyControllerModule.default ? deficiencyControllerModule.default : deficiencyControllerModule;
+const deficiencyController =
+  deficiencyControllerModule && deficiencyControllerModule.default
+    ? deficiencyControllerModule.default
+    : deficiencyControllerModule;
 
 const UserModule = require('../dist/models/User');
 const DegreeModule = require('../dist/models/Degree');
 
-const User = UserModule && UserModule.User ? UserModule.User : (UserModule.default ? UserModule.default : UserModule);
-const Degree = DegreeModule && DegreeModule.Degree ? DegreeModule.Degree : (DegreeModule.default ? DegreeModule.default : DegreeModule);
+const User =
+  UserModule && UserModule.User
+    ? UserModule.User
+    : UserModule.default
+      ? UserModule.default
+      : UserModule;
+const Degree =
+  DegreeModule && DegreeModule.Degree
+    ? DegreeModule.Degree
+    : DegreeModule.default
+      ? DegreeModule.default
+      : DegreeModule;
 
 describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () => {
   let mongoServer;
@@ -49,8 +62,13 @@ describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () =>
         totalCredits: 120,
         isAddon: false,
         coursePools: [
-          { id: 'pool-1', name: 'Core', creditsRequired: 60, courses: ['CS101', 'CS102'] }
-        ]
+          {
+            id: 'pool-1',
+            name: 'Core',
+            creditsRequired: 60,
+            courses: ['CS101', 'CS102'],
+          },
+        ],
       });
       await degree.save();
 
@@ -63,11 +81,15 @@ describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () =>
         type: 'student',
         degree: 'deg-1',
         deficiencies: [],
-        exemptions: []
+        exemptions: [],
       });
       await user.save();
 
-      const result = await deficiencyController.createDeficiency('pool-1', 'user-1', 12);
+      const result = await deficiencyController.createDeficiency(
+        'pool-1',
+        'user-1',
+        12,
+      );
 
       expect(result).toHaveProperty('id');
       expect(result.coursepool).toBe('pool-1');
@@ -87,7 +109,9 @@ describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () =>
         name: 'CS',
         totalCredits: 120,
         isAddon: false,
-        coursePools: [{ id: 'pool-1', name: 'Core', creditsRequired: 60, courses: [] }]
+        coursePools: [
+          { id: 'pool-1', name: 'Core', creditsRequired: 60, courses: [] },
+        ],
       });
       await degree.save();
 
@@ -99,12 +123,15 @@ describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () =>
         type: 'student',
         degree: 'deg-1',
         deficiencies: [{ coursepool: 'pool-1', creditsRequired: 12 }],
-        exemptions: []
+        exemptions: [],
       });
       await user.save();
 
-      await expect(deficiencyController.createDeficiency('pool-1', 'user-1', 12))
-        .rejects.toThrow('Deficiency with this coursepool and user_id already exists. Please use the update endpoint');
+      await expect(
+        deficiencyController.createDeficiency('pool-1', 'user-1', 12),
+      ).rejects.toThrow(
+        'Deficiency with this coursepool and user_id already exists. Please use the update endpoint',
+      );
     });
 
     it('throws when coursepool does not exist in any degree', async () => {
@@ -117,12 +144,13 @@ describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () =>
         type: 'student',
         degree: null,
         deficiencies: [],
-        exemptions: []
+        exemptions: [],
       });
       await user.save();
 
-      await expect(deficiencyController.createDeficiency('missing-pool', 'user-1', 12))
-        .rejects.toThrow('CoursePool does not exist.');
+      await expect(
+        deficiencyController.createDeficiency('missing-pool', 'user-1', 12),
+      ).rejects.toThrow('CoursePool does not exist.');
     });
 
     it('should initialize deficiencies array if user has none', async () => {
@@ -131,7 +159,9 @@ describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () =>
         _id: 'deg-1',
         name: 'CS',
         totalCredits: 120,
-        coursePools: [{ id: 'pool-1', name: 'Core', creditsRequired: 60, courses: [] }]
+        coursePools: [
+          { id: 'pool-1', name: 'Core', creditsRequired: 60, courses: [] },
+        ],
       });
       await degree.save();
 
@@ -141,11 +171,15 @@ describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () =>
         email: 'nodef@example.com',
         password: 'pw',
         fullname: 'No Def User',
-        type: 'student'
+        type: 'student',
       });
       await user.save();
 
-      const result = await deficiencyController.createDeficiency('pool-1', 'user-no-def', 10);
+      const result = await deficiencyController.createDeficiency(
+        'pool-1',
+        'user-no-def',
+        10,
+      );
 
       expect(result).toHaveProperty('coursepool', 'pool-1');
       expect(result).toHaveProperty('creditsRequired', 10);
@@ -162,12 +196,15 @@ describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () =>
         name: 'CS',
         totalCredits: 120,
         isAddon: false,
-        coursePools: [{ id: 'pool-1', name: 'Core', creditsRequired: 60, courses: [] }]
+        coursePools: [
+          { id: 'pool-1', name: 'Core', creditsRequired: 60, courses: [] },
+        ],
       });
       await degree.save();
 
-      await expect(deficiencyController.createDeficiency('pool-1', 'missing-user', 12))
-        .rejects.toThrow('AppUser does not exist.');
+      await expect(
+        deficiencyController.createDeficiency('pool-1', 'missing-user', 12),
+      ).rejects.toThrow('AppUser does not exist.');
     });
   });
 
@@ -183,17 +220,18 @@ describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () =>
         degree: null,
         deficiencies: [
           { coursepool: 'pool-1', creditsRequired: 12 },
-          { coursepool: 'pool-2', creditsRequired: 6 }
+          { coursepool: 'pool-2', creditsRequired: 6 },
         ],
-        exemptions: []
+        exemptions: [],
       });
       await user.save();
 
-      const result = await deficiencyController.getAllDeficienciesByUser('user-1');
+      const result =
+        await deficiencyController.getAllDeficienciesByUser('user-1');
       expect(Array.isArray(result)).toBe(true);
       expect(result).toHaveLength(2);
-      expect(result.find(d => d.coursepool === 'pool-1')).toBeTruthy();
-      expect(result.find(d => d.coursepool === 'pool-2')).toBeTruthy();
+      expect(result.find((d) => d.coursepool === 'pool-1')).toBeTruthy();
+      expect(result.find((d) => d.coursepool === 'pool-2')).toBeTruthy();
     });
 
     it('returns empty array when no deficiencies exist', async () => {
@@ -205,18 +243,20 @@ describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () =>
         type: 'student',
         degree: null,
         deficiencies: [],
-        exemptions: []
+        exemptions: [],
       });
       await user.save();
 
-      const result = await deficiencyController.getAllDeficienciesByUser('user-2');
+      const result =
+        await deficiencyController.getAllDeficienciesByUser('user-2');
       expect(Array.isArray(result)).toBe(true);
       expect(result).toHaveLength(0);
     });
 
     it('throws when user does not exist', async () => {
-      await expect(deficiencyController.getAllDeficienciesByUser('missing-user'))
-        .rejects.toThrow('AppUser does not exist.');
+      await expect(
+        deficiencyController.getAllDeficienciesByUser('missing-user'),
+      ).rejects.toThrow('AppUser does not exist.');
     });
 
     it('returns empty array when user has undefined deficiencies', async () => {
@@ -226,11 +266,12 @@ describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () =>
         email: 'nodef@example.com',
         password: 'pw',
         fullname: 'No Def User',
-        type: 'student'
+        type: 'student',
       });
       await user.save();
 
-      const result = await deficiencyController.getAllDeficienciesByUser('user-no-def');
+      const result =
+        await deficiencyController.getAllDeficienciesByUser('user-no-def');
       expect(Array.isArray(result)).toBe(true);
       expect(result).toHaveLength(0);
     });
@@ -246,12 +287,18 @@ describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () =>
         type: 'student',
         degree: null,
         deficiencies: [{ coursepool: 'pool-1', creditsRequired: 12 }],
-        exemptions: []
+        exemptions: [],
       });
       await user.save();
 
-      const result = await deficiencyController.deleteDeficiencyByCoursepoolAndUserId('pool-1', 'user-1');
-      expect(result).toBe('Deficiency with appUser user-1 and coursepool pool-1 has been successfully deleted.');
+      const result =
+        await deficiencyController.deleteDeficiencyByCoursepoolAndUserId(
+          'pool-1',
+          'user-1',
+        );
+      expect(result).toBe(
+        'Deficiency with appUser user-1 and coursepool pool-1 has been successfully deleted.',
+      );
 
       const updatedUser = await User.findOne({ _id: 'user-1' }).lean();
       expect(Array.isArray(updatedUser.deficiencies)).toBe(true);
@@ -267,12 +314,16 @@ describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () =>
         type: 'student',
         degree: null,
         deficiencies: [],
-        exemptions: []
+        exemptions: [],
       });
       await user.save();
 
-      await expect(deficiencyController.deleteDeficiencyByCoursepoolAndUserId('pool-1', 'user-1'))
-        .rejects.toThrow('Deficiency with this id does not exist.');
+      await expect(
+        deficiencyController.deleteDeficiencyByCoursepoolAndUserId(
+          'pool-1',
+          'user-1',
+        ),
+      ).rejects.toThrow('Deficiency with this id does not exist.');
     });
 
     it('throws when user has no deficiencies field', async () => {
@@ -282,12 +333,16 @@ describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () =>
         email: 'nodef@example.com',
         password: 'pw',
         fullname: 'No Def User',
-        type: 'student'
+        type: 'student',
       });
       await user.save();
 
-      await expect(deficiencyController.deleteDeficiencyByCoursepoolAndUserId('pool-1', 'user-no-def'))
-        .rejects.toThrow('Deficiency with this id does not exist.');
+      await expect(
+        deficiencyController.deleteDeficiencyByCoursepoolAndUserId(
+          'pool-1',
+          'user-no-def',
+        ),
+      ).rejects.toThrow('Deficiency with this id does not exist.');
     });
 
     it('should delete specific deficiency from multiple deficiencies', async () => {
@@ -300,20 +355,30 @@ describe('deficiencyControllerMongo (integration with in-memory MongoDB)', () =>
         deficiencies: [
           { coursepool: 'pool-1', creditsRequired: 12 },
           { coursepool: 'pool-2', creditsRequired: 6 },
-          { coursepool: 'pool-3', creditsRequired: 9 }
+          { coursepool: 'pool-3', creditsRequired: 9 },
         ],
-        exemptions: []
+        exemptions: [],
       });
       await user.save();
 
-      const result = await deficiencyController.deleteDeficiencyByCoursepoolAndUserId('pool-2', 'user-multi');
+      const result =
+        await deficiencyController.deleteDeficiencyByCoursepoolAndUserId(
+          'pool-2',
+          'user-multi',
+        );
       expect(result).toContain('successfully deleted');
 
       const updatedUser = await User.findOne({ _id: 'user-multi' }).lean();
       expect(updatedUser.deficiencies).toHaveLength(2);
-      expect(updatedUser.deficiencies.find(d => d.coursepool === 'pool-1')).toBeTruthy();
-      expect(updatedUser.deficiencies.find(d => d.coursepool === 'pool-3')).toBeTruthy();
-      expect(updatedUser.deficiencies.find(d => d.coursepool === 'pool-2')).toBeFalsy();
+      expect(
+        updatedUser.deficiencies.find((d) => d.coursepool === 'pool-1'),
+      ).toBeTruthy();
+      expect(
+        updatedUser.deficiencies.find((d) => d.coursepool === 'pool-3'),
+      ).toBeTruthy();
+      expect(
+        updatedUser.deficiencies.find((d) => d.coursepool === 'pool-2'),
+      ).toBeFalsy();
     });
   });
 });

@@ -122,49 +122,49 @@ async function readRequisite(
  * adding a requisite is effectively the same as updating it in this schema.
  * TODO - This is intentional to maintain the same method signature as the SQL version. Refactor as part of https://github.com/iKozay/TrackMyDegree/issues/114
  */
-async function updateRequisite( // NOSONAR S4144 - Intentional duplicate implementation
-  code1: string,
-  code2: string,
-  type: RequisiteTypes.RequisiteType,
-): Promise<RequisiteTypes.Requisite | undefined> {
-  try {
-    // Check if both courses exist
-    const [course1, course2] = await Promise.all([
-      Course.findById(code1),
-      Course.findById(code2),
-    ]);
+// async function updateRequisite( // NOSONAR S4144 - Intentional duplicate implementation
+//   code1: string,
+//   code2: string,
+//   type: RequisiteTypes.RequisiteType,
+// ): Promise<RequisiteTypes.Requisite | undefined> {
+//   try {
+//     // Check if both courses exist
+//     const [course1, course2] = await Promise.all([
+//       Course.findById(code1),
+//       Course.findById(code2),
+//     ]);
 
-    if (!course1 || !course2) {
-      throw new Error(
-        `One or both courses ('${code1}', '${code2}') do not exist.`,
-      );
-    }
+//     if (!course1 || !course2) {
+//       throw new Error(
+//         `One or both courses ('${code1}', '${code2}') do not exist.`,
+//       );
+//     }
 
-    const field = type === 'pre' ? 'prerequisites' : 'corequisites';
+//     const field = type === 'pre' ? 'prerequisites' : 'corequisites';
 
-    // Check if requisite already exists
-    if (course1[field].includes(code2)) {
-      throw new Error(
-        'Requisite with this combination of courses already exists.',
-      );
-    }
+//     // Check if requisite already exists
+//     if (course1[field].includes(code2)) {
+//       throw new Error(
+//         'Requisite with this combination of courses already exists.',
+//       );
+//     }
 
-    // Add the requisite
-    await Course.findByIdAndUpdate(code1, {
-      $addToSet: { [field]: code2 },
-    });
+//     // Add the requisite
+//     await Course.findByIdAndUpdate(code1, {
+//       $addToSet: { [field]: code2 },
+//     });
 
-    return {
-      id: randomUUID(),
-      code1,
-      code2,
-      type,
-    };
-  } catch (error) {
-    Sentry.captureException(error);
-    throw error;
-  }
-}
+//     return {
+//       id: randomUUID(),
+//       code1,
+//       code2,
+//       type,
+//     };
+//   } catch (error) {
+//     Sentry.captureException(error);
+//     throw error;
+//   }
+// }
 
 /**
  * Deletes a requisite.
@@ -201,7 +201,7 @@ async function deleteRequisite(
 const requisiteController = {
   createRequisite,
   readRequisite,
-  updateRequisite,
+  // updateRequisite,
   deleteRequisite,
 };
 

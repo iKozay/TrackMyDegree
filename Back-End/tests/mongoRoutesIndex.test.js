@@ -25,42 +25,32 @@ describe('Mongo Routes Index', () => {
 
   it('should mount all route modules', async () => {
     // Test that routes are accessible
-    const response = await request(app)
-      .get('/mongo/degree')
-      .expect(404); // Should return 404 since no degree exists
+    const response = await request(app).get('/mongo/degree').expect(404); // Should return 404 since no degree exists
 
     // The route should exist (404 means route exists but no data found)
     expect(response.status).toBe(404);
   });
 
   it('should have /mongo/degree route', async () => {
-    const response = await request(app)
-      .get('/mongo/degree')
-      .expect(200);
+    const response = await request(app).get('/mongo/degree').expect(200);
 
     expect(response.body.message).toBeDefined();
   });
 
   it('should have /mongo/courses route', async () => {
-    const response = await request(app)
-      .get('/mongo/courses')
-      .expect(200);
+    const response = await request(app).get('/mongo/courses').expect(200);
 
     expect(response.body).toBeDefined();
   });
 
   it('should have /mongo/users route', async () => {
-    const response = await request(app)
-      .get('/mongo/users')
-      .expect(200);
+    const response = await request(app).get('/mongo/users').expect(200);
 
     expect(response.body).toBeDefined();
   });
 
   it('should have /mongo/feedback route', async () => {
-    const response = await request(app)
-      .get('/mongo/feedback')
-      .expect(200);
+    const response = await request(app).get('/mongo/feedback').expect(200);
 
     expect(response.body).toBeDefined();
   });

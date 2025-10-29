@@ -40,7 +40,7 @@ export const getUserData = async (
     // Fetch the user's timeline (flatten nested structure to match SQL output format)
     const timelineResult = await Timeline.find({ userId: id });
     const timeline: TimelineEntry[] = [];
-    
+
     // Flatten timeline items to match the SQL structure (season, year, coursecode)
     for (const tl of timelineResult) {
       for (const item of tl.items) {
@@ -48,21 +48,21 @@ export const getUserData = async (
           timeline.push({
             season: item.season,
             year: item.year,
-            coursecode: coursecode
+            coursecode: coursecode,
           });
         }
       }
     }
 
     // Fetch all deficiencies from the user document (already embedded)
-    const deficiencies = user.deficiencies.map(def => ({
+    const deficiencies = user.deficiencies.map((def) => ({
       coursepool: def.coursepool,
-      creditsRequired: def.creditsRequired
+      creditsRequired: def.creditsRequired,
     }));
 
     // Fetch all exemptions from the user document (already embedded as course references)
-    const exemptions = user.exemptions.map(coursecode => ({
-      coursecode: coursecode
+    const exemptions = user.exemptions.map((coursecode) => ({
+      coursecode: coursecode,
     }));
 
     // Fetch detailed degree information if user has a degree assigned
@@ -73,7 +73,7 @@ export const getUserData = async (
         degree = {
           id: degreeDoc._id,
           name: degreeDoc.name,
-          totalCredits: degreeDoc.totalCredits
+          totalCredits: degreeDoc.totalCredits,
         };
       }
     }
@@ -85,7 +85,7 @@ export const getUserData = async (
         email: user.email,
         fullname: user.fullname,
         type: user.type,
-        degree: user.degree || null
+        degree: user.degree || null,
       },
       timeline,
       deficiencies,
@@ -94,7 +94,7 @@ export const getUserData = async (
         ? {
             id: degree.id,
             name: degree.name,
-            totalCredits: degree.totalCredits
+            totalCredits: degree.totalCredits,
           }
         : null,
     };

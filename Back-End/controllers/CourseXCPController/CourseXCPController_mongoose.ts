@@ -31,7 +31,9 @@ async function createCourseXCP(
       return DB_OPS.MOSTLY_OK;
     }
 
-    const coursePool = degree.coursePools.find(pool => pool.id === coursepool_id);
+    const coursePool = degree.coursePools.find(
+      (pool) => pool.id === coursepool_id,
+    );
     if (coursePool && !coursePool.courses.includes(coursecode)) {
       coursePool.courses.push(coursecode);
       await degree.save();
@@ -58,7 +60,9 @@ async function getAllCourseXCP(
       return { course_codes: [] };
     }
 
-    const coursePool = degree.coursePools.find(pool => pool.id === coursepool_id);
+    const coursePool = degree.coursePools.find(
+      (pool) => pool.id === coursepool_id,
+    );
     const codes = [];
 
     if (coursePool && coursePool.courses) {
@@ -92,7 +96,9 @@ async function updateCourseXCP(
       return DB_OPS.MOSTLY_OK;
     }
 
-    const coursePool = degree.coursePools.find(pool => pool.id === coursepool_id);
+    const coursePool = degree.coursePools.find(
+      (pool) => pool.id === coursepool_id,
+    );
     if (coursePool && !coursePool?.courses.includes(coursecode)) {
       coursePool.courses.push(coursecode);
       await degree.save();
@@ -122,12 +128,12 @@ async function removeDegreeXCP(
       return DB_OPS.MOSTLY_OK;
     }
 
-    const coursePool = degree.coursePools.find(pool => pool.id === coursepool_id);
+    const coursePool = degree.coursePools.find(
+      (pool) => pool.id === coursepool_id,
+    );
     const courseIndex = coursePool?.courses.indexOf(coursecode);
 
     console.log(courseIndex);
-
-
 
     if (coursePool && courseIndex && courseIndex > -1) {
       coursePool.courses.splice(courseIndex, 1);

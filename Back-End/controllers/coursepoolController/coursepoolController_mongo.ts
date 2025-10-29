@@ -35,7 +35,9 @@ async function createCoursePool(pool_name: string): Promise<DB_OPS> {
     };
 
     // Placeholder: actual persistence logic may depend on Degree model usage
-    log(`CoursePool '${pool_name}' with id '${record.id}' created successfully`);
+    log(
+      `CoursePool '${pool_name}' with id '${record.id}' created successfully`,
+    );
     return DB_OPS.SUCCESS;
   } catch (error) {
     Sentry.captureException(error);
@@ -53,7 +55,6 @@ async function createCoursePool(pool_name: string): Promise<DB_OPS> {
 async function getAllCoursePools(): Promise<
   { course_pools: CoursePoolTypes.CoursePoolItem[] } | undefined
 > {
-
   try {
     const degrees = await Degree.find().lean();
 
@@ -94,7 +95,7 @@ async function getCoursePool(
     }
 
     for (const degree of degrees) {
-      const pool = degree.coursePools?.find(cp => cp.id === pool_id);
+      const pool = degree.coursePools?.find((cp) => cp.id === pool_id);
       if (pool) {
         return { id: pool.id, name: pool.name };
       }
@@ -130,8 +131,8 @@ async function updateCoursePool(
     let updated = false;
 
     await Promise.all(
-      degrees.map(async degree => {
-        const pool = degree.coursePools.find(cp => cp.id === id);
+      degrees.map(async (degree) => {
+        const pool = degree.coursePools.find((cp) => cp.id === id);
         if (pool) {
           pool.name = name;
           await degree.save();
@@ -163,9 +164,9 @@ async function removeCoursePool(pool_id: string): Promise<DB_OPS> {
     }
     let removed = false;
     await Promise.all(
-      degrees.map(async degree => {
+      degrees.map(async (degree) => {
         // Find the index and remove using splice
-        const index = degree.coursePools.findIndex(cp => cp.id === pool_id);
+        const index = degree.coursePools.findIndex((cp) => cp.id === pool_id);
         if (index !== -1) {
           degree.coursePools.splice(index, 1);
           await degree.save();

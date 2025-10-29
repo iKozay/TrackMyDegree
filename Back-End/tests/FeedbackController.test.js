@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { FeedbackController } = require('../dist/controllers/mondoDBControllers/FeedbackController');
+const {
+  FeedbackController,
+} = require('../dist/controllers/mondoDBControllers/FeedbackController');
 const { Feedback } = require('../dist/models/Feedback');
 
 describe('FeedbackController', () => {
@@ -41,7 +43,7 @@ describe('FeedbackController', () => {
 
       expect(result).toMatchObject({
         message: 'This is a test feedback message',
-        user_id: 'user123'
+        user_id: 'user123',
       });
       expect(result.id).toBeDefined();
       expect(result.submitted_at).toBeDefined();
@@ -54,7 +56,7 @@ describe('FeedbackController', () => {
 
       expect(result).toMatchObject({
         message: 'Anonymous feedback message',
-        user_id: null
+        user_id: null,
       });
       expect(result.id).toBeDefined();
       expect(result.submitted_at).toBeDefined();
@@ -67,8 +69,9 @@ describe('FeedbackController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(feedbackController.submitFeedback('Test message'))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        feedbackController.submitFeedback('Test message'),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       Feedback.create = originalCreate;
@@ -81,23 +84,23 @@ describe('FeedbackController', () => {
         {
           message: 'Feedback 1',
           user_id: 'user123',
-          submitted_at: new Date('2023-01-01')
+          submitted_at: new Date('2023-01-01'),
         },
         {
           message: 'Feedback 2',
           user_id: 'user123',
-          submitted_at: new Date('2023-01-02')
+          submitted_at: new Date('2023-01-02'),
         },
         {
           message: 'Feedback 3',
           user_id: 'user456',
-          submitted_at: new Date('2023-01-03')
+          submitted_at: new Date('2023-01-03'),
         },
         {
           message: 'Anonymous feedback',
           user_id: null,
-          submitted_at: new Date('2023-01-04')
-        }
+          submitted_at: new Date('2023-01-04'),
+        },
       ]);
     });
 
@@ -130,14 +133,19 @@ describe('FeedbackController', () => {
     });
 
     it('should filter feedback by user_id', async () => {
-      const result = await feedbackController.getAllFeedback({ user_id: 'user123' });
+      const result = await feedbackController.getAllFeedback({
+        user_id: 'user123',
+      });
 
       expect(result).toHaveLength(2);
-      expect(result.every(f => f.user_id === 'user123')).toBe(true);
+      expect(result.every((f) => f.user_id === 'user123')).toBe(true);
     });
 
     it('should paginate feedback', async () => {
-      const result = await feedbackController.getAllFeedback({ page: 1, limit: 2 });
+      const result = await feedbackController.getAllFeedback({
+        page: 1,
+        limit: 2,
+      });
 
       expect(result).toHaveLength(2);
     });
@@ -156,8 +164,9 @@ describe('FeedbackController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(feedbackController.getAllFeedback())
-        .rejects.toThrow('Database connection failed');
+      await expect(feedbackController.getAllFeedback()).rejects.toThrow(
+        'Database connection failed',
+      );
 
       // Restore original method
       Feedback.find = originalFind;
@@ -166,10 +175,13 @@ describe('FeedbackController', () => {
     it('should throw error when findAll returns success: false', async () => {
       // Mock the findAll method to return success: false
       const originalFindAll = feedbackController.findAll;
-      feedbackController.findAll = jest.fn().mockResolvedValue({ success: false });
+      feedbackController.findAll = jest
+        .fn()
+        .mockResolvedValue({ success: false });
 
-      await expect(feedbackController.getAllFeedback())
-        .rejects.toThrow('Failed to fetch feedback');
+      await expect(feedbackController.getAllFeedback()).rejects.toThrow(
+        'Failed to fetch feedback',
+      );
 
       // Restore original method
       feedbackController.findAll = originalFindAll;
@@ -179,12 +191,16 @@ describe('FeedbackController', () => {
       // Mock the findAll method to throw an error
       const originalFindAll = feedbackController.findAll;
       const handleErrorSpy = jest.spyOn(feedbackController, 'handleError');
-      feedbackController.findAll = jest.fn().mockRejectedValue(new Error('Database query failed'));
+      feedbackController.findAll = jest
+        .fn()
+        .mockRejectedValue(new Error('Database query failed'));
 
-      await expect(feedbackController.getAllFeedback())
-        .rejects.toThrow();
+      await expect(feedbackController.getAllFeedback()).rejects.toThrow();
 
-      expect(handleErrorSpy).toHaveBeenCalledWith(expect.any(Error), 'getAllFeedback');
+      expect(handleErrorSpy).toHaveBeenCalledWith(
+        expect.any(Error),
+        'getAllFeedback',
+      );
 
       // Restore original method
       feedbackController.findAll = originalFindAll;
@@ -199,25 +215,28 @@ describe('FeedbackController', () => {
       testFeedback = await Feedback.create({
         message: 'Test feedback message',
         user_id: 'user123',
-        submitted_at: new Date()
+        submitted_at: new Date(),
       });
     });
 
     it('should get feedback by ID', async () => {
-      const result = await feedbackController.getFeedbackById(testFeedback._id.toString());
+      const result = await feedbackController.getFeedbackById(
+        testFeedback._id.toString(),
+      );
 
       expect(result).toMatchObject({
         id: testFeedback._id.toString(),
         message: 'Test feedback message',
-        user_id: 'user123'
+        user_id: 'user123',
       });
       expect(result.submitted_at).toBeDefined();
     });
 
     it('should throw error for non-existent feedback', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
-      await expect(feedbackController.getFeedbackById(fakeId))
-        .rejects.toThrow('Feedback not found');
+      await expect(feedbackController.getFeedbackById(fakeId)).rejects.toThrow(
+        'Feedback not found',
+      );
     });
 
     it('should handle database errors', async () => {
@@ -227,8 +246,9 @@ describe('FeedbackController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(feedbackController.getFeedbackById(testFeedback._id.toString()))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        feedbackController.getFeedbackById(testFeedback._id.toString()),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       Feedback.findById = originalFindById;
@@ -242,12 +262,14 @@ describe('FeedbackController', () => {
       testFeedback = await Feedback.create({
         message: 'Test feedback to delete',
         user_id: 'user123',
-        submitted_at: new Date()
+        submitted_at: new Date(),
       });
     });
 
     it('should delete feedback successfully', async () => {
-      const result = await feedbackController.deleteFeedback(testFeedback._id.toString());
+      const result = await feedbackController.deleteFeedback(
+        testFeedback._id.toString(),
+      );
 
       expect(result).toBe('Feedback deleted successfully');
 
@@ -258,8 +280,9 @@ describe('FeedbackController', () => {
 
     it('should throw error for non-existent feedback', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
-      await expect(feedbackController.deleteFeedback(fakeId))
-        .rejects.toThrow('Feedback not found');
+      await expect(feedbackController.deleteFeedback(fakeId)).rejects.toThrow(
+        'Feedback not found',
+      );
     });
 
     it('should handle database errors', async () => {
@@ -269,8 +292,9 @@ describe('FeedbackController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(feedbackController.deleteFeedback(testFeedback._id.toString()))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        feedbackController.deleteFeedback(testFeedback._id.toString()),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       Feedback.findByIdAndDelete = originalFindByIdAndDelete;
@@ -283,18 +307,18 @@ describe('FeedbackController', () => {
         {
           message: 'User 1 Feedback 1',
           user_id: 'user123',
-          submitted_at: new Date()
+          submitted_at: new Date(),
         },
         {
           message: 'User 1 Feedback 2',
           user_id: 'user123',
-          submitted_at: new Date()
+          submitted_at: new Date(),
         },
         {
           message: 'User 2 Feedback',
           user_id: 'user456',
-          submitted_at: new Date()
-        }
+          submitted_at: new Date(),
+        },
       ]);
     });
 
@@ -325,8 +349,9 @@ describe('FeedbackController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(feedbackController.deleteUserFeedback('user123'))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        feedbackController.deleteUserFeedback('user123'),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       Feedback.deleteMany = originalDeleteMany;
@@ -335,10 +360,13 @@ describe('FeedbackController', () => {
     it('should throw error when deleteMany returns success: false', async () => {
       // Mock the deleteMany method to return success: false
       const originalDeleteMany = feedbackController.deleteMany;
-      feedbackController.deleteMany = jest.fn().mockResolvedValue({ success: false });
+      feedbackController.deleteMany = jest
+        .fn()
+        .mockResolvedValue({ success: false });
 
-      await expect(feedbackController.deleteUserFeedback('user123'))
-        .rejects.toThrow('Failed to delete feedback');
+      await expect(
+        feedbackController.deleteUserFeedback('user123'),
+      ).rejects.toThrow('Failed to delete feedback');
 
       // Restore original method
       feedbackController.deleteMany = originalDeleteMany;
@@ -348,12 +376,18 @@ describe('FeedbackController', () => {
       // Mock the deleteMany method to throw an error
       const originalDeleteMany = feedbackController.deleteMany;
       const handleErrorSpy = jest.spyOn(feedbackController, 'handleError');
-      feedbackController.deleteMany = jest.fn().mockRejectedValue(new Error('Delete operation failed'));
+      feedbackController.deleteMany = jest
+        .fn()
+        .mockRejectedValue(new Error('Delete operation failed'));
 
-      await expect(feedbackController.deleteUserFeedback('user123'))
-        .rejects.toThrow();
+      await expect(
+        feedbackController.deleteUserFeedback('user123'),
+      ).rejects.toThrow();
 
-      expect(handleErrorSpy).toHaveBeenCalledWith(expect.any(Error), 'deleteUserFeedback');
+      expect(handleErrorSpy).toHaveBeenCalledWith(
+        expect.any(Error),
+        'deleteUserFeedback',
+      );
 
       // Restore original method
       feedbackController.deleteMany = originalDeleteMany;

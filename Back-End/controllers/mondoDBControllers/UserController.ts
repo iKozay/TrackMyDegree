@@ -5,6 +5,9 @@
 import { BaseMongoController } from './BaseMongoController';
 import { User, Course, Degree, Timeline } from '../../models';
 
+const USER_WITH_ID_DOES_NOT_EXIST = 'User with this id does not exist.';
+const USER_DOES_NOT_EXIST = 'User does not exist.';
+
 export interface UserData {
   id?: string;
   email: string;
@@ -89,7 +92,7 @@ export class UserController extends BaseMongoController<any> {
       const result = await this.findById(id);
 
       if (!result.success) {
-        throw new Error('User with this id does not exist.');
+        throw new Error(USER_WITH_ID_DOES_NOT_EXIST);
       }
 
       return {
@@ -111,7 +114,10 @@ export class UserController extends BaseMongoController<any> {
    */
   async getAllUsers(): Promise<UserData[]> {
     try {
-      const result = await this.findAll({}, { select: 'email fullname degree type' });
+      const result = await this.findAll(
+        {},
+        { select: 'email fullname degree type' },
+      );
 
       if (!result.success) {
         throw new Error('Failed to fetch users');
@@ -139,15 +145,17 @@ export class UserController extends BaseMongoController<any> {
     try {
       // Remove type from updates to prevent unauthorized user type changes
       const { type, ...safeUpdates } = updates;
-      
+
       if (type !== undefined) {
-        console.warn(`Attempted to update user type for user ${id}. This change was blocked.`);
+        console.warn(
+          `Attempted to update user type for user ${id}. This change was blocked.`,
+        );
       }
 
       const result = await this.updateById(id, safeUpdates);
 
       if (!result.success) {
-        throw new Error('User with this id does not exist.');
+        throw new Error(USER_WITH_ID_DOES_NOT_EXIST);
       }
 
       return {
@@ -170,7 +178,7 @@ export class UserController extends BaseMongoController<any> {
       const result = await this.deleteById(id);
 
       if (!result.success) {
-        throw new Error('User with this id does not exist.');
+        throw new Error(USER_WITH_ID_DOES_NOT_EXIST);
       }
 
       return `User with id ${id} has been successfully deleted.`;
@@ -191,7 +199,7 @@ export class UserController extends BaseMongoController<any> {
       ]);
 
       if (!userResult.success || !userResult.data) {
-        throw new Error('User with this id does not exist.');
+        throw new Error(USER_WITH_ID_DOES_NOT_EXIST);
       }
 
       const user = userResult.data;
@@ -273,7 +281,7 @@ export class UserController extends BaseMongoController<any> {
     try {
       const userResult = await this.findById(user_id);
       if (!userResult.success) {
-        throw new Error('User does not exist.');
+        throw new Error(USER_DOES_NOT_EXIST);
       }
 
       const user = userResult.data;
@@ -316,7 +324,7 @@ export class UserController extends BaseMongoController<any> {
     try {
       const result = await this.findById(user_id, 'deficiencies');
       if (!result.success) {
-        throw new Error('User does not exist.');
+        throw new Error(USER_DOES_NOT_EXIST);
       }
 
       return (result.data?.deficiencies || []).map(
@@ -374,7 +382,7 @@ export class UserController extends BaseMongoController<any> {
         .exec();
 
       if (!result) {
-        throw new Error('User does not exist.');
+        throw new Error(USER_DOES_NOT_EXIST);
       }
 
       return `Deficiency with coursepool ${coursepool} has been successfully deleted.`;

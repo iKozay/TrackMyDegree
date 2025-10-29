@@ -80,7 +80,7 @@ describe('index.ts', () => {
   it('should handle environment variables', () => {
     process.env.PORT = '3000';
     process.env.CLIENT = 'http://test:4000';
-    
+
     expect(() => {
       require('../dist/index.js');
     }).not.toThrow();
@@ -89,7 +89,7 @@ describe('index.ts', () => {
   it('should use default values when env vars are not set', () => {
     delete process.env.PORT;
     delete process.env.CLIENT;
-    
+
     expect(() => {
       require('../dist/index.js');
     }).not.toThrow();
@@ -97,10 +97,10 @@ describe('index.ts', () => {
 
   it('should set up unhandled rejection handler', () => {
     const Sentry = require('@sentry/node');
-    
+
     // Simulate unhandled rejection
     process.emit('unhandledRejection', new Error('Test rejection'));
-    
+
     expect(Sentry.captureException).toHaveBeenCalled();
   });
 
@@ -153,10 +153,22 @@ describe('index.ts', () => {
     const app = express.mock.results[0].value;
 
     // Verify rate limiters are applied
-    expect(app.use).toHaveBeenCalledWith('/auth/forgot-password', rateLimiter.forgotPasswordLimiter);
-    expect(app.use).toHaveBeenCalledWith('/auth/reset-password', rateLimiter.resetPasswordLimiter);
-    expect(app.use).toHaveBeenCalledWith('/auth/login', rateLimiter.loginLimiter);
-    expect(app.use).toHaveBeenCalledWith('/auth/signup', rateLimiter.signupLimiter);
+    expect(app.use).toHaveBeenCalledWith(
+      '/auth/forgot-password',
+      rateLimiter.forgotPasswordLimiter,
+    );
+    expect(app.use).toHaveBeenCalledWith(
+      '/auth/reset-password',
+      rateLimiter.resetPasswordLimiter,
+    );
+    expect(app.use).toHaveBeenCalledWith(
+      '/auth/login',
+      rateLimiter.loginLimiter,
+    );
+    expect(app.use).toHaveBeenCalledWith(
+      '/auth/signup',
+      rateLimiter.signupLimiter,
+    );
   });
 
   it('should setup error handlers', () => {

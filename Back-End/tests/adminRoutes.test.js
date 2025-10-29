@@ -38,19 +38,17 @@ describe('Admin Routes', () => {
       await User.create({
         email: 'test@example.com',
         fullname: 'Test User',
-        type: 'student'
+        type: 'student',
       });
       await Course.create({
         _id: 'COMP101',
         title: 'Introduction to Programming',
-        credits: 3
+        credits: 3,
       });
     });
 
     it('should get all collections', async () => {
-      const response = await request(app)
-        .get('/admin/collections')
-        .expect(200);
+      const response = await request(app).get('/admin/collections').expect(200);
 
       expect(response.body.message).toBe('Collections retrieved successfully');
       expect(response.body.collections).toContain('users');
@@ -60,32 +58,36 @@ describe('Admin Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock adminController.getCollections to throw an error
-      const originalGetCollections = require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections;
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetCollections =
+        require('../dist/controllers/mondoDBControllers/AdminController')
+          .adminController.getCollections;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
-      const response = await request(app)
-        .get('/admin/collections')
-        .expect(500);
+      const response = await request(app).get('/admin/collections').expect(500);
 
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections = originalGetCollections;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections =
+        originalGetCollections;
     });
 
     it('should handle general errors not containing "not available"', async () => {
       // Mock adminController.getCollections to throw a general error
-      const originalGetCollections = require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections;
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections = jest.fn().mockRejectedValue(new Error('Some other error'));
+      const originalGetCollections =
+        require('../dist/controllers/mondoDBControllers/AdminController')
+          .adminController.getCollections;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections =
+        jest.fn().mockRejectedValue(new Error('Some other error'));
 
-      const response = await request(app)
-        .get('/admin/collections')
-        .expect(500);
+      const response = await request(app).get('/admin/collections').expect(500);
 
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections = originalGetCollections;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections =
+        originalGetCollections;
     });
   });
 
@@ -95,18 +97,18 @@ describe('Admin Routes', () => {
         {
           email: 'user1@example.com',
           fullname: 'User One',
-          type: 'student'
+          type: 'student',
         },
         {
           email: 'user2@example.com',
           fullname: 'User Two',
-          type: 'advisor'
+          type: 'advisor',
         },
         {
           email: 'admin@example.com',
           fullname: 'Admin User',
-          type: 'admin'
-        }
+          type: 'admin',
+        },
       ]);
     });
 
@@ -161,8 +163,11 @@ describe('Admin Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock adminController.getCollectionDocuments to throw an error
-      const originalGetCollectionDocuments = require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionDocuments;
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionDocuments = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetCollectionDocuments =
+        require('../dist/controllers/mondoDBControllers/AdminController')
+          .adminController.getCollectionDocuments;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionDocuments =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .get('/admin/collections/users')
@@ -171,7 +176,8 @@ describe('Admin Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionDocuments = originalGetCollectionDocuments;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionDocuments =
+        originalGetCollectionDocuments;
     });
   });
 
@@ -181,13 +187,13 @@ describe('Admin Routes', () => {
         {
           email: 'user1@example.com',
           fullname: 'User One',
-          type: 'student'
+          type: 'student',
         },
         {
           email: 'user2@example.com',
           fullname: 'User Two',
-          type: 'advisor'
-        }
+          type: 'advisor',
+        },
       ]);
     });
 
@@ -196,7 +202,9 @@ describe('Admin Routes', () => {
         .get('/admin/collections/users/stats')
         .expect(200);
 
-      expect(response.body.message).toBe('Collection statistics retrieved successfully');
+      expect(response.body.message).toBe(
+        'Collection statistics retrieved successfully',
+      );
       expect(response.body.stats).toHaveProperty('count');
       expect(response.body.stats).toHaveProperty('size');
       expect(response.body.stats).toHaveProperty('avgDocSize');
@@ -217,8 +225,11 @@ describe('Admin Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock adminController.getCollectionStats to throw an error
-      const originalGetCollectionStats = require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats;
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetCollectionStats =
+        require('../dist/controllers/mondoDBControllers/AdminController')
+          .adminController.getCollectionStats;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .get('/admin/collections/users/stats')
@@ -227,13 +238,17 @@ describe('Admin Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats = originalGetCollectionStats;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats =
+        originalGetCollectionStats;
     });
 
     it('should handle general errors not containing "not available"', async () => {
       // Mock adminController.getCollectionStats to throw a general error
-      const originalGetCollectionStats = require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats;
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats = jest.fn().mockRejectedValue(new Error('Some other error'));
+      const originalGetCollectionStats =
+        require('../dist/controllers/mondoDBControllers/AdminController')
+          .adminController.getCollectionStats;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats =
+        jest.fn().mockRejectedValue(new Error('Some other error'));
 
       const response = await request(app)
         .get('/admin/collections/users/stats')
@@ -242,7 +257,8 @@ describe('Admin Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats = originalGetCollectionStats;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats =
+        originalGetCollectionStats;
     });
   });
 
@@ -252,13 +268,13 @@ describe('Admin Routes', () => {
         {
           email: 'user1@example.com',
           fullname: 'User One',
-          type: 'student'
+          type: 'student',
         },
         {
           email: 'user2@example.com',
           fullname: 'User Two',
-          type: 'advisor'
-        }
+          type: 'advisor',
+        },
       ]);
     });
 
@@ -285,8 +301,11 @@ describe('Admin Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock adminController.clearCollection to throw an error
-      const originalClearCollection = require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection;
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalClearCollection =
+        require('../dist/controllers/mondoDBControllers/AdminController')
+          .adminController.clearCollection;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .delete('/admin/collections/users')
@@ -295,7 +314,8 @@ describe('Admin Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection = originalClearCollection;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection =
+        originalClearCollection;
     });
   });
 
@@ -305,7 +325,9 @@ describe('Admin Routes', () => {
         .get('/admin/connection-status')
         .expect(200);
 
-      expect(response.body.message).toBe('Connection status retrieved successfully');
+      expect(response.body.message).toBe(
+        'Connection status retrieved successfully',
+      );
       expect(response.body).toHaveProperty('connected');
       expect(response.body).toHaveProperty('readyState');
       expect(response.body).toHaveProperty('name');
@@ -313,10 +335,13 @@ describe('Admin Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock adminController.getConnectionStatus to throw an error
-      const originalGetConnectionStatus = require('../dist/controllers/mondoDBControllers/AdminController').adminController.getConnectionStatus;
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getConnectionStatus = jest.fn().mockImplementation(() => {
-        throw new Error('Database error');
-      });
+      const originalGetConnectionStatus =
+        require('../dist/controllers/mondoDBControllers/AdminController')
+          .adminController.getConnectionStatus;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getConnectionStatus =
+        jest.fn().mockImplementation(() => {
+          throw new Error('Database error');
+        });
 
       const response = await request(app)
         .get('/admin/connection-status')
@@ -325,7 +350,8 @@ describe('Admin Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getConnectionStatus = originalGetConnectionStatus;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getConnectionStatus =
+        originalGetConnectionStatus;
     });
   });
 
@@ -335,8 +361,8 @@ describe('Admin Routes', () => {
         {
           email: 'user1@example.com',
           fullname: 'User One',
-          type: 'student'
-        }
+          type: 'student',
+        },
       ]);
     });
 
@@ -359,55 +385,70 @@ describe('Admin Routes', () => {
     });
   });
 
+  it('should handle database connection not available error', async () => {
+    const originalClearCollection =
+      require('../dist/controllers/mondoDBControllers/AdminController')
+        .adminController.clearCollection;
+    require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection =
+      jest
+        .fn()
+        .mockRejectedValue(new Error('Database connection not available'));
 
-    it('should handle database connection not available error', async () => {
-      const originalClearCollection = require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection;
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection = jest.fn().mockRejectedValue(new Error('Database connection not available'));
+    const response = await request(app)
+      .delete('/admin/collections/users/clear')
+      .expect(500);
 
-      const response = await request(app)
-        .delete('/admin/collections/users/clear')
-        .expect(500);
+    expect(response.body.error).toBe('Database connection not available');
 
-      expect(response.body.error).toBe('Database connection not available');
+    require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection =
+      originalClearCollection;
+  });
+});
 
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection = originalClearCollection;
-    });
+describe('Additional error handling', () => {
+  it('should handle database connection not available in GET /admin/collections', async () => {
+    const originalGetCollections =
+      require('../dist/controllers/mondoDBControllers/AdminController')
+        .adminController.getCollections;
+    require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections =
+      jest
+        .fn()
+        .mockRejectedValue(new Error('Database connection not available'));
+
+    const response = await request(app).get('/admin/collections').expect(500);
+
+    expect(response.body.error).toBe('Database connection not available');
+
+    require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections =
+      originalGetCollections;
   });
 
-  describe('Additional error handling', () => {
-    it('should handle database connection not available in GET /admin/collections', async () => {
-      const originalGetCollections = require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections;
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections = jest.fn().mockRejectedValue(new Error('Database connection not available'));
+  it('should handle database connection not available in GET /admin/collections/:collectionName/stats', async () => {
+    const originalGetCollectionStats =
+      require('../dist/controllers/mondoDBControllers/AdminController')
+        .adminController.getCollectionStats;
+    require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats =
+      jest
+        .fn()
+        .mockRejectedValue(new Error('Database connection not available'));
 
-      const response = await request(app)
-        .get('/admin/collections')
-        .expect(500);
+    const response = await request(app)
+      .get('/admin/collections/users/stats')
+      .expect(500);
 
-      expect(response.body.error).toBe('Database connection not available');
+    expect(response.body.error).toBe('Database connection not available');
 
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollections = originalGetCollections;
-    });
-
-    it('should handle database connection not available in GET /admin/collections/:collectionName/stats', async () => {
-      const originalGetCollectionStats = require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats;
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats = jest.fn().mockRejectedValue(new Error('Database connection not available'));
-
-      const response = await request(app)
-        .get('/admin/collections/users/stats')
-        .expect(500);
-
-      expect(response.body.error).toBe('Database connection not available');
-
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats = originalGetCollectionStats;
-    });
+    require('../dist/controllers/mondoDBControllers/AdminController').adminController.getCollectionStats =
+      originalGetCollectionStats;
+  });
   describe('DELETE /admin/collections/:collectionName/clear edge cases', () => {
     beforeEach(async () => {
       await User.create([
         {
           email: 'user1@example.com',
           fullname: 'User One',
-          type: 'student'
-        }
+          type: 'student',
+        },
       ]);
     });
 
@@ -420,8 +461,11 @@ describe('Admin Routes', () => {
     });
 
     it('should handle general errors not containing "not available"', async () => {
-      const originalClearCollection = require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection;
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection = jest.fn().mockRejectedValue(new Error('Some other error'));
+      const originalClearCollection =
+        require('../dist/controllers/mondoDBControllers/AdminController')
+          .adminController.clearCollection;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection =
+        jest.fn().mockRejectedValue(new Error('Some other error'));
 
       const response = await request(app)
         .delete('/admin/collections/users/clear')
@@ -429,7 +473,8 @@ describe('Admin Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection = originalClearCollection;
+      require('../dist/controllers/mondoDBControllers/AdminController').adminController.clearCollection =
+        originalClearCollection;
     });
   });
 });

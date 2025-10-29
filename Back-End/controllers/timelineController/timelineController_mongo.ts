@@ -8,7 +8,7 @@ const log = console.log;
 // MongoDB Schema
 // ----------------------
 interface ITimelineItem extends Document {
-  season: "fall" | "winter" | "summer1" | "summer2" | "fall/winter" | "summer";
+  season: 'fall' | 'winter' | 'summer1' | 'summer2' | 'fall/winter' | 'summer';
   year: number;
   courses: string[];
 }
@@ -37,11 +37,12 @@ const TimelineSchema = new Schema<ITimeline>(
     isExtendedCredit: { type: Boolean, required: true },
     last_modified: { type: Date, default: Date.now },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const TimelineModel: Model<ITimeline> =
-  mongoose.models.Timeline || mongoose.model<ITimeline>('Timeline', TimelineSchema);
+  mongoose.models.Timeline ||
+  mongoose.model<ITimeline>('Timeline', TimelineSchema);
 
 // ----------------------
 // Controller Functions
@@ -51,7 +52,7 @@ const TimelineModel: Model<ITimeline> =
  * Save or update a timeline (upsert)
  */
 export async function saveTimeline(
-  timeline: TimelineTypes.Timeline
+  timeline: TimelineTypes.Timeline,
 ): Promise<TimelineTypes.Timeline> {
   try {
     const { user_id, name, degree_id, items, isExtendedCredit } = timeline;
@@ -70,7 +71,7 @@ export async function saveTimeline(
         isExtendedCredit,
         last_modified: new Date(),
       },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, new: true, setDefaultsOnInsert: true },
     ).lean();
     return {
       id: updatedTimeline._id.toString(), // NOSONAR - must convert ObjectId to string
@@ -97,7 +98,7 @@ export async function saveTimeline(
  * Fetch all timelines for a given user
  */
 export async function getTimelinesByUser(
-  user_id: string
+  user_id: string,
 ): Promise<TimelineTypes.Timeline[]> {
   try {
     const timelines = await TimelineModel.find({ user_id }).lean();
@@ -127,7 +128,7 @@ export async function getTimelinesByUser(
  * Remove a timeline by ID
  */
 export async function removeUserTimeline(
-  timeline_id: string
+  timeline_id: string,
 ): Promise<{ success: boolean; message: string }> {
   try {
     const result = await TimelineModel.findByIdAndDelete(timeline_id);
@@ -136,11 +137,17 @@ export async function removeUserTimeline(
       return { success: false, message: `Timeline ${timeline_id} not found` };
     }
 
-    return { success: true, message: `Timeline ${timeline_id} deleted successfully` };
+    return {
+      success: true,
+      message: `Timeline ${timeline_id} deleted successfully`,
+    };
   } catch (error) {
     Sentry.captureException(error);
     log('Error deleting timeline (Mongo):', error);
-    return { success: false, message: 'Error occurred while deleting timeline.' };
+    return {
+      success: false,
+      message: 'Error occurred while deleting timeline.',
+    };
   }
 }
 

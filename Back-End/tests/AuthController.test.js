@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { AuthController, UserType } = require('../dist/controllers/mondoDBControllers/AuthController');
+const {
+  AuthController,
+  UserType,
+} = require('../dist/controllers/mondoDBControllers/AuthController');
 const { User } = require('../dist/models/User');
 const bcrypt = require('bcryptjs');
 
@@ -29,7 +32,9 @@ describe('AuthController', () => {
     it('should initialize with correct constants', () => {
       expect(authController.SALT_ROUNDS).toBe(10);
       expect(authController.OTP_EXPIRY_MINUTES).toBe(10);
-      expect(authController.DUMMY_HASH).toBe('$2a$10$invalidsaltinvalidsaltinv');
+      expect(authController.DUMMY_HASH).toBe(
+        '$2a$10$invalidsaltinvalidsaltinv',
+      );
     });
   });
 
@@ -42,30 +47,39 @@ describe('AuthController', () => {
         email: 'test@example.com',
         password: hashedPassword,
         fullname: 'Test User',
-        type: 'student'
+        type: 'student',
       });
     });
 
     it('should authenticate user with correct credentials', async () => {
-      const result = await authController.authenticate('test@example.com', 'TestPass123!');
+      const result = await authController.authenticate(
+        'test@example.com',
+        'TestPass123!',
+      );
 
       expect(result).toMatchObject({
         id: testUser._id.toString(),
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        password: '' // Password should be empty in response
+        password: '', // Password should be empty in response
       });
     });
 
     it('should return undefined for incorrect password', async () => {
-      const result = await authController.authenticate('test@example.com', 'WrongPassword123!');
+      const result = await authController.authenticate(
+        'test@example.com',
+        'WrongPassword123!',
+      );
 
       expect(result).toBeUndefined();
     });
 
     it('should return undefined for non-existent user', async () => {
-      const result = await authController.authenticate('nonexistent@example.com', 'TestPass123!');
+      const result = await authController.authenticate(
+        'nonexistent@example.com',
+        'TestPass123!',
+      );
 
       expect(result).toBeUndefined();
     });
@@ -77,7 +91,10 @@ describe('AuthController', () => {
         throw new Error('Database connection failed');
       });
 
-      const result = await authController.authenticate('test@example.com', 'TestPass123!');
+      const result = await authController.authenticate(
+        'test@example.com',
+        'TestPass123!',
+      );
 
       expect(result).toBeUndefined();
 
@@ -87,7 +104,10 @@ describe('AuthController', () => {
 
     it('should prevent timing attacks with dummy hash', async () => {
       const startTime = Date.now();
-      await authController.authenticate('nonexistent@example.com', 'TestPass123!');
+      await authController.authenticate(
+        'nonexistent@example.com',
+        'TestPass123!',
+      );
       const endTime = Date.now();
 
       // Should take similar time as valid authentication due to dummy hash comparison
@@ -104,14 +124,17 @@ describe('AuthController', () => {
               email: 'test@example.com',
               password: await require('bcryptjs').hash('TestPass123!', 10),
               fullname: 'Test User',
-              type: 'student'
+              type: 'student',
               // _id is missing
-            })
-          })
-        })
+            }),
+          }),
+        }),
       });
 
-      const result = await authController.authenticate('test@example.com', 'TestPass123!');
+      const result = await authController.authenticate(
+        'test@example.com',
+        'TestPass123!',
+      );
 
       expect(result).toBeUndefined();
 
@@ -126,7 +149,7 @@ describe('AuthController', () => {
         email: 'newuser@example.com',
         password: 'StrongPass123!',
         fullname: 'New User',
-        type: UserType.STUDENT
+        type: UserType.STUDENT,
       };
 
       const result = await authController.registerUser(userInfo);
@@ -146,14 +169,14 @@ describe('AuthController', () => {
         email: 'existing@example.com',
         password: 'hashedpassword',
         fullname: 'Existing User',
-        type: 'student'
+        type: 'student',
       });
 
       const userInfo = {
         email: 'existing@example.com',
         password: 'StrongPass123!',
         fullname: 'New User',
-        type: UserType.STUDENT
+        type: UserType.STUDENT,
       };
 
       const result = await authController.registerUser(userInfo);
@@ -166,7 +189,7 @@ describe('AuthController', () => {
         email: 'newuser@example.com',
         password: 'weak', // Too short
         fullname: 'New User',
-        type: UserType.STUDENT
+        type: UserType.STUDENT,
       };
 
       const result = await authController.registerUser(userInfo);
@@ -179,7 +202,7 @@ describe('AuthController', () => {
         email: 'newuser@example.com',
         password: 'weakpass123!', // No uppercase
         fullname: 'New User',
-        type: UserType.STUDENT
+        type: UserType.STUDENT,
       };
 
       const result = await authController.registerUser(userInfo);
@@ -192,7 +215,7 @@ describe('AuthController', () => {
         email: 'newuser@example.com',
         password: 'WEAKPASS123!', // No lowercase
         fullname: 'New User',
-        type: UserType.STUDENT
+        type: UserType.STUDENT,
       };
 
       const result = await authController.registerUser(userInfo);
@@ -205,7 +228,7 @@ describe('AuthController', () => {
         email: 'newuser@example.com',
         password: 'WeakPass!', // No number
         fullname: 'New User',
-        type: UserType.STUDENT
+        type: UserType.STUDENT,
       };
 
       const result = await authController.registerUser(userInfo);
@@ -218,7 +241,7 @@ describe('AuthController', () => {
         email: 'newuser@example.com',
         password: 'WeakPass123', // No special character
         fullname: 'New User',
-        type: UserType.STUDENT
+        type: UserType.STUDENT,
       };
 
       const result = await authController.registerUser(userInfo);
@@ -237,7 +260,7 @@ describe('AuthController', () => {
         email: 'newuser@example.com',
         password: 'StrongPass123!',
         fullname: 'New User',
-        type: UserType.STUDENT
+        type: UserType.STUDENT,
       };
 
       const result = await authController.registerUser(userInfo);
@@ -255,14 +278,14 @@ describe('AuthController', () => {
         _id: null,
         email: 'test@example.com',
         fullname: 'Test User',
-        type: 'student'
+        type: 'student',
       });
 
       const userInfo = {
         email: 'newuser@example.com',
         password: 'StrongPass123!',
         fullname: 'New User',
-        type: UserType.STUDENT
+        type: UserType.STUDENT,
       };
 
       const result = await authController.registerUser(userInfo);
@@ -282,7 +305,7 @@ describe('AuthController', () => {
         email: 'test@example.com',
         password: 'hashedpassword',
         fullname: 'Test User',
-        type: 'student'
+        type: 'student',
       });
     });
 
@@ -300,7 +323,9 @@ describe('AuthController', () => {
     });
 
     it('should not reveal if email does not exist', async () => {
-      const result = await authController.forgotPassword('nonexistent@example.com');
+      const result = await authController.forgotPassword(
+        'nonexistent@example.com',
+      );
 
       expect(result.message).toBe('If the email exists, an OTP has been sent.');
       expect(result.otp).toBeUndefined();
@@ -333,12 +358,16 @@ describe('AuthController', () => {
         fullname: 'Test User',
         type: 'student',
         otp: '1234',
-        otpExpire: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes from now
+        otpExpire: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes from now
       });
     });
 
     it('should reset password with valid OTP', async () => {
-      const result = await authController.resetPassword('test@example.com', '1234', 'NewPass123!');
+      const result = await authController.resetPassword(
+        'test@example.com',
+        '1234',
+        'NewPass123!',
+      );
 
       expect(result).toBe(true);
 
@@ -349,7 +378,11 @@ describe('AuthController', () => {
     });
 
     it('should return false for invalid OTP', async () => {
-      const result = await authController.resetPassword('test@example.com', '9999', 'NewPass123!');
+      const result = await authController.resetPassword(
+        'test@example.com',
+        '9999',
+        'NewPass123!',
+      );
 
       expect(result).toBe(false);
     });
@@ -357,22 +390,34 @@ describe('AuthController', () => {
     it('should return false for expired OTP', async () => {
       // Set OTP to expired
       await User.findByIdAndUpdate(testUser._id, {
-        otpExpire: new Date(Date.now() - 1000) // 1 second ago
+        otpExpire: new Date(Date.now() - 1000), // 1 second ago
       });
 
-      const result = await authController.resetPassword('test@example.com', '1234', 'NewPass123!');
+      const result = await authController.resetPassword(
+        'test@example.com',
+        '1234',
+        'NewPass123!',
+      );
 
       expect(result).toBe(false);
     });
 
     it('should return false for non-existent user', async () => {
-      const result = await authController.resetPassword('nonexistent@example.com', '1234', 'NewPass123!');
+      const result = await authController.resetPassword(
+        'nonexistent@example.com',
+        '1234',
+        'NewPass123!',
+      );
 
       expect(result).toBe(false);
     });
 
     it('should return false for weak new password', async () => {
-      const result = await authController.resetPassword('test@example.com', '1234', 'weak');
+      const result = await authController.resetPassword(
+        'test@example.com',
+        '1234',
+        'weak',
+      );
 
       expect(result).toBe(false);
     });
@@ -380,10 +425,14 @@ describe('AuthController', () => {
     it('should return false when user has no otp field', async () => {
       // Create user without otp
       await User.findByIdAndUpdate(testUser._id, {
-        $unset: { otp: 1, otpExpire: 1 }
+        $unset: { otp: 1, otpExpire: 1 },
       });
 
-      const result = await authController.resetPassword('test@example.com', '1234', 'NewPass123!');
+      const result = await authController.resetPassword(
+        'test@example.com',
+        '1234',
+        'NewPass123!',
+      );
 
       expect(result).toBe(false);
     });
@@ -395,7 +444,11 @@ describe('AuthController', () => {
         throw new Error('Database connection failed');
       });
 
-      const result = await authController.resetPassword('test@example.com', '1234', 'NewPass123!');
+      const result = await authController.resetPassword(
+        'test@example.com',
+        '1234',
+        'NewPass123!',
+      );
 
       expect(result).toBe(false);
 
@@ -413,36 +466,55 @@ describe('AuthController', () => {
         email: 'test@example.com',
         password: hashedPassword,
         fullname: 'Test User',
-        type: 'student'
+        type: 'student',
       });
     });
 
     it('should change password with correct old password', async () => {
-      const result = await authController.changePassword(testUser._id.toString(), 'OldPass123!', 'NewPass123!');
+      const result = await authController.changePassword(
+        testUser._id.toString(),
+        'OldPass123!',
+        'NewPass123!',
+      );
 
       expect(result).toBe(true);
 
       // Verify password was changed
       const updatedUser = await User.findById(testUser._id).select('+password');
-      const passwordMatch = await bcrypt.compare('NewPass123!', updatedUser.password);
+      const passwordMatch = await bcrypt.compare(
+        'NewPass123!',
+        updatedUser.password,
+      );
       expect(passwordMatch).toBe(true);
     });
 
     it('should return false for incorrect old password', async () => {
-      const result = await authController.changePassword(testUser._id.toString(), 'WrongPass123!', 'NewPass123!');
+      const result = await authController.changePassword(
+        testUser._id.toString(),
+        'WrongPass123!',
+        'NewPass123!',
+      );
 
       expect(result).toBe(false);
     });
 
     it('should return false for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
-      const result = await authController.changePassword(fakeId, 'OldPass123!', 'NewPass123!');
+      const result = await authController.changePassword(
+        fakeId,
+        'OldPass123!',
+        'NewPass123!',
+      );
 
       expect(result).toBe(false);
     });
 
     it('should return false for weak new password', async () => {
-      const result = await authController.changePassword(testUser._id.toString(), 'OldPass123!', 'weak');
+      const result = await authController.changePassword(
+        testUser._id.toString(),
+        'OldPass123!',
+        'weak',
+      );
 
       expect(result).toBe(false);
     });
@@ -454,7 +526,11 @@ describe('AuthController', () => {
         throw new Error('Database connection failed');
       });
 
-      const result = await authController.changePassword(testUser._id.toString(), 'OldPass123!', 'NewPass123!');
+      const result = await authController.changePassword(
+        testUser._id.toString(),
+        'OldPass123!',
+        'NewPass123!',
+      );
 
       expect(result).toBe(false);
 
@@ -466,38 +542,44 @@ describe('AuthController', () => {
   describe('isStrongPassword', () => {
     it('should return true for strong password', () => {
       // Access private method through the class instance
-      const isStrongPassword = authController.isStrongPassword.bind(authController);
-      
+      const isStrongPassword =
+        authController.isStrongPassword.bind(authController);
+
       expect(isStrongPassword('StrongPass123!')).toBe(true);
     });
 
     it('should return false for password too short', () => {
-      const isStrongPassword = authController.isStrongPassword.bind(authController);
-      
+      const isStrongPassword =
+        authController.isStrongPassword.bind(authController);
+
       expect(isStrongPassword('Short1!')).toBe(false);
     });
 
     it('should return false for password without uppercase', () => {
-      const isStrongPassword = authController.isStrongPassword.bind(authController);
-      
+      const isStrongPassword =
+        authController.isStrongPassword.bind(authController);
+
       expect(isStrongPassword('weakpass123!')).toBe(false);
     });
 
     it('should return false for password without lowercase', () => {
-      const isStrongPassword = authController.isStrongPassword.bind(authController);
-      
+      const isStrongPassword =
+        authController.isStrongPassword.bind(authController);
+
       expect(isStrongPassword('WEAKPASS123!')).toBe(false);
     });
 
     it('should return false for password without number', () => {
-      const isStrongPassword = authController.isStrongPassword.bind(authController);
-      
+      const isStrongPassword =
+        authController.isStrongPassword.bind(authController);
+
       expect(isStrongPassword('WeakPass!')).toBe(false);
     });
 
     it('should return false for password without special character', () => {
-      const isStrongPassword = authController.isStrongPassword.bind(authController);
-      
+      const isStrongPassword =
+        authController.isStrongPassword.bind(authController);
+
       expect(isStrongPassword('WeakPass123')).toBe(false);
     });
   });
@@ -511,7 +593,7 @@ describe('AuthController', () => {
         email: 'test@example.com',
         password: 'StrongPass123!',
         fullname: 'Test User',
-        type: UserType.STUDENT
+        type: UserType.STUDENT,
       };
 
       const result = await authController.registerUser(userInfo);
@@ -525,10 +607,10 @@ describe('AuthController', () => {
       const mockUser = {
         _id: 'test123',
         email: 'test@example.com',
-        save: jest.fn().mockRejectedValue(new Error('Save failed'))
+        save: jest.fn().mockRejectedValue(new Error('Save failed')),
       };
       User.findOne = jest.fn().mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockUser)
+        exec: jest.fn().mockResolvedValue(mockUser),
       });
 
       const result = await authController.forgotPassword('test@example.com');
@@ -545,13 +627,17 @@ describe('AuthController', () => {
         otp: '1234',
         otpExpire: new Date(Date.now() + 10 * 60 * 1000),
         password: 'oldpass',
-        save: jest.fn().mockRejectedValue(new Error('Save failed'))
+        save: jest.fn().mockRejectedValue(new Error('Save failed')),
       };
       User.findOne = jest.fn().mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockUser)
+        exec: jest.fn().mockResolvedValue(mockUser),
       });
 
-      const result = await authController.resetPassword('test@example.com', '1234', 'NewPass123!');
+      const result = await authController.resetPassword(
+        'test@example.com',
+        '1234',
+        'NewPass123!',
+      );
       expect(result).toBe(false);
 
       User.findOne = originalFindOne;
@@ -563,15 +649,19 @@ describe('AuthController', () => {
       const mockUser = {
         _id: 'test123',
         password: hashedPassword,
-        save: jest.fn().mockRejectedValue(new Error('Save failed'))
+        save: jest.fn().mockRejectedValue(new Error('Save failed')),
       };
       User.findById = jest.fn().mockReturnValue({
         select: jest.fn().mockReturnValue({
-          exec: jest.fn().mockResolvedValue(mockUser)
-        })
+          exec: jest.fn().mockResolvedValue(mockUser),
+        }),
       });
 
-      const result = await authController.changePassword('test123', 'OldPass123!', 'NewPass123!');
+      const result = await authController.changePassword(
+        'test123',
+        'OldPass123!',
+        'NewPass123!',
+      );
       expect(result).toBe(false);
 
       User.findById = originalFindById;

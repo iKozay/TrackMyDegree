@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const coursepoolController = require('../dist/controllers/coursepoolController/coursepoolController_mongo').default;
+const coursepoolController =
+  require('../dist/controllers/coursepoolController/coursepoolController_mongo').default;
 const { Degree } = require('../dist/models/Degree');
 const DB_OPS = require('../dist/Util/DB_Ops').default;
 
@@ -35,15 +36,15 @@ describe('CoursepoolController', () => {
           id: 'pool-1',
           name: 'Core Courses',
           creditsRequired: 60,
-          courses: ['CS101', 'CS102']
+          courses: ['CS101', 'CS102'],
         },
         {
           id: 'pool-2',
           name: 'Electives',
           creditsRequired: 30,
-          courses: ['CS201']
-        }
-      ]
+          courses: ['CS201'],
+        },
+      ],
     });
 
     const testDegree2 = new Degree({
@@ -56,15 +57,15 @@ describe('CoursepoolController', () => {
           id: 'pool-1',
           name: 'Core Courses',
           creditsRequired: 60,
-          courses: ['SOEN341']
+          courses: ['SOEN341'],
         },
         {
           id: 'pool-3',
           name: 'Mathematics',
           creditsRequired: 15,
-          courses: ['MATH203']
-        }
-      ]
+          courses: ['MATH203'],
+        },
+      ],
     });
 
     await testDegree1.save();
@@ -95,7 +96,7 @@ describe('CoursepoolController', () => {
       expect(result).toHaveProperty('course_pools');
       expect(result.course_pools).toHaveLength(3); // pool-1, pool-2, pool-3
 
-      const poolIds = result.course_pools.map(p => p.id);
+      const poolIds = result.course_pools.map((p) => p.id);
       expect(poolIds).toContain('pool-1');
       expect(poolIds).toContain('pool-2');
       expect(poolIds).toContain('pool-3');
@@ -105,9 +106,11 @@ describe('CoursepoolController', () => {
       const result = await coursepoolController.getAllCoursePools();
 
       expect(result).toHaveProperty('course_pools');
-      
+
       // pool-1 exists in both degrees but should appear only once
-      const pool1Occurrences = result.course_pools.filter(p => p.id === 'pool-1');
+      const pool1Occurrences = result.course_pools.filter(
+        (p) => p.id === 'pool-1',
+      );
       expect(pool1Occurrences).toHaveLength(1);
       expect(pool1Occurrences[0].name).toBe('Core Courses');
     });
@@ -123,13 +126,13 @@ describe('CoursepoolController', () => {
 
     it('should return empty array when degrees have no course pools', async () => {
       await Degree.deleteMany({});
-      
+
       const emptyDegree = new Degree({
         _id: 'empty-degree',
         name: 'Empty Degree',
         totalCredits: 0,
         isAddon: false,
-        coursePools: []
+        coursePools: [],
       });
       await emptyDegree.save();
 
@@ -158,7 +161,8 @@ describe('CoursepoolController', () => {
     });
 
     it('should return undefined when course pool does not exist', async () => {
-      const result = await coursepoolController.getCoursePool('non-existent-pool');
+      const result =
+        await coursepoolController.getCoursePool('non-existent-pool');
 
       expect(result).toBeUndefined();
     });
@@ -176,7 +180,7 @@ describe('CoursepoolController', () => {
     it('should successfully update course pool name in a single degree', async () => {
       const updateInfo = {
         id: 'pool-2',
-        name: 'Updated Electives'
+        name: 'Updated Electives',
       };
 
       const result = await coursepoolController.updateCoursePool(updateInfo);
@@ -185,14 +189,14 @@ describe('CoursepoolController', () => {
 
       // Verify the update
       const degree = await Degree.findById(testDegreeId1);
-      const pool = degree.coursePools.find(cp => cp.id === 'pool-2');
+      const pool = degree.coursePools.find((cp) => cp.id === 'pool-2');
       expect(pool.name).toBe('Updated Electives');
     });
 
     it('should update course pool name in all degrees that contain it', async () => {
       const updateInfo = {
         id: 'pool-1',
-        name: 'Updated Core Courses'
+        name: 'Updated Core Courses',
       };
 
       const result = await coursepoolController.updateCoursePool(updateInfo);
@@ -201,18 +205,18 @@ describe('CoursepoolController', () => {
 
       // Verify the update in both degrees
       const degree1 = await Degree.findById(testDegreeId1);
-      const pool1 = degree1.coursePools.find(cp => cp.id === 'pool-1');
+      const pool1 = degree1.coursePools.find((cp) => cp.id === 'pool-1');
       expect(pool1.name).toBe('Updated Core Courses');
 
       const degree2 = await Degree.findById(testDegreeId2);
-      const pool2 = degree2.coursePools.find(cp => cp.id === 'pool-1');
+      const pool2 = degree2.coursePools.find((cp) => cp.id === 'pool-1');
       expect(pool2.name).toBe('Updated Core Courses');
     });
 
     it('should return MOSTLY_OK when course pool does not exist', async () => {
       const updateInfo = {
         id: 'non-existent-pool',
-        name: 'Updated Name'
+        name: 'Updated Name',
       };
 
       const result = await coursepoolController.updateCoursePool(updateInfo);
@@ -223,7 +227,7 @@ describe('CoursepoolController', () => {
     it('should return FAILURE when updating with empty name', async () => {
       const updateInfo = {
         id: 'pool-2',
-        name: ''
+        name: '',
       };
 
       const result = await coursepoolController.updateCoursePool(updateInfo);
@@ -232,7 +236,7 @@ describe('CoursepoolController', () => {
 
       // Verify the name wasn't changed
       const degree = await Degree.findById(testDegreeId1);
-      const pool = degree.coursePools.find(cp => cp.id === 'pool-2');
+      const pool = degree.coursePools.find((cp) => cp.id === 'pool-2');
       expect(pool.name).toBe('Electives'); // Still the original name
     });
   });
@@ -245,7 +249,7 @@ describe('CoursepoolController', () => {
 
       // Verify removal
       const degree = await Degree.findById(testDegreeId1);
-      const pool = degree.coursePools.find(cp => cp.id === 'pool-2');
+      const pool = degree.coursePools.find((cp) => cp.id === 'pool-2');
       expect(pool).toBeUndefined();
       expect(degree.coursePools).toHaveLength(1);
     });
@@ -257,18 +261,19 @@ describe('CoursepoolController', () => {
 
       // Verify removal from both degrees
       const degree1 = await Degree.findById(testDegreeId1);
-      const pool1 = degree1.coursePools.find(cp => cp.id === 'pool-1');
+      const pool1 = degree1.coursePools.find((cp) => cp.id === 'pool-1');
       expect(pool1).toBeUndefined();
       expect(degree1.coursePools).toHaveLength(1);
 
       const degree2 = await Degree.findById(testDegreeId2);
-      const pool2 = degree2.coursePools.find(cp => cp.id === 'pool-1');
+      const pool2 = degree2.coursePools.find((cp) => cp.id === 'pool-1');
       expect(pool2).toBeUndefined();
       expect(degree2.coursePools).toHaveLength(1);
     });
 
     it('should return MOSTLY_OK when course pool does not exist', async () => {
-      const result = await coursepoolController.removeCoursePool('non-existent-pool');
+      const result =
+        await coursepoolController.removeCoursePool('non-existent-pool');
 
       expect(result).toBe(DB_OPS.MOSTLY_OK);
     });
@@ -288,7 +293,7 @@ describe('CoursepoolController', () => {
 
       // Verify pool-1 still exists
       const degree = await Degree.findById(testDegreeId1);
-      const pool1 = degree.coursePools.find(cp => cp.id === 'pool-1');
+      const pool1 = degree.coursePools.find((cp) => cp.id === 'pool-1');
       expect(pool1).toBeDefined();
       expect(pool1.name).toBe('Core Courses');
     });

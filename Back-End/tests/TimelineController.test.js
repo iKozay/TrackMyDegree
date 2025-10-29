@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { TimelineController } = require('../dist/controllers/mondoDBControllers/TimelineController');
+const {
+  TimelineController,
+} = require('../dist/controllers/mondoDBControllers/TimelineController');
 const { Timeline } = require('../dist/models/Timeline');
 
 describe('TimelineController', () => {
@@ -40,20 +42,18 @@ describe('TimelineController', () => {
         items: [
           {
             id: 'item1',
-            id: 'item1',
             season: 'fall',
             year: 2023,
-            courses: ['COMP101', 'MATH101']
+            courses: ['COMP101', 'MATH101'],
           },
           {
             id: 'item2',
-            id: 'item2',
             season: 'winter',
             year: 2024,
-            courses: ['COMP102']
-          }
+            courses: ['COMP102'],
+          },
         ],
-        isExtendedCredit: false
+        isExtendedCredit: false,
       };
 
       const result = await timelineController.saveTimeline(timelineData);
@@ -62,14 +62,14 @@ describe('TimelineController', () => {
         user_id: 'user123',
         name: 'My Timeline',
         degree_id: 'COMP',
-        isExtendedCredit: false
+        isExtendedCredit: false,
       });
       expect(result.id).toBeDefined();
       expect(result.items).toHaveLength(2);
       expect(result.items[0]).toMatchObject({
         season: 'fall',
         year: 2023,
-        courses: ['COMP101', 'MATH101']
+        courses: ['COMP101', 'MATH101'],
       });
       expect(result.last_modified).toBeDefined();
     });
@@ -84,10 +84,10 @@ describe('TimelineController', () => {
             id: 'item1',
             season: 'fall',
             year: 2023,
-            courses: ['COMP101']
-          }
+            courses: ['COMP101'],
+          },
         ],
-        isExtendedCredit: false
+        isExtendedCredit: false,
       };
 
       // Create initial timeline
@@ -101,15 +101,15 @@ describe('TimelineController', () => {
             id: 'item1',
             season: 'fall',
             year: 2023,
-            courses: ['COMP101', 'MATH101']
+            courses: ['COMP101', 'MATH101'],
           },
           {
             id: 'item2',
             season: 'winter',
             year: 2024,
-            courses: ['COMP102']
-          }
-        ]
+            courses: ['COMP102'],
+          },
+        ],
       };
 
       const result = await timelineController.saveTimeline(updatedData);
@@ -123,11 +123,12 @@ describe('TimelineController', () => {
         user_id: 'user123',
         // Missing name and degree_id
         items: [],
-        isExtendedCredit: false
+        isExtendedCredit: false,
       };
 
-      await expect(timelineController.saveTimeline(invalidTimeline))
-        .rejects.toThrow('User ID, timeline name, and degree ID are required');
+      await expect(
+        timelineController.saveTimeline(invalidTimeline),
+      ).rejects.toThrow('User ID, timeline name, and degree ID are required');
     });
 
     it('should throw error when user_id is missing', async () => {
@@ -135,11 +136,12 @@ describe('TimelineController', () => {
         name: 'My Timeline',
         degree_id: 'COMP',
         items: [],
-        isExtendedCredit: false
+        isExtendedCredit: false,
       };
 
-      await expect(timelineController.saveTimeline(invalidTimeline))
-        .rejects.toThrow('User ID, timeline name, and degree ID are required');
+      await expect(
+        timelineController.saveTimeline(invalidTimeline),
+      ).rejects.toThrow('User ID, timeline name, and degree ID are required');
     });
 
     it('should handle database errors', async () => {
@@ -154,11 +156,12 @@ describe('TimelineController', () => {
         name: 'My Timeline',
         degree_id: 'COMP',
         items: [],
-        isExtendedCredit: false
+        isExtendedCredit: false,
       };
 
-      await expect(timelineController.saveTimeline(timelineData))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        timelineController.saveTimeline(timelineData),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       Timeline.findOneAndUpdate = originalFindOneAndUpdate;
@@ -174,7 +177,7 @@ describe('TimelineController', () => {
           degree_id: 'COMP',
           items: [],
           isExtendedCredit: false,
-          last_modified: new Date('2023-01-01')
+          last_modified: new Date('2023-01-01'),
         },
         {
           user_id: 'user123',
@@ -182,7 +185,7 @@ describe('TimelineController', () => {
           degree_id: 'COMP',
           items: [],
           isExtendedCredit: true,
-          last_modified: new Date('2023-02-01')
+          last_modified: new Date('2023-02-01'),
         },
         {
           user_id: 'user456',
@@ -190,8 +193,8 @@ describe('TimelineController', () => {
           degree_id: 'SOEN',
           items: [],
           isExtendedCredit: false,
-          last_modified: new Date('2023-01-15')
-        }
+          last_modified: new Date('2023-01-15'),
+        },
       ]);
     });
 
@@ -223,8 +226,9 @@ describe('TimelineController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(timelineController.getTimelinesByUser('user123'))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        timelineController.getTimelinesByUser('user123'),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       Timeline.find = originalFind;
@@ -243,35 +247,38 @@ describe('TimelineController', () => {
           {
             season: 'fall',
             year: 2023,
-            courses: ['COMP101']
-          }
+            courses: ['COMP101'],
+          },
         ],
-        isExtendedCredit: false
+        isExtendedCredit: false,
       });
     });
 
     it('should get timeline by ID', async () => {
-      const result = await timelineController.getTimelineById(testTimeline._id.toString());
+      const result = await timelineController.getTimelineById(
+        testTimeline._id.toString(),
+      );
 
       expect(result).toMatchObject({
         id: testTimeline._id.toString(),
         user_id: 'user123',
         name: 'Test Timeline',
         degree_id: 'COMP',
-        isExtendedCredit: false
+        isExtendedCredit: false,
       });
       expect(result.items).toHaveLength(1);
       expect(result.items[0]).toMatchObject({
         season: 'fall',
         year: 2023,
-        courses: ['COMP101']
+        courses: ['COMP101'],
       });
     });
 
     it('should throw error for non-existent timeline', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
-      await expect(timelineController.getTimelineById(fakeId))
-        .rejects.toThrow('Timeline not found');
+      await expect(timelineController.getTimelineById(fakeId)).rejects.toThrow(
+        'Timeline not found',
+      );
     });
 
     it('should handle database errors', async () => {
@@ -281,8 +288,9 @@ describe('TimelineController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(timelineController.getTimelineById(testTimeline._id.toString()))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        timelineController.getTimelineById(testTimeline._id.toString()),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       Timeline.findById = originalFindById;
@@ -298,17 +306,20 @@ describe('TimelineController', () => {
         name: 'Original Timeline',
         degree_id: 'COMP',
         items: [],
-        isExtendedCredit: false
+        isExtendedCredit: false,
       });
     });
 
     it('should update timeline successfully', async () => {
       const updates = {
         name: 'Updated Timeline',
-        isExtendedCredit: true
+        isExtendedCredit: true,
       };
 
-      const result = await timelineController.updateTimeline(testTimeline._id.toString(), updates);
+      const result = await timelineController.updateTimeline(
+        testTimeline._id.toString(),
+        updates,
+      );
 
       expect(result.name).toBe('Updated Timeline');
       expect(result.isExtendedCredit).toBe(true);
@@ -319,8 +330,9 @@ describe('TimelineController', () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       const updates = { name: 'Updated Timeline' };
 
-      await expect(timelineController.updateTimeline(fakeId, updates))
-        .rejects.toThrow('Timeline not found');
+      await expect(
+        timelineController.updateTimeline(fakeId, updates),
+      ).rejects.toThrow('Timeline not found');
     });
 
     it('should handle database errors', async () => {
@@ -331,8 +343,9 @@ describe('TimelineController', () => {
       });
 
       const updates = { name: 'Updated Timeline' };
-      await expect(timelineController.updateTimeline(testTimeline._id.toString(), updates))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        timelineController.updateTimeline(testTimeline._id.toString(), updates),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       Timeline.findByIdAndUpdate = originalFindByIdAndUpdate;
@@ -348,15 +361,19 @@ describe('TimelineController', () => {
         name: 'Test Timeline',
         degree_id: 'COMP',
         items: [],
-        isExtendedCredit: false
+        isExtendedCredit: false,
       });
     });
 
     it('should remove timeline successfully', async () => {
-      const result = await timelineController.removeUserTimeline(testTimeline._id.toString());
+      const result = await timelineController.removeUserTimeline(
+        testTimeline._id.toString(),
+      );
 
       expect(result.success).toBe(true);
-      expect(result.message).toBe(`Timeline ${testTimeline._id} deleted successfully`);
+      expect(result.message).toBe(
+        `Timeline ${testTimeline._id} deleted successfully`,
+      );
 
       // Verify timeline is deleted
       const deletedTimeline = await Timeline.findById(testTimeline._id);
@@ -378,7 +395,9 @@ describe('TimelineController', () => {
         throw new Error('Database connection failed');
       });
 
-      const result = await timelineController.removeUserTimeline(testTimeline._id.toString());
+      const result = await timelineController.removeUserTimeline(
+        testTimeline._id.toString(),
+      );
 
       expect(result.success).toBe(false);
       expect(result.message).toBe('Error occurred while deleting timeline.');
@@ -396,22 +415,22 @@ describe('TimelineController', () => {
           name: 'Timeline 1',
           degree_id: 'COMP',
           items: [],
-          isExtendedCredit: false
+          isExtendedCredit: false,
         },
         {
           user_id: 'user123',
           name: 'Timeline 2',
           degree_id: 'COMP',
           items: [],
-          isExtendedCredit: true
+          isExtendedCredit: true,
         },
         {
           user_id: 'user456',
           name: 'Other User Timeline',
           degree_id: 'SOEN',
           items: [],
-          isExtendedCredit: false
-        }
+          isExtendedCredit: false,
+        },
       ]);
     });
 
@@ -430,7 +449,8 @@ describe('TimelineController', () => {
     });
 
     it('should return 0 for user with no timelines', async () => {
-      const result = await timelineController.deleteAllUserTimelines('nonexistent');
+      const result =
+        await timelineController.deleteAllUserTimelines('nonexistent');
 
       expect(result).toBe(0);
     });
@@ -442,8 +462,9 @@ describe('TimelineController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(timelineController.deleteAllUserTimelines('user123'))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        timelineController.deleteAllUserTimelines('user123'),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       Timeline.deleteMany = originalDeleteMany;
@@ -461,10 +482,10 @@ describe('TimelineController', () => {
             id: 'item1',
             season: 'fall',
             year: 2023,
-            courses: ['COMP101', 'MATH101']
-          }
+            courses: ['COMP101', 'MATH101'],
+          },
         ],
-        isExtendedCredit: false
+        isExtendedCredit: false,
       };
 
       const result = await timelineController.saveTimeline(timelineData);
@@ -487,7 +508,7 @@ describe('TimelineController', () => {
         name: 'Empty Timeline',
         degree_id: 'COMP',
         items: [],
-        isExtendedCredit: false
+        isExtendedCredit: false,
       };
 
       const result = await timelineController.saveTimeline(timelineData);
@@ -504,10 +525,10 @@ describe('TimelineController', () => {
           {
             season: 'fall',
             year: 2023,
-            courses: []
-          }
+            courses: [],
+          },
         ],
-        isExtendedCredit: false
+        isExtendedCredit: false,
       };
 
       const result = await timelineController.saveTimeline(timelineData);
@@ -522,7 +543,7 @@ describe('TimelineController', () => {
       const originalUpsert = timelineController.upsert;
       timelineController.upsert = jest.fn().mockResolvedValue({
         success: false,
-        error: 'Upsert failed'
+        error: 'Upsert failed',
       });
 
       const timelineData = {
@@ -530,11 +551,12 @@ describe('TimelineController', () => {
         name: 'Test Timeline',
         degree_id: 'COMP',
         items: [],
-        isExtendedCredit: false
+        isExtendedCredit: false,
       };
 
-      await expect(timelineController.saveTimeline(timelineData))
-        .rejects.toThrow('Failed to save timeline');
+      await expect(
+        timelineController.saveTimeline(timelineData),
+      ).rejects.toThrow('Failed to save timeline');
 
       timelineController.upsert = originalUpsert;
     });
@@ -543,7 +565,7 @@ describe('TimelineController', () => {
       const originalFindAll = timelineController.findAll;
       timelineController.findAll = jest.fn().mockResolvedValue({
         success: true,
-        data: null
+        data: null,
       });
 
       const result = await timelineController.getTimelinesByUser('user123');
@@ -556,11 +578,12 @@ describe('TimelineController', () => {
       const originalFindAll = timelineController.findAll;
       timelineController.findAll = jest.fn().mockResolvedValue({
         success: false,
-        error: 'Test error'
+        error: 'Test error',
       });
 
-      await expect(timelineController.getTimelinesByUser('user123'))
-        .rejects.toThrow('Failed to fetch timelines');
+      await expect(
+        timelineController.getTimelinesByUser('user123'),
+      ).rejects.toThrow('Failed to fetch timelines');
 
       timelineController.findAll = originalFindAll;
     });
@@ -569,11 +592,12 @@ describe('TimelineController', () => {
       const originalFindById = timelineController.findById;
       timelineController.findById = jest.fn().mockResolvedValue({
         success: false,
-        error: 'Not found'
+        error: 'Not found',
       });
 
-      await expect(timelineController.getTimelineById('test123'))
-        .rejects.toThrow('Timeline not found');
+      await expect(
+        timelineController.getTimelineById('test123'),
+      ).rejects.toThrow('Timeline not found');
 
       timelineController.findById = originalFindById;
     });
@@ -582,11 +606,12 @@ describe('TimelineController', () => {
       const originalUpdateById = timelineController.updateById;
       timelineController.updateById = jest.fn().mockResolvedValue({
         success: false,
-        error: 'Update failed'
+        error: 'Update failed',
       });
 
-      await expect(timelineController.updateTimeline('test123', { name: 'Updated' }))
-        .rejects.toThrow('Timeline not found');
+      await expect(
+        timelineController.updateTimeline('test123', { name: 'Updated' }),
+      ).rejects.toThrow('Timeline not found');
 
       timelineController.updateById = originalUpdateById;
     });
@@ -595,7 +620,7 @@ describe('TimelineController', () => {
       const originalDeleteMany = timelineController.deleteMany;
       timelineController.deleteMany = jest.fn().mockResolvedValue({
         success: true,
-        data: null
+        data: null,
       });
 
       const result = await timelineController.deleteAllUserTimelines('user123');
@@ -608,11 +633,12 @@ describe('TimelineController', () => {
       const originalDeleteMany = timelineController.deleteMany;
       timelineController.deleteMany = jest.fn().mockResolvedValue({
         success: false,
-        error: 'Delete failed'
+        error: 'Delete failed',
       });
 
-      await expect(timelineController.deleteAllUserTimelines('user123'))
-        .rejects.toThrow('Failed to delete timelines');
+      await expect(
+        timelineController.deleteAllUserTimelines('user123'),
+      ).rejects.toThrow('Failed to delete timelines');
 
       timelineController.deleteMany = originalDeleteMany;
     });
@@ -626,11 +652,11 @@ describe('TimelineController', () => {
           {
             season: 'fall',
             year: 2023,
-            courses: ['COMP101']
+            courses: ['COMP101'],
             // _id is undefined
-          }
+          },
         ],
-        isExtendedCredit: false
+        isExtendedCredit: false,
       };
 
       const result = await timelineController.saveTimeline(timelineData);
@@ -643,7 +669,7 @@ describe('TimelineController', () => {
         user_id: 'user123',
         name: 'No Items Timeline',
         degree_id: 'COMP',
-        isExtendedCredit: false
+        isExtendedCredit: false,
         // items is undefined
       });
 
@@ -656,7 +682,7 @@ describe('TimelineController', () => {
       const originalDeleteById = timelineController.deleteById;
       timelineController.deleteById = jest.fn().mockResolvedValue({
         success: false,
-        error: 'Not found'
+        error: 'Not found',
       });
 
       const result = await timelineController.removeUserTimeline('fake123');

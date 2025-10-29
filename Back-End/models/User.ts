@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose';
 
 const DeficiencySchema = new Schema({
   coursepool: { type: String, required: true },
-  creditsRequired: { type: Number, required: true }
+  creditsRequired: { type: Number, required: true },
 });
 
 const UserSchema = new Schema({
@@ -15,7 +15,7 @@ const UserSchema = new Schema({
   otp: { type: String, default: null },
   otpExpire: { type: Date, default: null },
   deficiencies: [DeficiencySchema],
-  exemptions: [{ type: String, ref: 'Course' }]
+  exemptions: [{ type: String, ref: 'Course' }],
 });
 
 export const User = model('User', UserSchema);

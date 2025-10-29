@@ -12,6 +12,7 @@ const { Timeline } = require('../dist/models/Timeline');
 const app = express();
 app.use(express.json());
 app.use('/users', userRoutes);
+let testUser;
 
 describe('User Routes', () => {
   let mongoServer, mongoUri;
@@ -44,7 +45,7 @@ describe('User Routes', () => {
         type: 'student',
         degree: 'COMP',
         deficiencies: [],
-        exemptions: []
+        exemptions: [],
       };
 
       const response = await request(app)
@@ -57,7 +58,7 @@ describe('User Routes', () => {
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        degree: 'COMP'
+        degree: 'COMP',
       });
       expect(response.body.user.id).toBeDefined();
     });
@@ -66,7 +67,7 @@ describe('User Routes', () => {
       const userData = {
         email: 'minimal@example.com',
         fullname: 'Minimal User',
-        type: 'student'
+        type: 'student',
       };
 
       const response = await request(app)
@@ -89,7 +90,9 @@ describe('User Routes', () => {
         .send(userData)
         .expect(400);
 
-      expect(response.body.error).toBe('Email, fullname, and type are required');
+      expect(response.body.error).toBe(
+        'Email, fullname, and type are required',
+      );
     });
 
     it('should return 409 for duplicate email', async () => {
@@ -97,13 +100,13 @@ describe('User Routes', () => {
         _id: new mongoose.Types.ObjectId().toString(),
         email: 'existing@example.com',
         fullname: 'Existing User',
-        type: 'student'
+        type: 'student',
       });
 
       const userData = {
         email: 'existing@example.com',
         fullname: 'New User',
-        type: 'student'
+        type: 'student',
       };
 
       const response = await request(app)
@@ -116,13 +119,16 @@ describe('User Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock userController.createUser to throw an error
-      const originalCreateUser = require('../dist/controllers/mondoDBControllers/UserController').userController.createUser;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.createUser = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalCreateUser =
+        require('../dist/controllers/mondoDBControllers/UserController')
+          .userController.createUser;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.createUser =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const userData = {
         email: 'test@example.com',
         fullname: 'Test User',
-        type: 'student'
+        type: 'student',
       };
 
       const response = await request(app)
@@ -133,13 +139,12 @@ describe('User Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/UserController').userController.createUser = originalCreateUser;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.createUser =
+        originalCreateUser;
     });
   });
 
   describe('GET /users/:id', () => {
-    let testUser;
-
     beforeEach(async () => {
       testUser = await User.create({
         _id: new mongoose.Types.ObjectId().toString(),
@@ -148,7 +153,7 @@ describe('User Routes', () => {
         type: 'student',
         degree: 'COMP',
         deficiencies: [],
-        exemptions: []
+        exemptions: [],
       });
     });
 
@@ -163,23 +168,24 @@ describe('User Routes', () => {
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        degree: 'COMP'
+        degree: 'COMP',
       });
     });
 
     it('should return 404 for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
-      const response = await request(app)
-        .get(`/users/${fakeId}`)
-        .expect(404);
+      const response = await request(app).get(`/users/${fakeId}`).expect(404);
 
       expect(response.body.error).toBe('User not found');
     });
 
     it('should handle server errors', async () => {
       // Mock userController.getUserById to throw an error
-      const originalGetUserById = require('../dist/controllers/mondoDBControllers/UserController').userController.getUserById;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.getUserById = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetUserById =
+        require('../dist/controllers/mondoDBControllers/UserController')
+          .userController.getUserById;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.getUserById =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .get(`/users/${testUser._id}`)
@@ -188,7 +194,8 @@ describe('User Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/UserController').userController.getUserById = originalGetUserById;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.getUserById =
+        originalGetUserById;
     });
   });
 
@@ -200,22 +207,20 @@ describe('User Routes', () => {
           email: 'user1@example.com',
           fullname: 'User One',
           type: 'student',
-          degree: 'COMP'
+          degree: 'COMP',
         },
         {
           _id: new mongoose.Types.ObjectId().toString(),
           email: 'user2@example.com',
           fullname: 'User Two',
           type: 'advisor',
-          degree: 'SOEN'
-        }
+          degree: 'SOEN',
+        },
       ]);
     });
 
     it('should get all users', async () => {
-      const response = await request(app)
-        .get('/users')
-        .expect(200);
+      const response = await request(app).get('/users').expect(200);
 
       expect(response.body.message).toBe('Users retrieved successfully');
       expect(response.body.users).toHaveLength(2);
@@ -228,37 +233,37 @@ describe('User Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock userController.getAllUsers to throw an error
-      const originalGetAllUsers = require('../dist/controllers/mondoDBControllers/UserController').userController.getAllUsers;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllUsers = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetAllUsers =
+        require('../dist/controllers/mondoDBControllers/UserController')
+          .userController.getAllUsers;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllUsers =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
-      const response = await request(app)
-        .get('/users')
-        .expect(500);
+      const response = await request(app).get('/users').expect(500);
 
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllUsers = originalGetAllUsers;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllUsers =
+        originalGetAllUsers;
     });
   });
 
   describe('PUT /users/:id', () => {
-    let testUser;
-
     beforeEach(async () => {
       testUser = await User.create({
         _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        degree: 'COMP'
+        degree: 'COMP',
       });
     });
 
     it('should update user', async () => {
       const updates = {
         fullname: 'Updated Name',
-        degree: 'SOEN'
+        degree: 'SOEN',
       };
 
       const response = await request(app)
@@ -285,8 +290,11 @@ describe('User Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock userController.updateUser to throw an error
-      const originalUpdateUser = require('../dist/controllers/mondoDBControllers/UserController').userController.updateUser;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.updateUser = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalUpdateUser =
+        require('../dist/controllers/mondoDBControllers/UserController')
+          .userController.updateUser;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.updateUser =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const updates = { fullname: 'Updated Name' };
       const response = await request(app)
@@ -297,20 +305,19 @@ describe('User Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/UserController').userController.updateUser = originalUpdateUser;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.updateUser =
+        originalUpdateUser;
     });
   });
 
   describe('DELETE /users/:id', () => {
-    let testUser;
-
     beforeEach(async () => {
       testUser = await User.create({
         _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         fullname: 'Test User',
 
-        type: 'student'
+        type: 'student',
       });
     });
 
@@ -336,8 +343,11 @@ describe('User Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      const originalDeleteUser = require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalDeleteUser =
+        require('../dist/controllers/mondoDBControllers/UserController')
+          .userController.deleteUser;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .delete(`/users/${testUser._id}`)
@@ -345,7 +355,8 @@ describe('User Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser = originalDeleteUser;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser =
+        originalDeleteUser;
     });
   });
 
@@ -360,8 +371,11 @@ describe('User Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      const originalDeleteUser = require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalDeleteUser =
+        require('../dist/controllers/mondoDBControllers/UserController')
+          .userController.deleteUser;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .delete(`/users/${testUser._id}`)
@@ -370,62 +384,92 @@ describe('User Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser = originalDeleteUser;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser =
+        originalDeleteUser;
     });
 
-  describe('GET /users/:id/data', () => {
-    let testUser, testDegree, testTimeline;
+    describe('GET /users/:id/data', () => {
+      let testUser, testDegree, testTimeline;
 
-    beforeEach(async () => {
-      testDegree = await Degree.create({
-        _id: 'COMP',
-        name: 'Computer Science',
-        totalCredits: 120
+      beforeEach(async () => {
+        testDegree = await Degree.create({
+          _id: 'COMP',
+          name: 'Computer Science',
+          totalCredits: 120,
+        });
+
+        testUser = await User.create({
+          _id: new mongoose.Types.ObjectId().toString(),
+          email: 'test@example.com',
+          fullname: 'Test User',
+          type: 'student',
+          degree: 'COMP',
+          deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }],
+          exemptions: ['COMP101', 'COMP102'],
+        });
+
+        testTimeline = await Timeline.create({
+          userId: testUser._id.toString(),
+          items: [
+            {
+              season: 'Fall',
+              year: 2023,
+              courses: ['COMP101', 'MATH101'],
+            },
+          ],
+        });
       });
 
-      testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
-        email: 'test@example.com',
-        fullname: 'Test User',
-        type: 'student',
-        degree: 'COMP',
-        deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }],
-        exemptions: ['COMP101', 'COMP102']
+      it('should get comprehensive user data', async () => {
+        const response = await request(app)
+          .get(`/users/${testUser._id}/data`)
+          .expect(200);
+
+        expect(response.body.message).toBe('User data retrieved successfully');
+        expect(response.body.user).toMatchObject({
+          id: testUser._id.toString(),
+          email: 'test@example.com',
+          fullname: 'Test User',
+          type: 'student',
+          degree: 'COMP',
+        });
+
+        expect(response.body.timeline).toHaveLength(2);
+        expect(response.body.deficiencies).toHaveLength(1);
+        expect(response.body.exemptions).toHaveLength(2);
+        expect(response.body.degree).toMatchObject({
+          id: 'COMP',
+          name: 'Computer Science',
+          totalCredits: 120,
+        });
       });
 
-      testTimeline = await Timeline.create({
-        userId: testUser._id.toString(),
-        items: [
-          {
-            season: 'Fall',
-            year: 2023,
-            courses: ['COMP101', 'MATH101']
-          }
-        ]
-      });
-    });
+      it('should return 404 for non-existent user', async () => {
+        const fakeId = new mongoose.Types.ObjectId().toString();
+        const response = await request(app)
+          .get(`/users/${fakeId}/data`)
+          .expect(404);
 
-    it('should get comprehensive user data', async () => {
-      const response = await request(app)
-        .get(`/users/${testUser._id}/data`)
-        .expect(200);
-
-      expect(response.body.message).toBe('User data retrieved successfully');
-      expect(response.body.user).toMatchObject({
-        id: testUser._id.toString(),
-        email: 'test@example.com',
-        fullname: 'Test User',
-        type: 'student',
-        degree: 'COMP'
+        expect(response.body.error).toContain('does not exist');
       });
 
-      expect(response.body.timeline).toHaveLength(2);
-      expect(response.body.deficiencies).toHaveLength(1);
-      expect(response.body.exemptions).toHaveLength(2);
-      expect(response.body.degree).toMatchObject({
-        id: 'COMP',
-        name: 'Computer Science',
-        totalCredits: 120
+      it('should handle server errors', async () => {
+        // Mock userController.getUserData to throw an error
+        const originalGetUserData =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.getUserData;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData =
+          jest.fn().mockRejectedValue(new Error('Database error'));
+
+        const response = await request(app)
+          .get(`/users/${testUser._id}/data`)
+          .expect(500);
+
+        expect(response.body.error).toBe('Internal server error');
+
+        // Restore original method
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData =
+          originalGetUserData;
       });
     });
 
@@ -440,8 +484,11 @@ describe('User Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock userController.getUserData to throw an error
-      const originalGetUserData = require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetUserData =
+        require('../dist/controllers/mondoDBControllers/UserController')
+          .userController.getUserData;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .get(`/users/${testUser._id}/data`)
@@ -450,38 +497,12 @@ describe('User Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData = originalGetUserData;
-    });
-  });
-
-    it('should return 404 for non-existent user', async () => {
-      const fakeId = new mongoose.Types.ObjectId().toString();
-      const response = await request(app)
-        .get(`/users/${fakeId}/data`)
-        .expect(404);
-
-      expect(response.body.error).toContain('does not exist');
-    });
-
-    it('should handle server errors', async () => {
-      // Mock userController.getUserData to throw an error
-      const originalGetUserData = require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData = jest.fn().mockRejectedValue(new Error('Database error'));
-
-      const response = await request(app)
-        .get(`/users/${testUser._id}/data`)
-        .expect(500);
-
-      expect(response.body.error).toBe('Internal server error');
-
-      // Restore original method
-      require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData = originalGetUserData;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData =
+        originalGetUserData;
     });
   });
 
   describe('POST /users/:id/deficiencies', () => {
-    let testUser;
-
     beforeEach(async () => {
       testUser = await User.create({
         _id: new mongoose.Types.ObjectId().toString(),
@@ -489,14 +510,14 @@ describe('User Routes', () => {
         password: 'hashedpassword',
         fullname: 'Test User',
         type: 'student',
-        deficiencies: []
+        deficiencies: [],
       });
     });
 
     it('should create deficiency', async () => {
       const deficiencyData = {
         coursepool: 'Math',
-        creditsRequired: 6
+        creditsRequired: 6,
       };
 
       const response = await request(app)
@@ -508,13 +529,13 @@ describe('User Routes', () => {
       expect(response.body.deficiency).toMatchObject({
         coursepool: 'Math',
         user_id: testUser._id.toString(),
-        creditsRequired: 6
+        creditsRequired: 6,
       });
     });
 
     it('should return 400 for missing required fields', async () => {
       const deficiencyData = {
-        coursepool: 'Math'
+        coursepool: 'Math',
         // Missing creditsRequired
       };
 
@@ -523,17 +544,19 @@ describe('User Routes', () => {
         .send(deficiencyData)
         .expect(400);
 
-      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
+      expect(response.body.error).toBe(
+        'User ID, coursepool, and creditsRequired are required',
+      );
     });
 
     it('should return 409 for duplicate deficiency', async () => {
       await User.findByIdAndUpdate(testUser._id, {
-        deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }]
+        deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }],
       });
 
       const deficiencyData = {
         coursepool: 'Math',
-        creditsRequired: 8
+        creditsRequired: 8,
       };
 
       const response = await request(app)
@@ -548,7 +571,7 @@ describe('User Routes', () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       const deficiencyData = {
         coursepool: 'Math',
-        creditsRequired: 6
+        creditsRequired: 6,
       };
 
       const response = await request(app)
@@ -560,12 +583,15 @@ describe('User Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      const originalCreateDeficiency = require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalCreateDeficiency =
+        require('../dist/controllers/mondoDBControllers/UserController')
+          .userController.createDeficiency;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const deficiencyData = {
         coursepool: 'Math',
-        creditsRequired: 6
+        creditsRequired: 6,
       };
 
       const response = await request(app)
@@ -575,13 +601,12 @@ describe('User Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency = originalCreateDeficiency;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency =
+        originalCreateDeficiency;
     });
   });
 
   describe('PUT /users/:userId/deficiencies', () => {
-    let testUser;
-
     beforeEach(async () => {
       testUser = await User.create({
         _id: new mongoose.Types.ObjectId().toString(),
@@ -589,7 +614,7 @@ describe('User Routes', () => {
         password: 'hashedpassword',
         fullname: 'Test User',
         type: 'student',
-        deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }]
+        deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }],
       });
     });
 
@@ -603,7 +628,7 @@ describe('User Routes', () => {
       expect(response.body.deficiency).toMatchObject({
         coursepool: 'Math',
         user_id: testUser._id.toString(),
-        creditsRequired: 9
+        creditsRequired: 9,
       });
 
       const updatedUser = await User.findById(testUser._id);
@@ -616,7 +641,9 @@ describe('User Routes', () => {
         .send({})
         .expect(400);
 
-      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
+      expect(response.body.error).toBe(
+        'User ID, coursepool, and creditsRequired are required',
+      );
     });
 
     it('should return 400 for missing coursepool', async () => {
@@ -625,7 +652,9 @@ describe('User Routes', () => {
         .send({ creditsRequired: 9 })
         .expect(400);
 
-      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
+      expect(response.body.error).toBe(
+        'User ID, coursepool, and creditsRequired are required',
+      );
     });
 
     it('should return 400 for invalid creditsRequired', async () => {
@@ -634,7 +663,9 @@ describe('User Routes', () => {
         .send({ coursepool: 'Math', creditsRequired: 'not a number' })
         .expect(400);
 
-      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
+      expect(response.body.error).toBe(
+        'User ID, coursepool, and creditsRequired are required',
+      );
     });
 
     it('should return 404 for non-existent deficiency', async () => {
@@ -647,8 +678,11 @@ describe('User Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      const originalUpdateDeficiency = require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalUpdateDeficiency =
+        require('../dist/controllers/mondoDBControllers/UserController')
+          .userController.updateDeficiency;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .put(`/users/${testUser._id}/deficiencies`)
@@ -657,13 +691,12 @@ describe('User Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency = originalUpdateDeficiency;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency =
+        originalUpdateDeficiency;
     });
   });
 
   describe('DELETE /users/:userId/deficiencies', () => {
-    let testUser;
-
     beforeEach(async () => {
       testUser = await User.create({
         _id: new mongoose.Types.ObjectId().toString(),
@@ -672,8 +705,8 @@ describe('User Routes', () => {
         type: 'student',
         deficiencies: [
           { coursepool: 'Math', creditsRequired: 6 },
-          { coursepool: 'Science', creditsRequired: 3 }
-        ]
+          { coursepool: 'Science', creditsRequired: 3 },
+        ],
       });
     });
 
@@ -687,7 +720,7 @@ describe('User Routes', () => {
       expect(response.body.deficiencies[0]).toMatchObject({
         coursepool: 'Math',
         user_id: testUser._id.toString(),
-        creditsRequired: 6
+        creditsRequired: 6,
       });
     });
 
@@ -702,8 +735,11 @@ describe('User Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock userController.getAllDeficienciesByUser to throw an error
-      const originalGetAllDeficienciesByUser = require('../dist/controllers/mondoDBControllers/UserController').userController.getAllDeficienciesByUser;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllDeficienciesByUser = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetAllDeficienciesByUser =
+        require('../dist/controllers/mondoDBControllers/UserController')
+          .userController.getAllDeficienciesByUser;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllDeficienciesByUser =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .get(`/users/${testUser._id}/deficiencies`)
@@ -712,13 +748,12 @@ describe('User Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllDeficienciesByUser = originalGetAllDeficienciesByUser;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllDeficienciesByUser =
+        originalGetAllDeficienciesByUser;
     });
   });
 
   describe('PUT /users/:userId/deficiencies', () => {
-    let testUser;
-
     beforeEach(async () => {
       testUser = await User.create({
         _id: new mongoose.Types.ObjectId().toString(),
@@ -726,7 +761,7 @@ describe('User Routes', () => {
         password: 'hashedpassword',
         fullname: 'Test User',
         type: 'student',
-        deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }]
+        deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }],
       });
     });
 
@@ -740,7 +775,7 @@ describe('User Routes', () => {
       expect(response.body.deficiency).toMatchObject({
         coursepool: 'Math',
         user_id: testUser._id.toString(),
-        creditsRequired: 9
+        creditsRequired: 9,
       });
     });
 
@@ -750,7 +785,9 @@ describe('User Routes', () => {
         .send({})
         .expect(400);
 
-      expect(response.body.error).toBe('User ID, coursepool, and creditsRequired are required');
+      expect(response.body.error).toBe(
+        'User ID, coursepool, and creditsRequired are required',
+      );
     });
 
     it('should return 404 for non-existent deficiency', async () => {
@@ -763,8 +800,11 @@ describe('User Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      const originalUpdateDeficiency = require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalUpdateDeficiency =
+        require('../dist/controllers/mondoDBControllers/UserController')
+          .userController.updateDeficiency;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .put(`/users/${testUser._id}/deficiencies`)
@@ -773,7 +813,8 @@ describe('User Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency = originalUpdateDeficiency;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency =
+        originalUpdateDeficiency;
     });
   });
 
@@ -790,8 +831,6 @@ describe('User Routes', () => {
   });
 
   describe('GET /users/:id/exemptions', () => {
-    let testUser;
-
     beforeEach(async () => {
       testUser = await User.create({
         _id: new mongoose.Types.ObjectId().toString(),
@@ -800,8 +839,8 @@ describe('User Routes', () => {
         type: 'student',
         deficiencies: [
           { coursepool: 'Math', creditsRequired: 6 },
-          { coursepool: 'Science', creditsRequired: 3 }
-        ]
+          { coursepool: 'Science', creditsRequired: 3 },
+        ],
       });
     });
 
@@ -839,8 +878,11 @@ describe('User Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      const originalDeleteDeficiency = require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalDeleteDeficiency =
+        require('../dist/controllers/mondoDBControllers/UserController')
+          .userController.deleteDeficiency;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .delete(`/users/${testUser._id}/deficiencies`)
@@ -849,13 +891,12 @@ describe('User Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency = originalDeleteDeficiency;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency =
+        originalDeleteDeficiency;
     });
   });
 
   describe('POST /users/:id/exemptions', () => {
-    let testUser;
-
     beforeEach(async () => {
       testUser = await User.create({
         _id: new mongoose.Types.ObjectId().toString(),
@@ -863,19 +904,19 @@ describe('User Routes', () => {
         password: 'hashedpassword',
         fullname: 'Test User',
         type: 'student',
-        exemptions: []
+        exemptions: [],
       });
 
       await Course.create([
         { _id: 'COMP101', title: 'Intro to Programming' },
         { _id: 'COMP102', title: 'Data Structures' },
-        { _id: 'MATH101', title: 'Calculus I' }
+        { _id: 'MATH101', title: 'Calculus I' },
       ]);
     });
 
     it('should create exemptions', async () => {
       const exemptionData = {
-        coursecodes: ['COMP101', 'COMP102']
+        coursecodes: ['COMP101', 'COMP102'],
       };
 
       const response = await request(app)
@@ -894,12 +935,14 @@ describe('User Routes', () => {
         .send({})
         .expect(400);
 
-      expect(response.body.error).toBe('User ID and coursecodes array are required');
+      expect(response.body.error).toBe(
+        'User ID and coursecodes array are required',
+      );
     });
 
     it('should return 404 for non-existent course', async () => {
       const exemptionData = {
-        coursecodes: ['COMP101', 'NONEXISTENT']
+        coursecodes: ['COMP101', 'NONEXISTENT'],
       };
 
       const response = await request(app)
@@ -913,7 +956,7 @@ describe('User Routes', () => {
     it('should return 404 for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       const exemptionData = {
-        coursecodes: ['COMP101']
+        coursecodes: ['COMP101'],
       };
 
       const response = await request(app)
@@ -926,11 +969,13 @@ describe('User Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock userController.createExemptions to throw an error
-      const originalCreateExemptions = require('../dist/controllers/mondoDBControllers/UserController').userController.createExemptions;
+      const originalCreateExemptions =
+        require('../dist/controllers/mondoDBControllers/UserController')
+          .userController.createExemptions;
       expect(response.body.error).toContain('does not exist');
 
       const exemptionData = {
-        coursecodes: ['COMP101']
+        coursecodes: ['COMP101'],
       };
 
       const response = await request(app)
@@ -941,20 +986,19 @@ describe('User Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/UserController').userController.createExemptions = originalCreateExemptions;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.createExemptions =
+        originalCreateExemptions;
     });
   });
 
   describe('GET /users/:id/exemptions', () => {
-    let testUser;
-
     beforeEach(async () => {
       testUser = await User.create({
         _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        exemptions: ['COMP101', 'COMP102']
+        exemptions: ['COMP101', 'COMP102'],
       });
     });
 
@@ -967,7 +1011,7 @@ describe('User Routes', () => {
       expect(response.body.exemptions).toHaveLength(2);
       expect(response.body.exemptions[0]).toMatchObject({
         coursecode: 'COMP101',
-        user_id: testUser._id.toString()
+        user_id: testUser._id.toString(),
       });
     });
 
@@ -977,7 +1021,7 @@ describe('User Routes', () => {
         email: 'noexemp@example.com',
         fullname: 'No Exemptions',
         type: 'student',
-        exemptions: []
+        exemptions: [],
       });
 
       const response = await request(app)
@@ -997,8 +1041,11 @@ describe('User Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      const originalGetAllExemptionsByUser = require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetAllExemptionsByUser =
+        require('../dist/controllers/mondoDBControllers/UserController')
+          .userController.getAllExemptionsByUser;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .get(`/users/${testUser._id}/exemptions`)
@@ -1006,20 +1053,19 @@ describe('User Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser = originalGetAllExemptionsByUser;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser =
+        originalGetAllExemptionsByUser;
     });
   });
 
   describe('DELETE /users/:userId/exemptions', () => {
-    let testUser;
-
     beforeEach(async () => {
       testUser = await User.create({
         _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        exemptions: ['COMP101', 'COMP102']
+        exemptions: ['COMP101', 'COMP102'],
       });
     });
 
@@ -1059,8 +1105,11 @@ describe('User Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock userController.deleteExemption to throw an error
-      const originalDeleteExemption = require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption;
-      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalDeleteExemption =
+        require('../dist/controllers/mondoDBControllers/UserController')
+          .userController.deleteExemption;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .delete(`/users/${testUser._id}/exemptions`)
@@ -1070,14 +1119,13 @@ describe('User Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption = originalDeleteExemption;
+      require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption =
+        originalDeleteExemption;
     });
   });
 
   // Additional tests for uncovered error handling branches
   describe('Error handling edge cases', () => {
-    let testUser;
-
     beforeEach(async () => {
       testUser = await User.create({
         _id: new mongoose.Types.ObjectId().toString(),
@@ -1086,52 +1134,63 @@ describe('User Routes', () => {
         type: 'student',
         degree: 'COMP',
         deficiencies: [],
-        exemptions: []
+        exemptions: [],
       });
     });
 
     describe('POST /users error branches', () => {
       it('should handle "already exists" error specifically', async () => {
-        const originalCreateUser = require('../dist/controllers/mondoDBControllers/UserController').userController.createUser;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createUser = jest.fn().mockRejectedValue(new Error('User already exists'));
+        const originalCreateUser =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.createUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createUser =
+          jest.fn().mockRejectedValue(new Error('User already exists'));
 
         const response = await request(app)
           .post('/users')
           .send({
             email: 'test@example.com',
             fullname: 'Test',
-            type: 'student'
+            type: 'student',
           })
           .expect(409);
 
         expect(response.body.error).toBe('User already exists');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createUser = originalCreateUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createUser =
+          originalCreateUser;
       });
 
       it('should handle general errors (not "already exists")', async () => {
-        const originalCreateUser = require('../dist/controllers/mondoDBControllers/UserController').userController.createUser;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createUser = jest.fn().mockRejectedValue(new Error('General error'));
+        const originalCreateUser =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.createUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createUser =
+          jest.fn().mockRejectedValue(new Error('General error'));
 
         const response = await request(app)
           .post('/users')
           .send({
             email: 'test@example.com',
             fullname: 'Test',
-            type: 'student'
+            type: 'student',
           })
           .expect(500);
 
         expect(response.body.error).toBe('Internal server error');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createUser = originalCreateUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createUser =
+          originalCreateUser;
       });
     });
 
     describe('GET /users/:id error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalGetUserById = require('../dist/controllers/mondoDBControllers/UserController').userController.getUserById;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserById = jest.fn().mockRejectedValue(new Error('User does not exist'));
+        const originalGetUserById =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.getUserById;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserById =
+          jest.fn().mockRejectedValue(new Error('User does not exist'));
 
         const response = await request(app)
           .get(`/users/${testUser._id}`)
@@ -1139,12 +1198,16 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('User does not exist');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserById = originalGetUserById;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserById =
+          originalGetUserById;
       });
 
       it('should handle general errors (not "does not exist")', async () => {
-        const originalGetUserById = require('../dist/controllers/mondoDBControllers/UserController').userController.getUserById;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserById = jest.fn().mockRejectedValue(new Error('General error'));
+        const originalGetUserById =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.getUserById;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserById =
+          jest.fn().mockRejectedValue(new Error('General error'));
 
         const response = await request(app)
           .get(`/users/${testUser._id}`)
@@ -1152,29 +1215,35 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('Internal server error');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserById = originalGetUserById;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserById =
+          originalGetUserById;
       });
     });
 
     describe('GET /users error branch', () => {
       it('should handle general errors', async () => {
-        const originalGetAllUsers = require('../dist/controllers/mondoDBControllers/UserController').userController.getAllUsers;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllUsers = jest.fn().mockRejectedValue(new Error('Database error'));
+        const originalGetAllUsers =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.getAllUsers;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllUsers =
+          jest.fn().mockRejectedValue(new Error('Database error'));
 
-        const response = await request(app)
-          .get('/users')
-          .expect(500);
+        const response = await request(app).get('/users').expect(500);
 
         expect(response.body.error).toBe('Internal server error');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllUsers = originalGetAllUsers;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllUsers =
+          originalGetAllUsers;
       });
     });
 
     describe('PUT /users/:id error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalUpdateUser = require('../dist/controllers/mondoDBControllers/UserController').userController.updateUser;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.updateUser = jest.fn().mockRejectedValue(new Error('User does not exist'));
+        const originalUpdateUser =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.updateUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.updateUser =
+          jest.fn().mockRejectedValue(new Error('User does not exist'));
 
         const response = await request(app)
           .put(`/users/${testUser._id}`)
@@ -1183,12 +1252,16 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('User does not exist');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.updateUser = originalUpdateUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.updateUser =
+          originalUpdateUser;
       });
 
       it('should handle general errors (not "does not exist")', async () => {
-        const originalUpdateUser = require('../dist/controllers/mondoDBControllers/UserController').userController.updateUser;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.updateUser = jest.fn().mockRejectedValue(new Error('General error'));
+        const originalUpdateUser =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.updateUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.updateUser =
+          jest.fn().mockRejectedValue(new Error('General error'));
 
         const response = await request(app)
           .put(`/users/${testUser._id}`)
@@ -1197,14 +1270,18 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('Internal server error');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.updateUser = originalUpdateUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.updateUser =
+          originalUpdateUser;
       });
     });
 
     describe('DELETE /users/:id error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalDeleteUser = require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser = jest.fn().mockRejectedValue(new Error('User does not exist'));
+        const originalDeleteUser =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.deleteUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser =
+          jest.fn().mockRejectedValue(new Error('User does not exist'));
 
         const response = await request(app)
           .delete(`/users/${testUser._id}`)
@@ -1212,12 +1289,16 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('User does not exist');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser = originalDeleteUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser =
+          originalDeleteUser;
       });
 
       it('should handle general errors (not "does not exist")', async () => {
-        const originalDeleteUser = require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser = jest.fn().mockRejectedValue(new Error('General error'));
+        const originalDeleteUser =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.deleteUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser =
+          jest.fn().mockRejectedValue(new Error('General error'));
 
         const response = await request(app)
           .delete(`/users/${testUser._id}`)
@@ -1225,14 +1306,18 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('Internal server error');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser = originalDeleteUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteUser =
+          originalDeleteUser;
       });
     });
 
     describe('GET /users/:id/data error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalGetUserData = require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData = jest.fn().mockRejectedValue(new Error('User does not exist'));
+        const originalGetUserData =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.getUserData;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData =
+          jest.fn().mockRejectedValue(new Error('User does not exist'));
 
         const response = await request(app)
           .get(`/users/${testUser._id}/data`)
@@ -1240,12 +1325,16 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('User does not exist');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData = originalGetUserData;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData =
+          originalGetUserData;
       });
 
       it('should handle general errors (not "does not exist")', async () => {
-        const originalGetUserData = require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData = jest.fn().mockRejectedValue(new Error('General error'));
+        const originalGetUserData =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.getUserData;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData =
+          jest.fn().mockRejectedValue(new Error('General error'));
 
         const response = await request(app)
           .get(`/users/${testUser._id}/data`)
@@ -1253,14 +1342,18 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('Internal server error');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData = originalGetUserData;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getUserData =
+          originalGetUserData;
       });
     });
 
     describe('POST /users/:userId/deficiencies error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalCreateDeficiency = require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency = jest.fn().mockRejectedValue(new Error('User does not exist'));
+        const originalCreateDeficiency =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.createDeficiency;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency =
+          jest.fn().mockRejectedValue(new Error('User does not exist'));
 
         const response = await request(app)
           .post(`/users/${testUser._id}/deficiencies`)
@@ -1269,12 +1362,16 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('User does not exist');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency = originalCreateDeficiency;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency =
+          originalCreateDeficiency;
       });
 
       it('should handle "already exists" error specifically', async () => {
-        const originalCreateDeficiency = require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency = jest.fn().mockRejectedValue(new Error('Deficiency already exists'));
+        const originalCreateDeficiency =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.createDeficiency;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency =
+          jest.fn().mockRejectedValue(new Error('Deficiency already exists'));
 
         const response = await request(app)
           .post(`/users/${testUser._id}/deficiencies`)
@@ -1283,12 +1380,16 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('Deficiency already exists');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency = originalCreateDeficiency;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency =
+          originalCreateDeficiency;
       });
 
       it('should handle general errors', async () => {
-        const originalCreateDeficiency = require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency = jest.fn().mockRejectedValue(new Error('General error'));
+        const originalCreateDeficiency =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.createDeficiency;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency =
+          jest.fn().mockRejectedValue(new Error('General error'));
 
         const response = await request(app)
           .post(`/users/${testUser._id}/deficiencies`)
@@ -1297,14 +1398,18 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('Internal server error');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency = originalCreateDeficiency;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createDeficiency =
+          originalCreateDeficiency;
       });
     });
 
     describe('GET /users/:userId/deficiencies error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalGetAllDeficienciesByUser = require('../dist/controllers/mondoDBControllers/UserController').userController.getAllDeficienciesByUser;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllDeficienciesByUser = jest.fn().mockRejectedValue(new Error('User does not exist'));
+        const originalGetAllDeficienciesByUser =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.getAllDeficienciesByUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllDeficienciesByUser =
+          jest.fn().mockRejectedValue(new Error('User does not exist'));
 
         const response = await request(app)
           .get(`/users/${testUser._id}/deficiencies`)
@@ -1312,12 +1417,16 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('User does not exist');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllDeficienciesByUser = originalGetAllDeficienciesByUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllDeficienciesByUser =
+          originalGetAllDeficienciesByUser;
       });
 
       it('should handle general errors (not "does not exist")', async () => {
-        const originalGetAllDeficienciesByUser = require('../dist/controllers/mondoDBControllers/UserController').userController.getAllDeficienciesByUser;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllDeficienciesByUser = jest.fn().mockRejectedValue(new Error('General error'));
+        const originalGetAllDeficienciesByUser =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.getAllDeficienciesByUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllDeficienciesByUser =
+          jest.fn().mockRejectedValue(new Error('General error'));
 
         const response = await request(app)
           .get(`/users/${testUser._id}/deficiencies`)
@@ -1325,14 +1434,18 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('Internal server error');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllDeficienciesByUser = originalGetAllDeficienciesByUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllDeficienciesByUser =
+          originalGetAllDeficienciesByUser;
       });
     });
 
     describe('PUT /users/:userId/deficiencies/:deficiencyId error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalUpdateDeficiency = require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency = jest.fn().mockRejectedValue(new Error('Deficiency does not exist'));
+        const originalUpdateDeficiency =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.updateDeficiency;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency =
+          jest.fn().mockRejectedValue(new Error('Deficiency does not exist'));
 
         const response = await request(app)
           .put(`/users/${testUser._id}/deficiencies/def123`)
@@ -1341,12 +1454,16 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('Deficiency does not exist');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency = originalUpdateDeficiency;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency =
+          originalUpdateDeficiency;
       });
 
       it('should handle general errors (not "does not exist")', async () => {
-        const originalUpdateDeficiency = require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency = jest.fn().mockRejectedValue(new Error('General error'));
+        const originalUpdateDeficiency =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.updateDeficiency;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency =
+          jest.fn().mockRejectedValue(new Error('General error'));
 
         const response = await request(app)
           .put(`/users/${testUser._id}/deficiencies/def123`)
@@ -1355,14 +1472,18 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('Internal server error');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency = originalUpdateDeficiency;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.updateDeficiency =
+          originalUpdateDeficiency;
       });
     });
 
     describe('DELETE /users/:userId/deficiencies/:deficiencyId error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalDeleteDeficiency = require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency = jest.fn().mockRejectedValue(new Error('Deficiency does not exist'));
+        const originalDeleteDeficiency =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.deleteDeficiency;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency =
+          jest.fn().mockRejectedValue(new Error('Deficiency does not exist'));
 
         const response = await request(app)
           .delete(`/users/${testUser._id}/deficiencies/def123`)
@@ -1370,12 +1491,16 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('Deficiency does not exist');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency = originalDeleteDeficiency;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency =
+          originalDeleteDeficiency;
       });
 
       it('should handle general errors (not "does not exist")', async () => {
-        const originalDeleteDeficiency = require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency = jest.fn().mockRejectedValue(new Error('General error'));
+        const originalDeleteDeficiency =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.deleteDeficiency;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency =
+          jest.fn().mockRejectedValue(new Error('General error'));
 
         const response = await request(app)
           .delete(`/users/${testUser._id}/deficiencies/def123`)
@@ -1383,14 +1508,18 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('Internal server error');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency = originalDeleteDeficiency;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteDeficiency =
+          originalDeleteDeficiency;
       });
     });
 
     describe('POST /users/:userId/exemptions error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalCreateExemption = require('../dist/controllers/mondoDBControllers/UserController').userController.createExemption;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createExemption = jest.fn().mockRejectedValue(new Error('User does not exist'));
+        const originalCreateExemption =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.createExemption;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createExemption =
+          jest.fn().mockRejectedValue(new Error('User does not exist'));
 
         const response = await request(app)
           .post(`/users/${testUser._id}/exemptions`)
@@ -1399,12 +1528,16 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('User does not exist');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createExemption = originalCreateExemption;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createExemption =
+          originalCreateExemption;
       });
 
       it('should handle "already exists" error specifically', async () => {
-        const originalCreateExemption = require('../dist/controllers/mondoDBControllers/UserController').userController.createExemption;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createExemption = jest.fn().mockRejectedValue(new Error('Exemption already exists'));
+        const originalCreateExemption =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.createExemption;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createExemption =
+          jest.fn().mockRejectedValue(new Error('Exemption already exists'));
 
         const response = await request(app)
           .post(`/users/${testUser._id}/exemptions`)
@@ -1413,12 +1546,16 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('Exemption already exists');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createExemption = originalCreateExemption;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createExemption =
+          originalCreateExemption;
       });
 
       it('should handle general errors', async () => {
-        const originalCreateExemption = require('../dist/controllers/mondoDBControllers/UserController').userController.createExemption;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createExemption = jest.fn().mockRejectedValue(new Error('General error'));
+        const originalCreateExemption =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.createExemption;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createExemption =
+          jest.fn().mockRejectedValue(new Error('General error'));
 
         const response = await request(app)
           .post(`/users/${testUser._id}/exemptions`)
@@ -1427,14 +1564,18 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('Internal server error');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.createExemption = originalCreateExemption;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.createExemption =
+          originalCreateExemption;
       });
     });
 
     describe('GET /users/:userId/exemptions error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalGetAllExemptionsByUser = require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser = jest.fn().mockRejectedValue(new Error('User does not exist'));
+        const originalGetAllExemptionsByUser =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.getAllExemptionsByUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser =
+          jest.fn().mockRejectedValue(new Error('User does not exist'));
 
         const response = await request(app)
           .get(`/users/${testUser._id}/exemptions`)
@@ -1442,12 +1583,16 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('User does not exist');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser = originalGetAllExemptionsByUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser =
+          originalGetAllExemptionsByUser;
       });
 
       it('should handle general errors (not "does not exist")', async () => {
-        const originalGetAllExemptionsByUser = require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser = jest.fn().mockRejectedValue(new Error('General error'));
+        const originalGetAllExemptionsByUser =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.getAllExemptionsByUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser =
+          jest.fn().mockRejectedValue(new Error('General error'));
 
         const response = await request(app)
           .get(`/users/${testUser._id}/exemptions`)
@@ -1455,14 +1600,18 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('Internal server error');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser = originalGetAllExemptionsByUser;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.getAllExemptionsByUser =
+          originalGetAllExemptionsByUser;
       });
     });
 
     describe('DELETE /users/:userId/exemptions error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalDeleteExemption = require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption = jest.fn().mockRejectedValue(new Error('User does not exist'));
+        const originalDeleteExemption =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.deleteExemption;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption =
+          jest.fn().mockRejectedValue(new Error('User does not exist'));
 
         const response = await request(app)
           .delete(`/users/${testUser._id}/exemptions`)
@@ -1471,12 +1620,16 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('User does not exist');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption = originalDeleteExemption;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption =
+          originalDeleteExemption;
       });
 
       it('should handle general errors (not "does not exist")', async () => {
-        const originalDeleteExemption = require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption;
-        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption = jest.fn().mockRejectedValue(new Error('General error'));
+        const originalDeleteExemption =
+          require('../dist/controllers/mondoDBControllers/UserController')
+            .userController.deleteExemption;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption =
+          jest.fn().mockRejectedValue(new Error('General error'));
 
         const response = await request(app)
           .delete(`/users/${testUser._id}/exemptions`)
@@ -1485,7 +1638,8 @@ describe('User Routes', () => {
 
         expect(response.body.error).toBe('Internal server error');
 
-        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption = originalDeleteExemption;
+        require('../dist/controllers/mondoDBControllers/UserController').userController.deleteExemption =
+          originalDeleteExemption;
       });
     });
   });

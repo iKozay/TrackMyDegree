@@ -140,7 +140,9 @@ describe('Admin Routes (MongoDB)', () => {
         // Simulate missing collectionName
         req.params = {};
         const handler = adminRoutes.stack.find(
-          (layer) => layer.route && layer.route.path === '/collections/:collectionName/documents',
+          (layer) =>
+            layer.route &&
+            layer.route.path === '/collections/:collectionName/documents',
         );
         if (handler) {
           handler.route.stack[0].handle(req, res);
@@ -150,7 +152,7 @@ describe('Admin Routes (MongoDB)', () => {
       });
 
       const response = await request(testApp).get('/test');
-      
+
       // The test may not work exactly as intended, but we're testing the logic
       expect([400, 404]).toContain(response.status);
     });
@@ -417,9 +419,12 @@ describe('Admin Routes (MongoDB)', () => {
       });
 
       it('should handle projection correctly', async () => {
-        const documents = await adminController.getCollectionDocuments('users', {
-          select: ['email', 'type'],
-        });
+        const documents = await adminController.getCollectionDocuments(
+          'users',
+          {
+            select: ['email', 'type'],
+          },
+        );
 
         expect(documents).toBeDefined();
         expect(documents.length).toBeGreaterThan(0);
@@ -433,28 +438,37 @@ describe('Admin Routes (MongoDB)', () => {
       it('should handle empty collection with keyword search', async () => {
         await User.deleteMany({});
 
-        const documents = await adminController.getCollectionDocuments('users', {
-          keyword: 'test',
-        });
+        const documents = await adminController.getCollectionDocuments(
+          'users',
+          {
+            keyword: 'test',
+          },
+        );
 
         expect(documents).toEqual([]);
       });
 
       it('should handle findOne returning undefined for no sample doc', async () => {
-        const originalFindOne = mongoose.connection.db.collection('users').findOne;
+        const originalFindOne =
+          mongoose.connection.db.collection('users').findOne;
         let callCount = 0;
-        
+
         mongoose.connection.db.collection('users').findOne = jest.fn(() => {
           if (callCount === 0) {
             callCount++;
             return Promise.resolve(undefined);
           }
-          return originalFindOne.call(mongoose.connection.db.collection('users'));
+          return originalFindOne.call(
+            mongoose.connection.db.collection('users'),
+          );
         });
 
-        const documents = await adminController.getCollectionDocuments('users', {
-          keyword: 'nonexistent',
-        });
+        const documents = await adminController.getCollectionDocuments(
+          'users',
+          {
+            keyword: 'nonexistent',
+          },
+        );
 
         expect(documents).toEqual([]);
 
@@ -473,16 +487,22 @@ describe('Admin Routes (MongoDB)', () => {
           active: true,
         });
 
-        const originalFindOne = mongoose.connection.db.collection('users').findOne;
-        mongoose.connection.db.collection('users').findOne = jest.fn().mockResolvedValueOnce({
-          _id: 'test',
-          age: 25,
-          active: true,
-        });
+        const originalFindOne =
+          mongoose.connection.db.collection('users').findOne;
+        mongoose.connection.db.collection('users').findOne = jest
+          .fn()
+          .mockResolvedValueOnce({
+            _id: 'test',
+            age: 25,
+            active: true,
+          });
 
-        const documents = await adminController.getCollectionDocuments('users', {
-          keyword: 'test',
-        });
+        const documents = await adminController.getCollectionDocuments(
+          'users',
+          {
+            keyword: 'test',
+          },
+        );
 
         expect(documents).toEqual([]);
 
@@ -490,10 +510,13 @@ describe('Admin Routes (MongoDB)', () => {
       });
 
       it('should handle search with specific page and limit', async () => {
-        const documents = await adminController.getCollectionDocuments('users', {
-          page: 1,
-          limit: 2,
-        });
+        const documents = await adminController.getCollectionDocuments(
+          'users',
+          {
+            page: 1,
+            limit: 2,
+          },
+        );
 
         expect(documents.length).toBeLessThanOrEqual(2);
       });
@@ -554,9 +577,9 @@ describe('Admin Routes (MongoDB)', () => {
         const originalDb = mongoose.connection.db;
         mongoose.connection.db = null;
 
-        await expect(
-          adminController.clearCollection('users'),
-        ).rejects.toThrow('Database connection not available');
+        await expect(adminController.clearCollection('users')).rejects.toThrow(
+          'Database connection not available',
+        );
 
         mongoose.connection.db = originalDb;
       });
@@ -564,16 +587,20 @@ describe('Admin Routes (MongoDB)', () => {
       it('should handle deleteMany returning undefined deletedCount', async () => {
         await User.deleteMany({});
 
-        const originalDeleteMany = mongoose.connection.db.collection('users').deleteMany;
-        mongoose.connection.db.collection('users').deleteMany = jest.fn().mockResolvedValue({
-          // Missing deletedCount
-        });
+        const originalDeleteMany =
+          mongoose.connection.db.collection('users').deleteMany;
+        mongoose.connection.db.collection('users').deleteMany = jest
+          .fn()
+          .mockResolvedValue({
+            // Missing deletedCount
+          });
 
         const count = await adminController.clearCollection('users');
 
         expect(count).toBe(0);
 
-        mongoose.connection.db.collection('users').deleteMany = originalDeleteMany;
+        mongoose.connection.db.collection('users').deleteMany =
+          originalDeleteMany;
       });
     });
 
@@ -582,13 +609,12 @@ describe('Admin Routes (MongoDB)', () => {
         const originalDb = mongoose.connection.db;
         mongoose.connection.db = null;
 
-        await expect(
-          adminController.getCollections(),
-        ).rejects.toThrow('Database connection not available');
+        await expect(adminController.getCollections()).rejects.toThrow(
+          'Database connection not available',
+        );
 
         mongoose.connection.db = originalDb;
       });
     });
   });
 });
-

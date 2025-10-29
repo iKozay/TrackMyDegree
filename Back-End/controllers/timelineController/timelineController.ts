@@ -7,7 +7,9 @@ const log = console.log;
 /**
  * Save or update a timeline
  */
-async function saveTimeline(timeline: TimelineTypes.Timeline): Promise<TimelineTypes.Timeline> {
+async function saveTimeline(
+  timeline: TimelineTypes.Timeline,
+): Promise<TimelineTypes.Timeline> {
   const transaction = await TimelineRepository.startTransaction();
 
   try {
@@ -17,13 +19,20 @@ async function saveTimeline(timeline: TimelineTypes.Timeline): Promise<TimelineT
     }
 
     // Upsert timeline metadata
-    const timelineId = await TimelineRepository.upsertTimeline(transaction, timeline);
+    const timelineId = await TimelineRepository.upsertTimeline(
+      transaction,
+      timeline,
+    );
 
     // Remove old timeline items before reinserting
     await TimelineRepository.deleteTimelineItems(transaction, timelineId);
 
     // Insert new timeline items
-    await TimelineRepository.insertTimelineItems(transaction, timelineId, items);
+    await TimelineRepository.insertTimelineItems(
+      transaction,
+      timelineId,
+      items,
+    );
 
     await transaction.commit();
 
@@ -39,11 +48,16 @@ async function saveTimeline(timeline: TimelineTypes.Timeline): Promise<TimelineT
 /**
  * Fetch all timelines for a user
  */
-async function getTimelinesByUser(user_id: string): Promise<TimelineTypes.Timeline[]> {
+async function getTimelinesByUser(
+  user_id: string,
+): Promise<TimelineTypes.Timeline[]> {
   const transaction = await TimelineRepository.startTransaction();
 
   try {
-    const timelines = await TimelineRepository.getTimelinesByUser(transaction, user_id);
+    const timelines = await TimelineRepository.getTimelinesByUser(
+      transaction,
+      user_id,
+    );
     await transaction.commit();
     return timelines;
   } catch (error) {
@@ -57,21 +71,32 @@ async function getTimelinesByUser(user_id: string): Promise<TimelineTypes.Timeli
 /**
  * Remove a timeline by ID
  */
-async function removeUserTimeline(timeline_id: string): Promise<{ success: boolean; message: string }> {
+async function removeUserTimeline(
+  timeline_id: string,
+): Promise<{ success: boolean; message: string }> {
   const transaction = await TimelineRepository.startTransaction();
 
   try {
-    const deletedCount = await TimelineRepository.deleteTimeline(transaction, timeline_id);
+    const deletedCount = await TimelineRepository.deleteTimeline(
+      transaction,
+      timeline_id,
+    );
     await transaction.commit();
 
     return deletedCount > 0
-      ? { success: true, message: `Timeline ${timeline_id} deleted successfully` }
+      ? {
+          success: true,
+          message: `Timeline ${timeline_id} deleted successfully`,
+        }
       : { success: false, message: `Timeline ${timeline_id} not found` };
   } catch (error) {
     await transaction.rollback();
     Sentry.captureException(error);
     log('Error removing timeline:', error);
-    return { success: false, message: 'Error occurred while deleting timeline.' };
+    return {
+      success: false,
+      message: 'Error occurred while deleting timeline.',
+    };
   }
 }
 

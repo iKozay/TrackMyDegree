@@ -275,12 +275,12 @@ describe('Timeline Routes (MongoDB)', () => {
       const updates = {
         name: 'Updated Name',
         items: [
-        {
-          id: 'item1',
-          season: 'winter',
-          year: 2025,
-          courses: ['COMP201'],
-        },
+          {
+            id: 'item1',
+            season: 'winter',
+            year: 2025,
+            courses: ['COMP201'],
+          },
         ],
       };
 
@@ -298,7 +298,9 @@ describe('Timeline Routes (MongoDB)', () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       const updates = { name: 'New Name' };
 
-      const response = await request(app).put(`/timeline/${fakeId}`).send(updates);
+      const response = await request(app)
+        .put(`/timeline/${fakeId}`)
+        .send(updates);
 
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('error');
@@ -313,7 +315,9 @@ describe('Timeline Routes (MongoDB)', () => {
         }
       });
 
-      const response = await request(testApp).put('/test').send({ name: 'Test' });
+      const response = await request(testApp)
+        .put('/test')
+        .send({ name: 'Test' });
       expect(response.status).toBe(400);
     });
 
@@ -466,4 +470,3 @@ describe('Timeline Routes (MongoDB)', () => {
     });
   });
 });
-

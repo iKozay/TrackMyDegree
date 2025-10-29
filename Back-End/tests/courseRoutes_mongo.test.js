@@ -72,7 +72,9 @@ describe('Course Routes (MongoDB)', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.courses.length).toBe(2);
-      const courseIds = response.body.courses.map((course) => course._id).sort();
+      const courseIds = response.body.courses
+        .map((course) => course._id)
+        .sort();
       expect(courseIds).toEqual(['COMP101', 'MATH101']);
     });
 
@@ -86,9 +88,7 @@ describe('Course Routes (MongoDB)', () => {
     });
 
     it('should pass page/limit params even when partially provided', async () => {
-      const response = await request(app)
-        .get('/courses')
-        .query({ page: '1' });
+      const response = await request(app).get('/courses').query({ page: '1' });
 
       expect(response.status).toBe(200);
       expect(response.body.courses.length).toBe(3);
@@ -140,9 +140,9 @@ describe('Course Routes (MongoDB)', () => {
         throw new Error('Direct database error');
       });
 
-      await expect(
-        courseController.getAllCourses({}),
-      ).rejects.toThrow('Direct database error');
+      await expect(courseController.getAllCourses({})).rejects.toThrow(
+        'Direct database error',
+      );
 
       courseController.findAll = originalFindAll;
     });
@@ -285,9 +285,9 @@ describe('Course Routes (MongoDB)', () => {
           error: 'Database error',
         });
 
-        await expect(
-          courseController.getCoursesByPool('Fall'),
-        ).rejects.toThrow('Database error');
+        await expect(courseController.getCoursesByPool('Fall')).rejects.toThrow(
+          'Database error',
+        );
 
         courseController.findAll = originalFindAll;
       });
@@ -357,13 +357,17 @@ describe('Course Routes (MongoDB)', () => {
       it('should throw error if code1 does not exist', async () => {
         await expect(
           courseController.createRequisite('NONEXIST', 'COMP101', 'pre'),
-        ).rejects.toThrow("One or both courses ('NONEXIST', 'COMP101') do not exist.");
+        ).rejects.toThrow(
+          "One or both courses ('NONEXIST', 'COMP101') do not exist.",
+        );
       });
 
       it('should throw error if code2 does not exist', async () => {
         await expect(
           courseController.createRequisite('COMP201', 'NONEXIST', 'pre'),
-        ).rejects.toThrow("One or both courses ('COMP201', 'NONEXIST') do not exist.");
+        ).rejects.toThrow(
+          "One or both courses ('COMP201', 'NONEXIST') do not exist.",
+        );
       });
 
       it('should throw error if requisite already exists', async () => {
@@ -504,4 +508,3 @@ describe('Course Routes (MongoDB)', () => {
     });
   });
 });
-

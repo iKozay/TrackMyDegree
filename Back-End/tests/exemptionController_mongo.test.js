@@ -55,22 +55,23 @@ describe('Exemption Controller (MongoDB, Embedded in User)', () => {
 
     const result = await exemptionController.createExemptions(
       ['COMP101', 'COMP202'],
-      user._id
+      user._id,
     );
 
     expect(result.created.length).toBe(2);
     expect(result.alreadyExists.length).toBe(0);
 
     const updated = await User.findById('u1');
-    expect(updated.exemptions).toEqual(expect.arrayContaining(['COMP101', 'COMP202']));
+    expect(updated.exemptions).toEqual(
+      expect.arrayContaining(['COMP101', 'COMP202']),
+    );
     expect(result).toEqual({
-  created: [
-    { coursecode: 'COMP101', user_id: user._id },
-    { coursecode: 'COMP202', user_id: user._id },
-  ],
-  alreadyExists: [],
-});
-
+      created: [
+        { coursecode: 'COMP101', user_id: user._id },
+        { coursecode: 'COMP202', user_id: user._id },
+      ],
+      alreadyExists: [],
+    });
   });
 
   test('✅ createExemptions skips existing course exemptions', async () => {
@@ -85,7 +86,10 @@ describe('Exemption Controller (MongoDB, Embedded in User)', () => {
     }).save();
 
     await createCourse('COMP303');
-    const result = await exemptionController.createExemptions(['COMP303'], user._id);
+    const result = await exemptionController.createExemptions(
+      ['COMP303'],
+      user._id,
+    );
 
     expect(result.created).toEqual([]);
     expect(result.alreadyExists).toEqual(['COMP303']);
@@ -94,7 +98,7 @@ describe('Exemption Controller (MongoDB, Embedded in User)', () => {
   test('✅ throws error if user missing', async () => {
     await createCourse('COMP404');
     await expect(
-      exemptionController.createExemptions(['COMP404'], 'fakeUser')
+      exemptionController.createExemptions(['COMP404'], 'fakeUser'),
     ).rejects.toThrow("AppUser with id 'fakeUser' does not exist.");
     expect(Sentry.captureException).toHaveBeenCalled();
   });
@@ -110,7 +114,7 @@ describe('Exemption Controller (MongoDB, Embedded in User)', () => {
     }).save();
 
     await expect(
-      exemptionController.createExemptions(['FAKE101'], user._id)
+      exemptionController.createExemptions(['FAKE101'], user._id),
     ).rejects.toThrow("Course with code 'FAKE101' does not exist.");
   });
 
@@ -128,13 +132,13 @@ describe('Exemption Controller (MongoDB, Embedded in User)', () => {
     const result = await exemptionController.getAllExemptionsByUser(user._id);
     expect(result.length).toBe(2);
     expect(result.map((r) => r.coursecode)).toEqual(
-      expect.arrayContaining(['COMP111', 'COMP249'])
+      expect.arrayContaining(['COMP111', 'COMP249']),
     );
   });
 
   test('✅ getAllExemptionsByUser throws when user missing', async () => {
     await expect(
-      exemptionController.getAllExemptionsByUser('fake')
+      exemptionController.getAllExemptionsByUser('fake'),
     ).rejects.toThrow("AppUser with id 'fake' does not exist.");
   });
 
@@ -150,7 +154,7 @@ describe('Exemption Controller (MongoDB, Embedded in User)', () => {
     }).save();
 
     await expect(
-      exemptionController.getAllExemptionsByUser('u7')
+      exemptionController.getAllExemptionsByUser('u7'),
     ).rejects.toThrow("No exemptions found for user with id 'u7'.");
   });
 
@@ -167,7 +171,7 @@ describe('Exemption Controller (MongoDB, Embedded in User)', () => {
 
     const msg = await exemptionController.deleteExemptionByCoursecodeAndUserId(
       'COMP222',
-      user._id
+      user._id,
     );
     expect(msg).toMatch(/successfully deleted/);
 
@@ -177,7 +181,10 @@ describe('Exemption Controller (MongoDB, Embedded in User)', () => {
 
   test('✅ deleteExemptionByCoursecodeAndUserId throws if user missing', async () => {
     await expect(
-      exemptionController.deleteExemptionByCoursecodeAndUserId('COMP111', 'fakeUser')
+      exemptionController.deleteExemptionByCoursecodeAndUserId(
+        'COMP111',
+        'fakeUser',
+      ),
     ).rejects.toThrow("AppUser with id 'fakeUser' does not exist.");
   });
 
@@ -193,8 +200,13 @@ describe('Exemption Controller (MongoDB, Embedded in User)', () => {
     }).save();
 
     await expect(
-      exemptionController.deleteExemptionByCoursecodeAndUserId('COMP999', user._id)
-    ).rejects.toThrow('Exemption with this coursecode and user_id does not exist.');
+      exemptionController.deleteExemptionByCoursecodeAndUserId(
+        'COMP999',
+        user._id,
+      ),
+    ).rejects.toThrow(
+      'Exemption with this coursecode and user_id does not exist.',
+    );
   });
 
   test('✅ returns undefined if mongoose not connected', async () => {
@@ -202,8 +214,10 @@ describe('Exemption Controller (MongoDB, Embedded in User)', () => {
 
     const res1 = await exemptionController.createExemptions(['COMP999'], 'u9');
     const res2 = await exemptionController.getAllExemptionsByUser('u9');
-    const res3 =
-      await exemptionController.deleteExemptionByCoursecodeAndUserId('COMP999', 'u9');
+    const res3 = await exemptionController.deleteExemptionByCoursecodeAndUserId(
+      'COMP999',
+      'u9',
+    );
 
     expect(res1).toEqual({ created: [], alreadyExists: [] });
     expect(res2).toBeUndefined();

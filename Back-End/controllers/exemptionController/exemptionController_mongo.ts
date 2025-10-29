@@ -24,7 +24,7 @@ export interface ExemptionDoc {
  */
 async function createExemptions(
   coursecodes: string[],
-  user_id: string
+  user_id: string,
 ): Promise<{ created: ExemptionDoc[]; alreadyExists: string[] }> {
   // Connection check
   if (mongoose.connection.readyState !== 1) {
@@ -64,7 +64,7 @@ async function createExemptions(
  * Retrieves all exemptions associated with a specific user.
  */
 async function getAllExemptionsByUser(
-  user_id: string
+  user_id: string,
 ): Promise<ExemptionDoc[] | undefined> {
   if (mongoose.connection.readyState !== 1) {
     return undefined;
@@ -93,7 +93,7 @@ async function getAllExemptionsByUser(
  */
 async function deleteExemptionByCoursecodeAndUserId(
   coursecode: string,
-  user_id: string
+  user_id: string,
 ): Promise<string | undefined> {
   if (mongoose.connection.readyState !== 1) {
     return undefined;
@@ -105,7 +105,7 @@ async function deleteExemptionByCoursecodeAndUserId(
 
     if (!user.exemptions.includes(coursecode)) {
       throw new Error(
-        'Exemption with this coursecode and user_id does not exist.'
+        'Exemption with this coursecode and user_id does not exist.',
       );
     }
 

@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { DegreeController } = require('../dist/controllers/mondoDBControllers/DegreeController');
+const {
+  DegreeController,
+} = require('../dist/controllers/mondoDBControllers/DegreeController');
 const { Degree } = require('../dist/models/Degree');
 
 describe('DegreeController', () => {
@@ -44,9 +46,9 @@ describe('DegreeController', () => {
             id: 'COMP_CORE',
             name: 'Computer Science Core',
             creditsRequired: 60,
-            courses: ['COMP101', 'COMP102']
-          }
-        ]
+            courses: ['COMP101', 'COMP102'],
+          },
+        ],
       });
     });
 
@@ -56,13 +58,14 @@ describe('DegreeController', () => {
       expect(result).toMatchObject({
         id: 'COMP',
         name: 'Computer Science',
-        totalCredits: 120
+        totalCredits: 120,
       });
     });
 
     it('should throw error for non-existent degree', async () => {
-      await expect(degreeController.readDegree('NONEXISTENT'))
-        .rejects.toThrow('Degree with this id does not exist');
+      await expect(degreeController.readDegree('NONEXISTENT')).rejects.toThrow(
+        'Degree with this id does not exist',
+      );
     });
 
     it('should handle database errors', async () => {
@@ -72,8 +75,9 @@ describe('DegreeController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(degreeController.readDegree('COMP'))
-        .rejects.toThrow('Database connection failed');
+      await expect(degreeController.readDegree('COMP')).rejects.toThrow(
+        'Database connection failed',
+      );
 
       // Restore original method
       Degree.findById = originalFindById;
@@ -86,18 +90,18 @@ describe('DegreeController', () => {
         {
           _id: 'COMP',
           name: 'Computer Science',
-          totalCredits: 120
+          totalCredits: 120,
         },
         {
           _id: 'SOEN',
           name: 'Software Engineering',
-          totalCredits: 120
+          totalCredits: 120,
         },
         {
           _id: 'ECP',
           name: 'Engineering Common Program',
-          totalCredits: 30
-        }
+          totalCredits: 30,
+        },
       ]);
     });
 
@@ -105,9 +109,9 @@ describe('DegreeController', () => {
       const result = await degreeController.readAllDegrees();
 
       expect(result).toHaveLength(2);
-      expect(result.find(d => d.id === 'COMP')).toBeDefined();
-      expect(result.find(d => d.id === 'SOEN')).toBeDefined();
-      expect(result.find(d => d.id === 'ECP')).toBeUndefined();
+      expect(result.find((d) => d.id === 'COMP')).toBeDefined();
+      expect(result.find((d) => d.id === 'SOEN')).toBeDefined();
+      expect(result.find((d) => d.id === 'ECP')).toBeUndefined();
     });
 
     it('should return degrees sorted by name', async () => {
@@ -131,8 +135,9 @@ describe('DegreeController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(degreeController.readAllDegrees())
-        .rejects.toThrow('Database connection failed');
+      await expect(degreeController.readAllDegrees()).rejects.toThrow(
+        'Database connection failed',
+      );
 
       // Restore original method
       Degree.find = originalFind;
@@ -144,7 +149,7 @@ describe('DegreeController', () => {
       await Degree.create({
         _id: 'COMP',
         name: 'Computer Science',
-        totalCredits: 120
+        totalCredits: 120,
       });
     });
 
@@ -155,8 +160,9 @@ describe('DegreeController', () => {
     });
 
     it('should throw error for non-existent degree', async () => {
-      await expect(degreeController.getCreditsForDegree('NONEXISTENT'))
-        .rejects.toThrow('Degree with this id does not exist');
+      await expect(
+        degreeController.getCreditsForDegree('NONEXISTENT'),
+      ).rejects.toThrow('Degree with this id does not exist');
     });
 
     it('should handle database errors', async () => {
@@ -166,8 +172,9 @@ describe('DegreeController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(degreeController.getCreditsForDegree('COMP'))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        degreeController.getCreditsForDegree('COMP'),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       Degree.findById = originalFindById;
@@ -185,15 +192,15 @@ describe('DegreeController', () => {
               id: 'COMP_CORE',
               name: 'Computer Science Core',
               creditsRequired: 60,
-              courses: ['COMP101', 'COMP102']
+              courses: ['COMP101', 'COMP102'],
             },
             {
               id: 'MATH_REQ',
               name: 'Mathematics Requirements',
               creditsRequired: 12,
-              courses: ['MATH101', 'MATH102']
-            }
-          ]
+              courses: ['MATH101', 'MATH102'],
+            },
+          ],
         },
         {
           _id: 'SOEN',
@@ -203,16 +210,16 @@ describe('DegreeController', () => {
               id: 'SOEN_CORE',
               name: 'Software Engineering Core',
               creditsRequired: 50,
-              courses: ['SOEN101', 'SOEN102']
+              courses: ['SOEN101', 'SOEN102'],
             },
             {
               id: 'MATH_REQ',
               name: 'Mathematics Requirements',
               creditsRequired: 12,
-              courses: ['MATH101', 'MATH102']
-            }
-          ]
-        }
+              courses: ['MATH101', 'MATH102'],
+            },
+          ],
+        },
       ]);
     });
 
@@ -220,9 +227,9 @@ describe('DegreeController', () => {
       const result = await degreeController.getAllCoursePools();
 
       expect(result).toHaveLength(3); // COMP_CORE, MATH_REQ, SOEN_CORE
-      expect(result.find(cp => cp.id === 'COMP_CORE')).toBeDefined();
-      expect(result.find(cp => cp.id === 'SOEN_CORE')).toBeDefined();
-      expect(result.find(cp => cp.id === 'MATH_REQ')).toBeDefined();
+      expect(result.find((cp) => cp.id === 'COMP_CORE')).toBeDefined();
+      expect(result.find((cp) => cp.id === 'SOEN_CORE')).toBeDefined();
+      expect(result.find((cp) => cp.id === 'MATH_REQ')).toBeDefined();
     });
 
     it('should return course pools sorted by name', async () => {
@@ -266,9 +273,9 @@ describe('DegreeController', () => {
             id: 'COMP_CORE',
             name: 'Computer Science Core',
             creditsRequired: 60,
-            courses: ['COMP101', 'COMP102']
-          }
-        ]
+            courses: ['COMP101', 'COMP102'],
+          },
+        ],
       });
     });
 
@@ -279,7 +286,7 @@ describe('DegreeController', () => {
         id: 'COMP_CORE',
         name: 'Computer Science Core',
         creditsRequired: 60,
-        courses: ['COMP101', 'COMP102']
+        courses: ['COMP101', 'COMP102'],
       });
     });
 
@@ -315,15 +322,15 @@ describe('DegreeController', () => {
             id: 'COMP_CORE',
             name: 'Computer Science Core',
             creditsRequired: 60,
-            courses: ['COMP101', 'COMP102']
+            courses: ['COMP101', 'COMP102'],
           },
           {
             id: 'MATH_REQ',
             name: 'Mathematics Requirements',
             creditsRequired: 12,
-            courses: ['MATH101', 'MATH102']
-          }
-        ]
+            courses: ['MATH101', 'MATH102'],
+          },
+        ],
       });
     });
 
@@ -335,18 +342,19 @@ describe('DegreeController', () => {
         id: 'COMP_CORE',
         name: 'Computer Science Core',
         creditsRequired: 60,
-        courses: ['COMP101', 'COMP102']
+        courses: ['COMP101', 'COMP102'],
       });
       expect(result[1]).toMatchObject({
         id: 'MATH_REQ',
         name: 'Mathematics Requirements',
         creditsRequired: 12,
-        courses: ['MATH101', 'MATH102']
+        courses: ['MATH101', 'MATH102'],
       });
     });
 
     it('should return empty array for non-existent degree', async () => {
-      const result = await degreeController.getCoursePoolsByDegree('NONEXISTENT');
+      const result =
+        await degreeController.getCoursePoolsByDegree('NONEXISTENT');
 
       expect(result).toHaveLength(0);
     });
@@ -355,7 +363,7 @@ describe('DegreeController', () => {
       await Degree.create({
         _id: 'EMPTY',
         name: 'Empty Degree',
-        coursePools: []
+        coursePools: [],
       });
 
       const result = await degreeController.getCoursePoolsByDegree('EMPTY');
@@ -389,15 +397,15 @@ describe('DegreeController', () => {
             id: 'COMP_CORE',
             name: 'Computer Science Core',
             creditsRequired: 60,
-            courses: ['COMP101', 'COMP102']
+            courses: ['COMP101', 'COMP102'],
           },
           {
             id: 'MATH_REQ',
             name: 'Mathematics Requirements',
             creditsRequired: 12,
-            courses: ['MATH101', 'MATH102']
-          }
-        ]
+            courses: ['MATH101', 'MATH102'],
+          },
+        ],
       });
     });
 
@@ -409,18 +417,19 @@ describe('DegreeController', () => {
         id: 'COMP_CORE',
         name: 'Computer Science Core',
         creditsRequired: 60,
-        courses: ['COMP101', 'COMP102']
+        courses: ['COMP101', 'COMP102'],
       });
       expect(result[1]).toMatchObject({
         id: 'MATH_REQ',
         name: 'Mathematics Requirements',
         creditsRequired: 12,
-        courses: ['MATH101', 'MATH102']
+        courses: ['MATH101', 'MATH102'],
       });
     });
 
     it('should return empty array for non-existent degree', async () => {
-      const result = await degreeController.getCoursePoolsByDegree('NONEXISTENT');
+      const result =
+        await degreeController.getCoursePoolsByDegree('NONEXISTENT');
 
       expect(result).toHaveLength(0);
     });
@@ -433,10 +442,10 @@ describe('DegreeController', () => {
           {
             id: 'NOCOURSES_POOL',
             name: 'No Courses Pool',
-            creditsRequired: 30
+            creditsRequired: 30,
             // courses field is undefined
-          }
-        ]
+          },
+        ],
       });
 
       const result = await degreeController.getCoursePoolsByDegree('NOCOURSES');
@@ -446,7 +455,7 @@ describe('DegreeController', () => {
         id: 'NOCOURSES_POOL',
         name: 'No Courses Pool',
         creditsRequired: 30,
-        courses: []
+        courses: [],
       });
     });
 
@@ -471,11 +480,12 @@ describe('DegreeController', () => {
       const originalFindById = degreeController.findById;
       degreeController.findById = jest.fn().mockResolvedValue({
         success: false,
-        error: null
+        error: null,
       });
 
-      await expect(degreeController.readDegree('TEST'))
-        .rejects.toThrow('Degree with this id does not exist');
+      await expect(degreeController.readDegree('TEST')).rejects.toThrow(
+        'Degree with this id does not exist',
+      );
 
       degreeController.findById = originalFindById;
     });
@@ -484,11 +494,12 @@ describe('DegreeController', () => {
       const originalFindAll = degreeController.findAll;
       degreeController.findAll = jest.fn().mockResolvedValue({
         success: false,
-        error: null
+        error: null,
       });
 
-      await expect(degreeController.readAllDegrees())
-        .rejects.toThrow('Failed to fetch degrees');
+      await expect(degreeController.readAllDegrees()).rejects.toThrow(
+        'Failed to fetch degrees',
+      );
 
       degreeController.findAll = originalFindAll;
     });
@@ -497,7 +508,7 @@ describe('DegreeController', () => {
       const originalFindAll = degreeController.findAll;
       degreeController.findAll = jest.fn().mockResolvedValue({
         success: true,
-        data: null
+        data: null,
       });
 
       const result = await degreeController.readAllDegrees();
@@ -510,11 +521,12 @@ describe('DegreeController', () => {
       const originalFindById = degreeController.findById;
       degreeController.findById = jest.fn().mockResolvedValue({
         success: false,
-        error: null
+        error: null,
       });
 
-      await expect(degreeController.getCreditsForDegree('TEST'))
-        .rejects.toThrow('Degree with this id does not exist');
+      await expect(
+        degreeController.getCreditsForDegree('TEST'),
+      ).rejects.toThrow('Degree with this id does not exist');
 
       degreeController.findById = originalFindById;
     });
@@ -523,7 +535,7 @@ describe('DegreeController', () => {
       const originalAggregate = degreeController.aggregate;
       degreeController.aggregate = jest.fn().mockResolvedValue({
         success: true,
-        data: null
+        data: null,
       });
 
       const result = await degreeController.getAllCoursePools();
@@ -536,7 +548,7 @@ describe('DegreeController', () => {
       const originalAggregate = degreeController.aggregate;
       degreeController.aggregate = jest.fn().mockResolvedValue({
         success: true,
-        data: []
+        data: [],
       });
 
       const result = await degreeController.getCoursePool('TEST');
@@ -549,7 +561,7 @@ describe('DegreeController', () => {
       await Degree.create({
         _id: 'NULLPOOLS',
         name: 'Null Pools Degree',
-        coursePools: null
+        coursePools: null,
       });
 
       const result = await degreeController.getCoursePoolsByDegree('NULLPOOLS');
@@ -560,10 +572,11 @@ describe('DegreeController', () => {
       await Degree.create({
         _id: 'NULLPOOLS2',
         name: 'Null Pools Degree 2',
-        coursePools: null
+        coursePools: null,
       });
 
-      const result = await degreeController.getCoursePoolsByDegree('NULLPOOLS2');
+      const result =
+        await degreeController.getCoursePoolsByDegree('NULLPOOLS2');
       expect(result).toEqual([]);
     });
   });

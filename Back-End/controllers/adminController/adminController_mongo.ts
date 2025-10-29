@@ -6,7 +6,7 @@ import {
   listBackups,
   deleteBackup,
 } from '../../services/backup';
-const unknownErrorString = 'Unknown error'
+const unknownErrorString = 'Unknown error';
 export const adminController = {
   async createBackup(
     req: Request,

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const DegreeXCPController = require('../dist/controllers/DegreeXCPController/DegreeXCPController_mongo').default;
+const DegreeXCPController =
+  require('../dist/controllers/DegreeXCPController/DegreeXCPController_mongo').default;
 const { Degree } = require('../dist/models/Degree');
 const DB_OPS = require('../dist/Util/DB_Ops').default;
 
@@ -23,14 +24,14 @@ describe('DegreeXCPController', () => {
   beforeEach(async () => {
     // Clean up database before each test
     await Degree.deleteMany({});
-    
+
     // Create test degrees
     const testDegree1 = new Degree({
       _id: 'test-degree-1',
       name: 'Test Degree 1',
       totalCredits: 120,
       isAddon: false,
-      coursePools: []
+      coursePools: [],
     });
 
     const testDegree2 = new Degree({
@@ -43,24 +44,24 @@ describe('DegreeXCPController', () => {
           id: 'existing-coursepool',
           name: 'Existing Pool',
           creditsRequired: 15,
-          courses: []
-        }
-      ]
+          courses: [],
+        },
+      ],
     });
 
     await testDegree1.save();
     await testDegree2.save();
-    
+
     testDegreeId = 'test-degree-1';
     testDegreeId2 = 'test-degree-2';
   });
 
   describe('createDegreeXCP', () => {
     it('should successfully create a new DegreeXCP record', async () => {
-    const newRecord = {
+      const newRecord = {
         degree_id: testDegreeId,
         coursepool_id: 'new-coursepool-1',
-        credits: 12
+        credits: 12,
       };
 
       const result = await DegreeXCPController.createDegreeXCP(newRecord);
@@ -78,7 +79,7 @@ describe('DegreeXCPController', () => {
       const newRecord = {
         degree_id: 'non-existent-degree',
         coursepool_id: 'new-coursepool-1',
-        credits: 12
+        credits: 12,
       };
 
       const result = await DegreeXCPController.createDegreeXCP(newRecord);
@@ -90,7 +91,7 @@ describe('DegreeXCPController', () => {
       const newRecord = {
         degree_id: testDegreeId2,
         coursepool_id: 'existing-coursepool',
-        credits: 12
+        credits: 12,
       };
 
       const result = await DegreeXCPController.createDegreeXCP(newRecord);
@@ -111,7 +112,9 @@ describe('DegreeXCPController', () => {
     });
 
     it('should return empty array when degree does not exist', async () => {
-      const result = await DegreeXCPController.getAllDegreeXCP('non-existent-degree');
+      const result = await DegreeXCPController.getAllDegreeXCP(
+        'non-existent-degree',
+      );
 
       expect(result).toHaveProperty('course_pools');
       expect(result.course_pools).toHaveLength(0);
@@ -133,7 +136,7 @@ describe('DegreeXCPController', () => {
         id: 'update-test-pool',
         name: 'Update Test Pool',
         creditsRequired: 10,
-        courses: []
+        courses: [],
       });
       await degree.save();
     });
@@ -143,7 +146,7 @@ describe('DegreeXCPController', () => {
         id: 'update-record-id',
         degree_id: testDegreeId,
         coursepool_id: 'update-test-pool',
-        credits: 20
+        credits: 20,
       };
 
       const result = await DegreeXCPController.updateDegreeXCP(updateRecord);
@@ -152,7 +155,9 @@ describe('DegreeXCPController', () => {
 
       // Verify the credits were updated
       const degree = await Degree.findById(testDegreeId);
-      const coursePool = degree.coursePools.find(cp => cp.id === 'update-test-pool');
+      const coursePool = degree.coursePools.find(
+        (cp) => cp.id === 'update-test-pool',
+      );
       expect(coursePool.creditsRequired).toBe(20);
     });
 
@@ -161,7 +166,7 @@ describe('DegreeXCPController', () => {
         id: 'update-record-id',
         degree_id: testDegreeId2,
         coursepool_id: 'update-test-pool',
-        credits: 25
+        credits: 25,
       };
 
       const result = await DegreeXCPController.updateDegreeXCP(updateRecord);
@@ -170,12 +175,16 @@ describe('DegreeXCPController', () => {
 
       // Verify course pool was removed from original degree
       const originalDegree = await Degree.findById(testDegreeId);
-      const originalPool = originalDegree.coursePools.find(cp => cp.id === 'update-test-pool');
+      const originalPool = originalDegree.coursePools.find(
+        (cp) => cp.id === 'update-test-pool',
+      );
       expect(originalPool).toBeUndefined();
 
       // Verify course pool was added to target degree
       const targetDegree = await Degree.findById(testDegreeId2);
-      const targetPool = targetDegree.coursePools.find(cp => cp.id === 'update-test-pool');
+      const targetPool = targetDegree.coursePools.find(
+        (cp) => cp.id === 'update-test-pool',
+      );
       expect(targetPool).toBeDefined();
       expect(targetPool.creditsRequired).toBe(25);
     });
@@ -185,7 +194,7 @@ describe('DegreeXCPController', () => {
         id: 'update-record-id',
         degree_id: testDegreeId,
         coursepool_id: 'non-existent-pool',
-        credits: 15
+        credits: 15,
       };
 
       const result = await DegreeXCPController.updateDegreeXCP(updateRecord);
@@ -198,7 +207,7 @@ describe('DegreeXCPController', () => {
         id: 'update-record-id',
         degree_id: 'non-existent-degree',
         coursepool_id: 'update-test-pool',
-        credits: 15
+        credits: 15,
       };
 
       const result = await DegreeXCPController.updateDegreeXCP(updateRecord);
@@ -211,7 +220,7 @@ describe('DegreeXCPController', () => {
     it('should successfully remove a course pool from a degree', async () => {
       const deleteRecord = {
         degree_id: testDegreeId2,
-        coursepool_id: 'existing-coursepool'
+        coursepool_id: 'existing-coursepool',
       };
 
       const result = await DegreeXCPController.removeDegreeXCP(deleteRecord);
@@ -220,7 +229,9 @@ describe('DegreeXCPController', () => {
 
       // Verify the course pool was removed
       const degree = await Degree.findById(testDegreeId2);
-      const coursePool = degree.coursePools.find(cp => cp.id === 'existing-coursepool');
+      const coursePool = degree.coursePools.find(
+        (cp) => cp.id === 'existing-coursepool',
+      );
       expect(coursePool).toBeUndefined();
       expect(degree.coursePools).toHaveLength(0);
     });
@@ -228,7 +239,7 @@ describe('DegreeXCPController', () => {
     it('should fail when degree does not exist', async () => {
       const deleteRecord = {
         degree_id: 'non-existent-degree',
-        coursepool_id: 'existing-coursepool'
+        coursepool_id: 'existing-coursepool',
       };
 
       const result = await DegreeXCPController.removeDegreeXCP(deleteRecord);
@@ -239,7 +250,7 @@ describe('DegreeXCPController', () => {
     it('should fail when course pool does not exist in the degree', async () => {
       const deleteRecord = {
         degree_id: testDegreeId2,
-        coursepool_id: 'non-existent-pool'
+        coursepool_id: 'non-existent-pool',
       };
 
       const result = await DegreeXCPController.removeDegreeXCP(deleteRecord);
@@ -250,7 +261,7 @@ describe('DegreeXCPController', () => {
     it('should fail when course pool exists but not in the specified degree', async () => {
       const deleteRecord = {
         degree_id: testDegreeId, // Empty degree
-        coursepool_id: 'existing-coursepool' // Exists in testDegreeId2
+        coursepool_id: 'existing-coursepool', // Exists in testDegreeId2
       };
 
       const result = await DegreeXCPController.removeDegreeXCP(deleteRecord);

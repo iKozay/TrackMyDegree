@@ -151,7 +151,7 @@ function loadAllCourseJsons(dirPath: string): Map<string, CourseJson> {
 }
 
 function extractCodeFromTitle(title: string): string {
-  const titleRegex = /^([A-Z]{2,4})\s*(\d{3})/
+  const titleRegex = /^([A-Z]{2,4})\s*(\d{3})/;
   const match = titleRegex.exec(title);
   if (!match) throw new Error(`Invalid course title format: "${title}"`);
   return `${match[1]}${match[2]}`.toUpperCase();
@@ -392,7 +392,8 @@ export async function seedDatabase(): Promise<void> {
 
 // If running from command line: `ts-node seedService.ts`
 if (require.main === module) {
-  (async () => { // NOSONAR - need to use async IIFE here due to top-level await not being supported everywhere
+  (async () => {
+    // NOSONAR - need to use async IIFE here due to top-level await not being supported everywhere
     try {
       await seedDatabase();
       console.log('Seed completed');

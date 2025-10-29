@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { UserController } = require('../dist/controllers/mondoDBControllers/UserController');
+const {
+  UserController,
+} = require('../dist/controllers/mondoDBControllers/UserController');
 const { User } = require('../dist/models/User');
 const { Course } = require('../dist/models/Course');
 const { Degree } = require('../dist/models/Degree');
@@ -46,7 +48,7 @@ describe('UserController', () => {
         type: 'student',
         degree: 'COMP',
         deficiencies: [],
-        exemptions: []
+        exemptions: [],
       };
 
       const result = await userController.createUser(userData);
@@ -55,7 +57,7 @@ describe('UserController', () => {
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        degree: 'COMP'
+        degree: 'COMP',
       });
       expect(result.id).toBeDefined();
     });
@@ -65,15 +67,16 @@ describe('UserController', () => {
         email: 'test@example.com',
         password: 'password123',
         fullname: 'Test User',
-        type: 'student'
+        type: 'student',
       };
 
       // Create first user
       await userController.createUser(userData);
 
       // Try to create second user with same email
-      await expect(userController.createUser(userData))
-        .rejects.toThrow('User with this email already exists');
+      await expect(userController.createUser(userData)).rejects.toThrow(
+        'User with this email already exists',
+      );
     });
 
     it('should handle database errors', async () => {
@@ -87,11 +90,12 @@ describe('UserController', () => {
         email: 'test@example.com',
         password: 'password123',
         fullname: 'Test User',
-        type: 'student'
+        type: 'student',
       };
 
-      await expect(userController.createUser(userData))
-        .rejects.toThrow('Database connection failed');
+      await expect(userController.createUser(userData)).rejects.toThrow(
+        'Database connection failed',
+      );
 
       // Restore original method
       User.exists = originalExists;
@@ -108,7 +112,7 @@ describe('UserController', () => {
         type: 'student',
         degree: 'COMP',
         deficiencies: [],
-        exemptions: []
+        exemptions: [],
       });
     });
 
@@ -120,14 +124,15 @@ describe('UserController', () => {
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        degree: 'COMP'
+        degree: 'COMP',
       });
     });
 
     it('should throw error for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
-      await expect(userController.getUserById(fakeId))
-        .rejects.toThrow('User with this id does not exist');
+      await expect(userController.getUserById(fakeId)).rejects.toThrow(
+        'User with this id does not exist',
+      );
     });
 
     it('should handle database errors', async () => {
@@ -137,8 +142,9 @@ describe('UserController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(userController.getUserById(testUser._id.toString()))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        userController.getUserById(testUser._id.toString()),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       User.findById = originalFindById;
@@ -152,14 +158,14 @@ describe('UserController', () => {
           email: 'user1@example.com',
           fullname: 'User One',
           type: 'student',
-          degree: 'COMP'
+          degree: 'COMP',
         },
         {
           email: 'user2@example.com',
           fullname: 'User Two',
           type: 'advisor',
-          degree: 'SOEN'
-        }
+          degree: 'SOEN',
+        },
       ]);
     });
 
@@ -188,8 +194,9 @@ describe('UserController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(userController.getAllUsers())
-        .rejects.toThrow('Database connection failed');
+      await expect(userController.getAllUsers()).rejects.toThrow(
+        'Database connection failed',
+      );
 
       // Restore original method
       User.find = originalFind;
@@ -204,13 +211,16 @@ describe('UserController', () => {
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        degree: 'COMP'
+        degree: 'COMP',
       });
     });
 
     it('should update user successfully', async () => {
       const updates = { fullname: 'Updated Name', degree: 'SOEN' };
-      const result = await userController.updateUser(testUser._id.toString(), updates);
+      const result = await userController.updateUser(
+        testUser._id.toString(),
+        updates,
+      );
 
       expect(result.fullname).toBe('Updated Name');
       expect(result.degree).toBe('SOEN');
@@ -221,8 +231,9 @@ describe('UserController', () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       const updates = { fullname: 'Updated Name' };
 
-      await expect(userController.updateUser(fakeId, updates))
-        .rejects.toThrow('User with this id does not exist');
+      await expect(userController.updateUser(fakeId, updates)).rejects.toThrow(
+        'User with this id does not exist',
+      );
     });
 
     it('should handle database errors', async () => {
@@ -233,8 +244,9 @@ describe('UserController', () => {
       });
 
       const updates = { fullname: 'Updated Name' };
-      await expect(userController.updateUser(testUser._id.toString(), updates))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        userController.updateUser(testUser._id.toString(), updates),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       User.findByIdAndUpdate = originalFindByIdAndUpdate;
@@ -248,14 +260,16 @@ describe('UserController', () => {
       testUser = await User.create({
         email: 'test@example.com',
         fullname: 'Test User',
-        type: 'student'
+        type: 'student',
       });
     });
 
     it('should delete user successfully', async () => {
       const result = await userController.deleteUser(testUser._id.toString());
 
-      expect(result).toBe(`User with id ${testUser._id} has been successfully deleted`);
+      expect(result).toBe(
+        `User with id ${testUser._id} has been successfully deleted`,
+      );
 
       // Verify user is deleted
       const deletedUser = await User.findById(testUser._id);
@@ -264,8 +278,9 @@ describe('UserController', () => {
 
     it('should throw error for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
-      await expect(userController.deleteUser(fakeId))
-        .rejects.toThrow('User with this id does not exist');
+      await expect(userController.deleteUser(fakeId)).rejects.toThrow(
+        'User with this id does not exist',
+      );
     });
 
     it('should handle database errors', async () => {
@@ -275,8 +290,9 @@ describe('UserController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(userController.deleteUser(testUser._id.toString()))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        userController.deleteUser(testUser._id.toString()),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       User.findByIdAndDelete = originalFindByIdAndDelete;
@@ -290,7 +306,7 @@ describe('UserController', () => {
       testDegree = await Degree.create({
         _id: 'COMP',
         name: 'Computer Science',
-        totalCredits: 120
+        totalCredits: 120,
       });
 
       testUser = await User.create({
@@ -299,7 +315,7 @@ describe('UserController', () => {
         type: 'student',
         degree: 'COMP',
         deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }],
-        exemptions: ['COMP101', 'COMP102']
+        exemptions: ['COMP101', 'COMP102'],
       });
 
       testTimeline = await Timeline.create({
@@ -308,14 +324,14 @@ describe('UserController', () => {
           {
             season: 'Fall',
             year: 2023,
-            courses: ['COMP101', 'MATH101']
+            courses: ['COMP101', 'MATH101'],
           },
           {
             season: 'Winter',
             year: 2024,
-            courses: ['COMP102']
-          }
-        ]
+            courses: ['COMP102'],
+          },
+        ],
       });
     });
 
@@ -327,20 +343,20 @@ describe('UserController', () => {
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        degree: 'COMP'
+        degree: 'COMP',
       });
 
       expect(result.timeline).toHaveLength(3);
       expect(result.timeline[0]).toMatchObject({
         season: 'Fall',
         year: 2023,
-        coursecode: 'COMP101'
+        coursecode: 'COMP101',
       });
 
       expect(result.deficiencies).toHaveLength(1);
       expect(result.deficiencies[0]).toMatchObject({
         coursepool: 'Math',
-        creditsRequired: 6
+        creditsRequired: 6,
       });
 
       expect(result.exemptions).toHaveLength(2);
@@ -349,7 +365,7 @@ describe('UserController', () => {
       expect(result.degree).toMatchObject({
         id: 'COMP',
         name: 'Computer Science',
-        totalCredits: 120
+        totalCredits: 120,
       });
     });
 
@@ -369,8 +385,9 @@ describe('UserController', () => {
 
     it('should throw error for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
-      await expect(userController.getUserData(fakeId))
-        .rejects.toThrow('User with this id does not exist');
+      await expect(userController.getUserData(fakeId)).rejects.toThrow(
+        'User with this id does not exist',
+      );
     });
 
     it('should handle database errors', async () => {
@@ -380,8 +397,9 @@ describe('UserController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(userController.getUserData(testUser._id.toString()))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        userController.getUserData(testUser._id.toString()),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       User.findById = originalFindById;
@@ -396,17 +414,21 @@ describe('UserController', () => {
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        deficiencies: []
+        deficiencies: [],
       });
     });
 
     it('should create deficiency successfully', async () => {
-      const result = await userController.createDeficiency('Math', testUser._id.toString(), 6);
+      const result = await userController.createDeficiency(
+        'Math',
+        testUser._id.toString(),
+        6,
+      );
 
       expect(result).toMatchObject({
         coursepool: 'Math',
         user_id: testUser._id.toString(),
-        creditsRequired: 6
+        creditsRequired: 6,
       });
 
       // Verify deficiency was added
@@ -414,7 +436,7 @@ describe('UserController', () => {
       expect(updatedUser.deficiencies).toHaveLength(1);
       expect(updatedUser.deficiencies[0]).toMatchObject({
         coursepool: 'Math',
-        creditsRequired: 6
+        creditsRequired: 6,
       });
     });
 
@@ -423,14 +445,18 @@ describe('UserController', () => {
       await userController.createDeficiency('Math', testUser._id.toString(), 6);
 
       // Try to create same deficiency again
-      await expect(userController.createDeficiency('Math', testUser._id.toString(), 8))
-        .rejects.toThrow('Deficiency with this coursepool already exists. Please use the update endpoint');
+      await expect(
+        userController.createDeficiency('Math', testUser._id.toString(), 8),
+      ).rejects.toThrow(
+        'Deficiency with this coursepool already exists. Please use the update endpoint',
+      );
     });
 
     it('should throw error for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
-      await expect(userController.createDeficiency('Math', fakeId, 6))
-        .rejects.toThrow('User does not exist');
+      await expect(
+        userController.createDeficiency('Math', fakeId, 6),
+      ).rejects.toThrow('User does not exist');
     });
 
     it('should handle database errors', async () => {
@@ -440,8 +466,9 @@ describe('UserController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(userController.createDeficiency('Math', testUser._id.toString(), 6))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        userController.createDeficiency('Math', testUser._id.toString(), 6),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       User.findById = originalFindById;
@@ -458,38 +485,43 @@ describe('UserController', () => {
         type: 'student',
         deficiencies: [
           { coursepool: 'Math', creditsRequired: 6 },
-          { coursepool: 'Science', creditsRequired: 3 }
-        ]
+          { coursepool: 'Science', creditsRequired: 3 },
+        ],
       });
     });
 
     it('should get all deficiencies for user', async () => {
-      const result = await userController.getAllDeficienciesByUser(testUser._id.toString());
+      const result = await userController.getAllDeficienciesByUser(
+        testUser._id.toString(),
+      );
 
       expect(result).toHaveLength(2);
       expect(result[0]).toMatchObject({
         coursepool: 'Math',
         user_id: testUser._id.toString(),
-        creditsRequired: 6
+        creditsRequired: 6,
       });
       expect(result[1]).toMatchObject({
         coursepool: 'Science',
         user_id: testUser._id.toString(),
-        creditsRequired: 3
+        creditsRequired: 3,
       });
     });
 
     it('should return empty array for user with no deficiencies', async () => {
       await User.findByIdAndUpdate(testUser._id, { deficiencies: [] });
-      const result = await userController.getAllDeficienciesByUser(testUser._id.toString());
+      const result = await userController.getAllDeficienciesByUser(
+        testUser._id.toString(),
+      );
 
       expect(result).toHaveLength(0);
     });
 
     it('should throw error for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
-      await expect(userController.getAllDeficienciesByUser(fakeId))
-        .rejects.toThrow('User does not exist');
+      await expect(
+        userController.getAllDeficienciesByUser(fakeId),
+      ).rejects.toThrow('User does not exist');
     });
   });
 
@@ -501,17 +533,21 @@ describe('UserController', () => {
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }]
+        deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }],
       });
     });
 
     it('should update deficiency successfully', async () => {
-      const result = await userController.updateDeficiency('Math', testUser._id.toString(), 9);
+      const result = await userController.updateDeficiency(
+        'Math',
+        testUser._id.toString(),
+        9,
+      );
 
       expect(result).toMatchObject({
         coursepool: 'Math',
         user_id: testUser._id.toString(),
-        creditsRequired: 9
+        creditsRequired: 9,
       });
 
       // Verify deficiency was updated
@@ -520,8 +556,9 @@ describe('UserController', () => {
     });
 
     it('should throw error when deficiency not found', async () => {
-      await expect(userController.updateDeficiency('Science', testUser._id.toString(), 9))
-        .rejects.toThrow('Deficiency not found');
+      await expect(
+        userController.updateDeficiency('Science', testUser._id.toString(), 9),
+      ).rejects.toThrow('Deficiency not found');
     });
 
     it('should handle database errors', async () => {
@@ -531,8 +568,9 @@ describe('UserController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(userController.updateDeficiency('Math', testUser._id.toString(), 9))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        userController.updateDeficiency('Math', testUser._id.toString(), 9),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       User.findOneAndUpdate = originalFindOneAndUpdate;
@@ -549,15 +587,20 @@ describe('UserController', () => {
         type: 'student',
         deficiencies: [
           { coursepool: 'Math', creditsRequired: 6 },
-          { coursepool: 'Science', creditsRequired: 3 }
-        ]
+          { coursepool: 'Science', creditsRequired: 3 },
+        ],
       });
     });
 
     it('should delete deficiency successfully', async () => {
-      const result = await userController.deleteDeficiency('Math', testUser._id.toString());
+      const result = await userController.deleteDeficiency(
+        'Math',
+        testUser._id.toString(),
+      );
 
-      expect(result).toBe('Deficiency with coursepool Math has been successfully deleted');
+      expect(result).toBe(
+        'Deficiency with coursepool Math has been successfully deleted',
+      );
 
       // Verify deficiency was removed
       const updatedUser = await User.findById(testUser._id);
@@ -567,8 +610,9 @@ describe('UserController', () => {
 
     it('should throw error for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
-      await expect(userController.deleteDeficiency('Math', fakeId))
-        .rejects.toThrow('User does not exist');
+      await expect(
+        userController.deleteDeficiency('Math', fakeId),
+      ).rejects.toThrow('User does not exist');
     });
 
     it('should handle database errors', async () => {
@@ -578,8 +622,9 @@ describe('UserController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(userController.deleteDeficiency('Math', testUser._id.toString()))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        userController.deleteDeficiency('Math', testUser._id.toString()),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       User.findByIdAndUpdate = originalFindByIdAndUpdate;
@@ -594,25 +639,28 @@ describe('UserController', () => {
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        exemptions: []
+        exemptions: [],
       });
 
       await Course.create([
         { _id: 'COMP101', title: 'Intro to Programming' },
         { _id: 'COMP102', title: 'Data Structures' },
-        { _id: 'MATH101', title: 'Calculus I' }
+        { _id: 'MATH101', title: 'Calculus I' },
       ]);
     });
 
     it('should create exemptions successfully', async () => {
       const coursecodes = ['COMP101', 'COMP102'];
-      const result = await userController.createExemptions(coursecodes, testUser._id.toString());
+      const result = await userController.createExemptions(
+        coursecodes,
+        testUser._id.toString(),
+      );
 
       expect(result.created).toHaveLength(2);
       expect(result.alreadyExists).toHaveLength(0);
       expect(result.created[0]).toMatchObject({
         coursecode: 'COMP101',
-        user_id: testUser._id.toString()
+        user_id: testUser._id.toString(),
       });
 
       // Verify exemptions were added
@@ -623,11 +671,17 @@ describe('UserController', () => {
 
     it('should handle existing exemptions', async () => {
       // Add first exemption
-      await userController.createExemptions(['COMP101'], testUser._id.toString());
+      await userController.createExemptions(
+        ['COMP101'],
+        testUser._id.toString(),
+      );
 
       // Try to add same exemption plus new one
       const coursecodes = ['COMP101', 'COMP102'];
-      const result = await userController.createExemptions(coursecodes, testUser._id.toString());
+      const result = await userController.createExemptions(
+        coursecodes,
+        testUser._id.toString(),
+      );
 
       expect(result.created).toHaveLength(1);
       expect(result.alreadyExists).toHaveLength(1);
@@ -637,15 +691,17 @@ describe('UserController', () => {
 
     it('should throw error when course does not exist', async () => {
       const coursecodes = ['COMP101', 'NONEXISTENT'];
-      await expect(userController.createExemptions(coursecodes, testUser._id.toString()))
-        .rejects.toThrow("Course with code 'NONEXISTENT' does not exist");
+      await expect(
+        userController.createExemptions(coursecodes, testUser._id.toString()),
+      ).rejects.toThrow("Course with code 'NONEXISTENT' does not exist");
     });
 
     it('should throw error for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       const coursecodes = ['COMP101'];
-      await expect(userController.createExemptions(coursecodes, fakeId))
-        .rejects.toThrow(`User with id '${fakeId}' does not exist`);
+      await expect(
+        userController.createExemptions(coursecodes, fakeId),
+      ).rejects.toThrow(`User with id '${fakeId}' does not exist`);
     });
 
     it('should handle database errors', async () => {
@@ -656,8 +712,9 @@ describe('UserController', () => {
       });
 
       const coursecodes = ['COMP101'];
-      await expect(userController.createExemptions(coursecodes, testUser._id.toString()))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        userController.createExemptions(coursecodes, testUser._id.toString()),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       User.findById = originalFindById;
@@ -672,35 +729,40 @@ describe('UserController', () => {
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        exemptions: ['COMP101', 'COMP102']
+        exemptions: ['COMP101', 'COMP102'],
       });
     });
 
     it('should get all exemptions for user', async () => {
-      const result = await userController.getAllExemptionsByUser(testUser._id.toString());
+      const result = await userController.getAllExemptionsByUser(
+        testUser._id.toString(),
+      );
 
       expect(result).toHaveLength(2);
       expect(result[0]).toMatchObject({
         coursecode: 'COMP101',
-        user_id: testUser._id.toString()
+        user_id: testUser._id.toString(),
       });
       expect(result[1]).toMatchObject({
         coursecode: 'COMP102',
-        user_id: testUser._id.toString()
+        user_id: testUser._id.toString(),
       });
     });
 
     it('should return empty array for user with no exemptions', async () => {
       await User.findByIdAndUpdate(testUser._id, { exemptions: [] });
-      const result = await userController.getAllExemptionsByUser(testUser._id.toString());
+      const result = await userController.getAllExemptionsByUser(
+        testUser._id.toString(),
+      );
 
       expect(result).toHaveLength(0);
     });
 
     it('should throw error for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
-      await expect(userController.getAllExemptionsByUser(fakeId))
-        .rejects.toThrow(`User with id '${fakeId}' does not exist`);
+      await expect(
+        userController.getAllExemptionsByUser(fakeId),
+      ).rejects.toThrow(`User with id '${fakeId}' does not exist`);
     });
   });
 
@@ -712,14 +774,19 @@ describe('UserController', () => {
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        exemptions: ['COMP101', 'COMP102']
+        exemptions: ['COMP101', 'COMP102'],
       });
     });
 
     it('should delete exemption successfully', async () => {
-      const result = await userController.deleteExemption('COMP101', testUser._id.toString());
+      const result = await userController.deleteExemption(
+        'COMP101',
+        testUser._id.toString(),
+      );
 
-      expect(result).toBe('Exemption with coursecode COMP101 has been successfully deleted');
+      expect(result).toBe(
+        'Exemption with coursecode COMP101 has been successfully deleted',
+      );
 
       // Verify exemption was removed
       const updatedUser = await User.findById(testUser._id);
@@ -730,8 +797,9 @@ describe('UserController', () => {
 
     it('should throw error for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
-      await expect(userController.deleteExemption('COMP101', fakeId))
-        .rejects.toThrow(`User with id '${fakeId}' does not exist`);
+      await expect(
+        userController.deleteExemption('COMP101', fakeId),
+      ).rejects.toThrow(`User with id '${fakeId}' does not exist`);
     });
 
     it('should handle database errors', async () => {
@@ -741,8 +809,9 @@ describe('UserController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(userController.deleteExemption('COMP101', testUser._id.toString()))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        userController.deleteExemption('COMP101', testUser._id.toString()),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       User.findByIdAndUpdate = originalFindByIdAndUpdate;
@@ -756,7 +825,7 @@ describe('UserController', () => {
       testDegree = await Degree.create({
         _id: 'COMP',
         name: 'Computer Science',
-        totalCredits: 120
+        totalCredits: 120,
       });
 
       testUser = await User.create({
@@ -765,7 +834,7 @@ describe('UserController', () => {
         type: 'student',
         degree: 'COMP',
         deficiencies: [],
-        exemptions: []
+        exemptions: [],
       });
     });
 
@@ -773,18 +842,19 @@ describe('UserController', () => {
       const originalExists = userController.exists;
       userController.exists = jest.fn().mockResolvedValue({
         success: true,
-        data: true
+        data: true,
       });
 
       const userData = {
         email: 'duplicate@example.com',
         password: 'password123',
         fullname: 'Duplicate User',
-        type: 'student'
+        type: 'student',
       };
 
-      await expect(userController.createUser(userData))
-        .rejects.toThrow('User with this email already exists');
+      await expect(userController.createUser(userData)).rejects.toThrow(
+        'User with this email already exists',
+      );
 
       userController.exists = originalExists;
     });
@@ -793,21 +863,24 @@ describe('UserController', () => {
       const originalExists = userController.exists;
       const originalCreate = userController.create;
 
-      userController.exists = jest.fn().mockResolvedValue({ success: true, data: false });
+      userController.exists = jest
+        .fn()
+        .mockResolvedValue({ success: true, data: false });
       userController.create = jest.fn().mockResolvedValue({
         success: false,
-        error: null
+        error: null,
       });
 
       const userData = {
         email: 'test2@example.com',
         password: 'password123',
         fullname: 'Test User 2',
-        type: 'student'
+        type: 'student',
       };
 
-      await expect(userController.createUser(userData))
-        .rejects.toThrow('Failed to create user');
+      await expect(userController.createUser(userData)).rejects.toThrow(
+        'Failed to create user',
+      );
 
       userController.exists = originalExists;
       userController.create = originalCreate;
@@ -817,7 +890,7 @@ describe('UserController', () => {
       const originalFindAll = userController.findAll;
       userController.findAll = jest.fn().mockResolvedValue({
         success: true,
-        data: null
+        data: null,
       });
 
       const result = await userController.getAllUsers();
@@ -830,11 +903,12 @@ describe('UserController', () => {
       const originalFindAll = userController.findAll;
       userController.findAll = jest.fn().mockResolvedValue({
         success: false,
-        error: null
+        error: null,
       });
 
-      await expect(userController.getAllUsers())
-        .rejects.toThrow('Failed to fetch users');
+      await expect(userController.getAllUsers()).rejects.toThrow(
+        'Failed to fetch users',
+      );
 
       userController.findAll = originalFindAll;
     });
@@ -861,9 +935,9 @@ describe('UserController', () => {
           {
             season: 'Fall',
             year: 2023,
-            courses: []
-          }
-        ]
+            courses: [],
+          },
+        ],
       });
 
       const result = await userController.getUserData(testUser._id.toString());
@@ -876,10 +950,10 @@ describe('UserController', () => {
         items: [
           {
             season: 'Fall',
-            year: 2023
+            year: 2023,
             // courses is undefined
-          }
-        ]
+          },
+        ],
       });
 
       const result = await userController.getUserData(testUser._id.toString());
@@ -887,7 +961,9 @@ describe('UserController', () => {
     });
 
     it('should handle getUserData with user having undefined deficiencies', async () => {
-      await User.findByIdAndUpdate(testUser._id, { $unset: { deficiencies: 1 } });
+      await User.findByIdAndUpdate(testUser._id, {
+        $unset: { deficiencies: 1 },
+      });
       const result = await userController.getUserData(testUser._id.toString());
 
       expect(result.deficiencies).toEqual([]);
@@ -904,11 +980,12 @@ describe('UserController', () => {
       const originalFindById = userController.findById;
       userController.findById = jest.fn().mockResolvedValue({
         success: false,
-        data: null
+        data: null,
       });
 
-      await expect(userController.getUserData('fake123'))
-        .rejects.toThrow('User with this id does not exist');
+      await expect(userController.getUserData('fake123')).rejects.toThrow(
+        'User with this id does not exist',
+      );
 
       userController.findById = originalFindById;
     });
@@ -917,15 +994,19 @@ describe('UserController', () => {
       const userWithoutDeficiencies = await User.create({
         email: 'nodef@example.com',
         fullname: 'No Def User',
-        type: 'student'
+        type: 'student',
         // deficiencies is undefined
       });
 
-      const result = await userController.createDeficiency('Math', userWithoutDeficiencies._id.toString(), 6);
+      const result = await userController.createDeficiency(
+        'Math',
+        userWithoutDeficiencies._id.toString(),
+        6,
+      );
       expect(result).toMatchObject({
         coursepool: 'Math',
         user_id: userWithoutDeficiencies._id.toString(),
-        creditsRequired: 6
+        creditsRequired: 6,
       });
     });
 
@@ -933,12 +1014,13 @@ describe('UserController', () => {
       const originalFindByIdAndUpdate = User.findByIdAndUpdate;
       User.findByIdAndUpdate = jest.fn().mockReturnValue({
         lean: jest.fn().mockReturnValue({
-          exec: jest.fn().mockResolvedValue(null)
-        })
+          exec: jest.fn().mockResolvedValue(null),
+        }),
       });
 
-      await expect(userController.createDeficiency('Math', testUser._id.toString(), 6))
-        .rejects.toThrow('Failed to update user deficiencies');
+      await expect(
+        userController.createDeficiency('Math', testUser._id.toString(), 6),
+      ).rejects.toThrow('Failed to update user deficiencies');
 
       User.findByIdAndUpdate = originalFindByIdAndUpdate;
     });
@@ -950,10 +1032,12 @@ describe('UserController', () => {
         data: {
           _id: testUser._id,
           // deficiencies is undefined
-        }
+        },
       });
 
-      const result = await userController.getAllDeficienciesByUser(testUser._id.toString());
+      const result = await userController.getAllDeficienciesByUser(
+        testUser._id.toString(),
+      );
       expect(result).toEqual([]);
 
       userController.findById = originalFindById;
@@ -965,11 +1049,13 @@ describe('UserController', () => {
         success: true,
         data: {
           _id: testUser._id,
-          exemptions: undefined
-        }
+          exemptions: undefined,
+        },
       });
 
-      const result = await userController.getAllExemptionsByUser(testUser._id.toString());
+      const result = await userController.getAllExemptionsByUser(
+        testUser._id.toString(),
+      );
       expect(result).toEqual([]);
 
       userController.findById = originalFindById;
@@ -982,12 +1068,15 @@ describe('UserController', () => {
         data: {
           _id: testUser._id,
           // exemptions is undefined
-        }
+        },
       });
 
       await Course.create({ _id: 'COMP201', title: 'Test Course' });
 
-      const result = await userController.createExemptions(['COMP201'], testUser._id.toString());
+      const result = await userController.createExemptions(
+        ['COMP201'],
+        testUser._id.toString(),
+      );
       expect(result.created).toHaveLength(1);
       expect(result.alreadyExists).toHaveLength(0);
 
@@ -998,7 +1087,10 @@ describe('UserController', () => {
       await User.findByIdAndUpdate(testUser._id, { exemptions: ['COMP101'] });
       await Course.create({ _id: 'COMP101', title: 'Test Course' });
 
-      const result = await userController.createExemptions(['COMP101'], testUser._id.toString());
+      const result = await userController.createExemptions(
+        ['COMP101'],
+        testUser._id.toString(),
+      );
       expect(result.created).toHaveLength(0);
       expect(result.alreadyExists).toHaveLength(1);
     });
@@ -1007,8 +1099,9 @@ describe('UserController', () => {
       const originalExists = Course.exists;
       Course.exists = jest.fn().mockRejectedValue(new Error('Database error'));
 
-      await expect(userController.createExemptions(['COMP999'], testUser._id.toString()))
-        .rejects.toThrow('Database error');
+      await expect(
+        userController.createExemptions(['COMP999'], testUser._id.toString()),
+      ).rejects.toThrow('Database error');
 
       Course.exists = originalExists;
     });
@@ -1017,11 +1110,12 @@ describe('UserController', () => {
       const originalDeleteById = userController.deleteById;
       userController.deleteById = jest.fn().mockResolvedValue({
         success: false,
-        error: null
+        error: null,
       });
 
-      await expect(userController.deleteUser(testUser._id.toString()))
-        .rejects.toThrow('User with this id does not exist');
+      await expect(
+        userController.deleteUser(testUser._id.toString()),
+      ).rejects.toThrow('User with this id does not exist');
 
       userController.deleteById = originalDeleteById;
     });
@@ -1030,11 +1124,14 @@ describe('UserController', () => {
       const originalUpdateById = userController.updateById;
       userController.updateById = jest.fn().mockResolvedValue({
         success: false,
-        error: null
+        error: null,
       });
 
-      await expect(userController.updateUser(testUser._id.toString(), { fullname: 'Updated' }))
-        .rejects.toThrow('User with this id does not exist');
+      await expect(
+        userController.updateUser(testUser._id.toString(), {
+          fullname: 'Updated',
+        }),
+      ).rejects.toThrow('User with this id does not exist');
 
       userController.updateById = originalUpdateById;
     });
@@ -1043,11 +1140,12 @@ describe('UserController', () => {
       const originalFindById = userController.findById;
       userController.findById = jest.fn().mockResolvedValue({
         success: false,
-        error: null
+        error: null,
       });
 
-      await expect(userController.getUserById('fake123'))
-        .rejects.toThrow('User with this id does not exist');
+      await expect(userController.getUserById('fake123')).rejects.toThrow(
+        'User with this id does not exist',
+      );
 
       userController.findById = originalFindById;
     });
@@ -1056,11 +1154,12 @@ describe('UserController', () => {
       const originalFindById = userController.findById;
       userController.findById = jest.fn().mockResolvedValue({
         success: false,
-        error: null
+        error: null,
       });
 
-      await expect(userController.getAllDeficienciesByUser('fake123'))
-        .rejects.toThrow('User does not exist');
+      await expect(
+        userController.getAllDeficienciesByUser('fake123'),
+      ).rejects.toThrow('User does not exist');
 
       userController.findById = originalFindById;
     });
@@ -1069,11 +1168,12 @@ describe('UserController', () => {
       const originalFindById = userController.findById;
       userController.findById = jest.fn().mockResolvedValue({
         success: false,
-        error: null
+        error: null,
       });
 
-      await expect(userController.getAllExemptionsByUser('fake123'))
-        .rejects.toThrow(`User with id 'fake123' does not exist`);
+      await expect(
+        userController.getAllExemptionsByUser('fake123'),
+      ).rejects.toThrow(`User with id 'fake123' does not exist`);
 
       userController.findById = originalFindById;
     });
@@ -1082,11 +1182,12 @@ describe('UserController', () => {
       const originalFindById = userController.findById;
       userController.findById = jest.fn().mockResolvedValue({
         success: false,
-        error: null
+        error: null,
       });
 
-      await expect(userController.createExemptions(['COMP101'], 'fake123'))
-        .rejects.toThrow(`User with id 'fake123' does not exist`);
+      await expect(
+        userController.createExemptions(['COMP101'], 'fake123'),
+      ).rejects.toThrow(`User with id 'fake123' does not exist`);
 
       userController.findById = originalFindById;
     });

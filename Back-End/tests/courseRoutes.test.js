@@ -40,7 +40,7 @@ describe('Course Routes', () => {
           credits: 3,
           offeredIn: ['Fall', 'Winter'],
           prerequisites: ['MATH101'],
-          corequisites: []
+          corequisites: [],
         },
         {
           _id: 'COMP102',
@@ -49,7 +49,7 @@ describe('Course Routes', () => {
           credits: 3,
           offeredIn: ['Winter', 'Summer'],
           prerequisites: ['COMP101'],
-          corequisites: []
+          corequisites: [],
         },
         {
           _id: 'MATH101',
@@ -58,15 +58,13 @@ describe('Course Routes', () => {
           credits: 4,
           offeredIn: ['Fall', 'Winter', 'Summer'],
           prerequisites: [],
-          corequisites: []
-        }
+          corequisites: [],
+        },
       ]);
     });
 
     it('should get all courses', async () => {
-      const response = await request(app)
-        .get('/courses')
-        .expect(200);
+      const response = await request(app).get('/courses').expect(200);
 
       expect(response.body.message).toBe('Courses retrieved successfully');
       expect(response.body.courses).toHaveLength(3);
@@ -76,12 +74,14 @@ describe('Course Routes', () => {
     });
 
     it('should filter courses by pool', async () => {
-      const response = await request(app)
-        .get('/courses?pool=Fall')
-        .expect(200);
+      const response = await request(app).get('/courses?pool=Fall').expect(200);
 
       expect(response.body.courses).toHaveLength(2);
-      expect(response.body.courses.every(course => course.offeredIn.includes('Fall'))).toBe(true);
+      expect(
+        response.body.courses.every((course) =>
+          course.offeredIn.includes('Fall'),
+        ),
+      ).toBe(true);
     });
 
     it('should search courses by title and description', async () => {
@@ -90,7 +90,9 @@ describe('Course Routes', () => {
         .expect(200);
 
       expect(response.body.courses).toHaveLength(1);
-      expect(response.body.courses[0].title).toBe('Introduction to Programming');
+      expect(response.body.courses[0].title).toBe(
+        'Introduction to Programming',
+      );
     });
 
     it('should paginate results', async () => {
@@ -106,22 +108,26 @@ describe('Course Routes', () => {
         .get('/courses?sort=credits')
         .expect(200);
 
-      expect(response.body.courses[0].credits).toBeLessThanOrEqual(response.body.courses[1].credits);
+      expect(response.body.courses[0].credits).toBeLessThanOrEqual(
+        response.body.courses[1].credits,
+      );
     });
 
     it('should handle server errors', async () => {
       // Mock courseController.getAllCourses to throw an error
-      const originalGetAllCourses = require('../dist/controllers/mondoDBControllers/CourseController').courseController.getAllCourses;
-      require('../dist/controllers/mondoDBControllers/CourseController').courseController.getAllCourses = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetAllCourses =
+        require('../dist/controllers/mondoDBControllers/CourseController')
+          .courseController.getAllCourses;
+      require('../dist/controllers/mondoDBControllers/CourseController').courseController.getAllCourses =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
-      const response = await request(app)
-        .get('/courses')
-        .expect(500);
+      const response = await request(app).get('/courses').expect(500);
 
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/CourseController').courseController.getAllCourses = originalGetAllCourses;
+      require('../dist/controllers/mondoDBControllers/CourseController').courseController.getAllCourses =
+        originalGetAllCourses;
     });
   });
 
@@ -134,21 +140,19 @@ describe('Course Routes', () => {
         credits: 3,
         offeredIn: ['Fall', 'Winter'],
         prerequisites: ['MATH101'],
-        corequisites: []
+        corequisites: [],
       });
     });
 
     it('should get course by code', async () => {
-      const response = await request(app)
-        .get('/courses/COMP101')
-        .expect(200);
+      const response = await request(app).get('/courses/COMP101').expect(200);
 
       expect(response.body.message).toBe('Course retrieved successfully');
       expect(response.body.course).toMatchObject({
         _id: 'COMP101',
         title: 'Introduction to Programming',
         description: 'Basic programming concepts',
-        credits: 3
+        credits: 3,
       });
     });
 
@@ -162,17 +166,19 @@ describe('Course Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock courseController.getCourseByCode to throw an error
-      const originalGetCourseByCode = require('../dist/controllers/mondoDBControllers/CourseController').courseController.getCourseByCode;
-      require('../dist/controllers/mondoDBControllers/CourseController').courseController.getCourseByCode = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetCourseByCode =
+        require('../dist/controllers/mondoDBControllers/CourseController')
+          .courseController.getCourseByCode;
+      require('../dist/controllers/mondoDBControllers/CourseController').courseController.getCourseByCode =
+        jest.fn().mockRejectedValue(new Error('Database error'));
 
-      const response = await request(app)
-        .get('/courses/COMP101')
-        .expect(500);
+      const response = await request(app).get('/courses/COMP101').expect(500);
 
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/CourseController').courseController.getCourseByCode = originalGetCourseByCode;
+      require('../dist/controllers/mondoDBControllers/CourseController').courseController.getCourseByCode =
+        originalGetCourseByCode;
     });
   });
 });

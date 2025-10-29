@@ -1,6 +1,7 @@
 const request = require('supertest');
 const express = require('express');
-const Database = require('../dist/controllers/DBController/DBController').default;
+const Database =
+  require('../dist/controllers/DBController/DBController').default;
 const HTTP = require('../dist/Util/HTTPCodes').default;
 
 // Mock the Database module

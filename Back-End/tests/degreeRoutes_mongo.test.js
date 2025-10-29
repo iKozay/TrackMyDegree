@@ -226,7 +226,9 @@ describe('Degree Routes (MongoDB)', () => {
 
     describe('getAllCoursePools', () => {
       it('should get all course pools from all degrees', async () => {
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const pools = await degreeController.getAllCoursePools();
 
         expect(pools).toBeDefined();
@@ -248,7 +250,9 @@ describe('Degree Routes (MongoDB)', () => {
       it('should return empty array for empty database', async () => {
         await Degree.deleteMany({});
 
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const pools = await degreeController.getAllCoursePools();
 
         expect(pools).toEqual([]);
@@ -256,9 +260,13 @@ describe('Degree Routes (MongoDB)', () => {
 
       it('should handle aggregation errors gracefully', async () => {
         const originalAggregate = Degree.aggregate;
-        Degree.aggregate = jest.fn().mockRejectedValue(new Error('Aggregation error'));
+        Degree.aggregate = jest
+          .fn()
+          .mockRejectedValue(new Error('Aggregation error'));
 
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const pools = await degreeController.getAllCoursePools();
 
         expect(pools).toEqual([]);
@@ -269,7 +277,9 @@ describe('Degree Routes (MongoDB)', () => {
 
     describe('getCoursePool', () => {
       it('should get a specific course pool by ID', async () => {
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const pool = await degreeController.getCoursePool('Core');
 
         expect(pool).toBeDefined();
@@ -279,7 +289,9 @@ describe('Degree Routes (MongoDB)', () => {
       });
 
       it('should return undefined for non-existent pool', async () => {
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const pool = await degreeController.getCoursePool('NONEXIST');
 
         expect(pool).toBeUndefined();
@@ -287,9 +299,13 @@ describe('Degree Routes (MongoDB)', () => {
 
       it('should handle errors gracefully', async () => {
         const originalAggregate = Degree.aggregate;
-        Degree.aggregate = jest.fn().mockRejectedValue(new Error('Aggregation error'));
+        Degree.aggregate = jest
+          .fn()
+          .mockRejectedValue(new Error('Aggregation error'));
 
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const pool = await degreeController.getCoursePool('Core');
 
         expect(pool).toBeUndefined();
@@ -300,7 +316,9 @@ describe('Degree Routes (MongoDB)', () => {
 
     describe('getCoursePoolsByDegree', () => {
       it('should get all course pools for a degree', async () => {
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const pools = await degreeController.getCoursePoolsByDegree('CS');
 
         expect(pools).toBeDefined();
@@ -316,7 +334,9 @@ describe('Degree Routes (MongoDB)', () => {
       });
 
       it('should return empty array for non-existent degree', async () => {
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const pools = await degreeController.getCoursePoolsByDegree('NONEXIST');
 
         expect(pools).toEqual([]);
@@ -330,7 +350,9 @@ describe('Degree Routes (MongoDB)', () => {
           coursePools: null,
         });
 
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const pools = await degreeController.getCoursePoolsByDegree('EE');
 
         expect(pools).toEqual([]);
@@ -338,9 +360,13 @@ describe('Degree Routes (MongoDB)', () => {
 
       it('should handle errors gracefully', async () => {
         const originalFindById = Degree.findById;
-        Degree.findById = jest.fn().mockRejectedValue(new Error('Database error'));
+        Degree.findById = jest
+          .fn()
+          .mockRejectedValue(new Error('Database error'));
 
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const pools = await degreeController.getCoursePoolsByDegree('CS');
 
         expect(pools).toEqual([]);
@@ -351,7 +377,9 @@ describe('Degree Routes (MongoDB)', () => {
 
     describe('getCoursePoolsByDegree', () => {
       it('should get all course pools for a degree', async () => {
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const pools = await degreeController.getCoursePoolsByDegree('CS');
 
         expect(pools).toBeDefined();
@@ -364,7 +392,9 @@ describe('Degree Routes (MongoDB)', () => {
       });
 
       it('should return empty array for non-existent degree', async () => {
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const pools = await degreeController.getCoursePoolsByDegree('NONEXIST');
 
         expect(pools).toEqual([]);
@@ -385,7 +415,9 @@ describe('Degree Routes (MongoDB)', () => {
           ],
         });
 
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const pools = await degreeController.getCoursePoolsByDegree('EE');
 
         expect(pools).toBeDefined();
@@ -395,9 +427,13 @@ describe('Degree Routes (MongoDB)', () => {
 
       it('should handle errors gracefully', async () => {
         const originalFindById = Degree.findById;
-        Degree.findById = jest.fn().mockRejectedValue(new Error('Database error'));
+        Degree.findById = jest
+          .fn()
+          .mockRejectedValue(new Error('Database error'));
 
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const pools = await degreeController.getCoursePoolsByDegree('CS');
 
         expect(pools).toEqual([]);
@@ -408,9 +444,11 @@ describe('Degree Routes (MongoDB)', () => {
 
     describe('readDegree edge cases', () => {
       it('should handle errors when findById returns null', async () => {
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const originalFindById = Degree.findById;
-        
+
         Degree.findById = jest.fn().mockReturnValue({
           select: jest.fn().mockReturnValue({
             lean: jest.fn().mockReturnValue({
@@ -427,7 +465,9 @@ describe('Degree Routes (MongoDB)', () => {
       });
 
       it('should handle errors during findById', async () => {
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const originalFindById = Degree.findById;
 
         Degree.findById = jest.fn().mockReturnValue({
@@ -446,7 +486,9 @@ describe('Degree Routes (MongoDB)', () => {
 
     describe('readAllDegrees edge cases', () => {
       it('should handle errors when find fails', async () => {
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const originalFind = Degree.find;
 
         Degree.find = jest.fn().mockReturnValue({
@@ -467,7 +509,9 @@ describe('Degree Routes (MongoDB)', () => {
 
     describe('getCreditsForDegree edge cases', () => {
       it('should handle errors when findById returns null', async () => {
-        const { degreeController } = require('../dist/controllers/mondoDBControllers');
+        const {
+          degreeController,
+        } = require('../dist/controllers/mondoDBControllers');
         const originalFindById = Degree.findById;
 
         Degree.findById = jest.fn().mockReturnValue({
@@ -478,13 +522,12 @@ describe('Degree Routes (MongoDB)', () => {
           }),
         });
 
-        await expect(degreeController.getCreditsForDegree('NONEXIST')).rejects.toThrow(
-          'Degree with this id does not exist.',
-        );
+        await expect(
+          degreeController.getCreditsForDegree('NONEXIST'),
+        ).rejects.toThrow('Degree with this id does not exist.');
 
         Degree.findById = originalFindById;
       });
     });
   });
 });
-

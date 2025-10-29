@@ -50,7 +50,8 @@ describe('Timeline Routes', () => {
       );
     });
 
-    it('should save a timeline successfully with all courses', async () => {  // NOSONAR - Route functionality will be fixed in separate task https://github.com/iKozay/TrackMyDegree/issues/111
+    it('should save a timeline successfully with all courses', async () => {
+      // NOSONAR - Route functionality will be fixed in separate task https://github.com/iKozay/TrackMyDegree/issues/111
       timelineController.saveTimeline.mockResolvedValue(validMockTimeline);
 
       const response = await request(app)
@@ -90,7 +91,8 @@ describe('Timeline Routes', () => {
 
   // Mocro : /timeline/getAll → Tests fetching all timelines for a user
   describe('POST /timeline/getAll', () => {
-    it('should return timeline items grouped by semester', async () => {  // NOSONAR - Route functionality will be fixed in separate task https://github.com/iKozay/TrackMyDegree/issues/111
+    it('should return timeline items grouped by semester', async () => {
+      // NOSONAR - Route functionality will be fixed in separate task https://github.com/iKozay/TrackMyDegree/issues/111
       const request_body = { user_id: '1' };
 
       timelineController.getTimelinesByUser.mockResolvedValue([
@@ -136,7 +138,7 @@ describe('Timeline Routes', () => {
   describe('POST /timeline/delete', () => {
     it('should delete timeline item successfully', async () => {
       const request_body = { timeline_id: '1' };
-      expected_response = `Timeline with id: ${request_body.timeline_id} deleted successfully`;
+      const expected_response = `Timeline with id: ${request_body.timeline_id} deleted successfully`;
       timelineController.removeUserTimeline.mockResolvedValue(
         expected_response,
       );

@@ -167,10 +167,7 @@ export class DegreeController extends BaseMongoController<any> {
       return result.data?.[0];
     } catch (error) {
       Sentry.captureException(error);
-      console.error(
-        '[DegreeController] Error fetching course pool:',
-        error,
-      );
+      console.error('[DegreeController] Error fetching course pool:', error);
       return undefined;
     }
   }
@@ -204,7 +201,6 @@ export class DegreeController extends BaseMongoController<any> {
       return [];
     }
   }
-
 }
 
 export const degreeController = new DegreeController();

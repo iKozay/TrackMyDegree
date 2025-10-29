@@ -5,7 +5,8 @@ const express = require('express');
 const { User } = require('../dist/models/User');
 const { Degree } = require('../dist/models/Degree');
 const { Timeline } = require('../dist/models/Timeline');
-const getUserData = require('../dist/controllers/userDataController/userDataController_mongo').default;
+const getUserData =
+  require('../dist/controllers/userDataController/userDataController_mongo').default;
 describe('UserDataController', () => {
   let mongoServer;
   let app;
@@ -46,9 +47,9 @@ describe('UserDataController', () => {
           id: 'pool-1',
           name: 'Core Courses',
           creditsRequired: 60,
-          courses: ['CS101', 'CS102']
-        }
-      ]
+          courses: ['CS101', 'CS102'],
+        },
+      ],
     });
     await testDegree.save();
     testDegreeId = 'test-degree-1';
@@ -64,14 +65,14 @@ describe('UserDataController', () => {
       deficiencies: [
         {
           coursepool: 'pool-1',
-          creditsRequired: 12
+          creditsRequired: 12,
         },
         {
           coursepool: 'pool-2',
-          creditsRequired: 6
-        }
+          creditsRequired: 6,
+        },
       ],
-      exemptions: ['CS101', 'MATH101']
+      exemptions: ['CS101', 'MATH101'],
     });
     await testUser.save();
     testUserId = 'test-user-1';
@@ -89,15 +90,15 @@ describe('UserDataController', () => {
           id: 'item-1',
           season: 'fall',
           year: 2024,
-          courses: ['CS101', 'MATH101']
+          courses: ['CS101', 'MATH101'],
         },
         {
           id: 'item-2',
           season: 'winter',
           year: 2025,
-          courses: ['CS102']
-        }
-      ]
+          courses: ['CS102'],
+        },
+      ],
     });
     await testTimeline.save();
     testTimelineId = 'test-timeline-1';
@@ -133,12 +134,16 @@ describe('UserDataController', () => {
       expect(response.body.timeline).toHaveLength(3); // 2 courses in fall + 1 in winter
 
       // Verify timeline structure
-      const fallCourses = response.body.timeline.filter(t => t.season === 'fall' && t.year === 2024);
+      const fallCourses = response.body.timeline.filter(
+        (t) => t.season === 'fall' && t.year === 2024,
+      );
       expect(fallCourses).toHaveLength(2);
-      expect(fallCourses.map(t => t.coursecode)).toContain('CS101');
-      expect(fallCourses.map(t => t.coursecode)).toContain('MATH101');
+      expect(fallCourses.map((t) => t.coursecode)).toContain('CS101');
+      expect(fallCourses.map((t) => t.coursecode)).toContain('MATH101');
 
-      const winterCourses = response.body.timeline.filter(t => t.season === 'winter' && t.year === 2025);
+      const winterCourses = response.body.timeline.filter(
+        (t) => t.season === 'winter' && t.year === 2025,
+      );
       expect(winterCourses).toHaveLength(1);
       expect(winterCourses[0].coursecode).toBe('CS102');
     });
@@ -150,12 +155,16 @@ describe('UserDataController', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.deficiencies).toHaveLength(2);
-      
-      const deficiency1 = response.body.deficiencies.find(d => d.coursepool === 'pool-1');
+
+      const deficiency1 = response.body.deficiencies.find(
+        (d) => d.coursepool === 'pool-1',
+      );
       expect(deficiency1).toBeDefined();
       expect(deficiency1.creditsRequired).toBe(12);
 
-      const deficiency2 = response.body.deficiencies.find(d => d.coursepool === 'pool-2');
+      const deficiency2 = response.body.deficiencies.find(
+        (d) => d.coursepool === 'pool-2',
+      );
       expect(deficiency2).toBeDefined();
       expect(deficiency2.creditsRequired).toBe(6);
     });
@@ -167,8 +176,8 @@ describe('UserDataController', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.exemptions).toHaveLength(2);
-      
-      const coursecodes = response.body.exemptions.map(e => e.coursecode);
+
+      const coursecodes = response.body.exemptions.map((e) => e.coursecode);
       expect(coursecodes).toContain('CS101');
       expect(coursecodes).toContain('MATH101');
     });
@@ -194,7 +203,7 @@ describe('UserDataController', () => {
         fullname: 'No Degree User',
         type: 'student',
         deficiencies: [],
-        exemptions: []
+        exemptions: [],
       });
       await userWithoutDegree.save();
 
@@ -217,7 +226,7 @@ describe('UserDataController', () => {
         degree: testDegreeId,
         type: 'student',
         deficiencies: [],
-        exemptions: []
+        exemptions: [],
       });
       await userWithoutTimeline.save();
 
@@ -239,7 +248,7 @@ describe('UserDataController', () => {
         degree: testDegreeId,
         type: 'student',
         deficiencies: [],
-        exemptions: []
+        exemptions: [],
       });
       await userNoDeficiencies.save();
 
@@ -261,7 +270,7 @@ describe('UserDataController', () => {
         degree: testDegreeId,
         type: 'student',
         deficiencies: [],
-        exemptions: []
+        exemptions: [],
       });
       await userNoExemptions.save();
 
@@ -274,9 +283,7 @@ describe('UserDataController', () => {
     });
 
     it('should return 400 when user ID is not provided', async () => {
-      const response = await request(app)
-        .post('/user-data')
-        .send({});
+      const response = await request(app).post('/user-data').send({});
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('User ID is required');
@@ -305,9 +312,9 @@ describe('UserDataController', () => {
             id: 'item-3',
             season: 'summer',
             year: 2024,
-            courses: ['CS103']
-          }
-        ]
+            courses: ['CS103'],
+          },
+        ],
       });
       await additionalTimeline.save();
 
@@ -318,8 +325,10 @@ describe('UserDataController', () => {
       expect(response.status).toBe(200);
       // Should have 4 timeline entries: 3 from first timeline + 1 from second
       expect(response.body.timeline).toHaveLength(4);
-      
-      const summerCourse = response.body.timeline.find(t => t.season === 'summer' && t.coursecode === 'CS103');
+
+      const summerCourse = response.body.timeline.find(
+        (t) => t.season === 'summer' && t.coursecode === 'CS103',
+      );
       expect(summerCourse).toBeDefined();
     });
 
@@ -337,9 +346,9 @@ describe('UserDataController', () => {
             id: 'empty-item',
             season: 'fall',
             year: 2024,
-            courses: []
-          }
-        ]
+            courses: [],
+          },
+        ],
       });
       await emptyTimeline.save();
 

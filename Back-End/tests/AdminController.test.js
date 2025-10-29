@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { AdminController } = require('../dist/controllers/mondoDBControllers/AdminController');
+const {
+  AdminController,
+} = require('../dist/controllers/mondoDBControllers/AdminController');
 const { User } = require('../dist/models/User');
 const { Course } = require('../dist/models/Course');
 
@@ -39,12 +41,12 @@ describe('AdminController', () => {
       await User.create({
         email: 'test@example.com',
         fullname: 'Test User',
-        type: 'student'
+        type: 'student',
       });
       await Course.create({
         _id: 'COMP101',
         title: 'Introduction to Programming',
-        credits: 3
+        credits: 3,
       });
     });
 
@@ -61,8 +63,9 @@ describe('AdminController', () => {
       const originalDb = mongoose.connection.db;
       mongoose.connection.db = null;
 
-      await expect(adminController.getCollections())
-        .rejects.toThrow('Database connection not available');
+      await expect(adminController.getCollections()).rejects.toThrow(
+        'Database connection not available',
+      );
 
       // Restore original db
       mongoose.connection.db = originalDb;
@@ -74,12 +77,13 @@ describe('AdminController', () => {
       const mockDb = {
         listCollections: jest.fn().mockImplementation(() => {
           throw new Error('Database error');
-        })
+        }),
       };
       mongoose.connection.db = mockDb;
 
-      await expect(adminController.getCollections())
-        .rejects.toThrow('Error fetching collections');
+      await expect(adminController.getCollections()).rejects.toThrow(
+        'Error fetching collections',
+      );
 
       // Restore original db
       mongoose.connection.db = originalDb;
@@ -92,18 +96,18 @@ describe('AdminController', () => {
         {
           email: 'user1@example.com',
           fullname: 'User One',
-          type: 'student'
+          type: 'student',
         },
         {
           email: 'user2@example.com',
           fullname: 'User Two',
-          type: 'advisor'
+          type: 'advisor',
         },
         {
           email: 'admin@example.com',
           fullname: 'Admin User',
-          type: 'admin'
-        }
+          type: 'admin',
+        },
       ]);
     });
 
@@ -119,7 +123,7 @@ describe('AdminController', () => {
     it('should paginate results', async () => {
       const result = await adminController.getCollectionDocuments('users', {
         page: 1,
-        limit: 2
+        limit: 2,
       });
 
       expect(result).toHaveLength(2);
@@ -127,7 +131,7 @@ describe('AdminController', () => {
 
     it('should filter by keyword', async () => {
       const result = await adminController.getCollectionDocuments('users', {
-        keyword: 'admin'
+        keyword: 'admin',
       });
 
       expect(result).toHaveLength(1);
@@ -136,7 +140,7 @@ describe('AdminController', () => {
 
     it('should select specific fields', async () => {
       const result = await adminController.getCollectionDocuments('users', {
-        select: ['email', 'type']
+        select: ['email', 'type'],
       });
 
       expect(result).toHaveLength(3);
@@ -146,7 +150,8 @@ describe('AdminController', () => {
     });
 
     it('should return empty array for non-existent collection', async () => {
-      const result = await adminController.getCollectionDocuments('nonexistent');
+      const result =
+        await adminController.getCollectionDocuments('nonexistent');
 
       expect(result).toHaveLength(0);
     });
@@ -156,8 +161,9 @@ describe('AdminController', () => {
       const originalDb = mongoose.connection.db;
       mongoose.connection.db = null;
 
-      await expect(adminController.getCollectionDocuments('users'))
-        .rejects.toThrow('Database connection not available');
+      await expect(
+        adminController.getCollectionDocuments('users'),
+      ).rejects.toThrow('Database connection not available');
 
       // Restore original db
       mongoose.connection.db = originalDb;
@@ -169,12 +175,13 @@ describe('AdminController', () => {
       const mockDb = {
         collection: jest.fn().mockImplementation(() => {
           throw new Error('Collection error');
-        })
+        }),
       };
       mongoose.connection.db = mockDb;
 
-      await expect(adminController.getCollectionDocuments('users'))
-        .rejects.toThrow('Error fetching documents from collection');
+      await expect(
+        adminController.getCollectionDocuments('users'),
+      ).rejects.toThrow('Error fetching documents from collection');
 
       // Restore original db
       mongoose.connection.db = originalDb;
@@ -187,13 +194,13 @@ describe('AdminController', () => {
         {
           email: 'user1@example.com',
           fullname: 'User One',
-          type: 'student'
+          type: 'student',
         },
         {
           email: 'user2@example.com',
           fullname: 'User Two',
-          type: 'advisor'
-        }
+          type: 'advisor',
+        },
       ]);
     });
 
@@ -221,8 +228,9 @@ describe('AdminController', () => {
       const originalDb = mongoose.connection.db;
       mongoose.connection.db = null;
 
-      await expect(adminController.getCollectionStats('users'))
-        .rejects.toThrow('Database connection not available');
+      await expect(adminController.getCollectionStats('users')).rejects.toThrow(
+        'Database connection not available',
+      );
 
       // Restore original db
       mongoose.connection.db = originalDb;
@@ -234,12 +242,13 @@ describe('AdminController', () => {
       const mockDb = {
         command: jest.fn().mockImplementation(() => {
           throw new Error('Command error');
-        })
+        }),
       };
       mongoose.connection.db = mockDb;
 
-      await expect(adminController.getCollectionStats('users'))
-        .rejects.toThrow('Error fetching collection statistics');
+      await expect(adminController.getCollectionStats('users')).rejects.toThrow(
+        'Error fetching collection statistics',
+      );
 
       // Restore original db
       mongoose.connection.db = originalDb;
@@ -252,13 +261,13 @@ describe('AdminController', () => {
         {
           email: 'user1@example.com',
           fullname: 'User One',
-          type: 'student'
+          type: 'student',
         },
         {
           email: 'user2@example.com',
           fullname: 'User Two',
-          type: 'advisor'
-        }
+          type: 'advisor',
+        },
       ]);
     });
 
@@ -283,8 +292,9 @@ describe('AdminController', () => {
       const originalDb = mongoose.connection.db;
       mongoose.connection.db = null;
 
-      await expect(adminController.clearCollection('users'))
-        .rejects.toThrow('Database connection not available');
+      await expect(adminController.clearCollection('users')).rejects.toThrow(
+        'Database connection not available',
+      );
 
       // Restore original db
       mongoose.connection.db = originalDb;
@@ -296,12 +306,13 @@ describe('AdminController', () => {
       const mockDb = {
         collection: jest.fn().mockImplementation(() => {
           throw new Error('Collection error');
-        })
+        }),
       };
       mongoose.connection.db = mockDb;
 
-      await expect(adminController.clearCollection('users'))
-        .rejects.toThrow('Error clearing collection');
+      await expect(adminController.clearCollection('users')).rejects.toThrow(
+        'Error clearing collection',
+      );
 
       // Restore original db
       mongoose.connection.db = originalDb;
@@ -340,13 +351,13 @@ describe('AdminController', () => {
         {
           email: 'test1@example.com',
           fullname: 'Test User 1',
-          type: 'student'
+          type: 'student',
         },
         {
           email: 'test2@example.com',
           fullname: 'Test User 2',
-          type: 'advisor'
-        }
+          type: 'advisor',
+        },
       ]);
     });
 
@@ -356,9 +367,12 @@ describe('AdminController', () => {
       const testCollection = db.collection('numericonly');
       await testCollection.insertOne({ value: 123, count: 456 });
 
-      const result = await adminController.getCollectionDocuments('numericonly', {
-        keyword: 'test'
-      });
+      const result = await adminController.getCollectionDocuments(
+        'numericonly',
+        {
+          keyword: 'test',
+        },
+      );
 
       expect(Array.isArray(result)).toBe(true);
 
@@ -371,7 +385,7 @@ describe('AdminController', () => {
       const emptyCollection = db.collection('empty');
 
       const result = await adminController.getCollectionDocuments('empty', {
-        keyword: 'test'
+        keyword: 'test',
       });
 
       expect(result).toHaveLength(0);
@@ -380,7 +394,7 @@ describe('AdminController', () => {
     it('should handle getCollectionDocuments with pagination on second page', async () => {
       const result = await adminController.getCollectionDocuments('users', {
         page: 2,
-        limit: 1
+        limit: 1,
       });
 
       expect(result).toHaveLength(1);
@@ -392,7 +406,7 @@ describe('AdminController', () => {
       const mockDb = {
         command: jest.fn().mockResolvedValue({
           // count, size, avgObjSize are undefined
-        })
+        }),
       };
       mongoose.connection.db = mockDb;
 
@@ -411,8 +425,8 @@ describe('AdminController', () => {
         collection: jest.fn().mockReturnValue({
           deleteMany: jest.fn().mockResolvedValue({
             // deletedCount is undefined
-          })
-        })
+          }),
+        }),
       };
       mongoose.connection.db = mockDb;
 
