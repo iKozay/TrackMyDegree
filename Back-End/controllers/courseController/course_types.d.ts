@@ -7,7 +7,7 @@ namespace CourseTypes {
     description: string;
   };
   export type CourseInfoDB = CourseInfo & {
-    requisites: Requisite[];
+    requisites: RequisiteInfo[];
   };
   export interface Requisite {
     type: 'pre' | 'co';

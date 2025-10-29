@@ -81,8 +81,9 @@ export default [
     },
   },
   {
-    // TODO: remove adminController.ts from ignore list when it gets deleted
-    ignores: ['dist/*', 'node_modules/*', 'course-data/*', 'controllers/adminController/adminController.ts'],
+    // TODO: remove adminController.ts and course_types.d.ts from ignore list when it gets deleted
+    ignores: ['dist/*', 'node_modules/*', 'course-data/*',
+      'controllers/adminController/adminController.ts', 'controllers/courseController/course_types.d.ts'],
   },
   prettierConfig,
 ];
