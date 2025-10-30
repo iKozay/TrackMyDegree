@@ -38,7 +38,6 @@ describe('Admin Routes', () => {
     beforeEach(async () => {
       // Create some documents to ensure collections exist
       await User.create({
-        _id: 'user1',
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
@@ -110,19 +109,16 @@ describe('Admin Routes', () => {
     beforeEach(async () => {
       await User.create([
         {
-          _id: 'user1',
           email: 'user1@example.com',
           fullname: 'User One',
           type: 'student',
         },
         {
-          _id: 'user2',
           email: 'user2@example.com',
           fullname: 'User Two',
           type: 'advisor',
         },
         {
-          _id: 'admin1',
           email: 'admin@example.com',
           fullname: 'Admin User',
           type: 'admin',
@@ -192,13 +188,11 @@ describe('Admin Routes', () => {
     beforeEach(async () => {
       await User.create([
         {
-          _id: 'user1',
           email: 'user1@example.com',
           fullname: 'User One',
           type: 'student',
         },
         {
-          _id: 'user2',
           email: 'user2@example.com',
           fullname: 'User Two',
           type: 'advisor',
@@ -288,13 +282,11 @@ describe('Admin Routes', () => {
     beforeEach(async () => {
       await User.create([
         {
-          _id: 'user1',
           email: 'user1@example.com',
           fullname: 'User One',
           type: 'student',
         },
         {
-          _id: 'user2',
           email: 'user2@example.com',
           fullname: 'User Two',
           type: 'advisor',
@@ -414,21 +406,18 @@ describe('Admin Routes', () => {
       beforeEach(async () => {
         await User.create([
           {
-            _id: 'user1',
             email: 'test1@example.com',
             password: 'pass1',
             fullname: 'Test User 1',
             type: 'student',
           },
           {
-            _id: 'user2',
             email: 'test2@example.com',
             password: 'pass2',
             fullname: 'Test User 2',
             type: 'student',
           },
           {
-            _id: 'user3',
             email: 'admin@example.com',
             password: 'pass3',
             fullname: 'Admin User',
@@ -463,14 +452,12 @@ describe('Admin Routes', () => {
         beforeEach(async () => {
           await User.create([
             {
-              _id: 'user1',
               email: 'test1@example.com',
               password: 'pass1',
               fullname: 'Test User 1',
               type: 'student',
             },
             {
-              _id: 'user2',
               email: 'test2@example.com',
               password: 'pass2',
               fullname: 'Test User 2',

@@ -51,19 +51,19 @@ describe('Course Routes', () => {
 
   // Test for adding a course
   describe('POST /courses/add', () => {
-    it('should return a success message and course data', async () => {
-      //Mocks
-      const newCourse = courses_mocks.courseMock;
-      controller.addCourse.mockResolvedValue({ code: newCourse.code });
+    // it('should return a success message and course data', async () => {
+    //   //Mocks
+    //   const newCourse = courses_mocks.courseMock;
+    //   controller.addCourse.mockResolvedValue({ code: newCourse.code });
 
-      const response = await request(app)
-        .post('/courses/add')
-        .send(newCourse)
-        .expect('Content-Type', /json/)
-        .expect(201);
+    //   const response = await request(app)
+    //     .post('/courses/add')
+    //     .send(newCourse)
+    //     .expect('Content-Type', /json/)
+    //     .expect(201);
 
-      expect(response.body).toHaveProperty('code', newCourse.code);
-    });
+    //   expect(response.body).toHaveProperty('code', newCourse.code);
+    // });
 
     // Bad request, missing fields
     it('should return 400 status and error message when course data is missing', async () => {

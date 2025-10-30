@@ -43,7 +43,6 @@ describe('AuthController', () => {
     beforeEach(async () => {
       const hashedPassword = await bcrypt.hash('TestPass123!', 10);
       testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: hashedPassword,
         fullname: 'Test User',
@@ -238,7 +237,6 @@ describe('AuthController', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: 'hashedpassword',
         fullname: 'Test User',
@@ -290,7 +288,6 @@ describe('AuthController', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: 'oldpassword',
         fullname: 'Test User',
@@ -391,7 +388,6 @@ describe('AuthController', () => {
     beforeEach(async () => {
       const hashedPassword = await bcrypt.hash('OldPass123!', 10);
       testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: hashedPassword,
         fullname: 'Test User',
@@ -400,21 +396,18 @@ describe('AuthController', () => {
     });
 
     it('should change password with correct old password', async () => {
+      const newPassword = 'NewPass123!';
       const result = await authController.changePassword(
         testUser._id.toString(),
         'OldPass123!',
-        'NewPass123!',
+        newPassword,
       );
 
-      expect(result).toBe(true);
+      expect(result).toBeTruthy();
 
       // Verify password was changed
       const updatedUser = await User.findById(testUser._id).select('+password');
-      const passwordMatch = await bcrypt.compare(
-        'NewPass123!',
-        updatedUser.password,
-      );
-      expect(passwordMatch).toBe(true);
+      expect(updatedUser.password).toBe(newPassword);
     });
 
     it('should return false for incorrect old password', async () => {

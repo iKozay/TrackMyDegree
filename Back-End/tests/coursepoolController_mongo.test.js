@@ -6,9 +6,7 @@ const { Degree } = require('../dist/models/Degree');
 const DB_OPS = require('../dist/Util/DB_Ops').default;
 
 describe('CoursepoolController', () => {
-  let mongoServer;
-  let testDegreeId1;
-  let testDegreeId2;
+  let mongoServer, testDegree1, testDegree2;
 
   beforeAll(async () => {
     mongoServer = await MongoMemoryServer.create();
@@ -26,8 +24,7 @@ describe('CoursepoolController', () => {
     await Degree.deleteMany({});
 
     // Create test degrees with course pools
-    const testDegree1 = new Degree({
-      _id: 'test-degree-1',
+    testDegree1 = new Degree({
       name: 'Computer Science',
       totalCredits: 120,
       isAddon: false,
@@ -47,8 +44,7 @@ describe('CoursepoolController', () => {
       ],
     });
 
-    const testDegree2 = new Degree({
-      _id: 'test-degree-2',
+    testDegree2 = new Degree({
       name: 'Software Engineering',
       totalCredits: 120,
       isAddon: false,
@@ -68,11 +64,8 @@ describe('CoursepoolController', () => {
       ],
     });
 
-    await testDegree1.save();
-    await testDegree2.save();
-
-    testDegreeId1 = 'test-degree-1';
-    testDegreeId2 = 'test-degree-2';
+    testDegree1 = await testDegree1.save();
+    testDegree2 = await testDegree2.save();
   });
 
   describe('createCoursePool', () => {
@@ -128,7 +121,7 @@ describe('CoursepoolController', () => {
       await Degree.deleteMany({});
 
       const emptyDegree = new Degree({
-        _id: 'empty-degree',
+        _id: '507f1f77bcf86cd799439011',
         name: 'Empty Degree',
         totalCredits: 0,
         isAddon: false,
@@ -188,7 +181,7 @@ describe('CoursepoolController', () => {
       expect(result).toBe(DB_OPS.SUCCESS);
 
       // Verify the update
-      const degree = await Degree.findById(testDegreeId1);
+      const degree = await Degree.findById(testDegree1._id.toString());
       const pool = degree.coursePools.find((cp) => cp.id === 'pool-2');
       expect(pool.name).toBe('Updated Electives');
     });
@@ -204,11 +197,11 @@ describe('CoursepoolController', () => {
       expect(result).toBe(DB_OPS.SUCCESS);
 
       // Verify the update in both degrees
-      const degree1 = await Degree.findById(testDegreeId1);
+      const degree1 = await Degree.findById(testDegree1._id.toString());
       const pool1 = degree1.coursePools.find((cp) => cp.id === 'pool-1');
       expect(pool1.name).toBe('Updated Core Courses');
 
-      const degree2 = await Degree.findById(testDegreeId2);
+      const degree2 = await Degree.findById(testDegree2._id.toString());
       const pool2 = degree2.coursePools.find((cp) => cp.id === 'pool-1');
       expect(pool2.name).toBe('Updated Core Courses');
     });
@@ -235,7 +228,7 @@ describe('CoursepoolController', () => {
       expect(result).toBe(DB_OPS.FAILURE);
 
       // Verify the name wasn't changed
-      const degree = await Degree.findById(testDegreeId1);
+      const degree = await Degree.findById(testDegree1._id.toString());
       const pool = degree.coursePools.find((cp) => cp.id === 'pool-2');
       expect(pool.name).toBe('Electives'); // Still the original name
     });
@@ -248,7 +241,7 @@ describe('CoursepoolController', () => {
       expect(result).toBe(DB_OPS.SUCCESS);
 
       // Verify removal
-      const degree = await Degree.findById(testDegreeId1);
+      const degree = await Degree.findById(testDegree1._id.toString());
       const pool = degree.coursePools.find((cp) => cp.id === 'pool-2');
       expect(pool).toBeUndefined();
       expect(degree.coursePools).toHaveLength(1);
@@ -260,12 +253,12 @@ describe('CoursepoolController', () => {
       expect(result).toBe(DB_OPS.SUCCESS);
 
       // Verify removal from both degrees
-      const degree1 = await Degree.findById(testDegreeId1);
+      const degree1 = await Degree.findById(testDegree1._id.toString());
       const pool1 = degree1.coursePools.find((cp) => cp.id === 'pool-1');
       expect(pool1).toBeUndefined();
       expect(degree1.coursePools).toHaveLength(1);
 
-      const degree2 = await Degree.findById(testDegreeId2);
+      const degree2 = await Degree.findById(testDegree2._id.toString());
       const pool2 = degree2.coursePools.find((cp) => cp.id === 'pool-1');
       expect(pool2).toBeUndefined();
       expect(degree2.coursePools).toHaveLength(1);
@@ -292,7 +285,7 @@ describe('CoursepoolController', () => {
       expect(result).toBe(DB_OPS.SUCCESS);
 
       // Verify pool-1 still exists
-      const degree = await Degree.findById(testDegreeId1);
+      const degree = await Degree.findById(testDegree1._id.toString());
       const pool1 = degree.coursePools.find((cp) => cp.id === 'pool-1');
       expect(pool1).toBeDefined();
       expect(pool1.name).toBe('Core Courses');

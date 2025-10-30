@@ -39,7 +39,6 @@ describe('AdminController', () => {
     beforeEach(async () => {
       // Create some documents to ensure collections exist
       await User.create({
-        _id: 'user1',
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
@@ -96,19 +95,16 @@ describe('AdminController', () => {
     beforeEach(async () => {
       await User.create([
         {
-          _id: 'user1',
           email: 'user1@example.com',
           fullname: 'User One',
           type: 'student',
         },
         {
-          _id: 'user2',
           email: 'user2@example.com',
           fullname: 'User Two',
           type: 'advisor',
         },
         {
-          _id: 'admin1',
           email: 'admin@example.com',
           fullname: 'Admin User',
           type: 'admin',
@@ -197,13 +193,11 @@ describe('AdminController', () => {
     beforeEach(async () => {
       await User.create([
         {
-          _id: 'user1',
           email: 'user1@example.com',
           fullname: 'User One',
           type: 'student',
         },
         {
-          _id: 'user2',
           email: 'user2@example.com',
           fullname: 'User Two',
           type: 'advisor',
@@ -266,13 +260,11 @@ describe('AdminController', () => {
     beforeEach(async () => {
       await User.create([
         {
-          _id: 'user1',
           email: 'user1@example.com',
           fullname: 'User One',
           type: 'student',
         },
         {
-          _id: 'user2',
           email: 'user2@example.com',
           fullname: 'User Two',
           type: 'advisor',
@@ -358,13 +350,11 @@ describe('AdminController', () => {
     beforeEach(async () => {
       await User.create([
         {
-          _id: 'test1',
           email: 'test1@example.com',
           fullname: 'Test User 1',
           type: 'student',
         },
         {
-          _id: 'test2',
           email: 'test2@example.com',
           fullname: 'Test User 2',
           type: 'advisor',

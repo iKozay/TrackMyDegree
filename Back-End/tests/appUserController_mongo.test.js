@@ -25,7 +25,6 @@ describe('AppUser Controller', () => {
 
   test('updateAppUser updates an existing user', async () => {
     const user = await new User({
-      _id: '1',
       email: 'old@test.com',
       password: 'old123',
       fullname: 'Old Name',
@@ -34,7 +33,7 @@ describe('AppUser Controller', () => {
     }).save();
 
     const updated = await appUserController.updateAppUser(
-      '1',
+      user._id.toString(),
       'new@test.com',
       'newpass',
       'New Name',
@@ -49,7 +48,7 @@ describe('AppUser Controller', () => {
   test('updateAppUser throws error if user does not exist', async () => {
     await expect(
       appUserController.updateAppUser(
-        'nonexistent-id',
+        '507f1f77bcf86cd799439011',
         'email@test.com',
         'pass',
         'Name',
@@ -62,7 +61,7 @@ describe('AppUser Controller', () => {
   test('updateAppUser returns undefined if connection not ready', async () => {
     await mongoose.disconnect();
     const result = await appUserController.updateAppUser(
-      '1',
+      '507f1f77bcf86cd799439011',
       'a@b.com',
       'pass',
       'Name',
@@ -75,28 +74,27 @@ describe('AppUser Controller', () => {
 
   test('deleteAppUser deletes an existing user', async () => {
     const user = await new User({
-      _id: '2',
       email: 'delete@test.com',
       password: '123',
       fullname: 'Delete Me',
       type: 'student',
     }).save();
 
-    const msg = await appUserController.deleteAppUser('2');
+    const msg = await appUserController.deleteAppUser(user._id.toString());
     expect(msg).toMatch(/successfully deleted/);
-    const found = await User.findById('2');
+    const found = await User.findById(user._id.toString());
     expect(found).toBeNull();
   });
 
   test('deleteAppUser throws error if user does not exist', async () => {
     await expect(
-      appUserController.deleteAppUser('nonexistent'),
+      appUserController.deleteAppUser('507f1f77bcf86cd799439011'),
     ).rejects.toThrow('AppUser with this id does not exist.');
   });
 
   test('deleteAppUser returns undefined if connection not ready', async () => {
     await mongoose.disconnect();
-    const result = await appUserController.deleteAppUser('1');
+    const result = await appUserController.deleteAppUser('507f1f77bcf86cd799439011');
     expect(result).toBeUndefined();
     await mongoose.connect(mongoUri);
   });

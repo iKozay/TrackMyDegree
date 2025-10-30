@@ -69,7 +69,7 @@ export class DegreeController extends BaseMongoController<any> {
   async readAllDegrees(): Promise<DegreeData[]> {
     try {
       const result = await this.findAll(
-        { _id: { $ne: 'ECP' } },
+        { isECP: false },
         { select: 'name totalCredits', sort: { name: 1 } },
       );
 
@@ -151,11 +151,10 @@ export class DegreeController extends BaseMongoController<any> {
     try {
       const result = await this.aggregate<CoursePoolData>([
         { $unwind: '$coursePools' },
-        { $match: { 'coursePools.id': pool_id } },
+        { $match: { 'coursePools._id': pool_id } },
         {
           $project: {
-            _id: 0,
-            id: '$coursePools.id',
+            _id: '$coursePools._id',
             name: '$coursePools.name',
             creditsRequired: '$coursePools.creditsRequired',
             courses: '$coursePools.courses',
@@ -187,7 +186,7 @@ export class DegreeController extends BaseMongoController<any> {
       }
 
       return degree.coursePools.map((cp: any) => ({
-        id: cp.id,
+        id: cp._id,
         name: cp.name,
         creditsRequired: cp.creditsRequired,
         courses: cp.courses,
