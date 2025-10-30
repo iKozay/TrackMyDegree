@@ -3,8 +3,8 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const {
   AuthController,
   UserType,
-} = require('../dist/controllers/mondoDBControllers/AuthController');
-const { User } = require('../dist/models/User');
+} = require('../controllers/mondoDBControllers/AuthController');
+const { User } = require('../models/User');
 const bcrypt = require('bcryptjs');
 
 describe('AuthController', () => {

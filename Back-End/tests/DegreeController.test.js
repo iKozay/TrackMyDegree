@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const {
   DegreeController,
-} = require('../dist/controllers/mondoDBControllers/DegreeController');
-const { Degree } = require('../dist/models/Degree');
+} = require('../controllers/mondoDBControllers/DegreeController');
+const { Degree } = require('../models/Degree');
 
 describe('DegreeController', () => {
   let mongoServer, mongoUri, degreeController;
@@ -69,18 +69,18 @@ describe('DegreeController', () => {
     });
 
     it('should handle database errors', async () => {
-      // Mock Degree.findById to throw an error
-      const originalFindById = Degree.findById;
-      Degree.findById = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
-      });
+      // Mock controller's findById to throw error
+      const originalFindById = degreeController.findById;
+      degreeController.findById = jest.fn().mockRejectedValue(
+        new Error('Database connection failed'),
+      );
 
       await expect(degreeController.readDegree('COMP')).rejects.toThrow(
         'Database connection failed',
       );
 
       // Restore original method
-      Degree.findById = originalFindById;
+      degreeController.findById = originalFindById;
     });
   });
 
@@ -129,18 +129,18 @@ describe('DegreeController', () => {
     });
 
     it('should handle database errors', async () => {
-      // Mock Degree.find to throw an error
-      const originalFind = Degree.find;
-      Degree.find = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
-      });
+      // Mock controller's findAll to throw error
+      const originalFindAll = degreeController.findAll;
+      degreeController.findAll = jest.fn().mockRejectedValue(
+        new Error('Database connection failed'),
+      );
 
       await expect(degreeController.readAllDegrees()).rejects.toThrow(
         'Database connection failed',
       );
 
       // Restore original method
-      Degree.find = originalFind;
+      degreeController.findAll = originalFindAll;
     });
   });
 
@@ -166,18 +166,18 @@ describe('DegreeController', () => {
     });
 
     it('should handle database errors', async () => {
-      // Mock Degree.findById to throw an error
-      const originalFindById = Degree.findById;
-      Degree.findById = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
-      });
+      // Mock controller's findById to throw error
+      const originalFindById = degreeController.findById;
+      degreeController.findById = jest.fn().mockRejectedValue(
+        new Error('Database connection failed'),
+      );
 
       await expect(
         degreeController.getCreditsForDegree('COMP'),
       ).rejects.toThrow('Database connection failed');
 
       // Restore original method
-      Degree.findById = originalFindById;
+      degreeController.findById = originalFindById;
     });
   });
 
@@ -187,6 +187,7 @@ describe('DegreeController', () => {
         {
           _id: 'COMP',
           name: 'Computer Science',
+          totalCredits: 120,
           coursePools: [
             {
               id: 'COMP_CORE',
@@ -205,6 +206,7 @@ describe('DegreeController', () => {
         {
           _id: 'SOEN',
           name: 'Software Engineering',
+          totalCredits: 120,
           coursePools: [
             {
               id: 'SOEN_CORE',
@@ -248,18 +250,18 @@ describe('DegreeController', () => {
     });
 
     it('should handle aggregation errors gracefully', async () => {
-      // Mock Degree.aggregate to throw an error
-      const originalAggregate = Degree.aggregate;
-      Degree.aggregate = jest.fn().mockImplementation(() => {
-        throw new Error('Aggregation failed');
-      });
+      // Mock controller's aggregate to return error
+      const originalAggregate = degreeController.aggregate;
+      degreeController.aggregate = jest.fn().mockRejectedValue(
+        new Error('Aggregation failed'),
+      );
 
       const result = await degreeController.getAllCoursePools();
 
       expect(result).toHaveLength(0);
 
       // Restore original method
-      Degree.aggregate = originalAggregate;
+      degreeController.aggregate = originalAggregate;
     });
   });
 
@@ -268,6 +270,7 @@ describe('DegreeController', () => {
       await Degree.create({
         _id: 'COMP',
         name: 'Computer Science',
+        totalCredits: 120,
         coursePools: [
           {
             id: 'COMP_CORE',
@@ -297,18 +300,18 @@ describe('DegreeController', () => {
     });
 
     it('should handle aggregation errors gracefully', async () => {
-      // Mock Degree.aggregate to throw an error
-      const originalAggregate = Degree.aggregate;
-      Degree.aggregate = jest.fn().mockImplementation(() => {
-        throw new Error('Aggregation failed');
-      });
+      // Mock controller's aggregate to return error
+      const originalAggregate = degreeController.aggregate;
+      degreeController.aggregate = jest.fn().mockRejectedValue(
+        new Error('Aggregation failed'),
+      );
 
       const result = await degreeController.getCoursePool('COMP_CORE');
 
       expect(result).toBeUndefined();
 
       // Restore original method
-      Degree.aggregate = originalAggregate;
+      degreeController.aggregate = originalAggregate;
     });
   });
 
@@ -317,6 +320,7 @@ describe('DegreeController', () => {
       await Degree.create({
         _id: 'COMP',
         name: 'Computer Science',
+        totalCredits: 120,
         coursePools: [
           {
             id: 'COMP_CORE',
@@ -363,6 +367,7 @@ describe('DegreeController', () => {
       await Degree.create({
         _id: 'EMPTY',
         name: 'Empty Degree',
+        totalCredits: 120,
         coursePools: [],
       });
 
@@ -371,73 +376,11 @@ describe('DegreeController', () => {
       expect(result).toHaveLength(0);
     });
 
-    it('should handle database errors gracefully', async () => {
-      // Mock Degree.findById to throw an error
-      const originalFindById = Degree.findById;
-      Degree.findById = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
-      });
-
-      const result = await degreeController.getCoursePoolsByDegree('COMP');
-
-      expect(result).toHaveLength(0);
-
-      // Restore original method
-      Degree.findById = originalFindById;
-    });
-  });
-
-  describe('getCoursePoolsByDegree', () => {
-    beforeEach(async () => {
-      await Degree.create({
-        _id: 'COMP',
-        name: 'Computer Science',
-        coursePools: [
-          {
-            id: 'COMP_CORE',
-            name: 'Computer Science Core',
-            creditsRequired: 60,
-            courses: ['COMP101', 'COMP102'],
-          },
-          {
-            id: 'MATH_REQ',
-            name: 'Mathematics Requirements',
-            creditsRequired: 12,
-            courses: ['MATH101', 'MATH102'],
-          },
-        ],
-      });
-    });
-
-    it('should get all course pools for specific degree', async () => {
-      const result = await degreeController.getCoursePoolsByDegree('COMP');
-
-      expect(result).toHaveLength(2);
-      expect(result[0]).toMatchObject({
-        id: 'COMP_CORE',
-        name: 'Computer Science Core',
-        creditsRequired: 60,
-        courses: ['COMP101', 'COMP102'],
-      });
-      expect(result[1]).toMatchObject({
-        id: 'MATH_REQ',
-        name: 'Mathematics Requirements',
-        creditsRequired: 12,
-        courses: ['MATH101', 'MATH102'],
-      });
-    });
-
-    it('should return empty array for non-existent degree', async () => {
-      const result =
-        await degreeController.getCoursePoolsByDegree('NONEXISTENT');
-
-      expect(result).toHaveLength(0);
-    });
-
     it('should handle course pools with undefined courses', async () => {
       await Degree.create({
         _id: 'NOCOURSES',
         name: 'No Courses Degree',
+        totalCredits: 120,
         coursePools: [
           {
             id: 'NOCOURSES_POOL',
@@ -460,11 +403,16 @@ describe('DegreeController', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      // Mock Degree.findById to throw an error
+      // Mock Degree.findById to throw an error in the exec() call
       const originalFindById = Degree.findById;
-      Degree.findById = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
-      });
+      const mockQuery = {
+        select: jest.fn().mockReturnThis(),
+        lean: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockRejectedValue(
+          new Error('Database connection failed'),
+        ),
+      };
+      Degree.findById = jest.fn().mockReturnValue(mockQuery);
 
       const result = await degreeController.getCoursePoolsByDegree('COMP');
 
@@ -561,22 +509,11 @@ describe('DegreeController', () => {
       await Degree.create({
         _id: 'NULLPOOLS',
         name: 'Null Pools Degree',
+        totalCredits: 120,
         coursePools: null,
       });
 
       const result = await degreeController.getCoursePoolsByDegree('NULLPOOLS');
-      expect(result).toEqual([]);
-    });
-
-    it('should handle getCoursePoolsByDegree when degree has null coursePools', async () => {
-      await Degree.create({
-        _id: 'NULLPOOLS2',
-        name: 'Null Pools Degree 2',
-        coursePools: null,
-      });
-
-      const result =
-        await degreeController.getCoursePoolsByDegree('NULLPOOLS2');
       expect(result).toEqual([]);
     });
   });

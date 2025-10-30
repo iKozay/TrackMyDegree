@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const {
   CourseController,
-} = require('../dist/controllers/mondoDBControllers/CourseController');
-const { Course } = require('../dist/models/Course');
+} = require('../controllers/mondoDBControllers/CourseController');
+const { Course } = require('../models/Course');
 
 describe('CourseController', () => {
   let mongoServer, mongoUri, courseController;

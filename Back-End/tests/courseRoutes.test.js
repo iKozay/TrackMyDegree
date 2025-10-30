@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const express = require('express');
 const request = require('supertest');
-const courseRoutes = require('../dist/routes/mongo/courseRoutes').default;
-const { Course } = require('../dist/models/Course');
-const { courseController } = require('../dist/controllers/mondoDBControllers');
+const courseRoutes = require('../routes/mongo/courseRoutes').default;
+const { Course } = require('../models/Course');
+const { courseController } = require('../controllers/mondoDBControllers');
 
 describe('Course Routes', () => {
   let mongoServer, mongoUri, app;
