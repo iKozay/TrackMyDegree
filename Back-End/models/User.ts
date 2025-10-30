@@ -6,12 +6,12 @@ const DeficiencySchema = new Schema({
 });
 
 const UserSchema = new Schema({
-  _id: { type: String },
+  // _id is automatically created by MongoDB
   email: { type: String, required: true, unique: true },
   password: { type: String, default: null },
-  fullname: { type: String, required: true },
-  degree: { type: String, ref: 'Degree' },
-  type: { type: String, enum: ['student', 'advisor', 'admin'], required: true },
+  fullname: { type: String, default: null },
+  degree: { type: String, ref: 'Degree', default: null },
+  type: { type: String, enum: ['student', 'advisor', 'admin'], default: 'student' },
   otp: { type: String, default: null },
   otpExpire: { type: Date, default: null },
   deficiencies: [DeficiencySchema],

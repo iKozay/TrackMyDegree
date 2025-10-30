@@ -34,7 +34,7 @@ async function createDegree(
 
     // Return plain object
     return {
-      id: newDegree._id,
+      id: newDegree._id.toString(),
       name: newDegree.name,
       totalCredits: newDegree.totalCredits,
     };
@@ -56,7 +56,7 @@ async function readDegree(id: string): Promise<DegreeTypes.Degree | undefined> {
     }
 
     return {
-      id: degree._id,
+      id: degree._id.toString(),
       name: degree.name,
       totalCredits: degree.totalCredits,
     };
@@ -73,7 +73,7 @@ async function readAllDegrees(): Promise<DegreeTypes.Degree[] | undefined> {
   try {
     const degrees = await Degree.find({ _id: { $ne: 'ECP' } }).lean();
     return degrees.map((degree) => ({
-      id: degree._id,
+      id: degree._id.toString(),
       name: degree.name,
       totalCredits: degree.totalCredits,
     }));
@@ -103,7 +103,7 @@ async function updateDegree(
     }
 
     return {
-      id: updatedDegree._id,
+      id: updatedDegree._id.toString(),
       name: updatedDegree.name,
       totalCredits: updatedDegree.totalCredits,
     };

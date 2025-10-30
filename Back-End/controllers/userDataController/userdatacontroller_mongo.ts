@@ -81,7 +81,7 @@ export const getUserData = async (
     // Combine all retrieved data into a structured response object
     const response: UserDataResponse = {
       user: {
-        id: user._id as string,
+        id: user._id.toString(),
         email: user.email,
         fullname: user.fullname,
         type: user.type,
@@ -92,7 +92,7 @@ export const getUserData = async (
       exemptions,
       degree: degree
         ? {
-            id: degree.id,
+            id: degree.toString(),
             name: degree.name,
             totalCredits: degree.totalCredits,
           }

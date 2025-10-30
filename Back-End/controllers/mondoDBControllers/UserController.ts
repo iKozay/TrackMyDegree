@@ -250,7 +250,7 @@ export class UserController extends BaseMongoController<any> {
 
       return {
         user: {
-          id: user._id as string,
+          id: user._id.toString(),
           email: user.email,
           fullname: user.fullname,
           type: user.type,
@@ -259,7 +259,11 @@ export class UserController extends BaseMongoController<any> {
         timeline,
         deficiencies,
         exemptions,
-        degree,
+        degree: {
+          id: degree?.id.toString() || '',
+          name: degree?.name || '',
+          totalCredits: degree?.totalCredits || 0,
+        },
       };
     } catch (error) {
       this.handleError(error, 'getUserData');
