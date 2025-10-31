@@ -152,46 +152,41 @@ export class AuthController {
       newPassword: string,
     ): Promise<boolean>
     
-  /**
-   * Verifies OTP and resets password
-   */
-  async resetPassword(
-    email: string,
-    resetToken: string,
-    newPassword: string,
-  ): Promise<boolean>
-   {
-    try {
-      const user = await User.findOne({ email }).exec();
-
-if (
-  !user || 
-  !user.resetToken || 
-  !user.resetTokenExpire ||
-  user.resetToken !== resetToken ||
-  new Date() > user.resetTokenExpire
-) {
-  return false;
-}
-
-
-      // Set new password (already hashed from frontend)
-    user.password = newPassword;
-    user.resetToken = '';
-    user.resetTokenExpire = new Date(0);
-    await user.save();
-
-    return true;
-
-    } catch (error) {
-      Sentry.captureException(error, {
-        tags: { operation: 'resetPassword' },
-        level: 'error',
-      });
-      console.error('[AuthController] Password reset error');
-      return false;
+    async resetPassword(
+      email: string,
+      resetToken: string,
+      newPassword: string,
+    ): Promise<boolean> {
+      try {
+        const user = await User.findOne({ email }).exec();
+    
+        if (
+          !user || 
+          !user.resetToken || 
+          !user.resetTokenExpire ||
+          user.resetToken !== resetToken ||
+          new Date() > user.resetTokenExpire
+        ) {
+          return false;
+        }
+    
+        // Set new password and clear reset token
+        user.password = newPassword; // password is already hashed from frontend
+        user.resetToken = '';
+        user.resetTokenExpire = new Date(0);
+        await user.save();
+    
+        return true;
+      } catch (error) {
+        Sentry.captureException(error, {
+          tags: { operation: 'resetPassword' },
+          level: 'error',
+        });
+        console.error('[AuthController] Password reset error');
+        return false;
+      }
     }
-  }
+    
 
   /**
    * Change user password (when already authenticated)
