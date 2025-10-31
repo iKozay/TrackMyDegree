@@ -175,11 +175,14 @@ if (
 }
 
 
-      // Set new password (already hashed from frontend) and clear OTP
-      user.password = newPassword; // password is already hashed from frontend
-      await user.save();
+      // Set new password (already hashed from frontend)
+    user.password = newPassword;
+    user.resetToken = '';
+    user.resetTokenExpire = new Date(0);
+    await user.save();
 
-      return true;
+    return true;
+
     } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: 'resetPassword' },
