@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 
 const CoursePoolSchema = new Schema({
-  id: { type: String, required: true },
+  _id: { type: String, required: true },
   name: { type: String, required: true },
   creditsRequired: { type: Number, required: true },
   courses: [{ type: String, ref: 'Course' }],

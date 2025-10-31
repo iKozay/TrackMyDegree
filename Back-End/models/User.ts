@@ -1,12 +1,13 @@
 import { Schema, model } from 'mongoose';
 
 const DeficiencySchema = new Schema({
+  // _id is automatically created by MongoDB
   coursepool: { type: String, required: true },
   creditsRequired: { type: Number, required: true },
 });
 
 const UserSchema = new Schema({
-  _id: { type: String },
+  // _id is automatically created by MongoDB
   email: { type: String, required: true, unique: true },
   password: { type: String, default: null },
   fullname: { type: String, required: true },
