@@ -1,8 +1,8 @@
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
-const { Course } = require('../dist/models/Course');
+const { Course } = require('../models/Course');
 const requisiteController =
-  require('../dist/controllers/requisiteController/requisiteController_mongoose').default;
+  require('../controllers/requisiteController/requisiteController_mongoose').default;
 describe('RequisiteController Mongoose', () => {
   let mongoServer;
 
@@ -19,6 +19,11 @@ describe('RequisiteController Mongoose', () => {
 
   beforeEach(async () => {
     await Course.deleteMany({});
+    jest.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe('createRequisite', () => {

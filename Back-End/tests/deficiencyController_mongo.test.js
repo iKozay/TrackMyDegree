@@ -6,14 +6,14 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
 // Require compiled controller and models from dist (support default and named exports)
-const deficiencyControllerModule = require('../dist/controllers/deficiencyController/deficiencyController_mongo');
+const deficiencyControllerModule = require('../controllers/deficiencyController/deficiencyController_mongo');
 const deficiencyController =
   deficiencyControllerModule && deficiencyControllerModule.default
     ? deficiencyControllerModule.default
     : deficiencyControllerModule;
 
-const UserModule = require('../dist/models/User');
-const DegreeModule = require('../dist/models/Degree');
+const UserModule = require('../models/User');
+const DegreeModule = require('../models/Degree');
 
 const User =
   UserModule && UserModule.User

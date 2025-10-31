@@ -5,8 +5,7 @@ import * as Sentry from '@sentry/node';
 import DeficiencyTypes from '@controllers/deficiencyController/deficiency_types';
 
 // Use existing models
-import { User } from '../../models/User';
-import { Degree } from '../../models/Degree';
+import { User, Degree } from '../../models';
 const appUserNotExistString = 'AppUser does not exist.';
 /**
  * Creates a new deficiency for a user and coursepool.
@@ -42,7 +41,10 @@ async function createDeficiency(
       throw new Error('CoursePool does not exist.');
     }
 
-    user.deficiencies = user.deficiencies || [];
+    // Initialize deficiencies array if it doesn't exist (Mongoose handles this, but we check for type safety)
+    if (!user.deficiencies) {
+      user.set('deficiencies', []);
+    }
     user.deficiencies.push({
       coursepool,
       creditsRequired,

@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const DegreeXCPController =
-  require('../dist/controllers/DegreeXCPController/DegreeXCPController_mongo').default;
-const { Degree } = require('../dist/models/Degree');
-const DB_OPS = require('../dist/Util/DB_Ops').default;
+  require('../controllers/DegreeXCPController/DegreeXCPController_mongo').default;
+const { Degree } = require('../models/Degree');
+const DB_OPS = require('../Util/DB_Ops').default;
 
 describe('DegreeXCPController', () => {
   let mongoServer;

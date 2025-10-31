@@ -1,4 +1,4 @@
-const mongoControllers = require('..controllers/mondoDBControllers/index');
+const mongoControllers = require('../controllers/mondoDBControllers/index');
 
 describe('MongoDB Controllers Index', () => {
   it('should export all controller classes', () => {

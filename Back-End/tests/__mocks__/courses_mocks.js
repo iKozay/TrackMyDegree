@@ -48,6 +48,7 @@ const courseMock = {
   title: 'Introduction to Computer Science',
   credits: 3,
   description: 'An introductory course covering basic programming concepts.',
+  offeredIn: ['Fall', 'Winter'], // Required field
   requisites: [], // No prerequisites
 };
 

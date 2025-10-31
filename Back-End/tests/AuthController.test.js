@@ -399,11 +399,15 @@ describe('AuthController', () => {
       });
     });
 
-    it('should change password with correct old password', async () => {
+    it('should change password with correct old password (frontend-hashed)', async () => {
+      // Note: The implementation expects plain text old password for verification
+      // but the new password is already hashed from frontend
+      const hashedNewPassword = await bcrypt.hash('NewPass123!', 10);
+
       const result = await authController.changePassword(
         testUser._id.toString(),
-        'OldPass123!',
-        'NewPass123!',
+        'OldPass123!', // Plain text old password for verification
+        hashedNewPassword, // Hashed new password from frontend
       );
 
       expect(result).toBe(true);

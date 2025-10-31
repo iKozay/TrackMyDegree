@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const coursepoolController =
-  require('../dist/controllers/coursepoolController/coursepoolController_mongo').default;
-const { Degree } = require('../dist/models/Degree');
-const DB_OPS = require('../dist/Util/DB_Ops').default;
+  require('../controllers/coursepoolController/coursepoolController_mongo').default;
+const { Degree } = require('../models/Degree');
+const DB_OPS = require('../Util/DB_Ops').default;
 
 describe('CoursepoolController', () => {
   let mongoServer;
