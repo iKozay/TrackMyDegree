@@ -45,7 +45,7 @@ describe('Feedback Routes', () => {
         message: 'This is a test feedback message',
         user_id: 'user123',
       });
-      expect(response.body.feedback.id).toBeDefined();
+      expect(response.body.feedback._id).toBeDefined();
       expect(response.body.feedback.submitted_at).toBeDefined();
     });
 
@@ -123,7 +123,7 @@ describe('Feedback Routes', () => {
 
       expect(response.body.message).toBe('Feedback retrieved successfully');
       expect(response.body.feedback).toHaveLength(4);
-      expect(response.body.feedback[0]).toHaveProperty('id');
+      expect(response.body.feedback[0]).toHaveProperty('_id');
       expect(response.body.feedback[0]).toHaveProperty('message');
       expect(response.body.feedback[0]).toHaveProperty('user_id');
       expect(response.body.feedback[0]).toHaveProperty('submitted_at');
@@ -198,7 +198,7 @@ describe('Feedback Routes', () => {
 
       expect(response.body.message).toBe('Feedback retrieved successfully');
       expect(response.body.feedback).toMatchObject({
-        id: testFeedback._id.toString(),
+        _id: testFeedback._id.toString(),
         message: 'Test feedback message',
         user_id: 'user123',
       });

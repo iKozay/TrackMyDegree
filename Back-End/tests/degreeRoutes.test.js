@@ -43,7 +43,7 @@ describe('Degree Routes', () => {
         totalCredits: 120,
         coursePools: [
           {
-            id: 'COMP_CORE',
+            _id: 'COMP_CORE',
             name: 'Computer Science Core',
             creditsRequired: 60,
             courses: ['COMP101', 'COMP102'],
@@ -54,10 +54,10 @@ describe('Degree Routes', () => {
 
     it('should get degree by ID', async () => {
       const response = await request(app).get('/degree/COMP').expect(200);
-
+      console.log(response.body.degree);
       expect(response.body.message).toBe('Degree retrieved successfully');
       expect(response.body.degree).toMatchObject({
-        id: 'COMP',
+        _id: 'COMP',
         name: 'Computer Science',
         totalCredits: 120,
       });
@@ -115,9 +115,9 @@ describe('Degree Routes', () => {
 
       expect(response.body.message).toBe('Degrees retrieved successfully');
       expect(response.body.degrees).toHaveLength(2);
-      expect(response.body.degrees.find((d) => d.id === 'COMP')).toBeDefined();
-      expect(response.body.degrees.find((d) => d.id === 'SOEN')).toBeDefined();
-      expect(response.body.degrees.find((d) => d.id === 'ECP')).toBeUndefined();
+      expect(response.body.degrees.find((d) => d._id === 'COMP')).toBeDefined();
+      expect(response.body.degrees.find((d) => d._id === 'SOEN')).toBeDefined();
+      expect(response.body.degrees.find((d) => d._id === 'ECP')).toBeUndefined();
     });
 
     it('should handle server errors', async () => {
@@ -204,7 +204,7 @@ describe('Degree Routes', () => {
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('message');
       expect(response.body).toHaveProperty('degree');
-      expect(response.body.degree.id).toBe('CS');
+      expect(response.body.degree._id).toBe('CS');
       expect(response.body.degree.name).toBe('Computer Science');
       expect(response.body.degree.totalCredits).toBe(120);
     });
@@ -264,7 +264,7 @@ describe('Degree Routes', () => {
       expect(response.body).toHaveProperty('degrees');
       expect(Array.isArray(response.body.degrees)).toBe(true);
       expect(response.body.degrees.length).toBe(2);
-      expect(response.body.degrees.map((d) => d.id)).not.toContain('ECP');
+      expect(response.body.degrees.map((d) => d._id)).not.toContain('ECP');
     });
 
     it('should handle errors during fetch via Degree.find rejection', async () => {
@@ -350,13 +350,13 @@ describe('Degree Routes', () => {
           totalCredits: 120,
           coursePools: [
             {
-              id: 'Core',
+              _id: 'Core',
               name: 'Core Courses',
               creditsRequired: 60,
               courses: ['COMP101', 'COMP201', 'COMP301'],
             },
             {
-              id: 'Elective',
+              _id: 'Elective',
               name: 'Elective Courses',
               creditsRequired: 20,
               courses: ['COMP400', 'COMP401'],
@@ -369,13 +369,13 @@ describe('Degree Routes', () => {
           totalCredits: 120,
           coursePools: [
             {
-              id: 'Core',
+              _id: 'Core',
               name: 'Core Courses',
               creditsRequired: 60,
               courses: ['COMP101', 'COMP201'],
             },
             {
-              id: 'Project',
+              _id: 'Project',
               name: 'Project Courses',
               creditsRequired: 30,
               courses: ['SOEN400', 'SOEN401'],
@@ -393,11 +393,11 @@ describe('Degree Routes', () => {
         expect(pools).toBeDefined();
         expect(Array.isArray(pools)).toBe(true);
         expect(pools.length).toBeGreaterThan(0);
-        const corePool = pools.find((p) => p.id === 'Core');
+        const corePool = pools.find((p) => p._id === 'Core');
         expect(corePool).toBeDefined();
-        const electivePool = pools.find((p) => p.id === 'Elective');
+        const electivePool = pools.find((p) => p._id === 'Elective');
         expect(electivePool).toBeDefined();
-        const projectPool = pools.find((p) => p.id === 'Project');
+        const projectPool = pools.find((p) => p._id === 'Project');
         expect(projectPool).toBeDefined();
       });
 
@@ -429,7 +429,7 @@ describe('Degree Routes', () => {
         const pool = await degreeController.getCoursePool('Core');
 
         expect(pool).toBeDefined();
-        expect(pool.id).toBe('Core');
+        expect(pool._id).toBe('Core');
         expect(pool.name).toBe('Core Courses');
         expect(pool.creditsRequired).toBe(60);
       });
@@ -464,11 +464,11 @@ describe('Degree Routes', () => {
         expect(Array.isArray(pools)).toBe(true);
         expect(pools.length).toBe(2);
 
-        const corePool = pools.find((p) => p.id === 'Core');
+        const corePool = pools.find((p) => p._id === 'Core');
         expect(corePool).toBeDefined();
         expect(corePool.courses).toEqual(['COMP101', 'COMP201', 'COMP301']);
 
-        const electivePool = pools.find((p) => p.id === 'Elective');
+        const electivePool = pools.find((p) => p._id === 'Elective');
         expect(electivePool).toBeDefined();
       });
 
@@ -518,7 +518,7 @@ describe('Degree Routes', () => {
           totalCredits: 120,
         coursePools: [
           {
-              id: 'Core',
+              _id: 'Core',
               name: 'Core Courses',
             creditsRequired: 60,
             },

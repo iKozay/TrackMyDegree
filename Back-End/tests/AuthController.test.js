@@ -43,7 +43,6 @@ describe('AuthController', () => {
     beforeEach(async () => {
       const hashedPassword = await bcrypt.hash('TestPass123!', 10);
       testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: hashedPassword,
         fullname: 'Test User',
@@ -58,7 +57,6 @@ describe('AuthController', () => {
       );
 
       expect(result).toMatchObject({
-        id: testUser._id.toString(),
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
@@ -154,8 +152,8 @@ describe('AuthController', () => {
 
       const result = await authController.registerUser(userInfo);
 
-      expect(result).toHaveProperty('id');
-      expect(result.id).toBeDefined();
+      expect(result).toHaveProperty('_id');
+      expect(result._id).toBeDefined();
 
       // Verify user was created
       const createdUser = await User.findOne({ email: 'newuser@example.com' });
@@ -166,7 +164,6 @@ describe('AuthController', () => {
 
     it('should return undefined for existing email', async () => {
       await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
         email: 'existing@example.com',
         password: 'hashedpassword',
         fullname: 'Existing User',
@@ -238,7 +235,6 @@ describe('AuthController', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: 'hashedpassword',
         fullname: 'Test User',
@@ -290,7 +286,6 @@ describe('AuthController', () => {
 
     beforeEach(async () => {
       testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: 'oldpassword',
         fullname: 'Test User',
@@ -391,7 +386,6 @@ describe('AuthController', () => {
     beforeEach(async () => {
       const hashedPassword = await bcrypt.hash('OldPass123!', 10);
       testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         password: hashedPassword,
         fullname: 'Test User',
@@ -483,7 +477,6 @@ describe('AuthController', () => {
     it('should handle forgotPassword when user.save() throws error', async () => {
       const originalFindOne = User.findOne;
       const mockUser = {
-        _id: 'test123',
         email: 'test@example.com',
         save: jest.fn().mockRejectedValue(new Error('Save failed')),
       };
@@ -500,7 +493,6 @@ describe('AuthController', () => {
     it('should handle resetPassword when user.save() throws error', async () => {
       const originalFindOne = User.findOne;
       const mockUser = {
-        _id: 'test123',
         email: 'test@example.com',
         otp: '1234',
         otpExpire: new Date(Date.now() + 10 * 60 * 1000),
@@ -525,7 +517,6 @@ describe('AuthController', () => {
       const hashedPassword = await require('bcryptjs').hash('OldPass123!', 10);
       const originalFindById = User.findById;
       const mockUser = {
-        _id: 'test123',
         password: hashedPassword,
         save: jest.fn().mockRejectedValue(new Error('Save failed')),
       };

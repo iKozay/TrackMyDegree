@@ -36,18 +36,19 @@ describe('TimelineController', () => {
   describe('saveTimeline', () => {
     it('should save new timeline successfully', async () => {
       const timelineData = {
+        _id: new mongoose.Types.ObjectId().toString(),
         user_id: 'user123',
         name: 'My Timeline',
         degree_id: 'COMP',
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'fall',
             year: 2023,
             courses: ['COMP101', 'MATH101'],
           },
           {
-            id: 'item2',
+            _id: 'item2',
             season: 'winter',
             year: 2024,
             courses: ['COMP102'],
@@ -58,13 +59,15 @@ describe('TimelineController', () => {
 
       const result = await timelineController.saveTimeline(timelineData);
 
+
+
       expect(result).toMatchObject({
         user_id: 'user123',
         name: 'My Timeline',
         degree_id: 'COMP',
         isExtendedCredit: false,
       });
-      expect(result.id).toBeDefined();
+      expect(result._id).toBeDefined();
       expect(result.items).toHaveLength(2);
       expect(result.items[0]).toMatchObject({
         season: 'fall',
@@ -76,6 +79,7 @@ describe('TimelineController', () => {
 
     it('should update existing timeline', async () => {
       const timelineData = {
+        _id: new mongoose.Types.ObjectId().toString(),
         user_id: 'user123',
         name: 'My Timeline',
         degree_id: 'COMP',
@@ -98,13 +102,13 @@ describe('TimelineController', () => {
         ...timelineData,
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'fall',
             year: 2023,
             courses: ['COMP101', 'MATH101'],
           },
           {
-            id: 'item2',
+            _id: 'item2',
             season: 'winter',
             year: 2024,
             courses: ['COMP102'],
@@ -120,6 +124,7 @@ describe('TimelineController', () => {
 
     it('should throw error when required fields are missing', async () => {
       const invalidTimeline = {
+        _id: new mongoose.Types.ObjectId().toString(),
         user_id: 'user123',
         // Missing name and degree_id
         items: [],
@@ -133,6 +138,7 @@ describe('TimelineController', () => {
 
     it('should throw error when user_id is missing', async () => {
       const invalidTimeline = {
+        _id: new mongoose.Types.ObjectId().toString(),
         name: 'My Timeline',
         degree_id: 'COMP',
         items: [],
@@ -251,7 +257,7 @@ describe('TimelineController', () => {
         degreeId: 'COMP',
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'fall',
             year: 2023,
             courses: ['COMP101'],
@@ -267,7 +273,7 @@ describe('TimelineController', () => {
       );
 
       expect(result).toMatchObject({
-        id: testTimeline._id.toString(),
+        _id: testTimeline._id,
         user_id: 'user123',
         name: 'Test Timeline',
         degree_id: 'COMP',
@@ -495,7 +501,7 @@ describe('TimelineController', () => {
         degree_id: 'COMP',
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'fall',
             year: 2023,
             courses: ['COMP101', 'MATH101'],
@@ -506,7 +512,7 @@ describe('TimelineController', () => {
 
       const result = await timelineController.saveTimeline(timelineData);
 
-      expect(result).toHaveProperty('id');
+      expect(result).toHaveProperty('_id');
       expect(result).toHaveProperty('user_id', 'user123');
       expect(result).toHaveProperty('name', 'Test Timeline');
       expect(result).toHaveProperty('degree_id', 'COMP');

@@ -43,13 +43,13 @@ describe('Timeline Routes', () => {
         degree_id: 'COMP',
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'fall',
             year: 2023,
             courses: ['COMP101', 'MATH101'],
           },
           {
-            id: 'item2',
+            _id: 'item2',
             season: 'winter',
             year: 2024,
             courses: ['COMP102'],
@@ -70,7 +70,7 @@ describe('Timeline Routes', () => {
         degree_id: 'COMP',
         isExtendedCredit: false,
       });
-      expect(response.body.timeline.id).toBeDefined();
+      expect(response.body.timeline._id).toBeDefined();
       expect(response.body.timeline.items).toHaveLength(2);
     });
 
@@ -81,7 +81,7 @@ describe('Timeline Routes', () => {
         degree_id: 'CS',
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'fall',
             year: 2024,
             courses: ['COMP101', 'MATH101'],
@@ -280,7 +280,7 @@ describe('Timeline Routes', () => {
           degreeId: 'CS',
           items: [
             {
-              id: 'item1',
+              _id: 'item1',
               season: 'fall',
               year: 2024,
               courses: [],
@@ -295,7 +295,7 @@ describe('Timeline Routes', () => {
           degreeId: 'SE',
           items: [
             {
-              id: 'item1',
+              _id: 'item1',
               season: 'fall',
               year: 2024,
               courses: [],
@@ -310,7 +310,7 @@ describe('Timeline Routes', () => {
           degreeId: 'CS',
           items: [
             {
-              id: 'item1',
+              _id: 'item1',
               season: 'fall',
               year: 2024,
               courses: [],
@@ -423,7 +423,7 @@ describe('Timeline Routes', () => {
         degreeId: 'COMP',
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'fall',
             year: 2023,
             courses: ['COMP101'],
@@ -440,7 +440,7 @@ describe('Timeline Routes', () => {
 
       expect(response.body.message).toBe('Timeline retrieved successfully');
       expect(response.body.timeline).toMatchObject({
-        id: testTimeline._id.toString(),
+        _id: testTimeline._id.toString(),
         user_id: 'user123',
         name: 'Test Timeline',
         degree_id: 'COMP',
@@ -448,7 +448,7 @@ describe('Timeline Routes', () => {
       });
       expect(response.body.timeline.items).toHaveLength(1);
       expect(response.body.timeline.items[0]).toMatchObject({
-        id: expect.any(String),
+        _id: expect.any(String),
         season: 'fall',
         year: 2023,
         courses: ['COMP101'],
@@ -464,7 +464,7 @@ describe('Timeline Routes', () => {
         degreeId: 'CS',
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'fall',
             year: 2024,
             courses: [],
@@ -591,7 +591,7 @@ describe('Timeline Routes', () => {
         degreeId: 'CS',
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'fall',
             year: 2024,
             courses: [],
@@ -605,7 +605,7 @@ describe('Timeline Routes', () => {
         name: 'Updated Name',
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'winter',
             year: 2025,
             courses: ['COMP201'],
@@ -743,7 +743,7 @@ describe('Timeline Routes', () => {
         degreeId: 'CS',
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'fall',
             year: 2024,
             courses: [],
@@ -886,7 +886,7 @@ describe('Timeline Routes', () => {
           degreeId: 'CS',
           items: [
             {
-              id: 'item1',
+              _id: 'item1',
               season: 'fall',
               year: 2024,
               courses: [],
@@ -901,7 +901,7 @@ describe('Timeline Routes', () => {
           degreeId: 'SE',
           items: [
             {
-              id: 'item1',
+              _id: 'item1',
               season: 'fall',
               year: 2024,
               courses: [],
@@ -1004,7 +1004,7 @@ describe('Timeline Routes', () => {
         degreeId: 'COMP',
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'fall',
             year: 2023,
             courses: [],
@@ -1037,7 +1037,7 @@ describe('Timeline Routes', () => {
         degreeId: 'COMP',
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'fall',
             year: 2023,
             courses: [],

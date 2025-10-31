@@ -6,7 +6,7 @@ import { BaseMongoController } from './BaseMongoController';
 import { Timeline } from '../../models';
 
 export interface TimelineData {
-  id?: string;
+  _id: string;
   user_id: string;
   name: string;
   degree_id: string;
@@ -16,7 +16,7 @@ export interface TimelineData {
 }
 
 export interface TimelineItem {
-  id?: string;
+  _id: string;
   season: 'fall' | 'winter' | 'summer1' | 'summer2' | 'fall/winter' | 'summer';
   year: number;
   courses: string[];
@@ -40,9 +40,9 @@ export class TimelineController extends BaseMongoController<any> {
       }
 
       // Map API fields (snake_case) to model fields (camelCase)
-      // Ensure items have id field
+      // Ensure items have _id field
       const mappedItems = (items || []).map((item, index) => ({
-        id: item.id || `item-${index}`,
+        _id: item._id || `item-${index}`,
         season: item.season,
         year: item.year,
         courses: item.courses || [],
@@ -137,7 +137,7 @@ export class TimelineController extends BaseMongoController<any> {
       if (updates.items !== undefined) {
         // Ensure items have id field
         mappedUpdates.items = (updates.items || []).map((item, index) => ({
-          id: item.id || `item-${index}`,
+          _id: item._id,
           season: item.season,
           year: item.year,
           courses: item.courses || [],
@@ -203,12 +203,12 @@ export class TimelineController extends BaseMongoController<any> {
    */
   private formatTimelineResponse(timeline: any): TimelineData {
     return {
-      id: timeline._id?.toString(),
+      _id: timeline._id,
       user_id: timeline.userId || timeline.user_id,
       name: timeline.name,
       degree_id: timeline.degreeId || timeline.degree_id,
       items: (timeline.items || []).map((item: any) => ({
-        id: item.id || item._id?.toString(),
+        _id: item._id,
         season: item.season,
         year: item.year,
         courses: item.courses || [],

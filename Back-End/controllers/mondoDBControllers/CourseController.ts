@@ -8,7 +8,7 @@ import { BaseMongoController } from './BaseMongoController';
 import { Course } from '../../models';
 
 export interface CourseData {
-  _id?: string;
+  _id: string;
   code?: string;
   title: string;
   description?: string;

@@ -20,7 +20,7 @@ export interface Credentials {
 }
 
 export interface UserInfo extends Credentials {
-  id?: string;
+  _id: string;
   fullname: string;
   type: UserType;
 }
@@ -55,7 +55,7 @@ export class AuthController {
 
       if (user && passwordMatch && user._id) {
         return {
-          id: user._id.toString(),
+          _id: user._id.toString(),
           fullname: user.fullname,
           email: user.email,
           type: user.type as UserType,
@@ -77,7 +77,7 @@ export class AuthController {
   /**
    * Registers a new user after validating input
    */
-  async registerUser(userInfo: UserInfo): Promise<{ id: string } | undefined> {
+  async registerUser(userInfo: UserInfo): Promise<{ _id: string } | undefined> {
     const { email, password, fullname, type } = userInfo;
 
     try {
@@ -89,7 +89,6 @@ export class AuthController {
 
       // Create new user with generated _id (password is already hashed from frontend)
       const newUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
         email,
         password, // password is already hashed from frontend
         fullname,
@@ -100,7 +99,7 @@ export class AuthController {
         return undefined;
       }
 
-      return { id: newUser._id.toString() };
+      return { _id: newUser._id.toString() };
     } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: 'registerUser' },
@@ -196,12 +195,12 @@ export class AuthController {
    * Change user password (when already authenticated)
    */
   async changePassword(
-    userId: string,
+    _id: string,
     oldPassword: string,
     newPassword: string,
   ): Promise<boolean> {
     try {
-      const user = await User.findById(userId).select('+password').exec();
+      const user = await User.findById(_id).select('+password').exec();
 
       if (!user) {
         return false;

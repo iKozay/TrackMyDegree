@@ -42,7 +42,7 @@ describe('FeedbackController', () => {
         message: 'This is a test feedback message',
         user_id: 'user123',
       });
-      expect(result.id).toBeDefined();
+      expect(result._id).toBeDefined();
       expect(result.submitted_at).toBeDefined();
     });
 
@@ -65,7 +65,7 @@ describe('FeedbackController', () => {
         message: 'Anonymous feedback message',
         user_id: null,
       });
-      expect(result.id).toBeDefined();
+      expect(result._id).toBeDefined();
       expect(result.submitted_at).toBeDefined();
     });
 
@@ -115,7 +115,7 @@ describe('FeedbackController', () => {
       const result = await feedbackController.getAllFeedback();
 
       expect(result).toHaveLength(4);
-      expect(result[0]).toHaveProperty('id');
+      expect(result[0]).toHaveProperty('_id');
       expect(result[0]).toHaveProperty('message');
       expect(result[0]).toHaveProperty('user_id');
       expect(result[0]).toHaveProperty('submitted_at');
@@ -245,7 +245,7 @@ describe('FeedbackController', () => {
       const result = await feedbackController.getFeedbackById(testFeedback._id.toString());
 
       expect(result).toMatchObject({
-        id: testFeedback._id.toString(),
+        _id: testFeedback._id.toString(),
         message: 'Test feedback message',
         user_id: 'user123',
       });

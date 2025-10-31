@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 
 const TimelineItemSchema = new Schema({
-  // _id is automatically created by MongoDB
+  _id: { type: String, required: true },
   season: {
     type: String,
     enum: [

@@ -43,7 +43,7 @@ describe('DegreeController', () => {
         totalCredits: 120,
         coursePools: [
           {
-            id: 'COMP_CORE',
+            _id: 'COMP_CORE',
             name: 'Computer Science Core',
             creditsRequired: 60,
             courses: ['COMP101', 'COMP102'],
@@ -56,7 +56,7 @@ describe('DegreeController', () => {
       const result = await degreeController.readDegree('COMP');
 
       expect(result).toMatchObject({
-        id: 'COMP',
+        _id: 'COMP',
         name: 'Computer Science',
         totalCredits: 120,
       });
@@ -109,9 +109,9 @@ describe('DegreeController', () => {
       const result = await degreeController.readAllDegrees();
 
       expect(result).toHaveLength(2);
-      expect(result.find((d) => d.id === 'COMP')).toBeDefined();
-      expect(result.find((d) => d.id === 'SOEN')).toBeDefined();
-      expect(result.find((d) => d.id === 'ECP')).toBeUndefined();
+      expect(result.find((d) => d._id === 'COMP')).toBeDefined();
+      expect(result.find((d) => d._id === 'SOEN')).toBeDefined();
+      expect(result.find((d) => d._id === 'ECP')).toBeUndefined();
     });
 
     it('should return degrees sorted by name', async () => {
@@ -190,13 +190,13 @@ describe('DegreeController', () => {
           totalCredits: 120,
           coursePools: [
             {
-              id: 'COMP_CORE',
+              _id: 'COMP_CORE',
               name: 'Computer Science Core',
               creditsRequired: 60,
               courses: ['COMP101', 'COMP102'],
             },
             {
-              id: 'MATH_REQ',
+              _id: 'MATH_REQ',
               name: 'Mathematics Requirements',
               creditsRequired: 12,
               courses: ['MATH101', 'MATH102'],
@@ -209,13 +209,13 @@ describe('DegreeController', () => {
           totalCredits: 120,
           coursePools: [
             {
-              id: 'SOEN_CORE',
+              _id: 'SOEN_CORE',
               name: 'Software Engineering Core',
               creditsRequired: 50,
               courses: ['SOEN101', 'SOEN102'],
             },
             {
-              id: 'MATH_REQ',
+              _id: 'MATH_REQ',
               name: 'Mathematics Requirements',
               creditsRequired: 12,
               courses: ['MATH101', 'MATH102'],
@@ -229,9 +229,9 @@ describe('DegreeController', () => {
       const result = await degreeController.getAllCoursePools();
 
       expect(result).toHaveLength(3); // COMP_CORE, MATH_REQ, SOEN_CORE
-      expect(result.find((cp) => cp.id === 'COMP_CORE')).toBeDefined();
-      expect(result.find((cp) => cp.id === 'SOEN_CORE')).toBeDefined();
-      expect(result.find((cp) => cp.id === 'MATH_REQ')).toBeDefined();
+      expect(result.find((cp) => cp._id === 'COMP_CORE')).toBeDefined();
+      expect(result.find((cp) => cp._id === 'SOEN_CORE')).toBeDefined();
+      expect(result.find((cp) => cp._id === 'MATH_REQ')).toBeDefined();
     });
 
     it('should return course pools sorted by name', async () => {
@@ -273,7 +273,7 @@ describe('DegreeController', () => {
         totalCredits: 120,
         coursePools: [
           {
-            id: 'COMP_CORE',
+            _id: 'COMP_CORE',
             name: 'Computer Science Core',
             creditsRequired: 60,
             courses: ['COMP101', 'COMP102'],
@@ -286,7 +286,7 @@ describe('DegreeController', () => {
       const result = await degreeController.getCoursePool('COMP_CORE');
 
       expect(result).toMatchObject({
-        id: 'COMP_CORE',
+        _id: 'COMP_CORE',
         name: 'Computer Science Core',
         creditsRequired: 60,
         courses: ['COMP101', 'COMP102'],
@@ -323,13 +323,13 @@ describe('DegreeController', () => {
         totalCredits: 120,
         coursePools: [
           {
-            id: 'COMP_CORE',
+            _id: 'COMP_CORE',
             name: 'Computer Science Core',
             creditsRequired: 60,
             courses: ['COMP101', 'COMP102'],
           },
           {
-            id: 'MATH_REQ',
+            _id: 'MATH_REQ',
             name: 'Mathematics Requirements',
             creditsRequired: 12,
             courses: ['MATH101', 'MATH102'],
@@ -343,13 +343,13 @@ describe('DegreeController', () => {
 
       expect(result).toHaveLength(2);
       expect(result[0]).toMatchObject({
-        id: 'COMP_CORE',
+        _id: 'COMP_CORE',
         name: 'Computer Science Core',
         creditsRequired: 60,
         courses: ['COMP101', 'COMP102'],
       });
       expect(result[1]).toMatchObject({
-        id: 'MATH_REQ',
+        _id: 'MATH_REQ',
         name: 'Mathematics Requirements',
         creditsRequired: 12,
         courses: ['MATH101', 'MATH102'],
@@ -383,7 +383,7 @@ describe('DegreeController', () => {
         totalCredits: 120,
         coursePools: [
           {
-            id: 'NOCOURSES_POOL',
+            _id: 'NOCOURSES_POOL',
             name: 'No Courses Pool',
             creditsRequired: 30,
             // courses field is undefined
@@ -395,7 +395,7 @@ describe('DegreeController', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0]).toMatchObject({
-        id: 'NOCOURSES_POOL',
+        _id: 'NOCOURSES_POOL',
         name: 'No Courses Pool',
         creditsRequired: 30,
         courses: [],

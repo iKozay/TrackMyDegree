@@ -8,13 +8,13 @@ import { Degree } from '../../models';
 import * as Sentry from '@sentry/node';
 
 export interface DegreeData {
-  id: string;
+  _id: string;
   name: string;
   totalCredits: number;
 }
 
 export interface CoursePoolData {
-  id: string;
+  _id: string;
   name: string;
   creditsRequired?: number;
   courses?: string[];
@@ -27,7 +27,7 @@ export interface DegreeXCPData {
 }
 
 export interface CoursePoolInfo {
-  id: string;
+  _id: string;
   name: string;
   creditsRequired: number;
   courses: string[];
@@ -45,16 +45,16 @@ export class DegreeController extends BaseMongoController<any> {
   /**
    * Get degree by ID
    */
-  async readDegree(id: string): Promise<DegreeData> {
+  async readDegree(_id: string): Promise<DegreeData> {
     try {
-      const result = await this.findById(id, 'name totalCredits');
+      const result = await this.findById(_id, 'name totalCredits');
 
       if (!result.success) {
         throw new Error('Degree with this id does not exist.');
       }
 
       return {
-        id: result.data._id,
+        _id: result.data._id,
         name: result.data.name,
         totalCredits: result.data.totalCredits,
       };
@@ -78,7 +78,7 @@ export class DegreeController extends BaseMongoController<any> {
       }
 
       return (result.data || []).map((degree) => ({
-        id: degree._id,
+        _id: degree._id,
         name: degree.name,
         totalCredits: degree.totalCredits,
       }));
@@ -90,9 +90,9 @@ export class DegreeController extends BaseMongoController<any> {
   /**
    * Get credits for degree (optimized - only fetches totalCredits field)
    */
-  async getCreditsForDegree(degreeId: string): Promise<number> {
+  async getCreditsForDegree(_id: string): Promise<number> {
     try {
-      const result = await this.findById(degreeId, 'totalCredits');
+      const result = await this.findById(_id, 'totalCredits');
 
       if (!result.success) {
         throw new Error('Degree with this id does not exist.');
@@ -117,15 +117,14 @@ export class DegreeController extends BaseMongoController<any> {
         { $unwind: '$coursePools' },
         {
           $group: {
-            _id: '$coursePools.id',
+            _id: '$coursePools._id',
             name: { $first: '$coursePools.name' },
             creditsRequired: { $first: '$coursePools.creditsRequired' },
           },
         },
         {
           $project: {
-            _id: 0,
-            id: '$_id',
+            _id: '$_id',
             name: 1,
             creditsRequired: 1,
           },
@@ -151,11 +150,10 @@ export class DegreeController extends BaseMongoController<any> {
     try {
       const result = await this.aggregate<CoursePoolData>([
         { $unwind: '$coursePools' },
-        { $match: { 'coursePools.id': pool_id } },
+        { $match: { 'coursePools._id': pool_id } },
         {
           $project: {
-            _id: 0,
-            id: '$coursePools.id',
+            _id: '$coursePools._id',
             name: '$coursePools.name',
             creditsRequired: '$coursePools.creditsRequired',
             courses: '$coursePools.courses',
@@ -187,7 +185,7 @@ export class DegreeController extends BaseMongoController<any> {
       }
 
       return degree.coursePools.map((cp: any) => ({
-        id: cp.id,
+        _id: cp._id,
         name: cp.name,
         creditsRequired: cp.creditsRequired,
         courses: cp.courses,

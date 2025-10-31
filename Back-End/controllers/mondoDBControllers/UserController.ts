@@ -10,7 +10,7 @@ const USER_WITH_ID_DOES_NOT_EXIST = 'User with this id does not exist.';
 const USER_DOES_NOT_EXIST = 'User does not exist.';
 
 export interface UserData {
-  id?: string;
+  _id: string;
   email: string;
   password?: string;
   fullname: string;
@@ -33,7 +33,7 @@ export interface ExemptionData {
 
 export interface UserDataResponse {
   user: {
-    id: string;
+    _id: string;
     email: string;
     fullname: string;
     type: string;
@@ -42,7 +42,7 @@ export interface UserDataResponse {
   timeline: Array<{ season: string; year: number; coursecode: string }>;
   deficiencies: Array<{ coursepool: string; creditsRequired: number }>;
   exemptions: Array<{ coursecode: string }>;
-  degree: { id: string; name: string; totalCredits: number } | null;
+  degree: { _id: string; name: string; totalCredits: number } | null;
 }
 
 export class UserController extends BaseMongoController<any> {
@@ -67,7 +67,7 @@ export class UserController extends BaseMongoController<any> {
 
       const userDataWithId = {
         ...userData,
-        _id: userData.id || new mongoose.Types.ObjectId().toString(),
+        _id: userData._id || new mongoose.Types.ObjectId().toString(),
       };
 
       const result = await this.create(userDataWithId);
@@ -77,7 +77,7 @@ export class UserController extends BaseMongoController<any> {
       }
 
       return {
-        id: result.data._id,
+        _id: result.data._id,
         email: result.data.email,
         fullname: result.data.fullname,
         degree: result.data.degree,
@@ -93,16 +93,16 @@ export class UserController extends BaseMongoController<any> {
   /**
    * Get user by ID
    */
-  async getUserById(id: string): Promise<UserData> {
+  async getUserById(_id: string): Promise<UserData> {
     try {
-      const result = await this.findById(id);
+      const result = await this.findById(_id);
 
       if (!result.success) {
         throw new Error(USER_WITH_ID_DOES_NOT_EXIST);
       }
 
       return {
-        id: result.data._id,
+        _id: result.data._id,
         email: result.data.email,
         fullname: result.data.fullname,
         degree: result.data.degree,
@@ -130,7 +130,7 @@ export class UserController extends BaseMongoController<any> {
       }
 
       return (result.data || []).map((user) => ({
-        id: user._id,
+        _id: user._id,
         email: user.email,
         fullname: user.fullname,
         degree: user.degree,
@@ -147,25 +147,25 @@ export class UserController extends BaseMongoController<any> {
    * Update user information
    * Note: User type cannot be updated through this method for security reasons
    */
-  async updateUser(id: string, updates: Partial<UserData>) {
+  async updateUser(_id: string, updates: Partial<UserData>) {
     try {
       // Remove type from updates to prevent unauthorized user type changes
       const { type, ...safeUpdates } = updates;
 
       if (type !== undefined) {
         console.warn(
-          `Attempted to update user type for user ${id}. This change was blocked.`,
+          `Attempted to update user type for user ${_id}. This change was blocked.`,
         );
       }
 
-      const result = await this.updateById(id, safeUpdates);
+      const result = await this.updateById(_id, safeUpdates);
 
       if (!result.success) {
         throw new Error(USER_WITH_ID_DOES_NOT_EXIST);
       }
 
       return {
-        id: result.data._id,
+        _id: result.data._id,
         email: result.data.email,
         password: result.data.password,
         fullname: result.data.fullname,
@@ -179,15 +179,15 @@ export class UserController extends BaseMongoController<any> {
   /**
    * Delete user
    */
-  async deleteUser(id: string) {
+  async deleteUser(_id: string) {
     try {
-      const result = await this.deleteById(id);
+      const result = await this.deleteById(_id);
 
       if (!result.success) {
         throw new Error(USER_WITH_ID_DOES_NOT_EXIST);
       }
 
-      return `User with id ${id} has been successfully deleted.`;
+      return `User with id ${_id} has been successfully deleted.`;
     } catch (error) {
       this.handleError(error, 'deleteUser');
     }
@@ -196,12 +196,12 @@ export class UserController extends BaseMongoController<any> {
   /**
    * Get comprehensive user data including timeline, deficiencies, exemptions, and degree info
    */
-  async getUserData(id: string): Promise<UserDataResponse> {
+  async getUserData(_id: string): Promise<UserDataResponse> {
     try {
       // Fetch user and timeline in parallel
       const [userResult, timelineResult] = await Promise.all([
-        this.findById(id),
-        Timeline.find({ userId: id }).lean().exec(),
+        this.findById(_id),
+        Timeline.find({ userId: _id }).lean().exec(),
       ]);
 
       if (!userResult.success || !userResult.data) {
@@ -247,7 +247,7 @@ export class UserController extends BaseMongoController<any> {
         const degreeDoc = await Degree.findById(user.degree).lean().exec();
         if (degreeDoc) {
           degree = {
-            id: degreeDoc._id,
+            _id: degreeDoc._id,
             name: degreeDoc.name,
             totalCredits: degreeDoc.totalCredits,
           };
@@ -256,7 +256,7 @@ export class UserController extends BaseMongoController<any> {
 
       return {
         user: {
-          id: user._id as string,
+          _id: user._id as string,
           email: user.email,
           fullname: user.fullname,
           type: user.type,

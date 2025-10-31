@@ -59,7 +59,7 @@ describe('UserController', () => {
         type: 'student',
         degree: 'COMP',
       });
-      expect(result.id).toBeDefined();
+      expect(result._id).toBeDefined();
     });
 
     it('should throw error when user with email already exists', async () => {
@@ -121,7 +121,7 @@ describe('UserController', () => {
       const result = await userController.getUserById(testUser._id.toString());
 
       expect(result).toMatchObject({
-        id: testUser._id.toString(),
+        _id: testUser._id,
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
@@ -176,7 +176,7 @@ describe('UserController', () => {
       const result = await userController.getAllUsers();
 
       expect(result).toHaveLength(2);
-      expect(result[0]).toHaveProperty('id');
+      expect(result[0]).toHaveProperty('_id');
       expect(result[0]).toHaveProperty('email');
       expect(result[0]).toHaveProperty('fullname');
       expect(result[0]).toHaveProperty('type');
@@ -332,13 +332,13 @@ describe('UserController', () => {
         name: 'Test Timeline',
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'fall',
             year: 2023,
             courses: ['COMP101', 'MATH101'],
           },
           {
-            id: 'item2',
+            _id: 'item2',
             season: 'winter',
             year: 2024,
             courses: ['COMP102'],
@@ -348,10 +348,10 @@ describe('UserController', () => {
     });
 
     it('should get comprehensive user data', async () => {
-      const result = await userController.getUserData(testUser._id.toString());
+      const result = await userController.getUserData(testUser._id);
 
       expect(result.user).toMatchObject({
-        id: testUser._id.toString(),
+        _id: testUser._id,
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
@@ -375,7 +375,7 @@ describe('UserController', () => {
       expect(result.exemptions[0]).toMatchObject({ coursecode: 'COMP101' });
 
       expect(result.degree).toMatchObject({
-        id: 'COMP',
+        _id: 'COMP',
         name: 'Computer Science',
         totalCredits: 120,
       });
@@ -976,7 +976,7 @@ describe('UserController', () => {
         name: 'Test Timeline',
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'fall',
             year: 2023,
             courses: [],
@@ -995,7 +995,7 @@ describe('UserController', () => {
         name: 'Test Timeline',
         items: [
           {
-            id: 'item1',
+            _id: 'item1',
             season: 'fall',
             year: 2023,
             // courses is undefined

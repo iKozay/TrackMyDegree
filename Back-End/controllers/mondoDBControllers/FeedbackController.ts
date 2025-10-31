@@ -6,7 +6,7 @@ import { BaseMongoController } from './BaseMongoController';
 import { Feedback } from '../../models';
 
 export interface FeedbackData {
-  id?: string;
+  _id: string;
   message: string;
   user_id?: string | null;
   submitted_at?: Date;
@@ -36,7 +36,7 @@ export class FeedbackController extends BaseMongoController<any> {
       }
 
       return {
-        id: result.data._id,
+        _id: result.data._id,
         message: result.data.message,
         user_id: result.data.user_id,
         submitted_at: result.data.submitted_at,
@@ -76,7 +76,7 @@ export class FeedbackController extends BaseMongoController<any> {
       }
 
       return (result.data || []).map((f) => ({
-        id: f._id,
+        _id: f._id,
         message: f.message,
         user_id: f.user_id,
         submitted_at: f.submitted_at,
@@ -98,7 +98,7 @@ export class FeedbackController extends BaseMongoController<any> {
       }
 
       return {
-        id: result.data._id,
+        _id: result.data._id,
         message: result.data.message,
         user_id: result.data.user_id,
         submitted_at: result.data.submitted_at,

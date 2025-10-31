@@ -60,7 +60,7 @@ describe('User Routes', () => {
         type: 'student',
         degree: 'COMP',
       });
-      expect(response.body.user.id).toBeDefined();
+      expect(response.body.user._id).toBeDefined();
     });
 
     it('should create user without optional fields', async () => {
@@ -164,7 +164,7 @@ describe('User Routes', () => {
 
       expect(response.body.message).toBe('User retrieved successfully');
       expect(response.body.user).toMatchObject({
-        id: testUser._id.toString(),
+        _id: testUser._id.toString(),
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
@@ -224,7 +224,7 @@ describe('User Routes', () => {
 
       expect(response.body.message).toBe('Users retrieved successfully');
       expect(response.body.users).toHaveLength(2);
-      expect(response.body.users[0]).toHaveProperty('id');
+      expect(response.body.users[0]).toHaveProperty('_id');
       expect(response.body.users[0]).toHaveProperty('email');
       expect(response.body.users[0]).toHaveProperty('fullname');
       expect(response.body.users[0]).toHaveProperty('type');
@@ -414,7 +414,7 @@ describe('User Routes', () => {
           name: 'Test Timeline',
           items: [
             {
-              id: new mongoose.Types.ObjectId().toString(),
+              _id: new mongoose.Types.ObjectId().toString(),
               season: 'fall',
               year: 2023,
               courses: ['COMP101', 'MATH101'],
@@ -430,7 +430,7 @@ describe('User Routes', () => {
 
         expect(response.body.message).toBe('User data retrieved successfully');
         expect(response.body.user).toMatchObject({
-          id: testUser._id.toString(),
+          _id: testUser._id.toString(),
           email: 'test@example.com',
           fullname: 'Test User',
           type: 'student',
@@ -441,7 +441,7 @@ describe('User Routes', () => {
         expect(response.body.deficiencies).toHaveLength(1);
         expect(response.body.exemptions).toHaveLength(2);
         expect(response.body.degree).toMatchObject({
-          id: 'COMP',
+          _id: 'COMP',
           name: 'Computer Science',
           totalCredits: 120,
         });
