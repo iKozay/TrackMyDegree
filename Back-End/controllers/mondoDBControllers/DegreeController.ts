@@ -151,10 +151,10 @@ export class DegreeController extends BaseMongoController<any> {
     try {
       const result = await this.aggregate<CoursePoolData>([
         { $unwind: '$coursePools' },
-        { $match: { 'coursePools._id': pool_id } },
+        { $match: { 'coursePools.id': pool_id } },
         {
           $project: {
-            _id: '$coursePools._id',
+            id: '$coursePools.id',
             name: '$coursePools.name',
             creditsRequired: '$coursePools.creditsRequired',
             courses: '$coursePools.courses',
@@ -186,7 +186,7 @@ export class DegreeController extends BaseMongoController<any> {
       }
 
       return degree.coursePools.map((cp: any) => ({
-        id: cp._id,
+        id: cp.id,
         name: cp.name,
         creditsRequired: cp.creditsRequired,
         courses: cp.courses,

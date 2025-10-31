@@ -103,9 +103,9 @@ describe('DegreeController', () => {
       const result = await degreeController.readAllDegrees();
 
       expect(result).toHaveLength(2);
-      expect(result.find((d) => d.id === testDegree[0]._id.toString())).toBeDefined();
-      expect(result.find((d) => d.id === testDegree[1]._id.toString())).toBeDefined();
-      expect(result.find((d) => d.id === testDegree[2]._id.toString())).toBeUndefined();
+      expect(result.find((d) => d.id.toString() === testDegree[0]._id.toString())).toBeDefined();
+      expect(result.find((d) => d.id.toString() === testDegree[1]._id.toString())).toBeDefined();
+      expect(result.find((d) => d.id.toString() === testDegree[2]._id.toString())).toBeUndefined();
     });
 
     it('should return degrees sorted by name', async () => {

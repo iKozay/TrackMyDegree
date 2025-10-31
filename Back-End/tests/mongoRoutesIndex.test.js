@@ -25,7 +25,7 @@ describe('Mongo Routes Index', () => {
 
   it('should mount all route modules', async () => {
     // Test that routes are accessible
-    const response = await request(app).get('/mongo/degree').expect(404); // Should return 404 since no degree exists
+    const response = await request(app).get('/v2/degree').expect(404); // Should return 404 since no degree exists
 
     // The route should exist (404 means route exists but no data found)
     expect(response.status).toBe(404);
