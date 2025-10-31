@@ -27,7 +27,7 @@ export interface UserInfo extends Credentials {
 
 export interface PasswordResetRequest {
   email: string;
-  otp?: string;
+  resetToken?: string;
   newPassword?: string;
 }
 
