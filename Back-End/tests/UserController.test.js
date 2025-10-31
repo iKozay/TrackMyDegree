@@ -472,7 +472,7 @@ describe('UserController', () => {
       ).rejects.toThrow('User does not exist');
     });
 
-    it('should handle database errors', async () => {
+    it('should handle database errors (findById)', async () => {
       // Mock userController.findById to throw an error
       const originalFindById = userController.findById;
       userController.findById = jest.fn().mockRejectedValue(
@@ -485,6 +485,21 @@ describe('UserController', () => {
 
       // Restore original method
       userController.findById = originalFindById;
+    });
+    it('should handle database errors (findByIdAndUpdate)', async () => {
+      const originalFindByIdAndUpdate = User.findByIdAndUpdate;
+      User.findByIdAndUpdate = jest.fn().mockReturnValue({
+        lean: jest.fn().mockReturnValue({
+          exec: jest.fn().mockResolvedValue(null), // Returns null to trigger !updateResult
+        }),
+      });
+
+      await expect(
+        userController.createDeficiency('Math', testUser._id.toString(), 6),
+      ).rejects.toThrow('Failed to update user deficiencies');
+
+      // Restore original method
+      User.findByIdAndUpdate = originalFindByIdAndUpdate;
     });
   });
 

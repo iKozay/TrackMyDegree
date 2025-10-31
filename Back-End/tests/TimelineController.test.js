@@ -51,7 +51,7 @@ describe('TimelineController', () => {
             _id: 'item2',
             season: 'winter',
             year: 2024,
-            courses: ['COMP102'],
+            courses: [],
           },
         ],
         isExtendedCredit: false,
@@ -327,6 +327,8 @@ describe('TimelineController', () => {
 
     it('should update timeline successfully', async () => {
       const updates = {
+        userId: 'user123',
+        degreeId: 'SOEN',
         name: 'Updated Timeline',
         isExtendedCredit: true,
       };
@@ -403,6 +405,24 @@ describe('TimelineController', () => {
 
       expect(result.success).toBe(false);
       expect(result.message).toBe(`Timeline ${fakeId} not found`);
+    });
+
+    it('should handle error when deleting timeline', async () => {
+      // Mock deleteById to throw an error (not just return {success: false})
+      const originalDeleteById = timelineController.deleteById;
+      timelineController.deleteById = jest.fn().mockRejectedValue(
+        new Error('Database connection failed')
+      );
+
+      const result = await timelineController.removeUserTimeline(
+        testTimeline._id.toString(),
+      );
+
+      expect(result.success).toBe(false);
+      expect(result.message).toBe('Error occurred while deleting timeline.');
+
+      // Restore original method
+      timelineController.deleteById = originalDeleteById;
     });
 
     it('should handle database errors gracefully', async () => {
