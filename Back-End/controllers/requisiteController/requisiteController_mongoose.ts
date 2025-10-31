@@ -122,17 +122,18 @@ async function readRequisite(
  * adding a requisite is effectively the same as updating it in this schema.
  * TODO - This is intentional to maintain the same method signature as the SQL version. Refactor as part of https://github.com/iKozay/TrackMyDegree/issues/114
  */
- async function updateRequisite( // NOSONAR S4144 - Intentional duplicate implementation
-   code1: string,
-   code2: string,
-   type: RequisiteTypes.RequisiteType,
- ): Promise<RequisiteTypes.Requisite | undefined> {
-   try {
-     // Check if both courses exist
-     const [course1, course2] = await Promise.all([
-       Course.findById(code1),
-       Course.findById(code2),
-     ]);
+// eslint-disable-next-line sonarjs/no-identical-functions
+async function updateRequisite( // NOSONAR S4144 - Intentional duplicate implementation
+  code1: string,
+  code2: string,
+  type: RequisiteTypes.RequisiteType,
+): Promise<RequisiteTypes.Requisite | undefined> {
+  try {
+    // Check if both courses exist
+    const [course1, course2] = await Promise.all([
+      Course.findById(code1),
+      Course.findById(code2),
+    ]);
 
     if (!course1 || !course2) {
       throw new Error(
