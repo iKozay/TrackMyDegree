@@ -5,7 +5,8 @@
 import { User } from '../../models';
 import bcrypt from 'bcryptjs';
 import * as Sentry from '@sentry/node';
-import { randomInt } from 'crypto';
+import { randomInt, randomBytes } from 'crypto';
+
 
 export enum UserType {
   STUDENT = 'student',
@@ -110,35 +111,41 @@ export class AuthController {
     }
   }
 
-  /**
-   * Initiates password reset by generating OTP
-   * OTP is valid for 10 minutes
+    /**
+   * Initiates password reset by generating a secure reset link instead of OTP
    */
-  async forgotPassword(
-    email: string,
-  ): Promise<{ otp?: string; message: string }> {
-    try {
-      const user = await User.findOne({ email }).exec();
-
-      if (user) {
-        // Save OTP and expiry to user record
+    async forgotPassword(
+      email: string,
+    ): Promise<{ message: string; resetLink?: string }> {
+      try {
+        const user = await User.findOne({ email }).exec();
+  
+        if (user) {
+          // Mocro : Instead of OTP, we will generate a secure one-time URL for password reset
+          const resetToken = randomBytes(32).toString('hex');
+          const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+  
+          user.resetToken = resetToken;
+          user.resetTokenExpire = new Date(
+            Date.now() + this.OTP_EXPIRY_MINUTES * 60 * 1000,
+          );
+          await user.save();
+  
+          return { message: 'Password reset link generated', resetLink };
+        }
+  
+        // Don't reveal whether email exists
+        return { message: 'If the email exists, a reset link has been sent.' };
+      } catch (error) {
+        Sentry.captureException(error, {
+          tags: { operation: 'forgotPassword' },
+          level: 'error',
+        });
+        console.error('[AuthController] Password reset error');
+        return { message: 'An error occurred. Please try again later.' };
       }
-
-      // Don't reveal whether email exists
-      return {
-        message: 'If the email exists, an OTP has been sent.',
-      };
-    } catch (error) {
-      Sentry.captureException(error, {
-        tags: { operation: 'forgotPassword' },
-        level: 'error',
-      });
-      console.error('[AuthController] Password reset error');
-      return {
-        message: 'An error occurred. Please try again later.',
-      };
     }
-  }
+  
 
   /**
    * Verifies OTP and resets password
