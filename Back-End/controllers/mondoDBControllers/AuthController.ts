@@ -5,7 +5,7 @@
 import { User } from '../../models';
 import bcrypt from 'bcryptjs';
 import * as Sentry from '@sentry/node';
-import { randomBytes } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 import nodemailer from 'nodemailer';
 
 export enum UserType {
@@ -106,7 +106,7 @@ export class AuthController {
       const user = await User.findOne({ email }).exec();
       if (!user) return { message: 'If the email exists, a reset link has been sent.' };
 
-      const resetToken = randomBytes(32).toString('hex');
+      const resetToken = uuidv4();
       const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
       const expire = new Date(Date.now() + this.RESET_EXPIRY_MINUTES * 60 * 1000);
 
