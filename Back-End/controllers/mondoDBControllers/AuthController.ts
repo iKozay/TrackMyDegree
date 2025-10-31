@@ -164,9 +164,16 @@ export class AuthController {
     try {
       const user = await User.findOne({ email }).exec();
 
-      if (!user) {
-        return false;
-      }
+if (
+  !user || 
+  !user.resetToken || 
+  !user.resetTokenExpire ||
+  user.resetToken !== resetToken ||
+  new Date() > user.resetTokenExpire
+) {
+  return false;
+}
+
 
       // Set new password (already hashed from frontend) and clear OTP
       user.password = newPassword; // password is already hashed from frontend
