@@ -107,7 +107,13 @@ export class AuthController {
       if (!user) return { message: 'If the email exists, a reset link has been sent.' };
 
       const resetToken = uuidv4();
-      const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+      const frontendUrl = process.env.FRONTEND_URL;
+      if (!frontendUrl) {
+        throw new Error('FRONTEND_URL environment variable is not defined');
+      }
+      const resetLink = `${frontendUrl}/reset-password/${resetToken}`;
+
       const expire = new Date(Date.now() + this.RESET_EXPIRY_MINUTES * 60 * 1000);
 
       user.resetToken = resetToken;
