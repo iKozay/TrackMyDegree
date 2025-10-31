@@ -13,9 +13,11 @@ on:
 
 
 jobs:
-  sonarcloud:
+  # 1) Checkout + Node setup
+  setup:
     runs-on: ubuntu-latest
-    
+    outputs:
+      repo-artifact: repo
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -27,13 +29,33 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Pack repository for downstream jobs
+        run: |
+          tar -czf repo.tar.gz .
+
+      - name: Upload repository artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: repo
+          path: repo.tar.gz
+
+  # 3) Frontend tasks (runs in parallel with backend & scraper)
+  frontend:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download repo
+        uses: actions/download-artifact@v4
+        with:
+          name: repo
+          path: repo
+
+      - name: Extract repo
+        run: |
+          tar -xzf repo/repo.tar.gz -C .
+
       - name: Install dependencies for frontend
         working-directory: ./front-end
-        run: |
-          npm install
-
-      - name: Install dependencies for backend
-        working-directory: ./Back-End
         run: |
           npm install
 
@@ -42,15 +64,42 @@ jobs:
         run: |
           npm run lint
 
+      - name: Run frontend tests with coverage
+        working-directory: ./front-end
+        run: |
+          npm run build
+          npm test -- --coverage
+
+      - name: Upload frontend coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: front-end/coverage
+
+  # 4) Backend tasks (runs in parallel)
+  backend:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download repo
+        uses: actions/download-artifact@v4
+        with:
+          name: repo
+          path: repo
+
+      - name: Extract repo
+        run: |
+          tar -xzf repo/repo.tar.gz -C .
+
+      - name: Install dependencies for backend
+        working-directory: ./Back-End
+        run: |
+          npm install
+
       - name: Run ESLint for backend
         working-directory: ./Back-End
         run: |
           npm run lint
-
-      - name: Run frontend tests with coverage
-        working-directory: ./front-end
-        run: |
-          npm test -- --coverage
 
       - name: Run backend tests with coverage
         working-directory: ./Back-End
@@ -58,7 +107,27 @@ jobs:
           npm run build
           npm test -- --coverage
       
-      # Running tests for Python scraper
+      - name: Upload backend coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: Back-End/coverage
+
+  # 5) Scraper tests (runs in parallel)
+  scraper:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download repo
+        uses: actions/download-artifact@v4
+        with:
+          name: repo
+          path: repo
+
+      - name: Extract repo
+        run: |
+          tar -xzf repo/repo.tar.gz -C .
+
       - name: Run scraper tests with coverage
         working-directory: ./Back-End/course-data/Scraping
         run: |
@@ -68,6 +137,35 @@ jobs:
           coverage run -m pytest
           coverage xml -o coverage.xml
           deactivate
+      
+      - name: Upload scraper coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scraper-coverage
+          path: Back-End/course-data/Scraping/coverage.xml
+
+  # 6) SonarCloud Scan - waits for frontend, backend, scraper to finish
+  sonarcloud:
+    needs: [frontend, backend, scraper]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download coverage artifacts (frontend)
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage
+          path: coverage/frontend
+
+      - name: Download backend coverage artifact (backend)
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-coverage
+          path: coverage/backend
+
+      - name: Download scraper coverage artifact (scraper)
+        uses: actions/download-artifact@v4
+        with:
+          name: scraper-coverage
+          path: coverage/scraper
 
       - name: Run SonarCloud Scan
         uses: sonarsource/sonarqube-scan-action@v6
