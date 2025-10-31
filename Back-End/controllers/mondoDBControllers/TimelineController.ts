@@ -39,13 +39,22 @@ export class TimelineController extends BaseMongoController<any> {
         throw new Error('User ID, timeline name, and degree ID are required');
       }
 
+      // Map API fields (snake_case) to model fields (camelCase)
+      // Ensure items have id field
+      const mappedItems = (items || []).map((item, index) => ({
+        id: item.id || `item-${index}`,
+        season: item.season,
+        year: item.year,
+        courses: item.courses || [],
+      }));
+
       const result = await this.upsert(
-        { user_id, name, degree_id },
+        { userId: user_id, name, degreeId: degree_id },
         {
-          user_id,
+          userId: user_id,
           name,
-          degree_id,
-          items,
+          degreeId: degree_id,
+          items: mappedItems,
           isExtendedCredit,
           last_modified: new Date(),
         },
@@ -67,7 +76,7 @@ export class TimelineController extends BaseMongoController<any> {
   async getTimelinesByUser(user_id: string): Promise<TimelineData[]> {
     try {
       const result = await this.findAll(
-        { user_id },
+        { userId: user_id },
         { sort: { last_modified: -1 } },
       );
 
@@ -108,10 +117,34 @@ export class TimelineController extends BaseMongoController<any> {
     updates: Partial<TimelineData>,
   ): Promise<TimelineData> {
     try {
-      const result = await this.updateById(timeline_id, {
-        ...updates,
+      // Map API fields (snake_case) to model fields (camelCase)
+      const mappedUpdates: any = {
         last_modified: new Date(),
-      });
+      };
+
+      if (updates.user_id !== undefined) {
+        mappedUpdates.userId = updates.user_id;
+      }
+      if (updates.degree_id !== undefined) {
+        mappedUpdates.degreeId = updates.degree_id;
+      }
+      if (updates.name !== undefined) {
+        mappedUpdates.name = updates.name;
+      }
+      if (updates.isExtendedCredit !== undefined) {
+        mappedUpdates.isExtendedCredit = updates.isExtendedCredit;
+      }
+      if (updates.items !== undefined) {
+        // Ensure items have id field
+        mappedUpdates.items = (updates.items || []).map((item, index) => ({
+          id: item.id || `item-${index}`,
+          season: item.season,
+          year: item.year,
+          courses: item.courses || [],
+        }));
+      }
+
+      const result = await this.updateById(timeline_id, mappedUpdates);
 
       if (!result.success) {
         throw new Error('Timeline not found');
@@ -153,7 +186,7 @@ export class TimelineController extends BaseMongoController<any> {
    */
   async deleteAllUserTimelines(user_id: string): Promise<number> {
     try {
-      const result = await this.deleteMany({ user_id });
+      const result = await this.deleteMany({ userId: user_id });
 
       if (!result.success) {
         throw new Error('Failed to delete timelines');
@@ -171,11 +204,11 @@ export class TimelineController extends BaseMongoController<any> {
   private formatTimelineResponse(timeline: any): TimelineData {
     return {
       id: timeline._id?.toString(),
-      user_id: timeline.user_id,
+      user_id: timeline.userId || timeline.user_id,
       name: timeline.name,
-      degree_id: timeline.degree_id,
+      degree_id: timeline.degreeId || timeline.degree_id,
       items: (timeline.items || []).map((item: any) => ({
-        id: item._id?.toString(),
+        id: item.id || item._id?.toString(),
         season: item.season,
         year: item.year,
         courses: item.courses || [],

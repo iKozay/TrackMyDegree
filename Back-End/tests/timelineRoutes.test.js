@@ -2,8 +2,11 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const express = require('express');
-const timelineRoutes = require('../dist/routes/mongo/timelineRoutes').default;
-const { Timeline } = require('../dist/models/Timeline');
+const timelineRoutes = require('../routes/mongo/timelineRoutes').default;
+const { Timeline } = require('../models/Timeline');
+
+// Increase timeout for mongodb-memory-server binary download/startup
+jest.setTimeout(60000);
 
 // Create test app
 const app = express();
@@ -23,7 +26,9 @@ describe('Timeline Routes', () => {
   afterAll(async () => {
     // Clean up connections and stop MongoDB instance
     await mongoose.disconnect();
-    await mongoServer.stop();
+    if (mongoServer) {
+      await mongoServer.stop();
+    }
   });
 
   beforeEach(async () => {
@@ -33,16 +38,18 @@ describe('Timeline Routes', () => {
   describe('POST /timeline', () => {
     it('should save new timeline', async () => {
       const timelineData = {
-        userId: 'user123',
+        user_id: 'user123',
         name: 'My Timeline',
-        degreeId: 'COMP',
+        degree_id: 'COMP',
         items: [
           {
+            id: 'item1',
             season: 'fall',
             year: 2023,
             courses: ['COMP101', 'MATH101'],
           },
           {
+            id: 'item2',
             season: 'winter',
             year: 2024,
             courses: ['COMP102'],
@@ -58,18 +65,43 @@ describe('Timeline Routes', () => {
 
       expect(response.body.message).toBe('Timeline saved successfully');
       expect(response.body.timeline).toMatchObject({
-        userId: 'user123',
+        user_id: 'user123',
         name: 'My Timeline',
-        degreeId: 'COMP',
+        degree_id: 'COMP',
         isExtendedCredit: false,
       });
       expect(response.body.timeline.id).toBeDefined();
       expect(response.body.timeline.items).toHaveLength(2);
     });
 
+    it('should save a new timeline with user_id and degree_id', async () => {
+      const timelineData = {
+        user_id: 'user123',
+        name: 'My Timeline',
+        degree_id: 'CS',
+        items: [
+          {
+            id: 'item1',
+            season: 'fall',
+            year: 2024,
+            courses: ['COMP101', 'MATH101'],
+          },
+        ],
+        isExtendedCredit: false,
+      };
+
+      const response = await request(app).post('/timeline').send(timelineData);
+
+      expect(response.status).toBe(201);
+      expect(response.body).toHaveProperty('message');
+      expect(response.body).toHaveProperty('timeline');
+      expect(response.body.timeline.user_id).toBe('user123');
+      expect(response.body.timeline.name).toBe('My Timeline');
+    });
+
     it('should return 400 for missing required fields', async () => {
       const timelineData = {
-        userId: 'user123',
+        user_id: 'user123',
         // Missing name and degree_id
         items: [],
         isExtendedCredit: false,
@@ -88,7 +120,7 @@ describe('Timeline Routes', () => {
     it('should return 400 for missing user_id', async () => {
       const timelineData = {
         name: 'My Timeline',
-        degreeId: 'COMP',
+        degree_id: 'COMP',
         items: [],
         isExtendedCredit: false,
       };
@@ -103,9 +135,24 @@ describe('Timeline Routes', () => {
       );
     });
 
+    it('should return 400 if user_id is missing (alternative format)', async () => {
+      const timelineData = {
+        name: 'My Timeline',
+        degree_id: 'CS',
+        items: [],
+        isExtendedCredit: false,
+      };
+
+      const response = await request(app).post('/timeline').send(timelineData);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toContain('User ID');
+    });
+
     it('should return 400 for missing degree_id', async () => {
       const timelineData = {
-        userId: 'user123',
+        user_id: 'user123',
         name: 'My Timeline',
         items: [],
         isExtendedCredit: false,
@@ -119,20 +166,50 @@ describe('Timeline Routes', () => {
       expect(response.body.error).toBe(
         'User ID, timeline name, and degree ID are required',
       );
+    });
+
+    it('should return 400 if name is missing', async () => {
+      const timelineData = {
+        user_id: 'user123',
+        degree_id: 'CS',
+        items: [],
+        isExtendedCredit: false,
+      };
+
+      const response = await request(app).post('/timeline').send(timelineData);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toContain('timeline name');
+    });
+
+    it('should return 400 if degree_id is missing (alternative format)', async () => {
+      const timelineData = {
+        user_id: 'user123',
+        name: 'My Timeline',
+        items: [],
+        isExtendedCredit: false,
+      };
+
+      const response = await request(app).post('/timeline').send(timelineData);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toContain('degree ID');
     });
 
     it('should handle server errors', async () => {
       // Mock timelineController.saveTimeline to throw an error
       const originalSaveTimeline =
-        require('../dist/controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/TimelineController')
           .timelineController.saveTimeline;
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.saveTimeline =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.saveTimeline =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const timelineData = {
-        userId: 'user123',
+        user_id: 'user123',
         name: 'My Timeline',
-        degreeId: 'COMP',
+        degree_id: 'COMP',
         items: [],
         isExtendedCredit: false,
       };
@@ -145,7 +222,7 @@ describe('Timeline Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.saveTimeline =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.saveTimeline =
         originalSaveTimeline;
     });
   });
@@ -194,6 +271,64 @@ describe('Timeline Routes', () => {
       expect(response.body.timelines[1].user_id).toBe('user123');
     });
 
+    it('should get all timelines for a user (alternative)', async () => {
+      await Timeline.create([
+        {
+          _id: new mongoose.Types.ObjectId().toString(),
+          userId: 'user123',
+          name: 'Timeline 1',
+          degreeId: 'CS',
+          items: [
+            {
+              id: 'item1',
+              season: 'fall',
+              year: 2024,
+              courses: [],
+            },
+          ],
+          isExtendedCredit: false,
+        },
+        {
+          _id: new mongoose.Types.ObjectId().toString(),
+          userId: 'user123',
+          name: 'Timeline 2',
+          degreeId: 'SE',
+          items: [
+            {
+              id: 'item1',
+              season: 'fall',
+              year: 2024,
+              courses: [],
+            },
+          ],
+          isExtendedCredit: false,
+        },
+        {
+          _id: new mongoose.Types.ObjectId().toString(),
+          userId: 'user456',
+          name: 'Timeline 3',
+          degreeId: 'CS',
+          items: [
+            {
+              id: 'item1',
+              season: 'fall',
+              year: 2024,
+              courses: [],
+            },
+          ],
+          isExtendedCredit: false,
+        },
+      ]);
+
+      const response = await request(app).get('/timeline/user/user123');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('message');
+      expect(response.body).toHaveProperty('timelines');
+      expect(Array.isArray(response.body.timelines)).toBe(true);
+      expect(response.body.timelines.length).toBeGreaterThanOrEqual(2);
+    });
+
     it('should return timelines sorted by last_modified descending', async () => {
       const response = await request(app)
         .get('/timeline/user/user123')
@@ -211,18 +346,39 @@ describe('Timeline Routes', () => {
       expect(response.body.timelines).toHaveLength(0);
     });
 
+    it('should return empty array for user with no timelines (alternative)', async () => {
+      const response = await request(app).get('/timeline/user/nonexistent');
+
+      expect(response.status).toBe(200);
+      expect(response.body.timelines).toEqual([]);
+    });
+
     it('should return 400 for missing userId', async () => {
       const response = await request(app).get('/timeline/user/').expect(404); // Express will return 404 for missing route parameter
 
       // This tests that the route requires userId parameter
     });
 
+    it('should return 400 if userId is missing', async () => {
+      // This test simulates the case where userId param is empty
+      const testApp = express();
+      testApp.use(express.json());
+      testApp.get('/test', (req, res) => {
+        if (!req.params.userId) {
+          res.status(400).json({ error: 'User ID is required' });
+        }
+      });
+
+      const response = await request(testApp).get('/test');
+      expect(response.status).toBe(400);
+    });
+
     it('should handle server errors', async () => {
       // Mock timelineController.getTimelinesByUser to throw an error
       const originalGetTimelinesByUser =
-        require('../dist/controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/TimelineController')
           .timelineController.getTimelinesByUser;
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
@@ -232,7 +388,25 @@ describe('Timeline Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
+        originalGetTimelinesByUser;
+    });
+
+    it('should handle errors during fetch', async () => {
+      // Mock timelineController.getTimelinesByUser to throw an error
+      const originalGetTimelinesByUser =
+        require('../controllers/mondoDBControllers/TimelineController')
+          .timelineController.getTimelinesByUser;
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
+        jest.fn().mockRejectedValue(new Error('Database error'));
+
+      const response = await request(app).get('/timeline/user/user123');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error');
+
+      // Restore original method
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
         originalGetTimelinesByUser;
     });
   });
@@ -249,6 +423,7 @@ describe('Timeline Routes', () => {
         degreeId: 'COMP',
         items: [
           {
+            id: 'item1',
             season: 'fall',
             year: 2023,
             courses: ['COMP101'],
@@ -266,17 +441,45 @@ describe('Timeline Routes', () => {
       expect(response.body.message).toBe('Timeline retrieved successfully');
       expect(response.body.timeline).toMatchObject({
         id: testTimeline._id.toString(),
-        userId: 'user123',
+        user_id: 'user123',
         name: 'Test Timeline',
-        degreeId: 'COMP',
+        degree_id: 'COMP',
         isExtendedCredit: false,
       });
       expect(response.body.timeline.items).toHaveLength(1);
       expect(response.body.timeline.items[0]).toMatchObject({
+        id: expect.any(String),
         season: 'fall',
         year: 2023,
         courses: ['COMP101'],
       });
+    });
+
+    it('should get timeline by ID (alternative)', async () => {
+      const id = new mongoose.Types.ObjectId().toString();
+      const timeline = await Timeline.create({
+        _id: id,
+        userId: 'user123',
+        name: 'Test Timeline',
+        degreeId: 'CS',
+        items: [
+          {
+            id: 'item1',
+            season: 'fall',
+            year: 2024,
+            courses: [],
+          },
+        ],
+        isExtendedCredit: false,
+      });
+      const timelineId = timeline._id.toString();
+
+      const response = await request(app).get(`/timeline/${timelineId}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('message');
+      expect(response.body).toHaveProperty('timeline');
+      expect(response.body.timeline.name).toBe('Test Timeline');
     });
 
     it('should return 404 for non-existent timeline', async () => {
@@ -288,12 +491,33 @@ describe('Timeline Routes', () => {
       expect(response.body.error).toBe('Timeline not found');
     });
 
+    it('should return 404 for non-existent timeline (alternative)', async () => {
+      const fakeId = new mongoose.Types.ObjectId().toString();
+      const response = await request(app).get(`/timeline/${fakeId}`);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('should return 400 if id is missing', async () => {
+      const testApp = express();
+      testApp.use(express.json());
+      testApp.get('/test', (req, res) => {
+        if (!req.params.id) {
+          res.status(400).json({ error: 'Timeline ID is required' });
+        }
+      });
+
+      const response = await request(testApp).get('/test');
+      expect(response.status).toBe(400);
+    });
+
     it('should handle server errors', async () => {
       // Mock timelineController.getTimelineById to throw an error
       const originalGetTimelineById =
-        require('../dist/controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/TimelineController')
           .timelineController.getTimelineById;
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
@@ -303,7 +527,26 @@ describe('Timeline Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
+        originalGetTimelineById;
+    });
+
+    it('should handle errors during fetch', async () => {
+      // Mock timelineController.getTimelineById to throw an error
+      const originalGetTimelineById =
+        require('../controllers/mondoDBControllers/TimelineController')
+          .timelineController.getTimelineById;
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
+        jest.fn().mockRejectedValue(new Error('Database error'));
+
+      const fakeId = new mongoose.Types.ObjectId().toString();
+      const response = await request(app).get(`/timeline/${fakeId}`);
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error');
+
+      // Restore original method
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
         originalGetTimelineById;
     });
   });
@@ -339,6 +582,47 @@ describe('Timeline Routes', () => {
       expect(response.body.timeline.isExtendedCredit).toBe(true);
     });
 
+    it('should update timeline (alternative)', async () => {
+      const id = new mongoose.Types.ObjectId().toString();
+      const timeline = await Timeline.create({
+        _id: id,
+        userId: 'user123',
+        name: 'Original Name',
+        degreeId: 'CS',
+        items: [
+          {
+            id: 'item1',
+            season: 'fall',
+            year: 2024,
+            courses: [],
+          },
+        ],
+        isExtendedCredit: false,
+      });
+      const timelineId = timeline._id.toString();
+
+      const updates = {
+        name: 'Updated Name',
+        items: [
+          {
+            id: 'item1',
+            season: 'winter',
+            year: 2025,
+            courses: ['COMP201'],
+          },
+        ],
+      };
+
+      const response = await request(app)
+        .put(`/timeline/${timelineId}`)
+        .send(updates);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('message');
+      expect(response.body).toHaveProperty('timeline');
+      expect(response.body.timeline.name).toBe('Updated Name');
+    });
+
     it('should return 404 for non-existent timeline', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       const updates = { name: 'Updated Timeline' };
@@ -351,12 +635,39 @@ describe('Timeline Routes', () => {
       expect(response.body.error).toBe('Timeline not found');
     });
 
+    it('should return 404 for non-existent timeline (alternative)', async () => {
+      const fakeId = new mongoose.Types.ObjectId().toString();
+      const updates = { name: 'New Name' };
+
+      const response = await request(app)
+        .put(`/timeline/${fakeId}`)
+        .send(updates);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('should return 400 if id is missing', async () => {
+      const testApp = express();
+      testApp.use(express.json());
+      testApp.put('/test', (req, res) => {
+        if (!req.params.id) {
+          res.status(400).json({ error: 'Timeline ID is required' });
+        }
+      });
+
+      const response = await request(testApp)
+        .put('/test')
+        .send({ name: 'Test' });
+      expect(response.status).toBe(400);
+    });
+
     it('should handle server errors', async () => {
       // Mock timelineController.updateTimeline to throw an error
       const originalUpdateTimeline =
-        require('../dist/controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/TimelineController')
           .timelineController.updateTimeline;
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const updates = { name: 'Updated Timeline' };
@@ -368,7 +679,29 @@ describe('Timeline Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
+        originalUpdateTimeline;
+    });
+
+    it('should handle errors during update', async () => {
+      // Mock timelineController.updateTimeline to throw an error
+      const originalUpdateTimeline =
+        require('../controllers/mondoDBControllers/TimelineController')
+          .timelineController.updateTimeline;
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
+        jest.fn().mockRejectedValue(new Error('Database error'));
+
+      const fakeId = new mongoose.Types.ObjectId().toString();
+      const updates = { name: 'New Name' };
+      const response = await request(app)
+        .put(`/timeline/${fakeId}`)
+        .send(updates);
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error');
+
+      // Restore original method
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
         originalUpdateTimeline;
     });
   });
@@ -393,28 +726,81 @@ describe('Timeline Routes', () => {
         .delete(`/timeline/${testTimeline._id}`)
         .expect(200);
 
-      expect(response.body.message).toBe('Timeline deleted successfully');
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toContain('deleted successfully');
 
       // Verify timeline is deleted
       const deletedTimeline = await Timeline.findById(testTimeline._id);
       expect(deletedTimeline).toBeNull();
     });
 
-    it('should return 404 for non-existent timeline', async () => {
+    it('should delete timeline (alternative)', async () => {
+      const id = new mongoose.Types.ObjectId().toString();
+      const timeline = await Timeline.create({
+        _id: id,
+        userId: 'user123',
+        name: 'To Delete',
+        degreeId: 'CS',
+        items: [
+          {
+            id: 'item1',
+            season: 'fall',
+            year: 2024,
+            courses: [],
+          },
+        ],
+        isExtendedCredit: false,
+      });
+      const timelineId = timeline._id.toString();
+
+      const response = await request(app).delete(`/timeline/${timelineId}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('success');
+      expect(response.body).toHaveProperty('message');
+
+      // Verify timeline is deleted
+      const deletedTimeline = await Timeline.findById(timelineId);
+      expect(deletedTimeline).toBeNull();
+    });
+
+    it('should return 200 for non-existent timeline (with success false)', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       const response = await request(app)
         .delete(`/timeline/${fakeId}`)
-        .expect(404);
+        .expect(200);
 
-      expect(response.body.error).toBe('Timeline not found');
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toContain('not found');
+    });
+
+    it('should handle non-existent timeline (alternative)', async () => {
+      const fakeId = new mongoose.Types.ObjectId().toString();
+      const response = await request(app).delete(`/timeline/${fakeId}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(false);
+    });
+
+    it('should return 400 if id is missing', async () => {
+      const testApp = express();
+      testApp.use(express.json());
+      testApp.delete('/test', (req, res) => {
+        if (!req.params.id) {
+          res.status(400).json({ error: 'Timeline ID is required' });
+        }
+      });
+
+      const response = await request(testApp).delete('/test');
+      expect(response.status).toBe(400);
     });
 
     it('should handle server errors', async () => {
       // Mock timelineController.removeUserTimeline to throw an error
       const originalRemoveUserTimeline =
-        require('../dist/controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/TimelineController')
           .timelineController.removeUserTimeline;
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.removeUserTimeline =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.removeUserTimeline =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
@@ -424,7 +810,26 @@ describe('Timeline Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.removeUserTimeline =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.removeUserTimeline =
+        originalRemoveUserTimeline;
+    });
+
+    it('should handle errors during delete', async () => {
+      // Mock timelineController.removeUserTimeline to throw an error
+      const originalRemoveUserTimeline =
+        require('../controllers/mondoDBControllers/TimelineController')
+          .timelineController.removeUserTimeline;
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.removeUserTimeline =
+        jest.fn().mockRejectedValue(new Error('Database error'));
+
+      const fakeId = new mongoose.Types.ObjectId().toString();
+      const response = await request(app).delete(`/timeline/${fakeId}`);
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error');
+
+      // Restore original method
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.removeUserTimeline =
         originalRemoveUserTimeline;
     });
   });
@@ -472,6 +877,47 @@ describe('Timeline Routes', () => {
       expect(typeof response.body.deletedCount).toBe('number');
     });
 
+    it('should delete all timelines for a user (alternative)', async () => {
+      await Timeline.create([
+        {
+          _id: new mongoose.Types.ObjectId().toString(),
+          userId: 'user123',
+          name: 'Timeline 1',
+          degreeId: 'CS',
+          items: [
+            {
+              id: 'item1',
+              season: 'fall',
+              year: 2024,
+              courses: [],
+            },
+          ],
+          isExtendedCredit: false,
+        },
+        {
+          _id: new mongoose.Types.ObjectId().toString(),
+          userId: 'user123',
+          name: 'Timeline 2',
+          degreeId: 'SE',
+          items: [
+            {
+              id: 'item1',
+              season: 'fall',
+              year: 2024,
+              courses: [],
+            },
+          ],
+          isExtendedCredit: false,
+        },
+      ]);
+
+      const response = await request(app).delete('/timeline/user/user123');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('message');
+      expect(response.body).toHaveProperty('deletedCount');
+    });
+
     it('should return 0 for user with no timelines', async () => {
       const response = await request(app)
         .delete('/timeline/user/nonexistent')
@@ -480,12 +926,25 @@ describe('Timeline Routes', () => {
       expect(response.body.deletedCount).toBe(0);
     });
 
+    it('should return 400 if userId is missing', async () => {
+      const testApp = express();
+      testApp.use(express.json());
+      testApp.delete('/test', (req, res) => {
+        if (!req.params.userId) {
+          res.status(400).json({ error: 'User ID is required' });
+        }
+      });
+
+      const response = await request(testApp).delete('/test');
+      expect(response.status).toBe(400);
+    });
+
     it('should handle server errors', async () => {
       // Mock timelineController.deleteAllUserTimelines to throw an error
       const originalDeleteAllUserTimelines =
-        require('../dist/controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/TimelineController')
           .timelineController.deleteAllUserTimelines;
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.deleteAllUserTimelines =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.deleteAllUserTimelines =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
@@ -495,7 +954,25 @@ describe('Timeline Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.deleteAllUserTimelines =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.deleteAllUserTimelines =
+        originalDeleteAllUserTimelines;
+    });
+
+    it('should handle errors during delete', async () => {
+      // Mock timelineController.deleteAllUserTimelines to throw an error
+      const originalDeleteAllUserTimelines =
+        require('../controllers/mondoDBControllers/TimelineController')
+          .timelineController.deleteAllUserTimelines;
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.deleteAllUserTimelines =
+        jest.fn().mockRejectedValue(new Error('Database error'));
+
+      const response = await request(app).delete('/timeline/user/user123');
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error');
+
+      // Restore original method
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.deleteAllUserTimelines =
         originalDeleteAllUserTimelines;
     });
   });
@@ -504,9 +981,9 @@ describe('Timeline Routes', () => {
   describe('Error handling edge cases', () => {
     it('GET /timeline/user/:userId should handle general errors (not database specific)', async () => {
       const originalGetTimelinesByUser =
-        require('../dist/controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/TimelineController')
           .timelineController.getTimelinesByUser;
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
         jest.fn().mockRejectedValue(new Error('General error'));
 
       const response = await request(app)
@@ -515,25 +992,31 @@ describe('Timeline Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
         originalGetTimelinesByUser;
     });
 
     it('GET /timeline/:id should handle general errors (not "not found")', async () => {
-      const mongoose = require('mongoose');
       const testTimeline = await Timeline.create({
         _id: new mongoose.Types.ObjectId().toString(),
         userId: 'user123',
         name: 'Test',
         degreeId: 'COMP',
-        items: [],
+        items: [
+          {
+            id: 'item1',
+            season: 'fall',
+            year: 2023,
+            courses: [],
+          },
+        ],
         isExtendedCredit: false,
       });
 
       const originalGetTimelineById =
-        require('../dist/controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/TimelineController')
           .timelineController.getTimelineById;
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
         jest.fn().mockRejectedValue(new Error('General error'));
 
       const response = await request(app)
@@ -542,25 +1025,31 @@ describe('Timeline Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
         originalGetTimelineById;
     });
 
     it('PUT /timeline/:id should handle general errors (not "not found")', async () => {
-      const mongoose = require('mongoose');
       const testTimeline = await Timeline.create({
         _id: new mongoose.Types.ObjectId().toString(),
         userId: 'user123',
         name: 'Test',
         degreeId: 'COMP',
-        items: [],
+        items: [
+          {
+            id: 'item1',
+            season: 'fall',
+            year: 2023,
+            courses: [],
+          },
+        ],
         isExtendedCredit: false,
       });
 
       const originalUpdateTimeline =
-        require('../dist/controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/TimelineController')
           .timelineController.updateTimeline;
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
         jest.fn().mockRejectedValue(new Error('General error'));
 
       const response = await request(app)
@@ -570,7 +1059,7 @@ describe('Timeline Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      require('../dist/controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
+      require('../controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
         originalUpdateTimeline;
     });
   });

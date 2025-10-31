@@ -2,6 +2,7 @@
  * Provides user-specific operations including deficiencies and exemptions.
  */
 
+import mongoose from 'mongoose';
 import { BaseMongoController } from './BaseMongoController';
 import { User, Course, Degree, Timeline } from '../../models';
 
@@ -64,7 +65,12 @@ export class UserController extends BaseMongoController<any> {
         throw new Error('User with this email already exists.');
       }
 
-      const result = await this.create(userData);
+      const userDataWithId = {
+        ...userData,
+        _id: userData.id || new mongoose.Types.ObjectId().toString(),
+      };
+
+      const result = await this.create(userDataWithId);
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to create user');

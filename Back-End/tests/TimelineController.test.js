@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const {
   TimelineController,
-} = require('../dist/controllers/mondoDBControllers/TimelineController');
-const { Timeline } = require('../dist/models/Timeline');
+} = require('../controllers/mondoDBControllers/TimelineController');
+const { Timeline } = require('../models/Timeline');
 
 describe('TimelineController', () => {
   let mongoServer, mongoUri, timelineController;
@@ -145,10 +145,11 @@ describe('TimelineController', () => {
     });
 
     it('should handle database errors', async () => {
-      // Mock Timeline.findOneAndUpdate to throw an error
-      const originalFindOneAndUpdate = Timeline.findOneAndUpdate;
-      Timeline.findOneAndUpdate = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
+      // Mock upsert to return error
+      const originalUpsert = timelineController.upsert;
+      timelineController.upsert = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Database connection failed',
       });
 
       const timelineData = {
@@ -161,10 +162,10 @@ describe('TimelineController', () => {
 
       await expect(
         timelineController.saveTimeline(timelineData),
-      ).rejects.toThrow('Database connection failed');
+      ).rejects.toThrow('Failed to save timeline');
 
       // Restore original method
-      Timeline.findOneAndUpdate = originalFindOneAndUpdate;
+      timelineController.upsert = originalUpsert;
     });
   });
 
@@ -172,25 +173,28 @@ describe('TimelineController', () => {
     beforeEach(async () => {
       await Timeline.create([
         {
-          user_id: 'user123',
+          _id: new mongoose.Types.ObjectId().toString(),
+          userId: 'user123',
           name: 'Timeline 1',
-          degree_id: 'COMP',
+          degreeId: 'COMP',
           items: [],
           isExtendedCredit: false,
           last_modified: new Date('2023-01-01'),
         },
         {
-          user_id: 'user123',
+          _id: new mongoose.Types.ObjectId().toString(),
+          userId: 'user123',
           name: 'Timeline 2',
-          degree_id: 'COMP',
+          degreeId: 'COMP',
           items: [],
           isExtendedCredit: true,
           last_modified: new Date('2023-02-01'),
         },
         {
-          user_id: 'user456',
+          _id: new mongoose.Types.ObjectId().toString(),
+          userId: 'user456',
           name: 'Other User Timeline',
-          degree_id: 'SOEN',
+          degreeId: 'SOEN',
           items: [],
           isExtendedCredit: false,
           last_modified: new Date('2023-01-15'),
@@ -220,18 +224,19 @@ describe('TimelineController', () => {
     });
 
     it('should handle database errors', async () => {
-      // Mock Timeline.find to throw an error
-      const originalFind = Timeline.find;
-      Timeline.find = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
+      // Mock findAll to return error
+      const originalFindAll = timelineController.findAll;
+      timelineController.findAll = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Database connection failed',
       });
 
       await expect(
         timelineController.getTimelinesByUser('user123'),
-      ).rejects.toThrow('Database connection failed');
+      ).rejects.toThrow('Failed to fetch timelines');
 
       // Restore original method
-      Timeline.find = originalFind;
+      timelineController.findAll = originalFindAll;
     });
   });
 
@@ -240,11 +245,13 @@ describe('TimelineController', () => {
 
     beforeEach(async () => {
       testTimeline = await Timeline.create({
-        user_id: 'user123',
+        _id: new mongoose.Types.ObjectId().toString(),
+        userId: 'user123',
         name: 'Test Timeline',
-        degree_id: 'COMP',
+        degreeId: 'COMP',
         items: [
           {
+            id: 'item1',
             season: 'fall',
             year: 2023,
             courses: ['COMP101'],
@@ -282,18 +289,19 @@ describe('TimelineController', () => {
     });
 
     it('should handle database errors', async () => {
-      // Mock Timeline.findById to throw an error
-      const originalFindById = Timeline.findById;
-      Timeline.findById = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
+      // Mock findById to return error
+      const originalFindById = timelineController.findById;
+      timelineController.findById = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Database connection failed',
       });
 
       await expect(
         timelineController.getTimelineById(testTimeline._id.toString()),
-      ).rejects.toThrow('Database connection failed');
+      ).rejects.toThrow('Timeline not found');
 
       // Restore original method
-      Timeline.findById = originalFindById;
+      timelineController.findById = originalFindById;
     });
   });
 
@@ -302,9 +310,10 @@ describe('TimelineController', () => {
 
     beforeEach(async () => {
       testTimeline = await Timeline.create({
-        user_id: 'user123',
+        _id: new mongoose.Types.ObjectId().toString(),
+        userId: 'user123',
         name: 'Original Timeline',
-        degree_id: 'COMP',
+        degreeId: 'COMP',
         items: [],
         isExtendedCredit: false,
       });
@@ -336,19 +345,20 @@ describe('TimelineController', () => {
     });
 
     it('should handle database errors', async () => {
-      // Mock Timeline.findByIdAndUpdate to throw an error
-      const originalFindByIdAndUpdate = Timeline.findByIdAndUpdate;
-      Timeline.findByIdAndUpdate = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
+      // Mock updateById to return error
+      const originalUpdateById = timelineController.updateById;
+      timelineController.updateById = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Database connection failed',
       });
 
       const updates = { name: 'Updated Timeline' };
       await expect(
         timelineController.updateTimeline(testTimeline._id.toString(), updates),
-      ).rejects.toThrow('Database connection failed');
+      ).rejects.toThrow('Timeline not found');
 
       // Restore original method
-      Timeline.findByIdAndUpdate = originalFindByIdAndUpdate;
+      timelineController.updateById = originalUpdateById;
     });
   });
 
@@ -357,9 +367,10 @@ describe('TimelineController', () => {
 
     beforeEach(async () => {
       testTimeline = await Timeline.create({
-        user_id: 'user123',
+        _id: new mongoose.Types.ObjectId().toString(),
+        userId: 'user123',
         name: 'Test Timeline',
-        degree_id: 'COMP',
+        degreeId: 'COMP',
         items: [],
         isExtendedCredit: false,
       });
@@ -389,10 +400,11 @@ describe('TimelineController', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      // Mock Timeline.findByIdAndDelete to throw an error
-      const originalFindByIdAndDelete = Timeline.findByIdAndDelete;
-      Timeline.findByIdAndDelete = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
+      // Mock deleteById to return error
+      const originalDeleteById = timelineController.deleteById;
+      timelineController.deleteById = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Database connection failed',
       });
 
       const result = await timelineController.removeUserTimeline(
@@ -400,10 +412,10 @@ describe('TimelineController', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.message).toBe('Error occurred while deleting timeline.');
+      expect(result.message).toBe(`Timeline ${testTimeline._id.toString()} not found`);
 
       // Restore original method
-      Timeline.findByIdAndDelete = originalFindByIdAndDelete;
+      timelineController.deleteById = originalDeleteById;
     });
   });
 
@@ -411,23 +423,26 @@ describe('TimelineController', () => {
     beforeEach(async () => {
       await Timeline.create([
         {
-          user_id: 'user123',
+          _id: new mongoose.Types.ObjectId().toString(),
+          userId: 'user123',
           name: 'Timeline 1',
-          degree_id: 'COMP',
+          degreeId: 'COMP',
           items: [],
           isExtendedCredit: false,
         },
         {
-          user_id: 'user123',
+          _id: new mongoose.Types.ObjectId().toString(),
+          userId: 'user123',
           name: 'Timeline 2',
-          degree_id: 'COMP',
+          degreeId: 'COMP',
           items: [],
           isExtendedCredit: true,
         },
         {
-          user_id: 'user456',
+          _id: new mongoose.Types.ObjectId().toString(),
+          userId: 'user456',
           name: 'Other User Timeline',
-          degree_id: 'SOEN',
+          degreeId: 'SOEN',
           items: [],
           isExtendedCredit: false,
         },
@@ -440,11 +455,11 @@ describe('TimelineController', () => {
       expect(result).toBe(2);
 
       // Verify timelines are deleted
-      const remainingTimelines = await Timeline.find({ user_id: 'user123' });
+      const remainingTimelines = await Timeline.find({ userId: 'user123' });
       expect(remainingTimelines).toHaveLength(0);
 
       // Verify other user's timelines remain
-      const otherUserTimelines = await Timeline.find({ user_id: 'user456' });
+      const otherUserTimelines = await Timeline.find({ userId: 'user456' });
       expect(otherUserTimelines).toHaveLength(1);
     });
 
@@ -456,18 +471,19 @@ describe('TimelineController', () => {
     });
 
     it('should handle database errors', async () => {
-      // Mock Timeline.deleteMany to throw an error
-      const originalDeleteMany = Timeline.deleteMany;
-      Timeline.deleteMany = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
+      // Mock deleteMany to return error
+      const originalDeleteMany = timelineController.deleteMany;
+      timelineController.deleteMany = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Database connection failed',
       });
 
       await expect(
         timelineController.deleteAllUserTimelines('user123'),
-      ).rejects.toThrow('Database connection failed');
+      ).rejects.toThrow('Failed to delete timelines');
 
       // Restore original method
-      Timeline.deleteMany = originalDeleteMany;
+      timelineController.deleteMany = originalDeleteMany;
     });
   });
 
@@ -666,9 +682,10 @@ describe('TimelineController', () => {
 
     it('should handle formatTimelineResponse with undefined items array', async () => {
       await Timeline.create({
-        user_id: 'user123',
+        _id: new mongoose.Types.ObjectId().toString(),
+        userId: 'user123',
         name: 'No Items Timeline',
-        degree_id: 'COMP',
+        degreeId: 'COMP',
         isExtendedCredit: false,
         // items is undefined
       });
