@@ -32,7 +32,7 @@ export class FeedbackController extends BaseMongoController<any> {
       });
 
       if (!result.success) {
-        throw new Error('Failed to submit feedback');
+        throw new Error(result.error || 'Failed to submit feedback');
       }
 
       return {
@@ -72,7 +72,7 @@ export class FeedbackController extends BaseMongoController<any> {
       });
 
       if (!result.success) {
-        throw new Error('Failed to fetch feedback');
+        throw new Error(result.error || 'Failed to fetch feedback');
       }
 
       return (result.data || []).map((f) => ({
@@ -94,7 +94,7 @@ export class FeedbackController extends BaseMongoController<any> {
       const result = await this.findById(feedback_id);
 
       if (!result.success) {
-        throw new Error('Feedback not found');
+        throw new Error(result.error || 'Feedback not found');
       }
 
       return {
@@ -116,7 +116,7 @@ export class FeedbackController extends BaseMongoController<any> {
       const result = await this.deleteById(feedback_id);
 
       if (!result.success) {
-        throw new Error('Feedback not found');
+        throw new Error(result.error || 'Feedback not found');
       }
 
       return result.message!;
@@ -133,7 +133,7 @@ export class FeedbackController extends BaseMongoController<any> {
       const result = await this.deleteMany({ user_id });
 
       if (!result.success) {
-        throw new Error('Failed to delete feedback');
+        throw new Error(result.error || 'Failed to delete feedback');
       }
 
       return result.data || 0;

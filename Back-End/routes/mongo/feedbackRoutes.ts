@@ -25,7 +25,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     if (!message) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: 'Message is required',
+        error: 'Missing required field: message',
       });
       return;
     }
@@ -138,7 +138,7 @@ router.delete('/user/:userId', async (req: Request, res: Response) => {
 
     const count = await feedbackController.deleteUserFeedback(userId);
     res.status(HTTP.OK).json({
-      message: `Deleted ${count} feedback entries for user`,
+      message: 'All user feedback deleted successfully',
       deletedCount: count,
     });
   } catch (error) {

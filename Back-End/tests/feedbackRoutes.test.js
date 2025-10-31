@@ -2,26 +2,24 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const express = require('express');
-const feedbackRoutes = require('../dist/routes/mongo/feedbackRoutes').default;
-const { Feedback } = require('../dist/models/Feedback');
-
-// Create test app
-const app = express();
-app.use(express.json());
-app.use('/feedback', feedbackRoutes);
+const feedbackRoutes = require('../routes/mongo/feedbackRoutes').default;
+const { Feedback } = require('../models/Feedback');
+const { feedbackController } = require('../controllers/mondoDBControllers/FeedbackController');
 
 describe('Feedback Routes', () => {
-  let mongoServer, mongoUri;
+  let mongoServer, mongoUri, app;
 
   beforeAll(async () => {
-    // Start in-memory MongoDB instance for testing
     mongoServer = await MongoMemoryServer.create();
     mongoUri = mongoServer.getUri();
     await mongoose.connect(mongoUri);
+
+    app = express();
+    app.use(express.json());
+    app.use('/feedback', feedbackRoutes);
   });
 
   afterAll(async () => {
-    // Clean up connections and stop MongoDB instance
     await mongoose.disconnect();
     await mongoServer.stop();
   });
@@ -78,27 +76,19 @@ describe('Feedback Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      // Mock feedbackController.submitFeedback to throw an error
-      const originalSubmitFeedback =
-        require('../dist/controllers/mondoDBControllers/FeedbackController')
-          .feedbackController.submitFeedback;
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.submitFeedback =
-        jest.fn().mockRejectedValue(new Error('Database error'));
-
-      const feedbackData = {
-        message: 'Test message',
-      };
+      const originalSubmitFeedback = feedbackController.submitFeedback;
+      feedbackController.submitFeedback = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .post('/feedback')
-        .send(feedbackData)
+        .send({ message: 'Test message' })
         .expect(500);
 
       expect(response.body.error).toBe('Internal server error');
 
-      // Restore original method
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.submitFeedback =
-        originalSubmitFeedback;
+      feedbackController.submitFeedback = originalSubmitFeedback;
     });
   });
 
@@ -161,36 +151,32 @@ describe('Feedback Routes', () => {
     it('should sort feedback by submitted_at descending by default', async () => {
       const response = await request(app).get('/feedback').expect(200);
 
-      expect(response.body.feedback[0].message).toBe('Anonymous feedback'); // Most recent
+      expect(response.body.feedback[0].message).toBe('Anonymous feedback');
       expect(response.body.feedback[1].message).toBe('Feedback 3');
       expect(response.body.feedback[2].message).toBe('Feedback 2');
-      expect(response.body.feedback[3].message).toBe('Feedback 1'); // Oldest
+      expect(response.body.feedback[3].message).toBe('Feedback 1');
     });
 
     it('should sort feedback by submitted_at ascending', async () => {
       const response = await request(app).get('/feedback?sort=asc').expect(200);
 
-      expect(response.body.feedback[0].message).toBe('Feedback 1'); // Oldest
+      expect(response.body.feedback[0].message).toBe('Feedback 1');
       expect(response.body.feedback[1].message).toBe('Feedback 2');
       expect(response.body.feedback[2].message).toBe('Feedback 3');
-      expect(response.body.feedback[3].message).toBe('Anonymous feedback'); // Most recent
+      expect(response.body.feedback[3].message).toBe('Anonymous feedback');
     });
 
     it('should handle server errors', async () => {
-      // Mock feedbackController.getAllFeedback to throw an error
-      const originalGetAllFeedback =
-        require('../dist/controllers/mondoDBControllers/FeedbackController')
-          .feedbackController.getAllFeedback;
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.getAllFeedback =
-        jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetAllFeedback = feedbackController.getAllFeedback;
+      feedbackController.getAllFeedback = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const response = await request(app).get('/feedback').expect(500);
 
       expect(response.body.error).toBe('Internal server error');
 
-      // Restore original method
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.getAllFeedback =
-        originalGetAllFeedback;
+      feedbackController.getAllFeedback = originalGetAllFeedback;
     });
   });
 
@@ -229,12 +215,10 @@ describe('Feedback Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      // Mock feedbackController.getFeedbackById to throw an error
-      const originalGetFeedbackById =
-        require('../dist/controllers/mondoDBControllers/FeedbackController')
-          .feedbackController.getFeedbackById;
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.getFeedbackById =
-        jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetFeedbackById = feedbackController.getFeedbackById;
+      feedbackController.getFeedbackById = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .get(`/feedback/${testFeedback._id}`)
@@ -242,9 +226,7 @@ describe('Feedback Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      // Restore original method
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.getFeedbackById =
-        originalGetFeedbackById;
+      feedbackController.getFeedbackById = originalGetFeedbackById;
     });
   });
 
@@ -266,7 +248,6 @@ describe('Feedback Routes', () => {
 
       expect(response.body.message).toBe('Feedback deleted successfully');
 
-      // Verify feedback is deleted
       const deletedFeedback = await Feedback.findById(testFeedback._id);
       expect(deletedFeedback).toBeNull();
     });
@@ -281,12 +262,10 @@ describe('Feedback Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      // Mock feedbackController.deleteFeedback to throw an error
-      const originalDeleteFeedback =
-        require('../dist/controllers/mondoDBControllers/FeedbackController')
-          .feedbackController.deleteFeedback;
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.deleteFeedback =
-        jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalDeleteFeedback = feedbackController.deleteFeedback;
+      feedbackController.deleteFeedback = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .delete(`/feedback/${testFeedback._id}`)
@@ -294,9 +273,7 @@ describe('Feedback Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      // Restore original method
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.deleteFeedback =
-        originalDeleteFeedback;
+      feedbackController.deleteFeedback = originalDeleteFeedback;
     });
   });
 
@@ -331,11 +308,9 @@ describe('Feedback Routes', () => {
       );
       expect(response.body.deletedCount).toBe(2);
 
-      // Verify user's feedback is deleted
       const userFeedback = await Feedback.find({ user_id: 'user123' });
       expect(userFeedback).toHaveLength(0);
 
-      // Verify other user's feedback remains
       const otherUserFeedback = await Feedback.find({ user_id: 'user456' });
       expect(otherUserFeedback).toHaveLength(1);
     });
@@ -349,12 +324,10 @@ describe('Feedback Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      // Mock feedbackController.deleteUserFeedback to throw an error
-      const originalDeleteUserFeedback =
-        require('../dist/controllers/mondoDBControllers/FeedbackController')
-          .feedbackController.deleteUserFeedback;
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.deleteUserFeedback =
-        jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalDeleteUserFeedback = feedbackController.deleteUserFeedback;
+      feedbackController.deleteUserFeedback = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .delete('/feedback/user/user123')
@@ -362,9 +335,9 @@ describe('Feedback Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      // Restore original method
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.deleteUserFeedback =
-        originalDeleteUserFeedback;
+      feedbackController.deleteUserFeedback = originalDeleteUserFeedback;
     });
   });
 });
+
+

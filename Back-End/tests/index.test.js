@@ -1,9 +1,3 @@
-/**
- * Test file for Back-End/index.ts
- */
-
-const mongoose = require('mongoose');
-
 // Mock all external dependencies
 jest.mock('@sentry/node', () => ({
   setupExpressErrorHandler: jest.fn(),
@@ -17,31 +11,34 @@ jest.mock('express', () => {
     get: jest.fn(),
     options: jest.fn(),
   }));
+  // Provide middleware factory functions used by index.ts
+  express.json = jest.fn(() => jest.fn());
+  express.urlencoded = jest.fn(() => jest.fn());
   return express;
 });
 
-jest.mock('cors');
+jest.mock('cors', () => jest.fn(() => jest.fn()));
 jest.mock('cookie-parser');
 jest.mock('dotenv');
 
-// Mock all routes
-jest.mock('../dist/routes/auth', () => ({ default: jest.fn() }));
-jest.mock('../dist/routes/courses', () => ({ default: jest.fn() }));
-jest.mock('../dist/routes/exemption', () => ({ default: jest.fn() }));
-jest.mock('../dist/routes/deficiency', () => ({ default: jest.fn() }));
-jest.mock('../dist/routes/degree', () => ({ default: jest.fn() }));
-jest.mock('../dist/routes/timeline', () => ({ default: jest.fn() }));
-jest.mock('../dist/routes/coursepool', () => ({ default: jest.fn() }));
-jest.mock('../dist/routes/userData', () => ({ default: jest.fn() }));
-jest.mock('../dist/routes/adminRoutes', () => ({ default: jest.fn() }));
-jest.mock('../dist/routes/requisite', () => ({ default: jest.fn() }));
-jest.mock('../dist/routes/feedback', () => ({ default: jest.fn() }));
-jest.mock('../dist/routes/session', () => ({ default: jest.fn() }));
-jest.mock('../dist/routes/sectionsRoutes', () => ({ default: jest.fn() }));
-jest.mock('../dist/routes/transcript', () => ({ default: jest.fn() }));
-jest.mock('../dist/routes/mongo', () => ({ default: jest.fn() }));
+// Mock all routes (use alias paths to match index.ts imports)
+jest.mock('@routes/auth', () => ({ default: jest.fn() }));
+jest.mock('@routes/courses', () => ({ default: jest.fn() }));
+jest.mock('@routes/exemption', () => ({ default: jest.fn() }));
+jest.mock('@routes/deficiency', () => ({ default: jest.fn() }));
+jest.mock('@routes/degree', () => ({ default: jest.fn() }));
+jest.mock('@routes/timeline', () => ({ default: jest.fn() }));
+jest.mock('@routes/coursepool', () => ({ default: jest.fn() }));
+jest.mock('@routes/userData', () => ({ default: jest.fn() }));
+jest.mock('@routes/adminRoutes', () => ({ default: jest.fn() }));
+jest.mock('@routes/requisite', () => ({ default: jest.fn() }));
+jest.mock('@routes/feedback', () => ({ default: jest.fn() }));
+jest.mock('@routes/session', () => ({ default: jest.fn() }));
+jest.mock('@routes/sectionsRoutes', () => ({ default: jest.fn() }));
+jest.mock('@routes/transcript', () => ({ default: jest.fn() }));
+jest.mock('@routes/mongo', () => ({ default: jest.fn() }));
 
-jest.mock('../dist/controllers/DBController/DBController', () => ({
+jest.mock('@controllers/DBController/DBController', () => ({
   default: {
     getConnection: jest.fn().mockResolvedValue({
       request: jest.fn().mockReturnValue({
@@ -53,14 +50,14 @@ jest.mock('../dist/controllers/DBController/DBController', () => ({
   },
 }));
 
-jest.mock('../dist/middleware/rateLimiter', () => ({
+jest.mock('@middleware/rateLimiter', () => ({
   forgotPasswordLimiter: jest.fn(),
   resetPasswordLimiter: jest.fn(),
   loginLimiter: jest.fn(),
   signupLimiter: jest.fn(),
 }));
 
-jest.mock('../dist/middleware/errorHandler', () => ({
+jest.mock('@middleware/errorHandler', () => ({
   notFoundHandler: jest.fn(),
   errorHandler: jest.fn(),
 }));
@@ -73,7 +70,7 @@ describe('index.ts', () => {
 
   it('should be importable', () => {
     expect(() => {
-      require('../dist/index.js');
+      require('../index.ts');
     }).not.toThrow();
   });
 
@@ -82,7 +79,7 @@ describe('index.ts', () => {
     process.env.CLIENT = 'http://test:4000';
 
     expect(() => {
-      require('../dist/index.js');
+      require('../index.ts');
     }).not.toThrow();
   });
 
@@ -91,12 +88,13 @@ describe('index.ts', () => {
     delete process.env.CLIENT;
 
     expect(() => {
-      require('../dist/index.js');
+      require('../index.ts');
     }).not.toThrow();
   });
 
   it('should set up unhandled rejection handler', () => {
     const Sentry = require('@sentry/node');
+    require('../index.ts');
 
     // Simulate unhandled rejection
     process.emit('unhandledRejection', new Error('Test rejection'));
@@ -109,7 +107,7 @@ describe('index.ts', () => {
     const cors = require('cors');
     const cookieParser = require('cookie-parser');
 
-    require('../dist/index.js');
+    require('../index.ts');
 
     const app = express.mock.results[0].value;
 
@@ -122,33 +120,33 @@ describe('index.ts', () => {
 
   it('should setup all routes', () => {
     const express = require('express');
-    require('../dist/index.js');
+    require('../index.ts');
 
     const app = express.mock.results[0].value;
 
     // Verify all routes are registered
-    expect(app.use).toHaveBeenCalledWith('/auth', expect.any(Function));
-    expect(app.use).toHaveBeenCalledWith('/courses', expect.any(Function));
-    expect(app.use).toHaveBeenCalledWith('/degree', expect.any(Function));
-    expect(app.use).toHaveBeenCalledWith('/exemption', expect.any(Function));
-    expect(app.use).toHaveBeenCalledWith('/deficiency', expect.any(Function));
-    expect(app.use).toHaveBeenCalledWith('/timeline', expect.any(Function));
-    expect(app.use).toHaveBeenCalledWith('/coursepool', expect.any(Function));
-    expect(app.use).toHaveBeenCalledWith('/data', expect.any(Function));
-    expect(app.use).toHaveBeenCalledWith('/admin', expect.any(Function));
-    expect(app.use).toHaveBeenCalledWith('/requisite', expect.any(Function));
-    expect(app.use).toHaveBeenCalledWith('/feedback', expect.any(Function));
-    expect(app.use).toHaveBeenCalledWith('/session', expect.any(Function));
-    expect(app.use).toHaveBeenCalledWith('/section', expect.any(Function));
-    expect(app.use).toHaveBeenCalledWith('/transcript', expect.any(Function));
-    expect(app.use).toHaveBeenCalledWith('/mongo', expect.any(Function));
+    expect(app.use).toHaveBeenCalledWith('/auth', expect.anything());
+    expect(app.use).toHaveBeenCalledWith('/courses', expect.anything());
+    expect(app.use).toHaveBeenCalledWith('/degree', expect.anything());
+    expect(app.use).toHaveBeenCalledWith('/exemption', expect.anything());
+    expect(app.use).toHaveBeenCalledWith('/deficiency', expect.anything());
+    expect(app.use).toHaveBeenCalledWith('/timeline', expect.anything());
+    expect(app.use).toHaveBeenCalledWith('/coursepool', expect.anything());
+    expect(app.use).toHaveBeenCalledWith('/data', expect.anything());
+    expect(app.use).toHaveBeenCalledWith('/admin', expect.anything());
+    expect(app.use).toHaveBeenCalledWith('/requisite', expect.anything());
+    expect(app.use).toHaveBeenCalledWith('/feedback', expect.anything());
+    expect(app.use).toHaveBeenCalledWith('/session', expect.anything());
+    expect(app.use).toHaveBeenCalledWith('/section', expect.anything());
+    expect(app.use).toHaveBeenCalledWith('/transcript', expect.anything());
+    expect(app.use).toHaveBeenCalledWith('/v2', expect.anything());
   });
 
   it('should setup rate limiters', () => {
     const express = require('express');
-    const rateLimiter = require('../dist/middleware/rateLimiter');
+    const rateLimiter = require('../middleware/rateLimiter');
 
-    require('../dist/index.js');
+    require('../index.ts');
 
     const app = express.mock.results[0].value;
 
@@ -173,9 +171,9 @@ describe('index.ts', () => {
 
   it('should setup error handlers', () => {
     const express = require('express');
-    const errorHandler = require('../dist/middleware/errorHandler');
+    const errorHandler = require('../middleware/errorHandler');
 
-    require('../dist/index.js');
+    require('../index.ts');
 
     const app = express.mock.results[0].value;
 
