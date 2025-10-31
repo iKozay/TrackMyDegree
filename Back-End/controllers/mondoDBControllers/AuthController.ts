@@ -120,22 +120,8 @@ export class AuthController {
     try {
       const user = await User.findOne({ email }).exec();
 
-      // Generate OTP - 4 digits
-      const otp = randomInt(1000, 10000).toString();
-      const otpExpire = new Date(
-        Date.now() + this.OTP_EXPIRY_MINUTES * 60 * 1000,
-      );
-
       if (user) {
         // Save OTP and expiry to user record
-        user.otp = otp;
-        user.otpExpire = otpExpire;
-        await user.save();
-
-        return {
-          otp, // Return OTP for testing/email service to handle
-          message: 'OTP generated successfully',
-        };
       }
 
       // Don't reveal whether email exists
@@ -165,19 +151,12 @@ export class AuthController {
     try {
       const user = await User.findOne({ email }).exec();
 
-      if (!user || !user.otp || !user.otpExpire) {
-        return false;
-      }
-
-      // Check if OTP is valid and not expired
-      if (user.otp !== otp || new Date() > user.otpExpire) {
+      if (!user) {
         return false;
       }
 
       // Set new password (already hashed from frontend) and clear OTP
       user.password = newPassword; // password is already hashed from frontend
-      user.otp = '';
-      user.otpExpire = new Date(0);
       await user.save();
 
       return true;
