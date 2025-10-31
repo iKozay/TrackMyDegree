@@ -146,15 +146,21 @@ export class AuthController {
       }
     }
   
-
+    async resetPassword(
+      email: string,
+      resetToken: string,
+      newPassword: string,
+    ): Promise<boolean>
+    
   /**
    * Verifies OTP and resets password
    */
   async resetPassword(
     email: string,
-    otp: string,
+    resetToken: string,
     newPassword: string,
-  ): Promise<boolean> {
+  ): Promise<boolean>
+   {
     try {
       const user = await User.findOne({ email }).exec();
 
