@@ -12,10 +12,6 @@ const UserSchema = new Schema({
   fullname: { type: String, required: true },
   degree: { type: String, ref: 'Degree' },
   type: { type: String, enum: ['student', 'advisor', 'admin'], required: true },
-  otp: { type: String, default: null },
-  otpExpire: { type: Date, default: null },
-
-  // 🔹 Added fields for password reset token
   resetToken: { type: String, default: null },
   resetTokenExpire: { type: Date, default: null },
 
