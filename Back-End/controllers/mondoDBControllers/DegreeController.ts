@@ -37,7 +37,7 @@ export class DegreeController extends BaseMongoController<any> {
   // ==========================
 
   /**
-   * Create a new degree without course pools
+   * Create a new degree
    */
   async createDegree(degreeData: DegreeData): Promise<DegreeData> {
     try {
