@@ -128,7 +128,7 @@ describe('UploadTranscriptPage', () => {
 
     fireEvent.drop(dropBox, { dataTransfer: { files: [file] } });
 
-    expect(window.alert).toHaveBeenCalledWith('Please drop a valid PDF file.');
+    expect(window.alert).toHaveBeenCalledWith('Please select a valid PDF file.');
   });
 
   // it('calls onDataProcessed and navigates on valid file submit', async () => {

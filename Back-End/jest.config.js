@@ -16,22 +16,25 @@ module.exports = {
     '!**/dist/**',
     '!**/*.d.ts',
     '!**/tests/**',
-    '!**/coverage/**'
+    '!**/coverage/**',
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['lcov', 'text', 'text-summary', 'html'],
   moduleFileExtensions: ['ts', 'js', 'json'],
   transform: {
-    '^.+\\.ts$': ['ts-jest', {
-      tsconfig: 'tsconfig.test.json'
-    }],
-    '^.+\\.js$': 'babel-jest'
+    '^.+\\.ts$': [
+      'ts-jest',
+      {
+        tsconfig: 'tsconfig.test.json',
+      },
+    ],
+    '^.+\\.js$': 'babel-jest',
   },
   moduleNameMapper: {
     '^@controllers/(.*)$': '<rootDir>/controllers/$1',
     '^@routes/(.*)$': '<rootDir>/routes/$1',
     '^@Util/(.*)$': '<rootDir>/Util/$1',
-    '^@middleware/(.*)$': '<rootDir>/middleware/$1'
+    '^@middleware/(.*)$': '<rootDir>/middleware/$1',
   },
   setupFiles: ['<rootDir>/tests/setup.js'],
   collectCoverage: true,
@@ -40,7 +43,7 @@ module.exports = {
       branches: 0,
       functions: 0,
       lines: 0,
-      statements: 0
-    }
-  }
+      statements: 0,
+    },
+  },
 };

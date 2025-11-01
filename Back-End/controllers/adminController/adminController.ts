@@ -38,6 +38,8 @@ const allowedTables = [
   'Feedback',
 ];
 
+const DB_CONNECTION_FAILED = 'Database connection failed';
+
 /**
  * below is the reverse order well delete tables in when restoring
  * because oforeign key constraints. Delete child tables first,
@@ -75,9 +77,7 @@ export const createBackup = async (
   try {
     const pool = await Database.getConnection();
     if (!pool) {
-      res
-        .status(500)
-        .json({ success: false, message: 'Database connection failed' });
+      res.status(500).json({ success: false, message: DB_CONNECTION_FAILED });
       return;
     }
     // Query to get all table names in the current database
@@ -201,13 +201,35 @@ export const restoreBackup = async (
 
     const pool = await Database.getConnection();
     if (!pool) {
-      res
-        .status(500)
-        .json({ success: false, message: 'Database connection failed' });
+      res.status(500).json({ success: false, message: DB_CONNECTION_FAILED });
       return;
     }
 
-    // ========================================================
+    await deleteAll(pool).catch((error) => {
+      throw error;
+    });
+
+    await reseedData(res).catch((error) => {
+      throw error;
+    });
+
+    await insertBackupData(pool, filteredBackupData, res).catch((error) => {
+      throw error;
+    });
+
+  } catch (error) {
+    Sentry.captureException(error);
+    console.error('Error restoring backup:', error);
+    res
+      .status(500)
+      .json({ success: false, message: 'Error restoring backup', data: error });
+  }
+};
+
+const deleteAll = async (
+  pool: sql.ConnectionPool
+): Promise<void> => {
+      // ========================================================
     // Step 1: Delete records from ALL allowed tables in reverse order
     // ========================================================
     const deletionTx = pool.transaction();
@@ -222,8 +244,12 @@ export const restoreBackup = async (
       await deletionTx.rollback();
       throw deleteError;
     }
+};
 
-    // ========================================================
+const reseedData = async (
+  res: Response
+): Promise<void> => {
+      // ========================================================
     // Step 2: Reseed the database using seedSoenDegree function
     // ========================================================
     console.log('Reseeding database...');
@@ -232,13 +258,17 @@ export const restoreBackup = async (
 
     const newPool = await Database.getConnection();
     if (!newPool) {
-      res
-        .status(500)
-        .json({ success: false, message: 'Database connection failed' });
+      res.status(500).json({ success: false, message: DB_CONNECTION_FAILED });
       return;
     }
+};
 
-    // ========================================================
+const insertBackupData = async (
+  newPool: sql.ConnectionPool,
+  filteredBackupData: Record<string, any[]>,
+  res: Response
+): Promise<void> => {
+      // ========================================================
     // Step 3: Insert backup data into allowed tables
     // ========================================================
     const insertTx = newPool.transaction();
@@ -286,14 +316,7 @@ export const restoreBackup = async (
       await insertTx.rollback();
       throw insertError;
     }
-  } catch (error) {
-    Sentry.captureException(error);
-    console.error('Error restoring backup:', error);
-    res
-      .status(500)
-      .json({ success: false, message: 'Error restoring backup', data: error });
-  }
-};
+};  
 
 /**
  * Deletes a backup file from the backup directory.
@@ -345,9 +368,7 @@ export const getTables = async (
   try {
     const pool = await Database.getConnection();
     if (!pool) {
-      res
-        .status(500)
-        .json({ success: false, message: 'Database connection failed' });
+      res.status(500).json({ success: false, message: DB_CONNECTION_FAILED });
       return;
     }
 
@@ -385,10 +406,8 @@ export const getTableRecords = async (
   try {
     const pool = await Database.getConnection();
     if (!pool) {
-      res
-        .status(500)
-        .json({ success: false, message: 'Database connection failed' });
-      Sentry.captureException({ error: 'Database connection failed' });
+      res.status(500).json({ success: false, message: DB_CONNECTION_FAILED });
+      Sentry.captureException({ error: DB_CONNECTION_FAILED });
       return;
     }
 
@@ -544,7 +563,7 @@ function parseRequirementsFile(filePath: string): DegreeData {
       pushCurrentPool();
       currentPoolName = bracketMatch[1];
       currentCourseCodes = [];
-      const creditsMatch = currentPoolName.match(/\(([\d\.]+)\s*credits?\)/i);
+      const creditsMatch = currentPoolName.match(/\(([\d]+)\s*credits?\)/i);
       currentCredits = creditsMatch ? parseFloat(creditsMatch[1]) : 0;
       continue;
     }
@@ -930,7 +949,7 @@ function parseRequisites(
     );
     return [];
   }
-  const cleanedStr = requisiteStr.replace(/[;\.]/g, ',');
+  const cleanedStr = requisiteStr.replace(/[;]/g, ',');
   const parts = cleanedStr
     .split(',')
     .map((part) => part.trim())

@@ -1,6 +1,6 @@
 /**
  * Admin Routes
- * 
+ *
  * Handles admin operations including database management
  */
 
@@ -14,6 +14,10 @@ const router = express.Router();
 // ADMIN ROUTES
 // ==========================
 
+const INTERNAL_SERVER_ERROR = 'Internal server error';
+const COLLECTION_NAME_REQUIRED = 'Collection name is required';
+const NOT_AVAILABLE = 'not available';
+
 /**
  * GET /admin/collections - Get all collections
  */
@@ -26,10 +30,10 @@ router.get('/collections', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in GET /admin/collections', error);
-    if (error instanceof Error && error.message.includes('not available')) {
+    if (error instanceof Error && error.message.includes(NOT_AVAILABLE)) {
       res.status(HTTP.SERVER_ERR).json({ error: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
   }
 });
@@ -46,7 +50,7 @@ router.get(
 
       if (!collectionName) {
         res.status(HTTP.BAD_REQUEST).json({
-          error: 'Collection name is required',
+          error: COLLECTION_NAME_REQUIRED,
         });
         return;
       }
@@ -69,7 +73,7 @@ router.get(
         'Error in GET /admin/collections/:collectionName/documents',
         error,
       );
-      res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
   },
 );
@@ -85,7 +89,7 @@ router.get(
 
       if (!collectionName) {
         res.status(HTTP.BAD_REQUEST).json({
-          error: 'Collection name is required',
+          error: COLLECTION_NAME_REQUIRED,
         });
         return;
       }
@@ -100,10 +104,10 @@ router.get(
         'Error in GET /admin/collections/:collectionName/stats',
         error,
       );
-      if (error instanceof Error && error.message.includes('not available')) {
+      if (error instanceof Error && error.message.includes(NOT_AVAILABLE)) {
         res.status(HTTP.SERVER_ERR).json({ error: error.message });
       } else {
-        res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
       }
     }
   },
@@ -120,7 +124,7 @@ router.delete(
 
       if (!collectionName) {
         res.status(HTTP.BAD_REQUEST).json({
-          error: 'Collection name is required',
+          error: COLLECTION_NAME_REQUIRED,
         });
         return;
       }
@@ -131,11 +135,14 @@ router.delete(
         deletedCount: count,
       });
     } catch (error) {
-      console.error('Error in DELETE /admin/collections/:collectionName/clear', error);
-      if (error instanceof Error && error.message.includes('not available')) {
+      console.error(
+        'Error in DELETE /admin/collections/:collectionName/clear',
+        error,
+      );
+      if (error instanceof Error && error.message.includes(NOT_AVAILABLE)) {
         res.status(HTTP.SERVER_ERR).json({ error: error.message });
       } else {
-        res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
       }
     }
   },
@@ -153,7 +160,7 @@ router.get('/connection-status', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in GET /admin/connection-status', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
 

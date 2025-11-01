@@ -11,12 +11,7 @@ import TrashLogo from '../icons/trashlogo';
 import { UserPageError } from '../middleware/SentryErrors';
 
 // ===import helper functions from utils ===
-import {
-  getDegreeCredits,
-  getUserTimelines,
-  deleteTimelineById,
-  buildTranscriptData,
-} from '../api/UserPageApi';
+import { getDegreeCredits, getUserTimelines, deleteTimelineById, buildTranscriptData } from '../api/UserPageApi';
 
 const UserPage = ({ onDataProcessed }) => {
   const { user } = useContext(AuthContext);
@@ -177,9 +172,7 @@ const UserPage = ({ onDataProcessed }) => {
             <TrashLogo size={56} className="tw-mx-auto tw-text-red-500" />
             <div className="tw-mx-auto tw-my-4 tw-w-48">
               <h3 className="tw-text-lg tw-font-black tw-text-gray-800">Confirm Delete</h3>
-              <p className="tw-text-sm tw-text-gray-500">
-                Are you sure you want to delete "{timelineToDelete?.name}"?
-              </p>
+              <p className="tw-text-sm tw-text-gray-500">Are you sure you want to delete "{timelineToDelete?.name}"?</p>
             </div>
             <div className="tw-flex tw-gap-4">
               <button

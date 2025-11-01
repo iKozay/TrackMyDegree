@@ -1,5 +1,5 @@
 jest.mock(
-  '../dist/controllers/deficiencyController/deficiencyController',
+  '../controllers/deficiencyController/deficiencyController',
   () => ({
     __esModule: true,
     default: {
@@ -12,11 +12,11 @@ jest.mock(
 
 const request = require('supertest');
 const express = require('express');
-const router = require('../dist/routes/deficiency').default;
+const router = require('../routes/deficiency').default;
 const controller =
-  require('../dist/controllers/deficiencyController/deficiencyController').default;
+  require('../controllers/deficiencyController/deficiencyController').default;
 
-const HTTP = require('../dist/Util/HTTPCodes').default;
+const HTTP = require('../Util/HTTPCodes').default;
 const def_mocks = require('./__mocks__/deficiency_mocks');
 
 const url = process.DOCKER_URL || 'host.docker.internal:8000';

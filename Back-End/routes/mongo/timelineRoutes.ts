@@ -1,6 +1,6 @@
 /**
  * Timeline Routes
- * 
+ *
  * Handles timeline CRUD operations
  */
 
@@ -14,6 +14,8 @@ const router = express.Router();
 // TIMELINE ROUTES (CRUD)
 // ==========================
 
+const INTERNAL_SERVER_ERROR = 'Internal server error';
+const TIMELINE_ID_REQUIRED = 'Timeline ID is required';
 /**
  * POST /timeline - Save timeline
  */
@@ -39,7 +41,7 @@ router.post('/', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in POST /timeline', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
 
@@ -64,7 +66,7 @@ router.get('/user/:userId', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in GET /timeline/user/:userId', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
 
@@ -77,7 +79,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     if (!id) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: 'Timeline ID is required',
+        error: TIMELINE_ID_REQUIRED,
       });
       return;
     }
@@ -92,7 +94,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     if (error instanceof Error && error.message.includes('not found')) {
       res.status(HTTP.NOT_FOUND).json({ error: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
   }
 });
@@ -107,7 +109,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     if (!id) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: 'Timeline ID is required',
+        error: TIMELINE_ID_REQUIRED,
       });
       return;
     }
@@ -122,7 +124,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (error instanceof Error && error.message.includes('not found')) {
       res.status(HTTP.NOT_FOUND).json({ error: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
   }
 });
@@ -136,7 +138,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     if (!id) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: 'Timeline ID is required',
+        error: TIMELINE_ID_REQUIRED,
       });
       return;
     }
@@ -145,7 +147,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.status(HTTP.OK).json(result);
   } catch (error) {
     console.error('Error in DELETE /timeline/:id', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
 
@@ -170,9 +172,8 @@ router.delete('/user/:userId', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in DELETE /timeline/user/:userId', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
 
 export default router;
-

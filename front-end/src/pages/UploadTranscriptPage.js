@@ -1,6 +1,6 @@
 import '../css/UploadTranscriptPage.css';
 import React from 'react';
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate from react-router-dom
 import PrintImage from '../images/Print_image.png';
 import PdfImage from '../images/Pdf_image.png';

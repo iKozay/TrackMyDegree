@@ -1,29 +1,33 @@
 process.env.JWT_SECRET = 'test-secret-key';
 process.env.SESSION_ALGO = 'aes-256-gcm';
 
-const { authMiddleware, adminCheckMiddleware } = require('../../dist/middleware/authMiddleware');
+const {
+  authMiddleware,
+  adminCheckMiddleware,
+} = require('../../dist/middleware/authMiddleware');
 
 // Mock dependencies
 jest.mock('../../dist/services/jwtService', () => ({
   jwtService: {
-    verifyAccessToken: jest.fn()
-  }
+    verifyAccessToken: jest.fn(),
+  },
 }));
 
 jest.mock('../../dist/Util/Session_Util', () => ({
-  verifySession: jest.fn()
+  verifySession: jest.fn(),
 }));
 
 jest.mock('../../dist/controllers/authController/authController', () => ({
   __esModule: true,
   default: {
-    isAdmin: jest.fn()
-  }
+    isAdmin: jest.fn(),
+  },
 }));
 
 const { jwtService } = require('../../dist/services/jwtService');
 const { verifySession } = require('../../dist/Util/Session_Util');
-const authController = require('../../dist/controllers/authController/authController').default;
+const authController =
+  require('../../dist/controllers/authController/authController').default;
 
 describe('authMiddleware', () => {
   let req, res, next;
@@ -32,13 +36,13 @@ describe('authMiddleware', () => {
     req = {
       cookies: {},
       headers: {
-        'user-agent': 'Mozilla/5.0 (Test Browser)'
+        'user-agent': 'Mozilla/5.0 (Test Browser)',
       },
-      ip: '192.168.1.1'
+      ip: '192.168.1.1',
     };
     res = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn()
+      json: jest.fn(),
     };
     next = jest.fn();
     jest.clearAllMocks();
@@ -60,7 +64,9 @@ describe('authMiddleware', () => {
       await authMiddleware(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Invalid or expired token' });
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Invalid or expired token',
+      });
       expect(next).not.toHaveBeenCalled();
     });
 
@@ -68,7 +74,7 @@ describe('authMiddleware', () => {
       req.cookies.access_token = 'valid-token';
       const mockPayload = {
         userId: 'user123',
-        session_token: { key: 'test', iv: 'test', salt: 1 }
+        session_token: { key: 'test', iv: 'test', salt: 1 },
       };
       jwtService.verifyAccessToken.mockReturnValue(mockPayload);
       verifySession.mockReturnValue(false);
@@ -84,7 +90,7 @@ describe('authMiddleware', () => {
       req.cookies.access_token = 'valid-token';
       const mockPayload = {
         userId: 'user123',
-        session_token: { key: 'test', iv: 'test', salt: 1 }
+        session_token: { key: 'test', iv: 'test', salt: 1 },
       };
       jwtService.verifyAccessToken.mockReturnValue(mockPayload);
       verifySession.mockReturnValue(true);
@@ -142,7 +148,9 @@ describe('authMiddleware', () => {
       await adminCheckMiddleware(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Invalid or expired token' });
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Invalid or expired token',
+      });
       expect(authController.isAdmin).not.toHaveBeenCalled();
     });
   });

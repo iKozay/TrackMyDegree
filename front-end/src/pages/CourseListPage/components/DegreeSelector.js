@@ -17,18 +17,12 @@ const DegreeSelector = ({
     <div className="course-list-div">
       <h3>Select Degree</h3>
       <Dropdown>
-        <Dropdown.Toggle
-          id="dropdown-basic"
-          data-testid="degree-dropdown"
-          className="course-list-dropdown-toggle"
-        >
+        <Dropdown.Toggle id="dropdown-basic" data-testid="degree-dropdown" className="course-list-dropdown-toggle">
           {selectedDegree}
         </Dropdown.Toggle>
         <Dropdown.Menu>
           {/* Option for All Courses */}
-          <Dropdown.Item onClick={onAllCoursesSelect}>
-            All Courses
-          </Dropdown.Item>
+          <Dropdown.Item onClick={onAllCoursesSelect}>All Courses</Dropdown.Item>
 
           {/* List individual degrees */}
           {degrees.length === 0 ? (
@@ -67,7 +61,7 @@ DegreeSelector.propTypes = {
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       name: PropTypes.string.isRequired,
-    })
+    }),
   ).isRequired,
   selectedDegree: PropTypes.string.isRequired,
   searchTerm: PropTypes.string.isRequired,
@@ -75,6 +69,5 @@ DegreeSelector.propTypes = {
   onAllCoursesSelect: PropTypes.func.isRequired,
   onSearchChange: PropTypes.func.isRequired,
 };
-
 
 export default DegreeSelector;

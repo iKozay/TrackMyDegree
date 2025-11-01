@@ -24,6 +24,9 @@ import * as Sentry from '@sentry/node';
  * @returns {Promise<appUserTypes.AppUser | undefined>} - The updated user record or undefined if the update fails.
  * @throws {Error} - If the user does not exist or a database error occurs.
  */
+
+const SELECT_USER_BY_ID = 'SELECT * FROM AppUser WHERE id = @id';
+
 async function updateAppUser(
   id: string,
   email: string,
@@ -41,7 +44,7 @@ async function updateAppUser(
       const appUser = await conn
         .request()
         .input('id', Database.msSQL.VarChar, id)
-        .query('SELECT * FROM AppUser WHERE id = @id');
+        .query(SELECT_USER_BY_ID);
 
       if (appUser.recordset.length === 0) {
         throw new Error('AppUser with this id does not exist.');
@@ -70,7 +73,7 @@ async function updateAppUser(
       const updatedAppUser = await conn
         .request()
         .input('id', Database.msSQL.VarChar, id)
-        .query('SELECT * FROM AppUser WHERE id = @id');
+        .query(SELECT_USER_BY_ID);
 
       return updatedAppUser.recordset[0];
     } catch (error) {
@@ -101,7 +104,7 @@ async function deleteAppUser(id: string): Promise<string | undefined> {
       const appUser = await conn
         .request()
         .input('id', Database.msSQL.VarChar, id)
-        .query('SELECT * FROM AppUser WHERE id = @id');
+        .query(SELECT_USER_BY_ID);
 
       if (appUser.recordset.length === 0) {
         throw new Error('AppUser with this id does not exist.');

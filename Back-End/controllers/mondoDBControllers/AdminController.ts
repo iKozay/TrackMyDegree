@@ -6,6 +6,8 @@ import mongoose from 'mongoose';
 import { BaseMongoController } from './BaseMongoController';
 import * as Sentry from '@sentry/node';
 
+const DATABASE_CONNECTION_NOT_AVAILABLE = 'Database connection not available';
+
 export class AdminController extends BaseMongoController<any> {
   constructor() {
     // Admin controller doesn't use a specific model
@@ -19,13 +21,16 @@ export class AdminController extends BaseMongoController<any> {
     try {
       const db = mongoose.connection.db;
       if (!db) {
-        throw new Error('Database connection not available');
+        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
       }
 
       const collections = await db.listCollections().toArray();
       return collections.map((col) => col.name);
     } catch (error) {
       Sentry.captureException(error);
+      if (error instanceof Error && error.message === DATABASE_CONNECTION_NOT_AVAILABLE) {
+        throw error;
+      }
       throw new Error('Error fetching collections');
     }
   }
@@ -46,7 +51,7 @@ export class AdminController extends BaseMongoController<any> {
     try {
       const db = mongoose.connection.db;
       if (!db) {
-        throw new Error('Database connection not available');
+        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
       }
 
       const collection = db.collection(collectionName);
@@ -78,12 +83,13 @@ export class AdminController extends BaseMongoController<any> {
             (acc, field) => ({ ...acc, [field]: 1 }),
             {} as Record<string, number>,
           )
-        : {};
+        : null;
 
       // Execute query with pagination
       const skip = (page - 1) * limit;
+      const findOptions = projection ? { projection } : {};
       const documents = await collection
-        .find(query, { projection })
+        .find(query, findOptions)
         .skip(skip)
         .limit(limit)
         .toArray();
@@ -91,6 +97,9 @@ export class AdminController extends BaseMongoController<any> {
       return documents as any[];
     } catch (error) {
       Sentry.captureException(error);
+      if (error instanceof Error && error.message === DATABASE_CONNECTION_NOT_AVAILABLE) {
+        throw error;
+      }
       throw new Error('Error fetching documents from collection');
     }
   }
@@ -106,9 +115,8 @@ export class AdminController extends BaseMongoController<any> {
     try {
       const db = mongoose.connection.db;
       if (!db) {
-        throw new Error('Database connection not available');
+        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
       }
-
 
       const stats = await db.command({
         collStats: collectionName,
@@ -121,6 +129,9 @@ export class AdminController extends BaseMongoController<any> {
       };
     } catch (error) {
       Sentry.captureException(error);
+      if (error instanceof Error && error.message === DATABASE_CONNECTION_NOT_AVAILABLE) {
+        throw error;
+      }
       throw new Error('Error fetching collection statistics');
     }
   }
@@ -132,13 +143,16 @@ export class AdminController extends BaseMongoController<any> {
     try {
       const db = mongoose.connection.db;
       if (!db) {
-        throw new Error('Database connection not available');
+        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
       }
 
       const result = await db.collection(collectionName).deleteMany({});
       return result.deletedCount || 0;
     } catch (error) {
       Sentry.captureException(error);
+      if (error instanceof Error && error.message === DATABASE_CONNECTION_NOT_AVAILABLE) {
+        throw error;
+      }
       throw new Error('Error clearing collection');
     }
   }

@@ -2,12 +2,12 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const express = require('express');
-const mongoRouter = require('../dist/routes/mongo/index').default;
+const mongoRouter = require('../routes/mongo/index').default;
 
 // Create test app
 const app = express();
 app.use(express.json());
-app.use('/mongo', mongoRouter);
+app.use('/v2', mongoRouter);
 
 describe('Mongo Routes Index', () => {
   let mongoServer;
@@ -25,57 +25,46 @@ describe('Mongo Routes Index', () => {
 
   it('should mount all route modules', async () => {
     // Test that routes are accessible
-    const response = await request(app)
-      .get('/mongo/degree')
-      .expect(404); // Should return 404 since no degree exists
+    const response = await request(app).get('/v2/degree').expect(200);
 
-    // The route should exist (404 means route exists but no data found)
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(200);
   });
 
-  it('should have /mongo/degree route', async () => {
-    const response = await request(app)
-      .get('/mongo/degree')
-      .expect(200);
+  it('should have /v2/degree route', async () => {
+    const response = await request(app).get('/v2/degree').expect(200);
 
     expect(response.body.message).toBeDefined();
   });
 
-  it('should have /mongo/courses route', async () => {
+  it('should have /v2/courses route', async () => {
+    const response = await request(app).get('/v2/courses').expect(200);
+
+    expect(response.body).toBeDefined();
+  });
+
+  it('should have /v2/users route', async () => {
+    const response = await request(app).get('/v2/users').expect(200);
+
+    expect(response.body).toBeDefined();
+  });
+
+  it('should have /v2/feedback route', async () => {
+    const response = await request(app).get('/v2/feedback').expect(200);
+
+    expect(response.body).toBeDefined();
+  });
+
+  it('should have /v2/timeline route', async () => {
     const response = await request(app)
-      .get('/mongo/courses')
+      .get('/v2/timeline/user/testuser')
       .expect(200);
 
     expect(response.body).toBeDefined();
   });
 
-  it('should have /mongo/users route', async () => {
+  it('should have /v2/admin route', async () => {
     const response = await request(app)
-      .get('/mongo/users')
-      .expect(200);
-
-    expect(response.body).toBeDefined();
-  });
-
-  it('should have /mongo/feedback route', async () => {
-    const response = await request(app)
-      .get('/mongo/feedback')
-      .expect(200);
-
-    expect(response.body).toBeDefined();
-  });
-
-  it('should have /mongo/timeline route', async () => {
-    const response = await request(app)
-      .get('/mongo/timeline/user/testuser')
-      .expect(200);
-
-    expect(response.body).toBeDefined();
-  });
-
-  it('should have /mongo/admin route', async () => {
-    const response = await request(app)
-      .get('/mongo/admin/collections')
+      .get('/v2/admin/collections')
       .expect(200);
 
     expect(response.body).toBeDefined();

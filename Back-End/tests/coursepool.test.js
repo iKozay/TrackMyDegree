@@ -1,5 +1,5 @@
 jest.mock(
-  '../dist/controllers/coursepoolController/coursepoolController',
+  '../controllers/coursepoolController/coursepoolController',
   () => ({
     __esModule: true,
     default: {
@@ -14,11 +14,11 @@ jest.mock(
 
 const request = require('supertest');
 const express = require('express');
-const router = require('../dist/routes/coursepool').default;
+const router = require('../routes/coursepool').default;
 const controller =
-  require('../dist/controllers/coursepoolController/coursepoolController').default;
-const DB_OPS = require('../dist/Util/DB_Ops').default;
-const HTTP = require('../dist/Util/HTTPCodes').default;
+  require('../controllers/coursepoolController/coursepoolController').default;
+const DB_OPS = require('../Util/DB_Ops').default;
+const HTTP = require('../Util/HTTPCodes').default;
 
 const coursepool_mocks = require('./__mocks__/coursepool_mocks');
 
