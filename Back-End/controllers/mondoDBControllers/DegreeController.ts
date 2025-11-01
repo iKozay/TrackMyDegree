@@ -11,13 +11,7 @@ export interface DegreeData {
   _id: string;
   name: string;
   totalCredits: number;
-}
-
-export interface CoursePoolData {
-  _id: string;
-  name: string;
-  creditsRequired?: number;
-  courses?: string[];
+  coursePools?: string[];
 }
 
 export interface DegreeXCPData {
@@ -43,6 +37,58 @@ export class DegreeController extends BaseMongoController<any> {
   // ==========================
 
   /**
+   * Create a new degree without course pools
+   */
+  async createDegree(degreeData: DegreeData): Promise<DegreeData> {
+    try {
+      // Check if degree with the same id already exists
+      const existingDegree = await this.findById(degreeData._id);
+
+      if (existingDegree) {
+        throw new Error('Degree with this id already exists.');
+      }
+
+      const result = await this.create(degreeData);
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to create degree');
+      }
+
+      // Note: isAddon (from model) is being omitted for now. Might be removed altogether later.
+      return {
+        _id: result.data._id,
+        name: result.data.name,
+        totalCredits: result.data.totalCredits,
+        coursePools: result.data.coursePools || []
+      };
+    } catch (error) {
+      this.handleError(error, 'createDegree');
+    }
+  }
+
+  /**
+   * Update an existing degree
+   */
+  async updateDegree(_id: string, updateData: Partial<DegreeData>): Promise<DegreeData> {
+    try {
+      const result = await this.updateById(_id, updateData);
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update degree');
+      }
+
+      return {
+        _id: result.data._id,
+        name: result.data.name,
+        totalCredits: result.data.totalCredits,
+        coursePools: result.data.coursePools || []
+      };
+    } catch (error) {
+      this.handleError(error, 'updateDegree');
+    }
+  }
+
+  /**
    * Get degree by ID
    */
   async readDegree(_id: string): Promise<DegreeData> {
@@ -57,6 +103,7 @@ export class DegreeController extends BaseMongoController<any> {
         _id: result.data._id,
         name: result.data.name,
         totalCredits: result.data.totalCredits,
+        coursePools: result.data.coursePools || [],
       };
     } catch (error) {
       this.handleError(error, 'readDegree');
@@ -81,6 +128,7 @@ export class DegreeController extends BaseMongoController<any> {
         _id: degree._id,
         name: degree.name,
         totalCredits: degree.totalCredits,
+        coursePools: degree.coursePools
       }));
     } catch (error) {
       this.handleError(error, 'readAllDegrees');
@@ -104,99 +152,36 @@ export class DegreeController extends BaseMongoController<any> {
     }
   }
 
-  // ==========================
-  // COURSE POOL OPERATIONS
-  // ==========================
-
   /**
-   * Get all course pools from all degrees (aggregated and deduplicated)
+   * Get course pools for a degree (optimized - only fetches coursePools field)
    */
-  async getAllCoursePools(): Promise<CoursePoolData[]> {
+  async getCoursePoolsForDegree(_id: string): Promise<string[]> {
     try {
-      const result = await this.aggregate<CoursePoolData>([
-        { $unwind: '$coursePools' },
-        {
-          $group: {
-            _id: '$coursePools._id',
-            name: { $first: '$coursePools.name' },
-            creditsRequired: { $first: '$coursePools.creditsRequired' },
-          },
-        },
-        {
-          $project: {
-            _id: '$_id',
-            name: 1,
-            creditsRequired: 1,
-          },
-        },
-        { $sort: { name: 1 } },
-      ]);
+      // Using populate to get full course pool details
+      const result = await this.findById(_id, 'coursePools');
 
-      return result.data || [];
-    } catch (error) {
-      Sentry.captureException(error);
-      console.error(
-        '[DegreeController] Error fetching all course pools:',
-        error,
-      );
-      return [];
-    }
-  }
-
-  /**
-   * Get a specific course pool by ID
-   */
-  async getCoursePool(pool_id: string): Promise<CoursePoolData | undefined> {
-    try {
-      const result = await this.aggregate<CoursePoolData>([
-        { $unwind: '$coursePools' },
-        { $match: { 'coursePools._id': pool_id } },
-        {
-          $project: {
-            _id: '$coursePools._id',
-            name: '$coursePools.name',
-            creditsRequired: '$coursePools.creditsRequired',
-            courses: '$coursePools.courses',
-          },
-        },
-        { $limit: 1 },
-      ]);
-
-      return result.data?.[0];
-    } catch (error) {
-      Sentry.captureException(error);
-      console.error('[DegreeController] Error fetching course pool:', error);
-      return undefined;
-    }
-  }
-
-  /**
-   * Get all course pools for a specific degree
-   */
-  async getCoursePoolsByDegree(degree_id: string): Promise<CoursePoolData[]> {
-    try {
-      const degree = await Degree.findById(degree_id)
-        .select('coursePools')
-        .lean()
-        .exec();
-
-      if (!degree || !degree.coursePools) {
-        return [];
+      if (!result.success) {
+        throw new Error('Degree with this id does not exist.');
       }
 
-      return degree.coursePools.map((cp: any) => ({
-        _id: cp._id,
-        name: cp.name,
-        creditsRequired: cp.creditsRequired,
-        courses: cp.courses,
-      }));
+      return result.data.coursePools || [];
     } catch (error) {
-      Sentry.captureException(error);
-      console.error(
-        '[DegreeController] Error fetching degree course pools:',
-        error,
-      );
-      return [];
+      this.handleError(error, 'getCoursePoolsForDegree');
+    }
+  }
+
+  /**
+   * Delete a degree by ID
+   */
+  async deleteDegree(_id: string): Promise<boolean> {
+    try {
+      const result = await this.deleteById(_id);
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to delete degree');
+      }
+      return true;
+    } catch (error) {
+      this.handleError(error, 'deleteDegree');
     }
   }
 }

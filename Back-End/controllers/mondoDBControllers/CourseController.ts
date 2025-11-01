@@ -37,6 +37,45 @@ export class CourseController extends BaseMongoController<any> {
   // ==========================
 
   /**
+   * Create a new course
+   */
+  async createCourse(courseData: CourseData): Promise<CourseData> {
+    try {
+      // Check if course with the same id already exists
+      const existingCourse = await this.findById(courseData._id);
+      if (existingCourse) {
+        throw new Error('Course with this id already exists.');
+      }
+      const result = await this.create(courseData);
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to create course');
+      }
+      return result.data;
+    } catch (error) {
+      this.handleError(error, 'createCourse');
+    }
+  }
+
+  /**
+   * Update an existing course
+   */
+  async updateCourse(
+    _id: string,
+    updateData: Partial<CourseData>,
+  ): Promise<CourseData | null> {
+    try {
+      const result = await this.updateById(_id, updateData);
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update course');
+      }
+      return result.data;
+    } catch (error) {
+      this.handleError(error, 'updateCourse');
+      return null;
+    }
+  }
+
+  /**
    * Get all courses with optional filtering and pagination
    */
   async getAllCourses(
@@ -102,6 +141,22 @@ export class CourseController extends BaseMongoController<any> {
       return result.data || [];
     } catch (error) {
       this.handleError(error, 'getCoursesByPool');
+    }
+  }
+
+  /**
+   * Delete a course by code
+   */
+  async deleteCourse(code: string): Promise<string> {
+    try {
+      const result = await this.deleteById(code);
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to delete course');
+      }
+      return `Course '${code}' deleted successfully.`;
+    } catch (error) {
+      this.handleError(error, 'deleteCourse');
     }
   }
 
