@@ -1,5 +1,3 @@
-# This workflow focuses on testing but I dont see anything related to creating the docker image for deployment.
-
 name: System Test
 
 on:
@@ -13,14 +11,12 @@ on:
 
 
 jobs:
-  # 1) Checkout + Node setup
-  setup:
+  # 3) Frontend tasks (runs in parallel with backend & scraper)
+  frontend:
     runs-on: ubuntu-latest
-    outputs:
-      repo-artifact: repo
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -28,31 +24,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '22'
-
-      - name: Pack repository for downstream jobs
-        run: |
-          tar -czf repo.tar.gz .
-
-      - name: Upload repository artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: repo
-          path: repo.tar.gz
-
-  # 3) Frontend tasks (runs in parallel with backend & scraper)
-  frontend:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download repo
-        uses: actions/download-artifact@v4
-        with:
-          name: repo
-          path: repo
-
-      - name: Extract repo
-        run: |
-          tar -xzf repo/repo.tar.gz -C .
 
       - name: Install dependencies for frontend
         working-directory: ./front-end
@@ -78,18 +49,17 @@ jobs:
 
   # 4) Backend tasks (runs in parallel)
   backend:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
-      - name: Download repo
-        uses: actions/download-artifact@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          name: repo
-          path: repo
+          fetch-depth: 0
 
-      - name: Extract repo
-        run: |
-          tar -xzf repo/repo.tar.gz -C .
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
 
       - name: Install dependencies for backend
         working-directory: ./Back-End
@@ -115,18 +85,12 @@ jobs:
 
   # 5) Scraper tests (runs in parallel)
   scraper:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
-      - name: Download repo
-        uses: actions/download-artifact@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          name: repo
-          path: repo
-
-      - name: Extract repo
-        run: |
-          tar -xzf repo/repo.tar.gz -C .
+          fetch-depth: 0
 
       - name: Run scraper tests with coverage
         working-directory: ./Back-End/course-data/Scraping
@@ -149,6 +113,11 @@ jobs:
     needs: [frontend, backend, scraper]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Download coverage artifacts (frontend)
         uses: actions/download-artifact@v4
         with:
