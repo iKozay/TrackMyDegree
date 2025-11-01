@@ -125,19 +125,19 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-coverage
-          path: coverage/frontend
+          path: front-end/coverage
 
       - name: Download backend coverage artifact (backend)
         uses: actions/download-artifact@v4
         with:
           name: backend-coverage
-          path: coverage/backend
+          path: Back-End/coverage
 
       - name: Download scraper coverage artifact (scraper)
         uses: actions/download-artifact@v4
         with:
           name: scraper-coverage
-          path: coverage/scraper
+          path: Back-End/course-data/Scraping/coverage.xml
 
       - name: Run SonarCloud Scan
         uses: sonarsource/sonarqube-scan-action@v6
