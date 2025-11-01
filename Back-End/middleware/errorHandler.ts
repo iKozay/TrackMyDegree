@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction} from 'express';
 import createError from 'http-errors';
 import HTTP from '@Util/HTTPCodes';
-import Sentry from './sentryMiddleware';
+import * as Sentry from '@sentry/node';
 
 // 404 Not Found Middleware
 export const notFoundHandler = (
@@ -9,8 +9,12 @@ export const notFoundHandler = (
   res: Response,
   next: NextFunction,
 ) => {
-  next(createError(HTTP.NOT_FOUND, 'Page not found!!!'));
-  Sentry.captureException(new Error('Page not found!!!'));
+  const error = createError(
+    HTTP.NOT_FOUND,
+    `Route ${req.originalUrl} not found`,
+  );
+  Sentry.captureException(error);
+  next(error);
 };
 
 // Global Error Handler
@@ -20,10 +24,11 @@ export const errorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
+  const status = err.status || err.statusCode || HTTP.SERVER_ERR;
+  const message = err.message || 'Internal Server Error';
   Sentry.captureException(err);
-  res.status(err.status || HTTP.SERVER_ERR).json({
-    error: err.message || 'Internal Server Error',
+  res.status(status).json({
+    error: message,
+    status,
   });
 };
-
-export default { notFoundHandler, errorHandler };
