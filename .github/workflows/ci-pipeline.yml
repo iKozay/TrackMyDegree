@@ -37,6 +37,9 @@ jobs:
 
       - name: Run frontend tests with coverage
         working-directory: ./front-end
+        env:
+          # Setting CI to false to avoid treating warnings as errors
+          CI: false
         run: |
           npm run build
           npm test -- --coverage
