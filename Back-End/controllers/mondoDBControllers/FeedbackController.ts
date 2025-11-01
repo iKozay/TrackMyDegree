@@ -6,7 +6,7 @@ import { BaseMongoController } from './BaseMongoController';
 import { Feedback } from '../../models';
 
 export interface FeedbackData {
-  id?: string;
+  _id: string;
   message: string;
   user_id?: string | null;
   submitted_at?: Date;
@@ -32,11 +32,11 @@ export class FeedbackController extends BaseMongoController<any> {
       });
 
       if (!result.success) {
-        throw new Error('Failed to submit feedback');
+        throw new Error(result.error || 'Failed to submit feedback');
       }
 
       return {
-        id: result.data._id,
+        _id: result.data._id,
         message: result.data.message,
         user_id: result.data.user_id,
         submitted_at: result.data.submitted_at,
@@ -72,11 +72,11 @@ export class FeedbackController extends BaseMongoController<any> {
       });
 
       if (!result.success) {
-        throw new Error('Failed to fetch feedback');
+        throw new Error(result.error || 'Failed to fetch feedback');
       }
 
       return (result.data || []).map((f) => ({
-        id: f._id,
+        _id: f._id,
         message: f.message,
         user_id: f.user_id,
         submitted_at: f.submitted_at,
@@ -94,11 +94,11 @@ export class FeedbackController extends BaseMongoController<any> {
       const result = await this.findById(feedback_id);
 
       if (!result.success) {
-        throw new Error('Feedback not found');
+        throw new Error(result.error || 'Feedback not found');
       }
 
       return {
-        id: result.data._id,
+        _id: result.data._id,
         message: result.data.message,
         user_id: result.data.user_id,
         submitted_at: result.data.submitted_at,
@@ -116,7 +116,7 @@ export class FeedbackController extends BaseMongoController<any> {
       const result = await this.deleteById(feedback_id);
 
       if (!result.success) {
-        throw new Error('Feedback not found');
+        throw new Error(result.error || 'Feedback not found');
       }
 
       return result.message!;
@@ -133,7 +133,7 @@ export class FeedbackController extends BaseMongoController<any> {
       const result = await this.deleteMany({ user_id });
 
       if (!result.success) {
-        throw new Error('Failed to delete feedback');
+        throw new Error(result.error || 'Failed to delete feedback');
       }
 
       return result.data || 0;

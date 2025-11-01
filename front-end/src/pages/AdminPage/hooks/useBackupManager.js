@@ -16,7 +16,7 @@ const useBackupManager = () => {
   const fetchBackups = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch(`${SERVER_URL}/admin/fetch-backups`, {
         method: 'POST',
@@ -79,82 +79,88 @@ const useBackupManager = () => {
   }, [SERVER_URL, fetchBackups]);
 
   // Restore a backup
-  const restoreBackup = useCallback(async (backupName) => {
-    if (!backupName) {
-      return { success: false, message: 'Please select a backup to restore' };
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(`${SERVER_URL}/admin/restore-backup`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ backupName }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to restore backup');
+  const restoreBackup = useCallback(
+    async (backupName) => {
+      if (!backupName) {
+        return { success: false, message: 'Please select a backup to restore' };
       }
 
-      const data = await response.json();
+      setLoading(true);
+      setError(null);
 
-      if (data.success) {
-        return { success: true, message: 'Database restored successfully' };
-      } else {
-        throw new Error(data.message || 'Restore failed');
+      try {
+        const response = await fetch(`${SERVER_URL}/admin/restore-backup`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ backupName }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to restore backup');
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          return { success: true, message: 'Database restored successfully' };
+        } else {
+          throw new Error(data.message || 'Restore failed');
+        }
+      } catch (err) {
+        const errorMessage = err.message || 'Error restoring backup';
+        setError(errorMessage);
+        console.error('Error restoring backup:', err);
+        return { success: false, message: errorMessage };
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      const errorMessage = err.message || 'Error restoring backup';
-      setError(errorMessage);
-      console.error('Error restoring backup:', err);
-      return { success: false, message: errorMessage };
-    } finally {
-      setLoading(false);
-    }
-  }, [SERVER_URL]);
+    },
+    [SERVER_URL],
+  );
 
   // Delete a backup
-  const deleteBackup = useCallback(async (backupName) => {
-    if (!backupName) {
-      return { success: false, message: 'Please select a backup to delete' };
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(`${SERVER_URL}/admin/delete-backup`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ backupName }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete backup');
+  const deleteBackup = useCallback(
+    async (backupName) => {
+      if (!backupName) {
+        return { success: false, message: 'Please select a backup to delete' };
       }
 
-      const data = await response.json();
+      setLoading(true);
+      setError(null);
 
-      if (data.success) {
-        setSelectedBackup('');
-        await fetchBackups(); // Refresh list
-        return { success: true, message: 'Backup deleted successfully' };
-      } else {
-        throw new Error(data.message || 'Deletion failed');
+      try {
+        const response = await fetch(`${SERVER_URL}/admin/delete-backup`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ backupName }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete backup');
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          setSelectedBackup('');
+          await fetchBackups(); // Refresh list
+          return { success: true, message: 'Backup deleted successfully' };
+        } else {
+          throw new Error(data.message || 'Deletion failed');
+        }
+      } catch (err) {
+        const errorMessage = err.message || 'Error deleting backup';
+        setError(errorMessage);
+        console.error('Error deleting backup:', err);
+        return { success: false, message: errorMessage };
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      const errorMessage = err.message || 'Error deleting backup';
-      setError(errorMessage);
-      console.error('Error deleting backup:', err);
-      return { success: false, message: errorMessage };
-    } finally {
-      setLoading(false);
-    }
-  }, [SERVER_URL, fetchBackups]);
+    },
+    [SERVER_URL, fetchBackups],
+  );
 
   // Fetch backups on mount
   useEffect(() => {

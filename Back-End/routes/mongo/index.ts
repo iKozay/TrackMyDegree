@@ -16,4 +16,3 @@ router.use('/timeline', timelineRoutes);
 router.use('/admin', adminRoutes);
 
 export default router;
-

@@ -17,42 +17,30 @@ describe('useNavigationBlocker', () => {
   it('should add and remove the beforeunload listener', () => {
     const { unmount } = renderHook(() => useNavigationBlocker(true));
 
-    expect(addEventListenerSpy).toHaveBeenCalledWith(
-      'beforeunload',
-      expect.any(Function)
-    );
+    expect(addEventListenerSpy).toHaveBeenCalledWith('beforeunload', expect.any(Function));
 
     unmount();
 
-    expect(removeEventListenerSpy).toHaveBeenCalledWith(
-      'beforeunload',
-      expect.any(Function)
-    );
+    expect(removeEventListenerSpy).toHaveBeenCalledWith('beforeunload', expect.any(Function));
   });
 
   it('should set returnValue when shouldBlock is true', () => {
     renderHook(() => useNavigationBlocker(true));
 
     const event = { preventDefault: jest.fn(), returnValue: '' };
-    const handler = addEventListenerSpy.mock.calls.find(
-      ([type]) => type === 'beforeunload'
-    )[1];
+    const handler = addEventListenerSpy.mock.calls.find(([type]) => type === 'beforeunload')[1];
 
     handler(event);
 
     expect(event.preventDefault).toHaveBeenCalled();
-    expect(event.returnValue).toBe(
-      'You have unsaved changes. Are you sure you want to leave?'
-    );
+    expect(event.returnValue).toBe('You have unsaved changes. Are you sure you want to leave?');
   });
 
   it('should not modify event when shouldBlock is false', () => {
     renderHook(() => useNavigationBlocker(false));
 
     const event = { preventDefault: jest.fn(), returnValue: '' };
-    const handler = addEventListenerSpy.mock.calls.find(
-      ([type]) => type === 'beforeunload'
-    )[1];
+    const handler = addEventListenerSpy.mock.calls.find(([type]) => type === 'beforeunload')[1];
 
     handler(event);
 

@@ -7,12 +7,7 @@ import SearchBar from '../../../components/SearchBar';
  * Component for displaying table records
  * Shows records in a searchable table format
  */
-const RecordsTable = ({
-  selectedTable,
-  records = [],
-  columns = [],
-  onSearch,
-}) => {
+const RecordsTable = ({ selectedTable, records = [], columns = [], onSearch }) => {
   if (!selectedTable) {
     return (
       <Col md={12} className="records-table-container">
@@ -33,12 +28,7 @@ const RecordsTable = ({
         ) : (
           <Table striped bordered hover responsive className="records-table">
             <thead>
-              <tr>
-                {Array.isArray(columns) &&
-                  columns.map((col) => (
-                    <th key={col}>{col}</th>
-                  ))}
-              </tr>
+              <tr>{Array.isArray(columns) && columns.map((col) => <th key={col}>{col}</th>)}</tr>
             </thead>
             <tbody>
               {Array.isArray(records) &&

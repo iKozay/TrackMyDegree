@@ -12,50 +12,40 @@ import useDegrees from 'front-end/src/pages/CourseListPage/hooks/useDegree';
 import useCourses from 'front-end/src/pages/CourseListPage/hooks/useCourses';
 import useResponsive from 'front-end/src/pages/CourseListPage/hooks/useResponsive';
 
-
-
 // Mock child components
 jest.mock('../pages/CourseListPage/components/DegreeSelector', () => (props) => (
   <div data-testid="degree-selector">
-    <button data-testid="all-courses-btn" onClick={props.onAllCoursesSelect}>All Courses</button>
+    <button data-testid="all-courses-btn" onClick={props.onAllCoursesSelect}>
+      All Courses
+    </button>
     {props.degrees.map((deg) => (
-      <button
-        key={deg.id}
-        data-testid={`degree-${deg.id}`}
-        onClick={() => props.onDegreeSelect(deg)}
-      >
+      <button key={deg.id} data-testid={`degree-${deg.id}`} onClick={() => props.onDegreeSelect(deg)}>
         {deg.name}
       </button>
     ))}
-    <input
-      data-testid="search-input"
-      value={props.searchTerm}
-      onChange={(e) => props.onSearchChange(e.target.value)}
-    />
+    <input data-testid="search-input" value={props.searchTerm} onChange={(e) => props.onSearchChange(e.target.value)} />
   </div>
 ));
 
-jest.mock('../pages/CourseListPage/components/CourseDetailsCard', () => (props) => (
-  props.course ? <div data-testid="course-details-card">{props.course.title}</div> : null
-));
+jest.mock(
+  '../pages/CourseListPage/components/CourseDetailsCard',
+  () => (props) => (props.course ? <div data-testid="course-details-card">{props.course.title}</div> : null),
+);
 
-jest.mock('../pages/CourseListPage/components/CourseDetailsModal', () => (props) => (
-  props.show ? <div data-testid="course-details-modal">{props.course?.title}</div> : null
-));
+jest.mock(
+  '../pages/CourseListPage/components/CourseDetailsModal',
+  () => (props) => (props.show ? <div data-testid="course-details-modal">{props.course?.title}</div> : null),
+);
 
 // Mock CourseListAccordion front-end\src\components\CourseListAccordion.js
 jest.mock('../components/CourseListAccordion', () => (props) => (
   <div data-testid="course-accordion">
     {props.courseList.map((group) =>
       group.courses.map((course) => (
-        <button
-          key={course.id}
-          data-testid={`course-${course.id}`}
-          onClick={() => props.setSelectedCourse(course)}
-        >
+        <button key={course.id} data-testid={`course-${course.id}`} onClick={() => props.setSelectedCourse(course)}>
           {course.title}
         </button>
-      ))
+      )),
     )}
   </div>
 ));
@@ -129,9 +119,7 @@ describe('CourseListPage', () => {
     render(<CourseListPage />);
     fireEvent.click(screen.getByTestId('course-CS101'));
 
-    await waitFor(() =>
-      expect(screen.getByTestId('course-details-card')).toHaveTextContent('Intro to CS')
-    );
+    await waitFor(() => expect(screen.getByTestId('course-details-card')).toHaveTextContent('Intro to CS'));
   });
 
   it('shows CourseDetailsModal when in mobile view', async () => {
@@ -140,9 +128,7 @@ describe('CourseListPage', () => {
 
     fireEvent.click(screen.getByTestId('course-CS101'));
 
-    await waitFor(() =>
-      expect(screen.getByTestId('course-details-modal')).toHaveTextContent('Intro to CS')
-    );
+    await waitFor(() => expect(screen.getByTestId('course-details-modal')).toHaveTextContent('Intro to CS'));
   });
 
   it('filters courses via search input', async () => {
@@ -151,8 +137,6 @@ describe('CourseListPage', () => {
 
     fireEvent.change(searchInput, { target: { value: 'Intro' } });
 
-    await waitFor(() =>
-      expect(screen.getByTestId('course-accordion')).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByTestId('course-accordion')).toBeInTheDocument());
   });
 });

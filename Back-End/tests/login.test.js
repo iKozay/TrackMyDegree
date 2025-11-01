@@ -1,4 +1,9 @@
-jest.mock('../dist/controllers/authController/authController', () => ({
+// Set up environment variables
+process.env.JWT_ORG_ID = 'test-org-id';
+process.env.JWT_SECRET = 'test-secret-key';
+process.env.SESSION_ALGO = 'aes-256-gcm';
+
+jest.mock('../controllers/authController/authController', () => ({
   __esModule: true,
   default: {
     authenticate: jest.fn(),
@@ -6,11 +11,28 @@ jest.mock('../dist/controllers/authController/authController', () => ({
   },
 }));
 
+jest.mock('../services/jwtService', () => ({
+  jwtService: {
+    generateToken: jest.fn(() => 'mock-token'),
+    setAccessCookie: jest.fn(() => ({
+      name: 'access_token',
+      value: 'mock-token',
+      config: {},
+    })),
+    setRefreshCookie: jest.fn(() => ({
+      name: 'refresh_token',
+      value: 'mock-refresh-token',
+      config: {},
+    })),
+  },
+}));
+
 const request = require('supertest');
 const express = require('express');
-const router = require('../dist/routes/auth').default;
+const cookieParser = require('cookie-parser');
+const router = require('../routes/auth').default;
 const authController =
-  require('../dist/controllers/authController/authController').default;
+  require('../controllers/authController/authController').default;
 
 const mockDBRecord = require('./__mocks__/user_mocks').mockDBRecord;
 
@@ -18,9 +40,14 @@ const url = process.DOCKER_URL || 'host.docker.internal:8000';
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 app.use('/auth', router);
 
 describe('POST /auth/login', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should return a successful login message and token', async () => {
     authController.authenticate.mockResolvedValueOnce(mockDBRecord);
     const response = await request(app)

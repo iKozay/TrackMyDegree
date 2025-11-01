@@ -7,7 +7,7 @@ const CourseSchema = new Schema({
   description: { type: String, required: true },
   offeredIn: [{ type: String }], // e.g., ['fall', 'winter']
   corequisites: [{ type: String, ref: 'Course' }], // references to Course _id
-  prerequisites: [{ type: String, ref: 'Course' }] // references to Course _id
+  prerequisites: [{ type: String, ref: 'Course' }], // references to Course _id
 });
 
 export const Course = model('Course', CourseSchema);

@@ -16,6 +16,9 @@ import redisClient from '@controllers/redisClient';
 
 const log = console.log;
 
+const ERROR_READING_FROM_REDIS = 'Error reading from Redis cache';
+const ERROR_WRITING_TO_REDIS = 'Error writing to Redis cache';
+
 async function getFromCache(key: string): Promise<string | null> {
   try {
     return await redisClient.get(key);
@@ -56,8 +59,8 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
       return JSON.parse(cachedData) as CourseTypes.CourseInfo[];
     }
   } catch (cacheError) {
-    Sentry.captureException(new Error('Error reading from Redis cache'));
-    log('Error reading from Redis cache', cacheError);
+    Sentry.captureException(new Error(ERROR_READING_FROM_REDIS));
+    log(ERROR_READING_FROM_REDIS, cacheError);
     // Proceed to query the database if cache fails
   }
 
@@ -120,8 +123,8 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
       try {
         await redisClient.setEx(cacheKey, 3600, JSON.stringify(resultData));
       } catch (cacheError) {
-        Sentry.captureException(new Error('Error writing to Redis cache'));
-        log('Error writing to Redis cache', cacheError);
+        Sentry.captureException(new Error(ERROR_WRITING_TO_REDIS));
+        log(ERROR_WRITING_TO_REDIS, cacheError);
       }
 
       return resultData;
@@ -286,8 +289,8 @@ async function getCoursesByDegreeGrouped(
       return JSON.parse(cachedData) as CourseTypes.CoursePoolInfo[];
     }
   } catch (cacheError) {
-    Sentry.captureException(new Error('Error reading from Redis cache'));
-    log('Error reading from Redis cache', cacheError);
+    Sentry.captureException(new Error(ERROR_READING_FROM_REDIS));
+    log(ERROR_READING_FROM_REDIS, cacheError);
     // Continue to query the database if cache read fails
   }
 
@@ -381,8 +384,8 @@ async function getCoursesByDegreeGrouped(
       // We may change TTL if needed
       await redisClient.setEx(cacheKey, 604800, JSON.stringify(resultData));
     } catch (cacheError) {
-      Sentry.captureException(new Error('Error writing to Redis cache'));
-      log('Error writing to Redis cache', cacheError);
+      Sentry.captureException(new Error(ERROR_WRITING_TO_REDIS));
+      log(ERROR_WRITING_TO_REDIS, cacheError);
     }
 
     return resultData;
@@ -415,8 +418,8 @@ async function getAllCoursesInDB(): Promise<
       return JSON.parse(cachedData) as CourseTypes.CourseInfo[];
     }
   } catch (cacheError) {
-    Sentry.captureException(new Error('Error reading from Redis cache'));
-    log('Error reading from Redis cache', cacheError);
+    Sentry.captureException(new Error(ERROR_READING_FROM_REDIS));
+    log(ERROR_READING_FROM_REDIS, cacheError);
     // Continue to query the database if cache fails
   }
 
@@ -477,8 +480,8 @@ async function getAllCoursesInDB(): Promise<
       try {
         await redisClient.setEx(cacheKey, 604800, JSON.stringify(resultData));
       } catch (cacheError) {
-        Sentry.captureException(new Error('Error writing to Redis cache'));
-        log('Error writing to Redis cache', cacheError);
+        Sentry.captureException(new Error(ERROR_WRITING_TO_REDIS));
+        log(ERROR_WRITING_TO_REDIS, cacheError);
       }
 
       return resultData;

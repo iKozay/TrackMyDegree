@@ -30,14 +30,14 @@ router.post('/login', async (req: Request, res: Response) => {
   if (!email || !password)
     return res
       .status(HTTP.BAD_REQUEST)
-      .json({ error: 'Email and password required' });
+      .json({ error: 'Email and password are required' });
 
   try {
     const user = await authController.authenticate(email, password);
     if (!user)
       return res
         .status(HTTP.UNAUTHORIZED)
-        .json({ error: 'Invalid credentials' });
+        .json({ error: 'Incorrect email or password' });
 
     const userHeaders = extractUserHeaders(req);
     const accessToken = jwtService.generateToken(
@@ -108,18 +108,16 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
 // Sign-up
 router.post('/signup', async (req: Request, res: Response) => {
-  if (!req.body) {
+  if (!req.body || Object.keys(req.body).length === 0) {
     res
       .status(HTTP.BAD_REQUEST)
       .json({ error: ERROR_MESSAGES.EMPTY_REQUEST_BODY });
-    return; // Exit if validation fails
+    return;
   }
 
   const payload: Auth.UserInfo = req.body;
 
   try {
-    // Password is hashed on the client-side
-    //payload.password = await bcrypt.hash(payload.password, salt);
     const result = await authController.registerUser(payload);
 
     if (result) {

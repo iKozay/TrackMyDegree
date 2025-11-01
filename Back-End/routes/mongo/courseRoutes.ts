@@ -1,6 +1,6 @@
 /**
  * Course Routes
- * 
+ *
  * Handles course operations (read-only)
  */
 
@@ -67,6 +67,5 @@ router.get('/:code', async (req: Request, res: Response) => {
     }
   }
 });
-
 
 export default router;

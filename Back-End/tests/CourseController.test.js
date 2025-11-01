@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { CourseController } = require('../dist/controllers/mondoDBControllers/CourseController');
-const { Course } = require('../dist/models/Course');
+const {
+  CourseController,
+} = require('../controllers/mondoDBControllers/CourseController');
+const { Course } = require('../models/Course');
 
 describe('CourseController', () => {
   let mongoServer, mongoUri, courseController;
@@ -41,7 +43,7 @@ describe('CourseController', () => {
           credits: 3,
           offeredIn: ['Fall', 'Winter'],
           prerequisites: ['MATH101'],
-          corequisites: []
+          corequisites: [],
         },
         {
           _id: 'COMP102',
@@ -50,7 +52,7 @@ describe('CourseController', () => {
           credits: 3,
           offeredIn: ['Winter', 'Summer'],
           prerequisites: ['COMP101'],
-          corequisites: []
+          corequisites: [],
         },
         {
           _id: 'MATH101',
@@ -59,8 +61,8 @@ describe('CourseController', () => {
           credits: 4,
           offeredIn: ['Fall', 'Winter', 'Summer'],
           prerequisites: [],
-          corequisites: []
-        }
+          corequisites: [],
+        },
       ]);
     });
 
@@ -83,18 +85,25 @@ describe('CourseController', () => {
       const result = await courseController.getAllCourses({ pool: 'Fall' });
 
       expect(result).toHaveLength(2);
-      expect(result.every(course => course.offeredIn.includes('Fall'))).toBe(true);
+      expect(result.every((course) => course.offeredIn.includes('Fall'))).toBe(
+        true,
+      );
     });
 
     it('should search courses by title and description', async () => {
-      const result = await courseController.getAllCourses({ search: 'programming' });
+      const result = await courseController.getAllCourses({
+        search: 'programming',
+      });
 
       expect(result).toHaveLength(1);
       expect(result[0].title).toBe('Introduction to Programming');
     });
 
     it('should paginate results', async () => {
-      const result = await courseController.getAllCourses({ page: 1, limit: 2 });
+      const result = await courseController.getAllCourses({
+        page: 1,
+        limit: 2,
+      });
 
       expect(result).toHaveLength(2);
     });
@@ -106,18 +115,25 @@ describe('CourseController', () => {
     });
 
     it('should use default title sort when no sort specified', async () => {
-      const result = await courseController.getAllCourses({ page: 1, limit: 10 });
+      const result = await courseController.getAllCourses({
+        page: 1,
+        limit: 10,
+      });
 
       // Should be sorted by title (alphabetically)
       expect(result).toHaveLength(3);
-      expect(result[0]._id).toBe('COMP101'); // C comes before M
+      // Verify sorting by checking that titles are in alphabetical order
+      const titles = result.map((course) => course.title);
+      expect(titles).toEqual([...titles].sort());
     });
 
     it('should handle pool parameter correctly', async () => {
       const result = await courseController.getAllCourses({ pool: 'Winter' });
 
       expect(result).toHaveLength(3);
-      expect(result.every(course => course.offeredIn.includes('Winter'))).toBe(true);
+      expect(
+        result.every((course) => course.offeredIn.includes('Winter')),
+      ).toBe(true);
     });
 
     it('should handle multiple parameters together', async () => {
@@ -126,7 +142,7 @@ describe('CourseController', () => {
         search: 'programming',
         page: 1,
         limit: 10,
-        sort: 'credits'
+        sort: 'credits',
       });
 
       expect(result).toHaveLength(1);
@@ -141,16 +157,18 @@ describe('CourseController', () => {
     });
 
     it('should handle database errors', async () => {
-      // Mock Course.find to throw an error
-      const originalFind = Course.find;
-      Course.find = jest.fn().mockImplementation(() => {
+      // Mock findAll to throw an error
+      const originalFindAll = courseController.findAll;
+      courseController.findAll = jest.fn().mockImplementation(() => {
         throw new Error('Database connection failed');
       });
 
-      await expect(courseController.getAllCourses()).rejects.toThrow('Database connection failed');
+      await expect(courseController.getAllCourses()).rejects.toThrow(
+        'Database connection failed',
+      );
 
       // Restore original method
-      Course.find = originalFind;
+      courseController.findAll = originalFindAll;
     });
 
     it('should handle errors in findAll and trigger handleError', async () => {
@@ -159,8 +177,9 @@ describe('CourseController', () => {
         throw new Error('FindAll error');
       });
 
-      await expect(courseController.getAllCourses({ pool: 'Test' }))
-        .rejects.toThrow('FindAll error');
+      await expect(
+        courseController.getAllCourses({ pool: 'Test' }),
+      ).rejects.toThrow('FindAll error');
 
       courseController.findAll = originalFindAll;
     });
@@ -175,7 +194,7 @@ describe('CourseController', () => {
         credits: 3,
         offeredIn: ['Fall', 'Winter'],
         prerequisites: ['MATH101'],
-        corequisites: []
+        corequisites: [],
       });
     });
 
@@ -186,13 +205,14 @@ describe('CourseController', () => {
         _id: 'COMP101',
         title: 'Introduction to Programming',
         description: 'Basic programming concepts',
-        credits: 3
+        credits: 3,
       });
     });
 
     it('should throw error for non-existent course', async () => {
-      await expect(courseController.getCourseByCode('NONEXISTENT'))
-        .rejects.toThrow('Course not found');
+      await expect(
+        courseController.getCourseByCode('NONEXISTENT'),
+      ).rejects.toThrow('Course not found');
     });
 
     it('should handle database errors', async () => {
@@ -202,8 +222,9 @@ describe('CourseController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(courseController.getCourseByCode('COMP101'))
-        .rejects.toThrow('Database connection failed');
+      await expect(courseController.getCourseByCode('COMP101')).rejects.toThrow(
+        'Database connection failed',
+      );
 
       // Restore original method
       Course.findById = originalFindById;
@@ -216,18 +237,24 @@ describe('CourseController', () => {
         {
           _id: 'COMP101',
           title: 'Introduction to Programming',
-          offeredIn: ['Fall', 'Winter']
+          description: 'Basic programming concepts',
+          credits: 3,
+          offeredIn: ['Fall', 'Winter'],
         },
         {
           _id: 'COMP102',
           title: 'Data Structures',
-          offeredIn: ['Winter', 'Summer']
+          description: 'Advanced data structures',
+          credits: 3,
+          offeredIn: ['Winter', 'Summer'],
         },
         {
           _id: 'MATH101',
           title: 'Calculus I',
-          offeredIn: ['Fall', 'Winter', 'Summer']
-        }
+          description: 'Differential calculus',
+          credits: 4,
+          offeredIn: ['Fall', 'Winter', 'Summer'],
+        },
       ]);
     });
 
@@ -235,7 +262,9 @@ describe('CourseController', () => {
       const result = await courseController.getCoursesByPool('Fall');
 
       expect(result).toHaveLength(2);
-      expect(result.every(course => course.offeredIn.includes('Fall'))).toBe(true);
+      expect(result.every((course) => course.offeredIn.includes('Fall'))).toBe(
+        true,
+      );
     });
 
     it('should return empty array for non-existent pool', async () => {
@@ -245,17 +274,18 @@ describe('CourseController', () => {
     });
 
     it('should handle database errors', async () => {
-      // Mock Course.find to throw an error
-      const originalFind = Course.find;
-      Course.find = jest.fn().mockImplementation(() => {
+      // Mock findAll to throw an error
+      const originalFindAll = courseController.findAll;
+      courseController.findAll = jest.fn().mockImplementation(() => {
         throw new Error('Database connection failed');
       });
 
-      await expect(courseController.getCoursesByPool('Fall'))
-        .rejects.toThrow('Database connection failed');
+      await expect(courseController.getCoursesByPool('Fall')).rejects.toThrow(
+        'Database connection failed',
+      );
 
       // Restore original method
-      Course.find = originalFind;
+      courseController.findAll = originalFindAll;
     });
   });
 
@@ -265,25 +295,33 @@ describe('CourseController', () => {
         {
           _id: 'COMP101',
           title: 'Introduction to Programming',
+          description: 'Basic programming concepts',
+          credits: 3,
           prerequisites: [],
-          corequisites: []
+          corequisites: [],
         },
         {
           _id: 'COMP102',
           title: 'Data Structures',
+          description: 'Advanced data structures',
+          credits: 3,
           prerequisites: [],
-          corequisites: []
-        }
+          corequisites: [],
+        },
       ]);
     });
 
     it('should create prerequisite requisite', async () => {
-      const result = await courseController.createRequisite('COMP102', 'COMP101', 'pre');
+      const result = await courseController.createRequisite(
+        'COMP102',
+        'COMP101',
+        'pre',
+      );
 
       expect(result).toMatchObject({
         code1: 'COMP102',
         code2: 'COMP101',
-        type: 'pre'
+        type: 'pre',
       });
 
       // Verify prerequisite was added
@@ -292,12 +330,16 @@ describe('CourseController', () => {
     });
 
     it('should create corequisite requisite', async () => {
-      const result = await courseController.createRequisite('COMP101', 'COMP102', 'co');
+      const result = await courseController.createRequisite(
+        'COMP101',
+        'COMP102',
+        'co',
+      );
 
       expect(result).toMatchObject({
         code1: 'COMP101',
         code2: 'COMP102',
-        type: 'co'
+        type: 'co',
       });
 
       // Verify corequisite was added
@@ -306,7 +348,11 @@ describe('CourseController', () => {
     });
 
     it('should handle type pre in createRequisite field selection', async () => {
-      const result = await courseController.createRequisite('COMP102', 'COMP101', 'pre');
+      const result = await courseController.createRequisite(
+        'COMP102',
+        'COMP101',
+        'pre',
+      );
 
       expect(result.type).toBe('pre');
 
@@ -317,7 +363,11 @@ describe('CourseController', () => {
     });
 
     it('should handle type co in createRequisite field selection', async () => {
-      const result = await courseController.createRequisite('COMP101', 'COMP102', 'co');
+      const result = await courseController.createRequisite(
+        'COMP101',
+        'COMP102',
+        'co',
+      );
 
       expect(result.type).toBe('co');
 
@@ -332,33 +382,49 @@ describe('CourseController', () => {
       await courseController.createRequisite('COMP102', 'COMP101', 'pre');
 
       // Try to add same prerequisite again
-      await expect(courseController.createRequisite('COMP102', 'COMP101', 'pre'))
-        .rejects.toThrow('Requisite already exists or course not found');
+      await expect(
+        courseController.createRequisite('COMP102', 'COMP101', 'pre'),
+      ).rejects.toThrow('Requisite already exists or course not found');
     });
 
     it('should throw error when first course does not exist', async () => {
-      await expect(courseController.createRequisite('NONEXISTENT', 'COMP101', 'pre'))
-        .rejects.toThrow("One or both courses ('NONEXISTENT', 'COMP101') do not exist");
+      await expect(
+        courseController.createRequisite('NONEXISTENT', 'COMP101', 'pre'),
+      ).rejects.toThrow(
+        "One or both courses ('NONEXISTENT', 'COMP101') do not exist",
+      );
     });
 
     it('should throw error when second course does not exist', async () => {
-      await expect(courseController.createRequisite('COMP101', 'NONEXISTENT', 'pre'))
-        .rejects.toThrow("One or both courses ('COMP101', 'NONEXISTENT') do not exist");
+      await expect(
+        courseController.createRequisite('COMP101', 'NONEXISTENT', 'pre'),
+      ).rejects.toThrow(
+        "One or both courses ('COMP101', 'NONEXISTENT') do not exist",
+      );
     });
 
     it('should throw error when both courses do not exist', async () => {
-      await expect(courseController.createRequisite('NONEXISTENT1', 'NONEXISTENT2', 'pre'))
-        .rejects.toThrow("One or both courses ('NONEXISTENT1', 'NONEXISTENT2') do not exist");
+      await expect(
+        courseController.createRequisite('NONEXISTENT1', 'NONEXISTENT2', 'pre'),
+      ).rejects.toThrow(
+        "One or both courses ('NONEXISTENT1', 'NONEXISTENT2') do not exist",
+      );
     });
 
     it('should throw error when only first course exists', async () => {
-      await expect(courseController.createRequisite('COMP101', 'DOESNOTEXIST', 'pre'))
-        .rejects.toThrow("One or both courses ('COMP101', 'DOESNOTEXIST') do not exist");
+      await expect(
+        courseController.createRequisite('COMP101', 'DOESNOTEXIST', 'pre'),
+      ).rejects.toThrow(
+        "One or both courses ('COMP101', 'DOESNOTEXIST') do not exist",
+      );
     });
 
     it('should throw error when only second course exists', async () => {
-      await expect(courseController.createRequisite('DOESNOTEXIST', 'COMP102', 'pre'))
-        .rejects.toThrow("One or both courses ('DOESNOTEXIST', 'COMP102') do not exist");
+      await expect(
+        courseController.createRequisite('DOESNOTEXIST', 'COMP102', 'pre'),
+      ).rejects.toThrow(
+        "One or both courses ('DOESNOTEXIST', 'COMP102') do not exist",
+      );
     });
 
     it('should handle database errors', async () => {
@@ -368,8 +434,9 @@ describe('CourseController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(courseController.createRequisite('COMP101', 'COMP102', 'pre'))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        courseController.createRequisite('COMP101', 'COMP102', 'pre'),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       Course.exists = originalExists;
@@ -381,8 +448,10 @@ describe('CourseController', () => {
       await Course.create({
         _id: 'COMP102',
         title: 'Data Structures',
+        description: 'Advanced data structures',
+        credits: 3,
         prerequisites: ['COMP101', 'MATH101'],
-        corequisites: ['COMP103']
+        corequisites: ['COMP103'],
       });
     });
 
@@ -390,24 +459,24 @@ describe('CourseController', () => {
       const result = await courseController.getRequisites('COMP102');
 
       expect(result).toHaveLength(3);
-      
-      const prerequisites = result.filter(r => r.type === 'pre');
-      const corequisites = result.filter(r => r.type === 'co');
+
+      const prerequisites = result.filter((r) => r.type === 'pre');
+      const corequisites = result.filter((r) => r.type === 'co');
 
       expect(prerequisites).toHaveLength(2);
       expect(corequisites).toHaveLength(1);
 
-      expect(prerequisites.some(r => r.code2 === 'COMP101')).toBe(true);
-      expect(prerequisites.some(r => r.code2 === 'MATH101')).toBe(true);
-      expect(corequisites.some(r => r.code2 === 'COMP103')).toBe(true);
+      expect(prerequisites.some((r) => r.code2 === 'COMP101')).toBe(true);
+      expect(prerequisites.some((r) => r.code2 === 'MATH101')).toBe(true);
+      expect(corequisites.some((r) => r.code2 === 'COMP103')).toBe(true);
     });
 
     it('should correctly set type to pre for prerequisites', async () => {
       const result = await courseController.getRequisites('COMP102');
 
-      const prereqs = result.filter(r => r.type === 'pre');
+      const prereqs = result.filter((r) => r.type === 'pre');
       expect(prereqs.length).toBeGreaterThan(0);
-      prereqs.forEach(req => {
+      prereqs.forEach((req) => {
         expect(req.type).toBe('pre');
         expect(req.code1).toBe('COMP102');
       });
@@ -416,9 +485,9 @@ describe('CourseController', () => {
     it('should correctly set type to co for corequisites', async () => {
       const result = await courseController.getRequisites('COMP102');
 
-      const coreqs = result.filter(r => r.type === 'co');
+      const coreqs = result.filter((r) => r.type === 'co');
       expect(coreqs.length).toBeGreaterThan(0);
-      coreqs.forEach(req => {
+      coreqs.forEach((req) => {
         expect(req.type).toBe('co');
         expect(req.code1).toBe('COMP102');
       });
@@ -428,8 +497,10 @@ describe('CourseController', () => {
       await Course.create({
         _id: 'COMP101',
         title: 'Introduction to Programming',
+        description: 'Basic programming concepts',
+        credits: 3,
         prerequisites: [],
-        corequisites: []
+        corequisites: [],
       });
 
       const result = await courseController.getRequisites('COMP101');
@@ -441,8 +512,10 @@ describe('CourseController', () => {
       await Course.create({
         _id: 'TESTCOURSE',
         title: 'Test Course',
+        description: 'A test course',
+        credits: 3,
         prerequisites: ['COMP101'],
-        corequisites: []
+        corequisites: [],
       });
 
       const result = await courseController.getRequisites('TESTCOURSE');
@@ -455,8 +528,10 @@ describe('CourseController', () => {
       await Course.create({
         _id: 'TESTCOURSE2',
         title: 'Test Course 2',
+        description: 'Another test course',
+        credits: 3,
         prerequisites: [],
-        corequisites: ['COMP101']
+        corequisites: ['COMP101'],
       });
 
       const result = await courseController.getRequisites('TESTCOURSE2');
@@ -466,8 +541,9 @@ describe('CourseController', () => {
     });
 
     it('should throw error for non-existent course', async () => {
-      await expect(courseController.getRequisites('NONEXISTENT'))
-        .rejects.toThrow("Course 'NONEXISTENT' does not exist");
+      await expect(
+        courseController.getRequisites('NONEXISTENT'),
+      ).rejects.toThrow("Course 'NONEXISTENT' does not exist");
     });
 
     it('should handle database errors', async () => {
@@ -477,8 +553,9 @@ describe('CourseController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(courseController.getRequisites('COMP102'))
-        .rejects.toThrow('Database connection failed');
+      await expect(courseController.getRequisites('COMP102')).rejects.toThrow(
+        'Database connection failed',
+      );
 
       // Restore original method
       Course.findById = originalFindById;
@@ -490,15 +567,21 @@ describe('CourseController', () => {
       await Course.create({
         _id: 'COMP102',
         title: 'Data Structures',
+        description: 'Advanced data structures',
+        credits: 3,
         prerequisites: ['COMP101', 'MATH101'],
-        corequisites: ['COMP103']
+        corequisites: ['COMP103'],
       });
     });
 
     it('should delete prerequisite', async () => {
-      const result = await courseController.deleteRequisite('COMP102', 'COMP101', 'pre');
+      const result = await courseController.deleteRequisite(
+        'COMP102',
+        'COMP101',
+        'pre',
+      );
 
-      expect(result).toBe('Requisite deleted successfully');
+      expect(result).toBe('Requisite deleted successfully.');
 
       // Verify prerequisite was removed
       const course = await Course.findById('COMP102');
@@ -507,9 +590,13 @@ describe('CourseController', () => {
     });
 
     it('should delete corequisite', async () => {
-      const result = await courseController.deleteRequisite('COMP102', 'COMP103', 'co');
+      const result = await courseController.deleteRequisite(
+        'COMP102',
+        'COMP103',
+        'co',
+      );
 
-      expect(result).toBe('Requisite deleted successfully');
+      expect(result).toBe('Requisite deleted successfully.');
 
       // Verify corequisite was removed
       const course = await Course.findById('COMP102');
@@ -517,9 +604,13 @@ describe('CourseController', () => {
     });
 
     it('should handle type pre in deleteRequisite field selection', async () => {
-      const result = await courseController.deleteRequisite('COMP102', 'COMP101', 'pre');
+      const result = await courseController.deleteRequisite(
+        'COMP102',
+        'COMP101',
+        'pre',
+      );
 
-      expect(result).toBe('Requisite deleted successfully');
+      expect(result).toBe('Requisite deleted successfully.');
 
       // Verify it removed from prerequisites field
       const course = await Course.findById('COMP102');
@@ -527,9 +618,13 @@ describe('CourseController', () => {
     });
 
     it('should handle type co in deleteRequisite field selection', async () => {
-      const result = await courseController.deleteRequisite('COMP102', 'COMP103', 'co');
+      const result = await courseController.deleteRequisite(
+        'COMP102',
+        'COMP103',
+        'co',
+      );
 
-      expect(result).toBe('Requisite deleted successfully');
+      expect(result).toBe('Requisite deleted successfully.');
 
       // Verify it removed from corequisites field
       const course = await Course.findById('COMP102');
@@ -537,13 +632,15 @@ describe('CourseController', () => {
     });
 
     it('should throw error when requisite does not exist', async () => {
-      await expect(courseController.deleteRequisite('COMP102', 'NONEXISTENT', 'pre'))
-        .rejects.toThrow('Requisite not found or already deleted');
+      await expect(
+        courseController.deleteRequisite('COMP102', 'NONEXISTENT', 'pre'),
+      ).rejects.toThrow('Requisite not found or already deleted');
     });
 
     it('should throw error when course does not exist', async () => {
-      await expect(courseController.deleteRequisite('NONEXISTENT', 'COMP101', 'pre'))
-        .rejects.toThrow('Requisite not found or already deleted');
+      await expect(
+        courseController.deleteRequisite('NONEXISTENT', 'COMP101', 'pre'),
+      ).rejects.toThrow('Requisite not found or already deleted');
     });
 
     it('should handle database errors', async () => {
@@ -553,8 +650,9 @@ describe('CourseController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(courseController.deleteRequisite('COMP102', 'COMP101', 'pre'))
-        .rejects.toThrow('Database connection failed');
+      await expect(
+        courseController.deleteRequisite('COMP102', 'COMP101', 'pre'),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       Course.updateOne = originalUpdateOne;
@@ -566,7 +664,7 @@ describe('CourseController', () => {
       const originalFindAll = courseController.findAll;
       courseController.findAll = jest.fn().mockResolvedValue({
         success: true,
-        data: null
+        data: null,
       });
 
       const result = await courseController.getAllCourses();
@@ -579,7 +677,7 @@ describe('CourseController', () => {
       const originalFindAll = courseController.findAll;
       courseController.findAll = jest.fn().mockResolvedValue({
         success: true,
-        data: null
+        data: null,
       });
 
       const result = await courseController.getCoursesByPool('TestPool');
@@ -592,11 +690,12 @@ describe('CourseController', () => {
       const originalFindAll = courseController.findAll;
       courseController.findAll = jest.fn().mockResolvedValue({
         success: false,
-        error: 'Test error'
+        error: 'Test error',
       });
 
-      await expect(courseController.getCoursesByPool('TestPool'))
-        .rejects.toThrow('Test error');
+      await expect(
+        courseController.getCoursesByPool('TestPool'),
+      ).rejects.toThrow('Test error');
 
       courseController.findAll = originalFindAll;
     });
@@ -605,11 +704,12 @@ describe('CourseController', () => {
       const originalFindById = courseController.findById;
       courseController.findById = jest.fn().mockResolvedValue({
         success: false,
-        error: null
+        error: null,
       });
 
-      await expect(courseController.getCourseByCode('TEST'))
-        .rejects.toThrow('Course not found');
+      await expect(courseController.getCourseByCode('TEST')).rejects.toThrow(
+        'Course not found',
+      );
 
       courseController.findById = originalFindById;
     });
@@ -617,7 +717,9 @@ describe('CourseController', () => {
     it('should handle getRequisites with course having undefined prerequisites/corequisites', async () => {
       await Course.create({
         _id: 'COMP999',
-        title: 'Test Course'
+        title: 'Test Course',
+        description: 'A test course',
+        credits: 3,
       });
 
       const result = await courseController.getRequisites('COMP999');

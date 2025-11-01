@@ -2,26 +2,24 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const express = require('express');
-const feedbackRoutes = require('../dist/routes/mongo/feedbackRoutes').default;
-const { Feedback } = require('../dist/models/Feedback');
-
-// Create test app
-const app = express();
-app.use(express.json());
-app.use('/feedback', feedbackRoutes);
+const feedbackRoutes = require('../routes/mongo/feedbackRoutes').default;
+const { Feedback } = require('../models/Feedback');
+const { feedbackController } = require('../controllers/mondoDBControllers/FeedbackController');
 
 describe('Feedback Routes', () => {
-  let mongoServer, mongoUri;
+  let mongoServer, mongoUri, app;
 
   beforeAll(async () => {
-    // Start in-memory MongoDB instance for testing
     mongoServer = await MongoMemoryServer.create();
     mongoUri = mongoServer.getUri();
     await mongoose.connect(mongoUri);
+
+    app = express();
+    app.use(express.json());
+    app.use('/feedback', feedbackRoutes);
   });
 
   afterAll(async () => {
-    // Clean up connections and stop MongoDB instance
     await mongoose.disconnect();
     await mongoServer.stop();
   });
@@ -34,7 +32,7 @@ describe('Feedback Routes', () => {
     it('should submit feedback with user_id', async () => {
       const feedbackData = {
         message: 'This is a test feedback message',
-        user_id: 'user123'
+        user_id: 'user123',
       };
 
       const response = await request(app)
@@ -45,15 +43,15 @@ describe('Feedback Routes', () => {
       expect(response.body.message).toBe('Feedback submitted successfully');
       expect(response.body.feedback).toMatchObject({
         message: 'This is a test feedback message',
-        user_id: 'user123'
+        user_id: 'user123',
       });
-      expect(response.body.feedback.id).toBeDefined();
+      expect(response.body.feedback._id).toBeDefined();
       expect(response.body.feedback.submitted_at).toBeDefined();
     });
 
     it('should submit feedback without user_id', async () => {
       const feedbackData = {
-        message: 'Anonymous feedback message'
+        message: 'Anonymous feedback message',
       };
 
       const response = await request(app)
@@ -64,7 +62,7 @@ describe('Feedback Routes', () => {
       expect(response.body.message).toBe('Feedback submitted successfully');
       expect(response.body.feedback).toMatchObject({
         message: 'Anonymous feedback message',
-        user_id: null
+        user_id: null,
       });
     });
 
@@ -78,23 +76,19 @@ describe('Feedback Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      // Mock feedbackController.submitFeedback to throw an error
-      const originalSubmitFeedback = require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.submitFeedback;
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.submitFeedback = jest.fn().mockRejectedValue(new Error('Database error'));
-
-      const feedbackData = {
-        message: 'Test message'
-      };
+      const originalSubmitFeedback = feedbackController.submitFeedback;
+      feedbackController.submitFeedback = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .post('/feedback')
-        .send(feedbackData)
+        .send({ message: 'Test message' })
         .expect(500);
 
       expect(response.body.error).toBe('Internal server error');
 
-      // Restore original method
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.submitFeedback = originalSubmitFeedback;
+      feedbackController.submitFeedback = originalSubmitFeedback;
     });
   });
 
@@ -104,34 +98,32 @@ describe('Feedback Routes', () => {
         {
           message: 'Feedback 1',
           user_id: 'user123',
-          submitted_at: new Date('2023-01-01')
+          submitted_at: new Date('2023-01-01'),
         },
         {
           message: 'Feedback 2',
           user_id: 'user123',
-          submitted_at: new Date('2023-01-02')
+          submitted_at: new Date('2023-01-02'),
         },
         {
           message: 'Feedback 3',
           user_id: 'user456',
-          submitted_at: new Date('2023-01-03')
+          submitted_at: new Date('2023-01-03'),
         },
         {
           message: 'Anonymous feedback',
           user_id: null,
-          submitted_at: new Date('2023-01-04')
-        }
+          submitted_at: new Date('2023-01-04'),
+        },
       ]);
     });
 
     it('should get all feedback', async () => {
-      const response = await request(app)
-        .get('/feedback')
-        .expect(200);
+      const response = await request(app).get('/feedback').expect(200);
 
       expect(response.body.message).toBe('Feedback retrieved successfully');
       expect(response.body.feedback).toHaveLength(4);
-      expect(response.body.feedback[0]).toHaveProperty('id');
+      expect(response.body.feedback[0]).toHaveProperty('_id');
       expect(response.body.feedback[0]).toHaveProperty('message');
       expect(response.body.feedback[0]).toHaveProperty('user_id');
       expect(response.body.feedback[0]).toHaveProperty('submitted_at');
@@ -143,7 +135,9 @@ describe('Feedback Routes', () => {
         .expect(200);
 
       expect(response.body.feedback).toHaveLength(2);
-      expect(response.body.feedback.every(f => f.user_id === 'user123')).toBe(true);
+      expect(response.body.feedback.every((f) => f.user_id === 'user123')).toBe(
+        true,
+      );
     });
 
     it('should paginate feedback', async () => {
@@ -155,40 +149,34 @@ describe('Feedback Routes', () => {
     });
 
     it('should sort feedback by submitted_at descending by default', async () => {
-      const response = await request(app)
-        .get('/feedback')
-        .expect(200);
+      const response = await request(app).get('/feedback').expect(200);
 
-      expect(response.body.feedback[0].message).toBe('Anonymous feedback'); // Most recent
+      expect(response.body.feedback[0].message).toBe('Anonymous feedback');
       expect(response.body.feedback[1].message).toBe('Feedback 3');
       expect(response.body.feedback[2].message).toBe('Feedback 2');
-      expect(response.body.feedback[3].message).toBe('Feedback 1'); // Oldest
+      expect(response.body.feedback[3].message).toBe('Feedback 1');
     });
 
     it('should sort feedback by submitted_at ascending', async () => {
-      const response = await request(app)
-        .get('/feedback?sort=asc')
-        .expect(200);
+      const response = await request(app).get('/feedback?sort=asc').expect(200);
 
-      expect(response.body.feedback[0].message).toBe('Feedback 1'); // Oldest
+      expect(response.body.feedback[0].message).toBe('Feedback 1');
       expect(response.body.feedback[1].message).toBe('Feedback 2');
       expect(response.body.feedback[2].message).toBe('Feedback 3');
-      expect(response.body.feedback[3].message).toBe('Anonymous feedback'); // Most recent
+      expect(response.body.feedback[3].message).toBe('Anonymous feedback');
     });
 
     it('should handle server errors', async () => {
-      // Mock feedbackController.getAllFeedback to throw an error
-      const originalGetAllFeedback = require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.getAllFeedback;
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.getAllFeedback = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetAllFeedback = feedbackController.getAllFeedback;
+      feedbackController.getAllFeedback = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
-      const response = await request(app)
-        .get('/feedback')
-        .expect(500);
+      const response = await request(app).get('/feedback').expect(500);
 
       expect(response.body.error).toBe('Internal server error');
 
-      // Restore original method
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.getAllFeedback = originalGetAllFeedback;
+      feedbackController.getAllFeedback = originalGetAllFeedback;
     });
   });
 
@@ -199,7 +187,7 @@ describe('Feedback Routes', () => {
       testFeedback = await Feedback.create({
         message: 'Test feedback message',
         user_id: 'user123',
-        submitted_at: new Date()
+        submitted_at: new Date(),
       });
     });
 
@@ -210,9 +198,9 @@ describe('Feedback Routes', () => {
 
       expect(response.body.message).toBe('Feedback retrieved successfully');
       expect(response.body.feedback).toMatchObject({
-        id: testFeedback._id.toString(),
+        _id: testFeedback._id.toString(),
         message: 'Test feedback message',
-        user_id: 'user123'
+        user_id: 'user123',
       });
       expect(response.body.feedback.submitted_at).toBeDefined();
     });
@@ -227,9 +215,10 @@ describe('Feedback Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      // Mock feedbackController.getFeedbackById to throw an error
-      const originalGetFeedbackById = require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.getFeedbackById;
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.getFeedbackById = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetFeedbackById = feedbackController.getFeedbackById;
+      feedbackController.getFeedbackById = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .get(`/feedback/${testFeedback._id}`)
@@ -237,8 +226,7 @@ describe('Feedback Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      // Restore original method
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.getFeedbackById = originalGetFeedbackById;
+      feedbackController.getFeedbackById = originalGetFeedbackById;
     });
   });
 
@@ -249,7 +237,7 @@ describe('Feedback Routes', () => {
       testFeedback = await Feedback.create({
         message: 'Test feedback to delete',
         user_id: 'user123',
-        submitted_at: new Date()
+        submitted_at: new Date(),
       });
     });
 
@@ -260,7 +248,6 @@ describe('Feedback Routes', () => {
 
       expect(response.body.message).toBe('Feedback deleted successfully');
 
-      // Verify feedback is deleted
       const deletedFeedback = await Feedback.findById(testFeedback._id);
       expect(deletedFeedback).toBeNull();
     });
@@ -275,9 +262,10 @@ describe('Feedback Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      // Mock feedbackController.deleteFeedback to throw an error
-      const originalDeleteFeedback = require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.deleteFeedback;
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.deleteFeedback = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalDeleteFeedback = feedbackController.deleteFeedback;
+      feedbackController.deleteFeedback = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .delete(`/feedback/${testFeedback._id}`)
@@ -285,8 +273,7 @@ describe('Feedback Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      // Restore original method
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.deleteFeedback = originalDeleteFeedback;
+      feedbackController.deleteFeedback = originalDeleteFeedback;
     });
   });
 
@@ -296,18 +283,18 @@ describe('Feedback Routes', () => {
         {
           message: 'User 1 Feedback 1',
           user_id: 'user123',
-          submitted_at: new Date()
+          submitted_at: new Date(),
         },
         {
           message: 'User 1 Feedback 2',
           user_id: 'user123',
-          submitted_at: new Date()
+          submitted_at: new Date(),
         },
         {
           message: 'User 2 Feedback',
           user_id: 'user456',
-          submitted_at: new Date()
-        }
+          submitted_at: new Date(),
+        },
       ]);
     });
 
@@ -316,14 +303,14 @@ describe('Feedback Routes', () => {
         .delete('/feedback/user/user123')
         .expect(200);
 
-      expect(response.body.message).toBe('All user feedback deleted successfully');
+      expect(response.body.message).toBe(
+        'All user feedback deleted successfully',
+      );
       expect(response.body.deletedCount).toBe(2);
 
-      // Verify user's feedback is deleted
       const userFeedback = await Feedback.find({ user_id: 'user123' });
       expect(userFeedback).toHaveLength(0);
 
-      // Verify other user's feedback remains
       const otherUserFeedback = await Feedback.find({ user_id: 'user456' });
       expect(otherUserFeedback).toHaveLength(1);
     });
@@ -337,9 +324,10 @@ describe('Feedback Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      // Mock feedbackController.deleteUserFeedback to throw an error
-      const originalDeleteUserFeedback = require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.deleteUserFeedback;
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.deleteUserFeedback = jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalDeleteUserFeedback = feedbackController.deleteUserFeedback;
+      feedbackController.deleteUserFeedback = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .delete('/feedback/user/user123')
@@ -347,8 +335,9 @@ describe('Feedback Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      // Restore original method
-      require('../dist/controllers/mondoDBControllers/FeedbackController').feedbackController.deleteUserFeedback = originalDeleteUserFeedback;
+      feedbackController.deleteUserFeedback = originalDeleteUserFeedback;
     });
   });
 });
+
+

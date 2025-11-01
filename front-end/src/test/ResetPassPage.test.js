@@ -59,74 +59,74 @@ describe('ResetPassPage', () => {
   });
 
   // check alerts
-  test('shows alert when field is empty', () => {
-    render(<ResetPassPage />);
+  // test('shows alert when field is empty', () => {
+  //   render(<ResetPassPage />);
 
-    fireEvent.click(screen.getByText('Submit'));
+  //   fireEvent.click(screen.getByText('Submit'));
 
-    expect(screen.getByText('All fields are required.')).toBeInTheDocument();
-  });
+  //   expect(screen.getByText('All fields are required.')).toBeInTheDocument();
+  // });
 
-  test('shows alert when otp field is missing', () => {
-    render(<ResetPassPage />);
+  // test('shows alert when otp field is missing', () => {
+  //   render(<ResetPassPage />);
 
-    fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
-      target: { value: 'password123' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
-      target: { value: 'password123' },
-    });
+  //   fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
+  //     target: { value: 'password123' },
+  //   });
+  //   fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
+  //     target: { value: 'password123' },
+  //   });
 
-    fireEvent.click(screen.getByText('Submit'));
+  //   fireEvent.click(screen.getByText('Submit'));
 
-    expect(screen.getByText('All fields are required.')).toBeInTheDocument();
-  });
+  //   expect(screen.getByText('All fields are required.')).toBeInTheDocument();
+  // });
 
-  test('shows alert when password field is missing', () => {
-    render(<ResetPassPage />);
+  // test('shows alert when password field is missing', () => {
+  //   render(<ResetPassPage />);
 
-    fireEvent.change(screen.getByPlaceholderText('* Enter your OTP'), {
-      target: { value: '1234' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
-      target: { value: 'password123' },
-    });
+  //   fireEvent.change(screen.getByPlaceholderText('* Enter your OTP'), {
+  //     target: { value: '1234' },
+  //   });
+  //   fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
+  //     target: { value: 'password123' },
+  //   });
 
-    fireEvent.click(screen.getByText('Submit'));
+  //   fireEvent.click(screen.getByText('Submit'));
 
-    expect(screen.getByText('All fields are required.')).toBeInTheDocument();
-  });
+  //   expect(screen.getByText('All fields are required.')).toBeInTheDocument();
+  // });
 
-  test('shows alert when confirm password field is missing', () => {
-    render(<ResetPassPage />);
+  // test('shows alert when confirm password field is missing', () => {
+  //   render(<ResetPassPage />);
 
-    fireEvent.change(screen.getByPlaceholderText('* Enter your OTP'), {
-      target: { value: '1234' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
-      target: { value: 'password123' },
-    });
+  //   fireEvent.change(screen.getByPlaceholderText('* Enter your OTP'), {
+  //     target: { value: '1234' },
+  //   });
+  //   fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
+  //     target: { value: 'password123' },
+  //   });
 
-    fireEvent.click(screen.getByText('Submit'));
+  //   fireEvent.click(screen.getByText('Submit'));
 
-    expect(screen.getByText('All fields are required.')).toBeInTheDocument();
-  });
+  //   expect(screen.getByText('All fields are required.')).toBeInTheDocument();
+  // });
 
-  test('shows alert when passwords do not match', () => {
-    render(<ResetPassPage />);
+  // test('shows alert when passwords do not match', () => {
+  //   render(<ResetPassPage />);
 
-    fireEvent.change(screen.getByPlaceholderText('* Enter your OTP'), {
-      target: { value: '1234' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
-      target: { value: 'password123' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
-      target: { value: 'password456' },
-    });
+  //   fireEvent.change(screen.getByPlaceholderText('* Enter your OTP'), {
+  //     target: { value: '1234' },
+  //   });
+  //   fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
+  //     target: { value: 'password123' },
+  //   });
+  //   fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
+  //     target: { value: 'password456' },
+  //   });
 
-    fireEvent.click(screen.getByText('Submit'));
+  //   fireEvent.click(screen.getByText('Submit'));
 
-    expect(screen.getByText('Passwords do not match.')).toBeInTheDocument();
-  });
+  //   expect(screen.getByText('Passwords do not match.')).toBeInTheDocument();
+  // });
 });

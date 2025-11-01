@@ -29,14 +29,15 @@ jest.mock('framer-motion', () => {
 
 /* ---------------- Mock DeleteModal and TrashLogo ---------------- */
 jest.mock('../components/DeleteModal', () => {
-  const DeleteModalMock = ({ open, children }) =>
-    open ? <div data-testid="delete-modal">{children}</div> : null;
+  const DeleteModalMock = ({ open, children }) => (open ? <div data-testid="delete-modal">{children}</div> : null);
   return { __esModule: true, default: DeleteModalMock };
 });
 
 jest.mock('../icons/trashlogo', () => {
   const TrashLogoMock = ({ className }) => (
-    <span data-testid="trash-logo" className={className}>🗑️</span>
+    <span data-testid="trash-logo" className={className}>
+      🗑️
+    </span>
   );
   return { __esModule: true, default: TrashLogoMock };
 });
@@ -49,12 +50,7 @@ jest.mock('../api/UserPageApi', () => ({
   buildTranscriptData: jest.fn(),
 }));
 
-import {
-  getDegreeCredits,
-  getUserTimelines,
-  deleteTimelineById,
-  buildTranscriptData,
-} from '../api/UserPageApi';
+import { getDegreeCredits, getUserTimelines, deleteTimelineById, buildTranscriptData } from '../api/UserPageApi';
 
 /* ---------------- Helpers ---------------- */
 function renderWithProviders({ user, onDataProcessed = jest.fn() } = {}) {
@@ -65,7 +61,7 @@ function renderWithProviders({ user, onDataProcessed = jest.fn() } = {}) {
         <MemoryRouter>
           <UserPage onDataProcessed={onDataProcessed} />
         </MemoryRouter>
-      </AuthContext.Provider>
+      </AuthContext.Provider>,
     ),
   };
 }
@@ -87,7 +83,7 @@ beforeEach(() => {
       term: `${season} ${year}`,
       courses: courses || [],
       grade: 'A',
-    }))
+    })),
   );
 });
 
@@ -121,11 +117,7 @@ describe('UserPage', () => {
 
     renderWithProviders({ user: baseUser });
 
-    await waitFor(() =>
-      expect(
-        screen.getByText(/You haven't saved any timelines yet/i)
-      ).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByText(/You haven't saved any timelines yet/i)).toBeInTheDocument());
     expect(getUserTimelines).toHaveBeenCalledWith('u-1');
   });
 
@@ -279,9 +271,7 @@ describe('UserPage', () => {
     renderWithProviders({ user: advisor });
 
     expect(getUserTimelines).not.toHaveBeenCalled();
-    await waitFor(() =>
-      expect(screen.getByText(/You haven't saved any timelines yet/i)).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByText(/You haven't saved any timelines yet/i)).toBeInTheDocument());
   });
 
   test('redirects to /signin when user is falsy and renders nothing', async () => {

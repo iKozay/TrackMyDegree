@@ -1,6 +1,6 @@
 import '../css/TimelineSetupPage.css';
 import React, { useState, useRef, useEffect } from 'react';
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import * as Sentry from '@sentry/react';

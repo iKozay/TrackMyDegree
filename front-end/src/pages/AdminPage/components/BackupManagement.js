@@ -35,11 +35,7 @@ const BackupManagement = ({
       <Col md={12}>
         <h4>Database Backups</h4>
         <div className="backup-controls">
-          <Button
-            variant="primary"
-            onClick={handleCreate}
-            disabled={loading}
-          >
+          <Button variant="primary" onClick={handleCreate} disabled={loading}>
             Create Backup
           </Button>
 
@@ -50,26 +46,19 @@ const BackupManagement = ({
             disabled={loading}
           >
             <option value="">Select a backup...</option>
-            {Array.isArray(backups) && backups.map((backup) => (
-              <option key={backup} value={backup}>
-                {backup}
-              </option>
-            ))}
+            {Array.isArray(backups) &&
+              backups.map((backup) => (
+                <option key={backup} value={backup}>
+                  {backup}
+                </option>
+              ))}
           </Form.Select>
 
-          <Button
-            variant="success"
-            onClick={handleRestore}
-            disabled={loading || !selectedBackup}
-          >
+          <Button variant="success" onClick={handleRestore} disabled={loading || !selectedBackup}>
             Restore Backup
           </Button>
 
-          <Button
-            variant="danger"
-            onClick={handleDelete}
-            disabled={loading || !selectedBackup}
-          >
+          <Button variant="danger" onClick={handleDelete} disabled={loading || !selectedBackup}>
             Delete Backup
           </Button>
         </div>

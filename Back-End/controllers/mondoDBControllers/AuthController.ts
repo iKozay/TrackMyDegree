@@ -6,6 +6,7 @@ import { User } from '../../models';
 import bcrypt from 'bcryptjs';
 import * as Sentry from '@sentry/node';
 import { randomInt } from 'crypto';
+import mongoose from 'mongoose';
 
 export enum UserType {
   STUDENT = 'student',
@@ -19,7 +20,7 @@ export interface Credentials {
 }
 
 export interface UserInfo extends Credentials {
-  id?: string;
+  _id: string;
   fullname: string;
   type: UserType;
 }
@@ -54,7 +55,7 @@ export class AuthController {
 
       if (user && passwordMatch && user._id) {
         return {
-          id: user._id.toString(),
+          _id: user._id.toString(),
           fullname: user.fullname,
           email: user.email,
           type: user.type as UserType,
@@ -75,9 +76,8 @@ export class AuthController {
 
   /**
    * Registers a new user after validating input
-   * Enforces strong password policy and checks for existing email
    */
-  async registerUser(userInfo: UserInfo): Promise<{ id: string } | undefined> {
+  async registerUser(userInfo: UserInfo): Promise<{ _id: string } | undefined> {
     const { email, password, fullname, type } = userInfo;
 
     try {
@@ -87,7 +87,7 @@ export class AuthController {
         return undefined;
       }
 
-      // Create new user (password is already hashed from frontend)
+      // Create new user with generated _id (password is already hashed from frontend)
       const newUser = await User.create({
         email,
         password, // password is already hashed from frontend
@@ -99,7 +99,7 @@ export class AuthController {
         return undefined;
       }
 
-      return { id: newUser._id.toString() };
+      return { _id: newUser._id.toString() };
     } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: 'registerUser' },
@@ -195,12 +195,12 @@ export class AuthController {
    * Change user password (when already authenticated)
    */
   async changePassword(
-    userId: string,
+    _id: string,
     oldPassword: string,
     newPassword: string,
   ): Promise<boolean> {
     try {
-      const user = await User.findById(userId).select('+password').exec();
+      const user = await User.findById(_id).select('+password').exec();
 
       if (!user) {
         return false;

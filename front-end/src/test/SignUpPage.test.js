@@ -38,12 +38,12 @@ describe('SignUpPage', () => {
     // Clear all mocks before each test
     mockLogin.mockClear();
     mockNavigate.mockClear();
-    
+
     // Reset mocks for API and utilities
     signupUser.mockClear();
     validateSignupForm.mockClear();
     hashPassword.mockClear();
-    
+
     // Default mock implementations
     validateSignupForm.mockReturnValue([]);
     // hashPassword is now async, so use mockResolvedValue
@@ -89,7 +89,7 @@ describe('SignUpPage', () => {
 
   test('should redirect to /user if already logged in', () => {
     renderComponent(true); // Pass isLoggedIn = true
-    
+
     expect(mockNavigate).toHaveBeenCalledWith('/user');
   });
 
@@ -121,7 +121,7 @@ describe('SignUpPage', () => {
   // check validation errors
   test('shows alert when fields are empty', async () => {
     renderComponent();
-    
+
     // Set up the mock AFTER rendering
     validateSignupForm.mockReturnValue(['All fields are required.']);
 
@@ -134,7 +134,7 @@ describe('SignUpPage', () => {
 
   test('shows alert when name field is missing', async () => {
     renderComponent();
-    
+
     validateSignupForm.mockReturnValue(['All fields are required.']);
 
     fireEvent.change(screen.getByPlaceholderText('* Enter your email'), {
@@ -156,7 +156,7 @@ describe('SignUpPage', () => {
 
   test('shows alert when email field is missing', async () => {
     renderComponent();
-    
+
     validateSignupForm.mockReturnValue(['All fields are required.']);
 
     fireEvent.change(screen.getByPlaceholderText('* Enter your full name'), {
@@ -178,7 +178,7 @@ describe('SignUpPage', () => {
 
   test('shows alert when password field is missing', async () => {
     renderComponent();
-    
+
     validateSignupForm.mockReturnValue(['All fields are required.']);
 
     fireEvent.change(screen.getByPlaceholderText('* Enter your full name'), {
@@ -200,7 +200,7 @@ describe('SignUpPage', () => {
 
   test('shows alert when confirm password field is missing', async () => {
     renderComponent();
-    
+
     validateSignupForm.mockReturnValue(['All fields are required.']);
 
     fireEvent.change(screen.getByPlaceholderText('* Enter your full name'), {
@@ -222,7 +222,7 @@ describe('SignUpPage', () => {
 
   test('shows alert when passwords do not match', async () => {
     renderComponent();
-    
+
     validateSignupForm.mockReturnValue(['Passwords do not match.']);
 
     // invalid credentials (different passwords)
@@ -249,7 +249,7 @@ describe('SignUpPage', () => {
 
   test('calls login and navigate on successful signup', async () => {
     renderComponent();
-    
+
     // Set up mocks for successful signup
     validateSignupForm.mockReturnValue([]);
     hashPassword.mockResolvedValue('hashedPassword123');
@@ -287,7 +287,7 @@ describe('SignUpPage', () => {
 
   test('shows alert when signup API fails', async () => {
     renderComponent();
-    
+
     // Set up mocks for failed signup
     validateSignupForm.mockReturnValue([]);
     hashPassword.mockResolvedValue('hashedPassword123');
@@ -339,17 +339,17 @@ describe('SignUpPage', () => {
 
   test('clears error state when submitting form', async () => {
     renderComponent();
-    
+
     // First submit to create an error
     validateSignupForm.mockReturnValue(['Some validation error']);
     fireEvent.click(screen.getByText('Register'));
     expect(await screen.findByText('Some validation error')).toBeInTheDocument();
-    
+
     // Now submit again - the error should be cleared first
     validateSignupForm.mockReturnValue(['Another error']);
     fireEvent.click(screen.getByText('Register'));
     expect(await screen.findByText('Another error')).toBeInTheDocument();
-    
+
     // Verify the component called validation again
     expect(validateSignupForm).toHaveBeenCalledTimes(2);
   });
@@ -375,7 +375,7 @@ describe('SignUpPage', () => {
 
   test('handles hashPassword failure gracefully', async () => {
     renderComponent();
-    
+
     validateSignupForm.mockReturnValue([]);
     hashPassword.mockRejectedValue(new Error('Hashing failed'));
 

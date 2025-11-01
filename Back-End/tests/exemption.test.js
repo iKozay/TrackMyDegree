@@ -1,5 +1,5 @@
 jest.mock(
-  '../dist/controllers/exemptionController/exemptionController',
+  '../controllers/exemptionController/exemptionController',
   () => ({
     __esModule: true,
     default: {
@@ -12,9 +12,9 @@ jest.mock(
 
 const request = require('supertest');
 const express = require('express');
-const router = require('../dist/routes/exemption').default;
+const router = require('../routes/exemption').default;
 const controller =
-  require('../dist/controllers/exemptionController/exemptionController').default;
+  require('../controllers/exemptionController/exemptionController').default;
 
 const url = process.DOCKER_URL || 'host.docker.internal:8000';
 const newExemption = require('./__mocks__/exemption_mocks').newExemption;

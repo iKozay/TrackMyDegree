@@ -6,56 +6,56 @@ import { request } from '../api/request';
 global.fetch = jest.fn();
 
 describe('http-api-client', () => {
-    beforeEach(() => {
-        fetch.mockClear();
-        localStorage.clear();
+  beforeEach(() => {
+    fetch.mockClear();
+    localStorage.clear();
+  });
+
+  test('api.get calls request with correct URL and headers', async () => {
+    localStorage.setItem('token', 'abc123');
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      headers: { get: () => 'application/json' },
+      json: async () => ({ success: true }),
     });
 
-    test('api.get calls request with correct URL and headers', async () => {
-        localStorage.setItem('token', 'abc123');
+    const response = await api.get('/test-endpoint');
 
-        fetch.mockResolvedValueOnce({
-            ok: true,
-            headers: { get: () => 'application/json' },
-            json: async () => ({ success: true }),
-        });
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/test-endpoint'),
+      expect.objectContaining({
+        method: 'GET',
+        headers: expect.objectContaining({
+          Authorization: 'Bearer abc123',
+        }),
+      }),
+    );
 
-        const response = await api.get('/test-endpoint');
+    expect(response).toEqual({ success: true });
+  });
 
-        expect(fetch).toHaveBeenCalledTimes(1);
-        expect(fetch).toHaveBeenCalledWith(
-            expect.stringContaining('/test-endpoint'),
-            expect.objectContaining({
-                method: 'GET',
-                headers: expect.objectContaining({
-                    Authorization: 'Bearer abc123',
-                }),
-            })
-        );
-
-        expect(response).toEqual({ success: true });
+  test('request throws error for non-ok response', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      statusText: 'Not Found',
+      headers: { get: () => 'application/json' },
+      json: async () => ({}),
     });
 
-    test('request throws error for non-ok response', async () => {
-        fetch.mockResolvedValueOnce({
-            ok: false,
-            status: 404,
-            statusText: 'Not Found',
-            headers: { get: () => 'application/json' },
-            json: async () => ({}),
-        });
+    await expect(request('http://localhost/test')).rejects.toThrow('HTTP 404: Not Found');
+  });
 
-        await expect(request('http://localhost/test')).rejects.toThrow('HTTP 404: Not Found');
+  test('request returns text when Content-Type is not JSON', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      headers: { get: () => 'text/plain' },
+      text: async () => 'Hello World',
     });
 
-    test('request returns text when Content-Type is not JSON', async () => {
-        fetch.mockResolvedValueOnce({
-            ok: true,
-            headers: { get: () => 'text/plain' },
-            text: async () => 'Hello World',
-        });
-
-        const response = await request('http://localhost/text');
-        expect(response).toBe('Hello World');
-    });
+    const response = await request('http://localhost/text');
+    expect(response).toBe('Hello World');
+  });
 });

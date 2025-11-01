@@ -13,19 +13,32 @@ export default class TimelineRepository {
   }
 
   // Find timeline by user_id + name
-  static async findTimelineByUserAndName(transaction: any, user_id: string, name: string) {
+  static async findTimelineByUserAndName(
+    transaction: any,
+    user_id: string,
+    name: string,
+  ) {
     return transaction
       .request()
       .input('user_id', Database.msSQL.VarChar, user_id)
       .input('name', Database.msSQL.VarChar, name)
-      .query(`SELECT id FROM Timeline WHERE user_id = @user_id AND name = @name`);
+      .query(
+        `SELECT id FROM Timeline WHERE user_id = @user_id AND name = @name`,
+      );
   }
 
   // Upsert timeline metadata
-  static async upsertTimeline(transaction: any, timeline: TimelineTypes.Timeline): Promise<string> {
+  static async upsertTimeline(
+    transaction: any,
+    timeline: TimelineTypes.Timeline,
+  ): Promise<string> {
     const { user_id, name, degree_id, isExtendedCredit } = timeline;
     const lastModified = new Date();
-    const existing = await this.findTimelineByUserAndName(transaction, user_id, name);
+    const existing = await this.findTimelineByUserAndName(
+      transaction,
+      user_id,
+      name,
+    );
 
     if (existing.recordset.length > 0) {
       const timelineId = existing.recordset[0].id;
@@ -38,7 +51,7 @@ export default class TimelineRepository {
         .query(
           `UPDATE Timeline 
            SET last_modified = @lastModified, degree_id = @degree_id, isExtendedCredit = @isExtendedCredit
-           WHERE id = @timelineId`
+           WHERE id = @timelineId`,
         );
       return timelineId;
     } else {
@@ -53,7 +66,7 @@ export default class TimelineRepository {
         .input('isExtendedCredit', Database.msSQL.Bit, isExtendedCredit)
         .query(
           `INSERT INTO Timeline (id, user_id, degree_id, name, last_modified, isExtendedCredit)
-           VALUES (@id, @user_id, @degree_id, @name, @lastModified, @isExtendedCredit)`
+           VALUES (@id, @user_id, @degree_id, @name, @lastModified, @isExtendedCredit)`,
         );
       return timelineId;
     }
@@ -70,11 +83,13 @@ export default class TimelineRepository {
     if (timelineItemIds.length === 0) return;
 
     // Delete linked courses
-    await transaction.request().query(
-      `DELETE FROM TimelineItemXCourses WHERE timeline_item_id IN (${timelineItemIds
-        .map((id: string) => `'${id}'`)
-        .join(',')})`
-    );
+    await transaction
+      .request()
+      .query(
+        `DELETE FROM TimelineItemXCourses WHERE timeline_item_id IN (${timelineItemIds
+          .map((id: string) => `'${id}'`)
+          .join(',')})`,
+      );
 
     // Delete items
     await transaction
@@ -84,7 +99,11 @@ export default class TimelineRepository {
   }
 
   // Insert a single timeline item + its courses
-  static async insertTimelineItem(transaction: any, timelineId: string, item: TimelineTypes.TimelineItem) {
+  static async insertTimelineItem(
+    transaction: any,
+    timelineId: string,
+    item: TimelineTypes.TimelineItem,
+  ) {
     const timelineItemId = uuidv4();
     await transaction
       .request()
@@ -92,7 +111,9 @@ export default class TimelineRepository {
       .input('timelineId', Database.msSQL.VarChar, timelineId)
       .input('season', Database.msSQL.VarChar, item.season)
       .input('year', Database.msSQL.Int, item.year)
-      .query(`INSERT INTO TimelineItems (id, timeline_id, season, year) VALUES (@id, @timelineId, @season, @year)`);
+      .query(
+        `INSERT INTO TimelineItems (id, timeline_id, season, year) VALUES (@id, @timelineId, @season, @year)`,
+      );
 
     const uniqueCourses = Array.from(new Set(item.courses));
     for (const courseCode of uniqueCourses) {
@@ -100,23 +121,31 @@ export default class TimelineRepository {
         .request()
         .input('timelineItemId', Database.msSQL.VarChar, timelineItemId)
         .input('courseCode', Database.msSQL.VarChar, courseCode)
-        .query(`INSERT INTO TimelineItemXCourses (timeline_item_id, coursecode) VALUES (@timelineItemId, @courseCode)`);
+        .query(
+          `INSERT INTO TimelineItemXCourses (timeline_item_id, coursecode) VALUES (@timelineItemId, @courseCode)`,
+        );
     }
   }
 
   // Batch insert timeline items
-  static async insertTimelineItems(transaction: any, timelineId: string, items: TimelineTypes.TimelineItem[]) {
+  static async insertTimelineItems(
+    transaction: any,
+    timelineId: string,
+    items: TimelineTypes.TimelineItem[],
+  ) {
     for (const item of items) {
       await this.insertTimelineItem(transaction, timelineId, item);
     }
   }
 
   // Fetch all timelines for a user, including items and courses
-  static async getTimelinesByUser(transaction: any, user_id: string): Promise<TimelineTypes.Timeline[]> {
+  static async getTimelinesByUser(
+    transaction: any,
+    user_id: string,
+  ): Promise<TimelineTypes.Timeline[]> {
     const result = await transaction
       .request()
-      .input('user_id', Database.msSQL.VarChar, user_id)
-      .query(`
+      .input('user_id', Database.msSQL.VarChar, user_id).query(`
         SELECT t.id, t.user_id, t.degree_id, t.name, t.last_modified, t.isExtendedCredit,
                ti.id AS itemId, ti.season, ti.year, tic.coursecode
         FROM Timeline t
@@ -140,9 +169,14 @@ export default class TimelineRepository {
         };
       }
       if (row.itemId) {
-        let item = timelinesMap[row.id].items.find(i => i.id === row.itemId);
+        let item = timelinesMap[row.id].items.find((i) => i.id === row.itemId);
         if (!item) {
-          item = { id: row.itemId, season: row.season, year: row.year, courses: [] };
+          item = {
+            id: row.itemId,
+            season: row.season,
+            year: row.year,
+            courses: [],
+          };
           timelinesMap[row.id].items.push(item);
         }
         if (row.coursecode) {

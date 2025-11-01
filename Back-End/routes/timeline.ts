@@ -2,7 +2,11 @@ import express, { Request, Response } from 'express';
 import timelineController from '@controllers/timelineController/timelineController';
 import HTTP from '@Util/HTTPCodes';
 import asyncHandler from '@middleware/asyncHandler';
-import { validateTimelineBody, validateUserId, validateTimelineId } from '@middleware/timelineValidators';
+import {
+  validateTimelineBody,
+  validateUserId,
+  validateTimelineId,
+} from '@middleware/timelineValidators';
 
 const router = express.Router();
 
@@ -18,7 +22,9 @@ router.post(
     const { timeline } = req.body;
 
     if (!timeline || Object.keys(timeline).length === 0) {
-      return res.status(HTTP.BAD_REQUEST).json({ error: 'Timeline data is required' });
+      return res
+        .status(HTTP.BAD_REQUEST)
+        .json({ error: 'Timeline data is required' });
     }
 
     const savedTimeline = await timelineController.saveTimeline(timeline);
@@ -26,9 +32,11 @@ router.post(
     if (savedTimeline) {
       return res.status(HTTP.OK).json(savedTimeline);
     } else {
-      return res.status(HTTP.SERVER_ERR).json({ error: 'Could not save timeline' });
+      return res
+        .status(HTTP.SERVER_ERR)
+        .json({ error: 'Could not save timeline' });
     }
-  })
+  }),
 );
 
 /**
@@ -44,7 +52,9 @@ router.put(
     const { timeline } = req.body;
 
     if (!timeline || Object.keys(timeline).length === 0) {
-      return res.status(HTTP.BAD_REQUEST).json({ error: 'Timeline data is required' });
+      return res
+        .status(HTTP.BAD_REQUEST)
+        .json({ error: 'Timeline data is required' });
     }
 
     timeline.id = timelineId; // Ensure correct ID for update
@@ -53,9 +63,11 @@ router.put(
     if (savedTimeline) {
       return res.status(HTTP.OK).json(savedTimeline);
     } else {
-      return res.status(HTTP.SERVER_ERR).json({ error: 'Could not save/update timeline' });
+      return res
+        .status(HTTP.SERVER_ERR)
+        .json({ error: 'Could not save/update timeline' });
     }
-  })
+  }),
 );
 
 /**
@@ -74,7 +86,7 @@ router.get(
     } else {
       return res.status(HTTP.OK).json({ message: 'No timelines found' });
     }
-  })
+  }),
 );
 
 /**
@@ -90,7 +102,9 @@ router.delete(
 
     // ✅ Defensive check
     if (!result || typeof result !== 'object' || !('message' in result)) {
-      return res.status(HTTP.SERVER_ERR).json({ error: 'Unexpected response from controller' });
+      return res
+        .status(HTTP.SERVER_ERR)
+        .json({ error: 'Unexpected response from controller' });
     }
 
     const { success, message } = result;
@@ -100,9 +114,11 @@ router.delete(
     } else if (message.includes('No timeline found')) {
       return res.status(HTTP.NOT_FOUND).json({ error: message });
     } else {
-      return res.status(HTTP.SERVER_ERR).json({ error: 'Internal Server Error' });
+      return res
+        .status(HTTP.SERVER_ERR)
+        .json({ error: 'Internal Server Error' });
     }
-  })
+  }),
 );
 
 export default router;

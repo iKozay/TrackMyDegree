@@ -51,9 +51,7 @@ describe('useTableRecords', () => {
     });
 
     it('should fetch records with search keyword', async () => {
-      const mockRecords = [
-        { id: 1, name: 'John', email: 'john@test.com' },
-      ];
+      const mockRecords = [{ id: 1, name: 'John', email: 'john@test.com' }];
 
       fetch.mockResolvedValueOnce({
         json: async () => ({ success: true, data: mockRecords }),
@@ -65,10 +63,7 @@ describe('useTableRecords', () => {
         await result.current.fetchRecords('users', 'john');
       });
 
-      expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:5000/admin/tables/users?keyword=john',
-        expect.any(Object)
-      );
+      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/admin/tables/users?keyword=john', expect.any(Object));
 
       await waitFor(() => {
         expect(result.current.records).toEqual(mockRecords);
@@ -175,7 +170,7 @@ describe('useTableRecords', () => {
 
       expect(fetch).toHaveBeenCalledWith(
         'http://localhost:5000/admin/tables/users?keyword=test%40email.com',
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -243,10 +238,7 @@ describe('useTableRecords', () => {
         result.current.handleSearch('users', '');
       });
 
-      expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:5000/admin/tables/users',
-        expect.any(Object)
-      );
+      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/admin/tables/users', expect.any(Object));
     });
   });
 
@@ -350,7 +342,7 @@ describe('useTableRecords', () => {
         expect.objectContaining({
           method: 'POST',
           credentials: 'include',
-        })
+        }),
       );
     });
   });

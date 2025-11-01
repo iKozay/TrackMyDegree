@@ -1,4 +1,4 @@
-import { parsePdfFile, extractAcceptanceDetails } from '../AcceptanceUtils.js'; // adjust path
+import { parsePdfFile, extractAcceptanceDetails } from '../../utils/AcceptanceUtils'; // adjust path
 import { pdfjs } from 'react-pdf';
 
 // Mock PDF.js getDocument
@@ -38,20 +38,20 @@ describe('PDF parsing and acceptance details', () => {
       expect(pdfjs.getDocument).toHaveBeenCalled();
     });
     it('rejects on FileReader error', async () => {
-        const file = new Blob(['invalid pdf content'], { type: 'application/pdf' });
+      const file = new Blob(['invalid pdf content'], { type: 'application/pdf' });
 
-  // Mock FileReader to immediately trigger error
-  const originalFileReader = global.FileReader;
-  global.FileReader = class {
-    readAsArrayBuffer() {
-      setTimeout(() => this.onerror(new Error('mock error')));
-    }
-  };
+      // Mock FileReader to immediately trigger error
+      const originalFileReader = global.FileReader;
+      global.FileReader = class {
+        readAsArrayBuffer() {
+          setTimeout(() => this.onerror(new Error('mock error')));
+        }
+      };
 
-  await expect(parsePdfFile(file)).rejects.toThrow('mock error');
+      await expect(parsePdfFile(file)).rejects.toThrow('mock error');
 
-  global.FileReader = originalFileReader; // restore original
-});
+      global.FileReader = originalFileReader; // restore original
+    });
   });
 
   describe('extractAcceptanceDetails', () => {
@@ -85,12 +85,12 @@ describe('PDF parsing and acceptance details', () => {
           { term: 'Exempted', courses: ['COMM101', 'ECON201'] },
           { term: 'Deficiencies', courses: ['MATH100'] },
           { term: 'Transfered Courses', courses: ['PHYS101'] },
-        ])
+        ]),
       );
     });
 
-     it('should return some semesters even if the end year is not found', () => {
-       const sampleText = `
+    it('should return some semesters even if the end year is not found', () => {
+      const sampleText = `
         OFFER OF ADMISSION
         Program/Plan(s): Computer Science Extended Credit Program
         Session: Fall 2023
@@ -99,15 +99,9 @@ describe('PDF parsing and acceptance details', () => {
 
       const { results, details } = extractAcceptanceDetails(sampleText);
 
-
       // Check that courses are extracted
-      expect(results).toEqual(
-        expect.arrayContaining([
-          { term: 'Fall 2023', course: '' }
-        ])
-      );
+      expect(results).toEqual(expect.arrayContaining([{ term: 'Fall 2023', course: '' }]));
     });
-
 
     it('should return empty results if text is empty', () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation(jest.fn()); // suppress
@@ -120,7 +114,7 @@ describe('PDF parsing and acceptance details', () => {
     it('should alert if "OFFER OF ADMISSION" not present', () => {
       global.alert = jest.fn();
       const { results } = extractAcceptanceDetails('Some other text');
-      expect(global.alert).toHaveBeenCalledWith('Please choose Offer of Admission');
+      expect(global.alert).toHaveBeenCalledWith('Please upload an acceptance letter');
       expect(results).toEqual([]);
     });
   });

@@ -1,6 +1,6 @@
 /**
  * Degree Routes
- * 
+ *
  * Handles degree operations
  */
 
@@ -13,6 +13,8 @@ const router = express.Router();
 // ==========================
 // DEGREE ROUTES
 // ==========================
+
+const INTERNAL_SERVER_ERROR = 'Internal server error';
 
 /**
  * GET /degree/:id - Get degree by ID
@@ -38,7 +40,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     if (error instanceof Error && error.message.includes('does not exist')) {
       res.status(HTTP.NOT_FOUND).json({ error: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
   }
 });
@@ -55,7 +57,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in GET /degree', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
 
@@ -83,10 +85,9 @@ router.get('/:id/credits', async (req: Request, res: Response) => {
     if (error instanceof Error && error.message.includes('does not exist')) {
       res.status(HTTP.NOT_FOUND).json({ error: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
   }
 });
-
 
 export default router;

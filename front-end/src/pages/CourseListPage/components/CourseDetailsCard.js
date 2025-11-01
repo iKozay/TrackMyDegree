@@ -36,9 +36,7 @@ const CourseDetailsCard = ({ course, showCard = true }) => {
           <ul>
             {groupedRequisites.map((group) => (
               <li key={`${group.type}-${group.codes.join('-')}`}>
-                {group.type.toLowerCase() === 'pre'
-                  ? 'Prerequisite: '
-                  : 'Corequisite: '}
+                {group.type.toLowerCase() === 'pre' ? 'Prerequisite: ' : 'Corequisite: '}
                 {group.codes.join(' or ')}
               </li>
             ))}
@@ -60,12 +58,14 @@ const CourseDetailsCard = ({ course, showCard = true }) => {
 
       {course.components && (
         <Card.Text>
-          <b>Components:</b> {course.components}</Card.Text>
+          <b>Components:</b> {course.components}
+        </Card.Text>
       )}
 
       {course.notes && (
         <Card.Text>
-          <b>Notes:</b> {course.notes}</Card.Text>
+          <b>Notes:</b> {course.notes}
+        </Card.Text>
       )}
     </>
   );
@@ -91,7 +91,7 @@ CourseDetailsCard.propTypes = {
       PropTypes.shape({
         type: PropTypes.string,
         codes: PropTypes.arrayOf(PropTypes.string),
-      })
+      }),
     ),
   }),
   showCard: PropTypes.bool,

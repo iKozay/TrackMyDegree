@@ -115,7 +115,7 @@ describe('useDatabaseTables', () => {
           expect.objectContaining({
             method: 'POST',
             credentials: 'include',
-          })
+          }),
         );
       });
     });

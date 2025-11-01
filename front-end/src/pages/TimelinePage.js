@@ -1,15 +1,10 @@
-
 import React from 'react';
 
 import { useRef, useContext, useReducer } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CourseSidebar } from '../components/CourseSideBar';
-import {
-  DndContext,
-  DragOverlay,
-  closestCorners,
-} from '@dnd-kit/core';
+import { DndContext, DragOverlay, closestCorners } from '@dnd-kit/core';
 
 import '../css/TimelinePage.css';
 import { SaveTimelineModal } from '../components/SaveTimeLineModal';
@@ -21,14 +16,10 @@ import { SemesterColumn } from '../components/SemesterColumn';
 import { ItemAddingModal } from '../components/ItemAddingModal';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { ShareModal } from '../components/ShareModal';
-import { AddSemesterModal } from '../components/AddSemesterModal'
+import { AddSemesterModal } from '../components/AddSemesterModal';
 import { CourseDescription } from '../components/CourseDescription';
 import { TopBar } from '../components/TopBar';
-import {
-  getMaxCreditsForSemesterName,
-  areRequisitesMet,
-  SaveTimeline,
-} from '../utils/timelineUtils';
+import { getMaxCreditsForSemesterName, areRequisitesMet, SaveTimeline } from '../utils/timelineUtils';
 import { compressTimeline } from '../components/CompressDegree';
 import { Toast, notifyError, notifySuccess } from '../components/Toast';
 import { timelineReducer, initialState } from '../reducers/timelineReducer';
@@ -45,7 +36,7 @@ import { useFirstOccurrence } from '../hooks/useFirstOccurence';
 import { useTimelineNavigation } from '../hooks/useTimelineNavigation';
 import { useTimelineActions } from '../hooks/useTimeLineActions';
 import { useTimeLineCompression } from '../hooks/useTimeLineCompression';
-import { useResponsiveUI } from "../hooks/useResponsiveUI";
+import { useResponsiveUI } from '../hooks/useResponsiveUI';
 import { useDegreeInitialization } from '../hooks/useDegreeInitialization';
 import { useNavigationBlocker } from '../hooks/useNavigationBlocker';
 import { useDragSensors } from '../hooks/useDragSensors';
@@ -53,10 +44,9 @@ import { useCourseDrag } from '../hooks/useCourseDrag';
 import * as Sentry from '@sentry/react';
 import { useBlocker } from 'react-router-dom';
 
-const REACT_APP_CLIENT = process.env.REACT_APP_CLIENT || 'localhost:3000' // Set client URL
+const REACT_APP_CLIENT = process.env.REACT_APP_CLIENT || 'localhost:3000'; // Set client URL
 
 const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredit }) => {
-
   // Global state management
   const [state, dispatch] = useReducer(timelineReducer, initialState);
 
@@ -65,12 +55,15 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const scrollWrapperRef = useRef(null);
 
   // ------------------ Initial Setup ------------------
-  let { degree_Id, startingSemester, credits_Required, extendedCredit } = useDegreeInitialization(degreeId, isExtendedCredit);
-
+  let { degree_Id, startingSemester, credits_Required, extendedCredit } = useDegreeInitialization(
+    degreeId,
+    isExtendedCredit,
+  );
 
   //----------------------------- State Setters ---------------------
   const toggleCourseList = () => dispatch({ type: 'SET', payload: { showCourseList: !state.showCourseList } });
-  const toggleCourseDescription = () => dispatch({ type: 'SET', payload: { showCourseDescription: !state.showCourseDescription } });
+  const toggleCourseDescription = () =>
+    dispatch({ type: 'SET', payload: { showCourseDescription: !state.showCourseDescription } });
   const setShowExemptionsModal = (value) => dispatch({ type: 'SET', payload: { showExemptionsModal: value } });
   const setShowDeficiencyModal = (value) => dispatch({ type: 'SET', payload: { showDeficiencyModal: value } });
   const setShowSaveModal = (value) => dispatch({ type: 'SET', payload: { showSaveModal: value } });
@@ -78,9 +71,9 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const setSearchQuery = (value) => dispatch({ type: 'SET', payload: { searchQuery: value } });
   const setHasUnsavedChanges = (value) => dispatch({ type: 'SET', payload: { hasUnsavedChanges: value } });
   const setIsModalOpen = (value) => dispatch({ type: 'SET', payload: { isModalOpen: value } });
-  const toggleShareDialog = () => { dispatch({ type: 'SET', payload: { isShareVisible: !state.isShareVisible } }); }
-
-
+  const toggleShareDialog = () => {
+    dispatch({ type: 'SET', payload: { isShareVisible: !state.isShareVisible } });
+  };
 
   //---------------------shared timeline from url ---------------------
   const ecpFromUrl = useLoadTimelineFromUrl(dispatch);
@@ -101,17 +94,23 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
   const handleRemoveSemester = (id) => removeSemester(id);
 
   const arePrerequisitesMet = (courseCode, currentSemesterIndex) => {
-    return areRequisitesMet(courseCode, currentSemesterIndex, state.courseInstanceMap, state.allCourses, state.semesters, state.semesterCourses);
+    return areRequisitesMet(
+      courseCode,
+      currentSemesterIndex,
+      state.courseInstanceMap,
+      state.allCourses,
+      state.semesters,
+      state.semesterCourses,
+    );
   };
   const confirmSaveTimeline = async (tName) => {
     try {
       const { error } = await SaveTimeline(tName, user, degree_Id, state, extendedCredit);
       if (error) {
         notifyError(error);
-        if (error === "No valid data to save.") {
+        if (error === 'No valid data to save.') {
           dispatch({ type: 'SET', payload: { hasUnsavedChanges: false } });
-        }
-        else if (error === "User must be logged in!") {
+        } else if (error === 'User must be logged in!') {
           dispatch({ type: 'SET', payload: { hasUnsavedChanges: false } });
           setTimeout(() => {
             navigate('/signin');
@@ -119,7 +118,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         }
         return;
       }
-      notifySuccess("Timeline and exemptions saved successfully!");
+      notifySuccess('Timeline and exemptions saved successfully!');
       dispatch({
         type: 'SET',
         payload: {
@@ -130,17 +129,14 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
       });
 
       setTimeout(() => {
-        navigate("/user");
+        navigate('/user');
       }, 250);
-    }
-    catch (err) {
+    } catch (err) {
       Sentry.captureException(err);
-      console.error("Error saving timeline or exemptions:", err);
+      console.error('Error saving timeline or exemptions:', err);
       notifyError(`An error occurred while saving: ${err.message}`);
     }
-
   };
-
 
   // ---------------- Data Fetching & Initialization ----------------
   useFetchDegreeRequirements(state, degree_Id, addExemptionCourse);
@@ -181,30 +177,22 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
 
   // ---------------------------- drag courses ---------------
   const sensors = useDragSensors();
-  const {
-    isCourseAssigned,
-    handleDragStart,
-    handleDragEnd,
-    handleDragCancel,
-    handleReturn,
-    handleCourseSelect
-  } = useCourseDrag(state, dispatch);
+  const { isCourseAssigned, handleDragStart, handleDragEnd, handleDragCancel, handleReturn, handleCourseSelect } =
+    useCourseDrag(state, dispatch);
 
   // --------------------------Share url to build timeline ----------------
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(`${REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(state.semesterCourses, degree_Id, state.credsReq, extendedCredit)}`)
-      .catch(() => notifyError("Something went wrong"));
+    navigator.clipboard
+      .writeText(
+        `${REACT_APP_CLIENT}/timeline_change?tstring=${compressTimeline(state.semesterCourses, degree_Id, state.credsReq, extendedCredit)}`,
+      )
+      .catch(() => notifyError('Something went wrong'));
     toggleShareDialog();
-  }
+  };
 
   // ----------------------------------------------------------------------------------------------------------------------
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.7 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
       <Toast />
       <DndContext
         sensors={sensors}
@@ -247,7 +235,6 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                 setShowDeficiencyModal={setShowDeficiencyModal}
                 setShowExemptionsModal={setShowExemptionsModal}
                 setShowSaveModal={setShowSaveModal}
-
               />
 
               <div className="timeline-page">
@@ -270,9 +257,12 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                   removeExemptionCourse={removeExemptionCourse}
                 />
 
-
                 <div className="timeline-middle-section">
-                  <TimelineHeader timelineName={state.timelineName} addButtonText={state.addButtonText} onAddSemester={() => setIsModalOpen(true)} />
+                  <TimelineHeader
+                    timelineName={state.timelineName}
+                    addButtonText={state.addButtonText}
+                    onAddSemester={() => setIsModalOpen(true)}
+                  />
 
                   <div
                     className="timeline-scroll-wrapper"
@@ -307,26 +297,22 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
                     </div>
                   </div>
                 </div>
-                <CourseDescription selectedCourse={state.selectedCourse} showCourseDescription={state.showCourseDescription} toggleCourseDescription={toggleCourseDescription} />
+                <CourseDescription
+                  selectedCourse={state.selectedCourse}
+                  showCourseDescription={state.showCourseDescription}
+                  toggleCourseDescription={toggleCourseDescription}
+                />
                 <DragOverlay dropAnimation={null}>
-                  {state.activeId ? (
-                    <div className="course-item-overlay selected">
-                      {state.activeCourseCode}
-                    </div>
-                  ) : null}
+                  {state.activeId ? <div className="course-item-overlay selected">{state.activeCourseCode}</div> : null}
                 </DragOverlay>
-
               </div>
             </>
           )}
         </div>
 
         {/* ---------- Modal for Add Semester ---------- */}
-        {state.isModalOpen && (
-          <AddSemesterModal onClose={setIsModalOpen} handleAddSemester={handleAddSemester} />
-        )}
+        {state.isModalOpen && <AddSemesterModal onClose={setIsModalOpen} handleAddSemester={handleAddSemester} />}
         {state.isShareVisible && (
-
           <ShareModal
             open={state.isShareVisible}
             onClose={toggleShareDialog}
@@ -336,9 +322,7 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
             extendedCredit={extendedCredit}
             copyToClipboard={copyToClipboard}
             compressTimeline={compressTimeline}
-
           />
-
         )}
         {state.showSaveModal && (
           <SaveTimelineModal
@@ -364,10 +348,20 @@ const TimelinePage = ({ degreeId, timelineData, creditsRequired, isExtendedCredi
         />
         {/* Adding D and E */}
         {state.showDeficiencyModal && (
-          <ItemAddingModal title={"Add Deficiency Courses"} allCourses={state.allCourses} onClose={setShowDeficiencyModal} onAdd={addDeficiencyCourse} />
+          <ItemAddingModal
+            title={'Add Deficiency Courses'}
+            allCourses={state.allCourses}
+            onClose={setShowDeficiencyModal}
+            onAdd={addDeficiencyCourse}
+          />
         )}
         {state.showExemptionsModal && (
-          <ItemAddingModal title={"Add Exempted Courses"} allCourses={state.allCourses} onClose={setShowExemptionsModal} onAdd={addExemptionCourse} />
+          <ItemAddingModal
+            title={'Add Exempted Courses'}
+            allCourses={state.allCourses}
+            onClose={setShowExemptionsModal}
+            onAdd={addExemptionCourse}
+          />
         )}
       </DndContext>
     </motion.div>

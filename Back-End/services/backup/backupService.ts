@@ -47,7 +47,7 @@ export async function createBackup(): Promise<string> {
         // log error for each collection
         console.warn(
           `Error accessing collection ${collectionName}:`,
-          (error as Error).message
+          (error as Error).message,
         );
         backupData[collectionName] = [];
       }

@@ -113,11 +113,7 @@ const AdminPage = () => {
         />
 
         <div style={{ marginTop: '20px' }}>
-          <Button
-            variant="primary"
-            onClick={handleSeedData}
-            disabled={seedLoading}
-          >
+          <Button variant="primary" onClick={handleSeedData} disabled={seedLoading}>
             {seedLoading ? 'Seeding...' : 'Seed Database with JSON'}
           </Button>
         </div>

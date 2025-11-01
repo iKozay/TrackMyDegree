@@ -1,4 +1,4 @@
-jest.mock('../dist/controllers/courseController/courseController', () => ({
+jest.mock('../controllers/courseController/courseController', () => ({
   __esModule: true,
   default: {
     getAllCourses: jest.fn(),
@@ -12,9 +12,9 @@ jest.mock('../dist/controllers/courseController/courseController', () => ({
 
 const request = require('supertest');
 const express = require('express');
-const router = require('../dist/routes/courses').default;
+const router = require('../routes/courses').default;
 const controller =
-  require('../dist/controllers/courseController/courseController').default;
+  require('../controllers/courseController/courseController').default;
 
 const courses_mocks = require('./__mocks__/courses_mocks');
 
