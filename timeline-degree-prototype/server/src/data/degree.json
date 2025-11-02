@@ -1,0 +1,11 @@
+{
+    "name": "BEng in Software Engineering",
+    "totalCredits": 120,
+    "coursePools": [
+        "Engineering Core",
+        "Software Engineering Core",
+        "Computer Science Group: Software Engineering",
+        "Engineering and Natural Science Group: Software Engineering",
+        "Software Engineering Electives"
+    ]
+}

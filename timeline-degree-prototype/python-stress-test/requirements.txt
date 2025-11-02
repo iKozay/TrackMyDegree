@@ -1,0 +1,9 @@
+# --- Core dependencies ---
+playwright==1.48.0      # Playwright for Python (browser automation)
+tqdm==4.66.5            # Progress bars for async operations
+httpx==0.27.2           # Optional: async HTTP client (for backend-only tests)
+aiohttp==3.10.5         # Optional: alternative async HTTP client
+pandas==2.2.3           # Optional: for saving/exporting test results to CSV
+
+# --- Utilities ---
+python-dotenv==1.0.1    # For loading environment variables (if needed)
