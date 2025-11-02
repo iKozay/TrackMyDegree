@@ -348,6 +348,7 @@ describe('AdminController', () => {
 
   describe('Additional Edge Cases for Coverage', () => {
     beforeEach(async () => {
+      await User.deleteMany({}); // ensure isolation
       await User.create([
         {
           email: 'test1@example.com',
