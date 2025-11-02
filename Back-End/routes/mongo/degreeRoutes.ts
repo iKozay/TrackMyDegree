@@ -15,6 +15,8 @@ const router = express.Router();
 // ==========================
 
 const INTERNAL_SERVER_ERROR = 'Internal server error';
+const DEGREE_ID_REQUIRED = 'Degree ID is required';
+const DOES_NOT_EXIST = 'does not exist';
 
 /**
  * GET /degree/:id - Get degree by ID
@@ -25,7 +27,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     if (!id) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: 'Degree ID is required',
+        error: DEGREE_ID_REQUIRED,
       });
       return;
     }
@@ -37,7 +39,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in GET /degree/:id', error);
-    if (error instanceof Error && error.message.includes('does not exist')) {
+    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
       res.status(HTTP.NOT_FOUND).json({ error: error.message });
     } else {
       res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
@@ -70,7 +72,7 @@ router.get('/:id/credits', async (req: Request, res: Response) => {
 
     if (!id) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: 'Degree ID is required',
+        error: DEGREE_ID_REQUIRED,
       });
       return;
     }
@@ -82,7 +84,7 @@ router.get('/:id/credits', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in GET /degree/:id/credits', error);
-    if (error instanceof Error && error.message.includes('does not exist')) {
+    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
       res.status(HTTP.NOT_FOUND).json({ error: error.message });
     } else {
       res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
@@ -98,7 +100,7 @@ router.get('/:id/coursepools', async (req: Request, res: Response) => {
     const { id } = req.params;
     if (!id) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: 'Degree ID is required',
+        error: DEGREE_ID_REQUIRED,
       });
       return;
     }
@@ -110,7 +112,7 @@ router.get('/:id/coursepools', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in GET /degree/:id/coursepools', error);
-    if (error instanceof Error && error.message.includes('does not exist')) {
+    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
       res.status(HTTP.NOT_FOUND).json({ error: error.message });
     } else {
       res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });

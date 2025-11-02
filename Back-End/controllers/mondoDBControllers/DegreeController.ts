@@ -27,6 +27,8 @@ export interface CoursePoolInfo {
   courses: string[];
 }
 
+const DEGREE_WITH_ID_DOES_NOT_EXIST = 'Degree with this id does not exist.';
+
 export class DegreeController extends BaseMongoController<any> {
   constructor() {
     super(Degree, 'Degree');
@@ -89,7 +91,7 @@ export class DegreeController extends BaseMongoController<any> {
       const result = await this.findById(_id, 'name totalCredits');
 
       if (!result.success) {
-        throw new Error('Degree with this id does not exist.');
+        throw new Error(DEGREE_WITH_ID_DOES_NOT_EXIST);
       }
 
       return {
@@ -136,7 +138,7 @@ export class DegreeController extends BaseMongoController<any> {
       const result = await this.findById(_id, 'totalCredits');
 
       if (!result.success) {
-        throw new Error('Degree with this id does not exist.');
+        throw new Error(DEGREE_WITH_ID_DOES_NOT_EXIST);
       }
 
       return result.data.totalCredits;
@@ -154,7 +156,7 @@ export class DegreeController extends BaseMongoController<any> {
       const result = await this.findById(_id, 'coursePools');
 
       if (!result.success) {
-        throw new Error('Degree with this id does not exist.');
+        throw new Error(DEGREE_WITH_ID_DOES_NOT_EXIST);
       }
 
       return result.data.coursePools || [];
