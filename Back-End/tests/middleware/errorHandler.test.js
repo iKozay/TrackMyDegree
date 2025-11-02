@@ -1,7 +1,10 @@
-import createError from 'http-errors';
-import * as Sentry from '@sentry/node';
-import { notFoundHandler, errorHandler } from '../../middleware/errorHandler';
-import HTTP from '../../Util/HTTPCodes';
+const createError = require('http-errors');
+const Sentry = require('@sentry/node');
+const {
+  notFoundHandler,
+  errorHandler,
+} = require('../../middleware/errorHandler');
+const HTTP = require('../../Util/HTTPCodes');
 
 // mock dependencies
 jest.mock('http-errors');
@@ -45,7 +48,7 @@ describe('Error Handler Middleware', () => {
 
       expect(createError).toHaveBeenCalledWith(
         HTTP.NOT_FOUND,
-        'Route /test/route not found'
+        'Route /test/route not found',
       );
       expect(Sentry.captureException).toHaveBeenCalledWith(mockError);
       expect(mockNext).toHaveBeenCalledWith(mockError);
@@ -60,7 +63,7 @@ describe('Error Handler Middleware', () => {
 
       expect(createError).toHaveBeenCalledWith(
         HTTP.NOT_FOUND,
-        'Route /api/users/123 not found'
+        'Route /api/users/123 not found',
       );
       expect(mockNext).toHaveBeenCalledWith(mockError);
     });

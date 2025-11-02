@@ -1,5 +1,5 @@
-import request from 'supertest';
-import express from 'express';
+const express = require('express');
+const request = require('supertest');
 
 jest.mock('../../controllers/redisClient', () => ({
   __esModule: true,
@@ -9,15 +9,15 @@ jest.mock('../../controllers/redisClient', () => ({
     quit: jest.fn().mockResolvedValue(undefined),
     connect: jest.fn(),
     on: jest.fn(),
-  }
+  },
 }));
 
-import {
+const {
   forgotPasswordLimiter,
   resetPasswordLimiter,
   loginLimiter,
-  signupLimiter
-} from '../../middleware/rateLimiter';
+  signupLimiter,
+} = require('../../middleware/rateLimiter');
 /*
  * helper function to create an express app with rate limiters applied
  * this ensures each test has a fresh app instance with clean middleware setup
@@ -31,10 +31,18 @@ const createTestApp = () => {
   app.use('/auth/login', loginLimiter);
   app.use('/auth/signup', signupLimiter);
 
-  app.post('/auth/forgot-password', (req, res) => res.status(200).json({ success: true }));
-  app.post('/auth/reset-password', (req, res) => res.status(200).json({ success: true }));
-  app.post('/auth/login', (req, res) => res.status(200).json({ success: true }));
-  app.post('/auth/signup', (req, res) => res.status(200).json({ success: true }));
+  app.post('/auth/forgot-password', (req, res) =>
+    res.status(200).json({ success: true }),
+  );
+  app.post('/auth/reset-password', (req, res) =>
+    res.status(200).json({ success: true }),
+  );
+  app.post('/auth/login', (req, res) =>
+    res.status(200).json({ success: true }),
+  );
+  app.post('/auth/signup', (req, res) =>
+    res.status(200).json({ success: true }),
+  );
 
   return app;
 };
@@ -47,7 +55,9 @@ const testRateLimiter = async (endpoint, maxRequests, expectedMessage) => {
   const app = createTestApp();
   const responses = [];
   for (let i = 0; i < maxRequests + 1; i++) {
-    responses.push(await request(app).post(endpoint).send({ email: 'test@example.com' }));
+    responses.push(
+      await request(app).post(endpoint).send({ email: 'test@example.com' }),
+    );
   }
   for (let i = 0; i < maxRequests; i++) {
     expect(responses[i].status).toBe(200); // success requests
@@ -57,10 +67,15 @@ const testRateLimiter = async (endpoint, maxRequests, expectedMessage) => {
   expect(last.body.error).toBe(expectedMessage); // message
 };
 
-describe('Rate Limiters', () => {
+describe('Rate Limiter Middleware', () => {
   beforeEach(() => {
     // clear rate limiter stores before each test
-    [forgotPasswordLimiter, resetPasswordLimiter, loginLimiter, signupLimiter].forEach(limiter => {
+    [
+      forgotPasswordLimiter,
+      resetPasswordLimiter,
+      loginLimiter,
+      signupLimiter,
+    ].forEach((limiter) => {
       const store = limiter.store;
       if (store?.hits) store.hits.clear();
     });
@@ -71,7 +86,7 @@ describe('Rate Limiters', () => {
     await testRateLimiter(
       '/auth/forgot-password',
       5,
-      'Too many password reset attempts. Try again later.'
+      'Too many password reset attempts. Try again later.',
     );
     expect(true).toBe(true); // to account for the assertions inside testRateLimiter
   });
@@ -81,7 +96,7 @@ describe('Rate Limiters', () => {
     await testRateLimiter(
       '/auth/reset-password',
       3,
-      'Too many reset attempts. Try again later.'
+      'Too many reset attempts. Try again later.',
     );
     expect(true).toBe(true); // to account for the assertions inside testRateLimiter
   });
@@ -91,7 +106,7 @@ describe('Rate Limiters', () => {
     await testRateLimiter(
       '/auth/login',
       5,
-      'Too many login attempts. Try again later.'
+      'Too many login attempts. Try again later.',
     );
     expect(true).toBe(true); // to account for the assertions inside testRateLimiter
   });
@@ -101,7 +116,7 @@ describe('Rate Limiters', () => {
     await testRateLimiter(
       '/auth/signup',
       5,
-      'Too many signup attempts. Try again later.'
+      'Too many signup attempts. Try again later.',
     );
     expect(true).toBe(true); // to account for the assertions inside testRateLimiter
   });
