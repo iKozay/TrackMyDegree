@@ -87,7 +87,19 @@ export interface ParsedTranscript {
     terms: TranscriptTerm[];
     additionalInfo: AdditionalInfo;
 }
-
+export interface AcceptanceDetails {
+     degreeConcentration: string | null;
+        coopProgram: boolean;
+        extendedCreditProgram: boolean;
+        startingTerm: string | null;
+        expectedGraduationTerm: string | null;
+        minimumProgramLength: string | null;
+    
+}
+export interface ParsedAcceptanceLetter {
+    extractedCourses: { term: string; courses: string[]; grade:string|null; }[]|[];
+    details: AcceptanceDetails| {};
+}
 /**
  * API Response types
  */
@@ -99,6 +111,6 @@ export interface ApiResponse<T = any> {
     error?: string;
 }
 
-export interface ParseTranscriptResponse extends ApiResponse<ParsedTranscript> {
-    data: ParsedTranscript;
+export interface ParseTranscriptResponse extends ApiResponse<ParsedTranscript| ParsedAcceptanceLetter> {
+    data: ParsedTranscript | ParsedAcceptanceLetter;
 }

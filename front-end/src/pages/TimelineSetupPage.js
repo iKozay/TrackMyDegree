@@ -1,12 +1,13 @@
 import '../css/TimelineSetupPage.css';
 import React, { useState, useRef, useEffect } from 'react';
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import * as Sentry from '@sentry/react';
 import InformationForm from '../components/InformationForm';
 import UploadBox from '../components/UploadBox';
-import { parsePdfFile, extractAcceptanceDetails } from '../utils/AcceptanceUtils';
+import axios from 'axios';
+import InstructionsModal from '../components/InstructionModal';
 
 //This page creates an initial timeline using either manually entered information or by parsing an acceptance letter
 /**
@@ -35,69 +36,100 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
   const [degrees, setDegrees] = useState([]);
   const navigate = useNavigate();
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const toggleModal = () => setIsModalOpen(!isModalOpen);
+
   useEffect(() => {
     if (isFirstRender.current) {
       onDataProcessed(); // Clear old timeline data on load
       isFirstRender.current = false;
     }
   }, [onDataProcessed]);
+  // get a list of all degrees by name
+  // TODO: Add loader while fetching degrees from API
+  const getDegrees = async () => {
+    // TODO: Add proper error handling and user feedback for API failures
+    try {
+      const response = await fetch(`${REACT_APP_SERVER}/degree/getAllDegrees`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const jsonData = await response.json();
+      setDegrees(jsonData.degrees);
+    } catch (err) {
+      Sentry.captureException(err);
+      console.error(err.message);
+    }
+  };
 
   useEffect(() => {
-    // get a list of all degrees by name
-    // TODO: Add loader while fetching degrees from API
-    const getDegrees = async () => {
-      // TODO: Add proper error handling and user feedback for API failures
-      try {
-        const response = await fetch(`${REACT_APP_SERVER}/degree/getAllDegrees`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const jsonData = await response.json();
-        console.log('Degrees:', jsonData);
-        setDegrees(jsonData.degrees);
-      } catch (err) {
-        Sentry.captureException(err);
-        console.error(err.message);
-      }
-    };
     getDegrees();
   }, []);
 
-  const processFile = (file) => {
-    parsePdfFile(file).then((data) => {
-      const extractedData = extractAcceptanceDetails(data);
-      const transcriptData = extractedData.results;
-      const degree = extractedData.details?.degreeConcentration.toLowerCase() || 'Unknown Degree';
+  const processFile = async (file) => {
+    localStorage.setItem('Timeline_Name', null);
+    const formData = new FormData();
+    formData.append('transcript', file);
+    try {
+      const response = await axios.post(`${REACT_APP_SERVER}/transcript/parse`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      if (!response.data.success || !response.data.data) {
+        console.error('Document parsing failed:', response.data.message);
+        return null;
+      }
+      const { extractedCourses, details } = response.data.data;
+      console.log('Extracted Courses:', extractedCourses);
+      console.log('Details:', details);
+      if (!extractedCourses && !details) return;
+      if (degrees.length === 0) await getDegrees(); //try fetching degrees again
+      if (degrees.length === 0) {
+        //if still no degrees, show error and return
+        alert('Error fetching degrees from server. Please try again later.');
+        return;
+      }
+
+      // Match extracted degree with available degrees
+      const degree = details.degreeConcentration?.toLowerCase() || 'Unknown Degree';
       const matched_degree = degrees.find(
         (d) => degree.toLowerCase().includes(d.name.split(' ').slice(1).join(' ').toLowerCase()), // remove first word (BcompsC/Beng/etc.) and match rest
       );
-      const credits_Required = extractedData.details?.minimumProgramLength || matched_degree?.totalCredits;
-      const isExtendedCredit = extractedData.details?.extendedCreditProgram || false;
-      const degreeId = matched_degree?.id || 'Unknown';
 
-      if (transcriptData.length > 0) {
-        localStorage.setItem('Timeline_Name', null);
-        console.log(transcriptData);
-        onDataProcessed({
-          transcriptData,
-          degreeId,
-          isExtendedCredit,
-        });
-        navigate('/timeline_change', {
-          state: {
-            coOp: extractedData.details.coopProgram,
-            credits_Required: credits_Required,
-            extendedCredit: extractedData.details.extendedCreditProgram,
-            creditDeficiency: extractedData.details.deficienciesCourses?.length > 0,
-          },
-        }); // Navigate to TimelinePage
-      } else {
-        alert('No transcript data extracted. Please ensure the PDF is a valid transcript.');
+      if (!matched_degree) {
+        alert(
+          `The extracted degree "${details.degreeConcentration}" does not match any available degrees in our system.`,
+        );
+        return;
       }
-    });
+
+      if (!(extractedCourses.length && extractedCourses.length > 0)) {
+        alert('No Course Extracted From the Document.');
+        return; //maybe don't return and let the user proceed with an empty timeline?
+      }
+
+      //send the processed data to the TimelinePage
+      onDataProcessed({
+        transcriptData: extractedCourses,
+        degreeId: matched_degree.id,
+        isExtendedCredit: details.extendedCreditProgram || false,
+        credits_Required: details.minimumProgramLength || matched_degree?.totalCredits,
+      });
+      navigate('/timeline_change', {
+        state: {
+          coOp: details.coopProgram,
+          credits_Required: details.minimumProgramLength || matched_degree?.totalCredits,
+          extendedCredit: details.extendedCreditProgram,
+          creditDeficiency: details.deficienciesCourses?.length > 0,
+        },
+      }); // Navigate to TimelinePage
+    } catch (error) {
+      console.error('Error processing transcript file:', error);
+    }
   };
 
   return (
@@ -109,19 +141,23 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
           <div className="or-divider">OR</div>
 
           <div className="upload-container-al">
-            <h2>Upload Acceptance Letter</h2>
-            <p>Upload your acceptance letter to automatically fill out the required information</p>
+            <h2>Upload Acceptance Letter or Unofficial Transcript </h2>
+            <p>
+              Upload your acceptance letter or your unofficial transcript to automatically fill out the required
+              information
+            </p>
             <UploadBox processFile={processFile} />
 
             <hr className="divider" />
 
-            <p>To upload your unofficial transcript, please click here!</p>
-            <button className="upload-transcript-button" onClick={() => navigate('/uploadTranscript')}>
-              Upload Transcript
+            <p>Click here to get see a guide on how to get the unofficial transcript!</p>
+            <button onClick={toggleModal} className="open-modal-btn">
+              How to Download Your Transcript
             </button>
           </div>
         </div>
       </div>
+      <InstructionsModal isOpen={isModalOpen} toggleModal={toggleModal} />
     </motion.div>
   );
 };

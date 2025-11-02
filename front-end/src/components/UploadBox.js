@@ -38,12 +38,12 @@ const UploadBox = ({ processFile }) => {
       setSelectedFile(null);
     }
   };
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedFile) {
       alert('Please choose a file to upload!');
       return;
     }
-    processFile(selectedFile);
+    await processFile(selectedFile);
     alert('File uploaded Successfully!');
   };
 
