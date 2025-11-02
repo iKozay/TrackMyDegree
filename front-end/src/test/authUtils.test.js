@@ -8,6 +8,8 @@ import {
   hashPassword,
 } from '../utils/authUtils';
 
+import bcrypt from 'bcryptjs';
+
 // Mock bcryptjs since it's used in hashPassword
 jest.mock('bcryptjs', () => ({
   genSalt: jest.fn(),
@@ -31,15 +33,7 @@ describe('authUtils', () => {
     });
 
     test('returns false for invalid email addresses', () => {
-      const invalidEmails = [
-        '',
-        'invalid',
-        'invalid@',
-        '@domain.com',
-        'invalid.email',
-        'user@',
-        'user@@domain.com',
-      ];
+      const invalidEmails = ['', 'invalid', 'invalid@', '@domain.com', 'invalid.email', 'user@', 'user@@domain.com'];
 
       for (const email of invalidEmails) {
         expect(validateEmail(email)).toBe(false);
@@ -64,13 +58,7 @@ describe('authUtils', () => {
 
   describe('validatePassword', () => {
     test('returns true for passwords meeting minimum length (default 6)', () => {
-      const validPasswords = [
-        'password',
-        '123456',
-        'abc123',
-        'verylongpassword',
-        'p@ssw0rd!',
-      ];
+      const validPasswords = ['password', '123456', 'abc123', 'verylongpassword', 'p@ssw0rd!'];
 
       for (const password of validPasswords) {
         expect(validatePassword(password)).toBe(true);
@@ -78,14 +66,7 @@ describe('authUtils', () => {
     });
 
     test('returns false for passwords shorter than minimum length', () => {
-      const invalidPasswords = [
-        '',
-        '1',
-        '12',
-        '123',
-        '1234',
-        '12345',
-      ];
+      const invalidPasswords = ['', '1', '12', '123', '1234', '12345'];
 
       for (const password of invalidPasswords) {
         expect(validatePassword(password)).toBe(false);
@@ -256,8 +237,6 @@ describe('authUtils', () => {
   });
 
   describe('hashPassword', () => {
-    const bcrypt = require('bcryptjs');
-
     beforeEach(() => {
       jest.clearAllMocks();
     });

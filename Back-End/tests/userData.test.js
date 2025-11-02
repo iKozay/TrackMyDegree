@@ -1,4 +1,4 @@
-jest.mock('../dist/controllers/userDataController/userDataController', () => ({
+jest.mock('../controllers/userDataController/userDataController', () => ({
   __esModule: true,
   default: {
     getUserData: jest.fn(),
@@ -7,15 +7,13 @@ jest.mock('../dist/controllers/userDataController/userDataController', () => ({
 
 const request = require('supertest');
 const express = require('express');
-const router = require('../dist/routes/userData').default;
+const router = require('../routes/userData').default;
 const userDataController =
-  require('../dist/controllers/userDataController/userDataController').default;
+  require('../controllers/userDataController/userDataController').default;
 
 const app = express();
 app.use(express.json());
 app.use('/data', router);
-
-const url = process.DOCKER_URL || 'host.docker.internal:8000';
 
 describe('POST /data/userdata', () => {
   it('should return error if no user ID is provided', async () => {

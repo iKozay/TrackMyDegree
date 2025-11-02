@@ -16,9 +16,7 @@ const TablesList = ({ tables = [], selectedTable, onTableSelect }) => {
             <button
               key={table}
               type="button"
-              className={`list-group-item list-group-item-action text-start ${
-                selectedTable === table ? 'active' : ''
-              }`}
+              className={`list-group-item list-group-item-action text-start ${selectedTable === table ? 'active' : ''}`}
               onClick={() => onTableSelect(table)}
             >
               {table}

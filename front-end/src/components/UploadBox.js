@@ -1,6 +1,6 @@
 import Button from 'react-bootstrap/Button';
 import React, { useRef, useState } from 'react';
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 import '../css/UploadBox.css';
 
 const UploadBox = ({ processFile }) => {
@@ -74,11 +74,9 @@ const UploadBox = ({ processFile }) => {
         />
         <p className="file-name">{fileName}</p>
       </div>
-
-      <button className='cancel-button' onClick={handleCancel}>
+      <button className="cancel-button" onClick={handleCancel}>
         Cancel
-      </button>
-       {' '}
+      </button>{' '}
       <button className="create-button" onClick={handleSubmit}>
         Create Timeline
       </button>

@@ -22,7 +22,7 @@ describe('BackupManagement Component', () => {
 
   it('should render backup management section', () => {
     render(<BackupManagement {...mockProps} />);
-    
+
     expect(screen.getByText('Database Backups')).toBeInTheDocument();
     expect(screen.getByText('Create Backup')).toBeInTheDocument();
     expect(screen.getByText('Restore Backup')).toBeInTheDocument();
@@ -31,22 +31,22 @@ describe('BackupManagement Component', () => {
 
   it('should render all backups in dropdown', () => {
     render(<BackupManagement {...mockProps} />);
-    
+
     const select = screen.getByRole('combobox');
     expect(select).toBeInTheDocument();
-    
+
     // Check if backups are in the dropdown
-    mockProps.backups.forEach(backup => {
+    mockProps.backups.forEach((backup) => {
       expect(screen.getByText(backup)).toBeInTheDocument();
     });
   });
 
   it('should call onBackupSelect when backup is selected', () => {
     render(<BackupManagement {...mockProps} />);
-    
+
     const select = screen.getByRole('combobox');
     fireEvent.change(select, { target: { value: 'backup1.sql' } });
-    
+
     expect(mockProps.onBackupSelect).toHaveBeenCalledWith('backup1.sql');
   });
 
@@ -57,10 +57,10 @@ describe('BackupManagement Component', () => {
     });
 
     render(<BackupManagement {...mockProps} />);
-    
+
     const createButton = screen.getByText('Create Backup');
     fireEvent.click(createButton);
-    
+
     await waitFor(() => {
       expect(mockProps.onCreateBackup).toHaveBeenCalled();
       expect(global.alert).toHaveBeenCalledWith('Backup created successfully');
@@ -79,10 +79,10 @@ describe('BackupManagement Component', () => {
     });
 
     render(<BackupManagement {...propsWithSelected} />);
-    
+
     const restoreButton = screen.getByText('Restore Backup');
     fireEvent.click(restoreButton);
-    
+
     await waitFor(() => {
       expect(propsWithSelected.onRestoreBackup).toHaveBeenCalledWith('backup1.sql');
       expect(global.alert).toHaveBeenCalledWith('Database restored successfully');
@@ -101,10 +101,10 @@ describe('BackupManagement Component', () => {
     });
 
     render(<BackupManagement {...propsWithSelected} />);
-    
+
     const deleteButton = screen.getByText('Delete Backup');
     fireEvent.click(deleteButton);
-    
+
     await waitFor(() => {
       expect(propsWithSelected.onDeleteBackup).toHaveBeenCalledWith('backup1.sql');
       expect(global.alert).toHaveBeenCalledWith('Backup deleted successfully');
@@ -113,9 +113,9 @@ describe('BackupManagement Component', () => {
 
   it('should disable buttons when loading', () => {
     const loadingProps = { ...mockProps, loading: true };
-    
+
     render(<BackupManagement {...loadingProps} />);
-    
+
     expect(screen.getByText('Create Backup')).toBeDisabled();
     expect(screen.getByText('Restore Backup')).toBeDisabled();
     expect(screen.getByText('Delete Backup')).toBeDisabled();
@@ -124,7 +124,7 @@ describe('BackupManagement Component', () => {
 
   it('should disable restore and delete when no backup selected', () => {
     render(<BackupManagement {...mockProps} />);
-    
+
     expect(screen.getByText('Restore Backup')).toBeDisabled();
     expect(screen.getByText('Delete Backup')).toBeDisabled();
   });
@@ -134,9 +134,9 @@ describe('BackupManagement Component', () => {
       ...mockProps,
       selectedBackup: 'backup1.sql',
     };
-    
+
     render(<BackupManagement {...propsWithSelected} />);
-    
+
     expect(screen.getByText('Restore Backup')).not.toBeDisabled();
     expect(screen.getByText('Delete Backup')).not.toBeDisabled();
   });
@@ -148,10 +148,10 @@ describe('BackupManagement Component', () => {
     });
 
     render(<BackupManagement {...mockProps} />);
-    
+
     const createButton = screen.getByText('Create Backup');
     fireEvent.click(createButton);
-    
+
     await waitFor(() => {
       expect(global.alert).toHaveBeenCalledWith('Failed to create backup');
     });

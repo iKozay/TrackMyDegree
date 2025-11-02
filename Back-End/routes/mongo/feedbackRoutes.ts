@@ -1,6 +1,6 @@
 /**
  * Feedback Routes
- * 
+ *
  * Handles feedback CRUD operations
  */
 
@@ -14,6 +14,8 @@ const router = express.Router();
 // FEEDBACK ROUTES (CRUD)
 // ==========================
 
+const INTERNAL_SERVER_ERROR = 'Internal server error';
+
 /**
  * POST /feedback - Submit feedback
  */
@@ -23,7 +25,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     if (!message) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: 'Message is required',
+        error: 'Missing required field: message',
       });
       return;
     }
@@ -35,7 +37,7 @@ router.post('/', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in POST /feedback', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
 
@@ -59,7 +61,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in GET /feedback', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
 
@@ -87,7 +89,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     if (error instanceof Error && error.message.includes('not found')) {
       res.status(HTTP.NOT_FOUND).json({ error: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
   }
 });
@@ -115,7 +117,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     if (error instanceof Error && error.message.includes('not found')) {
       res.status(HTTP.NOT_FOUND).json({ error: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
   }
 });
@@ -136,14 +138,13 @@ router.delete('/user/:userId', async (req: Request, res: Response) => {
 
     const count = await feedbackController.deleteUserFeedback(userId);
     res.status(HTTP.OK).json({
-      message: `Deleted ${count} feedback entries for user`,
+      message: 'All user feedback deleted successfully',
       deletedCount: count,
     });
   } catch (error) {
     console.error('Error in DELETE /feedback/user/:userId', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
 
 export default router;
-
