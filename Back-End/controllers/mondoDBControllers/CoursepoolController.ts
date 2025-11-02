@@ -25,13 +25,6 @@ export class CoursePoolController extends BaseMongoController<any> {
    */
   async createCoursePool(coursePoolData: CoursePoolData): Promise<CoursePoolData> {
     try {
-      // Check if course pool with the same ID already exists
-      const existingPool = await this.findById(coursePoolData._id);
-
-      if (existingPool) {
-        throw new Error('Course pool with this ID already exists.');
-      }
-
       const result = await this.create(coursePoolData);
 
       if (!result.success) {

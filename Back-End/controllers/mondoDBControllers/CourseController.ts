@@ -41,11 +41,6 @@ export class CourseController extends BaseMongoController<any> {
    */
   async createCourse(courseData: CourseData): Promise<CourseData> {
     try {
-      // Check if course with the same id already exists
-      const existingCourse = await this.findById(courseData._id);
-      if (existingCourse) {
-        throw new Error('Course with this id already exists.');
-      }
       const result = await this.create(courseData);
       if (!result.success) {
         throw new Error(result.error || 'Failed to create course');

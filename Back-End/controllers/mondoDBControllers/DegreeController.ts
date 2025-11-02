@@ -41,13 +41,6 @@ export class DegreeController extends BaseMongoController<any> {
    */
   async createDegree(degreeData: DegreeData): Promise<DegreeData> {
     try {
-      // Check if degree with the same id already exists
-      const existingDegree = await this.findById(degreeData._id);
-
-      if (existingDegree) {
-        throw new Error('Degree with this id already exists.');
-      }
-
       const result = await this.create(degreeData);
 
       if (!result.success) {
