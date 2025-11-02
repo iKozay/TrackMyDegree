@@ -84,8 +84,7 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
         return null;
       }
       const { extractedCourses, details } = response.data.data;
-      console.log('Extracted Courses:', extractedCourses);
-      console.log('Details:', details);
+
       if (!extractedCourses && !details) return;
       if (degrees.length === 0) await getDegrees(); //try fetching degrees again
       if (degrees.length === 0) {
