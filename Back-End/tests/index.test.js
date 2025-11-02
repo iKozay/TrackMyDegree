@@ -1,25 +1,39 @@
-// Mock all external dependencies
-jest.mock('@sentry/node', () => ({
-  setupExpressErrorHandler: jest.fn(),
-  captureException: jest.fn(),
-}));
+/**
+ * Test file for Back-End/index.ts
+ */
 
-jest.mock('express', () => {
-  const express = jest.fn(() => ({
-    use: jest.fn(),
-    listen: jest.fn(),
-    get: jest.fn(),
-    options: jest.fn(),
-  }));
-  // Provide middleware factory functions used by index.ts
-  express.json = jest.fn(() => jest.fn());
-  express.urlencoded = jest.fn(() => jest.fn());
-  return express;
-});
+describe('index.ts', () => {
+  let consoleSpy;
+  let consoleErrorSpy;
 
-jest.mock('cors', () => jest.fn(() => jest.fn()));
-jest.mock('cookie-parser');
-jest.mock('dotenv');
+  beforeEach(() => {
+    jest.resetModules();
+    jest.clearAllMocks();
+
+    // Set up mocks inside beforeEach to ensure they persist after resetModules
+    jest.mock('@sentry/node', () => ({
+      init: jest.fn(),
+      setupExpressErrorHandler: jest.fn(),
+      captureException: jest.fn(),
+    }));
+
+    jest.mock('@sentry/profiling-node', () => ({
+      nodeProfilingIntegration: jest.fn(),
+    }));
+
+    jest.mock('express', () => {
+      const express = jest.fn(() => ({
+        use: jest.fn(),
+        listen: jest.fn((port, callback) => callback()),
+        get: jest.fn(),
+      }));
+      express.urlencoded = jest.fn();
+      express.json = jest.fn();
+      return express;
+    });
+
+    jest.mock('cookie-parser', () => jest.fn());
+    jest.mock('dotenv', () => ({ config: jest.fn() }));
 
 // Mock all routes (use alias paths to match index.ts imports)
 jest.mock('@routes/auth', () => ({ default: jest.fn() }));
@@ -38,34 +52,49 @@ jest.mock('@routes/sectionsRoutes', () => ({ default: jest.fn() }));
 jest.mock('@routes/transcript', () => ({ default: jest.fn() }));
 jest.mock('@routes/mongo', () => ({ default: jest.fn() }));
 
-jest.mock('@controllers/DBController/DBController', () => ({
-  default: {
-    getConnection: jest.fn().mockResolvedValue({
-      request: jest.fn().mockReturnValue({
-        query: jest.fn().mockResolvedValue({
-          recordset: [{ number: 1 }],
+    jest.doMock('@controllers/DBController/DBController', () => ({
+      default: {
+        getConnection: jest.fn().mockResolvedValue({
+          request: jest.fn().mockReturnValue({
+            query: jest.fn().mockResolvedValue({
+              recordset: [{ number: 1 }],
+            }),
+          }),
         }),
-      }),
-    }),
-  },
-}));
+      },
+    }));
 
-jest.mock('@middleware/rateLimiter', () => ({
-  forgotPasswordLimiter: jest.fn(),
-  resetPasswordLimiter: jest.fn(),
-  loginLimiter: jest.fn(),
-  signupLimiter: jest.fn(),
-}));
+    jest.doMock('@middleware/rateLimiter', () => ({
+      forgotPasswordLimiter: jest.fn(),
+      resetPasswordLimiter: jest.fn(),
+      loginLimiter: jest.fn(),
+      signupLimiter: jest.fn(),
+    }));
 
-jest.mock('@middleware/errorHandler', () => ({
-  notFoundHandler: jest.fn(),
-  errorHandler: jest.fn(),
-}));
+    jest.doMock('@middleware/errorHandler', () => ({
+      notFoundHandler: jest.fn(),
+      errorHandler: jest.fn(),
+    }));
 
-describe('index.ts', () => {
-  beforeEach(() => {
-    jest.resetModules();
-    jest.clearAllMocks();
+    jest.doMock('../dist/Util/HTTPCodes', () => ({
+      OK: 200,
+      SERVER_ERR: 500,
+    }));
+
+    consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+  });
+
+  afterEach(() => {
+    // Clean up spies
+    consoleSpy?.mockRestore();
+    consoleErrorSpy?.mockRestore();
+
+    // Clear any event listeners that might have been added
+    process.removeAllListeners('unhandledRejection');
+
+    // Reset all mocks
+    jest.resetAllMocks();
   });
 
   it('should be importable', () => {
@@ -74,54 +103,65 @@ describe('index.ts', () => {
     }).not.toThrow();
   });
 
+  it('should initialize Sentry with correct configuration', () => {
+    require('../dist/index.js');
+
+    const Sentry = require('@sentry/node');
+    const { nodeProfilingIntegration } = require('@sentry/profiling-node');
+
+    expect(Sentry.init).toHaveBeenCalledWith({
+      dsn: process.env.SENTRY_DSN,
+      integrations: [nodeProfilingIntegration()],
+      tracesSampleRate: 1,
+      profilesSampleRate: 1,
+    });
+  });
+
+  it('should configure dotenv', () => {
+    require('../dist/index.js');
+
+    const dotenv = require('dotenv');
+    expect(dotenv.config).toHaveBeenCalled();
+  });
+
   it('should handle environment variables', () => {
     process.env.PORT = '3000';
-    process.env.CLIENT = 'http://test:4000';
 
     expect(() => {
       require('../index.ts');
     }).not.toThrow();
+
+    expect(consoleSpy).toHaveBeenCalledWith('Server listening on Port: 3000');
   });
 
-  it('should use default values when env vars are not set', () => {
+  it('should use default port when PORT is not set', () => {
     delete process.env.PORT;
-    delete process.env.CLIENT;
 
-    expect(() => {
-      require('../index.ts');
-    }).not.toThrow();
-  });
-
-  it('should set up unhandled rejection handler', () => {
-    const Sentry = require('@sentry/node');
     require('../index.ts');
 
-    // Simulate unhandled rejection
-    process.emit('unhandledRejection', new Error('Test rejection'));
-
-    expect(Sentry.captureException).toHaveBeenCalled();
+    expect(consoleSpy).toHaveBeenCalledWith('Server listening on Port: 8000');
   });
 
-  it('should setup express app with all middleware', () => {
+  it('should setup express app with middleware', () => {
+    require('../dist/index.js');
+
     const express = require('express');
-    const cors = require('cors');
     const cookieParser = require('cookie-parser');
 
     require('../index.ts');
 
     const app = express.mock.results[0].value;
 
-    // Verify middleware setup
+    expect(express.urlencoded).toHaveBeenCalledWith({ extended: false });
+    expect(express.json).toHaveBeenCalled();
+    expect(cookieParser).toHaveBeenCalled();
     expect(app.use).toHaveBeenCalled();
-    expect(app.options).toHaveBeenCalledWith('*', expect.any(Function));
-    expect(app.get).toHaveBeenCalledWith('/test-db', expect.any(Function));
-    expect(app.listen).toHaveBeenCalled();
   });
 
-  it('should setup all routes', () => {
-    const express = require('express');
+  it('should setup all routes correctly', () => {
     require('../index.ts');
 
+    const express = require('express');
     const app = express.mock.results[0].value;
 
     // Verify all routes are registered
@@ -143,6 +183,8 @@ describe('index.ts', () => {
   });
 
   it('should setup rate limiters', () => {
+    require('../dist/index.js');
+
     const express = require('express');
     const rateLimiter = require('../middleware/rateLimiter');
 
@@ -150,7 +192,6 @@ describe('index.ts', () => {
 
     const app = express.mock.results[0].value;
 
-    // Verify rate limiters are applied
     expect(app.use).toHaveBeenCalledWith(
       '/auth/forgot-password',
       rateLimiter.forgotPasswordLimiter,
@@ -170,6 +211,8 @@ describe('index.ts', () => {
   });
 
   it('should setup error handlers', () => {
+    require('../dist/index.js');
+
     const express = require('express');
     const errorHandler = require('../middleware/errorHandler');
 
@@ -177,8 +220,48 @@ describe('index.ts', () => {
 
     const app = express.mock.results[0].value;
 
-    // Verify error handlers are applied
     expect(app.use).toHaveBeenCalledWith(errorHandler.notFoundHandler);
     expect(app.use).toHaveBeenCalledWith(errorHandler.errorHandler);
+  });
+
+  it('should setup test-db route', () => {
+    require('../dist/index.js');
+
+    const express = require('express');
+    const app = express.mock.results[0].value;
+
+    expect(app.get).toHaveBeenCalledWith('/test-db', expect.any(Function));
+  });
+
+  it('should setup Sentry error handler', () => {
+    require('../dist/index.js');
+
+    const Sentry = require('@sentry/node');
+    const express = require('express');
+    const app = express.mock.results[0].value;
+
+    expect(Sentry.setupExpressErrorHandler).toHaveBeenCalledWith(app);
+  });
+
+  it('should set up unhandled rejection handler', () => {
+    require('../dist/index.js');
+
+    const Sentry = require('@sentry/node');
+
+    // Simulate unhandled rejection
+    const testError = new Error('Test rejection');
+    process.emit('unhandledRejection', testError);
+
+    expect(Sentry.captureException).toHaveBeenCalledWith(testError);
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Unhandled Rejection:', testError);
+  });
+
+  it('should start server on specified port', () => {
+    require('../dist/index.js');
+
+    const express = require('express');
+    const app = express.mock.results[0].value;
+
+    expect(app.listen).toHaveBeenCalled();
   });
 });
