@@ -120,7 +120,8 @@ export class TranscriptParser {
     const studentInfo = this.extractStudentInfo(structuredLines);
     const programHistory = this.extractProgramHistory(structuredLines);
     const additionalInfo = this.extractAcademicSummary(structuredLines);
-    const transferCredits = this.extractTransferCredits(structuredLines);
+    // Extract transfer credits from raw text (pdf-parse) since structured lines may not have correct format
+    const transferCredits = this.extractTransferCredits(cleanText, structuredLines);
 
     // Extract courses using term boundaries and structure from pdf2json
     const terms = this.extractTermsHybrid(termBoundaries, pdf2jsonData);
@@ -169,6 +170,22 @@ export class TranscriptParser {
       const termRegex =
         /^(Winter|Summer|Fall|Spring|Fall\/Winter|Winter\/Summer)\s+(\d{4}(?:-\d{2})?)$/;
       const termMatch = termRegex.exec(line);
+      
+      // Also try without anchors in case term is on a line with other text
+      if (!termMatch) {
+        const flexibleTermRegex =
+          /(Winter|Summer|Fall|Spring|Fall\/Winter|Winter\/Summer)\s+(\d{4}(?:-\d{2})?)/;
+        const flexibleMatch = flexibleTermRegex.exec(line);
+        if (flexibleMatch && !line.includes('ASSESSMENT PERIOD')) {
+          // Avoid matching terms in assessment period lines
+          termBoundaries.push({
+            term: flexibleMatch[1],
+            year: flexibleMatch[2],
+            lineIndex: i,
+          });
+          continue;
+        }
+      }
       if (termMatch) {
         termBoundaries.push({
           term: termMatch[1],
@@ -178,10 +195,21 @@ export class TranscriptParser {
       }
 
       // Match Term GPA and associate with last term
-      if (line.startsWith('Term GPA') && termBoundaries.length > 0) {
+      // Handle both "Term GPA 3.94" and "Te r m   G PA                 4 . 0 8" formats
+      if ((line.includes('Term GPA') || line.includes('G PA')) && termBoundaries.length > 0) {
+        // Try normal format first
         const gpaRegex = /Term GPA\s+(\d+\.?\d*)/;
-        const gpaMatch = gpaRegex.exec(line);
-        if (gpaMatch) {
+        let gpaMatch = gpaRegex.exec(line);
+        
+        // If not found, try spaced format (Te r m   G PA                 4 . 0 8)
+        if (!gpaMatch) {
+          const spacedGpaRegex = /G\s*PA\s+(\d+)\s*\.\s*(\d+)/;
+          const spacedMatch = spacedGpaRegex.exec(line);
+          if (spacedMatch) {
+            const gpaValue = `${spacedMatch[1]}.${spacedMatch[2]}`;
+            termBoundaries.at(-1)!.gpa = Number.parseFloat(gpaValue);
+          }
+        } else {
           termBoundaries.at(-1)!.gpa = Number.parseFloat(gpaMatch[1]);
         }
       }
@@ -439,11 +467,80 @@ export class TranscriptParser {
 
   /**
    * Extract transfer credits from prior institutions
+   * First tries to extract from raw text (pdf-parse), then falls back to structured lines
    */
-  private extractTransferCredits(lines: string[]): TransferCredit[] {
-    return lines
+  private extractTransferCredits(
+    cleanText: string,
+    structuredLines: string[],
+  ): TransferCredit[] {
+    // Try extracting from raw text first (more reliable for transfer credits)
+    const transferCreditsFromText = this.extractTransferCreditsFromText(cleanText);
+    if (transferCreditsFromText.length > 0) {
+      return transferCreditsFromText;
+    }
+
+    // Fall back to structured lines (for PDFs with pipe-separated format)
+    return structuredLines
       .filter(this.isTransferCreditHeader)
       .flatMap(this.extractTransferCreditsFromLine);
+  }
+
+  /**
+   * Extract transfer credits from raw text (pdf-parse output)
+   * Handles format like: BIOL201Vanier CollegeEXNA0.00
+   */
+  private extractTransferCreditsFromText(text: string): TransferCredit[] {
+    const transferCredits: TransferCredit[] = [];
+    
+    // Find the "Transfer Credits" section
+    const transferIndex = text.indexOf('Transfer Credits');
+    if (transferIndex === -1) {
+      return transferCredits;
+    }
+
+    // Find where transfer credits section ends (look for course table headers)
+    // Transfer credits section ends when we see "COURSEDESCRIPTIONATTEMPTED" (course table header)
+    let endIndex = text.indexOf('COURSEDESCRIPTIONATTEMPTED', transferIndex);
+    
+    // If not found, look for the next term header or end of section
+    if (endIndex === -1) {
+      // Look for next term pattern (Fall 2023, Winter 2024, etc.)
+      const nextTermMatch = text.substring(transferIndex).match(
+        /(?:^|\n)(Winter|Summer|Fall|Spring|Fall\/Winter|Winter\/Summer)\s+\d{4}(?:-\d{2})?/m
+      );
+      if (nextTermMatch) {
+        endIndex = transferIndex + text.substring(transferIndex).indexOf(nextTermMatch[0]);
+      } else {
+        endIndex = text.length;
+      }
+    }
+
+    if (endIndex === -1 || endIndex <= transferIndex) {
+      return transferCredits;
+    }
+
+    // Extract the transfer credits section
+    const transferSection = text.substring(transferIndex, endIndex);
+
+    // Pattern to match: COURSECODE + DESCRIPTION + GRADE + YEAR + CREDITS
+    // Example: BIOL201Vanier CollegeEXNA0.00
+    // Match: [2-4 letters][3 digits][description text ending before EX/PASS][EX|PASS][NA|year][credits]
+    // The description should be non-greedy and stop before EX or PASS
+    const transferCreditPattern = /([A-Z]{2,4})(\d{3})([A-Za-z\s]+?)(EX|PASS)(NA|\d{4})(\d+\.\d{2})/g;
+    
+    let match;
+    while ((match = transferCreditPattern.exec(transferSection)) !== null) {
+      const [, dept, number, description, grade, year, creditsStr] = match;
+      transferCredits.push({
+        courseCode: `${dept} ${number}`,
+        courseTitle: description.trim(),
+        grade: grade,
+        yearAttended: year === 'NA' ? undefined : year,
+        programCreditsEarned: Number.parseFloat(creditsStr),
+      });
+    }
+
+    return transferCredits;
   }
 
   private isTransferCreditHeader(line: string): boolean {
@@ -656,9 +753,10 @@ export class TranscriptParser {
         const next1Text = decodeURIComponent(next1.R?.[0]?.T || '').trim();
         const next2Text = decodeURIComponent(next2.R?.[0]?.T || '').trim();
 
-        // Only look at items with negative Y (course data section)
+        // Look for course patterns (department code + course number + section)
+        // Don't restrict by Y coordinate as it varies by PDF format
+        // Instead rely on pattern matching to identify courses
         if (
-          item.y < 0 &&
           /^[A-Z]{2,4}$/.test(itemText) &&
           itemText.length <= 4 &&
           ![
@@ -674,9 +772,15 @@ export class TranscriptParser {
             'EARNED',
             'EX',
             'NA',
+            'TRANSFER',
+            'CREDITS',
+            'ATTEMPTED',
           ].includes(itemText) &&
           /^\d{3}$/.test(next1Text) &&
-          /^[A-Z0-9]{1,3}$/.test(next2Text)
+          /^[A-Z0-9]{1,3}$/.test(next2Text) &&
+          !itemText.includes('Record') &&
+          !itemText.includes('Web') &&
+          !itemText.includes('Page')
         ) {
           // Found a course! Now parse its full details
           const course = this.parseCoursePdf2jsonData(texts, i);
