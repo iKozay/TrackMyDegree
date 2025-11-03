@@ -111,6 +111,6 @@ export interface ApiResponse<T = any> {
     error?: string;
 }
 
-export interface ParseTranscriptResponse extends ApiResponse<ParsedTranscript| ParsedAcceptanceLetter> {
+export interface ParsePDFResponse extends ApiResponse<ParsedTranscript| ParsedAcceptanceLetter> {
     data: ParsedTranscript | ParsedAcceptanceLetter;
 }

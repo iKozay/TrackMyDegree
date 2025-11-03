@@ -1,8 +1,8 @@
-import { ParsedAcceptanceLetter } from './../../types/transcript';
+import { ParsedAcceptanceLetter } from '../../types/transcript';
 import { Request, Response } from 'express';
 import { TranscriptParser } from '@Util/transcriptParser';
 import HTTP from '@Util/HTTPCodes';
-import type { ParseTranscriptResponse } from '../../types/transcript';
+import type { ParsePDFResponse } from '../../types/transcript';
 import multer from 'multer';
 
 import pdfParse from 'pdf-parse';
@@ -27,12 +27,12 @@ const upload = multer({
 /**
  * Controller for handling transcript parsing operations
  */
-class TranscriptController {
+class PDFParsingController {
   /**
    * Parse uploaded transcript PDF
-   * @route POST /api/transcript/parse
+   * @route POST /api/upload/parse
    */
-  async parseTranscript(req: Request, res: Response): Promise<void> {
+  async parseDocument(req: Request, res: Response): Promise<void> {
     try {
       if (!req.file) {
         res.status(HTTP.BAD_REQUEST).json({
@@ -68,7 +68,7 @@ class TranscriptController {
         return;
       }
 
-      const response: ParseTranscriptResponse = {
+      const response: ParsePDFResponse = {
         success: true,
         message: 'Document parsed successfully',
         data: data,
@@ -135,6 +135,6 @@ function unifyParsedData(parsedData: any) {
   return { extractedCourses, details };
 }
 
-const transcriptController = new TranscriptController();
-export const uploadMiddleware = upload.single('transcript');
-export default transcriptController;
+const pdfParsingController = new PDFParsingController();
+export const uploadMiddleware = upload.single('file');
+export default pdfParsingController;
