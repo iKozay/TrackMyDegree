@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React, { useState, useEffect } from 'react';
+import { api } from '../api/http-api-client';
 
 export const CourseScheduleModal = ({ title, hidden }) => {
     const [sections, setSections] = useState([]);
@@ -86,21 +87,12 @@ export const CourseScheduleModal = ({ title, hidden }) => {
 
             const { subject, catalog } = parseCourseCode();
 
-            const response = await fetch(
-                // eslint-disable-next-line no-undef
-                `${process.env.REACT_APP_SERVER}/section/schedule?subject=${subject}&catalog=${catalog}`,
+            const data = await api.get(
+                `/section/schedule?subject=${subject}&catalog=${catalog}`,
                 {
                     signal: abortController.signal,
-                    headers: {
-                        'Content-Type': 'application/json'
-                        // Authorization header removed - handle it in backend if needed
-                    }
                 }
             );
-
-            if (!response.ok) throw new Error('Failed to fetch sections');
-
-            const data = await response.json();
             const filtered = data.filter(section => {
                 const startDate = parseDate(section.classStartDate);
                 return startDate >= getTwoMonthsAgo();
