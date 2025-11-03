@@ -55,6 +55,7 @@ def get_courses(url, pool_name):
         course_list=page_html.find_all('div', class_="formatted-course")
         for course in course_list:
             output.append(course.find('a').text)
+            courses.append(course_data_scraper.extract_course_data(course.find('a').text, urljoin(sys.argv[1],course.find('span', class_="course-code-number").find('a').get('href'))))
     return output
 
 
