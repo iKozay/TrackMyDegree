@@ -67,7 +67,7 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const response = await api.upload(`/transcript/parse`, formData);
+      const response = await api.upload(`/upload/parse`, formData);
 
       const { extractedCourses, details } = response.data;
       if (!extractedCourses && !details) return;

@@ -38,7 +38,7 @@ jest.mock('../dist/routes/requisite', () => ({ default: jest.fn() }));
 jest.mock('../dist/routes/feedback', () => ({ default: jest.fn() }));
 jest.mock('../dist/routes/session', () => ({ default: jest.fn() }));
 jest.mock('../dist/routes/sectionsRoutes', () => ({ default: jest.fn() }));
-jest.mock('../dist/routes/transcript', () => ({ default: jest.fn() }));
+jest.mock('../dist/routes/upload', () => ({ default: jest.fn() }));
 jest.mock('../dist/routes/mongo', () => ({ default: jest.fn() }));
 
 jest.mock('../dist/controllers/DBController/DBController', () => ({
@@ -140,7 +140,7 @@ describe('index.ts', () => {
     expect(app.use).toHaveBeenCalledWith('/feedback', expect.any(Function));
     expect(app.use).toHaveBeenCalledWith('/session', expect.any(Function));
     expect(app.use).toHaveBeenCalledWith('/section', expect.any(Function));
-    expect(app.use).toHaveBeenCalledWith('/transcript', expect.any(Function));
+    expect(app.use).toHaveBeenCalledWith('/upload', expect.any(Function));
     expect(app.use).toHaveBeenCalledWith('/mongo', expect.any(Function));
   });
 
