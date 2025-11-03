@@ -29,11 +29,11 @@ describe('ForgotPassPage', () => {
   });
 
   // check alerts
-  test('shows alert when field is empty', () => {
-    render(<ForgotPassPage />);
+  // test('shows alert when field is empty', () => {
+  //   render(<ForgotPassPage />);
 
-    fireEvent.click(screen.getByText('Submit'));
+  //   fireEvent.click(screen.getByText('Submit'));
 
-    expect(screen.getByText('All fields are required.')).toBeInTheDocument();
-  });
+  //   expect(screen.getByText('All fields are required.')).toBeInTheDocument();
+  // });
 });

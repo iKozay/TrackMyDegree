@@ -60,9 +60,7 @@ function CourseListPage() {
   const filteredCourseList = courseList
     .map((group) => ({
       ...group,
-      courses: group.courses.filter((course) =>
-        course.title.toLowerCase().includes(searchTerm.toLowerCase())
-      ),
+      courses: group.courses.filter((course) => course.title.toLowerCase().includes(searchTerm.toLowerCase())),
     }))
     .filter((group) => group.courses.length > 0);
 
@@ -97,13 +95,7 @@ function CourseListPage() {
           )}
 
           {/* Mobile: Show course details modal */}
-          {!isDesktop && (
-            <CourseDetailsModal
-              show={showPopup}
-              onHide={hidePopup}
-              course={selectedCourse}
-            />
-          )}
+          {!isDesktop && <CourseDetailsModal show={showPopup} onHide={hidePopup} course={selectedCourse} />}
         </Row>
       </Container>
     </motion.div>

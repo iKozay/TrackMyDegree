@@ -1,10 +1,11 @@
 const request = require('supertest');
 const express = require('express');
-const Database = require('../dist/controllers/DBController/DBController').default;
-const HTTP = require('../dist/Util/HTTPCodes').default;
+const Database =
+  require('../controllers/DBController/DBController').default;
+const HTTP = require('../Util/HTTPCodes').default;
 
 // Mock the Database module
-jest.mock('../dist/controllers/DBController/DBController', () => ({
+jest.mock('../controllers/DBController/DBController', () => ({
   default: {
     getConnection: jest.fn(),
   },

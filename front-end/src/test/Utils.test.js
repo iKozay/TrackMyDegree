@@ -644,7 +644,6 @@ describe('findSemesterIdByCourseCode', () => {
   });
 });
 
-
 import { areRequisitesMet } from '../utils/timelineUtils';
 import jsPDF from 'jspdf';
 
@@ -698,8 +697,6 @@ describe('areRequisitesMet', () => {
 });
 import { calculatedCreditsRequired } from '../utils/timelineUtils';
 
-
-
 describe('calculatedCreditsRequired', () => {
   test('calculates total credits for multiple pools', () => {
     const coursePools = [
@@ -724,21 +721,14 @@ describe('calculatedCreditsRequired', () => {
   });
 
   test('handles decimal credits correctly', () => {
-    const coursePools = [
-      { poolName: 'Pool A (3.5 credits)' },
-      { poolName: 'Pool B (4.5 credits)' },
-    ];
+    const coursePools = [{ poolName: 'Pool A (3.5 credits)' }, { poolName: 'Pool B (4.5 credits)' }];
     expect(calculatedCreditsRequired(coursePools)).toBe(8);
   });
 });
 import { calculateTotalCredits2 } from '../utils/timelineUtils';
 
 describe('calculateTotalCredits2', () => {
-  const semesters = [
-    { id: 'Fall 2025' },
-    { id: 'Winter 2026' },
-    { id: 'Summer 2026' },
-  ];
+  const semesters = [{ id: 'Fall 2025' }, { id: 'Winter 2026' }, { id: 'Summer 2026' }];
 
   const coursePools = [
     {
@@ -760,9 +750,7 @@ describe('calculateTotalCredits2', () => {
     {
       poolId: 'option',
       poolName: 'Optional Courses (6)',
-      courses: [
-        { code: 'ART 101', credits: 3 },
-      ],
+      courses: [{ code: 'ART 101', credits: 3 }],
     },
   ];
 
@@ -775,17 +763,17 @@ describe('calculateTotalCredits2', () => {
   ];
 
   const courseInstanceMap = {
-    'inst1': 'COMP 101',
-    'inst2': 'MATH 101',
-    'inst3': 'HIST 101',
-    'inst4': 'PHYS 101',
-    'inst5': 'ART 101',
+    inst1: 'COMP 101',
+    inst2: 'MATH 101',
+    inst3: 'HIST 101',
+    inst4: 'PHYS 101',
+    inst5: 'ART 101',
   };
 
   const semesterCourses = {
     'Fall 2025': ['inst1', 'inst3'],
     'Winter 2026': ['inst2', 'inst4'],
-    'Exempted': ['inst5'],
+    Exempted: ['inst5'],
   };
 
   const remainingCourses = [];
@@ -797,7 +785,7 @@ describe('calculateTotalCredits2', () => {
       coursePools,
       remainingCourses,
       courseInstanceMap,
-      allCourses
+      allCourses,
     );
 
     // Core courses: COMP 101 + MATH 101 = 3 + 4 = 7 (max 10)
@@ -827,9 +815,7 @@ describe('formatSemesters', () => {
     const input = ['Fall/Winter 2025'];
     const result = formatSemesters(input);
 
-    expect(result).toEqual([
-      { id: 'Fall/Winter 2025', name: 'Fall/Winter 2025-26' },
-    ]);
+    expect(result).toEqual([{ id: 'Fall/Winter 2025', name: 'Fall/Winter 2025-26' }]);
   });
 
   test('handles empty input', () => {
@@ -849,7 +835,7 @@ describe('formatSemesters', () => {
 
   test('handles extra spaces in input', () => {
     const input = ['  Fall 2025 ', ' Winter 2026'];
-    const result = formatSemesters(input.map(s => s.trim()));
+    const result = formatSemesters(input.map((s) => s.trim()));
 
     expect(result).toEqual([
       { id: 'Fall 2025', name: 'Fall 2025' },
@@ -868,8 +854,12 @@ describe('generateSemesterCourses', () => {
       'Winter 2026': ['PHYS 101', 'COMP 232'],
     };
 
-    const { newSemesterCourses, newCourseInstanceMap, newUniqueCounter } =
-      generateSemesterCourses(sortedSemesters, semesterMap, {}, 0);
+    const { newSemesterCourses, newCourseInstanceMap, newUniqueCounter } = generateSemesterCourses(
+      sortedSemesters,
+      semesterMap,
+      {},
+      0,
+    );
 
     // Each semester should have unique instance IDs
     expect(Object.keys(newSemesterCourses)).toEqual(sortedSemesters);
@@ -877,17 +867,23 @@ describe('generateSemesterCourses', () => {
     expect(newSemesterCourses['Winter 2026'].length).toBe(2);
 
     // Check that courseInstanceMap correctly maps IDs to codes
-    Object.values(newSemesterCourses).flat().forEach((id) => {
-      expect(newCourseInstanceMap[id]).toMatch(/COMP 232|MATH 101|PHYS 101/);
-    });
+    Object.values(newSemesterCourses)
+      .flat()
+      .forEach((id) => {
+        expect(newCourseInstanceMap[id]).toMatch(/COMP 232|MATH 101|PHYS 101/);
+      });
 
     // Check unique counter increment
     expect(newUniqueCounter).toBe(4);
   });
 
   test('handles empty semester map', () => {
-    const { newSemesterCourses, newCourseInstanceMap, newUniqueCounter } =
-      generateSemesterCourses(['Fall 2025'], {}, {}, 0);
+    const { newSemesterCourses, newCourseInstanceMap, newUniqueCounter } = generateSemesterCourses(
+      ['Fall 2025'],
+      {},
+      {},
+      0,
+    );
 
     expect(newSemesterCourses['Fall 2025']).toEqual([]);
     expect(newCourseInstanceMap).toEqual({});
@@ -924,17 +920,17 @@ describe('buildTimelineState', () => {
     expect(result.newUniqueCounter).toBeGreaterThan(0);
 
     // Check course instance mapping
-    Object.values(result.newSemesterCourses).flat().forEach((id) => {
-      expect(result.newCourseInstanceMap[id]).toMatch(/COMP 232|MATH 101/);
-    });
+    Object.values(result.newSemesterCourses)
+      .flat()
+      .forEach((id) => {
+        expect(result.newCourseInstanceMap[id]).toMatch(/COMP 232|MATH 101/);
+      });
 
     // Deficiency and extendedC should exist
     expect(result).toHaveProperty('deficiency');
     expect(result).toHaveProperty('extendedC');
   });
 });
-
-
 
 // --- isCourseOfferedInSemester edge cases ---
 describe('isCourseOfferedInSemester (edge cases)', () => {
@@ -1064,7 +1060,6 @@ describe('getMaxCreditsForSemesterName (edge cases)', () => {
   });
 });
 
-
 // Mock generateFourYearSemesters
 // jest.mock('../utils/SemesterUtils', () => {
 //   const originalModule = jest.requireActual('../utils/SemesterUtils');
@@ -1079,7 +1074,6 @@ describe('getMaxCreditsForSemesterName (edge cases)', () => {
 //   };
 // });
 
-
 // buildSemesterMap.test.js
 import { buildSemesterMap } from '../utils/timelineUtils';
 
@@ -1092,11 +1086,7 @@ describe('buildSemesterMap', () => {
     const parsedExemptedCourses = ['ENGL 101'];
     const startingSemester = 'Fall 2024';
 
-    const { semesterMap, semesterNames } = buildSemesterMap(
-      nonExemptedData,
-      parsedExemptedCourses,
-      startingSemester
-    );
+    const { semesterMap, semesterNames } = buildSemesterMap(nonExemptedData, parsedExemptedCourses, startingSemester);
 
     expect(semesterNames.has('Fall 2024')).toBe(true);
     expect(semesterNames.has('Winter 2025')).toBe(true);
@@ -1120,7 +1110,6 @@ describe('buildSemesterMap', () => {
 import { SaveTimeline } from '../utils/timelineUtils';
 import * as api from '../api/http-api-client';
 
-
 describe('SaveTimeline (no mocks)', () => {
   const state = {
     semesters: [],
@@ -1136,13 +1125,7 @@ describe('SaveTimeline (no mocks)', () => {
   });
 
   test('throws or fails gracefully when API endpoints are unreachable', async () => {
-    const result = await SaveTimeline(
-      'Timeline 1',
-      { id: 1 },
-      'degree1',
-      state,
-      false
-    );
+    const result = await SaveTimeline('Timeline 1', { id: 1 }, 'degree1', state, false);
 
     // Since no mock server, this will likely reject
     if (result?.error) {

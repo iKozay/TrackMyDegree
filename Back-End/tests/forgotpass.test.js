@@ -1,6 +1,6 @@
 // Tests for forgot password and reset password routes
 
-jest.mock('../dist/controllers/authController/authController', () => ({
+jest.mock('../controllers/authController/authController', () => ({
   __esModule: true,
   default: {
     forgotPassword: jest.fn(),
@@ -10,15 +10,11 @@ jest.mock('../dist/controllers/authController/authController', () => ({
 
 const request = require('supertest');
 const express = require('express');
-const Database =
-  require('../dist/controllers/DBController/DBController').default;
-const router = require('../dist/routes/auth').default;
+const router = require('../routes/auth').default;
 const authController =
-  require('../dist/controllers/authController/authController').default;
+  require('../controllers/authController/authController').default;
 
 const resetPassMock = require('./__mocks__/user_mocks').resetPassMock;
-
-const url = process.DOCKER_URL || 'host.docker.internal:8000';
 
 const app = express();
 app.use(express.json());

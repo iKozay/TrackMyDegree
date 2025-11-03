@@ -1,9 +1,4 @@
-import {
-  getDegreeCredits,
-  getUserTimelines,
-  deleteTimelineById,
-  buildTranscriptData,
-} from '../api/UserPageApi';
+import { getDegreeCredits, getUserTimelines, deleteTimelineById, buildTranscriptData } from '../api/UserPageApi';
 
 describe('UserPageApi', () => {
   let fetchMock;
@@ -51,7 +46,7 @@ describe('UserPageApi', () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ degreeId: 'deg-1' }),
-        })
+        }),
       );
     });
 
@@ -81,7 +76,7 @@ describe('UserPageApi', () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ user_id: 'u-1' }),
-        })
+        }),
       );
     });
 
@@ -113,7 +108,7 @@ describe('UserPageApi', () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ timeline_id: 't-1' }),
-        })
+        }),
       );
     });
 

@@ -47,7 +47,7 @@ describe('useDegrees hook', () => {
       expect.objectContaining({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-      })
+      }),
     );
 
     expect(result.current.degrees).toEqual(mockDegrees.degrees);

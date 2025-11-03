@@ -13,52 +13,58 @@ const useTableRecords = () => {
 
   const SERVER_URL = process.env.REACT_APP_SERVER;
 
-  const fetchRecords = useCallback(async (tableName, keyword = '') => {
-    if (!tableName) return;
+  const fetchRecords = useCallback(
+    async (tableName, keyword = '') => {
+      if (!tableName) return;
 
-    setLoading(true);
-    setError('');
+      setLoading(true);
+      setError('');
 
-    try {
-      let url = `${SERVER_URL}/admin/tables/${tableName}`;
-      if (keyword) {
-        url += `?keyword=${encodeURIComponent(keyword)}`;
-      }
+      try {
+        let url = `${SERVER_URL}/admin/tables/${tableName}`;
+        if (keyword) {
+          url += `?keyword=${encodeURIComponent(keyword)}`;
+        }
 
-      let response = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-      });
+        let response = await fetch(url, {
+          method: 'POST',
+          credentials: 'include',
+        });
 
-      response = await response.json();
+        response = await response.json();
 
-      if (response.success) {
-        if (Array.isArray(response.data)) {
-          setRecords(response.data);
-          if (response.data.length > 0) {
-            setColumns(Object.keys(response.data[0]));
+        if (response.success) {
+          if (Array.isArray(response.data)) {
+            setRecords(response.data);
+            if (response.data.length > 0) {
+              setColumns(Object.keys(response.data[0]));
+            } else {
+              setColumns([]);
+            }
           } else {
-            setColumns([]);
+            throw new AdminPageError('Records data is not an array');
           }
         } else {
-          throw new AdminPageError('Records data is not an array');
+          throw new AdminPageError('Failed to fetch records');
         }
-      } else {
-        throw new AdminPageError('Failed to fetch records');
+      } catch (err) {
+        console.error('Error fetching table records:', err);
+        setError('Error fetching table records');
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error('Error fetching table records:', err);
-      setError('Error fetching table records');
-    } finally {
-      setLoading(false);
-    }
-  }, [SERVER_URL]);
+    },
+    [SERVER_URL],
+  );
 
-  const handleSearch = useCallback((tableName, searchKeyword) => {
-    if (tableName) {
-      fetchRecords(tableName, searchKeyword);
-    }
-  }, [fetchRecords]);
+  const handleSearch = useCallback(
+    (tableName, searchKeyword) => {
+      if (tableName) {
+        fetchRecords(tableName, searchKeyword);
+      }
+    },
+    [fetchRecords],
+  );
 
   return {
     records,

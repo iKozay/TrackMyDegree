@@ -7,6 +7,9 @@
 import { Document, Model, FilterQuery, UpdateQuery } from 'mongoose';
 import * as Sentry from '@sentry/node';
 
+const QUERY_FAILED = 'Query failed';
+const DELETE_FAILED = 'Delete failed';
+
 export interface BaseDocument extends Document {
   _id: string;
 }
@@ -57,10 +60,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
       },
     });
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(
-      `[${this.modelName}] Error in ${operation}:`,
-      errorMessage,
-    );
+    console.error(`[${this.modelName}] Error in ${operation}:`, errorMessage);
     throw error;
   }
 
@@ -108,7 +108,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Query failed',
+        error: error instanceof Error ? error.message : QUERY_FAILED,
       };
     }
   }
@@ -137,7 +137,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Query failed',
+        error: error instanceof Error ? error.message : QUERY_FAILED,
       };
     }
   }
@@ -184,7 +184,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Query failed',
+        error: error instanceof Error ? error.message : QUERY_FAILED,
       };
     }
   }
@@ -304,7 +304,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Delete failed',
+        error: error instanceof Error ? error.message : DELETE_FAILED,
       };
     }
   }
@@ -312,9 +312,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   /**
    * Delete document by custom filter
    */
-  async deleteOne(
-    filter: FilterQuery<T>,
-  ): Promise<ControllerResponse<string>> {
+  async deleteOne(filter: FilterQuery<T>): Promise<ControllerResponse<string>> {
     try {
       const document = await this.model.findOneAndDelete(filter).exec();
 
@@ -329,7 +327,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Delete failed',
+        error: error instanceof Error ? error.message : DELETE_FAILED,
       };
     }
   }
@@ -351,7 +349,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Delete failed',
+        error: error instanceof Error ? error.message : DELETE_FAILED,
       };
     }
   }
@@ -394,9 +392,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   /**
    * Bulk create documents
    */
-  async bulkCreate(
-    documents: Partial<T>[],
-  ): Promise<ControllerResponse<T[]>> {
+  async bulkCreate(documents: Partial<T>[]): Promise<ControllerResponse<T[]>> {
     try {
       const created = await this.model.insertMany(documents, {
         ordered: false,
@@ -424,9 +420,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   ): Promise<ControllerResponse<R[]>> {
     try {
       // Type assertion needed for flexibility with aggregation pipelines
-      const results = await this.model
-        .aggregate<R>(pipeline as any[])
-        .exec();
+      const results = await this.model.aggregate<R>(pipeline as any[]).exec();
 
       return { success: true, data: results };
     } catch (error) {

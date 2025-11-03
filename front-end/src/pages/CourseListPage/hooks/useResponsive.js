@@ -14,7 +14,7 @@ const useResponsive = (breakpoint = 767) => {
     };
 
     window.addEventListener('resize', handleResize);
-    
+
     // Cleanup
     return () => window.removeEventListener('resize', handleResize);
   }, [breakpoint]);
