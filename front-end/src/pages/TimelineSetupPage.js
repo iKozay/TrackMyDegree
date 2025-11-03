@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import * as Sentry from '@sentry/react';
 import InformationForm from '../components/InformationForm';
 import UploadBox from '../components/UploadBox';
-import axios from 'axios';
+import { api } from '../api/http-api-client';
 import InstructionsModal from '../components/InstructionModal';
 
 //This page creates an initial timeline using either manually entered information or by parsing an acceptance letter
@@ -45,20 +45,13 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
       isFirstRender.current = false;
     }
   }, [onDataProcessed]);
+
   // get a list of all degrees by name
-  // TODO: Add loader while fetching degrees from API
   const getDegrees = async () => {
     // TODO: Add proper error handling and user feedback for API failures
     try {
-      const response = await fetch(`${REACT_APP_SERVER}/degree/getAllDegrees`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const jsonData = await response.json();
-      setDegrees(jsonData.degrees);
+      const response = await api.post(`/degree/getAllDegrees`); //this should be a get request but backend is currently set to post
+      setDegrees(response.degrees);
     } catch (err) {
       Sentry.captureException(err);
       console.error(err.message);
@@ -72,19 +65,11 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
   const processFile = async (file) => {
     localStorage.setItem('Timeline_Name', null);
     const formData = new FormData();
-    formData.append('transcript', file);
+    formData.append('file', file);
     try {
-      const response = await axios.post(`${REACT_APP_SERVER}/transcript/parse`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      if (!response.data.success || !response.data.data) {
-        console.error('Document parsing failed:', response.data.message);
-        return null;
-      }
-      const { extractedCourses, details } = response.data.data;
+      const response = await api.upload(`/transcript/parse`, formData);
 
+      const { extractedCourses, details } = response.data;
       if (!extractedCourses && !details) return;
       if (degrees.length === 0) await getDegrees(); //try fetching degrees again
       if (degrees.length === 0) {
@@ -128,6 +113,7 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
       }); // Navigate to TimelinePage
     } catch (error) {
       console.error('Error processing transcript file:', error);
+      alert(error.message || 'An error occurred while processing the file.');
     }
   };
 

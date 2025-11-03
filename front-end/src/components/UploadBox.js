@@ -44,7 +44,6 @@ const UploadBox = ({ processFile }) => {
       return;
     }
     await processFile(selectedFile);
-    alert('File uploaded Successfully!');
   };
 
   const handleCancel = () => {

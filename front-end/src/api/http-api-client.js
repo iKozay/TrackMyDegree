@@ -36,5 +36,21 @@ export const api = {
 
     delete: (endpoint, options = {}) =>
         request(`${SERVER}${endpoint}`, buildOptions("DELETE", null, options)),
+    
+    //helper for for file uploads
+    upload: (endpoint, formData, options = {}) => {
+    const token = localStorage.getItem("token");
+
+    return request(`${SERVER}${endpoint}`, {
+      method: "POST",
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+        // Content-Type is not set manually
+        ...options.headers,
+      },
+      body: formData, // raw FormData object
+      ...options,
+    });
+  },
 };
 
