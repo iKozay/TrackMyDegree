@@ -9,31 +9,26 @@ import UploadBox from '../components/UploadBox';
 import { api } from '../api/http-api-client';
 import InstructionsModal from '../components/InstructionModal';
 
-//This page creates an initial timeline using either manually entered information or by parsing an acceptance letter
+//This page creates an initial timeline using either manually entered information or by parsing an acceptance letter or a transcript
 /**
  * TimelineSetupPage Component - Dual-mode timeline creation page
  *
  * Two creation paths:
  * 1. Manual Form: User selects degree, starting term/year, and program options (Co-op/Extended Credit)
- * 2. PDF Upload: Processes acceptance letter PDFs to auto-extract degree, terms, exemptions, and program info
+ * 2. PDF Upload: Processes acceptance letter or transcript PDFs to auto-extract degree, terms, exemptions, and program info
  *
  * Backend Integration:
  * - Fetches available degrees from server API (/degree/getAllDegrees)
  * - Uses Sentry for error tracking
- *
- * PDF Processing (client-side):
- * - Extracts degree concentration, starting/graduation terms, co-op eligibility
- * - Identifies exempted courses, transfer credits, and credit deficiencies
- * - Validates document is an "Offer of Admission" letter
+ * - PDF Parsing: Uploads files to server API (/upload/parse) for data extraction
  *
  * Navigation: Redirects to TimelinePage (/timeline_change) with extracted/selected data
  * Storage: Clears previous timeline data in localStorage before processing
  */
-const REACT_APP_SERVER = process.env.REACT_APP_SERVER || 'http://localhost:8000';
 
 const TimelineSetupPage = ({ onDataProcessed }) => {
   const isFirstRender = useRef(true);
-  const [degrees, setDegrees] = useState([]);
+  const [degrees, setDegrees] = useState();
   const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,11 +43,11 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
 
   // get a list of all degrees by name
   const getDegrees = async () => {
-    // TODO: Add proper error handling and user feedback for API failures
     try {
       const response = await api.post(`/degree/getAllDegrees`); //this should be a get request but backend is currently set to post
       setDegrees(response.degrees);
     } catch (err) {
+      alert('Error fetching degrees from server. Please try again later.');
       Sentry.captureException(err);
       console.error(err.message);
     }
@@ -68,12 +63,10 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
     formData.append('file', file);
     try {
       const response = await api.upload(`/upload/parse`, formData);
-
       const { extractedCourses, details } = response.data;
       if (!extractedCourses && !details) return;
-      if (degrees.length === 0) await getDegrees(); //try fetching degrees again
-      if (degrees.length === 0) {
-        //if still no degrees, show error and return
+
+      if (!degrees || degrees.length === 0) {
         alert('Error fetching degrees from server. Please try again later.');
         return;
       }
