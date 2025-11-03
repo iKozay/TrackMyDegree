@@ -7,6 +7,10 @@ import re
 import sys
 import course_data_scraper
 
+#Arguments
+#argv[1] is the url of the page to be scraped for course data
+#argv[2] is for the name of the output files
+
 # Set a user agent to mimic a real browser
 USERAGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 headers = {"User-Agent": USERAGENT}

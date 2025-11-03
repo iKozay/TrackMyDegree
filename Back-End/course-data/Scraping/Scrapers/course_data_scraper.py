@@ -5,9 +5,7 @@ import requests
 import re
 import sys
 
-#Arguments
-#argv[1] is the url of the page to be scraped for course data
-#argv[2] is for the name of the output file
+
 
 #----------------------------------
 #There is code for scraping course data in course data/ Scraping. It might be duplicated with this file.
