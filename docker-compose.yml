@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   tests:
@@ -73,18 +73,10 @@ services:
     restart: unless-stopped
     expose:
       - "8000"
+    env_file:
+      - ./secrets/.env
     environment:
-      - SQL_SERVER_HOST=sqlserver
-      - SQL_SERVER_USER=sa
       - SQL_SERVER_PASSWORD_FILE=/run/secrets/sql_server_password
-      - SQL_SERVER_DATABASE=master
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_URL=redis://redis:6379
-      - MONGODB_URI=mongodb://admin:changeme123@mongodb:27017/trackmydegree
-      - MONGODB_HOST=mongodb
-      - MONGODB_PORT=27017
-      - MONGODB_DATABASE=trackmydegree
     volumes:
       - ./backups:/var/backups
     depends_on:
@@ -100,11 +92,11 @@ services:
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
-    user: root  # Ensure the container runs as root for initialization
+    user: root # Ensure the container runs as root for initialization
+    env_file:
+      - ./secrets/.env
     environment:
-      - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD_FILE=/run/secrets/sql_server_password
-      - MSSQL_PID=Developer
       # This allows the FRONTEND to talk to the DATABASE directly (potentially bypassing the backend) for CORS using PUBLIC IP
       - CORS_ORIGIN=https://${DOMAIN:-frontend:3000}
     expose:
@@ -138,14 +130,11 @@ services:
     image: containrrr/watchtower
     container_name: watchtower
     restart: unless-stopped
+    env_file:
+      - ./secrets/.env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 60  # check every minute
-    environment:
-      - WATCHTOWER_CLEANUP=true  # remove old images
-      - WATCHTOWER_NOTIFICATIONS_LEVEL=info
-      - WATCHTOWER_DEBUG=false
-      - WATCHTOWER_REGISTRY_AUTH=true
+    command: --interval 60 # check every minute
     networks:
       - app-network
 
@@ -153,11 +142,8 @@ services:
     image: mongo:latest
     ports:
       - "27017:27017"
-    environment:
-      # Should look into using secrets for sensitive info like passwords
-      # See: https://docs.docker.com/compose/how-tos/use-secrets/
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=changeme123
+    env_file:
+      - ./secrets/.env
     volumes:
       - mongodb-data:/data/db
     networks:
