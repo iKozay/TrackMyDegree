@@ -202,11 +202,12 @@ export class TranscriptParser {
         let gpaMatch = gpaRegex.exec(line);
         
         // If not found, try spaced format (Te r m   G PA                 4 . 0 8)
+        // Handle format like "3 . 9 4" where digits are separated by spaces
         if (!gpaMatch) {
-          const spacedGpaRegex = /G\s*PA\s+(\d+)\s*\.\s*(\d+)/;
+          const spacedGpaRegex = /G\s*PA\s+(\d+)\s*\.\s*(\d)\s*(\d)/;
           const spacedMatch = spacedGpaRegex.exec(line);
           if (spacedMatch) {
-            const gpaValue = `${spacedMatch[1]}.${spacedMatch[2]}`;
+            const gpaValue = `${spacedMatch[1]}.${spacedMatch[2]}${spacedMatch[3]}`;
             termBoundaries.at(-1)!.gpa = Number.parseFloat(gpaValue);
           }
         } else {
