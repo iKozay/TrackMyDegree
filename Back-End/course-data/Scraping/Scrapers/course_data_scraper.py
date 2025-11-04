@@ -12,7 +12,7 @@ import sys
 #This scraper includes function for cleaning and normalizing text with proper spacing.
 #----------------------------------
 
-
+courses=[]
 
 # Function to clean and normalize text with proper spacing
 def clean_text(text):
@@ -117,7 +117,7 @@ def parse_prereq_coreq(text, clean_text):
     return prereq, coreq
 
 
-def extract_course_data(course, url):
+def extract_course_data(course_code, url):
     """Extract structured course data (id, title, credits, prereqs, etc.) from a course catalog page."""
     soup = fetch_html(url)
     if not soup:
@@ -131,7 +131,7 @@ def extract_course_data(course, url):
         title_text = ' '.join(title_el.stripped_strings)
         course_id, title, course_credits = parse_title_and_credits(title_text, clean_text)
 
-        if course_id != course:
+        if course_id != course_code and course_id != "ANY":
             continue
 
         content_el = block.find('div', class_='accordion-body')
@@ -140,7 +140,7 @@ def extract_course_data(course, url):
         sections = split_sections(full_text, clean_text)
         prereq, coreq = parse_prereq_coreq(sections.get("Prerequisite/Corequisite:", ""), clean_text)
 
-        return {
+        course={
             "id": course_id,
             "title": title,
             "credits": course_credits,
@@ -150,4 +150,11 @@ def extract_course_data(course, url):
             "corequisites": coreq,
         }
 
-    return None
+        if course_code == 'ANY':
+            courses.append(course)
+        else:
+            return course
+    if course_code == 'ANY':
+        return courses
+    else:
+        return None
