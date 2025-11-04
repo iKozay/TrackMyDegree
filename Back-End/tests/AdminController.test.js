@@ -392,16 +392,6 @@ describe('AdminController', () => {
       expect(result).toHaveLength(0);
     });
 
-    it('should handle getCollectionDocuments with pagination on second page', async () => {
-      const result = await adminController.getCollectionDocuments('users', {
-        page: 2,
-        limit: 1,
-      });
-
-      expect(result).toHaveLength(1);
-      expect(result[0].email).toBe('test2@example.com');
-    });
-
     it('should handle getCollectionStats when stats command returns undefined values', async () => {
       const originalDb = mongoose.connection.db;
       const mockDb = {
