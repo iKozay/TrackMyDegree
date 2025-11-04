@@ -7,15 +7,19 @@ const SERVER = process.env.REACT_APP_SERVER || "http://localhost:8000";
 // Helper function to include token + headers
 const buildOptions = (method, data, extraOptions = {}) => {
     const token = localStorage.getItem("token");
-
+    let body = data, contentType;
+    if (!(data instanceof FormData)) {
+        body= JSON.stringify(data);
+        contentType = "application/json"
+    }
     return {
         method,
         headers: {
-            "Content-Type": "application/json",
+            ...(contentType && {"Content-Type": contentType}),
             ...(token && { Authorization: `Bearer ${token}` }),
             ...extraOptions.headers,
         },
-        ...(data && { body: JSON.stringify(data) }),
+        ...(data && { body: body }),
         ...extraOptions,
     };
 };
@@ -36,21 +40,5 @@ export const api = {
 
     delete: (endpoint, options = {}) =>
         request(`${SERVER}${endpoint}`, buildOptions("DELETE", null, options)),
-    
-    //helper for for file uploads
-    upload: (endpoint, formData, options = {}) => {
-    const token = localStorage.getItem("token");
-
-    return request(`${SERVER}${endpoint}`, {
-      method: "POST",
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-        // Content-Type is not set manually
-        ...options.headers,
-      },
-      body: formData, // raw FormData object
-      ...options,
-    });
-  },
 };
 
