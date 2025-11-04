@@ -58,6 +58,19 @@ def get_courses(url, pool_name):
             courses.append(course_data_scraper.extract_course_data(course.find('a').text, urljoin(sys.argv[1],course.find('span', class_="course-code-number").find('a').get('href'))))
     return output
 
+def handle_engineering_core_restrictions(degree_name):
+    if degree_name=="BEng in Mechanical Engineering" or degree_name=="Beng in Industrial Engineering" or degree_name=="BEng in Aerospace Engineering":
+        course_pool[0]["courses"].remove("ELEC 275")
+    elif degree_name=="BEng in Electrical Engineering" or degree_name=="BEng in Computer Engineering":
+        course_pool[0]["courses"][course_pool[0]["courses"].index("ELEC 275")] = "ELEC 273"
+        courses.append(course_data_scraper.extract_course_data("ELEC 275","https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-60-engineering-course-descriptions/electrical-engineering-courses.html#3940"))
+    elif degree_name=="BEng in Building Engineering":
+        course_pool[0]["courses"].remove("ENGR 202")
+        course_pool[0]["courses"][course_pool[0]["courses"].index("ENGR 392")] = "BLDG 482"
+        courses.append(course_data_scraper.extract_course_data("BLDG 482","https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-60-engineering-course-descriptions/building-engineering-courses.html#3750"))
+    else:
+        return
+    course_pool[0]["name"]=f"({degree_name}) {course_pool[0]["name"]}"
 
 try:
     #------------------------Course Pool--------------------------------------#
@@ -81,6 +94,8 @@ try:
     match = re.search(r'(.+?)\s*\(\s*(\d+)\s+credits\s*\)', title, re.IGNORECASE)
     degree["name"] = match.group(1).strip()
     degree["totalCredits"] = int(match.group(2))
+
+    handle_engineering_core_restrictions(degree["name"])
 except Exception as e:
     print(f"Error processing course block: {e}")
     sys.exit(1)
