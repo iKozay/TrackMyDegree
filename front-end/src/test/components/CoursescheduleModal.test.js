@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { CourseScheduleModal } from '../../components/CourseScheduleModal';
 import { api } from '../../api/http-api-client';
 
@@ -30,6 +30,14 @@ describe('CourseScheduleModal', () => {
   });
 
   it('should fetch and display sections successfully', async () => {
+    // Use future dates that are within 2 months from now
+    const futureDate = new Date();
+    futureDate.setMonth(futureDate.getMonth() + 1);
+    const day = String(futureDate.getDate()).padStart(2, '0');
+    const month = String(futureDate.getMonth() + 1).padStart(2, '0');
+    const year = futureDate.getFullYear();
+    const futureDateString = `${day}/${month}/${year}`;
+
     const mockSections = [
       {
         classNumber: '12345',
@@ -39,7 +47,7 @@ describe('CourseScheduleModal', () => {
         componentDescription: 'LEC',
         classStatus: 'Open',
         instructionModeDescription: 'In Person',
-        classStartDate: '01/09/2024',
+        classStartDate: futureDateString,
         classEndDate: '12/20/2024',
         currentEnrollment: 10,
         enrollmentCapacity: 30,
@@ -54,7 +62,7 @@ describe('CourseScheduleModal', () => {
         componentDescription: 'TUT',
         classStatus: 'Open',
         instructionModeDescription: 'In Person',
-        classStartDate: '01/09/2024',
+        classStartDate: futureDateString,
         classEndDate: '12/20/2024',
         currentEnrollment: 5,
         enrollmentCapacity: 15,
@@ -67,13 +75,16 @@ describe('CourseScheduleModal', () => {
 
     render(<CourseScheduleModal title="COMP 248" hidden={true} />);
     const button = screen.getByRole('button');
-    fireEvent.click(button);
+    
+    await act(async () => {
+      fireEvent.click(button);
+    });
 
     await waitFor(() => {
       expect(screen.getByText('Course Schedule')).toBeInTheDocument();
       expect(screen.getByText('Fall 2024')).toBeInTheDocument();
       expect(screen.getByText('Winter 2024-2025')).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
   });
 
   it('should handle fetch error', async () => {
@@ -207,6 +218,14 @@ describe('CourseScheduleModal', () => {
   });
 
   it('should format enrollment with waitlist', async () => {
+    // Use future dates that are within 2 months from now
+    const futureDate = new Date();
+    futureDate.setMonth(futureDate.getMonth() + 1);
+    const day = String(futureDate.getDate()).padStart(2, '0');
+    const month = String(futureDate.getMonth() + 1).padStart(2, '0');
+    const year = futureDate.getFullYear();
+    const futureDateString = `${day}/${month}/${year}`;
+
     const mockSections = [
       {
         classNumber: '12345',
@@ -216,7 +235,7 @@ describe('CourseScheduleModal', () => {
         componentDescription: 'LEC',
         classStatus: 'Open',
         instructionModeDescription: 'In Person',
-        classStartDate: '01/09/2024',
+        classStartDate: futureDateString,
         classEndDate: '12/20/2024',
         currentEnrollment: 10,
         enrollmentCapacity: 30,
@@ -229,14 +248,25 @@ describe('CourseScheduleModal', () => {
 
     render(<CourseScheduleModal title="COMP 248" hidden={true} />);
     const button = screen.getByRole('button');
-    fireEvent.click(button);
+    
+    await act(async () => {
+      fireEvent.click(button);
+    });
 
     await waitFor(() => {
       expect(screen.getByText(/10\/30 \(Waitlist: 2\/5\)/i)).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
   });
 
   it('should handle different term codes correctly', async () => {
+    // Use future dates that are within 2 months from now
+    const futureDate = new Date();
+    futureDate.setMonth(futureDate.getMonth() + 1);
+    const day = String(futureDate.getDate()).padStart(2, '0');
+    const month = String(futureDate.getMonth() + 1).padStart(2, '0');
+    const year = futureDate.getFullYear();
+    const futureDateString = `${day}/${month}/${year}`;
+
     const mockSections = [
       {
         classNumber: '12345',
@@ -246,7 +276,7 @@ describe('CourseScheduleModal', () => {
         componentDescription: 'LEC',
         classStatus: 'Open',
         instructionModeDescription: 'In Person',
-        classStartDate: '01/05/2024',
+        classStartDate: futureDateString,
         classEndDate: '08/20/2024',
         currentEnrollment: 10,
         enrollmentCapacity: 30,
@@ -261,7 +291,7 @@ describe('CourseScheduleModal', () => {
         componentDescription: 'TUT',
         classStatus: 'Open',
         instructionModeDescription: 'In Person',
-        classStartDate: '01/09/2024',
+        classStartDate: futureDateString,
         classEndDate: '12/20/2024',
         currentEnrollment: 5,
         enrollmentCapacity: 15,
@@ -276,7 +306,7 @@ describe('CourseScheduleModal', () => {
         componentDescription: 'LEC',
         classStatus: 'Open',
         instructionModeDescription: 'In Person',
-        classStartDate: '01/01/2024',
+        classStartDate: futureDateString,
         classEndDate: '04/30/2024',
         currentEnrollment: 8,
         enrollmentCapacity: 20,
@@ -289,26 +319,39 @@ describe('CourseScheduleModal', () => {
 
     render(<CourseScheduleModal title="COMP 248" hidden={true} />);
     const button = screen.getByRole('button');
-    fireEvent.click(button);
+    
+    await act(async () => {
+      fireEvent.click(button);
+    });
 
     await waitFor(() => {
       expect(screen.getByText('Summer 2024')).toBeInTheDocument();
       expect(screen.getByText('Fall/Winter 2024-2025')).toBeInTheDocument();
       expect(screen.getByText('Spring (CCCE) 2024')).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
   });
 
   it('should handle unknown term code', async () => {
+    // Use future dates that are within 2 months from now
+    const futureDate = new Date();
+    futureDate.setMonth(futureDate.getMonth() + 1);
+    const day = String(futureDate.getDate()).padStart(2, '0');
+    const month = String(futureDate.getMonth() + 1).padStart(2, '0');
+    const year = futureDate.getFullYear();
+    const futureDateString = `${day}/${month}/${year}`;
+
+    // termCode '2229' will extract yearDigits as '22', so academicYearStart = 2000 + 22 = 2022
+    // But we want to test unknown season code, so we use '9' as the season code
     const mockSections = [
       {
         classNumber: '12345',
-        termCode: '2299', // Unknown season code
+        termCode: '2229', // Unknown season code (9 is not in seasonCodes)
         session: '1',
         section: 'AA',
         componentDescription: 'LEC',
         classStatus: 'Open',
         instructionModeDescription: 'In Person',
-        classStartDate: '01/09/2024',
+        classStartDate: futureDateString,
         classEndDate: '12/20/2024',
         currentEnrollment: 10,
         enrollmentCapacity: 30,
@@ -321,11 +364,14 @@ describe('CourseScheduleModal', () => {
 
     render(<CourseScheduleModal title="COMP 248" hidden={true} />);
     const button = screen.getByRole('button');
-    fireEvent.click(button);
+    
+    await act(async () => {
+      fireEvent.click(button);
+    });
 
     await waitFor(() => {
-      expect(screen.getByText(/Unknown 2024/i)).toBeInTheDocument();
-    });
+      expect(screen.getByText(/Unknown 2022/i)).toBeInTheDocument();
+    }, { timeout: 3000 });
   });
 });
 

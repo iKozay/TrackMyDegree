@@ -1,6 +1,6 @@
 import React from 'react';
 import ForgotPassPage from '../pages/ForgotPassPage';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { api } from '../api/http-api-client';
 
 jest.mock('../api/http-api-client', () => ({
@@ -26,15 +26,9 @@ const createMockHeaders = () => ({
 describe('ForgotPassPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.useFakeTimers();
     if (!process.env.REACT_APP_SERVER) {
       process.env.REACT_APP_SERVER = 'http://localhost:8000';
     }
-  });
-
-  afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
   });
 
   test('displays title for page correctly', () => {
@@ -72,14 +66,20 @@ describe('ForgotPassPage', () => {
     const emailInput = screen.getByPlaceholderText('Enter your email');
     fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
 
-    const submitButton = screen.getByText('Submit');
-    fireEvent.click(submitButton);
+    const form = emailInput.closest('form');
+    
+    // Submit the form
+    fireEvent.submit(form);
+    
+    // Wait for the setTimeout in handleForgotPassword (10ms) plus React state update
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 30));
+    });
 
-    await waitFor(() => {
-      // Use a more flexible matcher
-      const errorElement = screen.getByText(/Please enter a valid email address/i);
-      expect(errorElement).toBeInTheDocument();
-    }, { timeout: 3000 });
+    // The error should be displayed after validation
+    // Use findByText which waits for the element to appear
+    const errorElement = await screen.findByText(/Please enter a valid email address/i, {}, { timeout: 3000 });
+    expect(errorElement).toBeInTheDocument();
   });
 
   test('successfully submits email and navigates to reset password page', async () => {

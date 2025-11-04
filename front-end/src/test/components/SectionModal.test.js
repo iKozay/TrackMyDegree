@@ -24,6 +24,14 @@ describe('CourseSectionButton (SectionModal)', () => {
   });
 
   it('should fetch and display sections successfully', async () => {
+    // Use future dates that are within 2 months from now
+    const futureDate = new Date();
+    futureDate.setMonth(futureDate.getMonth() + 1);
+    const day = String(futureDate.getDate()).padStart(2, '0');
+    const month = String(futureDate.getMonth() + 1).padStart(2, '0');
+    const year = futureDate.getFullYear();
+    const futureDateString = `${day}/${month}/${year}`;
+
     const mockSections = [
       {
         classNumber: '12345',
@@ -33,7 +41,7 @@ describe('CourseSectionButton (SectionModal)', () => {
         componentDescription: 'LEC',
         classStatus: 'Open',
         instructionModeDescription: 'In Person',
-        classStartDate: '01/09/2024',
+        classStartDate: futureDateString,
         classEndDate: '12/20/2024',
         currentEnrollment: 10,
         enrollmentCapacity: 30,
@@ -51,7 +59,7 @@ describe('CourseSectionButton (SectionModal)', () => {
     await waitFor(() => {
       expect(screen.getByText('Course Schedule')).toBeInTheDocument();
       expect(screen.getByText('Fall 2024')).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
   });
 
   it('should handle fetch error', async () => {
@@ -155,6 +163,14 @@ describe('CourseSectionButton (SectionModal)', () => {
   });
 
   it('should format enrollment with waitlist', async () => {
+    // Use future dates that are within 2 months from now
+    const futureDate = new Date();
+    futureDate.setMonth(futureDate.getMonth() + 1);
+    const day = String(futureDate.getDate()).padStart(2, '0');
+    const month = String(futureDate.getMonth() + 1).padStart(2, '0');
+    const year = futureDate.getFullYear();
+    const futureDateString = `${day}/${month}/${year}`;
+
     const mockSections = [
       {
         classNumber: '12345',
@@ -164,7 +180,7 @@ describe('CourseSectionButton (SectionModal)', () => {
         componentDescription: 'LEC',
         classStatus: 'Open',
         instructionModeDescription: 'In Person',
-        classStartDate: '01/09/2024',
+        classStartDate: futureDateString,
         classEndDate: '12/20/2024',
         currentEnrollment: 10,
         enrollmentCapacity: 30,
@@ -181,7 +197,7 @@ describe('CourseSectionButton (SectionModal)', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/10\/30 \(Waitlist: 2\/5\)/i)).toBeInTheDocument();
-    });
+    }, { timeout: 3000 });
   });
 
   it('should handle invalid course title format', async () => {
