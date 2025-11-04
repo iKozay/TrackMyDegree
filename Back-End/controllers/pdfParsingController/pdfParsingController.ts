@@ -106,7 +106,6 @@ function unifyParsedData(parsedData: any) {
   const extractedCourses: { term: string; courses: string[]; grade:string | null }[] = [];
 
   if (!parsedData?.terms.length && !parsedData?.transferCredits.length) {
-    alert('There are no courses to show!');
     return { extractedCourses, details };
   }
 

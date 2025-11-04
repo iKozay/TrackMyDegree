@@ -84,7 +84,7 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
         return;
       }
 
-      if (!(extractedCourses.length && extractedCourses.length > 0)) {
+      if (!extractedCourses || extractedCourses.length === 0) {
         alert('No Course Extracted From the Document.');
         return; //maybe don't return and let the user proceed with an empty timeline?
       }
