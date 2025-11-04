@@ -118,7 +118,7 @@ export class CoursePoolController extends BaseMongoController<any> {
         };
     } catch (error) {
       Sentry.captureException(error);
-      console.error('[DegreeController] Error fetching course pool:', error);
+      console.error('[CoursePoolController] Error fetching course pool:', error);
       return undefined;
     }
   }

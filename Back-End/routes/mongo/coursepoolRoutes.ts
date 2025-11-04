@@ -19,7 +19,7 @@ const INTERNAL_SERVER_ERROR = 'Internal server error';
 /**
  * GET /coursepool/:id - Get course pool by ID
  */
-router.get('/coursepool/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
     try {
         const coursePool = await coursepoolController.getCoursePool(req.params.id);
         if (!coursePool) {
@@ -33,9 +33,9 @@ router.get('/coursepool/:id', async (req: Request, res: Response) => {
 });
 
 /**
- * GET /coursepool - Get all course pools
+ * GET /coursepool/ - Get all course pools
  */
-router.get('/coursepool', async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
     try {
         const coursePools = await coursepoolController.getAllCoursePools();
         return res.status(HTTP.OK).json(coursePools);
