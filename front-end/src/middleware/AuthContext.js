@@ -12,9 +12,9 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const verifySession = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_SERVER}/session/refresh`, {
-          method: 'GET',
-          credentials: 'include',
+        const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include', // Sends refresh token cookie to backend for validation
         });
 
         if (response.ok) {
@@ -46,8 +46,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     const destrySession = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_SERVER}/session/destroy`, {
-          method: 'GET',
+        const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/logout`, {
+          method: 'POST',
           credentials: 'include',
         });
 
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
           throw new Error();
         }
       } catch (error) {
-        console.error('Session destruction failed:', error);
+        console.error('Logout failed: ', error);
       } finally {
         setIsLoggedIn(false);
         setUser(null);
