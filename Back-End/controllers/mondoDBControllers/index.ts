@@ -12,14 +12,18 @@ export type {
 } from './BaseMongoController';
 
 export { CourseController, courseController } from './CourseController';
-export type { CourseData, RequisiteType, RequisiteData } from './CourseController';
+export type {
+  CourseData,
+  RequisiteType,
+  RequisiteData,
+} from './CourseController';
 
 export { DegreeController, degreeController } from './DegreeController';
-export type { 
-  DegreeData, 
-  CoursePoolData, 
-  DegreeXCPData, 
-  CoursePoolInfo 
+export type {
+  DegreeData,
+  CoursePoolData,
+  DegreeXCPData,
+  CoursePoolInfo,
 } from './DegreeController';
 
 export { UserController, userController } from './UserController';

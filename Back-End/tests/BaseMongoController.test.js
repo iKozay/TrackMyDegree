@@ -1,27 +1,29 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { BaseMongoController } = require('../dist/controllers/mondoDBControllers/BaseMongoController');
+const {
+  BaseMongoController,
+} = require('../controllers/mondoDBControllers/BaseMongoController');
 
 // Create a test model for BaseMongoController
 const TestSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  email: { 
-    type: String, 
+  email: {
+    type: String,
     required: true,
     validate: {
-      validator: function(v) {
+      validator: function (v) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
       },
-      message: 'Invalid email format'
-    }
+      message: 'Invalid email format',
+    },
   },
   age: { type: Number, default: 0 },
   active: { type: Boolean, default: true },
   tags: [String],
   metadata: {
     created: { type: Date, default: Date.now },
-    updated: { type: Date, default: Date.now }
-  }
+    updated: { type: Date, default: Date.now },
+  },
 });
 
 const TestModel = mongoose.model('TestModel', TestSchema);
@@ -66,7 +68,7 @@ describe('BaseMongoController', () => {
       const data = {
         name: 'John Doe',
         email: 'john@example.com',
-        age: 30
+        age: 30,
       };
 
       const result = await testController.create(data);
@@ -80,7 +82,7 @@ describe('BaseMongoController', () => {
     it('should handle creation errors', async () => {
       const invalidData = {
         // Missing required fields
-        age: 30
+        age: 30,
       };
 
       const result = await testController.create(invalidData);
@@ -93,7 +95,10 @@ describe('BaseMongoController', () => {
       const originalCreate = TestModel.create;
       TestModel.create = jest.fn().mockRejectedValue('String error');
 
-      const result = await testController.create({ name: 'Test', email: 'test@example.com' });
+      const result = await testController.create({
+        name: 'Test',
+        email: 'test@example.com',
+      });
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Creation failed');
@@ -109,7 +114,7 @@ describe('BaseMongoController', () => {
       testDoc = await TestModel.create({
         name: 'Jane Doe',
         email: 'jane@example.com',
-        age: 25
+        age: 25,
       });
     });
 
@@ -120,12 +125,15 @@ describe('BaseMongoController', () => {
       expect(result.data).toMatchObject({
         name: 'Jane Doe',
         email: 'jane@example.com',
-        age: 25
+        age: 25,
       });
     });
 
     it('should find document with field selection', async () => {
-      const result = await testController.findById(testDoc._id.toString(), 'name email');
+      const result = await testController.findById(
+        testDoc._id.toString(),
+        'name email',
+      );
 
       expect(result.success).toBe(true);
       expect(result.data.name).toBe('Jane Doe');
@@ -155,7 +163,9 @@ describe('BaseMongoController', () => {
         throw new Error('Database query failed');
       });
 
-      const result = await testController.findById(new mongoose.Types.ObjectId().toString());
+      const result = await testController.findById(
+        new mongoose.Types.ObjectId().toString(),
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Database query failed');
@@ -170,12 +180,14 @@ describe('BaseMongoController', () => {
       await TestModel.create({
         name: 'Alice Smith',
         email: 'alice@example.com',
-        age: 28
+        age: 28,
       });
     });
 
     it('should find document by filter', async () => {
-      const result = await testController.findOne({ email: 'alice@example.com' });
+      const result = await testController.findOne({
+        email: 'alice@example.com',
+      });
 
       expect(result.success).toBe(true);
       expect(result.data.name).toBe('Alice Smith');
@@ -184,7 +196,7 @@ describe('BaseMongoController', () => {
     it('should find document with field selection', async () => {
       const result = await testController.findOne(
         { email: 'alice@example.com' },
-        'name age'
+        'name age',
       );
 
       expect(result.success).toBe(true);
@@ -194,7 +206,9 @@ describe('BaseMongoController', () => {
     });
 
     it('should return error when no document found', async () => {
-      const result = await testController.findOne({ email: 'nonexistent@example.com' });
+      const result = await testController.findOne({
+        email: 'nonexistent@example.com',
+      });
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('TestModel not found');
@@ -208,7 +222,9 @@ describe('BaseMongoController', () => {
         exec: jest.fn().mockRejectedValue(new Error('Query failed')),
       }));
 
-      const result = await testController.findOne({ email: 'alice@example.com' });
+      const result = await testController.findOne({
+        email: 'alice@example.com',
+      });
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Query failed');
@@ -223,7 +239,7 @@ describe('BaseMongoController', () => {
         { name: 'User 1', email: 'user1@example.com', age: 20 },
         { name: 'User 2', email: 'user2@example.com', age: 30 },
         { name: 'Alice', email: 'alice@example.com', age: 25 },
-        { name: 'Bob', email: 'bob@example.com', age: 35 }
+        { name: 'Bob', email: 'bob@example.com', age: 35 },
       ]);
     });
 
@@ -242,10 +258,13 @@ describe('BaseMongoController', () => {
     });
 
     it('should find documents with search', async () => {
-      const result = await testController.findAll({}, {
-        search: 'alice',
-        fields: ['name', 'email']
-      });
+      const result = await testController.findAll(
+        {},
+        {
+          search: 'alice',
+          fields: ['name', 'email'],
+        },
+      );
 
       expect(result.success).toBe(true);
       expect(result.data).toHaveLength(1);
@@ -253,56 +272,74 @@ describe('BaseMongoController', () => {
     });
 
     it('should skip search when fields are not provided', async () => {
-      const result = await testController.findAll({}, {
-        search: 'alice'
-      });
+      const result = await testController.findAll(
+        {},
+        {
+          search: 'alice',
+        },
+      );
 
       expect(result.success).toBe(true);
       expect(result.data).toHaveLength(4);
     });
 
     it('should skip search when fields array is empty', async () => {
-      const result = await testController.findAll({}, {
-        search: 'alice',
-        fields: []
-      });
+      const result = await testController.findAll(
+        {},
+        {
+          search: 'alice',
+          fields: [],
+        },
+      );
 
       expect(result.success).toBe(true);
       expect(result.data).toHaveLength(4);
     });
 
     it('should find documents with pagination', async () => {
-      const result = await testController.findAll({}, {
-        page: 1,
-        limit: 2
-      });
+      const result = await testController.findAll(
+        {},
+        {
+          page: 1,
+          limit: 2,
+        },
+      );
 
       expect(result.success).toBe(true);
       expect(result.data).toHaveLength(2);
     });
 
     it('should ignore pagination when limit is missing', async () => {
-      const result = await testController.findAll({}, {
-        page: 1
-      });
+      const result = await testController.findAll(
+        {},
+        {
+          page: 1,
+        },
+      );
 
       expect(result.success).toBe(true);
       expect(result.data).toHaveLength(4);
     });
 
     it('should ignore pagination when page is missing', async () => {
-      const result = await testController.findAll({}, {
-        limit: 2
-      });
+      const result = await testController.findAll(
+        {},
+        {
+          limit: 2,
+        },
+      );
 
       expect(result.success).toBe(true);
       expect(result.data).toHaveLength(4);
     });
 
     it('should find documents with sorting', async () => {
-      const result = await testController.findAll({}, {
-        sort: { age: -1 }
-      });
+      const result = await testController.findAll(
+        {},
+        {
+          sort: { age: -1 },
+        },
+      );
 
       expect(result.success).toBe(true);
       expect(result.data[0].age).toBe(35);
@@ -310,9 +347,12 @@ describe('BaseMongoController', () => {
     });
 
     it('should find documents with field selection', async () => {
-      const result = await testController.findAll({}, {
-        select: 'name email'
-      });
+      const result = await testController.findAll(
+        {},
+        {
+          select: 'name email',
+        },
+      );
 
       expect(result.success).toBe(true);
       expect(result.data[0].name).toBeDefined();
@@ -321,10 +361,13 @@ describe('BaseMongoController', () => {
     });
 
     it('should handle complex search with multiple fields', async () => {
-      const result = await testController.findAll({}, {
-        search: 'user',
-        fields: ['name', 'email']
-      });
+      const result = await testController.findAll(
+        {},
+        {
+          search: 'user',
+          fields: ['name', 'email'],
+        },
+      );
 
       expect(result.success).toBe(true);
       expect(result.data).toHaveLength(2);
@@ -358,13 +401,16 @@ describe('BaseMongoController', () => {
       testDoc = await TestModel.create({
         name: 'Original Name',
         email: 'original@example.com',
-        age: 20
+        age: 20,
       });
     });
 
     it('should update document by ID', async () => {
       const update = { name: 'Updated Name', age: 25 };
-      const result = await testController.updateById(testDoc._id.toString(), update);
+      const result = await testController.updateById(
+        testDoc._id.toString(),
+        update,
+      );
 
       expect(result.success).toBe(true);
       expect(result.data.name).toBe('Updated Name');
@@ -374,7 +420,9 @@ describe('BaseMongoController', () => {
 
     it('should return error for non-existent ID', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
-      const result = await testController.updateById(fakeId, { name: 'New Name' });
+      const result = await testController.updateById(fakeId, {
+        name: 'New Name',
+      });
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('TestModel not found');
@@ -382,7 +430,10 @@ describe('BaseMongoController', () => {
 
     it('should handle validation errors', async () => {
       const invalidUpdate = { email: 'invalid-email' };
-      const result = await testController.updateById(testDoc._id.toString(), invalidUpdate);
+      const result = await testController.updateById(
+        testDoc._id.toString(),
+        invalidUpdate,
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
@@ -395,7 +446,9 @@ describe('BaseMongoController', () => {
         exec: jest.fn().mockRejectedValue(new Error('Update failed')),
       }));
 
-      const result = await testController.updateById(testDoc._id.toString(), { name: 'New Name' });
+      const result = await testController.updateById(testDoc._id.toString(), {
+        name: 'New Name',
+      });
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Update failed');
@@ -409,7 +462,7 @@ describe('BaseMongoController', () => {
       await TestModel.create({
         name: 'Test User',
         email: 'test@example.com',
-        age: 20
+        age: 20,
       });
     });
 
@@ -439,7 +492,10 @@ describe('BaseMongoController', () => {
         throw new Error('Update failed');
       });
 
-      const result = await testController.updateOne({ email: 'test@example.com' }, { age: 25 });
+      const result = await testController.updateOne(
+        { email: 'test@example.com' },
+        { age: 25 },
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Update failed');
@@ -465,7 +521,7 @@ describe('BaseMongoController', () => {
       const doc = await TestModel.create({
         name: 'Existing User',
         email: 'existing@example.com',
-        age: 20
+        age: 20,
       });
 
       const filter = { email: 'existing@example.com' };
@@ -484,7 +540,10 @@ describe('BaseMongoController', () => {
         exec: jest.fn().mockRejectedValue(new Error('Upsert failed')),
       }));
 
-      const result = await testController.upsert({ email: 'test@example.com' }, { age: 25 });
+      const result = await testController.upsert(
+        { email: 'test@example.com' },
+        { age: 25 },
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Upsert failed');
@@ -500,7 +559,7 @@ describe('BaseMongoController', () => {
       testDoc = await TestModel.create({
         name: 'To Delete',
         email: 'delete@example.com',
-        age: 20
+        age: 20,
       });
     });
 
@@ -530,7 +589,9 @@ describe('BaseMongoController', () => {
         throw new Error('Delete failed');
       });
 
-      const result = await testController.deleteById(new mongoose.Types.ObjectId().toString());
+      const result = await testController.deleteById(
+        new mongoose.Types.ObjectId().toString(),
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Delete failed');
@@ -545,7 +606,7 @@ describe('BaseMongoController', () => {
       await TestModel.create({
         name: 'To Delete',
         email: 'delete@example.com',
-        age: 20
+        age: 20,
       });
     });
 
@@ -576,7 +637,9 @@ describe('BaseMongoController', () => {
         throw new Error('Delete failed');
       });
 
-      const result = await testController.deleteOne({ email: 'delete@example.com' });
+      const result = await testController.deleteOne({
+        email: 'delete@example.com',
+      });
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Delete failed');
@@ -591,7 +654,7 @@ describe('BaseMongoController', () => {
       await TestModel.create([
         { name: 'User 1', email: 'user1@example.com', age: 20 },
         { name: 'User 2', email: 'user2@example.com', age: 20 },
-        { name: 'User 3', email: 'user3@example.com', age: 30 }
+        { name: 'User 3', email: 'user3@example.com', age: 30 },
       ]);
     });
 
@@ -639,7 +702,7 @@ describe('BaseMongoController', () => {
       await TestModel.create([
         { name: 'User 1', email: 'user1@example.com', age: 20 },
         { name: 'User 2', email: 'user2@example.com', age: 30 },
-        { name: 'User 3', email: 'user3@example.com', age: 20 }
+        { name: 'User 3', email: 'user3@example.com', age: 20 },
       ]);
     });
 
@@ -679,19 +742,23 @@ describe('BaseMongoController', () => {
       await TestModel.create({
         name: 'Existing User',
         email: 'existing@example.com',
-        age: 20
+        age: 20,
       });
     });
 
     it('should return true when document exists', async () => {
-      const result = await testController.exists({ email: 'existing@example.com' });
+      const result = await testController.exists({
+        email: 'existing@example.com',
+      });
 
       expect(result.success).toBe(true);
       expect(result.data).toBe(true);
     });
 
     it('should return false when document does not exist', async () => {
-      const result = await testController.exists({ email: 'nonexistent@example.com' });
+      const result = await testController.exists({
+        email: 'nonexistent@example.com',
+      });
 
       expect(result.success).toBe(true);
       expect(result.data).toBe(false);
@@ -717,7 +784,7 @@ describe('BaseMongoController', () => {
       const documents = [
         { name: 'User 1', email: 'user1@example.com', age: 20 },
         { name: 'User 2', email: 'user2@example.com', age: 30 },
-        { name: 'User 3', email: 'user3@example.com', age: 25 }
+        { name: 'User 3', email: 'user3@example.com', age: 25 },
       ];
 
       const result = await testController.bulkCreate(documents);
@@ -735,7 +802,7 @@ describe('BaseMongoController', () => {
       const documents = [
         { name: 'Valid User', email: 'valid@example.com', age: 20 },
         { email: 'invalid@example.com', age: 30 }, // Missing required name
-        { name: 'Another Valid', email: 'another@example.com', age: 25 }
+        { name: 'Another Valid', email: 'another@example.com', age: 25 },
       ];
 
       const result = await testController.bulkCreate(documents);
@@ -755,7 +822,7 @@ describe('BaseMongoController', () => {
 
       const documents = [
         { name: 'User 1', email: 'user1@example.com', age: 20 },
-        { name: 'User 2', email: 'user2@example.com', age: 30 }
+        { name: 'User 2', email: 'user2@example.com', age: 30 },
       ];
 
       const result = await testController.bulkCreate(documents);
@@ -773,14 +840,14 @@ describe('BaseMongoController', () => {
       await TestModel.create([
         { name: 'User 1', email: 'user1@example.com', age: 20, active: true },
         { name: 'User 2', email: 'user2@example.com', age: 30, active: false },
-        { name: 'User 3', email: 'user3@example.com', age: 25, active: true }
+        { name: 'User 3', email: 'user3@example.com', age: 25, active: true },
       ]);
     });
 
     it('should execute aggregation pipeline', async () => {
       const pipeline = [
         { $match: { active: true } },
-        { $group: { _id: null, count: { $sum: 1 }, avgAge: { $avg: '$age' } } }
+        { $group: { _id: null, count: { $sum: 1 }, avgAge: { $avg: '$age' } } },
       ];
 
       const result = await testController.aggregate(pipeline);
@@ -792,9 +859,7 @@ describe('BaseMongoController', () => {
     });
 
     it('should handle aggregation errors', async () => {
-      const invalidPipeline = [
-        { $invalidStage: { field: 'value' } }
-      ];
+      const invalidPipeline = [{ $invalidStage: { field: 'value' } }];
 
       const result = await testController.aggregate(invalidPipeline);
 
@@ -820,7 +885,7 @@ describe('BaseMongoController', () => {
   describe('handleError', () => {
     it('should handle Error objects', () => {
       const error = new Error('Test error message');
-      
+
       expect(() => {
         testController.handleError(error, 'test operation');
       }).toThrow('Test error message');
@@ -828,7 +893,7 @@ describe('BaseMongoController', () => {
 
     it('should handle non-Error objects', () => {
       const error = 'String error message';
-      
+
       expect(() => {
         testController.handleError(error, 'test operation');
       }).toThrow('String error message');

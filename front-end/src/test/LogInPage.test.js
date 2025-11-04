@@ -37,12 +37,12 @@ describe('LogInPage', () => {
     // Clear all mocks before each test
     mockLogin.mockClear();
     mockNavigate.mockClear();
-    
+
     // Reset mocks for API and utilities
     loginUser.mockClear();
     validateLoginForm.mockClear();
     hashPassword.mockClear();
-    
+
     // Default mock implementations
     validateLoginForm.mockReturnValue([]);
     hashPassword.mockResolvedValue('hashedPassword123');
@@ -74,7 +74,7 @@ describe('LogInPage', () => {
 
   test('should redirect to /user if already logged in', () => {
     renderComponent(true); // Pass isLoggedIn = true
-    
+
     expect(mockNavigate).toHaveBeenCalledWith('/user');
   });
 
@@ -102,7 +102,7 @@ describe('LogInPage', () => {
 
   test('should display validation error when fields are empty', async () => {
     renderComponent();
-    
+
     // Set up the mock AFTER rendering
     validateLoginForm.mockReturnValue(['Both email and password are required.']);
 
@@ -123,10 +123,10 @@ describe('LogInPage', () => {
 
     fireEvent.change(emailInput, { target: { value: 'valid@email.com' } });
     fireEvent.change(passwordInput, { target: { value: 'password123' } });
-    
+
     // Set up successful scenario
     loginUser.mockResolvedValue({ token: 'test' });
-    
+
     fireEvent.click(submitButton);
 
     // Verify validation is called and login proceeds
@@ -141,7 +141,7 @@ describe('LogInPage', () => {
       token: 'fake-token',
       user: { id: 1, name: 'John Doe' },
     };
-    
+
     loginUser.mockResolvedValue(mockResponse);
 
     renderComponent();
@@ -248,11 +248,11 @@ describe('LogInPage', () => {
 
   test('should reset error state on form submission', async () => {
     validateLoginForm.mockReturnValue(['Some error']);
-    
+
     renderComponent();
 
     const submitButton = screen.getByRole('button', { name: /Submit/i });
-    
+
     // First submission with error
     fireEvent.click(submitButton);
     expect(await screen.findByText('Some error')).toBeInTheDocument();
@@ -260,13 +260,12 @@ describe('LogInPage', () => {
     // Reset validation and try again
     validateLoginForm.mockReturnValue([]);
     loginUser.mockResolvedValue({ token: 'test' });
-    
+
     fireEvent.click(submitButton);
-    
+
     // Error should disappear
     await waitFor(() => {
       expect(screen.queryByText('Some error')).not.toBeInTheDocument();
     });
   });
-
 });

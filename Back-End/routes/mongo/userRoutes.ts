@@ -1,6 +1,6 @@
 /**
  * User Routes
- * 
+ *
  * Handles user CRUD operations, deficiencies, and exemptions
  */
 
@@ -13,6 +13,10 @@ const router = express.Router();
 // ==========================
 // USER ROUTES (CRUD)
 // ==========================
+
+const INTERNAL_SERVER_ERROR = 'Internal server error';
+const USER_ID_REQUIRED = 'User ID is required';
+const DOES_NOT_EXIST = 'does not exist';
 
 /**
  * POST /users - Create user
@@ -38,7 +42,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (error instanceof Error && error.message.includes('already exists')) {
       res.status(HTTP.CONFLICT).json({ error: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
   }
 });
@@ -52,7 +56,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     if (!id) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: 'User ID is required',
+        error: USER_ID_REQUIRED,
       });
       return;
     }
@@ -64,10 +68,10 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in GET /users/:id', error);
-    if (error instanceof Error && error.message.includes('does not exist')) {
+    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
       res.status(HTTP.NOT_FOUND).json({ error: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
   }
 });
@@ -84,7 +88,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in GET /users', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
 
@@ -98,7 +102,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     if (!id) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: 'User ID is required',
+        error: USER_ID_REQUIRED,
       });
       return;
     }
@@ -110,10 +114,10 @@ router.put('/:id', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in PUT /users/:id', error);
-    if (error instanceof Error && error.message.includes('does not exist')) {
+    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
       res.status(HTTP.NOT_FOUND).json({ error: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
   }
 });
@@ -127,7 +131,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     if (!id) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: 'User ID is required',
+        error: USER_ID_REQUIRED,
       });
       return;
     }
@@ -138,10 +142,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in DELETE /users/:id', error);
-    if (error instanceof Error && error.message.includes('does not exist')) {
+    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
       res.status(HTTP.NOT_FOUND).json({ error: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
   }
 });
@@ -155,7 +159,7 @@ router.get('/:id/data', async (req: Request, res: Response) => {
 
     if (!id) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: 'User ID is required',
+        error: USER_ID_REQUIRED,
       });
       return;
     }
@@ -167,10 +171,10 @@ router.get('/:id/data', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error in GET /users/:id/data', error);
-    if (error instanceof Error && error.message.includes('does not exist')) {
+    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
       res.status(HTTP.NOT_FOUND).json({ error: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
   }
 });
@@ -179,250 +183,231 @@ router.get('/:id/data', async (req: Request, res: Response) => {
 // DEFICIENCY ROUTES
 // ==========================
 
+const DEFICIENCIES_PATH = '/:userId/deficiencies';
+
 /**
  * POST /users/:userId/deficiencies - Create deficiency
  */
-router.post(
-  '/:userId/deficiencies',
-  async (req: Request, res: Response) => {
-    try {
-      const { userId } = req.params;
-      const { coursepool, creditsRequired } = req.body;
+router.post(DEFICIENCIES_PATH, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { coursepool, creditsRequired } = req.body;
 
-      if (!userId || !coursepool || typeof creditsRequired !== 'number') {
-        res.status(HTTP.BAD_REQUEST).json({
-          error: 'User ID, coursepool, and creditsRequired are required',
-        });
-        return;
-      }
-
-      const deficiency = await userController.createDeficiency(
-        coursepool,
-        userId,
-        creditsRequired,
-      );
-      res.status(HTTP.CREATED).json({
-        message: 'Deficiency created successfully',
-        deficiency,
+    if (!userId || !coursepool || typeof creditsRequired !== 'number') {
+      res.status(HTTP.BAD_REQUEST).json({
+        error: 'User ID, coursepool, and creditsRequired are required',
       });
-    } catch (error) {
-      console.error('Error in POST /users/:userId/deficiencies', error);
-      if (error instanceof Error && error.message.includes('does not exist')) {
-        res.status(HTTP.NOT_FOUND).json({ error: error.message });
-      } else if (
-        error instanceof Error &&
-        error.message.includes('already exists')
-      ) {
-        res.status(HTTP.CONFLICT).json({ error: error.message });
-      } else {
-        res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
-      }
+      return;
     }
-  },
-);
+
+    const deficiency = await userController.createDeficiency(
+      coursepool,
+      userId,
+      creditsRequired,
+    );
+    res.status(HTTP.CREATED).json({
+      message: 'Deficiency created successfully',
+      deficiency,
+    });
+  } catch (error) {
+    console.error('Error in POST /users/:userId/deficiencies', error);
+    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
+      res.status(HTTP.NOT_FOUND).json({ error: error.message });
+    } else if (
+      error instanceof Error &&
+      error.message.includes('already exists')
+    ) {
+      res.status(HTTP.CONFLICT).json({ error: error.message });
+    } else {
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    }
+  }
+});
 
 /**
  * GET /users/:userId/deficiencies - Get user deficiencies
  */
-router.get(
-  '/:userId/deficiencies',
-  async (req: Request, res: Response) => {
-    try {
-      const { userId } = req.params;
+router.get(DEFICIENCIES_PATH, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
 
-      if (!userId) {
-        res.status(HTTP.BAD_REQUEST).json({
-          error: 'User ID is required',
-        });
-        return;
-      }
-
-      const deficiencies =
-        await userController.getAllDeficienciesByUser(userId);
-      res.status(HTTP.OK).json({
-        message: 'Deficiencies retrieved successfully',
-        deficiencies,
+    if (!userId) {
+      res.status(HTTP.BAD_REQUEST).json({
+        error: USER_ID_REQUIRED,
       });
-    } catch (error) {
-      console.error('Error in GET /users/:userId/deficiencies', error);
-      if (error instanceof Error && error.message.includes('does not exist')) {
-        res.status(HTTP.NOT_FOUND).json({ error: error.message });
-      } else {
-        res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
-      }
+      return;
     }
-  },
-);
+
+    const deficiencies = await userController.getAllDeficienciesByUser(userId);
+    res.status(HTTP.OK).json({
+      message: 'Deficiencies retrieved successfully',
+      deficiencies,
+    });
+  } catch (error) {
+    console.error('Error in GET /users/:userId/deficiencies', error);
+    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
+      res.status(HTTP.NOT_FOUND).json({ error: error.message });
+    } else {
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    }
+  }
+});
 
 /**
  * PUT /users/:userId/deficiencies - Update deficiency
  */
-router.put(
-  '/:userId/deficiencies',
-  async (req: Request, res: Response) => {
-    try {
-      const { userId } = req.params;
-      const { coursepool, creditsRequired } = req.body;
+router.put(DEFICIENCIES_PATH, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { coursepool, creditsRequired } = req.body;
 
-      if (!userId || !coursepool || typeof creditsRequired !== 'number') {
-        res.status(HTTP.BAD_REQUEST).json({
-          error: 'User ID, coursepool, and creditsRequired are required',
-        });
-        return;
-      }
-
-      const deficiency = await userController.updateDeficiency(
-        coursepool,
-        userId,
-        creditsRequired,
-      );
-      res.status(HTTP.OK).json({
-        message: 'Deficiency updated successfully',
-        deficiency,
+    if (!userId || !coursepool || typeof creditsRequired !== 'number') {
+      res.status(HTTP.BAD_REQUEST).json({
+        error: 'User ID, coursepool, and creditsRequired are required',
       });
-    } catch (error) {
-      console.error('Error in PUT /users/:userId/deficiencies', error);
-      if (error instanceof Error && error.message.includes('not found')) {
-        res.status(HTTP.NOT_FOUND).json({ error: error.message });
-      } else {
-        res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
-      }
+      return;
     }
-  },
-);
+
+    const deficiency = await userController.updateDeficiency(
+      coursepool,
+      userId,
+      creditsRequired,
+    );
+    res.status(HTTP.OK).json({
+      message: 'Deficiency updated successfully',
+      deficiency,
+    });
+  } catch (error) {
+    console.error('Error in PUT /users/:userId/deficiencies', error);
+    if (error instanceof Error && error.message.includes('not found')) {
+      res.status(HTTP.NOT_FOUND).json({ error: error.message });
+    } else {
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    }
+  }
+});
 
 /**
  * DELETE /users/:userId/deficiencies - Delete deficiency
  */
-router.delete(
-  '/:userId/deficiencies',
-  async (req: Request, res: Response) => {
-    try {
-      const { userId } = req.params;
-      const { coursepool } = req.body;
+router.delete(DEFICIENCIES_PATH, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { coursepool } = req.body;
 
-      if (!userId || !coursepool) {
-        res.status(HTTP.BAD_REQUEST).json({
-          error: 'User ID and coursepool are required',
-        });
-        return;
-      }
-
-      const message = await userController.deleteDeficiency(coursepool, userId);
-      res.status(HTTP.OK).json({
-        message,
+    if (!userId || !coursepool) {
+      res.status(HTTP.BAD_REQUEST).json({
+        error: 'User ID and coursepool are required',
       });
-    } catch (error) {
-      console.error('Error in DELETE /users/:userId/deficiencies', error);
-      if (error instanceof Error && error.message.includes('does not exist')) {
-        res.status(HTTP.NOT_FOUND).json({ error: error.message });
-      } else {
-        res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
-      }
+      return;
     }
-  },
-);
+
+    const message = await userController.deleteDeficiency(coursepool, userId);
+    res.status(HTTP.OK).json({
+      message,
+    });
+  } catch (error) {
+    console.error('Error in DELETE /users/:userId/deficiencies', error);
+    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
+      res.status(HTTP.NOT_FOUND).json({ error: error.message });
+    } else {
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    }
+  }
+});
 
 // ==========================
 // EXEMPTION ROUTES
 // ==========================
 
+const EXEMPTION_PATH = '/:userId/exemptions';
+
 /**
  * POST /users/:userId/exemptions - Create exemptions
  */
-router.post(
-  '/:userId/exemptions',
-  async (req: Request, res: Response) => {
-    try {
-      const { userId } = req.params;
-      const { coursecodes } = req.body;
+router.post(EXEMPTION_PATH, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { coursecodes } = req.body;
 
-      if (!userId || !Array.isArray(coursecodes)) {
-        res.status(HTTP.BAD_REQUEST).json({
-          error: 'User ID and coursecodes array are required',
-        });
-        return;
-      }
-
-      const result = await userController.createExemptions(coursecodes, userId);
-      res.status(HTTP.CREATED).json({
-        message: 'Exemptions processed successfully',
-        ...result,
+    if (!userId || !Array.isArray(coursecodes)) {
+      res.status(HTTP.BAD_REQUEST).json({
+        error: 'User ID and coursecodes array are required',
       });
-    } catch (error) {
-      console.error('Error in POST /users/:userId/exemptions', error);
-      if (error instanceof Error && error.message.includes('does not exist')) {
-        res.status(HTTP.NOT_FOUND).json({ error: error.message });
-      } else {
-        res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
-      }
+      return;
     }
-  },
-);
+
+    const result = await userController.createExemptions(coursecodes, userId);
+    res.status(HTTP.CREATED).json({
+      message: 'Exemptions processed successfully',
+      ...result,
+    });
+  } catch (error) {
+    console.error('Error in POST /users/:userId/exemptions', error);
+    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
+      res.status(HTTP.NOT_FOUND).json({ error: error.message });
+    } else {
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    }
+  }
+});
 
 /**
  * GET /users/:userId/exemptions - Get user exemptions
  */
-router.get(
-  '/:userId/exemptions',
-  async (req: Request, res: Response) => {
-    try {
-      const { userId } = req.params;
+router.get(EXEMPTION_PATH, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
 
-      if (!userId) {
-        res.status(HTTP.BAD_REQUEST).json({
-          error: 'User ID is required',
-        });
-        return;
-      }
-
-      const exemptions = await userController.getAllExemptionsByUser(userId);
-      res.status(HTTP.OK).json({
-        message: 'Exemptions retrieved successfully',
-        exemptions,
+    if (!userId) {
+      res.status(HTTP.BAD_REQUEST).json({
+        error: USER_ID_REQUIRED,
       });
-    } catch (error) {
-      console.error('Error in GET /users/:userId/exemptions', error);
-      if (error instanceof Error && error.message.includes('does not exist')) {
-        res.status(HTTP.NOT_FOUND).json({ error: error.message });
-      } else {
-        res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
-      }
+      return;
     }
-  },
-);
+
+    const exemptions = await userController.getAllExemptionsByUser(userId);
+    res.status(HTTP.OK).json({
+      message: 'Exemptions retrieved successfully',
+      exemptions,
+    });
+  } catch (error) {
+    console.error('Error in GET /users/:userId/exemptions', error);
+    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
+      res.status(HTTP.NOT_FOUND).json({ error: error.message });
+    } else {
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    }
+  }
+});
 
 /**
  * DELETE /users/:userId/exemptions - Delete exemption
  */
-router.delete(
-  '/:userId/exemptions',
-  async (req: Request, res: Response) => {
-    try {
-      const { userId } = req.params;
-      const { coursecode } = req.body;
+router.delete(EXEMPTION_PATH, async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { coursecode } = req.body;
 
-      if (!userId || !coursecode) {
-        res.status(HTTP.BAD_REQUEST).json({
-          error: 'User ID and coursecode are required',
-        });
-        return;
-      }
-
-      const message = await userController.deleteExemption(coursecode, userId);
-      res.status(HTTP.OK).json({
-        message,
+    if (!userId || !coursecode) {
+      res.status(HTTP.BAD_REQUEST).json({
+        error: 'User ID and coursecode are required',
       });
-    } catch (error) {
-      console.error('Error in DELETE /users/:userId/exemptions', error);
-      if (error instanceof Error && error.message.includes('does not exist')) {
-        res.status(HTTP.NOT_FOUND).json({ error: error.message });
-      } else {
-        res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
-      }
+      return;
     }
-  },
-);
+
+    const message = await userController.deleteExemption(coursecode, userId);
+    res.status(HTTP.OK).json({
+      message,
+    });
+  } catch (error) {
+    console.error('Error in DELETE /users/:userId/exemptions', error);
+    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
+      res.status(HTTP.NOT_FOUND).json({ error: error.message });
+    } else {
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    }
+  }
+});
 
 export default router;
-

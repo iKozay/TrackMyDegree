@@ -14,6 +14,9 @@ import RequisiteTypes from '@controllers/requisiteController/requisite_types';
 import { randomUUID } from 'crypto';
 import * as Sentry from '@sentry/node';
 
+const SELECT_REQUISITE =
+  'SELECT * FROM Requisite WHERE code1 = @code1 AND code2 = @code2 AND type = @type';
+
 /**
  * Creates a new course requisite if it does not already exist.
  * Throws an error if either course does not exist or the requisite is duplicate.
@@ -54,7 +57,7 @@ async function createRequisite(
         .input('code2', Database.msSQL.VarChar, code2)
         .input('type', Database.msSQL.VarChar, type)
         .query(
-          'SELECT * FROM Requisite WHERE code1 = @code1 AND code2 = @code2 AND type = @type',
+          SELECT_REQUISITE,
         );
 
       if (existingRequisite.recordset.length > 0) {
@@ -117,7 +120,7 @@ async function readRequisite(
           .input('code2', Database.msSQL.VarChar, code2)
           .input('type', Database.msSQL.VarChar, type)
           .query(
-            'SELECT * FROM Requisite WHERE code1 = @code1 AND code2 = @code2 AND type = @type',
+            SELECT_REQUISITE,
           );
 
         return existingRequisite.recordset; // Return all matching requisites
@@ -172,7 +175,7 @@ async function updateRequisite(
         .input('code2', Database.msSQL.VarChar, code2)
         .input('type', Database.msSQL.VarChar, type)
         .query(
-          'SELECT * FROM Requisite WHERE code1 = @code1 AND code2 = @code2 AND type = @type',
+          SELECT_REQUISITE,
         );
 
       if (existingRequisite.recordset.length > 0) {
@@ -200,7 +203,7 @@ async function updateRequisite(
         .input('code2', Database.msSQL.VarChar, code2)
         .input('type', Database.msSQL.VarChar, type)
         .query(
-          'SELECT * FROM Requisite WHERE code1 = @code1 AND code2 = @code2 AND type = @type',
+          SELECT_REQUISITE,
         );
 
       return updatedRequisite.recordset[0];
@@ -230,7 +233,7 @@ async function deleteRequisite(
         .input('code2', Database.msSQL.VarChar, code2)
         .input('type', Database.msSQL.VarChar, type)
         .query(
-          'SELECT * FROM Requisite WHERE code1 = @code1 AND code2 = @code2 AND type = @type',
+          SELECT_REQUISITE,
         );
 
       if (requisite.recordset.length === 0) {

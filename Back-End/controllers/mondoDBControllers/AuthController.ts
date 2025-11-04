@@ -8,9 +8,12 @@ import * as Sentry from '@sentry/node';
 import { v4 as uuidv4 } from 'uuid';
 import nodemailer from 'nodemailer';
 import Redis from 'ioredis';
+import { randomInt } from 'crypto';
+import mongoose from 'mongoose';
 
 // Mocro : create Redis client for storing password reset tokens temporarily
 const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+
 
 export enum UserType {
   STUDENT = 'student',
@@ -24,7 +27,7 @@ export interface Credentials {
 }
 
 export interface UserInfo extends Credentials {
-  id?: string;
+  _id: string;
   fullname: string;
   type: UserType;
 }
@@ -52,7 +55,7 @@ export class AuthController {
 
       if (user && passwordMatch && user._id) {
         return {
-          id: user._id.toString(),
+          _id: user._id.toString(),
           fullname: user.fullname,
           email: user.email,
           type: user.type as UserType,
@@ -71,7 +74,7 @@ export class AuthController {
   /**
    * Registers a new user after validating input
    */
-  async registerUser(userInfo: UserInfo): Promise<{ id: string } | undefined> {
+  async registerUser(userInfo: UserInfo): Promise<{ _id: string } | undefined> {
     const { email, password, fullname, type } = userInfo;
 
     try {
@@ -81,7 +84,7 @@ export class AuthController {
       const newUser = await User.create({ email, password, fullname, type });
       if (!newUser._id) return undefined;
 
-      return { id: newUser._id.toString() };
+      return { _id: newUser._id.toString() };
     } catch (error) {
       Sentry.captureException(error, { tags: { operation: 'registerUser' } });
       console.error('[AuthController] Registration error');

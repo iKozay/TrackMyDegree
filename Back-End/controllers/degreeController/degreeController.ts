@@ -2,6 +2,9 @@ import Database from '@controllers/DBController/DBController';
 import DegreeTypes from '@controllers/degreeController/degree_types';
 import { captureException } from '@sentry/node';
 
+const SELECT_DEGREE_BY_ID = 'SELECT * FROM Degree WHERE id = @id';
+const DEGREE_WITH_ID_DOES_NOT_EXIST = 'Degree with this id does not exist.';
+
 /**
  * Creates a new degree in the database.
  *
@@ -64,10 +67,10 @@ async function readDegree(id: string): Promise<DegreeTypes.Degree | undefined> {
       const degree = await conn
         .request()
         .input('id', Database.msSQL.VarChar, id)
-        .query('SELECT * FROM Degree WHERE id = @id');
+        .query(SELECT_DEGREE_BY_ID);
 
       if (degree.recordset.length === 0) {
-        throw new Error('Degree with this id does not exist.');
+        throw new Error(DEGREE_WITH_ID_DOES_NOT_EXIST);
       }
 
       return degree.recordset[0];
@@ -124,10 +127,10 @@ async function updateDegree(
       const degree = await conn
         .request()
         .input('id', Database.msSQL.VarChar, id)
-        .query('SELECT * FROM Degree WHERE id = @id');
+        .query(SELECT_DEGREE_BY_ID);
 
       if (degree.recordset.length === 0) {
-        throw new Error('Degree with this id does not exist.');
+        throw new Error(DEGREE_WITH_ID_DOES_NOT_EXIST);
       }
 
       // Update the degree with the new name and totalCredits
@@ -144,7 +147,7 @@ async function updateDegree(
       const updatedDegree = await conn
         .request()
         .input('id', Database.msSQL.VarChar, id)
-        .query('SELECT * FROM Degree WHERE id = @id');
+        .query(SELECT_DEGREE_BY_ID);
 
       return updatedDegree.recordset[0];
     } catch (error) {
@@ -170,10 +173,10 @@ async function deleteDegree(id: string): Promise<string | undefined> {
       const degree = await conn
         .request()
         .input('id', Database.msSQL.VarChar, id)
-        .query('SELECT * FROM Degree WHERE id = @id');
+        .query(SELECT_DEGREE_BY_ID);
 
       if (degree.recordset.length === 0) {
-        throw new Error('Degree with this id does not exist.');
+        throw new Error(DEGREE_WITH_ID_DOES_NOT_EXIST);
       }
 
       // Delete the degree
@@ -204,10 +207,10 @@ async function getCreditsForDegree(
       const degree = await conn
         .request()
         .input('id', Database.msSQL.VarChar, degreeId)
-        .query('SELECT * FROM Degree WHERE id = @id');
+        .query(SELECT_DEGREE_BY_ID);
 
       if (degree.recordset.length === 0) {
-        throw new Error('Degree with this id does not exist.');
+        throw new Error(DEGREE_WITH_ID_DOES_NOT_EXIST);
       }
 
       return degree.recordset[0].totalCredits;
