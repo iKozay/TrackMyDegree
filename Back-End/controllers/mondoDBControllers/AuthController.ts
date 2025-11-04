@@ -12,7 +12,6 @@ import Redis from 'ioredis';
 // Mocro : create Redis client for storing password reset tokens temporarily
 const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
 
-
 export enum UserType {
   STUDENT = 'student',
   ADVISOR = 'advisor',
@@ -44,15 +43,9 @@ export class AuthController {
    * Authenticates a user by verifying their email and password
    * Prevents timing attacks by using a dummy hash when user not found
    */
-  async authenticate(
-    email: string,
-    password: string,
-  ): Promise<UserInfo | undefined> {
+  async authenticate(email: string, password: string): Promise<UserInfo | undefined> {
     try {
-      const user = await User.findOne({ email })
-        .select('+password')
-        .lean()
-        .exec();
+      const user = await User.findOne({ email }).select('+password').lean().exec();
 
       const hash = user ? user.password : this.DUMMY_HASH;
       const passwordMatch = await bcrypt.compare(password, hash);
@@ -85,14 +78,9 @@ export class AuthController {
       const existingUser = await User.exists({ email }).exec();
       if (existingUser) return undefined;
 
-      const newUser = await User.create({
-        email,
-        password,
-        fullname,
-        type,
-      });
-
+      const newUser = await User.create({ email, password, fullname, type });
       if (!newUser._id) return undefined;
+
       return { id: newUser._id.toString() };
     } catch (error) {
       Sentry.captureException(error, { tags: { operation: 'registerUser' } });
@@ -102,69 +90,62 @@ export class AuthController {
   }
 
   /**
-   * Sends a secure password reset link via email
+   * Sends a secure password reset link via email and stores the token in Redis
    */
-  async forgotPassword(
-    email: string,
-  ): Promise<{ message: string; resetLink?: string }> {
+  async forgotPassword(email: string): Promise<{ message: string; resetLink?: string }> {
     try {
       const user = await User.findOne({ email }).exec();
-      if (!user) return { message: 'If the email exists, a reset link has been sent.' };
+      if (!user) {
+        // Mocro : Always return generic message to prevent user enumeration
+        return { message: 'If the email exists, a reset link has been sent.' };
+      }
 
       const resetToken = uuidv4();
 
-      const frontendUrl = process.env.FRONTEND_URL;
+      const frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT;
       if (!frontendUrl) {
-        throw new Error('FRONTEND_URL environment variable is not defined');
+        throw new Error('FRONTEND_URL or CLIENT environment variable is not defined');
       }
-      const resetLink = `${frontendUrl}/reset-password/${resetToken}`;
 
-      const expire = new Date(Date.now() + this.RESET_EXPIRY_MINUTES * 60 * 1000);
-
-      user.resetToken = resetToken;
-      user.resetTokenExpire = expire;
+      const resetLink = `${frontendUrl.replace(/\/$/, '')}/reset-password/${resetToken}`;
+      const expireSeconds = this.RESET_EXPIRY_MINUTES * 60;
 
       // Mocro : Store token in Redis with expiry
-      const expireSeconds = Math.floor((expire.getTime() - Date.now()) / 1000);
       await redis.setex(`reset:${resetToken}`, expireSeconds, user.email);
-  
-      return { message: 'If the email exists, a reset link has been sent' };
+
+      // Mocro : Send reset email
+      await this.sendResetEmail(user.email, resetLink);
+
+      return { message: 'Password reset link sent successfully', resetLink };
     } catch (error) {
       Sentry.captureException(error, { tags: { operation: 'forgotPassword' } });
-      console.error('[AuthController] Password reset error');
+      console.error('[AuthController] Password reset error', error);
       return { message: 'An error occurred. Please try again later.' };
     }
   }
 
   /**
-   * Resets a user's password using the token from email
+   * Resets a user's password using the token stored in Redis
    */
-  async resetPassword(
-    email: string,
-    resetToken: string,
-    newPassword: string,
-  ): Promise<boolean> {
+  async resetPassword(resetToken: string, newPassword: string): Promise<boolean> {
     try {
-      const user = await User.findOne({ email }).exec();
-      if (
-        !user ||
-        !user.resetToken ||
-        !user.resetTokenExpire ||
-        user.resetToken !== resetToken ||
-        new Date() > user.resetTokenExpire
-      ) {
-        return false;
-      }
+      // Mocro : Get email from Redis
+      const email = await redis.get(`reset:${resetToken}`);
+      if (!email) return false; // invalid or expired token
 
-      user.password = newPassword; // already hashed from frontend
-      user.resetToken = '';
-      user.resetTokenExpire = new Date(0);
+      const user = await User.findOne({ email }).exec();
+      if (!user) return false;
+
+      user.password = newPassword; // already hashed on frontend
       await user.save();
+
+      // Mocro : Delete used token
+      await redis.del(`reset:${resetToken}`);
 
       return true;
     } catch (error) {
       Sentry.captureException(error, { tags: { operation: 'resetPassword' } });
-      console.error('[AuthController] Password reset error');
+      console.error('[AuthController] Password reset error', error);
       return false;
     }
   }
@@ -172,11 +153,7 @@ export class AuthController {
   /**
    * Change password for authenticated users
    */
-  async changePassword(
-    userId: string,
-    oldPassword: string,
-    newPassword: string,
-  ): Promise<boolean> {
+  async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<boolean> {
     try {
       const user = await User.findById(userId).select('+password').exec();
       if (!user) return false;
@@ -190,7 +167,7 @@ export class AuthController {
       return true;
     } catch (error) {
       Sentry.captureException(error, { tags: { operation: 'changePassword' } });
-      console.error('[AuthController] Password change error');
+      console.error('[AuthController] Password change error', error);
       return false;
     }
   }
