@@ -131,7 +131,7 @@ def extract_course_data(course_code, url):
         title_text = ' '.join(title_el.stripped_strings)
         course_id, title, course_credits = parse_title_and_credits(title_text, clean_text)
 
-        if course_id != course_code and course_id != "ANY":
+        if course_id != course_code and course_code != "ANY":
             continue
 
         content_el = block.find('div', class_='accordion-body')
