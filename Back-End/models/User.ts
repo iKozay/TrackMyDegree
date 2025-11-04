@@ -13,7 +13,6 @@ const UserSchema = new Schema({
   fullname: { type: String, required: true },
   degree: { type: String, ref: 'Degree' },
   type: { type: String, enum: ['student', 'advisor', 'admin'], required: true },
-  resetToken: { type: String, default: null },
   resetTokenExpire: { type: Date, default: null },
 
   deficiencies: [DeficiencySchema],
