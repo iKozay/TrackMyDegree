@@ -124,12 +124,11 @@ export class AuthController {
       user.resetToken = resetToken;
       user.resetTokenExpire = expire;
 
-  // Mocro : Store token in Redis with expiry
-  const expireSeconds = Math.floor((expire.getTime() - Date.now()) / 1000);
-  await redis.setex(`reset:${resetToken}`, expireSeconds, user.email);
+      // Mocro : Store token in Redis with expiry
+      const expireSeconds = Math.floor((expire.getTime() - Date.now()) / 1000);
+      await redis.setex(`reset:${resetToken}`, expireSeconds, user.email);
   
-
-      return { message: 'Password reset link generated', resetLink };
+      return { message: 'If the email exists, a reset link has been sent' };
     } catch (error) {
       Sentry.captureException(error, { tags: { operation: 'forgotPassword' } });
       console.error('[AuthController] Password reset error');
