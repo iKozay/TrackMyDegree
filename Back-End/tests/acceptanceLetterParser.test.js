@@ -3,7 +3,7 @@ jest.mock('node:timers', () => ({
   setTimeout: jest.fn(() => Math.floor(Math.random() * 10000)),
 }));
 
-const { AcceptanceLetterParser } = require('../Util/AcceptanceLetterParser.ts');
+const { AcceptanceLetterParser } = require('../Util/acceptanceLetterParser.ts');
 describe('AcceptanceLetterParser', () => {
   const parser = new AcceptanceLetterParser();
 
