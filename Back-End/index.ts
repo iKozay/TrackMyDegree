@@ -4,6 +4,7 @@ import cors from 'cors';
 import corsOptions from '@middleware/corsMiddleware';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import mongoose from 'mongoose';
 import Database from '@controllers/DBController/DBController';
 import HTTP from '@Util/HTTPCodes';
 import {
@@ -39,6 +40,30 @@ dotenv.config(); //Load environment variables from .env file
 const app = express();
 const PORT = process.env.PORT || 8000;
 const CLIENT = process.env.CLIENT || 'http://localhost:3000';
+
+// MongoDB connection
+const MONGODB_URI =
+  process.env.MONGODB_URI ||
+  'mongodb://admin:changeme123@localhost:27017/trackmydegree?authSource=admin';
+
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => {
+    console.log('Connected to MongoDB successfully!');
+  })
+  .catch((error) => {
+    console.error('MongoDB connection error:', error);
+    Sentry.captureException(error);
+  });
+
+mongoose.connection.on('error', (error) => {
+  console.error('MongoDB connection error:', error);
+  Sentry.captureException(error);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('MongoDB disconnected');
+});
 
 Sentry.setupExpressErrorHandler(app);
 

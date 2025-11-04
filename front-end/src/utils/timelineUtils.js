@@ -577,18 +577,15 @@ export const SaveTimeline = async (tName, user, degree_Id, state, extendedCredit
 
     // try {
     await Promise.all([
-        api.post("/exemption/create", {
+        api.post(`/users/${user_id}/exemptions`, {
             coursecodes: exempted_courses,
-            user_id,
         }),
-        api.post("/timeline/save", {
-            timeline: {
-                user_id,
-                name: timelineNameToSend,
-                items,
-                degree_id: degree_Id,
-                isExtendedCredit: isExtended,
-            },
+        api.post("/timeline", {
+            user_id,
+            name: timelineNameToSend,
+            items,
+            degree_id: degree_Id,
+            isExtendedCredit: isExtended,
         }),
     ]);
     return { error: null };

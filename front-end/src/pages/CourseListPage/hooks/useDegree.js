@@ -17,7 +17,7 @@ const useDegrees = () => {
       setError(null);
 
       try {
-        const jsonData = await api.post('/degree/getAllDegrees');
+        const jsonData = await api.get('/degree');
         setDegrees(jsonData.degrees || []);
       } catch (err) {
         setError(err.message || 'Failed to fetch degrees');

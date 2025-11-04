@@ -6,8 +6,18 @@ import feedbackRoutes from './feedbackRoutes';
 import timelineRoutes from './timelineRoutes';
 import adminRoutes from './adminRoutes';
 import coursepoolRoutes from './coursepoolRoutes';
+import authRoutes from './authRoutes';
+import sessionRoutes from './sessionRoutes';
+import sectionRouter from '@routes/sectionsRoutes';
+import transcriptRouter from '@routes/transcript';
+import { forgotPasswordLimiter, loginLimiter, resetPasswordLimiter, signupLimiter } from '@middleware/rateLimiter';
 
 const router = express.Router();
+
+router.use('/auth/forgot-password', forgotPasswordLimiter);
+router.use('/auth/reset-password', resetPasswordLimiter);
+router.use('/auth/login', loginLimiter);
+router.use('/auth/signup', signupLimiter);
 
 router.use('/degree', degreeRoutes);
 router.use('/courses', courseRoutes);
@@ -16,5 +26,10 @@ router.use('/users', userRoutes);
 router.use('/feedback', feedbackRoutes);
 router.use('/timeline', timelineRoutes);
 router.use('/admin', adminRoutes);
+router.use('/auth', authRoutes);
+router.use('/session', sessionRoutes);
+router.use('/section', sectionRouter);
+router.use('/transcript', transcriptRouter);
+
 
 export default router;

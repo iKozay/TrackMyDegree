@@ -47,7 +47,7 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
     const getDegrees = async () => {
       // TODO: Add proper error handling and user feedback for API failures
       try {
-        const jsonData = await api.post('/degree/getAllDegrees');
+        const jsonData = await api.get('/degree');
         console.log('Degrees:', jsonData);
         setDegrees(jsonData.degrees);
       } catch (err) {
