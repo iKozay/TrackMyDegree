@@ -5,15 +5,26 @@ describe('UserPageApi', () => {
   let consoleErrSpy;
 
   // helpers to build fetch-like responses
+  const mockHeaders = {
+    get: (name) => {
+      if (name === 'Content-Type') return 'application/json';
+      return null;
+    },
+  };
+
   const ok = (data) =>
     Promise.resolve({
       ok: true,
+      headers: mockHeaders,
       json: () => Promise.resolve(data),
     });
 
   const notOk = (data) =>
     Promise.resolve({
       ok: false,
+      status: 500,
+      statusText: 'Internal Server Error',
+      headers: mockHeaders,
       json: () => Promise.resolve(data),
     });
 

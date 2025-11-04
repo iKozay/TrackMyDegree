@@ -33,6 +33,92 @@ describe('DegreeController', () => {
     });
   });
 
+  describe('createDegree', () => {
+
+    it('should create a new degree', async () => {
+      const degreeData = {
+        _id: 'COMP',
+        name: 'Computer Science',
+        totalCredits: 120,
+        coursePools: []
+      };
+      const result = await degreeController.createDegree(degreeData);
+      expect(result).toMatchObject(degreeData);
+    });
+
+    it('should handle errors during degree creation', async () => {
+      // Mock the create method to throw an error
+      const originalCreate = degreeController.model.create;
+      degreeController.model.create = jest.fn().mockRejectedValue(
+        new Error('Database error during creation'),
+      );
+
+      const degreeData = {
+        _id: 'COMP',
+        name: 'Computer Science',
+        totalCredits: 120,
+        coursePools: []
+      };
+      await expect(degreeController.createDegree(degreeData)).rejects.toThrow(
+        'Database error during creation',
+      );
+      // Restore original method
+      degreeController.model.create = originalCreate;
+    });
+  });
+
+  describe('updateDegree', () => {
+
+    it('should update an existing degree', async () => {
+      const testDegree = await Degree.create({
+        _id: 'COMP7',
+        name: 'Computer Science',
+        totalCredits: 120,
+        coursePools: []
+      });
+
+      const degreeData = {
+        name: 'Computer Science 1234',
+        totalCredits: 123,
+        coursePools: [
+          'POOL1', 'POOL2'
+        ]
+      };
+      const result = await degreeController.updateDegree(testDegree._id, degreeData);
+      expect(result).toMatchObject(degreeData);
+    });
+
+    it('should handle errors during degree update', async () => {
+      // Mock the update method to throw an error
+      const originalUpdate = degreeController.updateById;
+      degreeController.updateById = jest.fn().mockRejectedValue(
+        new Error('Database error during update'),
+      );
+
+      const testDegree = await Degree.create({
+        _id: 'MATH',
+        name: 'Mathematics',
+        totalCredits: 30,
+        coursePools: []
+      });
+
+      const degreeData = {
+        _id: 'MATH',
+        name: 'Mathematics 1234',
+        totalCredits: 33,
+        coursePools: [
+          'POOL1', 'POOL2'
+        ]
+      };
+      await expect(degreeController.updateDegree(testDegree._id, degreeData)).rejects.toThrow(
+        'Database error during update',
+      );
+      // Restore original method
+      degreeController.updateById = originalUpdate;
+    });
+  });
+
+
   describe('readDegree', () => {
     let testDegree;
 
@@ -181,247 +267,60 @@ describe('DegreeController', () => {
     });
   });
 
-  describe('getAllCoursePools', () => {
+  describe('getCoursePoolsForDegree', () => {
     beforeEach(async () => {
-      await Degree.create([
-        {
-          _id: 'COMP',
-          name: 'Computer Science',
-          totalCredits: 120,
-          coursePools: [
-            {
-              _id: 'COMP_CORE',
-              name: 'Computer Science Core',
-              creditsRequired: 60,
-              courses: ['COMP101', 'COMP102'],
-            },
-            {
-              _id: 'MATH_REQ',
-              name: 'Mathematics Requirements',
-              creditsRequired: 12,
-              courses: ['MATH101', 'MATH102'],
-            },
-          ],
-        },
-        {
-          _id: 'SOEN',
-          name: 'Software Engineering',
-          totalCredits: 120,
-          coursePools: [
-            {
-              _id: 'SOEN_CORE',
-              name: 'Software Engineering Core',
-              creditsRequired: 50,
-              courses: ['SOEN101', 'SOEN102'],
-            },
-            {
-              _id: 'MATH_REQ',
-              name: 'Mathematics Requirements',
-              creditsRequired: 12,
-              courses: ['MATH101', 'MATH102'],
-            },
-          ],
-        },
+      await Degree.create({
+        _id: 'COMP',
+        name: 'Computer Science',
+        totalCredits: 120,
+        coursePools: [
+          'COMP_CORE',
+          'COMP_ELECTIVES',
+        ],
+      });
+    });
+
+    it('should get course pools for degree', async () => {
+      await Degree.create({
+        _id: 'COMP123',
+        name: 'Computer Science123',
+        totalCredits: 120,
+        coursePools: [
+          'COMP_CORE',
+          'COMP_ELECTIVES',
+        ],
+      });
+
+      const result = await degreeController.getCoursePoolsForDegree('COMP123');
+
+      expect(result).toEqual([
+        'COMP_CORE',
+        'COMP_ELECTIVES',
       ]);
     });
 
-    it('should get all course pools aggregated and deduplicated', async () => {
-      const result = await degreeController.getAllCoursePools();
-
-      expect(result).toHaveLength(3); // COMP_CORE, MATH_REQ, SOEN_CORE
-      expect(result.find((cp) => cp._id === 'COMP_CORE')).toBeDefined();
-      expect(result.find((cp) => cp._id === 'SOEN_CORE')).toBeDefined();
-      expect(result.find((cp) => cp._id === 'MATH_REQ')).toBeDefined();
+    it('should throw error for non-existent degree', async () => {
+      await expect(
+        degreeController.getCoursePoolsForDegree('NONEXISTENT'),
+      ).rejects.toThrow('Degree with this id does not exist');
     });
 
-    it('should return course pools sorted by name', async () => {
-      const result = await degreeController.getAllCoursePools();
-
-      expect(result[0].name).toBe('Computer Science Core');
-      expect(result[1].name).toBe('Mathematics Requirements');
-      expect(result[2].name).toBe('Software Engineering Core');
-    });
-
-    it('should return empty array when no course pools exist', async () => {
-      await Degree.deleteMany({});
-      const result = await degreeController.getAllCoursePools();
-
-      expect(result).toHaveLength(0);
-    });
-
-    it('should handle aggregation errors gracefully', async () => {
-      // Mock controller's aggregate to return error
-      const originalAggregate = degreeController.aggregate;
-      degreeController.aggregate = jest.fn().mockRejectedValue(
-        new Error('Aggregation failed'),
+    it('should handle database errors', async () => {
+      // Mock controller's findById to throw error
+      const originalFindById = degreeController.findById;
+      degreeController.findById = jest.fn().mockRejectedValue(
+        new Error('Database connection failed'),
       );
 
-      const result = await degreeController.getAllCoursePools();
-
-      expect(result).toHaveLength(0);
+      await expect(
+        degreeController.getCreditsForDegree('COMP'),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
-      degreeController.aggregate = originalAggregate;
+      degreeController.findById = originalFindById;
     });
   });
 
-  describe('getCoursePool', () => {
-    beforeEach(async () => {
-      await Degree.create({
-        _id: 'COMP',
-        name: 'Computer Science',
-        totalCredits: 120,
-        coursePools: [
-          {
-            _id: 'COMP_CORE',
-            name: 'Computer Science Core',
-            creditsRequired: 60,
-            courses: ['COMP101', 'COMP102'],
-          },
-        ],
-      });
-    });
-
-    it('should get specific course pool by ID', async () => {
-      const result = await degreeController.getCoursePool('COMP_CORE');
-
-      expect(result).toMatchObject({
-        _id: 'COMP_CORE',
-        name: 'Computer Science Core',
-        creditsRequired: 60,
-        courses: ['COMP101', 'COMP102'],
-      });
-    });
-
-    it('should return undefined for non-existent course pool', async () => {
-      const result = await degreeController.getCoursePool('NONEXISTENT');
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should handle aggregation errors gracefully', async () => {
-      // Mock controller's aggregate to return error
-      const originalAggregate = degreeController.aggregate;
-      degreeController.aggregate = jest.fn().mockRejectedValue(
-        new Error('Aggregation failed'),
-      );
-
-      const result = await degreeController.getCoursePool('COMP_CORE');
-
-      expect(result).toBeUndefined();
-
-      // Restore original method
-      degreeController.aggregate = originalAggregate;
-    });
-  });
-
-  describe('getCoursePoolsByDegree', () => {
-    beforeEach(async () => {
-      await Degree.create({
-        _id: 'COMP',
-        name: 'Computer Science',
-        totalCredits: 120,
-        coursePools: [
-          {
-            _id: 'COMP_CORE',
-            name: 'Computer Science Core',
-            creditsRequired: 60,
-            courses: ['COMP101', 'COMP102'],
-          },
-          {
-            _id: 'MATH_REQ',
-            name: 'Mathematics Requirements',
-            creditsRequired: 12,
-            courses: ['MATH101', 'MATH102'],
-          },
-        ],
-      });
-    });
-
-    it('should get all course pools for specific degree', async () => {
-      const result = await degreeController.getCoursePoolsByDegree('COMP');
-
-      expect(result).toHaveLength(2);
-      expect(result[0]).toMatchObject({
-        _id: 'COMP_CORE',
-        name: 'Computer Science Core',
-        creditsRequired: 60,
-        courses: ['COMP101', 'COMP102'],
-      });
-      expect(result[1]).toMatchObject({
-        _id: 'MATH_REQ',
-        name: 'Mathematics Requirements',
-        creditsRequired: 12,
-        courses: ['MATH101', 'MATH102'],
-      });
-    });
-
-    it('should return empty array for non-existent degree', async () => {
-      const result =
-        await degreeController.getCoursePoolsByDegree('NONEXISTENT');
-
-      expect(result).toHaveLength(0);
-    });
-
-    it('should return empty array for degree with no course pools', async () => {
-      await Degree.create({
-        _id: 'EMPTY',
-        name: 'Empty Degree',
-        totalCredits: 120,
-        coursePools: [],
-      });
-
-      const result = await degreeController.getCoursePoolsByDegree('EMPTY');
-
-      expect(result).toHaveLength(0);
-    });
-
-    it('should handle course pools with undefined courses', async () => {
-      await Degree.create({
-        _id: 'NOCOURSES',
-        name: 'No Courses Degree',
-        totalCredits: 120,
-        coursePools: [
-          {
-            _id: 'NOCOURSES_POOL',
-            name: 'No Courses Pool',
-            creditsRequired: 30,
-            // courses field is undefined
-          },
-        ],
-      });
-
-      const result = await degreeController.getCoursePoolsByDegree('NOCOURSES');
-
-      expect(result).toHaveLength(1);
-      expect(result[0]).toMatchObject({
-        _id: 'NOCOURSES_POOL',
-        name: 'No Courses Pool',
-        creditsRequired: 30,
-        courses: [],
-      });
-    });
-
-    it('should handle database errors gracefully', async () => {
-      // Mock Degree.findById to throw an error in the exec() call
-      const originalFindById = Degree.findById;
-      const mockQuery = {
-        select: jest.fn().mockReturnThis(),
-        lean: jest.fn().mockReturnThis(),
-        exec: jest.fn().mockRejectedValue(
-          new Error('Database connection failed'),
-        ),
-      };
-      Degree.findById = jest.fn().mockReturnValue(mockQuery);
-
-      const result = await degreeController.getCoursePoolsByDegree('COMP');
-
-      expect(result).toHaveLength(0);
-
-      // Restore original method
-      Degree.findById = originalFindById;
-    });
-  });
 
   describe('Additional Edge Cases for Coverage', () => {
     it('should handle readDegree when findById returns error without message', async () => {
@@ -479,42 +378,5 @@ describe('DegreeController', () => {
       degreeController.findById = originalFindById;
     });
 
-    it('should handle getAllCoursePools when aggregate returns no data', async () => {
-      const originalAggregate = degreeController.aggregate;
-      degreeController.aggregate = jest.fn().mockResolvedValue({
-        success: true,
-        data: null,
-      });
-
-      const result = await degreeController.getAllCoursePools();
-      expect(result).toEqual([]);
-
-      degreeController.aggregate = originalAggregate;
-    });
-
-    it('should handle getCoursePool when aggregate returns array with no data', async () => {
-      const originalAggregate = degreeController.aggregate;
-      degreeController.aggregate = jest.fn().mockResolvedValue({
-        success: true,
-        data: [],
-      });
-
-      const result = await degreeController.getCoursePool('TEST');
-      expect(result).toBeUndefined();
-
-      degreeController.aggregate = originalAggregate;
-    });
-
-    it('should handle getCoursePoolsByDegree when degree has null coursePools', async () => {
-      await Degree.create({
-        _id: 'NULLPOOLS',
-        name: 'Null Pools Degree',
-        totalCredits: 120,
-        coursePools: null,
-      });
-
-      const result = await degreeController.getCoursePoolsByDegree('NULLPOOLS');
-      expect(result).toEqual([]);
-    });
   });
 });

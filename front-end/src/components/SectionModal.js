@@ -1,14 +1,12 @@
 /* eslint-disable prettier/prettier */
 import React, { useState, useEffect } from 'react';
+import { api } from '../api/http-api-client';
 
 const CourseSectionButton = ({ title, hidden }) => {
     const [sections, setSections] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
-
-    const API_USERNAME = '866';
-    const API_PASSWORD = 'cc94383af23d42ea7f5dcc9d0e2c4edc';
 
     useEffect(() => {
         return () => {
@@ -88,23 +86,13 @@ const CourseSectionButton = ({ title, hidden }) => {
             setSections([]);
 
             const { subject, catalog } = parseCourseCode();
-            const authHeader = 'Basic ' + btoa(`${API_USERNAME}:${API_PASSWORD}`);
 
-            const response = await fetch(
-                // eslint-disable-next-line no-undef
-                `${process.env.REACT_APP_SERVER}/section/schedule?subject=${subject}&catalog=${catalog}`,
+            const data = await api.get(
+                `/section/schedule?subject=${subject}&catalog=${catalog}`,
                 {
                     signal: abortController.signal,
-                    headers: {
-                        'Content-Type': 'application/json'
-                        // Authorization header removed - handle it in backend if needed
-                    }
                 }
             );
-
-            if (!response.ok) throw new Error('Failed to fetch sections');
-
-            const data = await response.json();
             const filtered = data.filter(section => {
                 const startDate = parseDate(section.classStartDate);
                 return startDate >= getTwoMonthsAgo();
@@ -119,12 +107,6 @@ const CourseSectionButton = ({ title, hidden }) => {
             if (isMounted) setLoading(false);
         }
     };
-
-    const sortedTerms = (grouped) => {
-        return Object.keys(grouped).sort((a, b) => b.localeCompare(a));
-    };
-
-    const groupedTerms = groupByTerm(sections);
 
     return (
         <div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Row, Spinner, Alert, Button } from 'react-bootstrap';
 import { motion } from 'framer-motion';
 import '../css/AdminPage.css';
+import { api } from '../api/http-api-client';
 
 // Custom hooks
 import useBackupManager from './AdminPage/hooks/useBackupManager';
@@ -40,17 +41,13 @@ const AdminPage = () => {
   const handleSeedData = async () => {
     setSeedLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/admin/seed-data`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        alert('Failed to seed data');
-        return;
-      }
-
-      const data = await response.json();
+      const data = await api.post(
+        '/admin/seed-data',
+        {},
+        {
+          credentials: 'include',
+        },
+      );
 
       if (data.success) {
         alert('Data seeding successful!');

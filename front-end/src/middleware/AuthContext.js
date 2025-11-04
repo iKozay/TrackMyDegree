@@ -1,5 +1,6 @@
 // src/AuthContext.js
 import React, { createContext, useEffect, useState } from 'react';
+import { api } from '../api/http-api-client';
 
 export const AuthContext = createContext();
 
@@ -12,20 +13,12 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const verifySession = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/refresh`, {
-          method: 'POST',
-          credentials: 'include', // Sends refresh token cookie to backend for validation
+        const user_data = await api.post('/auth/refresh', {
+          credentials: 'include',
         });
 
-        if (response.ok) {
-          const user_data = await response.json();
-
-          setIsLoggedIn(true);
-          setUser(user_data);
-        } else {
-          setIsLoggedIn(false);
-          setUser(null);
-        }
+        setIsLoggedIn(true);
+        setUser(user_data);
       } catch (error) {
         console.error('Session verification failed:', error);
         setIsLoggedIn(false);
@@ -46,14 +39,9 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     const destrySession = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/logout`, {
-          method: 'POST',
+        await api.post('/auth/logout', {
           credentials: 'include',
         });
-
-        if (!response.ok) {
-          throw new Error();
-        }
       } catch (error) {
         console.error('Logout failed: ', error);
       } finally {

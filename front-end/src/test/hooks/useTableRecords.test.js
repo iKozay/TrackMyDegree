@@ -5,6 +5,14 @@ import useTableRecords from '../../pages/AdminPage/hooks/useTableRecords';
 // Mock fetch
 global.fetch = jest.fn();
 
+// Helper to create mock headers
+const createMockHeaders = () => ({
+  get: (name) => {
+    if (name === 'Content-Type') return 'application/json';
+    return null;
+  },
+});
+
 // Mock console.error to avoid cluttering test output
 const consoleError = console.error;
 beforeAll(() => {
@@ -18,7 +26,9 @@ describe('useTableRecords', () => {
   beforeEach(() => {
     fetch.mockClear();
     console.error.mockClear();
-    process.env.REACT_APP_SERVER = 'http://localhost:5000';
+    if (!process.env.REACT_APP_SERVER) {
+      process.env.REACT_APP_SERVER = 'http://localhost:8000';
+    }
   });
 
   afterEach(() => {
@@ -33,6 +43,8 @@ describe('useTableRecords', () => {
       ];
 
       fetch.mockResolvedValueOnce({
+        ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: mockRecords }),
       });
 
@@ -54,6 +66,8 @@ describe('useTableRecords', () => {
       const mockRecords = [{ id: 1, name: 'John', email: 'john@test.com' }];
 
       fetch.mockResolvedValueOnce({
+        ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: mockRecords }),
       });
 
@@ -63,7 +77,7 @@ describe('useTableRecords', () => {
         await result.current.fetchRecords('users', 'john');
       });
 
-      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/admin/tables/users?keyword=john', expect.any(Object));
+      expect(fetch).toHaveBeenCalledWith('http://localhost:8000/admin/tables/users?keyword=john', expect.any(Object));
 
       await waitFor(() => {
         expect(result.current.records).toEqual(mockRecords);
@@ -72,6 +86,8 @@ describe('useTableRecords', () => {
 
     it('should handle empty records', async () => {
       fetch.mockResolvedValueOnce({
+        ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
@@ -110,6 +126,8 @@ describe('useTableRecords', () => {
 
     it('should handle error when data is not an array', async () => {
       fetch.mockResolvedValueOnce({
+        ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: 'not an array' }),
       });
 
@@ -127,6 +145,8 @@ describe('useTableRecords', () => {
 
     it('should handle error when success is false', async () => {
       fetch.mockResolvedValueOnce({
+        ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: false }),
       });
 
@@ -159,6 +179,8 @@ describe('useTableRecords', () => {
 
     it('should encode special characters in keyword', async () => {
       fetch.mockResolvedValueOnce({
+        ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
@@ -169,7 +191,7 @@ describe('useTableRecords', () => {
       });
 
       expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:5000/admin/tables/users?keyword=test%40email.com',
+        'http://localhost:8000/admin/tables/users?keyword=test%40email.com',
         expect.any(Object),
       );
     });
@@ -181,6 +203,8 @@ describe('useTableRecords', () => {
       ];
 
       fetch.mockResolvedValueOnce({
+        ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: mockRecords }),
       });
 
@@ -201,6 +225,8 @@ describe('useTableRecords', () => {
       const mockRecords = [{ id: 1, name: 'John' }];
 
       fetch.mockResolvedValueOnce({
+        ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: mockRecords }),
       });
 
@@ -229,6 +255,8 @@ describe('useTableRecords', () => {
       const mockRecords = [{ id: 1, name: 'John' }];
 
       fetch.mockResolvedValueOnce({
+        ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: mockRecords }),
       });
 
@@ -238,7 +266,7 @@ describe('useTableRecords', () => {
         result.current.handleSearch('users', '');
       });
 
-      expect(fetch).toHaveBeenCalledWith('http://localhost:5000/admin/tables/users', expect.any(Object));
+      expect(fetch).toHaveBeenCalledWith('http://localhost:8000/admin/tables/users', expect.any(Object));
     });
   });
 
@@ -249,7 +277,7 @@ describe('useTableRecords', () => {
         resolvePromise = resolve;
       });
 
-      fetch.mockReturnValueOnce({ json: () => promise });
+      fetch.mockReturnValueOnce({ ok: true, headers: createMockHeaders(), json: () => promise });
 
       const { result } = renderHook(() => useTableRecords());
 
@@ -268,6 +296,8 @@ describe('useTableRecords', () => {
 
     it('should set loading to false after successful fetch', async () => {
       fetch.mockResolvedValueOnce({
+        ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
@@ -297,6 +327,8 @@ describe('useTableRecords', () => {
     it('should clear error on new fetch', async () => {
       // First fetch with error
       fetch.mockResolvedValueOnce({
+        ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: false }),
       });
 
@@ -312,6 +344,8 @@ describe('useTableRecords', () => {
 
       // Second fetch should clear error
       fetch.mockResolvedValueOnce({
+        ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
@@ -328,6 +362,8 @@ describe('useTableRecords', () => {
   describe('credentials and request options', () => {
     it('should send request with credentials included', async () => {
       fetch.mockResolvedValueOnce({
+        ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
