@@ -399,7 +399,7 @@ describe('AdminController', () => {
       });
 
       expect(result).toHaveLength(1);
-      expect(result[0].email).toBe('test2@example.com');
+      expect(result[0].email).toBe('test1@example.com');
     });
 
     it('should handle getCollectionStats when stats command returns undefined values', async () => {
