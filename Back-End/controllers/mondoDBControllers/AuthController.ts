@@ -7,6 +7,11 @@ import bcrypt from 'bcryptjs';
 import * as Sentry from '@sentry/node';
 import { v4 as uuidv4 } from 'uuid';
 import nodemailer from 'nodemailer';
+import Redis from 'ioredis';
+
+// Mocro : create Redis client for storing password reset tokens temporarily
+const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+
 
 export enum UserType {
   STUDENT = 'student',
@@ -118,9 +123,11 @@ export class AuthController {
 
       user.resetToken = resetToken;
       user.resetTokenExpire = expire;
-      await user.save();
 
-      await this.sendResetEmail(user.email, resetLink);
+  // Mocro : Store token in Redis with expiry
+  const expireSeconds = Math.floor((expire.getTime() - Date.now()) / 1000);
+  await redis.setex(`reset:${resetToken}`, expireSeconds, user.email);
+  
 
       return { message: 'Password reset link generated', resetLink };
     } catch (error) {
