@@ -13,7 +13,7 @@ parse = (text:string):ParsedAcceptanceLetter => {
   const extractedCourses = [];
 
   // Extract Degree Concentration (everything after Program/Plan(s) and before Academic Load)
-  const degreeConcentrationMatch = text.match(/Program\/Plan\(s\):\s*([^\n]+)(?:\n([^\n]+))?[\s\S]*?Academic Load/);
+  const degreeConcentrationMatch = text.match(/^\s*Program\/Plan\(s\):[ \t]*([^\n]*(?:\n(?!\s*Academic\s+Load)[^\n]*)*)/im);
 
   if (degreeConcentrationMatch) {
     // Combine the two parts (if any) into a single Degree Concentration string
@@ -88,7 +88,7 @@ private getCoursesFromText({
   let match;
   while ((match = courseRegex.exec(sectionText)) !== null) {
     const course = match[0].trim();
-    courses.push(course.replace(/\s+/g, ''));
+    courses.push(course.replaceAll(/\s+/, ''));
   }
   return courses;
 }
@@ -125,14 +125,14 @@ private getSectionBetweenLabels(text:string, startLabel:string, endLabel:string)
 private generateTerms = (startTerm:string|null, endTerm:string|null) => {
   const terms = ['Winter', 'Summer', 'Fall'];
   if (!startTerm || typeof startTerm !== 'string') return [];
-  const startYear = parseInt(startTerm.split(' ')[1]); // Extracting the year
+  const startYear = Number.parseInt(startTerm.split(' ')[1]); // Extracting the year
   const startSeason = startTerm.split(' ')[0]; // Extracting the season
   let endYear, endSeason;
   if (!endTerm || typeof endTerm !== 'string') {
     endYear = startYear + 2;
     endSeason = startSeason;
   } else {
-    endYear = parseInt(endTerm.split(' ')[1]); // Extracting the year
+    endYear = Number.parseInt(endTerm.split(' ')[1]); // Extracting the year
     endSeason = endTerm.split(' ')[0]; // Extracting the season
   }
 

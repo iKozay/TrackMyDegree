@@ -47,7 +47,7 @@ class PDFParsingController {
       const cleanText = pdfParseData.text;
       let data;
       if (!cleanText || cleanText.length === 0) {
-        throw Error('No text extracted from PDF.');
+        throw new Error('No text extracted from PDF.');
       }
       // Check if the text contains keywords specific to acceptance letters
       if (cleanText.toUpperCase().includes('OFFER OF ADMISSION')) {
@@ -116,7 +116,7 @@ function unifyParsedData(parsedData: any) {
     extractedCourses.push({
       term: `Exempted ${exemptYear}`,
       courses: parsedData.transferCredits.map((tc:any) =>
-        tc.courseCode.replace(/\s+/g, ''),
+        tc.courseCode.replaceAll(/\s+/, ''),
       ),
       grade: 'EX',
     });
@@ -126,7 +126,7 @@ function unifyParsedData(parsedData: any) {
     const termName = `${term.term} ${term.year}`;
     extractedCourses.push({
       term: termName,
-      courses: term.courses.map((tc:any) => tc.courseCode.replace(/\s+/g, '')),
+      courses: term.courses.map((tc:any) => tc.courseCode.replaceAll(/\s+/, '')),
       grade: term.termGPA,
     });
   }
