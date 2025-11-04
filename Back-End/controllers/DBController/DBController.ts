@@ -28,12 +28,39 @@ if (process.env.SQL_SERVER_PASSWORD_FILE) {
     console.error('Error reading SQL_SERVER_PASSWORD_FILE:', e);
   }
 }
-// Database connection configuration
-const sqlConfig: SQL.Config = {
+
+// Validate required environment variables
+const requiredEnvVars = {
   user: process.env.SQL_SERVER_USER,
   password: sqlPassword,
   database: process.env.SQL_SERVER_DATABASE,
   server: process.env.SQL_SERVER_HOST,
+};
+
+// Check if any required environment variable is missing
+const envVarMap: Record<string, string> = {
+  user: 'SQL_SERVER_USER',
+  password: 'SQL_SERVER_PASSWORD or SQL_SERVER_PASSWORD_FILE',
+  database: 'SQL_SERVER_DATABASE',
+  server: 'SQL_SERVER_HOST',
+};
+const missingVars = Object.entries(requiredEnvVars)
+  .filter(([_, value]) => !value)
+  .map(([key]) => envVarMap[key] || key);
+
+if (missingVars.length > 0) {
+  throw new Error(
+    `Missing required environment variables: ${missingVars.join(', ')}. ` +
+    `Please check your .env file or environment configuration.`
+  );
+}
+
+// Database connection configuration
+const sqlConfig: SQL.Config = {
+  user: requiredEnvVars.user as string,
+  password: requiredEnvVars.password as string,
+  database: requiredEnvVars.database as string,
+  server: requiredEnvVars.server as string,
   options: {
     encrypt: true, // for Azure SQL
     trustServerCertificate: true, // change to true for local dev/self-signed certs

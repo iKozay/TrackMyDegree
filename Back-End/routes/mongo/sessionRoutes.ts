@@ -1,9 +1,3 @@
-/**
- * Session Routes (MongoDB)
- *
- * Handles session management operations
- */
-
 import HTTP from '@Util/HTTPCodes';
 import express, { Request, Response } from 'express';
 import { authMiddleware } from '@middleware/authMiddleware';

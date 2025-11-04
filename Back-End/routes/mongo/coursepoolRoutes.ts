@@ -1,9 +1,3 @@
-/**
- * Course Pool Routes
- *
- * Handles course pool operations
- */
-
 import HTTP from '@Util/HTTPCodes';
 import express, { Request, Response } from 'express';
 import { coursepoolController } from '@controllers/mondoDBControllers';

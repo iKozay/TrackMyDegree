@@ -1,14 +1,8 @@
-/**
- * Auth Routes (MongoDB)
- *
- * Handles authentication operations using MongoDB
- */
-
 import HTTP from '@Util/HTTPCodes';
 import express, { Request, Response } from 'express';
 import { authController, UserType } from '@controllers/mondoDBControllers';
 import { jwtService } from '../../services/jwtService';
-import { UserHeaders } from '@Util/Session_Util';
+import { UserHeaders, verifySession } from '@Util/Session_Util';
 
 const router = express.Router();
 
@@ -74,7 +68,7 @@ router.post('/login', async (req: Request, res: Response) => {
     res.status(HTTP.OK).json({
       message: 'Login successful',
       user: {
-        _id: user._id,
+        id: user._id,
         email: user.email,
         fullname: user.fullname,
         type: user.type,
@@ -84,6 +78,51 @@ router.post('/login', async (req: Request, res: Response) => {
     console.error('Error in POST /auth/login', error);
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
+});
+
+/**
+ * POST /auth/refresh - Refresh JWT tokens
+ */
+router.post('/refresh', async (req: Request, res: Response) => {
+  const token = req.cookies?.refresh_token;
+  const userHeaders = extractUserHeaders(req);
+  if (!token)
+    return res
+      .status(HTTP.UNAUTHORIZED)
+      .json({ error: 'Missing refresh token' });
+
+  const payload = jwtService.verifyRefreshToken(token);
+  if (!payload)
+    return res
+      .status(HTTP.UNAUTHORIZED)
+      .json({ error: 'Invalid or expired refresh token' });
+
+  if (
+    payload.session_token &&
+    !verifySession(payload.session_token, userHeaders)
+  ) {
+    return res.status(HTTP.UNAUTHORIZED).json({ error: 'Session mismatch' });
+  }
+
+  const newAccessToken = jwtService.generateToken(
+    payload,
+    userHeaders,
+    payload.session_token,
+  );
+  const newRefreshToken = jwtService.generateToken(
+    payload,
+    userHeaders,
+    payload.session_token,
+    true,
+  );
+
+  const accessCookie = jwtService.setAccessCookie(newAccessToken);
+  const refreshCookie = jwtService.setRefreshCookie(newRefreshToken);
+
+  res.cookie(accessCookie.name, accessCookie.value, accessCookie.config);
+  res.cookie(refreshCookie.name, refreshCookie.value, refreshCookie.config);
+
+  res.status(HTTP.OK).json({ message: 'Tokens refreshed' });
 });
 
 /**
@@ -127,8 +166,7 @@ router.post('/signup', async (req: Request, res: Response) => {
 
     if (result) {
       res.status(HTTP.CREATED).json({
-        message: 'User registered successfully',
-        _id: result._id,
+        id: result._id,
       });
     } else {
       res.status(HTTP.CONFLICT).json({

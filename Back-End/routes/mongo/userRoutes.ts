@@ -1,9 +1,3 @@
-/**
- * User Routes
- *
- * Handles user CRUD operations, deficiencies, and exemptions
- */
-
 import HTTP from '@Util/HTTPCodes';
 import express, { Request, Response } from 'express';
 import { userController } from '@controllers/mondoDBControllers';
@@ -33,10 +27,7 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     const user = await userController.createUser(userData);
-    res.status(HTTP.CREATED).json({
-      message: 'User created successfully',
-      user,
-    });
+    res.status(HTTP.CREATED).json(user);
   } catch (error) {
     console.error('Error in POST /users', error);
     if (error instanceof Error && error.message.includes('already exists')) {
@@ -62,10 +53,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     const user = await userController.getUserById(id);
-    res.status(HTTP.OK).json({
-      message: 'User retrieved successfully',
-      user,
-    });
+    res.status(HTTP.OK).json(user);
   } catch (error) {
     console.error('Error in GET /users/:id', error);
     if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
@@ -82,10 +70,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.get('/', async (req: Request, res: Response) => {
   try {
     const users = await userController.getAllUsers();
-    res.status(HTTP.OK).json({
-      message: 'Users retrieved successfully',
-      users,
-    });
+    res.status(HTTP.OK).json(users);
   } catch (error) {
     console.error('Error in GET /users', error);
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
@@ -108,10 +93,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const user = await userController.updateUser(id, updates);
-    res.status(HTTP.OK).json({
-      message: 'User updated successfully',
-      user,
-    });
+    res.status(HTTP.OK).json(user);
   } catch (error) {
     console.error('Error in PUT /users/:id', error);
     if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
@@ -137,9 +119,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     }
 
     const message = await userController.deleteUser(id);
-    res.status(HTTP.OK).json({
-      message,
-    });
+    res.status(HTTP.OK).json(message);
   } catch (error) {
     console.error('Error in DELETE /users/:id', error);
     if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
@@ -165,10 +145,7 @@ router.get('/:id/data', async (req: Request, res: Response) => {
     }
 
     const userData = await userController.getUserData(id);
-    res.status(HTTP.OK).json({
-      message: 'User data retrieved successfully',
-      ...userData,
-    });
+    res.status(HTTP.OK).json(userData);
   } catch (error) {
     console.error('Error in GET /users/:id/data', error);
     if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
@@ -205,10 +182,7 @@ router.post(DEFICIENCIES_PATH, async (req: Request, res: Response) => {
       userId,
       creditsRequired,
     );
-    res.status(HTTP.CREATED).json({
-      message: 'Deficiency created successfully',
-      deficiency,
-    });
+    res.status(HTTP.CREATED).json(deficiency);
   } catch (error) {
     console.error('Error in POST /users/:userId/deficiencies', error);
     if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
@@ -239,10 +213,7 @@ router.get(DEFICIENCIES_PATH, async (req: Request, res: Response) => {
     }
 
     const deficiencies = await userController.getAllDeficienciesByUser(userId);
-    res.status(HTTP.OK).json({
-      message: 'Deficiencies retrieved successfully',
-      deficiencies,
-    });
+    res.status(HTTP.OK).json(deficiencies);
   } catch (error) {
     console.error('Error in GET /users/:userId/deficiencies', error);
     if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
@@ -273,10 +244,7 @@ router.put(DEFICIENCIES_PATH, async (req: Request, res: Response) => {
       userId,
       creditsRequired,
     );
-    res.status(HTTP.OK).json({
-      message: 'Deficiency updated successfully',
-      deficiency,
-    });
+    res.status(HTTP.OK).json(deficiency);
   } catch (error) {
     console.error('Error in PUT /users/:userId/deficiencies', error);
     if (error instanceof Error && error.message.includes('not found')) {
@@ -303,9 +271,7 @@ router.delete(DEFICIENCIES_PATH, async (req: Request, res: Response) => {
     }
 
     const message = await userController.deleteDeficiency(coursepool, userId);
-    res.status(HTTP.OK).json({
-      message,
-    });
+    res.status(HTTP.OK).json(message);
   } catch (error) {
     console.error('Error in DELETE /users/:userId/deficiencies', error);
     if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
@@ -338,10 +304,7 @@ router.post(EXEMPTION_PATH, async (req: Request, res: Response) => {
     }
 
     const result = await userController.createExemptions(coursecodes, userId);
-    res.status(HTTP.CREATED).json({
-      message: 'Exemptions processed successfully',
-      ...result,
-    });
+    res.status(HTTP.CREATED).json(result);
   } catch (error) {
     console.error('Error in POST /users/:userId/exemptions', error);
     if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
@@ -367,10 +330,7 @@ router.get(EXEMPTION_PATH, async (req: Request, res: Response) => {
     }
 
     const exemptions = await userController.getAllExemptionsByUser(userId);
-    res.status(HTTP.OK).json({
-      message: 'Exemptions retrieved successfully',
-      exemptions,
-    });
+    res.status(HTTP.OK).json(exemptions);
   } catch (error) {
     console.error('Error in GET /users/:userId/exemptions', error);
     if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
@@ -397,9 +357,7 @@ router.delete(EXEMPTION_PATH, async (req: Request, res: Response) => {
     }
 
     const message = await userController.deleteExemption(coursecode, userId);
-    res.status(HTTP.OK).json({
-      message,
-    });
+    res.status(HTTP.OK).json(message);
   } catch (error) {
     console.error('Error in DELETE /users/:userId/exemptions', error);
     if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {

@@ -1,9 +1,3 @@
-/**
- * Course Routes
- *
- * Handles course operations (read-only)
- */
-
 import HTTP from '@Util/HTTPCodes';
 import express, { Request, Response } from 'express';
 import {
@@ -33,10 +27,7 @@ router.get('/', async (req: Request, res: Response) => {
       sort: sort as string,
     });
 
-    res.status(HTTP.OK).json({
-      message: 'Courses retrieved successfully',
-      courses,
-    });
+    res.status(HTTP.OK).json(courses);
   } catch (error) {
     console.error('Error in GET /courses', error);
     res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
@@ -112,10 +103,7 @@ router.get('/:code', async (req: Request, res: Response) => {
     }
 
     const course = await courseController.getCourseByCode(code);
-    res.status(HTTP.OK).json({
-      message: 'Course retrieved successfully',
-      course,
-    });
+    res.status(HTTP.OK).json(course);
   } catch (error) {
     console.error('Error in GET /courses/:code', error);
     if (error instanceof Error && error.message.includes('not found')) {

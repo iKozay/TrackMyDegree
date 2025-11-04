@@ -1,6 +1,5 @@
 import { api } from './http-api-client';
 
-// API call for user login
 export const loginUser = async (email, hashed_password) => {
   try {
     const data = await api.post(

@@ -4,7 +4,8 @@
  * Purpose:
  *  - Sets up a Redis client for caching or quick key-value storage.
  * Notes:
- *  - Uses REDIS_URL from environment variables or defaults to 'redis://redis:6379'.
+ *  - Uses REDIS_URL from environment variables or defaults to 'redis://localhost:6379' for local development.
+ *  - For Docker/production, set REDIS_URL=redis://redis:6379 in environment variables.
  *  - Logs errors to Sentry and console.
  *  - Connects automatically on import and exports the client for use in other modules.
  */
@@ -12,7 +13,8 @@
 import { createClient } from 'redis';
 import Sentry from '@sentry/node';
 
-const redisUrl = process.env.REDIS_URL || 'redis://redis:6379';
+// Default to localhost for local development, override with REDIS_URL for Docker/production
+const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
 
 // Create a Redis client instance using the provided URL
 const redisClient = createClient({
