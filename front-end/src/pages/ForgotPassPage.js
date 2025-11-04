@@ -5,7 +5,6 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
-import { ForgotPassError } from '../middleware/SentryErrors';
 import { api } from '../api/http-api-client';
 
 //This page is used to help users that forgot their password. It checks if the email already exists in the database and if it does it redirects them to the ResetPassword page

@@ -1,6 +1,5 @@
 // src/pages/CourseListPage/hooks/useCourses.js
 import { useState, useRef, useCallback } from 'react';
-import { CourseListPageError } from '../../../middleware/SentryErrors';
 import { api } from '../../../api/http-api-client';
 
 /**

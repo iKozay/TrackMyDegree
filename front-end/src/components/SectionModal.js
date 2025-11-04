@@ -8,9 +8,6 @@ const CourseSectionButton = ({ title, hidden }) => {
     const [error, setError] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
 
-    const API_USERNAME = '866';
-    const API_PASSWORD = 'cc94383af23d42ea7f5dcc9d0e2c4edc';
-
     useEffect(() => {
         return () => {
             setSections([]);
@@ -110,12 +107,6 @@ const CourseSectionButton = ({ title, hidden }) => {
             if (isMounted) setLoading(false);
         }
     };
-
-    const sortedTerms = (grouped) => {
-        return Object.keys(grouped).sort((a, b) => b.localeCompare(a));
-    };
-
-    const groupedTerms = groupByTerm(sections);
 
     return (
         <div>

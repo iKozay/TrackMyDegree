@@ -5,7 +5,6 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
-import { ResetPassError } from '../middleware/SentryErrors';
 import { api } from '../api/http-api-client';
 
 //This is the page where the users can reset their password. This is just a form because the reset happens on the server side
