@@ -87,12 +87,12 @@ const ShowInsights = ({
         }
 
         const pool = coursePools.find((p) =>
-          p.courses.some((c) => c.code === genericCode),
+          p.courses.some((c) => c._id === genericCode),
         );
 
         if (!pool) return;
 
-        const course = pool.courses.find((c) => c.code === genericCode);
+        const course = pool.courses.find((c) => c._id === genericCode);
         if (!course) return;
 
         const poolData = poolCreditMap[pool.poolId];
@@ -129,12 +129,12 @@ const ShowInsights = ({
       ];
 
       const assignedCourses = assignedGenericCodes.filter((cCode) =>
-        pool.courses.some((c) => c.code === cCode),
+        pool.courses.some((c) => c._id === cCode),
       );
 
       const assignedCredits = assignedCourses
         .map((cCode) => {
-          const courseInPool = pool.courses.find((c) => c.code === cCode);
+          const courseInPool = pool.courses.find((c) => c._id === cCode);
           return courseInPool ? courseInPool.credits : 0;
         })
         .reduce((sum, c) => sum + c, 0);
@@ -146,8 +146,8 @@ const ShowInsights = ({
       const remainingCredits = Math.max(0, maxCredits - assignedCredits);
 
       const remainingCoursesInPool = pool.courses
-        .filter((course) => !assignedCourses.includes(course.code))
-        .map((course) => course.code);
+        .filter((course) => !assignedCourses.includes(course._id))
+        .map((course) => course._id);
 
       return {
         poolName: pool.poolName,
@@ -193,12 +193,12 @@ const ShowInsights = ({
     // Identify pools with more than 100 courses
     const largePools = coursePools.filter((pool) => pool.courses.length > 100);
     const largePoolCourseCodes = new Set(
-      largePools.flatMap((pool) => pool.courses.map((course) => course.code)),
+      largePools.flatMap((pool) => pool.courses.map((course) => course._id)),
     );
 
     // Get all course codes from all pools
     const allPoolCourses = coursePools.flatMap((pool) =>
-      pool.courses.map((course) => course.code),
+      pool.courses.map((course) => course._id),
     );
 
     // Calculate remaining courses, excluding those from large pools
@@ -211,7 +211,7 @@ const ShowInsights = ({
     // For each large pool, add a single "General Elective" entry to remainingCourses
     largePools.forEach((pool) => {
       // Check if any courses from this pool are unassigned
-      const poolCourses = pool.courses.map((course) => course.code);
+      const poolCourses = pool.courses.map((course) => course._id);
       const hasUnassignedCourses = poolCourses.some(
         (courseCode) => !assignedCourses.includes(courseCode),
       );

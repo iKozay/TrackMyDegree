@@ -41,9 +41,9 @@ export const buildTimelinePayload = ({
         ) {
             (semesterCourses[semester.id] || []).forEach((courseCode) => {
                 const genericCode = courseInstanceMap[courseCode] || courseCode;
-                const course = allCourses.find((c) => c.code === genericCode);
-                if (course && course.code) {
-                    exempted_courses.push(course.code);
+                const course = allCourses.find((c) => c._id === genericCode);
+                if (course && course._id) {
+                    exempted_courses.push(course._id);
                 }
             });
         }
@@ -51,8 +51,8 @@ export const buildTimelinePayload = ({
         const coursesForSemester = (semesterCourses[semester.id] || [])
             .map((courseCode) => {
                 const genericCode = courseInstanceMap[courseCode] || courseCode;
-                const course = allCourses.find((c) => c.code === genericCode);
-                return course && course.code ? { courseCode: course.code } : null;
+                const course = allCourses.find((c) => c._id === genericCode);
+                return course && course._id ? { courseCode: course._id } : null;
             })
             .filter(Boolean);
 
@@ -62,9 +62,9 @@ export const buildTimelinePayload = ({
 
     const deficiencyCoursescode = deficiencyCourses
         .map((courseCode) => {
-            const genericCode = courseInstanceMap[courseCode.code] || courseCode.code;
-            const course = allCourses.find((c) => c.code === genericCode);
-            return course && course.code ? { courseCode: course.code } : null;
+            const genericCode = courseInstanceMap[courseCode._id] || courseCode._id;
+            const course = allCourses.find((c) => c._id === genericCode);
+            return course && course._id ? { courseCode: course._id } : null;
         })
         .filter(Boolean);
 
@@ -142,8 +142,8 @@ export const parseCourses = (timelineInfo, courseInstanceMap, allCourses, extend
                 const newCourses = data.courses
                     .map((courseCode) => {
                         const genericCode = courseInstanceMap[courseCode] || courseCode;
-                        const course = allCourses.find((c) => c.code === genericCode);
-                        return course && course.code ? { code: course.code, credits: course.credits } : null;
+                        const course = allCourses.find((c) => c._id === genericCode);
+                        return course && course._id ? { code: course._id, credits: course.credits } : null;
                     })
                     .filter(Boolean);
 
@@ -303,7 +303,7 @@ export const calculateSemesterCredits = (semesterId, semesterCourses, courseInst
     const courses = semesterCourses[semesterId] || [];
     return courses.reduce((sum, cCode) => {
         const genericCode = courseInstanceMap[cCode] || cCode;
-        const course = allCourses.find((c) => c.code === genericCode);
+        const course = allCourses.find((c) => c._id === genericCode);
         return sum + (course?.credits || 0);
     }, 0);
 };
@@ -336,7 +336,7 @@ export const findSemesterIdByCourseCode = (courseCode, updatedSemesters) => {
 
 export const areRequisitesMet = (courseCode, currentSemesterIndex, courseInstanceMap, allCourses, semesters, semesterCourses) => {
     const genericCode = courseInstanceMap[courseCode] || courseCode;
-    const course = allCourses.find((c) => c.code === genericCode);
+    const course = allCourses.find((c) => c._id === genericCode);
 
     if (!course || !course.requisites || course.requisites.length === 0) {
         return true;
@@ -368,9 +368,9 @@ export const areRequisitesMet = (courseCode, currentSemesterIndex, courseInstanc
             const group = prerequisites.filter(
                 (p) => p.group_id === prereq.group_id
             );
-            return group.some((p) => completedCourses.includes(p.code2));
+            return group.some((p) => completedCourses.includes(p._id2));
         } else {
-            return completedCourses.includes(prereq.code2);
+            return completedCourses.includes(prereq._id2);
         }
     });
 
@@ -384,9 +384,9 @@ export const areRequisitesMet = (courseCode, currentSemesterIndex, courseInstanc
     const coreqMet = corequisites.every((coreq) => {
         if (coreq.group_id) {
             const group = corequisites.filter((c) => c.group_id === coreq.group_id);
-            return group.some((c) => availableCourses.includes(c.code2));
+            return group.some((c) => availableCourses.includes(c._id2));
         } else {
-            return availableCourses.includes(coreq.code2);
+            return availableCourses.includes(coreq._id2);
         }
     });
     return prereqMet && coreqMet;
@@ -442,12 +442,12 @@ export const calculateTotalCredits2 = (
 
             const pool =
                 coursePools.find((p) =>
-                    p.courses.some((c) => c.code === genericCode)
+                    p.courses.some((c) => c._id === genericCode)
                 ) || { poolId: 'remaining', courses: remainingCourses || [] };
 
             const course =
-                pool.courses.find((c) => c.code === genericCode) ||
-                allCourses.find((c) => c.code === genericCode);
+                pool.courses.find((c) => c._id === genericCode) ||
+                allCourses.find((c) => c._id === genericCode);
 
             if (!course) return;
 

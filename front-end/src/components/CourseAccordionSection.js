@@ -18,7 +18,7 @@ export default function CourseAccordionSection({
 }) {
     const visibleCourses = courses.filter((course) =>
         searchQuery.trim() === "" ||
-        course.code.toLowerCase().includes(searchQuery.toLowerCase())
+        course._id.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     if (visibleCourses.length === 0) return null;
@@ -29,19 +29,19 @@ export default function CourseAccordionSection({
             <Accordion.Body>
                 <Container>
                     {visibleCourses.map((course) => {
-                        const isSelected = selectedCourse?.code === course.code;
+                        const isSelected = selectedCourse?._id === course._id;
                         return (
                             <DraggableCourse
-                                key={`${containerId}-${course.code}`}
-                                internalId={`${containerId}-${course.code}`}
-                                courseCode={course.code}
-                                title={course.code}
-                                disabled={isCourseAssigned(course.code)}
+                                key={`${containerId}-${course._id}`}
+                                internalId={`${containerId}-${course._id}`}
+                                courseCode={course._id}
+                                title={course._id}
+                                disabled={isCourseAssigned(course._id)}
                                 isReturning={returning}
                                 isSelected={isSelected}
                                 onSelect={onSelect}
                                 containerId={containerId}
-                                isInTimeline={isCourseAssigned(course.code)}
+                                isInTimeline={isCourseAssigned(course._id)}
                                 onRemove={() => onRemoveCourse(course)}
                                 removeButton={
                                     onRemoveCourse ? (

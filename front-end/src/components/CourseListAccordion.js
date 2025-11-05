@@ -16,16 +16,16 @@ const CourseListAccordion = ({ courseList, selectedCourse, setSelectedCourse }) 
             <Container className="course-list-container">
               {courseSection.courses.map((course) => (
                 <Card
-                  key={course.code}
+                  key={course._id}
                   style={{
-                    backgroundColor: `${selectedCourse && course.code === selectedCourse.code ? 'lightgray' : 'white'}`,
+                    backgroundColor: `${selectedCourse && course._id === selectedCourse._id ? 'lightgray' : 'white'}`,
                   }}
                   onClick={() => setSelectedCourse(course)}
                   className="cursor-pointer course-card"
                 >
                   <Card.Body className="course-list-card-body">
                     <Card.Title className="course-code">
-                      {course.code.slice(0, 4)} {course.code.slice(4)}
+                      {course._id.slice(0, 4)} {course._id.slice(4)}
                     </Card.Title>
                     <Card.Subtitle className="course-credits">{course.credits} credits</Card.Subtitle>
                     <Card.Text className="course-title">{course.title.slice(9)}</Card.Text>

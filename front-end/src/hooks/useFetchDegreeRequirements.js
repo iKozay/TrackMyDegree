@@ -21,7 +21,7 @@ export const useFetchDegreeRequirements = (state, degree_Id, addExemptionCourse)
 
                     for (const code of state.exemptionCodes) {
                         if (courseListData.includes(code)) {
-                            const course = state.allCourses.find((c) => c.code === code);
+                            const course = state.allCourses.find((c) => c._id === code);
                             if (course) addExemptionCourse(course);
                         }
                     }

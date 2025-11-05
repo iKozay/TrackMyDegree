@@ -29,8 +29,8 @@ export const SemesterColumn = ({
     .map((instanceId) => {
       const genericCode = courseInstanceMap[instanceId] || instanceId;
       if (index !== firstOccurrence[genericCode]) return 0;
-      const courseInPool = coursePools.flatMap((pool) => pool.courses).find((c) => c.code === genericCode);
-      const courseInRemaining = remainingCourses.find((c) => c.code === genericCode);
+      const courseInPool = coursePools.flatMap((pool) => pool.courses).find((c) => c._id === genericCode);
+      const courseInRemaining = remainingCourses.find((c) => c._id === genericCode);
       const course = courseInPool || courseInRemaining;
       return course ? course.credits : 0;
     })
@@ -48,9 +48,9 @@ export const SemesterColumn = ({
         <SortableContext items={courses} strategy={verticalListSortingStrategy}>
           {courses.map((instanceId) => {
             const genericCode = courseInstanceMap[instanceId] || instanceId;
-            const course = allCourses.find((c) => c.code === genericCode);
+            const course = allCourses.find((c) => c._id === genericCode);
             if (!course) return null;
-            const prerequisitesMet = arePrerequisitesMet(course.code, index);
+            const prerequisitesMet = arePrerequisitesMet(course._id, index);
             const offeredCheck = isCourseOfferedInSemester(course, semesterName);
             return (
               <CourseItem

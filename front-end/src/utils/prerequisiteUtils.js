@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 export const arePrerequisitesMet = (courseCode, currentSemesterIndex, courseInstanceMap, allCourses, semesters, semesterCourses) => {
     const genericCode = courseInstanceMap[courseCode] || courseCode;
-    const course = allCourses.find((c) => c.code === genericCode);
+    const course = allCourses.find((c) => c._id === genericCode);
 
     if (!course || !course.requisites || course.requisites.length === 0) {
         return true;
@@ -33,9 +33,9 @@ export const arePrerequisitesMet = (courseCode, currentSemesterIndex, courseInst
             const group = prerequisites.filter(
                 (p) => p.group_id === prereq.group_id
             );
-            return group.some((p) => completedCourses.includes(p.code2));
+            return group.some((p) => completedCourses.includes(p._id2));
         } else {
-            return completedCourses.includes(prereq.code2);
+            return completedCourses.includes(prereq._id2);
         }
     });
 
@@ -49,9 +49,9 @@ export const arePrerequisitesMet = (courseCode, currentSemesterIndex, courseInst
     const coreqMet = corequisites.every((coreq) => {
         if (coreq.group_id) {
             const group = corequisites.filter((c) => c.group_id === coreq.group_id);
-            return group.some((c) => availableCourses.includes(c.code2));
+            return group.some((c) => availableCourses.includes(c._id2));
         } else {
-            return availableCourses.includes(coreq.code2);
+            return availableCourses.includes(coreq._id2);
         }
     });
 
