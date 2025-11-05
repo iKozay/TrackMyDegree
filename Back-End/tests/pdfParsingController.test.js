@@ -2,7 +2,7 @@ const request = require('supertest');
 const express = require('express');
 const pdfParsingControllerModule = require('../controllers/pdfParsingController/pdfParsingController');
 const pdfParse = require('pdf-parse');
-
+const { Buffer } = require('node:buffer');
 // Pull out the controller and middleware
 const pdfParsingController = pdfParsingControllerModule.default;
 const uploadMiddleware = pdfParsingControllerModule.uploadMiddleware;
