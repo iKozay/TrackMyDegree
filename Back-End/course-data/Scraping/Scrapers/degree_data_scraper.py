@@ -116,13 +116,10 @@ except Exception as e:
     print(f"Error processing course block: {e}")
     sys.exit(1)
 
-#Save to JSON files
-output_path = sys.argv[2]
-with open(output_path+"/course_pool.json", 'w', encoding='utf-8') as json_file:
-    json.dump(course_pool, json_file, indent=4, ensure_ascii=False)
-with open(output_path+"/degree.json", 'w', encoding='utf-8') as json_file:
-    json.dump(degree, json_file, indent=4, ensure_ascii=False)
-with open(output_path+"/courses.json", 'w', encoding='utf-8') as json_file:
-    json.dump(courses, json_file, indent=4, ensure_ascii=False)
-
-print(f"Scraped data has been saved to {output_path}")
+#Output as JSON
+output={
+    "degree":degree,
+    "course_pool":course_pool,
+    "courses":courses
+}
+sys.stdout.buffer.write(json.dumps(output, ensure_ascii=False).encode('utf-8'))
