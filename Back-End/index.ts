@@ -27,7 +27,7 @@ import requisiteRouter from '@routes/requisite';
 import feedbackRouter from '@routes/feedback';
 import sessionRouter from '@routes/session';
 import sectionsRoutes from '@routes/sectionsRoutes';
-import transcriptRouter from '@routes/transcript';
+import uploadRouter from '@routes/upload';
 import mongoRouter from '@routes/mongo';
 
 // sentry init
@@ -69,7 +69,7 @@ app.use('/requisite', requisiteRouter);
 app.use('/feedback', feedbackRouter);
 app.use('/session', sessionRouter);
 app.use('/section', sectionsRoutes);
-app.use('/transcript', transcriptRouter);
+app.use('/upload', uploadRouter);
 
 // MongoDB consolidated routes
 app.use('/v2', mongoRouter);

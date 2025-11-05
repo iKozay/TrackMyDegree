@@ -3,10 +3,9 @@ import { Carousel } from 'react-bootstrap';
 import '../css/Carousel.css';
 import pic1 from '../images/courselistpage.png';
 import pic2 from '../images/uploadAcceptanceletter.png';
-import pic3 from '../images/uploadtranscript.png';
 import pic4 from '../images/timelinepage.png';
 
-const images = [pic1, pic2, pic3, pic4];
+const images = [pic1, pic2, pic4];
 
 const ImageCarousel = () => {
   return (

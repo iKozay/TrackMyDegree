@@ -6,33 +6,32 @@ import { motion } from 'framer-motion';
 import * as Sentry from '@sentry/react';
 import InformationForm from '../components/InformationForm';
 import UploadBox from '../components/UploadBox';
-import { parsePdfFile, extractAcceptanceDetails } from '../utils/AcceptanceUtils';
 import { api } from '../api/http-api-client';
+import InstructionsModal from '../components/InstructionModal';
 
-//This page creates an initial timeline using either manually entered information or by parsing an acceptance letter
+//This page creates an initial timeline using either manually entered information or by parsing an acceptance letter or a transcript
 /**
  * TimelineSetupPage Component - Dual-mode timeline creation page
  *
  * Two creation paths:
  * 1. Manual Form: User selects degree, starting term/year, and program options (Co-op/Extended Credit)
- * 2. PDF Upload: Processes acceptance letter PDFs to auto-extract degree, terms, exemptions, and program info
+ * 2. PDF Upload: Processes acceptance letter or transcript PDFs to auto-extract degree, terms, exemptions, and program info
  *
  * Backend Integration:
  * - Fetches available degrees from server API (/degree/getAllDegrees)
  * - Uses Sentry for error tracking
- *
- * PDF Processing (client-side):
- * - Extracts degree concentration, starting/graduation terms, co-op eligibility
- * - Identifies exempted courses, transfer credits, and credit deficiencies
- * - Validates document is an "Offer of Admission" letter
+ * - PDF Parsing: Uploads files to server API (/upload/parse) for data extraction
  *
  * Navigation: Redirects to TimelinePage (/timeline_change) with extracted/selected data
  * Storage: Clears previous timeline data in localStorage before processing
  */
 const TimelineSetupPage = ({ onDataProcessed }) => {
   const isFirstRender = useRef(true);
-  const [degrees, setDegrees] = useState([]);
+  const [degrees, setDegrees] = useState();
   const navigate = useNavigate();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const toggleModal = () => setIsModalOpen(!isModalOpen);
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -40,17 +39,16 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
       isFirstRender.current = false;
     }
   }, [onDataProcessed]);
-
+  
+  
   useEffect(() => {
     // get a list of all degrees by name
-    // TODO: Add loader while fetching degrees from API
     const getDegrees = async () => {
-      // TODO: Add proper error handling and user feedback for API failures
       try {
-        const jsonData = await api.post('/degree/getAllDegrees');
-        console.log('Degrees:', jsonData);
-        setDegrees(jsonData.degrees);
+        const response = await api.post(`/degree/getAllDegrees`); //this should be a get request but backend is currently set to post
+        setDegrees(response.degrees);
       } catch (err) {
+        alert('Error fetching degrees from server. Please try again later.');
         Sentry.captureException(err);
         console.error(err.message);
       }
@@ -58,38 +56,57 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
     getDegrees();
   }, []);
 
-  const processFile = (file) => {
-    parsePdfFile(file).then((data) => {
-      const extractedData = extractAcceptanceDetails(data);
-      const transcriptData = extractedData.results;
-      const degree = extractedData.details?.degreeConcentration.toLowerCase() || 'Unknown Degree';
+  const processFile = async (file) => {
+    localStorage.setItem('Timeline_Name', null);
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const response = await api.post(`/upload/parse`, formData);
+      const { extractedCourses, details } = response.data;
+      if (!extractedCourses && !details) return;
+
+      if (!degrees || degrees.length === 0) {
+        alert('Error fetching degrees from server. Please try again later.');
+        return;
+      }
+
+      // Match extracted degree with available degrees
+      const degree = details.degreeConcentration?.toLowerCase() || 'Unknown Degree';
       const matched_degree = degrees.find(
         (d) => degree.toLowerCase().includes(d.name.split(' ').slice(1).join(' ').toLowerCase()), // remove first word (BcompsC/Beng/etc.) and match rest
       );
-      const credits_Required = extractedData.details?.minimumProgramLength || matched_degree?.totalCredits;
-      const isExtendedCredit = extractedData.details?.extendedCreditProgram || false;
-      const degreeId = matched_degree?.id || 'Unknown';
 
-      if (transcriptData.length > 0) {
-        localStorage.setItem('Timeline_Name', null);
-        console.log(transcriptData);
-        onDataProcessed({
-          transcriptData,
-          degreeId,
-          isExtendedCredit,
-        });
-        navigate('/timeline_change', {
-          state: {
-            coOp: extractedData.details.coopProgram,
-            credits_Required: credits_Required,
-            extendedCredit: extractedData.details.extendedCreditProgram,
-            creditDeficiency: extractedData.details.deficienciesCourses?.length > 0,
-          },
-        }); // Navigate to TimelinePage
-      } else {
-        alert('No transcript data extracted. Please ensure the PDF is a valid transcript.');
+      if (!matched_degree) {
+        alert(
+          `The extracted degree "${details.degreeConcentration}" does not match any available degrees in our system.`,
+        );
+        return;
       }
-    });
+
+      if (!extractedCourses || extractedCourses.length === 0) {
+        alert('No Course Extracted From the Document.');
+        return; //maybe don't return and let the user proceed with an empty timeline?
+      }
+
+      //send the processed data to the TimelinePage
+      onDataProcessed({
+        transcriptData: extractedCourses,
+        degreeId: matched_degree.id,
+        isExtendedCredit: details.extendedCreditProgram || false,
+        credits_Required: details.minimumProgramLength || matched_degree?.totalCredits,
+      });
+      navigate('/timeline_change', {
+        state: {
+          coOp: details.coopProgram,
+          credits_Required: details.minimumProgramLength || matched_degree?.totalCredits,
+          extendedCredit: details.extendedCreditProgram,
+          creditDeficiency: details.deficienciesCourses?.length > 0,
+        },
+      }); // Navigate to TimelinePage
+    } catch (error) {
+      console.error('Error processing transcript file:', error);
+      alert(error.message || 'An error occurred while processing the file.');
+    }
   };
 
   return (
@@ -101,19 +118,23 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
           <div className="or-divider">OR</div>
 
           <div className="upload-container-al">
-            <h2>Upload Acceptance Letter</h2>
-            <p>Upload your acceptance letter to automatically fill out the required information</p>
+            <h2>Upload Acceptance Letter or Unofficial Transcript </h2>
+            <p>
+              Upload your acceptance letter or your unofficial transcript to automatically fill out the required
+              information
+            </p>
             <UploadBox processFile={processFile} />
 
             <hr className="divider" />
 
-            <p>To upload your unofficial transcript, please click here!</p>
-            <button className="upload-transcript-button" onClick={() => navigate('/uploadTranscript')}>
-              Upload Transcript
+            <p>Click here to get see a guide on how to get the unofficial transcript!</p>
+            <button onClick={toggleModal} className="open-modal-btn">
+              How to Download Your Transcript
             </button>
           </div>
         </div>
       </div>
+      <InstructionsModal isOpen={isModalOpen} toggleModal={toggleModal} />
     </motion.div>
   );
 };

@@ -34,6 +34,7 @@ jest.mock('express', () => {
   return express;
 });
 
+
 jest.mock('cookie-parser', () => jest.fn());
 jest.mock('dotenv', () => ({ config: jest.fn() }));
 
@@ -59,8 +60,9 @@ jest.mock('@routes/requisite', () => createMockRouter());
 jest.mock('@routes/feedback', () => createMockRouter());
 jest.mock('@routes/session', () => createMockRouter());
 jest.mock('@routes/sectionsRoutes', () => createMockRouter());
-jest.mock('@routes/transcript', () => createMockRouter());
+jest.mock('@routes/upload', () => createMockRouter());
 jest.mock('@routes/mongo', () => createMockRouter());
+
 
 jest.mock('@controllers/DBController/DBController', () => ({
   getConnection: jest.fn().mockResolvedValue({
@@ -177,7 +179,7 @@ describe('index.ts', () => {
     expect(app.use).toHaveBeenCalledWith('/feedback', expect.anything());
     expect(app.use).toHaveBeenCalledWith('/session', expect.anything());
     expect(app.use).toHaveBeenCalledWith('/section', expect.anything());
-    expect(app.use).toHaveBeenCalledWith('/transcript', expect.anything());
+    expect(app.use).toHaveBeenCalledWith('/upload', expect.anything());
     expect(app.use).toHaveBeenCalledWith('/v2', expect.anything());
   });
 
