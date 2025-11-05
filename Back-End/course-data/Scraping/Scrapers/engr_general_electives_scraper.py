@@ -24,8 +24,8 @@ def scrape_electives():
         courses=courses+course_data_scraper.extract_course_data('ANY',urljoin(url,faculty.get('href')))
 
     for course in courses:
-        if course["id"] not in excluded_courses:
-            course_codes.append(course["id"])
+        if course["_id"] not in excluded_courses:
+            course_codes.append(course["_id"])
         else:
             courses.remove(course)
     return [course_codes, courses]

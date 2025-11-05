@@ -21,6 +21,7 @@ headers = {"User-Agent": USERAGENT}
 courses = []
 course_pool=[]
 degree = {
+    '_id':"",
     'name':"",
     'totalCredits':0,
     'coursePools':[]
@@ -99,6 +100,7 @@ try:
         temp_url = re.sub(r'#\d+$', '', temp_url)
         course_list=get_courses(temp_url, name)
         course_pool.append({
+            '_id': name,
             'name': name,
             'creditsRequired': credits,
             'courses':course_list
@@ -109,6 +111,7 @@ try:
     title = soup.find('div', class_="title program-title").find('h3').text
     match = re.search(r'(.+?)\s*\(\s*(\d+)\s+credits\s*\)', title, re.IGNORECASE)
     degree["name"] = match.group(1).strip()
+    degree["_id"]=degree["name"]
     degree["totalCredits"] = int(match.group(2))
 
     handle_engineering_core_restrictions(degree["name"])

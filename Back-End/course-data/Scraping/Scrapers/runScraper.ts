@@ -24,7 +24,7 @@ const degreesURL: DegreeURLMap = {
  * @param degreeName - The name of the degree whose URL will be passed as an argument.
  * @returns A promise that resolves to the parsed JSON object (courses, etc.).
  */
-function runScraper(degreeName: string): Promise<any> {
+export function runScraper(degreeName: string): Promise<any> {
     return new Promise((resolve, reject) => {
         // Check if the degree name is valid
         if (!degreesURL[degreeName]) {

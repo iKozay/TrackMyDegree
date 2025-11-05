@@ -141,7 +141,8 @@ def extract_course_data(course_code, url):
         prereq, coreq = parse_prereq_coreq(sections.get("Prerequisite/Corequisite:", ""), clean_text)
 
         course={
-            "id": course_id,
+            "_id":course_id,
+            "code": course_id,
             "title": title,
             "credits": course_credits,
             "description": sections.get("Description:", ""),
