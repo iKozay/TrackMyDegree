@@ -8,6 +8,14 @@ import AdminPage from 'front-end/src/pages/AdminPage';
 global.fetch = jest.fn();
 global.alert = jest.fn();
 
+// Helper to create mock headers
+const createMockHeaders = () => ({
+  get: (name) => {
+    if (name === 'Content-Type') return 'application/json';
+    return null;
+  },
+});
+
 // Mock framer-motion to avoid animation issues in tests
 jest.mock('framer-motion', () => ({
   motion: {
@@ -29,7 +37,9 @@ const renderWithRouter = (component) => {
 describe('AdminPage Integration Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.REACT_APP_SERVER = 'http://localhost:5000';
+    if (!process.env.REACT_APP_SERVER) {
+      process.env.REACT_APP_SERVER = 'http://localhost:8000';
+    }
   });
 
   describe('initial loading', () => {
@@ -47,20 +57,22 @@ describe('AdminPage Integration Tests', () => {
       // Mock backups fetch
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: ['backup1.sql'] }),
       });
 
       // Mock tables fetch
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: ['users', 'courses'] }),
       });
 
       renderWithRouter(<AdminPage />);
 
       await waitFor(() => {
-        expect(fetch).toHaveBeenCalledWith('http://localhost:5000/admin/fetch-backups', expect.any(Object));
-        expect(fetch).toHaveBeenCalledWith('http://localhost:5000/admin/tables', expect.any(Object));
+        expect(fetch).toHaveBeenCalledWith('http://localhost:8000/admin/fetch-backups', expect.any(Object));
+        expect(fetch).toHaveBeenCalledWith('http://localhost:8000/admin/tables', expect.any(Object));
       });
     });
   });
@@ -70,12 +82,14 @@ describe('AdminPage Integration Tests', () => {
       // Mock backups fetch
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
       // Mock tables fetch
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: ['users', 'courses'] }),
       });
     });
@@ -105,6 +119,7 @@ describe('AdminPage Integration Tests', () => {
       // Mock records fetch
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: mockRecords }),
       });
 
@@ -131,10 +146,12 @@ describe('AdminPage Integration Tests', () => {
       // Initial setup mocks
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: ['users'] }),
       });
 
@@ -147,6 +164,7 @@ describe('AdminPage Integration Tests', () => {
       // Select table
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [{ id: 1, name: 'John' }] }),
       });
 
@@ -159,6 +177,7 @@ describe('AdminPage Integration Tests', () => {
       // Perform search
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [{ id: 1, name: 'John' }] }),
       });
 
@@ -166,7 +185,7 @@ describe('AdminPage Integration Tests', () => {
       fireEvent.change(searchBar, { target: { value: 'john' } });
 
       await waitFor(() => {
-        expect(fetch).toHaveBeenCalledWith('http://localhost:5000/admin/tables/users?keyword=john', expect.any(Object));
+        expect(fetch).toHaveBeenCalledWith('http://localhost:8000/admin/tables/users?keyword=john', expect.any(Object));
       });
     });
   });
@@ -176,12 +195,14 @@ describe('AdminPage Integration Tests', () => {
       // Mock backups fetch
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: ['backup1.sql', 'backup2.sql'] }),
       });
 
       // Mock tables fetch
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: ['users'] }),
       });
     });
@@ -205,12 +226,14 @@ describe('AdminPage Integration Tests', () => {
       // Mock create backup
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true }),
       });
 
       // Mock refresh backups
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: ['backup1.sql', 'backup2.sql', 'new-backup.sql'] }),
       });
 
@@ -218,7 +241,7 @@ describe('AdminPage Integration Tests', () => {
       fireEvent.click(createButton);
 
       await waitFor(() => {
-        expect(fetch).toHaveBeenCalledWith('http://localhost:5000/admin/create-backup', expect.any(Object));
+        expect(fetch).toHaveBeenCalledWith('http://localhost:8000/admin/create-backup', expect.any(Object));
         expect(alert).toHaveBeenCalledWith(expect.stringContaining('successfully'));
       });
     });
@@ -238,10 +261,12 @@ describe('AdminPage Integration Tests', () => {
       // Mock initial fetches
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: ['users'] }),
       });
     });
@@ -263,6 +288,7 @@ describe('AdminPage Integration Tests', () => {
 
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true }),
       });
 
@@ -270,7 +296,7 @@ describe('AdminPage Integration Tests', () => {
       fireEvent.click(seedButton);
 
       await waitFor(() => {
-        expect(fetch).toHaveBeenCalledWith('http://localhost:5000/admin/seed-data', expect.any(Object));
+        expect(fetch).toHaveBeenCalledWith('http://localhost:8000/admin/seed-data', expect.any(Object));
         expect(alert).toHaveBeenCalledWith('Data seeding successful!');
       });
     });
@@ -302,6 +328,7 @@ describe('AdminPage Integration Tests', () => {
 
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: false, message: 'Seeding failed' }),
       });
 
@@ -319,12 +346,14 @@ describe('AdminPage Integration Tests', () => {
       // Mock backups fetch success
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
       // Mock tables fetch failure
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: false }),
       });
 
@@ -339,12 +368,14 @@ describe('AdminPage Integration Tests', () => {
       // Mock backups fetch
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
       // Mock tables fetch with 403
       fetch.mockResolvedValueOnce({
         ok: false,
+        headers: createMockHeaders(),
       });
 
       renderWithRouter(<AdminPage />);
@@ -361,10 +392,12 @@ describe('AdminPage Integration Tests', () => {
       // Initial setup
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: ['users', 'courses'] }),
       });
 
@@ -377,6 +410,7 @@ describe('AdminPage Integration Tests', () => {
       // Select table
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({
           success: true,
           data: [
@@ -396,6 +430,7 @@ describe('AdminPage Integration Tests', () => {
       // Perform search
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({
           success: true,
           data: [{ id: 1, name: 'John' }],

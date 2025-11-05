@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { AdminPageError } from '../../../middleware/SentryErrors';
+import { api } from '../../../api/http-api-client';
 
 /**
  * Custom hook for fetching and managing table records
@@ -11,51 +12,47 @@ const useTableRecords = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const SERVER_URL = process.env.REACT_APP_SERVER;
+  const fetchRecords = useCallback(async (tableName, keyword = '') => {
+    if (!tableName) return;
 
-  const fetchRecords = useCallback(
-    async (tableName, keyword = '') => {
-      if (!tableName) return;
+    setLoading(true);
+    setError('');
 
-      setLoading(true);
-      setError('');
+    try {
+      let endpoint = `/admin/tables/${tableName}`;
+      if (keyword) {
+        endpoint += `?keyword=${encodeURIComponent(keyword)}`;
+      }
 
-      try {
-        let url = `${SERVER_URL}/admin/tables/${tableName}`;
-        if (keyword) {
-          url += `?keyword=${encodeURIComponent(keyword)}`;
-        }
-
-        let response = await fetch(url, {
-          method: 'POST',
+      const response = await api.post(
+        endpoint,
+        {},
+        {
           credentials: 'include',
-        });
+        },
+      );
 
-        response = await response.json();
-
-        if (response.success) {
-          if (Array.isArray(response.data)) {
-            setRecords(response.data);
-            if (response.data.length > 0) {
-              setColumns(Object.keys(response.data[0]));
-            } else {
-              setColumns([]);
-            }
+      if (response.success) {
+        if (Array.isArray(response.data)) {
+          setRecords(response.data);
+          if (response.data.length > 0) {
+            setColumns(Object.keys(response.data[0]));
           } else {
-            throw new AdminPageError('Records data is not an array');
+            setColumns([]);
           }
         } else {
-          throw new AdminPageError('Failed to fetch records');
+          throw new AdminPageError('Records data is not an array');
         }
-      } catch (err) {
-        console.error('Error fetching table records:', err);
-        setError('Error fetching table records');
-      } finally {
-        setLoading(false);
+      } else {
+        throw new AdminPageError('Failed to fetch records');
       }
-    },
-    [SERVER_URL],
-  );
+    } catch (err) {
+      console.error('Error fetching table records:', err);
+      setError('Error fetching table records');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const handleSearch = useCallback(
     (tableName, searchKeyword) => {

@@ -18,10 +18,12 @@ export type {
   RequisiteData,
 } from './CourseController';
 
+export { CoursePoolController, coursepoolController } from './CoursepoolController';
+export type { CoursePoolData } from './CoursepoolController';
+
 export { DegreeController, degreeController } from './DegreeController';
 export type {
   DegreeData,
-  CoursePoolData,
   DegreeXCPData,
   CoursePoolInfo,
 } from './DegreeController';

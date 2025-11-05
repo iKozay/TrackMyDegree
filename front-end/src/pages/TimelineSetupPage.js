@@ -7,6 +7,7 @@ import * as Sentry from '@sentry/react';
 import InformationForm from '../components/InformationForm';
 import UploadBox from '../components/UploadBox';
 import { parsePdfFile, extractAcceptanceDetails } from '../utils/AcceptanceUtils';
+import { api } from '../api/http-api-client';
 
 //This page creates an initial timeline using either manually entered information or by parsing an acceptance letter
 /**
@@ -28,8 +29,6 @@ import { parsePdfFile, extractAcceptanceDetails } from '../utils/AcceptanceUtils
  * Navigation: Redirects to TimelinePage (/timeline_change) with extracted/selected data
  * Storage: Clears previous timeline data in localStorage before processing
  */
-const REACT_APP_SERVER = process.env.REACT_APP_SERVER || 'http://localhost:8000';
-
 const TimelineSetupPage = ({ onDataProcessed }) => {
   const isFirstRender = useRef(true);
   const [degrees, setDegrees] = useState([]);
@@ -48,14 +47,7 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
     const getDegrees = async () => {
       // TODO: Add proper error handling and user feedback for API failures
       try {
-        const response = await fetch(`${REACT_APP_SERVER}/degree/getAllDegrees`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const jsonData = await response.json();
+        const jsonData = await api.post('/degree/getAllDegrees');
         console.log('Degrees:', jsonData);
         setDegrees(jsonData.degrees);
       } catch (err) {

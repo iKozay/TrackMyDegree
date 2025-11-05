@@ -33,6 +33,88 @@ describe('CourseController', () => {
     });
   });
 
+  describe('createCourse', () => {
+    it('should create a new course', async () => {
+      const courseData = {
+        _id: 'COMP101',
+        title: 'Introduction to Programming',
+        description: 'Basic programming concepts',
+        credits: 3,
+        offeredIn: ['Fall', 'Winter'],
+        prerequisites: ['MATH101'],
+        corequisites: [],
+      };
+
+      const result = await courseController.createCourse(courseData);
+      expect(result).toHaveProperty('_id', courseData._id);
+    });
+
+    it('should handle database errors', async () => {
+      // Mock create to throw an error
+      const originalCreate = courseController.create;
+      courseController.create = jest.fn().mockImplementation(() => {
+        throw new Error('Database connection failed');
+      });
+      const courseData = {
+        _id: 'COMP101',
+        title: 'Introduction to Programming',
+        description: 'Basic programming concepts',
+        credits: 3,
+        offeredIn: ['Fall', 'Winter'],
+        prerequisites: ['MATH101'],
+        corequisites: [],
+      };
+
+      await expect(
+        courseController.createCourse(courseData),).rejects.toThrow('Database connection failed');
+
+      // Restore original method
+      courseController.create = originalCreate;
+    });
+  });
+
+  describe('updateCourse', () => {
+    it('should update an existing course', async () => {
+      const courseData = {
+        _id: 'COMP101',
+        title: 'Introduction to Programming',
+        description: 'Basic programming concepts',
+        credits: 3,
+        offeredIn: ['Fall', 'Winter'],
+        prerequisites: ['MATH101'],
+        corequisites: [],
+      };
+
+      await Course.create(courseData);
+
+      const result = await courseController.updateCourse(courseData);
+      expect(result).toHaveProperty('_id', courseData._id);
+    });
+
+    it('should handle database errors', async () => {
+      // Mock update to throw an error
+      const originalUpdate = courseController.updateById;
+      courseController.updateById = jest.fn().mockImplementation(() => {
+        throw new Error('Database connection failed');
+      });
+      const courseData = {
+        _id: 'COMP101',
+        title: 'Introduction to Programming',
+        description: 'Basic programming concepts',
+        credits: 3,
+        offeredIn: ['Fall', 'Winter'],
+        prerequisites: ['MATH101'],
+        corequisites: [],
+      };
+
+      await expect(
+        courseController.updateCourse(courseData),).rejects.toThrow('Database connection failed');
+
+      // Restore original method
+      courseController.updateById = originalUpdate;
+    });
+  });
+
   describe('getAllCourses', () => {
     beforeEach(async () => {
       await Course.create([
@@ -287,6 +369,38 @@ describe('CourseController', () => {
       // Restore original method
       courseController.findAll = originalFindAll;
     });
+  });
+
+  describe('deleteCourse', () => {
+    it('should delete an existing course', async () => {
+      const courseData = {
+        _id: 'COMP101',
+        title: 'Introduction to Programming',
+        description: 'Basic programming concepts',
+        credits: 3,
+        offeredIn: ['Fall', 'Winter'],
+        prerequisites: ['MATH101'],
+        corequisites: [],
+      };
+
+      await Course.create(courseData);
+      const result = await courseController.deleteCourse('COMP101');
+      expect(result).toBe("Course 'COMP101' deleted successfully.");
+    });
+
+    it('should handle database errors', async () => {
+      // Mock deleteById to throw an error
+      const originalDeleteById = courseController.deleteById;
+      courseController.deleteById = jest.fn().mockImplementation(() => {
+        throw new Error('Database connection failed');
+      });
+
+      await expect(
+        courseController.deleteCourse('COMP101')).rejects.toThrow('Database connection failed');
+      // Restore original method
+      courseController.deleteById = originalDeleteById;
+    });
+
   });
 
   describe('createRequisite', () => {
