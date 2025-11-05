@@ -42,7 +42,7 @@ const InstructionsModal = ({ isOpen, toggleModal }) => {
     )
   );
 };
-PropTypes.InstructionsModal = {
+InstructionsModal.PropTypes = {
   isOpen: PropTypes.bool.isRequired,
   toggleModal: PropTypes.func.isRequired,
 };
