@@ -1,37 +1,33 @@
 import { api } from './http-api-client';
 
-export const loginUser = async (email, hashed_password) => {
+export const loginUser = async (email, password) => {
   try {
-    const data = await api.post(
+    return await api.post(
       '/auth/login',
       {
         email,
-        hashed_password,
+        password,
       },
       {
         credentials: 'include',
       },
     );
-    return data;
   } catch (err) {
-    // The API client throws errors, so we need to handle them
     if (err.message && err.message.includes('HTTP')) {
-      // Extract error message if available
       throw new Error('Failed to log in.');
     }
     throw err;
   }
 };
 
-// API call for user signup
-export const signupUser = async (fullname, email, hashed_password, type = 'student') => {
+export const signupUser = async (fullname, email, password, type = 'student') => {
   try {
     return await api.post(
       '/auth/signup',
       {
         fullname,
         email,
-        hashed_password,
+        password,
         type,
       },
       {
@@ -39,9 +35,7 @@ export const signupUser = async (fullname, email, hashed_password, type = 'stude
       },
     );
   } catch (err) {
-    // The API client throws errors, so we need to handle them
     if (err.message && err.message.includes('HTTP')) {
-      // Extract error message if available
       throw new Error('Failed to sign up.');
     }
     throw err;

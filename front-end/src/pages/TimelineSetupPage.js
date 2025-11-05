@@ -47,9 +47,9 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
     const getDegrees = async () => {
       // TODO: Add proper error handling and user feedback for API failures
       try {
-        const jsonData = await api.get('/degree');
-        console.log('Degrees:', jsonData);
-        setDegrees(jsonData.degrees);
+        const degrees = await api.get('/degree');
+        console.log('Degrees:', degrees);
+        setDegrees(degrees);
       } catch (err) {
         Sentry.captureException(err);
         console.error(err.message);

@@ -87,10 +87,13 @@ export class AuthController {
         return undefined;
       }
 
-      // Create new user with generated _id (password is already hashed from frontend)
+      // Hash the password before storing
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create new user with generated _id
       const newUser = await User.create({
         email,
-        password, // password is already hashed from frontend
+        password: hashedPassword,
         fullname,
         type,
       });
@@ -174,8 +177,11 @@ export class AuthController {
         return false;
       }
 
-      // Set new password (already hashed from frontend) and clear OTP
-      user.password = newPassword; // password is already hashed from frontend
+      // Hash the new password before storing
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Set new password and clear OTP
+      user.password = hashedPassword;
       user.otp = '';
       user.otpExpire = new Date(0);
       await user.save();
@@ -212,8 +218,11 @@ export class AuthController {
         return false;
       }
 
-      // Save new password (already hashed from frontend)
-      user.password = newPassword; // password is already hashed from frontend
+      // Hash the new password before storing
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Save new password
+      user.password = hashedPassword;
       await user.save();
 
       return true;

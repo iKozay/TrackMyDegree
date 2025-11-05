@@ -14,10 +14,10 @@ export const getDegreeCredits = async (degreeId) => {
 /** Fetch all timelines belonging to a user. */
 export const getUserTimelines = async (user_id) => {
   try {
-    const response = await api.get(`/timeline/user/${user_id}`);
+    const timelines = await api.get(`/timeline/user/${user_id}`);
 
-    if (Array.isArray(response.timelines)) {
-      return response.timelines.sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified));
+    if (Array.isArray(timelines)) {
+      return timelines.sort((a, b) => new Date(b.last_modified) - new Date(a.last_modified));
     }
     return [];
   } catch (e) {

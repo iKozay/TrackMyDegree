@@ -78,10 +78,7 @@ router.get('/refresh', async (req: Request, res: Response) => {
         throw new Error('User ID not found in token');
       }
       const user = await userController.getUserById(userId);
-      res.status(HTTP.OK).json({
-        message: 'Session refreshed successfully',
-        user,
-      });
+      res.status(HTTP.OK).json(user);
     } catch (error) {
       // If user not found, still return success but without user data
       res.status(HTTP.OK).json({
