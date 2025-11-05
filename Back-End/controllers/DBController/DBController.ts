@@ -14,6 +14,8 @@ import SQL from '@controllers/DBController/DB_types';
 import dotenv from 'dotenv';
 import * as Sentry from '@sentry/node';
 import fs from 'fs';
+import { requiredEnv } from '@Util/requiredEnv';
+
 
 dotenv.config(); // load environment variables from .env file
 
@@ -30,10 +32,10 @@ if (process.env.SQL_SERVER_PASSWORD_FILE) {
 }
 // Database connection configuration
 const sqlConfig: SQL.Config = {
-  user: process.env.SQL_SERVER_USER,
-  password: sqlPassword,
-  database: process.env.SQL_SERVER_DATABASE,
-  server: process.env.SQL_SERVER_HOST,
+  user: requiredEnv("SQL_SERVER_USER"),
+  password: requiredEnv("SQL_SERVER_PASSWORD"),
+  database: requiredEnv("SQL_SERVER_DATABASE"),
+  server: requiredEnv("SQL_SERVER_HOST"),
   options: {
     encrypt: true, // for Azure SQL
     trustServerCertificate: true, // change to true for local dev/self-signed certs
