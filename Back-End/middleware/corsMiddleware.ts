@@ -6,7 +6,7 @@ const corsOptions: CorsOptions = {
     callback: (err: Error | null, allow?: boolean) => void,
   ) => {
     const allowedOrigins = [
-      'http://localhost:3001',
+      'http://localhost:3000',
       'http://167.71.165.174:3000',
       'http://159.65.216.141:3000',
       'https://trackmydegree.com',
