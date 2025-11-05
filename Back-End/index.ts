@@ -1,7 +1,6 @@
 import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import express from 'express';
-import cors from 'cors';
-import corsOptions from '@middleware/corsMiddleware';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import Database from '@controllers/DBController/DBController';
@@ -31,22 +30,20 @@ import sectionsRoutes from '@routes/sectionsRoutes';
 import uploadRouter from '@routes/upload';
 import mongoRouter from '@routes/mongo';
 
-//Dev Consts
-const HOPPSCOTCH = 'chrome-extension://amknoiejhlmhancpahfcfcfhllgkpbld';
+// sentry init
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  integrations: [nodeProfilingIntegration()],
+  tracesSampleRate: 1,
+  profilesSampleRate: 1,
+});
 
 //Express Init
 dotenv.config(); //Load environment variables from .env file
 const app = express();
 const PORT = process.env.PORT || 8000;
-const CLIENT = process.env.CLIENT || 'http://localhost:3000';
 
 Sentry.setupExpressErrorHandler(app);
-
-// Apply the CORS middleware
-app.use(cors(corsOptions));
-
-// Preflight handling for all routes
-app.options('*', cors(corsOptions));
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -116,3 +113,5 @@ process.on('unhandledRejection', (reason: any) => {
   Sentry.captureException(reason);
   console.error('Unhandled Rejection:', reason);
 });
+
+export default app;

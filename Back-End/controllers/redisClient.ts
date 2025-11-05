@@ -18,13 +18,19 @@ const redisUrl = process.env.REDIS_URL || 'redis://redis:6379';
 const redisClient = createClient({
   url: redisUrl,
 });
-
+// runtime error handling
 redisClient.on('error', (err) => {
   // Listen for Redis errors, log them to the console, and report to Sentry
-  Sentry.captureException({ error: 'Redis Client Error' });
+  Sentry.captureException(err, {
+    extra: { error: 'Redis Client Error' }, // log context and actual error
+  });
   console.error('Redis Client Error:', err);
 });
 
+// log successful connection
+redisClient.on('connect', () => {
+  console.log('Connected to Redis server');
+});
 // Connect to Redis
 // Establish a connection to the Redis server
 redisClient.connect();

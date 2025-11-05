@@ -25,7 +25,6 @@ import InstructionsModal from '../components/InstructionModal';
  * Navigation: Redirects to TimelinePage (/timeline_change) with extracted/selected data
  * Storage: Clears previous timeline data in localStorage before processing
  */
-
 const TimelineSetupPage = ({ onDataProcessed }) => {
   const isFirstRender = useRef(true);
   const [degrees, setDegrees] = useState();
@@ -40,20 +39,20 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
       isFirstRender.current = false;
     }
   }, [onDataProcessed]);
-
-  // get a list of all degrees by name
-  const getDegrees = async () => {
-    try {
-      const response = await api.post(`/degree/getAllDegrees`); //this should be a get request but backend is currently set to post
-      setDegrees(response.degrees);
-    } catch (err) {
-      alert('Error fetching degrees from server. Please try again later.');
-      Sentry.captureException(err);
-      console.error(err.message);
-    }
-  };
-
+  
+  
   useEffect(() => {
+    // get a list of all degrees by name
+    const getDegrees = async () => {
+      try {
+        const response = await api.post(`/degree/getAllDegrees`); //this should be a get request but backend is currently set to post
+        setDegrees(response.degrees);
+      } catch (err) {
+        alert('Error fetching degrees from server. Please try again later.');
+        Sentry.captureException(err);
+        console.error(err.message);
+      }
+    };
     getDegrees();
   }, []);
 
