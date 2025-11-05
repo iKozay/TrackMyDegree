@@ -6,6 +6,7 @@ import requests
 import re
 import sys
 import course_data_scraper
+import engr_general_electives_scraper
 
 #Arguments
 #argv[1] is the url of the page to be scraped for course data
@@ -59,6 +60,21 @@ def get_courses(url, pool_name):
     return output
 
 def handle_engineering_core_restrictions(degree_name):
+    if degree_name!="Beng in Industrial Engineering":
+        course_pool[0]["creditsRequired"]=course_pool[0]["creditsRequired"]-3
+        electives_results= engr_general_electives_scraper.scrape_electives()
+        degree["coursePools"].append("General Education Humanities and Social Sciences Electives")
+        course_pool.append({
+            "name":"General Education Humanities and Social Sciences Electives",
+            "credits":3,
+            "courses":electives_results[0]
+        })
+        global courses
+        courses=courses+electives_results[1]
+    else:
+        course_pool[0]["courses"].append("ACCO 220")
+        courses.append(course_data_scraper.extract_course_data("ACCO 220", "https://www.concordia.ca/academics/undergraduate/calendar/current/section-61-john-molson-school-of-business/section-61-40-department-of-accountancy/accountancy-courses"))
+
     if degree_name=="BEng in Mechanical Engineering" or degree_name=="Beng in Industrial Engineering" or degree_name=="BEng in Aerospace Engineering":
         course_pool[0]["courses"].remove("ELEC 275")
     elif degree_name=="BEng in Electrical Engineering" or degree_name=="BEng in Computer Engineering":
