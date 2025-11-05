@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
 import PrintImage from '../images/Print_image.png';
 import PdfImage from '../images/Pdf_image.png';
 import TransImage from '../images/Transc_image.png';
+import PropTypes from 'prop-types';
 import '../css/InstructionModal.css';
 
 const InstructionsModal = ({ isOpen, toggleModal }) => {
@@ -42,7 +42,9 @@ const InstructionsModal = ({ isOpen, toggleModal }) => {
     )
   );
 };
+PropTypes.InstructionsModal = {
+  isOpen: PropTypes.bool.isRequired,
+  toggleModal: PropTypes.func.isRequired,
+};
 
 export default InstructionsModal;
-
-

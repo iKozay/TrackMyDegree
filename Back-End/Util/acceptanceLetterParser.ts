@@ -13,18 +13,18 @@ parse = (text:string):ParsedAcceptanceLetter => {
   const extractedCourses = [];
 
   // Extract Degree Concentration (everything after Program/Plan(s) and before Academic Load)
-  const degreeConcentrationMatch = text.match(/^\s*Program\/Plan\(s\):[ \t]*([^\n]*(?:\n(?!\s*Academic\s+Load)[^\n]*)*)/im);
+  const degreeConcentrationMatch = (/^\s*Program\/Plan\(s\):[ \t]*([^\n]*(?:\n(?!\s*Academic\s+Load)[^\n]*)*)/im).exec(text);
 
   if (degreeConcentrationMatch) {
     // Combine the two parts (if any) into a single Degree Concentration string
     details.degreeConcentration = (degreeConcentrationMatch[1] + (degreeConcentrationMatch[2] || '')).trim(); // Add Degree Concentration to details
   }
   // Check for "Co-op Recommendation: Congratulations!"
-  if (text.match(/Co-op Recommendation:\s*Congratulations!/) || text.match(/Co-op Program/)) {
+  if ((/Co-op Recommendation:\s*Congratulations!/).exec(text) || (/Co-op Program/).exec(text)) {
     details.coopProgram = true;
   }
 
-  if (text.match(/Extended Credit Program/)) {
+  if ((/Extended Credit Program/).exec(text)) {
     details.extendedCreditProgram = true;
   }
   // Extract Starting Semester (Term)
@@ -40,7 +40,7 @@ parse = (text:string):ParsedAcceptanceLetter => {
     endLabel: 'Admission Status',
   });
 
-  details.minimumProgramLength = text.match(/Minimum Program Length:\s*(\d+)\s*credits?/i)?.[1] || null;
+  details.minimumProgramLength = (/Minimum Program Length:\s*(\d+)\s*credits?/i).exec(text)?.[1] || null;
 
   // Extract Exempted Courses
   const exemptions = this.getCoursesFromText({ text, startLabel: 'Exemptions:', endLabel: 'Deficiencies:' });
@@ -88,7 +88,7 @@ private getCoursesFromText({
   let match;
   while ((match = courseRegex.exec(sectionText)) !== null) {
     const course = match[0].trim();
-    courses.push(course.replaceAll(/\s+/, ''));
+    courses.push(course.replaceAll(/\s+/g, ''));
   }
   return courses;
 }
@@ -106,7 +106,7 @@ private extractTermFromText({
   if (!section) return null;
   // Regex for matching academic terms like "Winter 2024" or "Fall/Winter 2023-2024"
   const termRegex = /\b((Winter|Summer|Fall)\s*\d{4}|Fall\/Winter\s*20\d{2}-\d{2})\b/;
-  const match = section.match(termRegex);
+  const match = termRegex.exec(section);
   if (match) {
     return match[0].trim();
   }
@@ -121,8 +121,9 @@ private getSectionBetweenLabels(text:string, startLabel:string, endLabel:string)
   return text.substring(startIndex, endIndex);
 }
 
-// Function to generate all terms from startTerm to endTerm
-private generateTerms = (startTerm:string|null, endTerm:string|null) => {
+// Function to generate all terms from startTerm to endTerm 
+// this function is temporary and will be removed when the timeline functionality is reimplemented
+private readonly generateTerms = (startTerm:string|null, endTerm:string|null) => {
   const terms = ['Winter', 'Summer', 'Fall'];
   if (!startTerm || typeof startTerm !== 'string') return [];
   const startYear = Number.parseInt(startTerm.split(' ')[1]); // Extracting the year

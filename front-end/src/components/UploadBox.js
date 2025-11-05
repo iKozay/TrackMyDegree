@@ -1,4 +1,3 @@
-import Button from 'react-bootstrap/Button';
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import '../css/UploadBox.css';

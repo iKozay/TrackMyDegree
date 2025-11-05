@@ -11,8 +11,11 @@ jest.mock('../components/UploadBox', () => ({ processFile }) => (
     UploadBox
   </div>
 ));
-jest.mock('../components/InstructionModal', () => ({ isOpen }) =>
-  isOpen ? <div data-testid="modal">Modal Open</div> : null
+jest.mock(
+  '../components/InstructionModal',
+  () =>
+    ({ isOpen }) =>
+      isOpen ? <div data-testid="modal">Modal Open</div> : null,
 );
 
 // --- Mock router ---
@@ -35,7 +38,6 @@ jest.mock('../api/http-api-client', () => ({
 
 // Import the mocked api after jest.mock
 import { api } from '../api/http-api-client';
-import { data } from 'autoprefixer';
 
 describe('TimelineSetupPage', () => {
   const mockNavigate = jest.fn();
@@ -49,16 +51,13 @@ describe('TimelineSetupPage', () => {
 
     // Default mock for fetching degree list
     api.post.mockImplementation((endpoint) => {
-  if (endpoint === '/degree/getAllDegrees') {
-    return Promise.resolve({
-      degrees: [
-        { id: 1, name: 'BEng Computer Science', totalCredits: 120 }
-      ],
+      if (endpoint === '/degree/getAllDegrees') {
+        return Promise.resolve({
+          degrees: [{ id: 1, name: 'BEng Computer Science', totalCredits: 120 }],
+        });
+      }
+      return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
     });
-  }
-  return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
-});
-
   });
 
   afterAll(() => {
@@ -118,7 +117,7 @@ describe('TimelineSetupPage', () => {
           transcriptData: expect.any(Array),
           degreeId: 1,
           credits_Required: 90,
-        })
+        }),
       );
       expect(mockNavigate).toHaveBeenCalledWith('/timeline_change', expect.any(Object));
     });
@@ -138,7 +137,7 @@ describe('TimelineSetupPage', () => {
       },
     });
 
-     await act(async () => {
+    await act(async () => {
       render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
     });
 
@@ -149,77 +148,76 @@ describe('TimelineSetupPage', () => {
   });
 
   test('shows alert if fetching degrees fails', async () => {
-  api.post.mockRejectedValueOnce(new Error('Server unavailable'));
+    api.post.mockRejectedValueOnce(new Error('Server unavailable'));
 
-  await act(async () => {
-    render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
+    await act(async () => {
+      render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
+    });
+
+    await waitFor(() => {
+      expect(window.alert).toHaveBeenCalledWith(expect.stringContaining('Error'));
+    });
   });
+  test('shows alert if file upload fails', async () => {
+    api.upload.mockRejectedValueOnce(new Error('File too large'));
 
-  await waitFor(() => {
-    expect(window.alert).toHaveBeenCalledWith(expect.stringContaining('Error'));
+    await act(async () => {
+      render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('upload-box'));
+    });
+
+    await waitFor(() => {
+      expect(window.alert).toHaveBeenCalledWith('File too large');
+    });
   });
-});
-test('shows alert if file upload fails', async () => {
-  api.upload.mockRejectedValueOnce(new Error('File too large'));
+  test('shows alert if no courses where found', async () => {
+    api.upload.mockResolvedValueOnce({
+      success: true,
+      data: { details: { degreeConcentration: 'BEng Computer Science' } },
+    });
 
-  await act(async () => {
-    render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
+    await act(async () => {
+      render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('upload-box'));
+    });
+
+    await waitFor(() => {
+      expect(window.alert).toHaveBeenCalled(); // You might alert here in component
+    });
   });
+  test('shows alert if upload response succeeds but degrees list is empty', async () => {
+    // Mock degrees endpoint to return empty array
+    api.post.mockResolvedValueOnce({ degrees: [] });
 
-  await act(async () => {
-    fireEvent.click(screen.getByTestId('upload-box'));
-  });
-
-  await waitFor(() => {
-    expect(window.alert).toHaveBeenCalledWith('File too large');
-  });
-});
-test('shows alert if no courses where found', async () => {
-  api.upload.mockResolvedValueOnce({ success: true, data: { details: { degreeConcentration: 'BEng Computer Science',} }});
-
-  await act(async () => {
-    render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
-  });
-
-  await act(async () => {
-    fireEvent.click(screen.getByTestId('upload-box'));
-  });
-
-  await waitFor(() => {
-    expect(window.alert).toHaveBeenCalled(); // You might alert here in component
-  });
-});
-test('shows alert if upload response succeeds but degrees list is empty', async () => {
-  // Mock degrees endpoint to return empty array
-  api.post.mockResolvedValueOnce({ degrees: [] });
-
-  // Mock upload endpoint with valid transcript data
-  api.upload.mockResolvedValueOnce({
-    data: {
-      extractedCourses: [{ term: 'Fall 2024', courses: ['COMP248'] }],
-      details: {
-        degreeConcentration: 'BEng Computer Science',
-        coopProgram: true,
-        extendedCreditProgram: false,
-        minimumProgramLength: 90,
+    // Mock upload endpoint with valid transcript data
+    api.upload.mockResolvedValueOnce({
+      data: {
+        extractedCourses: [{ term: 'Fall 2024', courses: ['COMP248'] }],
+        details: {
+          degreeConcentration: 'BEng Computer Science',
+          coopProgram: true,
+          extendedCreditProgram: false,
+          minimumProgramLength: 90,
+        },
       },
-    },
+    });
+
+    await act(async () => {
+      render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('upload-box'));
+    });
+
+    await waitFor(() => {
+      expect(window.alert).toHaveBeenCalledWith('Error fetching degrees from server. Please try again later.');
+    });
   });
-
-  await act(async () => {
-    render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
-  });
-
-  await act(async () => {
-    fireEvent.click(screen.getByTestId('upload-box'));
-  });
-
-  await waitFor(() => {
-    expect(window.alert).toHaveBeenCalledWith(
-      'Error fetching degrees from server. Please try again later.'
-    );
-  });
-});
-
-
 });

@@ -1,4 +1,3 @@
-import { ParsedAcceptanceLetter } from '../../types/transcript';
 import { Request, Response } from 'express';
 import { TranscriptParser } from '@Util/transcriptParser';
 import HTTP from '@Util/HTTPCodes';
@@ -116,17 +115,17 @@ function unifyParsedData(parsedData: any) {
     extractedCourses.push({
       term: `Exempted ${exemptYear}`,
       courses: parsedData.transferCredits.map((tc:any) =>
-        tc.courseCode.replaceAll(/\s+/, ''),
+        tc.courseCode.replaceAll(/\s+/g, ''),
       ),
       grade: 'EX',
     });
   }
-
+  
   for (const term of parsedData.terms) {
     const termName = `${term.term} ${term.year}`;
     extractedCourses.push({
       term: termName,
-      courses: term.courses.map((tc:any) => tc.courseCode.replaceAll(/\s+/, '')),
+      courses: term.courses.map((tc:any) => tc.courseCode.replaceAll(/\s+/g, '')),
       grade: term.termGPA,
     });
   }
