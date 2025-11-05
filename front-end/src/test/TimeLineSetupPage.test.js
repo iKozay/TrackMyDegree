@@ -28,22 +28,25 @@ jest.mock('@sentry/react', () => ({
   captureException: jest.fn(),
 }));
 
-// Mock the API wrapper at the correct path
+// Mock the API wrapper
 jest.mock('../api/http-api-client', () => ({
   api: {
     post: jest.fn(),
-    upload: jest.fn(),
   },
 }));
 
-// Import the mocked api after jest.mock
+// Import mocked api
 import { api } from '../api/http-api-client';
 
 describe('TimelineSetupPage', () => {
   const mockNavigate = jest.fn();
   const mockOnDataProcessed = jest.fn();
   const originalAlert = window.alert;
+  let consoleErrorSpy;
 
+  beforeAll(() => {
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
   beforeEach(() => {
     jest.clearAllMocks();
     useNavigate.mockReturnValue(mockNavigate);
@@ -62,17 +65,22 @@ describe('TimelineSetupPage', () => {
 
   afterAll(() => {
     window.alert = originalAlert;
+    consoleErrorSpy.mockRestore();
   });
 
-  test('renders basic UI components', () => {
-    render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
+  test('renders basic UI components', async () => {
+    await act(async () => {
+      render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
+    });
     expect(screen.getByTestId('info-form')).toBeInTheDocument();
     expect(screen.getByTestId('upload-box')).toBeInTheDocument();
     expect(screen.getByText(/Upload Acceptance Letter/i)).toBeInTheDocument();
   });
 
-  test('toggles modal visibility', () => {
-    render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
+  test('toggles modal visibility', async () => {
+    await act(async () => {
+      render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
+    });
     const button = screen.getByRole('button', { name: /how to download/i });
     fireEvent.click(button);
     expect(screen.getByTestId('modal')).toBeInTheDocument();
@@ -88,17 +96,27 @@ describe('TimelineSetupPage', () => {
   });
 
   test('processFile uploads and processes transcript successfully', async () => {
-    api.upload.mockResolvedValue({
-      success: true,
-      data: {
-        extractedCourses: [{ term: 'Fall 2024', courses: ['COMP248'] }],
-        details: {
-          degreeConcentration: 'BEng Computer Science',
-          coopProgram: true,
-          extendedCreditProgram: false,
-          minimumProgramLength: 90,
-        },
-      },
+    api.post.mockImplementation((endpoint, data) => {
+      if (endpoint === '/degree/getAllDegrees') {
+        return Promise.resolve({
+          degrees: [{ id: 1, name: 'BEng Computer Science', totalCredits: 120 }],
+        });
+      }
+      if (endpoint === '/upload/parse') {
+        return Promise.resolve({
+          success: true,
+          data: {
+            extractedCourses: [{ term: 'Fall 2024', courses: ['COMP248'] }],
+            details: {
+              degreeConcentration: 'BEng Computer Science',
+              coopProgram: true,
+              extendedCreditProgram: false,
+              minimumProgramLength: 90,
+            },
+          },
+        });
+      }
+      return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
     });
 
     await act(async () => {
@@ -110,7 +128,7 @@ describe('TimelineSetupPage', () => {
     });
 
     await waitFor(() => {
-      expect(api.upload).toHaveBeenCalledWith('/upload/parse', expect.any(FormData));
+      expect(api.post).toHaveBeenCalledWith('/upload/parse', expect.any(FormData));
       expect(window.alert).not.toHaveBeenCalled();
       expect(mockOnDataProcessed).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -124,17 +142,27 @@ describe('TimelineSetupPage', () => {
   });
 
   test('shows alert when degree does not match any available degree', async () => {
-    api.upload.mockResolvedValue({
-      success: true,
-      data: {
-        extractedCourses: [{ term: 'Fall 2024', courses: ['COMP248'] }],
-        details: {
-          degreeConcentration: 'Mechanical Engineering',
-          coopProgram: false,
-          extendedCreditProgram: false,
-          minimumProgramLength: 90,
-        },
-      },
+    api.post.mockImplementation((endpoint, data) => {
+      if (endpoint === '/degree/getAllDegrees') {
+        return Promise.resolve({
+          degrees: [{ id: 1, name: 'BEng Computer Science', totalCredits: 120 }],
+        });
+      }
+      if (endpoint === '/upload/parse') {
+        return Promise.resolve({
+          success: true,
+          data: {
+            extractedCourses: [{ term: 'Fall 2024', courses: ['COMP248'] }],
+            details: {
+              degreeConcentration: 'Mechanical Engineering',
+              coopProgram: false,
+              extendedCreditProgram: false,
+              minimumProgramLength: 90,
+            },
+          },
+        });
+      }
+      return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
     });
 
     await act(async () => {
@@ -158,8 +186,18 @@ describe('TimelineSetupPage', () => {
       expect(window.alert).toHaveBeenCalledWith(expect.stringContaining('Error'));
     });
   });
+
   test('shows alert if file upload fails', async () => {
-    api.upload.mockRejectedValueOnce(new Error('File too large'));
+    api.post.mockImplementation((endpoint, data) => {
+      if (endpoint === '/upload/parse') {
+        return Promise.reject(new Error('File too large'));
+      }
+      if (endpoint === '/degree/getAllDegrees') {
+        return Promise.resolve({
+          degrees: [{ id: 1, name: 'BEng Computer Science', totalCredits: 120 }],
+        });
+      }
+    });
 
     await act(async () => {
       render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
@@ -173,10 +211,20 @@ describe('TimelineSetupPage', () => {
       expect(window.alert).toHaveBeenCalledWith('File too large');
     });
   });
-  test('shows alert if no courses where found', async () => {
-    api.upload.mockResolvedValueOnce({
-      success: true,
-      data: { details: { degreeConcentration: 'BEng Computer Science' } },
+
+  test('shows alert if no courses were found', async () => {
+    api.post.mockImplementation((endpoint, data) => {
+      if (endpoint === '/degree/getAllDegrees') {
+        return Promise.resolve({
+          degrees: [{ id: 1, name: 'BEng Computer Science', totalCredits: 120 }],
+        });
+      }
+      if (endpoint === '/upload/parse') {
+        return Promise.resolve({
+          success: true,
+          data: { details: { degreeConcentration: 'BEng Computer Science' } },
+        });
+      }
     });
 
     await act(async () => {
@@ -188,24 +236,29 @@ describe('TimelineSetupPage', () => {
     });
 
     await waitFor(() => {
-      expect(window.alert).toHaveBeenCalled(); // You might alert here in component
+      expect(window.alert).toHaveBeenCalled();
     });
   });
+
   test('shows alert if upload response succeeds but degrees list is empty', async () => {
     // Mock degrees endpoint to return empty array
-    api.post.mockResolvedValueOnce({ degrees: [] });
-
-    // Mock upload endpoint with valid transcript data
-    api.upload.mockResolvedValueOnce({
-      data: {
-        extractedCourses: [{ term: 'Fall 2024', courses: ['COMP248'] }],
-        details: {
-          degreeConcentration: 'BEng Computer Science',
-          coopProgram: true,
-          extendedCreditProgram: false,
-          minimumProgramLength: 90,
-        },
-      },
+    api.post.mockImplementation((endpoint, data) => {
+      if (endpoint === '/degree/getAllDegrees') {
+        return Promise.resolve({ degrees: [] });
+      }
+      if (endpoint === '/upload/parse') {
+        return Promise.resolve({
+          data: {
+            extractedCourses: [{ term: 'Fall 2024', courses: ['COMP248'] }],
+            details: {
+              degreeConcentration: 'BEng Computer Science',
+              coopProgram: true,
+              extendedCreditProgram: false,
+              minimumProgramLength: 90,
+            },
+          },
+        });
+      }
     });
 
     await act(async () => {

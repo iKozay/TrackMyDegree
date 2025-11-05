@@ -1,7 +1,11 @@
-import request from 'supertest';
-import express from 'express';
-import pdfParsingController, { uploadMiddleware } from '../controllers/pdfParsingController/pdfParsingController';
-import pdfParse from 'pdf-parse';
+const request = require('supertest');
+const express = require('express');
+const pdfParsingControllerModule = require('../controllers/pdfParsingController/pdfParsingController');
+const pdfParse = require('pdf-parse');
+
+// Pull out the controller and middleware
+const pdfParsingController = pdfParsingControllerModule.default;
+const uploadMiddleware = pdfParsingControllerModule.uploadMiddleware;
 
 // Mock pdf-parse so we don't actually read PDFs
 jest.mock('pdf-parse', () => jest.fn());
