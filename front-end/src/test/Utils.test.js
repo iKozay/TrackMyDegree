@@ -99,7 +99,7 @@ describe('arePrerequisitesMet', () => {
     const allCourses = [
       {
         _id: 'COMP200',
-        requisites: [{ type: 'pre', _id2: 'COMP100' }],
+        requisites: [{ type: 'pre', code2: 'COMP100' }],
       },
       { _id: 'COMP100', requisites: [] },
     ];
@@ -113,7 +113,7 @@ describe('arePrerequisitesMet', () => {
     const allCourses = [
       {
         _id: 'COMP200',
-        requisites: [{ type: 'pre', _id2: 'COMP100' }],
+        requisites: [{ type: 'pre', code2: 'COMP100' }],
       },
       { _id: 'COMP100', requisites: [] },
     ];
@@ -127,7 +127,7 @@ describe('arePrerequisitesMet', () => {
     const allCourses = [
       {
         _id: 'COMP300',
-        requisites: [{ type: 'co', _id2: 'COMP200' }],
+        requisites: [{ type: 'co', code2: 'COMP200' }],
       },
       { _id: 'COMP200', requisites: [] },
     ];
@@ -142,8 +142,8 @@ describe('arePrerequisitesMet', () => {
       {
         _id: 'COMP400',
         requisites: [
-          { type: 'pre', _id2: 'COMP100', group_id: 1 },
-          { type: 'pre', _id2: 'COMP101', group_id: 1 },
+          { type: 'pre', code2: 'COMP100', group_id: 1 },
+          { type: 'pre', code2: 'COMP101', group_id: 1 },
         ],
       },
       { _id: 'COMP100', requisites: [] },
@@ -650,13 +650,13 @@ import jsPDF from 'jspdf';
 describe('areRequisitesMet', () => {
   const allCourses = [
     { _id: 'COMP101', requisites: [] },
-    { _id: 'COMP102', requisites: [{ type: 'pre', _id2: 'COMP101' }] },
-    { _id: 'COMP103', requisites: [{ type: 'co', _id2: 'COMP101' }] },
+    { _id: 'COMP102', requisites: [{ type: 'pre', code2: 'COMP101' }] },
+    { _id: 'COMP103', requisites: [{ type: 'co', code2: 'COMP101' }] },
     {
       _id: 'COMP104',
       requisites: [
-        { type: 'pre', _id2: 'COMP101', group_id: 1 },
-        { type: 'pre', _id2: 'COMP102', group_id: 1 },
+        { type: 'pre', code2: 'COMP101', group_id: 1 },
+        { type: 'pre', code2: 'COMP102', group_id: 1 },
       ],
     },
   ];
@@ -957,8 +957,8 @@ describe('arePrerequisitesMet (additional)', () => {
       {
         _id: 'COMP300',
         requisites: [
-          { type: 'pre', _id2: 'COMP100' },
-          { type: 'pre', _id2: 'COMP200' },
+          { type: 'pre', code2: 'COMP100' },
+          { type: 'pre', code2: 'COMP200' },
         ],
       },
       { _id: 'COMP100', requisites: [] },
