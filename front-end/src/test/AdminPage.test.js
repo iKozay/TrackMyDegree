@@ -2,7 +2,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import AdminPage from 'front-end/src/pages/AdminPage';
+import AdminPage from '../pages/AdminPage';
 
 // Mock fetch
 global.fetch = jest.fn();

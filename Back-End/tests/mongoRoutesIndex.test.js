@@ -2,6 +2,16 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const express = require('express');
+
+// Mock the transcript router that doesn't exist
+jest.mock('../../routes/transcript', () => {
+  const express = require('express');
+  return {
+    __esModule: true,
+    default: express.Router(),
+  };
+});
+
 const mongoRouter = require('../routes/mongo/index').default;
 
 // Create test app

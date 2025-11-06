@@ -13,8 +13,7 @@
 import { createClient } from 'redis';
 import Sentry from '@sentry/node';
 
-// Default to localhost for local development, override with REDIS_URL for Docker/production
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+const redisUrl = process.env.REDIS_URL || 'redis://redis:6379';
 
 // Create a Redis client instance using the provided URL
 const redisClient = createClient({

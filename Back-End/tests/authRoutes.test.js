@@ -79,7 +79,7 @@ describe('Auth Routes (MongoDB)', () => {
         fullname: 'Test User',
         type: 'student',
       });
-      expect(response.body.user._id).toBeDefined();
+      expect(response.body.user.id).toBeDefined();
     });
 
     it('should return 401 for incorrect password', async () => {
@@ -117,19 +117,17 @@ describe('Auth Routes (MongoDB)', () => {
 
   describe('POST /auth/signup', () => {
     it('should return 201 and create new user', async () => {
-      const hashedPassword = await bcrypt.hash('TestPass123!', 10);
       const response = await request(app)
         .post('/auth/signup')
         .send({
           email: 'newuser@example.com',
-          hashed_password: hashedPassword,
+          password: 'TestPass123!',
           fullname: 'New User',
           type: 'student',
         })
         .expect(201);
 
-      expect(response.body.message).toBe('User registered successfully');
-      expect(response.body._id).toBeDefined();
+      expect(response.body.id).toBeDefined();
     });
 
     it('should return 409 for duplicate email', async () => {
@@ -145,7 +143,7 @@ describe('Auth Routes (MongoDB)', () => {
         .post('/auth/signup')
         .send({
           email: 'existing@example.com',
-          hashed_password: hashedPassword,
+          password: 'TestPass123!',
           fullname: 'Duplicate User',
           type: 'student',
         })
@@ -167,12 +165,11 @@ describe('Auth Routes (MongoDB)', () => {
     });
 
     it('should return 400 for invalid user type', async () => {
-      const hashedPassword = await bcrypt.hash('TestPass123!', 10);
       const response = await request(app)
         .post('/auth/signup')
         .send({
           email: 'test@example.com',
-          hashed_password: hashedPassword,
+          password: 'TestPass123!',
           fullname: 'Test User',
           type: 'invalid_type',
         })

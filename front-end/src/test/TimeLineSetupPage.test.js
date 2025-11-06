@@ -31,6 +31,7 @@ jest.mock('@sentry/react', () => ({
 // Mock the API wrapper
 jest.mock('../api/http-api-client', () => ({
   api: {
+    get: jest.fn(),
     post: jest.fn(),
   },
 }));
@@ -52,12 +53,12 @@ describe('TimelineSetupPage', () => {
     useNavigate.mockReturnValue(mockNavigate);
     window.alert = jest.fn();
 
-    // Default mock for fetching degree list
-    api.post.mockImplementation((endpoint) => {
-      if (endpoint === '/degree/getAllDegrees') {
-        return Promise.resolve({
-          degrees: [{ id: 1, name: 'BEng Computer Science', totalCredits: 120 }],
-        });
+    // Default mock for fetching degree list - uses GET /degree
+    api.get.mockImplementation((endpoint) => {
+      if (endpoint === '/degree') {
+        return Promise.resolve([
+          { id: 1, name: 'BEng Computer Science', totalCredits: 120 },
+        ]);
       }
       return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
     });
@@ -91,17 +92,20 @@ describe('TimelineSetupPage', () => {
       render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
     });
     await waitFor(() => {
-      expect(api.post).toHaveBeenCalledWith('/degree/getAllDegrees');
+      expect(api.get).toHaveBeenCalledWith('/degree');
     });
   });
 
   test('processFile uploads and processes transcript successfully', async () => {
-    api.post.mockImplementation((endpoint, data) => {
-      if (endpoint === '/degree/getAllDegrees') {
-        return Promise.resolve({
-          degrees: [{ id: 1, name: 'BEng Computer Science', totalCredits: 120 }],
-        });
+    api.get.mockImplementation((endpoint) => {
+      if (endpoint === '/degree') {
+        return Promise.resolve([
+          { id: 1, name: 'BEng Computer Science', totalCredits: 120 },
+        ]);
       }
+      return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
+    });
+    api.post.mockImplementation((endpoint, data) => {
       if (endpoint === '/upload/parse') {
         return Promise.resolve({
           success: true,
@@ -142,12 +146,15 @@ describe('TimelineSetupPage', () => {
   });
 
   test('shows alert when degree does not match any available degree', async () => {
-    api.post.mockImplementation((endpoint, data) => {
-      if (endpoint === '/degree/getAllDegrees') {
-        return Promise.resolve({
-          degrees: [{ id: 1, name: 'BEng Computer Science', totalCredits: 120 }],
-        });
+    api.get.mockImplementation((endpoint) => {
+      if (endpoint === '/degree') {
+        return Promise.resolve([
+          { id: 1, name: 'BEng Computer Science', totalCredits: 120 },
+        ]);
       }
+      return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
+    });
+    api.post.mockImplementation((endpoint, data) => {
       if (endpoint === '/upload/parse') {
         return Promise.resolve({
           success: true,
@@ -176,7 +183,7 @@ describe('TimelineSetupPage', () => {
   });
 
   test('shows alert if fetching degrees fails', async () => {
-    api.post.mockRejectedValueOnce(new Error('Server unavailable'));
+    api.get.mockRejectedValueOnce(new Error('Server unavailable'));
 
     await act(async () => {
       render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
@@ -188,15 +195,19 @@ describe('TimelineSetupPage', () => {
   });
 
   test('shows alert if file upload fails', async () => {
+    api.get.mockImplementation((endpoint) => {
+      if (endpoint === '/degree') {
+        return Promise.resolve([
+          { id: 1, name: 'BEng Computer Science', totalCredits: 120 },
+        ]);
+      }
+      return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
+    });
     api.post.mockImplementation((endpoint, data) => {
       if (endpoint === '/upload/parse') {
         return Promise.reject(new Error('File too large'));
       }
-      if (endpoint === '/degree/getAllDegrees') {
-        return Promise.resolve({
-          degrees: [{ id: 1, name: 'BEng Computer Science', totalCredits: 120 }],
-        });
-      }
+      return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
     });
 
     await act(async () => {
@@ -213,18 +224,22 @@ describe('TimelineSetupPage', () => {
   });
 
   test('shows alert if no courses were found', async () => {
-    api.post.mockImplementation((endpoint, data) => {
-      if (endpoint === '/degree/getAllDegrees') {
-        return Promise.resolve({
-          degrees: [{ id: 1, name: 'BEng Computer Science', totalCredits: 120 }],
-        });
+    api.get.mockImplementation((endpoint) => {
+      if (endpoint === '/degree') {
+        return Promise.resolve([
+          { id: 1, name: 'BEng Computer Science', totalCredits: 120 },
+        ]);
       }
+      return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
+    });
+    api.post.mockImplementation((endpoint, data) => {
       if (endpoint === '/upload/parse') {
         return Promise.resolve({
           success: true,
           data: { details: { degreeConcentration: 'BEng Computer Science' } },
         });
       }
+      return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
     });
 
     await act(async () => {
@@ -242,10 +257,13 @@ describe('TimelineSetupPage', () => {
 
   test('shows alert if upload response succeeds but degrees list is empty', async () => {
     // Mock degrees endpoint to return empty array
-    api.post.mockImplementation((endpoint, data) => {
-      if (endpoint === '/degree/getAllDegrees') {
-        return Promise.resolve({ degrees: [] });
+    api.get.mockImplementation((endpoint) => {
+      if (endpoint === '/degree') {
+        return Promise.resolve([]);
       }
+      return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
+    });
+    api.post.mockImplementation((endpoint, data) => {
       if (endpoint === '/upload/parse') {
         return Promise.resolve({
           data: {
@@ -259,6 +277,7 @@ describe('TimelineSetupPage', () => {
           },
         });
       }
+      return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
     });
 
     await act(async () => {
