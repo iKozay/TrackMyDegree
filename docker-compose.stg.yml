@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+
+  traefik:
+    image: traefik:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
+    command:
+      # Enable Docker provider. Automatically discover services. See labels under frontend container.
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      # Define entrypoints for HTTP and HTTPS
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      # Let's Encrypt configuration
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@${DOMAIN:-localhost}}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      # Redirect HTTP to HTTPS
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+    volumes:
+      - letsencrypt-data:/letsencrypt
+      # Mount Docker socket as read-only to allow Traefik to discover services
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=false"
+
+  frontend:
+    image: ghcr.io/ikozay/trackmydegree-frontend:latest
+    restart: unless-stopped
+    expose:
+      - "3000"
+    depends_on:
+      - backend
+      - traefik
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+
+  backend:
+    image: ghcr.io/ikozay/trackmydegree-backend:latest
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_URL=redis://redis:6379
+      - MONGODB_URI=mongodb://admin:changeme123@mongodb:27017/
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
+      - MONGODB_DATABASE=trackmydegree
+    volumes:
+      - ./backups:/var/backups
+    depends_on:
+      - redis
+      - mongodb
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=false"
+
+  mongodb:
+    image: mongo:latest
+    expose:
+      - "27017"
+    environment:
+      # Should look into using secrets for sensitive info like passwords
+      # See: https://docs.docker.com/compose/how-tos/use-secrets/
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=changeme123
+      - MONGO_INITDB_DATABASE=trackmydegree
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=false"
+
+  redis:
+    image: redis:latest
+    container_name: my-redis
+    expose:
+      - "6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=false"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  mongodb-data:
+  letsencrypt-data:

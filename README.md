@@ -82,6 +82,12 @@ Ensure you have the following installed on your machine:
 
    ```bash
    docker compose up -d
+   # In a new terminal
+   cd front-end/
+   npm run start
+   # In another terminal
+   cd Back-End/
+   npm run dev
    ```
 
    This will:
@@ -133,7 +139,7 @@ For production deployment with SSL/HTTPS support, follow these additional steps:
    Run the production deployment command:
 
    ```bash
-   docker compose up -d
+   docker compose -f docker-compose.prd.yml up -d
    ```
 
    This will:

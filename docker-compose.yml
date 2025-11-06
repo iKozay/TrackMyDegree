@@ -1,153 +1,6 @@
 version: '3.8'
 
 services:
-  tests:
-    # This builds the test container using a specific Dockerfile for testing. I do not see any Dockerfile.test for front-end.
-    # TODO: include front-end tests as well
-    build:
-      context: ./Back-End
-      dockerfile: Dockerfile.test
-    depends_on:
-      - backend
-      - sqlserver
-      - redis
-      - mongodb
-    networks:
-      - app-network
-    entrypoint: >
-      sh -c "
-      ./ping-backend.sh &&
-      npm test
-      "
-
-  traefik:
-    image: traefik:latest
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      - DOMAIN=${DOMAIN:-localhost}
-    command:
-      # Enable Docker provider. Automatically discover services. See labels under frontend container.
-      - --providers.docker=true
-      - --providers.docker.exposedbydefault=false
-      # Define entrypoints for HTTP and HTTPS
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      # Let's Encrypt configuration
-      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
-      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@${DOMAIN:-localhost}}
-      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
-      # Redirect HTTP to HTTPS
-      - --entrypoints.web.http.redirections.entrypoint.to=websecure
-      - --entrypoints.web.http.redirections.entrypoint.scheme=https
-    volumes:
-      - letsencrypt-data:/letsencrypt
-      # Mount Docker socket as read-only to allow Traefik to discover services
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - app-network
-    labels:
-      - "traefik.enable=false"
-
-  frontend:
-    image: ghcr.io/ikozay/trackmydegree-frontend:latest
-    restart: unless-stopped
-    expose:
-      - "3000"
-    depends_on:
-      - backend
-      - traefik
-    networks:
-      - app-network
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.frontend.tls=true"
-      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
-
-  backend:
-    image: ghcr.io/ikozay/trackmydegree-backend:latest
-    restart: unless-stopped
-    expose:
-      - "8000"
-    environment:
-      - SQL_SERVER_HOST=sqlserver
-      - SQL_SERVER_USER=sa
-      - SQL_SERVER_PASSWORD_FILE=/run/secrets/sql_server_password
-      - SQL_SERVER_DATABASE=master
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_URL=redis://redis:6379
-      - MONGODB_URI=mongodb://admin:changeme123@mongodb:27017/trackmydegree
-      - MONGODB_HOST=mongodb
-      - MONGODB_PORT=27017
-      - MONGODB_DATABASE=trackmydegree
-    volumes:
-      - ./backups:/var/backups
-    depends_on:
-      - sqlserver
-      - redis
-      - mongodb
-    networks:
-      - app-network
-    secrets:
-      - sql_server_password
-    labels:
-      - "traefik.enable=false"
-
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2019-latest
-    user: root  # Ensure the container runs as root for initialization
-    environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD_FILE=/run/secrets/sql_server_password
-      - MSSQL_PID=Developer
-      # This allows the FRONTEND to talk to the DATABASE directly (potentially bypassing the backend) for CORS using PUBLIC IP
-      - CORS_ORIGIN=https://${DOMAIN:-frontend:3000}
-    expose:
-      - "1433"
-    volumes:
-      - mssql-data:/var/opt/mssql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./entrypoint-sql.sh:/usr/src/app/entrypoint-sql.sh
-    entrypoint: ["/bin/sh", "/usr/src/app/entrypoint-sql.sh"]
-    networks:
-      - app-network
-    secrets:
-      - sql_server_password
-    labels:
-      - "traefik.enable=false"
-
-  redis:
-    image: redis:latest
-    container_name: my-redis
-    expose:
-      - "6379"
-    volumes:
-      - redis-data:/data
-    networks:
-      - app-network
-    labels:
-      - "traefik.enable=false"
-
-  # Add Watchtower for automatic updates
-  watchtower:
-    image: containrrr/watchtower
-    container_name: watchtower
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 60  # check every minute
-    environment:
-      - WATCHTOWER_CLEANUP=true  # remove old images
-      - WATCHTOWER_NOTIFICATIONS_LEVEL=info
-      - WATCHTOWER_DEBUG=false
-      - WATCHTOWER_REGISTRY_AUTH=true
-    networks:
-      - app-network
 
   mongodb:
     image: mongo:latest
@@ -158,8 +11,19 @@ services:
       # See: https://docs.docker.com/compose/how-tos/use-secrets/
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=changeme123
+      - MONGO_INITDB_DATABASE=trackmydegree
     volumes:
       - mongodb-data:/data/db
+    networks:
+      - app-network
+
+  redis:
+    image: redis:latest
+    container_name: my-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
     networks:
       - app-network
 
@@ -168,11 +32,5 @@ networks:
     driver: bridge
 
 volumes:
-  mssql-data:
   redis-data:
   mongodb-data:
-  letsencrypt-data:
-
-secrets:
-  sql_server_password:
-    file: ./secrets/sql_server_password.txt
