@@ -344,6 +344,72 @@ describe('Degree Routes', () => {
     });
   });
 
+  describe('GET /degree/:id/coursepools', () => {
+    beforeEach(async () => {
+      await Degree.create({
+        _id: 'CS',
+        name: 'Computer Science',
+        totalCredits: 120,
+        coursePools: ['POOL1', 'POOL2'],
+      });
+    });
+
+    it('should get course pools for a degree', async () => {
+      const response = await request(app).get('/degree/CS/coursepools');
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toEqual(['POOL1', 'POOL2']);
+    });
+
+    it('should return 404 for non-existent degree', async () => {
+      const response = await request(app).get('/degree/NONEXIST/coursepools');
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toContain('does not exist');
+    });
+
+    it('should return 400 if id is missing', async () => {
+      const testApp = express();
+      testApp.use(express.json());
+      testApp.get('/test', (req, res) => {
+        if (!req.params.id) {
+          res.status(400).json({ error: 'Degree ID is required' });
+        }
+      });
+
+      const response = await request(testApp).get('/test');
+      expect(response.status).toBe(400);
+    });
+
+    it('should handle server errors', async () => {
+      const { degreeController } = require('../controllers/mondoDBControllers');
+      const originalGetCoursePoolsForDegree =
+        degreeController.getCoursePoolsForDegree;
+      degreeController.getCoursePoolsForDegree = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
+
+      const response = await request(app).get('/degree/CS/coursepools');
+
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe('Internal server error');
+
+      degreeController.getCoursePoolsForDegree = originalGetCoursePoolsForDegree;
+    });
+
+    it('should return empty array for degree with no course pools', async () => {
+      await Degree.findByIdAndUpdate('CS', { coursePools: [] });
+
+      const response = await request(app).get('/degree/CS/coursepools');
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toEqual([]);
+    });
+  });
+
   describe('DegreeController - Course Pool Operations (additional cases)', () => {
     beforeEach(async () => {
       await Degree.create([

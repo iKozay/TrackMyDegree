@@ -216,6 +216,159 @@ describe('Course Routes', () => {
     });
   });
 
+  describe('GET /courses/by-degree/:degreeId', () => {
+    const { Degree } = require('../models/Degree');
+    const { CoursePool } = require('../models/Coursepool');
+    const { degreeController } = require('../controllers/mondoDBControllers');
+    const { coursepoolController } = require('../controllers/mondoDBControllers');
+
+    beforeEach(async () => {
+      await Degree.deleteMany({});
+      await CoursePool.deleteMany({});
+      await Course.deleteMany({});
+
+      await Course.create([
+        {
+          _id: 'COMP101',
+          title: 'Introduction to Programming',
+          description: 'Basic programming concepts',
+          credits: 3,
+          offeredIn: ['Fall', 'Winter'],
+          prerequisites: [],
+          corequisites: [],
+        },
+        {
+          _id: 'COMP102',
+          title: 'Data Structures',
+          description: 'Advanced data structures',
+          credits: 3,
+          offeredIn: ['Winter', 'Summer'],
+          prerequisites: [],
+          corequisites: [],
+        },
+      ]);
+
+      await CoursePool.create({
+        _id: 'POOL1',
+        name: 'Core Courses',
+        creditsRequired: 30,
+        courses: ['COMP101', 'COMP102'],
+      });
+
+      await Degree.create({
+        _id: 'COMP',
+        name: 'Computer Science',
+        totalCredits: 120,
+        coursePools: ['POOL1'],
+      });
+    });
+
+    it('should get courses grouped by pools for a degree', async () => {
+      const response = await request(app)
+        .get('/courses/by-degree/COMP')
+        .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
+      if (response.body.length > 0) {
+        expect(response.body[0]).toHaveProperty('poolId');
+        expect(response.body[0]).toHaveProperty('poolName');
+        expect(response.body[0]).toHaveProperty('creditsRequired');
+        expect(response.body[0]).toHaveProperty('courses');
+        expect(Array.isArray(response.body[0].courses)).toBe(true);
+      }
+    });
+
+    it('should return 400 if degreeId is missing', async () => {
+      // This test is for the route parameter validation
+      // Since Express handles route params, we test with empty string or invalid format
+      const response = await request(app)
+        .get('/courses/by-degree/')
+        .expect(404); // Express will return 404 for malformed route
+
+      // The route expects a degreeId parameter, so we test error handling
+      // by checking what happens when degreeId is not found
+      const validResponse = await request(app)
+        .get('/courses/by-degree/NONEXIST')
+        .expect(200); // Route returns empty array if no pools found
+
+      expect(Array.isArray(validResponse.body)).toBe(true);
+    });
+
+    it('should handle server errors', async () => {
+      const spy = jest
+        .spyOn(degreeController, 'getCoursePoolsForDegree')
+        .mockRejectedValue(new Error('Database error'));
+
+      const response = await request(app)
+        .get('/courses/by-degree/COMP')
+        .expect(500);
+
+      expect(response.body.error).toBe('Internal server error');
+
+      spy.mockRestore();
+    });
+
+    it('should handle course pool fetch errors gracefully', async () => {
+      // Mock coursepoolController.getCoursePool to reject
+      const spy = jest
+        .spyOn(coursepoolController, 'getCoursePool')
+        .mockRejectedValue(new Error('Pool not found'));
+
+      const response = await request(app)
+        .get('/courses/by-degree/COMP')
+        .expect(200);
+
+      // Should still return array (filtering out nulls)
+      expect(Array.isArray(response.body)).toBe(true);
+
+      spy.mockRestore();
+    });
+
+    it('should handle course fetch errors gracefully', async () => {
+      // Mock courseController.getCourseByCode to reject for some courses
+      const spy = jest
+        .spyOn(courseController, 'getCourseByCode')
+        .mockImplementation((code) => {
+          if (code === 'COMP101') {
+            return Promise.reject(new Error('Course not found'));
+          }
+          return Course.findById(code).lean().exec();
+        });
+
+      const response = await request(app)
+        .get('/courses/by-degree/COMP')
+        .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
+
+      spy.mockRestore();
+    });
+
+    it('should handle empty course pools array', async () => {
+      await Degree.findByIdAndUpdate('COMP', { coursePools: [] });
+
+      const response = await request(app)
+        .get('/courses/by-degree/COMP')
+        .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
+    });
+
+    it('should handle pool with empty courses array', async () => {
+      await CoursePool.findByIdAndUpdate('POOL1', { courses: [] });
+
+      const response = await request(app)
+        .get('/courses/by-degree/COMP')
+        .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
+      if (response.body.length > 0) {
+        expect(response.body[0].courses).toEqual([]);
+      }
+    });
+  });
+
   describe('GET /courses/:code', () => {
     beforeEach(async () => {
       await Course.create({

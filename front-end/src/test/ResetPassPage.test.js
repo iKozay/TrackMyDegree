@@ -247,4 +247,29 @@ describe('ResetPassPage', () => {
     // Cleanup
     localStorage.removeItem('resetPasswordEmail');
   });
+
+  test('shows error when email is not found in localStorage', async () => {
+    // Ensure email is not in localStorage
+    localStorage.removeItem('resetPasswordEmail');
+
+    render(<ResetPassPage />);
+
+    const otpInput = screen.getByPlaceholderText('* Enter your OTP');
+    fireEvent.change(otpInput, { target: { value: '1234' } });
+
+    const passwordInput = screen.getByPlaceholderText('* Enter your password');
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+
+    const confirmPasswordInput = screen.getByPlaceholderText('* Confirm your password');
+    fireEvent.change(confirmPasswordInput, { target: { value: 'password123' } });
+
+    const submitButton = screen.getByText('Submit');
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Email not found. Please start the password reset process again.')).toBeInTheDocument();
+    });
+
+    expect(api.post).not.toHaveBeenCalled();
+  });
 });

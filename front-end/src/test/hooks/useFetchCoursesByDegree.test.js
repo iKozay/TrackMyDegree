@@ -45,4 +45,62 @@ describe('useFetchCoursesByDegree', () => {
     expect(api.get).not.toHaveBeenCalled();
     expect(mockDispatch).not.toHaveBeenCalled();
   });
+
+  test('fetches and merges extended credit courses when extendedCredit is true', async () => {
+    const mockPrimaryCourses = [{ code: 'COMP101', name: 'Intro CS' }];
+    const mockExtendedCourses = [{ code: 'ECP101', name: 'Extended Course' }];
+    
+    api.get
+      .mockResolvedValueOnce(mockPrimaryCourses)
+      .mockResolvedValueOnce(mockExtendedCourses);
+
+    const mockDispatch = jest.fn();
+
+    renderHook(() => useFetchCoursesByDegree('DEGREE1', true, mockDispatch));
+
+    await Promise.resolve();
+
+    expect(api.get).toHaveBeenCalledWith('/courses/by-degree/DEGREE1');
+    expect(api.get).toHaveBeenCalledWith('/courses/by-degree/ECP');
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: 'SET',
+      payload: { coursePools: [...mockPrimaryCourses, ...mockExtendedCourses], loading: false },
+    });
+  });
+
+  test('handles errors when fetching courses', async () => {
+    const errorMessage = 'Failed to fetch courses';
+    api.get.mockRejectedValueOnce(new Error(errorMessage));
+
+    const mockDispatch = jest.fn();
+
+    renderHook(() => useFetchCoursesByDegree('DEGREE1', false, mockDispatch));
+
+    await Promise.resolve();
+
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: 'SET',
+      payload: { error: errorMessage, loading: false },
+    });
+  });
+
+  test('handles errors when fetching extended credit courses', async () => {
+    const mockPrimaryCourses = [{ code: 'COMP101', name: 'Intro CS' }];
+    const errorMessage = 'Failed to fetch extended courses';
+    
+    api.get
+      .mockResolvedValueOnce(mockPrimaryCourses)
+      .mockRejectedValueOnce(new Error(errorMessage));
+
+    const mockDispatch = jest.fn();
+
+    renderHook(() => useFetchCoursesByDegree('DEGREE1', true, mockDispatch));
+
+    await Promise.resolve();
+
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: 'SET',
+      payload: { error: errorMessage, loading: false },
+    });
+  });
 });
