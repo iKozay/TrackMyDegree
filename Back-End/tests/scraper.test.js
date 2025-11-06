@@ -1,5 +1,5 @@
-import { spawn } from 'child_process';
-import * as scraper from '../course-data/Scraping/Scrapers/runScraper'; 
+const { spawn } = require('child_process');
+const scraper = require('../course-data/Scraping/Scrapers/runScraper');
 
 jest.mock('child_process');
 
