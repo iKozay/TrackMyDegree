@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const verifySession = async () => {
       try {
-        const user_data = await api.post('/auth/refresh', {
+        const user_data = await api.post('/auth/refresh', null, {
           credentials: 'include',
         });
 
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     const destrySession = async () => {
       try {
-        await api.post('/auth/logout', {
+        await api.post('/auth/logout', null, {
           credentials: 'include',
         });
       } catch (error) {
