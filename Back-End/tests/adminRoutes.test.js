@@ -411,6 +411,42 @@ describe('Admin Routes', () => {
           mongoose.connection.db = originalDb;
         });
       });
+
+      describe('GET /admin/connection-status', () => {
+        it('should get database connection status', async () => {
+          const response = await request(app)
+            .get('/admin/connection-status')
+            .expect(200);
+
+          expect(response.body.message).toBe(
+            'Connection status retrieved successfully',
+          );
+          expect(response.body).toHaveProperty('connected');
+          expect(response.body).toHaveProperty('readyState');
+          expect(response.body).toHaveProperty('name');
+        });
+
+        it('should handle server errors', async () => {
+          // Mock adminController.getConnectionStatus to throw an error
+          const originalGetConnectionStatus =
+            require('../controllers/mondoDBControllers/AdminController')
+              .adminController.getConnectionStatus;
+          require('../controllers/mondoDBControllers/AdminController').adminController.getConnectionStatus =
+            jest.fn().mockImplementation(() => {
+              throw new Error('Database error');
+            });
+
+          const response = await request(app)
+            .get('/admin/connection-status')
+            .expect(500);
+
+          expect(response.body.error).toBe('Internal server error');
+
+          // Restore original method
+          require('../controllers/mondoDBControllers/AdminController').adminController.getConnectionStatus =
+            originalGetConnectionStatus;
+        });
+      });
     });
   });
 });

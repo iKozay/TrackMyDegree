@@ -337,5 +337,31 @@ describe('AdminController', () => {
 
       mongoose.connection.db = originalDb;
     });
+
+    describe('getConnectionStatus', () => {
+      it('should return connection status when connected', () => {
+        const result = adminController.getConnectionStatus();
+
+        expect(result).toHaveProperty('connected');
+        expect(result).toHaveProperty('readyState');
+        expect(result).toHaveProperty('name');
+        expect(result.connected).toBe(true);
+        expect(result.readyState).toBe(1);
+        expect(typeof result.name).toBe('string');
+      });
+
+      it('should return connection status when disconnected', async () => {
+        // Disconnect from database
+        await mongoose.disconnect();
+
+        const result = adminController.getConnectionStatus();
+
+        expect(result.connected).toBe(false);
+        expect(result.readyState).not.toBe(1);
+
+        // Reconnect for cleanup
+        await mongoose.connect(mongoUri);
+      });
+    });
   });
 });

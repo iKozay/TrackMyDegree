@@ -114,6 +114,22 @@ router.delete(
   },
 );
 
+/**
+ * GET /admin/connection-status - Get database connection status
+ */
+router.get('/connection-status', async (req: Request, res: Response) => {
+  try {
+    const status = await adminController.getConnectionStatus();
+    res.status(HTTP.OK).json({
+      message: 'Connection status retrieved successfully',
+      ...status,
+    });
+  } catch (error) {
+    console.error('Error in GET /admin/connection-status', error);
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+  }
+});
+
 // TODO: Add seed data route that will call: scraper, courseController (MongoDB), coursepoolController (MongoDB) and degreeController (MongoDB)
 
 export default router;

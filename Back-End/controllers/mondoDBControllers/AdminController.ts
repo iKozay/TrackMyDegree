@@ -124,6 +124,21 @@ export class AdminController extends BaseMongoController<any> {
       throw new Error('Error clearing collection');
     }
   }
+
+  /**
+   * Get database connection status
+   */
+  getConnectionStatus(): {
+    connected: boolean;
+    readyState: number;
+    name?: string;
+  } {
+    return {
+      connected: mongoose.connection.readyState === 1,
+      readyState: mongoose.connection.readyState,
+      name: mongoose.connection.name,
+    };
+  }
 }
 
 export const adminController = new AdminController();
