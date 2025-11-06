@@ -4,8 +4,7 @@
  * Purpose:
  *  - Sets up a Redis client for caching or quick key-value storage.
  * Notes:
- *  - Uses REDIS_URL from environment variables or defaults to 'redis://localhost:6379' for local development.
- *  - For Docker/production, set REDIS_URL=redis://redis:6379 in environment variables.
+ *  - Uses REDIS_URL from environment variables or defaults to 'redis://redis:6379'.
  *  - Logs errors to Sentry and console.
  *  - Connects automatically on import and exports the client for use in other modules.
  */

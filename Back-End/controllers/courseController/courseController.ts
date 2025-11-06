@@ -69,7 +69,7 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
     try {
       const result = await dbConn.request().query(`
         SELECT 
-            c._id, 
+            c.code, 
             c.title, 
             c.credits, 
             c.description,
@@ -84,16 +84,16 @@ async function getAllCourses(): Promise<CourseTypes.CourseInfo[] | undefined> {
             UNION ALL
             SELECT code2 AS requisite_code1, code1 AS requisite_code2, type AS requisite_type
             FROM Requisite
-        ) req ON c._id = req.requisite_code1
+        ) req ON c.code = req.requisite_code1
       `);
 
       const courses = result.recordset;
 
       const coursesWithRequisites = courses.reduce((acc: any, course: any) => {
-        const courseCode = course._id;
+        const courseCode = course.code;
         if (!acc[courseCode]) {
           acc[courseCode] = {
-            code: course._id,
+            code: course.code,
             title: course.title,
             credits: course.credits,
             description: course.description,
@@ -169,15 +169,15 @@ async function getCourseByCode(
       const requisitesResult = await dbConn
         .request()
         .input('code', Database.msSQL.VarChar, code).query(`
-                    SELECT r.type, r._id2 AS requisiteCode, c.description AS requisiteDescription
+                    SELECT r.type, r.code2 AS requisiteCode, c.description AS requisiteDescription
                     FROM Requisite r
-                    INNER JOIN Course c ON r._id2 = c._id
-                    WHERE r._id1 = @code
+                    INNER JOIN Course c ON r.code2 = c.code
+                    WHERE r.code1 = @code
                 `);
 
       // Construct course object with requisites
       return {
-        code: course._id,
+        code: course.code,
         title: course.title,
         credits: course.credits,
         description: course.description,
@@ -228,7 +228,7 @@ async function addCourse(
         .input('offeredIn', Database.msSQL.VarChar, courseInfo.offeredIn)
         .input('description', Database.msSQL.VarChar, description).query(`
                     INSERT INTO Course (code, title, credits, description, offeredIn)
-                    OUTPUT INSERTED._id
+                    OUTPUT INSERTED.code
                     VALUES (@code, @title, @credits, @description, @offeredIn)
                 `);
 
@@ -303,38 +303,38 @@ async function getCoursesByDegreeGrouped(
         SELECT 
           cp.id AS course_pool_id, 
           cp.name AS course_pool_name, 
-          c._id, 
+          c.code, 
           c.title, 
           c.credits, 
           c.description,
           c.offeredIn
         FROM DegreeXCoursePool dxcp
         INNER JOIN CourseXCoursePool cxcp ON dxcp.coursepool = cxcp.coursepool
-        INNER JOIN Course c ON cxcp.coursecode = c._id
+        INNER JOIN Course c ON cxcp.coursecode = c.code
         INNER JOIN CoursePool cp ON cxcp.coursepool = cp.id
         WHERE dxcp.degree = @degreeId
       )
       SELECT 
         c.course_pool_id, 
         c.course_pool_name, 
-        c._id, 
+        c.code, 
         c.title, 
         c.credits, 
         c.description,
         c.offeredIn,
         ISNULL(
           (SELECT 
-             r._id1, 
-             r._id2, 
+             r.code1, 
+             r.code2, 
              r.group_id, 
              r.type
            FROM Requisite r
-           WHERE r._id1 = c._id
+           WHERE r.code1 = c.code
            FOR JSON PATH
           ), '[]'
         ) AS requisites_json
       FROM Courses c
-      ORDER BY c.course_pool_name, c._id;
+      ORDER BY c.course_pool_name, c.code;
     `;
 
     const result = await dbConn
@@ -365,7 +365,7 @@ async function getCoursesByDegreeGrouped(
 
       // Create a course object with its requisites
       const course = {
-        code: record._id,
+        code: record.code,
         title: record.title,
         credits: record.credits,
         description: record.description,
@@ -428,18 +428,18 @@ async function getAllCoursesInDB(): Promise<
     try {
       const result = await dbConn.request().query(`
         SELECT 
-            c._id, 
+            c.code, 
             c.title,
             c.credits, 
             c.description,
             c.offeredIn,
-            r._id1 AS requisite_code1, 
-            r._id2 AS requisite_code2, 
+            r.code1 AS requisite_code1, 
+            r.code2 AS requisite_code2, 
             r.group_id AS requisite_group_id,
             r.type AS requisite_type
         FROM Course c
-        LEFT JOIN Requisite r ON c._id = r._id1
-        ORDER BY c._id
+        LEFT JOIN Requisite r ON c.code = r.code1
+        ORDER BY c.code
       `);
 
       const records = result.recordset;
@@ -451,10 +451,10 @@ async function getAllCoursesInDB(): Promise<
       const coursesMap: { [key: string]: CourseTypes.CourseInfoDB } = {};
 
       records.forEach((record: any) => {
-        const courseCode = record._id;
+        const courseCode = record.code;
         if (!coursesMap[courseCode]) {
           coursesMap[courseCode] = {
-            code: record._id,
+            code: record.code,
             title: record.title,
             credits: record.credits,
             description: record.description,
