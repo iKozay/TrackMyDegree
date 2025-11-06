@@ -52,7 +52,6 @@ jest.mock('../routes/requisite',      () => makeRouterStub());
 jest.mock('../routes/feedback',       () => makeRouterStub());
 jest.mock('../routes/session',        () => makeRouterStub());
 jest.mock('../routes/sectionsRoutes', () => makeRouterStub());
-jest.mock('../routes/transcript',     () => makeRouterStub());
 jest.mock('../routes/mongo',          () => makeRouterStub());
 
 /** ---- Import app AFTER all mocks ---- */
