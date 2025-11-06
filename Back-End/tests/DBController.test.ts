@@ -11,10 +11,6 @@ const mockConnect = jest.fn();
 jest.mock('mssql', () => ({ connect: (...args: any[]) => (global as any).__mssql_connect__(...args) }));
 jest.mock('@sentry/node', () => ({ captureException: jest.fn() }));
 
-// Provide requiredEnv so module can build sqlConfig without real envs
-jest.mock('@Util/requiredEnv', () => ({
-  requiredEnv: (k: string) => `dummy_${k}`,
-}));
 
 // Minimal fs mock for the password-file branch test
 const readFileSync = jest.fn();
@@ -31,9 +27,14 @@ const loadModule = async () => {
 
 describe('DBController.getConnection', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    process.env = { ...REAL_ENV };
-  });
+  jest.clearAllMocks();
+  process.env.SQL_SERVER_USER = 'u';
+  process.env.SQL_SERVER_PASSWORD = 'p';
+  process.env.SQL_SERVER_DATABASE = 'db';
+  process.env.SQL_SERVER_HOST = 'localhost';
+  delete process.env.SQL_SERVER_PASSWORD_FILE;
+});
+
 
   afterAll(() => {
     process.env = REAL_ENV;
