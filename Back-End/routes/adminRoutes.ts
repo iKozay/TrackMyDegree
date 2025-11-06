@@ -28,7 +28,7 @@ router.post('/tables', getTables);
 // Route to get records from a specific table with optional keyword filtering
 router.post('/tables/:tableName', getTableRecords);
 
-// Route to seed data (SQL Server)
+// NEW: Route to seed data
 router.post('/seed-data', seedSoenDegree);
 
 router.post('/fetch-backups', listBackups);

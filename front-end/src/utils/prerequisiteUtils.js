@@ -33,9 +33,9 @@ export const arePrerequisitesMet = (courseCode, currentSemesterIndex, courseInst
             const group = prerequisites.filter(
                 (p) => p.group_id === prereq.group_id
             );
-            return group.some((p) => completedCourses.includes(p._id2));
+            return group.some((p) => completedCourses.includes(p.code2));
         } else {
-            return completedCourses.includes(prereq._id2);
+            return completedCourses.includes(prereq.code2);
         }
     });
 
@@ -49,9 +49,9 @@ export const arePrerequisitesMet = (courseCode, currentSemesterIndex, courseInst
     const coreqMet = corequisites.every((coreq) => {
         if (coreq.group_id) {
             const group = corequisites.filter((c) => c.group_id === coreq.group_id);
-            return group.some((c) => availableCourses.includes(c._id2));
+            return group.some((c) => availableCourses.includes(c.code2));
         } else {
-            return availableCourses.includes(coreq._id2);
+            return availableCourses.includes(coreq.code2);
         }
     });
 

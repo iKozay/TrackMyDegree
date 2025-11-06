@@ -28,7 +28,6 @@ if (process.env.SQL_SERVER_PASSWORD_FILE) {
     console.error('Error reading SQL_SERVER_PASSWORD_FILE:', e);
   }
 }
-
 // Database connection configuration
 const sqlConfig: SQL.Config = {
   user: process.env.SQL_SERVER_USER,
