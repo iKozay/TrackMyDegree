@@ -58,6 +58,9 @@ describe('useFetchCoursesByDegree', () => {
 
     renderHook(() => useFetchCoursesByDegree('DEGREE1', true, mockDispatch));
 
+    // Wait for all async operations to complete
+    await Promise.resolve();
+    await Promise.resolve();
     await Promise.resolve();
 
     expect(api.get).toHaveBeenCalledWith('/courses/by-degree/DEGREE1');
@@ -96,6 +99,9 @@ describe('useFetchCoursesByDegree', () => {
 
     renderHook(() => useFetchCoursesByDegree('DEGREE1', true, mockDispatch));
 
+    // Wait for all async operations to complete
+    await Promise.resolve();
+    await Promise.resolve();
     await Promise.resolve();
 
     expect(mockDispatch).toHaveBeenCalledWith({

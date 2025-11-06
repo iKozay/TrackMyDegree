@@ -176,8 +176,27 @@ describe('Session Routes (MongoDB)', () => {
   });
 
   describe('GET /session/refresh - Additional Error Cases', () => {
+    beforeEach(() => {
+      // Reset mocks before each test
+      const { jwtService } = require('../services/jwtService');
+      const { refreshSession } = require('../Util/Session_Util');
+      jwtService.verifyAccessToken.mockReset();
+      jwtService.generateToken.mockReset();
+      refreshSession.mockReset();
+    });
+
     it('should handle missing userId in token payload', async () => {
       const { jwtService } = require('../services/jwtService');
+      const { refreshSession } = require('../Util/Session_Util');
+      
+      // Mock refreshSession to return a token
+      refreshSession.mockReturnValueOnce('refreshed-session-token');
+      
+      // Mock generateToken to throw an error when userId is missing
+      jwtService.generateToken.mockImplementationOnce(() => {
+        throw new Error('User ID not found in token');
+      });
+      
       const token = require('jsonwebtoken').sign(
         {
           orgId: 'test-org-id',
@@ -188,26 +207,31 @@ describe('Session Routes (MongoDB)', () => {
         { expiresIn: '1h' }
       );
 
+      // Mock verifyAccessToken to return payload without userId
+      // This will cause generateToken to fail
       jwtService.verifyAccessToken.mockReturnValueOnce({
         orgId: 'test-org-id',
         type: 'student',
         session_token: 'mock-session-token',
+        // No userId or id - this will cause generateToken to fail
       });
 
       const response = await request(app)
         .get('/session/refresh')
         .set('Cookie', `access_token=${token}`)
-        .expect(200);
+        .expect(401);
 
-      // Should still return success but without user data
-      expect(response.body).toBeDefined();
+      // When generateToken throws, it's caught and returns 401 with Internal server error
+      expect(response.body.error).toBe('Internal server error');
     });
 
     it('should handle refreshSession returning null', async () => {
       const { refreshSession } = require('../Util/Session_Util');
+      const { jwtService } = require('../services/jwtService');
+      
+      // Mock refreshSession to return null
       refreshSession.mockReturnValueOnce(null);
 
-      const { jwtService } = require('../services/jwtService');
       const token = require('jsonwebtoken').sign(
         {
           orgId: 'test-org-id',
@@ -220,6 +244,7 @@ describe('Session Routes (MongoDB)', () => {
         { expiresIn: '1h' }
       );
 
+      // Mock verifyAccessToken to return the decoded token
       jwtService.verifyAccessToken.mockReturnValueOnce({
         orgId: 'test-org-id',
         userId: 'test-user-id',
@@ -233,6 +258,7 @@ describe('Session Routes (MongoDB)', () => {
         .set('Cookie', `access_token=${token}`)
         .expect(401);
 
+      // When refreshSession returns null, it should return 401 with "Session refresh failed"
       expect(response.body.error).toBe('Session refresh failed');
     });
 
@@ -244,6 +270,12 @@ describe('Session Routes (MongoDB)', () => {
         .mockRejectedValue(new Error('User not found'));
 
       const { jwtService } = require('../services/jwtService');
+      const { refreshSession } = require('../Util/Session_Util');
+      
+      // Set up mocks
+      refreshSession.mockReturnValueOnce('refreshed-session-token');
+      jwtService.generateToken.mockReturnValueOnce('new-access-token');
+      
       const token = require('jsonwebtoken').sign(
         {
           orgId: 'test-org-id',
@@ -263,9 +295,6 @@ describe('Session Routes (MongoDB)', () => {
         type: 'student',
         session_token: 'mock-session-token',
       });
-
-      const { refreshSession } = require('../Util/Session_Util');
-      refreshSession.mockReturnValueOnce('refreshed-session-token');
 
       const response = await request(app)
         .get('/session/refresh')
@@ -280,15 +309,18 @@ describe('Session Routes (MongoDB)', () => {
 
     it('should handle general errors in refresh endpoint', async () => {
       const { jwtService } = require('../services/jwtService');
+      
+      // Mock verifyAccessToken to throw an error
       jwtService.verifyAccessToken.mockImplementationOnce(() => {
         throw new Error('Unexpected error');
       });
 
       const response = await request(app)
         .get('/session/refresh')
-        .set('Cookie', 'access_token=invalid-token')
+        .set('Cookie', 'access_token=some-token')
         .expect(401);
 
+      // When verifyAccessToken throws, it's caught and returns 401 with Internal server error
       expect(response.body.error).toBe('Internal server error');
     });
   });

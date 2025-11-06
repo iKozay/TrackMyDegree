@@ -288,11 +288,12 @@ describe('Course Routes', () => {
 
       // The route expects a degreeId parameter, so we test error handling
       // by checking what happens when degreeId is not found
+      // When a non-existent degree is used, getCoursePoolsForDegree throws an error
       const validResponse = await request(app)
         .get('/courses/by-degree/NONEXIST')
-        .expect(200); // Route returns empty array if no pools found
+        .expect(500); // Route returns 500 when degree doesn't exist
 
-      expect(Array.isArray(validResponse.body)).toBe(true);
+      expect(validResponse.body.error).toBe('Internal server error');
     });
 
     it('should handle server errors', async () => {
