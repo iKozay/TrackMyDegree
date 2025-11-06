@@ -1,6 +1,6 @@
 import request from 'supertest';
 
-// make env values strings (TS-safe)
+// TS-safe env tweaks for tests
 (process.env as any).PORT = '0';
 (process.env as any).NODE_ENV = 'test';
 
@@ -14,44 +14,48 @@ jest.mock('@sentry/profiling-node', () => ({
   nodeProfilingIntegration: jest.fn(() => ({})),
 }));
 
-/** ---- Swagger spec ---- */
+/** ---- Swagger spec (lightweight stub) ---- */
 jest.mock('../swagger', () => ({
   swaggerSpec: { openapi: '3.0.0', info: { title: 'TrackMyDegree API', version: '1.0.0' } },
 }));
 
-/** ---- DB controller for /test-db ---- */
-const getConnection = jest.fn();
+/** ---- DB controller for /test-db (prefix with mock*) ---- */
+const mockGetConnection = jest.fn();
 jest.mock('@controllers/DBController/DBController', () => ({
   __esModule: true,
-  default: { getConnection },
+  default: { getConnection: mockGetConnection },
 }));
 
-/** ---- Virtual router factory (bypass alias resolution) ---- */
-const makeVirtualRouter = () => {
+/** ---- Router stub factory ---- */
+const makeRouterStub = () => {
   const { Router } = require('express');
   const r = Router();
   r.get('/__ping', (_req: any, res: any) => res.status(200).send('ok'));
   return { __esModule: true, default: r };
 };
 
-// Mock each @routes/* as a VIRTUAL module so Jest doesn't resolve to disk
-jest.mock('@routes/auth',           () => makeVirtualRouter(), { virtual: true });
-jest.mock('@routes/courses',        () => makeVirtualRouter(), { virtual: true });
-jest.mock('@routes/exemption',      () => makeVirtualRouter(), { virtual: true });
-jest.mock('@routes/deficiency',     () => makeVirtualRouter(), { virtual: true });
-jest.mock('@routes/degree',         () => makeVirtualRouter(), { virtual: true });
-jest.mock('@routes/timeline',       () => makeVirtualRouter(), { virtual: true });
-jest.mock('@routes/coursepool',     () => makeVirtualRouter(), { virtual: true });
-jest.mock('@routes/userData',       () => makeVirtualRouter(), { virtual: true });
-jest.mock('@routes/adminRoutes',    () => makeVirtualRouter(), { virtual: true });
-jest.mock('@routes/requisite',      () => makeVirtualRouter(), { virtual: true });
-jest.mock('@routes/feedback',       () => makeVirtualRouter(), { virtual: true });
-jest.mock('@routes/session',        () => makeVirtualRouter(), { virtual: true });
-jest.mock('@routes/sectionsRoutes', () => makeVirtualRouter(), { virtual: true });
-jest.mock('@routes/transcript',     () => makeVirtualRouter(), { virtual: true });
-jest.mock('@routes/mongo',          () => makeVirtualRouter(), { virtual: true });
+/**
+ * IMPORTANT:
+ * Mock the *resolved physical paths* for routers, not the @routes/* alias.
+ * This avoids the moduleNameMapper collision in CI.
+ */
+jest.mock('../routes/auth',           () => makeRouterStub());
+jest.mock('../routes/courses',        () => makeRouterStub());
+jest.mock('../routes/exemption',      () => makeRouterStub());
+jest.mock('../routes/deficiency',     () => makeRouterStub());
+jest.mock('../routes/degree',         () => makeRouterStub());
+jest.mock('../routes/timeline',       () => makeRouterStub());
+jest.mock('../routes/coursepool',     () => makeRouterStub());
+jest.mock('../routes/userData',       () => makeRouterStub());
+jest.mock('../routes/adminRoutes',    () => makeRouterStub());
+jest.mock('../routes/requisite',      () => makeRouterStub());
+jest.mock('../routes/feedback',       () => makeRouterStub());
+jest.mock('../routes/session',        () => makeRouterStub());
+jest.mock('../routes/sectionsRoutes', () => makeRouterStub());
+jest.mock('../routes/transcript',     () => makeRouterStub());
+jest.mock('../routes/mongo',          () => makeRouterStub());
 
-/** ---- Import AFTER mocks ---- */
+/** ---- Import app AFTER all mocks ---- */
 import app from '../index';
 import * as Sentry from '@sentry/node';
 
@@ -67,7 +71,7 @@ describe('index.ts', () => {
     const fakePool = {
       request: () => ({ query: async () => ({ recordset: [{ number: 1 }] }) }),
     } as any;
-    getConnection.mockResolvedValueOnce(fakePool);
+    mockGetConnection.mockResolvedValueOnce(fakePool);
 
     const res = await request(app).get('/test-db');
     expect(res.status).toBe(200);
@@ -76,7 +80,7 @@ describe('index.ts', () => {
   });
 
   it('GET /test-db -> 500 when DB connection is undefined', async () => {
-    getConnection.mockResolvedValueOnce(undefined);
+    mockGetConnection.mockResolvedValueOnce(undefined);
 
     const res = await request(app).get('/test-db');
     expect(res.status).toBe(500);
