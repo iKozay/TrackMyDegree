@@ -81,6 +81,9 @@ router.get('/refresh', async (req: Request, res: Response) => {
       res.status(HTTP.OK).json(user);
     } catch (error) {
       // If user not found, still return success but without user data
+      if (error instanceof Error) {
+        console.error('Error fetching user data:', error.message);
+      }
       res.status(HTTP.OK).json({
         message: 'Session refreshed successfully',
       });

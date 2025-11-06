@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import Container from 'react-bootstrap/Container';
@@ -50,6 +51,24 @@ const CourseListAccordion = ({ courseList, selectedCourse, setSelectedCourse }) 
       ))}
     </Accordion>
   );
+};
+
+CourseListAccordion.propTypes = {
+    courseList: PropTypes.arrayOf(PropTypes.shape({
+        poolName: PropTypes.string.isRequired,
+        courses: PropTypes.arrayOf(PropTypes.shape({
+            _id: PropTypes.string.isRequired,
+            credits: PropTypes.number,
+            title: PropTypes.string,
+        })),
+        subcourses: PropTypes.array,
+        subcourseTitle: PropTypes.string,
+        subcourseCredits: PropTypes.number,
+    })).isRequired,
+    selectedCourse: PropTypes.shape({
+        _id: PropTypes.string,
+    }),
+    setSelectedCourse: PropTypes.func.isRequired,
 };
 
 export default CourseListAccordion;

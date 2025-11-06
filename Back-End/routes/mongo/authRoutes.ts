@@ -2,7 +2,7 @@ import HTTP from '@Util/HTTPCodes';
 import express, { Request, Response } from 'express';
 import { authController, UserType } from '@controllers/mondoDBControllers';
 import { jwtService } from '../../services/jwtService';
-import { UserHeaders, verifySession } from '@Util/Session_Util';
+import { UserHeaders } from '@Util/Session_Util';
 
 const router = express.Router();
 

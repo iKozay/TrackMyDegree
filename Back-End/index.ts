@@ -49,15 +49,16 @@ const MONGODB_URI =
   process.env.MONGODB_URI ||
   'mongodb://admin:changeme123@localhost:27017/trackmydegree?authSource=admin';
 
-mongoose
-  .connect(MONGODB_URI)
-  .then(() => {
+// Connect to MongoDB using async/await
+(async () => {
+  try {
+    await mongoose.connect(MONGODB_URI);
     console.log('Connected to MongoDB successfully!');
-  })
-  .catch((error) => {
+  } catch (error) {
     console.error('MongoDB connection error:', error);
     Sentry.captureException(error);
-  });
+  }
+})();
 
 mongoose.connection.on('error', (error) => {
   console.error('MongoDB connection error:', error);

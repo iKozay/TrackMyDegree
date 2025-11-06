@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 // CourseItem.js
 import React from 'react';
+import PropTypes from 'prop-types';
 import { SortableCourse } from "./SortableCourse";
 import { RemoveButton } from './RemoveButton';
 export const CourseItem = ({ course, instanceId, selectedCourse, activeId, onSelect, handleReturn, containerId, prerequisitesMet, isOffered }) => {
@@ -24,4 +25,20 @@ export const CourseItem = ({ course, instanceId, selectedCourse, activeId, onSel
             }
         />
     );
+};
+
+CourseItem.propTypes = {
+    course: PropTypes.shape({
+        _id: PropTypes.string.isRequired,
+    }).isRequired,
+    instanceId: PropTypes.string.isRequired,
+    selectedCourse: PropTypes.shape({
+        _id: PropTypes.string,
+    }),
+    activeId: PropTypes.string,
+    onSelect: PropTypes.func.isRequired,
+    handleReturn: PropTypes.func.isRequired,
+    containerId: PropTypes.string.isRequired,
+    prerequisitesMet: PropTypes.bool,
+    isOffered: PropTypes.bool,
 };

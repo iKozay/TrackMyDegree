@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Accordion, Container } from "react-bootstrap";
 import { DraggableCourse } from "./DraggableCourse";
 import { RemoveButton } from "./RemoveButton";
@@ -56,3 +57,20 @@ export default function CourseAccordionSection({
         </Accordion.Item>
     );
 }
+
+CourseAccordionSection.propTypes = {
+    eventKey: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    courses: PropTypes.arrayOf(PropTypes.shape({
+        _id: PropTypes.string.isRequired,
+    })).isRequired,
+    containerId: PropTypes.string.isRequired,
+    searchQuery: PropTypes.string.isRequired,
+    selectedCourse: PropTypes.shape({
+        _id: PropTypes.string,
+    }),
+    returning: PropTypes.bool,
+    isCourseAssigned: PropTypes.func.isRequired,
+    onSelect: PropTypes.func.isRequired,
+    onRemoveCourse: PropTypes.func,
+};
