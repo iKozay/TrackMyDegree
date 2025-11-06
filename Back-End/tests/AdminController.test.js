@@ -189,24 +189,6 @@ describe('AdminController', () => {
     });
   });
 
-  describe('getCollectionStats', () => {
-    beforeEach(async () => {
-      await User.create([
-        {
-          email: 'user1@example.com',
-          fullname: 'User One',
-          type: 'student',
-        },
-        {
-          email: 'user2@example.com',
-          fullname: 'User Two',
-          type: 'advisor',
-        },
-      ]);
-    });
-
-  });
-
   describe('clearCollection', () => {
     beforeEach(async () => {
       await User.create([

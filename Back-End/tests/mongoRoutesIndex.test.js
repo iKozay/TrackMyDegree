@@ -4,13 +4,14 @@ const request = require('supertest');
 const express = require('express');
 
 // Mock the transcript router that doesn't exist
-jest.mock('../../routes/transcript', () => {
+// Using the actual path that Jest resolves from @routes/transcript
+jest.mock('../routes/transcript', () => {
   const express = require('express');
   return {
     __esModule: true,
     default: express.Router(),
   };
-});
+}, { virtual: true });
 
 const mongoRouter = require('../routes/mongo/index').default;
 

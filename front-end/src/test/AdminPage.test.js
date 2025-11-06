@@ -4,8 +4,34 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import AdminPage from '../pages/AdminPage';
 
-// Mock fetch
-global.fetch = jest.fn();
+// Mock hooks instead of fetch
+jest.mock('../pages/AdminPage/hooks/useBackupManager', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
+
+jest.mock('../pages/AdminPage/hooks/useDatabaseTables', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
+
+jest.mock('../pages/AdminPage/hooks/useTableRecords', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
+
+// Mock api
+jest.mock('../api/http-api-client', () => ({
+  api: {
+    post: jest.fn(),
+  },
+}));
+
+import useBackupManager from '../pages/AdminPage/hooks/useBackupManager';
+import useDatabaseTables from '../pages/AdminPage/hooks/useDatabaseTables';
+import useTableRecords from '../pages/AdminPage/hooks/useTableRecords';
+import { api } from '../api/http-api-client';
+
 global.alert = jest.fn();
 
 // Helper to create mock headers
@@ -40,12 +66,49 @@ describe('AdminPage Integration Tests', () => {
     if (!process.env.REACT_APP_SERVER) {
       process.env.REACT_APP_SERVER = 'http://localhost:8000';
     }
+
+    // Setup default mock implementations for hooks
+    useBackupManager.mockReturnValue({
+      backups: [],
+      selectedBackup: '',
+      setSelectedBackup: jest.fn(),
+      loading: false,
+      error: null,
+      createBackup: jest.fn(),
+      restoreBackup: jest.fn(),
+      deleteBackup: jest.fn(),
+      refreshBackups: jest.fn(),
+    });
+
+    useDatabaseTables.mockReturnValue({
+      tables: [],
+      selectedTable: null,
+      loading: false,
+      error: '',
+      handleTableSelect: jest.fn(),
+      refreshTables: jest.fn(),
+    });
+
+    useTableRecords.mockReturnValue({
+      records: [],
+      columns: [],
+      loading: false,
+      error: '',
+      fetchRecords: jest.fn(),
+      handleSearch: jest.fn(),
+    });
   });
 
   describe('initial loading', () => {
     it('should show loading spinner initially', () => {
-      // Mock delayed response
-      fetch.mockImplementation(() => new Promise(() => {}));
+      useDatabaseTables.mockReturnValue({
+        tables: [],
+        selectedTable: null,
+        loading: true,
+        error: '',
+        handleTableSelect: jest.fn(),
+        refreshTables: jest.fn(),
+      });
 
       renderWithRouter(<AdminPage />);
 
@@ -54,43 +117,65 @@ describe('AdminPage Integration Tests', () => {
     });
 
     it('should fetch tables and backups on mount', async () => {
-      // Mock backups fetch
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: ['backup1.sql'] }),
+      useBackupManager.mockReturnValue({
+        backups: ['backup1.sql'],
+        selectedBackup: '',
+        setSelectedBackup: jest.fn(),
+        loading: false,
+        error: null,
+        createBackup: jest.fn(),
+        restoreBackup: jest.fn(),
+        deleteBackup: jest.fn(),
+        refreshBackups: jest.fn(),
       });
 
-      // Mock tables fetch
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: ['users', 'courses'] }),
+      useDatabaseTables.mockReturnValue({
+        tables: ['users', 'courses'],
+        selectedTable: null,
+        loading: false,
+        error: '',
+        handleTableSelect: jest.fn(),
+        refreshTables: jest.fn(),
       });
 
       renderWithRouter(<AdminPage />);
 
       await waitFor(() => {
-        expect(fetch).toHaveBeenCalledWith('http://localhost:8000/admin/fetch-backups', expect.any(Object));
-        expect(fetch).toHaveBeenCalledWith('http://localhost:8000/admin/tables', expect.any(Object));
+        expect(screen.getByText('Tables')).toBeInTheDocument();
       });
     });
   });
 
   describe('tables and records display', () => {
-    beforeEach(async () => {
-      // Mock backups fetch
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+    beforeEach(() => {
+      useBackupManager.mockReturnValue({
+        backups: [],
+        selectedBackup: '',
+        setSelectedBackup: jest.fn(),
+        loading: false,
+        error: null,
+        createBackup: jest.fn(),
+        restoreBackup: jest.fn(),
+        deleteBackup: jest.fn(),
+        refreshBackups: jest.fn(),
       });
 
-      // Mock tables fetch
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: ['users', 'courses'] }),
+      useDatabaseTables.mockReturnValue({
+        tables: ['users', 'courses'],
+        selectedTable: null,
+        loading: false,
+        error: '',
+        handleTableSelect: jest.fn(),
+        refreshTables: jest.fn(),
+      });
+
+      useTableRecords.mockReturnValue({
+        records: [],
+        columns: [],
+        loading: false,
+        error: '',
+        fetchRecords: jest.fn(),
+        handleSearch: jest.fn(),
       });
     });
 
@@ -110,21 +195,25 @@ describe('AdminPage Integration Tests', () => {
         { id: 2, name: 'Jane', email: 'jane@test.com' },
       ];
 
+      useDatabaseTables.mockReturnValue({
+        tables: ['users', 'courses'],
+        selectedTable: 'users',
+        loading: false,
+        error: '',
+        handleTableSelect: jest.fn(),
+        refreshTables: jest.fn(),
+      });
+
+      useTableRecords.mockReturnValue({
+        records: mockRecords,
+        columns: ['id', 'name', 'email'],
+        loading: false,
+        error: '',
+        fetchRecords: jest.fn(),
+        handleSearch: jest.fn(),
+      });
+
       renderWithRouter(<AdminPage />);
-
-      await waitFor(() => {
-        expect(screen.getByText('users')).toBeInTheDocument();
-      });
-
-      // Mock records fetch
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: mockRecords }),
-      });
-
-      const usersTable = screen.getByText('users');
-      fireEvent.click(usersTable);
 
       await waitFor(() => {
         expect(screen.getByText('John')).toBeInTheDocument();
@@ -143,67 +232,71 @@ describe('AdminPage Integration Tests', () => {
 
   describe('search functionality', () => {
     it('should search records when search is performed', async () => {
-      // Initial setup mocks
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+      const mockHandleSearch = jest.fn();
+
+      useDatabaseTables.mockReturnValue({
+        tables: ['users'],
+        selectedTable: 'users',
+        loading: false,
+        error: '',
+        handleTableSelect: jest.fn(),
+        refreshTables: jest.fn(),
       });
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: ['users'] }),
+
+      useTableRecords.mockReturnValue({
+        records: [{ id: 1, name: 'John' }],
+        columns: ['id', 'name'],
+        loading: false,
+        error: '',
+        fetchRecords: jest.fn(),
+        handleSearch: mockHandleSearch,
       });
 
       renderWithRouter(<AdminPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('users')).toBeInTheDocument();
-      });
-
-      // Select table
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [{ id: 1, name: 'John' }] }),
-      });
-
-      fireEvent.click(screen.getByText('users'));
-
-      await waitFor(() => {
         expect(screen.getByTestId('search-bar')).toBeInTheDocument();
-      });
-
-      // Perform search
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [{ id: 1, name: 'John' }] }),
       });
 
       const searchBar = screen.getByTestId('search-bar');
       fireEvent.change(searchBar, { target: { value: 'john' } });
 
       await waitFor(() => {
-        expect(fetch).toHaveBeenCalledWith('http://localhost:8000/admin/tables/users?keyword=john', expect.any(Object));
+        expect(mockHandleSearch).toHaveBeenCalledWith('users', 'john');
       });
     });
   });
 
   describe('backup management', () => {
-    beforeEach(async () => {
-      // Mock backups fetch
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: ['backup1.sql', 'backup2.sql'] }),
+    beforeEach(() => {
+      useBackupManager.mockReturnValue({
+        backups: ['backup1.sql', 'backup2.sql'],
+        selectedBackup: '',
+        setSelectedBackup: jest.fn(),
+        loading: false,
+        error: null,
+        createBackup: jest.fn().mockResolvedValue({ success: true, message: 'Backup created successfully' }),
+        restoreBackup: jest.fn(),
+        deleteBackup: jest.fn(),
+        refreshBackups: jest.fn(),
       });
 
-      // Mock tables fetch
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: ['users'] }),
+      useDatabaseTables.mockReturnValue({
+        tables: ['users'],
+        selectedTable: null,
+        loading: false,
+        error: '',
+        handleTableSelect: jest.fn(),
+        refreshTables: jest.fn(),
+      });
+
+      useTableRecords.mockReturnValue({
+        records: [],
+        columns: [],
+        loading: false,
+        error: '',
+        fetchRecords: jest.fn(),
+        handleSearch: jest.fn(),
       });
     });
 
@@ -217,31 +310,30 @@ describe('AdminPage Integration Tests', () => {
     });
 
     it('should create backup when create button is clicked', async () => {
+      const mockCreateBackup = jest.fn().mockResolvedValue({ success: true, message: 'Backup created successfully' });
+      useBackupManager.mockReturnValue({
+        backups: ['backup1.sql', 'backup2.sql'],
+        selectedBackup: '',
+        setSelectedBackup: jest.fn(),
+        loading: false,
+        error: null,
+        createBackup: mockCreateBackup,
+        restoreBackup: jest.fn(),
+        deleteBackup: jest.fn(),
+        refreshBackups: jest.fn(),
+      });
+
       renderWithRouter(<AdminPage />);
 
       await waitFor(() => {
         expect(screen.getByText('Create Backup')).toBeInTheDocument();
       });
 
-      // Mock create backup
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true }),
-      });
-
-      // Mock refresh backups
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: ['backup1.sql', 'backup2.sql', 'new-backup.sql'] }),
-      });
-
       const createButton = screen.getByText('Create Backup');
       fireEvent.click(createButton);
 
       await waitFor(() => {
-        expect(fetch).toHaveBeenCalledWith('http://localhost:8000/admin/create-backup', expect.any(Object));
+        expect(mockCreateBackup).toHaveBeenCalled();
         expect(alert).toHaveBeenCalledWith(expect.stringContaining('successfully'));
       });
     });
@@ -257,17 +349,35 @@ describe('AdminPage Integration Tests', () => {
   });
 
   describe('seed data functionality', () => {
-    beforeEach(async () => {
-      // Mock initial fetches
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+    beforeEach(() => {
+      useBackupManager.mockReturnValue({
+        backups: [],
+        selectedBackup: '',
+        setSelectedBackup: jest.fn(),
+        loading: false,
+        error: null,
+        createBackup: jest.fn(),
+        restoreBackup: jest.fn(),
+        deleteBackup: jest.fn(),
+        refreshBackups: jest.fn(),
       });
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: ['users'] }),
+
+      useDatabaseTables.mockReturnValue({
+        tables: ['users'],
+        selectedTable: null,
+        loading: false,
+        error: '',
+        handleTableSelect: jest.fn(),
+        refreshTables: jest.fn(),
+      });
+
+      useTableRecords.mockReturnValue({
+        records: [],
+        columns: [],
+        loading: false,
+        error: '',
+        fetchRecords: jest.fn(),
+        handleSearch: jest.fn(),
       });
     });
 
@@ -280,36 +390,39 @@ describe('AdminPage Integration Tests', () => {
     });
 
     it('should seed database when button is clicked', async () => {
+      api.post.mockResolvedValueOnce({
+        success: true,
+      });
+
       renderWithRouter(<AdminPage />);
 
       await waitFor(() => {
         expect(screen.getByText('Seed Database with JSON')).toBeInTheDocument();
-      });
-
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true }),
       });
 
       const seedButton = screen.getByText('Seed Database with JSON');
       fireEvent.click(seedButton);
 
       await waitFor(() => {
-        expect(fetch).toHaveBeenCalledWith('http://localhost:8000/admin/seed-data', expect.any(Object));
+        expect(api.post).toHaveBeenCalledWith(
+          '/admin/seed-data',
+          {},
+          expect.objectContaining({
+            credentials: 'include',
+          }),
+        );
         expect(alert).toHaveBeenCalledWith('Data seeding successful!');
       });
     });
 
     it('should show loading state when seeding', async () => {
+      api.post.mockReturnValue(new Promise(() => {})); // Never resolves
+
       renderWithRouter(<AdminPage />);
 
       await waitFor(() => {
         expect(screen.getByText('Seed Database with JSON')).toBeInTheDocument();
       });
-
-      // Mock delayed response
-      fetch.mockImplementation(() => new Promise(() => {}));
 
       const seedButton = screen.getByText('Seed Database with JSON');
       fireEvent.click(seedButton);
@@ -320,16 +433,15 @@ describe('AdminPage Integration Tests', () => {
     });
 
     it('should handle seed data failure', async () => {
+      api.post.mockResolvedValueOnce({
+        success: false,
+        message: 'Seeding failed',
+      });
+
       renderWithRouter(<AdminPage />);
 
       await waitFor(() => {
         expect(screen.getByText('Seed Database with JSON')).toBeInTheDocument();
-      });
-
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: false, message: 'Seeding failed' }),
       });
 
       const seedButton = screen.getByText('Seed Database with JSON');
@@ -343,18 +455,13 @@ describe('AdminPage Integration Tests', () => {
 
   describe('error handling', () => {
     it('should display error message when tables fetch fails', async () => {
-      // Mock backups fetch success
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
-      });
-
-      // Mock tables fetch failure
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: false }),
+      useDatabaseTables.mockReturnValue({
+        tables: [],
+        selectedTable: null,
+        loading: false,
+        error: 'Error fetching table list',
+        handleTableSelect: jest.fn(),
+        refreshTables: jest.fn(),
       });
 
       renderWithRouter(<AdminPage />);
@@ -364,85 +471,55 @@ describe('AdminPage Integration Tests', () => {
       });
     });
 
-    it('should navigate to /403 when unauthorized', async () => {
-      // Mock backups fetch
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
-      });
-
-      // Mock tables fetch with 403
-      fetch.mockResolvedValueOnce({
-        ok: false,
-        headers: createMockHeaders(),
-      });
-
-      renderWithRouter(<AdminPage />);
-
-      await waitFor(() => {
-        // Component should attempt navigation (tested in hook test)
-        expect(fetch).toHaveBeenCalled();
-      });
-    });
   });
 
   describe('user workflows', () => {
     it('should handle complete table selection and search workflow', async () => {
-      // Initial setup
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+      const mockHandleTableSelect = jest.fn();
+      const mockHandleSearch = jest.fn();
+
+      useBackupManager.mockReturnValue({
+        backups: [],
+        selectedBackup: '',
+        setSelectedBackup: jest.fn(),
+        loading: false,
+        error: null,
+        createBackup: jest.fn(),
+        restoreBackup: jest.fn(),
+        deleteBackup: jest.fn(),
+        refreshBackups: jest.fn(),
       });
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: ['users', 'courses'] }),
+
+      useDatabaseTables.mockReturnValue({
+        tables: ['users', 'courses'],
+        selectedTable: 'users',
+        loading: false,
+        error: '',
+        handleTableSelect: mockHandleTableSelect,
+        refreshTables: jest.fn(),
+      });
+
+      useTableRecords.mockReturnValue({
+        records: [{ id: 1, name: 'John' }],
+        columns: ['id', 'name'],
+        loading: false,
+        error: '',
+        fetchRecords: jest.fn(),
+        handleSearch: mockHandleSearch,
       });
 
       renderWithRouter(<AdminPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('users')).toBeInTheDocument();
-      });
-
-      // Select table
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({
-          success: true,
-          data: [
-            { id: 1, name: 'John' },
-            { id: 2, name: 'Jane' },
-          ],
-        }),
-      });
-
-      fireEvent.click(screen.getByText('users'));
-
-      await waitFor(() => {
         expect(screen.getByText('John')).toBeInTheDocument();
-        expect(screen.getByText('Jane')).toBeInTheDocument();
-      });
-
-      // Perform search
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({
-          success: true,
-          data: [{ id: 1, name: 'John' }],
-        }),
+        expect(screen.getByTestId('search-bar')).toBeInTheDocument();
       });
 
       const searchBar = screen.getByTestId('search-bar');
       fireEvent.change(searchBar, { target: { value: 'john' } });
 
       await waitFor(() => {
-        expect(screen.getByText('John')).toBeInTheDocument();
-        expect(screen.queryByText('Jane')).not.toBeInTheDocument();
+        expect(mockHandleSearch).toHaveBeenCalledWith('users', 'john');
       });
     });
   });

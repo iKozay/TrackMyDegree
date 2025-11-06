@@ -27,7 +27,7 @@ jest.mock('../../components/RemoveButton', () => ({
 describe('CourseItem', () => {
   const mockSelect = jest.fn();
   const mockReturn = jest.fn();
-  const sampleCourse = { code: 'COMP248' };
+  const sampleCourse = { _id: 'COMP248' };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -58,7 +58,7 @@ describe('CourseItem', () => {
       <CourseItem
         course={sampleCourse}
         instanceId="1"
-        selectedCourse={{ code: 'OTHER' }}
+        selectedCourse={{ _id: 'OTHER' }}
         activeId="2"
         onSelect={mockSelect}
         handleReturn={mockReturn}

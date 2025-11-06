@@ -88,7 +88,7 @@ describe('arePrerequisitesMet', () => {
   const semesters = [{ id: 'Fall2025' }, { id: 'Winter2026' }];
 
   test('returns true if course has no requisites', () => {
-    const allCourses = [{ code: 'COMP100', requisites: [] }];
+    const allCourses = [{ _id: 'COMP100', requisites: [] }];
     const semesterCourses = { Fall2025: ['COMP100'] };
     const courseInstanceMap = {};
 
@@ -98,10 +98,10 @@ describe('arePrerequisitesMet', () => {
   test('returns true if prerequisites are met', () => {
     const allCourses = [
       {
-        code: 'COMP200',
-        requisites: [{ type: 'pre', code2: 'COMP100' }],
+        _id: 'COMP200',
+        requisites: [{ type: 'pre', _id2: 'COMP100' }],
       },
-      { code: 'COMP100', requisites: [] },
+      { _id: 'COMP100', requisites: [] },
     ];
     const semesterCourses = { Fall2025: ['COMP100'] };
     const courseInstanceMap = {};
@@ -112,10 +112,10 @@ describe('arePrerequisitesMet', () => {
   test('returns false if prerequisites are not met', () => {
     const allCourses = [
       {
-        code: 'COMP200',
-        requisites: [{ type: 'pre', code2: 'COMP100' }],
+        _id: 'COMP200',
+        requisites: [{ type: 'pre', _id2: 'COMP100' }],
       },
-      { code: 'COMP100', requisites: [] },
+      { _id: 'COMP100', requisites: [] },
     ];
     const semesterCourses = { Fall2025: [] };
     const courseInstanceMap = {};
@@ -126,10 +126,10 @@ describe('arePrerequisitesMet', () => {
   test('corequisites can be met in current semester', () => {
     const allCourses = [
       {
-        code: 'COMP300',
-        requisites: [{ type: 'co', code2: 'COMP200' }],
+        _id: 'COMP300',
+        requisites: [{ type: 'co', _id2: 'COMP200' }],
       },
-      { code: 'COMP200', requisites: [] },
+      { _id: 'COMP200', requisites: [] },
     ];
     const semesterCourses = { Fall2025: [], Winter2026: ['COMP200'] };
     const courseInstanceMap = {};
@@ -140,14 +140,14 @@ describe('arePrerequisitesMet', () => {
   test('grouped prerequisite met if at least one course in group is completed', () => {
     const allCourses = [
       {
-        code: 'COMP400',
+        _id: 'COMP400',
         requisites: [
-          { type: 'pre', code2: 'COMP100', group_id: 1 },
-          { type: 'pre', code2: 'COMP101', group_id: 1 },
+          { type: 'pre', _id2: 'COMP100', group_id: 1 },
+          { type: 'pre', _id2: 'COMP101', group_id: 1 },
         ],
       },
-      { code: 'COMP100', requisites: [] },
-      { code: 'COMP101', requisites: [] },
+      { _id: 'COMP100', requisites: [] },
+      { _id: 'COMP101', requisites: [] },
     ];
     const semesterCourses = { Fall2025: ['COMP101'] };
     const courseInstanceMap = {};
@@ -223,7 +223,7 @@ describe('compareSemesters', () => {
 import { buildTimelinePayload } from '../utils/timelineUtils'; // adjust path
 
 describe('buildTimelinePayload', () => {
-  const baseCourses = [{ code: 'COMP101' }, { code: 'MATH101' }];
+  const baseCourses = [{ _id: 'COMP101' }, { _id: 'MATH101' }];
 
   const baseCourseMap = { COMP101: 'COMP101', MATH101: 'MATH101' };
 
@@ -299,7 +299,7 @@ describe('buildTimelinePayload', () => {
       semesterCourses: { sem1: [] },
       courseInstanceMap: baseCourseMap,
       allCourses: baseCourses,
-      deficiencyCourses: [{ code: 'MATH101' }],
+      deficiencyCourses: [{ _id: 'MATH101' }],
     });
 
     const deficiencies = result.items.find((i) => i.season === 'deficiencies');
@@ -358,8 +358,8 @@ import { parseCourses } from '../utils/timelineUtils'; // adjust path
 
 describe('parseCourses', () => {
   const allCourses = [
-    { code: 'COMP101', credits: 3 },
-    { code: 'MATH101', credits: 4 },
+    { _id: 'COMP101', credits: 3 },
+    { _id: 'MATH101', credits: 4 },
   ];
   const courseInstanceMap = {};
 
@@ -535,9 +535,9 @@ import { calculateSemesterCredits } from '../utils/timelineUtils';
 
 describe('calculateSemesterCredits', () => {
   const allCourses = [
-    { code: 'MATH101', credits: 3 },
-    { code: 'CS102', credits: 4 },
-    { code: 'PHYS101', credits: 2 },
+    { _id: 'MATH101', credits: 3 },
+    { _id: 'CS102', credits: 4 },
+    { _id: 'PHYS101', credits: 2 },
   ];
 
   const courseInstanceMap = {
@@ -649,14 +649,14 @@ import jsPDF from 'jspdf';
 
 describe('areRequisitesMet', () => {
   const allCourses = [
-    { code: 'COMP101', requisites: [] },
-    { code: 'COMP102', requisites: [{ type: 'pre', code2: 'COMP101' }] },
-    { code: 'COMP103', requisites: [{ type: 'co', code2: 'COMP101' }] },
+    { _id: 'COMP101', requisites: [] },
+    { _id: 'COMP102', requisites: [{ type: 'pre', _id2: 'COMP101' }] },
+    { _id: 'COMP103', requisites: [{ type: 'co', _id2: 'COMP101' }] },
     {
-      code: 'COMP104',
+      _id: 'COMP104',
       requisites: [
-        { type: 'pre', code2: 'COMP101', group_id: 1 },
-        { type: 'pre', code2: 'COMP102', group_id: 1 },
+        { type: 'pre', _id2: 'COMP101', group_id: 1 },
+        { type: 'pre', _id2: 'COMP102', group_id: 1 },
       ],
     },
   ];
@@ -735,31 +735,31 @@ describe('calculateTotalCredits2', () => {
       poolId: 'core',
       poolName: 'Core Courses (10)',
       courses: [
-        { code: 'COMP 101', credits: 3 },
-        { code: 'MATH 101', credits: 4 },
+        { _id: 'COMP 101', credits: 3 },
+        { _id: 'MATH 101', credits: 4 },
       ],
     },
     {
       poolId: 'electives',
       poolName: 'Electives (6)',
       courses: [
-        { code: 'HIST 101', credits: 3 },
-        { code: 'PHYS 101', credits: 3 },
+        { _id: 'HIST 101', credits: 3 },
+        { _id: 'PHYS 101', credits: 3 },
       ],
     },
     {
       poolId: 'option',
       poolName: 'Optional Courses (6)',
-      courses: [{ code: 'ART 101', credits: 3 }],
+      courses: [{ _id: 'ART 101', credits: 3 }],
     },
   ];
 
   const allCourses = [
-    { code: 'COMP 101', credits: 3 },
-    { code: 'MATH 101', credits: 4 },
-    { code: 'HIST 101', credits: 3 },
-    { code: 'PHYS 101', credits: 3 },
-    { code: 'ART 101', credits: 3 },
+    { _id: 'COMP 101', credits: 3 },
+    { _id: 'MATH 101', credits: 4 },
+    { _id: 'HIST 101', credits: 3 },
+    { _id: 'PHYS 101', credits: 3 },
+    { _id: 'ART 101', credits: 3 },
   ];
 
   const courseInstanceMap = {
@@ -955,14 +955,14 @@ describe('arePrerequisitesMet (additional)', () => {
   test('handles multiple prerequisites, all must be met', () => {
     const allCourses2 = [
       {
-        code: 'COMP300',
+        _id: 'COMP300',
         requisites: [
-          { type: 'pre', code2: 'COMP100' },
-          { type: 'pre', code2: 'COMP200' },
+          { type: 'pre', _id2: 'COMP100' },
+          { type: 'pre', _id2: 'COMP200' },
         ],
       },
-      { code: 'COMP100', requisites: [] },
-      { code: 'COMP200', requisites: [] },
+      { _id: 'COMP100', requisites: [] },
+      { _id: 'COMP200', requisites: [] },
     ];
     const semesterCourses = { Fall2025: ['COMP100', 'COMP200'] };
     expect(arePrerequisitesMet('COMP300', 1, {}, allCourses2, semesters, semesterCourses)).toBe(true);
@@ -994,7 +994,7 @@ describe('getTimelineInfo (edge cases)', () => {
 describe('parseCourses (edge cases)', () => {
   test('handles timelineInfo with unknown season', () => {
     const timelineInfo = [{ season: 'unknown', year: 2025, courses: ['COMP101'] }];
-    const result = parseCourses(timelineInfo, {}, [{ code: 'COMP101', credits: 3 }], false);
+    const result = parseCourses(timelineInfo, {}, [{ _id: 'COMP101', credits: 3 }], false);
     expect(result.nonExemptedData[0].season).toBe('unknown');
   });
 });

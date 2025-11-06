@@ -2,13 +2,13 @@ import { renderHook } from '@testing-library/react';
 import { useRemainingCourses } from '../../hooks/useRemainingCourses';
 
 describe('useRemainingCourses', () => {
-  const allCourses = [{ code: 'COMP101' }, { code: 'MATH101' }, { code: 'ENGR201' }];
+  const allCourses = [{ _id: 'COMP101' }, { _id: 'MATH101' }, { _id: 'ENGR201' }];
 
-  const coursePools = [{ courses: [{ code: 'COMP101' }, { code: 'MATH101' }] }];
+  const coursePools = [{ courses: [{ _id: 'COMP101' }, { _id: 'MATH101' }] }];
 
   test('returns courses not in the pools', () => {
     const { result } = renderHook(() => useRemainingCourses(coursePools, allCourses));
-    expect(result.current).toEqual([{ code: 'ENGR201' }]);
+    expect(result.current).toEqual([{ _id: 'ENGR201' }]);
   });
 
   test('returns empty array if coursePools is empty', () => {

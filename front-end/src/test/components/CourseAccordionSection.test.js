@@ -11,7 +11,7 @@ jest.mock('../../components/RemoveButton', () => ({
 }));
 
 test('renders visible courses matching search query', () => {
-  const mockCourses = [{ code: 'COMP248' }, { code: 'COMP249' }, { code: 'SOEN287' }];
+  const mockCourses = [{ _id: 'COMP248' }, { _id: 'COMP249' }, { _id: 'SOEN287' }];
 
   const mockProps = {
     eventKey: '1',
@@ -35,7 +35,7 @@ test('renders visible courses matching search query', () => {
 });
 
 test('returns null when no courses match search query', () => {
-  const mockCourses = [{ code: 'COMP248' }];
+  const mockCourses = [{ _id: 'COMP248' }];
 
   const mockProps = {
     eventKey: '1',

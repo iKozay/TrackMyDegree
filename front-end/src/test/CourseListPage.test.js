@@ -8,9 +8,9 @@ jest.mock('../pages/CourseListPage/hooks/useDegree', () => jest.fn());
 jest.mock('../pages/CourseListPage/hooks/useCourses', () => jest.fn());
 jest.mock('../pages/CourseListPage/hooks/useResponsive', () => jest.fn());
 
-import useDegrees from 'front-end/src/pages/CourseListPage/hooks/useDegree';
-import useCourses from 'front-end/src/pages/CourseListPage/hooks/useCourses';
-import useResponsive from 'front-end/src/pages/CourseListPage/hooks/useResponsive';
+import useDegrees from '../pages/CourseListPage/hooks/useDegree';
+import useCourses from '../pages/CourseListPage/hooks/useCourses';
+import useResponsive from '../pages/CourseListPage/hooks/useResponsive';
 
 // Mock child components
 jest.mock('../pages/CourseListPage/components/DegreeSelector', () => (props) => (
