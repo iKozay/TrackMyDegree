@@ -71,8 +71,8 @@ services:
   backend:
     image: ghcr.io/ikozay/trackmydegree-backend:latest
     restart: unless-stopped
-    expose:
-      - "8000"
+    ports:
+      - "8000:8000"
     environment:
       - SQL_SERVER_HOST=sqlserver
       - SQL_SERVER_USER=sa
@@ -158,6 +158,7 @@ services:
       # See: https://docs.docker.com/compose/how-tos/use-secrets/
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=changeme123
+      - MONGO_INITDB_DATABASE=trackmydegree
     volumes:
       - mongodb-data:/data/db
     networks:

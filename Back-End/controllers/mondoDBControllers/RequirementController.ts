@@ -2,7 +2,6 @@ import { runScraper } from "../../course-data/Scraping/Scrapers/runScraper";
 import {DegreeController, DegreeData} from "./DegreeController";
 import {CoursePoolController, CoursePoolData} from "./CoursepoolController";
 import {CourseController, CourseData} from "./CourseController";
-import { log } from "console";
 
 /* Seed degree data in the database */
 export async function seedDegreeData(degreeName:string): Promise<void>{
@@ -74,6 +73,3 @@ export async function getRequirements(degreeID: string): Promise<Requirements> {
     
     return output;
 }
-
-seedDegreeData("Software Engineering");
-log(getRequirements("Software Engineering"));
