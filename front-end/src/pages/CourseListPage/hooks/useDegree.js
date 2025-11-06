@@ -17,8 +17,8 @@ const useDegrees = () => {
       setError(null);
 
       try {
-        const jsonData = await api.get('/degree');
-        setDegrees(jsonData.degrees || []);
+        const degrees = await api.get('/degree');
+        setDegrees(degrees || []);
       } catch (err) {
         setError(err.message || 'Failed to fetch degrees');
         Sentry.captureException(err);

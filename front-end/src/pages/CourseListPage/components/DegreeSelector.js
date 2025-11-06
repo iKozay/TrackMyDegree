@@ -30,7 +30,7 @@ const DegreeSelector = ({
           ) : (
             degrees.map((degree) => (
               <Dropdown.Item
-                key={degree.id || degree.name} // use unique id or name instead of index
+                key={degree._id || degree.name} // use unique id or name instead of index
                 onClick={() => onDegreeSelect(degree)}
               >
                 {degree.name}

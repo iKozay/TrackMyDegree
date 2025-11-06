@@ -3,6 +3,7 @@ import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import mongoose from 'mongoose';
 import Database from '@controllers/DBController/DBController';
 import HTTP from '@Util/HTTPCodes';
@@ -70,6 +71,16 @@ mongoose.connection.on('disconnected', () => {
 });
 
 Sentry.setupExpressErrorHandler(app);
+
+// CORS configuration
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
