@@ -25,7 +25,6 @@ import userDataRouter from '@routes/userData';
 import Admin from '@routes/adminRoutes';
 import requisiteRouter from '@routes/requisite';
 import feedbackRouter from '@routes/feedback';
-import sessionRouter from '@routes/session';
 import sectionsRoutes from '@routes/sectionsRoutes';
 import transcriptRouter from '@routes/transcript';
 import mongoRouter from '@routes/mongo';
@@ -67,7 +66,6 @@ app.use('/data', userDataRouter);
 app.use('/admin', Admin);
 app.use('/requisite', requisiteRouter);
 app.use('/feedback', feedbackRouter);
-app.use('/session', sessionRouter);
 app.use('/section', sectionsRoutes);
 app.use('/transcript', transcriptRouter);
 
