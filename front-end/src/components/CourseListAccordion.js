@@ -55,18 +55,33 @@ const CourseListAccordion = ({ courseList, selectedCourse, setSelectedCourse }) 
 
 CourseListAccordion.propTypes = {
     courseList: PropTypes.arrayOf(PropTypes.shape({
+        poolId: PropTypes.string,
         poolName: PropTypes.string.isRequired,
+        creditsRequired: PropTypes.number,
         courses: PropTypes.arrayOf(PropTypes.shape({
             _id: PropTypes.string.isRequired,
-            credits: PropTypes.number,
-            title: PropTypes.string,
+            title: PropTypes.string.isRequired,
+            credits: PropTypes.number.isRequired,
+            description: PropTypes.string,
+            offeredIn: PropTypes.arrayOf(PropTypes.string),
+            prerequisites: PropTypes.arrayOf(PropTypes.string),
+            corequisites: PropTypes.arrayOf(PropTypes.string),
+        })).isRequired,
+        subcourses: PropTypes.arrayOf(PropTypes.shape({
+            poolName: PropTypes.string,
+            courses: PropTypes.array,
         })),
-        subcourses: PropTypes.array,
         subcourseTitle: PropTypes.string,
         subcourseCredits: PropTypes.number,
     })).isRequired,
     selectedCourse: PropTypes.shape({
-        _id: PropTypes.string,
+        _id: PropTypes.string.isRequired,
+        title: PropTypes.string,
+        credits: PropTypes.number,
+        description: PropTypes.string,
+        offeredIn: PropTypes.arrayOf(PropTypes.string),
+        prerequisites: PropTypes.arrayOf(PropTypes.string),
+        corequisites: PropTypes.arrayOf(PropTypes.string),
     }),
     setSelectedCourse: PropTypes.func.isRequired,
 };

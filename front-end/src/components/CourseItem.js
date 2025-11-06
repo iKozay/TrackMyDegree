@@ -30,10 +30,22 @@ export const CourseItem = ({ course, instanceId, selectedCourse, activeId, onSel
 CourseItem.propTypes = {
     course: PropTypes.shape({
         _id: PropTypes.string.isRequired,
+        title: PropTypes.string,
+        credits: PropTypes.number,
+        description: PropTypes.string,
+        offeredIn: PropTypes.arrayOf(PropTypes.string),
+        prerequisites: PropTypes.arrayOf(PropTypes.string),
+        corequisites: PropTypes.arrayOf(PropTypes.string),
     }).isRequired,
     instanceId: PropTypes.string.isRequired,
     selectedCourse: PropTypes.shape({
-        _id: PropTypes.string,
+        _id: PropTypes.string.isRequired,
+        title: PropTypes.string,
+        credits: PropTypes.number,
+        description: PropTypes.string,
+        offeredIn: PropTypes.arrayOf(PropTypes.string),
+        prerequisites: PropTypes.arrayOf(PropTypes.string),
+        corequisites: PropTypes.arrayOf(PropTypes.string),
     }),
     activeId: PropTypes.string,
     onSelect: PropTypes.func.isRequired,
