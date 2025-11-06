@@ -41,7 +41,7 @@ def get_page(url):
     return BeautifulSoup(resp.content, 'lxml', from_encoding=encoding)
 
 
-soup = get_page(sys.argv[1])
+
 
 
 def get_courses(url, pool_name):
@@ -61,7 +61,7 @@ def get_courses(url, pool_name):
     return output
 
 def handle_engineering_core_restrictions(degree_name):
-    if degree_name!="Beng in Industrial Engineering":
+    if degree_name!="BEng in Industrial Engineering":
         course_pool[0]["creditsRequired"]=course_pool[0]["creditsRequired"]-3
         electives_results= engr_general_electives_scraper.scrape_electives()
         degree["coursePools"].append("General Education Humanities and Social Sciences Electives")
@@ -89,40 +89,42 @@ def handle_engineering_core_restrictions(degree_name):
         return
     course_pool[0]["name"]=f"({degree_name}) {course_pool[0]["name"]}"
 
-try:
-    #------------------------Course Pool--------------------------------------#
-    pool_group = soup.find('div', class_='program-required-courses defined-group')
-    pools = pool_group.find_all('tr')
-    for pool in pools:
-        credits = float(pool.find('td').text)
-        name = pool.find('a').text
-        temp_url = pool.find('a').get('href')
-        temp_url = re.sub(r'#\d+$', '', temp_url)
-        course_list=get_courses(temp_url, name)
-        course_pool.append({
-            '_id': name,
-            'name': name,
-            'creditsRequired': credits,
-            'courses':course_list
-        })
-    #-----------------------Degree----------------------------------------#    
-        degree["coursePools"].append(name)
-    
-    title = soup.find('div', class_="title program-title").find('h3').text
-    match = re.search(r'(.+?)\s*\(\s*(\d+)\s+credits\s*\)', title, re.IGNORECASE)
-    degree["name"] = match.group(1).strip()
-    degree["_id"]=degree["name"]
-    degree["totalCredits"] = int(match.group(2))
+if __name__ == "__main__":
+    soup = get_page(sys.argv[1])
+    try:
+        #------------------------Course Pool--------------------------------------#
+        pool_group = soup.find('div', class_='program-required-courses defined-group')
+        pools = pool_group.find_all('tr')
+        for pool in pools:
+            credits = float(pool.find('td').text)
+            name = pool.find('a').text
+            temp_url = pool.find('a').get('href')
+            temp_url = re.sub(r'#\d+$', '', temp_url)
+            course_list=get_courses(temp_url, name)
+            course_pool.append({
+                '_id': name,
+                'name': name,
+                'creditsRequired': credits,
+                'courses':course_list
+            })
+        #-----------------------Degree----------------------------------------#    
+            degree["coursePools"].append(name)
+        
+        title = soup.find('div', class_="title program-title").find('h3').text
+        match = re.search(r'(.+?)\s*\(\s*(\d+)\s+credits\s*\)', title, re.IGNORECASE)
+        degree["name"] = match.group(1).strip()
+        degree["_id"]=degree["name"]
+        degree["totalCredits"] = int(match.group(2))
 
-    handle_engineering_core_restrictions(degree["name"])
-except Exception as e:
-    print(f"Error processing course block: {e}")
-    sys.exit(1)
+        handle_engineering_core_restrictions(degree["name"])
+    except Exception as e:
+        print(f"Error processing course block: {e}")
+        sys.exit(1)
 
-#Output as JSON
-output={
-    "degree":degree,
-    "course_pool":course_pool,
-    "courses":courses
-}
-sys.stdout.buffer.write(json.dumps(output, ensure_ascii=False).encode('utf-8'))
+    #Output as JSON
+    output={
+        "degree":degree,
+        "course_pool":course_pool,
+        "courses":courses
+    }
+    sys.stdout.buffer.write(json.dumps(output, ensure_ascii=False).encode('utf-8'))
