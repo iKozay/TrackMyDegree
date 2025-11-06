@@ -3,7 +3,7 @@ import { useFetchAllCourses } from '../../hooks/useFetchAllCourses';
 import { api } from '../../api/http-api-client';
 
 jest.mock('../../api/http-api-client', () => ({
-  api: { post: jest.fn() },
+  api: { get: jest.fn() },
 }));
 
 describe('useFetchAllCourses', () => {
@@ -14,7 +14,7 @@ describe('useFetchAllCourses', () => {
 
   test('fetches all courses and dispatches correctly', async () => {
     const mockCourses = [{ code: 'COMP101', name: 'Intro to CS' }];
-    api.post.mockResolvedValue(mockCourses);
+      api.get.mockResolvedValue(mockCourses);
 
     const mockDispatch = jest.fn();
     const extendedCredit = true;
@@ -24,7 +24,7 @@ describe('useFetchAllCourses', () => {
     // Wait for promises to resolve
     await Promise.resolve();
 
-    expect(api.post).toHaveBeenCalledWith('/courses/getAllCourses');
+    expect(api.get).toHaveBeenCalledWith('/courses');
     expect(mockDispatch).toHaveBeenCalledWith({
       type: 'SET',
       payload: { allCourses: mockCourses },
@@ -43,7 +43,7 @@ describe('useFetchAllCourses', () => {
 
   test('uses stored timeline name if present', async () => {
     localStorage.setItem('Timeline_Name', 'My Timeline');
-    api.post.mockResolvedValue([]);
+      api.get.mockResolvedValue([]);
 
     const mockDispatch = jest.fn();
     renderHook(() => useFetchAllCourses(mockDispatch, false));

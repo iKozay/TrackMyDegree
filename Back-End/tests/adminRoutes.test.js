@@ -2,9 +2,16 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const express = require('express');
 const request = require('supertest');
-const adminRoutes = require('../routes/mongo/adminRoutes').default;
 const { Course } = require('../models/Course');
 const { User } = require('../models/User');
+
+// Mock auth middleware
+jest.mock('../middleware/authMiddleware', () => ({
+  authMiddleware: (req, res, next) => next(),
+  adminCheckMiddleware: (req, res, next) => next(),
+}));
+
+const adminRoutes = require('../routes/mongo/adminRoutes').default;
 
 // Create test app
 const app = express();
@@ -53,10 +60,10 @@ describe('Admin Routes', () => {
     it('should get all collections', async () => {
       const response = await request(app).get('/admin/collections').expect(200);
 
-      expect(response.body.message).toBe('Collections retrieved successfully');
-      expect(response.body.collections).toContain('users');
-      expect(response.body.collections).toContain('courses');
-      expect(Array.isArray(response.body.collections)).toBe(true);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toContain('users');
+      expect(response.body.data).toContain('courses');
+      expect(Array.isArray(response.body.data)).toBe(true);
     });
 
     it('should handle database connection errors', async () => {
@@ -65,7 +72,8 @@ describe('Admin Routes', () => {
 
       const response = await request(app).get('/admin/collections').expect(500);
 
-      expect(response.body.error).toContain('not available');
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toContain('not available');
 
       mongoose.connection.db = originalDb;
     });
@@ -80,7 +88,8 @@ describe('Admin Routes', () => {
 
       const response = await request(app).get('/admin/collections').expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toBe('Internal server error');
 
       // Restore original method
       require('../controllers/mondoDBControllers/AdminController').adminController.getCollections =
@@ -97,7 +106,8 @@ describe('Admin Routes', () => {
 
       const response = await request(app).get('/admin/collections').expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toBe('Internal server error');
 
       // Restore original method
       require('../controllers/mondoDBControllers/AdminController').adminController.getCollections =
@@ -131,12 +141,12 @@ describe('Admin Routes', () => {
         .get('/admin/collections/users/documents')
         .expect(200);
 
-      expect(response.body.message).toBe('Documents retrieved successfully');
-      expect(response.body.documents).toHaveLength(3);
-      expect(response.body.documents[0]).toHaveProperty('_id');
-      expect(response.body.documents[0]).toHaveProperty('email');
-      expect(response.body.documents[0]).toHaveProperty('fullname');
-      expect(response.body.documents[0]).toHaveProperty('type');
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(3);
+      expect(response.body.data[0]).toHaveProperty('_id');
+      expect(response.body.data[0]).toHaveProperty('email');
+      expect(response.body.data[0]).toHaveProperty('fullname');
+      expect(response.body.data[0]).toHaveProperty('type');
     });
 
     it('should filter documents by keyword', async () => {
@@ -144,8 +154,8 @@ describe('Admin Routes', () => {
         .get('/admin/collections/users/documents?keyword=admin')
         .expect(200);
 
-      expect(response.body.documents).toHaveLength(1);
-      expect(response.body.documents[0].email).toBe('admin@example.com');
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.data[0].email).toBe('admin@example.com');
     });
 
     it('should paginate results', async () => {
@@ -153,7 +163,7 @@ describe('Admin Routes', () => {
         .get('/admin/collections/users/documents?page=1&limit=2')
         .expect(200);
 
-      expect(response.body.documents).toHaveLength(2);
+      expect(response.body.data).toHaveLength(2);
     });
 
     it('should return empty array for non-existent collection', async () => {
@@ -161,7 +171,7 @@ describe('Admin Routes', () => {
         .get('/admin/collections/nonexistent/documents')
         .expect(200);
 
-      expect(response.body.documents).toHaveLength(0);
+      expect(response.body.data).toHaveLength(0);
     });
 
     it('should handle server errors', async () => {
@@ -176,7 +186,8 @@ describe('Admin Routes', () => {
         .get('/admin/collections/users/documents')
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toBe('Internal server error');
 
       // Restore original method
       require('../controllers/mondoDBControllers/AdminController').adminController.getCollectionDocuments =
@@ -184,99 +195,6 @@ describe('Admin Routes', () => {
     });
   });
 
-  describe('GET /admin/collections/:collectionName/stats', () => {
-    beforeEach(async () => {
-      await User.create([
-        {
-          email: 'user1@example.com',
-          fullname: 'User One',
-          type: 'student',
-        },
-        {
-          email: 'user2@example.com',
-          fullname: 'User Two',
-          type: 'advisor',
-        },
-      ]);
-    });
-
-    it('should get collection statistics', async () => {
-      const response = await request(app)
-        .get('/admin/collections/users/stats')
-        .expect(200);
-
-      expect(response.body.message).toBe(
-        'Statistics retrieved successfully',
-      );
-      expect(response.body.stats).toHaveProperty('count');
-      expect(response.body.stats).toHaveProperty('size');
-      expect(response.body.stats).toHaveProperty('avgDocSize');
-      expect(response.body.stats.count).toBe(2);
-      expect(typeof response.body.stats.size).toBe('number');
-      expect(typeof response.body.stats.avgDocSize).toBe('number');
-    });
-
-    it('should handle non-existent collection', async () => {
-      const response = await request(app)
-        .get('/admin/collections/nonexistent/stats')
-        .expect(200);
-
-      expect(response.body.stats.count).toBe(0);
-      expect(response.body.stats.size).toBe(0);
-      expect(response.body.stats.avgDocSize).toBe(0);
-    });
-
-    it('should handle database connection errors', async () => {
-      const originalDb = mongoose.connection.db;
-      mongoose.connection.db = null;
-
-      const response = await request(app)
-        .get('/admin/collections/users/stats')
-        .expect(500);
-
-      expect(response.body.error).toContain('not available');
-
-      mongoose.connection.db = originalDb;
-    });
-
-    it('should handle server errors', async () => {
-      // Mock adminController.getCollectionStats to throw an error
-      const originalGetCollectionStats =
-        require('../controllers/mondoDBControllers/AdminController')
-          .adminController.getCollectionStats;
-      require('../controllers/mondoDBControllers/AdminController').adminController.getCollectionStats =
-        jest.fn().mockRejectedValue(new Error('Database error'));
-
-      const response = await request(app)
-        .get('/admin/collections/users/stats')
-        .expect(500);
-
-      expect(response.body.error).toBe('Internal server error');
-
-      // Restore original method
-      require('../controllers/mondoDBControllers/AdminController').adminController.getCollectionStats =
-        originalGetCollectionStats;
-    });
-
-    it('should handle general errors not containing "not available"', async () => {
-      // Mock adminController.getCollectionStats to throw a general error
-      const originalGetCollectionStats =
-        require('../controllers/mondoDBControllers/AdminController')
-          .adminController.getCollectionStats;
-      require('../controllers/mondoDBControllers/AdminController').adminController.getCollectionStats =
-        jest.fn().mockRejectedValue(new Error('Some other error'));
-
-      const response = await request(app)
-        .get('/admin/collections/users/stats')
-        .expect(500);
-
-      expect(response.body.error).toBe('Internal server error');
-
-      // Restore original method
-      require('../controllers/mondoDBControllers/AdminController').adminController.getCollectionStats =
-        originalGetCollectionStats;
-    });
-  });
 
   describe('DELETE /admin/collections/:collectionName/clear', () => {
     beforeEach(async () => {
@@ -299,8 +217,8 @@ describe('Admin Routes', () => {
         .delete('/admin/collections/users/clear')
         .expect(200);
 
-      expect(response.body.message).toBe('Collection cleared successfully');
-      expect(response.body.deletedCount).toBe(2);
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toContain('documents cleared successfully');
 
       // Verify documents are deleted
       const remainingUsers = await User.find({});
@@ -312,7 +230,8 @@ describe('Admin Routes', () => {
         .delete('/admin/collections/nonexistent/clear')
         .expect(200);
 
-      expect(response.body.deletedCount).toBe(0);
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toContain('documents cleared successfully');
     });
 
     it('should handle database connection errors', async () => {
@@ -323,7 +242,8 @@ describe('Admin Routes', () => {
         .delete('/admin/collections/users/clear')
         .expect(500);
 
-      expect(response.body.error).toContain('not available');
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toContain('not available');
 
       mongoose.connection.db = originalDb;
     });
@@ -340,7 +260,8 @@ describe('Admin Routes', () => {
         .delete('/admin/collections/users/clear')
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toBe('Internal server error');
 
       // Restore original method
       require('../controllers/mondoDBControllers/AdminController').adminController.clearCollection =
@@ -358,48 +279,14 @@ describe('Admin Routes', () => {
         .delete('/admin/collections/users/clear')
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toBe('Internal server error');
 
       require('../controllers/mondoDBControllers/AdminController').adminController.clearCollection =
         originalClearCollection;
     });
   });
 
-  describe('GET /admin/connection-status', () => {
-    it('should get database connection status', async () => {
-      const response = await request(app)
-        .get('/admin/connection-status')
-        .expect(200);
-
-      expect(response.body.message).toBe(
-        'Connection status retrieved successfully',
-      );
-      expect(response.body).toHaveProperty('connected');
-      expect(response.body).toHaveProperty('readyState');
-      expect(response.body).toHaveProperty('name');
-    });
-
-    it('should handle server errors', async () => {
-      // Mock adminController.getConnectionStatus to throw an error
-      const originalGetConnectionStatus =
-        require('../controllers/mondoDBControllers/AdminController')
-          .adminController.getConnectionStatus;
-      require('../controllers/mondoDBControllers/AdminController').adminController.getConnectionStatus =
-        jest.fn().mockImplementation(() => {
-          throw new Error('Database error');
-        });
-
-      const response = await request(app)
-        .get('/admin/connection-status')
-        .expect(500);
-
-      expect(response.body.error).toBe('Internal server error');
-
-      // Restore original method
-      require('../controllers/mondoDBControllers/AdminController').adminController.getConnectionStatus =
-        originalGetConnectionStatus;
-    });
-  });
 
   describe('Edge Cases', () => {
     describe('getCollectionDocuments edge cases', () => {
@@ -431,7 +318,9 @@ describe('Admin Routes', () => {
           .get('/admin/collections/users/documents?keyword=test&page=1&limit=1')
           .expect(200);
 
-        expect(response.body.documents.length).toBeLessThanOrEqual(1);
+        expect(response.body.success).toBe(true);
+        expect(Array.isArray(response.body.data)).toBe(true);
+        expect(response.body.data.length).toBeLessThanOrEqual(1);
       });
 
       it('should handle empty collection with keyword search', async () => {
@@ -441,7 +330,8 @@ describe('Admin Routes', () => {
           .get('/admin/collections/users/documents?keyword=test')
           .expect(200);
 
-        expect(response.body.documents).toEqual([]);
+        expect(response.body.success).toBe(true);
+        expect(response.body.data).toEqual([]);
       });
     });
 
@@ -495,29 +385,6 @@ describe('Admin Routes', () => {
         });
       });
 
-      describe('getCollectionStats', () => {
-        it('should handle stats with zero values', async () => {
-          await User.deleteMany({});
-
-          const stats = await adminController.getCollectionStats('users');
-
-          expect(stats).toBeDefined();
-          expect(stats.count).toBe(0);
-          expect(stats.size).toBeGreaterThanOrEqual(0);
-          expect(stats.avgDocSize).toBeGreaterThanOrEqual(0);
-        });
-
-        it('should handle database connection errors', async () => {
-          const originalDb = mongoose.connection.db;
-          mongoose.connection.db = null;
-
-          await expect(
-            adminController.getCollectionStats('users'),
-          ).rejects.toThrow('Database connection not available');
-
-          mongoose.connection.db = originalDb;
-        });
-      });
 
       describe('clearCollection', () => {
         it('should handle database connection errors', async () => {

@@ -4,7 +4,7 @@ import { api } from '../../api/http-api-client';
 import { useLocation } from 'react-router-dom';
 
 jest.mock('../../api/http-api-client', () => ({
-  api: { post: jest.fn() },
+  api: { get: jest.fn() },
 }));
 
 jest.mock('react-router-dom', () => ({
@@ -19,7 +19,7 @@ describe('useFetchCoursesByDegree', () => {
 
   test('fetches courses for a degree and dispatches them', async () => {
     const mockPrimaryCourses = [{ code: 'COMP101', name: 'Intro CS' }];
-    api.post.mockResolvedValueOnce(mockPrimaryCourses);
+    api.get.mockResolvedValueOnce(mockPrimaryCourses);
 
     const mockDispatch = jest.fn();
 
@@ -28,7 +28,7 @@ describe('useFetchCoursesByDegree', () => {
     // Wait for async effect to run
     await Promise.resolve();
 
-    expect(api.post).toHaveBeenCalledWith('/courses/getByDegreeGrouped', { degree: 'DEGREE1' });
+    expect(api.get).toHaveBeenCalledWith('/courses/by-degree/DEGREE1');
     expect(mockDispatch).toHaveBeenCalledWith({
       type: 'SET',
       payload: { coursePools: mockPrimaryCourses, loading: false },
@@ -42,7 +42,7 @@ describe('useFetchCoursesByDegree', () => {
 
     await Promise.resolve();
 
-    expect(api.post).not.toHaveBeenCalled();
+    expect(api.get).not.toHaveBeenCalled();
     expect(mockDispatch).not.toHaveBeenCalled();
   });
 });
