@@ -7,6 +7,7 @@ import {
 } from '@controllers/mondoDBControllers';
 
 const router = express.Router();
+const INTERNAL_SERVER_ERROR = 'Internal server error';
 
 // ==========================
 // COURSE ROUTES (READ ONLY)
@@ -30,7 +31,7 @@ router.get('/', async (req: Request, res: Response) => {
     res.status(HTTP.OK).json(courses);
   } catch (error) {
     console.error('Error in GET /courses', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
 
@@ -84,7 +85,7 @@ router.get('/by-degree/:degreeId', async (req: Request, res: Response) => {
     res.status(HTTP.OK).json(groupedCourses);
   } catch (error) {
     console.error('Error in GET /courses/by-degree/:degreeId', error);
-    res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
 
@@ -109,7 +110,7 @@ router.get('/:code', async (req: Request, res: Response) => {
     if (error instanceof Error && error.message.includes('not found')) {
       res.status(HTTP.NOT_FOUND).json({ error: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ error: 'Internal server error' });
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
   }
 });
