@@ -66,6 +66,7 @@ def handle_engineering_core_restrictions(degree_name):
         electives_results= engr_general_electives_scraper.scrape_electives()
         degree["coursePools"].append("General Education Humanities and Social Sciences Electives")
         course_pool.append({
+            "_id":"General Education Humanities and Social Sciences Electives",
             "name":"General Education Humanities and Social Sciences Electives",
             "credits":3,
             "courses":electives_results[0]
