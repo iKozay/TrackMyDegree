@@ -588,22 +588,6 @@ describe('getMaxCreditsForSemesterName', () => {
   });
 });
 
-// parseMaxCreditsFromPoolName.test.js
-import { parseMaxCreditsFromPoolName } from '../utils/timelineUtils';
-
-describe('parseMaxCreditsFromPoolName', () => {
-  test('parses number correctly from pool name', () => {
-    expect(parseMaxCreditsFromPoolName('Math Pool (47.5 credits)')).toBe(47.5);
-    expect(parseMaxCreditsFromPoolName('Science Pool (30 credits)')).toBe(30);
-    expect(parseMaxCreditsFromPoolName('History Pool (12.0 credits)')).toBe(12);
-  });
-
-  test('returns Infinity when no number is found', () => {
-    expect(parseMaxCreditsFromPoolName('Miscellaneous Pool')).toBe(Infinity);
-    expect(parseMaxCreditsFromPoolName('Another Pool ()')).toBe(Infinity);
-  });
-});
-
 import { findSemesterIdByCourseCode } from '../utils/timelineUtils';
 
 describe('findSemesterIdByCourseCode', () => {
@@ -700,18 +684,18 @@ import { calculatedCreditsRequired } from '../utils/timelineUtils';
 describe('calculatedCreditsRequired', () => {
   test('calculates total credits for multiple pools', () => {
     const coursePools = [
-      { poolName: 'Pool A (3.5 credits)' },
-      { poolName: 'Pool B (4 credits)' },
-      { poolName: 'Pool C (2 credits)' },
+      { creditsRequired: 3.5 },
+      { creditsRequired: 4 },
+      { creditsRequired: 2 },
     ];
     expect(calculatedCreditsRequired(coursePools)).toBe(9.5);
   });
 
   test('caps total credits at 120', () => {
     const coursePools = [
-      { poolName: 'Pool A (50 credits)' },
-      { poolName: 'Pool B (60 credits)' },
-      { poolName: 'Pool C (30 credits)' },
+      { creditsRequired: 50 },
+      { creditsRequired: 60 },
+      { creditsRequired: 30 },
     ];
     expect(calculatedCreditsRequired(coursePools)).toBe(120);
   });
@@ -721,7 +705,7 @@ describe('calculatedCreditsRequired', () => {
   });
 
   test('handles decimal credits correctly', () => {
-    const coursePools = [{ poolName: 'Pool A (3.5 credits)' }, { poolName: 'Pool B (4.5 credits)' }];
+    const coursePools = [{ creditsRequired: 3.5 }, { creditsRequired: 4.5 }];
     expect(calculatedCreditsRequired(coursePools)).toBe(8);
   });
 });
@@ -732,24 +716,27 @@ describe('calculateTotalCredits2', () => {
 
   const coursePools = [
     {
-      poolId: 'core',
-      poolName: 'Core Courses (10)',
+      _id: 'core',
+      name: 'Core Courses (10)',
+      creditsRequired: 10,
       courses: [
         { _id: 'COMP 101', credits: 3 },
         { _id: 'MATH 101', credits: 4 },
       ],
     },
     {
-      poolId: 'electives',
-      poolName: 'Electives (6)',
+      _id: 'electives',
+      name: 'Electives (6)',
+      creditsRequired: 6,
       courses: [
         { _id: 'HIST 101', credits: 3 },
         { _id: 'PHYS 101', credits: 3 },
       ],
     },
     {
-      poolId: 'option',
-      poolName: 'Optional Courses (6)',
+      _id: 'option',
+      name: 'Optional Courses (6)',
+      creditsRequired: 6,
       courses: [{ _id: 'ART 101', credits: 3 }],
     },
   ];

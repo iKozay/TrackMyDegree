@@ -271,8 +271,8 @@ describe('Course Routes', () => {
       expect(Array.isArray(response.body)).toBe(true);
       expect(response.body.length).toBeGreaterThan(0);
       if (response.body.length > 0) {
-        expect(response.body[0]).toHaveProperty('poolId');
-        expect(response.body[0]).toHaveProperty('poolName');
+        expect(response.body[0]).toHaveProperty('_id');
+        expect(response.body[0]).toHaveProperty('name');
         expect(response.body[0]).toHaveProperty('creditsRequired');
         expect(response.body[0]).toHaveProperty('courses');
         expect(Array.isArray(response.body[0].courses)).toBe(true);

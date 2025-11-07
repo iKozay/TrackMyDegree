@@ -73,13 +73,12 @@ describe('Auth Routes (MongoDB)', () => {
         })
         .expect(200);
 
-      expect(response.body.message).toBe('Login successful');
-      expect(response.body.user).toMatchObject({
+      expect(response.body).toMatchObject({
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
       });
-      expect(response.body.user.id).toBeDefined();
+      expect(response.body._id).toBeDefined();
     });
 
     it('should return 401 for incorrect password', async () => {
@@ -127,7 +126,7 @@ describe('Auth Routes (MongoDB)', () => {
         })
         .expect(201);
 
-      expect(response.body.id).toBeDefined();
+      expect(response.body._id).toBeDefined();
     });
 
     it('should return 409 for duplicate email', async () => {

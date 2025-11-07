@@ -40,7 +40,7 @@ describe('useDegrees hook', () => {
     fetch.mockResolvedValueOnce({
       ok: true,
       headers: mockHeaders,
-      json: async () => mockDegrees,
+      json: async () => mockDegrees.degrees,
     });
 
     const { result } = renderHook(() => useDegrees());

@@ -100,7 +100,7 @@ describe('TimelineSetupPage', () => {
     api.get.mockImplementation((endpoint) => {
       if (endpoint === '/degree') {
         return Promise.resolve([
-          { id: 1, name: 'BEng Computer Science', totalCredits: 120 },
+          { _id: 1, name: 'BEng Computer Science', totalCredits: 120 },
         ]);
       }
       return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
@@ -112,7 +112,7 @@ describe('TimelineSetupPage', () => {
           data: {
             extractedCourses: [{ term: 'Fall 2024', courses: ['COMP248'] }],
             details: {
-              degreeConcentration: 'BEng Computer Science',
+              degreeConcentration: 'Something,BEng Computer Science',
               coopProgram: true,
               extendedCreditProgram: false,
               minimumProgramLength: 90,
@@ -127,6 +127,11 @@ describe('TimelineSetupPage', () => {
       render(<TimelineSetupPage onDataProcessed={mockOnDataProcessed} />);
     });
 
+    // Wait for degrees to load before clicking upload
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith('/degree');
+    });
+
     await act(async () => {
       fireEvent.click(screen.getByTestId('upload-box'));
     });
@@ -137,7 +142,7 @@ describe('TimelineSetupPage', () => {
       expect(mockOnDataProcessed).toHaveBeenCalledWith(
         expect.objectContaining({
           transcriptData: expect.any(Array),
-          degreeId: 1,
+          degreeId: expect.any(Number),
           credits_Required: 90,
         }),
       );

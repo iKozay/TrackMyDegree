@@ -95,7 +95,7 @@ afterEach(() => {
 /* ---------------- Tests ---------------- */
 describe('UserPage', () => {
   const baseUser = {
-    id: 'u-1',
+    _id: 'u-1',
     fullname: 'John Doe',
     email: 'john@example.com',
     type: 'student',
