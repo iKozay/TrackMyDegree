@@ -2,8 +2,8 @@ import HTTP from '@Util/HTTPCodes';
 import express, { Request, Response } from 'express';
 import {
   courseController,
-  degreeController,
   coursepoolController,
+  degreeController,
 } from '@controllers/mondoDBControllers';
 
 const router = express.Router();
@@ -55,9 +55,29 @@ router.get('/by-degree/:degreeId', async (req: Request, res: Response) => {
 
     // Fetch full course pool objects for each ID
     const coursePools = await Promise.all(
-      coursePoolIds.map((poolId) =>
-        coursepoolController.getCoursePool(poolId).catch(() => null),
-      ),
+      coursePoolIds.map(async (poolId) => {
+        const coursePool = await coursepoolController
+          .getCoursePool(poolId)
+          .catch(() => null);
+        const courseIds = coursePool?.courses;
+        const courses = courseIds
+          ? await Promise.all(
+              courseIds.map(async (courseId) => {
+                try {
+                  return await courseController.getCourseByCode(courseId);
+                } catch {
+                  return null;
+                }
+              }),
+            )
+          : [];
+        return {
+          _id: coursePool?._id,
+          name: coursePool?.name,
+          creditsRequired: coursePool?.creditsRequired,
+          courses: courses.filter((course) => course !== null),
+        };
+      }),
     );
 
     res.status(HTTP.OK).json(coursePools);
