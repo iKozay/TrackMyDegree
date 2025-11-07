@@ -315,15 +315,6 @@ export const getMaxCreditsForSemesterName = (semesterName) => {
     return 19;
 }
 
-export const parseMaxCreditsFromPoolName = (poolName) => {
-    // Regex to find e.g. "(47.5 credits)"
-    const match = poolName.match(/\(([\d.]+)\s*credits?\)/i);
-    if (match) {
-        return parseFloat(match[1]); // 47.5
-    }
-    return Infinity; // fallback if we can't parse a number
-}
-
 export const findSemesterIdByCourseCode = (courseCode, updatedSemesters) => {
     for (const semesterId in updatedSemesters) {
         if (updatedSemesters[semesterId].includes(courseCode)) {
@@ -395,7 +386,7 @@ export const areRequisitesMet = (courseCode, currentSemesterIndex, courseInstanc
 export const calculatedCreditsRequired = (coursePools) => {
     let totalCredits = 0;
     coursePools.forEach((pool) => {
-        const maxCredits = parseMaxCreditsFromPoolName(pool.poolName);
+        const maxCredits = pool.creditsRequired;
         totalCredits += maxCredits;
         if (totalCredits > 120) {
             totalCredits = 120; // Cap at 120 credits
@@ -418,11 +409,11 @@ export const calculateTotalCredits2 = (
 
     // Initialize pool credits (excluding "option" pools)
     coursePools
-        .filter((pool) => !pool.poolName.toLowerCase().includes("option"))
+        .filter((pool) => !pool.name.toLowerCase().includes("option"))
         .forEach((pool) => {
             poolCreditMap[pool.poolId] = {
                 assigned: 0,
-                max: parseMaxCreditsFromPoolName(pool.poolName),
+                max: pool.creditsRequired,
             };
         });
 

@@ -30,26 +30,9 @@ const ShowInsights = ({
     return () => clearTimeout(timer);
   }, [showInsights]);
 
-  const parseMaxCreditsFromPoolName = (poolName, poolCourses) => {
-    const match = poolName.match(/\((\d+(\.\d+)?)\s*credits\)/);
-    if (match) {
-      return parseFloat(match[1]);
-    }
-    const totalPoolCredits = poolCourses
-      .map((course) => course.credits || 0)
-      .reduce((sum, credits) => sum + credits, 0);
-    console.warn(
-      `Could not parse max credits from pool name "${poolName}". Using total pool credits: ${totalPoolCredits}`,
-    );
-    return totalPoolCredits;
-  };
-
   const calculatedCreditsRequired = useMemo(() => {
     return coursePools.reduce((sum, pool) => {
-      const maxCredits = parseMaxCreditsFromPoolName(
-        pool.poolName,
-        pool.courses,
-      );
+      const maxCredits = pool.creditsRequired;
       return sum + maxCredits;
     }, 0);
   }, [coursePools]);
@@ -60,7 +43,7 @@ const ShowInsights = ({
     coursePools.forEach((pool) => {
       poolCreditMap[pool.poolId] = {
         assigned: 0,
-        max: parseMaxCreditsFromPoolName(pool.poolName, pool.courses),
+        max: pool.creditsRequired,
       };
     });
 
@@ -139,10 +122,7 @@ const ShowInsights = ({
         })
         .reduce((sum, c) => sum + c, 0);
 
-      const maxCredits = parseMaxCreditsFromPoolName(
-        pool.poolName,
-        pool.courses,
-      );
+      const maxCredits = pool.creditsRequired;
       const remainingCredits = Math.max(0, maxCredits - assignedCredits);
 
       const remainingCoursesInPool = pool.courses

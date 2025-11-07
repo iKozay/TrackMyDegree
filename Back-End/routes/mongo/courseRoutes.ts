@@ -60,33 +60,7 @@ router.get('/by-degree/:degreeId', async (req: Request, res: Response) => {
       ),
     );
 
-    // Filter out null results and fetch courses for each pool
-    const groupedCourses = await Promise.all(
-      coursePools
-        .filter(
-          (pool): pool is NonNullable<typeof pool> =>
-            pool !== null && pool !== undefined,
-        )
-        .map(async (pool) => {
-          const courses = [];
-          if (pool.courses && Array.isArray(pool.courses)) {
-            const coursePromises = pool.courses.map((courseCode) =>
-              courseController.getCourseByCode(courseCode).catch(() => null),
-            );
-            const courseResults = await Promise.all(coursePromises);
-            courses.push(...courseResults.filter((c) => c !== null));
-          }
-
-          return {
-            poolId: pool._id,
-            poolName: pool.name,
-            creditsRequired: pool.creditsRequired,
-            courses,
-          };
-        }),
-    );
-
-    res.status(HTTP.OK).json(groupedCourses);
+    res.status(HTTP.OK).json(coursePools);
   } catch (error) {
     console.error('Error in GET /courses/by-degree/:degreeId', error);
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
