@@ -14,7 +14,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const menuRef = useRef(null);
   const location = useLocation();
-  const timelineActivePaths = ['/timeline_initial', '/timeline_change', '/uploadTranscript'];
+  const timelineActivePaths = ['/timeline_initial', '/timeline_change'];
 
   // Handle logout logic
   const handleLogout = () => {

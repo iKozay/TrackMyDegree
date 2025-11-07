@@ -1,0 +1,99 @@
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+
+/* Modal Content */
+.modal-content-instructions {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  width: 75vw;
+  max-height: 80vh; /* Prevent modal from exceeding screen height */
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Close Button */
+.close-modal-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #800020;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  width: 40px;
+}
+
+.close-modal-btn:hover {
+  background-color: #a5001a;
+}
+
+/* Instructions Container */
+.instructions {
+  display: flex;
+  width: 100%;
+  flex-direction: column; /* Stack the instruction steps vertically */
+  gap: 30px;
+}
+.instructions h2 { color: #800020;}
+.steps-container {
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  margin-top: 20px;
+}
+/* Individual instruction steps (Text and Image) */
+.step {
+    width: 33%;
+    
+}
+
+
+/* Instruction Text */
+.step p {
+  flex: 1;
+  margin-right: 20px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Image Styling */
+.step img {
+  flex: 1;
+  width: 100%; /* Make image take full width of its container */
+  height: auto; /* Let the height scale proportionally */
+  object-fit: contain;
+  border: 1px solid #ccc;
+  background-color: #f4f4f4;
+  max-height: 20vw;
+}
+
+
+@media (max-width: 992px) {
+  .steps-container {
+    flex-direction: column;
+  }
+  .step {
+    width: 100%;
+  }
+  .step img {
+    max-height: 40vw;
+  }
+}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../css/Footer.css';
+import { api } from '../api/http-api-client';
 
 const Footer = () => {
   const [feedback, setFeedback] = useState('');
@@ -35,28 +36,20 @@ const Footer = () => {
     }
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/feedback`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: feedback, user_id: '' }),
+      const resData = await api.post('/feedback', {
+        message: feedback,
+        user_id: '',
       });
-
-      if (!response.ok) {
-        setShowAlert('Error submitting feedback');
-      } else {
-        const resData = await response.json();
-        console.log(resData);
-        setShowAlert(resData.message);
-      }
-
-      setTimeout(() => {
-        setShowAlert('');
-      }, 2500);
+      console.log(resData);
+      setShowAlert(resData.message || 'Feedback submitted successfully');
     } catch (err) {
       console.error('Error submitting feedback:', err);
+      setShowAlert('Error submitting feedback');
     }
+
+    setTimeout(() => {
+      setShowAlert('');
+    }, 2500);
 
     setFeedback('');
     setShowPopup(false);

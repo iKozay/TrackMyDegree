@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminPageError } from '../../../middleware/SentryErrors';
+import { api } from '../../../api/http-api-client';
 
 /**
  * Custom hook for managing database tables
@@ -13,24 +14,18 @@ const useDatabaseTables = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const SERVER_URL = process.env.REACT_APP_SERVER;
-
   const fetchTables = useCallback(async () => {
     setLoading(true);
     setError('');
 
     try {
-      let response = await fetch(`${SERVER_URL}/admin/tables`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        navigate('/403'); // Forbidden
-        return;
-      }
-
-      response = await response.json();
+      const response = await api.post(
+        '/admin/tables',
+        {},
+        {
+          credentials: 'include',
+        },
+      );
 
       if (response.success) {
         if (Array.isArray(response.data)) {
@@ -42,12 +37,16 @@ const useDatabaseTables = () => {
         throw new AdminPageError('Failed to fetch tables');
       }
     } catch (err) {
-      console.error('Error fetching table list:', err);
-      setError('Error fetching table list');
+      if (err.message && err.message.includes('403')) {
+        navigate('/403'); // Forbidden
+      } else {
+        console.error('Error fetching table list:', err);
+        setError('Error fetching table list');
+      }
     } finally {
       setLoading(false);
     }
-  }, [SERVER_URL, navigate]);
+  }, [navigate]);
 
   // Fetch tables on mount
   useEffect(() => {
