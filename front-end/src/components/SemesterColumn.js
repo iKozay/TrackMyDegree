@@ -48,7 +48,7 @@ export const SemesterColumn = ({
         <SortableContext items={courses} strategy={verticalListSortingStrategy}>
           {courses.map((instanceId) => {
             const genericCode = courseInstanceMap[instanceId] || instanceId;
-            const course = allCourses.find((c) => c._id.replaceAll(' ', '') === genericCode);
+            const course = allCourses.find((c) => c._id.replaceAll(' ', '') === genericCode.replaceAll(' ', '')); // keep this as is: genericCode has space when we dragging from course list but doesnt otherwise
             if (!course) return null;
             const prerequisitesMet = arePrerequisitesMet(course._id, index);
             const offeredCheck = isCourseOfferedInSemester(course, semesterName);
