@@ -10,6 +10,7 @@ const bcrypt = require('bcryptjs');
 const { AuthController, UserType } = require('../controllers/mondoDBControllers/AuthController');
 const { User } = require('../models/User');
 
+// ────────────────────────────────────────────────
 // Mock Nodemailer
 jest.mock('nodemailer', () => ({
   createTransport: jest.fn().mockReturnValue({
@@ -17,6 +18,7 @@ jest.mock('nodemailer', () => ({
   }),
 }));
 
+// ────────────────────────────────────────────────
 // Mock Redis client (for forgotPassword/resetPassword)
 jest.mock('ioredis', () => {
   return jest.fn().mockImplementation(() => ({
@@ -51,9 +53,9 @@ describe('AuthController', () => {
   // ────────────────────────────────────────────────
   describe('Constructor', () => {
     it('should initialize with correct constants', () => {
-      expect(authController.OTP_EXPIRY_MINUTES).toBeDefined();
+      expect(authController.RESET_EXPIRY_MINUTES).toBeDefined();
       expect(authController.DUMMY_HASH).toBeDefined();
-      expect(typeof authController.OTP_EXPIRY_MINUTES).toBe('number');
+      expect(typeof authController.RESET_EXPIRY_MINUTES).toBe('number');
       expect(typeof authController.DUMMY_HASH).toBe('string');
     });
   });
@@ -160,9 +162,10 @@ describe('AuthController', () => {
     });
 
     it('should generate link for existing user', async () => {
+      process.env.FRONTEND_URL = 'http://localhost:3000';
       const res = await authController.forgotPassword('reset@example.com');
-      expect(res.message).toBe('Password reset link generated');
-      expect(res.resetLink).toMatch(/reset-password\/[a-f0-9]{64}/);
+      expect(res.message).toBe('Password reset link sent successfully');
+      expect(res.resetLink).toMatch(/reset-password\/[a-f0-9\-]{36}/); // uuid v4
     });
 
     it('should not reveal if email not found', async () => {
@@ -183,31 +186,29 @@ describe('AuthController', () => {
 
   // ────────────────────────────────────────────────
   describe('resetPassword', () => {
+    let redisMock;
     let testUser;
+
     beforeEach(async () => {
       testUser = await User.create({
         email: 'reset@example.com',
         password: 'oldhash',
         fullname: 'Reset User',
         type: UserType.STUDENT,
-        resetToken: 'validtoken',
-        resetTokenExpire: new Date(Date.now() + 5 * 60 * 1000),
       });
+
+      redisMock = require('ioredis').mock.instances[0];
+      redisMock.get.mockResolvedValueOnce('reset@example.com');
     });
 
     it('should reset valid token', async () => {
-      const res = await authController.resetPassword('reset@example.com', 'validtoken', 'NewPass123!');
+      const res = await authController.resetPassword('validtoken', 'NewPass123!');
       expect(res).toBe(true);
     });
 
     it('should fail invalid token', async () => {
-      const res = await authController.resetPassword('reset@example.com', 'wrong', 'NewPass123!');
-      expect(res).toBe(false);
-    });
-
-    it('should fail expired token', async () => {
-      await User.findByIdAndUpdate(testUser._id, { resetTokenExpire: new Date(Date.now() - 1000) });
-      const res = await authController.resetPassword('reset@example.com', 'validtoken', 'NewPass123!');
+      redisMock.get.mockResolvedValueOnce(null);
+      const res = await authController.resetPassword('wrongtoken', 'NewPass123!');
       expect(res).toBe(false);
     });
 
@@ -216,7 +217,8 @@ describe('AuthController', () => {
       User.findOne = jest.fn().mockImplementation(() => {
         throw new Error('DB fail');
       });
-      const res = await authController.resetPassword('reset@example.com', 'validtoken', 'NewPass123!');
+      redisMock.get.mockResolvedValueOnce('reset@example.com');
+      const res = await authController.resetPassword('validtoken', 'NewPass123!');
       expect(res).toBe(false);
       User.findOne = orig;
     });
