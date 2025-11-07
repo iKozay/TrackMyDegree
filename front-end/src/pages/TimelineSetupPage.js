@@ -72,10 +72,8 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
       }
 
       // Match extracted degree with available degrees
-      const degree = details.degreeConcentration?.toLowerCase() || 'Unknown Degree';
-      const matched_degree = degrees.find(
-        (d) => degree.toLowerCase().includes(d.name.split(' ').slice(1).join(' ').toLowerCase()), // remove first word (BcompsC/Beng/etc.) and match rest
-      );
+      const degree = details.degreeConcentration?.toLowerCase().split(',')[1] || 'Unknown Degree';
+      const matched_degree = degrees.find((d) => d.name.toLowerCase().includes(degree));
 
       if (!matched_degree) {
         alert(
