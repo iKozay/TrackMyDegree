@@ -50,8 +50,10 @@ export const SemesterColumn = ({
             const genericCode = courseInstanceMap[instanceId] || instanceId;
             const course = allCourses.find((c) => c._id.replaceAll(' ', '') === genericCode.replaceAll(' ', '')); // keep this as is: genericCode has space when we dragging from course list but doesnt otherwise
             if (!course) return null;
-            const prerequisitesMet = arePrerequisitesMet(course._id, index);
-            const offeredCheck = isCourseOfferedInSemester(course, semesterName);
+            //const prerequisitesMet = arePrerequisitesMet(course._id, index);
+            //const offeredCheck = isCourseOfferedInSemester(course, semesterName);
+            const prerequisitesMet = true;
+            const offeredCheck = true;
             return (
               <CourseItem
                 key={instanceId}
