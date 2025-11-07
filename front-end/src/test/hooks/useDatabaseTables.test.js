@@ -5,6 +5,15 @@ import useDatabaseTables from '../../pages/AdminPage/hooks/useDatabaseTables';
 
 // Mock fetch and useNavigate
 global.fetch = jest.fn();
+
+// Helper to create mock headers
+const createMockHeaders = () => ({
+  get: (name) => {
+    if (name === 'Content-Type') return 'application/json';
+    return null;
+  },
+});
+
 jest.mock('react-router-dom', () => ({
   useNavigate: jest.fn(),
 }));
@@ -26,7 +35,9 @@ describe('useDatabaseTables', () => {
     console.error.mockClear();
     mockNavigate = jest.fn();
     useNavigate.mockReturnValue(mockNavigate);
-    process.env.REACT_APP_SERVER = 'http://localhost:5000';
+    if (!process.env.REACT_APP_SERVER) {
+      process.env.REACT_APP_SERVER = 'http://localhost:8000';
+    }
   });
 
   afterEach(() => {
@@ -38,6 +49,7 @@ describe('useDatabaseTables', () => {
       const mockTables = ['users', 'courses', 'degrees'];
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: mockTables }),
       });
 
@@ -53,6 +65,9 @@ describe('useDatabaseTables', () => {
     it('should navigate to /403 when response is not ok', async () => {
       fetch.mockResolvedValueOnce({
         ok: false,
+        status: 403,
+        statusText: 'Forbidden',
+        headers: createMockHeaders(),
       });
 
       renderHook(() => useDatabaseTables());
@@ -65,6 +80,7 @@ describe('useDatabaseTables', () => {
     it('should handle error when data is not an array', async () => {
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: 'not an array' }),
       });
 
@@ -79,6 +95,7 @@ describe('useDatabaseTables', () => {
     it('should handle error when success is false', async () => {
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: false }),
       });
 
@@ -104,6 +121,7 @@ describe('useDatabaseTables', () => {
     it('should call fetch with correct parameters', async () => {
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
@@ -111,7 +129,7 @@ describe('useDatabaseTables', () => {
 
       await waitFor(() => {
         expect(fetch).toHaveBeenCalledWith(
-          'http://localhost:5000/admin/tables',
+          'http://localhost:8000/admin/tables',
           expect.objectContaining({
             method: 'POST',
             credentials: 'include',
@@ -126,6 +144,7 @@ describe('useDatabaseTables', () => {
       const mockTables = ['users', 'courses'];
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: mockTables }),
       });
 
@@ -146,6 +165,7 @@ describe('useDatabaseTables', () => {
       const mockTables = ['users', 'courses'];
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: mockTables }),
       });
 
@@ -169,6 +189,7 @@ describe('useDatabaseTables', () => {
     it('should handle null table selection', async () => {
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
@@ -193,6 +214,7 @@ describe('useDatabaseTables', () => {
 
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: mockTables1 }),
       });
 
@@ -204,6 +226,7 @@ describe('useDatabaseTables', () => {
 
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: mockTables2 }),
       });
 
@@ -219,6 +242,7 @@ describe('useDatabaseTables', () => {
     it('should set loading state during refresh', async () => {
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
@@ -233,7 +257,7 @@ describe('useDatabaseTables', () => {
         resolvePromise = resolve;
       });
 
-      fetch.mockReturnValueOnce(promise);
+      fetch.mockReturnValueOnce({ headers: createMockHeaders(), json: () => promise });
 
       act(() => {
         result.current.refreshTables();
@@ -264,6 +288,7 @@ describe('useDatabaseTables', () => {
     it('should set loading to false after successful fetch', async () => {
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
@@ -290,6 +315,7 @@ describe('useDatabaseTables', () => {
       // First fetch with error
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: false }),
       });
 
@@ -302,6 +328,7 @@ describe('useDatabaseTables', () => {
       // Second fetch should clear error
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
@@ -318,6 +345,7 @@ describe('useDatabaseTables', () => {
     it('should have empty error initially', async () => {
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
@@ -333,6 +361,7 @@ describe('useDatabaseTables', () => {
     it('should have correct initial values', async () => {
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 

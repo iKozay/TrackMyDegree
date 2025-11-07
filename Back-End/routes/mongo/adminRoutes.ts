@@ -164,4 +164,6 @@ router.get('/connection-status', async (req: Request, res: Response) => {
   }
 });
 
+// TODO: Add seed data route that will call: scraper, courseController (MongoDB), coursepoolController (MongoDB) and degreeController (MongoDB)
+
 export default router;

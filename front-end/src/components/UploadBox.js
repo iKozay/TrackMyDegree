@@ -1,4 +1,3 @@
-import Button from 'react-bootstrap/Button';
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import '../css/UploadBox.css';
@@ -38,13 +37,12 @@ const UploadBox = ({ processFile }) => {
       setSelectedFile(null);
     }
   };
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedFile) {
       alert('Please choose a file to upload!');
       return;
     }
-    processFile(selectedFile);
-    alert('File uploaded Successfully!');
+    await processFile(selectedFile);
   };
 
   const handleCancel = () => {

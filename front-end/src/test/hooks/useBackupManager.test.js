@@ -4,10 +4,20 @@ import useBackupManager from '../../pages/AdminPage/hooks/useBackupManager';
 // Mock fetch
 global.fetch = jest.fn();
 
+// Helper to create mock headers
+const createMockHeaders = () => ({
+  get: (name) => {
+    if (name === 'Content-Type') return 'application/json';
+    return null;
+  },
+});
+
 describe('useBackupManager', () => {
   beforeEach(() => {
     fetch.mockClear();
-    process.env.REACT_APP_SERVER = 'http://localhost:5000';
+    if (!process.env.REACT_APP_SERVER) {
+      process.env.REACT_APP_SERVER = 'http://localhost:8000';
+    }
   });
 
   afterEach(() => {
@@ -19,6 +29,7 @@ describe('useBackupManager', () => {
       const mockBackups = ['backup1.sql', 'backup2.sql'];
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: mockBackups }),
       });
 
@@ -47,6 +58,7 @@ describe('useBackupManager', () => {
       // Mock initial fetch
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
@@ -55,12 +67,14 @@ describe('useBackupManager', () => {
       // Mock create backup
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true }),
       });
 
       // Mock refresh backups
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: ['new-backup.sql'] }),
       });
 
@@ -77,6 +91,7 @@ describe('useBackupManager', () => {
       // Mock initial fetch
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
@@ -85,6 +100,7 @@ describe('useBackupManager', () => {
       // Mock failed create
       fetch.mockResolvedValueOnce({
         ok: false,
+        headers: createMockHeaders(),
       });
 
       let response;
@@ -101,6 +117,7 @@ describe('useBackupManager', () => {
       // Mock initial fetch
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: ['backup1.sql'] }),
       });
 
@@ -109,6 +126,7 @@ describe('useBackupManager', () => {
       // Mock restore
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true }),
       });
 
@@ -125,6 +143,7 @@ describe('useBackupManager', () => {
       // Mock initial fetch
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
@@ -145,6 +164,7 @@ describe('useBackupManager', () => {
       // Mock initial fetch
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: ['backup1.sql'] }),
       });
 
@@ -153,12 +173,14 @@ describe('useBackupManager', () => {
       // Mock delete
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true }),
       });
 
       // Mock refresh
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: [] }),
       });
 
@@ -177,6 +199,7 @@ describe('useBackupManager', () => {
       // Mock initial fetch
       fetch.mockResolvedValueOnce({
         ok: true,
+        headers: createMockHeaders(),
         json: async () => ({ success: true, data: ['backup1.sql'] }),
       });
 

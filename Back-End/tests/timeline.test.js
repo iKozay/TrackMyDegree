@@ -12,7 +12,7 @@ const express = require('express');
 const router = require('../dist/routes/timeline').default;
 const timelineController =
   require('../dist/controllers/timelineController/timelineController').default;
-const errorHandler = require('../dist/middleware/errorHandler').default;
+const { errorHandler } = require('../dist/middleware/errorHandler');
 
 const validMockTimeline =
   require('./__mocks__/timeline_mocks').validMockTimeline;
@@ -20,7 +20,7 @@ const validMockTimeline =
 const app = express();
 app.use(express.json());
 app.use('/timeline', router);
-app.use(errorHandler.errorHandler);
+app.use(errorHandler);
 
 describe('Timeline Routes', () => {
   beforeEach(() => {
@@ -181,9 +181,7 @@ describe('Timeline Routes', () => {
         new Error('Database error'),
       );
 
-      const response = await request(app)
-        .delete('/timeline/1')
-        .expect(500);
+      const response = await request(app).delete('/timeline/1').expect(500);
 
       expect(response.body).toHaveProperty('error', 'Database error');
     });
