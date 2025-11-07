@@ -77,7 +77,15 @@ export class AuthController {
   /**
    * Registers a new user after validating input
    */
-  async registerUser(userInfo: UserInfo): Promise<{ _id: string } | undefined> {
+  async registerUser(userInfo: UserInfo): Promise<
+    | {
+        _id: string;
+        email: string;
+        fullname: string;
+        type: string;
+      }
+    | undefined
+  > {
     const { email, password, fullname, type } = userInfo;
 
     try {
@@ -102,7 +110,12 @@ export class AuthController {
         return undefined;
       }
 
-      return { _id: newUser._id.toString() };
+      return {
+        _id: newUser._id.toString(),
+        email: newUser.email,
+        fullname: newUser.fullname,
+        type: newUser.type,
+      };
     } catch (error) {
       Sentry.captureException(error, {
         tags: { operation: 'registerUser' },

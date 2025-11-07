@@ -65,15 +65,7 @@ router.post('/login', async (req: Request, res: Response) => {
     res.cookie(accessCookie.name, accessCookie.value, accessCookie.config);
     res.cookie(refreshCookie.name, refreshCookie.value, refreshCookie.config);
 
-    res.status(HTTP.OK).json({
-      message: 'Login successful',
-      user: {
-        id: user._id,
-        email: user.email,
-        fullname: user.fullname,
-        type: user.type,
-      },
-    });
+    res.status(HTTP.OK).json(user);
   } catch (error) {
     console.error('Error in POST /auth/login', error);
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
@@ -120,9 +112,33 @@ router.post('/signup', async (req: Request, res: Response) => {
     const result = await authController.registerUser(userInfo);
 
     if (result) {
-      res.status(HTTP.CREATED).json({
-        id: result._id,
-      });
+      const userHeaders = extractUserHeaders(req);
+      const accessToken = jwtService.generateToken(
+        {
+          orgId: process.env.JWT_ORG_ID!,
+          userId: result?._id!,
+          type: result?.type as UserType,
+        },
+        userHeaders,
+      );
+      const refreshToken = jwtService.generateToken(
+        {
+          orgId: process.env.JWT_ORG_ID!,
+          userId: result?._id!,
+          type: result?.type as UserType,
+        },
+        userHeaders,
+        undefined,
+        true,
+      );
+
+      const accessCookie = jwtService.setAccessCookie(accessToken);
+      const refreshCookie = jwtService.setRefreshCookie(refreshToken);
+
+      res.cookie(accessCookie.name, accessCookie.value, accessCookie.config);
+      res.cookie(refreshCookie.name, refreshCookie.value, refreshCookie.config);
+
+      res.status(HTTP.CREATED).json(result);
     } else {
       res.status(HTTP.CONFLICT).json({
         error: 'User with this email already exists',
@@ -195,4 +211,3 @@ router.post('/reset-password', async (req: Request, res: Response) => {
 });
 
 export default router;
-

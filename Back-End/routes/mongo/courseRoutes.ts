@@ -50,7 +50,8 @@ router.get('/by-degree/:degreeId', async (req: Request, res: Response) => {
     }
 
     // Get course pool IDs for the degree
-    const coursePoolIds = await degreeController.getCoursePoolsForDegree(degreeId);
+    const coursePoolIds =
+      await degreeController.getCoursePoolsForDegree(degreeId);
 
     // Fetch full course pool objects for each ID
     const coursePools = await Promise.all(
@@ -62,7 +63,10 @@ router.get('/by-degree/:degreeId', async (req: Request, res: Response) => {
     // Filter out null results and fetch courses for each pool
     const groupedCourses = await Promise.all(
       coursePools
-        .filter((pool): pool is NonNullable<typeof pool> => pool !== null && pool !== undefined)
+        .filter(
+          (pool): pool is NonNullable<typeof pool> =>
+            pool !== null && pool !== undefined,
+        )
         .map(async (pool) => {
           const courses = [];
           if (pool.courses && Array.isArray(pool.courses)) {

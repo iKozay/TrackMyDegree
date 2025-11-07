@@ -9,7 +9,12 @@ import coursepoolRoutes from './coursepoolRoutes';
 import authRoutes from './authRoutes';
 import sessionRoutes from './sessionRoutes';
 import sectionRouter from '@routes/sectionsRoutes';
-import { forgotPasswordLimiter, loginLimiter, resetPasswordLimiter, signupLimiter } from '@middleware/rateLimiter';
+import {
+  forgotPasswordLimiter,
+  loginLimiter,
+  resetPasswordLimiter,
+  signupLimiter,
+} from '@middleware/rateLimiter';
 import uploadRouter from '@routes/upload';
 
 const router = express.Router();
@@ -30,6 +35,5 @@ router.use('/auth', authRoutes);
 router.use('/session', sessionRoutes);
 router.use('/section', sectionRouter);
 router.use('/upload', uploadRouter);
-
 
 export default router;

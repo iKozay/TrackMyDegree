@@ -92,7 +92,7 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
       //send the processed data to the TimelinePage
       onDataProcessed({
         transcriptData: extractedCourses,
-        degreeId: matched_degree.id,
+        degreeId: matched_degree._id,
         isExtendedCredit: details.extendedCreditProgram || false,
         credits_Required: details.minimumProgramLength || matched_degree?.totalCredits,
       });
