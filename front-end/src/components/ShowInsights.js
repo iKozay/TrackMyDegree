@@ -41,7 +41,7 @@ const ShowInsights = ({
     const poolCreditMap = {};
 
     coursePools.forEach((pool) => {
-      poolCreditMap[pool.poolId] = {
+      poolCreditMap[pool._id] = {
         assigned: 0,
         max: pool.creditsRequired,
       };
@@ -78,7 +78,7 @@ const ShowInsights = ({
         const course = pool.courses.find((c) => c._id === genericCode);
         if (!course) return;
 
-        const poolData = poolCreditMap[pool.poolId];
+        const poolData = poolCreditMap[pool._id];
         const newSum = poolData.assigned + (course.credits || 0);
         poolData.assigned = Math.min(poolData.max, newSum);
       });
@@ -130,7 +130,7 @@ const ShowInsights = ({
         .map((course) => course._id);
 
       return {
-        poolName: pool.poolName,
+        poolName: pool.name,
         data: [
           {
             name: 'Completed',
@@ -286,7 +286,7 @@ const ShowInsights = ({
     const allCharts = [
       ...poolProgress.map((pool, index) => ({
         type: 'pool',
-        poolName: pool.poolName,
+        poolName: pool.name,
         data: pool.data,
         maxCredits: pool.maxCredits,
         index,
@@ -311,7 +311,7 @@ const ShowInsights = ({
           className="chart-container"
           style={{ minWidth: '250px' }}
         >
-          <h6>{chart.poolName}</h6>
+          <h6>{chart.name}</h6>
           <PieChart width={500} height={200} margin={{ right: 50, left: 20 }}>
             <Pie
               data={chart.data}

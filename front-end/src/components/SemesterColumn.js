@@ -24,7 +24,7 @@ export const SemesterColumn = ({
   index,
   shakingSemesterId,
 }) => {
-  const isExempted = semesterName.trim().toLowerCase().startsWith('exempted');
+  const isExempted = semesterName.trim().toLowerCase().startsWith('Exempted');
   const sumCredits = courses
     .map((instanceId) => {
       const genericCode = courseInstanceMap[instanceId] || instanceId;

@@ -411,7 +411,7 @@ export const calculateTotalCredits2 = (
     coursePools
         .filter((pool) => !pool.name.toLowerCase().includes("option"))
         .forEach((pool) => {
-            poolCreditMap[pool.poolId] = {
+            poolCreditMap[pool._id] = {
                 assigned: 0,
                 max: pool.creditsRequired,
             };
@@ -446,11 +446,11 @@ export const calculateTotalCredits2 = (
             const prerequisitesMet = areRequisitesMet(genericCode, currentSemesterIndex, courseInstanceMap, allCourses, semesters, semesterCourses);
             if (!prerequisitesMet) unmetPrereqFound = true;
 
-            if (!poolCreditMap[pool.poolId]) {
-                poolCreditMap[pool.poolId] = { assigned: 0, max: Infinity };
+            if (!poolCreditMap[pool._id]) {
+                poolCreditMap[pool._id] = { assigned: 0, max: Infinity };
             }
 
-            const poolData = poolCreditMap[pool.poolId];
+            const poolData = poolCreditMap[pool._id];
             poolData.assigned = Math.min(poolData.max, poolData.assigned + credits);
         });
     }

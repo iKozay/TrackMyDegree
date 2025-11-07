@@ -9,9 +9,9 @@ const CourseListAccordion = ({ courseList, selectedCourse, setSelectedCourse }) 
   return (
     <Accordion className="course-list-accordion" alwaysOpen>
       {courseList.map((courseSection) => (
-        <Accordion.Item eventKey={courseSection.poolName} key={courseSection.poolName}>
+        <Accordion.Item eventKey={courseSection.name} key={courseSection.name}>
           <Accordion.Header>
-            <b className="course-section-title">{courseSection.poolName}</b>
+            <b className="course-section-title">{courseSection.name}</b>
           </Accordion.Header>
           <Accordion.Body>
             <Container className="course-list-container">

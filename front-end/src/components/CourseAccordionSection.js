@@ -35,7 +35,7 @@ export default function CourseAccordionSection({
                             <DraggableCourse
                                 key={`${containerId}-${course._id}`}
                                 internalId={`${containerId}-${course._id}`}
-                                courseCode={course._id}
+                                courseCode={typeof course === 'string' ? course : course._id}
                                 title={course._id}
                                 disabled={isCourseAssigned(course._id)}
                                 isReturning={returning}
