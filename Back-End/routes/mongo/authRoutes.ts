@@ -116,16 +116,16 @@ router.post('/signup', async (req: Request, res: Response) => {
       const accessToken = jwtService.generateToken(
         {
           orgId: process.env.JWT_ORG_ID!,
-          userId: result?._id!,
-          type: result?.type as UserType,
+          userId: result._id,
+          type: result.type as UserType,
         },
         userHeaders,
       );
       const refreshToken = jwtService.generateToken(
         {
           orgId: process.env.JWT_ORG_ID!,
-          userId: result?._id!,
-          type: result?.type as UserType,
+          userId: result._id,
+          type: result.type as UserType,
         },
         userHeaders,
         undefined,
@@ -155,7 +155,7 @@ router.post('/signup', async (req: Request, res: Response) => {
  */
 router.post('/forgot-password', async (req: Request, res: Response) => {
   try {
-    if (!req.body || !req.body.email) {
+    if (!req.body?.email) {
       res.status(HTTP.BAD_REQUEST).json({
         error: EMPTY_REQUEST_BODY,
       });

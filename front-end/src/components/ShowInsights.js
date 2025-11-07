@@ -61,26 +61,30 @@ const ShowInsights = ({
       });
     });
 
+    const processCourseInstance = (instanceId, currentSemesterIndex) => {
+      const genericCode = courseInstanceMap[instanceId] || instanceId;
+      if (currentSemesterIndex !== lastOccurrence[genericCode]) {
+        return;
+      }
+
+      const pool = coursePools.find((p) =>
+        p.courses.some((c) => c._id === genericCode),
+      );
+
+      if (!pool) return;
+
+      const course = pool.courses.find((c) => c._id === genericCode);
+      if (!course) return;
+
+      const poolData = poolCreditMap[pool._id];
+      const newSum = poolData.assigned + (course.credits || 0);
+      poolData.assigned = Math.min(poolData.max, newSum);
+    };
+
     semesterOrder.forEach((semesterId, currentSemesterIndex) => {
       const courseCodes = semesterCourses[semesterId] || [];
       courseCodes.forEach((instanceId) => {
-        const genericCode = courseInstanceMap[instanceId] || instanceId;
-        if (currentSemesterIndex !== lastOccurrence[genericCode]) {
-          return;
-        }
-
-        const pool = coursePools.find((p) =>
-          p.courses.some((c) => c._id === genericCode),
-        );
-
-        if (!pool) return;
-
-        const course = pool.courses.find((c) => c._id === genericCode);
-        if (!course) return;
-
-        const poolData = poolCreditMap[pool._id];
-        const newSum = poolData.assigned + (course.credits || 0);
-        poolData.assigned = Math.min(poolData.max, newSum);
+        processCourseInstance(instanceId, currentSemesterIndex);
       });
     });
 
@@ -111,8 +115,9 @@ const ShowInsights = ({
         ),
       ];
 
+      const poolCourseIds = new Set(pool.courses.map((c) => c._id));
       const assignedCourses = assignedGenericCodes.filter((cCode) =>
-        pool.courses.some((c) => c._id === cCode),
+        poolCourseIds.has(cCode),
       );
 
       const assignedCredits = assignedCourses

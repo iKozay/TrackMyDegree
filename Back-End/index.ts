@@ -51,17 +51,15 @@ const MONGODB_URI =
   'mongodb://admin:changeme123@localhost:27017/trackmydegree?authSource=admin';
 
 // Connect to MongoDB using async/await
-(async () => {
-  try {
-    await mongoose.connect(MONGODB_URI);
-    console.log('Connected to MongoDB successfully!');
-  } catch (error) {
-    console.error('MongoDB connection error:', error);
-    Sentry.captureException(error);
-  }
-})();
+try {
+  await mongoose.connect(MONGODB_URI);
+  console.log('Connected to MongoDB successfully!');
+} catch (error: unknown) {
+  console.error('MongoDB connection error:', error);
+  Sentry.captureException(error);
+}
 
-mongoose.connection.on('error', (error) => {
+mongoose.connection.on('error', (error: Error) => {
   console.error('MongoDB connection error:', error);
   Sentry.captureException(error);
 });
@@ -72,7 +70,6 @@ mongoose.connection.on('disconnected', () => {
 
 Sentry.setupExpressErrorHandler(app);
 
-// CORS configuration
 const corsOptions = {
   origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   credentials: true,
@@ -81,7 +78,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
