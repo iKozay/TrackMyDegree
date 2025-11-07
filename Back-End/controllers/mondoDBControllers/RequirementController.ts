@@ -9,8 +9,9 @@ export async function seedDegreeData(degreeName:string): Promise<void>{
     const degreeController = new DegreeController();
     const coursepoolController = new CoursePoolController();
     const courseController = new CourseController();
+    console.log(data);
     await degreeController.createDegree(data["degree"]);
-    await data["coursePools"].forEach((element: any) => {
+    await data["course_pool"].forEach((element: any) => {
         coursepoolController.createCoursePool(element);
     });
     await data["courses"].forEach((element: any) => {

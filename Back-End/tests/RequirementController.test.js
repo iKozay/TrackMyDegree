@@ -17,7 +17,7 @@ describe('seedDegreeData', () => {
     it('runs scraper and seeds degree, course pools, and courses', async () => {
         const fakeData = {
             degree: { id: 'deg1', name: 'Test Degree' },
-            coursePool: [{ name: 'Pool1', courses: ['C1'] }],
+            course_pool: [{ name: 'Pool1', courses: ['C1'] }],
             courses: [{ code: 'C1', title: 'Course 1' }]
         };
         runScraperModule.runScraper.mockResolvedValue(fakeData);
@@ -40,7 +40,7 @@ describe('seedDegreeData', () => {
 
         expect(runScraperModule.runScraper).toHaveBeenCalledWith('Test Degree');
         expect(createDegreeMock).toHaveBeenCalledWith(fakeData.degree);
-        expect(createCoursePoolMock).toHaveBeenCalledWith(fakeData.coursePool[0]);
+        expect(createCoursePoolMock).toHaveBeenCalledWith(fakeData.course_pool[0]);
         expect(createCourseMock).toHaveBeenCalledWith(fakeData.courses[0]);
     });
 });
