@@ -80,12 +80,6 @@ services:
       - SQL_SERVER_USER=sa
       - SQL_SERVER_PASSWORD_FILE=/run/secrets/sql_server_password
       - SQL_SERVER_DATABASE=master
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_URL=redis://redis:6379
-      - MONGODB_HOST=mongodb
-      - MONGODB_PORT=27017
-      - MONGODB_DATABASE=trackmydegree
     volumes:
       - ./backups:/var/backups
     depends_on:
