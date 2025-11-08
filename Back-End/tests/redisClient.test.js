@@ -51,7 +51,7 @@ describe('Redis Client', () => {
     });
 
     expect(mockCreateClient).toHaveBeenCalledWith({
-      url: 'redis://redis:6379',
+      url: 'redis://localhost:6379',
     });
 
     if (originalEnv !== undefined) {

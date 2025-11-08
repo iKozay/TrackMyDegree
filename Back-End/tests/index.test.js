@@ -134,7 +134,7 @@ describe('index.ts', () => {
   });
 
   it('should handle environment variables', () => {
-    process.env.PORT = '3000';
+    process.env.BACKEND_PORT = '3000';
 
     require('../index.ts');
 
@@ -142,7 +142,7 @@ describe('index.ts', () => {
   });
 
   it('should use default values when env vars are not set', () => {
-    delete process.env.PORT;
+    delete process.env.BACKEND_PORT;
 
     require('../index.ts');
 
