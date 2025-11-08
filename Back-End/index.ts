@@ -5,14 +5,6 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import Database from '@controllers/DBController/DBController';
-import HTTP from '@Util/HTTPCodes';
-import {
-  forgotPasswordLimiter,
-  resetPasswordLimiter,
-  loginLimiter,
-  signupLimiter,
-} from '@middleware/rateLimiter';
 import { notFoundHandler, errorHandler } from '@middleware/errorHandler';
 
 //Routes import
@@ -34,6 +26,12 @@ import mongoRouter from '@routes/mongo';
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
+import {
+  forgotPasswordLimiter,
+  loginLimiter,
+  resetPasswordLimiter,
+  signupLimiter,
+} from '@middleware/rateLimiter';
 // sentry init
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -48,13 +46,12 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 // MongoDB connection
-const MONGODB_URI =
-  process.env.MONGODB_URI ||
+const MONGODB_URI = process.env.MONGODB_URI ||
   'mongodb://admin:changeme123@localhost:27017/trackmydegree?authSource=admin';
 
 // Connect to MongoDB using async/await
 try {
-  await mongoose.connect(MONGODB_URI);
+  mongoose.connect(MONGODB_URI);
   console.log('Connected to MongoDB successfully!');
 } catch (error: unknown) {
   console.error('MongoDB connection error:', error);
@@ -112,29 +109,6 @@ app.use('/upload', uploadRouter);
 
 // MongoDB consolidated routes
 app.use('/v2', mongoRouter);
-
-/**
- * DB test route
- * TO BE REMOVED
- */
-app.get('/test-db', async (req, res) => {
-  try {
-    const pool = await Database.getConnection();
-    if (pool) {
-      const result = await pool.request().query('SELECT 1 AS number');
-      res.status(HTTP.OK).send({
-        message: 'Database connected successfully!',
-        result: result.recordset,
-      });
-    } else {
-      throw new Error('Connection error in test-db');
-    }
-  } catch (error) {
-    res
-      .status(HTTP.SERVER_ERR)
-      .send({ message: 'Database connection failed', error });
-  }
-});
 
 //Handle 404
 app.use(notFoundHandler);

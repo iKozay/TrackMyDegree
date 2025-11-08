@@ -36,13 +36,13 @@ const router = express.Router();
  *     description: Mongo-backed timeline endpoints (v2)
  *   - name: Admin (v2)
  *     description: Mongo-backed administrative endpoints (v2)
- *     - name: Auth (v2)
+ *   - name: Auth (v2)
  *     description: Mongo-backed auth endpoints (v2)
- *      - name: Session (v2)
+ *   - name: Session (v2)
  *     description: Mongo-backed session endpoints (v2)
- *      - name: Section (v2)
+ *   - name: Section (v2)
  *     description: Concordia-Opendata-backed sections endpoints (v2)
- *      - name: Upload (v2)
+ *   - name: Upload (v2)
  *     description: pdf parsing endpoints (v2)
  */
 
