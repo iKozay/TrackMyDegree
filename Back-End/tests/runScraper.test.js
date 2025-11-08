@@ -1,6 +1,7 @@
-const { EventEmitter } = require('events');
+const { EventEmitter } = require('node:events');
+const { Buffer } = require('node:buffer');
 
-// Mock child_process before requiring the module
+// Mock child_process to match the import in runScraper.ts (without node: prefix)
 jest.mock('child_process', () => ({
   spawn: jest.fn(),
 }));
@@ -13,12 +14,10 @@ describe('runScraper', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     
-    // Use isolateModules to get fresh imports for each test
-    jest.isolateModules(() => {
-      const scraperModule = require('../course-data/Scraping/Scrapers/runScraper');
-      runScraper = scraperModule.runScraper;
-      degreesURL = scraperModule.degreesURL;
-    });
+    // Re-require module to get fresh exports
+    const scraperModule = require('../course-data/Scraping/Scrapers/runScraper');
+    runScraper = scraperModule.runScraper;
+    degreesURL = scraperModule.degreesURL;
   });
 
   afterEach(() => {
@@ -220,10 +219,10 @@ describe('runScraper', () => {
         'Software Engineering',
       ];
 
-      expectedDegrees.forEach((degree) => {
+      for (const degree of expectedDegrees) {
         expect(degreesURL[degree]).toBeDefined();
         expect(degreesURL[degree]).toMatch(/^https:\/\/www\.concordia\.ca/);
-      });
+      }
     });
 
     it('should pass correct URL to python script based on degree name', async () => {
