@@ -131,7 +131,7 @@ jest.mock('../index.ts', () => {
   
   // Use the same mockApp instance from express mock
   const app = express();
-  const PORT = process.env.PORT || 8000;
+  const PORT = process.env.BACKEND_PORT || 8000;
   
   // Mock mongoose connection (already mocked above)
   mongoose.connect.mockResolvedValue(mongoose.connection);
