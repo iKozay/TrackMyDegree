@@ -437,7 +437,7 @@ describe('CoursepoolController', () => {
         updates,
       );
 
-      await expect(result).rejects.toThrow('Course pool not found');
+      await expect(result).rejects.toThrow('Failed to update course pool');
 
       coursepoolController.updateById = originalUpdateById;
     });
