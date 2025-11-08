@@ -41,7 +41,7 @@ function CourseListPage() {
   // Handle degree selection
   const handleSelectDegree = (degree) => {
     setSelectedDegree(degree.name);
-    fetchCoursesByDegree(degree.id);
+    fetchCoursesByDegree(degree._id);
   };
 
   // Handle "All Courses" selection

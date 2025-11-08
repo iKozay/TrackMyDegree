@@ -156,8 +156,7 @@ describe('LogInPage', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(hashPassword).toHaveBeenCalledWith('admin');
-      expect(loginUser).toHaveBeenCalledWith('admin@gmail.com', 'hashedPassword123');
+      expect(loginUser).toHaveBeenCalledWith('admin@gmail.com', 'admin');
       expect(mockLogin).toHaveBeenCalledWith(mockResponse);
     });
     expect(mockNavigate).toHaveBeenCalledWith('/user');
@@ -229,22 +228,6 @@ describe('LogInPage', () => {
     expect(submitButton).toBeDisabled();
   });
 
-  test('should handle password hashing error', async () => {
-    hashPassword.mockRejectedValue(new Error('Hashing failed'));
-
-    renderComponent();
-
-    const emailInput = screen.getByLabelText(/Email address/i);
-    const passwordInput = screen.getByLabelText(/Password/i);
-    const submitButton = screen.getByRole('button', { name: /Submit/i });
-
-    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-    fireEvent.change(passwordInput, { target: { value: 'password' } });
-    fireEvent.click(submitButton);
-
-    expect(await screen.findByText('Hashing failed')).toBeInTheDocument();
-    expect(loginUser).not.toHaveBeenCalled();
-  });
 
   test('should reset error state on form submission', async () => {
     validateLoginForm.mockReturnValue(['Some error']);

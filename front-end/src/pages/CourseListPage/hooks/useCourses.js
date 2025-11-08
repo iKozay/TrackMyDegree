@@ -28,13 +28,9 @@ const useCourses = () => {
 
     try {
       console.log('Fetching courses by degree:', degreeId);
-      const data = await api.post(
-        '/courses/getByDegreeGrouped',
-        { degree: degreeId },
-        {
-          signal: controller.signal,
-        },
-      );
+      const data = await api.get(`/courses/by-degree/${degreeId}`, {
+        signal: controller.signal,
+      });
       setCourseList(data);
       console.log('Courses fetched:', data);
     } catch (err) {
@@ -63,20 +59,16 @@ const useCourses = () => {
 
     try {
       console.log('Fetching all courses');
-      const data = await api.post(
-        '/courses/getallcourses',
-        {},
-        {
-          signal: controller.signal,
-        },
-      );
+      const data = await api.get('/courses', {
+        signal: controller.signal,
+      });
 
       // Wrap in group structure for consistency
       const groupedData = [
         {
           poolId: 'all',
           poolName: 'All Courses',
-          courses: data,
+          courses: data.courses || data,
         },
       ];
 

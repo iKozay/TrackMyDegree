@@ -1,15 +1,23 @@
-/**
- * Admin Routes
- *
- * Handles admin operations including database management
- */
-
 import HTTP from '@Util/HTTPCodes';
 import express, { Request, Response } from 'express';
 import { adminController } from '@controllers/mondoDBControllers';
-import { seedDegreeData, seedAllDegreeData } from '@controllers/mondoDBControllers/SeedingController';
+import {
+  adminCheckMiddleware,
+  authMiddleware,
+} from '@middleware/authMiddleware';
+import {
+  seedDegreeData,
+  seedAllDegreeData,
+} from '@controllers/mondoDBControllers/SeedingController';
 
 const router = express.Router();
+
+// ==========================
+// MIDDLEWARE
+// ==========================
+
+router.use(authMiddleware);
+router.use(adminCheckMiddleware);
 
 // ==========================
 // ADMIN ROUTES
@@ -20,27 +28,116 @@ const COLLECTION_NAME_REQUIRED = 'Collection name is required';
 const NOT_AVAILABLE = 'not available';
 
 /**
+ * @openapi
+ * tags:
+ *   - name: Admin (v2)
+ *     description: Mongo-backed administrative endpoints (v2).
+ */
+
+/**
  * GET /admin/collections - Get all collections
+ */
+/**
+ * @openapi
+ * /v2/admin/collections:
+ *   get:
+ *     summary: List MongoDB collections
+ *     description: Returns all available collection names.
+ *     tags: [Admin (v2)]
+ *     responses:
+ *       200:
+ *         description: Collections retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 collections:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *       500:
+ *         description: Server error.
  */
 router.get('/collections', async (req: Request, res: Response) => {
   try {
     const collections = await adminController.getCollections();
     res.status(HTTP.OK).json({
-      message: 'Collections retrieved successfully',
-      collections,
+      success: true,
+      data: collections,
     });
   } catch (error) {
     console.error('Error in GET /admin/collections', error);
     if (error instanceof Error && error.message.includes(NOT_AVAILABLE)) {
-      res.status(HTTP.SERVER_ERR).json({ error: error.message });
+      res
+        .status(HTTP.SERVER_ERR)
+        .json({ success: false, message: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+      res
+        .status(HTTP.SERVER_ERR)
+        .json({ success: false, message: INTERNAL_SERVER_ERROR });
     }
   }
 });
 
 /**
  * GET /admin/collections/:collectionName/documents - Get documents from collection
+ */
+/**
+ * @openapi
+ * /v2/admin/collections/{collectionName}/documents:
+ *   get:
+ *     summary: Get documents from a collection
+ *     description: Retrieves documents from the specified collection with optional keyword search and pagination.
+ *     tags: [Admin (v2)]
+ *     parameters:
+ *       - in: path
+ *         name: collectionName
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Name of the collection.
+ *       - in: query
+ *         name: keyword
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Text to search within documents.
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Page number for pagination.
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Page size (items per page).
+ *     responses:
+ *       200:
+ *         description: Documents retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 documents:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     additionalProperties: true
+ *       400:
+ *         description: Collection name is missing.
+ *       500:
+ *         description: Server error.
  */
 router.get(
   '/collections/:collectionName/documents',
@@ -51,7 +148,8 @@ router.get(
 
       if (!collectionName) {
         res.status(HTTP.BAD_REQUEST).json({
-          error: COLLECTION_NAME_REQUIRED,
+          success: false,
+          message: COLLECTION_NAME_REQUIRED,
         });
         return;
       }
@@ -66,56 +164,53 @@ router.get(
       );
 
       res.status(HTTP.OK).json({
-        message: 'Documents retrieved successfully',
-        documents,
+        success: true,
+        data: documents,
       });
     } catch (error) {
       console.error(
         'Error in GET /admin/collections/:collectionName/documents',
         error,
       );
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
-  },
-);
-
-/**
- * GET /admin/collections/:collectionName/stats - Get collection statistics
- */
-router.get(
-  '/collections/:collectionName/stats',
-  async (req: Request, res: Response) => {
-    try {
-      const { collectionName } = req.params;
-
-      if (!collectionName) {
-        res.status(HTTP.BAD_REQUEST).json({
-          error: COLLECTION_NAME_REQUIRED,
-        });
-        return;
-      }
-
-      const stats = await adminController.getCollectionStats(collectionName);
-      res.status(HTTP.OK).json({
-        message: 'Statistics retrieved successfully',
-        stats,
-      });
-    } catch (error) {
-      console.error(
-        'Error in GET /admin/collections/:collectionName/stats',
-        error,
-      );
-      if (error instanceof Error && error.message.includes(NOT_AVAILABLE)) {
-        res.status(HTTP.SERVER_ERR).json({ error: error.message });
-      } else {
-        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-      }
+      res
+        .status(HTTP.SERVER_ERR)
+        .json({ success: false, message: INTERNAL_SERVER_ERROR });
     }
   },
 );
 
 /**
  * DELETE /admin/collections/:collectionName/clear - Clear collection
+ */
+/**
+ * @openapi
+ * /v2/admin/collections/{collectionName}/clear:
+ *   delete:
+ *     summary: Clear all documents in a collection
+ *     tags: [Admin (v2)]
+ *     parameters:
+ *       - in: path
+ *         name: collectionName
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Name of the collection to clear.
+ *     responses:
+ *       200:
+ *         description: Collection cleared successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 deletedCount:
+ *                   type: integer
+ *       400:
+ *         description: Collection name is missing.
+ *       500:
+ *         description: Server error.
  */
 router.delete(
   '/collections/:collectionName/clear',
@@ -125,15 +220,16 @@ router.delete(
 
       if (!collectionName) {
         res.status(HTTP.BAD_REQUEST).json({
-          error: COLLECTION_NAME_REQUIRED,
+          success: false,
+          message: COLLECTION_NAME_REQUIRED,
         });
         return;
       }
 
       const count = await adminController.clearCollection(collectionName);
       res.status(HTTP.OK).json({
-        message: `Collection cleared successfully`,
-        deletedCount: count,
+        success: true,
+        message: `${count} documents cleared successfully`,
       });
     } catch (error) {
       console.error(
@@ -141,9 +237,13 @@ router.delete(
         error,
       );
       if (error instanceof Error && error.message.includes(NOT_AVAILABLE)) {
-        res.status(HTTP.SERVER_ERR).json({ error: error.message });
+        res
+          .status(HTTP.SERVER_ERR)
+          .json({ success: false, message: error.message });
       } else {
-        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+        res
+          .status(HTTP.SERVER_ERR)
+          .json({ success: false, message: INTERNAL_SERVER_ERROR });
       }
     }
   },
@@ -151,6 +251,23 @@ router.delete(
 
 /**
  * GET /admin/connection-status - Get database connection status
+ */
+/**
+ * @openapi
+ * /v2/admin/connection-status:
+ *   get:
+ *     summary: Get database connection status
+ *     tags: [Admin (v2)]
+ *     responses:
+ *       200:
+ *         description: Connection status retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               additionalProperties: true
+ *       500:
+ *         description: Server error.
  */
 router.get('/connection-status', async (req: Request, res: Response) => {
   try {
@@ -165,35 +282,34 @@ router.get('/connection-status', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/seed-data', async (req: Request, res: Response)=>{
+router.get('/seed-data', async (req: Request, res: Response) => {
   try {
     await seedAllDegreeData();
     res.status(HTTP.OK).json({
-      message: 'Data seeded for all degrees'
+      message: 'Data seeded for all degrees',
     });
-
-  }catch (error) {
+  } catch (error) {
     console.error('Error in GET /admin/seed-data', error);
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
 
-router.get('/seed-data/:degreeName', async (req: Request, res: Response)=>{
+router.get('/seed-data/:degreeName', async (req: Request, res: Response) => {
   try {
-    const {degreeName} = req.params;
+    const { degreeName } = req.params;
 
     if (!degreeName) {
-          res.status(HTTP.BAD_REQUEST).json({
-            error: 'Degree name is required',
-          });
-          return;
+      res.status(HTTP.BAD_REQUEST).json({
+        error: 'Degree name is required',
+      });
+      return;
     }
 
     await seedDegreeData(degreeName as unknown as string);
     res.status(HTTP.OK).json({
-      message: 'Data seeded for degree ' + degreeName
+      message: 'Data seeded for degree ' + degreeName,
     });
-  }catch (error) {
+  } catch (error) {
     console.error('Error in GET /admin/seed-data', error);
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }

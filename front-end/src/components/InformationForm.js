@@ -44,7 +44,7 @@ const InformationForm = ({ degrees }) => {
     }
     const startingSemester = `${selectedTerm} ${selectedYear}`;
 
-    const matched_degree = degrees.find((d) => d.id === selectedDegreeId);
+    const matched_degree = degrees.find((d) => d._id === selectedDegreeId);
     const credits_Required = matched_degree.totalCredits;
 
     // Pass the selectedDegreeId, creditsRequired, and startingSemester to the timeline page
@@ -83,7 +83,7 @@ const InformationForm = ({ degrees }) => {
               degrees
                 .sort((a, b) => a.name.localeCompare(b.name)) // Sort degrees alphabetically by name
                 .map((degree) => (
-                  <option key={degree.id} value={degree.id}>
+                  <option key={degree._id} value={degree._id}>
                     {degree.name}
                   </option>
                 ))

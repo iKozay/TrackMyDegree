@@ -2,20 +2,21 @@
 
 import { request } from "./request";
 
-const SERVER = process.env.REACT_APP_SERVER || "http://localhost:8000";
+const SERVER = process.env.REACT_APP_SERVER || "http://localhost:8000/v2";
 
 // Helper function to include token + headers
 const buildOptions = (method, data, extraOptions = {}) => {
     const token = localStorage.getItem("token");
+    const isFormData = data instanceof FormData;
 
     return {
         method,
         headers: {
-            "Content-Type": "application/json",
+            ...(!isFormData && { "Content-Type": "application/json" }),
             ...(token && { Authorization: `Bearer ${token}` }),
             ...extraOptions.headers,
         },
-        ...(data && { body: JSON.stringify(data) }),
+        ...(data && { body: isFormData ? data : JSON.stringify(data) }),
         ...extraOptions,
     };
 };

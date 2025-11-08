@@ -2,16 +2,15 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import useTableRecords from '../../pages/AdminPage/hooks/useTableRecords';
 
-// Mock fetch
-global.fetch = jest.fn();
-
-// Helper to create mock headers
-const createMockHeaders = () => ({
-  get: (name) => {
-    if (name === 'Content-Type') return 'application/json';
-    return null;
+// Mock api instead of fetch
+jest.mock('../../api/http-api-client', () => ({
+  api: {
+    post: jest.fn(),
   },
-});
+}));
+
+// Import api after mocking
+import { api } from '../../api/http-api-client';
 
 // Mock console.error to avoid cluttering test output
 const consoleError = console.error;
@@ -24,7 +23,7 @@ afterAll(() => {
 
 describe('useTableRecords', () => {
   beforeEach(() => {
-    fetch.mockClear();
+    api.post.mockClear();
     console.error.mockClear();
     if (!process.env.REACT_APP_SERVER) {
       process.env.REACT_APP_SERVER = 'http://localhost:8000';
@@ -42,10 +41,9 @@ describe('useTableRecords', () => {
         { id: 2, name: 'Jane', email: 'jane@test.com' },
       ];
 
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: mockRecords }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: mockRecords,
       });
 
       const { result } = renderHook(() => useTableRecords());
@@ -65,10 +63,9 @@ describe('useTableRecords', () => {
     it('should fetch records with search keyword', async () => {
       const mockRecords = [{ id: 1, name: 'John', email: 'john@test.com' }];
 
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: mockRecords }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: mockRecords,
       });
 
       const { result } = renderHook(() => useTableRecords());
@@ -77,7 +74,13 @@ describe('useTableRecords', () => {
         await result.current.fetchRecords('users', 'john');
       });
 
-      expect(fetch).toHaveBeenCalledWith('http://localhost:8000/admin/tables/users?keyword=john', expect.any(Object));
+      expect(api.post).toHaveBeenCalledWith(
+        '/admin/tables/users?keyword=john',
+        {},
+        expect.objectContaining({
+          credentials: 'include',
+        }),
+      );
 
       await waitFor(() => {
         expect(result.current.records).toEqual(mockRecords);
@@ -85,10 +88,9 @@ describe('useTableRecords', () => {
     });
 
     it('should handle empty records', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: [],
       });
 
       const { result } = renderHook(() => useTableRecords());
@@ -111,7 +113,7 @@ describe('useTableRecords', () => {
         await result.current.fetchRecords('');
       });
 
-      expect(fetch).not.toHaveBeenCalled();
+      expect(api.post).not.toHaveBeenCalled();
     });
 
     it('should not fetch when tableName is null', async () => {
@@ -121,14 +123,13 @@ describe('useTableRecords', () => {
         await result.current.fetchRecords(null);
       });
 
-      expect(fetch).not.toHaveBeenCalled();
+      expect(api.post).not.toHaveBeenCalled();
     });
 
     it('should handle error when data is not an array', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: 'not an array' }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: 'not an array',
       });
 
       const { result } = renderHook(() => useTableRecords());
@@ -144,10 +145,8 @@ describe('useTableRecords', () => {
     });
 
     it('should handle error when success is false', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: false }),
+      api.post.mockResolvedValueOnce({
+        success: false,
       });
 
       const { result } = renderHook(() => useTableRecords());
@@ -163,7 +162,7 @@ describe('useTableRecords', () => {
     });
 
     it('should handle network errors', async () => {
-      fetch.mockRejectedValueOnce(new Error('Network error'));
+      api.post.mockRejectedValueOnce(new Error('Network error'));
 
       const { result } = renderHook(() => useTableRecords());
 
@@ -178,10 +177,9 @@ describe('useTableRecords', () => {
     });
 
     it('should encode special characters in keyword', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: [],
       });
 
       const { result } = renderHook(() => useTableRecords());
@@ -190,9 +188,12 @@ describe('useTableRecords', () => {
         await result.current.fetchRecords('users', 'test@email.com');
       });
 
-      expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:8000/admin/tables/users?keyword=test%40email.com',
-        expect.any(Object),
+      expect(api.post).toHaveBeenCalledWith(
+        '/admin/tables/users?keyword=test%40email.com',
+        {},
+        expect.objectContaining({
+          credentials: 'include',
+        }),
       );
     });
 
@@ -202,10 +203,9 @@ describe('useTableRecords', () => {
         { id: 2, username: 'jane', age: 30 },
       ];
 
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: mockRecords }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: mockRecords,
       });
 
       const { result } = renderHook(() => useTableRecords());
@@ -224,10 +224,9 @@ describe('useTableRecords', () => {
     it('should call fetchRecords with search keyword', async () => {
       const mockRecords = [{ id: 1, name: 'John' }];
 
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: mockRecords }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: mockRecords,
       });
 
       const { result } = renderHook(() => useTableRecords());
@@ -248,16 +247,15 @@ describe('useTableRecords', () => {
         result.current.handleSearch('', 'john');
       });
 
-      expect(fetch).not.toHaveBeenCalled();
+      expect(api.post).not.toHaveBeenCalled();
     });
 
     it('should handle empty search keyword', async () => {
       const mockRecords = [{ id: 1, name: 'John' }];
 
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: mockRecords }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: mockRecords,
       });
 
       const { result } = renderHook(() => useTableRecords());
@@ -266,7 +264,13 @@ describe('useTableRecords', () => {
         result.current.handleSearch('users', '');
       });
 
-      expect(fetch).toHaveBeenCalledWith('http://localhost:8000/admin/tables/users', expect.any(Object));
+      expect(api.post).toHaveBeenCalledWith(
+        '/admin/tables/users',
+        {},
+        expect.objectContaining({
+          credentials: 'include',
+        }),
+      );
     });
   });
 
@@ -277,7 +281,7 @@ describe('useTableRecords', () => {
         resolvePromise = resolve;
       });
 
-      fetch.mockReturnValueOnce({ ok: true, headers: createMockHeaders(), json: () => promise });
+      api.post.mockReturnValueOnce(promise);
 
       const { result } = renderHook(() => useTableRecords());
 
@@ -295,10 +299,9 @@ describe('useTableRecords', () => {
     });
 
     it('should set loading to false after successful fetch', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: [],
       });
 
       const { result } = renderHook(() => useTableRecords());
@@ -311,7 +314,7 @@ describe('useTableRecords', () => {
     });
 
     it('should set loading to false after error', async () => {
-      fetch.mockRejectedValueOnce(new Error('Error'));
+      api.post.mockRejectedValueOnce(new Error('Error'));
 
       const { result } = renderHook(() => useTableRecords());
 
@@ -326,10 +329,8 @@ describe('useTableRecords', () => {
   describe('error state', () => {
     it('should clear error on new fetch', async () => {
       // First fetch with error
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: false }),
+      api.post.mockResolvedValueOnce({
+        success: false,
       });
 
       const { result } = renderHook(() => useTableRecords());
@@ -343,10 +344,9 @@ describe('useTableRecords', () => {
       });
 
       // Second fetch should clear error
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: [],
       });
 
       await act(async () => {
@@ -361,10 +361,9 @@ describe('useTableRecords', () => {
 
   describe('credentials and request options', () => {
     it('should send request with credentials included', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: [],
       });
 
       const { result } = renderHook(() => useTableRecords());
@@ -373,10 +372,10 @@ describe('useTableRecords', () => {
         await result.current.fetchRecords('users');
       });
 
-      expect(fetch).toHaveBeenCalledWith(
-        expect.any(String),
+      expect(api.post).toHaveBeenCalledWith(
+        '/admin/tables/users',
+        {},
         expect.objectContaining({
-          method: 'POST',
           credentials: 'include',
         }),
       );

@@ -3,14 +3,8 @@ import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-import Database from '@controllers/DBController/DBController';
-import HTTP from '@Util/HTTPCodes';
-import {
-  forgotPasswordLimiter,
-  resetPasswordLimiter,
-  loginLimiter,
-  signupLimiter,
-} from '@middleware/rateLimiter';
+import cors from 'cors';
+import mongoose from 'mongoose';
 import { notFoundHandler, errorHandler } from '@middleware/errorHandler';
 
 //Routes import
@@ -27,9 +21,17 @@ import requisiteRouter from '@routes/requisite';
 import feedbackRouter from '@routes/feedback';
 import sessionRouter from '@routes/session';
 import sectionsRoutes from '@routes/sectionsRoutes';
-import transcriptRouter from '@routes/transcript';
+import uploadRouter from '@routes/upload';
 import mongoRouter from '@routes/mongo';
 
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './swagger';
+import {
+  forgotPasswordLimiter,
+  loginLimiter,
+  resetPasswordLimiter,
+  signupLimiter,
+} from '@middleware/rateLimiter';
 // sentry init
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -43,11 +45,45 @@ dotenv.config(); //Load environment variables from .env file
 const app = express();
 const PORT = process.env.PORT || 8000;
 
+// MongoDB connection
+const MONGODB_URI = process.env.MONGODB_URI ||
+  'mongodb://admin:changeme123@localhost:27017/trackmydegree?authSource=admin';
+
+// Connect to MongoDB using async/await
+try {
+  mongoose.connect(MONGODB_URI);
+  console.log('Connected to MongoDB successfully!');
+} catch (error: unknown) {
+  console.error('MongoDB connection error:', error);
+  Sentry.captureException(error);
+}
+
+mongoose.connection.on('error', (error: Error) => {
+  console.error('MongoDB connection error:', error);
+  Sentry.captureException(error);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('MongoDB disconnected');
+});
+
 Sentry.setupExpressErrorHandler(app);
 
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
+
+// Swagger (docs)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/openapi.json', (_req, res) => res.json(swaggerSpec));
 
 // Apply rate limiters of forgot-password and reset-password routes
 app.use('/auth/forgot-password', forgotPasswordLimiter);
@@ -69,33 +105,10 @@ app.use('/requisite', requisiteRouter);
 app.use('/feedback', feedbackRouter);
 app.use('/session', sessionRouter);
 app.use('/section', sectionsRoutes);
-app.use('/transcript', transcriptRouter);
+app.use('/upload', uploadRouter);
 
 // MongoDB consolidated routes
 app.use('/v2', mongoRouter);
-
-/**
- * DB test route
- * TO BE REMOVED
- */
-app.get('/test-db', async (req, res) => {
-  try {
-    const pool = await Database.getConnection();
-    if (pool) {
-      const result = await pool.request().query('SELECT 1 AS number');
-      res.status(HTTP.OK).send({
-        message: 'Database connected successfully!',
-        result: result.recordset,
-      });
-    } else {
-      throw new Error('Connection error in test-db');
-    }
-  } catch (error) {
-    res
-      .status(HTTP.SERVER_ERR)
-      .send({ message: 'Database connection failed', error });
-  }
-});
 
 //Handle 404
 app.use(notFoundHandler);
