@@ -35,7 +35,7 @@ class MailService {
 
     // validate required SMTP environment variables for production
     const requiredEnvVars = [
-      'SMTP_USER',
+      'EMAIL_USER',
       'SMTP_CLIENT_ID',
       'SMTP_CLIENT_SECRET',
       'SMTP_REFRESH_TOKEN',

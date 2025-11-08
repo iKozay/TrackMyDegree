@@ -24,7 +24,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   delete process.env.NODE_ENV;
   // Clean up any SMTP env vars to avoid validation errors
-  delete process.env.SMTP_USER;
+  delete process.env.EMAIL_USER;
   delete process.env.SMTP_CLIENT_ID;
   delete process.env.SMTP_CLIENT_SECRET;
   delete process.env.SMTP_REFRESH_TOKEN;
@@ -75,7 +75,7 @@ describe('MailService', () => {
   test('should use Gmail service when NODE_ENV=production with valid credentials', async () => {
     process.env.NODE_ENV = 'production';
     // Set required SMTP environment variables
-    process.env.SMTP_USER = 'test@gmail.com';
+    process.env.EMAIL_USER = 'test@gmail.com';
     process.env.SMTP_CLIENT_ID = 'client-id';
     process.env.SMTP_CLIENT_SECRET = 'client-secret';
     process.env.SMTP_REFRESH_TOKEN = 'refresh-token';
@@ -108,7 +108,7 @@ describe('MailService', () => {
     const { servicePromise } = loadService();
 
     await expect(servicePromise).rejects.toThrow(
-      'Missing required environment variable: SMTP_USER',
+      'Missing required environment variable: EMAIL_USER',
     );
   });
 
