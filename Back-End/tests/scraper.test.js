@@ -1,111 +1,72 @@
-const EventEmitter = require('events');
+const { spawn } = require('child_process');
+const scraper = require('../course-data/Scraping/Scrapers/runScraper');
+const { Buffer } = require('buffer');
 
-class MockProcess extends EventEmitter {
-  constructor() {
-    super();
-    this.stdout = new EventEmitter();
-    this.stderr = new EventEmitter();
-  }
-
-  cleanup() {
-    this.removeAllListeners();
-    this.stdout.removeAllListeners();
-    this.stderr.removeAllListeners();
-  }
-}
-
-const mockSpawn = jest.fn(() => {
-  const process = new MockProcess();
-  mockSpawn.lastInstance = process;
-  return process;
-});
-
-jest.mock('node:child_process', () => ({
-  spawn: mockSpawn,
-}));
-
-const {
-  runScraper,
-} = require('../course-data/Scraping/Scrapers/runScraper.js');
+jest.mock('child_process');
 
 describe('runScraper', () => {
-  beforeEach(() => {
-    mockSpawn.lastInstance = null;
-  });
+    const mockSpawn = spawn;
 
-  afterEach(() => {
-    if (mockSpawn.lastInstance) {
-      mockSpawn.lastInstance.cleanup();
-    }
-    jest.clearAllMocks();
-  });
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
 
-  test('resolves successfully when Python exits with code 0', async () => {
-    const promise = runScraper('fake_script.py', ['arg1']);
-    const proc = mockSpawn.lastInstance;
+    it('resolves with parsed JSON output', async () => {
+        const mockStdout = {
+            on: jest.fn().mockImplementation((event, cb) => {
+                if (event === 'data') cb(Buffer.from('[{"course":"TEST"}]'));
+            }),
+        };
+        const mockProcess = {
+            stdout: mockStdout,
+            stderr: { on: jest.fn() },
+            on: jest.fn().mockImplementation((event, cb) => {
+                if (event === 'close') cb(0);
+            }),
+        };
 
-    expect(proc).toBeDefined();
-    proc.stdout.emit('data', 'Output 1');
-    proc.stdout.emit('data', 'Output 2');
-    proc.emit('close', 0);
+        mockSpawn.mockReturnValue(mockProcess);
 
-    await expect(promise).resolves.toBe('Output 1Output 2');
-  });
+        const result = await scraper.runScraper('Software Engineering');
+        expect(result).toEqual([{ course: 'TEST' }]);
+    });
 
-  test('rejects when Python exits with non-zero code', async () => {
-    const promise = runScraper('fake_script.py');
-    const proc = mockSpawn.lastInstance;
+    it('rejects if degree name is invalid', async () => {
+        await expect(scraper.runScraper('Unknown Degree')).rejects.toThrow(
+            'Degree name "Unknown Degree" not found'
+        );
+    });
 
-    expect(proc).toBeDefined();
-    proc.stderr.emit('data', 'Something went wrong');
-    proc.emit('close', 1);
+    it('rejects if Python exits with error code', async () => {
+        const mockProcess = {
+            stdout: { on: jest.fn() },
+            stderr: { on: jest.fn().mockImplementation((event, cb) => { if (event === 'data') cb(Buffer.from('error')); }) },
+            on: jest.fn().mockImplementation((event, cb) => {
+                if (event === 'close') cb(1);
+            }),
+        };
 
-    await expect(promise).rejects.toThrow(
-      'Python error (code 1): Something went wrong',
-    );
-  });
+        mockSpawn.mockReturnValue(mockProcess);
 
-  test('handles empty stdout/stderr gracefully', async () => {
-    const promise = runScraper('empty_script.py');
-    const proc = mockSpawn.lastInstance;
+        await expect(scraper.runScraper('Software Engineering')).rejects.toThrow('Scraper failed: error');
+    });
 
-    expect(proc).toBeDefined();
-    proc.emit('close', 0);
+    it('rejects if JSON parsing fails', async () => {
+        const mockStdout = {
+            on: jest.fn().mockImplementation((event, cb) => {
+                if (event === 'data') cb(Buffer.from('invalid json'));
+            }),
+        };
+        const mockProcess = {
+            stdout: mockStdout,
+            stderr: { on: jest.fn() },
+            on: jest.fn().mockImplementation((event, cb) => {
+                if (event === 'close') cb(0);
+            }),
+        };
 
-    await expect(promise).resolves.toBe('');
-  });
+        mockSpawn.mockReturnValue(mockProcess);
 
-  test('handles stderr with no content but non-zero exit', async () => {
-    const promise = runScraper('error_script.py');
-    const proc = mockSpawn.lastInstance;
-
-    expect(proc).toBeDefined();
-    proc.emit('close', 1);
-
-    await expect(promise).rejects.toThrow('Python error (code 1): ');
-  });
-
-  test('spawn called with correct arguments', () => {
-    runScraper('../Scraping/Scrapers/course_data_scraper.py', ['arg1', 'arg2']);
-    
-    expect(mockSpawn).toHaveBeenCalledWith(
-      '/usr/bin/python3',
-      ['../Scraping/Scrapers/course_data_scraper.py', 'arg1', 'arg2'],
-      {
-        shell: false,
-        stdio: ['ignore', 'pipe', 'pipe'],
-      },
-    );
-  });
-
-  test('trims output when resolving', async () => {
-    const promise = runScraper('script.py');
-    const proc = mockSpawn.lastInstance;
-
-    expect(proc).toBeDefined();
-    proc.stdout.emit('data', '  Output with spaces  \n');
-    proc.emit('close', 0);
-
-    await expect(promise).resolves.toBe('Output with spaces');
-  });
+        await expect(scraper.runScraper('Software Engineering')).rejects.toThrow('Failed to parse Python output as JSON');
+    });
 });

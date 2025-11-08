@@ -1,9 +1,3 @@
-/**
- * Degree Routes
- *
- * Handles degree operations (read-only)
- */
-
 import HTTP from '@Util/HTTPCodes';
 import express, { Request, Response } from 'express';
 import { degreeController } from '@controllers/mondoDBControllers';
@@ -74,10 +68,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     const degree = await degreeController.readDegree(id);
-    res.status(HTTP.OK).json({
-      message: 'Degree retrieved successfully',
-      degree,
-    });
+    res.status(HTTP.OK).json(degree);
   } catch (error) {
     console.error('Error in GET /degree/:id', error);
     if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
@@ -119,10 +110,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.get('/', async (req: Request, res: Response) => {
   try {
     const degrees = await degreeController.readAllDegrees();
-    res.status(HTTP.OK).json({
-      message: 'Degrees retrieved successfully',
-      degrees,
-    });
+    res.status(HTTP.OK).json(degrees);
   } catch (error) {
     console.error('Error in GET /degree', error);
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
@@ -178,7 +166,6 @@ router.get('/:id/credits', async (req: Request, res: Response) => {
 
     const credits = await degreeController.getCreditsForDegree(id);
     res.status(HTTP.OK).json({
-      message: 'Credits retrieved successfully',
       totalCredits: credits,
     });
   } catch (error) {
@@ -241,10 +228,7 @@ router.get('/:id/coursepools', async (req: Request, res: Response) => {
     }
 
     const coursePools = await degreeController.getCoursePoolsForDegree(id);
-    res.status(HTTP.OK).json({
-      message: 'Course pools retrieved successfully',
-      coursePools,
-    });
+    res.status(HTTP.OK).json(coursePools);
   } catch (error) {
     console.error('Error in GET /degree/:id/coursepools', error);
     if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {

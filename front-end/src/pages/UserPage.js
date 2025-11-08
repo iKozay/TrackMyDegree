@@ -63,7 +63,7 @@ const UserPage = ({ onDataProcessed }) => {
   // Fetch user timelines using utils
   useEffect(() => {
     if (user?.type === 'student') {
-      getUserTimelines(user.id)
+      getUserTimelines(user._id)
         .then(setUserTimelines)
         .catch((err) => console.error('Error fetching user timelines:', err));
     }

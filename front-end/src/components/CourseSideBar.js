@@ -41,9 +41,9 @@ export const CourseSidebar = ({
                                 <Accordion>
                                     {coursePools.map((pool) => (
                                         <CourseAccordionSection
-                                            key={pool.poolId}
-                                            eventKey={pool.poolId}
-                                            title={pool.poolName}
+                                            key={pool._id}
+                                            eventKey={pool._id}
+                                            title={pool.name}
                                             courses={pool.courses}
                                             containerId="courseList"
                                             searchQuery={searchQuery}

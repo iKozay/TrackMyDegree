@@ -7,7 +7,7 @@ export const useTimelineActions = (state, dispatch) => {
     const listKey = `${category}Courses`;
     const creditsKey = `${category}Credits`;
 
-    const alreadyAdded = state[listKey].some((c) => c.code === course.code);
+    const alreadyAdded = state[listKey].some((c) => c._id === course._id);
     if (alreadyAdded) {
       notifyInfo(`Course already added to ${category}!`);
       return;
@@ -33,7 +33,7 @@ export const useTimelineActions = (state, dispatch) => {
     dispatch({
       type: 'SET',
       payload: {
-        [listKey]: state[listKey].filter((c) => c.code !== course.code),
+        [listKey]: state[listKey].filter((c) => c._id !== course._id),
         [creditsKey]: state[creditsKey] - (course.credits || 0),
       },
     });

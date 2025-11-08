@@ -8,13 +8,13 @@ export const useRemainingCourses = (coursePools, allCourses) => {
         const normalizedDegreeCourseCodes = new Set(
             coursePools.flatMap((pool) =>
                 (pool.courses || []).map((course) =>
-                    course.code?.trim().toUpperCase()
+                    course._id?.trim().toUpperCase()
                 )
             )
         );
 
         return allCourses.filter(
-            (course) => !normalizedDegreeCourseCodes.has(course.code?.trim().toUpperCase())
+            (course) => !normalizedDegreeCourseCodes.has(course._id?.trim().toUpperCase())
         );
     }, [coursePools, allCourses]);
 };

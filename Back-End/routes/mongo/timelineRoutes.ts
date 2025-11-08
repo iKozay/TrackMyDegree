@@ -1,9 +1,3 @@
-/**
- * Timeline Routes
- *
- * Handles timeline CRUD operations
- */
-
 import HTTP from '@Util/HTTPCodes';
 import express, { Request, Response } from 'express';
 import { timelineController } from '@controllers/mondoDBControllers';
@@ -78,10 +72,7 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     const timeline = await timelineController.saveTimeline(timelineData);
-    res.status(HTTP.CREATED).json({
-      message: 'Timeline saved successfully',
-      timeline,
-    });
+    res.status(HTTP.CREATED).json(timeline);
   } catch (error) {
     console.error('Error in POST /timeline', error);
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
@@ -133,10 +124,7 @@ router.get('/user/:userId', async (req: Request, res: Response) => {
     }
 
     const timelines = await timelineController.getTimelinesByUser(userId);
-    res.status(HTTP.OK).json({
-      message: 'Timelines retrieved successfully',
-      timelines,
-    });
+    res.status(HTTP.OK).json(timelines);
   } catch (error) {
     console.error('Error in GET /timeline/user/:userId', error);
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
@@ -188,10 +176,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     const timeline = await timelineController.getTimelineById(id);
-    res.status(HTTP.OK).json({
-      message: 'Timeline retrieved successfully',
-      timeline,
-    });
+    res.status(HTTP.OK).json(timeline);
   } catch (error) {
     console.error('Error in GET /timeline/:id', error);
     if (error instanceof Error && error.message.includes('not found')) {
@@ -255,10 +240,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const timeline = await timelineController.updateTimeline(id, updates);
-    res.status(HTTP.OK).json({
-      message: 'Timeline updated successfully',
-      timeline,
-    });
+    res.status(HTTP.OK).json(timeline);
   } catch (error) {
     console.error('Error in PUT /timeline/:id', error);
     if (error instanceof Error && error.message.includes('not found')) {
@@ -358,7 +340,6 @@ router.delete('/user/:userId', async (req: Request, res: Response) => {
     const count = await timelineController.deleteAllUserTimelines(userId);
     res.status(HTTP.OK).json({
       message: `Deleted ${count} timelines for user`,
-      deletedCount: count,
     });
   } catch (error) {
     console.error('Error in DELETE /timeline/user/:userId', error);

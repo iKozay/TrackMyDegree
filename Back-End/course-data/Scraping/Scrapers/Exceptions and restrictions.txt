@@ -1,0 +1,23 @@
+Engineering core
+    BEng in Building Engineering:
+        Remove ENGR 202
+        Swap ENGR 392 -> BLDG 482
+    
+    BEng in Mechanical Engineering:
+        Remove ELEC 275
+
+    Beng in Industrial Engineering:
+        Remove ELEC 275
+        MUST Take ACCO 220 for General Education Elective
+        
+    BEng in Aerospace Engineering:
+        Remove ELEC 275
+    
+    BEng in Electrical Engineering:
+        Swap ELEC 275 -> ELEC 273
+    
+    BEng in Computer Engineering:
+        Swap ELEC 275 -> ELEC 273
+    
+    BEng in Software Engineering:
+        CAN Swap ENGR 391 -> COMP 361

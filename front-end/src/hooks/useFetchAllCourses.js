@@ -9,9 +9,9 @@ export const useFetchAllCourses = (dispatch, extendedCredit) => {
         const fetchAllCourses = async () => {
             // throw new TimelineError('Failed to fetch all courses');
             try {
-                const data = await api.post('/courses/getAllCourses');
+                const courses = await api.get('/courses');
 
-                dispatch({ type: 'SET', payload: { allCourses: data } });
+                dispatch({ type: 'SET', payload: { allCourses: courses } });
             } catch (err) {
                 console.error('Error fetching all courses', err);
             }

@@ -1,14 +1,23 @@
-/**
- * Admin Routes
- *
- * Handles admin operations including database management
- */
-
 import HTTP from '@Util/HTTPCodes';
 import express, { Request, Response } from 'express';
 import { adminController } from '@controllers/mondoDBControllers';
+import {
+  adminCheckMiddleware,
+  authMiddleware,
+} from '@middleware/authMiddleware';
+import {
+  seedDegreeData,
+  seedAllDegreeData,
+} from '@controllers/mondoDBControllers/SeedingController';
 
 const router = express.Router();
+
+// ==========================
+// MIDDLEWARE
+// ==========================
+
+router.use(authMiddleware);
+router.use(adminCheckMiddleware);
 
 // ==========================
 // ADMIN ROUTES
@@ -56,15 +65,19 @@ router.get('/collections', async (req: Request, res: Response) => {
   try {
     const collections = await adminController.getCollections();
     res.status(HTTP.OK).json({
-      message: 'Collections retrieved successfully',
-      collections,
+      success: true,
+      data: collections,
     });
   } catch (error) {
     console.error('Error in GET /admin/collections', error);
     if (error instanceof Error && error.message.includes(NOT_AVAILABLE)) {
-      res.status(HTTP.SERVER_ERR).json({ error: error.message });
+      res
+        .status(HTTP.SERVER_ERR)
+        .json({ success: false, message: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+      res
+        .status(HTTP.SERVER_ERR)
+        .json({ success: false, message: INTERNAL_SERVER_ERROR });
     }
   }
 });
@@ -135,7 +148,8 @@ router.get(
 
       if (!collectionName) {
         res.status(HTTP.BAD_REQUEST).json({
-          error: COLLECTION_NAME_REQUIRED,
+          success: false,
+          message: COLLECTION_NAME_REQUIRED,
         });
         return;
       }
@@ -150,82 +164,17 @@ router.get(
       );
 
       res.status(HTTP.OK).json({
-        message: 'Documents retrieved successfully',
-        documents,
+        success: true,
+        data: documents,
       });
     } catch (error) {
       console.error(
         'Error in GET /admin/collections/:collectionName/documents',
         error,
       );
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
-  },
-);
-
-/**
- * GET /admin/collections/:collectionName/stats - Get collection statistics
- */
-/**
- * @openapi
- * /v2/admin/collections/{collectionName}/stats:
- *   get:
- *     summary: Get collection statistics
- *     description: Returns stats for a given collection (fields depend on the database driver).
- *     tags: [Admin (v2)]
- *     parameters:
- *       - in: path
- *         name: collectionName
- *         required: true
- *         schema:
- *           type: string
- *         description: Name of the collection.
- *     responses:
- *       200:
- *         description: Statistics retrieved successfully.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 stats:
- *                   type: object
- *                   additionalProperties: true
- *       400:
- *         description: Collection name is missing.
- *       500:
- *         description: Server error.
- */
-router.get(
-  '/collections/:collectionName/stats',
-  async (req: Request, res: Response) => {
-    try {
-      const { collectionName } = req.params;
-
-      if (!collectionName) {
-        res.status(HTTP.BAD_REQUEST).json({
-          error: COLLECTION_NAME_REQUIRED,
-        });
-        return;
-      }
-
-      const stats = await adminController.getCollectionStats(collectionName);
-      res.status(HTTP.OK).json({
-        message: 'Statistics retrieved successfully',
-        stats,
-      });
-    } catch (error) {
-      console.error(
-        'Error in GET /admin/collections/:collectionName/stats',
-        error,
-      );
-      if (error instanceof Error && error.message.includes(NOT_AVAILABLE)) {
-        res.status(HTTP.SERVER_ERR).json({ error: error.message });
-      } else {
-        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-      }
+      res
+        .status(HTTP.SERVER_ERR)
+        .json({ success: false, message: INTERNAL_SERVER_ERROR });
     }
   },
 );
@@ -271,15 +220,16 @@ router.delete(
 
       if (!collectionName) {
         res.status(HTTP.BAD_REQUEST).json({
-          error: COLLECTION_NAME_REQUIRED,
+          success: false,
+          message: COLLECTION_NAME_REQUIRED,
         });
         return;
       }
 
       const count = await adminController.clearCollection(collectionName);
       res.status(HTTP.OK).json({
-        message: `Collection cleared successfully`,
-        deletedCount: count,
+        success: true,
+        message: `${count} documents cleared successfully`,
       });
     } catch (error) {
       console.error(
@@ -287,9 +237,13 @@ router.delete(
         error,
       );
       if (error instanceof Error && error.message.includes(NOT_AVAILABLE)) {
-        res.status(HTTP.SERVER_ERR).json({ error: error.message });
+        res
+          .status(HTTP.SERVER_ERR)
+          .json({ success: false, message: error.message });
       } else {
-        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+        res
+          .status(HTTP.SERVER_ERR)
+          .json({ success: false, message: INTERNAL_SERVER_ERROR });
       }
     }
   },
@@ -328,6 +282,37 @@ router.get('/connection-status', async (req: Request, res: Response) => {
   }
 });
 
-// TODO: Add seed data route that will call: scraper, courseController (MongoDB), coursepoolController (MongoDB) and degreeController (MongoDB)
+router.get('/seed-data', async (req: Request, res: Response) => {
+  try {
+    await seedAllDegreeData();
+    res.status(HTTP.OK).json({
+      message: 'Data seeded for all degrees',
+    });
+  } catch (error) {
+    console.error('Error in GET /admin/seed-data', error);
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+  }
+});
+
+router.get('/seed-data/:degreeName', async (req: Request, res: Response) => {
+  try {
+    const { degreeName } = req.params;
+
+    if (!degreeName) {
+      res.status(HTTP.BAD_REQUEST).json({
+        error: 'Degree name is required',
+      });
+      return;
+    }
+
+    await seedDegreeData(degreeName as unknown as string);
+    res.status(HTTP.OK).json({
+      message: 'Data seeded for degree ' + degreeName,
+    });
+  } catch (error) {
+    console.error('Error in GET /admin/seed-data', error);
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+  }
+});
 
 export default router;

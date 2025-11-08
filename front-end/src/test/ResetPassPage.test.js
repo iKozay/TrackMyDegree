@@ -137,6 +137,8 @@ describe('ResetPassPage', () => {
   });
 
   test('successfully resets password and navigates to signin', async () => {
+    // Set email in localStorage as required by the component
+    localStorage.setItem('resetPasswordEmail', 'test@example.com');
     api.post.mockResolvedValueOnce({ message: 'Password reset successfully' });
 
     render(<ResetPassPage />);
@@ -155,15 +157,20 @@ describe('ResetPassPage', () => {
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/auth/reset-password', {
+        email: 'test@example.com',
         otp: '1234',
-        password: 'password123',
-        confirmPassword: 'password123',
+        newPassword: 'password123',
       });
       expect(mockNavigate).toHaveBeenCalledWith('/signin');
     });
+
+    // Cleanup
+    localStorage.removeItem('resetPasswordEmail');
   });
 
   test('handles API error correctly', async () => {
+    // Set email in localStorage as required by the component
+    localStorage.setItem('resetPasswordEmail', 'test@example.com');
     api.post.mockRejectedValueOnce(new Error('Invalid OTP'));
 
     render(<ResetPassPage />);
@@ -183,6 +190,9 @@ describe('ResetPassPage', () => {
     await waitFor(() => {
       expect(screen.getByText('Invalid OTP')).toBeInTheDocument();
     });
+
+    // Cleanup
+    localStorage.removeItem('resetPasswordEmail');
   });
 
   test('clears error when input changes', async () => {
@@ -204,6 +214,8 @@ describe('ResetPassPage', () => {
   });
 
   test('shows loading state when submitting', async () => {
+    // Set email in localStorage as required by the component
+    localStorage.setItem('resetPasswordEmail', 'test@example.com');
     let resolvePromise;
     const promise = new Promise((resolve) => {
       resolvePromise = resolve;
@@ -231,5 +243,33 @@ describe('ResetPassPage', () => {
     });
 
     resolvePromise({ message: 'Success' });
+
+    // Cleanup
+    localStorage.removeItem('resetPasswordEmail');
+  });
+
+  test('shows error when email is not found in localStorage', async () => {
+    // Ensure email is not in localStorage
+    localStorage.removeItem('resetPasswordEmail');
+
+    render(<ResetPassPage />);
+
+    const otpInput = screen.getByPlaceholderText('* Enter your OTP');
+    fireEvent.change(otpInput, { target: { value: '1234' } });
+
+    const passwordInput = screen.getByPlaceholderText('* Enter your password');
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+
+    const confirmPasswordInput = screen.getByPlaceholderText('* Confirm your password');
+    fireEvent.change(confirmPasswordInput, { target: { value: 'password123' } });
+
+    const submitButton = screen.getByText('Submit');
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Email not found. Please start the password reset process again.')).toBeInTheDocument();
+    });
+
+    expect(api.post).not.toHaveBeenCalled();
   });
 });
