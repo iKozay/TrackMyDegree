@@ -32,6 +32,9 @@ services:
       - app-network
     labels:
       - "traefik.enable=false"
+    env_file:
+      # To provide DOMAIN and ACME_EMAIL variables
+      - ./secrets/staging.env
 
   frontend:
     image: ghcr.io/ikozay/trackmydegree-frontend:latest
@@ -49,20 +52,15 @@ services:
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+    env_file:
+      # To provide POSTHOG_API_KEY
+      - ./secrets/staging.env
 
   backend:
     image: ghcr.io/ikozay/trackmydegree-backend:latest
     restart: unless-stopped
     ports:
       - "8000:8000"
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_URL=redis://redis:6379
-      - MONGODB_URI=mongodb://admin:changeme123@mongodb:27017/
-      - MONGODB_HOST=mongodb
-      - MONGODB_PORT=27017
-      - MONGODB_DATABASE=trackmydegree
     volumes:
       - ./backups:/var/backups
     depends_on:
@@ -72,23 +70,23 @@ services:
       - app-network
     labels:
       - "traefik.enable=false"
+    env_file:
+      # To provide various sensitive environment variables like JWT_SECRET, MONGODB_URI, etc.
+      - ./secrets/staging.env
 
   mongodb:
     image: mongo:latest
     expose:
       - "27017"
-    environment:
-      # Should look into using secrets for sensitive info like passwords
-      # See: https://docs.docker.com/compose/how-tos/use-secrets/
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=changeme123
-      - MONGO_INITDB_DATABASE=trackmydegree
     volumes:
       - mongodb-data:/data/db
     networks:
       - app-network
     labels:
       - "traefik.enable=false"
+    env_file:
+      # To provide MONGO_INITDB_ROOT_USERNAME, MONGO_INITDB_ROOT_PASSWORD and MONGO_INITDB_DATABASE
+      - ./secrets/staging.env
 
   redis:
     image: redis:latest

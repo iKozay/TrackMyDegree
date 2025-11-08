@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import express from 'express';
 import dotenv from 'dotenv';
+import path from 'node:path';
 import cookieParser from 'cookie-parser';
 import Database from '@controllers/DBController/DBController';
 import HTTP from '@Util/HTTPCodes';
@@ -39,9 +40,9 @@ Sentry.init({
 });
 
 //Express Init
-dotenv.config(); //Load environment variables from .env file
+dotenv.config({ path: path.resolve(__dirname, '../secrets/.env') });
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.BACKEND_PORT;
 
 Sentry.setupExpressErrorHandler(app);
 

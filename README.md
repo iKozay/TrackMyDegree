@@ -82,26 +82,14 @@ Ensure you have the following installed on your machine:
 
    ```bash
    docker compose up -d
-   # In a new terminal
-   cd front-end/
-   npm run start
-   # In another terminal
-   cd Back-End/
    npm run dev
    ```
 
    This will:
 
-    - Build the docker images.
-    - Mount the secret from `./secrets/sql_server_password.txt` for the database and backend.
-    - Start the frontend, backend and database components.
-    - The application should now be running locally.
-
-**Common Issues**
-Port already in use:
-
-- You can change the port to an available one in the docker compose yml file;
-- Re-run the code from step #2.
+    - Run MongoDB and Redis in docker
+    - Start the frontend, backend concurrently.
+    - The application should now be running locally at localhost:3000.
 
 ## Production Deployment
 
