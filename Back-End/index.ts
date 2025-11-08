@@ -31,6 +31,8 @@ import sectionsRoutes from '@routes/sectionsRoutes';
 import uploadRouter from '@routes/upload';
 import mongoRouter from '@routes/mongo';
 
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './swagger';
 // sentry init
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -49,6 +51,10 @@ Sentry.setupExpressErrorHandler(app);
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
+
+// Swagger (docs)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/openapi.json', (_req, res) => res.json(swaggerSpec));
 
 // Apply rate limiters of forgot-password and reset-password routes
 app.use('/auth/forgot-password', forgotPasswordLimiter);
