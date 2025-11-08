@@ -11,6 +11,7 @@ module.exports = {
     'Util/**/*.ts',
     'services/**/*.ts',
     'models/**/*.ts',
+    'course-data/Scraping/Scrapers/**/*.ts',
     'index.ts',
     '!**/node_modules/**',
     '!**/dist/**',
