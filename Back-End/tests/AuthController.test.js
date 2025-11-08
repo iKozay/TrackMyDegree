@@ -20,11 +20,15 @@ jest.mock('nodemailer', () => ({
 
 // ────────────────────────────────────────────────
 // Mock Redis client (for forgotPassword/resetPassword)
+const getMock = jest.fn();
+const setexMock = jest.fn().mockResolvedValue('OK');
+const delMock = jest.fn().mockResolvedValue(1);
+
 jest.mock('ioredis', () => {
   return jest.fn().mockImplementation(() => ({
-    setex: jest.fn().mockResolvedValue('OK'),
-    get: jest.fn().mockResolvedValue(null),
-    del: jest.fn().mockResolvedValue(1),
+    get: getMock,
+    setex: setexMock,
+    del: delMock,
   }));
 });
 
@@ -48,6 +52,7 @@ describe('AuthController', () => {
 
   beforeEach(async () => {
     await User.deleteMany({});
+    jest.clearAllMocks(); // reset Redis and Nodemailer mocks
   });
 
   // ────────────────────────────────────────────────
@@ -95,13 +100,13 @@ describe('AuthController', () => {
     });
 
     it('should handle database error gracefully', async () => {
-      const original = User.findOne;
+      const orig = User.findOne;
       User.findOne = jest.fn().mockImplementation(() => {
         throw new Error('DB down');
       });
       const result = await authController.authenticate('test@example.com', 'TestPass123!');
       expect(result).toBeUndefined();
-      User.findOne = original;
+      User.findOne = orig;
     });
   });
 
@@ -165,7 +170,8 @@ describe('AuthController', () => {
       process.env.FRONTEND_URL = 'http://localhost:3000';
       const res = await authController.forgotPassword('reset@example.com');
       expect(res.message).toBe('Password reset link sent successfully');
-      expect(res.resetLink).toMatch(/reset-password\/[a-f0-9\-]{36}/); // uuid v4
+      expect(res.resetLink).toMatch(/reset-password\/[a-f0-9-]{36}/);
+      expect(setexMock).toHaveBeenCalledWith(expect.stringMatching(/^reset:/), expect.any(Number), 'reset@example.com');
     });
 
     it('should not reveal if email not found', async () => {
@@ -175,9 +181,7 @@ describe('AuthController', () => {
 
     it('should handle DB error', async () => {
       const orig = User.findOne;
-      User.findOne = jest.fn().mockImplementation(() => {
-        throw new Error('DB failed');
-      });
+      User.findOne = jest.fn().mockRejectedValue(new Error('DB fail'));
       const res = await authController.forgotPassword('reset@example.com');
       expect(res.message).toBe('An error occurred. Please try again later.');
       User.findOne = orig;
@@ -186,7 +190,6 @@ describe('AuthController', () => {
 
   // ────────────────────────────────────────────────
   describe('resetPassword', () => {
-    let redisMock;
     let testUser;
 
     beforeEach(async () => {
@@ -196,28 +199,25 @@ describe('AuthController', () => {
         fullname: 'Reset User',
         type: UserType.STUDENT,
       });
-
-      redisMock = require('ioredis').mock.instances[0];
-      redisMock.get.mockResolvedValueOnce('reset@example.com');
     });
 
     it('should reset valid token', async () => {
+      getMock.mockResolvedValueOnce('reset@example.com');
       const res = await authController.resetPassword('validtoken', 'NewPass123!');
       expect(res).toBe(true);
+      expect(delMock).toHaveBeenCalledWith('reset:validtoken');
     });
 
     it('should fail invalid token', async () => {
-      redisMock.get.mockResolvedValueOnce(null);
+      getMock.mockResolvedValueOnce(null);
       const res = await authController.resetPassword('wrongtoken', 'NewPass123!');
       expect(res).toBe(false);
     });
 
     it('should handle DB error', async () => {
+      getMock.mockResolvedValueOnce('reset@example.com');
       const orig = User.findOne;
-      User.findOne = jest.fn().mockImplementation(() => {
-        throw new Error('DB fail');
-      });
-      redisMock.get.mockResolvedValueOnce('reset@example.com');
+      User.findOne = jest.fn().mockRejectedValue(new Error('DB fail'));
       const res = await authController.resetPassword('validtoken', 'NewPass123!');
       expect(res).toBe(false);
       User.findOne = orig;
@@ -255,9 +255,7 @@ describe('AuthController', () => {
 
     it('should handle DB error', async () => {
       const orig = User.findById;
-      User.findById = jest.fn().mockImplementation(() => {
-        throw new Error('DB fail');
-      });
+      User.findById = jest.fn().mockRejectedValue(new Error('DB fail'));
       const ok = await authController.changePassword(user._id.toString(), 'OldPass123!', 'NewPass123!');
       expect(ok).toBe(false);
       User.findById = orig;
