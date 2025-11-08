@@ -48,16 +48,15 @@ const PORT = process.env.BACKEND_PORT || 8000;
 
 // MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI ||
-  'mongodb://admin:changeme123@localhost:27017/trackmydegree?authSource=admin';
+  'mongodb://admin:changeme123@localhost:27017/trackmydegree';
 
 // Connect to MongoDB using async/await
-try {
-  mongoose.connect(MONGODB_URI);
-  console.log('Connected to MongoDB successfully!');
-} catch (error: unknown) {
-  console.error('MongoDB connection error:', error);
+mongoose.connect(MONGODB_URI).then(() => {
+  console.log('Connected to MongoDB');
+}).catch((error: Error) => {
+  console.error('Error connecting to MongoDB:', error);
   Sentry.captureException(error);
-}
+});
 
 mongoose.connection.on('error', (error: Error) => {
   console.error('MongoDB connection error:', error);
@@ -70,14 +69,16 @@ mongoose.connection.on('disconnected', () => {
 
 Sentry.setupExpressErrorHandler(app);
 
-const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-};
+if (process.env.NODE_ENV === 'development') {
+  const corsOptions = {
+    origin: 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  };
+  app.use(cors(corsOptions));
+}
 
-app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
