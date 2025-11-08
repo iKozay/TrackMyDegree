@@ -42,7 +42,17 @@ Sentry.init({
 });
 
 //Express Init
-dotenv.config({ path: path.resolve(__dirname, '../secrets/.env') });
+if (process.env.NODE_ENV === 'development') {
+  const loadEnv = dotenv.config({ path: path.resolve(__dirname, '../secrets/.env'), debug: true });
+  if (loadEnv.error) {
+    console.error('Error loading .env file:', loadEnv.error);
+    throw loadEnv.error;
+  }else {
+    console.log('Environment variables loaded successfully');
+  }
+}
+// For production and staging, env vars are injected automatically via Docker
+
 const app = express();
 const PORT = process.env.BACKEND_PORT || 8000;
 
