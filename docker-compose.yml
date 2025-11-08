@@ -84,6 +84,7 @@ services:
       - MONGODB_URI=mongodb://admin:changeme123@mongodb:27017/trackmydegree
       - MONGODB_HOST=mongodb
       - MONGODB_PORT=27017
+      - MONGODB_DATABASE=trackmydegree
     volumes:
       - ./backups:/var/backups
     depends_on:
@@ -157,7 +158,6 @@ services:
       # See: https://docs.docker.com/compose/how-tos/use-secrets/
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=changeme123
-      - MONGO_INITDB_DATABASE=trackmydegree
     volumes:
       - mongodb-data:/data/db
     networks:
