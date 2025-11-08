@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
 
@@ -6,12 +6,8 @@ services:
     image: mongo:latest
     ports:
       - "27017:27017"
-    environment:
-      # Should look into using secrets for sensitive info like passwords
-      # See: https://docs.docker.com/compose/how-tos/use-secrets/
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=changeme123
-      - MONGO_INITDB_DATABASE=trackmydegree
+    env_file:
+      - ./secrets/.env
     volumes:
       - mongodb-data:/data/db
     networks:
