@@ -19,7 +19,38 @@ const COLLECTION_NAME_REQUIRED = 'Collection name is required';
 const NOT_AVAILABLE = 'not available';
 
 /**
+ * @openapi
+ * tags:
+ *   - name: Admin (v2)
+ *     description: Mongo-backed administrative endpoints (v2).
+ */
+
+/**
  * GET /admin/collections - Get all collections
+ */
+/**
+ * @openapi
+ * /v2/admin/collections:
+ *   get:
+ *     summary: List MongoDB collections
+ *     description: Returns all available collection names.
+ *     tags: [Admin (v2)]
+ *     responses:
+ *       200:
+ *         description: Collections retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 collections:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *       500:
+ *         description: Server error.
  */
 router.get('/collections', async (req: Request, res: Response) => {
   try {
@@ -40,6 +71,60 @@ router.get('/collections', async (req: Request, res: Response) => {
 
 /**
  * GET /admin/collections/:collectionName/documents - Get documents from collection
+ */
+/**
+ * @openapi
+ * /v2/admin/collections/{collectionName}/documents:
+ *   get:
+ *     summary: Get documents from a collection
+ *     description: Retrieves documents from the specified collection with optional keyword search and pagination.
+ *     tags: [Admin (v2)]
+ *     parameters:
+ *       - in: path
+ *         name: collectionName
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Name of the collection.
+ *       - in: query
+ *         name: keyword
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Text to search within documents.
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Page number for pagination.
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Page size (items per page).
+ *     responses:
+ *       200:
+ *         description: Documents retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 documents:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     additionalProperties: true
+ *       400:
+ *         description: Collection name is missing.
+ *       500:
+ *         description: Server error.
  */
 router.get(
   '/collections/:collectionName/documents',
@@ -81,6 +166,38 @@ router.get(
 /**
  * GET /admin/collections/:collectionName/stats - Get collection statistics
  */
+/**
+ * @openapi
+ * /v2/admin/collections/{collectionName}/stats:
+ *   get:
+ *     summary: Get collection statistics
+ *     description: Returns stats for a given collection (fields depend on the database driver).
+ *     tags: [Admin (v2)]
+ *     parameters:
+ *       - in: path
+ *         name: collectionName
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Name of the collection.
+ *     responses:
+ *       200:
+ *         description: Statistics retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 stats:
+ *                   type: object
+ *                   additionalProperties: true
+ *       400:
+ *         description: Collection name is missing.
+ *       500:
+ *         description: Server error.
+ */
 router.get(
   '/collections/:collectionName/stats',
   async (req: Request, res: Response) => {
@@ -116,6 +233,36 @@ router.get(
 /**
  * DELETE /admin/collections/:collectionName/clear - Clear collection
  */
+/**
+ * @openapi
+ * /v2/admin/collections/{collectionName}/clear:
+ *   delete:
+ *     summary: Clear all documents in a collection
+ *     tags: [Admin (v2)]
+ *     parameters:
+ *       - in: path
+ *         name: collectionName
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Name of the collection to clear.
+ *     responses:
+ *       200:
+ *         description: Collection cleared successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 deletedCount:
+ *                   type: integer
+ *       400:
+ *         description: Collection name is missing.
+ *       500:
+ *         description: Server error.
+ */
 router.delete(
   '/collections/:collectionName/clear',
   async (req: Request, res: Response) => {
@@ -150,6 +297,23 @@ router.delete(
 
 /**
  * GET /admin/connection-status - Get database connection status
+ */
+/**
+ * @openapi
+ * /v2/admin/connection-status:
+ *   get:
+ *     summary: Get database connection status
+ *     tags: [Admin (v2)]
+ *     responses:
+ *       200:
+ *         description: Connection status retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               additionalProperties: true
+ *       500:
+ *         description: Server error.
  */
 router.get('/connection-status', async (req: Request, res: Response) => {
   try {

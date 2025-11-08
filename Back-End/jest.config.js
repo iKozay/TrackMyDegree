@@ -46,4 +46,6 @@ module.exports = {
       statements: 0,
     },
   },
+  testPathIgnorePatterns: ['<rootDir>/dist/'],
+
 };
