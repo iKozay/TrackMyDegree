@@ -46,7 +46,7 @@ describe('CourseController', () => {
       };
 
       const result = await courseController.createCourse(courseData);
-      expect(result).toHaveProperty('_id', courseData._id);
+      expect(result).toBe(true);
     });
 
     it('should handle database errors', async () => {

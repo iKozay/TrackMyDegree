@@ -1,7 +1,14 @@
 import HTTP from '@Util/HTTPCodes';
 import express, { Request, Response } from 'express';
 import { adminController } from '@controllers/mondoDBControllers';
-import { adminCheckMiddleware, authMiddleware } from '@middleware/authMiddleware';
+import {
+  adminCheckMiddleware,
+  authMiddleware,
+} from '@middleware/authMiddleware';
+import {
+  seedDegreeData,
+  seedAllDegreeData,
+} from '@controllers/mondoDBControllers/SeedingController';
 
 const router = express.Router();
 
@@ -64,9 +71,13 @@ router.get('/collections', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error in GET /admin/collections', error);
     if (error instanceof Error && error.message.includes(NOT_AVAILABLE)) {
-      res.status(HTTP.SERVER_ERR).json({ success: false, message: error.message });
+      res
+        .status(HTTP.SERVER_ERR)
+        .json({ success: false, message: error.message });
     } else {
-      res.status(HTTP.SERVER_ERR).json({ success: false, message: INTERNAL_SERVER_ERROR });
+      res
+        .status(HTTP.SERVER_ERR)
+        .json({ success: false, message: INTERNAL_SERVER_ERROR });
     }
   }
 });
@@ -137,7 +148,8 @@ router.get(
 
       if (!collectionName) {
         res.status(HTTP.BAD_REQUEST).json({
-          success: false, message: COLLECTION_NAME_REQUIRED,
+          success: false,
+          message: COLLECTION_NAME_REQUIRED,
         });
         return;
       }
@@ -208,14 +220,16 @@ router.delete(
 
       if (!collectionName) {
         res.status(HTTP.BAD_REQUEST).json({
-          success: false, message: COLLECTION_NAME_REQUIRED,
+          success: false,
+          message: COLLECTION_NAME_REQUIRED,
         });
         return;
       }
 
       const count = await adminController.clearCollection(collectionName);
       res.status(HTTP.OK).json({
-        success: true, message: `${count} documents cleared successfully`,
+        success: true,
+        message: `${count} documents cleared successfully`,
       });
     } catch (error) {
       console.error(
@@ -223,9 +237,13 @@ router.delete(
         error,
       );
       if (error instanceof Error && error.message.includes(NOT_AVAILABLE)) {
-        res.status(HTTP.SERVER_ERR).json({ success: false, message: error.message });
+        res
+          .status(HTTP.SERVER_ERR)
+          .json({ success: false, message: error.message });
       } else {
-        res.status(HTTP.SERVER_ERR).json({ success: false, message: INTERNAL_SERVER_ERROR });
+        res
+          .status(HTTP.SERVER_ERR)
+          .json({ success: false, message: INTERNAL_SERVER_ERROR });
       }
     }
   },
@@ -264,6 +282,37 @@ router.get('/connection-status', async (req: Request, res: Response) => {
   }
 });
 
-// TODO: Add seed data route that will call: scraper, courseController (MongoDB), coursepoolController (MongoDB) and degreeController (MongoDB)
+router.get('/seed-data', async (req: Request, res: Response) => {
+  try {
+    await seedAllDegreeData();
+    res.status(HTTP.OK).json({
+      message: 'Data seeded for all degrees',
+    });
+  } catch (error) {
+    console.error('Error in GET /admin/seed-data', error);
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+  }
+});
+
+router.get('/seed-data/:degreeName', async (req: Request, res: Response) => {
+  try {
+    const { degreeName } = req.params;
+
+    if (!degreeName) {
+      res.status(HTTP.BAD_REQUEST).json({
+        error: 'Degree name is required',
+      });
+      return;
+    }
+
+    await seedDegreeData(degreeName as unknown as string);
+    res.status(HTTP.OK).json({
+      message: 'Data seeded for degree ' + degreeName,
+    });
+  } catch (error) {
+    console.error('Error in GET /admin/seed-data', error);
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+  }
+});
 
 export default router;

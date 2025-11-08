@@ -18,6 +18,12 @@ const app = express();
 app.use(express.json());
 app.use('/admin', adminRoutes);
 
+// Mock seeding controller so routes that trigger seeding don't perform real work
+jest.mock('../controllers/mondoDBControllers/SeedingController', () => ({
+  seedDegreeData: jest.fn().mockResolvedValue(undefined),
+  seedAllDegreeData: jest.fn().mockResolvedValue(undefined),
+}));
+
 describe('Admin Routes', () => {
   let mongoServer, mongoUri;
 
@@ -287,6 +293,26 @@ describe('Admin Routes', () => {
     });
   });
 
+
+  describe('GET /admin/seed-data', () => {
+    it('should seed data for all degrees', async () => {
+      const response = await request(app)
+        .get('/admin/seed-data')
+        .expect(200);
+
+      expect(response.body.message).toBe('Data seeded for all degrees');
+    });
+  });
+
+  describe('GET /admin/seed-data/:degree-name', () => {
+    it('should seed data for a specific degree', async () => {
+      const response = await request(app)
+        .get('/admin/seed-data/Computer Science')
+        .expect(200);
+
+      expect(response.body.message).toBe('Data seeded for degree Computer Science');
+    });
+  });
 
   describe('Edge Cases', () => {
     describe('getCollectionDocuments edge cases', () => {
