@@ -84,7 +84,6 @@ services:
       - MONGODB_URI=mongodb://admin:changeme123@mongodb:27017/trackmydegree
       - MONGODB_HOST=mongodb
       - MONGODB_PORT=27017
-      - MONGODB_DATABASE=trackmydegree
     volumes:
       - ./backups:/var/backups
     depends_on:
