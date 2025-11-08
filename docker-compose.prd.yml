@@ -8,8 +8,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    environment:
-      - DOMAIN=${DOMAIN:-localhost}
     command:
       # Enable Docker provider. Automatically discover services. See labels under frontend container.
       - --providers.docker=true
@@ -19,7 +17,7 @@ services:
       - --entrypoints.websecure.address=:443
       # Let's Encrypt configuration
       - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
-      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@${DOMAIN:-localhost}}
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       # Redirect HTTP to HTTPS
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
@@ -34,7 +32,7 @@ services:
       - "traefik.enable=false"
     env_file:
       # To provide DOMAIN and ACME_EMAIL variables
-      - ./secrets/production.env
+      - ./secrets/.env
 
   frontend:
     image: ghcr.io/ikozay/trackmydegree-frontend:20251105.1
@@ -48,13 +46,14 @@ services:
       - app-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN}`) && !PathPrefix(`/api`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
     env_file:
       # To provide POSTHOG_API_KEY
-      - ./secrets/production.env
+      - ./secrets/.env
 
 
   backend:
@@ -70,10 +69,15 @@ services:
     networks:
       - app-network
     labels:
-      - "traefik.enable=false"
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls=true"
+      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
     env_file:
       # To provide various sensitive environment variables like JWT_SECRET, MONGODB_URI, etc.
-      - ./secrets/production.env
+      - ./secrets/.env
 
   mongodb:
     image: mongo:latest
@@ -87,7 +91,7 @@ services:
       - "traefik.enable=false"
     env_file:
       # To provide MONGO_INITDB_ROOT_USERNAME, MONGO_INITDB_ROOT_PASSWORD and MONGO_INITDB_DATABASE
-      - ./secrets/production.env
+      - ./secrets/.env
 
   redis:
     image: redis:latest
