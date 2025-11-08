@@ -68,7 +68,7 @@ def handle_engineering_core_restrictions(degree_name):
         course_pool.append({
             "_id":"General Education Humanities and Social Sciences Electives",
             "name":"General Education Humanities and Social Sciences Electives",
-            "credits":3,
+            "creditsRequired":3,
             "courses":electives_results[0]
         })
         global courses
@@ -88,11 +88,19 @@ def handle_engineering_core_restrictions(degree_name):
         courses.append(course_data_scraper.extract_course_data("BLDG 482","https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-60-engineering-course-descriptions/building-engineering-courses.html#3750"))
     else:
         return
-    course_pool[0]["name"]=f"({degree_name}) {course_pool[0]["name"]}"
+    # course_pool[0]["name"]=f"({degree_name}) {course_pool[0]["name"]}"
 
 if __name__ == "__main__":
     soup = get_page(sys.argv[1])
     try:
+        #-----------------------Degree----------------------------------------#    
+        title = soup.find('div', class_="title program-title").find('h3').text
+        match = re.search(r'(.+?)\s*\(\s*(\d+)\s+credits\s*\)', title, re.IGNORECASE)
+        degree["name"] = match.group(1).strip()
+        degree["_id"]=degree["name"]
+        degree["totalCredits"] = int(match.group(2))
+
+        
         #------------------------Course Pool--------------------------------------#
         pool_group = soup.find('div', class_='program-required-courses defined-group')
         pools = pool_group.find_all('tr')
@@ -102,21 +110,16 @@ if __name__ == "__main__":
             temp_url = pool.find('a').get('href')
             temp_url = re.sub(r'#\d+$', '', temp_url)
             course_list=get_courses(temp_url, name)
+            course_pool_id = degree["name"].split(" ")[2][:4].upper() + "_" + name
             course_pool.append({
-                '_id': name,
+                '_id': course_pool_id,
                 'name': name,
                 'creditsRequired': credits,
                 'courses':course_list
             })
-        #-----------------------Degree----------------------------------------#    
-            degree["coursePools"].append(name)
-        
-        title = soup.find('div', class_="title program-title").find('h3').text
-        match = re.search(r'(.+?)\s*\(\s*(\d+)\s+credits\s*\)', title, re.IGNORECASE)
-        degree["name"] = match.group(1).strip()
-        degree["_id"]=degree["name"]
-        degree["totalCredits"] = int(match.group(2))
 
+            degree["coursePools"].append(course_pool_id)
+        
         handle_engineering_core_restrictions(degree["name"])
     except Exception as e:
         print(f"Error processing course block: {e}")

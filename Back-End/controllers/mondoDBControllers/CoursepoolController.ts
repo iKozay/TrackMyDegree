@@ -23,20 +23,21 @@ export class CoursePoolController extends BaseMongoController<any> {
   /**
    * Create a new course pool
    */
-  async createCoursePool(coursePoolData: CoursePoolData): Promise<CoursePoolData> {
+  async createCoursePool(coursePoolData: CoursePoolData): Promise<boolean> {
     try {
+      // Check if course pool with the same ID already exists
+      const existingPool = await this.findById(coursePoolData._id);
+      if (existingPool?.data) {
+        return false;
+      }
+
       const result = await this.create(coursePoolData);
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to create course pool');
       }
 
-      return {
-        _id: result.data._id,
-        name: result.data.name,
-        creditsRequired: result.data.creditsRequired,
-        courses: result.data.courses || []
-      };
+      return true;
     } catch (error) {
       this.handleError(error, 'createCoursePool');
     }

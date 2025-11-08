@@ -44,12 +44,7 @@ describe('CoursepoolController', () => {
 
       const result = await coursepoolController.createCoursePool(coursePoolData);
 
-      expect(result).toMatchObject({
-        _id: 'COMP_CORE',
-        name: 'Computer Science Core',
-        creditsRequired: 60,
-        courses: ['COMP101', 'COMP102'],
-      });
+      expect(result).toBe(true);
     });
 
     it('should create course pool without courses array', async () => {
@@ -61,12 +56,7 @@ describe('CoursepoolController', () => {
 
       const result = await coursepoolController.createCoursePool(coursePoolData);
 
-      expect(result).toMatchObject({
-        _id: 'MATH_CORE',
-        name: 'Mathematics Core',
-        creditsRequired: 30,
-      });
-      expect(result.courses).toEqual([]);
+      expect(result).toBe(true);
     });
 
     it('should handle database errors', async () => {
@@ -447,7 +437,7 @@ describe('CoursepoolController', () => {
         updates,
       );
 
-      await expect(result).rejects.toThrow('Failed to update course pool');
+      await expect(result).rejects.toThrow('Course pool not found');
 
       coursepoolController.updateById = originalUpdateById;
     });

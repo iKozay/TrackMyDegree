@@ -39,13 +39,19 @@ export class CourseController extends BaseMongoController<any> {
   /**
    * Create a new course
    */
-  async createCourse(courseData: CourseData): Promise<CourseData> {
+  async createCourse(courseData: CourseData): Promise<boolean> {
     try {
+      // Check if course with the same code already exists
+      const existingCourse = await this.findById(courseData._id);
+      if (existingCourse.data) {
+        return false;
+      }
+
       const result = await this.create(courseData);
       if (!result.success) {
         throw new Error(result.error || 'Failed to create course');
       }
-      return result.data;
+      return true;
     } catch (error) {
       this.handleError(error, 'createCourse');
     }

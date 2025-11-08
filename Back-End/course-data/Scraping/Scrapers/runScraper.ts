@@ -7,7 +7,7 @@ type DegreeURLMap = {
 };
 
 
-const degreesURL: DegreeURLMap = {
+export const degreesURL: DegreeURLMap = {
     "Computer Engineering": "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-30-department-of-electrical-and-computer-engineering/section-71-30-2-course-requirements-beng-in-computer-engineering-.html",
     "Mechanical Engineering": "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-40-department-of-mechanical-industrial-and-aerospace-engineering/section-71-40-1-course-requirements-beng-in-mechanical-engineering-.html",
     "Building Engineering": "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-50-department-of-building-civil-and-environmental-engineering/section-71-50-1-course-requirements-beng-in-building-engineering-.html",
@@ -89,4 +89,4 @@ async function test(): Promise<void> {
     }
 }
 
-test();
+// test();

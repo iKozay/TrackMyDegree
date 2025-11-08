@@ -7,7 +7,7 @@
 import HTTP from '@Util/HTTPCodes';
 import express, { Request, Response } from 'express';
 import { adminController } from '@controllers/mondoDBControllers';
-import { seedDegreeData, getRequirements } from '@controllers/mondoDBControllers/RequirementController';
+import { seedDegreeData, seedAllDegreeData } from '@controllers/mondoDBControllers/SeedingController';
 
 const router = express.Router();
 
@@ -165,10 +165,22 @@ router.get('/connection-status', async (req: Request, res: Response) => {
   }
 });
 
-// TODO: Add seed data route that will call: scraper, courseController (MongoDB), coursepoolController (MongoDB) and degreeController (MongoDB)
-router.get('/seed-data/:degree-name', async (req: Request, res: Response)=>{
+router.get('/seed-data', async (req: Request, res: Response)=>{
   try {
-    const degreeName=req.params;
+    await seedAllDegreeData();
+    res.status(HTTP.OK).json({
+      message: 'Data seeded for all degrees'
+    });
+
+  }catch (error) {
+    console.error('Error in GET /admin/seed-data', error);
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+  }
+});
+
+router.get('/seed-data/:degreeName', async (req: Request, res: Response)=>{
+  try {
+    const {degreeName} = req.params;
 
     if (!degreeName) {
           res.status(HTTP.BAD_REQUEST).json({
@@ -179,7 +191,7 @@ router.get('/seed-data/:degree-name', async (req: Request, res: Response)=>{
 
     await seedDegreeData(degreeName as unknown as string);
     res.status(HTTP.OK).json({
-      message: 'Data seeded'
+      message: 'Data seeded for degree ' + degreeName
     });
   }catch (error) {
     console.error('Error in GET /admin/seed-data', error);
@@ -187,26 +199,4 @@ router.get('/seed-data/:degree-name', async (req: Request, res: Response)=>{
   }
 });
 
-router.get('/get-requirements/:degree-name', async (req: Request, res: Response)=>{
-  try {
-    const degreeName=req.params;
-
-    if (!degreeName) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: 'Degree name is required',
-      });
-      return;
-    }
-
-    const data = await getRequirements(degreeName as unknown as string);
-    res.status(HTTP.OK).json({
-      message: 'Course retrieved successfully',
-      data,
-    });
-
-  }catch (error){
-    console.error('Error in GET /admin/get-requirements', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
-});
 export default router;
