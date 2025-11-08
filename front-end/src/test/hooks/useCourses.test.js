@@ -50,10 +50,9 @@ describe('useCourses Hook', () => {
     });
 
     expect(fetch).toHaveBeenCalledWith(
-      `${SERVER_URL}/courses/getByDegreeGrouped`,
+      expect.stringContaining('/courses/by-degree/CS'),
       expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({ degree: 'CS' }),
+        method: 'GET',
       }),
     );
 
@@ -127,8 +126,8 @@ describe('useCourses Hook', () => {
     });
 
     expect(fetch).toHaveBeenCalledWith(
-      `${SERVER_URL}/courses/getallcourses`,
-      expect.objectContaining({ method: 'POST' }),
+      expect.stringContaining('/courses'),
+      expect.objectContaining({ method: 'GET' }),
     );
 
     expect(result.current.courseList).toEqual([

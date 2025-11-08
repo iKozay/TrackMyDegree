@@ -8,9 +8,9 @@ jest.mock('../pages/CourseListPage/hooks/useDegree', () => jest.fn());
 jest.mock('../pages/CourseListPage/hooks/useCourses', () => jest.fn());
 jest.mock('../pages/CourseListPage/hooks/useResponsive', () => jest.fn());
 
-import useDegrees from 'front-end/src/pages/CourseListPage/hooks/useDegree';
-import useCourses from 'front-end/src/pages/CourseListPage/hooks/useCourses';
-import useResponsive from 'front-end/src/pages/CourseListPage/hooks/useResponsive';
+import useDegrees from '../pages/CourseListPage/hooks/useDegree';
+import useCourses from '../pages/CourseListPage/hooks/useCourses';
+import useResponsive from '../pages/CourseListPage/hooks/useResponsive';
 
 // Mock child components
 jest.mock('../pages/CourseListPage/components/DegreeSelector', () => (props) => (
@@ -19,7 +19,7 @@ jest.mock('../pages/CourseListPage/components/DegreeSelector', () => (props) => 
       All Courses
     </button>
     {props.degrees.map((deg) => (
-      <button key={deg.id} data-testid={`degree-${deg.id}`} onClick={() => props.onDegreeSelect(deg)}>
+      <button key={deg._id} data-testid={`degree-${deg._id}`} onClick={() => props.onDegreeSelect(deg)}>
         {deg.name}
       </button>
     ))}
@@ -52,8 +52,8 @@ jest.mock('../components/CourseListAccordion', () => (props) => (
 
 describe('CourseListPage', () => {
   const mockDegrees = [
-    { id: 1, name: 'Computer Science' },
-    { id: 2, name: 'Software Engineering' },
+    { _id: 1, name: 'Computer Science' },
+    { _id: 2, name: 'Software Engineering' },
   ];
 
   const mockCourses = [
@@ -98,7 +98,7 @@ describe('CourseListPage', () => {
     render(<CourseListPage />);
     fireEvent.click(screen.getByTestId('degree-1'));
 
-    expect(mockFetchByDegree).toHaveBeenCalledWith(1);
+    expect(mockFetchByDegree).toHaveBeenCalledWith(mockDegrees[0]._id);
   });
 
   it('calls fetchAllCourses when "All Courses" is selected', () => {

@@ -21,8 +21,8 @@ export const useCourseDrag = (state, dispatch) => {
         const internalId = String(event.active.id);
         const courseCode = event.active.data.current.courseCode;
         const course =
-            state.allCourses.find((c) => c.code === courseCode) ||
-            state.deficiencyCourses.find((c) => c.code === courseCode);
+            state.allCourses.find((c) => c._id === courseCode) ||
+            state.deficiencyCourses.find((c) => c._id === courseCode);
 
         dispatch({
             type: 'SET',
@@ -112,7 +112,7 @@ export const useCourseDrag = (state, dispatch) => {
 
     const handleCourseSelect = useCallback((code) => {
         let genericCode = code.startsWith("source-") ? code.replace("source-", "") : state.courseInstanceMap[code] || code;
-        const course = state.allCourses.find((c) => c.code === genericCode);
+        const course = state.allCourses.find((c) => c._id === genericCode);
         if (course) dispatch({ type: 'SET', payload: { selectedCourse: course } });
     }, [state.allCourses, state.courseInstanceMap, dispatch]);
 

@@ -26,10 +26,12 @@ module.exports = {
       'ts-jest',
       {
         tsconfig: 'tsconfig.test.json',
+        isolatedModules: false,
       },
     ],
     '^.+\\.js$': 'babel-jest',
   },
+  transformIgnorePatterns: [],
   moduleNameMapper: {
     '^@controllers/(.*)$': '<rootDir>/controllers/$1',
     '^@routes/(.*)$': '<rootDir>/routes/$1',

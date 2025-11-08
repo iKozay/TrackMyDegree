@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 export const arePrerequisitesMet = (courseCode, currentSemesterIndex, courseInstanceMap, allCourses, semesters, semesterCourses) => {
     const genericCode = courseInstanceMap[courseCode] || courseCode;
-    const course = allCourses.find((c) => c.code === genericCode);
+    const course = allCourses.find((c) => c._id === genericCode);
 
     if (!course || !course.requisites || course.requisites.length === 0) {
         return true;

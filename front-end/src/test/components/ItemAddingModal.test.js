@@ -4,7 +4,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { ItemAddingModal } from '../../components/ItemAddingModal';
 
 describe('ItemAddingModal', () => {
-  const mockCourses = [{ code: 'COMP248' }, { code: 'MATH203' }, { code: 'ENGR201' }];
+  const mockCourses = [{ _id: 'COMP248' }, { _id: 'MATH203' }, { _id: 'ENGR201' }];
   const mockOnClose = jest.fn();
   const mockOnAdd = jest.fn();
 
