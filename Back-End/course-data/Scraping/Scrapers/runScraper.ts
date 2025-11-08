@@ -71,22 +71,3 @@ export function runScraper(degreeName: string): Promise<any> {
         });
     });
 }
-
-async function test(): Promise<void> {
-    const query: string = "Software Engineering";
-    try {
-        console.log(`Running scraper with query: ${query}...`);
-        const results: any = await runScraper(query); 
-        
-        console.log('\nScraper Results Received:');
-        console.log(results);
-        if (Array.isArray(results)) {
-             console.log(`\nFound ${results.length} items.`);
-        }
-       
-    } catch (error: any) {
-        console.error('\nOperation Failed:', error.message);
-    }
-}
-
-// test();
