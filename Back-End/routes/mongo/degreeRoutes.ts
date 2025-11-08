@@ -13,7 +13,48 @@ const DEGREE_ID_REQUIRED = 'Degree ID is required';
 const DOES_NOT_EXIST = 'does not exist';
 
 /**
+ * @openapi
+ * tags:
+ *   - name: Degrees (v2)
+ *     description: Mongo-backed degree endpoints (v2)
+ */
+
+/**
  * GET /degree/:id - Get degree by ID
+ */
+/**
+ * @openapi
+ * /v2/degree/{id}:
+ *   get:
+ *     summary: Get degree by ID
+ *     description: Retrieves degree information for the specified degree ID.
+ *     tags: [Degrees (v2)]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the degree.
+ *     responses:
+ *       200:
+ *         description: Degree retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 degree:
+ *                   type: object
+ *                   additionalProperties: true
+ *       400:
+ *         description: Degree ID missing.
+ *       404:
+ *         description: Degree does not exist.
+ *       500:
+ *         description: Internal server error.
  */
 router.get('/:id', async (req: Request, res: Response) => {
   try {
@@ -41,6 +82,31 @@ router.get('/:id', async (req: Request, res: Response) => {
 /**
  * GET /degree - Get all degrees
  */
+/**
+ * @openapi
+ * /v2/degree:
+ *   get:
+ *     summary: Get all degrees
+ *     description: Retrieves a list of all available degree programs.
+ *     tags: [Degrees (v2)]
+ *     responses:
+ *       200:
+ *         description: Degrees retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 degrees:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     additionalProperties: true
+ *       500:
+ *         description: Internal server error.
+ */
 router.get('/', async (req: Request, res: Response) => {
   try {
     const degrees = await degreeController.readAllDegrees();
@@ -53,6 +119,39 @@ router.get('/', async (req: Request, res: Response) => {
 
 /**
  * GET /degree/:id/credits - Get credits for degree
+ */
+/**
+ * @openapi
+ * /v2/degree/{id}/credits:
+ *   get:
+ *     summary: Get total credits for a degree
+ *     description: Retrieves the total number of credits required for a specific degree.
+ *     tags: [Degrees (v2)]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the degree.
+ *     responses:
+ *       200:
+ *         description: Credits retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 totalCredits:
+ *                   type: number
+ *       400:
+ *         description: Degree ID missing.
+ *       404:
+ *         description: Degree does not exist.
+ *       500:
+ *         description: Internal server error.
  */
 router.get('/:id/credits', async (req: Request, res: Response) => {
   try {
@@ -81,6 +180,42 @@ router.get('/:id/credits', async (req: Request, res: Response) => {
 
 /**
  * GET /degree/:id/coursepools - Get course pools for degree
+ */
+/**
+ * @openapi
+ * /v2/degree/{id}/coursepools:
+ *   get:
+ *     summary: Get course pools for a degree
+ *     description: Retrieves all course pools associated with a given degree.
+ *     tags: [Degrees (v2)]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique identifier of the degree.
+ *     responses:
+ *       200:
+ *         description: Course pools retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 coursePools:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     additionalProperties: true
+ *       400:
+ *         description: Degree ID missing.
+ *       404:
+ *         description: Degree does not exist.
+ *       500:
+ *         description: Internal server error.
  */
 router.get('/:id/coursepools', async (req: Request, res: Response) => {
   try {

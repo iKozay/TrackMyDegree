@@ -14,7 +14,72 @@ const INTERNAL_SERVER_ERROR = 'Internal server error';
 // ==========================
 
 /**
+ * @openapi
+ * tags:
+ *   - name: Courses (v2)
+ *     description: Mongo-backed course endpoints (v2)
+ */
+
+/**
  * GET /courses - Get all courses
+ */
+/**
+ * @openapi
+ * /v2/courses:
+ *   get:
+ *     summary: Get all courses
+ *     description: Returns all courses with optional filtering, search, pagination, and sorting.
+ *     tags: [Courses (v2)]
+ *     parameters:
+ *       - in: query
+ *         name: pool
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Filter by course pool ID or name.
+ *       - in: query
+ *         name: search
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Search keyword for course title or code.
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Page number for pagination.
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Maximum results per page.
+ *       - in: query
+ *         name: sort
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Sort order (e.g. 'asc' or 'desc').
+ *     responses:
+ *       200:
+ *         description: Courses retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 courses:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     additionalProperties: true
+ *       500:
+ *         description: Internal server error.
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -89,6 +154,40 @@ router.get('/by-degree/:degreeId', async (req: Request, res: Response) => {
 
 /**
  * GET /courses/:code - Get course by code
+ */
+/**
+ * @openapi
+ * /v2/courses/{code}:
+ *   get:
+ *     summary: Get course by code
+ *     description: Retrieves details for a specific course by its unique course code.
+ *     tags: [Courses (v2)]
+ *     parameters:
+ *       - in: path
+ *         name: code
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The course code (e.g. 'COMP 248').
+ *     responses:
+ *       200:
+ *         description: Course retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 course:
+ *                   type: object
+ *                   additionalProperties: true
+ *       400:
+ *         description: Missing or invalid course code.
+ *       404:
+ *         description: Course not found.
+ *       500:
+ *         description: Internal server error.
  */
 router.get('/:code', async (req: Request, res: Response) => {
   try {

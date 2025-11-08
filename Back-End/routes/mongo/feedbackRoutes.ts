@@ -11,7 +11,47 @@ const router = express.Router();
 const INTERNAL_SERVER_ERROR = 'Internal server error';
 
 /**
+ * @openapi
+ * tags:
+ *   - name: Feedback (v2)
+ *     description: Mongo-backed feedback endpoints (v2)
+ */
+
+/**
  * POST /feedback - Submit feedback
+ */
+/**
+ * @openapi
+ * /v2/feedback:
+ *   post:
+ *     summary: Submit feedback
+ *     tags: [Feedback (v2)]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message: { type: string }
+ *               user_id: { type: string, nullable: true }
+ *             required: [message]
+ *     responses:
+ *       201:
+ *         description: Feedback submitted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string }
+ *                 feedback:
+ *                   type: object
+ *                   additionalProperties: true
+ *       400:
+ *         description: "Missing required field: message"
+ *       500:
+ *         description: Internal server error
  */
 router.post('/', async (req: Request, res: Response) => {
   try {
@@ -38,6 +78,51 @@ router.post('/', async (req: Request, res: Response) => {
 /**
  * GET /feedback - Get all feedback
  */
+/**
+ * @openapi
+ * /v2/feedback:
+ *   get:
+ *     summary: Get all feedback
+ *     description: Returns feedback with optional filtering by user and pagination/sorting.
+ *     tags: [Feedback (v2)]
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         schema: { type: string }
+ *         required: false
+ *         description: Filter feedback by user ID
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, minimum: 1 }
+ *         required: false
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, minimum: 1 }
+ *         required: false
+ *         description: Items per page
+ *       - in: query
+ *         name: sort
+ *         schema: { type: string, enum: [asc, desc] }
+ *         required: false
+ *         description: Sort order
+ *     responses:
+ *       200:
+ *         description: Feedback retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string }
+ *                 feedback:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     additionalProperties: true
+ *       500:
+ *         description: Internal server error
+ */
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { user_id, page, limit, sort } = req.query;
@@ -61,6 +146,36 @@ router.get('/', async (req: Request, res: Response) => {
 
 /**
  * GET /feedback/:id - Get feedback by ID
+ */
+/**
+ * @openapi
+ * /v2/feedback/{id}:
+ *   get:
+ *     summary: Get feedback by ID
+ *     tags: [Feedback (v2)]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Feedback retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string }
+ *                 feedback:
+ *                   type: object
+ *                   additionalProperties: true
+ *       400:
+ *         description: Feedback ID is required
+ *       404:
+ *         description: Feedback not found
+ *       500:
+ *         description: Internal server error
  */
 router.get('/:id', async (req: Request, res: Response) => {
   try {
@@ -91,6 +206,33 @@ router.get('/:id', async (req: Request, res: Response) => {
 /**
  * DELETE /feedback/:id - Delete feedback
  */
+/**
+ * @openapi
+ * /v2/feedback/{id}:
+ *   delete:
+ *     summary: Delete feedback by ID
+ *     tags: [Feedback (v2)]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string }
+ *       400:
+ *         description: Feedback ID is required
+ *       404:
+ *         description: Feedback not found
+ *       500:
+ *         description: Internal server error
+ */
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -118,6 +260,32 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
 /**
  * DELETE /feedback/user/:userId - Delete all feedback for user
+ */
+/**
+ * @openapi
+ * /v2/feedback/user/{userId}:
+ *   delete:
+ *     summary: Delete all feedback for a user
+ *     tags: [Feedback (v2)]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: All user feedback deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string }
+ *                 deletedCount: { type: integer }
+ *       400:
+ *         description: User ID is required
+ *       500:
+ *         description: Internal server error
  */
 router.delete('/user/:userId', async (req: Request, res: Response) => {
   try {

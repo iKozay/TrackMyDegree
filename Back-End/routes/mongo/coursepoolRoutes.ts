@@ -11,7 +11,39 @@ const router = express.Router();
 const INTERNAL_SERVER_ERROR = 'Internal server error';
 
 /**
+ * @openapi
+ * tags:
+ *   - name: CoursePools (v2)
+ *     description: Mongo-backed course pool endpoints (v2)
+ */
+
+/**
  * GET /coursepool/:id - Get course pool by ID
+ */
+/**
+ * @openapi
+ * /v2/coursepool/{id}:
+ *   get:
+ *     summary: Get a course pool by ID
+ *     tags: [CoursePools (v2)]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *         description: Course pool identifier
+ *     responses:
+ *       200:
+ *         description: Course pool found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               additionalProperties: true
+ *       404:
+ *         description: Course pool not found
+ *       500:
+ *         description: Server error
  */
 router.get('/:id', async (req: Request, res: Response) => {
   try {
@@ -30,6 +62,25 @@ router.get('/:id', async (req: Request, res: Response) => {
 
 /**
  * GET /coursepool/ - Get all course pools
+ */
+/**
+ * @openapi
+ * /v2/coursepool:
+ *   get:
+ *     summary: List all course pools
+ *     tags: [CoursePools (v2)]
+ *     responses:
+ *       200:
+ *         description: Array of course pools
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 additionalProperties: true
+ *       500:
+ *         description: Server error
  */
 router.get('/', async (req: Request, res: Response) => {
   try {

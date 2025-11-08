@@ -19,6 +19,56 @@ import uploadRouter from '@routes/upload';
 
 const router = express.Router();
 
+/**
+ * @openapi
+ * tags:
+ *   - name: Degrees (v2)
+ *     description: Mongo-backed degree endpoints (v2)
+ *   - name: Courses (v2)
+ *     description: Mongo-backed course endpoints (v2)
+ *   - name: CoursePools (v2)
+ *     description: Mongo-backed course pool endpoints (v2)
+ *   - name: Users (v2)
+ *     description: Mongo-backed user endpoints (v2)
+ *   - name: Feedback (v2)
+ *     description: Mongo-backed feedback endpoints (v2)
+ *   - name: Timelines (v2)
+ *     description: Mongo-backed timeline endpoints (v2)
+ *   - name: Admin (v2)
+ *     description: Mongo-backed administrative endpoints (v2)
+ *     - name: Auth (v2)
+ *     description: Mongo-backed auth endpoints (v2)
+ *      - name: Session (v2)
+ *     description: Mongo-backed session endpoints (v2)
+ *      - name: Section (v2)
+ *     description: Concordia-Opendata-backed sections endpoints (v2)
+ *      - name: Upload (v2)
+ *     description: pdf parsing endpoints (v2)
+ */
+
+/**
+ * @openapi
+ * /v2:
+ *   get:
+ *     summary: API root (v2)
+ *     description: Returns a simple confirmation message for the v2 Mongo API.
+ *     tags: [Admin (v2)]
+ *     responses:
+ *       200:
+ *         description: API root is active
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Welcome to TrackMyDegree Mongo API v2
+ */
+router.get('/', (req, res) => {
+  res.status(200).json({ message: 'Welcome to TrackMyDegree Mongo API v2' });
+});
+
 router.use('/auth/forgot-password', forgotPasswordLimiter);
 router.use('/auth/reset-password', resetPasswordLimiter);
 router.use('/auth/login', loginLimiter);
