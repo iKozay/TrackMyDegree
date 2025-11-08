@@ -102,6 +102,12 @@ const Navbar = () => {
               <NavLink to="/courselist" className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}>
                 Courses
               </NavLink>
+
+              {/* New link to Requirements (feature 1) */}
+                <NavLink to="/requirements" className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}>
+                  Requirements
+                </NavLink>
+
               {user && user.type === 'admin' ? (
                 <>
                   <p className={'nav-separator'}>|</p>
