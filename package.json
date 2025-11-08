@@ -19,6 +19,8 @@
     "@types/mongoose": "^5.11.97",
     "@types/node": "^24.7.1",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "dotenv-cli": "^11.0.0",
     "jest": "^30.2.0",
     "mongodb-memory-server": "^10.2.3",
     "postcss": "^8.5.3",
@@ -28,6 +30,9 @@
   },
   "scripts": {
     "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "dev": "concurrently --names \"BACKEND,FRONTEND\" --prefix-colors \"blue,green\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd Back-End && npm run dev",
+    "dev:frontend": "cd front-end && dotenv -e ../secrets/.env -- npm start"
   }
 }

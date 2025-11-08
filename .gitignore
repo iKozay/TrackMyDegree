@@ -16,4 +16,4 @@ Back-End/course-data/Scraping/.coverage
 Back-End/course-data/Scraping/coverage.*
 .DS_Store
 .scannerwork
-node_modules
+node_modules/

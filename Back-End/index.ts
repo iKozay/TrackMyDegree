@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import express from 'express';
 import dotenv from 'dotenv';
+import path from 'node:path';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import mongoose from 'mongoose';
@@ -41,22 +42,31 @@ Sentry.init({
 });
 
 //Express Init
-dotenv.config(); //Load environment variables from .env file
+if (process.env.NODE_ENV === 'development') {
+  const loadEnv = dotenv.config({ path: path.resolve(__dirname, '../secrets/.env'), debug: true });
+  if (loadEnv.error) {
+    console.error('Error loading .env file:', loadEnv.error);
+    throw loadEnv.error;
+  }else {
+    console.log('Environment variables loaded successfully');
+  }
+}
+// For production and staging, env vars are injected automatically via Docker
+
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.BACKEND_PORT || 8000;
 
 // MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI ||
-  'mongodb://admin:changeme123@localhost:27017/trackmydegree?authSource=admin';
+  'mongodb://admin:changeme123@localhost:27017/trackmydegree';
 
 // Connect to MongoDB using async/await
-try {
-  mongoose.connect(MONGODB_URI);
-  console.log('Connected to MongoDB successfully!');
-} catch (error: unknown) {
-  console.error('MongoDB connection error:', error);
+mongoose.connect(MONGODB_URI).then(() => {
+  console.log('Connected to MongoDB');
+}).catch((error: Error) => {
+  console.error('Error connecting to MongoDB:', error);
   Sentry.captureException(error);
-}
+});
 
 mongoose.connection.on('error', (error: Error) => {
   console.error('MongoDB connection error:', error);
@@ -69,14 +79,16 @@ mongoose.connection.on('disconnected', () => {
 
 Sentry.setupExpressErrorHandler(app);
 
-const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-};
+if (process.env.NODE_ENV === 'development') {
+  const corsOptions = {
+    origin: 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  };
+  app.use(cors(corsOptions));
+}
 
-app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());

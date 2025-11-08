@@ -14,10 +14,8 @@ import { randomUUID } from 'crypto';
 import Auth from '@controllers/authController/auth_types'; //types import
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
 import * as Sentry from '@sentry/node';
 
-dotenv.config();
 const log = console.log;
 var salt = bcrypt.genSaltSync(10);
 // salt here is generated once at startup nd reused for password hashing.

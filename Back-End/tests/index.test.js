@@ -131,7 +131,7 @@ jest.mock('../index.ts', () => {
   
   // Use the same mockApp instance from express mock
   const app = express();
-  const PORT = process.env.PORT || 8000;
+  const PORT = process.env.BACKEND_PORT || 8000;
   
   // Mock mongoose connection (already mocked above)
   mongoose.connect.mockResolvedValue(mongoose.connection);
@@ -256,7 +256,7 @@ describe('index.ts', () => {
   });
 
   it('should handle environment variables', () => {
-    process.env.PORT = '3000';
+    process.env.BACKEND_PORT = '3000';
 
     require('../index.ts');
 
@@ -264,7 +264,7 @@ describe('index.ts', () => {
   });
 
   it('should use default values when env vars are not set', () => {
-    delete process.env.PORT;
+    delete process.env.BACKEND_PORT;
 
     require('../index.ts');
 

@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+
+  traefik:
+    image: traefik:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    command:
+      # Enable Docker provider. Automatically discover services. See labels under frontend container.
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      # Define entrypoints for HTTP and HTTPS
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      # Let's Encrypt configuration
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      # Redirect HTTP to HTTPS
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+    volumes:
+      - letsencrypt-data:/letsencrypt
+      # Mount Docker socket as read-only to allow Traefik to discover services
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=false"
+    env_file:
+      # To provide DOMAIN and ACME_EMAIL variables
+      - ./secrets/.env
+
+  frontend:
+    image: ghcr.io/ikozay/trackmydegree-frontend:latest
+    restart: unless-stopped
+    expose:
+      - "3000"
+    depends_on:
+      - backend
+      - traefik
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN}`) && !PathPrefix(`/v2`)"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+    env_file:
+      # To provide POSTHOG_API_KEY
+      - ./secrets/.env
+
+  backend:
+    image: ghcr.io/ikozay/trackmydegree-backend:latest
+    restart: unless-stopped
+    expose:
+      - "8000"
+    volumes:
+      - ./backups:/var/backups
+    depends_on:
+      - redis
+      - mongodb
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/v2`)"
+      - "traefik.http.routers.backend.tls=true"
+      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
+    env_file:
+      # To provide various sensitive environment variables like JWT_SECRET, MONGODB_URI, etc.
+      - ./secrets/.env
+
+  mongodb:
+    image: mongo:latest
+    expose:
+      - "27017"
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=false"
+    env_file:
+      # To provide MONGO_INITDB_ROOT_USERNAME, MONGO_INITDB_ROOT_PASSWORD and MONGO_INITDB_DATABASE
+      - ./secrets/.env
+
+  redis:
+    image: redis:latest
+    container_name: my-redis
+    expose:
+      - "6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=false"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  mongodb-data:
+  letsencrypt-data:
