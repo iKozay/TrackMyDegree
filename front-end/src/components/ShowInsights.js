@@ -30,26 +30,9 @@ const ShowInsights = ({
     return () => clearTimeout(timer);
   }, [showInsights]);
 
-  const parseMaxCreditsFromPoolName = (poolName, poolCourses) => {
-    const match = poolName.match(/\((\d+(\.\d+)?)\s*credits\)/);
-    if (match) {
-      return parseFloat(match[1]);
-    }
-    const totalPoolCredits = poolCourses
-      .map((course) => course.credits || 0)
-      .reduce((sum, credits) => sum + credits, 0);
-    console.warn(
-      `Could not parse max credits from pool name "${poolName}". Using total pool credits: ${totalPoolCredits}`,
-    );
-    return totalPoolCredits;
-  };
-
   const calculatedCreditsRequired = useMemo(() => {
     return coursePools.reduce((sum, pool) => {
-      const maxCredits = parseMaxCreditsFromPoolName(
-        pool.poolName,
-        pool.courses,
-      );
+      const maxCredits = pool.creditsRequired;
       return sum + maxCredits;
     }, 0);
   }, [coursePools]);
@@ -58,9 +41,9 @@ const ShowInsights = ({
     const poolCreditMap = {};
 
     coursePools.forEach((pool) => {
-      poolCreditMap[pool.poolId] = {
+      poolCreditMap[pool._id] = {
         assigned: 0,
-        max: parseMaxCreditsFromPoolName(pool.poolName, pool.courses),
+        max: pool.creditsRequired,
       };
     });
 
@@ -78,26 +61,30 @@ const ShowInsights = ({
       });
     });
 
+    const processCourseInstance = (instanceId, currentSemesterIndex) => {
+      const genericCode = courseInstanceMap[instanceId] || instanceId;
+      if (currentSemesterIndex !== lastOccurrence[genericCode]) {
+        return;
+      }
+
+      const pool = coursePools.find((p) =>
+        p.courses.some((c) => c._id === genericCode),
+      );
+
+      if (!pool) return;
+
+      const course = pool.courses.find((c) => c._id === genericCode);
+      if (!course) return;
+
+      const poolData = poolCreditMap[pool._id];
+      const newSum = poolData.assigned + (course.credits || 0);
+      poolData.assigned = Math.min(poolData.max, newSum);
+    };
+
     semesterOrder.forEach((semesterId, currentSemesterIndex) => {
       const courseCodes = semesterCourses[semesterId] || [];
       courseCodes.forEach((instanceId) => {
-        const genericCode = courseInstanceMap[instanceId] || instanceId;
-        if (currentSemesterIndex !== lastOccurrence[genericCode]) {
-          return;
-        }
-
-        const pool = coursePools.find((p) =>
-          p.courses.some((c) => c.code === genericCode),
-        );
-
-        if (!pool) return;
-
-        const course = pool.courses.find((c) => c.code === genericCode);
-        if (!course) return;
-
-        const poolData = poolCreditMap[pool.poolId];
-        const newSum = poolData.assigned + (course.credits || 0);
-        poolData.assigned = Math.min(poolData.max, newSum);
+        processCourseInstance(instanceId, currentSemesterIndex);
       });
     });
 
@@ -128,29 +115,27 @@ const ShowInsights = ({
         ),
       ];
 
+      const poolCourseIds = new Set(pool.courses.map((c) => c._id));
       const assignedCourses = assignedGenericCodes.filter((cCode) =>
-        pool.courses.some((c) => c.code === cCode),
+        poolCourseIds.has(cCode),
       );
 
       const assignedCredits = assignedCourses
         .map((cCode) => {
-          const courseInPool = pool.courses.find((c) => c.code === cCode);
+          const courseInPool = pool.courses.find((c) => c._id === cCode);
           return courseInPool ? courseInPool.credits : 0;
         })
         .reduce((sum, c) => sum + c, 0);
 
-      const maxCredits = parseMaxCreditsFromPoolName(
-        pool.poolName,
-        pool.courses,
-      );
+      const maxCredits = pool.creditsRequired;
       const remainingCredits = Math.max(0, maxCredits - assignedCredits);
 
       const remainingCoursesInPool = pool.courses
-        .filter((course) => !assignedCourses.includes(course.code))
-        .map((course) => course.code);
+        .filter((course) => !assignedCourses.includes(course._id))
+        .map((course) => course._id);
 
       return {
-        poolName: pool.poolName,
+        poolName: pool.name,
         data: [
           {
             name: 'Completed',
@@ -193,12 +178,12 @@ const ShowInsights = ({
     // Identify pools with more than 100 courses
     const largePools = coursePools.filter((pool) => pool.courses.length > 100);
     const largePoolCourseCodes = new Set(
-      largePools.flatMap((pool) => pool.courses.map((course) => course.code)),
+      largePools.flatMap((pool) => pool.courses.map((course) => course._id)),
     );
 
     // Get all course codes from all pools
     const allPoolCourses = coursePools.flatMap((pool) =>
-      pool.courses.map((course) => course.code),
+      pool.courses.map((course) => course._id),
     );
 
     // Calculate remaining courses, excluding those from large pools
@@ -211,7 +196,7 @@ const ShowInsights = ({
     // For each large pool, add a single "General Elective" entry to remainingCourses
     largePools.forEach((pool) => {
       // Check if any courses from this pool are unassigned
-      const poolCourses = pool.courses.map((course) => course.code);
+      const poolCourses = pool.courses.map((course) => course._id);
       const hasUnassignedCourses = poolCourses.some(
         (courseCode) => !assignedCourses.includes(courseCode),
       );
@@ -306,7 +291,7 @@ const ShowInsights = ({
     const allCharts = [
       ...poolProgress.map((pool, index) => ({
         type: 'pool',
-        poolName: pool.poolName,
+        poolName: pool.name,
         data: pool.data,
         maxCredits: pool.maxCredits,
         index,
@@ -331,7 +316,7 @@ const ShowInsights = ({
           className="chart-container"
           style={{ minWidth: '250px' }}
         >
-          <h6>{chart.poolName}</h6>
+          <h6>{chart.name}</h6>
           <PieChart width={500} height={200} margin={{ right: 50, left: 20 }}>
             <Pie
               data={chart.data}

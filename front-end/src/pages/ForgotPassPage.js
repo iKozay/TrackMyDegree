@@ -42,6 +42,8 @@ function ForgotPassPage() {
         email,
       });
       console.log(data);
+      // Store email in localStorage for reset password page
+      localStorage.setItem('resetPasswordEmail', email);
       // API returns a success message and we can redirect to reset pass page
       navigate('/reset-password');
     } catch (err) {

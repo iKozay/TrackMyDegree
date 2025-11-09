@@ -4,7 +4,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import RecordsTable from '../../pages/AdminPage/components/RecordsTable';
 
 // Mock SearchBar component
-jest.mock('front-end/src/components/SearchBar', () => {
+jest.mock('../../components/SearchBar', () => {
   return function MockSearchBar({ onSearch }) {
     return <input data-testid="search-bar" placeholder="Search..." onChange={(e) => onSearch(e.target.value)} />;
   };

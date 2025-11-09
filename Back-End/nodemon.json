@@ -1,0 +1,22 @@
+{
+  "watch": [
+    "**/*.ts",
+    "**/*.js"
+  ],
+  "ignore": [
+    "node_modules/**/*",
+    "dist/**/*",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "coverage/**/*",
+    "course-data/**/*"
+  ],
+  "ext": "ts,js,json",
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "exec": "ts-node index.ts",
+  "verbose": false,
+  "restartable": "rs",
+  "colours": true
+}

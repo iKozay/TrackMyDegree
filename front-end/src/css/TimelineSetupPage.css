@@ -136,3 +136,16 @@ p {
   white-space: nowrap;
   margin-top: 30vh;
 }
+
+/* Button to Open Modal */
+.open-modal-btn {
+  background-color: #0c6fd9;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.open-modal-btn:hover {
+  background-color: #084d8c;
+}

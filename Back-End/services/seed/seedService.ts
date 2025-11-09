@@ -1,8 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { readdir } from 'node:fs/promises';
-import { Course } from '../../models/Course';
-import { Degree } from '../../models/Degree';
+import { Course, Degree } from '@models';
 import * as Sentry from '@sentry/node';
 
 // -------------------------------------

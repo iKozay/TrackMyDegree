@@ -1,16 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { PostHogProvider } from 'posthog-js/react';
-
-const options = {
-  api_host: process.env.REACT_APP_PUBLIC_POSTHOG_HOST,
-};
+import posthog from 'posthog-js';
+import { PostHogProvider } from '@posthog/react'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   // <React.StrictMode>
-  <PostHogProvider apiKey={process.env.REACT_APP_PUBLIC_POSTHOG_KEY} options={options}>
+  <PostHogProvider client={posthog}>
     <App />
   </PostHogProvider>,
   // /* </React.StrictMode> */

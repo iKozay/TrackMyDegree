@@ -45,12 +45,22 @@ function ResetPassPage() {
 
     //The password reset process is done in the backend so the data from the form is being sent there
     try {
+      // Retrieve email from localStorage (set in ForgotPassPage)
+      const email = localStorage.getItem('resetPasswordEmail');
+      if (!email) {
+        setError('Email not found. Please start the password reset process again.');
+        setLoading(false);
+        return;
+      }
+
       const data = await api.post('/auth/reset-password', {
+        email,
         otp,
-        password,
-        confirmPassword,
+        newPassword: password, // Backend expects newPassword, will hash it
       });
       console.log(data);
+      // Clear email from localStorage after successful reset
+      localStorage.removeItem('resetPasswordEmail');
       // API returns a success message and we can redirect to login page
       navigate('/signin');
     } catch (err) {

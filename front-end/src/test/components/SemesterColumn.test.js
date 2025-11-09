@@ -5,7 +5,7 @@ import { SemesterColumn } from '../../components/SemesterColumn';
 
 // Mock children components
 jest.mock('../../components/CourseItem', () => ({
-  CourseItem: ({ course }) => <div>{course.code}</div>,
+  CourseItem: ({ course }) => <div>{course._id}</div>,
 }));
 
 jest.mock('../../components/SemesterFooter', () => ({
@@ -18,8 +18,8 @@ jest.mock('../../components/Droppable', () => ({
 
 describe('SemesterColumn (minimal test)', () => {
   const mockCourses = [
-    { code: 'COMP248', credits: 3 },
-    { code: 'MATH203', credits: 3 },
+    { _id: 'COMP248', credits: 3 },
+    { _id: 'MATH203', credits: 3 },
   ];
   const mockAllCourses = [...mockCourses];
   const mockCourseInstanceMap = { 1: 'COMP248', 2: 'MATH203' };

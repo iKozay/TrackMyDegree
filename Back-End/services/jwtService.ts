@@ -1,11 +1,11 @@
 import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import { CookieOptions } from 'express';
-import Auth from '@controllers/authController/auth_types';
+import { UserType } from '@controllers/authController';
 
 export type JWTPayload = {
   orgId: string;
   userId: string;
-  type: Auth.UserType;
+  type: UserType;
 } & jwt.JwtPayload;
 
 export type JWTCookieModel = {

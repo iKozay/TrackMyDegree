@@ -5,7 +5,7 @@ import { request } from '../../api/request';
 jest.mock('../../api/request');
 
 describe('useFetchDegreeRequirements', () => {
-  const mockCourse = { code: 'COMP101', name: 'Intro CS' };
+  const mockCourse = { _id: 'COMP101', name: 'Intro CS' };
   const degreeId = 'DEG1';
 
   const state = {
