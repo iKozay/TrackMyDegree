@@ -2,19 +2,11 @@ import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { authController, UserType } from '@controllers/authController';
 import { jwtService } from '@services/jwtService';
-import { UserHeaders } from '@utils/sessionUtil';
 
 const router = express.Router();
 
 const INTERNAL_SERVER_ERROR = 'Internal server error';
 const EMPTY_REQUEST_BODY = 'Request body cannot be empty';
-
-function extractUserHeaders(req: Request): UserHeaders {
-  return {
-    agent: req.headers['user-agent'] || '',
-    ip_addr: req.ip || '',
-  };
-}
 
 /**
  * POST /auth/login - User login
@@ -39,23 +31,17 @@ router.post('/login', async (req: Request, res: Response) => {
       return;
     }
 
-    const userHeaders = extractUserHeaders(req);
-    const accessToken = jwtService.generateToken(
-      {
-        orgId: process.env.JWT_ORG_ID!,
-        userId: user._id,
-        type: user.type,
-      },
-      userHeaders,
-    );
+    const accessToken = jwtService.generateToken({
+      orgId: process.env.JWT_ORG_ID!,
+      userId: user._id,
+      type: user.type,
+    });
     const refreshToken = jwtService.generateToken(
       {
         orgId: process.env.JWT_ORG_ID!,
         userId: user._id,
         type: user.type,
       },
-      userHeaders,
-      undefined,
       true,
     );
 
@@ -68,6 +54,43 @@ router.post('/login', async (req: Request, res: Response) => {
     res.status(HTTP.OK).json(user);
   } catch (error) {
     console.error('Error in POST /auth/login', error);
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+  }
+});
+
+/**
+ * POST /auth/refresh - User login automatically via refresh token
+ */
+router.post('/refresh', async (req: Request, res: Response) => {
+  const token = req.cookies?.refresh_token;
+  if (!token)
+    return res
+      .status(HTTP.UNAUTHORIZED)
+      .json({ error: 'Missing refresh token' });
+
+  try {
+    const payload = jwtService.verifyRefreshToken(token);
+    if (!payload)
+      return res
+        .status(HTTP.UNAUTHORIZED)
+        .json({ error: 'Invalid or expired refresh token' });
+
+    // Need to validate the user by checking if the user with Id = payload.userId still exists
+    //const user = await authController.getUserById(payload.userId);
+
+    const newAccessToken = jwtService.generateToken(payload);
+    const newRefreshToken = jwtService.generateToken(payload, true);
+
+    const accessCookie = jwtService.setAccessCookie(newAccessToken);
+    const refreshCookie = jwtService.setRefreshCookie(newRefreshToken);
+
+    res.cookie(accessCookie.name, accessCookie.value, accessCookie.config);
+    res.cookie(refreshCookie.name, refreshCookie.value, refreshCookie.config);
+
+    // Need to send the user object otherwise frontend will break
+    res.status(HTTP.OK).json({ message: 'Tokens refreshed' });
+  } catch (error) {
+    console.error('Error in POST /auth/refresh', error);
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
@@ -112,23 +135,17 @@ router.post('/signup', async (req: Request, res: Response) => {
     const result = await authController.registerUser(userInfo);
 
     if (result) {
-      const userHeaders = extractUserHeaders(req);
-      const accessToken = jwtService.generateToken(
-        {
-          orgId: process.env.JWT_ORG_ID!,
-          userId: result._id,
-          type: result.type as UserType,
-        },
-        userHeaders,
-      );
+      const accessToken = jwtService.generateToken({
+        orgId: process.env.JWT_ORG_ID!,
+        userId: result._id,
+        type: result.type as UserType,
+      });
       const refreshToken = jwtService.generateToken(
         {
           orgId: process.env.JWT_ORG_ID!,
           userId: result._id,
           type: result.type as UserType,
         },
-        userHeaders,
-        undefined,
         true,
       );
 
