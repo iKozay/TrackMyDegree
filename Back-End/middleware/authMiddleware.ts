@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express';
 import HTTP from '@utils/httpCodes';
 import { jwtService } from '@services/jwtService';
-import { authController } from '@controllers';
+import { authController } from '@controllers/authController';
 import { UserHeaders, verifySession } from '@utils/sessionUtil';
 
 function extractUserHeaders(req: Request): UserHeaders {

@@ -15,7 +15,7 @@ describe('runScraper', () => {
     jest.resetAllMocks();
     
     // Re-require module to get fresh exports
-    const scraperModule = require('../courseData/scraping/scrapers/runScraper');
+    const scraperModule = require('../course-data/Scraping/Scrapers/runScraper');
     runScraper = scraperModule.runScraper;
     degreesURL = scraperModule.degreesURL;
   });

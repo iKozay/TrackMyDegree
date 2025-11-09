@@ -1,6 +1,6 @@
 import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
-import { timelineController } from '@controllers';
+import { timelineController } from '@controllers/timelineController';
 
 const router = express.Router();
 

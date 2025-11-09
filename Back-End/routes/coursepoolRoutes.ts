@@ -1,6 +1,6 @@
 import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
-import { coursepoolController } from '@controllers';
+import { coursepoolController } from '@controllers/coursepoolController';
 
 const router = express.Router();
 

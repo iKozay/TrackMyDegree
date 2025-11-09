@@ -1,6 +1,6 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { CookieOptions } from 'express';
-import { UserType } from '@controllers';
+import { UserType } from '@controllers/authController';
 import {
   createSessionToken,
   refreshSession,

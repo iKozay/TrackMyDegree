@@ -11,7 +11,6 @@
     "moduleResolution": "node",                      /* Specify how TypeScript resolves modules. */
     "baseUrl": ".",                                  /* Specify the base directory to resolve non-relative module names. */
     "paths": {
-      "@controllers"    : ["./controllers/index"],
       "@controllers/*"    : ["./controllers/*"],
       "@routes/*"       : ["./routes/*"],
       "@utils/*"        : ["./utils/*"],

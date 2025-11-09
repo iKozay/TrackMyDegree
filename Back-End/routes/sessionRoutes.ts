@@ -7,7 +7,7 @@ import {
   getCookieOptions,
 } from '@services/jwtService';
 import { refreshSession, UserHeaders } from '@utils/sessionUtil';
-import { userController } from '@controllers';
+import { userController } from '@controllers/userController';
 
 const router = express.Router();
 

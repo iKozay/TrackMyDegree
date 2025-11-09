@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const express = require('express');
-const coursepoolRoutes = require('../routes/mongo/coursepoolRoutes').default;
+const coursepoolRoutes = require('../routes/coursepoolRoutes').default;
 const { CoursePool } = require('../models/coursepool');
 
 // Increase timeout for mongodb-memory-server binary download/startup
@@ -61,17 +61,17 @@ describe('Coursepool Routes', () => {
 
     it('should handle server errors', async () => {
       const originalGetCoursePool =
-        require('../controllers/mondoDBControllers/coursepoolController')
+        require('../controllers/coursepoolController')
           .coursepoolController.getCoursePool;
 
-      require('../controllers/mondoDBControllers/coursepoolController').coursepoolController.getCoursePool =
+      require('../controllers/coursepoolController').coursepoolController.getCoursePool =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app).get('/coursepool/CP101');
       expect(response.status).toBe(500);
       expect(response.body.error).toBe('Internal server error');
 
-      require('../controllers/mondoDBControllers/coursepoolController').coursepoolController.getCoursePool =
+      require('../controllers/coursepoolController').coursepoolController.getCoursePool =
         originalGetCoursePool;
     });
   });
@@ -124,17 +124,17 @@ describe('Coursepool Routes', () => {
 
     it('should handle server errors', async () => {
       const originalGetAllCoursePools =
-        require('../controllers/mondoDBControllers/coursepoolController')
+        require('../controllers/coursepoolController')
           .coursepoolController.getAllCoursePools;
 
-      require('../controllers/mondoDBControllers/coursepoolController').coursepoolController.getAllCoursePools =
+      require('../controllers/coursepoolController').coursepoolController.getAllCoursePools =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app).get('/coursepool');
       expect(response.status).toBe(500);
       expect(response.body.error).toBe('Internal server error');
 
-      require('../controllers/mondoDBControllers/coursepoolController').coursepoolController.getAllCoursePools =
+      require('../controllers/coursepoolController').coursepoolController.getAllCoursePools =
         originalGetAllCoursePools;
     });
   });

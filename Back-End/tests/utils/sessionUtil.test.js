@@ -5,7 +5,7 @@ const {
   createSessionToken,
   verifySession,
   refreshSession,
-} = require('../../dist/Util/sessionUtil');
+} = require('../../utils/sessionUtil');
 
 describe('sessionUtil', () => {
   const mockUserHeaders = {

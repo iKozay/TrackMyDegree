@@ -8,10 +8,10 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const sessionRoutes = require('../routes/mongo/sessionRoutes').default;
+const sessionRoutes = require('../routes/sessionRoutes').default;
 const { User } = require('../models/user');
 const jwt = require('jsonwebtoken');
-const { userController } = require('../controllers/mondoDBControllers');
+const { userController } = require('../controllers/userController');
 
 // Mock authMiddleware
 jest.mock('../middleware/authMiddleware', () => ({
@@ -263,7 +263,7 @@ describe('Session Routes (MongoDB)', () => {
     });
 
     it('should handle user lookup errors', async () => {
-      const { userController } = require('../controllers/mondoDBControllers');
+      const { userController } = require('../controllers/userController');
       const originalGetUserById = userController.getUserById;
       userController.getUserById = jest
         .fn()

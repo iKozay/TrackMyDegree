@@ -1,6 +1,6 @@
 import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
-import { degreeController } from '@controllers';
+import { degreeController } from '@controllers/degreeController';
 
 const router = express.Router();
 

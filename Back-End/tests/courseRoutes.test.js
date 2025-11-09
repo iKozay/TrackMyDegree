@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const express = require('express');
 const request = require('supertest');
-const courseRoutes = require('../routes/mongo/courseRoutes').default;
+const courseRoutes = require('../routes/courseRoutes').default;
 const { Course } = require('../models/course');
-const { courseController } = require('../controllers/mondoDBControllers');
+const { courseController } = require('../controllers/courseController');
 
 describe('Course Routes', () => {
   let mongoServer, mongoUri, app;
@@ -219,8 +219,8 @@ describe('Course Routes', () => {
   describe('GET /courses/by-degree/:degreeId', () => {
     const { Degree } = require('../models/degree');
     const { CoursePool } = require('../models/coursepool');
-    const { degreeController } = require('../controllers/mondoDBControllers');
-    const { coursepoolController } = require('../controllers/mondoDBControllers');
+    const { degreeController } = require('../controllers/degreeController');
+    const { coursepoolController } = require('../controllers/coursepoolController');
 
     beforeEach(async () => {
       await Degree.deleteMany({});

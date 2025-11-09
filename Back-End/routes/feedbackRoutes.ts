@@ -1,6 +1,6 @@
 import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
-import { feedbackController } from '@controllers';
+import { feedbackController } from '@controllers/feedbackController';
 
 const router = express.Router();
 

@@ -1,6 +1,6 @@
 import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
-import { authController, UserType } from '@controllers';
+import { authController, UserType } from '@controllers/authController';
 import { jwtService } from '@services/jwtService';
 import { UserHeaders } from '@utils/sessionUtil';
 

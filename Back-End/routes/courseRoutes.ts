@@ -1,10 +1,8 @@
 import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
-import {
-  courseController,
-  coursepoolController,
-  degreeController,
-} from '@controllers';
+import {courseController} from "@controllers/courseController";
+import {degreeController} from "@controllers/degreeController";
+import {coursepoolController} from "@controllers/coursepoolController";
 
 const router = express.Router();
 const INTERNAL_SERVER_ERROR = 'Internal server error';

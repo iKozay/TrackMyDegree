@@ -1,6 +1,6 @@
 import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
-import { adminController } from '@controllers';
+import { adminController } from '@controllers/adminController';
 import {
   adminCheckMiddleware,
   authMiddleware,

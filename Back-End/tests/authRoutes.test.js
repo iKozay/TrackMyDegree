@@ -8,10 +8,10 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const authRoutes = require('../routes/mongo/authRoutes').default;
+const authRoutes = require('../routes/authRoutes').default;
 const { User } = require('../models/user');
 const bcrypt = require('bcryptjs');
-const { authController } = require('../controllers/mondoDBControllers/authController');
+const { authController } = require('../controllers/authController');
 
 jest.mock('../services/jwtService', () => ({
   jwtService: {

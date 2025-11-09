@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const express = require('express');
-const feedbackRoutes = require('../routes/mongo/feedbackRoutes').default;
+const feedbackRoutes = require('../routes/feedbackRoutes').default;
 const { Feedback } = require('../models/feedback');
-const { feedbackController } = require('../controllers/mondoDBControllers/feedbackController');
+const { feedbackController } = require('../controllers/feedbackController');
 
 describe('Feedback Routes', () => {
   let mongoServer, mongoUri, app;
