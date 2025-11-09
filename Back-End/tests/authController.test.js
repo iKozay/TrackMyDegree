@@ -454,6 +454,103 @@ describe('AuthController', () => {
     });
   });
 
+  describe('isAdmin', () => {
+    let adminUser, studentUser, advisorUser;
+
+    beforeEach(async () => {
+      adminUser = await User.create({
+        email: 'admin@example.com',
+        password: 'hashedpassword',
+        fullname: 'Admin User',
+        type: UserType.ADMIN,
+      });
+
+      studentUser = await User.create({
+        email: 'student@example.com',
+        password: 'hashedpassword',
+        fullname: 'Student User',
+        type: UserType.STUDENT,
+      });
+
+      advisorUser = await User.create({
+        email: 'advisor@example.com',
+        password: 'hashedpassword',
+        fullname: 'Advisor User',
+        type: UserType.ADVISOR,
+      });
+    });
+
+    it('should return true when user is an admin', async () => {
+      const result = await authController.isAdmin(adminUser._id.toString());
+
+      expect(result).toBe(true);
+    });
+
+    it('should return false when user is a student', async () => {
+      const result = await authController.isAdmin(studentUser._id.toString());
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when user is an advisor', async () => {
+      const result = await authController.isAdmin(advisorUser._id.toString());
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when user does not exist', async () => {
+      const fakeId = new mongoose.Types.ObjectId().toString();
+      const result = await authController.isAdmin(fakeId);
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when findById returns null', async () => {
+      // Mock User.findById to return null
+      const originalFindById = User.findById;
+      User.findById = jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(null),
+      });
+
+      const result = await authController.isAdmin('someUserId');
+
+      expect(result).toBe(false);
+
+      // Restore original method
+      User.findById = originalFindById;
+    });
+
+    it('should return false and handle database errors gracefully', async () => {
+      // Mock User.findById to throw an error
+      const originalFindById = User.findById;
+      User.findById = jest.fn().mockImplementation(() => {
+        throw new Error('Database connection failed');
+      });
+
+      const result = await authController.isAdmin(adminUser._id.toString());
+
+      expect(result).toBe(false);
+
+      // Restore original method
+      User.findById = originalFindById;
+    });
+
+    it('should return false when findById throws an error during exec', async () => {
+      // Mock User.findById to throw error in exec
+      const originalFindById = User.findById;
+      User.findById = jest.fn().mockReturnValue({
+        exec: jest.fn().mockRejectedValue(new Error('Exec failed')),
+      });
+
+      const result = await authController.isAdmin(adminUser._id.toString());
+
+      expect(result).toBe(false);
+
+      // Restore original method
+      User.findById = originalFindById;
+    });
+  });
+
   describe('Additional Edge Cases for Coverage', () => {
     it('should handle registerUser when User.create throws error', async () => {
       const originalCreate = User.create;
