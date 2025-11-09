@@ -77,6 +77,11 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
     // Validate user still exists
     const user = await authController.getUserById(payload.userId);
+    if (!user) {
+      return res
+        .status(HTTP.UNAUTHORIZED)
+        .json({ error: 'User does not exist' });
+    }
 
     const newAccessToken = jwtService.generateToken(payload);
     const newRefreshToken = jwtService.generateToken(payload, true);
