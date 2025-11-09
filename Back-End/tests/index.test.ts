@@ -19,13 +19,6 @@ jest.mock('../swagger', () => ({
   swaggerSpec: { openapi: '3.0.0', info: { title: 'TrackMyDegree API', version: '1.0.0' } },
 }));
 
-/** ---- DB controller for /test-db (prefix with mock*) ---- */
-const mockGetConnection = jest.fn();
-jest.mock('@controllers/DBController/DBController', () => ({
-  __esModule: true,
-  default: { getConnection: mockGetConnection },
-}));
-
 /** ---- Router stub factory ---- */
 const makeRouterStub = () => {
   const { Router } = require('express');
@@ -39,20 +32,17 @@ const makeRouterStub = () => {
  * Mock the *resolved physical paths* for routers, not the @routes/* alias.
  * This avoids the moduleNameMapper collision in CI.
  */
-jest.mock('../routes/auth',           () => makeRouterStub());
-jest.mock('../routes/courses',        () => makeRouterStub());
-jest.mock('../routes/exemption',      () => makeRouterStub());
-jest.mock('../routes/deficiency',     () => makeRouterStub());
-jest.mock('../routes/degree',         () => makeRouterStub());
-jest.mock('../routes/timeline',       () => makeRouterStub());
-jest.mock('../routes/coursepool',     () => makeRouterStub());
-jest.mock('../routes/userData',       () => makeRouterStub());
-jest.mock('../routes/adminRoutes',    () => makeRouterStub());
-jest.mock('../routes/requisite',      () => makeRouterStub());
-jest.mock('../routes/feedback',       () => makeRouterStub());
-jest.mock('../routes/session',        () => makeRouterStub());
-jest.mock('../routes/sectionsRoutes', () => makeRouterStub());
-jest.mock('../routes/mongo',          () => makeRouterStub());
+jest.mock('../routes/authRoutes',        () => makeRouterStub());
+jest.mock('../routes/courseRoutes',      () => makeRouterStub());
+jest.mock('../routes/degreeRoutes',      () => makeRouterStub());
+jest.mock('../routes/timelineRoutes',    () => makeRouterStub());
+jest.mock('../routes/coursepoolRoutes',  () => makeRouterStub());
+jest.mock('../routes/userRoutes',        () => makeRouterStub());
+jest.mock('../routes/adminRoutes',       () => makeRouterStub());
+jest.mock('../routes/feedbackRoutes',    () => makeRouterStub());
+jest.mock('../routes/sessionRoutes',     () => makeRouterStub());
+jest.mock('../routes/sectionsRoutes',    () => makeRouterStub());
+jest.mock('../routes/uploadRoutes',            () => makeRouterStub());
 
 /** ---- Import app AFTER all mocks ---- */
 import app from '../index';

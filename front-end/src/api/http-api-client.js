@@ -2,7 +2,7 @@
 
 import { request } from "./request";
 
-const SERVER = process.env.REACT_APP_SERVER || "http://localhost:8000/v2";
+const SERVER = process.env.REACT_APP_SERVER || "http://localhost:8000";
 
 // Helper function to include token + headers
 const buildOptions = (method, data, extraOptions = {}) => {

@@ -5,9 +5,9 @@ import swaggerJsdoc from "swagger-jsdoc";
 const definition: swaggerJsdoc.Options["definition"] = {
   openapi: "3.0.3",
   info: {
-    title: "TrackMyDegree API (Mongo v2)",
+    title: "TrackMyDegree API",
     version: "1.0.0",
-    description: "OpenAPI docs for the Mongo-backed v2 endpoints.",
+    description: "OpenAPI docs for the TrackMyDegree API.",
   },
   // Same-origin: works with https://localhost/ behind a proxy
   servers: [{ url: "/", description: "Same origin" }],
@@ -36,9 +36,8 @@ const definition: swaggerJsdoc.Options["definition"] = {
 
 export const swaggerSpec = swaggerJsdoc({
   definition,
-  // Only scan the Mongo routes
   apis: [
-    path.resolve(__dirname, "./routes/mongo/*.ts"),        // dev (ts-node)
-    path.resolve(process.cwd(), "dist/routes/mongo/*.js"),  // prod (compiled)
+    path.resolve(__dirname, "./routes/*.ts"),        // dev (ts-node)
+    path.resolve(process.cwd(), "dist/routes/*.js"),  // prod (compiled)
   ],
 });

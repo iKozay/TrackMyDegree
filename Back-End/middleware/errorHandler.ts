@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction} from 'express';
 import createError from 'http-errors';
-import HTTP from '@Util/HTTPCodes';
+import HTTP from '@utils/httpCodes';
 import * as Sentry from '@sentry/node';
 
 // 404 Not Found Middleware

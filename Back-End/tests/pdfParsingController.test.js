@@ -1,6 +1,6 @@
 const request = require('supertest');
 const express = require('express');
-const pdfParsingControllerModule = require('../controllers/pdfParsingController/pdfParsingController');
+const pdfParsingControllerModule = require('../controllers/pdfParsingController');
 const pdfParse = require('pdf-parse');
 const { Buffer } = require('node:buffer');
 // Pull out the controller and middleware
@@ -11,7 +11,7 @@ const uploadMiddleware = pdfParsingControllerModule.uploadMiddleware;
 jest.mock('pdf-parse', () => jest.fn());
 
 // Mock the custom parsers
-jest.mock('@Util/transcriptParser', () => ({
+jest.mock('@utils/transcriptParser', () => ({
   TranscriptParser: jest.fn().mockImplementation(() => ({
     parseFromBuffer: jest.fn().mockResolvedValue({
       terms: [
@@ -26,7 +26,7 @@ jest.mock('@Util/transcriptParser', () => ({
   })),
 }));
 
-jest.mock('@Util/acceptanceLetterParser', () => ({
+jest.mock('@utils/acceptanceLetterParser', () => ({
   AcceptanceLetterParser: jest.fn().mockImplementation(() => ({
     parse: jest.fn().mockReturnValue({
       name: 'John Doe',

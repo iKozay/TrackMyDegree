@@ -1,7 +1,7 @@
-import HTTP from '@Util/HTTPCodes';
+import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import * as Sentry from '@sentry/node';
-import sectionController from '@controllers/sectionController/sectionController';
+import sectionController from '@controllers/sectionController';
 
 const router = express.Router();
 
