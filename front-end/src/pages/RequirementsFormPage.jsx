@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import programs from '../data/requirementsPrograms';
 
-const BURGUNDY = '#7a0019'; // Concordia-ish burgundy
+const BURGUNDY = '#7a0019';
 
 // Reusable button
 function ActionButton({ children, onClick, variant = 'outline' }) {
