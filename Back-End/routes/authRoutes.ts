@@ -75,8 +75,8 @@ router.post('/refresh', async (req: Request, res: Response) => {
         .status(HTTP.UNAUTHORIZED)
         .json({ error: 'Invalid or expired refresh token' });
 
-    // Need to validate the user by checking if the user with Id = payload.userId still exists
-    //const user = await authController.getUserById(payload.userId);
+    // Validate user still exists
+    const user = await authController.getUserById(payload.userId);
 
     const newAccessToken = jwtService.generateToken(payload);
     const newRefreshToken = jwtService.generateToken(payload, true);
@@ -87,8 +87,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
     res.cookie(accessCookie.name, accessCookie.value, accessCookie.config);
     res.cookie(refreshCookie.name, refreshCookie.value, refreshCookie.config);
 
-    // Need to send the user object otherwise frontend will break
-    res.status(HTTP.OK).json({ message: 'Tokens refreshed' });
+    res.status(HTTP.OK).json(user);
   } catch (error) {
     console.error('Error in POST /auth/refresh', error);
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
