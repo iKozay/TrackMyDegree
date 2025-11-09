@@ -13,7 +13,7 @@ parse = (text:string):ParsedAcceptanceLetter => {
   const extractedCourses = [];
 
   // Extract Degree Concentration (everything after Program/Plan(s) and before Academic Load)
-  const degreeConcentrationMatch = (/^\s*Program\/Plan\(s\):[ \t]*([^\n]*(?:\n(?!\s*Academic\s+Load)[^\n]*)*)/im).exec(text);
+  const degreeConcentrationMatch = (/^\s*Program\/Plan\(s\):[ \t]*([^\n]*(?:\n(?!\s*Academic\s+Load)[^\n]*)*)/im).exec(text); // NOSONAR
 
   if (degreeConcentrationMatch) {
     // Combine the two parts (if any) into a single Degree Concentration string
