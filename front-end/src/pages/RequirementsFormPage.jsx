@@ -45,6 +45,14 @@ function ActionButton({ children, onClick, variant = 'outline' }) {
   );
 }
 
+import PropTypes from 'prop-types';
+
+ActionButton.propTypes = {
+  children: PropTypes.node.isRequired,
+  onClick: PropTypes.func,
+  variant: PropTypes.oneOf(['outline', 'solid']),
+};
+
 export default function RequirementsFormPage() {
   const { programId } = useParams();
   const navigate = useNavigate();
@@ -56,14 +64,25 @@ export default function RequirementsFormPage() {
   if (!program) {
     return (
       <div className="container py-4">
-        <h2 className="mb-2" style={{ margin: 0 }}>Credit Count Form</h2>
-        <p className="text-muted">Unknown program: <code>{programId}</code></p>
+        <h2 className="mb-2" style={{ margin: 0 }}>
+          Credit Count Form
+        </h2>
+        <p className="text-muted">
+          Unknown program: <code>{programId}</code>
+        </p>
         <ActionButton onClick={() => navigate('/requirements')}>← Back to Form Selection</ActionButton>
       </div>
     );
   }
 
-  const effectiveSrc = program.pdf ? `${program.pdf}${srcCacheBuster ? `?v=${srcCacheBuster}` : ''}` : null;
+  let effectiveSrc = null;
+  if (program?.pdf) {
+    effectiveSrc = program.pdf;
+    if (srcCacheBuster) {
+      effectiveSrc += `?v=${srcCacheBuster}`;
+    }
+}
+
 
   const onBack = () => navigate('/requirements');
 
@@ -78,19 +97,21 @@ export default function RequirementsFormPage() {
       iframeRef.current?.contentWindow?.focus();
       iframeRef.current?.contentWindow?.print();
     } catch {
-      window.alert('Unable to trigger print automatically. Use the viewer’s print button or your browser menu.');
+      globalThis.alert('Unable to trigger print automatically. Use the viewer’s print button or your browser menu.');
     }
   };
 
   const onSave = () => {
     // Placeholder for future persistence
-    window.alert('Saving will require login—placeholder for now.');
+    globalThis.alert('Saving will require login—placeholder for now.');
   };
 
   return (
     <div className="container py-4">
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <h2 className="mb-2" style={{ margin: 0 }}>Credit Count Form</h2>
+        <h2 className="mb-2" style={{ margin: 0 }}>
+          Credit Count Form
+        </h2>
         <p className="text-muted" style={{ margin: '6px 0 16px 0' }}>
           {program.title} — Manually track your degree progress by filling out this form.
         </p>
@@ -98,7 +119,9 @@ export default function RequirementsFormPage() {
         {/* Button bar */}
         <div className="d-flex gap-2 flex-wrap mb-3" style={{ gap: 12 }}>
           <ActionButton onClick={onBack}>←&nbsp;Back to Form Selection</ActionButton>
-          <ActionButton onClick={onSave} variant="solid">💾&nbsp;Save Form</ActionButton>
+          <ActionButton onClick={onSave} variant="solid">
+            💾&nbsp;Save Form
+          </ActionButton>
           <ActionButton onClick={onClear}>♻️&nbsp;Clear Form</ActionButton>
           <ActionButton onClick={onDownloadPrint}>⬇️&nbsp;Download/Print</ActionButton>
         </div>

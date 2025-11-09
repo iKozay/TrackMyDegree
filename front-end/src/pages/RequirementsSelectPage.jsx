@@ -8,7 +8,9 @@ export default function RequirementsSelectPage() {
   return (
     <div className="container py-4">
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <h2 className="mb-2" style={{ margin: 0 }}>Missing Requirements</h2>
+        <h2 className="mb-2" style={{ margin: 0 }}>
+          Missing Requirements
+        </h2>
         <p
           className="text-muted"
           style={{
@@ -34,7 +36,13 @@ export default function RequirementsSelectPage() {
             <div
               key={p.id}
               role="button"
+              tabIndex={0}
               onClick={() => navigate(`/requirements/${p.id}`)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  navigate(`/requirements/${p.id}`);
+                }
+              }}
               style={{
                 border: '1px solid #e5e7eb',
                 borderRadius: 12,
@@ -63,9 +71,7 @@ export default function RequirementsSelectPage() {
               >
                 {p.title}
               </h5>
-              <p style={{ margin: 0, fontSize: 13, color: '#6b7280' }}>
-                {p.subtitle}
-              </p>
+              <p style={{ margin: 0, fontSize: 13, color: '#6b7280' }}>{p.subtitle}</p>
             </div>
           ))}
         </div>
@@ -74,8 +80,8 @@ export default function RequirementsSelectPage() {
           <div className="card-body">
             <h6 className="mb-2">About Credit Count Forms</h6>
             <p className="mb-0 text-muted" style={{ fontSize: 14 }}>
-              Use these forms to manually track your progress. You can clear, download/print,
-              and later save once signed in.
+              Use these forms to manually track your progress. You can clear, download/print, and later save once signed
+              in.
             </p>
           </div>
         </div>
