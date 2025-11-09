@@ -1,6 +1,6 @@
 const request = require('supertest');
 const express = require('express');
-const pdfParsingControllerModule = require('../controllers/PdfParsingController');
+const pdfParsingControllerModule = require('../controllers/pdfParsingController');
 const pdfParse = require('pdf-parse');
 const { Buffer } = require('node:buffer');
 // Pull out the controller and middleware
