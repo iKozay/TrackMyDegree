@@ -105,38 +105,6 @@ export class AdminController extends BaseMongoController<any> {
   }
 
   /**
-   * Get collection statistics using countDocuments
-   */
-  async getCollectionStats(collectionName: string): Promise<{
-    count: number;
-    size: number;
-    avgDocSize: number;
-  }> {
-    try {
-      const db = mongoose.connection.db;
-      if (!db) {
-        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
-      }
-
-      const stats = await db.command({
-        collStats: collectionName,
-      });
-
-      return {
-        count: stats.count || 0,
-        size: stats.size || 0,
-        avgDocSize: stats.avgObjSize || 0,
-      };
-    } catch (error) {
-      Sentry.captureException(error);
-      if (error instanceof Error && error.message === DATABASE_CONNECTION_NOT_AVAILABLE) {
-        throw error;
-      }
-      throw new Error('Error fetching collection statistics');
-    }
-  }
-
-  /**
    * Clear all documents from a collection (dangerous - use with caution)
    */
   async clearCollection(collectionName: string): Promise<number> {

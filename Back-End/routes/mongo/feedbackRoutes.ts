@@ -1,9 +1,3 @@
-/**
- * Feedback Routes
- *
- * Handles feedback CRUD operations
- */
-
 import HTTP from '@Util/HTTPCodes';
 import express, { Request, Response } from 'express';
 import { feedbackController } from '@controllers/mondoDBControllers';

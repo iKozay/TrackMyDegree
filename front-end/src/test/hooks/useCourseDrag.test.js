@@ -60,4 +60,158 @@ describe('useCourseDrag', () => {
       );
     });
   });
+
+  test('should handle drag end when dropped over a valid target', () => {
+    const mockStateWithSemesters = {
+      ...mockState,
+      semesters: [{ id: 's1', name: 'Fall 2025' }],
+      semesterCourses: { s1: [] },
+      allCourses: [{ _id: 'COMP101', credits: 3 }],
+      uniqueIdCounter: 0,
+    };
+
+    timelineUtils.findSemesterIdByCourseCode.mockReturnValue('s1');
+    timelineUtils.calculateSemesterCredits.mockReturnValue(3);
+    timelineUtils.getMaxCreditsForSemesterName.mockReturnValue(18);
+    timelineUtils.removeCourseFromSemester.mockReturnValue({ s1: [] });
+
+    const { result } = renderHook(() => useCourseDrag(mockStateWithSemesters, mockDispatch));
+
+    act(() => {
+      result.current.handleDragEnd({
+        active: {
+          id: 'C1',
+          data: { current: { courseCode: 'COMP101', containerId: 'courseList' } },
+        },
+        over: {
+          id: 's1',
+          data: { current: { containerId: 's1' } },
+        },
+      });
+    });
+
+    expect(mockDispatch).toHaveBeenCalled();
+  });
+
+  test('should handle drag end when no over target', () => {
+    const documentSpy = jest.spyOn(document, 'querySelector').mockReturnValue({
+      classList: { remove: jest.fn() },
+    });
+
+    const { result } = renderHook(() => useCourseDrag(mockState, mockDispatch));
+
+    act(() => {
+      result.current.handleDragEnd({
+        active: { id: 'C1', data: { current: { courseCode: 'COMP101' } } },
+        over: null,
+      });
+    });
+
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: 'SET',
+      payload: { activeId: null },
+    });
+
+    documentSpy.mockRestore();
+  });
+
+  test('should handle drag cancel', () => {
+    const documentSpy = jest.spyOn(document, 'querySelector').mockReturnValue({
+      classList: { remove: jest.fn() },
+    });
+
+    const { result } = renderHook(() => useCourseDrag(mockState, mockDispatch));
+
+    act(() => {
+      result.current.handleDragCancel();
+    });
+
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: 'SET',
+      payload: { activeId: null },
+    });
+
+    documentSpy.mockRestore();
+  });
+
+  test('should handle return course', () => {
+    const mockStateWithCourses = {
+      ...mockState,
+      semesterCourses: { s1: ['C1'], s2: ['C2'] },
+    };
+
+    const { result } = renderHook(() => useCourseDrag(mockStateWithCourses, mockDispatch));
+
+    act(() => {
+      result.current.handleReturn('C1');
+    });
+
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'SET',
+        payload: expect.objectContaining({
+          returning: true,
+          hasUnsavedChanges: true,
+        }),
+      }),
+    );
+  });
+
+  test('should handle course select', () => {
+    const mockStateWithCourse = {
+      ...mockState,
+      allCourses: [{ _id: 'COMP101', title: 'Intro to CS' }],
+    };
+
+    const { result } = renderHook(() => useCourseDrag(mockStateWithCourse, mockDispatch));
+
+    act(() => {
+      result.current.handleCourseSelect('COMP101');
+    });
+
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: 'SET',
+      payload: { selectedCourse: { _id: 'COMP101', title: 'Intro to CS' } },
+    });
+  });
+
+  test('should handle course select with source prefix', () => {
+    const mockStateWithCourse = {
+      ...mockState,
+      allCourses: [{ _id: 'COMP101', title: 'Intro to CS' }],
+    };
+
+    const { result } = renderHook(() => useCourseDrag(mockStateWithCourse, mockDispatch));
+
+    act(() => {
+      result.current.handleCourseSelect('source-COMP101');
+    });
+
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: 'SET',
+      payload: { selectedCourse: { _id: 'COMP101', title: 'Intro to CS' } },
+    });
+  });
+
+  test('should handle drag start with deficiency course', () => {
+    const mockStateWithDeficiency = {
+      ...mockState,
+      deficiencyCourses: [{ _id: 'DEF101', title: 'Deficiency Course' }],
+    };
+
+    const { result } = renderHook(() => useCourseDrag(mockStateWithDeficiency, mockDispatch));
+
+    act(() => {
+      result.current.handleDragStart({
+        active: { id: 'D1', data: { current: { courseCode: 'DEF101' } } },
+      });
+    });
+
+    expect(mockDispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'SET',
+        payload: expect.objectContaining({ selectedCourse: { _id: 'DEF101', title: 'Deficiency Course' } }),
+      }),
+    );
+  });
 });

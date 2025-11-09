@@ -64,6 +64,21 @@ jobs:
         with:
           node-version: '22'
 
+      # TODO: remove when we do SQL code cleanup
+      - name: Set up secrets
+        run: |
+          cat > Back-End/.env << EOF
+          SQL_SERVER_USER=sa
+          SQL_SERVER_PASSWORD=MySecureP@ss123
+          SQL_SERVER_DATABASE=master
+          SQL_SERVER_HOST=localhost
+
+          DB_USER=sa
+          DB_PASSWORD=MySecureP@ss123
+          DB_NAME=master
+          DB_HOST=localhost
+          EOF
+
       - name: Install dependencies for backend
         working-directory: ./Back-End
         run: |
@@ -137,7 +152,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: scraper-coverage
-          path: Back-End/course-data/Scraping/coverage.xml
+          path: Back-End/course-data/Scraping
 
       - name: Run SonarCloud Scan
         uses: sonarsource/sonarqube-scan-action@v6
@@ -177,12 +192,59 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Generate version tags
+        id: version
+        run: |
+          # Generate date in YYYYMMDD format
+          DATE_TAG=$(date +%Y%m%d)
+          echo "date_tag=${DATE_TAG}" >> $GITHUB_OUTPUT
+                    
+          # Convert repository owner to lowercase
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "owner=${OWNER}" >> $GITHUB_OUTPUT
+          
+          # Construct image name
+          IMAGE_NAME="ghcr.io/${OWNER}/${{ matrix.image }}"
+          echo "image_name=${IMAGE_NAME}" >> $GITHUB_OUTPUT
+          
+          # Fetch existing tags for this image to find increment number
+          # Use GitHub Container Registry API to get all tags
+          echo "🔍 Fetching existing tags for ${OWNER}/${{ matrix.image }}..."
+          TAGS_JSON=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://ghcr.io/v2/${OWNER}/${{ matrix.image }}/tags/list" || echo '{"tags":[]}')
+          
+          # Find tags matching today's date pattern (YYYYMMDD.*)
+          # Extract the increment numbers for today's builds
+          INCREMENT=$(echo "$TAGS_JSON" | grep -oP "${DATE_TAG}\.\K\d+" | sort -n | tail -1)
+          
+          # If no builds today, start at 1; otherwise increment
+          if [ -z "$INCREMENT" ]; then
+            INCREMENT=1
+          else
+            INCREMENT=$((INCREMENT + 1))
+          fi
+          
+          # Create full version tag
+          VERSION_TAG="${DATE_TAG}.${INCREMENT}"
+          echo "version_tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
+          
+          echo "📋 Generated tags:"
+          echo "   - Date version: ${VERSION_TAG}"
+
       - name: Build and Push ${{ matrix.name }} Image
         run: |
-          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE=ghcr.io/$OWNER/${{ matrix.image }}
+          IMAGE=${{ steps.version.outputs.image_name }}
+          VERSION_TAG=${{ steps.version.outputs.version_tag }}
+          
           echo "🔨 Building $IMAGE..."
-          docker build -t $IMAGE:latest ${{ matrix.context }}
+          docker build \
+            -t $IMAGE:latest \
+            -t $IMAGE:$VERSION_TAG \
+            ${{ matrix.context }}
+          
           echo "📦 Pushing $IMAGE..."
-          docker push $IMAGE:latest
-          echo "✅ Successfully pushed $IMAGE:latest"
+          docker push --all-tags $IMAGE
+          
+          echo "✅ Successfully pushed ${{ matrix.name }} image with tags:"
+          echo "   ✓ $IMAGE:latest"
+          echo "   ✓ $IMAGE:$VERSION_TAG"

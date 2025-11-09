@@ -11,7 +11,7 @@ jest.mock('../../utils/groupPrerequisites', () => ({
     requisites.forEach((req) => {
       const key = req.type;
       if (!grouped[key]) grouped[key] = { type: req.type, codes: [] };
-      grouped[key].codes.push(req.code);
+      grouped[key].codes.push(req._id);
     });
     return Object.values(grouped);
   }),

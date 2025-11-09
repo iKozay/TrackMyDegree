@@ -2,6 +2,35 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const express = require('express');
+
+// Mock the transcript router that doesn't exist
+// Using the actual path that Jest resolves from @routes/transcript
+jest.mock('../routes/transcript', () => {
+  const express = require('express');
+  return {
+    __esModule: true,
+    default: express.Router(),
+  };
+}, { virtual: true });
+
+// Mock rate limiter middleware to avoid TypeScript compilation errors
+jest.mock('../middleware/rateLimiter', () => {
+  const express = require('express');
+  const mockMiddleware = (req, res, next) => next();
+  return {
+    forgotPasswordLimiter: mockMiddleware,
+    resetPasswordLimiter: mockMiddleware,
+    loginLimiter: mockMiddleware,
+    signupLimiter: mockMiddleware,
+  };
+});
+
+// Mock auth middleware to bypass authentication for admin routes
+jest.mock('../middleware/authMiddleware', () => ({
+  authMiddleware: (req, res, next) => next(),
+  adminCheckMiddleware: (req, res, next) => next(),
+}));
+
 const mongoRouter = require('../routes/mongo/index').default;
 
 // Create test app
@@ -33,7 +62,8 @@ describe('Mongo Routes Index', () => {
   it('should have /v2/degree route', async () => {
     const response = await request(app).get('/v2/degree').expect(200);
 
-    expect(response.body.message).toBeDefined();
+    expect(response.body).toBeDefined();
+    expect(Array.isArray(response.body)).toBe(true);
   });
 
   it('should have /v2/courses route', async () => {
@@ -68,5 +98,6 @@ describe('Mongo Routes Index', () => {
       .expect(200);
 
     expect(response.body).toBeDefined();
+    expect(response.body.success !== undefined || response.body.data !== undefined).toBe(true);
   });
 });

@@ -2,15 +2,10 @@ import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import express from 'express';
 import dotenv from 'dotenv';
+import path from 'node:path';
 import cookieParser from 'cookie-parser';
-import Database from '@controllers/DBController/DBController';
-import HTTP from '@Util/HTTPCodes';
-import {
-  forgotPasswordLimiter,
-  resetPasswordLimiter,
-  loginLimiter,
-  signupLimiter,
-} from '@middleware/rateLimiter';
+import cors from 'cors';
+import mongoose from 'mongoose';
 import { notFoundHandler, errorHandler } from '@middleware/errorHandler';
 
 //Routes import
@@ -32,6 +27,12 @@ import mongoRouter from '@routes/mongo';
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
+import {
+  forgotPasswordLimiter,
+  loginLimiter,
+  resetPasswordLimiter,
+  signupLimiter,
+} from '@middleware/rateLimiter';
 // sentry init
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -41,11 +42,52 @@ Sentry.init({
 });
 
 //Express Init
-dotenv.config(); //Load environment variables from .env file
+if (process.env.NODE_ENV === 'development') {
+  const loadEnv = dotenv.config({ path: path.resolve(__dirname, '../secrets/.env'), debug: true });
+  if (loadEnv.error) {
+    console.error('Error loading .env file:', loadEnv.error);
+    throw loadEnv.error;
+  }else {
+    console.log('Environment variables loaded successfully');
+  }
+}
+// For production and staging, env vars are injected automatically via Docker
+
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.BACKEND_PORT || 8000;
+
+// MongoDB connection
+const MONGODB_URI = process.env.MONGODB_URI ||
+  'mongodb://admin:changeme123@localhost:27017/trackmydegree';
+
+// Connect to MongoDB using async/await
+mongoose.connect(MONGODB_URI).then(() => {
+  console.log('Connected to MongoDB');
+}).catch((error: Error) => {
+  console.error('Error connecting to MongoDB:', error);
+  Sentry.captureException(error);
+});
+
+mongoose.connection.on('error', (error: Error) => {
+  console.error('MongoDB connection error:', error);
+  Sentry.captureException(error);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('MongoDB disconnected');
+});
 
 Sentry.setupExpressErrorHandler(app);
+
+if (process.env.NODE_ENV === 'development') {
+  const corsOptions = {
+    origin: 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  };
+  app.use(cors(corsOptions));
+}
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -79,29 +121,6 @@ app.use('/upload', uploadRouter);
 
 // MongoDB consolidated routes
 app.use('/v2', mongoRouter);
-
-/**
- * DB test route
- * TO BE REMOVED
- */
-app.get('/test-db', async (req, res) => {
-  try {
-    const pool = await Database.getConnection();
-    if (pool) {
-      const result = await pool.request().query('SELECT 1 AS number');
-      res.status(HTTP.OK).send({
-        message: 'Database connected successfully!',
-        result: result.recordset,
-      });
-    } else {
-      throw new Error('Connection error in test-db');
-    }
-  } catch (error) {
-    res
-      .status(HTTP.SERVER_ERR)
-      .send({ message: 'Database connection failed', error });
-  }
-});
 
 //Handle 404
 app.use(notFoundHandler);

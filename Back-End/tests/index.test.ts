@@ -56,7 +56,7 @@ jest.mock('../routes/mongo',          () => makeRouterStub());
 
 /** ---- Import app AFTER all mocks ---- */
 import app from '../index';
-import * as Sentry from '@sentry/node';
+import Sentry from '@sentry/node';
 
 describe('index.ts', () => {
   it('serves /openapi.json (Swagger spec)', async () => {
@@ -64,26 +64,6 @@ describe('index.ts', () => {
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toMatch(/application\/json/);
     expect(res.body?.openapi).toBe('3.0.0');
-  });
-
-  it('GET /test-db -> 200 when DB connection succeeds', async () => {
-    const fakePool = {
-      request: () => ({ query: async () => ({ recordset: [{ number: 1 }] }) }),
-    } as any;
-    mockGetConnection.mockResolvedValueOnce(fakePool);
-
-    const res = await request(app).get('/test-db');
-    expect(res.status).toBe(200);
-    expect(res.body?.message).toMatch(/Database connected successfully/i);
-    expect(res.body?.result?.[0]?.number).toBe(1);
-  });
-
-  it('GET /test-db -> 500 when DB connection is undefined', async () => {
-    mockGetConnection.mockResolvedValueOnce(undefined);
-
-    const res = await request(app).get('/test-db');
-    expect(res.status).toBe(500);
-    expect(res.body?.message).toMatch(/Database connection failed/i);
   });
 
   it('captures unhandledRejection via Sentry', () => {

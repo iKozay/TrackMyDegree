@@ -6,7 +6,7 @@ import '../css/SignUpPage.css';
 import Button from 'react-bootstrap/Button';
 import { motion } from 'framer-motion';
 import { signupUser } from '../api/auth_api';
-import { validateSignupForm, hashPassword } from '../utils/authUtils';
+import { validateSignupForm } from '../utils/authUtils';
 
 //Similar to the login page. It's just a form that sends the data to the server to be treated there. Redirects to UserPage.js on success
 function SignUpPage() {
@@ -18,7 +18,6 @@ function SignUpPage() {
   const { login, isLoggedIn } = useContext(AuthContext);
   const navigate = useNavigate();
   const [error, setError] = useState(null); // To handle error messages
-  //const [loading, setLoading] = useState(false); // To handle loading state
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -43,9 +42,7 @@ function SignUpPage() {
     //setLoading(true); // Start loading
 
     try {
-      // Use API function from auth_api.js
-      const hashedPassword = await hashPassword(password);
-      const data = await signupUser(fullname, email, hashedPassword, userType);
+      const data = await signupUser(fullname, email, password, userType);
 
       // Assuming the API returns some form of authentication token or user data
       // You might want to store the token in context or localStorage here

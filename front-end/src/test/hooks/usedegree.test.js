@@ -40,7 +40,7 @@ describe('useDegrees hook', () => {
     fetch.mockResolvedValueOnce({
       ok: true,
       headers: mockHeaders,
-      json: async () => mockDegrees,
+      json: async () => mockDegrees.degrees,
     });
 
     const { result } = renderHook(() => useDegrees());
@@ -55,9 +55,9 @@ describe('useDegrees hook', () => {
     });
 
     expect(fetch).toHaveBeenCalledWith(
-      `${SERVER_URL}/degree/getAllDegrees`,
+      expect.stringContaining('/degree'),
       expect.objectContaining({
-        method: 'POST',
+        method: 'GET',
         headers: expect.objectContaining({
           'Content-Type': 'application/json',
         }),

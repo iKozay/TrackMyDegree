@@ -11,8 +11,8 @@ jest.mock('react-router-dom', () => ({
 
 describe('InformationForm Component', () => {
   const mockDegrees = [
-    { id: '1', name: 'Computer Science', totalCredits: 120 },
-    { id: '2', name: 'Mechanical Engineering', totalCredits: 130 },
+    { _id: '1', name: 'Computer Science', totalCredits: 120 },
+    { _id: '2', name: 'Mechanical Engineering', totalCredits: 130 },
   ];
 
   beforeEach(() => {
@@ -81,7 +81,7 @@ describe('InformationForm Component', () => {
     expect(localStorage.setItem).toHaveBeenCalledWith('Timeline_Name', null);
     expect(mockNavigate).toHaveBeenCalledWith('/timeline_change', {
       state: {
-        degree_Id: '1',
+        degree_Id: mockDegrees[0]._id,
         startingSemester: 'Fall 2025',
         coOp: null,
         credits_Required: 120,

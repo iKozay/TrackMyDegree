@@ -41,9 +41,9 @@ export const buildTimelinePayload = ({
         ) {
             (semesterCourses[semester.id] || []).forEach((courseCode) => {
                 const genericCode = courseInstanceMap[courseCode] || courseCode;
-                const course = allCourses.find((c) => c.code === genericCode);
-                if (course && course.code) {
-                    exempted_courses.push(course.code);
+                const course = allCourses.find((c) => c._id === genericCode);
+                if (course && course._id) {
+                    exempted_courses.push(course._id);
                 }
             });
         }
@@ -51,8 +51,8 @@ export const buildTimelinePayload = ({
         const coursesForSemester = (semesterCourses[semester.id] || [])
             .map((courseCode) => {
                 const genericCode = courseInstanceMap[courseCode] || courseCode;
-                const course = allCourses.find((c) => c.code === genericCode);
-                return course && course.code ? { courseCode: course.code } : null;
+                const course = allCourses.find((c) => c._id === genericCode);
+                return course && course._id ? { courseCode: course._id } : null;
             })
             .filter(Boolean);
 
@@ -62,9 +62,9 @@ export const buildTimelinePayload = ({
 
     const deficiencyCoursescode = deficiencyCourses
         .map((courseCode) => {
-            const genericCode = courseInstanceMap[courseCode.code] || courseCode.code;
-            const course = allCourses.find((c) => c.code === genericCode);
-            return course && course.code ? { courseCode: course.code } : null;
+            const genericCode = courseInstanceMap[courseCode._id] || courseCode._id;
+            const course = allCourses.find((c) => c._id === genericCode);
+            return course && course._id ? { courseCode: course._id } : null;
         })
         .filter(Boolean);
 
@@ -142,8 +142,8 @@ export const parseCourses = (timelineInfo, courseInstanceMap, allCourses, extend
                 const newCourses = data.courses
                     .map((courseCode) => {
                         const genericCode = courseInstanceMap[courseCode] || courseCode;
-                        const course = allCourses.find((c) => c.code === genericCode);
-                        return course && course.code ? { code: course.code, credits: course.credits } : null;
+                        const course = allCourses.find((c) => c._id === genericCode);
+                        return course && course._id ? { code: course._id, credits: course.credits } : null;
                     })
                     .filter(Boolean);
 
@@ -303,7 +303,7 @@ export const calculateSemesterCredits = (semesterId, semesterCourses, courseInst
     const courses = semesterCourses[semesterId] || [];
     return courses.reduce((sum, cCode) => {
         const genericCode = courseInstanceMap[cCode] || cCode;
-        const course = allCourses.find((c) => c.code === genericCode);
+        const course = allCourses.find((c) => c._id === genericCode);
         return sum + (course?.credits || 0);
     }, 0);
 };
@@ -313,15 +313,6 @@ export const getMaxCreditsForSemesterName = (semesterName) => {
         return 15;
     }
     return 19;
-}
-
-export const parseMaxCreditsFromPoolName = (poolName) => {
-    // Regex to find e.g. "(47.5 credits)"
-    const match = poolName.match(/\(([\d.]+)\s*credits?\)/i);
-    if (match) {
-        return parseFloat(match[1]); // 47.5
-    }
-    return Infinity; // fallback if we can't parse a number
 }
 
 export const findSemesterIdByCourseCode = (courseCode, updatedSemesters) => {
@@ -336,7 +327,7 @@ export const findSemesterIdByCourseCode = (courseCode, updatedSemesters) => {
 
 export const areRequisitesMet = (courseCode, currentSemesterIndex, courseInstanceMap, allCourses, semesters, semesterCourses) => {
     const genericCode = courseInstanceMap[courseCode] || courseCode;
-    const course = allCourses.find((c) => c.code === genericCode);
+    const course = allCourses.find((c) => c._id === genericCode);
 
     if (!course || !course.requisites || course.requisites.length === 0) {
         return true;
@@ -395,7 +386,7 @@ export const areRequisitesMet = (courseCode, currentSemesterIndex, courseInstanc
 export const calculatedCreditsRequired = (coursePools) => {
     let totalCredits = 0;
     coursePools.forEach((pool) => {
-        const maxCredits = parseMaxCreditsFromPoolName(pool.poolName);
+        const maxCredits = pool.creditsRequired;
         totalCredits += maxCredits;
         if (totalCredits > 120) {
             totalCredits = 120; // Cap at 120 credits
@@ -418,11 +409,11 @@ export const calculateTotalCredits2 = (
 
     // Initialize pool credits (excluding "option" pools)
     coursePools
-        .filter((pool) => !pool.poolName.toLowerCase().includes("option"))
+        .filter((pool) => !pool.name.toLowerCase().includes("option"))
         .forEach((pool) => {
-            poolCreditMap[pool.poolId] = {
+            poolCreditMap[pool._id] = {
                 assigned: 0,
-                max: parseMaxCreditsFromPoolName(pool.poolName),
+                max: pool.creditsRequired,
             };
         });
 
@@ -442,12 +433,12 @@ export const calculateTotalCredits2 = (
 
             const pool =
                 coursePools.find((p) =>
-                    p.courses.some((c) => c.code === genericCode)
+                    p.courses.some((c) => c._id === genericCode)
                 ) || { poolId: 'remaining', courses: remainingCourses || [] };
 
             const course =
-                pool.courses.find((c) => c.code === genericCode) ||
-                allCourses.find((c) => c.code === genericCode);
+                pool.courses.find((c) => c._id === genericCode) ||
+                allCourses.find((c) => c._id === genericCode);
 
             if (!course) return;
 
@@ -455,11 +446,11 @@ export const calculateTotalCredits2 = (
             const prerequisitesMet = areRequisitesMet(genericCode, currentSemesterIndex, courseInstanceMap, allCourses, semesters, semesterCourses);
             if (!prerequisitesMet) unmetPrereqFound = true;
 
-            if (!poolCreditMap[pool.poolId]) {
-                poolCreditMap[pool.poolId] = { assigned: 0, max: Infinity };
+            if (!poolCreditMap[pool._id]) {
+                poolCreditMap[pool._id] = { assigned: 0, max: Infinity };
             }
 
-            const poolData = poolCreditMap[pool.poolId];
+            const poolData = poolCreditMap[pool._id];
             poolData.assigned = Math.min(poolData.max, poolData.assigned + credits);
         });
     }
@@ -577,18 +568,15 @@ export const SaveTimeline = async (tName, user, degree_Id, state, extendedCredit
 
     // try {
     await Promise.all([
-        api.post("/exemption/create", {
+        api.post(`/users/${user_id}/exemptions`, {
             coursecodes: exempted_courses,
-            user_id,
         }),
-        api.post("/timeline/save", {
-            timeline: {
-                user_id,
-                name: timelineNameToSend,
-                items,
-                degree_id: degree_Id,
-                isExtendedCredit: isExtended,
-            },
+        api.post("/timeline", {
+            user_id,
+            name: timelineNameToSend,
+            items,
+            degree_id: degree_Id,
+            isExtendedCredit: isExtended,
         }),
     ]);
     return { error: null };
