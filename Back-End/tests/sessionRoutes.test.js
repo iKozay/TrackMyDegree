@@ -9,7 +9,7 @@ const request = require('supertest');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const sessionRoutes = require('../routes/mongo/sessionRoutes').default;
-const { User } = require('../models/User');
+const { User } = require('../models/user');
 const jwt = require('jsonwebtoken');
 const { userController } = require('../controllers/mondoDBControllers');
 
@@ -52,7 +52,7 @@ jest.mock('../services/jwtService', () => {
   };
 });
 
-jest.mock('../Util/Session_Util', () => ({
+jest.mock('../utils/sessionUtil', () => ({
   refreshSession: jest.fn((token, headers) => 'refreshed-session-token'),
 }));
 
@@ -179,7 +179,7 @@ describe('Session Routes (MongoDB)', () => {
     beforeEach(() => {
       // Reset mocks before each test
       const { jwtService } = require('../services/jwtService');
-      const { refreshSession } = require('../Util/Session_Util');
+      const { refreshSession } = require('../utils/sessionUtil');
       jwtService.verifyAccessToken.mockReset();
       jwtService.generateToken.mockReset();
       refreshSession.mockReset();
@@ -187,7 +187,7 @@ describe('Session Routes (MongoDB)', () => {
 
     it('should handle missing userId in token payload', async () => {
       const { jwtService } = require('../services/jwtService');
-      const { refreshSession } = require('../Util/Session_Util');
+      const { refreshSession } = require('../utils/sessionUtil');
       
       // Mock refreshSession to return a token
       refreshSession.mockReturnValueOnce('refreshed-session-token');
@@ -226,7 +226,7 @@ describe('Session Routes (MongoDB)', () => {
     });
 
     it('should handle refreshSession returning null', async () => {
-      const { refreshSession } = require('../Util/Session_Util');
+      const { refreshSession } = require('../utils/sessionUtil');
       const { jwtService } = require('../services/jwtService');
       
       // Mock refreshSession to return null
@@ -270,7 +270,7 @@ describe('Session Routes (MongoDB)', () => {
         .mockRejectedValue(new Error('User not found'));
 
       const { jwtService } = require('../services/jwtService');
-      const { refreshSession } = require('../Util/Session_Util');
+      const { refreshSession } = require('../utils/sessionUtil');
       
       // Set up mocks
       refreshSession.mockReturnValueOnce('refreshed-session-token');

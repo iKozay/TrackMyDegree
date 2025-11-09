@@ -3,7 +3,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const express = require('express');
 const timelineRoutes = require('../routes/mongo/timelineRoutes').default;
-const { Timeline } = require('../models/Timeline');
+const { Timeline } = require('../models/timeline');
 
 // Increase timeout for mongodb-memory-server binary download/startup
 jest.setTimeout(60000);
@@ -198,9 +198,9 @@ describe('Timeline Routes', () => {
     it('should handle server errors', async () => {
       // Mock timelineController.saveTimeline to throw an error
       const originalSaveTimeline =
-        require('../controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/timelineController')
           .timelineController.saveTimeline;
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.saveTimeline =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.saveTimeline =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const timelineData = {
@@ -219,7 +219,7 @@ describe('Timeline Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.saveTimeline =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.saveTimeline =
         originalSaveTimeline;
     });
   });
@@ -376,9 +376,9 @@ describe('Timeline Routes', () => {
     it('should handle server errors', async () => {
       // Mock timelineController.getTimelinesByUser to throw an error
       const originalGetTimelinesByUser =
-        require('../controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/timelineController')
           .timelineController.getTimelinesByUser;
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.getTimelinesByUser =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
@@ -388,16 +388,16 @@ describe('Timeline Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.getTimelinesByUser =
         originalGetTimelinesByUser;
     });
 
     it('should handle errors during fetch', async () => {
       // Mock timelineController.getTimelinesByUser to throw an error
       const originalGetTimelinesByUser =
-        require('../controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/timelineController')
           .timelineController.getTimelinesByUser;
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.getTimelinesByUser =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app).get('/timeline/user/user123');
@@ -406,7 +406,7 @@ describe('Timeline Routes', () => {
       expect(response.body).toHaveProperty('error');
 
       // Restore original method
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.getTimelinesByUser =
         originalGetTimelinesByUser;
     });
   });
@@ -512,9 +512,9 @@ describe('Timeline Routes', () => {
     it('should handle server errors', async () => {
       // Mock timelineController.getTimelineById to throw an error
       const originalGetTimelineById =
-        require('../controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/timelineController')
           .timelineController.getTimelineById;
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.getTimelineById =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
@@ -524,16 +524,16 @@ describe('Timeline Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.getTimelineById =
         originalGetTimelineById;
     });
 
     it('should handle errors during fetch', async () => {
       // Mock timelineController.getTimelineById to throw an error
       const originalGetTimelineById =
-        require('../controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/timelineController')
           .timelineController.getTimelineById;
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.getTimelineById =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const fakeId = new mongoose.Types.ObjectId().toString();
@@ -543,7 +543,7 @@ describe('Timeline Routes', () => {
       expect(response.body).toHaveProperty('error');
 
       // Restore original method
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.getTimelineById =
         originalGetTimelineById;
     });
   });
@@ -660,9 +660,9 @@ describe('Timeline Routes', () => {
     it('should handle server errors', async () => {
       // Mock timelineController.updateTimeline to throw an error
       const originalUpdateTimeline =
-        require('../controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/timelineController')
           .timelineController.updateTimeline;
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.updateTimeline =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const updates = { name: 'Updated Timeline' };
@@ -674,16 +674,16 @@ describe('Timeline Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.updateTimeline =
         originalUpdateTimeline;
     });
 
     it('should handle errors during update', async () => {
       // Mock timelineController.updateTimeline to throw an error
       const originalUpdateTimeline =
-        require('../controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/timelineController')
           .timelineController.updateTimeline;
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.updateTimeline =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const fakeId = new mongoose.Types.ObjectId().toString();
@@ -696,7 +696,7 @@ describe('Timeline Routes', () => {
       expect(response.body).toHaveProperty('error');
 
       // Restore original method
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.updateTimeline =
         originalUpdateTimeline;
     });
   });
@@ -793,9 +793,9 @@ describe('Timeline Routes', () => {
     it('should handle server errors', async () => {
       // Mock timelineController.removeUserTimeline to throw an error
       const originalRemoveUserTimeline =
-        require('../controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/timelineController')
           .timelineController.removeUserTimeline;
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.removeUserTimeline =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.removeUserTimeline =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
@@ -805,16 +805,16 @@ describe('Timeline Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.removeUserTimeline =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.removeUserTimeline =
         originalRemoveUserTimeline;
     });
 
     it('should handle errors during delete', async () => {
       // Mock timelineController.removeUserTimeline to throw an error
       const originalRemoveUserTimeline =
-        require('../controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/timelineController')
           .timelineController.removeUserTimeline;
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.removeUserTimeline =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.removeUserTimeline =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const fakeId = new mongoose.Types.ObjectId().toString();
@@ -824,7 +824,7 @@ describe('Timeline Routes', () => {
       expect(response.body).toHaveProperty('error');
 
       // Restore original method
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.removeUserTimeline =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.removeUserTimeline =
         originalRemoveUserTimeline;
     });
   });
@@ -933,9 +933,9 @@ describe('Timeline Routes', () => {
     it('should handle server errors', async () => {
       // Mock timelineController.deleteAllUserTimelines to throw an error
       const originalDeleteAllUserTimelines =
-        require('../controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/timelineController')
           .timelineController.deleteAllUserTimelines;
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.deleteAllUserTimelines =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.deleteAllUserTimelines =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
@@ -945,16 +945,16 @@ describe('Timeline Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.deleteAllUserTimelines =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.deleteAllUserTimelines =
         originalDeleteAllUserTimelines;
     });
 
     it('should handle errors during delete', async () => {
       // Mock timelineController.deleteAllUserTimelines to throw an error
       const originalDeleteAllUserTimelines =
-        require('../controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/timelineController')
           .timelineController.deleteAllUserTimelines;
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.deleteAllUserTimelines =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.deleteAllUserTimelines =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app).delete('/timeline/user/user123');
@@ -963,7 +963,7 @@ describe('Timeline Routes', () => {
       expect(response.body).toHaveProperty('error');
 
       // Restore original method
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.deleteAllUserTimelines =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.deleteAllUserTimelines =
         originalDeleteAllUserTimelines;
     });
   });
@@ -972,9 +972,9 @@ describe('Timeline Routes', () => {
   describe('Error handling edge cases', () => {
     it('GET /timeline/user/:userId should handle general errors (not database specific)', async () => {
       const originalGetTimelinesByUser =
-        require('../controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/timelineController')
           .timelineController.getTimelinesByUser;
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.getTimelinesByUser =
         jest.fn().mockRejectedValue(new Error('General error'));
 
       const response = await request(app)
@@ -983,7 +983,7 @@ describe('Timeline Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelinesByUser =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.getTimelinesByUser =
         originalGetTimelinesByUser;
     });
 
@@ -1005,9 +1005,9 @@ describe('Timeline Routes', () => {
       });
 
       const originalGetTimelineById =
-        require('../controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/timelineController')
           .timelineController.getTimelineById;
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.getTimelineById =
         jest.fn().mockRejectedValue(new Error('General error'));
 
       const response = await request(app)
@@ -1016,7 +1016,7 @@ describe('Timeline Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.getTimelineById =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.getTimelineById =
         originalGetTimelineById;
     });
 
@@ -1038,9 +1038,9 @@ describe('Timeline Routes', () => {
       });
 
       const originalUpdateTimeline =
-        require('../controllers/mondoDBControllers/TimelineController')
+        require('../controllers/mondoDBControllers/timelineController')
           .timelineController.updateTimeline;
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.updateTimeline =
         jest.fn().mockRejectedValue(new Error('General error'));
 
       const response = await request(app)
@@ -1050,7 +1050,7 @@ describe('Timeline Routes', () => {
 
       expect(response.body.error).toBe('Internal server error');
 
-      require('../controllers/mondoDBControllers/TimelineController').timelineController.updateTimeline =
+      require('../controllers/mondoDBControllers/timelineController').timelineController.updateTimeline =
         originalUpdateTimeline;
     });
   });

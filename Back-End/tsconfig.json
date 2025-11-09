@@ -11,10 +11,16 @@
     "moduleResolution": "node",                      /* Specify how TypeScript resolves modules. */
     "baseUrl": ".",                                  /* Specify the base directory to resolve non-relative module names. */
     "paths": {
-      "@controllers/*"  : ["./controllers/*"],
+      "@controllers"    : ["./controllers/index"],
+      "@controllers/*"    : ["./controllers/*"],
       "@routes/*"       : ["./routes/*"],
-      "@Util/*"         : ["./Util/*"],
-      "@middleware/*"   : ["./middleware/*"]
+      "@utils/*"        : ["./utils/*"],
+      "@middleware/*"   : ["./middleware/*"],
+      "@lib/*"          : ["./lib/*"],
+      "@services/*"     : ["./services/*"],
+      "@models/*"       : ["./models/*"],
+      "@models"         : ["./models/index"],
+      "@types/*"        : ["./types/*"]
      },                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
     "plugins": [
          {

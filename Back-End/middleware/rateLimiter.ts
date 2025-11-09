@@ -1,6 +1,6 @@
 import rateLimit, { Store } from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
-import redisClient from '@controllers/redisClient';
+import redisClient from '@lib/redisClient';
 
 // create Redis store for rate limiting
 const buildStore = (): Store | undefined => {

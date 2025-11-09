@@ -9,21 +9,17 @@ import mongoose from 'mongoose';
 import { notFoundHandler, errorHandler } from '@middleware/errorHandler';
 
 //Routes import
-import authRouter from '@routes/auth';
-import coursesRouter from '@routes/courses';
-import exemptionRouter from '@routes/exemption';
-import deficiencyRouter from '@routes/deficiency';
-import degreeRouter from '@routes/degree';
-import timelineRouter from '@routes/timeline';
-import coursepoolRouter from '@routes/coursepool';
-import userDataRouter from '@routes/userData';
-import Admin from '@routes/adminRoutes';
-import requisiteRouter from '@routes/requisite';
-import feedbackRouter from '@routes/feedback';
-import sessionRouter from '@routes/session';
+import authRouter from '@routes/authRoutes';
+import coursesRouter from '@routes/courseRoutes';
+import degreeRouter from '@routes/degreeRoutes';
+import timelineRouter from '@routes/timelineRoutes';
+import coursepoolRouter from '@routes/coursepoolRoutes';
+import adminRouter from '@routes/adminRoutes';
+import feedbackRouter from '@routes/feedbackRoutes';
+import sessionRouter from '@routes/sessionRoutes';
+import userRouter from '@routes/userRoutes';
 import sectionsRoutes from '@routes/sectionsRoutes';
-import uploadRouter from '@routes/upload';
-import mongoRouter from '@routes/mongo';
+import uploadRouter from '@routes/uploadRoutes';
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
@@ -107,20 +103,14 @@ app.use('/auth/signup', signupLimiter);
 app.use('/auth', authRouter);
 app.use('/courses', coursesRouter);
 app.use('/degree', degreeRouter);
-app.use('/exemption', exemptionRouter);
-app.use('/deficiency', deficiencyRouter);
 app.use('/timeline', timelineRouter);
 app.use('/coursepool', coursepoolRouter);
-app.use('/data', userDataRouter);
-app.use('/admin', Admin);
-app.use('/requisite', requisiteRouter);
+app.use('/users', userRouter);
+app.use('/admin', adminRouter);
 app.use('/feedback', feedbackRouter);
 app.use('/session', sessionRouter);
 app.use('/section', sectionsRoutes);
 app.use('/upload', uploadRouter);
-
-// MongoDB consolidated routes
-app.use('/v2', mongoRouter);
 
 //Handle 404
 app.use(notFoundHandler);

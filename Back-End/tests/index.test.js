@@ -65,30 +65,17 @@ const createMockRouter = () => ({
   patch: jest.fn(),
 });
 
-jest.mock('@routes/auth', () => createMockRouter());
-jest.mock('@routes/courses', () => createMockRouter());
-jest.mock('@routes/exemption', () => createMockRouter());
-jest.mock('@routes/deficiency', () => createMockRouter());
-jest.mock('@routes/degree', () => createMockRouter());
-jest.mock('@routes/timeline', () => createMockRouter());
-jest.mock('@routes/coursepool', () => createMockRouter());
-jest.mock('@routes/userData', () => createMockRouter());
+jest.mock('@routes/authRoutes', () => createMockRouter());
+jest.mock('@routes/courseRoutes', () => createMockRouter());
+jest.mock('@routes/degreeRoutes', () => createMockRouter());
+jest.mock('@routes/timelineRoutes', () => createMockRouter());
+jest.mock('@routes/coursepoolRoutes', () => createMockRouter());
+jest.mock('@routes/userRoutes', () => createMockRouter());
 jest.mock('@routes/adminRoutes', () => createMockRouter());
-jest.mock('@routes/requisite', () => createMockRouter());
-jest.mock('@routes/feedback', () => createMockRouter());
-jest.mock('@routes/session', () => createMockRouter());
+jest.mock('@routes/feedbackRoutes', () => createMockRouter());
+jest.mock('@routes/sessionRoutes', () => createMockRouter());
 jest.mock('@routes/sectionsRoutes', () => createMockRouter());
-jest.mock('@routes/upload', () => createMockRouter());
-jest.mock('@routes/mongo', () => createMockRouter());
-
-
-jest.mock('@controllers/DBController/DBController', () => ({
-  getConnection: jest.fn().mockResolvedValue({
-    request: jest.fn().mockReturnValue({
-      query: jest.fn().mockResolvedValue({ recordset: [{ number: 1 }] }),
-    }),
-  }),
-}));
+jest.mock('@routes/uploadRoutes', () => createMockRouter());
 
 jest.mock('@middleware/rateLimiter', () => ({
   forgotPasswordLimiter: jest.fn(),
@@ -102,7 +89,7 @@ jest.mock('@middleware/errorHandler', () => ({
   errorHandler: jest.fn(),
 }));
 
-jest.mock('../Util/HTTPCodes', () => ({
+jest.mock('../utils/httpCodes', () => ({
   OK: 200,
   SERVER_ERR: 500,
 }));
@@ -160,37 +147,29 @@ jest.mock('../index.ts', () => {
   app.use('/auth/signup', rateLimiter.signupLimiter);
   
   // Setup routes
-  const authRouter = require('@routes/auth');
-  const coursesRouter = require('@routes/courses');
-  const exemptionRouter = require('@routes/exemption');
-  const deficiencyRouter = require('@routes/deficiency');
-  const degreeRouter = require('@routes/degree');
-  const timelineRouter = require('@routes/timeline');
-  const coursepoolRouter = require('@routes/coursepool');
-  const userDataRouter = require('@routes/userData');
-  const Admin = require('@routes/adminRoutes');
-  const requisiteRouter = require('@routes/requisite');
-  const feedbackRouter = require('@routes/feedback');
-  const sessionRouter = require('@routes/session');
+  const authRouter = require('@routes/authRoutes');
+  const coursesRouter = require('@routes/courseRoutes');
+  const degreeRouter = require('@routes/degreeRoutes');
+  const timelineRouter = require('@routes/timelineRoutes');
+  const coursepoolRouter = require('@routes/coursepoolRoutes');
+  const userRouter = require('@routes/userRoutes');
+  const adminRouter = require('@routes/adminRoutes');
+  const feedbackRouter = require('@routes/feedbackRoutes');
+  const sessionRouter = require('@routes/sessionRoutes');
   const sectionsRoutes = require('@routes/sectionsRoutes');
-  const uploadRouter = require('@routes/upload');
-  const mongoRouter = require('@routes/mongo');
+  const uploadRouter = require('@routes/uploadRoutes');
   
   app.use('/auth', authRouter);
   app.use('/courses', coursesRouter);
   app.use('/degree', degreeRouter);
-  app.use('/exemption', exemptionRouter);
-  app.use('/deficiency', deficiencyRouter);
   app.use('/timeline', timelineRouter);
   app.use('/coursepool', coursepoolRouter);
-  app.use('/data', userDataRouter);
-  app.use('/admin', Admin);
-  app.use('/requisite', requisiteRouter);
+  app.use('/users', userRouter);
+  app.use('/admin', adminRouter);
   app.use('/feedback', feedbackRouter);
   app.use('/session', sessionRouter);
   app.use('/section', sectionsRoutes);
   app.use('/upload', uploadRouter);
-  app.use('/v2', mongoRouter);
   
   // Setup error handlers
   const errorHandler = require('@middleware/errorHandler');
@@ -288,18 +267,14 @@ describe('index.ts', () => {
     expect(mockApp.use).toHaveBeenCalledWith('/auth', expect.anything());
     expect(mockApp.use).toHaveBeenCalledWith('/courses', expect.anything());
     expect(mockApp.use).toHaveBeenCalledWith('/degree', expect.anything());
-    expect(mockApp.use).toHaveBeenCalledWith('/exemption', expect.anything());
-    expect(mockApp.use).toHaveBeenCalledWith('/deficiency', expect.anything());
     expect(mockApp.use).toHaveBeenCalledWith('/timeline', expect.anything());
     expect(mockApp.use).toHaveBeenCalledWith('/coursepool', expect.anything());
-    expect(mockApp.use).toHaveBeenCalledWith('/data', expect.anything());
+    expect(mockApp.use).toHaveBeenCalledWith('/users', expect.anything());
     expect(mockApp.use).toHaveBeenCalledWith('/admin', expect.anything());
-    expect(mockApp.use).toHaveBeenCalledWith('/requisite', expect.anything());
     expect(mockApp.use).toHaveBeenCalledWith('/feedback', expect.anything());
     expect(mockApp.use).toHaveBeenCalledWith('/session', expect.anything());
     expect(mockApp.use).toHaveBeenCalledWith('/section', expect.anything());
     expect(mockApp.use).toHaveBeenCalledWith('/upload', expect.anything());
-    expect(mockApp.use).toHaveBeenCalledWith('/v2', expect.anything());
   });
 
   it('should setup rate limiters', () => {

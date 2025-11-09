@@ -1,9 +1,9 @@
 // middlewares/authMiddleware.ts
 import { Request, Response, NextFunction } from 'express';
-import HTTP from '@Util/HTTPCodes';
-import { jwtService } from '../services/jwtService';
-import authController from '@controllers/authController/authController';
-import { UserHeaders, verifySession } from '@Util/Session_Util';
+import HTTP from '@utils/httpCodes';
+import { jwtService } from '@services/jwtService';
+import { authController } from '@controllers';
+import { UserHeaders, verifySession } from '@utils/sessionUtil';
 
 function extractUserHeaders(req: Request): UserHeaders {
   return {

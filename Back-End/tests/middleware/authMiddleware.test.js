@@ -13,7 +13,7 @@ jest.mock('../../dist/services/jwtService', () => ({
   },
 }));
 
-jest.mock('../../dist/Util/Session_Util', () => ({
+jest.mock('../../dist/Util/sessionUtil', () => ({
   verifySession: jest.fn(),
 }));
 
@@ -25,7 +25,7 @@ jest.mock('../../dist/controllers/authController/authController', () => ({
 }));
 
 const { jwtService } = require('../../dist/services/jwtService');
-const { verifySession } = require('../../dist/Util/Session_Util');
+const { verifySession } = require('../../dist/Util/sessionUtil');
 const authController =
   require('../../dist/controllers/authController/authController').default;
 

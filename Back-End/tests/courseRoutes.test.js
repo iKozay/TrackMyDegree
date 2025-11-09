@@ -3,7 +3,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const express = require('express');
 const request = require('supertest');
 const courseRoutes = require('../routes/mongo/courseRoutes').default;
-const { Course } = require('../models/Course');
+const { Course } = require('../models/course');
 const { courseController } = require('../controllers/mondoDBControllers');
 
 describe('Course Routes', () => {
@@ -217,8 +217,8 @@ describe('Course Routes', () => {
   });
 
   describe('GET /courses/by-degree/:degreeId', () => {
-    const { Degree } = require('../models/Degree');
-    const { CoursePool } = require('../models/Coursepool');
+    const { Degree } = require('../models/degree');
+    const { CoursePool } = require('../models/coursepool');
     const { degreeController } = require('../controllers/mondoDBControllers');
     const { coursepoolController } = require('../controllers/mondoDBControllers');
 

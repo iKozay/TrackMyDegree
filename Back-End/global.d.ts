@@ -4,17 +4,8 @@ declare namespace NodeJS {
     PORT?: number;
     CLIENT?: string;
 
-    //? SQL Specific
-    SQL_SERVER_USER: string;
-    SQL_SERVER_PASSWORD: string;
-    SQL_SERVER_DATABASE: string;
-    SQL_SERVER_HOST: string;
-
-    //? DB Info
-    DB_USER: string;
-    DB_PASSWORD: string;
-    DB_NAME: string;
-    DB_HOST: string;
+    //? MongoDB
+    MONGODB_URI: string;
 
     //? Email
     EMAIL_USER: string;

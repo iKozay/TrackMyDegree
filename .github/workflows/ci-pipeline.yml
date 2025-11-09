@@ -64,21 +64,6 @@ jobs:
         with:
           node-version: '22'
 
-      # TODO: remove when we do SQL code cleanup
-      - name: Set up secrets
-        run: |
-          cat > Back-End/.env << EOF
-          SQL_SERVER_USER=sa
-          SQL_SERVER_PASSWORD=MySecureP@ss123
-          SQL_SERVER_DATABASE=master
-          SQL_SERVER_HOST=localhost
-
-          DB_USER=sa
-          DB_PASSWORD=MySecureP@ss123
-          DB_NAME=master
-          DB_HOST=localhost
-          EOF
-
       - name: Install dependencies for backend
         working-directory: ./Back-End
         run: |

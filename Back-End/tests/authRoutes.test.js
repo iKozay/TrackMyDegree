@@ -9,9 +9,9 @@ const request = require('supertest');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('../routes/mongo/authRoutes').default;
-const { User } = require('../models/User');
+const { User } = require('../models/user');
 const bcrypt = require('bcryptjs');
-const { authController } = require('../controllers/mondoDBControllers/AuthController');
+const { authController } = require('../controllers/mondoDBControllers/authController');
 
 jest.mock('../services/jwtService', () => ({
   jwtService: {

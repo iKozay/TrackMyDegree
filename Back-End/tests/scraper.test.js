@@ -1,5 +1,5 @@
 const { spawn } = require('child_process');
-const scraper = require('../course-data/Scraping/Scrapers/runScraper');
+const scraper = require('../courseData/scraping/scrapers/runScraper');
 const { Buffer } = require('buffer');
 
 jest.mock('child_process');

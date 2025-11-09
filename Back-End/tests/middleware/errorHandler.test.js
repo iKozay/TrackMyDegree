@@ -4,12 +4,12 @@ const {
   notFoundHandler,
   errorHandler,
 } = require('../../middleware/errorHandler');
-const HTTP = require('../../Util/HTTPCodes');
+const HTTP = require('../../Util/httpCodes');
 
 // mock dependencies
 jest.mock('http-errors');
 jest.mock('@sentry/node');
-jest.mock('../../Util/HTTPCodes', () => ({
+jest.mock('../../Util/httpCodes', () => ({
   NOT_FOUND: 404,
   SERVER_ERR: 500,
 }));

@@ -1,5 +1,5 @@
 // Adjust import if your export shape differs
-import { requiredEnv } from '../Util/requiredEnv';
+import { requiredEnv } from '../utils/requiredEnv';
 
 const REAL_ENV = process.env;
 

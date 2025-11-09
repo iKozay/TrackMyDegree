@@ -3,7 +3,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const express = require('express');
 const degreeRoutes = require('../routes/mongo/degreeRoutes').default;
-const { Degree } = require('../models/Degree');
+const { Degree } = require('../models/degree');
 
 // Increase timeout for mongodb-memory-server binary download/startup
 jest.setTimeout(60000);
@@ -72,9 +72,9 @@ describe('Degree Routes', () => {
     it('should handle server errors', async () => {
       // Mock degreeController.readDegree to throw an error
       const originalReadDegree =
-        require('../controllers/mondoDBControllers/DegreeController')
+        require('../controllers/mondoDBControllers/degreeController')
           .degreeController.readDegree;
-      require('../controllers/mondoDBControllers/DegreeController').degreeController.readDegree =
+      require('../controllers/mondoDBControllers/degreeController').degreeController.readDegree =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app).get('/degree/COMP').expect(500);
@@ -82,7 +82,7 @@ describe('Degree Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../controllers/mondoDBControllers/DegreeController').degreeController.readDegree =
+      require('../controllers/mondoDBControllers/degreeController').degreeController.readDegree =
         originalReadDegree;
     });
   });
@@ -127,9 +127,9 @@ describe('Degree Routes', () => {
     it('should handle server errors', async () => {
       // Mock degreeController.readAllDegrees to throw an error
       const originalReadAllDegrees =
-        require('../controllers/mondoDBControllers/DegreeController')
+        require('../controllers/mondoDBControllers/degreeController')
           .degreeController.readAllDegrees;
-      require('../controllers/mondoDBControllers/DegreeController').degreeController.readAllDegrees =
+      require('../controllers/mondoDBControllers/degreeController').degreeController.readAllDegrees =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app).get('/degree').expect(500);
@@ -137,7 +137,7 @@ describe('Degree Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../controllers/mondoDBControllers/DegreeController').degreeController.readAllDegrees =
+      require('../controllers/mondoDBControllers/degreeController').degreeController.readAllDegrees =
         originalReadAllDegrees;
     });
   });
@@ -170,9 +170,9 @@ describe('Degree Routes', () => {
     it('should handle server errors', async () => {
       // Mock degreeController.getCreditsForDegree to throw an error
       const originalGetCreditsForDegree =
-        require('../controllers/mondoDBControllers/DegreeController')
+        require('../controllers/mondoDBControllers/degreeController')
           .degreeController.getCreditsForDegree;
-      require('../controllers/mondoDBControllers/DegreeController').degreeController.getCreditsForDegree =
+      require('../controllers/mondoDBControllers/degreeController').degreeController.getCreditsForDegree =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
@@ -182,7 +182,7 @@ describe('Degree Routes', () => {
       expect(response.body.error).toBe('Internal server error');
 
       // Restore original method
-      require('../controllers/mondoDBControllers/DegreeController').degreeController.getCreditsForDegree =
+      require('../controllers/mondoDBControllers/degreeController').degreeController.getCreditsForDegree =
         originalGetCreditsForDegree;
     });
   });
