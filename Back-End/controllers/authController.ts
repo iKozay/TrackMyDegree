@@ -31,6 +31,34 @@ export class AuthController {
   private readonly DUMMY_HASH = '$2a$10$invalidsaltinvalidsaltinv';
 
   /**
+   * Retrieves a user by their ID
+   */
+  async getUserById(userId: string): Promise<UserInfo | undefined> {
+    try {
+      const user = await User.findById(userId).lean().exec();
+
+      if (!user) {
+        return undefined;
+      }
+
+      return {
+        _id: user._id.toString(),
+        fullname: user.fullname,
+        email: user.email,
+        type: user.type as UserType,
+        password: '', // never return password
+      };
+    } catch (error) {
+      Sentry.captureException(error, {
+        tags: { operation: 'getUserById' },
+        level: 'error',
+      });
+      console.error('[AuthController] getUserById error');
+      return undefined;
+    }
+  }
+
+  /**
    * Authenticates a user by verifying their email and password
    * Prevents timing attacks by using a dummy hash when user not found
    */
