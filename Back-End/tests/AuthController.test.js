@@ -20,11 +20,13 @@ jest.mock('nodemailer', () => ({
 
 // ────────────────────────────────────────────────
 // Mock Redis client (for forgotPassword/resetPassword)
-const getMock = jest.fn();
-const setexMock = jest.fn().mockResolvedValue('OK');
-const delMock = jest.fn().mockResolvedValue(1);
+let getMock, setexMock, delMock;
 
 jest.mock('ioredis', () => {
+  getMock = jest.fn();
+  setexMock = jest.fn().mockResolvedValue('OK');
+  delMock = jest.fn().mockResolvedValue(1);
+
   return jest.fn().mockImplementation(() => ({
     get: getMock,
     setex: setexMock,
