@@ -12,25 +12,22 @@ const authRoutes = require('../routes/authRoutes').default;
 const { User } = require('../models/user');
 const bcrypt = require('bcryptjs');
 const { authController } = require('../controllers/authController');
+const { jwtService } = require('../services/jwtService');
 
 jest.mock('../services/jwtService', () => ({
-  jwtService: {
-    verifyRefreshToken: jest.fn(),
-    generateToken: jest.fn(() => 'mock-token'),
-    setAccessCookie: jest.fn(() => ({
-      name: 'access_token',
-      value: 'mock-token',
-      config: {},
-    })),
-    setRefreshCookie: jest.fn(() => ({
-      name: 'refresh_token',
-      value: 'mock-refresh-token',
-      config: {},
-    })),
-  },
+  verifyRefreshToken: jest.fn(),
+  generateToken: jest.fn(() => 'mock-token'),
+  setAccessCookie: jest.fn(() => ({
+    name: 'access_token',
+    value: 'mock-token',
+    config: {},
+  })),
+  setRefreshCookie: jest.fn(() => ({
+    name: 'refresh_token',
+    value: 'mock-refresh-token',
+    config: {},
+  })),
 }));
-
-import { jwtService } from '../services/jwtService';
 
 const app = express();
 app.use(express.json());
