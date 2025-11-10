@@ -15,19 +15,23 @@ const { authController } = require('../controllers/authController');
 const { jwtService } = require('../services/jwtService');
 
 jest.mock('../services/jwtService', () => ({
-  verifyRefreshToken: jest.fn(),
-  generateToken: jest.fn(() => 'mock-token'),
-  setAccessCookie: jest.fn(() => ({
-    name: 'access_token',
-    value: 'mock-token',
-    config: {},
-  })),
-  setRefreshCookie: jest.fn(() => ({
-    name: 'refresh_token',
-    value: 'mock-refresh-token',
-    config: {},
-  })),
+  jwtService: {
+    verifyRefreshToken: jest.fn(),
+    generateToken: jest.fn(() => 'mock-token'),
+    setAccessCookie: jest.fn(() => ({
+      name: 'access_token',
+      value: 'mock-token',
+      config: {},
+    })),
+    setRefreshCookie: jest.fn(() => ({
+      name: 'refresh_token',
+      value: 'mock-refresh-token',
+      config: {},
+    })),
+  },
 }));
+
+const { jwtService } = require('../services/jwtService');
 
 const app = express();
 app.use(express.json());
