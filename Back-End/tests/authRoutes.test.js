@@ -12,7 +12,6 @@ const authRoutes = require('../routes/authRoutes').default;
 const { User } = require('../models/user');
 const bcrypt = require('bcryptjs');
 const { authController } = require('../controllers/authController');
-const { jwtService } = require('../services/jwtService');
 
 jest.mock('../services/jwtService', () => ({
   jwtService: {
