@@ -100,6 +100,15 @@ router.post('/refresh', async (req: Request, res: Response) => {
 });
 
 /**
+ * POST /auth/refresh - User logout and clear all cookies
+ */
+router.post('/logout', (req: Request, res: Response) => {
+  res.clearCookie('access_token', { path: '/' });
+  res.clearCookie('refresh_token', { path: '/auth/refresh' });
+  res.status(200).json({ message: 'Logged out' });
+});
+
+/**
  * POST /auth/signup - User registration
  */
 router.post('/signup', async (req: Request, res: Response) => {
