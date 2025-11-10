@@ -30,6 +30,8 @@ jest.mock('../services/jwtService', () => ({
   },
 }));
 
+import { jwtService } from '../services/jwtService';
+
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
