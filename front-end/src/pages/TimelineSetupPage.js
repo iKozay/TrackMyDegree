@@ -39,14 +39,15 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
       isFirstRender.current = false;
     }
   }, [onDataProcessed]);
-  
-  
+
+
   useEffect(() => {
     // get a list of all degrees by name
     const getDegrees = async () => {
       try {
-        const response = await api.post(`/degree/getAllDegrees`); //this should be a get request but backend is currently set to post
-        setDegrees(response.degrees);
+        const degrees = await api.get('/degree');
+        console.log('Degrees:', degrees);
+        setDegrees(degrees);
       } catch (err) {
         alert('Error fetching degrees from server. Please try again later.');
         Sentry.captureException(err);
@@ -71,10 +72,8 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
       }
 
       // Match extracted degree with available degrees
-      const degree = details.degreeConcentration?.toLowerCase() || 'Unknown Degree';
-      const matched_degree = degrees.find(
-        (d) => degree.toLowerCase().includes(d.name.split(' ').slice(1).join(' ').toLowerCase()), // remove first word (BcompsC/Beng/etc.) and match rest
-      );
+      const degree = details.degreeConcentration?.toLowerCase().split(',')[1] || 'Unknown Degree';
+      const matched_degree = degrees.find((d) => d.name.toLowerCase().includes(degree));
 
       if (!matched_degree) {
         alert(
@@ -91,7 +90,7 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
       //send the processed data to the TimelinePage
       onDataProcessed({
         transcriptData: extractedCourses,
-        degreeId: matched_degree.id,
+        degreeId: matched_degree._id,
         isExtendedCredit: details.extendedCreditProgram || false,
         credits_Required: details.minimumProgramLength || matched_degree?.totalCredits,
       });

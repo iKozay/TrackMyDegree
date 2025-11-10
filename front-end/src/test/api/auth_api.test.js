@@ -17,14 +17,14 @@ describe('auth_api', () => {
       const mockResponse = { message: 'Login successful', user: { id: '1', email: 'test@example.com' } };
       api.post.mockResolvedValueOnce(mockResponse);
 
-      const result = await loginUser('test@example.com', 'hashed_password');
+      const result = await loginUser('test@example.com', 'password');
 
       expect(result).toEqual(mockResponse);
       expect(api.post).toHaveBeenCalledWith(
         '/auth/login',
         {
           email: 'test@example.com',
-          hashed_password: 'hashed_password',
+          password: 'password',
         },
         {
           credentials: 'include',
@@ -53,7 +53,7 @@ describe('auth_api', () => {
       const mockResponse = { message: 'User registered successfully', _id: '123' };
       api.post.mockResolvedValueOnce(mockResponse);
 
-      const result = await signupUser('John Doe', 'test@example.com', 'hashed_password');
+      const result = await signupUser('John Doe', 'test@example.com', 'password');
 
       expect(result).toEqual(mockResponse);
       expect(api.post).toHaveBeenCalledWith(
@@ -61,7 +61,7 @@ describe('auth_api', () => {
         {
           fullname: 'John Doe',
           email: 'test@example.com',
-          hashed_password: 'hashed_password',
+          password: 'password',
           type: 'student',
         },
         {
@@ -74,7 +74,7 @@ describe('auth_api', () => {
       const mockResponse = { message: 'User registered successfully', _id: '123' };
       api.post.mockResolvedValueOnce(mockResponse);
 
-      const result = await signupUser('Jane Doe', 'admin@example.com', 'hashed_password', 'admin');
+      const result = await signupUser('Jane Doe', 'admin@example.com', 'password', 'admin');
 
       expect(result).toEqual(mockResponse);
       expect(api.post).toHaveBeenCalledWith(
@@ -82,7 +82,7 @@ describe('auth_api', () => {
         {
           fullname: 'Jane Doe',
           email: 'admin@example.com',
-          hashed_password: 'hashed_password',
+          password: 'password',
           type: 'admin',
         },
         {
@@ -95,7 +95,7 @@ describe('auth_api', () => {
       const httpError = new Error('HTTP 409: Conflict');
       api.post.mockRejectedValueOnce(httpError);
 
-      await expect(signupUser('John Doe', 'test@example.com', 'hashed_password')).rejects.toThrow('Failed to sign up.');
+      await expect(signupUser('John Doe', 'test@example.com', 'password')).rejects.toThrow('Failed to sign up.');
       expect(api.post).toHaveBeenCalled();
     });
 
@@ -103,7 +103,7 @@ describe('auth_api', () => {
       const networkError = new Error('Network error');
       api.post.mockRejectedValueOnce(networkError);
 
-      await expect(signupUser('John Doe', 'test@example.com', 'hashed_password')).rejects.toThrow('Network error');
+      await expect(signupUser('John Doe', 'test@example.com', 'password')).rejects.toThrow('Network error');
     });
   });
 });

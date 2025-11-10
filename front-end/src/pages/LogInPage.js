@@ -7,9 +7,8 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
-import { hashPassword, validateLoginForm } from '../utils/authUtils';
+import { validateLoginForm } from '../utils/authUtils';
 import { loginUser } from '../api/auth_api';
-const REACT_APP_SERVER = process.env.REACT_APP_SERVER || 'http://localhost:8000';
 //This is the login page with a standard form that is sent to the server for validation. Redirects to UserPage.js upon success
 function LogInPage() {
   const [email, setEmail] = useState('');
@@ -43,12 +42,10 @@ function LogInPage() {
     setLoading(true); // Start loading
 
     try {
-      // Use API function from auth_api.js
-      const hashed_password = await hashPassword(password);
-      const data = await loginUser(email, hashed_password);
+      const data = await loginUser(email, password);
 
       // Assuming the API returns an authentication token and user data
-      login(data); // Pass the received data to the login function
+      login(data);
       navigate('/user'); // Redirect to the user page
     } catch (err) {
       setError(err.message);

@@ -6,7 +6,7 @@ jest.mock('node:timers', () => ({
 }));
 
 const fs = require('fs');
-const { TranscriptParser } = require('../Util/transcriptParser.ts');
+const { TranscriptParser } = require('../utils/transcriptParser.ts');
 const mockTranscriptData = require('./__fixtures__/data/mockTranscriptData');
 const {
   createMockPdfParser,

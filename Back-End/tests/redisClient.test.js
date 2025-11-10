@@ -32,7 +32,7 @@ describe('Redis Client', () => {
     process.env.REDIS_URL = 'redis://custom-redis:6380';
 
     jest.isolateModules(() => {
-      require('@controllers/redisClient');
+      require('@lib/redisClient');
     });
 
     expect(mockCreateClient).toHaveBeenCalledWith({
@@ -47,11 +47,11 @@ describe('Redis Client', () => {
     delete process.env.REDIS_URL;
 
     jest.isolateModules(() => {
-      require('@controllers/redisClient');
+      require('@lib/redisClient');
     });
 
     expect(mockCreateClient).toHaveBeenCalledWith({
-      url: 'redis://redis:6379',
+      url: 'redis://localhost:6379',
     });
 
     if (originalEnv !== undefined) {
@@ -61,7 +61,7 @@ describe('Redis Client', () => {
 
   it('sets up error event handler', () => {
     jest.isolateModules(() => {
-      require('@controllers/redisClient');
+      require('@lib/redisClient');
     });
 
     expect(mockOn).toHaveBeenCalledWith('error', expect.any(Function));
@@ -69,7 +69,7 @@ describe('Redis Client', () => {
 
   it('sets up connect event handler', () => {
     jest.isolateModules(() => {
-      require('@controllers/redisClient');
+      require('@lib/redisClient');
     });
 
     expect(mockOn).toHaveBeenCalledWith('connect', expect.any(Function));
@@ -79,7 +79,7 @@ describe('Redis Client', () => {
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
     jest.isolateModules(() => {
-      require('@controllers/redisClient');
+      require('@lib/redisClient');
     });
 
     const errorHandler = mockOn.mock.calls.find(call => call[0] === 'error')[1];
@@ -98,7 +98,7 @@ describe('Redis Client', () => {
     const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
     jest.isolateModules(() => {
-      require('@controllers/redisClient');
+      require('@lib/redisClient');
     });
 
     const connectHandler = mockOn.mock.calls.find(call => call[0] === 'connect')[1];

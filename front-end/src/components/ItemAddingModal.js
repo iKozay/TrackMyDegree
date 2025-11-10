@@ -19,10 +19,10 @@ export const ItemAddingModal = ({ title, allCourses, onClose, onAdd }) => {
                 />
                 <div className="course-list-container">
                     {allCourses
-                        .filter(course => course.code.toLowerCase().includes(searchQuery.toLowerCase()))
+                        .filter(course => course._id.toLowerCase().includes(searchQuery.toLowerCase()))
                         .map(course => (
-                            <div key={course.code} className="course-item">
-                                {course.code}
+                            <div key={course._id} className="course-item">
+                                {course._id}
                                 <button
                                     className="add-course-btn"
                                     onClick={() => onAdd(course)}

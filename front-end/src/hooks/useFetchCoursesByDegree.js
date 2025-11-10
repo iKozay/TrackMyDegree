@@ -14,17 +14,13 @@ export const useFetchCoursesByDegree = (degree_Id, extendedCredit, dispatch) => 
                     return;
                 }
 
-                const primaryData = await api.post("/courses/getByDegreeGrouped", {
-                    degree: degree_Id,
-                });
+                const primaryData = await api.get(`/courses/by-degree/${degree_Id}`);
 
                 let combinedData = primaryData;
 
                 // If extendedCredit is true, fetch and merge ECP courses
                 if (extendedCredit) {
-                    const extendedData = await api.post("/courses/getByDegreeGrouped", {
-                        degree: "ECP",
-                    });
+                    const extendedData = await api.get("/courses/by-degree/ECP");
                     combinedData = [...primaryData, ...extendedData];
                 }
 

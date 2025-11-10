@@ -3,16 +3,16 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { useNavigate } from 'react-router-dom';
 import useDatabaseTables from '../../pages/AdminPage/hooks/useDatabaseTables';
 
-// Mock fetch and useNavigate
-global.fetch = jest.fn();
-
-// Helper to create mock headers
-const createMockHeaders = () => ({
-  get: (name) => {
-    if (name === 'Content-Type') return 'application/json';
-    return null;
+// Mock api instead of fetch
+jest.mock('../../api/http-api-client', () => ({
+  api: {
+    post: jest.fn(),
   },
-});
+}));
+
+// Import api after mocking
+import { api } from '../../api/http-api-client';
+
 
 jest.mock('react-router-dom', () => ({
   useNavigate: jest.fn(),
@@ -31,7 +31,7 @@ describe('useDatabaseTables', () => {
   let mockNavigate;
 
   beforeEach(() => {
-    fetch.mockClear();
+    api.post.mockClear();
     console.error.mockClear();
     mockNavigate = jest.fn();
     useNavigate.mockReturnValue(mockNavigate);
@@ -47,10 +47,9 @@ describe('useDatabaseTables', () => {
   describe('fetchTables', () => {
     it('should fetch tables successfully on mount', async () => {
       const mockTables = ['users', 'courses', 'degrees'];
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: mockTables }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: mockTables,
       });
 
       const { result } = renderHook(() => useDatabaseTables());
@@ -63,12 +62,9 @@ describe('useDatabaseTables', () => {
     });
 
     it('should navigate to /403 when response is not ok', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: false,
-        status: 403,
-        statusText: 'Forbidden',
-        headers: createMockHeaders(),
-      });
+      const error = new Error('403 Forbidden');
+      error.message = '403 Forbidden';
+      api.post.mockRejectedValueOnce(error);
 
       renderHook(() => useDatabaseTables());
 
@@ -78,10 +74,9 @@ describe('useDatabaseTables', () => {
     });
 
     it('should handle error when data is not an array', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: 'not an array' }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: 'not an array',
       });
 
       const { result } = renderHook(() => useDatabaseTables());
@@ -93,10 +88,8 @@ describe('useDatabaseTables', () => {
     });
 
     it('should handle error when success is false', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: false }),
+      api.post.mockResolvedValueOnce({
+        success: false,
       });
 
       const { result } = renderHook(() => useDatabaseTables());
@@ -108,7 +101,7 @@ describe('useDatabaseTables', () => {
     });
 
     it('should handle network errors', async () => {
-      fetch.mockRejectedValueOnce(new Error('Network error'));
+      api.post.mockRejectedValueOnce(new Error('Network error'));
 
       const { result } = renderHook(() => useDatabaseTables());
 
@@ -119,19 +112,18 @@ describe('useDatabaseTables', () => {
     });
 
     it('should call fetch with correct parameters', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: [],
       });
 
       renderHook(() => useDatabaseTables());
 
       await waitFor(() => {
-        expect(fetch).toHaveBeenCalledWith(
-          'http://localhost:8000/admin/tables',
+        expect(api.post).toHaveBeenCalledWith(
+          '/admin/tables',
+          {},
           expect.objectContaining({
-            method: 'POST',
             credentials: 'include',
           }),
         );
@@ -142,10 +134,9 @@ describe('useDatabaseTables', () => {
   describe('handleTableSelect', () => {
     it('should update selected table', async () => {
       const mockTables = ['users', 'courses'];
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: mockTables }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: mockTables,
       });
 
       const { result } = renderHook(() => useDatabaseTables());
@@ -163,10 +154,9 @@ describe('useDatabaseTables', () => {
 
     it('should allow selecting different tables', async () => {
       const mockTables = ['users', 'courses'];
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: mockTables }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: mockTables,
       });
 
       const { result } = renderHook(() => useDatabaseTables());
@@ -187,10 +177,9 @@ describe('useDatabaseTables', () => {
     });
 
     it('should handle null table selection', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: [],
       });
 
       const { result } = renderHook(() => useDatabaseTables());
@@ -212,10 +201,9 @@ describe('useDatabaseTables', () => {
       const mockTables1 = ['users'];
       const mockTables2 = ['users', 'courses'];
 
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: mockTables1 }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: mockTables1,
       });
 
       const { result } = renderHook(() => useDatabaseTables());
@@ -224,10 +212,9 @@ describe('useDatabaseTables', () => {
         expect(result.current.tables).toEqual(mockTables1);
       });
 
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: mockTables2 }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: mockTables2,
       });
 
       await act(async () => {
@@ -240,10 +227,9 @@ describe('useDatabaseTables', () => {
     });
 
     it('should set loading state during refresh', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: [],
       });
 
       const { result } = renderHook(() => useDatabaseTables());
@@ -257,7 +243,7 @@ describe('useDatabaseTables', () => {
         resolvePromise = resolve;
       });
 
-      fetch.mockReturnValueOnce({ headers: createMockHeaders(), json: () => promise });
+      api.post.mockReturnValueOnce(promise);
 
       act(() => {
         result.current.refreshTables();
@@ -266,8 +252,8 @@ describe('useDatabaseTables', () => {
       expect(result.current.loading).toBe(true);
 
       resolvePromise({
-        ok: true,
-        json: async () => ({ success: true, data: [] }),
+        success: true,
+        data: [],
       });
 
       await waitFor(() => {
@@ -278,7 +264,7 @@ describe('useDatabaseTables', () => {
 
   describe('loading state', () => {
     it('should set loading to true initially', () => {
-      fetch.mockImplementation(() => new Promise(() => {}));
+      api.post.mockImplementation(() => new Promise(() => {}));
 
       const { result } = renderHook(() => useDatabaseTables());
 
@@ -286,10 +272,9 @@ describe('useDatabaseTables', () => {
     });
 
     it('should set loading to false after successful fetch', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: [],
       });
 
       const { result } = renderHook(() => useDatabaseTables());
@@ -300,7 +285,7 @@ describe('useDatabaseTables', () => {
     });
 
     it('should set loading to false after error', async () => {
-      fetch.mockRejectedValueOnce(new Error('Network error'));
+      api.post.mockRejectedValueOnce(new Error('Network error'));
 
       const { result } = renderHook(() => useDatabaseTables());
 
@@ -313,10 +298,8 @@ describe('useDatabaseTables', () => {
   describe('error state', () => {
     it('should clear error on new fetch', async () => {
       // First fetch with error
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: false }),
+      api.post.mockResolvedValueOnce({
+        success: false,
       });
 
       const { result } = renderHook(() => useDatabaseTables());
@@ -326,10 +309,9 @@ describe('useDatabaseTables', () => {
       });
 
       // Second fetch should clear error
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: [],
       });
 
       await act(async () => {
@@ -343,10 +325,9 @@ describe('useDatabaseTables', () => {
     });
 
     it('should have empty error initially', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: [],
       });
 
       const { result } = renderHook(() => useDatabaseTables());
@@ -359,10 +340,9 @@ describe('useDatabaseTables', () => {
 
   describe('initial state', () => {
     it('should have correct initial values', async () => {
-      fetch.mockResolvedValueOnce({
-        ok: true,
-        headers: createMockHeaders(),
-        json: async () => ({ success: true, data: [] }),
+      api.post.mockResolvedValueOnce({
+        success: true,
+        data: [],
       });
 
       const { result } = renderHook(() => useDatabaseTables());

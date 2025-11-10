@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import HTTP from '@Util/HTTPCodes';
+import HTTP from '@utils/httpCodes';
 
 export const validateTimelineBody = (
   req: Request,

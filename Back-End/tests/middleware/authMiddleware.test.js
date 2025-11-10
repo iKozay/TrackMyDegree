@@ -4,30 +4,28 @@ process.env.SESSION_ALGO = 'aes-256-gcm';
 const {
   authMiddleware,
   adminCheckMiddleware,
-} = require('../../dist/middleware/authMiddleware');
+} = require('../../middleware/authMiddleware');
 
 // Mock dependencies
-jest.mock('../../dist/services/jwtService', () => ({
+jest.mock('../../services/jwtService', () => ({
   jwtService: {
     verifyAccessToken: jest.fn(),
   },
 }));
 
-jest.mock('../../dist/Util/Session_Util', () => ({
+jest.mock('../../utils/sessionUtil', () => ({
   verifySession: jest.fn(),
 }));
 
-jest.mock('../../dist/controllers/authController/authController', () => ({
-  __esModule: true,
-  default: {
+jest.mock('../../controllers/authController', () => ({
+  authController: {
     isAdmin: jest.fn(),
   },
 }));
 
-const { jwtService } = require('../../dist/services/jwtService');
-const { verifySession } = require('../../dist/Util/Session_Util');
-const authController =
-  require('../../dist/controllers/authController/authController').default;
+const { jwtService } = require('../../services/jwtService');
+const { verifySession } = require('../../utils/sessionUtil');
+const { authController } = require('../../controllers/authController');
 
 describe('authMiddleware', () => {
   let req, res, next;
