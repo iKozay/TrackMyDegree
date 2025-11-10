@@ -63,10 +63,8 @@ describe('authMiddleware', () => {
       req.cookies.access_token = 'valid-token';
       const mockPayload = {
         userId: 'user123',
-        session_token: { key: 'test', iv: 'test', salt: 1 },
       };
       jwtService.verifyAccessToken.mockReturnValue(mockPayload);
-      verifySession.mockReturnValue(true);
 
       await authMiddleware(req, res, next);
 
