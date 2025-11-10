@@ -11,7 +11,7 @@ export function requiredEnv(vars: string[]): Record<string, string> {
 
   for (const varName of vars) {
     const value = process.env[varName];
-    if (value === undefined) {
+    if (value === undefined || value === '') {
       missing.push(varName);
     } else {
       result[varName] = value;

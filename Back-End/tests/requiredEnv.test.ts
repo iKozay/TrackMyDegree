@@ -1,3 +1,4 @@
+// Back-End/tests/requiredEnv.test.ts
 import { requiredEnv } from '@utils/requiredEnv';
 
 const REAL_ENV = process.env;
@@ -21,9 +22,9 @@ describe('requiredEnv', () => {
       expect(requiredEnv(['MY_VAR'])).toEqual({ MY_VAR: 'abc' });
     });
 
-    test('handles empty string value', () => {
+    test('throws when value is empty string', () => {
       process.env.MY_VAR = '';
-      expect(requiredEnv(['MY_VAR'])).toEqual({ MY_VAR: '' });
+      expect(() => requiredEnv(['MY_VAR'])).toThrow(/MY_VAR/i);
     });
   });
 
@@ -40,7 +41,13 @@ describe('requiredEnv', () => {
       expect(() => requiredEnv(['VAR1', 'VAR2'])).toThrow(/VAR1.*VAR2/i);
     });
 
-    test('returns object when all present', () => {
+    test('throws when one is empty string', () => {
+      process.env.VAR1 = 'value1';
+      process.env.VAR2 = '';
+      expect(() => requiredEnv(['VAR1', 'VAR2'])).toThrow(/VAR2/i);
+    });
+
+    test('returns object when all present and non-empty', () => {
       process.env.VAR1 = 'value1';
       process.env.VAR2 = 'value2';
       const result = requiredEnv(['VAR1', 'VAR2']);

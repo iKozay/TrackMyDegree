@@ -8,13 +8,16 @@ import { requiredEnv } from '@utils/requiredEnv';
 class MailService {
   private readonly transporter: nodemailer.Transporter;
   private readonly isEthereal: boolean;
+  private readonly senderEmail: string;
 
   private constructor(
     transporter: nodemailer.Transporter,
     isEthereal: boolean,
+    fromAddress: string,
   ) {
     this.transporter = transporter;
     this.isEthereal = isEthereal;
+    this.senderEmail = fromAddress;
   }
 
   static async create(): Promise<MailService> {
@@ -31,7 +34,7 @@ class MailService {
         auth: { user: testAccount.user, pass: testAccount.pass },
       });
       console.log('Ethereal test account:', testAccount);
-      return new MailService(transporter, true);
+      return new MailService(transporter, true, testAccount.user);
     }
 
     // validate required SMTP environment variables for production
@@ -59,17 +62,17 @@ class MailService {
         refreshToken: SMTP_REFRESH_TOKEN,
       },
     });
-    return new MailService(transporter, false);
+    return new MailService(transporter, false, EMAIL_USER);
   }
 
   async sendPasswordReset(
-    email: string,
+    recepientEmail: string,
     resetLink: string,
   ): Promise<{ previewUrl?: string }> {
     try {
       const info = await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || 'no-reply@example.com',
-        to: email,
+        from: this.senderEmail,
+        to: recepientEmail,
         subject: 'Password Reset Link',
         text: `Use this link to reset your password: ${resetLink}`,
         html: `<p>Use this link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`,
