@@ -18,12 +18,14 @@ describe('AuthController', () => {
     mongoUri = mongoServer.getUri();
     await mongoose.connect(mongoUri);
     authController = new AuthController();
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterAll(async () => {
     // Clean up connections and stop MongoDB instance
     await mongoose.disconnect();
     await mongoServer.stop();
+    console.error.mockRestore();
   });
 
   beforeEach(async () => {
@@ -66,7 +68,7 @@ describe('AuthController', () => {
     });
 
     it('should return undefined if user does not exist', async () => {
-      const fakeId = '507f1f77bcf86cd799439011'; // valid MongoDB ObjectId but not in DB
+      const fakeId = '507f1f77bcf86cd799439011';
       const result = await authController.getUserById(fakeId);
 
       expect(result).toBeUndefined();
