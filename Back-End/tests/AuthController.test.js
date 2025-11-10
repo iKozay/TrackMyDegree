@@ -20,17 +20,25 @@ jest.mock('nodemailer', () => ({
 
 // ─────────────────────────────────────────────
 // Mock ioredis
-const mockRedisGet = jest.fn();
-const mockRedisSetex = jest.fn();
-const mockRedisDel = jest.fn();
-
 jest.mock('ioredis', () => {
-  return jest.fn().mockImplementation(() => ({
+  const mockRedisGet = jest.fn();
+  const mockRedisSetex = jest.fn();
+  const mockRedisDel = jest.fn();
+
+  const Redis = jest.fn().mockImplementation(() => ({
     get: mockRedisGet,
     setex: mockRedisSetex,
     del: mockRedisDel,
   }));
+
+  // expose mocks for external use
+  Redis.__mocks__ = { mockRedisGet, mockRedisSetex, mockRedisDel };
+  return Redis;
 });
+
+// Get access to redis mocks
+import Redis from 'ioredis';
+const { mockRedisGet, mockRedisSetex, mockRedisDel } = Redis.__mocks__;
 
 // ─────────────────────────────────────────────
 // Mock Sentry
