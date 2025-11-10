@@ -61,7 +61,7 @@ describe('Auth Routes (MongoDB)', () => {
   describe('POST /auth/refresh', () => {
     it('should return 401 if refresh token is missing', async () => {
       const res = await request(app).post('/auth/refresh');
-      expect(res.status).toBe(HTTP.UNAUTHORIZED);
+      expect(res.status).toBe(401);
       expect(res.body.error).toBe('Missing refresh token');
     });
 
@@ -70,7 +70,7 @@ describe('Auth Routes (MongoDB)', () => {
       const res = await request(app)
         .post('/auth/refresh')
         .set('Cookie', ['refresh_token=invalid']);
-      expect(res.status).toBe(HTTP.UNAUTHORIZED);
+      expect(res.status).toBe(401);
       expect(res.body.error).toBe('Invalid or expired refresh token');
     });
 
@@ -84,7 +84,7 @@ describe('Auth Routes (MongoDB)', () => {
         .post('/auth/refresh')
         .set('Cookie', ['refresh_token=valid']);
 
-      expect(res.status).toBe(HTTP.UNAUTHORIZED);
+      expect(res.status).toBe(401);
       expect(res.body.error).toBe('User does not exist');
     });
 
@@ -109,7 +109,7 @@ describe('Auth Routes (MongoDB)', () => {
         .post('/auth/refresh')
         .set('Cookie', ['refresh_token=valid']);
 
-      expect(res.status).toBe(HTTP.OK);
+      expect(res.status).toBe(200);
       expect(res.body.email).toBe('test@example.com');
       expect(res.headers['set-cookie']).toBeDefined();
     });
