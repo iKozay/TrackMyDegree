@@ -5,6 +5,7 @@ import { api } from '../../api/http-api-client';
 
 jest.mock('../../api/http-api-client', () => ({
   api: {
+    get: jest.fn(),
     post: jest.fn(),
   },
 }));
