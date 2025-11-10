@@ -3,7 +3,15 @@ jest.mock('nodemailer', () => {
   return {
     createTransport: jest.fn(() => ({ sendMail: mockSendMail })),
     getTestMessageUrl: jest.fn().mockReturnValue('preview-url'),
-    createTestAccount: jest.fn().mockResolvedValue({ user: 'u', pass: 'p' }),
+    createTestAccount: jest.fn().mockResolvedValue({
+      user: 'test@ethereal.email',
+      pass: 'test-password',
+      smtp: {
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false,
+      },
+    }),
     __mockSendMail: mockSendMail,
   };
 });
@@ -28,8 +36,6 @@ beforeEach(() => {
   delete process.env.SMTP_CLIENT_ID;
   delete process.env.SMTP_CLIENT_SECRET;
   delete process.env.SMTP_REFRESH_TOKEN;
-  delete process.env.SMTP_ACCESS_TOKEN;
-  delete process.env.SMTP_TOKEN_EXPIRES;
 });
 
 describe('MailService', () => {
@@ -79,8 +85,6 @@ describe('MailService', () => {
     process.env.SMTP_CLIENT_ID = 'client-id';
     process.env.SMTP_CLIENT_SECRET = 'client-secret';
     process.env.SMTP_REFRESH_TOKEN = 'refresh-token';
-    process.env.SMTP_ACCESS_TOKEN = 'access-token';
-    process.env.SMTP_TOKEN_EXPIRES = '1234567890';
 
     const { servicePromise, nodemailer } = loadService();
     const service = await servicePromise;
@@ -108,7 +112,7 @@ describe('MailService', () => {
     const { servicePromise } = loadService();
 
     await expect(servicePromise).rejects.toThrow(
-      'Missing required environment variable: EMAIL_USER',
+      'Missing required environment variables: EMAIL_USER, SMTP_CLIENT_ID, SMTP_CLIENT_SECRET, SMTP_REFRESH_TOKEN',
     );
   });
 
@@ -124,11 +128,11 @@ describe('MailService', () => {
     mockSendMail.mockRejectedValueOnce(testError);
 
     await expect(
-      service.sendPasswordReset('error@example.com', 'https://x/reset/error')
+      service.sendPasswordReset('error@example.com', 'https://x/reset/error'),
     ).rejects.toThrow('SMTP connection failed');
 
     expect(Sentry.captureException).toHaveBeenCalledWith(testError, {
-      tags: { mail: 'passwordReset' }
+      tags: { mail: 'passwordReset' },
     });
   });
 });

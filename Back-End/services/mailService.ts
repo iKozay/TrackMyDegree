@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import * as Sentry from '@sentry/node';
+import { requiredEnv } from '@utils/requiredEnv';
 /*
  * MailService module for sending emails such as password reset links.
  * Supports Ethereal for testing and real SMTP for production.
@@ -24,9 +25,9 @@ class MailService {
     if (isDevelopment) {
       const testAccount = await nodemailer.createTestAccount();
       const transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false,
+        host: testAccount.smtp.host,
+        port: testAccount.smtp.port,
+        secure: testAccount.smtp.secure,
         auth: { user: testAccount.user, pass: testAccount.pass },
       });
       console.log('Ethereal test account:', testAccount);
@@ -34,19 +35,17 @@ class MailService {
     }
 
     // validate required SMTP environment variables for production
-    const requiredEnvVars = [
+    const {
+      EMAIL_USER,
+      SMTP_CLIENT_ID,
+      SMTP_CLIENT_SECRET,
+      SMTP_REFRESH_TOKEN,
+    } = requiredEnv([
       'EMAIL_USER',
       'SMTP_CLIENT_ID',
       'SMTP_CLIENT_SECRET',
       'SMTP_REFRESH_TOKEN',
-      'SMTP_ACCESS_TOKEN',
-      'SMTP_TOKEN_EXPIRES',
-    ];
-    for (const varName of requiredEnvVars) {
-      if (!process.env[varName]) {
-        throw new Error(`Missing required environment variable: ${varName}`);
-      }
-    }
+    ]);
 
     // create transporter for real SMTP server
     const transporter = nodemailer.createTransport({
@@ -54,12 +53,10 @@ class MailService {
       service: 'gmail', // nodemailer predefined service configuration (https://github.com/nodemailer/nodemailer/blob/master/lib/well-known/services.json)
       auth: {
         type: 'OAuth2',
-        user: process.env.EMAIL_USER,
-        clientId: process.env.SMTP_CLIENT_ID,
-        clientSecret: process.env.SMTP_CLIENT_SECRET,
-        refreshToken: process.env.SMTP_REFRESH_TOKEN,
-        accessToken: process.env.SMTP_ACCESS_TOKEN,
-        expires: Number(process.env.SMTP_TOKEN_EXPIRES),
+        user: EMAIL_USER,
+        clientId: SMTP_CLIENT_ID,
+        clientSecret: SMTP_CLIENT_SECRET,
+        refreshToken: SMTP_REFRESH_TOKEN,
       },
     });
     return new MailService(transporter, false);
