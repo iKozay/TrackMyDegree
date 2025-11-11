@@ -11,6 +11,7 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('../routes/authRoutes').default;
 const { User } = require('../models/user');
 const bcrypt = require('bcryptjs');
+const { authController } = require('../controllers/authController');
 
 // Mock Nodemailer
 jest.mock('nodemailer', () => ({
@@ -39,7 +40,6 @@ jest.mock('ioredis', () => {
 // Get access to redis mocks
 const Redis = require('ioredis');
 const { mockRedisGet, mockRedisSetex, mockRedisDel } = Redis.__mocks__;
-
 
 // Mock JWT service
 jest.mock('../services/jwtService', () => ({
@@ -273,7 +273,9 @@ describe('Auth Routes (MongoDB)', () => {
         .send({ email: 'test@example.com' })
         .expect(202);
 
-      expect(response.body.message).toContain('Password reset link sent successfully');
+      expect(response.body.message).toContain(
+        'Password reset link sent successfully',
+      );
     });
 
     it('should return 400 for missing email', async () => {
@@ -307,7 +309,7 @@ describe('Auth Routes (MongoDB)', () => {
         .send({
           token: 'validtoken',
           newPassword: 'NewPass123!',
-          email: user.email
+          email: user.email,
         })
         .expect(202);
 
@@ -330,7 +332,7 @@ describe('Auth Routes (MongoDB)', () => {
         .send({
           token: 'invalidtoken',
           newPassword: 'NewPass123!',
-          email: user.email
+          email: user.email,
         })
         .expect(401);
 
@@ -343,7 +345,9 @@ describe('Auth Routes (MongoDB)', () => {
         .send({}) // Missing token and password
         .expect(400);
 
-      expect(response.body.error).toBe('Email, token, and newPassword are required');
+      expect(response.body.error).toBe(
+        'Email, token, and newPassword are required',
+      );
     });
   });
 });
