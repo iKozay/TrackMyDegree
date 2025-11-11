@@ -28,7 +28,8 @@
     "rate-limit-redis": "^4.2.3",
     "redis": "^4.7.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^13.0.0"
   },
   "scripts": {
     "prepare": "npx ts-patch install -s",

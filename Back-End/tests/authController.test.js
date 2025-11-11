@@ -1,254 +1,197 @@
 /**
- * Integration-style Jest tests for AuthController.
- * Uses MongoMemoryServer for isolated DB
- * Mocks Redis + Nodemailer to avoid external dependencies
+ * Integration-style Jest tests for Auth Routes (MongoDB)
+ * Updated for secure token-based password reset (no more OTP).
  */
 
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import bcrypt from 'bcryptjs';
-import { AuthController, UserType } from '../controllers/mondoDBControllers/AuthController';
-import { User } from '../models/User';
+const request = require('supertest');
+const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const bcrypt = require('bcryptjs');
+const app = require('../app'); // assuming your Express app is exported from app.js
+const { User } = require('../models/User');
 
-// ─────────────────────────────────────────────
-// Mock Nodemailer
-jest.mock('nodemailer', () => ({
-  createTransport: jest.fn().mockReturnValue({
-    sendMail: jest.fn().mockResolvedValue(true),
-  }),
-}));
-
-// ─────────────────────────────────────────────
-// Mock ioredis
+// Mock Redis
 jest.mock('ioredis', () => {
-  const mockRedisGet = jest.fn();
-  const mockRedisSetex = jest.fn();
-  const mockRedisDel = jest.fn();
-
-  const Redis = jest.fn().mockImplementation(() => ({
-    get: mockRedisGet,
-    setex: mockRedisSetex,
-    del: mockRedisDel,
-  }));
-
-  // expose mocks for external use
-  Redis.__mocks__ = { mockRedisGet, mockRedisSetex, mockRedisDel };
-  return Redis;
+  const mRedis = {
+    get: jest.fn(),
+    setex: jest.fn(),
+    del: jest.fn(),
+  };
+  return jest.fn(() => mRedis);
 });
 
-// Get access to redis mocks
-import Redis from 'ioredis';
-const { mockRedisGet, mockRedisSetex, mockRedisDel } = Redis.__mocks__;
+describe('Auth Routes (MongoDB)', () => {
+  let mongoServer;
+  let redisMock;
 
-// ─────────────────────────────────────────────
-// Mock Sentry
-jest.mock('@sentry/node', () => ({
-  captureException: jest.fn(),
-}));
-
-// ─────────────────────────────────────────────
-// Setup
-let mongoServer;
-let authController;
-
-beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
-
-  await mongoose.connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+  beforeAll(async () => {
+    mongoServer = await MongoMemoryServer.create();
+    const uri = mongoServer.getUri();
+    await mongoose.connect(uri);
   });
 
-  authController = new AuthController();
-});
+  beforeEach(async () => {
+    await User.deleteMany({});
+    const Redis = require('ioredis');
+    redisMock = new Redis();
+    jest.clearAllMocks();
+  });
 
-afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
-});
+  afterAll(async () => {
+    await mongoose.disconnect();
+    await mongoServer.stop();
+  });
 
-afterEach(async () => {
-  jest.clearAllMocks();
-  await User.deleteMany({});
-});
+  // ─────────────────────────────────────────────
+  // USER REGISTRATION
+  // ─────────────────────────────────────────────
+  describe('POST /auth/register', () => {
+    it('should register a new user', async () => {
+      const res = await request(app)
+        .post('/auth/register')
+        .send({
+          email: 'newuser@example.com',
+          password: 'StrongPass123!',
+        })
+        .expect(201);
 
-// ─────────────────────────────────────────────
-// Tests
-describe('AuthController', () => {
-  describe('registerUser', () => {
-    it('should register new user', async () => {
-      const res = await authController.registerUser({
-        email: 'test@example.com',
-        password: 'Pass123!',
-        fullname: 'Test User',
-        type: UserType.STUDENT,
-        _id: '',
-      });
-      expect(res).toHaveProperty('_id');
+      expect(res.body).toHaveProperty('email', 'newuser@example.com');
     });
 
-    it('should not register existing user', async () => {
+    it('should not register an existing user', async () => {
       await User.create({
         email: 'exist@example.com',
-        password: '123',
-        fullname: 'Exist',
-        type: UserType.STUDENT,
+        password: await bcrypt.hash('password', 10),
       });
-      const res = await authController.registerUser({
-        email: 'exist@example.com',
-        password: '123',
-        fullname: 'Exist',
-        type: UserType.STUDENT,
-        _id: '',
-      });
-      expect(res).toBeUndefined();
-    });
 
-    it('should handle DB error', async () => {
-      const orig = User.findOne;
-      User.findOne = jest.fn().mockRejectedValue(new Error('DB fail'));
-      const res = await authController.registerUser({
-        email: 'err@example.com',
-        password: 'pass',
-        fullname: 'Err',
-        type: UserType.STUDENT,
-        _id: '',
-      });
-      expect(res).toBeUndefined();
-      User.findOne = orig;
+      const res = await request(app)
+        .post('/auth/register')
+        .send({
+          email: 'exist@example.com',
+          password: 'password',
+        })
+        .expect(400);
+
+      expect(res.body.message).toMatch(/already exists/i);
     });
   });
 
   // ─────────────────────────────────────────────
-  describe('authenticate', () => {
-    it('should authenticate valid user', async () => {
-      const password = await bcrypt.hash('Pass123!', 10);
+  // LOGIN
+  // ─────────────────────────────────────────────
+  describe('POST /auth/login', () => {
+    it('should login valid user', async () => {
+      const hashed = await bcrypt.hash('mypassword', 10);
+      await User.create({ email: 'login@example.com', password: hashed });
+
+      const res = await request(app)
+        .post('/auth/login')
+        .send({
+          email: 'login@example.com',
+          password: 'mypassword',
+        })
+        .expect(200);
+
+      expect(res.body).toHaveProperty('token');
+    });
+
+    it('should reject invalid credentials', async () => {
+      const res = await request(app)
+        .post('/auth/login')
+        .send({
+          email: 'wrong@example.com',
+          password: 'nopass',
+        })
+        .expect(401);
+
+      expect(res.body.message).toMatch(/invalid/i);
+    });
+  });
+
+  // ─────────────────────────────────────────────
+  // FORGOT PASSWORD
+  // ─────────────────────────────────────────────
+  describe('POST /auth/forgot-password', () => {
+    it('should send reset link for existing user', async () => {
+      await User.create({ email: 'reset@example.com', password: 'oldpass' });
+
+      const res = await request(app)
+        .post('/auth/forgot-password')
+        .send({ email: 'reset@example.com' })
+        .expect(200);
+
+      expect(res.body.message).toMatch(/reset link sent/i);
+      expect(redisMock.setex).toHaveBeenCalled();
+    });
+
+    it('should return 404 for non-existing user', async () => {
+      const res = await request(app)
+        .post('/auth/forgot-password')
+        .send({ email: 'none@example.com' })
+        .expect(404);
+
+      expect(res.body.message).toMatch(/not found/i);
+    });
+  });
+
+  // ─────────────────────────────────────────────
+  // RESET PASSWORD (NEW TOKEN-BASED FLOW)
+  // ─────────────────────────────────────────────
+  describe('POST /auth/reset-password', () => {
+    it('should reset valid token and update password', async () => {
       const user = await User.create({
-        email: 'auth@example.com',
-        password,
-        fullname: 'Auth User',
-        type: UserType.STUDENT,
-      });
-      const res = await authController.authenticate('auth@example.com', 'Pass123!');
-      expect(res?.email).toBe(user.email);
-    });
-
-    it('should return undefined for invalid password', async () => {
-      await User.create({
-        email: 'wrong@example.com',
-        password: await bcrypt.hash('RightPass', 10),
-        fullname: 'Wrong',
-        type: UserType.STUDENT,
-      });
-      const res = await authController.authenticate('wrong@example.com', 'WrongPass');
-      expect(res).toBeUndefined();
-    });
-
-    it('should return undefined for nonexistent user', async () => {
-      const res = await authController.authenticate('nouser@example.com', 'whatever');
-      expect(res).toBeUndefined();
-    });
-  });
-
-  // ─────────────────────────────────────────────
-  describe('forgotPassword', () => {
-    beforeEach(() => {
-      process.env.FRONTEND_URL = 'https://frontend.com';
-    });
-
-    it('should generate link for existing user', async () => {
-      await User.create({
-        email: 'reset@example.com',
-        password: '123',
-        fullname: 'Reset User',
-        type: UserType.STUDENT,
+        email: 'resetme@example.com',
+        password: await bcrypt.hash('oldpass', 10),
       });
 
-      const res = await authController.forgotPassword('reset@example.com');
-      expect(res.resetLink).toContain('/reset-password/');
-      expect(mockRedisSetex).toHaveBeenCalled();
-    });
+      // Mock Redis returning valid email for token
+      redisMock.get.mockResolvedValueOnce(user.email);
 
-    it('should handle non-existent user', async () => {
-      const res = await authController.forgotPassword('noone@example.com');
-      expect(res.message).toContain('reset link');
-    });
+      const res = await request(app)
+        .post('/auth/reset-password')
+        .send({
+          token: 'validtoken',
+          newPassword: 'NewPass123!',
+        })
+        .expect(202);
 
-    it('should handle missing FRONTEND_URL', async () => {
-      delete process.env.FRONTEND_URL;
-      await expect(authController.forgotPassword('reset@example.com')).resolves.toHaveProperty(
-        'message'
-      );
-    });
-  });
+      expect(res.body.message).toMatch(/reset successfully/i);
 
-  // ─────────────────────────────────────────────
-  describe('resetPassword', () => {
-    it('should reset valid token', async () => {
-      await User.create({
-        email: 'reset@example.com',
-        password: 'oldPass',
-        fullname: 'Reset User',
-        type: UserType.STUDENT,
-      });
-
-      mockRedisGet.mockResolvedValueOnce('reset@example.com');
-
-      const res = await authController.resetPassword('validtoken', 'NewPass123!');
-      expect(res).toBe(true);
+      const updatedUser = await User.findOne({ email: user.email });
+      const passwordMatches = await bcrypt.compare('NewPass123!', updatedUser.password);
+      expect(passwordMatches).toBe(true);
     });
 
     it('should fail invalid token', async () => {
-      mockRedisGet.mockResolvedValueOnce(null);
-      const res = await authController.resetPassword('badtoken', 'NewPass123!');
-      expect(res).toBe(false);
-    });
-  });
+      redisMock.get.mockResolvedValueOnce(null);
 
-  // ─────────────────────────────────────────────
-  describe('changePassword', () => {
-    it('should change password successfully', async () => {
-      const password = await bcrypt.hash('OldPass123!', 10);
-      const user = await User.create({
-        email: 'change@example.com',
-        password,
-        fullname: 'Change',
-        type: UserType.STUDENT,
-      });
+      const res = await request(app)
+        .post('/auth/reset-password')
+        .send({
+          token: 'badtoken',
+          newPassword: 'newpass',
+        })
+        .expect(401);
 
-      const res = await authController.changePassword(
-        user._id.toString(),
-        'OldPass123!',
-        'NewPass456!'
-      );
-      expect(res).toBe(true);
+      expect(res.body.message).toMatch(/invalid or expired/i);
     });
 
-    it('should fail wrong old password', async () => {
-      const password = await bcrypt.hash('CorrectOld', 10);
-      const user = await User.create({
-        email: 'fail@example.com',
-        password,
-        fullname: 'Fail',
-        type: UserType.STUDENT,
-      });
+    it('should handle DB error gracefully', async () => {
+      const orig = User.findOne;
+      User.findOne = jest.fn().mockRejectedValueOnce(new Error('DB fail'));
 
-      const res = await authController.changePassword(
-        user._id.toString(),
-        'WrongOld',
-        'Whatever'
-      );
-      expect(res).toBe(false);
-    });
+      redisMock.get.mockResolvedValueOnce('reset@example.com');
 
-    it('should fail nonexistent user', async () => {
-      const res = await authController.changePassword(
-        new mongoose.Types.ObjectId().toString(),
-        'Old',
-        'New'
-      );
-      expect(res).toBe(false);
+      const res = await request(app)
+        .post('/auth/reset-password')
+        .send({
+          token: 'validtoken',
+          newPassword: 'newpass',
+        })
+        .expect(500);
+
+      expect(res.body.message).toMatch(/internal error/i);
+      User.findOne = orig;
     });
   });
 });

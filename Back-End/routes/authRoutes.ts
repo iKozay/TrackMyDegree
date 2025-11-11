@@ -193,8 +193,7 @@ router.post('/reset-password', async (req: Request, res: Response) => {
       return;
     }
 
-    const result = await authController.resetPassword(email, otp, newPassword);
-
+    const result = await authController.resetPassword(otp, newPassword);
     if (result) {
       res.status(HTTP.ACCEPTED).json({
         message: 'Password reset successfully',

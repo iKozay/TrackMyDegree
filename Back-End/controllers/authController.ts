@@ -4,11 +4,9 @@ import * as Sentry from '@sentry/node';
 import { v4 as uuidv4 } from 'uuid';
 import nodemailer from 'nodemailer';
 import Redis from 'ioredis';
-import { randomInt } from 'crypto';
 
 // Mocro : create Redis client for storing password reset tokens temporarily
 const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
-
 
 export enum UserType {
   STUDENT = 'student',
@@ -45,6 +43,7 @@ export class AuthController {
     try {
       const user = await User.findOne({ email }).select('+password').lean().exec();
 
+      // Use dummy hash if user is not found to prevent timing attacks
       const hash = user ? user.password : this.DUMMY_HASH;
       const passwordMatch = await bcrypt.compare(password, hash);
 
@@ -188,7 +187,9 @@ export class AuthController {
       const match = await bcrypt.compare(oldPassword, user.password);
       if (!match) return false;
 
-      user.password = newPassword; // already hashed
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      user.password = hashedPassword;
       await user.save();
 
       return true;
