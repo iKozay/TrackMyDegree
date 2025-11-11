@@ -14,6 +14,11 @@ const {
 const UserModule = require('../models/user');
 const User = UserModule.User || UserModule.default || UserModule;
 const bcrypt = require('bcryptjs');
+const Sentry = require('@sentry/node');
+
+jest.mock('@sentry/node', () => ({
+  captureException: jest.fn(),
+}));
 
 // ─────────────────────────────────────────────
 // Mock Nodemailer
@@ -60,12 +65,14 @@ describe('AuthController', () => {
     mongoUri = mongoServer.getUri();
     await mongoose.connect(mongoUri);
     authController = new AuthController();
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterAll(async () => {
     // Clean up connections and stop MongoDB instance
     await mongoose.disconnect();
     await mongoServer.stop();
+    console.error.mockRestore();
   });
 
   beforeEach(async () => {
@@ -77,6 +84,58 @@ describe('AuthController', () => {
       expect(authController.RESET_EXPIRY_MINUTES).toBe(10);
       expect(authController.DUMMY_HASH).toBe(
         '$2a$10$invalidsaltinvalidsaltinv',
+      );
+    });
+  });
+
+  describe('getUserById', () => {
+    let testUser;
+
+    beforeEach(async () => {
+      const hashedPassword = await bcrypt.hash('TestPass123!', 10);
+      testUser = await User.create({
+        email: 'test@example.com',
+        password: hashedPassword,
+        fullname: 'Test User',
+        type: 'student',
+      });
+    });
+
+    afterEach(async () => {
+      jest.clearAllMocks();
+    });
+
+    it('should return a user object when user exists', async () => {
+      const result = await authController.getUserById(testUser._id.toString());
+
+      expect(result).toBeDefined();
+      expect(result.email).toBe('test@example.com');
+      expect(result.fullname).toBe('Test User');
+      expect(result.password).toBe(''); // password should never be returned
+    });
+
+    it('should return undefined if user does not exist', async () => {
+      const fakeId = '507f1f77bcf86cd799439011';
+      const result = await authController.getUserById(fakeId);
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined and capture exception if DB error occurs', async () => {
+      const mockError = new Error('DB error');
+      jest.spyOn(User, 'findById').mockImplementationOnce(() => {
+        throw mockError;
+      });
+
+      const result = await authController.getUserById('any-id');
+
+      expect(result).toBeUndefined();
+      expect(Sentry.captureException).toHaveBeenCalledWith(
+        mockError,
+        expect.any(Object),
+      );
+      expect(console.error).toHaveBeenCalledWith(
+        '[AuthController] getUserById error',
       );
     });
   });

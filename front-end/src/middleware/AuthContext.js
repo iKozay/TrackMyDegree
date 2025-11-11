@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const verifySession = async () => {
       try {
-        const user_data = await api.get('/session/refresh', {
+        const user_data = await api.post('/auth/refresh', null, {
           credentials: 'include',
         });
 
@@ -39,11 +39,11 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     const destrySession = async () => {
       try {
-        await api.get('/session/destroy', {
+        await api.post('/auth/logout', null, {
           credentials: 'include',
         });
       } catch (error) {
-        console.error('Session destruction failed:', error);
+        console.error('Logout failed: ', error);
       } finally {
         setIsLoggedIn(false);
         setUser(null);

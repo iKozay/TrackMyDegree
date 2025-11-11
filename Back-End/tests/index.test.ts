@@ -16,7 +16,10 @@ jest.mock('@sentry/profiling-node', () => ({
 
 /** ---- Swagger spec (lightweight stub) ---- */
 jest.mock('../swagger', () => ({
-  swaggerSpec: { openapi: '3.0.0', info: { title: 'TrackMyDegree API', version: '1.0.0' } },
+  swaggerSpec: {
+    openapi: '3.0.0',
+    info: { title: 'TrackMyDegree API', version: '1.0.0' },
+  },
 }));
 
 /** ---- Router stub factory ---- */
@@ -32,17 +35,16 @@ const makeRouterStub = () => {
  * Mock the *resolved physical paths* for routers, not the @routes/* alias.
  * This avoids the moduleNameMapper collision in CI.
  */
-jest.mock('../routes/authRoutes',        () => makeRouterStub());
-jest.mock('../routes/courseRoutes',      () => makeRouterStub());
-jest.mock('../routes/degreeRoutes',      () => makeRouterStub());
-jest.mock('../routes/timelineRoutes',    () => makeRouterStub());
-jest.mock('../routes/coursepoolRoutes',  () => makeRouterStub());
-jest.mock('../routes/userRoutes',        () => makeRouterStub());
-jest.mock('../routes/adminRoutes',       () => makeRouterStub());
-jest.mock('../routes/feedbackRoutes',    () => makeRouterStub());
-jest.mock('../routes/sessionRoutes',     () => makeRouterStub());
-jest.mock('../routes/sectionsRoutes',    () => makeRouterStub());
-jest.mock('../routes/uploadRoutes',            () => makeRouterStub());
+jest.mock('../routes/authRoutes', () => makeRouterStub());
+jest.mock('../routes/courseRoutes', () => makeRouterStub());
+jest.mock('../routes/degreeRoutes', () => makeRouterStub());
+jest.mock('../routes/timelineRoutes', () => makeRouterStub());
+jest.mock('../routes/coursepoolRoutes', () => makeRouterStub());
+jest.mock('../routes/userRoutes', () => makeRouterStub());
+jest.mock('../routes/adminRoutes', () => makeRouterStub());
+jest.mock('../routes/feedbackRoutes', () => makeRouterStub());
+jest.mock('../routes/sectionsRoutes', () => makeRouterStub());
+jest.mock('../routes/uploadRoutes', () => makeRouterStub());
 
 /** ---- Import app AFTER all mocks ---- */
 import app from '../index';

@@ -11,6 +11,7 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('../routes/authRoutes').default;
 const { User } = require('../models/user');
 const bcrypt = require('bcryptjs');
+const { authController } = require('../controllers/authController');
 
 // Mock Nodemailer
 jest.mock('nodemailer', () => ({
@@ -40,10 +41,10 @@ jest.mock('ioredis', () => {
 const Redis = require('ioredis');
 const { mockRedisGet, mockRedisSetex, mockRedisDel } = Redis.__mocks__;
 
-
 // Mock JWT service
 jest.mock('../services/jwtService', () => ({
   jwtService: {
+    verifyRefreshToken: jest.fn(),
     generateToken: jest.fn(() => 'mock-token'),
     setAccessCookie: jest.fn(() => ({
       name: 'access_token',
@@ -57,6 +58,8 @@ jest.mock('../services/jwtService', () => ({
     })),
   },
 }));
+
+const { jwtService } = require('../services/jwtService');
 
 const app = express();
 app.use(express.json());
@@ -80,6 +83,75 @@ describe('Auth Routes (MongoDB)', () => {
   beforeEach(async () => {
     await User.deleteMany({});
     jest.clearAllMocks();
+  });
+
+  describe('POST /auth/refresh', () => {
+    it('should return 401 if refresh token is missing', async () => {
+      const res = await request(app).post('/auth/refresh');
+      expect(res.status).toBe(401);
+      expect(res.body.error).toBe('Missing refresh token');
+    });
+
+    it('should return 401 if refresh token is invalid or expired', async () => {
+      jwtService.verifyRefreshToken.mockReturnValueOnce(null);
+      const res = await request(app)
+        .post('/auth/refresh')
+        .set('Cookie', ['refresh_token=invalid']);
+      expect(res.status).toBe(401);
+      expect(res.body.error).toBe('Invalid or expired refresh token');
+    });
+
+    it('should return 401 if user does not exist', async () => {
+      jwtService.verifyRefreshToken.mockReturnValueOnce({ userId: 'fakeId' });
+      jest
+        .spyOn(authController, 'getUserById')
+        .mockResolvedValueOnce(undefined);
+
+      const res = await request(app)
+        .post('/auth/refresh')
+        .set('Cookie', ['refresh_token=valid']);
+
+      expect(res.status).toBe(401);
+      expect(res.body.error).toBe('User does not exist');
+    });
+
+    it('should refresh tokens and return user successfully', async () => {
+      const user = await User.create({
+        email: 'test@example.com',
+        fullname: 'Test User',
+        password: 'hashed',
+        type: 'student',
+      });
+
+      jwtService.verifyRefreshToken.mockReturnValueOnce({ userId: user._id });
+      jest.spyOn(authController, 'getUserById').mockResolvedValueOnce({
+        _id: user._id.toString(),
+        email: user.email,
+        fullname: user.fullname,
+        type: user.type,
+        password: '',
+      });
+
+      const res = await request(app)
+        .post('/auth/refresh')
+        .set('Cookie', ['refresh_token=valid']);
+
+      expect(res.status).toBe(200);
+      expect(res.body.email).toBe('test@example.com');
+      expect(res.headers['set-cookie']).toBeDefined();
+    });
+  });
+
+  describe('POST /auth/logout', () => {
+    it('should clear cookies and return 200 with message', async () => {
+      const res = await request(app).post('/auth/logout');
+
+      expect(res.status).toBe(200);
+      expect(res.body.message).toBe('Logged out');
+      const cookies = res.headers['set-cookie'].join(' ');
+      expect(cookies).toContain('access_token=;');
+      expect(cookies).toContain('refresh_token=;');
+    });
   });
 
   // ─────────────────────────────
@@ -129,6 +201,56 @@ describe('Auth Routes (MongoDB)', () => {
 
       expect(response.body._id).toBeDefined();
     });
+
+    it('should return 409 for duplicate email', async () => {
+      const hashedPassword = await bcrypt.hash('TestPass123!', 10);
+      await User.create({
+        email: 'existing@example.com',
+        password: hashedPassword,
+        fullname: 'Existing User',
+        type: 'student',
+      });
+
+      const response = await request(app)
+        .post('/auth/signup')
+        .send({
+          email: 'existing@example.com',
+          password: 'TestPass123!',
+          fullname: 'Duplicate User',
+          type: 'student',
+        })
+        .expect(409);
+
+      expect(response.body.error).toBe('User with this email already exists');
+    });
+
+    it('should return 400 for missing required fields', async () => {
+      const response = await request(app)
+        .post('/auth/signup')
+        .send({
+          email: 'test@example.com',
+          // Missing hashed_password, fullname, type
+        })
+        .expect(400);
+
+      expect(response.body.error).toBe(
+        'Email, password, fullname, and type are required',
+      );
+    });
+
+    it('should return 400 for invalid user type', async () => {
+      const response = await request(app)
+        .post('/auth/signup')
+        .send({
+          email: 'test@example.com',
+          password: 'TestPass123!',
+          fullname: 'Test User',
+          type: 'invalid_type',
+        })
+        .expect(400);
+
+      expect(response.body.error).toBe('Invalid user type');
+    });
   });
 
   // ─────────────────────────────
@@ -151,7 +273,9 @@ describe('Auth Routes (MongoDB)', () => {
         .send({ email: 'test@example.com' })
         .expect(202);
 
-      expect(response.body.message).toContain('Password reset link sent successfully');
+      expect(response.body.message).toContain(
+        'Password reset link sent successfully',
+      );
     });
 
     it('should return 400 for missing email', async () => {
@@ -185,7 +309,7 @@ describe('Auth Routes (MongoDB)', () => {
         .send({
           token: 'validtoken',
           newPassword: 'NewPass123!',
-          email: user.email
+          email: user.email,
         })
         .expect(202);
 
@@ -208,7 +332,7 @@ describe('Auth Routes (MongoDB)', () => {
         .send({
           token: 'invalidtoken',
           newPassword: 'NewPass123!',
-          email: user.email
+          email: user.email,
         })
         .expect(401);
 
@@ -221,7 +345,9 @@ describe('Auth Routes (MongoDB)', () => {
         .send({}) // Missing token and password
         .expect(400);
 
-      expect(response.body.error).toBe('Email, token, and newPassword are required');
+      expect(response.body.error).toBe(
+        'Email, token, and newPassword are required',
+      );
     });
   });
 });

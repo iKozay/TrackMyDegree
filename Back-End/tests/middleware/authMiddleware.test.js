@@ -13,10 +13,6 @@ jest.mock('../../services/jwtService', () => ({
   },
 }));
 
-jest.mock('../../utils/sessionUtil', () => ({
-  verifySession: jest.fn(),
-}));
-
 jest.mock('../../controllers/authController', () => ({
   authController: {
     isAdmin: jest.fn(),
@@ -24,7 +20,6 @@ jest.mock('../../controllers/authController', () => ({
 }));
 
 const { jwtService } = require('../../services/jwtService');
-const { verifySession } = require('../../utils/sessionUtil');
 const { authController } = require('../../controllers/authController');
 
 describe('authMiddleware', () => {
@@ -33,10 +28,6 @@ describe('authMiddleware', () => {
   beforeEach(() => {
     req = {
       cookies: {},
-      headers: {
-        'user-agent': 'Mozilla/5.0 (Test Browser)',
-      },
-      ip: '192.168.1.1',
     };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -68,48 +59,18 @@ describe('authMiddleware', () => {
       expect(next).not.toHaveBeenCalled();
     });
 
-    test('should return 401 when session verification fails', async () => {
-      req.cookies.access_token = 'valid-token';
-      const mockPayload = {
-        userId: 'user123',
-        session_token: { key: 'test', iv: 'test', salt: 1 },
-      };
-      jwtService.verifyAccessToken.mockReturnValue(mockPayload);
-      verifySession.mockReturnValue(false);
-
-      await authMiddleware(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({ error: 'Session mismatch' });
-      expect(next).not.toHaveBeenCalled();
-    });
-
     test('should call next when authentication is successful', async () => {
       req.cookies.access_token = 'valid-token';
       const mockPayload = {
         userId: 'user123',
-        session_token: { key: 'test', iv: 'test', salt: 1 },
       };
       jwtService.verifyAccessToken.mockReturnValue(mockPayload);
-      verifySession.mockReturnValue(true);
 
       await authMiddleware(req, res, next);
 
       expect(req.user).toEqual(mockPayload);
       expect(next).toHaveBeenCalled();
       expect(res.status).not.toHaveBeenCalled();
-    });
-
-    test('should call next when payload has no session_token', async () => {
-      req.cookies.access_token = 'valid-token';
-      const mockPayload = { userId: 'user123' };
-      jwtService.verifyAccessToken.mockReturnValue(mockPayload);
-
-      await authMiddleware(req, res, next);
-
-      expect(req.user).toEqual(mockPayload);
-      expect(next).toHaveBeenCalled();
-      expect(verifySession).not.toHaveBeenCalled();
     });
   });
 

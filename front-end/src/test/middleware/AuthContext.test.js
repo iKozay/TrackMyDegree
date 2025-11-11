@@ -5,7 +5,7 @@ import { api } from '../../api/http-api-client';
 
 jest.mock('../../api/http-api-client', () => ({
   api: {
-    get: jest.fn(),
+    post: jest.fn(),
   },
 }));
 
@@ -35,7 +35,7 @@ describe('AuthContext', () => {
 
   it('should verify session successfully and set user', async () => {
     const mockUser = { id: '1', email: 'test@example.com', fullname: 'Test User' };
-    api.get.mockResolvedValueOnce(mockUser);
+    api.post.mockResolvedValueOnce(mockUser);
 
     const TestComponent = () => {
       const { isLoggedIn, user, loading } = React.useContext(AuthContext);
@@ -65,7 +65,7 @@ describe('AuthContext', () => {
   });
 
   it('should handle session verification failure', async () => {
-    api.get.mockRejectedValueOnce(new Error('Session expired'));
+    api.post.mockRejectedValueOnce(new Error('Session expired'));
 
     const TestComponent = () => {
       const { isLoggedIn, user, loading } = React.useContext(AuthContext);
@@ -92,7 +92,7 @@ describe('AuthContext', () => {
   });
 
   it('should provide login function', async () => {
-    api.get.mockRejectedValueOnce(new Error('Session expired'));
+    api.post.mockRejectedValueOnce(new Error('Session expired'));
 
     const TestComponent = () => {
       const { login, isLoggedIn, user } = React.useContext(AuthContext);
@@ -130,8 +130,8 @@ describe('AuthContext', () => {
 
   it('should provide logout function', async () => {
     const mockUser = { id: '1', email: 'test@example.com' };
-    api.get.mockResolvedValueOnce(mockUser);
-    api.get.mockResolvedValueOnce({});
+    api.post.mockResolvedValueOnce(mockUser);
+    api.post.mockResolvedValueOnce({});
 
     const TestComponent = () => {
       const { logout, isLoggedIn, user } = React.useContext(AuthContext);
@@ -168,8 +168,8 @@ describe('AuthContext', () => {
 
   it('should handle logout API failure gracefully', async () => {
     const mockUser = { id: '1', email: 'test@example.com' };
-    api.get.mockResolvedValueOnce(mockUser);
-    api.get.mockRejectedValueOnce(new Error('Logout failed'));
+    api.post.mockResolvedValueOnce(mockUser);
+    api.post.mockRejectedValueOnce(new Error('Logout failed'));
 
     const TestComponent = () => {
       const { logout, isLoggedIn, user } = React.useContext(AuthContext);

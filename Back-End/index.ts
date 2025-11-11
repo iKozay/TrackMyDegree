@@ -16,7 +16,6 @@ import timelineRouter from '@routes/timelineRoutes';
 import coursepoolRouter from '@routes/coursepoolRoutes';
 import adminRouter from '@routes/adminRoutes';
 import feedbackRouter from '@routes/feedbackRoutes';
-import sessionRouter from '@routes/sessionRoutes';
 import userRouter from '@routes/userRoutes';
 import sectionsRoutes from '@routes/sectionsRoutes';
 import uploadRouter from '@routes/uploadRoutes';
@@ -39,11 +38,14 @@ Sentry.init({
 
 //Express Init
 if (process.env.NODE_ENV === 'development') {
-  const loadEnv = dotenv.config({ path: path.resolve(__dirname, '../secrets/.env'), debug: true });
+  const loadEnv = dotenv.config({
+    path: path.resolve(__dirname, '../secrets/.env'),
+    debug: true,
+  });
   if (loadEnv.error) {
     console.error('Error loading .env file:', loadEnv.error);
     throw loadEnv.error;
-  }else {
+  } else {
     console.log('Environment variables loaded successfully');
   }
 }
@@ -53,16 +55,20 @@ const app = express();
 const PORT = process.env.BACKEND_PORT || 8000;
 
 // MongoDB connection
-const MONGODB_URI = process.env.MONGODB_URI ||
+const MONGODB_URI =
+  process.env.MONGODB_URI ||
   'mongodb://admin:changeme123@localhost:27017/trackmydegree';
 
 // Connect to MongoDB using async/await
-mongoose.connect(MONGODB_URI).then(() => {
-  console.log('Connected to MongoDB');
-}).catch((error: Error) => {
-  console.error('Error connecting to MongoDB:', error);
-  Sentry.captureException(error);
-});
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch((error: Error) => {
+    console.error('Error connecting to MongoDB:', error);
+    Sentry.captureException(error);
+  });
 
 mongoose.connection.on('error', (error: Error) => {
   console.error('MongoDB connection error:', error);
@@ -108,7 +114,6 @@ app.use('/coursepool', coursepoolRouter);
 app.use('/users', userRouter);
 app.use('/admin', adminRouter);
 app.use('/feedback', feedbackRouter);
-app.use('/session', sessionRouter);
 app.use('/section', sectionsRoutes);
 app.use('/upload', uploadRouter);
 
