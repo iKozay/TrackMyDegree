@@ -560,3 +560,84 @@
     font-size: calc(14px + 0.5vw);
   }
 }
+
+/* Stop any sneaky horizontal scrollbar */
+html, body { overflow-x: hidden; }
+
+/* Let the collapsible area shrink instead of forcing overflow */
+.custom-navbar .container-fluid {
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+/* Even 6-column rail across the navbar */
+.nav-rail {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* <- was 5 */
+  align-items: center;
+  gap: 0;
+  min-width: 0;
+}
+
+/* Center content inside each grid cell (used by columns 5 & 6) */
+.rail-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+}
+
+/* Prevent wrapping/overflow for the auth buttons */
+.rail-btn {
+  white-space: nowrap;
+}
+
+/* Make the links sit nicely inside each grid cell */
+.rail-link {
+  text-align: center;
+  padding-left: 0.6rem !important;
+  padding-right: 0.6rem !important;
+  white-space: nowrap;
+}
+
+/* Ensure any global margins don’t blow up grid spacing */
+.nav-rail .nav-link { 
+  margin: 0 !important; 
+}
+
+/* Auth buttons live in the 5th grid cell */
+.rail-auth-slot {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* Inline group for auth buttons */
+.navbar-right-inline {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+/* Keep brand from forcing overflow */
+.custom-navbar-brand-left, .brand-text {
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Keep the logo from growing too wide */
+.navbar-logo {
+  height: 36px;
+  width: auto;
+  max-width: 140px;
+}
+
+/* Slightly narrower default link padding on large screens so everything fits */
+@media (min-width: 991px) {
+  .custom-navbar .navbar-nav .nav-link {
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
+  }
+}

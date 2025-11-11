@@ -1,7 +1,12 @@
 import { User } from '@models';
 import bcrypt from 'bcryptjs';
 import * as Sentry from '@sentry/node';
-import { randomInt } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
+import nodemailer from 'nodemailer';
+import Redis from 'ioredis';
+
+// Mocro : create Redis client for storing password reset tokens temporarily
+const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
 
 export enum UserType {
   STUDENT = 'student',
@@ -22,12 +27,12 @@ export interface UserInfo extends Credentials {
 
 export interface PasswordResetRequest {
   email: string;
-  otp?: string;
+  resetToken?: string;
   newPassword?: string;
 }
 
 export class AuthController {
-  private readonly OTP_EXPIRY_MINUTES = 10;
+  private readonly RESET_EXPIRY_MINUTES = 10;
   private readonly DUMMY_HASH = '$2a$10$invalidsaltinvalidsaltinv';
 
   /**
@@ -62,15 +67,9 @@ export class AuthController {
    * Authenticates a user by verifying their email and password
    * Prevents timing attacks by using a dummy hash when user not found
    */
-  async authenticate(
-    email: string,
-    password: string,
-  ): Promise<UserInfo | undefined> {
+  async authenticate(email: string, password: string): Promise<UserInfo | undefined> {
     try {
-      const user = await User.findOne({ email })
-        .select('+password')
-        .lean()
-        .exec();
+      const user = await User.findOne({ email }).select('+password').lean().exec();
 
       // Use dummy hash if user is not found to prevent timing attacks
       const hash = user ? user.password : this.DUMMY_HASH;
@@ -82,16 +81,13 @@ export class AuthController {
           fullname: user.fullname,
           email: user.email,
           type: user.type as UserType,
-          password: '', // never return password
+          password: '',
         };
       }
 
-      return undefined; // always return undefined for invalid credentials
+      return undefined;
     } catch (error) {
-      Sentry.captureException(error, {
-        tags: { operation: 'authenticate' },
-        level: 'error',
-      });
+      Sentry.captureException(error, { tags: { operation: 'authenticate' } });
       console.error('[AuthController] Authentication error');
       return undefined;
     }
@@ -112,11 +108,8 @@ export class AuthController {
     const { email, password, fullname, type } = userInfo;
 
     try {
-      // Check if user already exists
       const existingUser = await User.exists({ email }).exec();
-      if (existingUser) {
-        return undefined;
-      }
+      if (existingUser) return undefined;
 
       // Hash the password before storing
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -140,140 +133,120 @@ export class AuthController {
         type: newUser.type,
       };
     } catch (error) {
-      Sentry.captureException(error, {
-        tags: { operation: 'registerUser' },
-        level: 'error',
-      });
+      Sentry.captureException(error, { tags: { operation: 'registerUser' } });
       console.error('[AuthController] Registration error');
       return undefined;
     }
   }
 
   /**
-   * Initiates password reset by generating OTP
-   * OTP is valid for 10 minutes
+   * Sends a secure password reset link via email and stores the token in Redis
    */
-  async forgotPassword(
-    email: string,
-  ): Promise<{ otp?: string; message: string }> {
+  async forgotPassword(email: string): Promise<{ message: string; resetLink?: string }> {
     try {
       const user = await User.findOne({ email }).exec();
-
-      // Generate OTP - 4 digits
-      const otp = randomInt(1000, 10000).toString();
-      const otpExpire = new Date(
-        Date.now() + this.OTP_EXPIRY_MINUTES * 60 * 1000,
-      );
-
-      if (user) {
-        // Save OTP and expiry to user record
-        user.otp = otp;
-        user.otpExpire = otpExpire;
-        await user.save();
-
-        return {
-          otp, // Return OTP for testing/email service to handle
-          message: 'OTP generated successfully',
-        };
-      }
-
-      // Don't reveal whether email exists
-      return {
-        message: 'If the email exists, an OTP has been sent.',
-      };
-    } catch (error) {
-      Sentry.captureException(error, {
-        tags: { operation: 'forgotPassword' },
-        level: 'error',
-      });
-      console.error('[AuthController] Password reset error');
-      return {
-        message: 'An error occurred. Please try again later.',
-      };
-    }
-  }
-
-  /**
-   * Verifies OTP and resets password
-   */
-  async resetPassword(
-    email: string,
-    otp: string,
-    newPassword: string,
-  ): Promise<boolean> {
-    try {
-      const user = await User.findOne({ email }).exec();
-
-      if (!user || !user.otp || !user.otpExpire) {
-        return false;
-      }
-
-      // Check if OTP is valid and not expired
-      if (user.otp !== otp || new Date() > user.otpExpire) {
-        return false;
-      }
-
-      // Hash the new password before storing
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-      // Set new password and clear OTP
-      user.password = hashedPassword;
-      user.otp = '';
-      user.otpExpire = new Date(0);
-      await user.save();
-
-      return true;
-    } catch (error) {
-      Sentry.captureException(error, {
-        tags: { operation: 'resetPassword' },
-        level: 'error',
-      });
-      console.error('[AuthController] Password reset error');
-      return false;
-    }
-  }
-
-  /**
-   * Change user password (when already authenticated)
-   */
-  async changePassword(
-    _id: string,
-    oldPassword: string,
-    newPassword: string,
-  ): Promise<boolean> {
-    try {
-      const user = await User.findById(_id).select('+password').exec();
-
       if (!user) {
-        return false;
+        // Mocro : Always return generic message to prevent user enumeration
+        return { message: 'If the email exists, a reset link has been sent.' };
       }
 
-      // Verify old password
-      const passwordMatch = await bcrypt.compare(oldPassword, user.password);
-      if (!passwordMatch) {
-        return false;
+      const resetToken = uuidv4();
+
+      const frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT;
+      if (!frontendUrl) {
+        throw new Error('FRONTEND_URL or CLIENT environment variable is not defined');
       }
+
+      const resetLink = `${frontendUrl.replace(/\/$/, '')}/reset-password/${resetToken}`;
+      const expireSeconds = this.RESET_EXPIRY_MINUTES * 60;
+
+      // Mocro : Store token in Redis with expiry
+      await redis.setex(`reset:${resetToken}`, expireSeconds, user.email);
+
+      // Mocro : Send reset email
+      await this.sendResetEmail(user.email, resetLink);
+
+      return { message: 'Password reset link sent successfully', resetLink };
+    } catch (error) {
+      Sentry.captureException(error, { tags: { operation: 'forgotPassword' } });
+      console.error('[AuthController] Password reset error', error);
+      return { message: 'An error occurred. Please try again later.' };
+    }
+  }
+
+  /**
+   * Resets a user's password using the token stored in Redis
+   */
+  async resetPassword(resetToken: string, newPassword: string): Promise<boolean> {
+    try {
+      // Mocro : Get email from Redis
+      const email = await redis.get(`reset:${resetToken}`);
+      if (!email) return false; // invalid or expired token
+
+      const user = await User.findOne({ email }).exec();
+      if (!user) return false;
 
       // Hash the new password before storing
       const hashedPassword = await bcrypt.hash(newPassword, 10);
 
       // Save new password
-      user.password = hashedPassword;
+      user.password = hashedPassword;     
       await user.save();
+
+      // Mocro : Delete used token
+      await redis.del(`reset:${resetToken}`);
 
       return true;
     } catch (error) {
-      Sentry.captureException(error, {
-        tags: { operation: 'changePassword' },
-        level: 'error',
-      });
-      console.error('[AuthController] Password change error');
+      Sentry.captureException(error, { tags: { operation: 'resetPassword' } });
+      console.error('[AuthController] Password reset error', error);
       return false;
     }
   }
 
   /**
-   * Checks if a user is an admin
+   * Change password for authenticated users
+   */
+  async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<boolean> {
+    try {
+      const user = await User.findById(userId).select('+password').exec();
+      if (!user) return false;
+
+      const match = await bcrypt.compare(oldPassword, user.password);
+      if (!match) return false;
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      user.password = hashedPassword;
+      await user.save();
+
+      return true;
+    } catch (error) {
+      Sentry.captureException(error, { tags: { operation: 'changePassword' } });
+      console.error('[AuthController] Password change error', error);
+      return false;
+    }
+  }
+
+  /**
+   * Internal helper: sends reset email
+   */
+  private async sendResetEmail(email: string, resetLink: string) {
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    });
+
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to: email,
+      subject: 'Password Reset Link',
+      text: `Use this link to reset your password: ${resetLink}`,
+      html: `<p>Use this link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`,
+    });}
+    /*
+    Checks if a user is an admin
    */
   async isAdmin(userId: string): Promise<boolean> {
     try {
