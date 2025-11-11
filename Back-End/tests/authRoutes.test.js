@@ -11,16 +11,35 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('../routes/authRoutes').default;
 const { User } = require('../models/user');
 const bcrypt = require('bcryptjs');
-const { redis } = require('../config/redisClient');
 
-// Mock Redis
-jest.mock('../config/redisClient', () => ({
-  redis: {
-    setex: jest.fn(),
-    get: jest.fn(),
-    del: jest.fn(),
-  },
+// Mock Nodemailer
+jest.mock('nodemailer', () => ({
+  createTransport: jest.fn().mockReturnValue({
+    sendMail: jest.fn().mockResolvedValue(true),
+  }),
 }));
+
+// Mock ioredis
+jest.mock('ioredis', () => {
+  const mockRedisGet = jest.fn();
+  const mockRedisSetex = jest.fn();
+  const mockRedisDel = jest.fn();
+
+  const Redis = jest.fn().mockImplementation(() => ({
+    get: mockRedisGet,
+    setex: mockRedisSetex,
+    del: mockRedisDel,
+  }));
+
+  // expose mocks for external use
+  Redis.__mocks__ = { mockRedisGet, mockRedisSetex, mockRedisDel };
+  return Redis;
+});
+
+// Get access to redis mocks
+const Redis = require('ioredis');
+const { mockRedisGet, mockRedisSetex, mockRedisDel } = Redis.__mocks__;
+
 
 // Mock JWT service
 jest.mock('../services/jwtService', () => ({
@@ -117,6 +136,7 @@ describe('Auth Routes (MongoDB)', () => {
   // ─────────────────────────────
   describe('POST /auth/forgot-password', () => {
     it('should return 202 and send reset link for existing user', async () => {
+      process.env.FRONTEND_URL = 'https://frontend.com';
       await User.create({
         email: 'test@example.com',
         password: 'hashed',
@@ -124,12 +144,14 @@ describe('Auth Routes (MongoDB)', () => {
         type: 'student',
       });
 
+      mockRedisSetex.mockResolvedValueOnce();
+
       const response = await request(app)
         .post('/auth/forgot-password')
         .send({ email: 'test@example.com' })
         .expect(202);
 
-      expect(response.body.message).toContain('If an account exists');
+      expect(response.body.message).toContain('Password reset link sent successfully');
     });
 
     it('should return 400 for missing email', async () => {
@@ -155,28 +177,38 @@ describe('Auth Routes (MongoDB)', () => {
       });
 
       // Mock valid token in Redis
-      redis.get.mockResolvedValueOnce(user.email);
+      mockRedisGet.mockResolvedValueOnce(user.email);
+      mockRedisDel.mockResolvedValueOnce();
 
       const response = await request(app)
         .post('/auth/reset-password')
         .send({
           token: 'validtoken',
           newPassword: 'NewPass123!',
+          email: user.email
         })
         .expect(202);
 
       expect(response.body.message).toBe('Password reset successfully');
-      expect(redis.del).toHaveBeenCalledWith('reset:validtoken');
+      expect(mockRedisDel).toHaveBeenCalledWith('reset:validtoken');
     });
 
     it('should return 401 for invalid token', async () => {
-      redis.get.mockResolvedValueOnce(null);
+      const user = await User.create({
+        email: 'test@example.com',
+        password: await bcrypt.hash('OldPass123!', 10),
+        fullname: 'Test User',
+        type: 'student',
+      });
+
+      mockRedisGet.mockResolvedValueOnce(null);
 
       const response = await request(app)
         .post('/auth/reset-password')
         .send({
           token: 'invalidtoken',
           newPassword: 'NewPass123!',
+          email: user.email
         })
         .expect(401);
 
@@ -189,7 +221,7 @@ describe('Auth Routes (MongoDB)', () => {
         .send({}) // Missing token and password
         .expect(400);
 
-      expect(response.body.error).toBe('Token and newPassword are required');
+      expect(response.body.error).toBe('Email, token, and newPassword are required');
     });
   });
 });
