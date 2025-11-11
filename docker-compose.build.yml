@@ -1,8 +1,0 @@
-services:
-  frontend:
-    build: ./front-end
-    image: trackmydegree-frontend:dev
-
-  backend:
-    build: ./Back-End
-    image: trackmydegree-backend:dev
