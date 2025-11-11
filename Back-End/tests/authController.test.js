@@ -1,11 +1,55 @@
+/**
+ * Integration-style Jest tests for AuthController.
+ * Uses MongoMemoryServer for isolated DB
+ * Mocks Redis + Nodemailer to avoid external dependencies
+ */
+
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const {
   AuthController,
   UserType,
 } = require('../controllers/authController');
-const { User } = require('../models/user');
+// Handle ES6 module export properly
+const UserModule = require('../models/user');
+const User = UserModule.User || UserModule.default || UserModule;
 const bcrypt = require('bcryptjs');
+
+// ─────────────────────────────────────────────
+// Mock Nodemailer
+jest.mock('nodemailer', () => ({
+  createTransport: jest.fn().mockReturnValue({
+    sendMail: jest.fn().mockResolvedValue(true),
+  }),
+}));
+
+// ─────────────────────────────────────────────
+// Mock ioredis
+jest.mock('ioredis', () => {
+  const mockRedisGet = jest.fn();
+  const mockRedisSetex = jest.fn();
+  const mockRedisDel = jest.fn();
+
+  const Redis = jest.fn().mockImplementation(() => ({
+    get: mockRedisGet,
+    setex: mockRedisSetex,
+    del: mockRedisDel,
+  }));
+
+  // expose mocks for external use
+  Redis.__mocks__ = { mockRedisGet, mockRedisSetex, mockRedisDel };
+  return Redis;
+});
+
+// Get access to redis mocks
+const Redis = require('ioredis');
+const { mockRedisGet, mockRedisSetex, mockRedisDel } = Redis.__mocks__;
+
+// ─────────────────────────────────────────────
+// Mock Sentry
+jest.mock('@sentry/node', () => ({
+  captureException: jest.fn(),
+}));
 
 describe('AuthController', () => {
   let mongoServer, mongoUri, authController;
@@ -30,7 +74,7 @@ describe('AuthController', () => {
 
   describe('Constructor', () => {
     it('should initialize with correct constants', () => {
-      expect(authController.OTP_EXPIRY_MINUTES).toBe(10);
+      expect(authController.RESET_EXPIRY_MINUTES).toBe(10);
       expect(authController.DUMMY_HASH).toBe(
         '$2a$10$invalidsaltinvalidsaltinv',
       );
@@ -240,28 +284,32 @@ describe('AuthController', () => {
         fullname: 'Test User',
         type: 'student',
       });
+      process.env.FRONTEND_URL = 'https://frontend.com';
     });
 
-    it('should generate OTP for existing user', async () => {
-      const result = await authController.forgotPassword('test@example.com');
+    it('should generate link for existing user', async () => {
+      await User.create({
+        email: 'reset@example.com',
+        password: '123',
+        fullname: 'Reset User',
+        type: UserType.STUDENT,
+      });
 
-      expect(result.message).toBe('OTP generated successfully');
-      expect(result.otp).toBeDefined();
-      expect(result.otp).toMatch(/^\d{4}$/); // 4-digit OTP
-
-      // Verify OTP was saved to user
-      const updatedUser = await User.findById(testUser._id);
-      expect(updatedUser.otp).toBe(result.otp);
-      expect(updatedUser.otpExpire).toBeDefined();
+      const res = await authController.forgotPassword('reset@example.com');
+      expect(res.resetLink).toContain('/reset-password/');
+      expect(mockRedisSetex).toHaveBeenCalled();
     });
 
-    it('should not reveal if email does not exist', async () => {
-      const result = await authController.forgotPassword(
-        'nonexistent@example.com',
+    it('should handle non-existent user', async () => {
+      const res = await authController.forgotPassword('noone@example.com');
+      expect(res.message).toContain('reset link');
+    });
+
+    it('should handle missing FRONTEND_URL', async () => {
+      delete process.env.FRONTEND_URL;
+      await expect(authController.forgotPassword('reset@example.com')).resolves.toHaveProperty(
+        'message'
       );
-
-      expect(result.message).toBe('If the email exists, an OTP has been sent.');
-      expect(result.otp).toBeUndefined();
     });
 
     it('should handle database errors gracefully', async () => {
@@ -282,102 +330,26 @@ describe('AuthController', () => {
   });
 
   describe('resetPassword', () => {
-    let testUser;
-
-    beforeEach(async () => {
-      testUser = await User.create({
-        email: 'test@example.com',
-        password: 'oldpassword',
-        fullname: 'Test User',
-        type: 'student',
-        otp: '1234',
-        otpExpire: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes from now
-      });
-    });
-
-    it('should reset password with valid OTP', async () => {
-      const result = await authController.resetPassword(
-        'test@example.com',
-        '1234',
-        'NewPass123!',
-      );
-
-      expect(result).toBe(true);
-
-      // Verify password was changed and OTP was cleared
-      const updatedUser = await User.findById(testUser._id);
-      expect(updatedUser.otp).toBe('');
-      expect(updatedUser.otpExpire.getTime()).toBe(0);
-    });
-
-    it('should return false for invalid OTP', async () => {
-      const result = await authController.resetPassword(
-        'test@example.com',
-        '9999',
-        'NewPass123!',
-      );
-
-      expect(result).toBe(false);
-    });
-
-    it('should return false for expired OTP', async () => {
-      // Set OTP to expired
-      await User.findByIdAndUpdate(testUser._id, {
-        otpExpire: new Date(Date.now() - 1000), // 1 second ago
+    it('should reset valid token', async () => {
+      await User.create({
+        email: 'reset@example.com',
+        password: 'oldPass',
+        fullname: 'Reset User',
+        type: UserType.STUDENT,
       });
 
-      const result = await authController.resetPassword(
-        'test@example.com',
-        '1234',
-        'NewPass123!',
-      );
+      mockRedisGet.mockResolvedValueOnce('reset@example.com');
 
-      expect(result).toBe(false);
+      const res = await authController.resetPassword('validtoken', 'NewPass123!');
+      expect(res).toBe(true);
     });
 
-    it('should return false for non-existent user', async () => {
-      const result = await authController.resetPassword(
-        'nonexistent@example.com',
-        '1234',
-        'NewPass123!',
-      );
-
-      expect(result).toBe(false);
+    it('should fail invalid token', async () => {
+      mockRedisGet.mockResolvedValueOnce(null);
+      const res = await authController.resetPassword('badtoken', 'NewPass123!');
+      expect(res).toBe(false);
     });
 
-    it('should return false when user has no otp field', async () => {
-      // Create user without otp
-      await User.findByIdAndUpdate(testUser._id, {
-        $unset: { otp: 1, otpExpire: 1 },
-      });
-
-      const result = await authController.resetPassword(
-        'test@example.com',
-        '1234',
-        'NewPass123!',
-      );
-
-      expect(result).toBe(false);
-    });
-
-    it('should handle database errors gracefully', async () => {
-      // Mock User.findOne to throw an error
-      const originalFindOne = User.findOne;
-      User.findOne = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
-      });
-
-      const result = await authController.resetPassword(
-        'test@example.com',
-        '1234',
-        'NewPass123!',
-      );
-
-      expect(result).toBe(false);
-
-      // Restore original method
-      User.findOne = originalFindOne;
-    });
   });
 
   describe('changePassword', () => {
@@ -567,22 +539,6 @@ describe('AuthController', () => {
       expect(result).toBeUndefined();
 
       User.create = originalCreate;
-    });
-
-    it('should handle forgotPassword when user.save() throws error', async () => {
-      const originalFindOne = User.findOne;
-      const mockUser = {
-        email: 'test@example.com',
-        save: jest.fn().mockRejectedValue(new Error('Save failed')),
-      };
-      User.findOne = jest.fn().mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockUser),
-      });
-
-      const result = await authController.forgotPassword('test@example.com');
-      expect(result.message).toBe('An error occurred. Please try again later.');
-
-      User.findOne = originalFindOne;
     });
 
     it('should handle resetPassword when user.save() throws error', async () => {

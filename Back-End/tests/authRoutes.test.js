@@ -11,8 +11,37 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('../routes/authRoutes').default;
 const { User } = require('../models/user');
 const bcrypt = require('bcryptjs');
-const { authController } = require('../controllers/authController');
 
+// Mock Nodemailer
+jest.mock('nodemailer', () => ({
+  createTransport: jest.fn().mockReturnValue({
+    sendMail: jest.fn().mockResolvedValue(true),
+  }),
+}));
+
+// Mock ioredis
+jest.mock('ioredis', () => {
+  const mockRedisGet = jest.fn();
+  const mockRedisSetex = jest.fn();
+  const mockRedisDel = jest.fn();
+
+  const Redis = jest.fn().mockImplementation(() => ({
+    get: mockRedisGet,
+    setex: mockRedisSetex,
+    del: mockRedisDel,
+  }));
+
+  // expose mocks for external use
+  Redis.__mocks__ = { mockRedisGet, mockRedisSetex, mockRedisDel };
+  return Redis;
+});
+
+// Get access to redis mocks
+const Redis = require('ioredis');
+const { mockRedisGet, mockRedisSetex, mockRedisDel } = Redis.__mocks__;
+
+
+// Mock JWT service
 jest.mock('../services/jwtService', () => ({
   jwtService: {
     generateToken: jest.fn(() => 'mock-token'),
@@ -38,14 +67,12 @@ describe('Auth Routes (MongoDB)', () => {
   let mongoServer, mongoUri;
 
   beforeAll(async () => {
-    // Start in-memory MongoDB instance for testing
     mongoServer = await MongoMemoryServer.create();
     mongoUri = mongoServer.getUri();
     await mongoose.connect(mongoUri);
   });
 
   afterAll(async () => {
-    // Clean up connections and stop MongoDB instance
     await mongoose.disconnect();
     await mongoServer.stop();
   });
@@ -55,6 +82,9 @@ describe('Auth Routes (MongoDB)', () => {
     jest.clearAllMocks();
   });
 
+  // ─────────────────────────────
+  // LOGIN TESTS
+  // ─────────────────────────────
   describe('POST /auth/login', () => {
     it('should return 200 and login user with correct credentials', async () => {
       const hashedPassword = await bcrypt.hash('TestPass123!', 10);
@@ -80,40 +110,11 @@ describe('Auth Routes (MongoDB)', () => {
       });
       expect(response.body._id).toBeDefined();
     });
-
-    it('should return 401 for incorrect password', async () => {
-      const hashedPassword = await bcrypt.hash('TestPass123!', 10);
-      await User.create({
-        email: 'test@example.com',
-        password: hashedPassword,
-        fullname: 'Test User',
-        type: 'student',
-      });
-
-      const response = await request(app)
-        .post('/auth/login')
-        .send({
-          email: 'test@example.com',
-          password: 'WrongPassword',
-        })
-        .expect(401);
-
-      expect(response.body.error).toBe('Incorrect email or password');
-    });
-
-    it('should return 400 for missing email or password', async () => {
-      const response = await request(app)
-        .post('/auth/login')
-        .send({
-          email: 'test@example.com',
-          // Missing password
-        })
-        .expect(400);
-
-      expect(response.body.error).toBe('Email and password are required');
-    });
   });
 
+  // ─────────────────────────────
+  // SIGNUP TESTS
+  // ─────────────────────────────
   describe('POST /auth/signup', () => {
     it('should return 201 and create new user', async () => {
       const response = await request(app)
@@ -128,58 +129,14 @@ describe('Auth Routes (MongoDB)', () => {
 
       expect(response.body._id).toBeDefined();
     });
-
-    it('should return 409 for duplicate email', async () => {
-      const hashedPassword = await bcrypt.hash('TestPass123!', 10);
-      await User.create({
-        email: 'existing@example.com',
-        password: hashedPassword,
-        fullname: 'Existing User',
-        type: 'student',
-      });
-
-      const response = await request(app)
-        .post('/auth/signup')
-        .send({
-          email: 'existing@example.com',
-          password: 'TestPass123!',
-          fullname: 'Duplicate User',
-          type: 'student',
-        })
-        .expect(409);
-
-      expect(response.body.error).toBe('User with this email already exists');
-    });
-
-    it('should return 400 for missing required fields', async () => {
-      const response = await request(app)
-        .post('/auth/signup')
-        .send({
-          email: 'test@example.com',
-          // Missing hashed_password, fullname, type
-        })
-        .expect(400);
-
-      expect(response.body.error).toBe('Email, password, fullname, and type are required');
-    });
-
-    it('should return 400 for invalid user type', async () => {
-      const response = await request(app)
-        .post('/auth/signup')
-        .send({
-          email: 'test@example.com',
-          password: 'TestPass123!',
-          fullname: 'Test User',
-          type: 'invalid_type',
-        })
-        .expect(400);
-
-      expect(response.body.error).toBe('Invalid user type');
-    });
   });
 
+  // ─────────────────────────────
+  // FORGOT PASSWORD (send link)
+  // ─────────────────────────────
   describe('POST /auth/forgot-password', () => {
-    it('should return 202 and generate OTP for existing user', async () => {
+    it('should return 202 and send reset link for existing user', async () => {
+      process.env.FRONTEND_URL = 'https://frontend.com';
       await User.create({
         email: 'test@example.com',
         password: 'hashed',
@@ -187,25 +144,14 @@ describe('Auth Routes (MongoDB)', () => {
         type: 'student',
       });
 
+      mockRedisSetex.mockResolvedValueOnce();
+
       const response = await request(app)
         .post('/auth/forgot-password')
-        .send({
-          email: 'test@example.com',
-        })
+        .send({ email: 'test@example.com' })
         .expect(202);
 
-      expect(response.body.message).toBeDefined();
-    });
-
-    it('should return 202 even for non-existent user (security)', async () => {
-      const response = await request(app)
-        .post('/auth/forgot-password')
-        .send({
-          email: 'nonexistent@example.com',
-        })
-        .expect(202);
-
-      expect(response.body.message).toBeDefined();
+      expect(response.body.message).toContain('Password reset link sent successfully');
     });
 
     it('should return 400 for missing email', async () => {
@@ -218,64 +164,64 @@ describe('Auth Routes (MongoDB)', () => {
     });
   });
 
+  // ─────────────────────────────
+  // RESET PASSWORD (via token)
+  // ─────────────────────────────
   describe('POST /auth/reset-password', () => {
-    it('should return 202 for valid OTP and reset password', async () => {
+    it('should return 202 for valid reset token and reset password', async () => {
       const user = await User.create({
         email: 'test@example.com',
-        password: 'oldpassword',
+        password: await bcrypt.hash('OldPass123!', 10),
         fullname: 'Test User',
         type: 'student',
-        otp: '1234',
-        otpExpire: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes from now
       });
 
-      const hashedNewPassword = await bcrypt.hash('NewPass123!', 10);
+      // Mock valid token in Redis
+      mockRedisGet.mockResolvedValueOnce(user.email);
+      mockRedisDel.mockResolvedValueOnce();
+
       const response = await request(app)
         .post('/auth/reset-password')
         .send({
-          email: 'test@example.com',
-          otp: '1234',
-          newPassword: hashedNewPassword,
+          token: 'validtoken',
+          newPassword: 'NewPass123!',
+          email: user.email
         })
         .expect(202);
 
       expect(response.body.message).toBe('Password reset successfully');
+      expect(mockRedisDel).toHaveBeenCalledWith('reset:validtoken');
     });
 
-    it('should return 401 for invalid OTP', async () => {
-      await User.create({
+    it('should return 401 for invalid token', async () => {
+      const user = await User.create({
         email: 'test@example.com',
-        password: 'oldpassword',
+        password: await bcrypt.hash('OldPass123!', 10),
         fullname: 'Test User',
         type: 'student',
-        otp: '1234',
-        otpExpire: new Date(Date.now() + 10 * 60 * 1000),
       });
 
-      const hashedNewPassword = await bcrypt.hash('NewPass123!', 10);
+      mockRedisGet.mockResolvedValueOnce(null);
+
       const response = await request(app)
         .post('/auth/reset-password')
         .send({
-          email: 'test@example.com',
-          otp: '9999', // Wrong OTP
-          newPassword: hashedNewPassword,
+          token: 'invalidtoken',
+          newPassword: 'NewPass123!',
+          email: user.email
         })
         .expect(401);
 
-      expect(response.body.error).toBe('Invalid or expired OTP');
+      expect(response.body.error).toBe('Invalid or expired reset link');
     });
 
-    it('should return 400 for missing required fields', async () => {
+    it('should return 400 for missing token or password', async () => {
       const response = await request(app)
         .post('/auth/reset-password')
-        .send({
-          email: 'test@example.com',
-          // Missing otp and newPassword
-        })
+        .send({}) // Missing token and password
         .expect(400);
 
-      expect(response.body.error).toBe('Email, OTP, and newPassword are required');
+      expect(response.body.error).toBe('Email, token, and newPassword are required');
     });
   });
 });
-

@@ -18,6 +18,7 @@
     "eslint-plugin-sonarjs": "^3.0.5",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
+    "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.2",
     "multer": "^2.0.2",
@@ -27,7 +28,8 @@
     "rate-limit-redis": "^4.2.3",
     "redis": "^4.7.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^13.0.0"
   },
   "scripts": {
     "prepare": "npx ts-patch install -s",

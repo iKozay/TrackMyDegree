@@ -81,7 +81,6 @@ export default [
     },
   },
   {
-    ignores: ['dist/*', 'node_modules/*', 'courseData/*'],
-  },
+    ignores: ['dist/*', 'node_modules/*', 'course-data/*'],  },
   prettierConfig,
 ];

@@ -184,24 +184,23 @@ router.post('/reset-password', async (req: Request, res: Response) => {
       return;
     }
 
-    const { email, otp, newPassword } = req.body;
+    const { email, token, newPassword } = req.body;
 
-    if (!email || !otp || !newPassword) {
+    if (!email || !token || !newPassword) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: 'Email, OTP, and newPassword are required',
+        error: 'Email, token, and newPassword are required',
       });
       return;
     }
 
-    const result = await authController.resetPassword(email, otp, newPassword);
-
+    const result = await authController.resetPassword(token, newPassword);
     if (result) {
       res.status(HTTP.ACCEPTED).json({
         message: 'Password reset successfully',
       });
     } else {
       res.status(HTTP.UNAUTHORIZED).json({
-        error: 'Invalid or expired OTP',
+        error: 'Invalid or expired reset link',
       });
     }
   } catch (error) {
