@@ -144,7 +144,7 @@ const UserPage = ({ onDataProcessed }) => {
               <div className="list-group">
                 {userTimelines.map((obj) => (
                   <div key={obj.id} className="timeline-box d-flex align-items-center justify-content-between">
-                    <span className="timeline-link" onClick={() => handleTimelineClick(obj)}>
+                    <span className="timeline-link" onClick={() => handleTimelineClick(obj)} aria-hidden="true">
                       <span className="timeline-text">{obj.name}</span>
                       <span className="timeline-text">
                         Last Modified: {moment(obj.last_modified).format('MMM DD, YYYY h:mm A')}
