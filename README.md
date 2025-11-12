@@ -69,15 +69,25 @@ Ensure you have the following installed on your machine:
    cd TrackMyDegree
    ```
 
-2. **Set up SQL Server password secret**:
-   Create a file named `sql_server_password.txt` in the `./secrets` directory and add the SQL Server password to it. Make sure the passwords meets the MS SQL Server password requirements (see example below).
+2. **Set up .env**:
+   Copy `.env.example` to `./secrets` directory and assign values for each environment variable.
     
    ```bash
     mkdir -p secrets
-    echo "MySecureP@ss123!" > secrets/sql_server_password.txt
+    cp .env.example ./secrets/.env
     ```
+
+3. **Install dependencies**:
+   ```bash
+   cd front-end
+   npm i
+   cd ../Back-End
+   npm i
+   cd ..
+   npm i
+   ```
    
-3. **Build and Run the Application**:
+4. **Build and Run the Application**:
    Run the following command to start all components:
 
    ```bash
