@@ -181,8 +181,8 @@ jobs:
       - name: Generate version tags
         id: version
         run: |
-          DATE_TAG=$(date +%Y%m%d)
-          TIMESTAMP=$(date +%H%M%S)
+          DATE_TAG=$(TZ='America/New_York' date +%Y%m%d)
+          TIMESTAMP=$(TZ='America/New_York' date +%H%M%S)
           SHORT_SHA=$(git rev-parse --short HEAD)
           VERSION_TAG="${DATE_TAG}.${TIMESTAMP}-${SHORT_SHA}"
 
