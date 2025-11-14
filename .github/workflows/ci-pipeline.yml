@@ -11,7 +11,6 @@ on:
 
 
 jobs:
-  # # 3) Frontend tasks (runs in parallel with backend & scraper)
   # frontend:
   #   runs-on: ubuntu-latest
   #   steps:
@@ -50,7 +49,6 @@ jobs:
   #         name: frontend-coverage
   #         path: front-end/coverage
 
-  # # 4) Backend tasks (runs in parallel)
   # backend:
   #   runs-on: ubuntu-latest
   #   steps:
@@ -86,7 +84,6 @@ jobs:
   #         name: backend-coverage
   #         path: Back-End/coverage
 
-  # # 5) Scraper tests (runs in parallel)
   # scraper:
   #   runs-on: ubuntu-latest
   #   steps:
@@ -111,7 +108,6 @@ jobs:
   #         name: scraper-coverage
   #         path: Back-End/course-data/Scraping/coverage.xml
 
-  # # 6) SonarCloud Scan - waits for frontend, backend, scraper to finish
   # sonarcloud:
   #   needs: [frontend, backend, scraper]
   #   runs-on: ubuntu-latest
@@ -149,10 +145,8 @@ jobs:
     runs-on: ubuntu-latest
     # needs: [sonarcloud]    # only run if tests pass
     # if: ${{ github.ref == 'refs/heads/main' }}  # publish only on main branch
-    outputs:
-      version_tag: ${{ steps.version.outputs.version_tag }}
     permissions:
-      contents: write
+      # Already have read access to contents
       packages: write
 
     strategy: #Images of both front-end and back-end are built and pushed to GHCR
@@ -169,10 +163,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Configure git for tagging
-        run: |
-          git config user.email "actions@github.com"
-          git config user.name "GitHub Actions"
+      # - name: Configure git for tagging
+      #   run: |
+      #     git config user.email "actions@github.com"
+      #     git config user.name "GitHub Actions"
 
       # - name: Set up Docker Buildx
       #   uses: docker/setup-buildx-action@v3
@@ -188,19 +182,10 @@ jobs:
         id: version
         run: |
           DATE_TAG=$(date +%Y%m%d)
-          # Ensure we have all remote tags
-          git fetch --prune --tags origin
+          TIMESTAMP=$(date +%H%M%S)
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          VERSION_TAG="${DATE_TAG}.${TIMESTAMP}-${SHORT_SHA}"
 
-          # List local tags matching DATE_TAG.*, extract numeric part, sort and pick highest
-          LAST=$(git tag -l "${DATE_TAG}.*" | sed -E "s/^${DATE_TAG}\.([0-9]+)$/\1/" | sort -n | tail -n1)
-
-          if [ -z "$LAST" ]; then
-            N=1
-          else
-            N=$((LAST + 1))
-          fi
-
-          VERSION_TAG="${DATE_TAG}.${N}"
           echo "version_tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
           echo "Chosen version tag: $VERSION_TAG"
 
@@ -221,24 +206,4 @@ jobs:
       #     echo "✅ Successfully pushed ${{ matrix.name }} image with tags:"
       #     echo "   ✓ $IMAGE:latest"
       #     echo "   ✓ $IMAGE:$VERSION_TAG"
-
-  create-git-tag:
-    runs-on: ubuntu-latest
-    needs: [publish-ghcr]
-    # if: ${{ github.ref == 'refs/heads/main' }}  # create tag only on main branch
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Configure git for tagging
-        run: |
-          git config user.email "actions@github.com"
-          git config user.name "GitHub Actions"
-
-      - name: Create and push version tag
-        run: |
-          VERSION_TAG=${{ needs.publish-ghcr.outputs.version_tag }}
-          git tag $VERSION_TAG
-          git push origin $VERSION_TAG
-          echo "✅ Created and pushed git tag: $VERSION_TAG"
          
