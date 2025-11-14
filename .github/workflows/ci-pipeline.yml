@@ -149,6 +149,8 @@ jobs:
     runs-on: ubuntu-latest
     # needs: [sonarcloud]    # only run if tests pass
     # if: ${{ github.ref == 'refs/heads/main' }}  # publish only on main branch
+    outputs:
+      version_tag: ${{ steps.version.outputs.version_tag }}
     permissions:
       contents: write
       packages: write
@@ -202,10 +204,6 @@ jobs:
           echo "version_tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
           echo "Chosen version tag: $VERSION_TAG"
 
-          # Create and push annotated tag
-          git tag -a "${VERSION_TAG}" -m "CI tag ${VERSION_TAG}"
-          git push origin "refs/tags/${VERSION_TAG}"
-
       # - name: Build and Push ${{ matrix.name }} Image
       #   run: |
       #     IMAGE=${{ steps.version.outputs.image_name }}
@@ -223,3 +221,24 @@ jobs:
       #     echo "✅ Successfully pushed ${{ matrix.name }} image with tags:"
       #     echo "   ✓ $IMAGE:latest"
       #     echo "   ✓ $IMAGE:$VERSION_TAG"
+
+  create-git-tag:
+    runs-on: ubuntu-latest
+    needs: publish-ghcr
+    if: ${{ github.ref == 'refs/heads/main' }}  # create tag only on main branch
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure git for tagging
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+
+      - name: Create and push version tag
+        run: |
+          VERSION_TAG=${{ needs.publish-ghcr.outputs.version_tag }}
+          git tag $VERSION_TAG
+          git push origin $VERSION_TAG
+          echo "✅ Created and pushed git tag: $VERSION_TAG"
+         
