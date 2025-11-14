@@ -148,7 +148,7 @@ jobs:
   publish-ghcr:
     runs-on: ubuntu-latest
     needs: [sonarcloud]    # only run if tests pass
-    if: ${{ github.ref == 'refs/heads/main' }}  # publish only on main branch
+    # if: ${{ github.ref == 'refs/heads/main' }}  # publish only on main branch
     permissions: #Github_token by default has read only access for centent. It is needed to set the write permission
       contents: read
       packages: write
@@ -182,26 +182,20 @@ jobs:
         run: |
           # Generate date in YYYYMMDD format
           DATE_TAG=$(date +%Y%m%d)
-          echo "date_tag=${DATE_TAG}" >> $GITHUB_OUTPUT
-                    
-          # Convert repository owner to lowercase
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          echo "owner=${OWNER}" >> $GITHUB_OUTPUT
-          
-          # Construct image name
           IMAGE_NAME="ghcr.io/${OWNER}/${{ matrix.image }}"
-          echo "image_name=${IMAGE_NAME}" >> $GITHUB_OUTPUT
           
           # Fetch existing tags for this image to find increment number
           # Use GitHub Container Registry API to get all tags
           echo "🔍 Fetching existing tags for ${OWNER}/${{ matrix.image }}..."
           TAGS_JSON=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://ghcr.io/v2/${OWNER}/${{ matrix.image }}/tags/list" || echo '{"tags":[]}')
-          
+
+          echo "TAGS_JSON: $TAGS_JSON"
           # Find tags matching today's date pattern (YYYYMMDD.*)
           # Extract the increment numbers for today's builds
           INCREMENT=$(echo "$TAGS_JSON" | grep -oP "${DATE_TAG}\.\K\d+" | sort -n | tail -1)
-          
+          echo "INCREMENT: $INCREMENT"
           # If no builds today, start at 1; otherwise increment
           if [ -z "$INCREMENT" ]; then
             INCREMENT=1
@@ -212,24 +206,22 @@ jobs:
           # Create full version tag
           VERSION_TAG="${DATE_TAG}.${INCREMENT}"
           echo "version_tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
-          
-          echo "📋 Generated tags:"
-          echo "   - Date version: ${VERSION_TAG}"
+          echo "Chosen version tag: $VERSION_TAG"
 
-      - name: Build and Push ${{ matrix.name }} Image
-        run: |
-          IMAGE=${{ steps.version.outputs.image_name }}
-          VERSION_TAG=${{ steps.version.outputs.version_tag }}
+      # - name: Build and Push ${{ matrix.name }} Image
+      #   run: |
+      #     IMAGE=${{ steps.version.outputs.image_name }}
+      #     VERSION_TAG=${{ steps.version.outputs.version_tag }}
           
-          echo "🔨 Building $IMAGE..."
-          docker build \
-            -t $IMAGE:latest \
-            -t $IMAGE:$VERSION_TAG \
-            ${{ matrix.context }}
+      #     echo "🔨 Building $IMAGE..."
+      #     docker build \
+      #       -t $IMAGE:latest \
+      #       -t $IMAGE:$VERSION_TAG \
+      #       ${{ matrix.context }}
           
-          echo "📦 Pushing $IMAGE..."
-          docker push --all-tags $IMAGE
+      #     echo "📦 Pushing $IMAGE..."
+      #     docker push --all-tags $IMAGE
           
-          echo "✅ Successfully pushed ${{ matrix.name }} image with tags:"
-          echo "   ✓ $IMAGE:latest"
-          echo "   ✓ $IMAGE:$VERSION_TAG"
+      #     echo "✅ Successfully pushed ${{ matrix.name }} image with tags:"
+      #     echo "   ✓ $IMAGE:latest"
+      #     echo "   ✓ $IMAGE:$VERSION_TAG"
