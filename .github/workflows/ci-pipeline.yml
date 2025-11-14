@@ -177,9 +177,8 @@ jobs:
         id: version
         run: |
           DATE_TAG=$(TZ='America/New_York' date +%Y%m%d)
-          TIMESTAMP=$(TZ='America/New_York' date +%H%M%S)
           SHORT_SHA=$(git rev-parse --short HEAD)
-          VERSION_TAG="${DATE_TAG}.${TIMESTAMP}-${SHORT_SHA}"
+          VERSION_TAG="${DATE_TAG}-${SHORT_SHA}"
 
           echo "version_tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
           echo "Chosen version tag: $VERSION_TAG"
