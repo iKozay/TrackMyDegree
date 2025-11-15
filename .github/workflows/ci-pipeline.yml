@@ -11,7 +11,6 @@ on:
 
 
 jobs:
-  # 3) Frontend tasks (runs in parallel with backend & scraper)
   frontend:
     runs-on: ubuntu-latest
     steps:
@@ -50,7 +49,6 @@ jobs:
           name: frontend-coverage
           path: front-end/coverage
 
-  # 4) Backend tasks (runs in parallel)
   backend:
     runs-on: ubuntu-latest
     steps:
@@ -86,7 +84,6 @@ jobs:
           name: backend-coverage
           path: Back-End/coverage
 
-  # 5) Scraper tests (runs in parallel)
   scraper:
     runs-on: ubuntu-latest
     steps:
@@ -111,7 +108,6 @@ jobs:
           name: scraper-coverage
           path: Back-End/course-data/Scraping/coverage.xml
 
-  # 6) SonarCloud Scan - waits for frontend, backend, scraper to finish
   sonarcloud:
     needs: [frontend, backend, scraper]
     runs-on: ubuntu-latest
@@ -149,8 +145,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [sonarcloud]    # only run if tests pass
     if: ${{ github.ref == 'refs/heads/main' }}  # publish only on main branch
-    permissions: #Github_token by default has read only access for centent. It is needed to set the write permission
-      contents: read
+    permissions:
+      # Already have read access to contents
       packages: write
 
     strategy: #Images of both front-end and back-end are built and pushed to GHCR
@@ -180,41 +176,12 @@ jobs:
       - name: Generate version tags
         id: version
         run: |
-          # Generate date in YYYYMMDD format
-          DATE_TAG=$(date +%Y%m%d)
-          echo "date_tag=${DATE_TAG}" >> $GITHUB_OUTPUT
-                    
-          # Convert repository owner to lowercase
-          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          echo "owner=${OWNER}" >> $GITHUB_OUTPUT
-          
-          # Construct image name
-          IMAGE_NAME="ghcr.io/${OWNER}/${{ matrix.image }}"
-          echo "image_name=${IMAGE_NAME}" >> $GITHUB_OUTPUT
-          
-          # Fetch existing tags for this image to find increment number
-          # Use GitHub Container Registry API to get all tags
-          echo "🔍 Fetching existing tags for ${OWNER}/${{ matrix.image }}..."
-          TAGS_JSON=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://ghcr.io/v2/${OWNER}/${{ matrix.image }}/tags/list" || echo '{"tags":[]}')
-          
-          # Find tags matching today's date pattern (YYYYMMDD.*)
-          # Extract the increment numbers for today's builds
-          INCREMENT=$(echo "$TAGS_JSON" | grep -oP "${DATE_TAG}\.\K\d+" | sort -n | tail -1)
-          
-          # If no builds today, start at 1; otherwise increment
-          if [ -z "$INCREMENT" ]; then
-            INCREMENT=1
-          else
-            INCREMENT=$((INCREMENT + 1))
-          fi
-          
-          # Create full version tag
-          VERSION_TAG="${DATE_TAG}.${INCREMENT}"
+          DATE_TAG=$(TZ='America/New_York' date +%Y%m%d)
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          VERSION_TAG="${DATE_TAG}-${SHORT_SHA}"
+
           echo "version_tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
-          
-          echo "📋 Generated tags:"
-          echo "   - Date version: ${VERSION_TAG}"
+          echo "Chosen version tag: $VERSION_TAG"
 
       - name: Build and Push ${{ matrix.name }} Image
         run: |
@@ -233,3 +200,4 @@ jobs:
           echo "✅ Successfully pushed ${{ matrix.name }} image with tags:"
           echo "   ✓ $IMAGE:latest"
           echo "   ✓ $IMAGE:$VERSION_TAG"
+         

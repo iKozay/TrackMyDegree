@@ -49,7 +49,7 @@ Figma: [Here](https://www.figma.com/design/SBv0R8mN0K9N2jVbV42wol/TrackMyDegree-
 | Sadee Mohammad Shadman           | 40236919   | [sadeeshadman](https://github.com/sadeeshadman)             | sadeeshadman@gmail.com         |
 | Syed Ayaan Jilani                | 40209519   | [CS-ION](https://github.com/CS-ION)                         | asadrubina.ra@gmail.com        |
 | Yassine Ibhir                    | 40251116   | [Yibhir0](https://github.com/Yibhir0)                       | yibhir101@gmail.com            |
-| Zeiad Badawy                     | 40247477   | [iKozay](https://github.com/iKozay)                         | zeiad.badawy@mail.concordia.ca |
+| Zeiad Badawy                     | 40247477   | [iKozay](https://github.com/iKozay)                         | zeiadbadawy@gmail.com |
 
 ## Developer Setup Guide
 
@@ -74,11 +74,11 @@ Ensure you have the following installed on your machine:
    ```
 
 2. **Set up .env**:
-   Copy `.env.example` to `./secrets` directory and assign values for each environment variable.
+   Copy `local-dev.env` to `./secrets` directory and assign values for each environment variable.
     
    ```bash
     mkdir -p secrets
-    cp .env.example ./secrets/.env
+    cp local-dev.env ./secrets/.env
     ```
 
 3. **Install dependencies**:
@@ -105,7 +105,7 @@ Ensure you have the following installed on your machine:
     - Start the frontend, backend concurrently.
     - The application should now be running locally at localhost:3000.
 
-## Production Deployment
+## Deployment
 
 For production deployment with SSL/HTTPS support, follow these additional steps:
 
@@ -116,28 +116,72 @@ For production deployment with SSL/HTTPS support, follow these additional steps:
 
 ### Production Setup Instructions
 
-1. **Complete the development setup steps** (steps 1-2 from the Developer Setup Guide above)
+1. **Download `docker-compose.prd.yml`** (steps 1-2 from the Developer Setup Guide above)
 
-2. **Create environment configuration**:
-   Create a `.env` file in the root directory of the project:
+2. **Configure Environment Variables**:
+   - **Create `.env` file in the same folder as the docker-compose and add the following (replace yourdomain.com with your actual domain name):**
+     ```bash
+     DOMAIN=yourdomain.com
+     ```
+   - **Create a secrets folder and a certs folder**
+     ```bash
+     mkdir ./secrets
+     mkdir ./certs
+     ```
+   - **Inside the secrets folder, create `frontend.env` and include the following (replace placeholders with actual values):**
+     ```bash
+     NODE_ENV=production
+     REACT_APP_SERVER=https://yourdomain.com
+     REACT_APP_PUBLIC_POSTHOG_KEY=phc_somedummyvalue12345
+     REACT_APP_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
+     ```
+   - **Inside the secrets folder, create `backend.env` and include the following (replace placeholders with actual values):**
+     ```bash
+     NODE_ENV=production
+     CLIENT=https://yourdomain.com
+     FRONTEND_URL=https://yourdomain.com/
+     BACKEND_PORT=8000
+     BACKUP_DIR=/var/backups
+     REDIS_URL=redis://redis:6379
+     MONGODB_URI=mongo://admin:password@localhost:27017/trackmydegree?authSource=admin
+     EMAIL_USER=admin@yourdomain.com
+     SMTP_CLIENT_ID=client-id
+     SMTP_CLIENT_SECRET=client-secret
+     SMTP_REFRESH_TOKEN=long-lived-refresh-token
+     JWT_SECRET=verylongjwtsecret
+     JWT_ACCESS_EXPIRY=1h
+     JWT_REFRESH_EXPIRY=7d
+     JWT_ORG_ID=yourdomain.com
+     SESSION_ALGO=aes-256-gcm
+     COOKIE_DOMAIN=yourdomain.com
+     SCHEDULE_USER=123
+     SCHEDULE_PASS=ConcordiaAPIPassword123
+     SENTRY_DSN=https://sentry.io
+     ```
+   - **Inside the secrets folder, create `mongo.env` and include the following (replace placeholders with actual values):**
+     ```bash
+     MONGO_INITDB_ROOT_USERNAME=admin
+     MONGO_INITDB_ROOT_PASSWORD=password
+     MONGODB_DATABASE=trackmydegree
+     ```
+   - **Inside the certs folder, download `certs/dynamic.yml` from the repo**
+   - **Either use your own certs or use Cloudflare origin certs and put both inside the certs folder. Name them `origin.key` and `origin.pem`**
+   - **Final folder structure:**
+     ```bash
+     root-folder
+     ├── certs
+     │   ├── dynamic.yml
+     │   ├── origin.key
+     │   └── origin.pem
+     ├── secrets
+     │   ├── backend.env
+     │   ├── frontend.env
+     │   └── mongo.env
+     ├── .env
+     └── docker-compose.prd.yml
+     ```
 
-   ```bash
-   touch .env
-   ```
-
-3. **Configure production environment variables**:
-   Add the following variables to your `.env` file:
-
-   ```env
-   DOMAIN=yourdomain.com
-   ACME_EMAIL=your-email@example.com
-   ```
-
-   Replace:
-   - `yourdomain.com` with your actual domain name
-   - `your-email@example.com` with your email address (used for Let's Encrypt SSL certificate registration)
-
-4. **Deploy the application**:
+3. **Deploy the application**:
    Run the production deployment command:
 
    ```bash
@@ -146,19 +190,14 @@ For production deployment with SSL/HTTPS support, follow these additional steps:
 
    This will:
    - Build and start all services in detached mode
-   - Automatically obtain SSL certificates via Let's Encrypt
-   - Configure HTTPS redirection
    - Set up the reverse proxy with SSL termination
 
-5. **Verify deployment**:
+4. **Verify deployment**:
    - Your application should be accessible at `https://yourdomain.com`
-   - HTTP traffic will automatically redirect to HTTPS
-   - SSL certificates will auto-renew before expiration
 
 **Production Notes:**
 - Ensure your domain's DNS A record points to your server's IP address
-- Allow ports 80 (HTTP) and 443 (HTTPS) through your firewall
-- The initial SSL certificate generation may take a few minutes
+- Allow port 443 (HTTPS) through your firewall
 - Monitor logs with `docker compose logs -f` if needed
 
 ## Equity and Diversity Statement
