@@ -38,7 +38,7 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`stg.trackmydegree.ca`) && !PathPrefix(`/auth`) && !PathPrefix(`/courses`) && !PathPrefix(`/degree`) && !PathPrefix(`/timeline`) && !PathPrefix(`/coursepool`) && !PathPrefix(`/users`) && !PathPrefix(`/admin`) && !PathPrefix(`/feedback`) && !PathPrefix(`/session`) && !PathPrefix(`/section`) && !PathPrefix(`/upload`) && !PathPrefix(`/api-docs`) && !PathPrefix(`/openapi.json`)"
+      - "traefik.http.routers.frontend.rule=Host(`stg.${DOMAIN}`) && !PathPrefix(`/auth`) && !PathPrefix(`/courses`) && !PathPrefix(`/degree`) && !PathPrefix(`/timeline`) && !PathPrefix(`/coursepool`) && !PathPrefix(`/users`) && !PathPrefix(`/admin`) && !PathPrefix(`/feedback`) && !PathPrefix(`/session`) && !PathPrefix(`/section`) && !PathPrefix(`/upload`) && !PathPrefix(`/api-docs`) && !PathPrefix(`/openapi.json`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
@@ -60,7 +60,7 @@ services:
       - mongodb
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`stg.trackmydegree.ca`) && (PathPrefix(`/auth`) || PathPrefix(`/courses`) || PathPrefix(`/degree`) || PathPrefix(`/timeline`) || PathPrefix(`/coursepool`) || PathPrefix(`/users`) || PathPrefix(`/admin`) || PathPrefix(`/feedback`) || PathPrefix(`/session`) || PathPrefix(`/section`) || PathPrefix(`/upload`) || PathPrefix(`/api-docs`) || PathPrefix(`/openapi.json`))"
+      - "traefik.http.routers.backend.rule=Host(`stg.${DOMAIN}`) && (PathPrefix(`/auth`) || PathPrefix(`/courses`) || PathPrefix(`/degree`) || PathPrefix(`/timeline`) || PathPrefix(`/coursepool`) || PathPrefix(`/users`) || PathPrefix(`/admin`) || PathPrefix(`/feedback`) || PathPrefix(`/session`) || PathPrefix(`/section`) || PathPrefix(`/upload`) || PathPrefix(`/api-docs`) || PathPrefix(`/openapi.json`))"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls=true"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
