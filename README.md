@@ -116,55 +116,28 @@ For production deployment with SSL/HTTPS support, follow these additional steps:
 
 ### Production Setup Instructions
 
-1. **Download `docker-compose.prd.yml`** (steps 1-2 from the Developer Setup Guide above)
+1. **Download `docker-compose.prd.yml`, `frontend.env.example`, `backend.env.example`, `mongo.env.example` and `certs/dynamic.yml`**
 
 2. **Configure Environment Variables**:
-   - **Create `.env` file in the same folder as the docker-compose and add the following (replace yourdomain.com with your actual domain name):**
+   - **Rename `docker.env.example` to `.env` and replace yourdomain.com with your actual domain name:**
      ```bash
-     DOMAIN=yourdomain.com
+     mv docker.env.example .env
      ```
    - **Create a secrets folder and a certs folder**
      ```bash
      mkdir ./secrets
      mkdir ./certs
      ```
-   - **Inside the secrets folder, create `frontend.env` and include the following (replace placeholders with actual values):**
+   - **Move `frontend.env.example`, `backend.env.example` and `mongo.env.example` inside the secrets folder and replace placeholders with actual values for each:**
      ```bash
-     NODE_ENV=production
-     REACT_APP_SERVER=https://yourdomain.com
-     REACT_APP_PUBLIC_POSTHOG_KEY=phc_somedummyvalue12345
-     REACT_APP_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
+     mv frontend.env.example ./secrets/frontend.env
+     mv backend.env.example ./secrets/backend.env
+     mv mongo.env.example ./secrets/mongo.env
      ```
-   - **Inside the secrets folder, create `backend.env` and include the following (replace placeholders with actual values):**
+   - **Move `dynamic.yml` downlaoded earlier to the certs folder.**
      ```bash
-     NODE_ENV=production
-     CLIENT=https://yourdomain.com
-     FRONTEND_URL=https://yourdomain.com/
-     BACKEND_PORT=8000
-     BACKUP_DIR=/var/backups
-     REDIS_URL=redis://redis:6379
-     MONGODB_URI=mongo://admin:password@localhost:27017/trackmydegree?authSource=admin
-     EMAIL_USER=admin@yourdomain.com
-     SMTP_CLIENT_ID=client-id
-     SMTP_CLIENT_SECRET=client-secret
-     SMTP_REFRESH_TOKEN=long-lived-refresh-token
-     JWT_SECRET=verylongjwtsecret
-     JWT_ACCESS_EXPIRY=1h
-     JWT_REFRESH_EXPIRY=7d
-     JWT_ORG_ID=yourdomain.com
-     SESSION_ALGO=aes-256-gcm
-     COOKIE_DOMAIN=yourdomain.com
-     SCHEDULE_USER=123
-     SCHEDULE_PASS=ConcordiaAPIPassword123
-     SENTRY_DSN=https://sentry.io
+     mv dynamic.yml certs/dynamic.yml
      ```
-   - **Inside the secrets folder, create `mongo.env` and include the following (replace placeholders with actual values):**
-     ```bash
-     MONGO_INITDB_ROOT_USERNAME=admin
-     MONGO_INITDB_ROOT_PASSWORD=password
-     MONGODB_DATABASE=trackmydegree
-     ```
-   - **Inside the certs folder, download `certs/dynamic.yml` from the repo**
    - **Either use your own certs or use Cloudflare origin certs and put both inside the certs folder. Name them `origin.key` and `origin.pem`**
    - **Final folder structure:**
      ```bash

@@ -1,7 +1,7 @@
 services:
   traefik:
     container_name: traefik
-    image: traefik:latest
+    image: traefik:v3
     restart: always
     ports:
       - "443:443"
@@ -67,7 +67,7 @@ services:
 
   mongodb:
     container_name: mongodb
-    image: mongo:latest
+    image: mongo:8.2
     restart: always
     expose:
       - "27017"
@@ -83,7 +83,7 @@ services:
 
   redis:
     container_name: redis
-    image: redis:latest
+    image: redis:8.2
     restart: always
     expose:
       - "6379"
@@ -101,7 +101,7 @@ services:
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 60  # check every minute
+    command: --interval 300  # check every 5 minutes
     environment:
       - WATCHTOWER_CLEANUP=true  # remove old images
       - WATCHTOWER_NOTIFICATIONS_LEVEL=info

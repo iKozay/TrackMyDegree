@@ -15,7 +15,6 @@ on:
       version_tag:
         description: 'Version tag to promote (e.g. 20251114-5dab50b)'
         required: true
-        default: latest
 
 permissions:
   contents: read
@@ -25,11 +24,6 @@ jobs:
   promote:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -43,7 +37,9 @@ jobs:
           install: true
 
       - name: Prepare inputs and validate provided version tag exists
+        shell: bash
         run: |
+          set -eo pipefail
           CHOICE="${{ github.event.inputs.image }}"
           VERSION="${{ github.event.inputs.version_tag }}"
           OWNER="${{ github.repository_owner }}"
@@ -73,7 +69,9 @@ jobs:
           echo "Validation succeeded: tag exists for selected image(s)"
 
       - name: Promote selected images to production (in-registry tag)
+        shell: bash
         run: |
+          set -eo pipefail
           IFS=',' read -r -a IMGS <<< "$IMAGES"
           for img in "${IMGS[@]}"; do
             SRC="ghcr.io/${OWNER}/${img}:${VERSION_TAG}"
