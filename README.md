@@ -32,8 +32,8 @@ academic planning and setting a new standard in educational technology.
 
 ### Mockups
 
-Mockup designs made using
-Figma: [Here](https://www.figma.com/design/SBv0R8mN0K9N2jVbV42wol/TrackMyDegree--V2-?node-id=0-1&t=52CdgQnGAGi4ShXk-1)
+Previous UI/features' designs: [Here](https://www.figma.com/design/SBv0R8mN0K9N2jVbV42wol/TrackMyDegree--V2-?node-id=0-1&t=52CdgQnGAGi4ShXk-1)    
+Current UI/features' designs: [Here](https://dimly-recap-91212251.figma.site/)
 
 ### Team members
 
