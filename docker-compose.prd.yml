@@ -11,13 +11,13 @@ services:
       - --providers.docker.exposedbydefault=false
       # Define entrypoints for HTTPS
       - --entrypoints.websecure.address=:443
-      # Static TLS configuration from /certs/dynamic.yml
-      - --providers.file.filename=/certs/dynamic.yml
+      # Static TLS configuration from /traefik/dynamic.yml
+      - --providers.file.filename=/traefik/dynamic.yml
     volumes:
       # Mount Docker socket as read-only to allow Traefik to discover services
       - /var/run/docker.sock:/var/run/docker.sock:ro
       # Cloudflare Certs
-      - ./certs/:/certs/:ro
+      - ./traefik/:/traefik/:ro
     networks:
       - app-network
     labels:

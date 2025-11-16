@@ -116,17 +116,18 @@ For production deployment with SSL/HTTPS support, follow these additional steps:
 
 ### Production Setup Instructions
 
-1. **Download `docker-compose.prd.yml`, `frontend.env.example`, `backend.env.example`, `mongo.env.example` and `certs/dynamic.yml`**
+1. **Download `docker-compose.prd.yml`, `frontend.env.example`, `backend.env.example`, `mongo.env.example` and `traefik/dynamic.yml`**
 
 2. **Configure Environment Variables**:
    - **Rename `docker.env.example` to `.env` and replace yourdomain.com with your actual domain name:**
      ```bash
      mv docker.env.example .env
      ```
-   - **Create a secrets folder and a certs folder**
+   - **Create a `secrets` folder and a `traefik/certs` folder**
      ```bash
      mkdir ./secrets
-     mkdir ./certs
+     mkdir ./traefik
+     mkdir ./traefik/certs
      ```
    - **Move `frontend.env.example`, `backend.env.example` and `mongo.env.example` inside the secrets folder and replace placeholders with actual values for each:**
      ```bash
@@ -134,18 +135,19 @@ For production deployment with SSL/HTTPS support, follow these additional steps:
      mv backend.env.example ./secrets/backend.env
      mv mongo.env.example ./secrets/mongo.env
      ```
-   - **Move `dynamic.yml` downlaoded earlier to the certs folder.**
+   - **Move `dynamic.yml` downloaded earlier to the traefik folder.**
      ```bash
-     mv dynamic.yml certs/dynamic.yml
+     mv dynamic.yml traefik/dynamic.yml
      ```
-   - **Either use your own certs or use Cloudflare origin certs and put both inside the certs folder. Name them `origin.key` and `origin.pem`**
+   - **Either use your own certs or use Cloudflare origin certs and put both inside `traefik/certs` folder. Name them `origin.key` and `origin.pem`**
    - **Final folder structure:**
      ```bash
      root-folder
-     ├── certs
+     ├── traefik
      │   ├── dynamic.yml
-     │   ├── origin.key
-     │   └── origin.pem
+     │   └── certs
+     │       └── origin.key
+     │       └── origin.pem
      ├── secrets
      │   ├── backend.env
      │   ├── frontend.env
