@@ -69,17 +69,17 @@ export class TranscriptParser {
         (tc) => tc.courseCode.replaceAll(/\s+/g, ''),
       );
     }
-    let coursesTaken = [];
+
+    formattedData.semesters = [];
     for (const term of parsedData.terms) {
       const termName = `${term.term} ${term.year}`;
-      coursesTaken.push({
+      formattedData.semesters.push({
         term: termName,
         courses: term.courses.map((tc) => {
           return { code: tc.courseCode.replaceAll(/\s+/g, '') };
         }),
       });
     }
-    formattedData.coursesTaken = coursesTaken;
 
     return formattedData;
   }

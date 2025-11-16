@@ -103,7 +103,7 @@ function formatData(parsedData: ParsedData) {
     courses: string[];
     grade: string | null;
   }[] = [];
-  if (!parsedData.coursesTaken?.length) {
+  if (!parsedData.semesters?.length) {
     let terms = generateTerms(programInfo?.firstTerm, programInfo?.lastTerm);
     terms.forEach((term: string) => {
       extractedCourses.push({
@@ -113,10 +113,10 @@ function formatData(parsedData: ParsedData) {
       });
     });
   } else {
-    for (const semester of parsedData.coursesTaken) {
+    for (const semester of parsedData.semesters) {
       extractedCourses.push({
         term: semester.term,
-        courses: semester.courses.map((t) => t.code),
+        courses: semester.courses.map((c) => c.code),
         grade: null,
       });
     }
