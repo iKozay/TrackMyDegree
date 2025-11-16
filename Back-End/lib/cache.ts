@@ -15,8 +15,14 @@ export async function cacheJobResult(
 export async function getJobResult<T = unknown>(
   jobId: string
 ): Promise<T | null> {
-  const raw = await redisClient.get(resultKey(jobId));
-  return raw ? (JSON.parse(raw) as T) : null; // null if expired/not found
+  // TS thinks this might be string | Buffer, but you know it's always string
+  const raw = (await redisClient.get(resultKey(jobId))) as unknown as string | null;
+
+  if (!raw) {
+    return null; // expired / not found
+  }
+
+  return JSON.parse(raw) as T;
 }
 
 export async function deleteJobResult(jobId: string): Promise<void> {

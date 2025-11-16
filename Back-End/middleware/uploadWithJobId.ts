@@ -2,7 +2,6 @@
 import multer from "multer";
 import fs from "fs";
 import path from "path";
-import type { Express } from "express";
 import type { RequestWithJobId } from "./assignJobId";
 
 const uploadDir = "./tmp/pdf-uploads";

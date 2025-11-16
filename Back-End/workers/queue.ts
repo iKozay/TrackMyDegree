@@ -1,6 +1,6 @@
 // workers/queue.ts
 import { Queue, Worker, Job } from "bullmq";
-import { readFile } from "fs/promises";
+import { readFile, unlink } from "fs/promises";
 import { buildTimeline } from "../services/timeline/timelineService";
 import { cacheJobResult } from "../lib/cache";
 
@@ -48,6 +48,23 @@ export const courseProcessorWorker = new Worker<CourseProcessorJobData>(
     } catch (err) {
       console.error(`Error processing job ${jobId}:`, err);
       throw err;
+    }
+    finally {
+      if (job.data.kind === "file") {
+        const { filePath } = job.data;
+        try {
+          await unlink(filePath);
+        } catch (unlinkErr) {
+          if (unlinkErr instanceof Error) {
+            console.warn(
+              `Failed to delete temp file ${filePath}:`,
+              unlinkErr.message
+            );
+          } else {
+            console.warn(`Failed to delete temp file ${filePath}:`, unlinkErr);
+          }
+        }
+      }
     }
   },
   {
