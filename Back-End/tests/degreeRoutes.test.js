@@ -27,7 +27,7 @@ describe('Degree Routes', () => {
     // Clean up connections and stop MongoDB instance
     await mongoose.disconnect();
     if (mongoServer) {
-      await mongoServer.stop();
+    await mongoServer.stop();
     }
   });
 
@@ -71,8 +71,9 @@ describe('Degree Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock degreeController.readDegree to throw an error
-      const originalReadDegree = require('../controllers/degreeController')
-        .degreeController.readDegree;
+      const originalReadDegree =
+        require('../controllers/degreeController')
+          .degreeController.readDegree;
       require('../controllers/degreeController').degreeController.readDegree =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -125,8 +126,9 @@ describe('Degree Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock degreeController.readAllDegrees to throw an error
-      const originalReadAllDegrees = require('../controllers/degreeController')
-        .degreeController.readAllDegrees;
+      const originalReadAllDegrees =
+        require('../controllers/degreeController')
+          .degreeController.readAllDegrees;
       require('../controllers/degreeController').degreeController.readAllDegrees =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -168,8 +170,8 @@ describe('Degree Routes', () => {
     it('should handle server errors', async () => {
       // Mock degreeController.getCreditsForDegree to throw an error
       const originalGetCreditsForDegree =
-        require('../controllers/degreeController').degreeController
-          .getCreditsForDegree;
+        require('../controllers/degreeController')
+          .degreeController.getCreditsForDegree;
       require('../controllers/degreeController').degreeController.getCreditsForDegree =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -394,8 +396,7 @@ describe('Degree Routes', () => {
       expect(response.status).toBe(500);
       expect(response.body.error).toBe('Internal server error');
 
-      degreeController.getCoursePoolsForDegree =
-        originalGetCoursePoolsForDegree;
+      degreeController.getCoursePoolsForDegree = originalGetCoursePoolsForDegree;
     });
 
     it('should return empty array for degree with no course pools', async () => {

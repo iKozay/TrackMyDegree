@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction} from 'express';
 import createError from 'http-errors';
 import HTTP from '@utils/httpCodes';
 import * as Sentry from '@sentry/node';

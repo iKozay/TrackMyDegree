@@ -20,7 +20,7 @@ const createLimiter = (config: {
     store: buildStore(),
     standardHeaders: true,
     legacyHeaders: false,
-    skip: () => false, // always apply rate limiting
+    skip: () => false // always apply rate limiting
   });
 
 // Rate limiter for "Forgot Password"

@@ -1,31 +1,31 @@
 // Back-End/swagger.ts
-import path from 'path';
-import swaggerJsdoc from 'swagger-jsdoc';
+import path from "path";
+import swaggerJsdoc from "swagger-jsdoc";
 
-const definition: swaggerJsdoc.Options['definition'] = {
-  openapi: '3.0.3',
+const definition: swaggerJsdoc.Options["definition"] = {
+  openapi: "3.0.3",
   info: {
-    title: 'TrackMyDegree API',
-    version: '1.0.0',
-    description: 'OpenAPI docs for the TrackMyDegree API.',
+    title: "TrackMyDegree API",
+    version: "1.0.0",
+    description: "OpenAPI docs for the TrackMyDegree API.",
   },
   // Same-origin: works with https://localhost/ behind a proxy
-  servers: [{ url: '/', description: 'Same origin' }],
+  servers: [{ url: "/", description: "Same origin" }],
   components: {
     securitySchemes: {
-      bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" },
     },
     schemas: {
       // Add commonly reused models here
       User: {
-        type: 'object',
+        type: "object",
         properties: {
-          _id: { type: 'string' },
-          email: { type: 'string', format: 'email' },
-          name: { type: 'string' },
-          role: { type: 'string', enum: ['student', 'admin', 'advisor'] },
+          _id: { type: "string" },
+          email: { type: "string", format: "email" },
+          name: { type: "string" },
+          role: { type: "string", enum: ["student", "admin", "advisor"] },
         },
-        required: ['_id', 'email', 'name'],
+        required: ["_id", "email", "name"],
         additionalProperties: false,
       },
     },
@@ -37,7 +37,7 @@ const definition: swaggerJsdoc.Options['definition'] = {
 export const swaggerSpec = swaggerJsdoc({
   definition,
   apis: [
-    path.resolve(__dirname, './routes/*.ts'), // dev (ts-node)
-    path.resolve(process.cwd(), 'dist/routes/*.js'), // prod (compiled)
+    path.resolve(__dirname, "./routes/*.ts"),        // dev (ts-node)
+    path.resolve(process.cwd(), "dist/routes/*.js"),  // prod (compiled)
   ],
 });

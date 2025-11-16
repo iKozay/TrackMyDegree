@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { TimelineController } = require('../controllers/timelineController');
+const {
+  TimelineController,
+} = require('../controllers/timelineController');
 const { Timeline } = require('../models/timeline');
 
 describe('TimelineController', () => {
@@ -56,6 +58,8 @@ describe('TimelineController', () => {
       };
 
       const result = await timelineController.saveTimeline(timelineData);
+
+
 
       expect(result).toMatchObject({
         user_id: 'user123',
@@ -406,9 +410,9 @@ describe('TimelineController', () => {
     it('should handle error when deleting timeline', async () => {
       // Mock deleteById to throw an error (not just return {success: false})
       const originalDeleteById = timelineController.deleteById;
-      timelineController.deleteById = jest
-        .fn()
-        .mockRejectedValue(new Error('Database connection failed'));
+      timelineController.deleteById = jest.fn().mockRejectedValue(
+        new Error('Database connection failed')
+      );
 
       const result = await timelineController.removeUserTimeline(
         testTimeline._id.toString(),
@@ -434,9 +438,7 @@ describe('TimelineController', () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.message).toBe(
-        `Timeline ${testTimeline._id.toString()} not found`,
-      );
+      expect(result.message).toBe(`Timeline ${testTimeline._id.toString()} not found`);
 
       // Restore original method
       timelineController.deleteById = originalDeleteById;

@@ -101,11 +101,7 @@ function unifyParsedData(parsedData: any) {
     };
   }
   // Transform new parsed data to match the old format (matching matchCoursesToTerms output)
-  const extractedCourses: {
-    term: string;
-    courses: string[];
-    grade: string | null;
-  }[] = [];
+  const extractedCourses: { term: string; courses: string[]; grade:string | null }[] = [];
 
   if (!parsedData?.terms.length && !parsedData?.transferCredits.length) {
     return { extractedCourses, details };
@@ -117,20 +113,18 @@ function unifyParsedData(parsedData: any) {
     const exemptYear = parsedData.terms[0].year;
     extractedCourses.push({
       term: `Exempted ${exemptYear}`,
-      courses: parsedData.transferCredits.map((tc: any) =>
+      courses: parsedData.transferCredits.map((tc:any) =>
         tc.courseCode.replaceAll(/\s+/g, ''),
       ),
       grade: 'EX',
     });
   }
-
+  
   for (const term of parsedData.terms) {
     const termName = `${term.term} ${term.year}`;
     extractedCourses.push({
       term: termName,
-      courses: term.courses.map((tc: any) =>
-        tc.courseCode.replaceAll(/\s+/g, ''),
-      ),
+      courses: term.courses.map((tc:any) => tc.courseCode.replaceAll(/\s+/g, '')),
       grade: term.termGPA,
     });
   }

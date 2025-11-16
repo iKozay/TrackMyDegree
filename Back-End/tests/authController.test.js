@@ -6,7 +6,10 @@
 
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { AuthController, UserType } = require('../controllers/authController');
+const {
+  AuthController,
+  UserType,
+} = require('../controllers/authController');
 // Handle ES6 module export properly
 const UserModule = require('../models/user');
 const User = UserModule.User || UserModule.default || UserModule;
@@ -363,9 +366,9 @@ describe('AuthController', () => {
 
     it('should handle missing FRONTEND_URL', async () => {
       delete process.env.FRONTEND_URL;
-      await expect(
-        authController.forgotPassword('reset@example.com'),
-      ).resolves.toHaveProperty('message');
+      await expect(authController.forgotPassword('reset@example.com')).resolves.toHaveProperty(
+        'message'
+      );
     });
 
     it('should handle database errors gracefully', async () => {
@@ -396,10 +399,7 @@ describe('AuthController', () => {
 
       mockRedisGet.mockResolvedValueOnce('reset@example.com');
 
-      const res = await authController.resetPassword(
-        'validtoken',
-        'NewPass123!',
-      );
+      const res = await authController.resetPassword('validtoken', 'NewPass123!');
       expect(res).toBe(true);
     });
 
@@ -408,6 +408,7 @@ describe('AuthController', () => {
       const res = await authController.resetPassword('badtoken', 'NewPass123!');
       expect(res).toBe(false);
     });
+
   });
 
   describe('changePassword', () => {

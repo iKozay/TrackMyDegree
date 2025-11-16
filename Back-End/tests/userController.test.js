@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const { UserController } = require('../controllers/userController');
+const {
+  UserController,
+} = require('../controllers/userController');
 const { User } = require('../models/user');
 const { Course } = require('../models/course');
 const { Degree } = require('../models/degree');
@@ -80,9 +82,9 @@ describe('UserController', () => {
     it('should handle database errors', async () => {
       // Mock userController.exists to throw an error
       const originalExists = userController.exists;
-      userController.exists = jest
-        .fn()
-        .mockRejectedValue(new Error('Database connection failed'));
+      userController.exists = jest.fn().mockRejectedValue(
+        new Error('Database connection failed'),
+      );
 
       const userData = {
         email: 'test@example.com',
@@ -137,9 +139,9 @@ describe('UserController', () => {
     it('should handle database errors', async () => {
       // Mock userController.findById to throw an error
       const originalFindById = userController.findById;
-      userController.findById = jest
-        .fn()
-        .mockRejectedValue(new Error('Database connection failed'));
+      userController.findById = jest.fn().mockRejectedValue(
+        new Error('Database connection failed'),
+      );
 
       await expect(
         userController.getUserById(testUser._id.toString()),
@@ -191,9 +193,9 @@ describe('UserController', () => {
     it('should handle database errors', async () => {
       // Mock userController.findAll to throw an error
       const originalFindAll = userController.findAll;
-      userController.findAll = jest
-        .fn()
-        .mockRejectedValue(new Error('Database connection failed'));
+      userController.findAll = jest.fn().mockRejectedValue(
+        new Error('Database connection failed'),
+      );
 
       await expect(userController.getAllUsers()).rejects.toThrow(
         'Database connection failed',
@@ -403,9 +405,9 @@ describe('UserController', () => {
     it('should handle database errors', async () => {
       // Mock userController.findById to throw an error
       const originalFindById = userController.findById;
-      userController.findById = jest
-        .fn()
-        .mockRejectedValue(new Error('Database connection failed'));
+      userController.findById = jest.fn().mockRejectedValue(
+        new Error('Database connection failed'),
+      );
 
       await expect(
         userController.getUserData(testUser._id.toString()),
@@ -473,9 +475,9 @@ describe('UserController', () => {
     it('should handle database errors (findById)', async () => {
       // Mock userController.findById to throw an error
       const originalFindById = userController.findById;
-      userController.findById = jest
-        .fn()
-        .mockRejectedValue(new Error('Database connection failed'));
+      userController.findById = jest.fn().mockRejectedValue(
+        new Error('Database connection failed'),
+      );
 
       await expect(
         userController.createDeficiency('Math', testUser._id.toString(), 6),
@@ -598,9 +600,7 @@ describe('UserController', () => {
       const originalFindOneAndUpdate = User.findOneAndUpdate;
       User.findOneAndUpdate = jest.fn().mockReturnValue({
         lean: jest.fn().mockReturnValue({
-          exec: jest
-            .fn()
-            .mockRejectedValue(new Error('Database connection failed')),
+          exec: jest.fn().mockRejectedValue(new Error('Database connection failed')),
         }),
       });
 
@@ -664,9 +664,7 @@ describe('UserController', () => {
       const originalFindByIdAndUpdate = User.findByIdAndUpdate;
       User.findByIdAndUpdate = jest.fn().mockReturnValue({
         lean: jest.fn().mockReturnValue({
-          exec: jest
-            .fn()
-            .mockRejectedValue(new Error('Database connection failed')),
+          exec: jest.fn().mockRejectedValue(new Error('Database connection failed')),
         }),
       });
 
@@ -692,24 +690,9 @@ describe('UserController', () => {
       });
 
       await Course.create([
-        {
-          _id: 'COMP101',
-          title: 'Intro to Programming',
-          credits: 3,
-          description: 'Intro to Programming',
-        },
-        {
-          _id: 'COMP102',
-          title: 'Data Structures',
-          credits: 4,
-          description: 'Data Structures',
-        },
-        {
-          _id: 'MATH101',
-          title: 'Calculus I',
-          credits: 3,
-          description: 'Calculus I',
-        },
+        { _id: 'COMP101', title: 'Intro to Programming', credits: 3, description: 'Intro to Programming' },
+        { _id: 'COMP102', title: 'Data Structures', credits: 4, description: 'Data Structures' },
+        { _id: 'MATH101', title: 'Calculus I', credits: 3, description: 'Calculus I' },
       ]);
     });
 
@@ -771,9 +754,9 @@ describe('UserController', () => {
     it('should handle database errors', async () => {
       // Mock userController.findById to throw an error
       const originalFindById = userController.findById;
-      userController.findById = jest
-        .fn()
-        .mockRejectedValue(new Error('Database connection failed'));
+      userController.findById = jest.fn().mockRejectedValue(
+        new Error('Database connection failed'),
+      );
 
       const coursecodes = ['COMP101'];
       await expect(
@@ -877,9 +860,7 @@ describe('UserController', () => {
       const originalFindByIdAndUpdate = User.findByIdAndUpdate;
       User.findByIdAndUpdate = jest.fn().mockReturnValue({
         lean: jest.fn().mockReturnValue({
-          exec: jest
-            .fn()
-            .mockRejectedValue(new Error('Database connection failed')),
+          exec: jest.fn().mockRejectedValue(new Error('Database connection failed')),
         }),
       });
 
@@ -1145,12 +1126,7 @@ describe('UserController', () => {
         },
       });
 
-      await Course.create({
-        _id: 'COMP201',
-        title: 'Test Course',
-        credits: 3,
-        description: 'Test Course',
-      });
+      await Course.create({ _id: 'COMP201', title: 'Test Course', credits: 3, description: 'Test Course' });
 
       const result = await userController.createExemptions(
         ['COMP201'],
@@ -1164,12 +1140,7 @@ describe('UserController', () => {
 
     it('should handle createExemptions when no courses need to be created', async () => {
       await User.findByIdAndUpdate(testUser._id, { exemptions: ['COMP101'] });
-      await Course.create({
-        _id: 'COMP101',
-        title: 'Test Course',
-        credits: 3,
-        description: 'Test Course',
-      });
+      await Course.create({ _id: 'COMP101', title: 'Test Course', credits: 3, description: 'Test Course' });
 
       const result = await userController.createExemptions(
         ['COMP101'],

@@ -197,8 +197,9 @@ describe('Timeline Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock timelineController.saveTimeline to throw an error
-      const originalSaveTimeline = require('../controllers/timelineController')
-        .timelineController.saveTimeline;
+      const originalSaveTimeline =
+        require('../controllers/timelineController')
+          .timelineController.saveTimeline;
       require('../controllers/timelineController').timelineController.saveTimeline =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -375,8 +376,8 @@ describe('Timeline Routes', () => {
     it('should handle server errors', async () => {
       // Mock timelineController.getTimelinesByUser to throw an error
       const originalGetTimelinesByUser =
-        require('../controllers/timelineController').timelineController
-          .getTimelinesByUser;
+        require('../controllers/timelineController')
+          .timelineController.getTimelinesByUser;
       require('../controllers/timelineController').timelineController.getTimelinesByUser =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -394,8 +395,8 @@ describe('Timeline Routes', () => {
     it('should handle errors during fetch', async () => {
       // Mock timelineController.getTimelinesByUser to throw an error
       const originalGetTimelinesByUser =
-        require('../controllers/timelineController').timelineController
-          .getTimelinesByUser;
+        require('../controllers/timelineController')
+          .timelineController.getTimelinesByUser;
       require('../controllers/timelineController').timelineController.getTimelinesByUser =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -511,8 +512,8 @@ describe('Timeline Routes', () => {
     it('should handle server errors', async () => {
       // Mock timelineController.getTimelineById to throw an error
       const originalGetTimelineById =
-        require('../controllers/timelineController').timelineController
-          .getTimelineById;
+        require('../controllers/timelineController')
+          .timelineController.getTimelineById;
       require('../controllers/timelineController').timelineController.getTimelineById =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -530,8 +531,8 @@ describe('Timeline Routes', () => {
     it('should handle errors during fetch', async () => {
       // Mock timelineController.getTimelineById to throw an error
       const originalGetTimelineById =
-        require('../controllers/timelineController').timelineController
-          .getTimelineById;
+        require('../controllers/timelineController')
+          .timelineController.getTimelineById;
       require('../controllers/timelineController').timelineController.getTimelineById =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -659,8 +660,8 @@ describe('Timeline Routes', () => {
     it('should handle server errors', async () => {
       // Mock timelineController.updateTimeline to throw an error
       const originalUpdateTimeline =
-        require('../controllers/timelineController').timelineController
-          .updateTimeline;
+        require('../controllers/timelineController')
+          .timelineController.updateTimeline;
       require('../controllers/timelineController').timelineController.updateTimeline =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -680,8 +681,8 @@ describe('Timeline Routes', () => {
     it('should handle errors during update', async () => {
       // Mock timelineController.updateTimeline to throw an error
       const originalUpdateTimeline =
-        require('../controllers/timelineController').timelineController
-          .updateTimeline;
+        require('../controllers/timelineController')
+          .timelineController.updateTimeline;
       require('../controllers/timelineController').timelineController.updateTimeline =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -792,8 +793,8 @@ describe('Timeline Routes', () => {
     it('should handle server errors', async () => {
       // Mock timelineController.removeUserTimeline to throw an error
       const originalRemoveUserTimeline =
-        require('../controllers/timelineController').timelineController
-          .removeUserTimeline;
+        require('../controllers/timelineController')
+          .timelineController.removeUserTimeline;
       require('../controllers/timelineController').timelineController.removeUserTimeline =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -811,8 +812,8 @@ describe('Timeline Routes', () => {
     it('should handle errors during delete', async () => {
       // Mock timelineController.removeUserTimeline to throw an error
       const originalRemoveUserTimeline =
-        require('../controllers/timelineController').timelineController
-          .removeUserTimeline;
+        require('../controllers/timelineController')
+          .timelineController.removeUserTimeline;
       require('../controllers/timelineController').timelineController.removeUserTimeline =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -932,8 +933,8 @@ describe('Timeline Routes', () => {
     it('should handle server errors', async () => {
       // Mock timelineController.deleteAllUserTimelines to throw an error
       const originalDeleteAllUserTimelines =
-        require('../controllers/timelineController').timelineController
-          .deleteAllUserTimelines;
+        require('../controllers/timelineController')
+          .timelineController.deleteAllUserTimelines;
       require('../controllers/timelineController').timelineController.deleteAllUserTimelines =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -951,8 +952,8 @@ describe('Timeline Routes', () => {
     it('should handle errors during delete', async () => {
       // Mock timelineController.deleteAllUserTimelines to throw an error
       const originalDeleteAllUserTimelines =
-        require('../controllers/timelineController').timelineController
-          .deleteAllUserTimelines;
+        require('../controllers/timelineController')
+          .timelineController.deleteAllUserTimelines;
       require('../controllers/timelineController').timelineController.deleteAllUserTimelines =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -971,8 +972,8 @@ describe('Timeline Routes', () => {
   describe('Error handling edge cases', () => {
     it('GET /timeline/user/:userId should handle general errors (not database specific)', async () => {
       const originalGetTimelinesByUser =
-        require('../controllers/timelineController').timelineController
-          .getTimelinesByUser;
+        require('../controllers/timelineController')
+          .timelineController.getTimelinesByUser;
       require('../controllers/timelineController').timelineController.getTimelinesByUser =
         jest.fn().mockRejectedValue(new Error('General error'));
 
@@ -1004,8 +1005,8 @@ describe('Timeline Routes', () => {
       });
 
       const originalGetTimelineById =
-        require('../controllers/timelineController').timelineController
-          .getTimelineById;
+        require('../controllers/timelineController')
+          .timelineController.getTimelineById;
       require('../controllers/timelineController').timelineController.getTimelineById =
         jest.fn().mockRejectedValue(new Error('General error'));
 
@@ -1037,8 +1038,8 @@ describe('Timeline Routes', () => {
       });
 
       const originalUpdateTimeline =
-        require('../controllers/timelineController').timelineController
-          .updateTimeline;
+        require('../controllers/timelineController')
+          .timelineController.updateTimeline;
       require('../controllers/timelineController').timelineController.updateTimeline =
         jest.fn().mockRejectedValue(new Error('General error'));
 

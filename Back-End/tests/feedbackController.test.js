@@ -1,4 +1,6 @@
-const { FeedbackController } = require('../controllers/feedbackController');
+const {
+  FeedbackController,
+} = require('../controllers/feedbackController');
 const { Feedback } = require('../models/feedback');
 
 describe('FeedbackController', () => {
@@ -121,12 +123,14 @@ describe('FeedbackController', () => {
     });
 
     it('should get feedback sorted by submitted_at descending by default', async () => {
-      jest.spyOn(feedbackController, 'findAll').mockResolvedValue({
-        success: true,
-        data: [...seed].sort(
-          (a, b) => b.submitted_at.getTime() - a.submitted_at.getTime(),
-        ),
-      });
+      jest
+        .spyOn(feedbackController, 'findAll')
+        .mockResolvedValue({
+          success: true,
+          data: [...seed].sort(
+            (a, b) => b.submitted_at.getTime() - a.submitted_at.getTime(),
+          ),
+        });
       const result = await feedbackController.getAllFeedback();
 
       expect(result[0].message).toBe('Anonymous feedback'); // Most recent
@@ -145,20 +149,17 @@ describe('FeedbackController', () => {
       expect(result[1].message).toBe('Feedback 2');
       expect(result[2].message).toBe('Feedback 3');
       expect(result[3].message).toBe('Anonymous feedback'); // Most recent
-      expect(spy).toHaveBeenCalledWith(
-        {},
-        { page: undefined, limit: undefined, sort: { submitted_at: 1 } },
-      );
+      expect(spy).toHaveBeenCalledWith({}, { page: undefined, limit: undefined, sort: { submitted_at: 1 } });
     });
 
     it('should filter feedback by user_id', async () => {
-      jest.spyOn(feedbackController, 'findAll').mockResolvedValue({
-        success: true,
-        data: seed.filter((f) => f.user_id === 'user123'),
-      });
-      const result = await feedbackController.getAllFeedback({
-        user_id: 'user123',
-      });
+      jest
+        .spyOn(feedbackController, 'findAll')
+        .mockResolvedValue({
+          success: true,
+          data: seed.filter((f) => f.user_id === 'user123'),
+        });
+      const result = await feedbackController.getAllFeedback({ user_id: 'user123' });
 
       expect(result).toHaveLength(2);
       expect(result.every((f) => f.user_id === 'user123')).toBe(true);
@@ -168,16 +169,10 @@ describe('FeedbackController', () => {
       const spy = jest
         .spyOn(feedbackController, 'findAll')
         .mockResolvedValue({ success: true, data: seed.slice(0, 2) });
-      const result = await feedbackController.getAllFeedback({
-        page: 1,
-        limit: 2,
-      });
+      const result = await feedbackController.getAllFeedback({ page: 1, limit: 2 });
 
       expect(result).toHaveLength(2);
-      expect(spy).toHaveBeenCalledWith(
-        {},
-        { page: 1, limit: 2, sort: { submitted_at: -1 } },
-      );
+      expect(spy).toHaveBeenCalledWith({}, { page: 1, limit: 2, sort: { submitted_at: -1 } });
     });
 
     it('should return empty array when no feedback exists', async () => {
@@ -247,9 +242,7 @@ describe('FeedbackController', () => {
       jest
         .spyOn(feedbackController, 'findById')
         .mockResolvedValue({ success: true, data: testFeedback });
-      const result = await feedbackController.getFeedbackById(
-        testFeedback._id.toString(),
-      );
+      const result = await feedbackController.getFeedbackById(testFeedback._id.toString());
 
       expect(result).toMatchObject({
         _id: testFeedback._id.toString(),
@@ -288,13 +281,10 @@ describe('FeedbackController', () => {
     };
 
     it('should delete feedback successfully', async () => {
-      jest.spyOn(feedbackController, 'deleteById').mockResolvedValue({
-        success: true,
-        message: 'Feedback deleted successfully',
-      });
-      const result = await feedbackController.deleteFeedback(
-        testFeedback._id.toString(),
-      );
+      jest
+        .spyOn(feedbackController, 'deleteById')
+        .mockResolvedValue({ success: true, message: 'Feedback deleted successfully' });
+      const result = await feedbackController.deleteFeedback(testFeedback._id.toString());
 
       expect(result).toBe('Feedback deleted successfully');
 
@@ -322,6 +312,7 @@ describe('FeedbackController', () => {
   });
 
   describe('deleteUserFeedback', () => {
+
     it('should delete all feedback for specific user', async () => {
       jest
         .spyOn(feedbackController, 'deleteMany')

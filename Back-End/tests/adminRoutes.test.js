@@ -86,8 +86,9 @@ describe('Admin Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock adminController.getCollections to throw an error
-      const originalGetCollections = require('../controllers/adminController')
-        .adminController.getCollections;
+      const originalGetCollections =
+        require('../controllers/adminController')
+          .adminController.getCollections;
       require('../controllers/adminController').adminController.getCollections =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -103,8 +104,9 @@ describe('Admin Routes', () => {
 
     it('should handle general errors not containing "not available"', async () => {
       // Mock adminController.getCollections to throw a general error
-      const originalGetCollections = require('../controllers/adminController')
-        .adminController.getCollections;
+      const originalGetCollections =
+        require('../controllers/adminController')
+          .adminController.getCollections;
       require('../controllers/adminController').adminController.getCollections =
         jest.fn().mockRejectedValue(new Error('Some other error'));
 
@@ -181,8 +183,8 @@ describe('Admin Routes', () => {
     it('should handle server errors', async () => {
       // Mock adminController.getCollectionDocuments to throw an error
       const originalGetCollectionDocuments =
-        require('../controllers/adminController').adminController
-          .getCollectionDocuments;
+        require('../controllers/adminController')
+          .adminController.getCollectionDocuments;
       require('../controllers/adminController').adminController.getCollectionDocuments =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -198,6 +200,7 @@ describe('Admin Routes', () => {
         originalGetCollectionDocuments;
     });
   });
+
 
   describe('DELETE /admin/collections/:collectionName/clear', () => {
     beforeEach(async () => {
@@ -253,8 +256,9 @@ describe('Admin Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock adminController.clearCollection to throw an error
-      const originalClearCollection = require('../controllers/adminController')
-        .adminController.clearCollection;
+      const originalClearCollection =
+        require('../controllers/adminController')
+          .adminController.clearCollection;
       require('../controllers/adminController').adminController.clearCollection =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -271,8 +275,9 @@ describe('Admin Routes', () => {
     });
 
     it('should handle general errors not containing "not available"', async () => {
-      const originalClearCollection = require('../controllers/adminController')
-        .adminController.clearCollection;
+      const originalClearCollection =
+        require('../controllers/adminController')
+          .adminController.clearCollection;
       require('../controllers/adminController').adminController.clearCollection =
         jest.fn().mockRejectedValue(new Error('Some other error'));
 
@@ -288,9 +293,12 @@ describe('Admin Routes', () => {
     });
   });
 
+
   describe('GET /admin/seed-data', () => {
     it('should seed data for all degrees', async () => {
-      const response = await request(app).get('/admin/seed-data').expect(200);
+      const response = await request(app)
+        .get('/admin/seed-data')
+        .expect(200);
 
       expect(response.body.message).toBe('Data seeded for all degrees');
     });
@@ -302,9 +310,7 @@ describe('Admin Routes', () => {
         .get('/admin/seed-data/Computer Science')
         .expect(200);
 
-      expect(response.body.message).toBe(
-        'Data seeded for degree Computer Science',
-      );
+      expect(response.body.message).toBe('Data seeded for degree Computer Science');
     });
   });
 
@@ -405,6 +411,7 @@ describe('Admin Routes', () => {
         });
       });
 
+
       describe('clearCollection', () => {
         it('should handle database connection errors', async () => {
           const originalDb = mongoose.connection.db;
@@ -448,8 +455,8 @@ describe('Admin Routes', () => {
         it('should handle server errors', async () => {
           // Mock adminController.getConnectionStatus to throw an error
           const originalGetConnectionStatus =
-            require('../controllers/adminController').adminController
-              .getConnectionStatus;
+            require('../controllers/adminController')
+              .adminController.getConnectionStatus;
           require('../controllers/adminController').adminController.getConnectionStatus =
             jest.fn().mockImplementation(() => {
               throw new Error('Database error');

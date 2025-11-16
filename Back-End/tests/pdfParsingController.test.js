@@ -15,14 +15,11 @@ jest.mock('@utils/transcriptParser', () => ({
   TranscriptParser: jest.fn().mockImplementation(() => ({
     parseFromBuffer: jest.fn().mockResolvedValue({
       terms: [
-        {
-          term: 'Fall',
-          year: 2024,
-          courses: [{ courseCode: 'COMP 202' }],
-          termGPA: '3.7',
-        },
+        { term: 'Fall', year: 2024, courses: [{ courseCode: 'COMP 202' }], termGPA: '3.7' },
       ],
-      programHistory: [{ degreeType: 'B.Sc.', major: 'Computer Science' }],
+      programHistory: [
+        { degreeType: 'B.Sc.', major: 'Computer Science' },
+      ],
       transferCredits: [],
       additionalInfo: { minCreditsRequired: 120 },
     }),
@@ -42,7 +39,7 @@ jest.mock('@utils/acceptanceLetterParser', () => ({
 // Create test app
 const app = express();
 app.post('/api/upload/parse', uploadMiddleware, (req, res) =>
-  pdfParsingController.parseDocument(req, res),
+  pdfParsingController.parseDocument(req, res)
 );
 
 describe('PDFParsingController', () => {
@@ -64,10 +61,7 @@ describe('PDFParsingController', () => {
 
     const response = await request(app)
       .post('/api/upload/parse')
-      .attach('file', Buffer.from('fake pdf data'), {
-        filename: 'acceptance.pdf',
-        contentType: 'application/pdf',
-      });
+      .attach('file', Buffer.from('fake pdf data'), { filename: 'acceptance.pdf', contentType: 'application/pdf' });
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
@@ -82,26 +76,18 @@ describe('PDFParsingController', () => {
 
     const response = await request(app)
       .post('/api/upload/parse')
-      .attach('file', Buffer.from('fake pdf data'), {
-        filename: 'transcript.pdf',
-        contentType: 'application/pdf',
-      });
+      .attach('file', Buffer.from('fake pdf data'), { filename: 'transcript.pdf', contentType: 'application/pdf' });
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
-    expect(response.body.data.details.degreeConcentration).toContain(
-      'Computer Science',
-    );
+    expect(response.body.data.details.degreeConcentration).toContain('Computer Science');
     expect(response.body.data.extractedCourses[0].courses).toContain('COMP202');
   });
 
   test('rejects non-PDF file uploads', async () => {
     const response = await request(app)
       .post('/api/upload/parse')
-      .attach('file', Buffer.from('not a pdf'), {
-        filename: 'file.txt',
-        contentType: 'text/plain',
-      });
+      .attach('file', Buffer.from('not a pdf'), { filename: 'file.txt', contentType: 'text/plain' });
 
     expect(response.status).toBe(500);
   });
@@ -113,15 +99,10 @@ describe('PDFParsingController', () => {
 
     const response = await request(app)
       .post('/api/upload/parse')
-      .attach('file', Buffer.from('random pdf'), {
-        filename: 'random.pdf',
-        contentType: 'application/pdf',
-      });
+      .attach('file', Buffer.from('random pdf'), { filename: 'random.pdf', contentType: 'application/pdf' });
 
     expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
-    expect(response.body.message).toMatch(
-      /neither a valid transcript nor an acceptance letter/,
-    );
+    expect(response.body.message).toMatch(/neither a valid transcript nor an acceptance letter/);
   });
 });

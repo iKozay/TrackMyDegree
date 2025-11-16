@@ -3,11 +3,10 @@ jest.mock('node:timers', () => ({
   setTimeout: jest.fn(() => Math.floor(Math.random() * 10000)),
 }));
 
-const {
-  AcceptanceLetterParser,
-} = require('../utils/acceptanceLetterParser.ts');
+const { AcceptanceLetterParser } = require('../utils/acceptanceLetterParser.ts');
 describe('AcceptanceLetterParser', () => {
   const parser = new AcceptanceLetterParser();
+
 
   test('extractTermFromText should extract valid term between labels', () => {
     const text = `
@@ -42,6 +41,7 @@ describe('AcceptanceLetterParser', () => {
     expect(terms).toEqual(['Fall 2023', 'Winter 2024', 'Summer 2024']);
   });
 
+
   test('parse() should extract degree, co-op flag, and terms', () => {
     const mockText = `
       Program/Plan(s): Bachelor of Commerce Major in Marketing
@@ -65,31 +65,25 @@ describe('AcceptanceLetterParser', () => {
     const result = parser.parse(mockText);
 
     // ✅ details assertions
-    expect(result.details.degreeConcentration).toContain(
-      'Bachelor of Commerce Major in Marketing',
-    );
+    expect(result.details.degreeConcentration).toContain('Bachelor of Commerce Major in Marketing');
     expect(result.details.coopProgram).toBe(true);
     expect(result.details.extendedCreditProgram).toBe(true);
     expect(result.details.minimumProgramLength).toBe('90');
     expect(result.details.startingTerm).toBe('Fall 2023');
     expect(result.details.expectedGraduationTerm).toBe('Winter 2025');
 
-    const exempted = result.extractedCourses.find((c) => c.term === 'Exempted');
+
+    const exempted = result.extractedCourses.find(c => c.term === 'Exempted');
     expect(exempted?.courses).toEqual(['COMP248', 'MATH203']);
 
-    const deficiencies = result.extractedCourses.find(
-      (c) => c.term === 'Deficiencies',
-    );
+    const deficiencies = result.extractedCourses.find(c => c.term === 'Deficiencies');
     expect(deficiencies?.courses).toEqual(['COMM212']);
 
-    const transfer = result.extractedCourses.find(
-      (c) => c.term === 'Transfered Courses',
-    );
+    const transfer = result.extractedCourses.find(c => c.term === 'Transfered Courses');
     expect(transfer?.courses).toEqual(['ECON201']);
 
-    const generatedTerms = result.extractedCourses.filter((c) =>
-      c.term.match(/Fall|Winter|Summer/),
-    );
+ 
+    const generatedTerms = result.extractedCourses.filter(c => c.term.match(/Fall|Winter|Summer/));
     expect(generatedTerms.length).toBeGreaterThan(0);
   });
 

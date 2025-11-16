@@ -47,7 +47,7 @@ export class CoursePoolController extends BaseMongoController<any> {
 
   async updateCoursePool(
     pool_id: string,
-    updateData: Partial<CoursePoolData>,
+    updateData: Partial<CoursePoolData>
   ): Promise<CoursePoolData | null> {
     try {
       const coursePool = await this.findById(pool_id);
@@ -66,7 +66,7 @@ export class CoursePoolController extends BaseMongoController<any> {
         _id: result.data._id,
         name: result.data.name,
         creditsRequired: result.data.creditsRequired,
-        courses: result.data.courses || [],
+        courses: result.data.courses || []
       };
     } catch (error) {
       this.handleError(error, 'updateCoursePool');
@@ -93,10 +93,7 @@ export class CoursePoolController extends BaseMongoController<any> {
       }));
     } catch (error) {
       Sentry.captureException(error);
-      console.error(
-        '[CoursePoolController] Error fetching all course pools:',
-        error,
-      );
+      console.error('[CoursePoolController] Error fetching all course pools:', error);
       return [];
     }
   }
@@ -106,24 +103,21 @@ export class CoursePoolController extends BaseMongoController<any> {
    */
   async getCoursePool(pool_id: string): Promise<CoursePoolData | undefined> {
     try {
-      const result = await this.findById(pool_id);
+        const result = await this.findById(pool_id);
 
-      if (!result.success) {
-        throw new Error(result.error || 'Course pool not found');
-      }
+        if (!result.success) {
+            throw new Error(result.error || 'Course pool not found');
+        }
 
-      return {
-        _id: result.data._id,
-        name: result.data.name,
-        creditsRequired: result.data.creditsRequired,
-        courses: result.data.courses || [],
-      };
+        return {
+            _id: result.data._id,
+            name: result.data.name,
+            creditsRequired: result.data.creditsRequired,
+            courses: result.data.courses || []
+        };
     } catch (error) {
       Sentry.captureException(error);
-      console.error(
-        '[CoursePoolController] Error fetching course pool:',
-        error,
-      );
+      console.error('[CoursePoolController] Error fetching course pool:', error);
       return undefined;
     }
   }
@@ -131,7 +125,7 @@ export class CoursePoolController extends BaseMongoController<any> {
   /**
    * Delete a course pool by ID
    */
-  async deleteCoursePool(pool_id: string): Promise<boolean> {
+    async deleteCoursePool(pool_id: string): Promise<boolean> {
     try {
       const result = await this.deleteById(pool_id);
 
