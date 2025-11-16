@@ -13,7 +13,7 @@ describe('runScraper', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    
+
     // Re-require module to get fresh exports
     const scraperModule = require('../course-data/Scraping/Scrapers/runScraper');
     runScraper = scraperModule.runScraper;
@@ -56,7 +56,7 @@ describe('runScraper', () => {
         expect.arrayContaining([
           expect.stringContaining('degree_data_scraper.py'),
           degreesURL['Computer Engineering'],
-        ])
+        ]),
       );
     });
 
@@ -111,7 +111,7 @@ describe('runScraper', () => {
   describe('error handling', () => {
     it('should reject when degree name is not found in degreesURL map', async () => {
       await expect(runScraper('Unknown Degree')).rejects.toThrow(
-        'Degree name "Unknown Degree" not found in degreesURL map.'
+        'Degree name "Unknown Degree" not found in degreesURL map.',
       );
 
       // spawn should not be called if degree is invalid
@@ -128,7 +128,10 @@ describe('runScraper', () => {
       const promise = runScraper('Computer Engineering');
 
       process.nextTick(() => {
-        fakeProcess.stderr.emit('data', Buffer.from('Python error: module not found'));
+        fakeProcess.stderr.emit(
+          'data',
+          Buffer.from('Python error: module not found'),
+        );
         fakeProcess.emit('close', 1);
       });
 
@@ -150,7 +153,9 @@ describe('runScraper', () => {
         fakeProcess.emit('close', 0);
       });
 
-      await expect(promise).rejects.toThrow(/Failed to parse Python output as JSON/);
+      await expect(promise).rejects.toThrow(
+        /Failed to parse Python output as JSON/,
+      );
     });
 
     it('should reject when python process fails to start', async () => {
@@ -163,7 +168,10 @@ describe('runScraper', () => {
       const promise = runScraper('Software Engineering');
 
       process.nextTick(() => {
-        fakeProcess.emit('error', new Error('ENOENT: python command not found'));
+        fakeProcess.emit(
+          'error',
+          new Error('ENOENT: python command not found'),
+        );
       });
 
       await expect(promise).rejects.toThrow(/python command not found/);
@@ -201,7 +209,9 @@ describe('runScraper', () => {
         fakeProcess.emit('close', 0);
       });
 
-      await expect(promise).rejects.toThrow(/Failed to parse Python output as JSON/);
+      await expect(promise).rejects.toThrow(
+        /Failed to parse Python output as JSON/,
+      );
     });
   });
 
@@ -246,7 +256,7 @@ describe('runScraper', () => {
         expect.arrayContaining([
           expect.any(String),
           degreesURL['Building Engineering'],
-        ])
+        ]),
       );
     });
   });
@@ -273,10 +283,16 @@ describe('runScraper', () => {
       const promise2 = runScraper('Mechanical Engineering');
 
       process.nextTick(() => {
-        fakeProcess1.stdout.emit('data', Buffer.from(JSON.stringify(fakeData1)));
+        fakeProcess1.stdout.emit(
+          'data',
+          Buffer.from(JSON.stringify(fakeData1)),
+        );
         fakeProcess1.emit('close', 0);
 
-        fakeProcess2.stdout.emit('data', Buffer.from(JSON.stringify(fakeData2)));
+        fakeProcess2.stdout.emit(
+          'data',
+          Buffer.from(JSON.stringify(fakeData2)),
+        );
         fakeProcess2.emit('close', 0);
       });
 

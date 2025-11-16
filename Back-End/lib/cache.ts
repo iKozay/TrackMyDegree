@@ -1,5 +1,5 @@
 // lib/cache.ts
-import  redisClient  from "./redisClient";
+import redisClient from './redisClient';
 
 const RESULT_TTL_SECONDS = 60 * 60; // 1 hour
 
@@ -7,16 +7,18 @@ const resultKey = (jobId: string): string => `job:timeline:${jobId}`;
 
 export async function cacheJobResult(
   jobId: string,
-  payload: unknown
+  payload: unknown,
 ): Promise<void> {
   await redisClient.set(resultKey(jobId), JSON.stringify(payload));
 }
 
 export async function getJobResult<T = unknown>(
-  jobId: string
+  jobId: string,
 ): Promise<T | null> {
   // TS thinks this might be string | Buffer, but you know it's always string
-  const raw = (await redisClient.get(resultKey(jobId))) as unknown as string | null;
+  const raw = (await redisClient.get(resultKey(jobId))) as unknown as
+    | string
+    | null;
 
   if (!raw) {
     return null; // expired / not found

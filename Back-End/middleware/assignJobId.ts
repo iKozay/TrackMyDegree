@@ -1,6 +1,6 @@
 // middleware/assignJobId.ts
-import { Request, Response, NextFunction, RequestHandler } from "express";
-import { v4 as uuidv4 } from "uuid";
+import { Request, Response, NextFunction, RequestHandler } from 'express';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface RequestWithJobId extends Request {
   jobId?: string;
@@ -10,7 +10,7 @@ export interface RequestWithJobId extends Request {
 export const assignJobId: RequestHandler = (
   req: Request,
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   (req as RequestWithJobId).jobId = uuidv4();
   next();

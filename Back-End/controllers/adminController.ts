@@ -24,7 +24,10 @@ export class AdminController extends BaseMongoController<any> {
       return collections.map((col) => col.name);
     } catch (error) {
       Sentry.captureException(error);
-      if (error instanceof Error && error.message === DATABASE_CONNECTION_NOT_AVAILABLE) {
+      if (
+        error instanceof Error &&
+        error.message === DATABASE_CONNECTION_NOT_AVAILABLE
+      ) {
         throw error;
       }
       throw new Error('Error fetching collections');
@@ -93,7 +96,10 @@ export class AdminController extends BaseMongoController<any> {
       return documents as any[];
     } catch (error) {
       Sentry.captureException(error);
-      if (error instanceof Error && error.message === DATABASE_CONNECTION_NOT_AVAILABLE) {
+      if (
+        error instanceof Error &&
+        error.message === DATABASE_CONNECTION_NOT_AVAILABLE
+      ) {
         throw error;
       }
       throw new Error('Error fetching documents from collection');
@@ -114,7 +120,10 @@ export class AdminController extends BaseMongoController<any> {
       return result.deletedCount || 0;
     } catch (error) {
       Sentry.captureException(error);
-      if (error instanceof Error && error.message === DATABASE_CONNECTION_NOT_AVAILABLE) {
+      if (
+        error instanceof Error &&
+        error.message === DATABASE_CONNECTION_NOT_AVAILABLE
+      ) {
         throw error;
       }
       throw new Error('Error clearing collection');

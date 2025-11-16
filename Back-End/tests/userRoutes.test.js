@@ -116,11 +116,11 @@ describe('User Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock userController.createUser to throw an error
-      const originalCreateUser =
-        require('../controllers/userController')
-          .userController.createUser;
-      require('../controllers/userController').userController.createUser =
-        jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalCreateUser = require('../controllers/userController')
+        .userController.createUser;
+      require('../controllers/userController').userController.createUser = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const userData = {
         email: 'test@example.com',
@@ -179,11 +179,11 @@ describe('User Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock userController.getUserById to throw an error
-      const originalGetUserById =
-        require('../controllers/userController')
-          .userController.getUserById;
-      require('../controllers/userController').userController.getUserById =
-        jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetUserById = require('../controllers/userController')
+        .userController.getUserById;
+      require('../controllers/userController').userController.getUserById = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .get(`/users/${testUser._id}`)
@@ -231,11 +231,11 @@ describe('User Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock userController.getAllUsers to throw an error
-      const originalGetAllUsers =
-        require('../controllers/userController')
-          .userController.getAllUsers;
-      require('../controllers/userController').userController.getAllUsers =
-        jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetAllUsers = require('../controllers/userController')
+        .userController.getAllUsers;
+      require('../controllers/userController').userController.getAllUsers = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const response = await request(app).get('/users').expect(500);
 
@@ -288,11 +288,11 @@ describe('User Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock userController.updateUser to throw an error
-      const originalUpdateUser =
-        require('../controllers/userController')
-          .userController.updateUser;
-      require('../controllers/userController').userController.updateUser =
-        jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalUpdateUser = require('../controllers/userController')
+        .userController.updateUser;
+      require('../controllers/userController').userController.updateUser = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const updates = { fullname: 'Updated Name' };
       const response = await request(app)
@@ -342,11 +342,11 @@ describe('User Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      const originalDeleteUser =
-        require('../controllers/userController')
-          .userController.deleteUser;
-      require('../controllers/userController').userController.deleteUser =
-        jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalDeleteUser = require('../controllers/userController')
+        .userController.deleteUser;
+      require('../controllers/userController').userController.deleteUser = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .delete(`/users/${testUser._id}`)
@@ -370,11 +370,11 @@ describe('User Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      const originalDeleteUser =
-        require('../controllers/userController')
-          .userController.deleteUser;
-      require('../controllers/userController').userController.deleteUser =
-        jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalDeleteUser = require('../controllers/userController')
+        .userController.deleteUser;
+      require('../controllers/userController').userController.deleteUser = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .delete(`/users/${testUser._id}`)
@@ -453,9 +453,8 @@ describe('User Routes', () => {
 
       it('should handle server errors', async () => {
         // Mock userController.getUserData to throw an error
-        const originalGetUserData =
-          require('../controllers/userController')
-            .userController.getUserData;
+        const originalGetUserData = require('../controllers/userController')
+          .userController.getUserData;
         require('../controllers/userController').userController.getUserData =
           jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -482,11 +481,11 @@ describe('User Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock userController.getUserData to throw an error
-      const originalGetUserData =
-        require('../controllers/userController')
-          .userController.getUserData;
-      require('../controllers/userController').userController.getUserData =
-        jest.fn().mockRejectedValue(new Error('Database error'));
+      const originalGetUserData = require('../controllers/userController')
+        .userController.getUserData;
+      require('../controllers/userController').userController.getUserData = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       const response = await request(app)
         .get(`/users/${testUser._id}/data`)
@@ -581,9 +580,8 @@ describe('User Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      const originalCreateDeficiency =
-        require('../controllers/userController')
-          .userController.createDeficiency;
+      const originalCreateDeficiency = require('../controllers/userController')
+        .userController.createDeficiency;
       require('../controllers/userController').userController.createDeficiency =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -676,9 +674,8 @@ describe('User Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      const originalUpdateDeficiency =
-        require('../controllers/userController')
-          .userController.updateDeficiency;
+      const originalUpdateDeficiency = require('../controllers/userController')
+        .userController.updateDeficiency;
       require('../controllers/userController').userController.updateDeficiency =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -734,8 +731,8 @@ describe('User Routes', () => {
     it('should handle server errors', async () => {
       // Mock userController.getAllDeficienciesByUser to throw an error
       const originalGetAllDeficienciesByUser =
-        require('../controllers/userController')
-          .userController.getAllDeficienciesByUser;
+        require('../controllers/userController').userController
+          .getAllDeficienciesByUser;
       require('../controllers/userController').userController.getAllDeficienciesByUser =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -798,9 +795,8 @@ describe('User Routes', () => {
     });
 
     it('should handle server errors', async () => {
-      const originalUpdateDeficiency =
-        require('../controllers/userController')
-          .userController.updateDeficiency;
+      const originalUpdateDeficiency = require('../controllers/userController')
+        .userController.updateDeficiency;
       require('../controllers/userController').userController.updateDeficiency =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -884,9 +880,24 @@ describe('User Routes', () => {
       });
 
       await Course.create([
-        { _id: 'COMP101', title: 'Intro to Programming', description: 'Introduction to programming', credits: 3 },
-        { _id: 'COMP102', title: 'Data Structures', description: 'Data structures course', credits: 3 },
-        { _id: 'MATH101', title: 'Calculus I', description: 'Calculus course', credits: 3 },
+        {
+          _id: 'COMP101',
+          title: 'Intro to Programming',
+          description: 'Introduction to programming',
+          credits: 3,
+        },
+        {
+          _id: 'COMP102',
+          title: 'Data Structures',
+          description: 'Data structures course',
+          credits: 3,
+        },
+        {
+          _id: 'MATH101',
+          title: 'Calculus I',
+          description: 'Calculus course',
+          credits: 3,
+        },
       ]);
     });
 
@@ -944,9 +955,8 @@ describe('User Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock userController.createExemptions to throw an error
-      const originalCreateExemptions =
-        require('../controllers/userController')
-          .userController.createExemptions;
+      const originalCreateExemptions = require('../controllers/userController')
+        .userController.createExemptions;
       require('../controllers/userController').userController.createExemptions =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -1019,8 +1029,8 @@ describe('User Routes', () => {
 
     it('should handle server errors', async () => {
       const originalGetAllExemptionsByUser =
-        require('../controllers/userController')
-          .userController.getAllExemptionsByUser;
+        require('../controllers/userController').userController
+          .getAllExemptionsByUser;
       require('../controllers/userController').userController.getAllExemptionsByUser =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -1083,9 +1093,8 @@ describe('User Routes', () => {
 
     it('should handle server errors', async () => {
       // Mock userController.deleteExemption to throw an error
-      const originalDeleteExemption =
-        require('../controllers/userController')
-          .userController.deleteExemption;
+      const originalDeleteExemption = require('../controllers/userController')
+        .userController.deleteExemption;
       require('../controllers/userController').userController.deleteExemption =
         jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -1118,9 +1127,8 @@ describe('User Routes', () => {
 
     describe('POST /users error branches', () => {
       it('should handle "already exists" error specifically', async () => {
-        const originalCreateUser =
-          require('../controllers/userController')
-            .userController.createUser;
+        const originalCreateUser = require('../controllers/userController')
+          .userController.createUser;
         require('../controllers/userController').userController.createUser =
           jest.fn().mockRejectedValue(new Error('User already exists'));
 
@@ -1140,9 +1148,8 @@ describe('User Routes', () => {
       });
 
       it('should handle general errors (not "already exists")', async () => {
-        const originalCreateUser =
-          require('../controllers/userController')
-            .userController.createUser;
+        const originalCreateUser = require('../controllers/userController')
+          .userController.createUser;
         require('../controllers/userController').userController.createUser =
           jest.fn().mockRejectedValue(new Error('General error'));
 
@@ -1164,9 +1171,8 @@ describe('User Routes', () => {
 
     describe('GET /users/:id error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalGetUserById =
-          require('../controllers/userController')
-            .userController.getUserById;
+        const originalGetUserById = require('../controllers/userController')
+          .userController.getUserById;
         require('../controllers/userController').userController.getUserById =
           jest.fn().mockRejectedValue(new Error('User does not exist'));
 
@@ -1181,9 +1187,8 @@ describe('User Routes', () => {
       });
 
       it('should handle general errors (not "does not exist")', async () => {
-        const originalGetUserById =
-          require('../controllers/userController')
-            .userController.getUserById;
+        const originalGetUserById = require('../controllers/userController')
+          .userController.getUserById;
         require('../controllers/userController').userController.getUserById =
           jest.fn().mockRejectedValue(new Error('General error'));
 
@@ -1200,9 +1205,8 @@ describe('User Routes', () => {
 
     describe('GET /users error branch', () => {
       it('should handle general errors', async () => {
-        const originalGetAllUsers =
-          require('../controllers/userController')
-            .userController.getAllUsers;
+        const originalGetAllUsers = require('../controllers/userController')
+          .userController.getAllUsers;
         require('../controllers/userController').userController.getAllUsers =
           jest.fn().mockRejectedValue(new Error('Database error'));
 
@@ -1217,9 +1221,8 @@ describe('User Routes', () => {
 
     describe('PUT /users/:id error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalUpdateUser =
-          require('../controllers/userController')
-            .userController.updateUser;
+        const originalUpdateUser = require('../controllers/userController')
+          .userController.updateUser;
         require('../controllers/userController').userController.updateUser =
           jest.fn().mockRejectedValue(new Error('User does not exist'));
 
@@ -1235,9 +1238,8 @@ describe('User Routes', () => {
       });
 
       it('should handle general errors (not "does not exist")', async () => {
-        const originalUpdateUser =
-          require('../controllers/userController')
-            .userController.updateUser;
+        const originalUpdateUser = require('../controllers/userController')
+          .userController.updateUser;
         require('../controllers/userController').userController.updateUser =
           jest.fn().mockRejectedValue(new Error('General error'));
 
@@ -1255,9 +1257,8 @@ describe('User Routes', () => {
 
     describe('DELETE /users/:id error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalDeleteUser =
-          require('../controllers/userController')
-            .userController.deleteUser;
+        const originalDeleteUser = require('../controllers/userController')
+          .userController.deleteUser;
         require('../controllers/userController').userController.deleteUser =
           jest.fn().mockRejectedValue(new Error('User does not exist'));
 
@@ -1272,9 +1273,8 @@ describe('User Routes', () => {
       });
 
       it('should handle general errors (not "does not exist")', async () => {
-        const originalDeleteUser =
-          require('../controllers/userController')
-            .userController.deleteUser;
+        const originalDeleteUser = require('../controllers/userController')
+          .userController.deleteUser;
         require('../controllers/userController').userController.deleteUser =
           jest.fn().mockRejectedValue(new Error('General error'));
 
@@ -1291,9 +1291,8 @@ describe('User Routes', () => {
 
     describe('GET /users/:id/data error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalGetUserData =
-          require('../controllers/userController')
-            .userController.getUserData;
+        const originalGetUserData = require('../controllers/userController')
+          .userController.getUserData;
         require('../controllers/userController').userController.getUserData =
           jest.fn().mockRejectedValue(new Error('User does not exist'));
 
@@ -1308,9 +1307,8 @@ describe('User Routes', () => {
       });
 
       it('should handle general errors (not "does not exist")', async () => {
-        const originalGetUserData =
-          require('../controllers/userController')
-            .userController.getUserData;
+        const originalGetUserData = require('../controllers/userController')
+          .userController.getUserData;
         require('../controllers/userController').userController.getUserData =
           jest.fn().mockRejectedValue(new Error('General error'));
 
@@ -1328,8 +1326,8 @@ describe('User Routes', () => {
     describe('POST /users/:userId/deficiencies error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
         const originalCreateDeficiency =
-          require('../controllers/userController')
-            .userController.createDeficiency;
+          require('../controllers/userController').userController
+            .createDeficiency;
         require('../controllers/userController').userController.createDeficiency =
           jest.fn().mockRejectedValue(new Error('User does not exist'));
 
@@ -1346,8 +1344,8 @@ describe('User Routes', () => {
 
       it('should handle "already exists" error specifically', async () => {
         const originalCreateDeficiency =
-          require('../controllers/userController')
-            .userController.createDeficiency;
+          require('../controllers/userController').userController
+            .createDeficiency;
         require('../controllers/userController').userController.createDeficiency =
           jest.fn().mockRejectedValue(new Error('Deficiency already exists'));
 
@@ -1364,8 +1362,8 @@ describe('User Routes', () => {
 
       it('should handle general errors', async () => {
         const originalCreateDeficiency =
-          require('../controllers/userController')
-            .userController.createDeficiency;
+          require('../controllers/userController').userController
+            .createDeficiency;
         require('../controllers/userController').userController.createDeficiency =
           jest.fn().mockRejectedValue(new Error('General error'));
 
@@ -1384,8 +1382,8 @@ describe('User Routes', () => {
     describe('GET /users/:userId/deficiencies error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
         const originalGetAllDeficienciesByUser =
-          require('../controllers/userController')
-            .userController.getAllDeficienciesByUser;
+          require('../controllers/userController').userController
+            .getAllDeficienciesByUser;
         require('../controllers/userController').userController.getAllDeficienciesByUser =
           jest.fn().mockRejectedValue(new Error('User does not exist'));
 
@@ -1401,8 +1399,8 @@ describe('User Routes', () => {
 
       it('should handle general errors (not "does not exist")', async () => {
         const originalGetAllDeficienciesByUser =
-          require('../controllers/userController')
-            .userController.getAllDeficienciesByUser;
+          require('../controllers/userController').userController
+            .getAllDeficienciesByUser;
         require('../controllers/userController').userController.getAllDeficienciesByUser =
           jest.fn().mockRejectedValue(new Error('General error'));
 
@@ -1420,8 +1418,8 @@ describe('User Routes', () => {
     describe('PUT /users/:userId/deficiencies error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
         const originalUpdateDeficiency =
-          require('../controllers/userController')
-            .userController.updateDeficiency;
+          require('../controllers/userController').userController
+            .updateDeficiency;
         require('../controllers/userController').userController.updateDeficiency =
           jest.fn().mockRejectedValue(new Error('Deficiency not found'));
 
@@ -1438,8 +1436,8 @@ describe('User Routes', () => {
 
       it('should handle general errors (not "does not exist")', async () => {
         const originalUpdateDeficiency =
-          require('../controllers/userController')
-            .userController.updateDeficiency;
+          require('../controllers/userController').userController
+            .updateDeficiency;
         require('../controllers/userController').userController.updateDeficiency =
           jest.fn().mockRejectedValue(new Error('General error'));
 
@@ -1458,8 +1456,8 @@ describe('User Routes', () => {
     describe('DELETE /users/:userId/deficiencies error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
         const originalDeleteDeficiency =
-          require('../controllers/userController')
-            .userController.deleteDeficiency;
+          require('../controllers/userController').userController
+            .deleteDeficiency;
         require('../controllers/userController').userController.deleteDeficiency =
           jest.fn().mockRejectedValue(new Error('Deficiency does not exist'));
 
@@ -1476,8 +1474,8 @@ describe('User Routes', () => {
 
       it('should handle general errors (not "does not exist")', async () => {
         const originalDeleteDeficiency =
-          require('../controllers/userController')
-            .userController.deleteDeficiency;
+          require('../controllers/userController').userController
+            .deleteDeficiency;
         require('../controllers/userController').userController.deleteDeficiency =
           jest.fn().mockRejectedValue(new Error('General error'));
 
@@ -1496,8 +1494,8 @@ describe('User Routes', () => {
     describe('POST /users/:userId/exemptions error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
         const originalCreateExemptions =
-          require('../controllers/userController')
-            .userController.createExemptions;
+          require('../controllers/userController').userController
+            .createExemptions;
         require('../controllers/userController').userController.createExemptions =
           jest.fn().mockRejectedValue(new Error('User does not exist'));
 
@@ -1514,8 +1512,8 @@ describe('User Routes', () => {
 
       it('should handle "already exists" error specifically', async () => {
         const originalCreateExemptions =
-          require('../controllers/userController')
-            .userController.createExemptions;
+          require('../controllers/userController').userController
+            .createExemptions;
         require('../controllers/userController').userController.createExemptions =
           jest.fn().mockRejectedValue(new Error('Exemption already exists'));
 
@@ -1532,8 +1530,8 @@ describe('User Routes', () => {
 
       it('should handle general errors', async () => {
         const originalCreateExemptions =
-          require('../controllers/userController')
-            .userController.createExemptions;
+          require('../controllers/userController').userController
+            .createExemptions;
         require('../controllers/userController').userController.createExemptions =
           jest.fn().mockRejectedValue(new Error('General error'));
 
@@ -1552,8 +1550,8 @@ describe('User Routes', () => {
     describe('GET /users/:userId/exemptions error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
         const originalGetAllExemptionsByUser =
-          require('../controllers/userController')
-            .userController.getAllExemptionsByUser;
+          require('../controllers/userController').userController
+            .getAllExemptionsByUser;
         require('../controllers/userController').userController.getAllExemptionsByUser =
           jest.fn().mockRejectedValue(new Error('User does not exist'));
 
@@ -1569,8 +1567,8 @@ describe('User Routes', () => {
 
       it('should handle general errors (not "does not exist")', async () => {
         const originalGetAllExemptionsByUser =
-          require('../controllers/userController')
-            .userController.getAllExemptionsByUser;
+          require('../controllers/userController').userController
+            .getAllExemptionsByUser;
         require('../controllers/userController').userController.getAllExemptionsByUser =
           jest.fn().mockRejectedValue(new Error('General error'));
 
@@ -1587,9 +1585,8 @@ describe('User Routes', () => {
 
     describe('DELETE /users/:userId/exemptions error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
-        const originalDeleteExemption =
-          require('../controllers/userController')
-            .userController.deleteExemption;
+        const originalDeleteExemption = require('../controllers/userController')
+          .userController.deleteExemption;
         require('../controllers/userController').userController.deleteExemption =
           jest.fn().mockRejectedValue(new Error('User does not exist'));
 
@@ -1605,9 +1602,8 @@ describe('User Routes', () => {
       });
 
       it('should handle general errors (not "does not exist")', async () => {
-        const originalDeleteExemption =
-          require('../controllers/userController')
-            .userController.deleteExemption;
+        const originalDeleteExemption = require('../controllers/userController')
+          .userController.deleteExemption;
         require('../controllers/userController').userController.deleteExemption =
           jest.fn().mockRejectedValue(new Error('General error'));
 

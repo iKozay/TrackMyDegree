@@ -1,26 +1,26 @@
+const { Buffer } = require('buffer');
+const { buildTimeline } = require('../services/timeline/timelineService'); // adjust path if needed
 
-const { buildTimeline } = require("../services/timeline/timelineService"); // adjust path if needed
+describe('buildTimeline (stub)', () => {
+  test("handles type 'file' and resolves with { status: 'done' }", async () => {
+    const buffer = Buffer.from('fake pdf data');
 
-describe("buildTimeline (stub)", () => {
-    test("handles type 'file' and resolves with { status: 'done' }", async () => {
-        const buffer = Buffer.from("fake pdf data");
-
-        const result = await buildTimeline({
-            type: "file",
-            data: buffer,
-        });
-
-        expect(result).toEqual({ status: "done" });
+    const result = await buildTimeline({
+      type: 'file',
+      data: buffer,
     });
 
-    test("handles type 'form' and resolves with { status: 'done' }", async () => {
-        const formData = { degree: "CS", term: "Fall", year: 2025 };
+    expect(result).toEqual({ status: 'done' });
+  });
 
-        const result = await buildTimeline({
-            type: "form",
-            data: formData,
-        });
+  test("handles type 'form' and resolves with { status: 'done' }", async () => {
+    const formData = { degree: 'CS', term: 'Fall', year: 2025 };
 
-        expect(result).toEqual({ status: "done" });
+    const result = await buildTimeline({
+      type: 'form',
+      data: formData,
     });
+
+    expect(result).toEqual({ status: 'done' });
+  });
 });

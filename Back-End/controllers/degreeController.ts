@@ -49,7 +49,7 @@ export class DegreeController extends BaseMongoController<any> {
         _id: result.data._id,
         name: result.data.name,
         totalCredits: result.data.totalCredits,
-        coursePools: result.data.coursePools || []
+        coursePools: result.data.coursePools || [],
       };
     } catch (error) {
       this.handleError(error, 'createDegree');
@@ -59,7 +59,10 @@ export class DegreeController extends BaseMongoController<any> {
   /**
    * Update an existing degree
    */
-  async updateDegree(_id: string, updateData: Partial<DegreeData>): Promise<DegreeData> {
+  async updateDegree(
+    _id: string,
+    updateData: Partial<DegreeData>,
+  ): Promise<DegreeData> {
     try {
       const result = await this.updateById(_id, updateData);
 
@@ -71,7 +74,7 @@ export class DegreeController extends BaseMongoController<any> {
         _id: result.data._id,
         name: result.data.name,
         totalCredits: result.data.totalCredits,
-        coursePools: result.data.coursePools || []
+        coursePools: result.data.coursePools || [],
       };
     } catch (error) {
       this.handleError(error, 'updateDegree');
@@ -118,7 +121,7 @@ export class DegreeController extends BaseMongoController<any> {
         _id: degree._id,
         name: degree.name,
         totalCredits: degree.totalCredits,
-        coursePools: degree.coursePools
+        coursePools: degree.coursePools,
       }));
     } catch (error) {
       this.handleError(error, 'readAllDegrees');

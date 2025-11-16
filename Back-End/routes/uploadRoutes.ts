@@ -3,8 +3,8 @@ import pdfParsingController, {
   uploadMiddleware,
 } from '../controllers/pdfParsingController';
 
-import { assignJobId } from "../middleware/assignJobId";
-import { uploadWithJobId } from "../middleware/uploadWithJobId";
+import { assignJobId } from '../middleware/assignJobId';
+import { uploadWithJobId } from '../middleware/uploadWithJobId';
 
 import { uploadController } from '../controllers/uploadController';
 
@@ -18,18 +18,13 @@ router.post('/parse', uploadMiddleware, (req: Request, res: Response) =>
   pdfParsingController.parseDocument(req, res),
 );
 
-
 router.post(
-  "/file",
+  '/file',
   assignJobId,
-  uploadWithJobId.single("file"),
-  uploadController
+  uploadWithJobId.single('file'),
+  uploadController,
 );
 
-router.post(
-  "/form",
-  assignJobId,
-  uploadController
-);
+router.post('/form', assignJobId, uploadController);
 
 export default router;

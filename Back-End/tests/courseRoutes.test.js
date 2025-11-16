@@ -82,13 +82,11 @@ describe('Course Routes', () => {
       // If courses are filtered, they should match the pool filter
       if (response.body.length > 0) {
         expect(
-          response.body.every((course) =>
-            course.offeredIn && course.offeredIn.includes('Fall'),
+          response.body.every(
+            (course) => course.offeredIn && course.offeredIn.includes('Fall'),
           ),
         ).toBe(true);
-        const courseIds = response.body
-          .map((course) => course._id)
-          .sort();
+        const courseIds = response.body.map((course) => course._id).sort();
         expect(courseIds).toEqual(['COMP101', 'MATH101']);
       }
     });
@@ -101,9 +99,7 @@ describe('Course Routes', () => {
       expect(Array.isArray(response.body)).toBe(true);
       expect(response.body.length).toBeGreaterThanOrEqual(0);
       if (response.body.length > 0) {
-        expect(response.body[0].title).toBe(
-          'Introduction to Programming',
-        );
+        expect(response.body[0].title).toBe('Introduction to Programming');
       }
     });
 
@@ -220,7 +216,9 @@ describe('Course Routes', () => {
     const { Degree } = require('../models/degree');
     const { CoursePool } = require('../models/coursepool');
     const { degreeController } = require('../controllers/degreeController');
-    const { coursepoolController } = require('../controllers/coursepoolController');
+    const {
+      coursepoolController,
+    } = require('../controllers/coursepoolController');
 
     beforeEach(async () => {
       await Degree.deleteMany({});
