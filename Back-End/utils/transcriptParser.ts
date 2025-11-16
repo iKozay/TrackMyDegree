@@ -12,6 +12,7 @@ import type {
   TransferCredit,
 } from '../types/transcript';
 import { setTimeout } from 'node:timers';
+import { ParsedData } from '../types/parsedData';
 
 /**
  * TranscriptParser - A utility class to parse academic transcripts from PDF format
@@ -30,6 +31,58 @@ import { setTimeout } from 'node:timers';
 export class TranscriptParser {
   private static readonly STUDENT_ID_STRING = 'Student ID:';
   private static readonly ACTIVE_STRING = 'Active in Program';
+
+  //function used to unify the parsers and have the same output
+  async parse(buffer: Buffer, cleanText?: string): Promise<ParsedData> {
+    const parsedData = await this.parseFromBuffer(buffer, cleanText);
+    return this.formatParsedData(parsedData);
+  }
+
+  //format the parsed Data from the transcript to the correct format
+  formatParsedData(parsedData: ParsedTranscript): ParsedData {
+    let programInfo;
+    if (parsedData.programHistory && parsedData.programHistory.length > 0) {
+      // Extract degree ID from program history
+      let degreeName = `${parsedData.programHistory[parsedData.programHistory.length - 1]?.degreeType}, ${parsedData.programHistory[parsedData.programHistory.length - 1]?.major}`;
+      const coop = degreeName.indexOf(' (Co-op)');
+      degreeName = coop === -1 ? degreeName : degreeName.slice(0, coop);
+      programInfo = {
+        degree: degreeName,
+        isCoop: coop !== -1,
+        minimumProgramLength:
+          parsedData.additionalInfo?.minCreditsRequired || undefined,
+        // extendedCreditProgram: parsedData.extendedCredits || false,
+        //deficienciesCourses: parsedData.deficiencyCourses,
+      };
+    }
+    const formattedData: ParsedData = {
+      programInfo: programInfo,
+    };
+
+    if (!parsedData?.terms.length && !parsedData?.transferCredits.length) {
+      return formattedData;
+    }
+
+    // Handle transfer credits as exempted courses
+    if (parsedData.transferCredits.length > 0) {
+      formattedData.exemptedCourses = parsedData.transferCredits.map(
+        (tc) => tc.courseCode.replaceAll(/\s+/g, ''),
+      );
+    }
+    let coursesTaken = [];
+    for (const term of parsedData.terms) {
+      const termName = `${term.term} ${term.year}`;
+      coursesTaken.push({
+        term: termName,
+        courses: term.courses.map((tc) => {
+          return { code: tc.courseCode.replaceAll(/\s+/g, '') };
+        }),
+      });
+    }
+    formattedData.coursesTaken = coursesTaken;
+
+    return formattedData;
+  }
   /**
    * Parse a transcript from a PDF file path
    */
@@ -48,11 +101,13 @@ export class TranscriptParser {
    * Parse a transcript from a Buffer
    * Uses BOTH pdf-parse (for term detection) and pdf2json (for structured course data)
    */
-  async parseFromBuffer(buffer: Buffer): Promise<ParsedTranscript> {
+  async parseFromBuffer(buffer: Buffer, cleanText?: string): Promise<ParsedTranscript> {
     try {
       // Step 1: Use pdf-parse to get clean text with correct reading order
-      const pdfParseData = await pdfParse(buffer);
-      const cleanText = pdfParseData.text;
+      if (!cleanText) {
+        const pdfParseData = await pdfParse(buffer);
+        cleanText = pdfParseData.text;
+      }
 
       // Step 2: Use pdf2json to get structured data with columns
       const pdf2jsonData = await new Promise<any>((resolve, reject) => {
@@ -881,6 +936,8 @@ export class TranscriptParser {
 
     return nonEmptyTerms;
   }
+  
+
 }
 
 export default TranscriptParser;
