@@ -6,6 +6,7 @@ import multer from 'multer';
 
 import pdfParse from 'pdf-parse';
 import { AcceptanceLetterParser } from '@utils/acceptanceLetterParser';
+import { ParsedData } from '../types/parsedData';
 
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -55,8 +56,7 @@ class PDFParsingController {
       // Check if the text contains keywords specific to transcripts
       else if (cleanText.toLowerCase().includes('student record')) {
         const parser = new TranscriptParser();
-        const transcriptData = await parser.parseFromBuffer(req.file.buffer);
-        data = unifyParsedData(transcriptData);
+        data = await parser.parse(req.file.buffer, cleanText);
       } else {
         res.status(HTTP.BAD_REQUEST).json({
           success: false,
@@ -65,11 +65,10 @@ class PDFParsingController {
         });
         return;
       }
-
       const response: ParsePDFResponse = {
         success: true,
         message: 'Document parsed successfully',
-        data: data,
+        data: formatData(data),
       };
 
       res.status(HTTP.OK).json(response);
@@ -82,54 +81,109 @@ class PDFParsingController {
     }
   }
 }
-//temporary function to unify the data between acceptance letter and transcript
-//when a common interface is defined this function will be removed
-function unifyParsedData(parsedData: any) {
+
+//temporary function to fit the format that the front end expect
+//To be removed when the timeline logic is moved to the back end
+function formatData(parsedData: ParsedData) {
   let details = {};
-  if (parsedData.programHistory && parsedData.programHistory.length > 0) {
-    // Extract degree ID from program history
-    let degreeName = `${parsedData.programHistory[parsedData.programHistory.length - 1]?.degreeType}, ${parsedData.programHistory[parsedData.programHistory.length - 1]?.major}`;
-    const coop = degreeName.indexOf(' (Co-op)');
-    degreeName = coop === -1 ? degreeName : degreeName.slice(0, coop);
+  let programInfo = parsedData.programInfo;
+  if (programInfo)
     details = {
-      degreeConcentration: degreeName,
-      coopProgram: coop !== -1,
+      degreeConcentration: programInfo.degree,
+      coopProgram: programInfo.isCoop || false,
+      extendedCreditProgram: programInfo.isExtendedCreditProgram || false,
+      startingTerm: programInfo.firstTerm || null,
+      expectedGraduationTerm: programInfo.lastTerm || null,
       minimumProgramLength:
-        parsedData.additionalInfo?.minCreditsRequired || null,
-      // extendedCreditProgram: parsedData.extendedCredits || false,
-      //deficienciesCourses: parsedData.deficiencyCourses,
+        programInfo.minimumProgramLength?.toString() || null,
     };
-  }
-  // Transform new parsed data to match the old format (matching matchCoursesToTerms output)
-  const extractedCourses: { term: string; courses: string[]; grade:string | null }[] = [];
 
-  if (!parsedData?.terms.length && !parsedData?.transferCredits.length) {
-    return { extractedCourses, details };
+  const extractedCourses: {
+    term: string;
+    courses: string[];
+    grade: string | null;
+  }[] = [];
+  if (!parsedData.coursesTaken?.length) {
+    let terms = generateTerms(programInfo?.firstTerm, programInfo?.lastTerm);
+    terms.forEach((term: string) => {
+      extractedCourses.push({
+        term: term.trim(),
+        courses: [],
+        grade: null,
+      });
+    });
+  } else {
+    for (const semester of parsedData.coursesTaken) {
+      extractedCourses.push({
+        term: semester.term,
+        courses: semester.courses.map((t) => t.code),
+        grade: null,
+      });
+    }
   }
-
-  // Handle transfer credits as exempted courses
-  if (parsedData.transferCredits.length > 0) {
-    // Get the earliest year from transfer credits or use a default
-    const exemptYear = parsedData.terms[0].year;
+  if (parsedData.transferedCourses && parsedData.transferedCourses.length > 0) {
     extractedCourses.push({
-      term: `Exempted ${exemptYear}`,
-      courses: parsedData.transferCredits.map((tc:any) =>
-        tc.courseCode.replaceAll(/\s+/g, ''),
-      ),
-      grade: 'EX',
+      term: 'transfer credits',
+      courses: parsedData.transferedCourses,
+      grade: null,
     });
   }
-  
-  for (const term of parsedData.terms) {
-    const termName = `${term.term} ${term.year}`;
+  if (parsedData.deficiencyCourses && parsedData.deficiencyCourses.length > 0) {
     extractedCourses.push({
-      term: termName,
-      courses: term.courses.map((tc:any) => tc.courseCode.replaceAll(/\s+/g, '')),
-      grade: term.termGPA,
+      term: 'deficiency',
+      courses: parsedData.deficiencyCourses,
+      grade: null,
     });
   }
-
+  if (parsedData.exemptedCourses && parsedData.exemptedCourses.length > 0) {
+    extractedCourses.push({
+      term: 'exemptions',
+      courses: parsedData.exemptedCourses,
+      grade: null,
+    });
+  }
   return { extractedCourses, details };
+}
+function generateTerms(
+  startTerm: string | undefined,
+  endTerm: string | undefined,
+) {
+  const terms = ['Winter', 'Summer', 'Fall'];
+  if (!startTerm || typeof startTerm !== 'string') return [];
+  const startYear = Number.parseInt(startTerm.split(' ')[1]); // Extracting the year
+  const startSeason = startTerm.split(' ')[0]; // Extracting the season
+  let endYear, endSeason;
+  if (!endTerm || typeof endTerm !== 'string') {
+    endYear = startYear + 2;
+    endSeason = startSeason;
+  } else {
+    endYear = Number.parseInt(endTerm.split(' ')[1]); // Extracting the year
+    endSeason = endTerm.split(' ')[0]; // Extracting the season
+  }
+
+  const resultTerms = [];
+
+  let currentYear = startYear;
+  let currentSeasonIndex = terms.indexOf(startSeason); // Find index of start season in the list
+
+  // Loop to generate all terms from start to end
+  while (
+    currentYear < endYear ||
+    (currentYear === endYear && currentSeasonIndex <= terms.indexOf(endSeason))
+  ) {
+    const term = `${terms[currentSeasonIndex]} ${currentYear}`;
+    resultTerms.push(term);
+
+    // Move to the next season
+    currentSeasonIndex++;
+
+    if (currentSeasonIndex === terms.length) {
+      currentSeasonIndex = 0;
+      currentYear++;
+    }
+  }
+  // console.log("terms:", resultTerms)
+  return resultTerms;
 }
 
 const pdfParsingController = new PDFParsingController();
