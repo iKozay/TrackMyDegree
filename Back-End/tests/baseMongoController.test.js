@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const {
-  BaseMongoController,
-} = require('../controllers/baseMongoController');
+const { BaseMongoController } = require('../controllers/baseMongoController');
 
 // Create a test model for BaseMongoController
 const TestSchema = new mongoose.Schema({

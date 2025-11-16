@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const {
-  AdminController,
-} = require('../controllers/adminController');
+const { AdminController } = require('../controllers/adminController');
 const { User } = require('../models/user');
 const { Course } = require('../models/course');
 
@@ -253,7 +251,6 @@ describe('AdminController', () => {
     });
   });
 
-
   describe('Additional Edge Cases for Coverage', () => {
     beforeEach(async () => {
       await User.deleteMany({}); // ensure isolation
@@ -300,7 +297,6 @@ describe('AdminController', () => {
 
       expect(result).toHaveLength(0);
     });
-
 
     it('should handle clearCollection when result has undefined deletedCount', async () => {
       const originalDb = mongoose.connection.db;

@@ -61,8 +61,8 @@ describe('Coursepool Routes', () => {
 
     it('should handle server errors', async () => {
       const originalGetCoursePool =
-        require('../controllers/coursepoolController')
-          .coursepoolController.getCoursePool;
+        require('../controllers/coursepoolController').coursepoolController
+          .getCoursePool;
 
       require('../controllers/coursepoolController').coursepoolController.getCoursePool =
         jest.fn().mockRejectedValue(new Error('Database error'));
@@ -124,8 +124,8 @@ describe('Coursepool Routes', () => {
 
     it('should handle server errors', async () => {
       const originalGetAllCoursePools =
-        require('../controllers/coursepoolController')
-          .coursepoolController.getAllCoursePools;
+        require('../controllers/coursepoolController').coursepoolController
+          .getAllCoursePools;
 
       require('../controllers/coursepoolController').coursepoolController.getAllCoursePools =
         jest.fn().mockRejectedValue(new Error('Database error'));

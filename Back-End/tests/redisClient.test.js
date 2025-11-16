@@ -82,13 +82,15 @@ describe('Redis Client', () => {
       require('@lib/redisClient');
     });
 
-    const errorHandler = mockOn.mock.calls.find(call => call[0] === 'error')[1];
+    const errorHandler = mockOn.mock.calls.find(
+      (call) => call[0] === 'error',
+    )[1];
     const testError = new Error('Redis connection failed');
 
     errorHandler(testError);
 
     expect(mockSentryCapture).toHaveBeenCalledWith(testError, {
-      extra: { error: 'Redis Client Error' }
+      extra: { error: 'Redis Client Error' },
     });
     expect(consoleSpy).toHaveBeenCalledWith('Redis Client Error:', testError);
     consoleSpy.mockRestore();
@@ -101,7 +103,9 @@ describe('Redis Client', () => {
       require('@lib/redisClient');
     });
 
-    const connectHandler = mockOn.mock.calls.find(call => call[0] === 'connect')[1];
+    const connectHandler = mockOn.mock.calls.find(
+      (call) => call[0] === 'connect',
+    )[1];
     connectHandler();
 
     expect(consoleSpy).toHaveBeenCalledWith('Connected to Redis server');

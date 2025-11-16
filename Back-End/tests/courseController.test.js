@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const {
-  CourseController,
-} = require('../controllers/courseController');
+const { CourseController } = require('../controllers/courseController');
 const { Course } = require('../models/course');
 
 describe('CourseController', () => {
@@ -65,8 +63,9 @@ describe('CourseController', () => {
         corequisites: [],
       };
 
-      await expect(
-        courseController.createCourse(courseData),).rejects.toThrow('Database connection failed');
+      await expect(courseController.createCourse(courseData)).rejects.toThrow(
+        'Database connection failed',
+      );
 
       // Restore original method
       courseController.create = originalCreate;
@@ -107,8 +106,9 @@ describe('CourseController', () => {
         corequisites: [],
       };
 
-      await expect(
-        courseController.updateCourse(courseData),).rejects.toThrow('Database connection failed');
+      await expect(courseController.updateCourse(courseData)).rejects.toThrow(
+        'Database connection failed',
+      );
 
       // Restore original method
       courseController.updateById = originalUpdate;
@@ -395,12 +395,12 @@ describe('CourseController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(
-        courseController.deleteCourse('COMP101')).rejects.toThrow('Database connection failed');
+      await expect(courseController.deleteCourse('COMP101')).rejects.toThrow(
+        'Database connection failed',
+      );
       // Restore original method
       courseController.deleteById = originalDeleteById;
     });
-
   });
 
   describe('createRequisite', () => {
