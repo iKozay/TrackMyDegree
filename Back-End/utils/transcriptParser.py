@@ -58,9 +58,8 @@ def is_section(text):
 
 
 def is_transfer_credit(course):
-    """Check if a course is a transfer credit (EX grade with 0 credits)"""
-    return (course.get('grade', '').upper() == 'EX' and 
-            course.get('credits', 0) == 0)
+    """Check if a course is a transfer credit (universal: any course with EX grade)"""
+    return course.get('grade', '').upper() == 'EX'
 
 
 def parse_transcript(pdf_path):
@@ -498,90 +497,73 @@ def parse_transcript(pdf_path):
                     
                     word_idx += 1
             
-            # Also check for transfer credits that appear before any term headers (exemptions)
-            # These are courses with EX grade that appear before the first term on each page
-            page_terms = [th for th in term_headers if th['page'] == page_num and 'y' in th]
-            first_term_y = None
-            if page_terms:
-                first_term_y = min([th['y'] for th in page_terms])
-            else:
-                # If no terms on this page, check if there are terms on later pages
-                # If this is an early page, exemptions might appear before any terms
-                # Use a high Y value to check all words on the page
-                first_term_y = 9999
-            
-            # Check for exemptions before first term on this page
-            # Always check for exemptions that appear before the first term
-            # Note: words are not in Y-coordinate order, so we must check all words and filter by Y
-            if first_term_y:
-                # Look for courses with EX grade before first term
-                exemption_word_idx = 0
-                while exemption_word_idx < len(words) - 6:
-                    word = words[exemption_word_idx]
-                    word_y = word[1]
+            # Additional pass: catch any courses with EX grade that might have been missed
+            # This is a universal check - any course with EX grade is an exemption
+            exemption_word_idx = 0
+            while exemption_word_idx < len(words) - 5:
+                # Look for course pattern: COURSE_CODE, COURSE_NUMBER
+                if (is_course_code(words[exemption_word_idx][4].strip()) and
+                    is_course_number(words[exemption_word_idx + 1][4].strip())):
                     
-                    # Only process words before first term (don't break, just skip)
-                    if word_y >= first_term_y:
+                    # Look ahead for EX grade (might be after description, no section required)
+                    ex_found = False
+                    ex_idx = None
+                    credits_value = 0.0
+                    
+                    for j in range(exemption_word_idx + 2, min(exemption_word_idx + 15, len(words))):
+                        w_text = words[j][4].strip().upper()
+                        
+                        # Check for EX grade
+                        if w_text == 'EX':
+                            ex_found = True
+                            ex_idx = j
+                            # Continue to find credits after EX
+                        
+                        # Check for credits (decimal numbers) - can be before or after EX
+                        if re.match(r'^\d+\.\d{2}$', words[j][4].strip()):
+                            val = float(words[j][4].strip())
+                            # Use the credit value (usually 0.00 for exemptions)
+                            credits_value = val
+                    
+                    # If EX grade found, add as transfer credit
+                    if ex_found:
+                        course_code = words[exemption_word_idx][4].strip()
+                        course_number = words[exemption_word_idx + 1][4].strip()
+                        course_key = f'{course_code} {course_number}'
+                        
+                        # Check if already added
+                        if not any(tc['courseCode'] == course_key for tc in result['transferCredits']):
+                            # Extract description (between course number and EX)
+                            course_title = ''
+                            seen_words = set()  # Track words to avoid duplicates
+                            if ex_idx:
+                                for k in range(exemption_word_idx + 2, ex_idx):
+                                    w_text = words[k][4].strip()
+                                    if (w_text and 
+                                        w_text not in seen_words and
+                                        not is_course_code(w_text) and 
+                                        not is_course_number(w_text) and
+                                        not re.match(r'^\d+\.\d{2}$', w_text) and
+                                        w_text.upper() not in ['EX', 'NA', 'PASS', 'DISC'] and
+                                        not re.match(r'^[A-F][+-]?$', w_text, re.IGNORECASE)):
+                                        course_title += w_text + ' '
+                                        seen_words.add(w_text)
+                            
+                            transfer_credit = {
+                                'courseCode': course_key,
+                                'courseTitle': course_title.strip(),
+                                'grade': 'EX',
+                                'yearAttended': None,
+                                'programCreditsEarned': credits_value
+                            }
+                            result['transferCredits'].append(transfer_credit)
+                        
+                        # Move to next word to check for adjacent courses
+                        # Don't skip too far to avoid missing courses that might be close together
                         exemption_word_idx += 1
                         continue
-                    
-                    # Look for course pattern: COURSE_CODE, COURSE_NUMBER, (description), EX, NA, 0.00
-                    if (is_course_code(words[exemption_word_idx][4].strip()) and
-                        is_course_number(words[exemption_word_idx + 1][4].strip())):
-                        
-                        # Verify the course number is also before first term
-                        next_word_y = words[exemption_word_idx + 1][1] if exemption_word_idx + 1 < len(words) else word_y
-                        if next_word_y >= first_term_y:
-                            exemption_word_idx += 1
-                            continue
-                        
-                        # Look ahead for EX, NA, 0.00 pattern
-                        ex_idx = None
-                        na_idx = None
-                        credits_idx = None
-                        
-                        for j in range(exemption_word_idx + 2, min(exemption_word_idx + 10, len(words))):
-                            # Make sure we don't go past first term
-                            if words[j][1] >= first_term_y:
-                                break
-                            w_text = words[j][4].strip().upper()
-                            if w_text == 'EX' and ex_idx is None:
-                                ex_idx = j
-                            elif w_text == 'NA' and ex_idx is not None and na_idx is None:
-                                na_idx = j
-                            elif re.match(r'^\d+\.\d{2}$', words[j][4].strip()) and na_idx is not None and credits_idx is None:
-                                credits_idx = j
-                                break
-                        
-                        # If we found the pattern, extract the transfer credit
-                        if ex_idx and na_idx and credits_idx:
-                            course_code = words[exemption_word_idx][4].strip()
-                            course_number = words[exemption_word_idx + 1][4].strip()
-                            credits_str = words[credits_idx][4].strip()
-                            
-                            # Extract description between course number and EX
-                            course_title = ''
-                            for k in range(exemption_word_idx + 2, ex_idx):
-                                desc_text = words[k][4].strip()
-                                if desc_text and not is_course_code(desc_text) and not is_course_number(desc_text):
-                                    course_title += desc_text + ' '
-                            
-                            # Check if already added
-                            course_key = f'{course_code} {course_number}'
-                            if not any(tc['courseCode'] == course_key for tc in result['transferCredits']):
-                                transfer_credit = {
-                                    'courseCode': course_key,
-                                    'courseTitle': course_title.strip(),
-                                    'grade': 'EX',
-                                    'yearAttended': None,
-                                    'programCreditsEarned': float(credits_str)
-                                }
-                                result['transferCredits'].append(transfer_credit)
-                            
-                            exemption_word_idx = credits_idx + 1
-                            continue
-                    
-                    exemption_word_idx += 1
+                
+                exemption_word_idx += 1
             
             # Collect term GPAs (we'll match them to terms after processing all pages)
             for word_idx, word in enumerate(words):
@@ -686,6 +668,43 @@ def parse_transcript(pdf_path):
                     # Skip if no credits and no grade (likely not a real course)
                     if course['credits'] == 0 and not course['grade']:
                         i += 1
+                        continue
+                    
+                    # If grade is EX, treat as exemption/transfer credit
+                    if course['grade'] == 'EX':
+                        course_key = f'{course["courseCode"]} {course["section"]}'
+                        # Check if already added
+                        if not any(tc['courseCode'] == course['courseCode'] for tc in result['transferCredits']):
+                            # Look for description/credits around the course
+                            course_title = ''
+                            credits_value = course['credits']
+                            seen_words = set()  # Track words to avoid duplicates
+                            
+                            # Try to find description and credits in nearby words
+                            for k in range(max(0, i - 5), min(i + 15, len(words))):
+                                if k < i or k >= i + 3:  # Skip course code, number, section
+                                    w_text = words[k][4].strip()
+                                    # Look for description (text that's not a course code/number/grade/credit)
+                                    if (w_text and 
+                                        w_text not in seen_words and
+                                        not is_course_code(w_text) and 
+                                        not is_course_number(w_text) and
+                                        not re.match(r'^\d+\.\d{2}$', w_text) and
+                                        w_text.upper() not in ['EX', 'NA', 'PASS', 'DISC'] and
+                                        not re.match(r'^[A-F][+-]?$', w_text, re.IGNORECASE)):
+                                        course_title += w_text + ' '
+                                        seen_words.add(w_text)
+                            
+                            transfer_credit = {
+                                'courseCode': course['courseCode'],
+                                'courseTitle': course_title.strip(),
+                                'grade': 'EX',
+                                'yearAttended': None,
+                                'programCreditsEarned': credits_value
+                            }
+                            result['transferCredits'].append(transfer_credit)
+                        # Skip adding to regular courses if it's an EX grade
+                        i += 3
                         continue
                     
                     # Find which term this course belongs to based on Y position
