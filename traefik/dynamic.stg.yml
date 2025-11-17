@@ -1,0 +1,12 @@
+tls:
+  certificates:
+    - certFile: /traefik/certs/origin.pem
+      keyFile: /traefik/certs/origin.key
+http:
+  middlewares:
+    basic-auth:
+      basicAuth:
+        users:
+          # Generate with: htpasswd -nbB staging 'YourPasswordHere'
+          # Example: staging:$2y$10$example_hash_here
+          - "staging:$2y$10$REPLACE_WITH_ACTUAL_HASH"

@@ -1,0 +1,82 @@
+name: Promote Docker image to production
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: 'Select image to promote'
+        required: true
+        default: Both
+        type: choice
+        options:
+          - Backend
+          - Frontend
+          - Both
+      version_tag:
+        description: 'Version tag to promote (e.g. 20251114-5dab50b)'
+        required: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          install: true
+
+      - name: Prepare inputs and validate provided version tag exists
+        shell: bash
+        run: |
+          set -eo pipefail
+          CHOICE="${{ github.event.inputs.image }}"
+          VERSION="${{ github.event.inputs.version_tag }}"
+          OWNER="${{ github.repository_owner }}"
+          # Build IMAGES list according to choice
+          if [ "$CHOICE" = "Backend" ]; then
+            IMAGES_TO_CHECK=("trackmydegree-backend")
+            echo "IMAGES=trackmydegree-backend" >> $GITHUB_ENV
+          elif [ "$CHOICE" = "Frontend" ]; then
+            IMAGES_TO_CHECK=("trackmydegree-frontend")
+            echo "IMAGES=trackmydegree-frontend" >> $GITHUB_ENV
+          else
+            IMAGES_TO_CHECK=("trackmydegree-backend" "trackmydegree-frontend")
+            echo "IMAGES=trackmydegree-backend,trackmydegree-frontend" >> $GITHUB_ENV
+          fi
+
+          echo "VERSION_TAG=$VERSION" >> $GITHUB_ENV
+          echo "OWNER=$OWNER" >> $GITHUB_ENV
+
+          # Validate tags exist (docker/login-action already authenticated)
+          for img in "${IMAGES_TO_CHECK[@]}"; do
+            echo "Checking tag $VERSION for $OWNER/$img"
+            if ! docker manifest inspect "ghcr.io/${OWNER}/${img}:${VERSION}" > /dev/null 2>&1; then
+              echo "ERROR: Tag '${VERSION}' not found for image ghcr.io/${OWNER}/${img}"
+              exit 1
+            fi
+          done
+          echo "Validation succeeded: tag exists for selected image(s)"
+
+      - name: Promote selected images to production (in-registry tag)
+        shell: bash
+        run: |
+          set -eo pipefail
+          IFS=',' read -r -a IMGS <<< "$IMAGES"
+          for img in "${IMGS[@]}"; do
+            SRC="ghcr.io/${OWNER}/${img}:${VERSION_TAG}"
+            DST="ghcr.io/${OWNER}/${img}:production"
+            echo "Creating in-registry tag: $DST -> from $SRC"
+            docker buildx imagetools create --tag "$DST" "$SRC"
+            echo "Promoted $SRC to PRODUCTION"
+          done
