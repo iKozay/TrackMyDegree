@@ -3,9 +3,14 @@ import { TranscriptParser } from '@utils/transcriptParser';
 import HTTP from '@utils/httpCodes';
 import type { ParsePDFResponse } from '../types/transcript';
 import multer from 'multer';
+import fs from 'fs';
+import path from 'path';
+import { promisify } from 'util';
 
 import pdfParse from 'pdf-parse';
 import { AcceptanceLetterParser } from '@utils/acceptanceLetterParser';
+
+const unlinkAsync = promisify(fs.unlink);
 
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -31,6 +36,8 @@ class PDFParsingController {
    * @route POST /api/upload/parse
    */
   async parseDocument(req: Request, res: Response): Promise<void> {
+    let tempFilePath: string | null = null;
+
     try {
       if (!req.file) {
         res.status(HTTP.BAD_REQUEST).json({
@@ -40,13 +47,15 @@ class PDFParsingController {
         return;
       }
 
-      // Step 1: Use pdf-parse to get clean text with correct reading order
+      // Step 1: Use pdf-parse to detect document type and parse acceptance letters
       const pdfParseData = await pdfParse(req.file.buffer);
       const cleanText = pdfParseData.text;
       let data;
+
       if (!cleanText || cleanText.length === 0) {
         throw new Error('No text extracted from PDF.');
       }
+
       // Check if the text contains keywords specific to acceptance letters
       if (cleanText.toUpperCase().includes('OFFER OF ADMISSION')) {
         const parser = new AcceptanceLetterParser();
@@ -54,8 +63,15 @@ class PDFParsingController {
       }
       // Check if the text contains keywords specific to transcripts
       else if (cleanText.toLowerCase().includes('student record')) {
+        // Write buffer to temporary file for Python parser
+        tempFilePath = path.join(
+          '/tmp',
+          `transcript_${Date.now()}_${Math.random().toString(36).substring(7)}.pdf`,
+        );
+        fs.writeFileSync(tempFilePath, req.file.buffer);
+
         const parser = new TranscriptParser();
-        const transcriptData = await parser.parseFromBuffer(req.file.buffer);
+        const transcriptData = await parser.parseFromFile(tempFilePath);
         data = unifyParsedData(transcriptData);
       } else {
         res.status(HTTP.BAD_REQUEST).json({
@@ -79,6 +95,16 @@ class PDFParsingController {
         message: 'Failed to parse transcript',
         error: error instanceof Error ? error.message : 'Unknown error',
       });
+    } finally {
+      // Clean up temporary file
+      if (tempFilePath) {
+        try {
+          await unlinkAsync(tempFilePath);
+        } catch (cleanupError) {
+          // Log but don't throw - cleanup errors shouldn't affect the response
+          console.error('Failed to cleanup temp file:', cleanupError);
+        }
+      }
     }
   }
 }
@@ -95,13 +121,18 @@ function unifyParsedData(parsedData: any) {
       degreeConcentration: degreeName,
       coopProgram: coop !== -1,
       minimumProgramLength:
-        parsedData.additionalInfo?.minCreditsRequired || null,
+        parsedData.programHistory[parsedData.programHistory.length - 1]
+          ?.minCreditsRequired || null,
       // extendedCreditProgram: parsedData.extendedCredits || false,
       //deficienciesCourses: parsedData.deficiencyCourses,
     };
   }
   // Transform new parsed data to match the old format (matching matchCoursesToTerms output)
-  const extractedCourses: { term: string; courses: string[]; grade:string | null }[] = [];
+  const extractedCourses: {
+    term: string;
+    courses: string[];
+    grade: string | null;
+  }[] = [];
 
   if (!parsedData?.terms.length && !parsedData?.transferCredits.length) {
     return { extractedCourses, details };
@@ -113,18 +144,20 @@ function unifyParsedData(parsedData: any) {
     const exemptYear = parsedData.terms[0].year;
     extractedCourses.push({
       term: `Exempted ${exemptYear}`,
-      courses: parsedData.transferCredits.map((tc:any) =>
+      courses: parsedData.transferCredits.map((tc: any) =>
         tc.courseCode.replaceAll(/\s+/g, ''),
       ),
       grade: 'EX',
     });
   }
-  
+
   for (const term of parsedData.terms) {
     const termName = `${term.term} ${term.year}`;
     extractedCourses.push({
       term: termName,
-      courses: term.courses.map((tc:any) => tc.courseCode.replaceAll(/\s+/g, '')),
+      courses: term.courses.map((tc: any) =>
+        tc.courseCode.replaceAll(/\s+/g, ''),
+      ),
       grade: term.termGPA,
     });
   }

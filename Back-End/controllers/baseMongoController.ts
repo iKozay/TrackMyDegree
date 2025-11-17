@@ -1,11 +1,12 @@
 import { Document, Model, FilterQuery, UpdateQuery } from 'mongoose';
 import * as Sentry from '@sentry/node';
+import { ObjectId } from 'bson';
 
 const QUERY_FAILED = 'Query failed';
 const DELETE_FAILED = 'Delete failed';
 
 export interface BaseDocument extends Document {
-  _id: string;
+  _id: ObjectId;
 }
 
 export interface ControllerResponse<T> {

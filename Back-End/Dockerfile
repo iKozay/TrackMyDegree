@@ -26,6 +26,9 @@ COPY . .
 # Install Python requirements
 RUN pip3 install --break-system-packages -r course-data/Scraping/requirements.txt
 
+# Install PyMuPDF for transcript parsing
+RUN pip3 install --break-system-packages -r utils/requirements.txt
+
 RUN npm run build
 
 # Expose the port your app runs on
