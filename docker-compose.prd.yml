@@ -1,101 +1,90 @@
-version: '3.8'
-
 services:
-
   traefik:
-    image: traefik:latest
+    container_name: traefik
+    image: traefik:v3
     restart: always
     ports:
-      - "80:80"
       - "443:443"
     command:
-      # Enable Docker provider. Automatically discover services. See labels under frontend container.
+      # Enable Docker provider. Automatically discover services. See labels under frontend and backend containers.
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
-      # Define entrypoints for HTTP and HTTPS
-      - --entrypoints.web.address=:80
+      # Define entrypoints for HTTPS
       - --entrypoints.websecure.address=:443
-      # Let's Encrypt configuration
-      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
-      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}
-      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
-      # Redirect HTTP to HTTPS
-      - --entrypoints.web.http.redirections.entrypoint.to=websecure
-      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      # Static TLS configuration from /traefik/dynamic.yml
+      - --providers.file.filename=/traefik/dynamic.yml
     volumes:
-      - letsencrypt-data:/letsencrypt
       # Mount Docker socket as read-only to allow Traefik to discover services
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Cloudflare Certs
+      - ./traefik/:/traefik/:ro
     networks:
       - app-network
     labels:
       - "traefik.enable=false"
-    env_file:
-      # To provide DOMAIN and ACME_EMAIL variables
-      - ./secrets/.env
 
   frontend:
-    image: ghcr.io/ikozay/trackmydegree-frontend:20251105.1
-    restart: unless-stopped
+    container_name: frontend
+    image: ghcr.io/ikozay/trackmydegree-frontend:production
+    restart: always
     expose:
       - "3000"
+    volumes:
+      - ./secrets/frontend.env:/app/.env:ro
+    networks:
+      - app-network
     depends_on:
       - backend
       - traefik
-    networks:
-      - app-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN}`) && !PathPrefix(`/auth`, `/courses`, `/degree`, `/timeline`, `/coursepool`, `/users`, `/admin`, `/feedback`, `/session`, `/section`, `/upload`, `/api-docs`, `/openapi.json`)"
+      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN}`) && !PathPrefix(`/auth`) && !PathPrefix(`/courses`) && !PathPrefix(`/degree`) && !PathPrefix(`/timeline`) && !PathPrefix(`/coursepool`) && !PathPrefix(`/users`) && !PathPrefix(`/admin`) && !PathPrefix(`/feedback`) && !PathPrefix(`/session`) && !PathPrefix(`/section`) && !PathPrefix(`/upload`) && !PathPrefix(`/api-docs`) && !PathPrefix(`/openapi.json`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls=true"
-      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
-    env_file:
-      # To provide POSTHOG_API_KEY
-      - ./secrets/.env
-
 
   backend:
-    image: ghcr.io/ikozay/trackmydegree-backend:20251105.1
-    restart: unless-stopped
+    container_name: backend
+    image: ghcr.io/ikozay/trackmydegree-backend:production
+    restart: always
     expose:
       - "8000"
     volumes:
       - ./backups:/var/backups
+    env_file:
+      - ./secrets/backend.env
+    networks:
+      - app-network
     depends_on:
       - redis
       - mongodb
-    networks:
-      - app-network
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`${DOMAIN}`) && (PathPrefix(`/auth`) || PathPrefix(`/courses`) || PathPrefix(`/degree`) || PathPrefix(`/timeline`) || PathPrefix(`/coursepool`) || PathPrefix(`/users`) || PathPrefix(`/admin`) || PathPrefix(`/feedback`) || PathPrefix(`/session`) || PathPrefix(`/section`) || PathPrefix(`/upload`) || PathPrefix(`/api-docs`) || PathPrefix(`/openapi.json`))"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls=true"
-      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
-    env_file:
-      # To provide various sensitive environment variables like JWT_SECRET, MONGODB_URI, etc.
-      - ./secrets/.env
 
   mongodb:
-    image: mongo:latest
+    container_name: mongodb
+    image: mongo:8.2
+    restart: always
     expose:
       - "27017"
     volumes:
       - mongodb-data:/data/db
+    env_file:
+      # To provide MONGO_INITDB_ROOT_USERNAME, MONGO_INITDB_ROOT_PASSWORD and MONGO_INITDB_DATABASE
+      - ./secrets/mongo.env
     networks:
       - app-network
     labels:
       - "traefik.enable=false"
-    env_file:
-      # To provide MONGO_INITDB_ROOT_USERNAME, MONGO_INITDB_ROOT_PASSWORD and MONGO_INITDB_DATABASE
-      - ./secrets/.env
 
   redis:
-    image: redis:latest
-    container_name: my-redis
+    container_name: redis
+    image: redis:8.2
+    restart: always
     expose:
       - "6379"
     volumes:
@@ -105,6 +94,22 @@ services:
     labels:
       - "traefik.enable=false"
 
+  # Add Watchtower for automatic updates
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --schedule "0 0 4 * * *" # daily at 4:00 AM
+    environment:
+      - WATCHTOWER_CLEANUP=true  # remove old images
+      - WATCHTOWER_NOTIFICATIONS_LEVEL=info
+      - WATCHTOWER_DEBUG=false
+      - WATCHTOWER_REGISTRY_AUTH=true
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
@@ -112,4 +117,3 @@ networks:
 volumes:
   redis-data:
   mongodb-data:
-  letsencrypt-data:
