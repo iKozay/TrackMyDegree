@@ -1,21 +1,11 @@
-import jwt, { SignOptions } from 'jsonwebtoken';
+import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import { CookieOptions } from 'express';
-import Auth from '@controllers/authController/auth_types';
-import {
-  createSessionToken,
-  refreshSession,
-  SessionToken,
-  UserHeaders,
-} from '@Util/Session_Util';
+import { UserType } from '@controllers/authController';
 
 export type JWTPayload = {
   orgId: string;
   userId: string;
-  type: Auth.UserType;
-};
-
-export type TokenPayload = JWTPayload & {
-  session_token: SessionToken;
+  type: UserType;
 } & jwt.JwtPayload;
 
 export type JWTCookieModel = {
@@ -57,37 +47,24 @@ export function getCookieOptions(isRefresh: boolean = false): CookieOptions {
 }
 
 export const jwtService = {
-  generateToken: (
-    payload: JWTPayload,
-    user: UserHeaders,
-    token?: SessionToken,
-    isRefresh: boolean = false,
-  ): string => {
-    const session_payload = {
-      ...payload,
-      session_token: token
-        ? refreshSession(token, user)
-        : createSessionToken(user),
-    };
-
+  generateToken: (payload: JWTPayload, isRefresh: boolean = false): string => {
     const options: SignOptions = {
       expiresIn: (isRefresh ? REFRESH_EXPIRY : ACCESS_EXPIRY) as any,
     };
-
-    return jwt.sign(session_payload, getSecretKey(), options);
+    return jwt.sign(payload, getSecretKey(), options);
   },
 
-  verifyAccessToken: (token: string): TokenPayload | null => {
+  verifyAccessToken: (token: string): JWTPayload | null => {
     try {
-      return jwt.verify(token, getSecretKey()) as TokenPayload;
+      return jwt.verify(token, getSecretKey()) as JWTPayload;
     } catch {
       return null;
     }
   },
 
-  verifyRefreshToken: (token: string): TokenPayload | null => {
+  verifyRefreshToken: (token: string): JWTPayload | null => {
     try {
-      return jwt.verify(token, getSecretKey()) as TokenPayload;
+      return jwt.verify(token, getSecretKey()) as JWTPayload;
     } catch {
       return null;
     }

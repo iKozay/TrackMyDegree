@@ -24,13 +24,13 @@ export const SemesterColumn = ({
   index,
   shakingSemesterId,
 }) => {
-  const isExempted = semesterName.trim().toLowerCase().startsWith('exempted');
+  const isExempted = semesterName.trim().toLowerCase().startsWith('Exempted');
   const sumCredits = courses
     .map((instanceId) => {
       const genericCode = courseInstanceMap[instanceId] || instanceId;
       if (index !== firstOccurrence[genericCode]) return 0;
-      const courseInPool = coursePools.flatMap((pool) => pool.courses).find((c) => c.code === genericCode);
-      const courseInRemaining = remainingCourses.find((c) => c.code === genericCode);
+      const courseInPool = coursePools.flatMap((pool) => pool.courses).find((c) => c._id === genericCode);
+      const courseInRemaining = remainingCourses.find((c) => c._id === genericCode);
       const course = courseInPool || courseInRemaining;
       return course ? course.credits : 0;
     })
@@ -48,10 +48,12 @@ export const SemesterColumn = ({
         <SortableContext items={courses} strategy={verticalListSortingStrategy}>
           {courses.map((instanceId) => {
             const genericCode = courseInstanceMap[instanceId] || instanceId;
-            const course = allCourses.find((c) => c.code === genericCode);
+            const course = allCourses.find((c) => c._id.replaceAll(' ', '') === genericCode.replaceAll(' ', '')); // keep this as is: genericCode has space when we dragging from course list but doesnt otherwise
             if (!course) return null;
-            const prerequisitesMet = arePrerequisitesMet(course.code, index);
-            const offeredCheck = isCourseOfferedInSemester(course, semesterName);
+            //const prerequisitesMet = arePrerequisitesMet(course._id, index);
+            //const offeredCheck = isCourseOfferedInSemester(course, semesterName);
+            const prerequisitesMet = true;
+            const offeredCheck = true;
             return (
               <CourseItem
                 key={instanceId}

@@ -1,5 +1,6 @@
 // src/AuthContext.js
 import React, { createContext, useEffect, useState } from 'react';
+import { api } from '../api/http-api-client';
 
 export const AuthContext = createContext();
 
@@ -12,20 +13,12 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const verifySession = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_SERVER}/session/refresh`, {
-          method: 'GET',
+        const user_data = await api.post('/auth/refresh', null, {
           credentials: 'include',
         });
 
-        if (response.ok) {
-          const user_data = await response.json();
-
-          setIsLoggedIn(true);
-          setUser(user_data);
-        } else {
-          setIsLoggedIn(false);
-          setUser(null);
-        }
+        setIsLoggedIn(true);
+        setUser(user_data);
       } catch (error) {
         console.error('Session verification failed:', error);
         setIsLoggedIn(false);
@@ -46,16 +39,11 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     const destrySession = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_SERVER}/session/destroy`, {
-          method: 'GET',
+        await api.post('/auth/logout', null, {
           credentials: 'include',
         });
-
-        if (!response.ok) {
-          throw new Error();
-        }
       } catch (error) {
-        console.error('Session destruction failed:', error);
+        console.error('Logout failed: ', error);
       } finally {
         setIsLoggedIn(false);
         setUser(null);

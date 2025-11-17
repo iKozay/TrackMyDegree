@@ -2,7 +2,11 @@
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=iKozay_TrackMyDegree&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=iKozay_TrackMyDegree) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=iKozay_TrackMyDegree&metric=bugs)](https://sonarcloud.io/summary/new_code?id=iKozay_TrackMyDegree) [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=iKozay_TrackMyDegree&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=iKozay_TrackMyDegree) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=iKozay_TrackMyDegree&metric=coverage)](https://sonarcloud.io/summary/new_code?id=iKozay_TrackMyDegree) [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=iKozay_TrackMyDegree&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=iKozay_TrackMyDegree)
 
-### [Try Now](https://trackmydegree.com)
+### [Try Now](https://stg.trackmydegree.ca)
+
+### Release 1 Deliverable
+- [Presentation](https://docs.google.com/presentation/d/1CXDA9PgEQqeyCek9WGNIhLl0sTdgGOUpxeh2253D3KQ/edit?usp=sharing)
+- [Release 1 Recording](https://drive.google.com/file/d/1fO3a01xsnKcHV5yNjyjl9w3tKsCbWC45/view?usp=sharing)
 
 ### Project summary
 
@@ -28,8 +32,8 @@ academic planning and setting a new standard in educational technology.
 
 ### Mockups
 
-Mockup designs made using
-Figma: [Here](https://www.figma.com/design/SBv0R8mN0K9N2jVbV42wol/TrackMyDegree--V2-?node-id=0-1&t=52CdgQnGAGi4ShXk-1)
+Previous UI/features' designs: [Here](https://www.figma.com/design/SBv0R8mN0K9N2jVbV42wol/TrackMyDegree--V2-?node-id=0-1&t=52CdgQnGAGi4ShXk-1)    
+Current UI/features' designs: [Here](https://dimly-recap-91212251.figma.site/)
 
 ### Team members
 
@@ -69,33 +73,37 @@ Ensure you have the following installed on your machine:
    cd TrackMyDegree
    ```
 
-2. **Set up SQL Server password secret**:
-   Create a file named `sql_server_password.txt` in the `./secrets` directory and add the SQL Server password to it. Make sure the passwords meets the MS SQL Server password requirements (see example below).
+2. **Set up .env**:
+   Copy `.env.example` to `./secrets` directory and assign values for each environment variable.
     
    ```bash
     mkdir -p secrets
-    echo "MySecureP@ss123!" > secrets/sql_server_password.txt
+    cp .env.example ./secrets/.env
     ```
+
+3. **Install dependencies**:
+   ```bash
+   cd front-end
+   npm i
+   cd ../Back-End
+   npm i
+   cd ..
+   npm i
+   ```
    
-3. **Build and Run the Application**:
+4. **Build and Run the Application**:
    Run the following command to start all components:
 
    ```bash
    docker compose up -d
+   npm run dev
    ```
 
    This will:
 
-    - Build the docker images.
-    - Mount the secret from `./secrets/sql_server_password.txt` for the database and backend.
-    - Start the frontend, backend and database components.
-    - The application should now be running locally.
-
-**Common Issues**
-Port already in use:
-
-- You can change the port to an available one in the docker compose yml file;
-- Re-run the code from step #2.
+    - Run MongoDB and Redis in docker
+    - Start the frontend, backend concurrently.
+    - The application should now be running locally at localhost:3000.
 
 ## Production Deployment
 
@@ -133,7 +141,7 @@ For production deployment with SSL/HTTPS support, follow these additional steps:
    Run the production deployment command:
 
    ```bash
-   docker compose up -d
+   docker compose -f docker-compose.prd.yml up -d
    ```
 
    This will:

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { api } from '../../../api/http-api-client';
 
 /**
  * Custom hook for managing database backups
@@ -10,24 +11,19 @@ const useBackupManager = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const SERVER_URL = process.env.REACT_APP_SERVER;
-
   // Fetch list of backups
   const fetchBackups = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch(`${SERVER_URL}/admin/fetch-backups`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch backups');
-      }
-
-      const data = await response.json();
+      const data = await api.post(
+        '/admin/fetch-backups',
+        {},
+        {
+          credentials: 'include',
+        },
+      );
 
       if (data.success) {
         setBackups(data.data);
@@ -43,7 +39,7 @@ const useBackupManager = () => {
     } finally {
       setLoading(false);
     }
-  }, [SERVER_URL]);
+  }, []);
 
   // Create a new backup
   const createBackup = useCallback(async () => {
@@ -51,16 +47,13 @@ const useBackupManager = () => {
     setError(null);
 
     try {
-      const response = await fetch(`${SERVER_URL}/admin/create-backup`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create backup');
-      }
-
-      const data = await response.json();
+      const data = await api.post(
+        '/admin/create-backup',
+        {},
+        {
+          credentials: 'include',
+        },
+      );
 
       if (data.success) {
         await fetchBackups(); // Refresh list
@@ -76,48 +69,40 @@ const useBackupManager = () => {
     } finally {
       setLoading(false);
     }
-  }, [SERVER_URL, fetchBackups]);
+  }, [fetchBackups]);
 
   // Restore a backup
-  const restoreBackup = useCallback(
-    async (backupName) => {
-      if (!backupName) {
-        return { success: false, message: 'Please select a backup to restore' };
-      }
+  const restoreBackup = useCallback(async (backupName) => {
+    if (!backupName) {
+      return { success: false, message: 'Please select a backup to restore' };
+    }
 
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
-      try {
-        const response = await fetch(`${SERVER_URL}/admin/restore-backup`, {
-          method: 'POST',
+    try {
+      const data = await api.post(
+        '/admin/restore-backup',
+        { backupName },
+        {
           credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ backupName }),
-        });
+        },
+      );
 
-        if (!response.ok) {
-          throw new Error('Failed to restore backup');
-        }
-
-        const data = await response.json();
-
-        if (data.success) {
-          return { success: true, message: 'Database restored successfully' };
-        } else {
-          throw new Error(data.message || 'Restore failed');
-        }
-      } catch (err) {
-        const errorMessage = err.message || 'Error restoring backup';
-        setError(errorMessage);
-        console.error('Error restoring backup:', err);
-        return { success: false, message: errorMessage };
-      } finally {
-        setLoading(false);
+      if (data.success) {
+        return { success: true, message: 'Database restored successfully' };
+      } else {
+        throw new Error(data.message || 'Restore failed');
       }
-    },
-    [SERVER_URL],
-  );
+    } catch (err) {
+      const errorMessage = err.message || 'Error restoring backup';
+      setError(errorMessage);
+      console.error('Error restoring backup:', err);
+      return { success: false, message: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   // Delete a backup
   const deleteBackup = useCallback(
@@ -130,18 +115,13 @@ const useBackupManager = () => {
       setError(null);
 
       try {
-        const response = await fetch(`${SERVER_URL}/admin/delete-backup`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ backupName }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to delete backup');
-        }
-
-        const data = await response.json();
+        const data = await api.post(
+          '/admin/delete-backup',
+          { backupName },
+          {
+            credentials: 'include',
+          },
+        );
 
         if (data.success) {
           setSelectedBackup('');
@@ -159,7 +139,7 @@ const useBackupManager = () => {
         setLoading(false);
       }
     },
-    [SERVER_URL, fetchBackups],
+    [fetchBackups],
   );
 
   // Fetch backups on mount

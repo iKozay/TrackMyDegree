@@ -10,14 +10,14 @@ COPY package.json ./
 
 # Clear npm cache and install dependencies
 # npm was previously used but now switched to yarn. There was an issue with node version and sqlserver. See commmit: 65dca7b3f1ac5c1b7e71232431119c367f57cf2d
-RUN yarn
-#npm install
+RUN npm install
 
 # Copy the entire application source code into the container
 COPY . .
+RUN npm run build
 
 # Expose the port your app runs on
 EXPOSE 8000
 
 # Start the Express app
-CMD ["yarn", "launch"] 
+CMD ["npm", "run", "start"] 

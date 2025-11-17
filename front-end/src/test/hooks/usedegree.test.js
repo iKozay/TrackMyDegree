@@ -11,11 +11,15 @@ jest.mock('@sentry/react', () => ({
 global.fetch = jest.fn();
 
 describe('useDegrees hook', () => {
-  const SERVER_URL = 'http://localhost:5000';
+  const SERVER_URL = process.env.REACT_APP_SERVER || 'http://localhost:8000';
 
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.REACT_APP_SERVER = SERVER_URL;
+    // http-api-client reads REACT_APP_SERVER at module load time
+    // If not set, it defaults to http://localhost:8000
+    if (!process.env.REACT_APP_SERVER) {
+      process.env.REACT_APP_SERVER = 'http://localhost:8000';
+    }
   });
 
   it('should fetch degrees successfully', async () => {
@@ -26,9 +30,17 @@ describe('useDegrees hook', () => {
       ],
     };
 
+    const mockHeaders = {
+      get: (name) => {
+        if (name === 'Content-Type') return 'application/json';
+        return null;
+      },
+    };
+
     fetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => mockDegrees,
+      headers: mockHeaders,
+      json: async () => mockDegrees.degrees,
     });
 
     const { result } = renderHook(() => useDegrees());
@@ -43,10 +55,12 @@ describe('useDegrees hook', () => {
     });
 
     expect(fetch).toHaveBeenCalledWith(
-      `${SERVER_URL}/degree/getAllDegrees`,
+      expect.stringContaining('/degree'),
       expect.objectContaining({
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'GET',
+        headers: expect.objectContaining({
+          'Content-Type': 'application/json',
+        }),
       }),
     );
 
@@ -55,9 +69,18 @@ describe('useDegrees hook', () => {
   });
 
   it('should handle non-OK response correctly', async () => {
+    const mockHeaders = {
+      get: (name) => {
+        if (name === 'Content-Type') return 'application/json';
+        return null;
+      },
+    };
+
     fetch.mockResolvedValueOnce({
       ok: false,
       status: 500,
+      statusText: 'Internal Server Error',
+      headers: mockHeaders,
       json: async () => ({}),
     });
 
@@ -68,7 +91,7 @@ describe('useDegrees hook', () => {
     });
 
     expect(result.current.degrees).toEqual([]);
-    expect(result.current.error).toContain('HTTP error');
+    expect(result.current.error).toContain('HTTP 500');
     expect(Sentry.captureException).toHaveBeenCalled();
   });
 
@@ -88,8 +111,16 @@ describe('useDegrees hook', () => {
   });
 
   it('should start with loading true and reset to false after completion', async () => {
+    const mockHeaders = {
+      get: (name) => {
+        if (name === 'Content-Type') return 'application/json';
+        return null;
+      },
+    };
+
     fetch.mockResolvedValueOnce({
       ok: true,
+      headers: mockHeaders,
       json: async () => ({ degrees: [] }),
     });
 

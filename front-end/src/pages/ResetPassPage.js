@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
-import { ResetPassError } from '../middleware/SentryErrors';
+import { api } from '../api/http-api-client';
 
 //This is the page where the users can reset their password. This is just a form because the reset happens on the server side
 function ResetPassPage() {
@@ -45,30 +45,26 @@ function ResetPassPage() {
 
     //The password reset process is done in the backend so the data from the form is being sent there
     try {
-      const response = await fetch(`${process.env.REACT_APP_SERVER}/auth/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          otp,
-          password,
-          confirmPassword,
-        }),
-      });
-
-      if (!response.ok) {
-        // Extract error message from response
-        const errorData = await response.json();
-        throw new ResetPassError(errorData.message || 'Error resetting password!');
+      // Retrieve email from localStorage (set in ForgotPassPage)
+      const email = localStorage.getItem('resetPasswordEmail');
+      if (!email) {
+        setError('Email not found. Please start the password reset process again.');
+        setLoading(false);
+        return;
       }
 
-      const data = await response.json();
+      const data = await api.post('/auth/reset-password', {
+        email,
+        otp,
+        newPassword: password, // Backend expects newPassword, will hash it
+      });
       console.log(data);
+      // Clear email from localStorage after successful reset
+      localStorage.removeItem('resetPasswordEmail');
       // API returns a success message and we can redirect to login page
       navigate('/signin');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Error resetting password!');
     } finally {
       setLoading(false); // End loading
     }

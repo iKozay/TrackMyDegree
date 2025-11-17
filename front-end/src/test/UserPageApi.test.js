@@ -5,15 +5,26 @@ describe('UserPageApi', () => {
   let consoleErrSpy;
 
   // helpers to build fetch-like responses
+  const mockHeaders = {
+    get: (name) => {
+      if (name === 'Content-Type') return 'application/json';
+      return null;
+    },
+  };
+
   const ok = (data) =>
     Promise.resolve({
       ok: true,
+      headers: mockHeaders,
       json: () => Promise.resolve(data),
     });
 
   const notOk = (data) =>
     Promise.resolve({
       ok: false,
+      status: 500,
+      statusText: 'Internal Server Error',
+      headers: mockHeaders,
       json: () => Promise.resolve(data),
     });
 
@@ -34,18 +45,17 @@ describe('UserPageApi', () => {
 
   describe('getDegreeCredits', () => {
     test('returns credits when API succeeds', async () => {
-      fetchMock.mockImplementation(() => ok(128));
+      fetchMock.mockImplementation(() => ok({ totalCredits: 128 }));
 
       const res = await getDegreeCredits('deg-1');
       expect(res).toBe(128);
 
       // URL may include REACT_APP_SERVER; just assert the path
       expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining('/degree/getCredits'),
+        expect.stringContaining('/degree/deg-1/credits'),
         expect.objectContaining({
-          method: 'POST',
+          method: 'GET',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ degreeId: 'deg-1' }),
         }),
       );
     });
@@ -71,11 +81,10 @@ describe('UserPageApi', () => {
       expect(res.map((t) => t.id)).toEqual(['a', 'b']);
 
       expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining('/timeline/getAll'),
+        expect.stringContaining('/timeline/user/u-1'),
         expect.objectContaining({
-          method: 'POST',
+          method: 'GET',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: 'u-1' }),
         }),
       );
     });
@@ -103,11 +112,10 @@ describe('UserPageApi', () => {
       await expect(deleteTimelineById('t-1')).resolves.toBeUndefined();
 
       expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining('/timeline/delete'),
+        expect.stringContaining('/timeline/t-1'),
         expect.objectContaining({
-          method: 'POST',
+          method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ timeline_id: 't-1' }),
         }),
       );
     });

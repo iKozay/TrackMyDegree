@@ -14,7 +14,7 @@ jest.mock('../../middleware/SentryErrors', () => ({
 global.fetch = jest.fn();
 
 describe('useCourses Hook', () => {
-  const SERVER_URL = 'http://localhost:5000';
+  const SERVER_URL = process.env.REACT_APP_SERVER || 'http://localhost:8000';
   const mockCourses = [
     { id: 1, name: 'ENCS 282' },
     { id: 2, name: 'COMP 248' },
@@ -22,14 +22,24 @@ describe('useCourses Hook', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.REACT_APP_SERVER = SERVER_URL;
+    if (!process.env.REACT_APP_SERVER) {
+      process.env.REACT_APP_SERVER = 'http://localhost:8000';
+    }
   });
 
   // FETCH COURSES BY DEGREE TESTS
 
   it('should fetch courses by degree successfully', async () => {
+    const mockHeaders = {
+      get: (name) => {
+        if (name === 'Content-Type') return 'application/json';
+        return null;
+      },
+    };
+
     fetch.mockResolvedValueOnce({
       ok: true,
+      headers: mockHeaders,
       json: async () => mockCourses,
     });
 
@@ -40,10 +50,9 @@ describe('useCourses Hook', () => {
     });
 
     expect(fetch).toHaveBeenCalledWith(
-      `${SERVER_URL}/courses/getByDegreeGrouped`,
+      expect.stringContaining('/courses/by-degree/CS'),
       expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({ degree: 'CS' }),
+        method: 'GET',
       }),
     );
 
@@ -53,8 +62,18 @@ describe('useCourses Hook', () => {
   });
 
   it('should handle fetchCoursesByDegree error', async () => {
+    const mockHeaders = {
+      get: (name) => {
+        if (name === 'Content-Type') return 'application/json';
+        return null;
+      },
+    };
+
     fetch.mockResolvedValueOnce({
       ok: false,
+      status: 500,
+      statusText: 'Internal Server Error',
+      headers: mockHeaders,
       json: async () => ({ error: 'Failed to load courses' }),
     });
 
@@ -64,7 +83,7 @@ describe('useCourses Hook', () => {
       await result.current.fetchCoursesByDegree('SE');
     });
 
-    expect(result.current.error).toContain('Failed to load courses');
+    expect(result.current.error).toContain('HTTP 500');
     expect(result.current.courseList).toEqual([]);
     expect(result.current.loading).toBe(false);
   });
@@ -87,8 +106,16 @@ describe('useCourses Hook', () => {
   // FETCH ALL COURSES TESTS
 
   it('should fetch all courses successfully', async () => {
+    const mockHeaders = {
+      get: (name) => {
+        if (name === 'Content-Type') return 'application/json';
+        return null;
+      },
+    };
+
     fetch.mockResolvedValueOnce({
       ok: true,
+      headers: mockHeaders,
       json: async () => mockCourses,
     });
 
@@ -99,8 +126,8 @@ describe('useCourses Hook', () => {
     });
 
     expect(fetch).toHaveBeenCalledWith(
-      `${SERVER_URL}/courses/getallcourses`,
-      expect.objectContaining({ method: 'POST' }),
+      expect.stringContaining('/courses'),
+      expect.objectContaining({ method: 'GET' }),
     );
 
     expect(result.current.courseList).toEqual([
@@ -115,8 +142,18 @@ describe('useCourses Hook', () => {
   });
 
   it('should handle fetchAllCourses error', async () => {
+    const mockHeaders = {
+      get: (name) => {
+        if (name === 'Content-Type') return 'application/json';
+        return null;
+      },
+    };
+
     fetch.mockResolvedValueOnce({
       ok: false,
+      status: 500,
+      statusText: 'Internal Server Error',
+      headers: mockHeaders,
       json: async () => ({ error: 'Server error' }),
     });
 
@@ -126,7 +163,7 @@ describe('useCourses Hook', () => {
       await result.current.fetchAllCourses();
     });
 
-    expect(result.current.error).toContain('Server error');
+    expect(result.current.error).toContain('HTTP 500');
     expect(result.current.courseList).toEqual([]);
   });
 

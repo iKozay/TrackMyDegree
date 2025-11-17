@@ -252,7 +252,6 @@ describe('SignUpPage', () => {
 
     // Set up mocks for successful signup
     validateSignupForm.mockReturnValue([]);
-    hashPassword.mockResolvedValue('hashedPassword123');
     signupUser.mockResolvedValue({
       token: 'fake-token',
       user: { id: 1, name: 'John Doe' },
@@ -275,8 +274,7 @@ describe('SignUpPage', () => {
 
     await waitFor(() => {
       expect(validateSignupForm).toHaveBeenCalledWith('John Doe', 'user@example.com', 'password123', 'password123');
-      expect(hashPassword).toHaveBeenCalledWith('password123');
-      expect(signupUser).toHaveBeenCalledWith('John Doe', 'user@example.com', 'hashedPassword123', 'student');
+      expect(signupUser).toHaveBeenCalledWith('John Doe', 'user@example.com', 'password123', 'student');
       expect(mockLogin).toHaveBeenCalledWith({
         token: 'fake-token',
         user: { id: 1, name: 'John Doe' },
@@ -290,7 +288,6 @@ describe('SignUpPage', () => {
 
     // Set up mocks for failed signup
     validateSignupForm.mockReturnValue([]);
-    hashPassword.mockResolvedValue('hashedPassword123');
     signupUser.mockRejectedValue(new Error('Email already exists'));
 
     fireEvent.change(screen.getByPlaceholderText('* Enter your full name'), {
@@ -309,8 +306,7 @@ describe('SignUpPage', () => {
 
     expect(await screen.findByText('Email already exists')).toBeInTheDocument();
     expect(validateSignupForm).toHaveBeenCalledWith('John Doe', 'existing@example.com', 'password123', 'password123');
-    expect(hashPassword).toHaveBeenCalledWith('password123');
-    expect(signupUser).toHaveBeenCalledWith('John Doe', 'existing@example.com', 'hashedPassword123', 'student');
+    expect(signupUser).toHaveBeenCalledWith('John Doe', 'existing@example.com', 'password123', 'student');
     expect(mockLogin).not.toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalled();
   });
@@ -373,30 +369,4 @@ describe('SignUpPage', () => {
     expect(confirmPasswordInput.value).toBe('newpass123');
   });
 
-  test('handles hashPassword failure gracefully', async () => {
-    renderComponent();
-
-    validateSignupForm.mockReturnValue([]);
-    hashPassword.mockRejectedValue(new Error('Hashing failed'));
-
-    fireEvent.change(screen.getByPlaceholderText('* Enter your full name'), {
-      target: { value: 'John Doe' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('* Enter your email'), {
-      target: { value: 'john@test.com' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('* Enter your password'), {
-      target: { value: 'password123' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('* Confirm your password'), {
-      target: { value: 'password123' },
-    });
-    fireEvent.click(screen.getByText('Register'));
-
-    expect(await screen.findByText('Hashing failed')).toBeInTheDocument();
-    expect(hashPassword).toHaveBeenCalledWith('password123');
-    expect(signupUser).not.toHaveBeenCalled();
-    expect(mockLogin).not.toHaveBeenCalled();
-    expect(mockNavigate).not.toHaveBeenCalledWith('/user');
-  });
 });

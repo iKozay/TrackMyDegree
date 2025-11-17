@@ -6,7 +6,6 @@ import LogInPage from './pages/LogInPage';
 import SignUpPage from './pages/SignUpPage';
 import UserPage from './pages/UserPage';
 import CourseList from './pages/CourseListPage';
-import UploadTranscript from './pages/UploadTranscriptPage';
 import TimelineSetupPage from './pages/TimelineSetupPage';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -20,6 +19,8 @@ import ForgotPassPage from './pages/ForgotPassPage';
 import ResetPassPage from './pages/ResetPassPage';
 import AdminPage from './pages/AdminPage';
 import ForbiddenPage from './pages/Forbidden_403';
+import RequirementsSelectPage from './pages/RequirementsSelectPage';
+import RequirementsFormPage from './pages/RequirementsFormPage';
 import { AnimatePresence } from 'framer-motion';
 
 function App() {
@@ -80,7 +81,8 @@ function App() {
             }
           />
           <Route path="/courselist" element={<CourseList />} />
-          <Route path="/uploadTranscript" element={<UploadTranscript onDataProcessed={handleDataProcessed} />} />
+          <Route path="/requirements" element={<RequirementsSelectPage />} />
+          <Route path="/requirements/:programId" element={<RequirementsFormPage />} />
           <Route path="/timeline_initial" element={<TimelineSetupPage onDataProcessed={handleDataProcessed} />} />
           <Route path="/forgot-password" element={<ForgotPassPage />} />
           <Route path="/reset-password" element={<ResetPassPage />} />
