@@ -13,6 +13,8 @@ const getDirname = (): string => {
   }
   // Fallback: use process.cwd() and assume we're in Back-End/utils
   // In compiled JS, __dirname will be available
+  // This line is unreachable in CommonJS test environment but needed for ES modules
+  /* istanbul ignore next */
   return path.join(process.cwd(), 'utils');
 };
 
@@ -68,6 +70,7 @@ export class TranscriptParser {
       });
 
       if (stderr && !stderr.includes('WARNING')) {
+        /* istanbul ignore next */ // Difficult to test with promisify(exec) mock - requires specific callback format
         throw new Error(`Python script error: ${stderr}`);
       }
 

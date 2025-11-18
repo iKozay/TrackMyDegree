@@ -9,6 +9,7 @@ import { promisify } from 'util';
 
 import pdfParse from 'pdf-parse';
 import { AcceptanceLetterParser } from '@utils/acceptanceLetterParser';
+import { randomUUID } from 'node:crypto';
 
 const unlinkAsync = promisify(fs.unlink);
 
@@ -66,7 +67,7 @@ class PDFParsingController {
         // Write buffer to temporary file for Python parser
         tempFilePath = path.join(
           '/tmp',
-          `transcript_${Date.now()}_${Math.random().toString(36).substring(7)}.pdf`,
+          `transcript_${Date.now()}_${randomUUID()}.pdf`,
         );
         fs.writeFileSync(tempFilePath, req.file.buffer);
 

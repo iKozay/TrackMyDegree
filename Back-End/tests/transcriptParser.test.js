@@ -98,6 +98,8 @@ const mockPythonExecution = (mockData, stderr = '') => {
     const result = { stdout: createMockPythonOutput(mockData), stderr };
     if (callback) {
       // Callback style (for direct exec calls)
+      // Note: This passes result object, but promisify handles it correctly
+      // by treating the object as stdout when destructured
       process.nextTick(() => callback(null, result));
     } else {
       // Promise style (for promisify)
@@ -335,5 +337,245 @@ describe('TranscriptParser', () => {
     );
     expect(winterTerm).toBeDefined();
     expect(winterTerm.termGPA).toBeCloseTo(3.94, 2);
+  });
+
+
+  it('should allow stderr with WARNING', async () => {
+    mockPythonExecution(
+      {
+        studentInfo: { name: 'Test', studentId: '123' },
+        terms: [],
+        transferCredits: [],
+        programHistory: [],
+        additionalInfo: {},
+      },
+      'WARNING: Some warning message',
+    );
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    expect(result.studentInfo.name).toBe('Test');
+  });
+
+  it('should handle non-Python/PyMuPDF errors', async () => {
+    exec.mockImplementation((command, options, callback) => {
+      const error = new Error('JSON parse error: Unexpected token');
+      if (callback) {
+        callback(null, { stdout: 'invalid json', stderr: '' });
+      } else {
+        return Promise.resolve({ stdout: 'invalid json', stderr: '' });
+      }
+    });
+
+    await expect(
+      parser.parseFromFile('/path/to/transcript.pdf'),
+    ).rejects.toThrow();
+  });
+
+  it('should handle Python/PyMuPDF related errors', async () => {
+    exec.mockImplementation((command, options, callback) => {
+      const error = new Error('python3: command not found');
+      if (callback) {
+        callback(error, null, 'python3: command not found');
+      } else {
+        return Promise.reject(error);
+      }
+    });
+
+    await expect(
+      parser.parseFromFile('/path/to/transcript.pdf'),
+    ).rejects.toThrow('Python 3 and PyMuPDF are required');
+  });
+
+  it('should handle PyMuPDF import errors', async () => {
+    exec.mockImplementation((command, options, callback) => {
+      const error = new Error('PyMuPDF module not found');
+      if (callback) {
+        callback(error, null, 'PyMuPDF module not found');
+      } else {
+        return Promise.reject(error);
+      }
+    });
+
+    await expect(
+      parser.parseFromFile('/path/to/transcript.pdf'),
+    ).rejects.toThrow('Python 3 and PyMuPDF are required');
+  });
+
+  it('should handle missing fields in Python result', async () => {
+    mockPythonExecution({
+      // Missing studentInfo, terms, etc.
+    });
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+
+    expect(result.studentInfo).toEqual({});
+    expect(result.terms).toEqual([]);
+    expect(result.transferCredits).toEqual([]);
+    expect(result.programHistory).toEqual([]);
+    expect(result.additionalInfo).toEqual({});
+  });
+
+  it('should handle undefined transfer credits', async () => {
+    mockPythonExecution({
+      studentInfo: {},
+      terms: [],
+      transferCredits: undefined,
+      programHistory: [],
+      additionalInfo: {},
+    });
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    expect(result.transferCredits).toEqual([]);
+  });
+
+  it('should handle transfer credits with missing fields', async () => {
+    mockPythonExecution({
+      studentInfo: {},
+      terms: [],
+      transferCredits: [
+        { courseCode: 'COMP 101' }, // Missing other fields
+        { courseTitle: 'Some Course' }, // Missing courseCode
+        {}, // Empty object
+      ],
+      programHistory: [],
+      additionalInfo: {},
+    });
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    expect(result.transferCredits).toHaveLength(3);
+    expect(result.transferCredits[0].courseCode).toBe('COMP 101');
+    expect(result.transferCredits[0].courseTitle).toBe('');
+    expect(result.transferCredits[0].grade).toBe('EX');
+    expect(result.transferCredits[0].programCreditsEarned).toBe(0);
+  });
+
+  it('should handle terms with missing fields', async () => {
+    mockPythonExecution({
+      studentInfo: {},
+      terms: [
+        {
+          term: 'Fall',
+          year: '2023',
+          // Missing termGPA, termCredits
+          courses: [
+            {
+              courseCode: 'COMP 101',
+              // Missing section, credits, grade, etc.
+            },
+            {
+              courseCode: 'COMP 202',
+              section: 'A',
+              // Missing other fields
+            },
+          ],
+        },
+      ],
+      transferCredits: [],
+      programHistory: [],
+      additionalInfo: {},
+    });
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    expect(result.terms).toHaveLength(1);
+    expect(result.terms[0].term).toBe('Fall');
+    expect(result.terms[0].year).toBe('2023');
+    expect(result.terms[0].termGPA).toBeUndefined();
+    expect(result.terms[0].courses).toHaveLength(2);
+    expect(result.terms[0].courses[0].section).toBe('');
+    expect(result.terms[0].courses[0].credits).toBe(0);
+    expect(result.terms[0].courses[0].grade).toBe('');
+  });
+
+  it('should handle undefined terms', async () => {
+    mockPythonExecution({
+      studentInfo: {},
+      terms: undefined,
+      transferCredits: [],
+      programHistory: [],
+      additionalInfo: {},
+    });
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    expect(result.terms).toEqual([]);
+  });
+
+  it('should handle courses with all optional fields', async () => {
+    mockPythonExecution({
+      studentInfo: {},
+      terms: [
+        {
+          term: 'Winter',
+          year: '2024',
+          termGPA: 3.5,
+          termCredits: 12,
+          courses: [
+            {
+              courseCode: 'COMP 249',
+              section: 'QQ',
+              courseTitle: 'Object-Oriented Programming',
+              credits: 3.5,
+              grade: 'A+',
+              notation: 'WKRT',
+              gpa: 4.0,
+              classAvg: 75.5,
+              classSize: 120,
+              other: 'Some note',
+            },
+          ],
+        },
+      ],
+      transferCredits: [],
+      programHistory: [],
+      additionalInfo: {},
+    });
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    const course = result.terms[0].courses[0];
+    expect(course.courseCode).toBe('COMP 249');
+    expect(course.section).toBe('QQ');
+    expect(course.courseTitle).toBe('Object-Oriented Programming');
+    expect(course.credits).toBe(3.5);
+    expect(course.grade).toBe('A+');
+    expect(course.notation).toBe('WKRT');
+    expect(course.gpa).toBe(4.0);
+    expect(course.classAvg).toBe(75.5);
+    expect(course.classSize).toBe(120);
+    expect(course.other).toBe('Some note');
+    expect(course.term).toBe('Winter');
+    expect(course.year).toBe('2024');
+  });
+
+  it('should handle term with grade instead of termGPA', async () => {
+    mockPythonExecution({
+      studentInfo: {},
+      terms: [
+        {
+          term: 'Fall',
+          year: '2023',
+          grade: 3.75, // Using grade instead of termGPA
+          courses: [],
+        },
+      ],
+      transferCredits: [],
+      programHistory: [],
+      additionalInfo: {},
+    });
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    expect(result.terms[0].termGPA).toBe(3.75);
+  });
+
+  it('should handle error with non-Error object', async () => {
+    exec.mockImplementation((command, options, callback) => {
+      if (callback) {
+        callback('String error', null, '');
+      } else {
+        return Promise.reject('String error');
+      }
+    });
+
+    await expect(
+      parser.parseFromFile('/path/to/transcript.pdf'),
+    ).rejects.toThrow('Failed to parse transcript file');
   });
 });
