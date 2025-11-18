@@ -1,7 +1,9 @@
 const { startMongoTestContainer } = require('../utils/testContainer');
 // setup global setup for starting the test container - triggered by Jest before any tests run
-module.exports = async () => {
+async function globalSetup() {
   console.log('Starting global test container...');
   await startMongoTestContainer('testdb');
   console.log('Global test container ready');
-};
+}
+
+module.exports = globalSetup;
