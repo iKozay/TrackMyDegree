@@ -666,9 +666,29 @@ def parse_transcript(pdf_path):
                     }
                     
                     # Skip if no credits and no grade (likely not a real course)
-                    if course['credits'] == 0 and not course['grade']:
+                    # Exception: CWTE courses are valid even with 0 credits and no visible grade
+                    # (they may have notations like WKRT, RPT instead of grades)
+                    is_cwte = text1.upper() == 'CWTE'
+                    if course['credits'] == 0 and not course['grade'] and not is_cwte:
                         i += 1
                         continue
+                    
+                    # For CWTE courses with 0 credits and no grade, check for valid notations
+                    if is_cwte and course['credits'] == 0 and not course['grade']:
+                        # Look for notations like WKRT, RPT that indicate it's a valid course
+                        has_notation = False
+                        for j in range(i + 3, min(i + 15, len(words))):
+                            w_text = words[j][4].strip().upper()
+                            # Check if on same line
+                            if abs(words[j][1] - word1[1]) < 5:
+                                # Valid notations for CWTE courses
+                                if w_text in ['WKRT', 'RPT', 'PASS', 'EX']:
+                                    has_notation = True
+                                    # Set notation as other field if available
+                                    course['other'] = w_text
+                                    break
+                        # If no notation found, still allow it (CWTE courses are valid)
+                        # But we'll keep it even without notation
                     
                     # If grade is EX, treat as exemption/transfer credit
                     if course['grade'] == 'EX':
