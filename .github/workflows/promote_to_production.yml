@@ -39,10 +39,10 @@ jobs:
       - name: Prepare inputs and validate provided version tag exists
         shell: bash
         run: |
-          set -eo pipefail
           CHOICE="${{ github.event.inputs.image }}"
           VERSION="${{ github.event.inputs.version_tag }}"
-          OWNER="${{ github.repository_owner }}"
+          # Set OWNER to lowercase
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           # Build IMAGES list according to choice
           if [ "$CHOICE" = "Backend" ]; then
             IMAGES_TO_CHECK=("trackmydegree-backend")
@@ -66,7 +66,8 @@ jobs:
               exit 1
             fi
           done
-          echo "Validation succeeded: tag exists for selected image(s)"
+          echo "Validation succeeded: tag exists for selected im
+          set -eo pipefailage(s)"
 
       - name: Promote selected images to production (in-registry tag)
         shell: bash
