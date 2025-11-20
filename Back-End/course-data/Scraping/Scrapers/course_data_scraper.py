@@ -173,7 +173,8 @@ def extract_course_data(course_code, url):
         full_text = clean_text(' '.join(content_el.stripped_strings)) if content_el else ""
 
         sections = split_sections(full_text, clean_text)
-        prereq, coreq = parse_prereq_coreq(sections.get("Prerequisite/Corequisite:", ""), clean_text)
+        raw_prereq_coreq = sections.get("Prerequisite/Corequisite:", "")
+        prereq, coreq = parse_prereq_coreq(raw_prereq_coreq, clean_text)
 
         course={
             "_id":course_id,
@@ -182,7 +183,7 @@ def extract_course_data(course_code, url):
             "credits": course_credits,
             "description": sections.get("Description:", ""),
             "offeredIN": [""],
-            "prerequisites/corequisites": sections.get("Prerequisite/Corequisite:", ""),
+            "prerequisites/corequisites": raw_prereq_coreq,
             "rules":{
                 "prereq":make_prereq_coreq_into_array(prereq),
                 "coreq":make_prereq_coreq_into_array(coreq),
