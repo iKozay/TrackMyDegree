@@ -5,7 +5,7 @@ const QUERY_FAILED = 'Query failed';
 const DELETE_FAILED = 'Delete failed';
 
 export interface BaseDocument extends Document {
-  _id: string;
+  _id: any;
 }
 
 export interface ControllerResponse<T> {

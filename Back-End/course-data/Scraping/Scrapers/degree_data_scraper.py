@@ -69,7 +69,7 @@ def handle_engineering_core_restrictions(degree_name):
             "_id":"General Education Humanities and Social Sciences Electives",
             "name":"General Education Humanities and Social Sciences Electives",
             "creditsRequired":3,
-            "courses":electives_results[0]
+            "courses":list(set(electives_results[0]))
         })
         global courses
         courses=courses+electives_results[1]
@@ -115,7 +115,7 @@ if __name__ == "__main__":
                 '_id': course_pool_id,
                 'name': name,
                 'creditsRequired': credits,
-                'courses':course_list
+                'courses':list(set(course_list))
             })
 
             degree["coursePools"].append(course_pool_id)
