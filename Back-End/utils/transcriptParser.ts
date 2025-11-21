@@ -53,9 +53,14 @@ export class TranscriptParser {
   private async parseFromFilePython(
     filePath: string,
   ): Promise<ParsedTranscript> {
-    // Python script is in the same directory as this TypeScript file
     const scriptDir = getDirname();
-    const pythonScriptPath = path.join(scriptDir, 'transcriptParser.py');
+    const backendDir = path.resolve(scriptDir, '..');
+    const pythonScriptPath = path.join(
+      backendDir,
+      'python',
+      'transcriptParser',
+      'transcriptParser.py',
+    );
 
     // Verify script exists
     if (!fs.existsSync(pythonScriptPath)) {
