@@ -13,9 +13,9 @@ jest.mock('pdf-parse', () => jest.fn());
 // Mock the custom parsers
 jest.mock('@utils/transcriptParser', () => ({
   TranscriptParser: jest.fn().mockImplementation(() => ({
-    parseFromBuffer: jest.fn().mockResolvedValue({
+    parseFromFile: jest.fn().mockResolvedValue({
       terms: [
-        { term: 'Fall', year: 2024, courses: [{ courseCode: 'COMP 202' }], termGPA: '3.7' },
+        { term: 'Fall', year: '2024', courses: [{ courseCode: 'COMP 202' }], termGPA: '3.7' },
       ],
       programHistory: [
         { degreeType: 'B.Sc.', major: 'Computer Science' },

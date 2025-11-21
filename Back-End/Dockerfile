@@ -26,6 +26,8 @@ COPY . .
 # Install Python requirements
 RUN pip3 install --break-system-packages -r course-data/Scraping/requirements.txt
 
+RUN pip3 install --break-system-packages -r python/requirements.txt
+
 RUN npm run build
 
 # Expose the port your app runs on
