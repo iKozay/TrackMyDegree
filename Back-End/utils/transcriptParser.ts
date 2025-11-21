@@ -58,7 +58,6 @@ export class TranscriptParser {
     const pythonScriptPath = path.join(
       backendDir,
       'python',
-      'transcriptParser',
       'transcriptParser.py',
     );
 
