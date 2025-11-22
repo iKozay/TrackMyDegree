@@ -3,9 +3,9 @@ import { TranscriptParser } from '@utils/transcriptParser';
 import HTTP from '@utils/httpCodes';
 import type { ParsePDFResponse } from '../types/transcript';
 import multer from 'multer';
-import fs from 'fs';
-import path from 'path';
-import { promisify } from 'util';
+import fs from 'node:fs';
+import path from 'node:path';
+import { promisify } from 'node:util';
 
 import pdfParse from 'pdf-parse';
 import { AcceptanceLetterParser } from '@utils/acceptanceLetterParser';

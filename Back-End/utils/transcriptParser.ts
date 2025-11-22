@@ -78,7 +78,7 @@ export class TranscriptParser {
         throw new Error(`Python script error: ${stderr}`);
       }
 
-      const result = JSON.parse(stdout) as any;
+      const result = JSON.parse(stdout);
 
       // Convert Python output to TypeScript format
       return this.convertPythonResultToTranscript(result);
