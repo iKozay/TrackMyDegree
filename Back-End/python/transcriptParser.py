@@ -58,20 +58,39 @@ def is_section(text):
 
 
 def is_transfer_credit(course):
-    """Check if a course is a transfer credit (EX for exemptions, TRC for transfer credits)"""
+    """Check if a course is a transfer credit (EX for exemptions, TRC for transfer credits)
+    
+    Args:
+        course: Dictionary with a 'grade' key
+        
+    Returns:
+        bool: True if grade is 'EX' or 'TRC', False otherwise
+    """
     grade = course.get('grade', '').upper()
     return grade == 'EX' or grade == 'TRC'
 
 
 def parse_transcript(pdf_path):
-    """Parse transcript PDF and return structured data"""
+    """Parse transcript PDF and return unified structured data
+    
+    Returns:
+        dict: ParsedData structure with:
+            - programInfo: Program information (degree, terms, coop, etc.)
+            - semesters: List of semesters with courses
+            - transferedCourses: List of course codes (TRC grades)
+            - exemptedCourses: List of course codes (EX grades)
+            - deficiencyCourses: List of course codes (empty for transcripts)
+    """
+    # Initialize result with new unified structure
     result = {
-        'studentInfo': {},
-        'terms': [],
-        'transferCredits': [],
-        'programHistory': [],
-        'additionalInfo': {}
+        'deficiencyCourses': []  # Transcripts don't have deficiency courses
     }
+    
+    # Temporary structures for parsing
+    program_history = []
+    exempted_courses_set = set()  # EX grades
+    transfered_courses_set = set()  # TRC grades
+    extended_credit_program = False  # Track if extended credit program is detected
     
     # Track term headers with their positions
     term_headers = []  # List of dicts with page, y, term, year, gpa
@@ -156,22 +175,11 @@ def parse_transcript(pdf_path):
                 
                 i += 1
             
-            # Build address string
-            address = ", ".join(address_lines) if address_lines else None
+            # Check for Extended Credit Program in the full first page text
+            if 'Extended Credit Program' in first_page_text or 'Extended Credit' in first_page_text:
+                extended_credit_program = True
             
-            # Set student info
-            if student_name or student_id:
-                result['studentInfo'] = {
-                    'name': student_name,
-                    'studentId': student_id,
-                    'address': address,
-                    'birthdate': birthdate,
-                    'permanentCode': permanent_code,
-                    'telephone': telephone
-                }
-            
-            # Extract program history
-            program_history = []
+            # Extract program history (we'll convert to programInfo later)
             in_program_section = False
             current_program = {}
             
@@ -273,6 +281,12 @@ def parse_transcript(pdf_path):
                     i += 1
                     continue
                 
+                # Extended Credit Program
+                if "Extended Credit Program" in line or "Extended Credit" in line:
+                    current_program['extendedCreditProgram'] = True
+                    i += 1
+                    continue
+                
                 # Min. Credits Required
                 if line.startswith("Min. Credits Required:"):
                     if i + 1 < len(first_page_lines):
@@ -317,9 +331,10 @@ def parse_transcript(pdf_path):
             
             # Add last program if exists
             if current_program and current_program.get('degreeType'):
+                # Set extended credit program flag if detected
+                if extended_credit_program:
+                    current_program['extendedCreditProgram'] = True
                 program_history.append(current_program)
-            
-            result['programHistory'] = program_history
         
         # Now process all pages for terms, courses, and GPAs
         for page_num in range(len(doc)):
@@ -493,15 +508,9 @@ def parse_transcript(pdf_path):
                                     'assignedTerm': {'term': 'Transfer Credits', 'year': transfer_year}
                                 })
                             else:
-                                # EX grade - add to transferCredits array
-                                transfer_credit = {
-                                    'courseCode': f'{course_code} {course_number}',
-                                    'courseTitle': course_title.strip(),
-                                    'grade': 'EX',
-                                    'yearAttended': year_attended,
-                                    'programCreditsEarned': float(credits_str)
-                                }
-                                result['transferCredits'].append(transfer_credit)
+                                # EX grade - add to exempted courses
+                                course_code_clean = f'{course_code}{course_number}'
+                                exempted_courses_set.add(course_code_clean)
                             
                             word_idx = credits_idx + 1  # Skip past this transfer credit
                             continue
@@ -559,15 +568,9 @@ def parse_transcript(pdf_path):
                                 'assignedTerm': {'term': 'Transfer Credits', 'year': transfer_year}
                             })
                         else:
-                            # EX grade - add to transferCredits array
-                            transfer_credit = {
-                                'courseCode': f'{course_code} {course_number}',
-                                'courseTitle': course_title.strip(),
-                                'grade': 'EX',
-                                'yearAttended': year_attended,
-                                'programCreditsEarned': float(credits_str)
-                            }
-                            result['transferCredits'].append(transfer_credit)
+                            # EX grade - add to exempted courses
+                            course_code_clean = f'{course_code}{course_number}'
+                            exempted_courses_set.add(course_code_clean)
                         
                         word_idx += 5
                         continue
@@ -663,16 +666,9 @@ def parse_transcript(pdf_path):
                                     'assignedTerm': {'term': 'Transfer Credits', 'year': transfer_year}
                                 })
                         else:
-                            # EX grade - add to transferCredits array
-                            if not any(tc['courseCode'] == course_key for tc in result['transferCredits']):
-                                transfer_credit = {
-                                    'courseCode': course_key,
-                                    'courseTitle': course_title.strip(),
-                                    'grade': 'EX',
-                                    'yearAttended': None,
-                                    'programCreditsEarned': credits_value
-                                }
-                                result['transferCredits'].append(transfer_credit)
+                            # EX grade - add to exempted courses
+                            course_code_clean = course_key.replace(' ', '')
+                            exempted_courses_set.add(course_code_clean)
                         
                         # Move to next word to check for adjacent courses
                         # Don't skip too far to avoid missing courses that might be close together
@@ -806,40 +802,11 @@ def parse_transcript(pdf_path):
                         # If no notation found, still allow it (CWTE courses are valid)
                         # But we'll keep it even without notation
                     
-                    # If grade is EX, treat as exemption (add to transferCredits)
-                    # If grade is TRC, treat as transfer credit (add to terms)
+                    # If grade is EX, treat as exemption (add to exempted courses)
+                    # If grade is TRC, treat as transfer credit (add to transfered courses)
                     if course['grade'] == 'EX':
-                        course_key = f'{course["courseCode"]} {course["section"]}'
-                        # Check if already added
-                        if not any(tc['courseCode'] == course['courseCode'] for tc in result['transferCredits']):
-                            # Look for description/credits around the course
-                            course_title = ''
-                            credits_value = course['credits']
-                            seen_words = set()  # Track words to avoid duplicates
-                            
-                            # Try to find description and credits in nearby words
-                            for k in range(max(0, i - 5), min(i + 15, len(words))):
-                                if k < i or k >= i + 3:  # Skip course code, number, section
-                                    w_text = words[k][4].strip()
-                                    # Look for description (text that's not a course code/number/grade/credit)
-                                    if (w_text and 
-                                        w_text not in seen_words and
-                                        not is_course_code(w_text) and 
-                                        not is_course_number(w_text) and
-                                        not re.match(r'^\d+\.\d{2}$', w_text) and
-                                        w_text.upper() not in ['EX', 'TRC', 'NA', 'PASS', 'DISC'] and
-                                        not re.match(r'^[A-F][+-]?$', w_text, re.IGNORECASE)):
-                                        course_title += w_text + ' '
-                                        seen_words.add(w_text)
-                            
-                            transfer_credit = {
-                                'courseCode': course['courseCode'],
-                                'courseTitle': course_title.strip(),
-                                'grade': 'EX',
-                                'yearAttended': None,
-                                'programCreditsEarned': credits_value
-                            }
-                            result['transferCredits'].append(transfer_credit)
+                        course_code_clean = course['courseCode'].replace(' ', '')
+                        exempted_courses_set.add(course_code_clean)
                         # Skip adding to regular courses if it's an EX grade
                         i += 3
                         continue
@@ -970,18 +937,21 @@ def parse_transcript(pdf_path):
         if course_key in seen_courses:
             continue
         
-        # Skip EX grades (exemptions) - add to transferCredits
-        # TRC grades should already be in all_courses with assignedTerm
-        if course['grade'] == 'EX':
-            result['transferCredits'].append({
-                'courseCode': course['courseCode'],
-                'courseTitle': '',  # Will be filled if available
-                'grade': 'EX',
-                'yearAttended': None,
-                'programCreditsEarned': course['credits']
-            })
+        # Track EX and TRC grades separately for exemptedCourses and transferedCourses
+        course_grade = course.get('grade', '').upper()
+        if course_grade == 'EX':
+            # EX grades go to exemptedCourses
+            course_code_clean = course['courseCode'].replace(' ', '')
+            if course_code_clean:
+                exempted_courses_set.add(course_code_clean)
             continue
-        # TRC courses should have assignedTerm already, so they'll be processed normally
+        elif course_grade == 'TRC':
+            # TRC grades go to transferedCourses
+            course_code_clean = course['courseCode'].replace(' ', '')
+            if course_code_clean:
+                transfered_courses_set.add(course_code_clean)
+            # TRC courses can also appear in semesters if they have a term assignment
+            # Continue processing to see if they're assigned to a term
         
         seen_courses.add(course_key)
         
@@ -1027,37 +997,120 @@ def parse_transcript(pdf_path):
             'year': best_term['year']
         })
     
-    # Group courses by term
-    terms_dict = defaultdict(lambda: {'term': '', 'year': '', 'courses': [], 'termGPA': None})
+    # Initialize collections for the new structure (sets already initialized at top)
+    semesters_dict = defaultdict(lambda: {'term': '', 'courses': []})
     
+    # Group courses by term (excluding Transfer Credits terms)
     for course_info in matched_courses:
-        term_key = f"{course_info['term']} {course_info['year']}"
-        terms_dict[term_key]['term'] = course_info['term']
-        terms_dict[term_key]['year'] = course_info['year']
-        terms_dict[term_key]['courses'].append(course_info['course'])
+        course = course_info['course']
+        course_grade = course.get('grade', '').upper()
+        
+        # Skip EX and TRC grades for semesters (they're handled separately)
+        if course_grade in ['EX', 'TRC']:
+            continue
+        
+        term_name = f"{course_info['term']} {course_info['year']}"
+        
+        # Skip "Transfer Credits" terms
+        if course_info['term'] == 'Transfer Credits':
+            continue
+        
+        # Add course to semester
+        course_code = course.get('courseCode', '').replace(' ', '')
+        if course_code:
+            course_obj = {'code': course_code}
+            if course_grade:
+                course_obj['grade'] = course_grade
+            semesters_dict[term_name]['term'] = term_name
+            semesters_dict[term_name]['courses'].append(course_obj)
     
-    # Add term GPAs from headers (use the header that has the GPA)
-    for th in term_headers:
-        term_key = f"{th['term']} {th['year']}"
-        if term_key in terms_dict and th.get('gpa') is not None:
-            # Only set if not already set, or use the one that has a value
-            if terms_dict[term_key]['termGPA'] is None:
-                terms_dict[term_key]['termGPA'] = th['gpa']
-            elif th.get('gpa') is not None:
-                terms_dict[term_key]['termGPA'] = th['gpa']
+    # Build programInfo from programHistory
+    if program_history and len(program_history) > 0:
+        latest_program = program_history[-1]
+        program_info = {}
+        
+        # Build degree string
+        degree_type = latest_program.get('degreeType', '')
+        major = latest_program.get('major', '')
+        if degree_type and major:
+            program_info['degree'] = f"{degree_type}, {major}".strip(', ')
+        elif degree_type:
+            program_info['degree'] = degree_type
+        elif major:
+            program_info['degree'] = major
+        
+        # Extract first term from admitTerm or first semester
+        if latest_program.get('admitTerm'):
+            program_info['firstTerm'] = latest_program['admitTerm']
+        elif semesters_dict:
+            first_semester_term = sorted(semesters_dict.keys())[0] if semesters_dict else None
+            if first_semester_term:
+                program_info['firstTerm'] = first_semester_term
+        
+        # Extract last term from last semester
+        if semesters_dict:
+            last_semester_term = sorted(semesters_dict.keys())[-1] if semesters_dict else None
+            if last_semester_term:
+                program_info['lastTerm'] = last_semester_term
+        
+        # Extract coop status
+        if latest_program.get('coop'):
+            program_info['isCoop'] = True
+        
+        # Extract extended credit program status (check both program history and full page text)
+        if latest_program.get('extendedCreditProgram') or extended_credit_program:
+            program_info['isExtendedCreditProgram'] = True
+        
+        # Extract minimum program length
+        min_credits = latest_program.get('minCreditsRequired')
+        if min_credits is not None:
+            try:
+                program_info['minimumProgramLength'] = int(min_credits)
+            except (ValueError, TypeError):
+                pass
+        
+        if program_info:
+            result['programInfo'] = program_info
+    elif extended_credit_program:
+        # If no program history but extended credit program was detected, still add it
+        result['programInfo'] = {'isExtendedCreditProgram': True}
     
-    # Convert to list and sort chronologically
-    # For "Transfer Credits" terms, use the year directly (no season ordering)
-    def sort_key(t):
-        year_str = t['year'] or '2020'
-        try:
-            year_int = int(year_str.split('-')[0])
-        except (ValueError, AttributeError):
-            year_int = 2020
-        term_order = {'Winter': 1, 'Spring': 2, 'Summer': 3, 'Fall': 4, 'Fall/Winter': 4.5, 'Transfer Credits': 0}.get(t['term'], 5)
-        return (year_int, term_order)
+    # Build semesters list (sorted chronologically)
+    if semesters_dict:
+        def semester_sort_key(term_name):
+            """Sort semesters chronologically"""
+            # Extract year and term from term name like "Fall 2022" or "Fall/Winter 2025-26"
+            parts = term_name.split()
+            if len(parts) >= 2:
+                term_part = parts[0]
+                year_part = parts[1]
+                try:
+                    year_int = int(year_part.split('-')[0])
+                except (ValueError, AttributeError):
+                    year_int = 2020
+                term_order = {'Winter': 1, 'Spring': 2, 'Summer': 3, 'Fall': 4, 'Fall/Winter': 4.5}.get(term_part, 5)
+                return (year_int, term_order)
+            return (2020, 5)
+        
+        sorted_semester_terms = sorted(semesters_dict.keys(), key=semester_sort_key)
+        semesters_list = [semesters_dict[term] for term in sorted_semester_terms]
+        result['semesters'] = semesters_list
     
-    result['terms'] = sorted(terms_dict.values(), key=sort_key)
+    # Final pass: collect any EX or TRC courses from all_courses that might have been missed
+    for course_info in all_courses:
+        course = course_info.get('course', {})
+        course_grade = course.get('grade', '').upper()
+        course_code = course.get('courseCode', '').replace(' ', '')
+        
+        if course_code:
+            if course_grade == 'EX':
+                exempted_courses_set.add(course_code)
+            elif course_grade == 'TRC':
+                transfered_courses_set.add(course_code)
+    
+    # Add exempted and transfered courses to result (always include, even if empty)
+    result['exemptedCourses'] = sorted(list(exempted_courses_set)) if exempted_courses_set else []
+    result['transferedCourses'] = sorted(list(transfered_courses_set)) if transfered_courses_set else []
     
     return result
 

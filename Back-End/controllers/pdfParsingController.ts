@@ -72,8 +72,7 @@ class PDFParsingController {
         fs.writeFileSync(tempFilePath, req.file.buffer);
 
         const parser = new TranscriptParser();
-        const transcriptData = await parser.parseFromFile(tempFilePath);
-        data = unifyParsedData(transcriptData);
+        data = await parser.parseFromFile(tempFilePath);
       } else {
         res.status(HTTP.BAD_REQUEST).json({
           success: false,
@@ -108,62 +107,6 @@ class PDFParsingController {
       }
     }
   }
-}
-//temporary function to unify the data between acceptance letter and transcript
-//when a common interface is defined this function will be removed
-function unifyParsedData(parsedData: any) {
-  let details = {};
-  if (parsedData.programHistory && parsedData.programHistory.length > 0) {
-    // Extract degree ID from program history
-    let degreeName = `${parsedData.programHistory[parsedData.programHistory.length - 1]?.degreeType}, ${parsedData.programHistory[parsedData.programHistory.length - 1]?.major}`;
-    const coop = degreeName.indexOf(' (Co-op)');
-    degreeName = coop === -1 ? degreeName : degreeName.slice(0, coop);
-    details = {
-      degreeConcentration: degreeName,
-      coopProgram: coop !== -1,
-      minimumProgramLength:
-        parsedData.programHistory[parsedData.programHistory.length - 1]
-          ?.minCreditsRequired || null,
-      // extendedCreditProgram: parsedData.extendedCredits || false,
-      //deficienciesCourses: parsedData.deficiencyCourses,
-    };
-  }
-  // Transform new parsed data to match the old format (matching matchCoursesToTerms output)
-  const extractedCourses: {
-    term: string;
-    courses: string[];
-    grade: string | null;
-  }[] = [];
-
-  if (!parsedData?.terms.length && !parsedData?.transferCredits.length) {
-    return { extractedCourses, details };
-  }
-
-  // Handle transfer credits as exempted courses
-  if (parsedData.transferCredits.length > 0) {
-    // Get the earliest year from transfer credits or use a default
-    const exemptYear = parsedData.terms[0].year;
-    extractedCourses.push({
-      term: `Exempted ${exemptYear}`,
-      courses: parsedData.transferCredits.map((tc: any) =>
-        tc.courseCode.replaceAll(/\s+/g, ''),
-      ),
-      grade: 'EX',
-    });
-  }
-
-  for (const term of parsedData.terms) {
-    const termName = `${term.term} ${term.year}`;
-    extractedCourses.push({
-      term: termName,
-      courses: term.courses.map((tc: any) =>
-        tc.courseCode.replaceAll(/\s+/g, ''),
-      ),
-      grade: term.termGPA,
-    });
-  }
-
-  return { extractedCourses, details };
 }
 
 const pdfParsingController = new PDFParsingController();

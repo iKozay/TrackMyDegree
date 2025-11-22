@@ -16,70 +16,38 @@ const TEMP_PDF_REGEX = /[\\/]tmp[\\/]transcript_\d+\.pdf$/;
 
 /* ===================== Helper Functions ===================== */
 
-// basic transcript structure
-const assertTranscriptStructure = (result) => {
-  [
-    'studentInfo',
-    'terms',
-    'programHistory',
-    'transferCredits',
-    'additionalInfo',
-  ].forEach((k) => expect(result).toHaveProperty(k));
+// basic parsed data structure
+const assertParsedDataStructure = (result) => {
+  // All fields are optional, so we just check if result is an object
+  expect(result).toBeInstanceOf(Object);
 };
 
-// student info
-const assertStudentInfo = (result, expected) => {
-  assertTranscriptStructure(result);
-  // Map old structure to new structure
-  if (expected.studentName) {
-    expect(result.studentInfo.name).toBe(expected.studentName);
-  }
-  if (expected.studentId) {
-    expect(result.studentInfo.studentId).toBe(expected.studentId);
-  }
-};
-
-// term basics
-const assertTermBasics = (
+// semester basics
+const assertSemesterBasics = (
   result,
   index,
-  { term, year, courseCount, termGPA },
+  { term, courseCount },
 ) => {
-  expect(result.terms.length).toBeGreaterThan(index);
-  const t = result.terms[index];
-  if (term) expect(t.term).toBe(term);
-  if (year) expect(t.year).toBe(year);
-  if (courseCount !== undefined) expect(t.courses).toHaveLength(courseCount);
-  if (termGPA !== undefined) expect(t.termGPA).toBe(termGPA);
+  expect(result.semesters).toBeDefined();
+  expect(result.semesters.length).toBeGreaterThan(index);
+  const s = result.semesters[index];
+  if (term) expect(s.term).toContain(term);
+  if (courseCount !== undefined) expect(s.courses).toHaveLength(courseCount);
 };
 
 // course assertion
 const assertCourse = (
   course,
-  { courseCode, grade, credits, other, gpaDefined },
+  { code, grade },
 ) => {
-  if (courseCode) expect(course.courseCode).toBe(courseCode);
-  if (grade) expect(course.grade).toBe(grade);
-  if (credits !== undefined) expect(course.credits).toBe(credits);
-  if (other !== undefined) expect(course.other).toBe(other);
-  if (gpaDefined === false) expect(course.gpa).toBeUndefined();
-};
-
-// transfer credits
-const assertTransferCredits = (result, expectedArray) => {
-  expect(result.transferCredits).toHaveLength(expectedArray.length);
-  expectedArray.forEach((ec, i) => {
-    Object.entries(ec).forEach(([k, v]) =>
-      expect(result.transferCredits[i][k]).toBe(v),
-    );
-  });
-};
-
-// additional info
-const assertAdditionalInfo = (result, expected) => {
-  Object.entries(expected).forEach(([k, v]) =>
-    expect(result.additionalInfo[k]).toBe(v),
-  );
+  if (code) expect(course.code).toBe(code);
+  if (grade !== undefined) {
+    if (grade) {
+      expect(course.grade).toBe(grade);
+    } else {
+      expect(course.grade).toBeUndefined();
+    }
+  }
 };
 
 // temp file write assertion
@@ -108,22 +76,18 @@ const mockPythonExecution = (mockData, stderr = '') => {
   });
 };
 
-// custom matcher for transcript validity
+// custom matcher for parsed data validity
 expect.extend({
-  toBeValidTranscript(received, { termCount, firstTerm }) {
+  toBeValidParsedData(received, { semesterCount, firstSemesterTerm }) {
     const pass =
       received &&
-      received.studentInfo &&
-      received.terms &&
-      received.programHistory &&
-      received.transferCredits &&
-      received.additionalInfo &&
-      received.terms.length === termCount &&
-      received.terms[0]?.term === firstTerm;
+      received.semesters &&
+      received.semesters.length === semesterCount &&
+      received.semesters[0]?.term.includes(firstSemesterTerm);
     return {
       pass,
       message: () =>
-        `Expected transcript to have termCount=${termCount}, firstTerm=${firstTerm}`,
+        `Expected parsed data to have semesterCount=${semesterCount}, firstSemesterTerm=${firstSemesterTerm}`,
     };
   },
 });
@@ -139,29 +103,24 @@ describe('TranscriptParser', () => {
     jest.spyOn(fs, 'existsSync').mockReturnValue(true);
     // Default mock: successful Python execution
     mockPythonExecution({
-      studentInfo: {
-        name: mockTranscriptData.studentInfo.studentName,
-        studentId: mockTranscriptData.studentInfo.studentId,
+      programInfo: {
+        degree: 'B.Sc., Computer Science',
+        firstTerm: 'Fall 2020',
+        lastTerm: 'Summer 2021',
+        minimumProgramLength: 120,
       },
-      terms: mockTranscriptData.terms.map(t => ({
-        term: t.term,
-        year: t.year,
-        termGPA: t.termGPA,
+      semesters: mockTranscriptData.terms.map(t => ({
+        term: `${t.term} ${t.year}`,
         courses: t.courses.map(c => ({
-          courseCode: c.courseCode,
-          section: '',
-          credits: c.credits,
+          code: c.courseCode.replace(/\s+/g, ''),
           grade: c.grade,
         })),
       })),
-      transferCredits: mockTranscriptData.transferCredits.map(tc => ({
-        courseCode: tc.courseCode,
-        courseTitle: '',
-        grade: tc.grade,
-        programCreditsEarned: 0,
-      })),
-      programHistory: [],
-      additionalInfo: mockTranscriptData.additionalInfo,
+      transferedCourses: [],
+      exemptedCourses: mockTranscriptData.transferCredits
+        .filter(tc => tc.grade === 'EX')
+        .map(tc => tc.courseCode.replace(/\s+/g, '')),
+      deficiencyCourses: [],
     });
   });
   afterEach(() => jest.restoreAllMocks());
@@ -171,18 +130,15 @@ describe('TranscriptParser', () => {
     const result = await parser.parseFromFile(filePath);
 
     expect(exec).toHaveBeenCalled();
-    expect(result).toBeValidTranscript({
-      termCount: mockTranscriptData.terms.length,
-      firstTerm: mockTranscriptData.terms[0].term,
+    expect(result).toBeValidParsedData({
+      semesterCount: mockTranscriptData.terms.length,
+      firstSemesterTerm: mockTranscriptData.terms[0].term,
     });
-    assertStudentInfo(result, mockTranscriptData.studentInfo);
-    assertTermBasics(result, 0, mockTranscriptData.terms[0]);
-    expect(result.transferCredits).toHaveLength(
-      mockTranscriptData.transferCredits.length,
-    );
-    expect(result.additionalInfo.overallGPA).toBe(
-      mockTranscriptData.additionalInfo.overallGPA,
-    );
+    expect(result.programInfo).toBeDefined();
+    expect(result.programInfo.degree).toBe('B.Sc., Computer Science');
+    assertSemesterBasics(result, 0, mockTranscriptData.terms[0]);
+    expect(result.exemptedCourses).toBeDefined();
+    expect(result.exemptedCourses.length).toBeGreaterThan(0);
   }, 100000);
 
 
@@ -222,138 +178,133 @@ describe('TranscriptParser', () => {
 
   it('should parse Python script JSON output correctly', async () => {
     const mockData = {
-      studentInfo: { name: 'Test Student', studentId: '12345' },
-      terms: [{
-        term: 'Fall',
-        year: '2023',
-        termGPA: 3.5,
-        courses: [{ courseCode: 'COMP 101', section: 'A', credits: 3, grade: 'A' }],
+      programInfo: {
+        degree: 'B.Sc., Computer Science',
+        firstTerm: 'Fall 2023',
+      },
+      semesters: [{
+        term: 'Fall 2023',
+        courses: [{ code: 'COMP101', grade: 'A' }],
       }],
-      transferCredits: [],
-      programHistory: [],
-      additionalInfo: {},
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
     };
     
     mockPythonExecution(mockData);
     const result = await parser.parseFromFile('/path/to/transcript.pdf');
     
-    expect(result.studentInfo.name).toBe('Test Student');
-    expect(result.terms).toHaveLength(1);
-    expect(result.terms[0].term).toBe('Fall');
-    expect(result.terms[0].courses).toHaveLength(1);
+    expect(result.programInfo).toBeDefined();
+    expect(result.programInfo.degree).toBe('B.Sc., Computer Science');
+    expect(result.semesters).toHaveLength(1);
+    expect(result.semesters[0].term).toBe('Fall 2023');
+    expect(result.semesters[0].courses).toHaveLength(1);
+    expect(result.semesters[0].courses[0].code).toBe('COMP101');
+    expect(result.semesters[0].courses[0].grade).toBe('A');
   });
 
   it('should parse transcript data correctly', async () => {
     const result = await parser.parseFromFile('/path/to/transcript.pdf');
     
-    expect(result).toBeValidTranscript({
-      termCount: mockTranscriptData.terms.length,
-      firstTerm: mockTranscriptData.terms[0].term,
+    expect(result).toBeValidParsedData({
+      semesterCount: mockTranscriptData.terms.length,
+      firstSemesterTerm: mockTranscriptData.terms[0].term,
     });
-    assertTermBasics(result, 0, mockTranscriptData.terms[0]);
+    assertSemesterBasics(result, 0, mockTranscriptData.terms[0]);
     assertCourse(
-      result.terms[0].courses[0],
-      mockTranscriptData.terms[0].courses[0],
+      result.semesters[0].courses[0],
+      { code: mockTranscriptData.terms[0].courses[0].courseCode.replace(/\s+/g, ''), grade: mockTranscriptData.terms[0].courses[0].grade },
     );
-    assertStudentInfo(result, mockTranscriptData.studentInfo);
-    assertTransferCredits(result, mockTranscriptData.transferCredits);
+    expect(result.programInfo).toBeDefined();
+    expect(result.exemptedCourses).toBeDefined();
   });
 
-  it('should extract transfer credits correctly', async () => {
+  it('should extract exempted courses correctly', async () => {
     mockPythonExecution({
-      studentInfo: {},
-      terms: [],
-      transferCredits: [
-        { courseCode: 'BIOL 201', courseTitle: 'Vanier College', grade: 'EX', programCreditsEarned: 0.0 },
-        { courseCode: 'CHEM 205', courseTitle: 'Vanier College', grade: 'EX', programCreditsEarned: 0.0 },
-        { courseCode: 'MATH 201', courseTitle: 'Vanier College', grade: 'EX', programCreditsEarned: 0.0 },
-      ],
-      programHistory: [],
-      additionalInfo: {},
+      programInfo: {},
+      semesters: [],
+      transferedCourses: [],
+      exemptedCourses: ['BIOL201', 'CHEM205', 'MATH201'],
+      deficiencyCourses: [],
     });
 
     const result = await parser.parseFromFile('/path/to/transcript.pdf');
 
-    expect(result.transferCredits).toHaveLength(3);
-    expect(result.transferCredits[0].courseCode).toBe('BIOL 201');
-    expect(result.transferCredits[0].courseTitle).toBe('Vanier College');
-    expect(result.transferCredits[0].grade).toBe('EX');
-    expect(result.transferCredits[0].programCreditsEarned).toBe(0.0);
-    expect(result.transferCredits[1].courseCode).toBe('CHEM 205');
-    expect(result.transferCredits[2].courseCode).toBe('MATH 201');
+    expect(result.exemptedCourses).toHaveLength(3);
+    expect(result.exemptedCourses[0]).toBe('BIOL201');
+    expect(result.exemptedCourses[1]).toBe('CHEM205');
+    expect(result.exemptedCourses[2]).toBe('MATH201');
   });
 
   it('should extract Fall/Winter term format correctly', async () => {
     mockPythonExecution({
-      studentInfo: {},
-      terms: [
+      programInfo: {},
+      semesters: [
         {
-          term: 'Fall/Winter',
-          year: '2025-26',
-          termGPA: 4.0,
+          term: 'Fall/Winter 2025-26',
           courses: [
-            { courseCode: 'SOEN 490', section: 'TT', credits: 6.0, grade: 'A' },
+            { code: 'SOEN490', grade: 'A' },
           ],
         },
       ],
-      transferCredits: [],
-      programHistory: [],
-      additionalInfo: {},
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
     });
 
     const result = await parser.parseFromFile('/path/to/transcript.pdf');
 
-    const fallWinterTerm = result.terms.find(
-      (t) => t.term === 'Fall/Winter' && t.year === '2025-26',
+    const fallWinterSemester = result.semesters.find(
+      (s) => s.term === 'Fall/Winter 2025-26',
     );
-    expect(fallWinterTerm).toBeDefined();
-    expect(fallWinterTerm.termGPA).toBe(4.0);
-    expect(fallWinterTerm.courses.length).toBeGreaterThan(0);
+    expect(fallWinterSemester).toBeDefined();
+    expect(fallWinterSemester.courses.length).toBeGreaterThan(0);
+    expect(fallWinterSemester.courses[0].code).toBe('SOEN490');
+    expect(fallWinterSemester.courses[0].grade).toBe('A');
   });
 
-  it('should extract term GPA correctly', async () => {
+  it('should extract semester courses correctly', async () => {
     mockPythonExecution({
-      studentInfo: {},
-      terms: [
+      programInfo: {},
+      semesters: [
         {
-          term: 'Winter',
-          year: '2023',
-          termGPA: 3.94,
+          term: 'Winter 2023',
           courses: [
-            { courseCode: 'COMP 249', section: 'QQ', credits: 3.5, grade: 'A+' },
+            { code: 'COMP249', grade: 'A+' },
           ],
         },
       ],
-      transferCredits: [],
-      programHistory: [],
-      additionalInfo: {},
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
     });
 
     const result = await parser.parseFromFile('/path/to/transcript.pdf');
 
-    expect(result.terms.length).toBeGreaterThan(0);
-    const winterTerm = result.terms.find(
-      (t) => t.term === 'Winter' && t.year === '2023',
+    expect(result.semesters.length).toBeGreaterThan(0);
+    const winterSemester = result.semesters.find(
+      (s) => s.term === 'Winter 2023',
     );
-    expect(winterTerm).toBeDefined();
-    expect(winterTerm.termGPA).toBeCloseTo(3.94, 2);
+    expect(winterSemester).toBeDefined();
+    expect(winterSemester.courses[0].code).toBe('COMP249');
+    expect(winterSemester.courses[0].grade).toBe('A+');
   });
 
 
   it('should allow stderr with WARNING', async () => {
     mockPythonExecution(
       {
-        studentInfo: { name: 'Test', studentId: '123' },
-        terms: [],
-        transferCredits: [],
-        programHistory: [],
-        additionalInfo: {},
+        programInfo: { degree: 'Test Degree' },
+        semesters: [],
+        transferedCourses: [],
+        exemptedCourses: [],
+        deficiencyCourses: [],
       },
       'WARNING: Some warning message',
     );
 
     const result = await parser.parseFromFile('/path/to/transcript.pdf');
-    expect(result.studentInfo.name).toBe('Test');
+    expect(result.programInfo.degree).toBe('Test Degree');
   });
 
   it('should handle non-Python/PyMuPDF errors', async () => {
@@ -403,166 +354,134 @@ describe('TranscriptParser', () => {
 
   it('should handle missing fields in Python result', async () => {
     mockPythonExecution({
-      // Missing studentInfo, terms, etc.
+      // Missing all fields
     });
 
     const result = await parser.parseFromFile('/path/to/transcript.pdf');
 
-    expect(result.studentInfo).toEqual({});
-    expect(result.terms).toEqual([]);
-    expect(result.transferCredits).toEqual([]);
-    expect(result.programHistory).toEqual([]);
-    expect(result.additionalInfo).toEqual({});
+    expect(result.programInfo).toBeUndefined();
+    expect(result.semesters).toBeUndefined();
+    expect(result.transferedCourses).toBeUndefined();
+    expect(result.exemptedCourses).toBeUndefined();
+    expect(result.deficiencyCourses).toBeUndefined();
   });
 
-  it('should handle undefined transfer credits', async () => {
+  it('should handle undefined exempted courses', async () => {
     mockPythonExecution({
-      studentInfo: {},
-      terms: [],
-      transferCredits: undefined,
-      programHistory: [],
-      additionalInfo: {},
+      programInfo: {},
+      semesters: [],
+      transferedCourses: [],
+      exemptedCourses: undefined,
+      deficiencyCourses: [],
     });
 
     const result = await parser.parseFromFile('/path/to/transcript.pdf');
-    expect(result.transferCredits).toEqual([]);
+    expect(result.exemptedCourses).toBeUndefined();
   });
 
-  it('should handle transfer credits with missing fields', async () => {
+  it('should handle exempted courses array correctly', async () => {
     mockPythonExecution({
-      studentInfo: {},
-      terms: [],
-      transferCredits: [
-        { courseCode: 'COMP 101' }, // Missing other fields
-        { courseTitle: 'Some Course' }, // Missing courseCode
-        {}, // Empty object
-      ],
-      programHistory: [],
-      additionalInfo: {},
+      programInfo: {},
+      semesters: [],
+      transferedCourses: [],
+      exemptedCourses: ['COMP101', 'MATH203'],
+      deficiencyCourses: [],
     });
 
     const result = await parser.parseFromFile('/path/to/transcript.pdf');
-    expect(result.transferCredits).toHaveLength(3);
-    expect(result.transferCredits[0].courseCode).toBe('COMP 101');
-    expect(result.transferCredits[0].courseTitle).toBe('');
-    expect(result.transferCredits[0].grade).toBe('EX');
-    expect(result.transferCredits[0].programCreditsEarned).toBe(0);
+    expect(result.exemptedCourses).toHaveLength(2);
+    expect(result.exemptedCourses[0]).toBe('COMP101');
+    expect(result.exemptedCourses[1]).toBe('MATH203');
   });
 
-  it('should handle terms with missing fields', async () => {
+  it('should handle semesters with missing fields', async () => {
     mockPythonExecution({
-      studentInfo: {},
-      terms: [
+      programInfo: {},
+      semesters: [
         {
-          term: 'Fall',
-          year: '2023',
-          // Missing termGPA, termCredits
+          term: 'Fall 2023',
           courses: [
             {
-              courseCode: 'COMP 101',
-              // Missing section, credits, grade, etc.
+              code: 'COMP101',
+              // Missing grade
             },
             {
-              courseCode: 'COMP 202',
-              section: 'A',
-              // Missing other fields
+              code: 'COMP202',
+              grade: 'A',
             },
           ],
         },
       ],
-      transferCredits: [],
-      programHistory: [],
-      additionalInfo: {},
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
     });
 
     const result = await parser.parseFromFile('/path/to/transcript.pdf');
-    expect(result.terms).toHaveLength(1);
-    expect(result.terms[0].term).toBe('Fall');
-    expect(result.terms[0].year).toBe('2023');
-    expect(result.terms[0].termGPA).toBeUndefined();
-    expect(result.terms[0].courses).toHaveLength(2);
-    expect(result.terms[0].courses[0].section).toBe('');
-    expect(result.terms[0].courses[0].credits).toBe(0);
-    expect(result.terms[0].courses[0].grade).toBe('');
+    expect(result.semesters).toHaveLength(1);
+    expect(result.semesters[0].term).toBe('Fall 2023');
+    expect(result.semesters[0].courses).toHaveLength(2);
+    expect(result.semesters[0].courses[0].code).toBe('COMP101');
+    expect(result.semesters[0].courses[0].grade).toBeUndefined();
+    expect(result.semesters[0].courses[1].code).toBe('COMP202');
+    expect(result.semesters[0].courses[1].grade).toBe('A');
   });
 
-  it('should handle undefined terms', async () => {
+  it('should handle undefined semesters', async () => {
     mockPythonExecution({
-      studentInfo: {},
-      terms: undefined,
-      transferCredits: [],
-      programHistory: [],
-      additionalInfo: {},
+      programInfo: {},
+      semesters: undefined,
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
     });
 
     const result = await parser.parseFromFile('/path/to/transcript.pdf');
-    expect(result.terms).toEqual([]);
+    expect(result.semesters).toBeUndefined();
   });
 
-  it('should handle courses with all optional fields', async () => {
+  it('should handle courses with grade field', async () => {
     mockPythonExecution({
-      studentInfo: {},
-      terms: [
+      programInfo: {},
+      semesters: [
         {
-          term: 'Winter',
-          year: '2024',
-          termGPA: 3.5,
-          termCredits: 12,
+          term: 'Winter 2024',
           courses: [
             {
-              courseCode: 'COMP 249',
-              section: 'QQ',
-              courseTitle: 'Object-Oriented Programming',
-              credits: 3.5,
+              code: 'COMP249',
               grade: 'A+',
-              notation: 'WKRT',
-              gpa: 4.0,
-              classAvg: 75.5,
-              classSize: 120,
-              other: 'Some note',
             },
           ],
         },
       ],
-      transferCredits: [],
-      programHistory: [],
-      additionalInfo: {},
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
     });
 
     const result = await parser.parseFromFile('/path/to/transcript.pdf');
-    const course = result.terms[0].courses[0];
-    expect(course.courseCode).toBe('COMP 249');
-    expect(course.section).toBe('QQ');
-    expect(course.courseTitle).toBe('Object-Oriented Programming');
-    expect(course.credits).toBe(3.5);
+    const course = result.semesters[0].courses[0];
+    expect(course.code).toBe('COMP249');
     expect(course.grade).toBe('A+');
-    expect(course.notation).toBe('WKRT');
-    expect(course.gpa).toBe(4.0);
-    expect(course.classAvg).toBe(75.5);
-    expect(course.classSize).toBe(120);
-    expect(course.other).toBe('Some note');
-    expect(course.term).toBe('Winter');
-    expect(course.year).toBe('2024');
   });
 
-  it('should handle term with grade instead of termGPA', async () => {
+  it('should handle semesters with empty courses', async () => {
     mockPythonExecution({
-      studentInfo: {},
-      terms: [
+      programInfo: {},
+      semesters: [
         {
-          term: 'Fall',
-          year: '2023',
-          grade: 3.75, // Using grade instead of termGPA
+          term: 'Fall 2023',
           courses: [],
         },
       ],
-      transferCredits: [],
-      programHistory: [],
-      additionalInfo: {},
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
     });
 
     const result = await parser.parseFromFile('/path/to/transcript.pdf');
-    expect(result.terms[0].termGPA).toBe(3.75);
+    expect(result.semesters[0].term).toBe('Fall 2023');
+    expect(result.semesters[0].courses).toHaveLength(0);
   });
 
   it('should handle error with non-Error object', async () => {

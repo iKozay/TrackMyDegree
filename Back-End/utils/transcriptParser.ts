@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
-import type { ParsedTranscript } from '../types/transcript';
+import type { ParsedData } from '../types/transcript';
 
 const execAsync = promisify(exec);
 
@@ -21,15 +21,15 @@ const getDirname = (): string => {
 /**
  * TranscriptParser - A utility class to parse academic transcripts from PDF format
  *
- * This parser extracts student information, course details, grades, and GPA information
+ * This parser extracts program information, semesters, courses, and transfer/exempted courses
  * from transcript PDFs using PyMuPDF-based Python parser for accurate extraction.
  *
  * @example
  * ```typescript
  * const parser = new TranscriptParser();
- * const transcript = await parser.parseFromFile('/path/to/transcript.pdf');
- * console.log(transcript.studentInfo);
- * console.log(transcript.terms);
+ * const data = await parser.parseFromFile('/path/to/transcript.pdf');
+ * console.log(data.programInfo);
+ * console.log(data.semesters);
  * ```
  */
 export class TranscriptParser {
@@ -37,7 +37,7 @@ export class TranscriptParser {
    * Parse a transcript from a PDF file path
    * Uses PyMuPDF-based Python parser for accurate extraction
    */
-  async parseFromFile(filePath: string): Promise<ParsedTranscript> {
+  async parseFromFile(filePath: string): Promise<ParsedData> {
     try {
       return await this.parseFromFilePython(filePath);
     } catch (error) {
@@ -52,7 +52,7 @@ export class TranscriptParser {
    */
   private async parseFromFilePython(
     filePath: string,
-  ): Promise<ParsedTranscript> {
+  ): Promise<ParsedData> {
     const scriptDir = getDirname();
     const backendDir = path.resolve(scriptDir, '..');
     const pythonScriptPath = path.join(
@@ -80,8 +80,7 @@ export class TranscriptParser {
 
       const result = JSON.parse(stdout);
 
-      // Convert Python output to TypeScript format
-      return this.convertPythonResultToTranscript(result);
+      return result as ParsedData;
     } catch (error) {
       if (
         error instanceof Error &&
@@ -93,47 +92,6 @@ export class TranscriptParser {
       }
       throw error;
     }
-  }
-
-  /**
-   * Convert Python parser output to TypeScript ParsedTranscript format
-   */
-  private convertPythonResultToTranscript(result: any): ParsedTranscript {
-    return {
-      studentInfo: result.studentInfo || {},
-      programHistory: result.programHistory || [],
-      transferCredits:
-        result.transferCredits?.map((tc: any) => ({
-          courseCode: tc.courseCode || '',
-          courseTitle: tc.courseTitle || '',
-          grade: tc.grade || 'EX',
-          yearAttended: tc.yearAttended || undefined,
-          programCreditsEarned: tc.programCreditsEarned || 0,
-        })) || [],
-      terms:
-        result.terms?.map((term: any) => ({
-          term: term.term,
-          year: term.year,
-          courses:
-            term.courses?.map((course: any) => ({
-              courseCode: course.courseCode,
-              section: course.section || '',
-              courseTitle: course.courseTitle || '',
-              credits: course.credits || 0,
-              grade: course.grade || '',
-              notation: course.notation,
-              gpa: course.gpa,
-              classAvg: course.classAvg,
-              classSize: course.classSize,
-              term: term.term,
-              year: term.year,
-              other: course.other,
-            })) || [],
-          termGPA: term.termGPA || term.grade,
-          termCredits: term.termCredits,
-        })) || [],
-      additionalInfo: result.additionalInfo || {},
-    };
   }
 }
 
