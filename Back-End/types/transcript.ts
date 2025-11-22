@@ -1,109 +1,31 @@
 /**
- * Represents a transfer credit from prior institutions
+ * Unified structure for parsed transcript and acceptance letter data
  */
-export interface TransferCredit {
-  courseCode: string;
-  courseTitle: string;
-  grade: string;
-  yearAttended?: string;
-  programCreditsEarned: number;
+export interface ParsedData {
+  programInfo?: ProgramInfo;
+  semesters?: Semester[]; // courses that were taken in this program
+  transferedCourses?: string[]; // List of course codes
+  exemptedCourses?: string[]; // List of course codes
+  deficiencyCourses?: string[]; // List of course codes
 }
 
-/**
- * Represents a single course from the transcript
- */
-export interface TranscriptCourse {
-  courseCode: string;
-  section?: string;
-  courseTitle: string;
-  credits: number;
-  grade: string;
-  notation?: string;
-  gpa?: number;
-  classAvg?: number;
-  classSize?: number;
-  gradePoints?: number;
-  term: string;
-  year: string;
-  other?: string;
+export interface Semester {
+  term: string; // Season (e.g., "Fall 2022")
+  courses: { code: string; grade?: string }[];
 }
 
-/**
- * Represents a term/semester in the transcript
- */
-export interface TranscriptTerm {
-  term: string;
-  year: string;
-  courses: TranscriptCourse[];
-  termGPA?: number;
-  termCredits?: number;
-}
-
-/**
- * Represents student information from the transcript
- */
-export interface StudentInfo {
-  studentId?: string;
-  studentName?: string;
-  address?: string;
-  city?: string;
-  province?: string;
-  country?: string;
-  postalCode?: string;
-  birthdate?: string;
-  permanentCode?: string;
-  telephone?: string;
-}
-
-/**
- * Represents program information from the transcript
- */
 export interface ProgramInfo {
-  status: string;
-  startDate: string;
-  admitTerm?: string;
-  degreeType: string;
-  major: string;
-  note?: string;
+  degree: string;
+  firstTerm?: string; // e.g., "Fall 2022"
+  lastTerm?: string; // e.g., "Spring 2026"
+  isCoop?: boolean;
+  isExtendedCreditProgram?: boolean;
+  minimumProgramLength?: number;
 }
 
-/**
- * Additional academic information
- */
-export interface AdditionalInfo {
-  overallGPA?: number;
-  minCreditsRequired?: number;
-  programCreditsEarned?: number;
-  writingSkillsRequirement?: string;
-}
-
-/**
- * Represents the complete parsed transcript data
- */
-export interface ParsedTranscript {
-  studentInfo: StudentInfo;
-  programHistory: ProgramInfo[];
-  transferCredits: TransferCredit[];
-  terms: TranscriptTerm[];
-  additionalInfo: AdditionalInfo;
-}
-export interface AcceptanceDetails {
-     degreeConcentration: string | null;
-        coopProgram: boolean;
-        extendedCreditProgram: boolean;
-        startingTerm: string | null;
-        expectedGraduationTerm: string | null;
-        minimumProgramLength: string | null;
-    
-}
-export interface ParsedAcceptanceLetter {
-    extractedCourses: { term: string; courses: string[]; grade:string|null; }[]|[];
-    details: AcceptanceDetails| {};
-}
 /**
  * API Response types
  */
-
 export interface ApiResponse<T = any> {
   success: boolean;
   message: string;
@@ -111,6 +33,6 @@ export interface ApiResponse<T = any> {
   error?: string;
 }
 
-export interface ParsePDFResponse extends ApiResponse<ParsedTranscript| ParsedAcceptanceLetter> {
-    data: ParsedTranscript | ParsedAcceptanceLetter;
+export interface ParsePDFResponse extends ApiResponse<ParsedData> {
+  data: ParsedData;
 }

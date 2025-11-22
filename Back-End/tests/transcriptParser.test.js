@@ -1,81 +1,53 @@
 /* global Buffer */
-jest.mock('pdf-parse');
-jest.mock('pdf2json');
-jest.mock('node:timers', () => ({
-  setTimeout: jest.fn(() => Math.floor(Math.random() * 10000)),
-}));
-
 const fs = require('fs');
+const { exec } = require('node:child_process');
 const { TranscriptParser } = require('../utils/transcriptParser.ts');
 const mockTranscriptData = require('./__fixtures__/data/mockTranscriptData');
-const {
-  createMockPdfParser,
-} = require('./__fixtures__/factories/mockPdfParserFactory');
-const edgeCaseTranscriptData = require('./__fixtures__/data/edgeCaseTranscriptData');
+
+// Mock child_process.exec
+jest.mock('node:child_process', () => ({
+  exec: jest.fn(),
+}));
+
+// Mock fs.existsSync for Python script path check (will be reset in beforeEach)
 
 /* ===================== Test Constants ===================== */
 const TEMP_PDF_REGEX = /[\\/]tmp[\\/]transcript_\d+\.pdf$/;
 
 /* ===================== Helper Functions ===================== */
 
-// basic transcript structure
-const assertTranscriptStructure = (result) => {
-  [
-    'studentInfo',
-    'terms',
-    'programHistory',
-    'transferCredits',
-    'additionalInfo',
-  ].forEach((k) => expect(result).toHaveProperty(k));
+// basic parsed data structure
+const assertParsedDataStructure = (result) => {
+  // All fields are optional, so we just check if result is an object
+  expect(result).toBeInstanceOf(Object);
 };
 
-// student info
-const assertStudentInfo = (result, expected) => {
-  assertTranscriptStructure(result);
-  expect(result.studentInfo).toMatchObject(expected);
-};
-
-// term basics
-const assertTermBasics = (
+// semester basics
+const assertSemesterBasics = (
   result,
   index,
-  { term, year, courseCount, termGPA },
+  { term, courseCount },
 ) => {
-  expect(result.terms.length).toBeGreaterThan(index);
-  const t = result.terms[index];
-  if (term) expect(t.term).toBe(term);
-  if (year) expect(t.year).toBe(year);
-  if (courseCount !== undefined) expect(t.courses).toHaveLength(courseCount);
-  if (termGPA !== undefined) expect(t.termGPA).toBe(termGPA);
+  expect(result.semesters).toBeDefined();
+  expect(result.semesters.length).toBeGreaterThan(index);
+  const s = result.semesters[index];
+  if (term) expect(s.term).toContain(term);
+  if (courseCount !== undefined) expect(s.courses).toHaveLength(courseCount);
 };
 
 // course assertion
 const assertCourse = (
   course,
-  { courseCode, grade, credits, other, gpaDefined },
+  { code, grade },
 ) => {
-  if (courseCode) expect(course.courseCode).toBe(courseCode);
-  if (grade) expect(course.grade).toBe(grade);
-  if (credits !== undefined) expect(course.credits).toBe(credits);
-  if (other !== undefined) expect(course.other).toBe(other);
-  if (gpaDefined === false) expect(course.gpa).toBeUndefined();
-};
-
-// transfer credits
-const assertTransferCredits = (result, expectedArray) => {
-  expect(result.transferCredits).toHaveLength(expectedArray.length);
-  expectedArray.forEach((ec, i) => {
-    Object.entries(ec).forEach(([k, v]) =>
-      expect(result.transferCredits[i][k]).toBe(v),
-    );
-  });
-};
-
-// additional info
-const assertAdditionalInfo = (result, expected) => {
-  Object.entries(expected).forEach(([k, v]) =>
-    expect(result.additionalInfo[k]).toBe(v),
-  );
+  if (code) expect(course.code).toBe(code);
+  if (grade !== undefined) {
+    if (grade) {
+      expect(course.grade).toBe(grade);
+    } else {
+      expect(course.grade).toBeUndefined();
+    }
+  }
 };
 
 // temp file write assertion
@@ -83,52 +55,39 @@ const assertTempFileWrite = (spy, buffer, dirPattern = TEMP_PDF_REGEX) => {
   expect(spy).toHaveBeenCalledWith(expect.stringMatching(dirPattern), buffer);
 };
 
-// hybrid parsing verification
-const assertHybridInvocation = (buffer) => {
-  const pdfParse = require('pdf-parse');
-  const MockPDFParser = require('pdf2json');
-  expect(pdfParse).toHaveBeenCalledWith(buffer);
-  expect(MockPDFParser).toHaveBeenCalled();
+// Helper to create mock Python script output
+const createMockPythonOutput = (data) => {
+  return JSON.stringify(data);
 };
 
-// pdf2json loadPDF trigger helper
-const triggerPdf2JsonReady = (mockInstance, payload) => {
-  mockInstance.loadPDF.mockImplementation(() => {
-    process.nextTick(() => {
-      const cb = mockInstance.on.mock.calls.find(
-        (c) => c[0] === 'pdfParser_dataReady',
-      )?.[1];
-      if (cb) cb(payload);
-    });
+// Helper to mock Python script execution
+const mockPythonExecution = (mockData, stderr = '') => {
+  exec.mockImplementation((command, options, callback) => {
+    const result = { stdout: createMockPythonOutput(mockData), stderr };
+    if (callback) {
+      // Callback style (for direct exec calls)
+      // Note: This passes result object, but promisify handles it correctly
+      // by treating the object as stdout when destructured
+      process.nextTick(() => callback(null, result));
+    } else {
+      // Promise style (for promisify)
+      return Promise.resolve(result);
+    }
   });
 };
 
-// errored mock instance creator
-const createPdf2JsonErrorInstance = (errorMessage) => ({
-  on: jest.fn((event, cb) => {
-    if (event === 'pdfParser_dataError') {
-      process.nextTick(() => cb({ parserError: errorMessage }));
-    }
-  }),
-  loadPDF: jest.fn(),
-});
-
-// custom matcher for transcript validity
+// custom matcher for parsed data validity
 expect.extend({
-  toBeValidTranscript(received, { termCount, firstTerm }) {
+  toBeValidParsedData(received, { semesterCount, firstSemesterTerm }) {
     const pass =
       received &&
-      received.studentInfo &&
-      received.terms &&
-      received.programHistory &&
-      received.transferCredits &&
-      received.additionalInfo &&
-      received.terms.length === termCount &&
-      received.terms[0]?.term === firstTerm;
+      received.semesters &&
+      received.semesters.length === semesterCount &&
+      received.semesters[0]?.term.includes(firstSemesterTerm);
     return {
       pass,
       message: () =>
-        `Expected transcript to have termCount=${termCount}, firstTerm=${firstTerm}`,
+        `Expected parsed data to have semesterCount=${semesterCount}, firstSemesterTerm=${firstSemesterTerm}`,
     };
   },
 });
@@ -139,380 +98,403 @@ describe('TranscriptParser', () => {
   let parser;
   beforeEach(() => {
     parser = new TranscriptParser();
-    require('node:timers').setTimeout.mockClear();
+    jest.clearAllMocks();
+    // Mock fs.existsSync to return true by default
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    // Default mock: successful Python execution
+    mockPythonExecution({
+      programInfo: {
+        degree: 'B.Sc., Computer Science',
+        firstTerm: 'Fall 2020',
+        lastTerm: 'Summer 2021',
+        minimumProgramLength: 120,
+      },
+      semesters: mockTranscriptData.terms.map(t => ({
+        term: `${t.term} ${t.year}`,
+        courses: t.courses.map(c => ({
+          code: c.courseCode.replace(/\s+/g, ''),
+          grade: c.grade,
+        })),
+      })),
+      transferedCourses: [],
+      exemptedCourses: mockTranscriptData.transferCredits
+        .filter(tc => tc.grade === 'EX')
+        .map(tc => tc.courseCode.replace(/\s+/g, '')),
+      deficiencyCourses: [],
+    });
   });
   afterEach(() => jest.restoreAllMocks());
 
-  it('should parse transcript from buffer', async () => {
-    const writeSpy = jest
-      .spyOn(fs, 'writeFileSync')
-      .mockImplementation(() => {});
-    const unlinkSpy = jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
-    const MockPDFParser = require('pdf2json');
-    const mockInstance = new MockPDFParser();
-    triggerPdf2JsonReady(mockInstance);
-
-    const mockBuffer = Buffer.from('mock pdf content');
-    const result = await parser.parseFromBuffer(mockBuffer);
-
-    assertTempFileWrite(writeSpy, mockBuffer, /transcript_\d+\.pdf$/);
-    expect(writeSpy).toHaveBeenCalledTimes(1);
-    expect(unlinkSpy).toBeDefined();
-
-    assertStudentInfo(result, mockTranscriptData.studentInfo);
-
-    assertTermBasics(result, 0, mockTranscriptData.terms[0]);
-
-    const firstCourse = result.terms[0].courses[0];
-    assertCourse(firstCourse, mockTranscriptData.terms[0].courses[0]);
-
-    assertTransferCredits(result, mockTranscriptData.transferCredits);
-
-    assertAdditionalInfo(result, mockTranscriptData.additionalInfo);
-  });
-
   it('should parse transcript from file', async () => {
-    const mockBuffer = Buffer.from('mock pdf content');
-    const readSpy = jest.spyOn(fs, 'readFileSync').mockReturnValue(mockBuffer);
-    const writeSpy = jest
-      .spyOn(fs, 'writeFileSync')
-      .mockImplementation(() => {});
-    const MockPDFParser = require('pdf2json');
-    const mockInstance = new MockPDFParser();
-    triggerPdf2JsonReady(mockInstance);
-
     const filePath = '/path/to/transcript.pdf';
     const result = await parser.parseFromFile(filePath);
 
-    expect(readSpy).toHaveBeenCalledWith(filePath);
-    assertTempFileWrite(writeSpy, mockBuffer, /transcript_\d+\.pdf$/);
-    expect(result).toBeValidTranscript({
-      termCount: mockTranscriptData.terms.length,
-      firstTerm: mockTranscriptData.terms[0].term,
+    expect(exec).toHaveBeenCalled();
+    expect(result).toBeValidParsedData({
+      semesterCount: mockTranscriptData.terms.length,
+      firstSemesterTerm: mockTranscriptData.terms[0].term,
     });
-    assertStudentInfo(result, mockTranscriptData.studentInfo);
-    assertTermBasics(result, 0, mockTranscriptData.terms[0]);
-    expect(result.transferCredits).toHaveLength(
-      mockTranscriptData.transferCredits.length,
-    );
-    expect(result.additionalInfo.overallGPA).toBe(
-      mockTranscriptData.additionalInfo.overallGPA,
-    );
+    expect(result.programInfo).toBeDefined();
+    expect(result.programInfo.degree).toBe('B.Sc., Computer Science');
+    assertSemesterBasics(result, 0, mockTranscriptData.terms[0]);
+    expect(result.exemptedCourses).toBeDefined();
+    expect(result.exemptedCourses.length).toBeGreaterThan(0);
   }, 100000);
 
-  it('should handle errors when reading file', async () => {
-    const readSpy = jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
-      throw new Error('File not found');
+
+  it('should handle errors when Python script fails', async () => {
+    exec.mockImplementation((command, options, callback) => {
+      const error = new Error('Python script error: PyMuPDF not installed');
+      if (callback) {
+        callback(error, null, 'ERROR: PyMuPDF not installed');
+      } else {
+        return Promise.reject(error);
+      }
     });
+    
     await expect(
       parser.parseFromFile('/nonexistent/transcript.pdf'),
-    ).rejects.toThrow('Failed to read transcript file: File not found');
-    expect(readSpy).toHaveBeenCalled();
+    ).rejects.toThrow('Failed to parse transcript file');
   });
 
-  it('should handle errors when parsing buffer', async () => {
-    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
-    const MockPDFParser = require('pdf2json');
-    MockPDFParser.mockImplementationOnce(() =>
-      createPdf2JsonErrorInstance('Invalid PDF format'),
-    );
-    const mockBuffer = Buffer.from('invalid pdf content');
-    await expect(parser.parseFromBuffer(mockBuffer)).rejects.toThrow(
-      'Failed to parse transcript: PDF parsing error: Invalid PDF format',
-    );
-  }, 10000);
+  it('should handle errors when Python script is not found', async () => {
+    jest.spyOn(fs, 'existsSync').mockReturnValueOnce(false);
+    
+    await expect(
+      parser.parseFromFile('/path/to/transcript.pdf'),
+    ).rejects.toThrow('Python script not found');
+  });
 
-  it('should use pdf-parse to extract clean text', async () => {
-    const pdfParse = require('pdf-parse');
-    pdfParse.mockClear();
-    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
-    const MockPDFParser = require('pdf2json');
-    const mockInstance = new MockPDFParser();
-    triggerPdf2JsonReady(mockInstance);
-    const mockBuffer = Buffer.from('mock pdf content');
-    await parser.parseFromBuffer(mockBuffer);
-    expect(pdfParse).toHaveBeenCalledWith(mockBuffer);
-    expect(pdfParse).toHaveBeenCalledTimes(1);
-  }, 10000);
+  it('should call Python script with correct file path', async () => {
+    const filePath = '/path/to/transcript.pdf';
+    await parser.parseFromFile(filePath);
+    
+    expect(exec).toHaveBeenCalled();
+    const execCall = exec.mock.calls[0];
+    expect(execCall[0]).toContain('python3');
+    expect(execCall[0]).toContain('transcriptParser.py');
+    expect(execCall[0]).toContain(filePath);
+  });
 
-  it('should use pdf2json to extract structured data', async () => {
-    const writeSpy = jest
-      .spyOn(fs, 'writeFileSync')
-      .mockImplementation(() => {});
-    const MockPDFParser = require('pdf2json');
-    const mockInstance = new MockPDFParser();
-    triggerPdf2JsonReady(mockInstance);
-    const mockBuffer = Buffer.from('mock pdf content');
-    await parser.parseFromBuffer(mockBuffer);
-    expect(MockPDFParser).toHaveBeenCalled();
-    expect(mockInstance.on).toHaveBeenCalledWith(
-      'pdfParser_dataError',
-      expect.any(Function),
-    );
-    expect(mockInstance.on).toHaveBeenCalledWith(
-      'pdfParser_dataReady',
-      expect.any(Function),
-    );
-    expect(mockInstance.loadPDF).toHaveBeenCalledWith(
-      expect.stringMatching(TEMP_PDF_REGEX),
-    );
-    assertTempFileWrite(writeSpy, mockBuffer);
-  }, 10000);
+  it('should parse Python script JSON output correctly', async () => {
+    const mockData = {
+      programInfo: {
+        degree: 'B.Sc., Computer Science',
+        firstTerm: 'Fall 2023',
+      },
+      semesters: [{
+        term: 'Fall 2023',
+        courses: [{ code: 'COMP101', grade: 'A' }],
+      }],
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
+    };
+    
+    mockPythonExecution(mockData);
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    
+    expect(result.programInfo).toBeDefined();
+    expect(result.programInfo.degree).toBe('B.Sc., Computer Science');
+    expect(result.semesters).toHaveLength(1);
+    expect(result.semesters[0].term).toBe('Fall 2023');
+    expect(result.semesters[0].courses).toHaveLength(1);
+    expect(result.semesters[0].courses[0].code).toBe('COMP101');
+    expect(result.semesters[0].courses[0].grade).toBe('A');
+  });
 
-  it('should parse transcript data using hybrid method', async () => {
-    const writeSpy = jest
-      .spyOn(fs, 'writeFileSync')
-      .mockImplementation(() => {});
-    const MockPDFParser = require('pdf2json');
-    const mockInstance = new MockPDFParser();
-    triggerPdf2JsonReady(mockInstance);
-    const mockBuffer = Buffer.from('mock pdf content');
-    const result = await parser.parseFromBuffer(mockBuffer);
-    assertHybridInvocation(mockBuffer);
-    expect(result).toBeValidTranscript({
-      termCount: mockTranscriptData.terms.length,
-      firstTerm: mockTranscriptData.terms[0].term,
+  it('should parse transcript data correctly', async () => {
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    
+    expect(result).toBeValidParsedData({
+      semesterCount: mockTranscriptData.terms.length,
+      firstSemesterTerm: mockTranscriptData.terms[0].term,
     });
-    assertTermBasics(result, 0, mockTranscriptData.terms[0].year);
+    assertSemesterBasics(result, 0, mockTranscriptData.terms[0]);
     assertCourse(
-      result.terms[0].courses[0],
-      mockTranscriptData.terms[0].courses[0],
+      result.semesters[0].courses[0],
+      { code: mockTranscriptData.terms[0].courses[0].courseCode.replace(/\s+/g, ''), grade: mockTranscriptData.terms[0].courses[0].grade },
     );
-    assertStudentInfo(result, mockTranscriptData.studentInfo);
-    assertTransferCredits(result, mockTranscriptData.transferCredits);
-    assertTempFileWrite(writeSpy, mockBuffer);
-  }, 10000);
+    expect(result.programInfo).toBeDefined();
+    expect(result.exemptedCourses).toBeDefined();
+  });
 
-  it('should handle fallback when pdf-parse finds fewer than 5 terms', async () => {
-    const mockPdfParse = jest.fn().mockResolvedValue({
-      text: `Beginning of Undergraduate Record
-      Fall 2023
-      COMP 101 Introduction to Programming
-      Winter 2024
-      MATH 201 Calculus
-      End of Student Record`,
+  it('should extract exempted courses correctly', async () => {
+    mockPythonExecution({
+      programInfo: {},
+      semesters: [],
+      transferedCourses: [],
+      exemptedCourses: ['BIOL201', 'CHEM205', 'MATH201'],
+      deficiencyCourses: [],
     });
-    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
-    jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
-    require('pdf-parse').mockImplementation(mockPdfParse);
-    const MockPDFParser = require('pdf2json');
-    const mockInstance = new MockPDFParser();
-    triggerPdf2JsonReady(mockInstance, {
-      Pages: [{ Texts: [{ y: -10, R: [{ T: 'COMP' }] }] }], // minimal data
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+
+    expect(result.exemptedCourses).toHaveLength(3);
+    expect(result.exemptedCourses[0]).toBe('BIOL201');
+    expect(result.exemptedCourses[1]).toBe('CHEM205');
+    expect(result.exemptedCourses[2]).toBe('MATH201');
+  });
+
+  it('should extract Fall/Winter term format correctly', async () => {
+    mockPythonExecution({
+      programInfo: {},
+      semesters: [
+        {
+          term: 'Fall/Winter 2025-26',
+          courses: [
+            { code: 'SOEN490', grade: 'A' },
+          ],
+        },
+      ],
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
     });
-    const result = await parser.parseFromBuffer(
-      Buffer.from('mock pdf content'),
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+
+    const fallWinterSemester = result.semesters.find(
+      (s) => s.term === 'Fall/Winter 2025-26',
     );
-    expect(mockPdfParse).toHaveBeenCalled();
-    expect(result).toHaveProperty('terms');
-    expect(result.terms.length).toBeGreaterThan(0);
+    expect(fallWinterSemester).toBeDefined();
+    expect(fallWinterSemester.courses.length).toBeGreaterThan(0);
+    expect(fallWinterSemester.courses[0].code).toBe('SOEN490');
+    expect(fallWinterSemester.courses[0].grade).toBe('A');
   });
 
-  it('should handle missing program details gracefully', async () => {
-    const mockPdfParse = jest.fn().mockResolvedValue({
-      text: `Beginning of Undergraduate Record
-      Active in Program
-      Fall 2020
-      Min. Credits Required
-      Fall 2023
-      End of Student Record`,
+  it('should extract semester courses correctly', async () => {
+    mockPythonExecution({
+      programInfo: {},
+      semesters: [
+        {
+          term: 'Winter 2023',
+          courses: [
+            { code: 'COMP249', grade: 'A+' },
+          ],
+        },
+      ],
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
     });
-    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
-    jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
-    require('pdf-parse').mockImplementation(mockPdfParse);
 
-    const MockPDFParser = require('pdf2json');
-    MockPDFParser.mockImplementationOnce(() =>
-      createMockPdfParser(
-        require('./__fixtures__/payloads/programMissingDetailsPayload'),
-      ),
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+
+    expect(result.semesters.length).toBeGreaterThan(0);
+    const winterSemester = result.semesters.find(
+      (s) => s.term === 'Winter 2023',
     );
-
-    const result = await parser.parseFromBuffer(
-      Buffer.from('mock pdf content'),
-    );
-
-    expect(result.programHistory).toHaveLength(1);
-    const program = result.programHistory[0];
-
-    // Use fixture data for verification
-    expect(program).toMatchObject(edgeCaseTranscriptData.programMissingDetails);
+    expect(winterSemester).toBeDefined();
+    expect(winterSemester.courses[0].code).toBe('COMP249');
+    expect(winterSemester.courses[0].grade).toBe('A+');
   });
 
-  it('should handle course parsing courses with other field and minimal fields', async () => {
-    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
-    jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
 
-    const MockPDFParser = require('pdf2json');
-    MockPDFParser.mockImplementationOnce(() =>
-      createMockPdfParser(
-        require('./__fixtures__/payloads/courseWithExtraAndMinimalFieldsPayload'),
-      ),
-    );
-
-    const result = await parser.parseFromBuffer(
-      Buffer.from('mock pdf content'),
+  it('should allow stderr with WARNING', async () => {
+    mockPythonExecution(
+      {
+        programInfo: { degree: 'Test Degree' },
+        semesters: [],
+        transferedCourses: [],
+        exemptedCourses: [],
+        deficiencyCourses: [],
+      },
+      'WARNING: Some warning message',
     );
 
-    expect(result.terms.length).toBeGreaterThan(0);
-    const courses = result.terms.flatMap((t) => t.courses);
-
-    const courseWithOther = courses.find(
-      (c) => c.courseCode === edgeCaseTranscriptData.courseWithOther.courseCode,
-    );
-    expect(courseWithOther).toBeDefined();
-    expect(courseWithOther).toMatchObject(
-      edgeCaseTranscriptData.courseWithOther,
-    );
-
-    const minimalFieldsCourse = courses.find(
-      (c) =>
-        c.courseCode === edgeCaseTranscriptData.minimalFieldsCourse.courseCode,
-    );
-    expect(minimalFieldsCourse).toBeDefined();
-    expect(minimalFieldsCourse).toMatchObject(
-      edgeCaseTranscriptData.minimalFieldsCourse,
-    );
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    expect(result.programInfo.degree).toBe('Test Degree');
   });
 
-  it('should handle course parsing with long title collection limit', async () => {
-    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
-    jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
-
-    const MockPDFParser = require('pdf2json');
-    MockPDFParser.mockImplementationOnce(() =>
-      createMockPdfParser(
-        require('./__fixtures__/payloads/longTitleCoursePayload'),
-      ),
-    );
-
-    const result = await parser.parseFromBuffer(
-      Buffer.from('mock pdf content'),
-    );
-    expect(result.terms.length).toBeGreaterThan(0);
-  });
-
-  it('should handle course with zero grade parsing', async () => {
-    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
-    jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
-
-    const MockPDFParser = require('pdf2json');
-    MockPDFParser.mockImplementationOnce(() =>
-      createMockPdfParser(
-        require('./__fixtures__/payloads/zeroGradeCoursePayload'),
-      ),
-    );
-
-    const result = await parser.parseFromBuffer(
-      Buffer.from('mock pdf content'),
-    );
-
-    expect(result.terms.length).toBeGreaterThan(0);
-    const courses = result.terms.flatMap((t) => t.courses);
-
-    const zeroGradeCourse = courses.find(
-      (c) => c.courseCode === edgeCaseTranscriptData.zeroGradeCourse.courseCode,
-    );
-    expect(zeroGradeCourse).toBeDefined();
-    expect(zeroGradeCourse).toMatchObject(
-      edgeCaseTranscriptData.zeroGradeCourse,
-    );
-  });
-
-  it('should handle PASS/EX grade and program credits', async () => {
-    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
-    jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
-
-    const MockPDFParser = require('pdf2json');
-    MockPDFParser.mockImplementationOnce(() =>
-      createMockPdfParser(
-        require('./__fixtures__/payloads/passExCoursesPayload'),
-      ),
-    );
-
-    const result = await parser.parseFromBuffer(
-      Buffer.from('mock pdf content'),
-    );
-
-    expect(result.terms.length).toBeGreaterThan(0);
-    const courses = result.terms.flatMap((t) => t.courses);
-
-    const passCourse = courses.find(
-      (c) => c.courseCode === edgeCaseTranscriptData.passCourse.courseCode,
-    );
-    expect(passCourse).toBeDefined();
-    expect(passCourse.grade).toBe(edgeCaseTranscriptData.passCourse.grade);
-    assertCourse(passCourse, { gpaDefined: false });
-
-    const exCourse = courses.find(
-      (c) => c.courseCode === edgeCaseTranscriptData.exCourse.courseCode,
-    );
-    expect(exCourse).toBeDefined();
-    expect(exCourse.grade).toBe(edgeCaseTranscriptData.exCourse.grade);
-    assertCourse(exCourse, { gpaDefined: false });
-  });
-
-  it('should handle course with RPT other field', async () => {
-    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
-    jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
-
-    const MockPDFParser = require('pdf2json');
-    MockPDFParser.mockImplementationOnce(() =>
-      createMockPdfParser(require('./__fixtures__/payloads/rptCoursePayload')),
-    );
-
-    const result = await parser.parseFromBuffer(
-      Buffer.from('mock pdf content'),
-    );
-
-    expect(result.terms.length).toBeGreaterThan(0);
-    const courses = result.terms.flatMap((t) => t.courses);
-
-    const rptCourse = courses.find(
-      (c) => c.courseCode === edgeCaseTranscriptData.rptCourse.courseCode,
-    );
-    expect(rptCourse).toBeDefined();
-    expect(rptCourse).toMatchObject(edgeCaseTranscriptData.rptCourse);
-  });
-
-  it('should handle grades with unexpected or malformed values', async () => {
-    jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
-    jest.spyOn(fs, 'unlinkSync').mockImplementation(() => {});
-
-    const MockPDFParser = require('pdf2json');
-    MockPDFParser.mockImplementationOnce(() =>
-      createMockPdfParser(
-        require('./__fixtures__/payloads/malformedGradesPayload'),
-      ),
-    );
-
-    const result = await parser.parseFromBuffer(
-      Buffer.from('mock pdf content'),
-    );
-
-    const courses = result.terms.flatMap((t) => t.courses);
-    expect(courses.length).toBeGreaterThan(0);
-
-    // find courses with malformed grades
-    const expectedMalformedGrades = edgeCaseTranscriptData.malformedGrades;
-    const foundCourses = expectedMalformedGrades.map((expectedCourse) =>
-      courses.find((c) => c.courseCode === expectedCourse.courseCode),
-    );
-    // verify all malformed grade courses exist
-    foundCourses.forEach((course, index) => {
-      expect(course).toBeDefined();
-      expect(course.courseCode).toBe(expectedMalformedGrades[index].courseCode);
+  it('should handle non-Python/PyMuPDF errors', async () => {
+    exec.mockImplementation((command, options, callback) => {
+      const error = new Error('JSON parse error: Unexpected token');
+      if (callback) {
+        callback(null, { stdout: 'invalid json', stderr: '' });
+      } else {
+        return Promise.resolve({ stdout: 'invalid json', stderr: '' });
+      }
     });
-    // verify each course has required properties
-    courses.forEach((course) => {
-      expect(course).toHaveProperty('grade');
-      expect(course).toHaveProperty('courseCode');
-      expect(typeof course.credits).toBe('number');
+
+    await expect(
+      parser.parseFromFile('/path/to/transcript.pdf'),
+    ).rejects.toThrow();
+  });
+
+  it('should handle Python/PyMuPDF related errors', async () => {
+    exec.mockImplementation((command, options, callback) => {
+      const error = new Error('python3: command not found');
+      if (callback) {
+        callback(error, null, 'python3: command not found');
+      } else {
+        return Promise.reject(error);
+      }
     });
-    // verify malformed grades are preserved
-    expectedMalformedGrades.forEach((expectedCourse, index) => {
-      const actualCourse = foundCourses[index];
-      expect(actualCourse.grade).toBe(expectedCourse.grade);
+
+    await expect(
+      parser.parseFromFile('/path/to/transcript.pdf'),
+    ).rejects.toThrow('Python 3 and PyMuPDF are required');
+  });
+
+  it('should handle PyMuPDF import errors', async () => {
+    exec.mockImplementation((command, options, callback) => {
+      const error = new Error('PyMuPDF module not found');
+      if (callback) {
+        callback(error, null, 'PyMuPDF module not found');
+      } else {
+        return Promise.reject(error);
+      }
     });
+
+    await expect(
+      parser.parseFromFile('/path/to/transcript.pdf'),
+    ).rejects.toThrow('Python 3 and PyMuPDF are required');
+  });
+
+  it('should handle missing fields in Python result', async () => {
+    mockPythonExecution({
+      // Missing all fields
+    });
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+
+    expect(result.programInfo).toBeUndefined();
+    expect(result.semesters).toBeUndefined();
+    expect(result.transferedCourses).toBeUndefined();
+    expect(result.exemptedCourses).toBeUndefined();
+    expect(result.deficiencyCourses).toBeUndefined();
+  });
+
+  it('should handle undefined exempted courses', async () => {
+    mockPythonExecution({
+      programInfo: {},
+      semesters: [],
+      transferedCourses: [],
+      exemptedCourses: undefined,
+      deficiencyCourses: [],
+    });
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    expect(result.exemptedCourses).toBeUndefined();
+  });
+
+  it('should handle exempted courses array correctly', async () => {
+    mockPythonExecution({
+      programInfo: {},
+      semesters: [],
+      transferedCourses: [],
+      exemptedCourses: ['COMP101', 'MATH203'],
+      deficiencyCourses: [],
+    });
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    expect(result.exemptedCourses).toHaveLength(2);
+    expect(result.exemptedCourses[0]).toBe('COMP101');
+    expect(result.exemptedCourses[1]).toBe('MATH203');
+  });
+
+  it('should handle semesters with missing fields', async () => {
+    mockPythonExecution({
+      programInfo: {},
+      semesters: [
+        {
+          term: 'Fall 2023',
+          courses: [
+            {
+              code: 'COMP101',
+              // Missing grade
+            },
+            {
+              code: 'COMP202',
+              grade: 'A',
+            },
+          ],
+        },
+      ],
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
+    });
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    expect(result.semesters).toHaveLength(1);
+    expect(result.semesters[0].term).toBe('Fall 2023');
+    expect(result.semesters[0].courses).toHaveLength(2);
+    expect(result.semesters[0].courses[0].code).toBe('COMP101');
+    expect(result.semesters[0].courses[0].grade).toBeUndefined();
+    expect(result.semesters[0].courses[1].code).toBe('COMP202');
+    expect(result.semesters[0].courses[1].grade).toBe('A');
+  });
+
+  it('should handle undefined semesters', async () => {
+    mockPythonExecution({
+      programInfo: {},
+      semesters: undefined,
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
+    });
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    expect(result.semesters).toBeUndefined();
+  });
+
+  it('should handle courses with grade field', async () => {
+    mockPythonExecution({
+      programInfo: {},
+      semesters: [
+        {
+          term: 'Winter 2024',
+          courses: [
+            {
+              code: 'COMP249',
+              grade: 'A+',
+            },
+          ],
+        },
+      ],
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
+    });
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    const course = result.semesters[0].courses[0];
+    expect(course.code).toBe('COMP249');
+    expect(course.grade).toBe('A+');
+  });
+
+  it('should handle semesters with empty courses', async () => {
+    mockPythonExecution({
+      programInfo: {},
+      semesters: [
+        {
+          term: 'Fall 2023',
+          courses: [],
+        },
+      ],
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
+    });
+
+    const result = await parser.parseFromFile('/path/to/transcript.pdf');
+    expect(result.semesters[0].term).toBe('Fall 2023');
+    expect(result.semesters[0].courses).toHaveLength(0);
+  });
+
+  it('should handle error with non-Error object', async () => {
+    exec.mockImplementation((command, options, callback) => {
+      if (callback) {
+        callback('String error', null, '');
+      } else {
+        return Promise.reject('String error');
+      }
+    });
+
+    await expect(
+      parser.parseFromFile('/path/to/transcript.pdf'),
+    ).rejects.toThrow('Failed to parse transcript file');
   });
 });

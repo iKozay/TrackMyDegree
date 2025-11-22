@@ -64,26 +64,28 @@ describe('AcceptanceLetterParser', () => {
 
     const result = parser.parse(mockText);
 
-    // ✅ details assertions
-    expect(result.details.degreeConcentration).toContain('Bachelor of Commerce Major in Marketing');
-    expect(result.details.coopProgram).toBe(true);
-    expect(result.details.extendedCreditProgram).toBe(true);
-    expect(result.details.minimumProgramLength).toBe('90');
-    expect(result.details.startingTerm).toBe('Fall 2023');
-    expect(result.details.expectedGraduationTerm).toBe('Winter 2025');
+    // ✅ programInfo assertions
+    expect(result.programInfo).toBeDefined();
+    expect(result.programInfo.degree).toContain('Bachelor of Commerce Major in Marketing');
+    expect(result.programInfo.isCoop).toBe(true);
+    expect(result.programInfo.isExtendedCreditProgram).toBe(true);
+    expect(result.programInfo.minimumProgramLength).toBe(90);
+    expect(result.programInfo.firstTerm).toBe('Fall 2023');
+    expect(result.programInfo.lastTerm).toBe('Winter 2025');
 
+    // ✅ exempted courses
+    expect(result.exemptedCourses).toEqual(['COMP248', 'MATH203']);
 
-    const exempted = result.extractedCourses.find(c => c.term === 'Exempted');
-    expect(exempted?.courses).toEqual(['COMP248', 'MATH203']);
+    // ✅ deficiency courses
+    expect(result.deficiencyCourses).toEqual(['COMM212']);
 
-    const deficiencies = result.extractedCourses.find(c => c.term === 'Deficiencies');
-    expect(deficiencies?.courses).toEqual(['COMM212']);
+    // ✅ transfered courses
+    expect(result.transferedCourses).toEqual(['ECON201']);
 
-    const transfer = result.extractedCourses.find(c => c.term === 'Transfered Courses');
-    expect(transfer?.courses).toEqual(['ECON201']);
-
- 
-    const generatedTerms = result.extractedCourses.filter(c => c.term.match(/Fall|Winter|Summer/));
+    // ✅ generated semesters
+    expect(result.semesters).toBeDefined();
+    expect(result.semesters.length).toBeGreaterThan(0);
+    const generatedTerms = result.semesters.filter(s => s.term.match(/Fall|Winter|Summer/));
     expect(generatedTerms.length).toBeGreaterThan(0);
   });
 
@@ -91,9 +93,14 @@ describe('AcceptanceLetterParser', () => {
     const text = `Program/Plan(s): Computer Science\nAcademic Load: Full-time`;
     const result = parser.parse(text);
 
-    expect(result.details.degreeConcentration).toContain('Computer Science');
-    expect(result.details.startingTerm).toBeNull();
-    expect(result.details.expectedGraduationTerm).toBeNull();
-    expect(result.extractedCourses).toHaveLength(0);
+    expect(result.programInfo).toBeDefined();
+    expect(result.programInfo.degree).toContain('Computer Science');
+    expect(result.programInfo.firstTerm).toBeUndefined();
+    expect(result.programInfo.lastTerm).toBeUndefined();
+    expect(result.semesters).toBeUndefined();
+    // These fields are always included, even if empty
+    expect(result.exemptedCourses).toEqual([]);
+    expect(result.deficiencyCourses).toEqual([]);
+    expect(result.transferedCourses).toEqual([]);
   });
 });

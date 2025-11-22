@@ -1,74 +1,83 @@
-import { ParsedAcceptanceLetter,AcceptanceDetails } from '../types/transcript'; 
+import { ParsedData } from '../types/transcript'; 
 export class AcceptanceLetterParser {
  
-parse = (text:string):ParsedAcceptanceLetter => {
-  const details :AcceptanceDetails = {
-    degreeConcentration: null,
-    coopProgram: false,
-    extendedCreditProgram: false,
-    startingTerm: null,
-    expectedGraduationTerm: null,
-    minimumProgramLength: null,
-  };
-  const extractedCourses = [];
+parse = (text:string):ParsedData => {
+  const result: ParsedData = {};
+
+  // Extract Program Info
+  const programInfo: any = {};
 
   // Extract Degree Concentration (everything after Program/Plan(s) and before Academic Load)
   const degreeConcentrationMatch = (/^\s*Program\/Plan\(s\):[ \t]*([^\n]*(?:\n(?!\s*Academic\s+Load)[^\n]*)*)/im).exec(text); // NOSONAR
 
   if (degreeConcentrationMatch) {
-    // Combine the two parts (if any) into a single Degree Concentration string
-    details.degreeConcentration = (degreeConcentrationMatch[1] + (degreeConcentrationMatch[2] || '')).trim(); // Add Degree Concentration to details
+    programInfo.degree = (degreeConcentrationMatch[1] + (degreeConcentrationMatch[2] || '')).trim();
   }
+
   // Check for "Co-op Recommendation: Congratulations!"
   if ((/Co-op Recommendation:\s*Congratulations!/).exec(text) || (/Co-op Program/).exec(text)) {
-    details.coopProgram = true;
+    programInfo.isCoop = true;
   }
 
   if ((/Extended Credit Program/).exec(text)) {
-    details.extendedCreditProgram = true;
+    programInfo.isExtendedCreditProgram = true;
   }
+
   // Extract Starting Semester (Term)
-  details.startingTerm = this.extractTermFromText({
+  const startingTerm = this.extractTermFromText({
     text,
     startLabel: 'Session',
     endLabel: 'Minimum Program Length',
   });
+  if (startingTerm) {
+    programInfo.firstTerm = startingTerm;
+  }
+
   // Extract Expected Graduation Term (Winter 2024, Fall/Winter 2023-2024)
-  details.expectedGraduationTerm = this.extractTermFromText({
+  const expectedGraduationTerm = this.extractTermFromText({
     text,
     startLabel: 'Expected Graduation Term',
     endLabel: 'Admission Status',
   });
+  if (expectedGraduationTerm) {
+    programInfo.lastTerm = expectedGraduationTerm;
+  }
 
-  details.minimumProgramLength = (/Minimum Program Length:\s*(\d+)\s*credits?/i).exec(text)?.[1] || null;
+  const minProgramLength = (/Minimum Program Length:\s*(\d+)\s*credits?/i).exec(text)?.[1];
+  if (minProgramLength) {
+    programInfo.minimumProgramLength = parseInt(minProgramLength, 10);
+  }
 
-  // Extract Exempted Courses
+  if (Object.keys(programInfo).length > 0) {
+    result.programInfo = programInfo;
+  }
+
+  // Extract Exempted Courses (always include, even if empty)
   const exemptions = this.getCoursesFromText({ text, startLabel: 'Exemptions:', endLabel: 'Deficiencies:' });
-  if (exemptions.length > 0) extractedCourses.push({ term: 'Exempted', courses: exemptions, grade:'EX' });
+  result.exemptedCourses = exemptions;
 
-  // Extract Deficiency Courses
+  // Extract Deficiency Courses (always include, even if empty)
   const deficiencies = this.getCoursesFromText({ text, startLabel: 'Deficiencies:', endLabel: 'Transfer Credits:' });
-  if (deficiencies.length > 0) extractedCourses.push({ term: 'Deficiencies', courses: deficiencies, grade:'DF' });
+  result.deficiencyCourses = deficiencies;
 
-  // Extract Transfer Credits
+  // Extract Transfer Credits (always include, even if empty)
   const transferCredits = this.getCoursesFromText({
     text,
     startLabel: 'Transfer Credits:',
     endLabel: 'ADDITIONAL INFORMATION',
   });
-  if (transferCredits.length > 0) extractedCourses.push({ term: 'Transfered Courses', courses: transferCredits, grade: 'TR' });
+  result.transferedCourses = transferCredits;
 
-  // Generate all terms from startingTerm to expectedGraduationTerm
-  const terms = this.generateTerms(details.startingTerm, details.expectedGraduationTerm);
-  terms.forEach((term:string) => {
-    extractedCourses.push({
+  // Generate semesters from startingTerm to expectedGraduationTerm
+  const terms = this.generateTerms(startingTerm, expectedGraduationTerm);
+  if (terms.length > 0) {
+    result.semesters = terms.map((term: string) => ({
       term: term.trim(),
-      course: '',
-      grade: null,
-    });
-  });
+      courses: [] // Empty courses array for generated terms
+    }));
+  }
 
-  return { extractedCourses, details };
+  return result;
 };
    //Helper function to extract courses between two labels (text markers in the document that indicate the start and end of a section)
 private getCoursesFromText({
