@@ -83,8 +83,19 @@ router.post('/refresh', async (req: Request, res: Response) => {
         .json({ error: 'User does not exist' });
     }
 
-    const newAccessToken = jwtService.generateToken(payload);
-    const newRefreshToken = jwtService.generateToken(payload, true);
+    const newAccessToken = jwtService.generateToken({
+      orgId: payload.orgId,
+      userId: payload.userId,
+      type: payload.type,
+    });
+    const newRefreshToken = jwtService.generateToken(
+      {
+        orgId: payload.orgId,
+        userId: payload.userId,
+        type: payload.type,
+      },
+      true,
+    );
 
     const accessCookie = jwtService.setAccessCookie(newAccessToken);
     const refreshCookie = jwtService.setRefreshCookie(newRefreshToken);
