@@ -1,0 +1,1778 @@
+{
+  "jobId": "d0fc63d4-2694-4899-8f90-691daf90882f",
+  "status": "done",
+  "result": {
+    "degree": {
+      "name": "BEng in Software Engineering",
+      "totalCredits": 120,
+      "coursePools": [
+        "Engineering Core",
+        "Software Engineering Core",
+        "Computer Science Group: Software Engineering",
+        "Engineering and Natural Science Group: Software Engineering",
+        "Software Engineering Electives"
+      ]
+    },
+    "pools": [
+      {
+        "name": "Engineering Core",
+        "creditsRequired": 30.5,
+        "courses": [
+          "ELEC 275",
+          "ENCS 282",
+          "ENGR 201",
+          "ENGR 202",
+          "ENGR 213",
+          "ENGR 233",
+          "ENGR 301",
+          "ENGR 371",
+          "ENGR 391",
+          "ENGR 392"
+        ]
+      },
+      {
+        "name": "Software Engineering Core",
+        "creditsRequired": 47.5,
+        "courses": [
+          "SOEN 228",
+          "SOEN 287",
+          "SOEN 321",
+          "SOEN 331",
+          "SOEN 341",
+          "SOEN 342",
+          "SOEN 343",
+          "SOEN 345",
+          "SOEN 357",
+          "SOEN 363",
+          "SOEN 384",
+          "SOEN 390",
+          "SOEN 490"
+        ]
+      },
+      {
+        "name": "Computer Science Group: Software Engineering",
+        "creditsRequired": 23,
+        "courses": [
+          "COMP 232",
+          "COMP 248",
+          "COMP 249",
+          "COMP 335",
+          "COMP 346",
+          "COMP 348",
+          "COMP 352"
+        ]
+      },
+      {
+        "name": "Engineering and Natural Science Group: Software Engineering",
+        "creditsRequired": 3,
+        "courses": ["ENGR 245", "MIAE 221"]
+      },
+      {
+        "name": "Software Engineering Electives",
+        "creditsRequired": 16,
+        "courses": [
+          "AERO 480",
+          "AERO 482",
+          "COEN 320",
+          "COMP 333",
+          "COMP 339",
+          "COMP 345",
+          "COMP 371",
+          "COMP 376",
+          "COMP 425",
+          "COMP 426",
+          "COMP 428",
+          "COMP 432",
+          "COMP 433",
+          "COMP 438",
+          "COMP 442",
+          "COMP 444",
+          "COMP 445",
+          "COMP 451",
+          "COMP 465",
+          "COMP 472",
+          "COMP 473",
+          "COMP 474",
+          "COMP 475",
+          "COMP 476",
+          "COMP 477",
+          "COMP 478",
+          "COMP 479",
+          "COMP 498",
+          "COMP 499",
+          "SOEN 298",
+          "SOEN 344",
+          "SOEN 387",
+          "SOEN 422",
+          "SOEN 423",
+          "SOEN 448",
+          "SOEN 471",
+          "SOEN 487",
+          "SOEN 491",
+          "SOEN 498",
+          "SOEN 499",
+          "ENGR 411"
+        ]
+      },
+      {
+        "name": "Others",
+        "creditsRequired": 0,
+        "courses": ["Cegep Mathematics 103"]
+      }
+    ],
+    "semesters": {
+      "FALL 2025": ["ENGR 213"],
+      "WINTER 2025": [],
+      "SUMMER 2025": [],
+      "FALL 2026": [],
+      "WINTER 2026": [],
+      "SUMMER 2026": [],
+      "FALL 2027": [],
+      "WINTER 2027": [],
+      "SUMMER 2027": [],
+      "FALL 2028": [],
+      "WINTER 2028": [],
+      "SUMMER 2028": [],
+      "FALL 2029": [],
+      "WINTER 2029": []
+    },
+    "courses": {
+      "SOEN 228": {
+        "id": "SOEN 228",
+        "title": "System Hardware",
+        "credits": 4,
+        "description": "This course covers the following topics: Boolean Algebra, Digital logic and the design of logic circuits; CPU design; addressing modes; instruction sets and sequencing; design of datapath and control units; memory systems and types; cache memory levels; I/O devices and their interconnection to the CPU; assembly language, and Interrupts.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["MATH 203", "Cegep Mathematics 103"]
+          },
+          {
+            "anyOf": ["MATH 204", "Cegep Mathematics 105"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 287": {
+        "id": "SOEN 287",
+        "title": "Web Programming",
+        "credits": 3,
+        "description": "This course covers the following topics: internet architecture and protocols; web applications through clients and servers; modern HTML and CSS; client-side programming using modern Java Script and an overview of the advantages of some common modern Java Script libraries; Regular Expressions; static website contents and dynamic page generation through server-side programming; preserving state (client-side) in web applications; deploying static and dynamic websites and content management systems vs. website deployment.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 248"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 321": {
+        "id": "SOEN 321",
+        "title": "Information Systems Security",
+        "credits": 3,
+        "description": "This course covers the following topics: introduction to cryptography and cryptanalysis; threats, attacks, and vulnerabilities; security services (confidentiality, authentication, integrity); public key systems including Diffie-Hellman, RSA, Rabin; Digital Signature Schemes; Hash functions and MAC schemes; authentication protocols; network layers and security; protocols; Public Key Infrastructure (PKI); Transport Layer Security (TLS); firewalls; Intrusion Detection Systems; DNS security; Denial of Service Attacks; Penetration testing; Online Privacy and anonymity; Mix networks and Onion Routing; TOR; Malware; Botnets; Spam and Hot topics in Security and Privacy.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 346", "COEN 346"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 331": {
+        "id": "SOEN 331",
+        "title": "Formal Methods for Software Engineering",
+        "credits": 3,
+        "description": "This course covers the following topics: property-based (axiomatic and algebraic) formalisms and model-based (abstract and visual) formalisms; axiomatic formalisms with temporal logic, assertions and contracts; algebraic formalisms through algebraic specifications; abstract formalisms through the Z and Object-Z specification languages; visual formalisms through automata (finite state machines and extended finite state machines).",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 232"]
+          },
+          {
+            "anyOf": ["COMP 249"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 341": {
+        "id": "SOEN 341",
+        "title": "Software Process and Practices",
+        "credits": 4,
+        "description": "This course covers the following topics: basic principles of software engineering; introduction to software process, including activities, phases, organization, roles, teamwork, and conflict resolution; notations used in software engineering; software development practices, including documentation, modern version control, review, testing, agile, and continuous integration.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 352", "COEN 352"]
+          },
+          {
+            "anyOf": ["ENCS 282"]
+          }
+        ],
+        "corequisites": [
+          {
+            "anyOf": ["COMP 352", "COEN 352"]
+          },
+          {
+            "anyOf": ["ENCS 282"]
+          }
+        ],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 342": {
+        "id": "SOEN 342",
+        "title": "Software Requirements and Deployment",
+        "credits": 4,
+        "description": "This course covers the following topics: requirements engineering; eliciting and coping with changing and evolving requirements; deployment of a software system under real-life functional and non-functional requirements scenarios; understanding how requirements impact early-stage and deployed software systems through all phases of engineering, including design, implementation, test and verification, deployment, and evolution. A project is required.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["SOEN 341"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 343": {
+        "id": "SOEN 343",
+        "title": "Software Architecture and Design",
+        "credits": 4,
+        "description": "This course covers the following topics: from requirements to design to implementation; planned vs. evolutionary design and refactoring; model-driven design and Unified Modelling Language (UML); structural and behavioural design descriptions and specifications; general and domain-specific design principles, patterns and idioms; introduction to software architecture (styles and view models); design quality; architectural debt; design smells; refactoring Anti-Patterns to Patterns; design rationale.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["SOEN 341"]
+          },
+          {
+            "anyOf": ["SOEN 342"]
+          }
+        ],
+        "corequisites": [
+          {
+            "anyOf": ["SOEN 341"]
+          },
+          {
+            "anyOf": ["SOEN 342"]
+          }
+        ],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 345": {
+        "id": "SOEN 345",
+        "title": "Software Testing, Verification and Quality Assurance",
+        "credits": 4,
+        "description": "This course explores a range of essential testing and development practices, including unit testing, test-driven development, and legacy system testing. Students learn about mocking, dependency injection, and strategies for breaking system dependencies. The course also covers integration and system testing, along with test planning and management, including test prioritization and handling flaky tests. Advanced topics such as static analysis, bisection, fuzzing, and verification are introduced. Additionally, the course delves into continuous integration, continuous delivery, and Dev Ops testing, with a focus on practices like A/B testing.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["SOEN 343"]
+          }
+        ],
+        "corequisites": [
+          {
+            "anyOf": ["SOEN 343"]
+          }
+        ],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 357": {
+        "id": "SOEN 357",
+        "title": "User Interface Design",
+        "credits": 3,
+        "description": "This course covers the following topics: principles, standards and guidelines for user interface design; usability principles and user experience; standards and design rationale for user-centred design; task-centred design; rationalized design; usability engineering; user models; interface design process, including interface requirement gathering, conceptual design and prototyping, and evaluation; usability testing and analytic evaluation; data gathering and analysis techniques for qualitative and quantitative data; interface design documentation; design approaches for touch, gesture-based, and haptic interfaces.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["SOEN 341", "COMP 354"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 363": {
+        "id": "SOEN 363",
+        "title": "Data Systems for Software Engineers",
+        "credits": 3,
+        "description": "This course covers the following topics: introduction to the current data ecosystem; relational databases; key-value databases; document databases; column databases; graph databases; RDF stores; parallel and distributed file systems, data processing engines; data stream analytics; and data infrastructure.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 352"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 384": {
+        "id": "SOEN 384",
+        "title": "Management, Measurement and Quality Control",
+        "credits": 3,
+        "description": "Organization of large software development. Roles of team members, leaders, managers, stakeholders, and users. Tools for monitoring and controlling a schedule. Financial, organizational, human, and computational resources allocation and control. Project and quality reviews, inspections, and walkthroughs. Risk management. Communication and collaboration. Cause and effects of project failure. Project management via the Internet. Quality assurance and control.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["ENCS 282"]
+          },
+          {
+            "anyOf": ["SOEN 341"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 390": {
+        "id": "SOEN 390",
+        "title": "Software Engineering Team Design Project",
+        "credits": 3.5,
+        "description": "Students work in teams to design and implement a software project from requirements provided by the coordinator. Each team will demonstrate the software and the testing of the software, and prepare adequate documentation for it. In addition, each team will generate a report based on the process of development.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["SOEN 345"]
+          },
+          {
+            "anyOf": ["SOEN 357"]
+          }
+        ],
+        "corequisites": [
+          {
+            "anyOf": ["SOEN 345"]
+          },
+          {
+            "anyOf": ["SOEN 357"]
+          }
+        ],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 490": {
+        "id": "SOEN 490",
+        "title": "Capstone Software Engineering Design Project",
+        "credits": 6,
+        "description": "Students work in teams of at least four members to construct a significant software application. The class meets at regular intervals. Team members will give a presentation of their contribution to the project.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["SOEN 390"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 232": {
+        "id": "COMP 232",
+        "title": "Mathematics for Computer Science",
+        "credits": 3,
+        "description": "Sets. Propositional logic and predicate calculus. Functions and relations. Elements of number theory. Mathematical reasoning. Proof techniques: direct proof, indirect proof, proof by contradiction, proof by induction.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["MATH 203", "Cegep Mathematics 103", "NYA"]
+          },
+          {
+            "anyOf": ["MATH 204", "Cegep Mathematics 105", "NYC"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 248": {
+        "id": "COMP 248",
+        "title": "Object-Oriented Programming I",
+        "credits": 3.5,
+        "description": "Introduction to programming. Basic data types, variables, expressions, assignments, control flow. Classes, objects, methods. Information hiding, public vs. private visibility, data abstraction and encapsulation. References. Arrays.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["MATH 204", "Cegep Mathematics 105", "NYC"]
+          }
+        ],
+        "corequisites": [
+          {
+            "anyOf": ["MATH 204", "Cegep Mathematics 105", "NYC"]
+          }
+        ],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 249": {
+        "id": "COMP 249",
+        "title": "Object-Oriented Programming II",
+        "credits": 3.5,
+        "description": "Design of classes. Inheritance. Polymorphism. Static and dynamic binding. Abstract classes. Exception handling. File I/O. Recursion. Interfaces and inner classes. Graphical user interfaces. Generics. Collections and iterators.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["MATH 205", "Cegep Mathematics 203", "NYB"]
+          }
+        ],
+        "corequisites": [
+          {
+            "anyOf": ["MATH 205", "Cegep Mathematics 203", "NYB"]
+          }
+        ],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 335": {
+        "id": "COMP 335",
+        "title": "Introduction to Theoretical Computer Science",
+        "credits": 3,
+        "description": "This course covers the following topics: finite state automata and regular languages; push - down automata and context - free languages; pumping lemmas; applications to parsing; Turing machines; undecidability and decidability.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 232", "COEN 231"]
+          },
+          {
+            "anyOf": ["COMP 249", "COEN 244"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 346": {
+        "id": "COMP 346",
+        "title": "Operating Systems",
+        "credits": 4,
+        "description": "Fundamentals of operating system functionalities, design and implementation. Multiprogramming: processes and threads, context switching, queuing models and scheduling. Interprocess communication and synchronization. Principles of concurrency. Synchronization primitives. Deadlock detection and recovery, prevention and avoidance schemes. Memory management. Device management. File systems. Protection models and schemes.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 228", "SOEN 228"]
+          },
+          {
+            "anyOf": ["COMP 352"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 348": {
+        "id": "COMP 348",
+        "title": "Principles of Programming Languages",
+        "credits": 3,
+        "description": "The course discusses the design, efficiency, and implementation of programming languages. A comparison of common high-level programming paradigms, including both imperative and functional approaches, is provided. Core language features such as binding, visibility, and scope are evaluated across a set of current and historical languages. In addition, statically constrained typing and memory management models are compared to dynamic run-time alternatives, with an emphasis on the trade-offs between flexibility and performance.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 249"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 352": {
+        "id": "COMP 352",
+        "title": "Data Structures and Algorithms",
+        "credits": 3,
+        "description": "Abstract data types: stacks and queues, trees, priority queues, dictionaries. Data structures: arrays, linked lists, heaps, hash tables, search trees. Design and analysis of algorithms: asymptotic notation, recursive algorithms, searching and sorting, tree traversal, graph algorithms.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 232"]
+          }
+        ],
+        "corequisites": [
+          {
+            "anyOf": ["COMP 232"]
+          }
+        ],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "ENGR 245": {
+        "id": "ENGR 245",
+        "title": "Mechanical Analysis",
+        "credits": 3,
+        "description": "This course covers the following topics: forces in a plane and in space, moments of forces, rigid bodies in equilibrium, and free-body diagram; centroids and centres of gravity; distributed forces and moments of inertia; principle of virtual work; kinematics of particles and rigid bodies; forces and accelerations; work and energy; kinetics of particles and rigid bodies.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["ENGR 213"]
+          }
+        ],
+        "corequisites": [
+          {
+            "anyOf": ["ENGR 213"]
+          }
+        ],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "MIAE 221": {
+        "id": "MIAE 221",
+        "title": "Materials Science",
+        "credits": 3,
+        "description": "This course focuses on relationships between properties and internal structure, atomic bonding; molecular, crystalline and amorphous structures, crystalline imperfections and mechanisms of structural change; microstructures and their development from phase diagrams; structures and mechanical properties of polymers and ceramics; thermal and optical properties of materials.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["CHEM 205 (Cegep Chemistry 101)"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "AERO 480": {
+        "id": "AERO 480",
+        "title": "Flight Control Systems",
+        "credits": 3.5,
+        "description": "Basic flight control and flight dynamics principles. Aircraft dynamic equations and performance data. Implementation of aircraft control: control surfaces and their operations, development of thrust and its control; autopilot systems, their algorithms, dynamics and interaction problems. Flight instruments, principles of operation and dynamics. Cockpit layouts — basic configuration, ergonomic design, control field forces; advanced concepts in instruments, avionics and displays; HUD; flight management systems, and communication equipment. Introduction to flight simulation: overview of visual, audio and motion simulator systems; advanced concepts in flight simulators.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["AERO 371", "ELEC 372", "MECH 371", "SOEN 385"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "AERO 482": {
+        "id": "AERO 482",
+        "title": "Avionic Navigation Systems",
+        "credits": 3,
+        "description": "Basics of modern electronic navigation systems, history of air navigation, earth coordinate and mapping systems; basic theory and analysis of modern electronic navigation instrumentation, communication and radar systems, approach aids, airborne systems, transmitters and antenna coverage; noise and losses, target detection, digital processing, display systems and technology; demonstration of avionic systems using flight simulator.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["ENGR 371", "COMP 233"]
+          },
+          {
+            "anyOf": ["AERO 371", "ELEC 372", "MECH 370", "SOEN 385"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COEN 320": {
+        "id": "COEN 320",
+        "title": "Introduction to Real-Time Systems",
+        "credits": 3.5,
+        "description": "This course covers the fundamentals of real-time systems, which include their definitions, requirements, design issues, and applications. It also covers the critical features of real-time operating systems (RTOS), such as multi-tasking, process management, scheduling of periodic, aperiodic, and sporadic tasks, interprocess communication and synchronization, real-time memory management, clocks and timers, interrupts and exceptions handling, message queues, and asynchronous input/output. Students learn how to program POSIX real-time, periodic, aperiodic, and sporadic threads by using concurrent programming languages and a real-time development environment. Moreover, this course covers real-time uniprocessor scheduling policies: static vs. dynamic, pre-emptive vs. non-pre-emptive scheduling algorithms, and some specific techniques — rate-monotonic, earliest-deadline-first, deadline monotonic, least-laxity-time-first; clock-driven scheduling. Techniques used to design, model, and specify real-time systems, such as finite state machines, UML state machines, and Petri and Timed Petri Networks, are introduced. This course also introduces reliability and fault-tolerance in real-time systems and presents some case studies of RTOS — QNX, Vx Works, and research prototypes.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COEN 346", "COMP 346"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 333": {
+        "id": "COMP 333",
+        "title": "Data Analytics",
+        "credits": 4,
+        "description": "This course introduces the process of data analytics with the aid of examples from several disciplines. It covers data wrangling: extract-transform-load (ETL), cleaning, structuring, integration; data analytics activities: description, prescription, modelling, simulation, optimization, storytelling; and the Python ecosystem: language, libraries, and Jupyter environment.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 233", "ENGR 371"]
+          },
+          {
+            "anyOf": ["COMP 352"]
+          },
+          {
+            "anyOf": ["ENCS 282"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 339": {
+        "id": "COMP 339",
+        "title": "Combinatorics",
+        "credits": 3,
+        "description": "General principles of counting, permutations, combinations, identities, partitions, generating functions, Fibonacci numbers, Stirling numbers, Catalan numbers, principle of inclusion-exclusion. Graphs, subgraphs, isomorphism, Euler graphs, Hamilton paths and cycles, planar graphs, Kuratowski's Theorem, trees, colouring, 5-colour theorem, matching, Hall's theorem.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 232"]
+          },
+          {
+            "anyOf": [
+              "students must complete have completed 18 credits in post-Cegep Mathematics pri",
+              "to enrolling"
+            ]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 345": {
+        "id": "COMP 345",
+        "title": "Advanced Program Design with C++",
+        "credits": 4,
+        "description": "Introduction to C++. I/O with stream classes. Pointers and their uses. The Standard Template Library (STL): containers, algorithms, iterators, adaptors, function objects. Class design: constructors, destructors, operator overloading, inheritance, virtual functions, exception handling, memory management. Advanced topics: libraries, locales, STL conventions, concurrency, template metaprogramming. Applications of C++: systems, engineering, games programming. Project.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 352"]
+          }
+        ],
+        "corequisites": [
+          {
+            "anyOf": ["COMP 352"]
+          }
+        ],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 371": {
+        "id": "COMP 371",
+        "title": "Computer Graphics",
+        "credits": 4,
+        "description": "This course covers the following topics: introduction to computer graphics and graphics hardware; introduction to graphics API and graphics systems architecture; mathematics of 2 D and 3 D transformations and 2 D and 3 D viewing; colour and basic rendering algorithms; visual realism and visibility; illumination and shading and global illumination techniques and textures; introduction to curves and surfaces and 3 D object modelling; introduction to computer animation. This course includes a project.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 232", "COEN 231"]
+          },
+          {
+            "anyOf": ["COMP 352", "COEN 352"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 376": {
+        "id": "COMP 376",
+        "title": "Introduction to Game Development",
+        "credits": 4,
+        "description": "This course introduces students to design and implementation aspects of computer gaming, including topics such as game technologies, basic game design, programming, applied mathematics, storytelling and narratives, and game genres. The course covers virtual environments, 2 D and 3 D game engines, and game development tools. Furthermore, students learn about character development, gameplay strategies, level design in games, and user interfaces. Other topics covered in the course include architecture of game consoles, analog and digital controllers, and the incorporation of graphics, sound, and music in game implementations. During the course, the students develop 2 D and 3 D games. A project is required.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 371"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 425": {
+        "id": "COMP 425",
+        "title": "Computer Vision",
+        "credits": 4,
+        "description": "This course introduces basic techniques and concepts in computer vision including image formation, grouping and fitting, geometric vision, recognition, perceptual organization, and the state-of-the-art software tools. Students learn fundamental algorithms and techniques, and gain experience in programming vision-based components. A project is required.",
+        "offeredIN": [],
+        "prerequisites": [],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 426": {
+        "id": "COMP 426",
+        "title": "Multicore Programming",
+        "credits": 4,
+        "description": "Fundamental concepts of computer architecture. Architecture of the selected multicore platform. Review of shared-memory parallel programming. The difficulties inherent to parallel programming. Scalability of programming models. The stream programming model for multicore. Implicit and explicit threading. Implicit and explicit orchestration of data movement, both on chip and off. Adapting standard algorithms to multicore. Critical assessment of the available system-software support. Project.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 346", "COEN 346"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 428": {
+        "id": "COMP 428",
+        "title": "Parallel Programming",
+        "credits": 4,
+        "description": "Parallel programming techniques as a natural extension to sequential programming. Overview of parallel programming architectures and models. Parallel programming issues: locality, granularity, scheduling, data decomposition and distribution, load balancing, communication and synchronization, determinacy and non-determinacy, cost and performance. Techniques and tools for message-passing parallel programming. Case studies. Project.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 346", "COEN 346"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 432": {
+        "id": "COMP 432",
+        "title": "Machine Learning",
+        "credits": 4,
+        "description": "This course introduces conceptual and practical aspects of machine learning. Concepts include regression, classification, maximum likelihood estimation, discriminative vs. generative modelling, generalization, supervised learning, unsupervised learning, semi-supervised learning and transfer learning. Methods include linear models, mixture models, nearest neighbours, support vector machines, random forests, boosting, and basics of deep learning. A project is required.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 352"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 433": {
+        "id": "COMP 433",
+        "title": "Introduction to Deep Learning",
+        "credits": 4,
+        "description": "This course introduces conceptual and practical aspects of deep learning and their implementation in software. Topics covered include commonly used deep learning model architectures, loss functions, regularization, optimization methods, and a strong emphasis is placed on review of their foundations and use of software tools such as pytorch, jax, and tensorflow to implement and/or apply these models. Applications in computer vision and natural language processing are covered. A final project is required.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 352"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 438": {
+        "id": "COMP 438",
+        "title": "Geometric Modelling and Processing",
+        "credits": 4,
+        "description": "This course exposes students to the geometric modelling pipeline. It includes topics such as efficient mesh data structures such as half-edge and cornertable, digital differential geometry, spectral mesh processing, discrete modelling tools and analytic modelling tools (B-Splines, Bezier and subdivision surfaces), optimization-driven modelling and simulation, 3 D shape acquisition, 3 D printing and prototyping. Application-related topics are discussed such as smoothing, resampling, compression, as well as deep neural network architectures for geometric data and modelling problems. A project is required.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 352"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 442": {
+        "id": "COMP 442",
+        "title": "Compiler Design",
+        "credits": 4,
+        "description": "Compiler organization and implementation: lexical analysis and parsing, syntax-directed translation, code optimization. Run-time systems. Project.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 228", "SOEN 228", "COEN 311"]
+          },
+          {
+            "anyOf": ["COMP 335"]
+          },
+          {
+            "anyOf": ["COMP 352", "COEN 352"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 444": {
+        "id": "COMP 444",
+        "title": "System Software Design",
+        "credits": 4,
+        "description": "Detailed examination of the design, implementation and system call interface of a contemporary operating system: its kernel, file system, process and thread management including scheduling, file system design and implementation, memory management, device management, I/O management, interprocess communication and synchronization mechanisms, system call interface, interrupt handling, and other advanced issues. Project.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 346"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 445": {
+        "id": "COMP 445",
+        "title": "Data Communication and Computer Networks",
+        "credits": 4,
+        "description": "This course introduces the fundamentals of networking protocols and communication technologies. Topics covered include network architectures and service models, principles behind the design of protocol stacks, local and wide area networks, and the Internet. The course also covers a review of the foundations and performance of application layer protocols, reliable delivery mechanisms, congestion and flow control, control and data planes, routing and switching, error detection and correction, and multiple access protocols. The course includes an introduction to wireless networking and security.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 346"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 451": {
+        "id": "COMP 451",
+        "title": "Database Design",
+        "credits": 4,
+        "description": "Storage management. Buffer management. Data organization. Index structures. Query optimization and execution. Transaction management. Recovery. Concurrency control. Database performance analysis and tuning. New trends in database technology. Project.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 353"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 465": {
+        "id": "COMP 465",
+        "title": "Design and Analysis of Algorithms",
+        "credits": 3,
+        "description": "Order statistics: worst-case, average-case and amortized analysis. Algorithm design techniques: greedy algorithms, dynamic programming. Selected algorithms from graph theory, linear programming, number theory, string matching, and computational geometry. A survey of hard problems, NP-completeness, and approximation algorithms.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 232", "COEN 231"]
+          },
+          {
+            "anyOf": ["COMP 339"]
+          },
+          {
+            "anyOf": ["COMP 352", "COEN 352"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 472": {
+        "id": "COMP 472",
+        "title": "Artificial Intelligence",
+        "credits": 4,
+        "description": "This course initially describes the scope and history of Artificial Intelligence. Then it covers knowledge representation, heuristic search, game playing and planning. Finally, it introduces the topics of machine learning, genetic algorithms and natural language processing. A project is required.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 352", "COEN 352"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 473": {
+        "id": "COMP 473",
+        "title": "Pattern Recognition",
+        "credits": 4,
+        "description": "Preprocessing. Feature extraction and selection. Similarity between patterns and distance measurements. Syntactic and statistical approaches. Clustering analysis. Bayesian decision theory and discriminant functions. Neural networks and machine learning. Applications. Project.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 352"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 474": {
+        "id": "COMP 474",
+        "title": "Intelligent Systems",
+        "credits": 4,
+        "description": "Rule-based expert systems, blackboard architecture, and agent-based. Knowledge acquisition and representation. Uncertainty and conflict resolution. Reasoning and explanation. Design of intelligent systems. Project.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 352", "COEN 352"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 475": {
+        "id": "COMP 475",
+        "title": "Immersive Technologies",
+        "credits": 4,
+        "description": "This course covers the fundamentals of immersive technologies, a brief history and overview of immersive technologies, analyzes case studies of interactive experiences using immersive technologies, and identifies the main challenges of the current state of the art. Furthermore, it covers the basic principles of 3 D graphics for creating virtual assets and environments, and basic concepts and technologies for interaction. A project provides hands-on experience in the design and development of interactive experiences with the user of immersive technologies.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 371"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 476": {
+        "id": "COMP 476",
+        "title": "Advanced Game Development",
+        "credits": 4,
+        "description": "Introduction to advanced aspects of computer games. Game engine design. Artificial Intelligence (AI): non-player character movement, coordinated movement, pathfinding, world representations; decision making; tactical AI, strategic AI, learning in games. Physics-based techniques: collision detection and response. Networked gaming: multi-player games, networking and distributed game design, mobile gaming. Improving realism: cut scenes, 3 D sound. Project.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 361", "ENGR 391"]
+          },
+          {
+            "anyOf": ["COMP 376"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 477": {
+        "id": "COMP 477",
+        "title": "Animation for Computer Games",
+        "credits": 4,
+        "description": "Introduction to the algorithms, data structures, and techniques used in modelling and rendering dynamic scenes. Topics include principles of traditional animation, production pipeline, animation hardware and software, orientation representation and interpolation, modelling physical and articulated objects, forward and inverse kinematics, motion control and capture, key-frame, procedural, and behavioural animation, camera animation, scripting system, and free-form deformation. Project.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 361", "ENGR 391"]
+          },
+          {
+            "anyOf": ["COMP 371"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 478": {
+        "id": "COMP 478",
+        "title": "Image Processing",
+        "credits": 4,
+        "description": "Digital image fundamentals, image transforms (Fourier, Walsh, Haar, Hotelling, wavelet), image enhancement (histogram processing, spatial filtering, high- and low-pass filtering), image restoration, image compression (elements of information theory, image compression models, error-free compression, lossy compression, image compression standards), image segmentation (line detection, Hough transform, edge detection and linking, thresholding, region splitting and merging), representation and description (chain codes, signatures, skeletons, shape descriptors, moments, texture). Project.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 352"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 479": {
+        "id": "COMP 479",
+        "title": "Information Retrieval and Web Search",
+        "credits": 4,
+        "description": "Basics of information retrieval (IR): boolean, vector space and probabilistic models. Tokenization and creation of inverted files. Weighting schemes. Evaluation of IR systems: precision, recall, F-measure. Relevance feedback and query expansion. Application of IR to web search engines: XML, link analysis, Page Rank algorithm. Text categorization and clustering techniques as used in spam filtering. Project.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 233", "ENGR 371"]
+          },
+          {
+            "anyOf": ["COMP 352"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 498": {
+        "id": "COMP 498",
+        "title": "Topics in Computer Science",
+        "credits": 3,
+        "description": "This course may be offered in a given year upon the authorization of the Department. The content may vary from offering to offering and will be chosen to complement the available elective courses.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["Permission of the Department is required"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "COMP 499": {
+        "id": "COMP 499",
+        "title": "Topics in Computer Science with Lab",
+        "credits": 4,
+        "description": "The content may vary from offering to offering and will be chosen to complement the available elective courses.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["Permission of the Department is required"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 298": {
+        "id": "SOEN 298",
+        "title": "System Hardware Lab",
+        "credits": 1,
+        "description": "Digital design exercises including assembly and testing corresponding to the SOEN 228 lab.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": [
+              "Permission of the undergraduate program direct",
+              "is required"
+            ]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 344": {
+        "id": "SOEN 344",
+        "title": "Advanced Software Architecture and Design",
+        "credits": 3,
+        "description": "This course covers the following topics: architectural activities, roles, and deliverables; architectural view models; architectural styles (including client-server, layered, pipes-and-filters, event-based, process control) and frameworks; architectural analysis and the interplay with requirements elicitation; notations for expressing architectural designs, structural and behavioural specifications; from architectural design to detailed design; domain specific architectures and design patterns; evaluation and performance estimation of designs; advanced object-oriented design patterns and idioms.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["SOEN 343"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 387": {
+        "id": "SOEN 387",
+        "title": "Web-Based Enterprise Application Design",
+        "credits": 3,
+        "description": "This course introduces Hypertext Transfer Protocol (HTTP), and client/server and layered architectures for Web-based Enterprise Applications (WEA). The course covers Application, Presentation, Domain and Data Source design patterns. Students learn how to use Java servlets and Java Server Pages. The course also covers authentication, security and transaction processing, as well as system-level testing of web applications.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 353", "SOEN 363"]
+          }
+        ],
+        "corequisites": [
+          {
+            "anyOf": ["COMP 353", "SOEN 363"]
+          }
+        ],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 422": {
+        "id": "SOEN 422",
+        "title": "Embedded Systems and Software",
+        "credits": 4,
+        "description": "This course covers the following topics: embedded computer system architectures; programming of interface and peripheral control registers; analog to digital conversion and motor control using pulse width modulation; interrupts, communication methods and their application to interface control and multi-computer systems; architecture and operating systems of advanced embedded designs; design and testing of integrated systems; advanced topics.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 346"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 423": {
+        "id": "SOEN 423",
+        "title": "Distributed Systems",
+        "credits": 4,
+        "description": "This course covers the following topics: principles of distributed computing including scalability, transparency, concurrency, consistency, fault tolerance, high availability; client-server interaction technologies including interprocess communication, sockets, group communication, remote procedure call, remote method invocation, object request broker, web services; server design techniques including process replication, fault tolerance through passive replication, high availability through active replication, coordination and agreement, transactions and concurrency control.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 346"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 448": {
+        "id": "SOEN 448",
+        "title": "Management of Evolving Systems",
+        "credits": 3,
+        "description": "This course covers the following topics: software maintenance (corrective, perfective, and adaptive); software reuse; construction of reusable software; techniques for reverse engineering and re-engineering software; software development as “growing” software; long-term evolution of existing software systems.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["SOEN 342"]
+          },
+          {
+            "anyOf": ["SOEN 343"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 471": {
+        "id": "SOEN 471",
+        "title": "Big Data Analytics",
+        "credits": 4,
+        "description": "This course focuses on the fundamentals of the big data terminology, concepts and technologies. For the technical aspects of big data management systems, the course focuses on big data engines, programming models and file systems. Specific techniques covered include supervised classification, recommender systems, data clustering, frequent itemsets mining, similarity search, data streams and graph analysis. A project provides extensive hands-on experience.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["COMP 352"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 487": {
+        "id": "SOEN 487",
+        "title": "Web Services and Applications",
+        "credits": 4,
+        "description": "This course covers the following topics: analysis and design of web services and applications; advanced architectures for the design, deployment, and testing of large multi-server web services and applications; Service Oriented Architecture (SOA); Electronic Commerce; security; load balancing; stress testing.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["SOEN 387"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 491": {
+        "id": "SOEN 491",
+        "title": "Software Engineering Project",
+        "credits": 1,
+        "description": "Theoretical or practical project in an advanced topic in software engineering.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": [
+              "Permission of the undergraduate program direct",
+              "is required"
+            ]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 498": {
+        "id": "SOEN 498",
+        "title": "Topics in Software Engineering",
+        "credits": 3,
+        "description": "This course may be offered in a given year upon the authorization of the Department. The content may vary from offering to offering and will be chosen to complement the available elective courses.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": [
+              "Permission of the undergraduate program direct",
+              "is required"
+            ]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "SOEN 499": {
+        "id": "SOEN 499",
+        "title": "Topics in Software Engineering with Lab",
+        "credits": 4,
+        "description": "This course may be offered in a given year upon the authorization of the Department. The content may vary from offering to offering and will be chosen to complement the available elective courses.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["Permission of the Department is required"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "ENGR 411": {
+        "id": "ENGR 411",
+        "title": "Special Technical Report",
+        "credits": 1,
+        "description": "Students must submit a report on a topic related to the students' discipline and approved by the Department. The report must present a review of a current engineering problem, a proposal for a design project, or a current engineering practice.",
+        "offeredIN": [],
+        "prerequisites": [
+          {
+            "anyOf": ["ENCS 282"]
+          }
+        ],
+        "corequisites": [],
+        "status": {
+          "status": "incomplete",
+          "semester": null
+        }
+      },
+      "MATH 203": {
+        "id": "MATH 203",
+        "title": "",
+        "credits": 3,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "Cegep Mathematics 103": {
+        "id": "Cegep Mathematics 103",
+        "title": "",
+        "credits": 3,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "MATH 204": {
+        "id": "MATH 204",
+        "title": "",
+        "credits": 3,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "Cegep Mathematics 105": {
+        "id": "Cegep Mathematics 105",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "COEN 346": {
+        "id": "COEN 346",
+        "title": "",
+        "credits": 3,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "COEN 352": {
+        "id": "COEN 352",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "ENCS 282": {
+        "id": "ENCS 282",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "COMP 354": {
+        "id": "COMP 354",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "NYA": {
+        "id": "NYA",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "NYC": {
+        "id": "NYC",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "MATH 205": {
+        "id": "3",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "Cegep Mathematics 203": {
+        "id": "Cegep Mathematics 203",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "NYB": {
+        "id": "NYB",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "COEN 231": {
+        "id": "COEN 231",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "COEN 244": {
+        "id": "COEN 244",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "COMP 228": {
+        "id": "COMP 228",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "ENGR 213": {
+        "id": "ENGR 213",
+        "title": "",
+        "credits": 3,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "CHEM 205 (Cegep Chemistry 101)": {
+        "id": "CHEM 205 (Cegep Chemistry 101)",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "AERO 371": {
+        "id": "AERO 371",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "ELEC 372": {
+        "id": "ELEC 372",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "MECH 371": {
+        "id": "MECH 371",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "SOEN 385": {
+        "id": "SOEN 385",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "ENGR 371": {
+        "id": "ENGR 371",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "COMP 233": {
+        "id": "COMP 233",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "MECH 370": {
+        "id": "MECH 370",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "students must complete have completed 18 credits in post-Cegep Mathematics pri": {
+        "id": "students must complete have completed 18 credits in post-Cegep Mathematics pri",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "to enrolling": {
+        "id": "to enrolling",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "COEN 311": {
+        "id": "COEN 311",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "COMP 353": {
+        "id": "COMP 353",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "COMP 361": {
+        "id": "COMP 361",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "ENGR 391": {
+        "id": "ENGR 391",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "Permission of the Department is required": {
+        "id": "Permission of the Department is required",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "Permission of the undergraduate program direct": {
+        "id": "Permission of the undergraduate program direct",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      },
+      "is required": {
+        "id": "is required",
+        "title": "",
+        "credits": null,
+        "description": "",
+        "offeredIN": [],
+        "prerequisites": "",
+        "corequisites": "",
+        "status": {
+          "status": "completed",
+          "semester": null
+        }
+      }
+    }
+  }
+}

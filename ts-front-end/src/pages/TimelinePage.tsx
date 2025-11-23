@@ -1,0 +1,84 @@
+import React from "react";
+import { useParams } from "react-router-dom";
+import CoursePool from "../components/CoursePool";
+import SemesterPlanner from "../components/SemesterPlanner";
+import CourseDetails from "../components/CourseDetail";
+import { TimelineHeader } from "../components/TimelineHeader";
+import TimelineDndProvider from "../contexts/timelineDndProvider";
+import { useTimelineState } from "../hooks/useTimelineState";
+import "../styles/timeline.css";
+
+type TimeLinePageRouteParams = {
+  jobId?: string;
+};
+
+const TimeLinePage: React.FC = () => {
+  const { jobId } = useParams<TimeLinePageRouteParams>();
+
+  const { status, state, actions, canUndo, canRedo } = useTimelineState(jobId);
+
+  if (status === "processing") {
+    return <h2>⏳ Loading timeline...</h2>;
+  }
+
+  if (status === "error") {
+    return <h2>❌ Could not load timeline data.</h2>;
+  }
+
+  return (
+    <TimelineDndProvider
+      onMoveFromPoolToSemester={actions.moveFromPoolToSemester}
+      onMoveBetweenSemesters={actions.moveBetweenSemesters}>
+      <div className="app">
+        <TimelineHeader
+          canUndo={canUndo}
+          canRedo={canRedo}
+          onUndo={actions.undo}
+          onRedo={actions.redo}
+          earnedCredits={0} // later: compute from courses
+          totalCredits={120} // from degree.totalCredits
+          onShowInsights={() => {
+            // TODO: open insights modal
+          }}
+          onSave={() => {
+            // TODO: trigger save
+          }}
+        />
+
+        <main className="timeline-main">
+          <aside className="sidebar-left">
+            <CoursePool
+              pools={state.pools}
+              courses={state.courses}
+              onCourseSelect={actions.selectCourse}
+              selectedCourse={state.selectedCourse}
+            />
+          </aside>
+
+          <section className="timeline-section">
+            <SemesterPlanner
+              semesters={state.semesters}
+              courses={state.courses}
+              onCourseSelect={actions.selectCourse}
+              selectedCourse={state.selectedCourse}
+              onRemoveCourse={actions.removeFromSemester}
+            />
+          </section>
+
+          <aside className="sidebar-right">
+            <CourseDetails
+              course={
+                state.selectedCourse
+                  ? state.courses[state.selectedCourse]
+                  : null
+              }
+              courses={state.courses}
+            />
+          </aside>
+        </main>
+      </div>
+    </TimelineDndProvider>
+  );
+};
+
+export default TimeLinePage;
