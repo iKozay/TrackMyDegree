@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../css/Footer.css';
-import { api } from '../api/http-api-client';
+import posthog from 'posthog-js';
 
 const Footer = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -19,15 +19,15 @@ const Footer = () => {
         <div className="overlay" onClick={hidePopup}>
           <div className="popup" onClick={(e) => e.stopPropagation()}>
             <div className="popup-content">
-                  <h3>DISCLAIMER</h3>
-                  <p>
+              <h3>DISCLAIMER</h3>
+              <p>
                 TrackMyDegree🎓 can make mistakes. Please check the important information. Note that this website is an
                 independent helper tool and is not affiliated with Concordia University. It is designed to provide
                 supplementary assistance and should not be solely relied upon for academic or administrative decisions.
-                  </p>
-                  <div className="popup-buttons">
-                    <button onClick={hidePopup}>Acknowledge</button>
-                  </div>
+              </p>
+              <div className="popup-buttons">
+                <button onClick={hidePopup}>Acknowledge</button>
+              </div>
             </div>
           </div>
         </div>
@@ -44,7 +44,7 @@ const Footer = () => {
         </button>
       </p>
 
-      <button className="feedback-button" onClick={redirectToFeedbackPage}>
+      <button className="feedback-button" onClick={() => posthog.surveys.launch()}>
         Submit Feedback!
       </button>
     </footer>
