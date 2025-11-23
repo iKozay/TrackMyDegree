@@ -1,6 +1,6 @@
 // src/components/Navbar.js
 import React, { useContext, useEffect, useRef } from 'react';
-import { useNavigate, NavLink, Link, useLocation } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import { AuthContext } from '../middleware/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -11,14 +11,12 @@ import logo from '../images/trackmydegreelogo.png';
 
 const Navbar = () => {
   const { isLoggedIn, loading, logout, user } = useContext(AuthContext);
-  const navigate = useNavigate();
   const menuRef = useRef(null);
   const location = useLocation();
   const timelineActivePaths = ['/timeline_initial', '/timeline_change'];
 
   const handleLogout = () => {
     logout();
-    navigate('/signin');
   };
 
   const toggleMenu = () => {
@@ -50,9 +48,18 @@ const Navbar = () => {
   return (
     <div ref={menuRef}>
       <nav className="navbar navbar-expand-lg custom-navbar custom-navbar-height custom-navbar-padding">
-        <div className="container-fluid custom-navbar-left-align" style={{ maxWidth: 1280, margin: '0 auto', minWidth: 0 }}>
-          <Link className="navbar-brand custom-navbar-brand-left" to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-            <span className="brand-text" style={{ whiteSpace: 'nowrap' }}>TrackMyDegree</span>
+        <div
+          className="container-fluid custom-navbar-left-align"
+          style={{ maxWidth: 1280, margin: '0 auto', minWidth: 0 }}
+        >
+          <Link
+            className="navbar-brand custom-navbar-brand-left"
+            to="/"
+            style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}
+          >
+            <span className="brand-text" style={{ whiteSpace: 'nowrap' }}>
+              TrackMyDegree
+            </span>
             <img src={logo} alt="TrackMyDegree Logo" className="navbar-logo" />
           </Link>
 
@@ -67,7 +74,9 @@ const Navbar = () => {
           </button>
 
           <div className="collapse navbar-collapse" id="navbarNavAltMarkup" style={{ flex: '1 1 auto', minWidth: 0 }}>
-            <button className="close-nav" onClick={toggleMenu}>&times;</button>
+            <button className="close-nav" onClick={toggleMenu}>
+              &times;
+            </button>
 
             {/* ===== 6 equal columns ===== */}
             <div className="nav-rail" style={{ width: '100%' }}>
@@ -77,53 +86,61 @@ const Navbar = () => {
 
               <NavLink
                 to="/timeline_initial"
-                className={() => 'nav-link rail-link' + (timelineActivePaths.includes(location.pathname) ? ' active' : '')}
+                className={() =>
+                  'nav-link rail-link' + (timelineActivePaths.includes(location.pathname) ? ' active' : '')
+                }
               >
                 Timeline
               </NavLink>
 
-              <NavLink to="/courselist" className={({ isActive }) => 'nav-link rail-link' + (isActive ? ' active' : '')}>
+              <NavLink
+                to="/courselist"
+                className={({ isActive }) => 'nav-link rail-link' + (isActive ? ' active' : '')}
+              >
                 Courses
               </NavLink>
 
-              <NavLink to="/requirements" className={({ isActive }) => 'nav-link rail-link' + (isActive ? ' active' : '')}>
+              <NavLink
+                to="/requirements"
+                className={({ isActive }) => 'nav-link rail-link' + (isActive ? ' active' : '')}
+              >
                 Requirements
               </NavLink>
 
               {/* Column 5 */}
               <div className="rail-cell">
-                {!loading && (
-                  isLoggedIn && user ? (
+                {!loading &&
+                  (isLoggedIn && user ? (
                     <Link to="/user" className="user-link">
                       <button className="navbar-user rail-btn">
                         <img src={userIcon} alt="User Icon" className="user-icon" />
-                        <span className="user-name" style={{ marginLeft: 6 }}>{user.fullname || 'NULL'}</span>
+                        <span className="user-name" style={{ marginLeft: 6 }}>
+                          {user.fullname || 'NULL'}
+                        </span>
                       </button>
                     </Link>
                   ) : (
                     <Link to="/signin">
                       <button className="navbar-button navbar-button-signin rail-btn">Sign in</button>
                     </Link>
-                  )
-                )}
+                  ))}
               </div>
 
               {/* Column 6 */}
               <div className="rail-cell">
-                {!loading && (
-                  isLoggedIn ? (
-                    <Link to="/signin">
-                      <button className="navbar-user rail-btn" onClick={handleLogout}>
-                        <img src={logoutIcon} alt="Logout Icon" className="logout-icon" />
-                        <span className="user-name" style={{ marginLeft: 4 }}>Log Out</span>
-                      </button>
-                    </Link>
+                {!loading &&
+                  (isLoggedIn ? (
+                    <button className="navbar-user rail-btn" onClick={handleLogout}>
+                      <img src={logoutIcon} alt="Logout Icon" className="logout-icon" />
+                      <span className="user-name" style={{ marginLeft: 4 }}>
+                        Log Out
+                      </span>
+                    </button>
                   ) : (
                     <Link to="/signup">
                       <button className="navbar-button navbar-button-register rail-btn">Register</button>
                     </Link>
-                  )
-                )}
+                  ))}
               </div>
             </div>
 
@@ -133,7 +150,7 @@ const Navbar = () => {
                 onClick={() =>
                   window.open(
                     'https://docs.google.com/forms/d/e/1FAIpQLScr67TcEpPV1wNCTM5H53hPwRgplAvkYmxg72LKgHihCSmzKg/viewform',
-                    '_blank'
+                    '_blank',
                   )
                 }
               >
