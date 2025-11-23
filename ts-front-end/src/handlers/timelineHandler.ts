@@ -44,7 +44,6 @@ export function selectCourse(
   state: TimelineState,
   payload: { courseId: CourseCode | null }
 ): TimelineState {
-  console.log(state);
   return {
     ...state,
     selectedCourse: payload.courseId,

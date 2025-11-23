@@ -477,6 +477,129 @@
   align-items: center;
   gap: 0.5rem; /* space between the two buttons */
 }
+/* Fullscreen center container */
+.planner-fullscreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+/* Card */
+.planner-card {
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 1.25rem;
+  padding: 2rem 2.5rem;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+/* Error variant */
+.planner-card-error {
+  border-color: rgba(127, 29, 29, 0.7); /* maroonish border */
+}
+
+/* Spinner area */
+.planner-spinner-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.planner-spinner-bg {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: radial-gradient(circle, #7f1d1d 0%, #b91c1c 40%, #450a0a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 30px rgba(127, 29, 29, 0.7);
+}
+
+.planner-spinner-icon {
+  width: 28px;
+  height: 28px;
+  color: #fefce8;
+  animation: planner-spin 1s linear infinite;
+}
+
+/* Title + subtitle */
+.planner-title {
+  color: #e5e7eb;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.planner-subtitle {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin-bottom: 1.75rem;
+}
+
+/* Progress bar */
+.planner-progress-bar {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(30, 41, 59, 0.9);
+  overflow: hidden;
+  position: relative;
+}
+
+.planner-progress-inner {
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: inherit;
+  background: linear-gradient(to right, #f97316, #fb923c, #fed7aa);
+  animation: planner-progress 1.2s ease-in-out infinite;
+}
+
+/* Error icon */
+.planner-icon-error {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  margin: 0 auto 1.5rem;
+  background: rgba(127, 29, 29, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f97316;
+}
+
+/* Retry button specific spacing */
+.planner-retry-btn {
+  margin-top: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Animations */
+@keyframes planner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes planner-progress {
+  0% {
+    transform: translateX(-60%);
+  }
+  50% {
+    transform: translateX(10%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
 
 /* Responsive Design */
 @media (max-width: 1200px) {

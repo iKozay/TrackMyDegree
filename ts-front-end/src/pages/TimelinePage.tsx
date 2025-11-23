@@ -6,6 +6,9 @@ import CourseDetails from "../components/CourseDetail";
 import { TimelineHeader } from "../components/TimelineHeader";
 import TimelineDndProvider from "../contexts/timelineDndProvider";
 import { useTimelineState } from "../hooks/useTimelineState";
+import { TimelineLoader } from "../components/TimelineLoader";
+import { TimelineError } from "../components/TimelineError";
+import { useNavigate } from "react-router-dom";
 import "../styles/timeline.css";
 
 type TimeLinePageRouteParams = {
@@ -16,13 +19,16 @@ const TimeLinePage: React.FC = () => {
   const { jobId } = useParams<TimeLinePageRouteParams>();
 
   const { status, state, actions, canUndo, canRedo } = useTimelineState(jobId);
-
+  const navigate = useNavigate();
+  const tryAgain = () => {
+    navigate(`/timeline/${jobId}`);
+  };
   if (status === "processing") {
-    return <h2>⏳ Loading timeline...</h2>;
+    return <TimelineLoader />;
   }
 
   if (status === "error") {
-    return <h2>❌ Could not load timeline data.</h2>;
+    return <TimelineError onRetry={tryAgain} />;
   }
 
   return (
