@@ -40,6 +40,7 @@
     "launch": "yarn build && yarn start",
     "seed": "ts-node -r tsconfig-paths/register controllers/adminController/adminController.ts",
     "test": "jest --coverage --verbose",
+    "test:integration": "jest --config jest.integration.config.js",
     "test:python": "cd python/tests && python3 -m pytest",
     "test:all": "npm test && npm run test:python",
     "lint": "eslint .",
