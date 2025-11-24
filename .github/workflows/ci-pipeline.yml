@@ -9,6 +9,8 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  REGISTRY: ghcr.io
 
 jobs:
   frontend:
@@ -144,7 +146,7 @@ jobs:
   publish-ghcr:
     runs-on: ubuntu-latest
     needs: [sonarcloud]    # only run if tests pass
-    if: ${{ github.ref == 'refs/heads/main' }}  # publish only on main branch
+#    if: ${{ github.ref == 'refs/heads/main' }}  # publish only on main branch
     permissions:
       # Already have read access to contents
       packages: write
@@ -169,7 +171,7 @@ jobs:
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -184,20 +186,10 @@ jobs:
           echo "Chosen version tag: $VERSION_TAG"
 
       - name: Build and Push ${{ matrix.name }} Image
-        run: |
-          IMAGE=${{ steps.version.outputs.image_name }}
-          VERSION_TAG=${{ steps.version.outputs.version_tag }}
-          
-          echo "🔨 Building $IMAGE..."
-          docker build \
-            -t $IMAGE:latest \
-            -t $IMAGE:$VERSION_TAG \
-            ${{ matrix.context }}
-          
-          echo "📦 Pushing $IMAGE..."
-          docker push --all-tags $IMAGE
-          
-          echo "✅ Successfully pushed ${{ matrix.name }} image with tags:"
-          echo "   ✓ $IMAGE:latest"
-          echo "   ✓ $IMAGE:$VERSION_TAG"
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}:latest
+                ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}:${{ steps.version.outputs.version_tag }}
          
