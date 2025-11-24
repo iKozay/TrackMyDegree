@@ -187,7 +187,7 @@ jobs:
           VERSIONED_TAG=${{ env.REGISTRY }}/${REPO_OWNER}/${{ matrix.image }}:${VERSION_TAG}
 
           echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
-          echo "version_tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
+          echo "versioned_tag=${VERSIONED_TAG}" >> $GITHUB_OUTPUT
           
 
       - name: Build and Push ${{ matrix.name }} Image
@@ -197,4 +197,4 @@ jobs:
           push: true
           tags: |
             ${{ steps.version.outputs.latest_tag }}
-            ${{ steps.version.outputs.version_tag }}         
+            ${{ steps.version.outputs.versioned_tag }}         
