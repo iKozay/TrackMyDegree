@@ -1,7 +1,7 @@
 // middleware/uploadWithJobId.ts
 import multer from 'multer';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import type { RequestWithJobId } from './assignJobId';
 
 const uploadDir = './tmp/pdf-uploads';
