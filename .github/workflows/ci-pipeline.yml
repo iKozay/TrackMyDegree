@@ -181,15 +181,20 @@ jobs:
           DATE_TAG=$(TZ='America/New_York' date +%Y%m%d)
           SHORT_SHA=$(git rev-parse --short HEAD)
           VERSION_TAG="${DATE_TAG}-${SHORT_SHA}"
+          # Set OWNER to lowercase
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          LATEST_TAG=${{ env.REGISTRY }}/${REPO_OWNER}/${{ matrix.image }}:latest
+          VERSIONED_TAG=${{ env.REGISTRY }}/${REPO_OWNER}/${{ matrix.image }}:${VERSION_TAG}
 
+          echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
           echo "version_tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
-          echo "Chosen version tag: $VERSION_TAG"
+          
 
       - name: Build and Push ${{ matrix.name }} Image
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.context }}
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}:latest
-                ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ matrix.image }}:${{ steps.version.outputs.version_tag }}
-         
+          tags: |
+            ${{ steps.version.outputs.latest_tag }}
+            ${{ steps.version.outputs.version_tag }}         
