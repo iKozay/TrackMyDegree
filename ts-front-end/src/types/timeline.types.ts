@@ -77,6 +77,11 @@ type Snapshot = {
   semesters: SemesterMap;
 };
 
+type modalState = {
+  open: boolean;
+  type: string;
+};
+
 export interface TimelineState {
   pools: Pool[];
   courses: CourseMap;
@@ -84,6 +89,7 @@ export interface TimelineState {
   selectedCourse: CourseCode | null;
   history: Snapshot[];
   future: Snapshot[];
+  modal: modalState;
 }
 
 import { TimelineActionConstants } from "./actions";
@@ -117,4 +123,8 @@ export type TimelineActionType =
       payload: { courseId: CourseCode; semesterId: SemesterId };
     }
   | { type: typeof TimelineActionConstants.Undo }
-  | { type: typeof TimelineActionConstants.Redo };
+  | { type: typeof TimelineActionConstants.Redo }
+  | {
+      type: typeof TimelineActionConstants.OpenModal;
+      payload: { open: boolean; type: string };
+    };

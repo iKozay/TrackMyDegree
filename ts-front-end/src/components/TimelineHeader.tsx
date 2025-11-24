@@ -64,36 +64,44 @@ const CreditsSummary: React.FC<CreditsSummaryProps> = ({ earned, total }) => (
 );
 
 interface PrimaryActionsProps {
-  onShowInsights?: () => void;
-  onSave?: () => void;
+  onShowInsights?: (open: boolean, type: string) => void;
+  onSave?: (open: boolean, type: string) => void;
 }
 
 const PrimaryActions: React.FC<PrimaryActionsProps> = ({
   onShowInsights,
   onSave,
-}) => (
-  <div className="header-actions">
-    <button className="btn btn-success" onClick={onShowInsights}>
-      <BarChart3 size={16} />
-      Show Insights
-    </button>
+}) => {
+  const handleInsights = () => {
+    if (onShowInsights) onShowInsights(true, "insights");
+  };
+  const handleSave = () => {
+    if (onSave) onSave(true, "save");
+  };
+  return (
+    <div className="header-actions">
+      <button className="btn btn-success" onClick={handleInsights}>
+        <BarChart3 size={16} />
+        Show Insights
+      </button>
 
-    <button className="btn btn-tertiary">
-      <AlertTriangle size={16} />
-      Add Deficiency
-    </button>
+      <button className="btn btn-tertiary">
+        <AlertTriangle size={16} />
+        Add Deficiency
+      </button>
 
-    <button className="btn btn-tertiary">
-      <Plus size={16} />
-      Add Exemption
-    </button>
+      <button className="btn btn-tertiary">
+        <Plus size={16} />
+        Add Exemption
+      </button>
 
-    <button className="btn btn-secondary" onClick={onSave}>
-      <Save size={16} />
-      Save Data
-    </button>
-  </div>
-);
+      <button className="btn btn-secondary" onClick={handleSave}>
+        <Save size={16} />
+        Save Data
+      </button>
+    </div>
+  );
+};
 
 interface TimelineHeaderProps
   extends HistoryControlsProps,

@@ -9,12 +9,14 @@ import {
   removeFromSemester,
   undo,
   redo,
+  openModal,
 } from "../handlers/timelineHandler";
 
 export function timelineReducer(
   state: TimelineState,
   action: TimelineActionType
 ): TimelineState {
+  // TODO : Add more actions like saveTimeLine, addExemption...
   switch (action.type) {
     case TimelineActionConstants.Init: {
       return initTimelineState(state, action.payload);
@@ -37,6 +39,9 @@ export function timelineReducer(
 
     case TimelineActionConstants.Redo:
       return redo(state);
+
+    case TimelineActionConstants.OpenModal:
+      return openModal(state, action.payload);
 
     default:
       return state;

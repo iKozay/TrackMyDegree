@@ -1,6 +1,7 @@
 /**
  * All possible action identifiers for the timeline.
  */
+// TODO : Add more actions Constants...
 export const TimelineActionConstants = {
   Init: "INIT",
   SelectCourse: "SELECT-COURSE",
@@ -9,4 +10,5 @@ export const TimelineActionConstants = {
   RemoveFromSemester: "REMOVE-FROM-SEMESTER",
   Undo: "UNDO",
   Redo: "REDO",
+  OpenModal: "OPEN-MODAL",
 } as const;

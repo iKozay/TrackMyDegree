@@ -6,6 +6,9 @@ type Snapshot = {
   semesters: TimelineState["semesters"];
 };
 
+// TODO : Add more handles saveTimeLine, addExemption...
+// TODO : Create utils functions for non state update
+//  like calculateEarnedCredits... (/utils)
 function createSnapshot(state: TimelineState): Snapshot {
   return {
     courses: state.courses,
@@ -37,6 +40,10 @@ export function initTimelineState(
     selectedCourse: null,
     history: [],
     future: [],
+    modal: {
+      open: false,
+      type: "",
+    },
   };
 }
 
@@ -179,5 +186,15 @@ export function redo(state: TimelineState): TimelineState {
     semesters: next.semesters,
     future: newFuture,
     history: [...state.history, current],
+  };
+}
+
+export function openModal(
+  state: TimelineState,
+  payload: { open: boolean; type: string }
+): TimelineState {
+  return {
+    ...state,
+    modal: { open: payload.open, type: payload.type },
   };
 }

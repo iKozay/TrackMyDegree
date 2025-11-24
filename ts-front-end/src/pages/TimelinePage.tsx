@@ -9,6 +9,7 @@ import { useTimelineState } from "../hooks/useTimelineState";
 import { TimelineLoader } from "../components/TimelineLoader";
 import { TimelineError } from "../components/TimelineError";
 import { useNavigate } from "react-router-dom";
+import { MainModal } from "../components/MainModal";
 import "../styles/timeline.css";
 
 type TimeLinePageRouteParams = {
@@ -20,6 +21,8 @@ const TimeLinePage: React.FC = () => {
 
   const { status, state, actions, canUndo, canRedo } = useTimelineState(jobId);
   const navigate = useNavigate();
+
+  // TO DISCUSS
   const tryAgain = () => {
     navigate(`/timeline/${jobId}`);
   };
@@ -36,6 +39,13 @@ const TimeLinePage: React.FC = () => {
       onMoveFromPoolToSemester={actions.moveFromPoolToSemester}
       onMoveBetweenSemesters={actions.moveBetweenSemesters}>
       <div className="app">
+        {state.modal.open && (
+          <MainModal
+            open={state.modal.open}
+            type={state.modal.type} // "insights" | "exemption"
+            onClose={actions.openModal}
+          />
+        )}
         <TimelineHeader
           canUndo={canUndo}
           canRedo={canRedo}
@@ -43,11 +53,9 @@ const TimeLinePage: React.FC = () => {
           onRedo={actions.redo}
           earnedCredits={0} // later: compute from courses
           totalCredits={120} // from degree.totalCredits
-          onShowInsights={() => {
-            // TODO: open insights modal
-          }}
+          onShowInsights={actions.openModal}
           onSave={() => {
-            // TODO: trigger save
+            // TODO: trigger save actions.saveTimeline
           }}
         />
 

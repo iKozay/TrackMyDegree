@@ -37,6 +37,7 @@ export interface TimelineActions {
   removeFromSemester: (courseId: CourseCode, semesterId: SemesterId) => void;
   undo: () => void;
   redo: () => void;
+  openModal: (open: boolean, type: string) => void;
 }
 
 export interface UseTimelineStateResult {
@@ -54,8 +55,12 @@ const EMPTY_TIMELINE_STATE: TimelineState = {
   selectedCourse: null,
   history: [],
   future: [],
+  modal: {
+    open: false,
+    type: "",
+  },
 };
-
+// TODO : Add more actions like saveTimeLine, addExemption...
 function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
   return {
     initTimelineState(pools, courses, semesters) {
@@ -99,6 +104,12 @@ function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
     redo() {
       dispatch({ type: TimelineActionConstants.Redo });
     },
+    openModal(open, type) {
+      dispatch({
+        type: TimelineActionConstants.OpenModal,
+        payload: { open, type },
+      });
+    },
   };
 }
 
@@ -136,10 +147,11 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
     }
 
     // simple one-shot for now; you can re-add polling if you want
-    const intervalId = setInterval(fetchResult, 1000);
+    fetchResult();
+    // const intervalId = setInterval(fetchResult, 1000);
     return () => {
       isMounted = false;
-      clearInterval(intervalId);
+      // clearInterval(intervalId);
     };
   }, [jobId, initialized, actions]);
 
