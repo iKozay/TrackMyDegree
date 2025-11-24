@@ -146,7 +146,7 @@ jobs:
   publish-ghcr:
     runs-on: ubuntu-latest
     needs: [sonarcloud]    # only run if tests pass
-#    if: ${{ github.ref == 'refs/heads/main' }}  # publish only on main branch
+    if: ${{ github.ref == 'refs/heads/main' }}  # publish only on main branch
     permissions:
       # Already have read access to contents
       packages: write
