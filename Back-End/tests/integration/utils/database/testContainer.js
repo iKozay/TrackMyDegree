@@ -1,5 +1,10 @@
 const { MongoDBContainer } = require('@testcontainers/mongodb');
 const mongoose = require('mongoose');
+/*
+ * Starts a MongoDB test container, connects via mongoose,
+ * and initializes the database schema.
+ * Returns connection info for globalSetup to set MONGODB_URI.
+ */
 
 let mongo;
 
@@ -14,39 +19,33 @@ async function startMongoTestContainer(dbName) {
       .start();
 
     console.log('MongoDB container started successfully');
-    console.log('Container ID:', mongo.getId());
-    console.log('Container name:', mongo.getName());
-
     const host = mongo.getHost();
-    const port = mongo.getMappedPort(27017);
-
-    console.log('Host:', host);
-    console.log('Mapped port:', port);
-
-    const uri = `mongodb://${host}:${port}/${dbName}?directConnection=true`;
-    console.log('Connection URI:', uri);
-
-    process.env.MONGO_URI = uri;
+    const mappedPort = mongo.getMappedPort(27017);
+    const uri = `mongodb://${host}:${mappedPort}/${dbName}?directConnection=true`;
 
     console.log('Attempting to connect to MongoDB...');
-
     await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 30000,
       connectTimeoutMS: 30000,
       socketTimeoutMS: 30000,
       maxPoolSize: 10,
       minPoolSize: 1,
-      directConnection: true
+      directConnection: true,
     });
 
     console.log('MongoDB connected successfully');
-    console.log('Connected to database:', mongoose.connection.db.databaseName);
-
     console.log('Initializing database schema...');
     await initializeDatabaseSchema();
     console.log('Database schema initialized successfully');
 
-    return mongo;
+    // Return connection info that globalSetup expects
+    return {
+      container: mongo,
+      host,
+      port: mappedPort,
+      uri,
+      dbName,
+    };
   } catch (error) {
     console.error('MongoDB container startup failed:', error);
     console.error('Error stack:', error.stack);
@@ -63,29 +62,17 @@ async function startMongoTestContainer(dbName) {
     throw error;
   }
 }
-
+// Initialize database schema by loading models and creating collections
 async function initializeDatabaseSchema() {
   try {
-    // Import models to register them with mongoose
-    const DegreeModule = require('../../../models/degree');
-    const Degree = DegreeModule.Degree || DegreeModule.default || DegreeModule;
+    // Load models once to register schemas
+    const { Degree } = require('../../../../models/degree');
+    const { CoursePool } = require('../../../../models/coursepool');
+    const { Course } = require('../../../../models/course');
+    const { User } = require('../../../../models/user');
+    const { Feedback } = require('../../../../models/feedback');
+    const { Timeline } = require('../../../../models/timeline');
 
-    const CoursePoolModule = require('../../../models/coursepool');
-    const CoursePool = CoursePoolModule.CoursePool || CoursePoolModule.default || CoursePoolModule;
-
-    const CourseModule = require('../../../models/course');
-    const Course = CourseModule.Course || CourseModule.default || CourseModule;
-
-    const UserModule = require('../../../models/user');
-    const User = UserModule.User || UserModule.default || UserModule;
-
-    const FeedbackModule = require('../../../models/feedback');
-    const Feedback = FeedbackModule.Feedback || FeedbackModule.default || FeedbackModule;
-
-    const TimelineModule = require('../../../models/timeline');
-    const Timeline = TimelineModule.Timeline || TimelineModule.default || TimelineModule;
-
-    // Create collections by ensuring indexes (this creates empty collections)
     const models = [CoursePool, Course, Degree, User, Feedback, Timeline];
 
     for (const Model of models) {
@@ -108,7 +95,7 @@ async function initializeDatabaseSchema() {
     throw error;
   }
 }
-
+// Stops the MongoDB test container and disconnects mongoose
 async function stopMongoTestContainer() {
   console.log('Stopping MongoDB test container...');
 
@@ -137,5 +124,4 @@ async function stopMongoTestContainer() {
 module.exports = {
   startMongoTestContainer,
   stopMongoTestContainer,
-  getMongoContainer: () => mongo,
 };

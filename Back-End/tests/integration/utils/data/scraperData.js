@@ -1,7 +1,7 @@
 const { mkdir, writeFile, rm } = require('node:fs/promises');
 const path = require('node:path');
 const os = require('node:os');
-const { degreesURL, runScraper } = require('../../../course-data/Scraping/Scrapers/runScraper');
+const { degreesURL, runScraper } = require('../../../../course-data/Scraping/Scrapers/runScraper');
 /*
  * Utility to scrape degree data and write to temp json files for integration tests to use.
  * Also provides cleanup function to remove temp files after tests complete.
@@ -18,7 +18,7 @@ async function getScraperData() {
   try {
     await mkdir(DEFAULT_TEMP_DIR, { recursive: true });
   } catch (e) {
-    console.error(`[getScraperData] Failed to create temp dir ${DEFAULT_TEMP_DIR}: ${e.message}`);
+    console.error(`Failed to create temp dir ${DEFAULT_TEMP_DIR}: ${e.message}`);
     throw e;
   }
 
@@ -32,13 +32,13 @@ async function getScraperData() {
         await writeFile(file, JSON.stringify(data, null, 2));
         written.push(file);
       } catch (e) {
-        console.error(`[getScraperData] Error getting scrapper data for "${degreeName}": ${e.message}`);
+        console.error(`Error getting scrapper data for "${degreeName}": ${e.message}`);
       }
     })
   );
 
   if (written.length > 0) {
-    console.log(`[getScraperData] Written ${written.length}/${degreeNames.length} files`);
+    console.log(`Written ${written.length}/${degreeNames.length} files`);
   }
 
   return written;
@@ -49,7 +49,7 @@ async function cleanupScraperFiles() {
   try {
     await rm(DEFAULT_TEMP_DIR, { recursive: true, force: true });
   } catch (e) {
-    console.error(`[cleanupScraperFiles] Unexpected removal error for ${DEFAULT_TEMP_DIR}: ${e.message}`);
+    console.error(`Unexpected removal error for ${DEFAULT_TEMP_DIR}: ${e.message}`);
   }
 }
 
