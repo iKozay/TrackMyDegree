@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { User } = require('../../../../models/user');
 const bcrypt = require('bcryptjs');
 /*
-  * Helper that creates a test admin user in the database.
+ * Helper that creates a test admin user in the database.
  */
 const MONGODB_URI = process.env.MONGODB_URI;
 

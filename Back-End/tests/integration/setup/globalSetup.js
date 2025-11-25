@@ -17,7 +17,7 @@ async function globalSetup() {
     console.log('Test MongoDB URI set to:', containerInfo.uri);
 
     // Wait a bit to ensure connection is stable
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => globalThis.setTimeout(resolve, 2000));
 
     // Create test admin user
     await createTestAdminUser();

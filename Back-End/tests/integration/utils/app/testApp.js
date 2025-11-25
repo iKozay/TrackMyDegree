@@ -10,10 +10,10 @@ async function getTestApp() {
     express.application.listen = function patchedListen() {
       if (process.env.NODE_ENV === 'test') {
         const mockServer = {
-          close: cb => cb && cb(),
-          address: () => ({ port: 0 })
+          close: (cb) => cb && cb(),
+          address: () => ({ port: 0 }),
         };
-        global.__SERVER__ = mockServer;
+        globalThis.__SERVER__ = mockServer;
         return mockServer;
       }
       return originalListen.apply(this, arguments);

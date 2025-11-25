@@ -24,13 +24,13 @@ jest.mock('ioredis', () =>
     expire: jest.fn().mockResolvedValue(1),
     quit: jest.fn().mockResolvedValue('OK'),
     on: jest.fn(),
-  }))
+  })),
 );
 
 jest.mock('@sentry/node', () => ({
   init: jest.fn(),
   captureException: jest.fn(),
-  setupExpressErrorHandler: jest.fn(app => app),
+  setupExpressErrorHandler: jest.fn((app) => app),
 }));
 
 jest.mock('bullmq', () => ({

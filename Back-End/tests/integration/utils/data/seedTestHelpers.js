@@ -73,7 +73,7 @@ function logFileProgress(
   poolsCount,
 ) {
   console.log(
-    `[${index + 1}/${totalFiles}] Processing file: ${file}`,
+    `[${index + 1}/${totalFiles}] Processing file: ${file} (ID: ${degreeId}, ${coursesCount} courses, ${poolsCount} pools)`,
   );
 }
 

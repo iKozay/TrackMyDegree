@@ -17,7 +17,6 @@ async function globalTeardown() {
         console.log('Mock server cleanup complete');
       });
     }
-
   } catch (error) {
     console.error('Error during cleanup:', error);
   }
@@ -26,7 +25,7 @@ async function globalTeardown() {
   console.log('Global test container stopped');
 
   // Force exit if needed
-  setTimeout(() => {
+  globalThis.setTimeout(() => {
     process.exit(0);
   }, 2000);
 }

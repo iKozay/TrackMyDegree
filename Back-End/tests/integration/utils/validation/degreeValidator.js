@@ -8,10 +8,10 @@ const {
 } = require('./validationHelpers');
 const { ValidationErrorReporter } = require('./errorReporter');
 /*
-  * Helper functions to validate degree integrity against the database
-  * Ensures that all referenced course pools and courses exist
-  * and that all fields match between the scraped data and the database records
-  * Uses batch queries and lookup maps for efficiency
+ * Helper functions to validate degree integrity against the database
+ * Ensures that all referenced course pools and courses exist
+ * and that all fields match between the scraped data and the database records
+ * Uses batch queries and lookup maps for efficiency
  */
 
 // Main function to validate degree integrity

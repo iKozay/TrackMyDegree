@@ -19,8 +19,8 @@ class ApiClient {
       throw new Error('No cookies found in login response');
     }
 
-    const accessTokenCookie = cookies.find(cookie =>
-      cookie.startsWith('access_token=')
+    const accessTokenCookie = cookies.find((cookie) =>
+      cookie.startsWith('access_token='),
     );
 
     if (!accessTokenCookie) {
@@ -41,9 +41,7 @@ class ApiClient {
   }
 
   async post(endpoint, data = {}, expectedStatus = 200) {
-    const request = require('supertest')(this.app)
-      .post(endpoint)
-      .send(data);
+    const request = require('supertest')(this.app).post(endpoint).send(data);
 
     if (this.authToken) {
       // Use cookie authentication instead of Bearer token
@@ -54,8 +52,7 @@ class ApiClient {
   }
 
   async get(endpoint, expectedStatus = 200) {
-    const request = require('supertest')(this.app)
-      .get(endpoint);
+    const request = require('supertest')(this.app).get(endpoint);
 
     if (this.authToken) {
       // Use cookie authentication instead of Bearer token
