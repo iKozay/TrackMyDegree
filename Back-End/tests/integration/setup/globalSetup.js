@@ -2,7 +2,7 @@ const { startMongoTestContainer } = require('../utils/database/testContainer');
 const { createTestAdminUser } = require('../utils/database/testAccounts');
 
 async function globalSetup() {
-  console.log('Starting global test container...');
+  console.log('\nStarting global test container...');
 
   // Set test envrionment variables
   process.env.NODE_ENV = 'test';
@@ -17,7 +17,7 @@ async function globalSetup() {
     console.log('Test MongoDB URI set to:', containerInfo.uri);
 
     // Wait a bit to ensure connection is stable
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // Create test admin user
     await createTestAdminUser();

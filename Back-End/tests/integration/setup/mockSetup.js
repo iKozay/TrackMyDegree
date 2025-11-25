@@ -32,3 +32,20 @@ jest.mock('@sentry/node', () => ({
   captureException: jest.fn(),
   setupExpressErrorHandler: jest.fn(app => app),
 }));
+
+jest.mock('bullmq', () => ({
+  Queue: jest.fn().mockImplementation(() => ({
+    add: jest.fn().mockResolvedValue({ id: 'test-job-id' }),
+    close: jest.fn().mockResolvedValue(undefined),
+    obliterate: jest.fn().mockResolvedValue(undefined),
+  })),
+  Worker: jest.fn().mockImplementation(() => ({
+    on: jest.fn(),
+    close: jest.fn().mockResolvedValue(undefined),
+    run: jest.fn().mockResolvedValue(undefined),
+  })),
+  QueueEvents: jest.fn().mockImplementation(() => ({
+    on: jest.fn(),
+    close: jest.fn().mockResolvedValue(undefined),
+  })),
+}));

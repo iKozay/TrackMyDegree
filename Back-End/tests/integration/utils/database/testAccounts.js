@@ -29,8 +29,6 @@ async function createTestAdminUser() {
     email: 'admin@test.com',
     password: hashedPassword,
     type: 'admin',
-    isVerified: true,
-    degreeId: null
   });
 
   await adminUser.save();

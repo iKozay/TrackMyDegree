@@ -12,6 +12,7 @@ const DEFAULT_TEMP_DIR = path.join(os.tmpdir(), 'scraper-test-data');
 
 // scrape all degrees and write each JSON to a temp file
 async function getScraperData() {
+  console.log('Getting scraper data...');
   const degreeNames = Object.keys(degreesURL);
   const written = [];
 
