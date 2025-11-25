@@ -1,10 +1,10 @@
 // services/buildTimeline.ts
-
+import { parseDocument } from "@services/parsingService";
 
 type TimelineFileData = {
   type: 'file';
   // eslint-disable-next-line no-undef
-  data: Buffer | Express.Multer.File; // adjust if you only use Buffer
+  data: Buffer;
 };
 
 type TimelineObjectData = {
@@ -20,10 +20,11 @@ export const buildTimeline = async (
 ): Promise<unknown> => {
   const { type, data } = params;
 
-  // here you can branch logic if needed
   if (type === 'file') {
     // data is Buffer | Express.Multer.File
     // parse file and build timeline
+    let parsedData = parseDocument(data)
+    //create timeline using the parsed data
   } else {
     // type === "object" form data
     // data is Record<string, unknown>
