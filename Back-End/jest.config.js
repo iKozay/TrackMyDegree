@@ -56,6 +56,6 @@ module.exports = {
       statements: 0,
     },
   },
-  testPathIgnorePatterns: ['<rootDir>/dist/'],
+  testPathIgnorePatterns: ['<rootDir>/dist/',"/tests/integration/"],
 
 };

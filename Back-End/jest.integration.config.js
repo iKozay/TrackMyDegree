@@ -1,0 +1,42 @@
+module.exports = {
+  rootDir: '.',
+  testEnvironment: 'node',
+  setupFiles: ['<rootDir>/tests/integration/setup/mockSetup.js'],
+  testMatch: ['**/tests/integration/**/*.test.js'],
+  preset: 'ts-jest',
+  moduleNameMapper: {
+    '^@controllers/(.*)$': '<rootDir>/controllers/$1.ts',
+    '^@controllers$': '<rootDir>/controllers/index.ts',
+    '^@routes/(.*)$': '<rootDir>/routes/$1.ts',
+    '^@lib/(.*)$': '<rootDir>/lib/$1.ts',
+    '^@utils/(.*)$': '<rootDir>/utils/$1.ts',
+    '^@middleware/(.*)$': '<rootDir>/middleware/$1.ts',
+    '^@services/(.*)$': '<rootDir>/services/$1.ts',
+    '^@models/(.*)$': '<rootDir>/models/$1.ts',
+    '^@models$': '<rootDir>/models/index.ts',
+    '^@types/(.*)$': '<rootDir>/types/$1.ts'
+  },
+  transform: {
+    '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.test.json', isolatedModules: false }],
+    '^.+\\.js$': 'babel-jest'
+  },
+  transformIgnorePatterns: ['node_modules/(?!(uuid)/)'],
+  moduleFileExtensions: ['ts', 'js', 'json'],
+  globalSetup: '<rootDir>/tests/integration/setup/globalSetup.js',
+  globalTeardown: '<rootDir>/tests/integration/setup/globalTeardown.js',
+  collectCoverageFrom: [
+    'controllers/**/*.ts',
+    'routes/**/*.ts',
+    'middleware/**/*.ts',
+    'models/**/*.ts',
+    'index.ts',
+    '!**/node_modules/**',
+    '!**/*.d.ts',
+    '!**/tests/**'
+  ],
+  coverageDirectory: 'coverage/integration',
+  verbose: true,
+  testTimeout: 600000,
+  forceExit: true,
+  detectOpenHandles: true
+};
