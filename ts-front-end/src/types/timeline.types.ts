@@ -18,7 +18,7 @@ export interface Pool {
   courses: CourseCode[];
 }
 
-export type Term = "FALL" | "WINTER" | "SUMMER";
+export type Term = "FALL" | "WINTER" | "SUMMER"; // TODO: add FALL/WINTER
 export type SemesterId = `${Term} ${number}`; // e.g. "FALL 2025"
 
 export type SemesterMap = Record<SemesterId, CourseCode[]>;
