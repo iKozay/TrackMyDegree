@@ -1,12 +1,10 @@
-import json
 import sys
 import pytest
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 import requests
 import os
-import runpy
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Scrapers')))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 
 class MockCourseDataScraper:
@@ -58,9 +56,11 @@ class DummyResponse:
         self.headers = {"content-type": "text/html; charset=utf-8"}
 
 
-@patch("degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-@patch("degree_data_scraper.engr_general_electives_scraper", new=MockEngrElectivesScraper())
-def test_degree_scraper_structural_integrity(monkeypatch, fake_html, capsys):
+@patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
+@patch("scraper.degree_data_scraper.engr_general_electives_scraper", new=MockEngrElectivesScraper())
+def test_degree_scraper_structural_integrity(monkeypatch, fake_html):
+    from scraper import degree_data_scraper
+    
     fake_url = "http://example.com/fake-degree-page.html"
 
     def mock_get(url, headers=None):
@@ -69,20 +69,21 @@ def test_degree_scraper_structural_integrity(monkeypatch, fake_html, capsys):
     monkeypatch.setattr(requests, "get", mock_get)
     test_args = ["script_name.py", fake_url]
     monkeypatch.setattr(sys, "argv", test_args)
-    scraper_path = os.path.join(os.path.dirname(__file__), '..', 'Scrapers', 'degree_data_scraper.py')
+
+    # Reset global state
+    degree_data_scraper.courses = []
+    degree_data_scraper.course_pool = []
+    degree_data_scraper.degree = {
+        '_id': "",
+        'name': "",
+        'totalCredits': 0,
+        'coursePools': []
+    }
 
     try:
-        runpy.run_path(scraper_path, run_name="__main__")
+        output_data = degree_data_scraper.scrape_degree(fake_url)
     except SystemExit:
-        pass
-
-    captured = capsys.readouterr()
-
-    try:
-        output_data = json.loads(captured.out)
-    except json.JSONDecodeError:
-        assert "Error processing course block" in captured.out
-        return
+        pytest.fail("scrape_degree raised SystemExit")
 
     assert isinstance(output_data, dict)
     assert "degree" in output_data
@@ -98,11 +99,12 @@ def test_degree_scraper_structural_integrity(monkeypatch, fake_html, capsys):
     course_pool = output_data["course_pool"]
     assert isinstance(course_pool, list)
     assert len(course_pool) >= 1
+    # At least one pool should have courses (some pools may be empty after restrictions)
+    assert any(len(pool.get("courses", [])) > 0 for pool in course_pool)
     for pool in course_pool:
         assert isinstance(pool, dict)
         assert isinstance(pool.get("name"), str)
         assert isinstance(pool.get("courses"), list)
-        assert len(pool["courses"]) > 0
 
     courses = output_data["courses"]
     assert isinstance(courses, list)
@@ -113,10 +115,10 @@ def test_degree_scraper_structural_integrity(monkeypatch, fake_html, capsys):
 
 
 
-@patch("degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-@patch("degree_data_scraper.engr_general_electives_scraper", new=MockEngrElectivesScraper())
+@patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
+@patch("scraper.degree_data_scraper.engr_general_electives_scraper", new=MockEngrElectivesScraper())
 def test_handle_engineering_variants(monkeypatch):
-    import degree_data_scraper as s
+    from scraper import degree_data_scraper as s
     s.courses = []
     s.course_pool = [{"name": "Engineering Core", "creditsRequired": 30, "courses": ["ELEC 275", "ENGR 202", "ENGR 392"]}]
     s.degree = {"coursePools": []}
@@ -138,9 +140,9 @@ def test_handle_engineering_variants(monkeypatch):
     assert found
 
 
-@patch("degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
+@patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
 def test_get_courses_both_paths(monkeypatch):
-    import degree_data_scraper as s
+    from scraper import degree_data_scraper as s
     from bs4 import BeautifulSoup
 
     html = """

@@ -9,11 +9,11 @@ package-lock.json
 myenv/
 secrets
 TrackMyDegree.code-workspace
-Back-End/course-data/Scraping/Scrapers/__pycache__
-Back-End/course-data/Scraping/tests/__pycache__
-Back-End/course-data/Scraping/venv
-Back-End/course-data/Scraping/.coverage
-Back-End/course-data/Scraping/coverage.*
 .DS_Store
 .scannerwork
 node_modules/
+python_utils/**/__pycache__/
+python_utils/**/.pytest_cache/
+python_utils/venv/
+python_utils/**/.coverage
+python_utils/**/coverage.*

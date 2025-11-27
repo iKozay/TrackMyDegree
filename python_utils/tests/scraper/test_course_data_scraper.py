@@ -1,14 +1,11 @@
 import pytest
-import re
 from unittest.mock import patch, Mock
 import sys, os
-from requests.exceptions import RequestException
 from bs4 import BeautifulSoup
 
-# Fixes path issues
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Scrapers')))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from course_data_scraper import (
+from scraper.course_data_scraper import (
     extract_course_data, clean_text, fetch_html,
     parse_title_and_credits, split_sections, parse_prereq_coreq
 )
@@ -92,13 +89,13 @@ def make_mock_response(html, status_code=200):
     mock_resp.encoding = 'utf-8'
     return mock_resp
 
-@patch("course_data_scraper.requests.get")
+@patch("scraper.course_data_scraper.requests.get")
 def test_fetch_html_success(mock_get):
     mock_get.return_value = make_mock_response("<html>Test</html>")
     soup = fetch_html("https://dummy.com")
     assert soup.find('html') is not None
 
-@patch("course_data_scraper.requests.get")
+@patch("scraper.course_data_scraper.requests.get")
 def test_fetch_html_failure_status(mock_get):
     mock_get.return_value = make_mock_response("Error", status_code=404)
     soup = fetch_html("https://dummy.com")
@@ -135,7 +132,7 @@ def test_parse_prereq_coreq_coverage_branches(input_text, expected_pre_contains,
     assert expected_co_contains.strip() in coreq
 
 
-@patch("course_data_scraper.fetch_html")
+@patch("scraper.course_data_scraper.fetch_html")
 def test_extract_valid_course(mock_fetch):
     mock_fetch.return_value = make_mock_soup(HTML_VALID)
     result = extract_course_data("SOEN 357", "https://dummy-url.com")
@@ -143,7 +140,7 @@ def test_extract_valid_course(mock_fetch):
     assert "SOEN 287" in result["prerequisites"]
     assert result["credits"] == 3
 
-@patch("course_data_scraper.fetch_html")
+@patch("scraper.course_data_scraper.fetch_html")
 def test_extract_all_courses_any_code(mock_fetch):
     mock_fetch.return_value = make_mock_soup(HTML_MULTIPLE_COURSES)
     global courses
@@ -153,7 +150,7 @@ def test_extract_all_courses_any_code(mock_fetch):
     assert len(result) == 2
 
 
-@patch("course_data_scraper.fetch_html", return_value=None)
+@patch("scraper.course_data_scraper.fetch_html", return_value=None)
 def test_extract_data_fetch_fail(mock_fetch):
     result = extract_course_data("SOEN 999", "https://dummy-url.com")
     assert result is None

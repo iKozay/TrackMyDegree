@@ -1,4 +1,4 @@
-import course_data_scraper
+from . import course_data_scraper
 from bs4 import BeautifulSoup
 from bs4.dammit import EncodingDetector
 from urllib.parse import urljoin

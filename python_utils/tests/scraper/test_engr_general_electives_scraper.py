@@ -1,10 +1,11 @@
 import pytest
 from unittest.mock import patch, MagicMock
-import builtins
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Scrapers')))
-import engr_general_electives_scraper as scraper  # replace with your actual module name
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from scraper import engr_general_electives_scraper as scraper
 
 
 @pytest.fixture(autouse=True)
@@ -42,8 +43,8 @@ def make_fake_tbody(faculty_links1=None, faculty_links2=None, excluded=None):
     return tbody
 
 
-@patch("course_data_scraper.fetch_html")
-@patch("course_data_scraper.extract_course_data")
+@patch("scraper.course_data_scraper.fetch_html")
+@patch("scraper.course_data_scraper.extract_course_data")
 def test_scrape_electives_basic(mock_extract, mock_fetch):
     # Two faculties, each returns a different course
     faculty1 = MagicMock()
@@ -76,7 +77,7 @@ def test_scrape_electives_basic(mock_extract, mock_fetch):
     assert {c["_id"] for c in courses} == {"CS101", "CS102"}
 
 
-@patch("course_data_scraper.fetch_html")
+@patch("scraper.course_data_scraper.fetch_html")
 def test_scrape_electives_empty_tbody(mock_fetch):
     fake_soup = MagicMock()
     fake_soup.find.return_value = fake_soup
@@ -89,8 +90,8 @@ def test_scrape_electives_empty_tbody(mock_fetch):
     assert courses == []
 
 
-@patch("course_data_scraper.fetch_html")
-@patch("course_data_scraper.extract_course_data")
+@patch("scraper.course_data_scraper.fetch_html")
+@patch("scraper.course_data_scraper.extract_course_data")
 def test_scrape_electives_all_excluded(mock_extract, mock_fetch):
     tbody = make_fake_tbody(
         faculty_links1=[],
@@ -109,7 +110,7 @@ def test_scrape_electives_all_excluded(mock_extract, mock_fetch):
     assert courses == []
 
 
-@patch("course_data_scraper.fetch_html")
+@patch("scraper.course_data_scraper.fetch_html")
 def test_scrape_electives_no_faculties(mock_fetch):
     tbody = make_fake_tbody(
         faculty_links1=[],

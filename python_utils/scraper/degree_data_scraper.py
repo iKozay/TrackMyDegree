@@ -1,16 +1,11 @@
 from bs4 import BeautifulSoup
 from bs4.dammit import EncodingDetector
 from urllib.parse import urljoin
-import json
 import requests
 import re
 import sys
-import course_data_scraper
-import engr_general_electives_scraper
-
-#Arguments
-#argv[1] is the url of the page to be scraped for course data
-#argv[2] is for the name of the output files
+from . import course_data_scraper
+from . import engr_general_electives_scraper
 
 # Set a user agent to mimic a real browser
 USERAGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -46,18 +41,18 @@ def get_page(url):
 
 def get_courses(url, pool_name):
     output = []
-    if temp_url in sys.argv[1]:
+    if temp_url in url_received:
         course_list=soup.find('div', class_='defined-group', title=pool_name)
         course_list = course_list.find_all('div', class_="formatted-course")
         for course in course_list:
             output.append(course.find('span', class_="course-code-number").find('a').text)
-            courses.append(course_data_scraper.extract_course_data(course.find('span', class_="course-code-number").find('a').text, urljoin(sys.argv[1],course.find('span', class_="course-code-number").find('a').get('href'))))
+            courses.append(course_data_scraper.extract_course_data(course.find('span', class_="course-code-number").find('a').text, urljoin(url_received,course.find('span', class_="course-code-number").find('a').get('href'))))
     else:
-        page_html=get_page(urljoin(sys.argv[1], url))
+        page_html=get_page(urljoin(url_received, url))
         course_list=page_html.find_all('div', class_="formatted-course")
         for course in course_list:
             output.append(course.find('a').text)
-            courses.append(course_data_scraper.extract_course_data(course.find('a').text, urljoin(sys.argv[1],course.find('span', class_="course-code-number").find('a').get('href'))))
+            courses.append(course_data_scraper.extract_course_data(course.find('a').text, urljoin(url_received,course.find('span', class_="course-code-number").find('a').get('href'))))
     return output
 
 def handle_engineering_core_restrictions(degree_name):
@@ -90,8 +85,11 @@ def handle_engineering_core_restrictions(degree_name):
         return
     # course_pool[0]["name"]=f"({degree_name}) {course_pool[0]["name"]}"
 
-if __name__ == "__main__":
-    soup = get_page(sys.argv[1])
+def scrape_degree(url):
+    global url_received
+    url_received = url
+    global soup
+    soup = get_page(url)
     try:
         #-----------------------Degree----------------------------------------#    
         title = soup.find('div', class_="title program-title").find('h3').text
@@ -107,6 +105,7 @@ if __name__ == "__main__":
         for pool in pools:
             credits = float(pool.find('td').text)
             name = pool.find('a').text
+            global temp_url
             temp_url = pool.find('a').get('href')
             temp_url = re.sub(r'#\d+$', '', temp_url)
             course_list=get_courses(temp_url, name)
@@ -126,9 +125,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     #Output as JSON
-    output={
+    return {
         "degree":degree,
         "course_pool":course_pool,
         "courses":courses
     }
-    sys.stdout.buffer.write(json.dumps(output, ensure_ascii=False).encode('utf-8'))

@@ -2,6 +2,16 @@ version: "3.8"
 
 services:
 
+  python_utils:
+    build:
+      context: ./python_utils
+      dockerfile: Dockerfile
+    container_name: python_utils_service
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
   mongodb:
     image: mongo:latest
     ports:

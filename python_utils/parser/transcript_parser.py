@@ -1,13 +1,10 @@
-#!/usr/bin/env python3
 """
 Python-based transcript parser using PyMuPDF for better PDF parsing.
 This script parses academic transcripts and outputs JSON.
 """
 
-import json
 import sys
 import re
-from pathlib import Path
 from collections import defaultdict
 
 try:
@@ -70,7 +67,7 @@ def is_transfer_credit(course):
     return grade == 'EX' or grade == 'TRC'
 
 
-def parse_transcript(pdf_path):
+def parse_transcript(pdf_bytes):
     """Parse transcript PDF and return unified structured data
     
     Returns:
@@ -101,7 +98,7 @@ def parse_transcript(pdf_path):
     # Track all term GPAs with their positions
     term_gpas = []  # List of dicts with page, y, gpa_value
     
-    doc = fitz.open(pdf_path)
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     
     try:
         # Extract student info and program history from first page
@@ -1113,27 +1110,3 @@ def parse_transcript(pdf_path):
     result['transferedCourses'] = sorted(list(transfered_courses_set)) if transfered_courses_set else []
     
     return result
-
-
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: transcriptParser.py <pdf_path>", file=sys.stderr)
-        sys.exit(1)
-    
-    pdf_path = sys.argv[1]
-    if not Path(pdf_path).exists():
-        print(f"ERROR: File not found: {pdf_path}", file=sys.stderr)
-        sys.exit(1)
-    
-    try:
-        result = parse_transcript(pdf_path)
-        print(json.dumps(result, indent=2))
-    except Exception as e:
-        print(f"ERROR: {str(e)}", file=sys.stderr)
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
-
-
-if __name__ == '__main__':
-    main()
