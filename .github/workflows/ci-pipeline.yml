@@ -86,7 +86,7 @@ jobs:
           name: backend-coverage
           path: Back-End/coverage
 
-  scraper:
+  python-utils:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -94,8 +94,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run scraper tests with coverage
-        working-directory: ./Back-End/course-data/Scraping
+      - name: Run python_utils tests with coverage
+        working-directory: ./python_utils
         run: |
           python3 -m venv venv
           source venv/bin/activate
@@ -104,14 +104,14 @@ jobs:
           coverage xml -o coverage.xml
           deactivate
       
-      - name: Upload scraper coverage artifact
+      - name: Upload python_utils coverage artifact
         uses: actions/upload-artifact@v4
         with:
-          name: scraper-coverage
-          path: Back-End/course-data/Scraping/coverage.xml
+          name: python-utils-coverage
+          path: python_utils/coverage.xml
 
   sonarcloud:
-    needs: [frontend, backend, scraper]
+    needs: [frontend, backend, python-utils]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -131,11 +131,11 @@ jobs:
           name: backend-coverage
           path: Back-End/coverage
 
-      - name: Download scraper coverage artifact (scraper)
+      - name: Download python-utils coverage artifact (python-utils)
         uses: actions/download-artifact@v4
         with:
-          name: scraper-coverage
-          path: Back-End/course-data/Scraping
+          name: python-utils-coverage
+          path: python_utils
 
       - name: Run SonarCloud Scan
         uses: sonarsource/sonarqube-scan-action@v6

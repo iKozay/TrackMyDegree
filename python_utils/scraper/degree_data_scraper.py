@@ -3,7 +3,6 @@ from bs4.dammit import EncodingDetector
 from urllib.parse import urljoin
 import requests
 import re
-import sys
 from . import course_data_scraper
 from . import engr_general_electives_scraper
 
@@ -11,16 +10,19 @@ from . import engr_general_electives_scraper
 USERAGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 headers = {"User-Agent": USERAGENT}
 
-
-# Prepare the list to hold extracted course data
-courses = []
-course_pool=[]
-degree = {
-    '_id':"",
-    'name':"",
-    'totalCredits':0,
-    'coursePools':[]
-}
+def set_data():
+    # Prepare the list to hold extracted course data
+    global courses
+    courses = []
+    global course_pool
+    course_pool=[]
+    global degree
+    degree = {
+        '_id':"",
+        'name':"",
+        'totalCredits':0,
+        'coursePools':[]
+    }
 
 def get_page(url):
     # Fetch the webpage content
@@ -76,16 +78,17 @@ def handle_engineering_core_restrictions(degree_name):
         course_pool[0]["courses"].remove("ELEC 275")
     elif degree_name=="BEng in Electrical Engineering" or degree_name=="BEng in Computer Engineering":
         course_pool[0]["courses"][course_pool[0]["courses"].index("ELEC 275")] = "ELEC 273"
-        courses.append(course_data_scraper.extract_course_data("ELEC 275","https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-60-engineering-course-descriptions/electrical-engineering-courses.html#3940"))
+        courses.append(course_data_scraper.extract_course_data("ELEC 273","https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-60-engineering-course-descriptions/electrical-engineering-courses.html#3940"))
     elif degree_name=="BEng in Building Engineering":
         course_pool[0]["courses"].remove("ENGR 202")
         course_pool[0]["courses"][course_pool[0]["courses"].index("ENGR 392")] = "BLDG 482"
         courses.append(course_data_scraper.extract_course_data("BLDG 482","https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-60-engineering-course-descriptions/building-engineering-courses.html#3750"))
     else:
         return
-    # course_pool[0]["name"]=f"({degree_name}) {course_pool[0]["name"]}"
 
 def scrape_degree(url):
+    set_data()
+
     global url_received
     url_received = url
     global soup
@@ -122,7 +125,7 @@ def scrape_degree(url):
         handle_engineering_core_restrictions(degree["name"])
     except Exception as e:
         print(f"Error processing course block: {e}")
-        sys.exit(1)
+        raise e
 
     #Output as JSON
     return {

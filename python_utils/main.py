@@ -17,7 +17,7 @@ async def parse_transcript_api(file: UploadFile = File(...)):
 	except Exception as e:
 		raise HTTPException(status_code=500, detail=f"Error parsing transcript: {str(e)}")
 	
-	return JSONResponse({"parsed_data": parsed_data}, status_code=200)
+	return parsed_data
 
 @app.get("/scrape-degree")
 async def scrape_degree_api(url: str = Query(..., description="Degree requirements URL")):
@@ -25,8 +25,7 @@ async def scrape_degree_api(url: str = Query(..., description="Degree requiremen
 		degree_data = scrape_degree(url)
 	except Exception as e:
 		raise HTTPException(status_code=500, detail=f"Error scraping degree data: {str(e)}")
-
-	return JSONResponse(degree_data, status_code=200)
+	return degree_data
 
 if __name__ == "__main__":
-	uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)
+	uvicorn.run("main:app", host="0.0.0.0", port=5000, reload=True)
