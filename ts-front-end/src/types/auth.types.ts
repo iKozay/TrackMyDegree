@@ -5,10 +5,6 @@ export type AuthUser = {
   role: string;
 };
 
-export type AuthResponse = {
-  token: string;
-  user: AuthUser;
-};
 export type AuthContextValue = {
   user: AuthUser | null;
   isAuthenticated: boolean;

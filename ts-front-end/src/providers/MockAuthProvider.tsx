@@ -22,14 +22,17 @@ export const MockAuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => clearTimeout(timer);
   }, []);
 
-  const fakeLogin = async (email: string, _password: string) => {
+  const fakeLogin = async (email: string, password: string) => {
     setLoading(true);
+    // password hashing
+    password = "3";
+    console.log(password);
     await new Promise((res) => setTimeout(res, MOCK_DELAY));
 
     const fakeUser: AuthUser = {
       id: "mock-student-1",
       email,
-      name: "Yassine Ibhir",
+      name: "Capstone",
       role: "student", // or "admin" if you want to test admin flows
     };
 

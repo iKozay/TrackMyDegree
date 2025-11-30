@@ -6,7 +6,7 @@ const AdminPage: React.FC = () => {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const fetchTimelines = async () => {
+    const fetchWhatever = async () => {
       try {
         // backend will read the JWT from the cookie
       } catch (err) {
@@ -16,15 +16,15 @@ const AdminPage: React.FC = () => {
       }
     };
 
-    fetchTimelines();
+    fetchWhatever();
   }, [isAuthenticated]);
 
   if (!isAuthenticated) {
-    return <p>Please log in to see your saved timelines.</p>;
+    return <p>Please log in to see your data.</p>;
   }
   return (
     <main style={{ padding: "2rem" }}>
-      <h1>Hello, Student {user?.name} 👋</h1>
+      <h1>Hello, Advisor {user?.name} 👋</h1>
       <p>Welcome to your profile page.</p>
     </main>
   );

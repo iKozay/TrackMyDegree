@@ -1,9 +1,8 @@
 import { useRef, useState } from "react";
 import "../styles/components/UploadBox.css";
 import { useNavigate } from "react-router-dom";
-
-import { api } from '../api/http-api-client.ts';
-
+import type { UploadResponse } from "../types/response.types.ts";
+import { api } from "../api/http-api-client.ts";
 
 const UploadBox = () => {
   const navigate = useNavigate();
@@ -62,8 +61,8 @@ const UploadBox = () => {
     formData.append("file", selectedFile);
 
     try {
-      const response = await api.post("/upload/file", formData);
-      
+      const response = await api.post<UploadResponse>("/upload/file", formData);
+
       if (response.jobId) {
         navigate(`/timeline/${response.jobId}`);
         return;
@@ -72,7 +71,11 @@ const UploadBox = () => {
       alert("Unexpected response from server.");
     } catch (error: unknown) {
       console.error("Error processing file:", error);
-      alert(error instanceof Error ? error.message : "An unknown error occurred while processing file.");
+      alert(
+        error instanceof Error
+          ? error.message
+          : "An unknown error occurred while processing file."
+      );
     }
   };
 
@@ -89,15 +92,14 @@ const UploadBox = () => {
     <>
       <h2>Upload Acceptance Letter or Unofficial Transcript</h2>
       <p>
-        Upload your acceptance letter or your unofficial transcript to automatically fill out the required
-        information
+        Upload your acceptance letter or your unofficial transcript to
+        automatically fill out the required information
       </p>
       <div
         className="upload-box-al"
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
+        onDrop={handleDrop}>
         <p>Drag and Drop file</p>
         or
         <label htmlFor="file-upload" className="file-label">

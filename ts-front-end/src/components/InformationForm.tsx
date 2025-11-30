@@ -2,6 +2,7 @@ import "../styles/TimelineSetupPage.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/http-api-client.ts";
+import type { UploadResponse } from "../types/response.types.ts";
 
 interface Degree {
   _id: string;
@@ -23,11 +24,6 @@ export interface ProgramInfo extends Record<string, unknown> {
   isExtendedCreditProgram?: boolean;
   minimumProgramLength?: number;
 }
-
-type JobResponse = {
-  jobId: string;
-  status: string;
-};
 
 const InformationForm = () => {
   const navigate = useNavigate();
@@ -95,7 +91,7 @@ const InformationForm = () => {
     };
 
     try {
-      const response = await api.post<JobResponse>("/upload/form", formData);
+      const response = await api.post<UploadResponse>("/upload/form", formData);
 
       if (response?.jobId) {
         navigate(`/timeline/${response.jobId}`);

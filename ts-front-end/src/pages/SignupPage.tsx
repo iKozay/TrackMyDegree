@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 
 const SignupPage: React.FC = () => {
   const { signup, loading, isAuthenticated } = useAuth();
+
   const navigate = useNavigate();
   if (loading) return null; // or spinner
   if (isAuthenticated) {

@@ -10,7 +10,8 @@ import LandingPage from "./pages/LandingPage";
 import RequirementPage from "./pages/RequirementPage";
 import CoursePage from "./pages/CoursePage";
 import { Navbar } from "./components/NavBar";
-// import { AuthProvider } from "./contexts/authProvider";
+
+// TODO: import { AuthProvider } from "./contexts/authProvider";
 import { MockAuthProvider } from "./providers/MockAuthProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
 

@@ -25,7 +25,7 @@ const StudentPage: React.FC = () => {
 
   return (
     <main style={{ padding: "2rem" }}>
-      <h1>Hello, Advisor {user?.name} 👋</h1>
+      <h1>Hello, Student {user?.name} 👋</h1>
       <p>Welcome to your profile page.</p>
     </main>
   );
