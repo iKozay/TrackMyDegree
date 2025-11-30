@@ -33,9 +33,10 @@ describe('CourseController', () => {
     });
   });
 
-  describe('createCourse', () => {
-    it('should create a new course', async () => {
-      const courseData = {
+  describe('bulkCreateCourses', () => {
+    it('should create multiple courses in bulk', async () => {
+      const courseData = [
+        {
         _id: 'COMP101',
         title: 'Introduction to Programming',
         description: 'Basic programming concepts',
@@ -43,19 +44,34 @@ describe('CourseController', () => {
         offeredIn: ['Fall', 'Winter'],
         prerequisites: ['MATH101'],
         corequisites: [],
-      };
+      },
+      {
+        _id: 'COMP102',
+        title: 'Introduction to Programming 2',
+        description: 'Basic programming concepts',
+        credits: 3,
+        offeredIn: ['Fall', 'Winter'],
+        prerequisites: ['MATH102'],
+        corequisites: [],
+      }];
 
-      const result = await courseController.createCourse(courseData);
+      const result = await courseController.bulkCreateCourses(courseData);
       expect(result).toBe(true);
+
+      const createdCourses = await Course.find({});
+      expect(createdCourses).toHaveLength(2);
+      expect(createdCourses[0]).toMatchObject(courseData[0]);
+      expect(createdCourses[1]).toMatchObject(courseData[1]);
     });
 
     it('should handle database errors', async () => {
       // Mock create to throw an error
-      const originalCreate = courseController.create;
-      courseController.create = jest.fn().mockImplementation(() => {
+      const originalBulkWrite = courseController.bulkWrite;
+      courseController.bulkWrite = jest.fn().mockImplementation(() => {
         throw new Error('Database connection failed');
       });
-      const courseData = {
+            const courseData = [
+        {
         _id: 'COMP101',
         title: 'Introduction to Programming',
         description: 'Basic programming concepts',
@@ -63,13 +79,24 @@ describe('CourseController', () => {
         offeredIn: ['Fall', 'Winter'],
         prerequisites: ['MATH101'],
         corequisites: [],
-      };
+      },
+      {
+        _id: 'COMP102',
+        title: 'Introduction to Programming 2',
+        description: 'Basic programming concepts',
+        credits: 3,
+        offeredIn: ['Fall', 'Winter'],
+        prerequisites: ['MATH102'],
+        corequisites: [],
+      }];
+
 
       await expect(
-        courseController.createCourse(courseData),).rejects.toThrow('Database connection failed');
+        courseController.bulkCreateCourses(courseData),
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
-      courseController.create = originalCreate;
+      courseController.bulkWrite = originalBulkWrite;
     });
   });
 

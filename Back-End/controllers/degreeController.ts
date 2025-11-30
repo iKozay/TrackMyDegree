@@ -1,6 +1,5 @@
 import { BaseMongoController } from './baseMongoController';
 import { Degree } from '@models';
-import * as Sentry from '@sentry/node';
 
 export interface DegreeData {
   _id: string;
@@ -36,21 +35,23 @@ export class DegreeController extends BaseMongoController<any> {
   /**
    * Create a new degree
    */
-  async createDegree(degreeData: DegreeData): Promise<DegreeData> {
+  async createDegree(degreeData: DegreeData): Promise<boolean> {
     try {
+      // Check if degree with the same ID already exists
+      const existingDegree = await this.findById(degreeData._id);
+
+      if (existingDegree.data) {
+        console.error(`Degree with ID ${degreeData._id} already exists.`);
+        return false;
+      }
+
       const result = await this.create(degreeData);
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to create degree');
       }
 
-      // Note: isAddon (from model) is being omitted for now. Might be removed altogether later.
-      return {
-        _id: result.data._id,
-        name: result.data.name,
-        totalCredits: result.data.totalCredits,
-        coursePools: result.data.coursePools || []
-      };
+      return true;
     } catch (error) {
       this.handleError(error, 'createDegree');
     }

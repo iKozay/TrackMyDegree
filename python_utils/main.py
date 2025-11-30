@@ -1,8 +1,9 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query
-from fastapi.responses import JSONResponse
+from fastapi.concurrency import run_in_threadpool
 import uvicorn
 from parser.transcript_parser import parse_transcript
-from scraper.degree_data_scraper import scrape_degree
+from scraper.degree_data_scraper import DegreeDataScraper
+import sys
 
 app = FastAPI(title="TrackMyDegree Python Utils API", version="0.0.1")
 
@@ -13,7 +14,7 @@ async def parse_transcript_api(file: UploadFile = File(...)):
 
 	try:
 		pdf_bytes = await file.read()
-		parsed_data = parse_transcript(pdf_bytes)
+		parsed_data = await run_in_threadpool(parse_transcript, pdf_bytes)
 	except Exception as e:
 		raise HTTPException(status_code=500, detail=f"Error parsing transcript: {str(e)}")
 	
@@ -22,10 +23,17 @@ async def parse_transcript_api(file: UploadFile = File(...)):
 @app.get("/scrape-degree")
 async def scrape_degree_api(url: str = Query(..., description="Degree requirements URL")):
 	try:
-		degree_data = scrape_degree(url)
+		scraper = DegreeDataScraper()
+		degree_data = await run_in_threadpool(scraper.scrape_degree, url)
 	except Exception as e:
 		raise HTTPException(status_code=500, detail=f"Error scraping degree data: {str(e)}")
 	return degree_data
 
 if __name__ == "__main__":
-	uvicorn.run("main:app", host="0.0.0.0", port=5000, reload=True)
+	# Check if running in development (--dev) or production (add nothing)
+	if "--dev" in sys.argv:
+		# Single worker with reload for development
+		uvicorn.run("main:app", host="0.0.0.0", port=5000, reload=True)
+	else:
+		# Production with multiple workers
+		uvicorn.run("main:app", host="0.0.0.0", port=5000, workers=8)

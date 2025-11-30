@@ -3,6 +3,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const {
   BaseMongoController,
 } = require('../controllers/baseMongoController');
+const { ObjectId } = mongoose.Types;
 
 // Create a test model for BaseMongoController
 const TestSchema = new mongoose.Schema({
@@ -779,45 +780,27 @@ describe('BaseMongoController', () => {
     });
   });
 
-  describe('bulkCreate', () => {
-    it('should create multiple documents', async () => {
+  describe('bulkWrite', () => {
+    it('should upsert multiple documents', async () => {
       const documents = [
-        { name: 'User 1', email: 'user1@example.com', age: 20 },
-        { name: 'User 2', email: 'user2@example.com', age: 30 },
-        { name: 'User 3', email: 'user3@example.com', age: 25 },
+        { _id: new ObjectId(), name: 'User 1', email: 'user1@example.com', age: 20 },
+        { _id: new ObjectId(), name: 'User 2', email: 'user2@example.com', age: 30 },
+        { _id: new ObjectId(), name: 'User 3', email: 'user3@example.com', age: 25 },
       ];
 
-      const result = await testController.bulkCreate(documents);
+      const result = await testController.bulkWrite(documents);
 
       expect(result.success).toBe(true);
-      expect(result.data).toHaveLength(3);
-      expect(result.message).toBe('3 TestModel(s) created successfully');
 
-      // Verify documents were created
       const count = await TestModel.countDocuments();
       expect(count).toBe(3);
     });
 
-    it('should handle partial failures in bulk create', async () => {
-      const documents = [
-        { name: 'Valid User', email: 'valid@example.com', age: 20 },
-        { email: 'invalid@example.com', age: 30 }, // Missing required name
-        { name: 'Another Valid', email: 'another@example.com', age: 25 },
-      ];
-
-      const result = await testController.bulkCreate(documents);
-
-      // With ordered: false, valid documents will still be created
-      expect(result.success).toBe(true);
-      expect(result.data).toHaveLength(2); // Only valid documents
-      expect(result.message).toBe('2 TestModel(s) created successfully');
-    });
-
-    it('should handle database errors in bulkCreate catch block', async () => {
-      // Mock insertMany to throw an error
-      const originalInsertMany = TestModel.insertMany;
-      TestModel.insertMany = jest.fn().mockImplementation(() => {
-        throw new Error('Bulk create failed');
+    it('should handle database errors in bulkWrite catch block', async () => {
+      // Mock bulkWrite to throw an error
+      const originalBulkWrite = TestModel.bulkWrite;
+      TestModel.bulkWrite = jest.fn().mockImplementation(() => {
+        throw new Error('Bulk write failed');
       });
 
       const documents = [
@@ -825,13 +808,13 @@ describe('BaseMongoController', () => {
         { name: 'User 2', email: 'user2@example.com', age: 30 },
       ];
 
-      const result = await testController.bulkCreate(documents);
+      const result = await testController.bulkWrite(documents);
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Bulk create failed');
+      expect(result.error).toBe('Bulk write failed');
 
       // Restore original method
-      TestModel.insertMany = originalInsertMany;
+      TestModel.bulkWrite = originalBulkWrite;
     });
   });
 

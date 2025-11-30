@@ -31,23 +31,20 @@ export class CourseController extends BaseMongoController<any> {
   // ==========================
 
   /**
-   * Create a new course
+   * Create multiple courses in bulk
    */
-  async createCourse(courseData: CourseData): Promise<boolean> {
+  async bulkCreateCourses(courseData: CourseData[]): Promise<boolean> {
     try {
-      // Check if course with the same code already exists
-      const existingCourse = await this.findById(courseData._id);
-      if (existingCourse.data) {
-        return false;
-      }
+      const result = await this.bulkWrite(courseData);
 
-      const result = await this.create(courseData);
       if (!result.success) {
-        throw new Error(result.error || 'Failed to create course');
+        throw new Error(result.error || 'Failed to create courses');
       }
+      
       return true;
     } catch (error) {
-      this.handleError(error, 'createCourse');
+      this.handleError(error, 'bulkCreateCourse');
+      return false;
     }
   }
 

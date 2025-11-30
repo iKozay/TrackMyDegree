@@ -21,7 +21,6 @@ export async function parseDegree(url: string): Promise<ParseDegreeResponse> {
   try {
     const response = await axios.get(`${PYTHON_SERVICE_BASE_URL}/scrape-degree`, {
       params: { url },
-      timeout: 60000, // 60 second timeout for scraping
     });
     return response.data;
   } catch (error) {
@@ -47,7 +46,6 @@ export async function parseTranscript(fileBuffer: Buffer): Promise<ParsedData> {
       headers: {
         ...formData.getHeaders(),
       },
-      timeout: 60000, // 1 minute timeout for parsing
       maxContentLength: Infinity,
       maxBodyLength: Infinity,
     });

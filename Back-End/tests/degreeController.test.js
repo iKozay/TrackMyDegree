@@ -35,7 +35,7 @@ describe('DegreeController', () => {
 
   describe('createDegree', () => {
 
-    it('should create a new degree', async () => {
+    it('should create a new degree if not already exists', async () => {
       const degreeData = {
         _id: 'COMP',
         name: 'Computer Science',
@@ -43,7 +43,25 @@ describe('DegreeController', () => {
         coursePools: []
       };
       const result = await degreeController.createDegree(degreeData);
-      expect(result).toMatchObject(degreeData);
+      expect(result).toBe(true);
+      const createdDegree = await Degree.findById('COMP').lean();
+      expect(createdDegree).toMatchObject(degreeData);
+    });
+
+    it('should skip creation if degree already exists', async () => {
+      const degreeData = {
+        _id: 'COMP',
+        name: 'Computer Science',
+        totalCredits: 120,
+        coursePools: []
+      };
+      await Degree.create(degreeData);
+      const result = await degreeController.createDegree(degreeData);
+      expect(result).toBe(false);
+      const createdDegree = await Degree.findById('COMP').lean();
+      const degreeCount = await Degree.countDocuments({ _id: 'COMP' });
+      expect(degreeCount).toBe(1);
+      expect(createdDegree).toMatchObject(degreeData);
     });
 
     it('should handle errors during degree creation', async () => {

@@ -33,73 +33,59 @@ describe('CoursepoolController', () => {
     });
   });
 
-  describe('createCoursePool', () => {
-    it('should create a new course pool successfully', async () => {
-      const coursePoolData = {
+  describe('bulkCreateCoursePools', () => {
+    it('should create multiple course pools in bulk successfully', async () => {
+      const coursePoolData = [
+        {
         _id: 'COMP_CORE',
         name: 'Computer Science Core',
         creditsRequired: 60,
         courses: ['COMP101', 'COMP102'],
-      };
+      },
+      {
+        _id: 'COMP_CORE_2',
+        name: 'Computer Science Core 2',
+        creditsRequired: 60,
+        courses: ['COMP101', 'COMP102'],
+      }];
 
-      const result = await coursepoolController.createCoursePool(coursePoolData);
-
-      expect(result).toBe(true);
-    });
-
-    it('should create course pool without courses array', async () => {
-      const coursePoolData = {
-        _id: 'MATH_CORE',
-        name: 'Mathematics Core',
-        creditsRequired: 30,
-      };
-
-      const result = await coursepoolController.createCoursePool(coursePoolData);
+      const result = await coursepoolController.bulkCreateCoursePools(coursePoolData);
 
       expect(result).toBe(true);
+      const createdPools = await CoursePool.find({});
+      expect(createdPools).toHaveLength(2);
+      expect(createdPools[0]).toMatchObject(coursePoolData[0]);
+      expect(createdPools[1]).toMatchObject(coursePoolData[1]);
     });
 
     it('should handle database errors', async () => {
       // Mock findById to throw error
-      const originalCreate = coursepoolController.create;
-      coursepoolController.create = jest.fn().mockRejectedValue(
+      const originalBulkWrite = coursepoolController.bulkWrite;
+      coursepoolController.bulkWrite = jest.fn().mockRejectedValue(
         new Error('Database connection failed'),
       );
 
-      const coursePoolData = {
+            const coursePoolData = [
+        {
         _id: 'COMP_CORE',
         name: 'Computer Science Core',
         creditsRequired: 60,
-      };
+        courses: ['COMP101', 'COMP102'],
+      },
+      {
+        _id: 'COMP_CORE_2',
+        name: 'Computer Science Core 2',
+        creditsRequired: 60,
+        courses: ['COMP101', 'COMP102'],
+      }];
+
 
       await expect(
-        coursepoolController.createCoursePool(coursePoolData),
+        coursepoolController.bulkCreateCoursePools(coursePoolData),
       ).rejects.toThrow('Database connection failed');
 
       // Restore original method
-      coursepoolController.create = originalCreate;
-    });
-
-    it('should handle create failure', async () => {
-      // Mock create to return failure
-      const originalCreate = coursepoolController.create;
-      coursepoolController.create = jest.fn().mockResolvedValue({
-        success: false,
-        error: 'Create failed',
-      });
-
-      const coursePoolData = {
-        _id: 'COMP_CORE',
-        name: 'Computer Science Core',
-        creditsRequired: 60,
-      };
-
-      await expect(
-        coursepoolController.createCoursePool(coursePoolData),
-      ).rejects.toThrow('Create failed');
-
-      // Restore original method
-      coursepoolController.create = originalCreate;
+      coursepoolController.bulkWrite = originalBulkWrite;
     });
   });
 
@@ -396,26 +382,26 @@ describe('CoursepoolController', () => {
   describe('Additional Edge Cases for Coverage', () => {
     it('should handle createCoursePool when create returns error without message', async () => {
       const originalFindById = coursepoolController.findById;
-      const originalCreate = coursepoolController.create;
+      const originalBulkWrite = coursepoolController.bulkWrite;
 
       coursepoolController.findById = jest.fn().mockResolvedValue(null);
-      coursepoolController.create = jest.fn().mockResolvedValue({
+      coursepoolController.bulkWrite = jest.fn().mockResolvedValue({
         success: false,
         error: null,
       });
 
-      const coursePoolData = {
+      const coursePoolData = [{
         _id: 'TEST_POOL',
         name: 'Test Pool',
         creditsRequired: 30,
-      };
+      }];
 
       await expect(
-        coursepoolController.createCoursePool(coursePoolData),
+        coursepoolController.bulkCreateCoursePools(coursePoolData),
       ).rejects.toThrow('Failed to create course pool');
 
       coursepoolController.findById = originalFindById;
-      coursepoolController.create = originalCreate;
+      coursepoolController.bulkWrite = originalBulkWrite;
     });
 
     it('should handle updateCoursePool when updateById returns error without message', async () => {

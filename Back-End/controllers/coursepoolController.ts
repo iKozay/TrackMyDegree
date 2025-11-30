@@ -19,32 +19,26 @@ export class CoursePoolController extends BaseMongoController<any> {
   // ==========================
 
   /**
-   * Create a new course pool
+   * Create course pools in bulk
    */
-  async createCoursePool(coursePoolData: CoursePoolData): Promise<boolean> {
+  async bulkCreateCoursePools(coursePoolData: CoursePoolData[]): Promise<boolean> {
     try {
-      // Check if course pool with the same ID already exists
-      const existingPool = await this.findById(coursePoolData._id);
-      if (existingPool?.data) {
-        return false;
-      }
-
-      const result = await this.create(coursePoolData);
+      const result = await this.bulkWrite(coursePoolData);
 
       if (!result.success) {
-        throw new Error(result.error || 'Failed to create course pool');
+        throw new Error(result.error || 'Failed to create course pools');
       }
 
       return true;
     } catch (error) {
-      this.handleError(error, 'createCoursePool');
+      this.handleError(error, 'bulkCreateCoursePool');
+      return false;
     }
   }
 
   /**
    * Update an existing course pool
    */
-
   async updateCoursePool(
     pool_id: string,
     updateData: Partial<CoursePoolData>

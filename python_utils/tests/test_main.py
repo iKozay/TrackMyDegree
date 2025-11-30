@@ -35,8 +35,7 @@ class TestParseTranscript:
         
         assert response.status_code == 200
         data = response.json()
-        assert 'parsed_data' in data
-        assert data['parsed_data']['programInfo']['degree'] == 'Bachelor of Engineering, Software Engineering'
+        assert data['programInfo']['degree'] == 'Bachelor of Engineering, Software Engineering'
         mock_parse.assert_called_once()
 
     @patch('main.parse_transcript')
@@ -71,7 +70,7 @@ class TestParseTranscript:
         assert 'must be a PDF' in data['detail']
 
 class TestScrapeDegree:
-    @patch('main.scrape_degree')
+    @patch('scraper.degree_data_scraper.DegreeDataScraper.scrape_degree')
     def test_scrape_degree_success(self, mock_scrape):
         """Test successful degree scraping returns 200"""
         # Mock successful scraping result
@@ -91,7 +90,7 @@ class TestScrapeDegree:
         assert data['courses'][0]['code'] == 'ELEC 275'
         mock_scrape.assert_called_once_with(url)
 
-    @patch('main.scrape_degree')
+    @patch('scraper.degree_data_scraper.DegreeDataScraper.scrape_degree')
     def test_scrape_degree_failure(self, mock_scrape):
         """Test degree scraping failure returns 500"""
         # Mock scraping exception

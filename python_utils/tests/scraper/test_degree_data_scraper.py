@@ -59,7 +59,8 @@ class DummyResponse:
 @patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
 @patch("scraper.degree_data_scraper.engr_general_electives_scraper", new=MockEngrElectivesScraper())
 def test_degree_scraper_structural_integrity(monkeypatch, fake_html):
-    from scraper import degree_data_scraper
+    from scraper.degree_data_scraper import DegreeDataScraper
+    degree_data_scraper = DegreeDataScraper()
     
     fake_url = "http://example.com/fake-degree-page.html"
 
@@ -69,16 +70,6 @@ def test_degree_scraper_structural_integrity(monkeypatch, fake_html):
     monkeypatch.setattr(requests, "get", mock_get)
     test_args = ["script_name.py", fake_url]
     monkeypatch.setattr(sys, "argv", test_args)
-
-    # Reset global state
-    degree_data_scraper.courses = []
-    degree_data_scraper.course_pool = []
-    degree_data_scraper.degree = {
-        '_id': "",
-        'name': "",
-        'totalCredits': 0,
-        'coursePools': []
-    }
 
     try:
         output_data = degree_data_scraper.scrape_degree(fake_url)
@@ -118,7 +109,8 @@ def test_degree_scraper_structural_integrity(monkeypatch, fake_html):
 @patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
 @patch("scraper.degree_data_scraper.engr_general_electives_scraper", new=MockEngrElectivesScraper())
 def test_handle_engineering_variants(monkeypatch):
-    from scraper import degree_data_scraper as s
+    from scraper.degree_data_scraper import DegreeDataScraper
+    s = DegreeDataScraper()
     s.courses = []
     s.course_pool = [{"name": "Engineering Core", "creditsRequired": 30, "courses": ["ELEC 275", "ENGR 202", "ENGR 392"]}]
     s.degree = {"coursePools": []}
@@ -142,7 +134,8 @@ def test_handle_engineering_variants(monkeypatch):
 
 @patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
 def test_get_courses_both_paths(monkeypatch):
-    from scraper import degree_data_scraper as s
+    from scraper.degree_data_scraper import DegreeDataScraper
+    s = DegreeDataScraper()
     from bs4 import BeautifulSoup
 
     html = """
@@ -153,7 +146,7 @@ def test_get_courses_both_paths(monkeypatch):
     </div>
     """
     s.soup = BeautifulSoup(html, "lxml")
-    s.sys.argv = ["script", "http://fakeurl.com"]
+    s.url_received = "http://fakeurl.com"
 
     def fake_get_page(url):
         html2 = """

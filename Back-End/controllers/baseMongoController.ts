@@ -385,24 +385,25 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   }
 
   /**
-   * Bulk create documents
+   * Bulk write documents
    */
-  async bulkCreate(documents: Partial<T>[]): Promise<ControllerResponse<T[]>> {
+  async bulkWrite(documents: Partial<T>[]): Promise<ControllerResponse<T[]>> {
     try {
-      const created = await this.model.insertMany(documents, {
-        ordered: false,
-        rawResult: false,
-      });
+      const operations = documents.map((doc) => ({
+          updateOne: {
+            filter: { _id: doc._id },
+            update: { $set: doc },
+            upsert: true,
+          },
+        }));
 
-      return {
-        success: true,
-        data: created.map((doc) => doc.toObject()) as T[],
-        message: `${created.length} ${this.modelName}(s) created successfully`,
-      };
+        await this.model.bulkWrite(operations, { ordered: false });
+
+        return { success: true };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Bulk create failed',
+        error: error instanceof Error ? error.message : 'Bulk write failed',
       };
     }
   }
