@@ -4,7 +4,7 @@ import CoursePool from "../components/CoursePool";
 import SemesterPlanner from "../components/SemesterPlanner";
 import CourseDetails from "../components/CourseDetail";
 import { TimelineHeader } from "../components/TimelineHeader";
-import TimelineDndProvider from "../contexts/timelineDndProvider";
+import TimelineDndProvider from "../providers/timelineDndProvider";
 import { useTimelineState } from "../hooks/useTimelineState";
 import { TimelineLoader } from "../components/TimelineLoader";
 import { TimelineError } from "../components/TimelineError";

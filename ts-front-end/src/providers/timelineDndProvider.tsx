@@ -11,7 +11,7 @@ import {
 } from "@dnd-kit/core";
 import type { CourseCode, SemesterId } from "../types/timeline.types";
 import type { DragCourseData, DroppableSemesterData } from "../types/dnd.types";
-import { TimelineDndContext } from "./timelineDndContext";
+import { TimelineDndContext } from "../contexts/timelineDndContext";
 
 interface TimelineDndProviderProps {
   children: ReactNode;

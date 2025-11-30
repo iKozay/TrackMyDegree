@@ -21,6 +21,7 @@ body {
 .app-header {
   background: white;
   border-bottom: 1px solid #e2e8f0;
+  margin-top: 1rem;
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;

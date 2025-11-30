@@ -5,7 +5,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, act } from "@testing-library/react";
 import * as DndKitCore from "@dnd-kit/core";
 
-import TimelineDndProvider from "../../contexts/timelineDndProvider";
+import TimelineDndProvider from "../../providers/timelineDndProvider";
 import { useTimelineDnd } from "../../contexts/timelineDndContext";
 
 // --- Test consumer to read activeCourseId from context ---
