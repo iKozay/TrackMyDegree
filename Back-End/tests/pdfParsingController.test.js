@@ -11,9 +11,8 @@ const uploadMiddleware = pdfParsingControllerModule.uploadMiddleware;
 jest.mock('pdf-parse', () => jest.fn());
 
 // Mock the custom parsers
-jest.mock('@utils/transcriptParser', () => ({
-  TranscriptParser: jest.fn().mockImplementation(() => ({
-    parseFromFile: jest.fn().mockResolvedValue({
+jest.mock('../utils/pythonUtilsApi', () => ({
+  parseTranscript: jest.fn().mockResolvedValue({
       programInfo: {
         degree: 'B.Sc., Computer Science',
         firstTerm: 'Fall 2024',
@@ -28,8 +27,7 @@ jest.mock('@utils/transcriptParser', () => ({
       transferedCourses: [],
       exemptedCourses: [],
       deficiencyCourses: [],
-    }),
-  })),
+  })
 }));
 
 jest.mock('@utils/acceptanceLetterParser', () => ({

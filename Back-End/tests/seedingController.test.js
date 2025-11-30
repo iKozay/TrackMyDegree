@@ -1,13 +1,20 @@
 const { seedDegreeData, seedAllDegreeData } = require('../controllers/seedingController');
-const runScraperModule = require('../course-data/Scraping/Scrapers/runScraper');
+const pythonUtilsApi = require('../utils/pythonUtilsApi');
 const DegreeControllerModule = require('../controllers/degreeController');
 const CoursePoolControllerModule = require('../controllers/coursepoolController');
 const CourseControllerModule = require('../controllers/courseController');
 
-jest.mock('../course-data/Scraping/Scrapers/runScraper');
+jest.mock('../utils/pythonUtilsApi');
 jest.mock('../controllers/degreeController');
 jest.mock('../controllers/coursepoolController');
 jest.mock('../controllers/courseController');
+jest.mock('../constants', () => ({
+    DEGREES_URL: {
+        'Test Degree': 'https://example.com/test-degree',
+        'DegreeA': 'https://example.com/degA',
+        'DegreeB': 'https://example.com/degB'
+    }
+}));
 
 describe("seedingController", () => {
     describe('seedDegreeData', () => {
@@ -21,7 +28,7 @@ describe("seedingController", () => {
                 course_pool: [{ name: 'Pool1', courses: ['C1'] }],
                 courses: [{ code: 'C1', title: 'Course 1' }]
             };
-            runScraperModule.runScraper.mockResolvedValue(fakeData);
+            pythonUtilsApi.parseDegree.mockResolvedValue(fakeData);
 
             const createDegreeMock = jest.fn().mockResolvedValue(undefined);
             const createCoursePoolMock = jest.fn();
@@ -39,7 +46,7 @@ describe("seedingController", () => {
 
             await seedDegreeData('Test Degree');
 
-            expect(runScraperModule.runScraper).toHaveBeenCalledWith('Test Degree');
+            expect(pythonUtilsApi.parseDegree).toHaveBeenCalledWith('https://example.com/test-degree');
             expect(createDegreeMock).toHaveBeenCalledWith(fakeData.degree);
             expect(createCoursePoolMock).toHaveBeenCalledWith(fakeData.course_pool[0]);
             expect(createCourseMock).toHaveBeenCalledWith(fakeData.courses[0]);
@@ -51,16 +58,13 @@ describe("seedingController", () => {
             jest.clearAllMocks();
         });
 
-        it('runs seedDegreeData for every degree in degreesURL', async () => {
-            // prepare a fake degrees list with two entries
-            runScraperModule.degreesURL = { 'DegA': 'urlA', 'DegB': 'urlB' };
-
+        it('runs seedAllDegreeData for all degrees in degreesURL', async () => {
             const fakeData = {
                 degree: { _id: 'deg1', name: 'Test Degree' },
                 course_pool: [{ _id: 'pool1', name: 'Pool1', courses: ['C1'] }],
                 courses: [{ _id: 'C1', code: 'C1', title: 'Course 1' }]
             };
-            runScraperModule.runScraper.mockResolvedValue(fakeData);
+            pythonUtilsApi.parseDegree.mockResolvedValue(fakeData);
 
             const createDegreeMock = jest.fn().mockResolvedValue(undefined);
             const createCoursePoolMock = jest.fn().mockResolvedValue(true);
@@ -78,15 +82,16 @@ describe("seedingController", () => {
 
             await seedAllDegreeData();
 
-            // runScraper should be invoked once per degree name
-            expect(runScraperModule.runScraper).toHaveBeenCalledTimes(2);
-            expect(runScraperModule.runScraper).toHaveBeenCalledWith('DegA');
-            expect(runScraperModule.runScraper).toHaveBeenCalledWith('DegB');
+            // parseDegree should be invoked once per degree in degreesURL
+            expect(pythonUtilsApi.parseDegree).toHaveBeenCalledTimes(3);
+            expect(pythonUtilsApi.parseDegree).toHaveBeenCalledWith('https://example.com/test-degree');
+            expect(pythonUtilsApi.parseDegree).toHaveBeenCalledWith('https://example.com/degA');
+            expect(pythonUtilsApi.parseDegree).toHaveBeenCalledWith('https://example.com/degB');
 
-            // Ensure degree and pool/course creation attempted for at least one entry
-            expect(createDegreeMock).toHaveBeenCalled();
-            expect(createCoursePoolMock).toHaveBeenCalled();
-            expect(createCourseMock).toHaveBeenCalled();
+            // Ensure degree and pool/course creation attempted
+            expect(createDegreeMock).toHaveBeenCalledTimes(3);
+            expect(createCoursePoolMock).toHaveBeenCalledTimes(3);
+            expect(createCourseMock).toHaveBeenCalledTimes(3);
         });
     });
 });

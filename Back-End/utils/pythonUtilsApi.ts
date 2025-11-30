@@ -2,11 +2,9 @@ import { CourseData } from '@controllers/courseController';
 import { CoursePoolData } from '@controllers/coursepoolController';
 import { DegreeData } from '@controllers/degreeController';
 import { ParsedData } from '../types/transcript';
+import { PYTHON_SERVICE_BASE_URL } from '../constants';
 import axios from 'axios';
 import FormData from 'form-data';
-
-
-const PYTHON_SERVICE_BASE_URL = 'http://localhost:5000';
 
 export interface ParseDegreeResponse {
   degree: DegreeData;
@@ -27,10 +25,7 @@ export async function parseDegree(url: string): Promise<ParseDegreeResponse> {
     });
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw new Error(`Failed to parse degree: ${error.response?.data?.detail || error.message}`);
-    }
-    throw error;
+      throw new Error(`Failed to parse degree: ${error}`);
   }
 }
 
@@ -59,9 +54,6 @@ export async function parseTranscript(fileBuffer: Buffer): Promise<ParsedData> {
 
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw new Error(`Failed to parse transcript: ${error.response?.data?.detail || error.message}`);
-    }
-    throw error;
+        throw new Error(`Failed to parse transcript: ${error}`);
   }
 }
