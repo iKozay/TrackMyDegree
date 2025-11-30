@@ -1,7 +1,10 @@
 import { User } from '@models';
 import bcrypt from 'bcryptjs';
 import * as Sentry from '@sentry/node';
-import { v4 as uuidv4 } from 'uuid';
+async function getUUID() {
+    const { v4: uuidv4 } = await import("uuid");
+    return uuidv4();
+}
 import nodemailer from 'nodemailer';
 import Redis from 'ioredis';
 
@@ -150,7 +153,7 @@ export class AuthController {
         return { message: 'If the email exists, a reset link has been sent.' };
       }
 
-      const resetToken = uuidv4();
+      const resetToken = getUUID();
 
       const frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT;
       if (!frontendUrl) {
