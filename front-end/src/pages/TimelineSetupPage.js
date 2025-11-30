@@ -63,23 +63,79 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
     formData.append('file', file);
     try {
       const response = await api.post(`/upload/parse`, formData);
-      const { extractedCourses, details } = response.data;
-      if (!extractedCourses && !details) return;
+      const parsedData = response.data?.data || response.data;
+      
+      // Check if we have the new unified structure
+      if (!parsedData.programInfo && !parsedData.semesters) {
+        return;
+      }
 
       if (!degrees || degrees.length === 0) {
         alert('Error fetching degrees from server. Please try again later.');
         return;
       }
 
+      // Extract program info
+      const programInfo = parsedData.programInfo || {};
+      
       // Match extracted degree with available degrees
-      const degree = details.degreeConcentration?.toLowerCase().split(',')[1] || 'Unknown Degree';
-      const matched_degree = degrees.find((d) => d.name.toLowerCase().includes(degree));
+      const degreeName = programInfo.degree?.toLowerCase().split(',')[1]?.trim() || 
+                        programInfo.degree?.toLowerCase().split(',')[0]?.trim() || 
+                        'Unknown Degree';
+      const matched_degree = degrees.find((d) => 
+        d.name.toLowerCase().includes(degreeName) || 
+        degreeName.includes(d.name.toLowerCase())
+      );
 
       if (!matched_degree) {
         alert(
-          `The extracted degree "${details.degreeConcentration}" does not match any available degrees in our system.`,
+          `The extracted degree "${programInfo.degree || 'Unknown'}" does not match any available degrees in our system.`,
         );
         return;
+      }
+
+      // Convert new structure to old format for compatibility
+      // Build extractedCourses from semesters, exemptedCourses, deficiencyCourses, and transferedCourses
+      const extractedCourses = [];
+      
+      // Add exempted courses
+      if (parsedData.exemptedCourses && parsedData.exemptedCourses.length > 0) {
+        extractedCourses.push({
+          term: 'Exempted',
+          courses: parsedData.exemptedCourses,
+        });
+      }
+      
+      // Add deficiency courses
+      if (parsedData.deficiencyCourses && parsedData.deficiencyCourses.length > 0) {
+        extractedCourses.push({
+          term: 'Deficiencies',
+          courses: parsedData.deficiencyCourses,
+        });
+      }
+      
+      // Add transfered courses
+      if (parsedData.transferedCourses && parsedData.transferedCourses.length > 0) {
+        extractedCourses.push({
+          term: 'Transfered Courses',
+          courses: parsedData.transferedCourses,
+        });
+      }
+      
+      // Add semesters (convert courses from {code, grade?} to just code strings)
+      if (parsedData.semesters && parsedData.semesters.length > 0) {
+        parsedData.semesters.forEach((semester) => {
+          const courseCodes = semester.courses.map(c => 
+            typeof c === 'string' ? c : c.code
+          ).filter(Boolean);
+          
+          if (courseCodes.length > 0 || semester.term) {
+            extractedCourses.push({
+              term: semester.term,
+              courses: courseCodes,
+            });
+          }
+        });
       }
 
       if (!extractedCourses || extractedCourses.length === 0) {
@@ -91,15 +147,15 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
       onDataProcessed({
         transcriptData: extractedCourses,
         degreeId: matched_degree._id,
-        isExtendedCredit: details.extendedCreditProgram || false,
-        credits_Required: details.minimumProgramLength || matched_degree?.totalCredits,
+        isExtendedCredit: programInfo.isExtendedCreditProgram || false,
+        credits_Required: programInfo.minimumProgramLength || matched_degree?.totalCredits,
       });
       navigate('/timeline_change', {
         state: {
-          coOp: details.coopProgram,
-          credits_Required: details.minimumProgramLength || matched_degree?.totalCredits,
-          extendedCredit: details.extendedCreditProgram,
-          creditDeficiency: details.deficienciesCourses?.length > 0,
+          coOp: programInfo.isCoop || false,
+          credits_Required: programInfo.minimumProgramLength || matched_degree?.totalCredits,
+          extendedCredit: programInfo.isExtendedCreditProgram || false,
+          creditDeficiency: parsedData.deficiencyCourses?.length > 0 || false,
         },
       }); // Navigate to TimelinePage
     } catch (error) {

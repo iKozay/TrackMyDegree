@@ -110,13 +110,18 @@ describe('TimelineSetupPage', () => {
         return Promise.resolve({
           success: true,
           data: {
-            extractedCourses: [{ term: 'Fall 2024', courses: ['COMP248'] }],
-            details: {
-              degreeConcentration: 'Something,BEng Computer Science',
-              coopProgram: true,
-              extendedCreditProgram: false,
+            programInfo: {
+              degree: 'Something, BEng Computer Science',
+              isCoop: true,
+              isExtendedCreditProgram: false,
               minimumProgramLength: 90,
             },
+            semesters: [
+              { term: 'Fall 2024', courses: [{ code: 'COMP248' }] },
+            ],
+            exemptedCourses: [],
+            deficiencyCourses: [],
+            transferedCourses: [],
           },
         });
       }
@@ -164,13 +169,18 @@ describe('TimelineSetupPage', () => {
         return Promise.resolve({
           success: true,
           data: {
-            extractedCourses: [{ term: 'Fall 2024', courses: ['COMP248'] }],
-            details: {
-              degreeConcentration: 'Mechanical Engineering',
-              coopProgram: false,
-              extendedCreditProgram: false,
+            programInfo: {
+              degree: 'Mechanical Engineering',
+              isCoop: false,
+              isExtendedCreditProgram: false,
               minimumProgramLength: 90,
             },
+            semesters: [
+              { term: 'Fall 2024', courses: [{ code: 'COMP248' }] },
+            ],
+            exemptedCourses: [],
+            deficiencyCourses: [],
+            transferedCourses: [],
           },
         });
       }
@@ -241,7 +251,15 @@ describe('TimelineSetupPage', () => {
       if (endpoint === '/upload/parse') {
         return Promise.resolve({
           success: true,
-          data: { details: { degreeConcentration: 'BEng Computer Science' } },
+          data: {
+            programInfo: {
+              degree: 'BEng Computer Science',
+            },
+            semesters: [],
+            exemptedCourses: [],
+            deficiencyCourses: [],
+            transferedCourses: [],
+          },
         });
       }
       return Promise.reject(new Error(`Unknown endpoint: ${endpoint}`));
@@ -272,13 +290,18 @@ describe('TimelineSetupPage', () => {
       if (endpoint === '/upload/parse') {
         return Promise.resolve({
           data: {
-            extractedCourses: [{ term: 'Fall 2024', courses: ['COMP248'] }],
-            details: {
-              degreeConcentration: 'BEng Computer Science',
-              coopProgram: true,
-              extendedCreditProgram: false,
+            programInfo: {
+              degree: 'BEng Computer Science',
+              isCoop: true,
+              isExtendedCreditProgram: false,
               minimumProgramLength: 90,
             },
+            semesters: [
+              { term: 'Fall 2024', courses: [{ code: 'COMP248' }] },
+            ],
+            exemptedCourses: [],
+            deficiencyCourses: [],
+            transferedCourses: [],
           },
         });
       }

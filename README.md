@@ -49,7 +49,7 @@ Current UI/features' designs: [Here](https://dimly-recap-91212251.figma.site/)
 | Sadee Mohammad Shadman           | 40236919   | [sadeeshadman](https://github.com/sadeeshadman)             | sadeeshadman@gmail.com         |
 | Syed Ayaan Jilani                | 40209519   | [CS-ION](https://github.com/CS-ION)                         | asadrubina.ra@gmail.com        |
 | Yassine Ibhir                    | 40251116   | [Yibhir0](https://github.com/Yibhir0)                       | yibhir101@gmail.com            |
-| Zeiad Badawy                     | 40247477   | [iKozay](https://github.com/iKozay)                         | zeiad.badawy@mail.concordia.ca |
+| Zeiad Badawy                     | 40247477   | [iKozay](https://github.com/iKozay)                         | zeiadbadawy@gmail.com |
 
 ## Developer Setup Guide
 
@@ -74,11 +74,11 @@ Ensure you have the following installed on your machine:
    ```
 
 2. **Set up .env**:
-   Copy `.env.example` to `./secrets` directory and assign values for each environment variable.
+   Copy `local-dev.env` to `./secrets` directory and assign values for each environment variable.
     
    ```bash
     mkdir -p secrets
-    cp .env.example ./secrets/.env
+    cp local-dev.env ./secrets/.env
     ```
 
 3. **Install dependencies**:
@@ -105,7 +105,7 @@ Ensure you have the following installed on your machine:
     - Start the frontend, backend concurrently.
     - The application should now be running locally at localhost:3000.
 
-## Production Deployment
+## Deployment
 
 For production deployment with SSL/HTTPS support, follow these additional steps:
 
@@ -116,28 +116,47 @@ For production deployment with SSL/HTTPS support, follow these additional steps:
 
 ### Production Setup Instructions
 
-1. **Complete the development setup steps** (steps 1-2 from the Developer Setup Guide above)
+1. **Download `docker-compose.prd.yml`, `frontend.env.example`, `backend.env.example`, `mongo.env.example` and `traefik/dynamic.yml`**
 
-2. **Create environment configuration**:
-   Create a `.env` file in the root directory of the project:
+2. **Configure Environment Variables**:
+   - **Rename `docker.env.example` to `.env` and replace yourdomain.com with your actual domain name:**
+     ```bash
+     mv docker.env.example .env
+     ```
+   - **Create a `secrets` folder and a `traefik/certs` folder**
+     ```bash
+     mkdir ./secrets
+     mkdir ./traefik
+     mkdir ./traefik/certs
+     ```
+   - **Move `frontend.env.example`, `backend.env.example` and `mongo.env.example` inside the secrets folder and replace placeholders with actual values for each:**
+     ```bash
+     mv frontend.env.example ./secrets/frontend.env
+     mv backend.env.example ./secrets/backend.env
+     mv mongo.env.example ./secrets/mongo.env
+     ```
+   - **Move `dynamic.yml` downloaded earlier to the traefik folder.**
+     ```bash
+     mv dynamic.yml traefik/dynamic.yml
+     ```
+   - **Either use your own certs or use Cloudflare origin certs and put both inside `traefik/certs` folder. Name them `origin.key` and `origin.pem`**
+   - **Final folder structure:**
+     ```bash
+     root-folder
+     ├── traefik
+     │   ├── dynamic.yml
+     │   └── certs
+     │       └── origin.key
+     │       └── origin.pem
+     ├── secrets
+     │   ├── backend.env
+     │   ├── frontend.env
+     │   └── mongo.env
+     ├── .env
+     └── docker-compose.prd.yml
+     ```
 
-   ```bash
-   touch .env
-   ```
-
-3. **Configure production environment variables**:
-   Add the following variables to your `.env` file:
-
-   ```env
-   DOMAIN=yourdomain.com
-   ACME_EMAIL=your-email@example.com
-   ```
-
-   Replace:
-   - `yourdomain.com` with your actual domain name
-   - `your-email@example.com` with your email address (used for Let's Encrypt SSL certificate registration)
-
-4. **Deploy the application**:
+3. **Deploy the application**:
    Run the production deployment command:
 
    ```bash
@@ -146,19 +165,14 @@ For production deployment with SSL/HTTPS support, follow these additional steps:
 
    This will:
    - Build and start all services in detached mode
-   - Automatically obtain SSL certificates via Let's Encrypt
-   - Configure HTTPS redirection
    - Set up the reverse proxy with SSL termination
 
-5. **Verify deployment**:
+4. **Verify deployment**:
    - Your application should be accessible at `https://yourdomain.com`
-   - HTTP traffic will automatically redirect to HTTPS
-   - SSL certificates will auto-renew before expiration
 
 **Production Notes:**
 - Ensure your domain's DNS A record points to your server's IP address
-- Allow ports 80 (HTTP) and 443 (HTTPS) through your firewall
-- The initial SSL certificate generation may take a few minutes
+- Allow port 443 (HTTPS) through your firewall
 - Monitor logs with `docker compose logs -f` if needed
 
 ## Equity and Diversity Statement

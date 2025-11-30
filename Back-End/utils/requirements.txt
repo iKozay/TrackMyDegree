@@ -1,0 +1,8 @@
+# Python dependencies for transcriptParser.py
+# PyMuPDF for PDF parsing
+pymupdf>=1.23.0
+
+# Testing dependencies
+pytest>=8.4.2
+pytest-cov>=7.0.0
+coverage>=7.10.7

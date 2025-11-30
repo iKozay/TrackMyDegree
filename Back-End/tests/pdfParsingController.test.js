@@ -13,15 +13,21 @@ jest.mock('pdf-parse', () => jest.fn());
 // Mock the custom parsers
 jest.mock('@utils/transcriptParser', () => ({
   TranscriptParser: jest.fn().mockImplementation(() => ({
-    parseFromBuffer: jest.fn().mockResolvedValue({
-      terms: [
-        { term: 'Fall', year: 2024, courses: [{ courseCode: 'COMP 202' }], termGPA: '3.7' },
+    parseFromFile: jest.fn().mockResolvedValue({
+      programInfo: {
+        degree: 'B.Sc., Computer Science',
+        firstTerm: 'Fall 2024',
+        minimumProgramLength: 120,
+      },
+      semesters: [
+        {
+          term: 'Fall 2024',
+          courses: [{ code: 'COMP202', grade: 'A' }],
+        },
       ],
-      programHistory: [
-        { degreeType: 'B.Sc.', major: 'Computer Science' },
-      ],
-      transferCredits: [],
-      additionalInfo: { minCreditsRequired: 120 },
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
     }),
   })),
 }));
@@ -29,9 +35,14 @@ jest.mock('@utils/transcriptParser', () => ({
 jest.mock('@utils/acceptanceLetterParser', () => ({
   AcceptanceLetterParser: jest.fn().mockImplementation(() => ({
     parse: jest.fn().mockReturnValue({
-      name: 'John Doe',
-      program: 'Computer Science',
-      institution: 'Example University',
+      programInfo: {
+        degree: 'Computer Science',
+        firstTerm: 'Fall 2024',
+      },
+      semesters: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
+      transferedCourses: [],
     }),
   })),
 }));
@@ -66,7 +77,8 @@ describe('PDFParsingController', () => {
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
     expect(response.body.message).toBe('Document parsed successfully');
-    expect(response.body.data.name).toBe('John Doe');
+    expect(response.body.data.programInfo).toBeDefined();
+    expect(response.body.data.programInfo.degree).toBe('Computer Science');
   });
 
   test('parses transcript PDF successfully', async () => {
@@ -80,8 +92,10 @@ describe('PDFParsingController', () => {
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
-    expect(response.body.data.details.degreeConcentration).toContain('Computer Science');
-    expect(response.body.data.extractedCourses[0].courses).toContain('COMP202');
+    expect(response.body.data.programInfo).toBeDefined();
+    expect(response.body.data.programInfo.degree).toContain('Computer Science');
+    expect(response.body.data.semesters).toBeDefined();
+    expect(response.body.data.semesters[0].courses[0].code).toBe('COMP202');
   });
 
   test('rejects non-PDF file uploads', async () => {

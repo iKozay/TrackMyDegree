@@ -1,0 +1,4 @@
+tls:
+  certificates:
+    - certFile: /traefik/certs/origin.pem
+      keyFile: /traefik/certs/origin.key
