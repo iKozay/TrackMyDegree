@@ -1,73 +1,124 @@
-# React + TypeScript + Vite
+# Project Name
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Typescript track my degree front-end.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Getting Started
 
-## React Compiler
+### Prerequisites
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- [Node.js](https://nodejs.org/) (v20.19.1)
+- A package manager:
+  - `npm` (used in the examples below), or
+  - `yarn`, or
+  - `pnpm`
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 1. Install Dependencies
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+```bash
+npm install
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+npm run dev
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Folder & File Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+The project is organized as follows:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+.
+├── api/
+├── assets/
+├── handlers/
+├── hooks/
+├── mock/
+├── providers/
+├── reducers/
+├── styles/
+├── components/
+├── contexts/
+├── images/
+├── pages/
+├── tests/
+├── types/
+├── App.tsx
+├── App.css
+├── main.tsx
+├── ProtectedRoute.tsx
+├── setupTests.ts
+└── ...
 ```
+
+## Folder Structure
+
+### `api/`
+
+Contains functions and utilities for communicating with the backend or external APIs  
+(e.g., HTTP clients, endpoint wrappers, request/response helpers).
+
+### `assets/`
+
+Holds static assets that are not simple images in JSX, such as fonts, PDFs, JSON files, or other bundled resources.
+
+### `handlers/`
+
+Includes logic and helper functions that handle specific state updates  
+(e.g., form movefrompoolToSemester, undo, redo. ).
+
+### `hooks/`
+
+Custom React hooks used across the application  
+(e.g., `useAuth`, `useTimelineState`, , or any reusable stateful logic).
+
+### `mock/`
+
+Stores mock data and mock implementations for development and testing  
+(e.g., fake API responses, sample datasets, stub services). To be removed later.
+
+### `providers/`
+
+React provider components that wrap parts of the app or the whole app  
+(e.g. AuthProvider, TimeLineDndProvider etc.).
+
+### `reducers/`
+
+Contains reducer functions and related state logic, typically used with `useReducer` of the timeline page.
+
+### `styles/`
+
+Global and shared styling resources.  
+(e.g.,timeline.css, navbar.css, utility styles).
+
+### `components/`
+
+Reusable UI building blocks that do not represent full pages  
+(e.g., CourseDetail, modals, forms, navbars, TimelineLoader).
+
+### `contexts/`
+
+React Context definitions and related helpers  
+(e.g., `AuthContext`, and custom `useXContext` hooks).
+
+### `images/`
+
+Image assets used in the UI  
+(e.g., logos, icons as images, illustrations).
+
+### `pages/`
+
+Route-level components representing full screens of the application  
+(e.g., `LandingPage`, `LoginPage`, `TimelinePage`).
+
+### `tests/`
+
+Test files and test utilities  
+(e.g., unit/integration tests, custom render helpers, test data builders).
+
+### `types/`
+
+Shared TypeScript type definitions and interfaces  
+(e.g., domain models like `User`, `Course`, `AuthResponse`).
