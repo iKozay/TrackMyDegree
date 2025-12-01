@@ -7,7 +7,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 from scraper.course_data_scraper import (
     extract_course_data, clean_text, fetch_html,
-    parse_title_and_credits, split_sections, parse_prereq_coreq
+    parse_title_and_credits, split_sections, parse_prereq_coreq,
+    make_prereq_coreq_into_array, get_not_taken
 )
 
 # NOTE: The global 'courses' list must be managed manually in tests
@@ -137,8 +138,14 @@ def test_extract_valid_course(mock_fetch):
     mock_fetch.return_value = make_mock_soup(HTML_VALID)
     result = extract_course_data("SOEN 357", "https://dummy-url.com")
     # FIXED: Check for the actual prerequisite, not the course ID.
-    assert "SOEN 287" in result["prerequisites"]
+    assert "previously: SOEN 287." == result["prerequisites/corequisites"]
     assert result["credits"] == 3
+
+def test_rules():
+    assert make_prereq_coreq_into_array("") == []
+    assert make_prereq_coreq_into_array("COEN 243 / MECH 215") == [["COEN 243", "MECH 215"]]
+    assert get_not_taken("") == []
+    assert get_not_taken("Students who have received credit for COMP 249 may not take this course for credit.") == ["COMP 249"]
 
 @patch("scraper.course_data_scraper.fetch_html")
 def test_extract_all_courses_any_code(mock_fetch):

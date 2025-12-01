@@ -113,6 +113,41 @@ def parse_prereq_coreq(text, clean_text):
 
     return prereq, coreq
 
+def make_prereq_coreq_into_array(s):
+    tokens = re.findall(r"[A-Za-z]{4} \d{3}", s)
+
+    if not tokens:
+        return []
+
+    placeholder = "§"
+    temp = s
+    for t in tokens:
+        temp = temp.replace(t, placeholder, 1)
+
+    comma_groups = temp.split(",")
+
+    result = []
+    token_index = 0
+
+    for group in comma_groups:
+        slash_parts = group.split("/")
+        inner_list = []
+        for _ in slash_parts:
+            if token_index < len(tokens):
+                inner_list.append(tokens[token_index])
+                token_index += 1
+        if inner_list:
+            result.append(inner_list)
+
+    return result
+
+def get_not_taken(s):
+
+    if "may not take this course for credit" not in s:
+        return []
+    
+    tokens = re.findall(r"[A-Za-z]{4} \d{3}", s)
+    return tokens
 
 def extract_course_data(course_code, url):
     """Extract structured course data (id, title, credits, prereqs, etc.) from a course catalog page."""
@@ -135,7 +170,8 @@ def extract_course_data(course_code, url):
         full_text = clean_text(' '.join(content_el.stripped_strings)) if content_el else ""
 
         sections = split_sections(full_text, clean_text)
-        prereq, coreq = parse_prereq_coreq(sections.get("Prerequisite/Corequisite:", ""), clean_text)
+        raw_prereq_coreq = sections.get("Prerequisite/Corequisite:", "")
+        prereq, coreq = parse_prereq_coreq(raw_prereq_coreq, clean_text)
 
         course={
             "_id":course_id,
@@ -144,8 +180,12 @@ def extract_course_data(course_code, url):
             "credits": course_credits,
             "description": sections.get("Description:", ""),
             "offeredIN": [""],
-            "prerequisites": prereq,
-            "corequisites": coreq,
+            "prerequisites/corequisites": raw_prereq_coreq,
+            "rules":{
+                "prereq":make_prereq_coreq_into_array(prereq),
+                "coreq":make_prereq_coreq_into_array(coreq),
+                "not_taken": get_not_taken(sections.get("Notes:", ""))
+            }
         }
 
         if course_code == 'ANY':
@@ -156,3 +196,5 @@ def extract_course_data(course_code, url):
         return courses
     else:
         return None
+    
+print(extract_course_data("COEN 244", "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-60-engineering-course-descriptions/computer-engineering-courses.html"))

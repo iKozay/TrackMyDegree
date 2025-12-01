@@ -59,7 +59,7 @@ class DegreeDataScraper():
                 "_id":"General Education Humanities and Social Sciences Electives",
                 "name":"General Education Humanities and Social Sciences Electives",
                 "creditsRequired":3,
-                "courses":electives_results[0]
+                "courses":list(set(electives_results[0]))
             })
             self.courses=self.courses+electives_results[1]
         else:
@@ -104,7 +104,7 @@ class DegreeDataScraper():
                     '_id': course_pool_id,
                     'name': name,
                     'creditsRequired': credits,
-                    'courses':course_list
+                    'courses':list(set(course_list))
                 })
 
                 self.degree["coursePools"].append(course_pool_id)
