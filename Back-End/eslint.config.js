@@ -53,6 +53,8 @@ export default [
         exports: 'readonly',
         process: 'readonly',
         console: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
         // Jest globals
         jest: 'readonly',
         describe: 'readonly',

@@ -1,5 +1,6 @@
 const axios = require('axios');
 const pythonUtilsApi = require('../utils/pythonUtilsApi');
+const Buffer = require('node:buffer').Buffer;
 
 // Mocks
 jest.mock('axios', () => ({
