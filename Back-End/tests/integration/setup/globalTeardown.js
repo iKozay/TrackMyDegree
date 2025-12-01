@@ -1,4 +1,5 @@
 const { stopMongoTestContainer } = require('../utils/database/testContainer');
+const { stopPythonUtilsContainer } = require('../utils/python/testContainer');
 
 async function globalTeardown() {
   console.log('Stopping global test container...');
@@ -10,6 +11,10 @@ async function globalTeardown() {
       await mongoose.connection.close();
       console.log('Mongoose disconnected');
     }
+
+    // Stop Python utils container
+    await stopPythonUtilsContainer();
+    console.log('Python utils container stopped');
 
     // Mock server cleanup (no real server in tests)
     if (globalThis.__SERVER__) {

@@ -1,3 +1,4 @@
+const { startPythonUtilsContainer } = require('../utils/python/testContainer');
 const { startMongoTestContainer } = require('../utils/database/testContainer');
 const { createTestAdminUser } = require('../utils/database/testAccounts');
 
@@ -22,6 +23,10 @@ async function globalSetup() {
     // Create test admin user
     await createTestAdminUser();
     console.log('Test admin user created');
+
+    // Start python utils container
+    console.log('Setting up Python utils container...');
+    await startPythonUtilsContainer();
 
     console.log('Global test container ready');
   } catch (error) {

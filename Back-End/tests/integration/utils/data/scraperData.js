@@ -1,10 +1,8 @@
 const { mkdir, writeFile, rm } = require('node:fs/promises');
 const path = require('node:path');
 const os = require('node:os');
-const {
-  degreesURL,
-  runScraper,
-} = require('../../../../course-data/Scraping/Scrapers/runScraper');
+const { DEGREES_URL } = require('../../../../constants');
+const { parseDegree } = require('../../../../utils/pythonUtilsApi');
 /*
  * Utility to scrape degree data and write to temp json files for integration tests to use.
  * Also provides cleanup function to remove temp files after tests complete.
@@ -16,7 +14,7 @@ const DEFAULT_TEMP_DIR = path.join(os.tmpdir(), 'scraper-test-data');
 // scrape all degrees and write each JSON to a temp file
 async function getScraperData() {
   console.log('Getting scraper data...');
-  const degreeNames = Object.keys(degreesURL);
+  const degreeNames = Object.keys(DEGREES_URL);
   const written = [];
 
   try {
@@ -32,7 +30,7 @@ async function getScraperData() {
     // save each degree's scraped data to a separate file
     degreeNames.map(async (degreeName) => {
       try {
-        const data = await runScraper(degreeName);
+        const data = await parseDegree(DEGREES_URL[degreeName]);
         const safeName = degreeName.replaceAll(/\s+/g, '_');
         const file = path.join(
           DEFAULT_TEMP_DIR,
