@@ -1,8 +1,8 @@
 .vscode
 backups/*
-Back-End/yarn.lock
-Back-End/dist
-Back-End/coverage
+Back-End/src/yarn.lock
+Back-End/src/dist
+Back-End/src/coverage
 front-end/yarn.lock
 package-lock.json
 **/.env
@@ -12,8 +12,8 @@ TrackMyDegree.code-workspace
 .DS_Store
 .scannerwork
 node_modules/
-python_utils/**/__pycache__/
-python_utils/**/.pytest_cache/
-python_utils/venv/
-python_utils/**/.coverage
-python_utils/**/coverage.*
+Back-End/python_utils/**/__pycache__/
+Back-End/python_utils/**/.pytest_cache/
+Back-End/python_utils/venv/
+Back-End/python_utils/**/.coverage
+Back-End/python_utils/**/coverage.*

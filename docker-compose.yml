@@ -4,7 +4,7 @@ services:
 
   python_utils:
     build:
-      context: ./python_utils
+      context: ./Back-End/python_utils
       dockerfile: Dockerfile
     container_name: python_utils_service
     ports:

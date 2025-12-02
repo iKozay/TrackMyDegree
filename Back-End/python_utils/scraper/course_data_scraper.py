@@ -196,5 +196,3 @@ def extract_course_data(course_code, url):
         return courses
     else:
         return None
-    
-print(extract_course_data("COEN 244", "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-60-engineering-course-descriptions/computer-engineering-courses.html"))

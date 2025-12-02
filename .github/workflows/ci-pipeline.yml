@@ -65,17 +65,17 @@ jobs:
           node-version: '22'
 
       - name: Install dependencies for backend
-        working-directory: ./Back-End
+        working-directory: ./Back-End/src
         run: |
           npm install
 
       - name: Run ESLint for backend
-        working-directory: ./Back-End
+        working-directory: ./Back-End/src
         run: |
           npm run lint
 
       - name: Run backend tests with coverage
-        working-directory: ./Back-End
+        working-directory: ./Back-End/src
         run: |
           npm run build
           npm test -- --coverage
@@ -84,7 +84,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-coverage
-          path: Back-End/coverage
+          path: Back-End/src/coverage
 
   python-utils:
     runs-on: ubuntu-latest
@@ -95,7 +95,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run python_utils tests with coverage
-        working-directory: ./python_utils
+        working-directory: Back-End/python_utils
         run: |
           python3 -m venv venv
           source venv/bin/activate
@@ -108,7 +108,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-utils-coverage
-          path: python_utils/coverage.xml
+          path: Back-End/python_utils/coverage.xml
 
   sonarcloud:
     needs: [frontend, backend, python-utils]
@@ -129,13 +129,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: backend-coverage
-          path: Back-End/coverage
+          path: Back-End/src/coverage
 
       - name: Download python-utils coverage artifact (python-utils)
         uses: actions/download-artifact@v4
         with:
           name: python-utils-coverage
-          path: python_utils
+          path: Back-End/python_utils
 
       - name: Run SonarCloud Scan
         uses: sonarsource/sonarqube-scan-action@v6
