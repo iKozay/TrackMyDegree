@@ -1,0 +1,22 @@
+# Ignore Python cache and build artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.Python
+.pytest_cache/
+
+# Virtual environments
+venv/
+
+# Test files and coverage
+tests/
+.coverage
+coverage/
+coverage.*
+
+# Docker files not needed in context
+Dockerfile
+.dockerignore
