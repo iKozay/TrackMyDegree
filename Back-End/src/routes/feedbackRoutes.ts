@@ -129,8 +129,8 @@ router.get('/', async (req: Request, res: Response) => {
 
     const feedback = await feedbackController.getAllFeedback({
       user_id: user_id as string,
-      page: page ? parseInt(page as string) : undefined,
-      limit: limit ? parseInt(limit as string) : undefined,
+      page: page ? Number.parseInt(page as string) : undefined,
+      limit: limit ? Number.parseInt(limit as string) : undefined,
       sort: sort as 'asc' | 'desc',
     });
 

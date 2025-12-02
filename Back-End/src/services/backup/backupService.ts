@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import fsPromises = fs.promises;
 import path from 'node:path';
 import * as Sentry from '@sentry/node';
-// import { seedDatabase } from '../seed/seedService';
 
 const BACKUP_DIR = (
   process.env.BACKUP_DIR || path.join(__dirname, '../../backups')
@@ -118,7 +117,6 @@ export async function restoreBackup(backupFileName: string): Promise<void> {
 
     console.log('[RESTORE] Step 2: Re-seeding Courses & Degrees from files...');
 
-    // await seedDatabase();
 
     console.log('[RESTORE] Step 3: Restoring user data from backup...');
 

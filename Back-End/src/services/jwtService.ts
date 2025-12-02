@@ -1,4 +1,4 @@
-import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { CookieOptions } from 'express';
 import { UserType } from '@controllers/authController';
 
@@ -25,7 +25,7 @@ function getSecretKey(): string {
 
 function parseExpiryToMs(exp: string): number {
   // Converts "1h", "7d", etc. to milliseconds
-  const num = parseInt(exp);
+  const num = Number.parseInt(exp);
   if (exp.endsWith('h')) return num * 60 * 60 * 1000;
   if (exp.endsWith('d')) return num * 24 * 60 * 60 * 1000;
   return num * 1000;

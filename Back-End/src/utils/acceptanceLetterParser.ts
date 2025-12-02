@@ -45,7 +45,7 @@ parse = (text:string):ParsedData => {
 
   const minProgramLength = (/Minimum Program Length:\s*(\d+)\s*credits?/i).exec(text)?.[1];
   if (minProgramLength) {
-    programInfo.minimumProgramLength = parseInt(minProgramLength, 10);
+    programInfo.minimumProgramLength = Number.parseInt(minProgramLength, 10);
   }
 
   if (Object.keys(programInfo).length > 0) {

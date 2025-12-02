@@ -8,7 +8,7 @@ jest.mock('../utils/pythonUtilsApi');
 jest.mock('../controllers/degreeController');
 jest.mock('../controllers/coursepoolController');
 jest.mock('../controllers/courseController');
-jest.mock('../constants', () => ({
+jest.mock('../utils/constants', () => ({
     DEGREES_URL: {
         'Test Degree': 'https://example.com/test-degree',
         'DegreeA': 'https://example.com/degA',

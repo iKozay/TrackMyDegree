@@ -79,15 +79,6 @@ describe('AuthController', () => {
     await User.deleteMany({});
   });
 
-  describe('Constructor', () => {
-    it('should initialize with correct constants', () => {
-      expect(authController.RESET_EXPIRY_MINUTES).toBe(10);
-      expect(authController.DUMMY_HASH).toBe(
-        '$2a$10$invalidsaltinvalidsaltinv',
-      );
-    });
-  });
-
   describe('getUserById', () => {
     let testUser;
 

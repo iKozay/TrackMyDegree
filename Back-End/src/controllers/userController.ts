@@ -416,7 +416,8 @@ export class UserController extends BaseMongoController<any> {
         coursecodes.map((code) => Course.exists({ _id: code }).exec()),
       );
 
-      coursecodes.forEach((code, index) => {
+      for (let index = 0; index < coursecodes.length; index++) {
+        const code = coursecodes[index];
         if (!courseChecks[index]) {
           throw new Error(`Course with code '${code}' does not exist.`);
         }
@@ -426,7 +427,7 @@ export class UserController extends BaseMongoController<any> {
         } else {
           created.push({ coursecode: code, user_id });
         }
-      });
+      }
 
       // Bulk add new exemptions
       if (created.length > 0) {

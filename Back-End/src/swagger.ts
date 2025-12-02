@@ -1,5 +1,5 @@
 // Back-End/swagger.ts
-import path from "path";
+import path from "node:path";
 import swaggerJsdoc from "swagger-jsdoc";
 
 const definition: swaggerJsdoc.Options["definition"] = {

@@ -104,3 +104,19 @@ class TestScrapeDegree:
         assert 'detail' in data
         assert 'Scraping error' in data['detail']
         mock_scrape.assert_called_once_with(url)
+
+class TestMainFunction:
+    @patch('uvicorn.run')
+    def test_main_dev_mode(self, mock_uvicorn_run):
+        test_args = ['main.py', '--dev']
+        with patch.object(sys, 'argv', test_args):
+            from main import main
+            main()
+            mock_uvicorn_run.assert_called_once_with("main:app", host="0.0.0.0", port=5000, reload=True)
+    @patch('uvicorn.run')
+    def test_main_prod_mode(self, mock_uvicorn_run):
+        test_args = ['main.py']
+        with patch.object(sys, 'argv', test_args):
+            from main import main
+            main()
+            mock_uvicorn_run.assert_called_once_with("main:app", host="0.0.0.0", port=5000, workers=8)

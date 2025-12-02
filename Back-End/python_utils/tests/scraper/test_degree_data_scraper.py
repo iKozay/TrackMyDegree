@@ -54,7 +54,13 @@ class DummyResponse:
         self.status_code = status_code
         self.encoding = encoding
         self.headers = {"content-type": "text/html; charset=utf-8"}
-
+    def raise_for_status(self):
+        # mimic requests.Response.raise_for_status()
+        if self.status_code >= 400:
+            err = requests.HTTPError(f"{self.status_code} Error")
+            err.response = self
+            raise err
+        return None
 
 @patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
 @patch("scraper.degree_data_scraper.engr_general_electives_scraper", new=MockEngrElectivesScraper())

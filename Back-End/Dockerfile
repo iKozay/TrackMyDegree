@@ -1,7 +1,7 @@
 FROM node:22
 
 # Install Python and pip
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get --no-install-recommends install -y \
     python-is-python3 \
     python3 \
     python3-pip \
@@ -12,7 +12,7 @@ WORKDIR /app/backend
 
 # Copy backend package files and install dependencies
 COPY ./src/package.json ./
-RUN npm install
+RUN npm install --ignore-scripts
 
 # Copy backend source code
 COPY ./src ./
@@ -32,7 +32,13 @@ EXPOSE 8000
 
 # Copy entrypoint script
 WORKDIR /app
+
+# Create non-root user and group
+RUN groupadd -r appuser && useradd -r -g appuser -m appuser && chown -R appuser:appuser /app
+
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
+
+USER appuser
 
 ENTRYPOINT ["/app/entrypoint.sh"]

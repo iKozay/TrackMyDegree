@@ -157,8 +157,8 @@ router.get(
         collectionName,
         {
           keyword: keyword as string,
-          page: page ? parseInt(page as string) : undefined,
-          limit: limit ? parseInt(limit as string) : undefined,
+          page: page ? Number.parseInt(page as string) : undefined,
+          limit: limit ? Number.parseInt(limit as string) : undefined,
         },
       );
 
@@ -268,9 +268,9 @@ router.delete(
  *       500:
  *         description: Server error.
  */
-router.get('/connection-status', async (req: Request, res: Response) => {
+router.get('/connection-status', (req: Request, res: Response) => {
   try {
-    const status = await adminController.getConnectionStatus();
+    const status = adminController.getConnectionStatus();
     res.status(HTTP.OK).json({
       message: 'Connection status retrieved successfully',
       ...status,

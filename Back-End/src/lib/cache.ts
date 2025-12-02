@@ -1,7 +1,6 @@
 // lib/cache.ts
 import redisClient from './redisClient';
-
-const RESULT_TTL_SECONDS = 60 * 60; // 1 hour
+import { RESULT_TTL_SECONDS } from '@utils/constants';
 
 const resultKey = (jobId: string): string => `job:timeline:${jobId}`;
 

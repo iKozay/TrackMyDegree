@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import { BaseMongoController } from './baseMongoController';
 import * as Sentry from '@sentry/node';
+import { DATABASE_CONNECTION_NOT_AVAILABLE } from '@utils/constants';
 
-const DATABASE_CONNECTION_NOT_AVAILABLE = 'Database connection not available';
 
 export class AdminController extends BaseMongoController<any> {
   constructor() {

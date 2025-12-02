@@ -2,7 +2,7 @@ import { CourseData } from '@controllers/courseController';
 import { CoursePoolData } from '@controllers/coursepoolController';
 import { DegreeData } from '@controllers/degreeController';
 import { ParsedData } from '../types/transcript';
-import { PYTHON_SERVICE_BASE_URL } from '../constants';
+import { PYTHON_SERVICE_BASE_URL } from '@utils/constants';
 import axios from 'axios';
 import FormData from 'form-data';
 

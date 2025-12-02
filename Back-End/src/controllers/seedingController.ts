@@ -1,8 +1,8 @@
 import { DegreeController } from './degreeController';
 import { CoursePoolController } from './coursepoolController';
 import { CourseController } from './courseController';
-import { parseDegree, ParseDegreeResponse } from '../utils/pythonUtilsApi';
-import { DEGREES_URL } from '../constants';
+import { parseDegree, ParseDegreeResponse } from '@utils/pythonUtilsApi';
+import { DEGREES_URL } from '@utils/constants';
 
 /* Seed degree data in the database */
 export async function seedDegreeData(degreeName:string): Promise<void>{

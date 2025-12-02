@@ -212,14 +212,14 @@ export class CourseController extends BaseMongoController<any> {
       const requisites: RequisiteData[] = [];
 
       // Add prerequisites
-      (course.prerequisites || []).forEach((code2: string) => {
+      for (const code2 of course.prerequisites || []) {
         requisites.push({ code1, code2, type: 'pre' });
-      });
+      }
 
       // Add corequisites
-      (course.corequisites || []).forEach((code2: string) => {
+      for (const code2 of course.corequisites || []) {
         requisites.push({ code1, code2, type: 'co' });
-      });
+      }
 
       return requisites;
     } catch (error) {

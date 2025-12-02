@@ -1,6 +1,6 @@
 // workers/queue.test.js
 
-const { Buffer } = require('buffer');
+const { Buffer } = require('node:buffer');
 
 let workerProcessor;
 
@@ -19,7 +19,7 @@ jest.mock('bullmq', () => {
   };
 });
 
-jest.mock('fs/promises', () => ({
+jest.mock('node:fs/promises', () => ({
   readFile: jest.fn(),
   unlink: jest.fn(),
 }));
@@ -35,7 +35,7 @@ jest.mock('../lib/cache', () => ({
 // Import AFTER mocks so they take effect
 require('../workers/queue'); // adjust path if test file is elsewhere
 
-const { readFile, unlink } = require('fs/promises');
+const { readFile, unlink } = require('node:fs/promises');
 const { buildTimeline } = require('../services/timeline/timelineService');
 const { cacheJobResult } = require('../lib/cache');
 

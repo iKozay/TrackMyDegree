@@ -29,7 +29,7 @@ async def scrape_degree_api(url: str = Query(..., description="Degree requiremen
 		raise HTTPException(status_code=500, detail=f"Error scraping degree data: {str(e)}")
 	return degree_data
 
-if __name__ == "__main__":
+def main():
 	# Check if running in development (--dev) or production (add nothing)
 	if "--dev" in sys.argv:
 		# Single worker with reload for development
@@ -37,3 +37,6 @@ if __name__ == "__main__":
 	else:
 		# Production with multiple workers
 		uvicorn.run("main:app", host="0.0.0.0", port=5000, workers=8)
+
+if __name__ == "__main__":
+	main()

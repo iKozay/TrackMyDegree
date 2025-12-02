@@ -1,5 +1,6 @@
 import { BaseMongoController } from './baseMongoController';
 import { Degree } from '@models';
+import { DEGREE_WITH_ID_DOES_NOT_EXIST } from '@utils/constants';
 
 export interface DegreeData {
   _id: string;
@@ -20,8 +21,6 @@ export interface CoursePoolInfo {
   creditsRequired: number;
   courses: string[];
 }
-
-const DEGREE_WITH_ID_DOES_NOT_EXIST = 'Degree with this id does not exist.';
 
 export class DegreeController extends BaseMongoController<any> {
   constructor() {

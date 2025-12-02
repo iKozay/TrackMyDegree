@@ -11,15 +11,15 @@
     "moduleResolution": "node",                      /* Specify how TypeScript resolves modules. */
     "baseUrl": ".",                                  /* Specify the base directory to resolve non-relative module names. */
     "paths": {
-      "@controllers/*"    : ["./controllers/*"],
-      "@routes/*"       : ["./routes/*"],
-      "@utils/*"        : ["./utils/*"],
-      "@middleware/*"   : ["./middleware/*"],
+      "@controllers/*"  : ["./controllers/*"],
       "@lib/*"          : ["./lib/*"],
-      "@services/*"     : ["./services/*"],
+      "@middleware/*"   : ["./middleware/*"],
       "@models/*"       : ["./models/*"],
       "@models"         : ["./models/index"],
-      "@types/*"        : ["./types/*"]
+      "@routes/*"       : ["./routes/*"],
+      "@services/*"     : ["./services/*"],
+      "@types/*"        : ["./types/*"],
+      "@utils/*"        : ["./utils/*"],
      },                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
     "plugins": [
          {
@@ -51,5 +51,5 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   "exclude" : ["dist", "coverage"],
-  "include" : ["*.ts", "*.d.ts", "./**/*.ts", "controllers/**/*.d.ts"]
+  "include" : ["./**/*.ts"]
 }

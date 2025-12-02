@@ -7,6 +7,7 @@ async function getUUID() {
 }
 import nodemailer from 'nodemailer';
 import Redis from 'ioredis';
+import { RESET_EXPIRY_MINUTES, DUMMY_HASH } from '@utils/constants';
 
 // Mocro : create Redis client for storing password reset tokens temporarily
 const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
@@ -35,9 +36,6 @@ export interface PasswordResetRequest {
 }
 
 export class AuthController {
-  private readonly RESET_EXPIRY_MINUTES = 10;
-  private readonly DUMMY_HASH = '$2a$10$invalidsaltinvalidsaltinv';
-
   /**
    * Retrieves a user by their ID
    */
@@ -75,7 +73,7 @@ export class AuthController {
       const user = await User.findOne({ email }).select('+password').lean().exec();
 
       // Use dummy hash if user is not found to prevent timing attacks
-      const hash = user ? user.password : this.DUMMY_HASH;
+      const hash = user ? user.password : DUMMY_HASH;
       const passwordMatch = await bcrypt.compare(password, hash);
 
       if (user && passwordMatch && user._id) {
@@ -161,7 +159,7 @@ export class AuthController {
       }
 
       const resetLink = `${frontendUrl.replace(/\/$/, '')}/reset-password/${resetToken}`;
-      const expireSeconds = this.RESET_EXPIRY_MINUTES * 60;
+      const expireSeconds = RESET_EXPIRY_MINUTES * 60;
 
       // Mocro : Store token in Redis with expiry
       await redis.setex(`reset:${resetToken}`, expireSeconds, user.email);

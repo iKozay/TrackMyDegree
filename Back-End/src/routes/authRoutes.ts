@@ -32,13 +32,13 @@ router.post('/login', async (req: Request, res: Response) => {
     }
 
     const accessToken = jwtService.generateToken({
-      orgId: process.env.JWT_ORG_ID!,
+      orgId: process.env.JWT_ORG_ID,
       userId: user._id,
       type: user.type,
     });
     const refreshToken = jwtService.generateToken(
       {
-        orgId: process.env.JWT_ORG_ID!,
+        orgId: process.env.JWT_ORG_ID,
         userId: user._id,
         type: user.type,
       },
@@ -160,13 +160,13 @@ router.post('/signup', async (req: Request, res: Response) => {
 
     if (result) {
       const accessToken = jwtService.generateToken({
-        orgId: process.env.JWT_ORG_ID!,
+        orgId: process.env.JWT_ORG_ID,
         userId: result._id,
         type: result.type as UserType,
       });
       const refreshToken = jwtService.generateToken(
         {
-          orgId: process.env.JWT_ORG_ID!,
+          orgId: process.env.JWT_ORG_ID,
           userId: result._id,
           type: result.type as UserType,
         },

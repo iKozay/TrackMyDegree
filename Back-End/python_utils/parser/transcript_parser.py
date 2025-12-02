@@ -13,6 +13,10 @@ except ImportError:
     print("ERROR: PyMuPDF not installed. Run: pip install pymupdf", file=sys.stderr)
     sys.exit(1)
 
+# Constants
+BIRTHDATE = 'Birthdate:'
+CO_OP = '(Co-op)'
+TRANSFER_CREDITS = 'Transfer Credits'
 
 def extract_term_from_text(text):
     """Extract term and year from text like 'Winter 2023' or 'Fall/Winter 2025-26'"""
@@ -133,15 +137,15 @@ def parse_transcript(pdf_bytes):
                 
                 # Address (lines after Student ID, before Birthdate)
                 # Stop collecting address when we hit Birthdate or other known fields
-                if student_id and not birthdate and not line.startswith("Birthdate:"):
+                if student_id and not birthdate and not line.startswith(BIRTHDATE):
                     # Check if this looks like an address line (not a header or field name)
                     if (line and 
                         not any(keyword in line for keyword in ["Student ID", "Undergraduate", "Active", "Admit", "Matriculated", "Permanent Code", "Telephone"]) and
-                        not line.startswith("Birthdate:")):
+                        not line.startswith(BIRTHDATE)):
                         # Stop if we see the next field coming
                         if i + 1 < len(first_page_lines):
                             next_line = first_page_lines[i + 1].strip()
-                            if next_line.startswith("Birthdate:"):
+                            if next_line.startswith(BIRTHDATE):
                                 # Don't break, just stop adding to address
                                 pass
                             else:
@@ -237,7 +241,7 @@ def parse_transcript(pdf_bytes):
                         current_program['degreeType'] = degree_type
                         current_program['major'] = major
                         # Check for Co-op
-                        if "(Co-op)" in major or "COOP" in major.upper() or "(Co-op)" in line:
+                        if CO_OP in major or "COOP" in major.upper() or CO_OP in line:
                             current_program['coop'] = True
                         i += 1
                         continue
@@ -490,7 +494,7 @@ def parse_transcript(pdf_bytes):
                                     'gpa': None,
                                     'classAvg': None,
                                     'classSize': None,
-                                    'term': 'Transfer Credits',
+                                    'term': TRANSFER_CREDITS,
                                     'year': transfer_year,
                                     'other': None
                                 }
@@ -502,7 +506,7 @@ def parse_transcript(pdf_bytes):
                                     'rowIndex': word_idx,
                                     'tableIndex': -1,
                                     'course': course_obj,
-                                    'assignedTerm': {'term': 'Transfer Credits', 'year': transfer_year}
+                                    'assignedTerm': {'term': TRANSFER_CREDITS, 'year': transfer_year}
                                 })
                             else:
                                 # EX grade - add to exempted courses
@@ -551,7 +555,7 @@ def parse_transcript(pdf_bytes):
                                 'gpa': None,
                                 'classAvg': None,
                                 'classSize': None,
-                                'term': 'Transfer Credits',
+                                'term': TRANSFER_CREDITS,
                                 'year': transfer_year,
                                 'other': None
                             }
@@ -562,7 +566,7 @@ def parse_transcript(pdf_bytes):
                                 'rowIndex': word_idx,
                                 'tableIndex': -1,
                                 'course': course_obj,
-                                'assignedTerm': {'term': 'Transfer Credits', 'year': transfer_year}
+                                'assignedTerm': {'term': TRANSFER_CREDITS, 'year': transfer_year}
                             })
                         else:
                             # EX grade - add to exempted courses
@@ -633,7 +637,7 @@ def parse_transcript(pdf_bytes):
                             already_in_terms = any(
                                 c['course']['courseCode'] == course_key 
                                 for c in all_courses 
-                                if c.get('assignedTerm', {}).get('term') == 'Transfer Credits'
+                                if c.get('assignedTerm', {}).get('term') == TRANSFER_CREDITS
                             )
                             
                             if not already_in_terms:
@@ -649,7 +653,7 @@ def parse_transcript(pdf_bytes):
                                     'gpa': None,
                                     'classAvg': None,
                                     'classSize': None,
-                                    'term': 'Transfer Credits',
+                                    'term': TRANSFER_CREDITS,
                                     'year': transfer_year,
                                     'other': None
                                 }
@@ -660,7 +664,7 @@ def parse_transcript(pdf_bytes):
                                     'rowIndex': transfer_word_idx,
                                     'tableIndex': -1,
                                     'course': course_obj,
-                                    'assignedTerm': {'term': 'Transfer Credits', 'year': transfer_year}
+                                    'assignedTerm': {'term': TRANSFER_CREDITS, 'year': transfer_year}
                                 })
                         else:
                             # EX grade - add to exempted courses
@@ -734,7 +738,7 @@ def parse_transcript(pdf_bytes):
                     # Look ahead for grade and credits
                     # Pattern is usually: course_code course_number section credits grade [gpa] [other]
                     grade = None
-                    credits = None
+                    course_credits = None
                     gpa = None
                     
                     for j in range(i + 3, min(i + 20, len(words))):
@@ -742,8 +746,8 @@ def parse_transcript(pdf_bytes):
                         w_text = w[4].strip()
                         
                         # Check for credits first (decimal numbers like 3.00, 0.00)
-                        if credits is None and re.match(r'^\d+\.\d{2}$', w_text):
-                            credits = float(w_text)
+                        if course_credits is None and re.match(r'^\d+\.\d{2}$', w_text):
+                            course_credits = float(w_text)
                             continue
                         
                         # Check for grade (after credits)
@@ -762,14 +766,14 @@ def parse_transcript(pdf_bytes):
                                 gpa = val
                     
                     # Allow courses with 0 credits if they have a grade (like CWTE courses with PASS)
-                    if credits is None and not grade:
+                    if course_credits is None and not grade:
                         i += 1
                         continue
                     
                     course = {
                         'courseCode': f'{text1} {text2}',
                         'section': text3,
-                        'credits': credits or 0,
+                        'credits': course_credits or 0,
                         'grade': grade or '',
                         'gpa': gpa
                     }
@@ -818,8 +822,8 @@ def parse_transcript(pdf_bytes):
                             if re.match(r'^\d{4}$', w_text):
                                 transfer_year = w_text
                                 break
-                        
-                        course['term'] = 'Transfer Credits'
+
+                        course['term'] = TRANSFER_CREDITS
                         course['year'] = transfer_year
                         
                         # Add to all_courses with assigned term
@@ -829,7 +833,7 @@ def parse_transcript(pdf_bytes):
                             'rowIndex': i,
                             'tableIndex': -1,
                             'course': course,
-                            'assignedTerm': {'term': 'Transfer Credits', 'year': transfer_year}
+                            'assignedTerm': {'term': TRANSFER_CREDITS, 'year': transfer_year}
                         })
                         i += 3
                         continue
@@ -1009,7 +1013,7 @@ def parse_transcript(pdf_bytes):
         term_name = f"{course_info['term']} {course_info['year']}"
         
         # Skip "Transfer Credits" terms
-        if course_info['term'] == 'Transfer Credits':
+        if course_info['term'] == TRANSFER_CREDITS:
             continue
         
         # Add course to semester
@@ -1106,7 +1110,7 @@ def parse_transcript(pdf_bytes):
                 transfered_courses_set.add(course_code)
     
     # Add exempted and transfered courses to result (always include, even if empty)
-    result['exemptedCourses'] = sorted(list(exempted_courses_set)) if exempted_courses_set else []
-    result['transferedCourses'] = sorted(list(transfered_courses_set)) if transfered_courses_set else []
+    result['exemptedCourses'] = sorted((exempted_courses_set)) if exempted_courses_set else []
+    result['transferedCourses'] = sorted((transfered_courses_set)) if transfered_courses_set else []
     
     return result

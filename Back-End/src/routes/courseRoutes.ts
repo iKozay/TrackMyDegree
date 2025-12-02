@@ -86,8 +86,8 @@ router.get('/', async (req: Request, res: Response) => {
     const courses = await courseController.getAllCourses({
       pool: pool as string,
       search: search as string,
-      page: page ? parseInt(page as string) : undefined,
-      limit: limit ? parseInt(limit as string) : undefined,
+      page: page ? Number.parseInt(page as string) : undefined,
+      limit: limit ? Number.parseInt(limit as string) : undefined,
       sort: sort as string,
     });
 

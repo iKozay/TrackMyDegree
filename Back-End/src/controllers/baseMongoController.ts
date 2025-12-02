@@ -1,9 +1,7 @@
 import { Document, Model, FilterQuery, UpdateQuery } from 'mongoose';
 import * as Sentry from '@sentry/node';
 import { ObjectId } from 'bson';
-
-const QUERY_FAILED = 'Query failed';
-const DELETE_FAILED = 'Delete failed';
+import { QUERY_FAILED, DELETE_FAILED } from '@utils/constants';
 
 export interface BaseDocument extends Document {
   _id: ObjectId;
@@ -270,7 +268,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
 
       return {
         success: true,
-        data: document!,
+        data: document,
         message: `${this.modelName} saved successfully`,
       };
     } catch (error) {

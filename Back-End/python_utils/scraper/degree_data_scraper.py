@@ -10,6 +10,8 @@ from . import engr_general_electives_scraper
 USERAGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 headers = {"User-Agent": USERAGENT}
 
+GENERAL_ELECTIVES = "General Education Humanities and Social Sciences Electives"
+
 class DegreeDataScraper():
     def __init__(self):
         self.courses = []
@@ -23,10 +25,12 @@ class DegreeDataScraper():
 
     def get_page(self, url):
         # Fetch the webpage content
-        resp = requests.get(url, headers=headers)
-        if resp.status_code != 200:
+        try:
+            resp = requests.get(url, headers=headers)
+            resp.raise_for_status()
+        except requests.HTTPError:
             print(f"Failed to fetch the webpage. Status code: {resp.status_code}")
-            raise Exception(f"Failed to fetch the webpage. Status code: {resp.status_code}")
+            raise
         # Detect encoding
         http_encoding = resp.encoding if 'charset' in resp.headers.get('content-type', '').lower() else None
         html_encoding = EncodingDetector.find_declared_encoding(resp.content, is_html=True)
@@ -54,10 +58,10 @@ class DegreeDataScraper():
         if degree_name!="BEng in Industrial Engineering":
             self.course_pool[0]["creditsRequired"]=self.course_pool[0]["creditsRequired"]-3
             electives_results= engr_general_electives_scraper.scrape_electives()
-            self.degree["coursePools"].append("General Education Humanities and Social Sciences Electives")
+            self.degree["coursePools"].append(GENERAL_ELECTIVES)
             self.course_pool.append({
-                "_id":"General Education Humanities and Social Sciences Electives",
-                "name":"General Education Humanities and Social Sciences Electives",
+                "_id":GENERAL_ELECTIVES,
+                "name":GENERAL_ELECTIVES,
                 "creditsRequired":3,
                 "courses":list(set(electives_results[0]))
             })
@@ -94,7 +98,7 @@ class DegreeDataScraper():
             pool_group = self.soup.find('div', class_='program-required-courses defined-group')
             pools = pool_group.find_all('tr')
             for pool in pools:
-                credits = float(pool.find('td').text)
+                credits_required = float(pool.find('td').text)
                 name = pool.find('a').text
                 self.temp_url = pool.find('a').get('href')
                 self.temp_url = re.sub(r'#\d+$', '', self.temp_url)
@@ -103,7 +107,7 @@ class DegreeDataScraper():
                 self.course_pool.append({
                     '_id': course_pool_id,
                     'name': name,
-                    'creditsRequired': credits,
+                    'creditsRequired': credits_required,
                     'courses':list(set(course_list))
                 })
 

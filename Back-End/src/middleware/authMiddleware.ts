@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import HTTP from '@utils/httpCodes';
-import { jwtService } from '../services/jwtService';
+import { jwtService } from '@services/jwtService';
 import { authController } from '@controllers/authController';
 
 export async function authMiddleware(
