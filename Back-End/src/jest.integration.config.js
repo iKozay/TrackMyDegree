@@ -14,11 +14,14 @@ module.exports = {
     '^@services/(.*)$': '<rootDir>/services/$1.ts',
     '^@models/(.*)$': '<rootDir>/models/$1.ts',
     '^@models$': '<rootDir>/models/index.ts',
-    '^@types/(.*)$': '<rootDir>/types/$1.ts'
+    '^@types/(.*)$': '<rootDir>/types/$1.ts',
   },
   transform: {
-    '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.test.json', isolatedModules: false }],
-    '^.+\\.js$': 'babel-jest'
+    '^.+\\.ts$': [
+      'ts-jest',
+      { tsconfig: 'tsconfig.test.json', isolatedModules: false },
+    ],
+    '^.+\\.js$': 'babel-jest',
   },
   transformIgnorePatterns: ['node_modules/(?!(uuid)/)'],
   moduleFileExtensions: ['ts', 'js', 'json'],
@@ -32,11 +35,11 @@ module.exports = {
     'index.ts',
     '!**/node_modules/**',
     '!**/*.d.ts',
-    '!**/tests/**'
+    '!**/tests/**',
   ],
   coverageDirectory: 'coverage/integration',
   verbose: true,
   testTimeout: 600000,
   forceExit: true,
-  detectOpenHandles: true
+  detectOpenHandles: true,
 };

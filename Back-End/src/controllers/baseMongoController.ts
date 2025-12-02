@@ -388,16 +388,16 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   async bulkWrite(documents: Partial<T>[]): Promise<ControllerResponse<T[]>> {
     try {
       const operations = documents.map((doc) => ({
-          updateOne: {
-            filter: { _id: doc._id },
-            update: { $set: doc },
-            upsert: true,
-          },
-        }));
+        updateOne: {
+          filter: { _id: doc._id },
+          update: { $set: doc },
+          upsert: true,
+        },
+      }));
 
-        await this.model.bulkWrite(operations, { ordered: false });
+      await this.model.bulkWrite(operations, { ordered: false });
 
-        return { success: true };
+      return { success: true };
     } catch (error) {
       return {
         success: false,

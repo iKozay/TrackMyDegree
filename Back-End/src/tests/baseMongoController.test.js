@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const {
-  BaseMongoController,
-} = require('../controllers/baseMongoController');
+const { BaseMongoController } = require('../controllers/baseMongoController');
 const { ObjectId } = mongoose.Types;
 
 // Create a test model for BaseMongoController
@@ -519,7 +517,7 @@ describe('BaseMongoController', () => {
     });
 
     it('should update existing document', async () => {
-      const doc = await TestModel.create({
+      await TestModel.create({
         name: 'Existing User',
         email: 'existing@example.com',
         age: 20,
@@ -783,9 +781,24 @@ describe('BaseMongoController', () => {
   describe('bulkWrite', () => {
     it('should upsert multiple documents', async () => {
       const documents = [
-        { _id: new ObjectId(), name: 'User 1', email: 'user1@example.com', age: 20 },
-        { _id: new ObjectId(), name: 'User 2', email: 'user2@example.com', age: 30 },
-        { _id: new ObjectId(), name: 'User 3', email: 'user3@example.com', age: 25 },
+        {
+          _id: new ObjectId(),
+          name: 'User 1',
+          email: 'user1@example.com',
+          age: 20,
+        },
+        {
+          _id: new ObjectId(),
+          name: 'User 2',
+          email: 'user2@example.com',
+          age: 30,
+        },
+        {
+          _id: new ObjectId(),
+          name: 'User 3',
+          email: 'user3@example.com',
+          age: 25,
+        },
       ];
 
       const result = await testController.bulkWrite(documents);

@@ -3,10 +3,11 @@ jest.mock('node:timers', () => ({
   setTimeout: jest.fn(() => Math.floor(Math.random() * 10000)),
 }));
 
-const { AcceptanceLetterParser } = require('../utils/acceptanceLetterParser.ts');
+const {
+  AcceptanceLetterParser,
+} = require('../utils/acceptanceLetterParser.ts');
 describe('AcceptanceLetterParser', () => {
   const parser = new AcceptanceLetterParser();
-
 
   test('extractTermFromText should extract valid term between labels', () => {
     const text = `
@@ -41,7 +42,6 @@ describe('AcceptanceLetterParser', () => {
     expect(terms).toEqual(['Fall 2023', 'Winter 2024', 'Summer 2024']);
   });
 
-
   test('parse() should extract degree, co-op flag, and terms', () => {
     const mockText = `
       Program/Plan(s): Bachelor of Commerce Major in Marketing
@@ -66,7 +66,9 @@ describe('AcceptanceLetterParser', () => {
 
     // ✅ programInfo assertions
     expect(result.programInfo).toBeDefined();
-    expect(result.programInfo.degree).toContain('Bachelor of Commerce Major in Marketing');
+    expect(result.programInfo.degree).toContain(
+      'Bachelor of Commerce Major in Marketing',
+    );
     expect(result.programInfo.isCoop).toBe(true);
     expect(result.programInfo.isExtendedCreditProgram).toBe(true);
     expect(result.programInfo.minimumProgramLength).toBe(90);
@@ -85,7 +87,9 @@ describe('AcceptanceLetterParser', () => {
     // ✅ generated semesters
     expect(result.semesters).toBeDefined();
     expect(result.semesters.length).toBeGreaterThan(0);
-    const generatedTerms = result.semesters.filter(s => s.term.match(/Fall|Winter|Summer/));
+    const generatedTerms = result.semesters.filter((s) =>
+      s.term.match(/Fall|Winter|Summer/),
+    );
     expect(generatedTerms.length).toBeGreaterThan(0);
   });
 

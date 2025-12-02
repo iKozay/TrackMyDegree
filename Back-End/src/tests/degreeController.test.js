@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const {
-  DegreeController,
-} = require('../controllers/degreeController');
+const { DegreeController } = require('../controllers/degreeController');
 const { Degree } = require('../models/degree');
 
 describe('DegreeController', () => {
@@ -34,13 +32,12 @@ describe('DegreeController', () => {
   });
 
   describe('createDegree', () => {
-
     it('should create a new degree if not already exists', async () => {
       const degreeData = {
         _id: 'COMP',
         name: 'Computer Science',
         totalCredits: 120,
-        coursePools: []
+        coursePools: [],
       };
       const result = await degreeController.createDegree(degreeData);
       expect(result).toBe(true);
@@ -53,7 +50,7 @@ describe('DegreeController', () => {
         _id: 'COMP',
         name: 'Computer Science',
         totalCredits: 120,
-        coursePools: []
+        coursePools: [],
       };
       await Degree.create(degreeData);
       const result = await degreeController.createDegree(degreeData);
@@ -67,15 +64,15 @@ describe('DegreeController', () => {
     it('should handle errors during degree creation', async () => {
       // Mock the create method to throw an error
       const originalCreate = degreeController.model.create;
-      degreeController.model.create = jest.fn().mockRejectedValue(
-        new Error('Database error during creation'),
-      );
+      degreeController.model.create = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error during creation'));
 
       const degreeData = {
         _id: 'COMP',
         name: 'Computer Science',
         totalCredits: 120,
-        coursePools: []
+        coursePools: [],
       };
       await expect(degreeController.createDegree(degreeData)).rejects.toThrow(
         'Database error during creation',
@@ -86,56 +83,53 @@ describe('DegreeController', () => {
   });
 
   describe('updateDegree', () => {
-
     it('should update an existing degree', async () => {
       const testDegree = await Degree.create({
         _id: 'COMP7',
         name: 'Computer Science',
         totalCredits: 120,
-        coursePools: []
+        coursePools: [],
       });
 
       const degreeData = {
         name: 'Computer Science 1234',
         totalCredits: 123,
-        coursePools: [
-          'POOL1', 'POOL2'
-        ]
+        coursePools: ['POOL1', 'POOL2'],
       };
-      const result = await degreeController.updateDegree(testDegree._id, degreeData);
+      const result = await degreeController.updateDegree(
+        testDegree._id,
+        degreeData,
+      );
       expect(result).toMatchObject(degreeData);
     });
 
     it('should handle errors during degree update', async () => {
       // Mock the update method to throw an error
       const originalUpdate = degreeController.updateById;
-      degreeController.updateById = jest.fn().mockRejectedValue(
-        new Error('Database error during update'),
-      );
+      degreeController.updateById = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error during update'));
 
       const testDegree = await Degree.create({
         _id: 'MATH',
         name: 'Mathematics',
         totalCredits: 30,
-        coursePools: []
+        coursePools: [],
       });
 
       const degreeData = {
         _id: 'MATH',
         name: 'Mathematics 1234',
         totalCredits: 33,
-        coursePools: [
-          'POOL1', 'POOL2'
-        ]
+        coursePools: ['POOL1', 'POOL2'],
       };
-      await expect(degreeController.updateDegree(testDegree._id, degreeData)).rejects.toThrow(
-        'Database error during update',
-      );
+      await expect(
+        degreeController.updateDegree(testDegree._id, degreeData),
+      ).rejects.toThrow('Database error during update');
       // Restore original method
       degreeController.updateById = originalUpdate;
     });
   });
-
 
   describe('readDegree', () => {
     let testDegree;
@@ -175,9 +169,9 @@ describe('DegreeController', () => {
     it('should handle database errors', async () => {
       // Mock controller's findById to throw error
       const originalFindById = degreeController.findById;
-      degreeController.findById = jest.fn().mockRejectedValue(
-        new Error('Database connection failed'),
-      );
+      degreeController.findById = jest
+        .fn()
+        .mockRejectedValue(new Error('Database connection failed'));
 
       await expect(degreeController.readDegree('COMP')).rejects.toThrow(
         'Database connection failed',
@@ -235,9 +229,9 @@ describe('DegreeController', () => {
     it('should handle database errors', async () => {
       // Mock controller's findAll to throw error
       const originalFindAll = degreeController.findAll;
-      degreeController.findAll = jest.fn().mockRejectedValue(
-        new Error('Database connection failed'),
-      );
+      degreeController.findAll = jest
+        .fn()
+        .mockRejectedValue(new Error('Database connection failed'));
 
       await expect(degreeController.readAllDegrees()).rejects.toThrow(
         'Database connection failed',
@@ -272,9 +266,9 @@ describe('DegreeController', () => {
     it('should handle database errors', async () => {
       // Mock controller's findById to throw error
       const originalFindById = degreeController.findById;
-      degreeController.findById = jest.fn().mockRejectedValue(
-        new Error('Database connection failed'),
-      );
+      degreeController.findById = jest
+        .fn()
+        .mockRejectedValue(new Error('Database connection failed'));
 
       await expect(
         degreeController.getCreditsForDegree('COMP'),
@@ -291,10 +285,7 @@ describe('DegreeController', () => {
         _id: 'COMP',
         name: 'Computer Science',
         totalCredits: 120,
-        coursePools: [
-          'COMP_CORE',
-          'COMP_ELECTIVES',
-        ],
+        coursePools: ['COMP_CORE', 'COMP_ELECTIVES'],
       });
     });
 
@@ -303,18 +294,12 @@ describe('DegreeController', () => {
         _id: 'COMP123',
         name: 'Computer Science123',
         totalCredits: 120,
-        coursePools: [
-          'COMP_CORE',
-          'COMP_ELECTIVES',
-        ],
+        coursePools: ['COMP_CORE', 'COMP_ELECTIVES'],
       });
 
       const result = await degreeController.getCoursePoolsForDegree('COMP123');
 
-      expect(result).toEqual([
-        'COMP_CORE',
-        'COMP_ELECTIVES',
-      ]);
+      expect(result).toEqual(['COMP_CORE', 'COMP_ELECTIVES']);
     });
 
     it('should throw error for non-existent degree', async () => {
@@ -326,9 +311,9 @@ describe('DegreeController', () => {
     it('should handle database errors', async () => {
       // Mock controller's findById to throw error
       const originalFindById = degreeController.findById;
-      degreeController.findById = jest.fn().mockRejectedValue(
-        new Error('Database connection failed'),
-      );
+      degreeController.findById = jest
+        .fn()
+        .mockRejectedValue(new Error('Database connection failed'));
 
       await expect(
         degreeController.getCreditsForDegree('COMP'),
@@ -338,7 +323,6 @@ describe('DegreeController', () => {
       degreeController.findById = originalFindById;
     });
   });
-
 
   describe('Additional Edge Cases for Coverage', () => {
     it('should handle readDegree when findById returns error without message', async () => {
@@ -395,6 +379,5 @@ describe('DegreeController', () => {
 
       degreeController.findById = originalFindById;
     });
-
   });
 });

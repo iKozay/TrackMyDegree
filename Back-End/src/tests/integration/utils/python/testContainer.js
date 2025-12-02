@@ -10,38 +10,35 @@ let container = null;
  * Builds the custom Python utils image from Dockerfile and starts the container.
  */
 async function startPythonUtilsContainer() {
-	// Build image from Dockerfile at python_utils/
-    console.log('Building Python utils Docker image...');
+  // Build image from Dockerfile at python_utils/
+  console.log('Building Python utils Docker image...');
 
-    const build = await GenericContainer
-        .fromDockerfile(pythonUtilsDir)
-        .build();
+  const build = await GenericContainer.fromDockerfile(pythonUtilsDir).build();
 
-    console.log('Starting Python utils container...');
-    container = await build
-        .withExposedPorts({
-            container: 5000,
-            host: 5000
-        })
-        .start();
-    
-    console.log('Python utils container started');
+  console.log('Starting Python utils container...');
+  container = await build
+    .withExposedPorts({
+      container: 5000,
+      host: 5000,
+    })
+    .start();
+
+  console.log('Python utils container started');
 }
 
 /**
  * Stops and removes the given container if defined.
  */
 async function stopPythonUtilsContainer() {
-	if (!container) return;
-	try {
-		await container.stop({ timeout: 30000 });
-	} catch (e) {
-		console.warn('Failed to stop python utils container:', e);
-	}
+  if (!container) return;
+  try {
+    await container.stop({ timeout: 30000 });
+  } catch (e) {
+    console.warn('Failed to stop python utils container:', e);
+  }
 }
 
 module.exports = {
-	startPythonUtilsContainer,
-	stopPythonUtilsContainer,
+  startPythonUtilsContainer,
+  stopPythonUtilsContainer,
 };
-

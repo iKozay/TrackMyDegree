@@ -41,4 +41,4 @@ export const uploadWithJobId = multer({
       cb(new Error('Only PDF files are allowed'));
     }
   },
- });
+});

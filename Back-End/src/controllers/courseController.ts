@@ -40,7 +40,7 @@ export class CourseController extends BaseMongoController<any> {
       if (!result.success) {
         throw new Error(result.error || 'Failed to create courses');
       }
-      
+
       return true;
     } catch (error) {
       this.handleError(error, 'bulkCreateCourse');

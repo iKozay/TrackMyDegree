@@ -1,6 +1,5 @@
 // services/buildTimeline.ts
 
-
 type TimelineFileData = {
   type: 'file';
   // eslint-disable-next-line no-undef

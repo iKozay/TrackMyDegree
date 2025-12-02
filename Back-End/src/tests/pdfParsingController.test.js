@@ -13,21 +13,21 @@ jest.mock('pdf-parse', () => jest.fn());
 // Mock the custom parsers
 jest.mock('../utils/pythonUtilsApi', () => ({
   parseTranscript: jest.fn().mockResolvedValue({
-      programInfo: {
-        degree: 'B.Sc., Computer Science',
-        firstTerm: 'Fall 2024',
-        minimumProgramLength: 120,
+    programInfo: {
+      degree: 'B.Sc., Computer Science',
+      firstTerm: 'Fall 2024',
+      minimumProgramLength: 120,
+    },
+    semesters: [
+      {
+        term: 'Fall 2024',
+        courses: [{ code: 'COMP202', grade: 'A' }],
       },
-      semesters: [
-        {
-          term: 'Fall 2024',
-          courses: [{ code: 'COMP202', grade: 'A' }],
-        },
-      ],
-      transferedCourses: [],
-      exemptedCourses: [],
-      deficiencyCourses: [],
-  })
+    ],
+    transferedCourses: [],
+    exemptedCourses: [],
+    deficiencyCourses: [],
+  }),
 }));
 
 jest.mock('@utils/acceptanceLetterParser', () => ({
@@ -48,7 +48,7 @@ jest.mock('@utils/acceptanceLetterParser', () => ({
 // Create test app
 const app = express();
 app.post('/api/upload/parse', uploadMiddleware, (req, res) =>
-  pdfParsingController.parseDocument(req, res)
+  pdfParsingController.parseDocument(req, res),
 );
 
 describe('PDFParsingController', () => {
@@ -70,7 +70,10 @@ describe('PDFParsingController', () => {
 
     const response = await request(app)
       .post('/api/upload/parse')
-      .attach('file', Buffer.from('fake pdf data'), { filename: 'acceptance.pdf', contentType: 'application/pdf' });
+      .attach('file', Buffer.from('fake pdf data'), {
+        filename: 'acceptance.pdf',
+        contentType: 'application/pdf',
+      });
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
@@ -86,7 +89,10 @@ describe('PDFParsingController', () => {
 
     const response = await request(app)
       .post('/api/upload/parse')
-      .attach('file', Buffer.from('fake pdf data'), { filename: 'transcript.pdf', contentType: 'application/pdf' });
+      .attach('file', Buffer.from('fake pdf data'), {
+        filename: 'transcript.pdf',
+        contentType: 'application/pdf',
+      });
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
@@ -99,7 +105,10 @@ describe('PDFParsingController', () => {
   test('rejects non-PDF file uploads', async () => {
     const response = await request(app)
       .post('/api/upload/parse')
-      .attach('file', Buffer.from('not a pdf'), { filename: 'file.txt', contentType: 'text/plain' });
+      .attach('file', Buffer.from('not a pdf'), {
+        filename: 'file.txt',
+        contentType: 'text/plain',
+      });
 
     expect(response.status).toBe(500);
   });
@@ -111,10 +120,15 @@ describe('PDFParsingController', () => {
 
     const response = await request(app)
       .post('/api/upload/parse')
-      .attach('file', Buffer.from('random pdf'), { filename: 'random.pdf', contentType: 'application/pdf' });
+      .attach('file', Buffer.from('random pdf'), {
+        filename: 'random.pdf',
+        contentType: 'application/pdf',
+      });
 
     expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
-    expect(response.body.message).toMatch(/neither a valid transcript nor an acceptance letter/);
+    expect(response.body.message).toMatch(
+      /neither a valid transcript nor an acceptance letter/,
+    );
   });
 });

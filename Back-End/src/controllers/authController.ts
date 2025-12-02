@@ -2,8 +2,8 @@ import { User } from '@models';
 import bcrypt from 'bcryptjs';
 import * as Sentry from '@sentry/node';
 async function getUUID() {
-    const { v4: uuidv4 } = await import("uuid");
-    return uuidv4();
+  const { v4: uuidv4 } = await import('uuid');
+  return uuidv4();
 }
 import nodemailer from 'nodemailer';
 import Redis from 'ioredis';
@@ -68,9 +68,15 @@ export class AuthController {
    * Authenticates a user by verifying their email and password
    * Prevents timing attacks by using a dummy hash when user not found
    */
-  async authenticate(email: string, password: string): Promise<UserInfo | undefined> {
+  async authenticate(
+    email: string,
+    password: string,
+  ): Promise<UserInfo | undefined> {
     try {
-      const user = await User.findOne({ email }).select('+password').lean().exec();
+      const user = await User.findOne({ email })
+        .select('+password')
+        .lean()
+        .exec();
 
       // Use dummy hash if user is not found to prevent timing attacks
       const hash = user ? user.password : DUMMY_HASH;
@@ -143,7 +149,9 @@ export class AuthController {
   /**
    * Sends a secure password reset link via email and stores the token in Redis
    */
-  async forgotPassword(email: string): Promise<{ message: string; resetLink?: string }> {
+  async forgotPassword(
+    email: string,
+  ): Promise<{ message: string; resetLink?: string }> {
     try {
       const user = await User.findOne({ email }).exec();
       if (!user) {
@@ -155,7 +163,9 @@ export class AuthController {
 
       const frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT;
       if (!frontendUrl) {
-        throw new Error('FRONTEND_URL or CLIENT environment variable is not defined');
+        throw new Error(
+          'FRONTEND_URL or CLIENT environment variable is not defined',
+        );
       }
 
       const resetLink = `${frontendUrl.replace(/\/$/, '')}/reset-password/${resetToken}`;
@@ -178,7 +188,10 @@ export class AuthController {
   /**
    * Resets a user's password using the token stored in Redis
    */
-  async resetPassword(resetToken: string, newPassword: string): Promise<boolean> {
+  async resetPassword(
+    resetToken: string,
+    newPassword: string,
+  ): Promise<boolean> {
     try {
       // Mocro : Get email from Redis
       const email = await redis.get(`reset:${resetToken}`);
@@ -191,7 +204,7 @@ export class AuthController {
       const hashedPassword = await bcrypt.hash(newPassword, 10);
 
       // Save new password
-      user.password = hashedPassword;     
+      user.password = hashedPassword;
       await user.save();
 
       // Mocro : Delete used token
@@ -208,7 +221,11 @@ export class AuthController {
   /**
    * Change password for authenticated users
    */
-  async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<boolean> {
+  async changePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<boolean> {
     try {
       const user = await User.findById(userId).select('+password').exec();
       if (!user) return false;
@@ -245,8 +262,9 @@ export class AuthController {
       subject: 'Password Reset Link',
       text: `Use this link to reset your password: ${resetLink}`,
       html: `<p>Use this link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`,
-    });}
-    /*
+    });
+  }
+  /*
     Checks if a user is an admin
    */
   async isAdmin(userId: string): Promise<boolean> {

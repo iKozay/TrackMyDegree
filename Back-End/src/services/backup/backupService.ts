@@ -117,7 +117,6 @@ export async function restoreBackup(backupFileName: string): Promise<void> {
 
     console.log('[RESTORE] Step 2: Re-seeding Courses & Degrees from files...');
 
-
     console.log('[RESTORE] Step 3: Restoring user data from backup...');
 
     for (const collectionName of USER_DATA_COLLECTIONS) {

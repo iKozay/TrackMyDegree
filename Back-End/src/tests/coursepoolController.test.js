@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const {
-  CoursePoolController,
-} = require('../controllers/coursepoolController');
+const { CoursePoolController } = require('../controllers/coursepoolController');
 const { CoursePool } = require('../models/coursepool');
 
 describe('CoursepoolController', () => {
@@ -37,19 +35,21 @@ describe('CoursepoolController', () => {
     it('should create multiple course pools in bulk successfully', async () => {
       const coursePoolData = [
         {
-        _id: 'COMP_CORE',
-        name: 'Computer Science Core',
-        creditsRequired: 60,
-        courses: ['COMP101', 'COMP102'],
-      },
-      {
-        _id: 'COMP_CORE_2',
-        name: 'Computer Science Core 2',
-        creditsRequired: 60,
-        courses: ['COMP101', 'COMP102'],
-      }];
+          _id: 'COMP_CORE',
+          name: 'Computer Science Core',
+          creditsRequired: 60,
+          courses: ['COMP101', 'COMP102'],
+        },
+        {
+          _id: 'COMP_CORE_2',
+          name: 'Computer Science Core 2',
+          creditsRequired: 60,
+          courses: ['COMP101', 'COMP102'],
+        },
+      ];
 
-      const result = await coursepoolController.bulkCreateCoursePools(coursePoolData);
+      const result =
+        await coursepoolController.bulkCreateCoursePools(coursePoolData);
 
       expect(result).toBe(true);
       const createdPools = await CoursePool.find({});
@@ -61,24 +61,24 @@ describe('CoursepoolController', () => {
     it('should handle database errors', async () => {
       // Mock findById to throw error
       const originalBulkWrite = coursepoolController.bulkWrite;
-      coursepoolController.bulkWrite = jest.fn().mockRejectedValue(
-        new Error('Database connection failed'),
-      );
+      coursepoolController.bulkWrite = jest
+        .fn()
+        .mockRejectedValue(new Error('Database connection failed'));
 
-            const coursePoolData = [
+      const coursePoolData = [
         {
-        _id: 'COMP_CORE',
-        name: 'Computer Science Core',
-        creditsRequired: 60,
-        courses: ['COMP101', 'COMP102'],
-      },
-      {
-        _id: 'COMP_CORE_2',
-        name: 'Computer Science Core 2',
-        creditsRequired: 60,
-        courses: ['COMP101', 'COMP102'],
-      }];
-
+          _id: 'COMP_CORE',
+          name: 'Computer Science Core',
+          creditsRequired: 60,
+          courses: ['COMP101', 'COMP102'],
+        },
+        {
+          _id: 'COMP_CORE_2',
+          name: 'Computer Science Core 2',
+          creditsRequired: 60,
+          courses: ['COMP101', 'COMP102'],
+        },
+      ];
 
       await expect(
         coursepoolController.bulkCreateCoursePools(coursePoolData),
@@ -194,9 +194,9 @@ describe('CoursepoolController', () => {
     it('should handle database errors', async () => {
       // Mock findById to throw error
       const originalFindById = coursepoolController.findById;
-      coursepoolController.findById = jest.fn().mockRejectedValue(
-        new Error('Database connection failed'),
-      );
+      coursepoolController.findById = jest
+        .fn()
+        .mockRejectedValue(new Error('Database connection failed'));
 
       const result = await coursepoolController.getCoursePool('COMP_CORE');
       expect(result).toBeUndefined();
@@ -271,9 +271,9 @@ describe('CoursepoolController', () => {
     it('should handle database errors on findById', async () => {
       // Mock findById to throw error
       const originalFindById = coursepoolController.findById;
-      coursepoolController.findById = jest.fn().mockRejectedValue(
-        new Error('Database connection failed'),
-      );
+      coursepoolController.findById = jest
+        .fn()
+        .mockRejectedValue(new Error('Database connection failed'));
 
       const updates = { name: 'Updated Name' };
       const result = coursepoolController.updateCoursePool(
@@ -351,13 +351,13 @@ describe('CoursepoolController', () => {
     it('should handle database errors', async () => {
       // Mock deleteById to throw error
       const originalDeleteById = coursepoolController.deleteById;
-      coursepoolController.deleteById = jest.fn().mockRejectedValue(
-        new Error('Database connection failed'),
-      );
+      coursepoolController.deleteById = jest
+        .fn()
+        .mockRejectedValue(new Error('Database connection failed'));
 
       const result = coursepoolController.deleteCoursePool('COMP_CORE');
-      
-       await expect(result).rejects.toThrow('Database connection failed');
+
+      await expect(result).rejects.toThrow('Database connection failed');
 
       // Restore original method
       coursepoolController.deleteById = originalDeleteById;
@@ -390,11 +390,13 @@ describe('CoursepoolController', () => {
         error: null,
       });
 
-      const coursePoolData = [{
-        _id: 'TEST_POOL',
-        name: 'Test Pool',
-        creditsRequired: 30,
-      }];
+      const coursePoolData = [
+        {
+          _id: 'TEST_POOL',
+          name: 'Test Pool',
+          creditsRequired: 30,
+        },
+      ];
 
       await expect(
         coursepoolController.bulkCreateCoursePools(coursePoolData),
@@ -442,5 +444,3 @@ describe('CoursepoolController', () => {
     });
   });
 });
-
-

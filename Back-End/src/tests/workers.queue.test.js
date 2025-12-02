@@ -110,7 +110,7 @@ describe('courseProcessorWorker', () => {
       },
     };
 
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     await expect(workerProcessor(job)).rejects.toThrow('processing failed');
 

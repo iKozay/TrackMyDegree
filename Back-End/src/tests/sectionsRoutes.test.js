@@ -126,9 +126,14 @@ describe('Sections Routes', () => {
         .query({ subject: 'COMP', catalog: '490' });
 
       expect(response.status).toBe(HTTP.SERVER_ERR);
-      expect(response.body).toEqual({ error: 'Error fetching course schedule' });
+      expect(response.body).toEqual({
+        error: 'Error fetching course schedule',
+      });
       expect(mockGetCourseSchedule).toHaveBeenCalledWith('COMP', '490');
-      expect(consoleSpy).toHaveBeenCalledWith('Error fetching course schedule', mockError);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Error fetching course schedule',
+        mockError,
+      );
       expect(Sentry.captureException).toHaveBeenCalledWith(mockError);
 
       consoleSpy.mockRestore();

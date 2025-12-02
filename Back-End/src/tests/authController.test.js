@@ -6,10 +6,7 @@
 
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const {
-  AuthController,
-  UserType,
-} = require('../controllers/authController');
+const { AuthController, UserType } = require('../controllers/authController');
 // Handle ES6 module export properly
 const UserModule = require('../models/user');
 const User = UserModule.User || UserModule.default || UserModule;
@@ -48,7 +45,7 @@ jest.mock('ioredis', () => {
 
 // Get access to redis mocks
 const Redis = require('ioredis');
-const { mockRedisGet, mockRedisSetex, mockRedisDel } = Redis.__mocks__;
+const { mockRedisGet, mockRedisSetex } = Redis.__mocks__;
 
 // ─────────────────────────────────────────────
 // Mock Sentry
@@ -57,7 +54,7 @@ jest.mock('@sentry/node', () => ({
 }));
 
 describe('AuthController', () => {
-  let mongoServer, mongoUri, authController;
+  let mongoServer, mongoUri, authController, testUser;
 
   beforeAll(async () => {
     // Start in-memory MongoDB instance for testing
@@ -132,8 +129,6 @@ describe('AuthController', () => {
   });
 
   describe('authenticate', () => {
-    let testUser;
-
     beforeEach(async () => {
       const hashedPassword = await bcrypt.hash('TestPass123!', 10);
       testUser = await User.create({
@@ -325,8 +320,6 @@ describe('AuthController', () => {
   });
 
   describe('forgotPassword', () => {
-    let testUser;
-
     beforeEach(async () => {
       testUser = await User.create({
         email: 'test@example.com',
@@ -357,9 +350,9 @@ describe('AuthController', () => {
 
     it('should handle missing FRONTEND_URL', async () => {
       delete process.env.FRONTEND_URL;
-      await expect(authController.forgotPassword('reset@example.com')).resolves.toHaveProperty(
-        'message'
-      );
+      await expect(
+        authController.forgotPassword('reset@example.com'),
+      ).resolves.toHaveProperty('message');
     });
 
     it('should handle database errors gracefully', async () => {
@@ -390,7 +383,10 @@ describe('AuthController', () => {
 
       mockRedisGet.mockResolvedValueOnce('reset@example.com');
 
-      const res = await authController.resetPassword('validtoken', 'NewPass123!');
+      const res = await authController.resetPassword(
+        'validtoken',
+        'NewPass123!',
+      );
       expect(res).toBe(true);
     });
 
@@ -399,7 +395,6 @@ describe('AuthController', () => {
       const res = await authController.resetPassword('badtoken', 'NewPass123!');
       expect(res).toBe(false);
     });
-
   });
 
   describe('changePassword', () => {

@@ -9,7 +9,7 @@ import FormData from 'form-data';
 export interface ParseDegreeResponse {
   degree: DegreeData;
   course_pool: Array<CoursePoolData>;
-  courses: Array<CourseData>
+  courses: Array<CourseData>;
 }
 
 /**
@@ -19,12 +19,15 @@ export interface ParseDegreeResponse {
  */
 export async function parseDegree(url: string): Promise<ParseDegreeResponse> {
   try {
-    const response = await axios.get(`${PYTHON_SERVICE_BASE_URL}/scrape-degree`, {
-      params: { url },
-    });
+    const response = await axios.get(
+      `${PYTHON_SERVICE_BASE_URL}/scrape-degree`,
+      {
+        params: { url },
+      },
+    );
     return response.data;
   } catch (error) {
-      throw new Error(`Failed to parse degree: ${error}`);
+    throw new Error(`Failed to parse degree: ${error}`);
   }
 }
 
@@ -42,16 +45,20 @@ export async function parseTranscript(fileBuffer: Buffer): Promise<ParsedData> {
       contentType: 'application/pdf',
     });
 
-    const response = await axios.post(`${PYTHON_SERVICE_BASE_URL}/parse-transcript`, formData, {
-      headers: {
-        ...formData.getHeaders(),
+    const response = await axios.post(
+      `${PYTHON_SERVICE_BASE_URL}/parse-transcript`,
+      formData,
+      {
+        headers: {
+          ...formData.getHeaders(),
+        },
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
       },
-      maxContentLength: Infinity,
-      maxBodyLength: Infinity,
-    });
+    );
 
     return response.data;
   } catch (error) {
-        throw new Error(`Failed to parse transcript: ${error}`);
+    throw new Error(`Failed to parse transcript: ${error}`);
   }
 }

@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const {
-  CourseController,
-} = require('../controllers/courseController');
+const { CourseController } = require('../controllers/courseController');
 const { Course } = require('../models/course');
 
 describe('CourseController', () => {
@@ -37,23 +35,24 @@ describe('CourseController', () => {
     it('should create multiple courses in bulk', async () => {
       const courseData = [
         {
-        _id: 'COMP101',
-        title: 'Introduction to Programming',
-        description: 'Basic programming concepts',
-        credits: 3,
-        offeredIn: ['Fall', 'Winter'],
-        prerequisites: ['MATH101'],
-        corequisites: [],
-      },
-      {
-        _id: 'COMP102',
-        title: 'Introduction to Programming 2',
-        description: 'Basic programming concepts',
-        credits: 3,
-        offeredIn: ['Fall', 'Winter'],
-        prerequisites: ['MATH102'],
-        corequisites: [],
-      }];
+          _id: 'COMP101',
+          title: 'Introduction to Programming',
+          description: 'Basic programming concepts',
+          credits: 3,
+          offeredIn: ['Fall', 'Winter'],
+          prerequisites: ['MATH101'],
+          corequisites: [],
+        },
+        {
+          _id: 'COMP102',
+          title: 'Introduction to Programming 2',
+          description: 'Basic programming concepts',
+          credits: 3,
+          offeredIn: ['Fall', 'Winter'],
+          prerequisites: ['MATH102'],
+          corequisites: [],
+        },
+      ];
 
       const result = await courseController.bulkCreateCourses(courseData);
       expect(result).toBe(true);
@@ -70,26 +69,26 @@ describe('CourseController', () => {
       courseController.bulkWrite = jest.fn().mockImplementation(() => {
         throw new Error('Database connection failed');
       });
-            const courseData = [
+      const courseData = [
         {
-        _id: 'COMP101',
-        title: 'Introduction to Programming',
-        description: 'Basic programming concepts',
-        credits: 3,
-        offeredIn: ['Fall', 'Winter'],
-        prerequisites: ['MATH101'],
-        corequisites: [],
-      },
-      {
-        _id: 'COMP102',
-        title: 'Introduction to Programming 2',
-        description: 'Basic programming concepts',
-        credits: 3,
-        offeredIn: ['Fall', 'Winter'],
-        prerequisites: ['MATH102'],
-        corequisites: [],
-      }];
-
+          _id: 'COMP101',
+          title: 'Introduction to Programming',
+          description: 'Basic programming concepts',
+          credits: 3,
+          offeredIn: ['Fall', 'Winter'],
+          prerequisites: ['MATH101'],
+          corequisites: [],
+        },
+        {
+          _id: 'COMP102',
+          title: 'Introduction to Programming 2',
+          description: 'Basic programming concepts',
+          credits: 3,
+          offeredIn: ['Fall', 'Winter'],
+          prerequisites: ['MATH102'],
+          corequisites: [],
+        },
+      ];
 
       await expect(
         courseController.bulkCreateCourses(courseData),
@@ -134,8 +133,9 @@ describe('CourseController', () => {
         corequisites: [],
       };
 
-      await expect(
-        courseController.updateCourse(courseData),).rejects.toThrow('Database connection failed');
+      await expect(courseController.updateCourse(courseData)).rejects.toThrow(
+        'Database connection failed',
+      );
 
       // Restore original method
       courseController.updateById = originalUpdate;
@@ -422,12 +422,12 @@ describe('CourseController', () => {
         throw new Error('Database connection failed');
       });
 
-      await expect(
-        courseController.deleteCourse('COMP101')).rejects.toThrow('Database connection failed');
+      await expect(courseController.deleteCourse('COMP101')).rejects.toThrow(
+        'Database connection failed',
+      );
       // Restore original method
       courseController.deleteById = originalDeleteById;
     });
-
   });
 
   describe('createRequisite', () => {
