@@ -19,6 +19,7 @@ module.exports = {
     '!**/*.d.ts',
     '!**/tests/**',
     '!**/coverage/**',
+    '!course-data/**',
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['lcov', 'text', 'text-summary', 'html'],
