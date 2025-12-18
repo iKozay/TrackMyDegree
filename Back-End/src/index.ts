@@ -40,7 +40,7 @@ Sentry.init({
 //Express Init
 if (process.env.NODE_ENV === 'development') {
   const loadEnv = dotenv.config({
-    path: path.resolve(__dirname, '../secrets/.env'),
+    path: path.resolve(__dirname, '../../secrets/.env'),
     debug: true,
   });
   if (loadEnv.error) {

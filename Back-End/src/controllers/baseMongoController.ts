@@ -397,7 +397,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
           },
         }));
 
-      await this.model.bulkWrite(operations, { ordered: false });
+      await this.model.bulkWrite(operations as any, { ordered: false });
 
       return { success: true };
     } catch (error) {
