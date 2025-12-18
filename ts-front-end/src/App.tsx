@@ -7,7 +7,8 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AdminPage from "./pages/AdminPage";
 import LandingPage from "./pages/LandingPage";
-import RequirementPage from "./pages/RequirementPage";
+import RequirementSelectPage from "./pages/RequirementsFormPage";
+import RequirementsFormPage from "./pages/RequirementsSelectPage";
 import CoursePage from "./pages/CoursePage";
 import { Navbar } from "./components/NavBar";
 
@@ -30,7 +31,8 @@ const App: React.FC = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/courses" element={<CoursePage />} />
-          <Route path="/requirements" element={<RequirementPage />} />
+          <Route path="/requirements" element={<RequirementsFormPage />} />
+          <Route path="/requirements/:programId" element={<RequirementSelectPage />} />
 
           <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
             <Route path="/student/profile" element={<StudentPage />} />
