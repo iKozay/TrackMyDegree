@@ -1,7 +1,7 @@
 const { mkdir, writeFile, rm } = require('node:fs/promises');
 const path = require('node:path');
 const os = require('node:os');
-const { DEGREES_URL } = require('../../../../constants');
+const { DEGREES_URL } = require('../../../../utils/constants');
 const { parseDegree } = require('../../../../utils/pythonUtilsApi');
 /*
  * Utility to scrape degree data and write to temp json files for integration tests to use.
