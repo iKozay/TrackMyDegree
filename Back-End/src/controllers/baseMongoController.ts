@@ -391,7 +391,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
         .filter((doc) => doc._id !== undefined)
         .map((doc) => ({
           updateOne: {
-            filter: { _id: doc._id },
+            filter: { _id: doc._id! },
             update: { $set: doc },
             upsert: true,
           },
