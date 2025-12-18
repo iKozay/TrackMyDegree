@@ -109,6 +109,29 @@ jobs:
         with:
           name: python-utils-coverage
           path: Back-End/python_utils/coverage.xml
+  
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: Install dependencies for backend
+        working-directory: ./Back-End/src
+        run: |
+          npm install
+
+      - name: Run integration tests
+        working-directory: ./Back-End/src
+        run: |
+          npm run test:integration
 
   sonarcloud:
     needs: [frontend, backend, python-utils]
