@@ -23,10 +23,12 @@ export const buildTimeline = async (
   if (type === 'file') {
     // data is Buffer | Express.Multer.File
     // parse file and build timeline
+    console.log('Received file data for timeline building:', data);
   } else {
     // type === "object" form data
     // data is Record<string, unknown>
     // handle object-based timeline building
+    console.log('Received form data for timeline building:', data);
   }
 
   // replace with your actual implementation
