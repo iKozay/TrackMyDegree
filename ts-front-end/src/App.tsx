@@ -10,6 +10,9 @@ import LandingPage from "./pages/LandingPage";
 import RequirementSelectPage from "./pages/RequirementsFormPage";
 import RequirementsFormPage from "./pages/RequirementsSelectPage";
 import CoursePage from "./pages/CoursePage";
+import ForbiddenPage from "./pages/ForbiddenPage";
+import ForgetPasswordPage from "./pages/ForgetPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { Navbar } from "./components/NavBar";
 
 // TODO: import { AuthProvider } from "./contexts/authProvider";
@@ -26,10 +29,13 @@ const App: React.FC = () => {
         <Routes>
           {/* Public */}
           <Route path="/" element={<LandingPage />} />
+          <Route path="/403" element={<ForbiddenPage />} />
           <Route path="/timeline" element={<TimelineSetupPage />} />
           <Route path="/timeline/:jobId" element={<TimeLinePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgetPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/courses" element={<CoursePage />} />
           <Route path="/requirements" element={<RequirementsFormPage />} />
           <Route path="/requirements/:programId" element={<RequirementSelectPage />} />
