@@ -1,11 +1,8 @@
 import React from "react";
+import LegacyCoursePage from "../legacy/pages/CourseListPage.jsx";
 
 const CoursePage: React.FC = () => {
-  return (
-    <main style={{ padding: "2rem", maxWidth: "420px", margin: "0 auto" }}>
-      <h1 style={{ marginBottom: "1rem" }}>Courses</h1>
-    </main>
-  );
+  return <LegacyCoursePage />;
 };
 
 export default CoursePage;
