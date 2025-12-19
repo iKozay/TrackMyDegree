@@ -19,9 +19,10 @@ export interface Credentials {
   password: string;
 }
 
-export interface UserInfo extends Credentials {
+export interface UserInfo {
   _id: string;
   fullname: string;
+  email: string;
   type: UserType;
 }
 
@@ -51,7 +52,6 @@ export class AuthController {
         fullname: user.fullname,
         email: user.email,
         type: user.type as UserType,
-        password: '', // never return password
       };
     } catch (error) {
       Sentry.captureException(error, {
@@ -72,7 +72,7 @@ export class AuthController {
       const user = await User.findOne({ email }).select('+password').lean().exec();
 
       // Use dummy hash if user is not found to prevent timing attacks
-      const hash = user ? user.password : this.DUMMY_HASH;
+      const hash = user && user.password ? user.password : this.DUMMY_HASH;
       const passwordMatch = await bcrypt.compare(password, hash);
 
       if (user && passwordMatch && user._id) {
@@ -81,7 +81,6 @@ export class AuthController {
           fullname: user.fullname,
           email: user.email,
           type: user.type as UserType,
-          password: '',
         };
       }
 
@@ -96,7 +95,7 @@ export class AuthController {
   /**
    * Registers a new user after validating input
    */
-  async registerUser(userInfo: UserInfo): Promise<
+  async registerUser(userInfo: UserInfo, password: string): Promise<
     | {
         _id: string;
         email: string;
@@ -105,7 +104,7 @@ export class AuthController {
       }
     | undefined
   > {
-    const { email, password, fullname, type } = userInfo;
+    const { email, fullname, type } = userInfo;
 
     try {
       const existingUser = await User.exists({ email }).exec();
@@ -210,7 +209,7 @@ export class AuthController {
   async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<boolean> {
     try {
       const user = await User.findById(userId).select('+password').exec();
-      if (!user) return false;
+      if (!user || !user.password) return false;
 
       const match = await bcrypt.compare(oldPassword, user.password);
       if (!match) return false;

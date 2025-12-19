@@ -36,7 +36,7 @@ export const Navbar: React.FC = () => {
 
   const goToProfile = () => {
     const profilePath =
-      user?.role === "admin" ? "/admin/profile" : "/student/profile";
+      user?.role === "admin" ? "/profile/admin" : "/profile/student";
     navigateTo(profilePath);
   };
 

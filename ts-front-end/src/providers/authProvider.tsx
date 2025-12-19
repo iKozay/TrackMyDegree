@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { api } from "../api/http-api-client";
 import type { AuthResponse } from "../types/response.types";
 import type { AuthUser, AuthContextValue } from "../types/auth.types";
@@ -8,6 +8,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -65,14 +66,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const value: AuthContextValue = {
-    user,
-    isAuthenticated: !!user,
-    loading,
-    login,
-    signup,
-    logout,
-  };
+  const value: AuthContextValue = useMemo(
+    () => ({
+      user,
+      isAuthenticated: !!user,
+      loading,
+      login,
+      signup,
+      logout,
+    }),
+    [user, loading, login, signup, logout]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

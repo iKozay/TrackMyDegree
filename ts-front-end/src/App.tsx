@@ -15,8 +15,7 @@ import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { Navbar } from "./components/NavBar";
 
-// TODO: import { AuthProvider } from "./contexts/authProvider";
-import { MockAuthProvider } from "./providers/MockAuthProvider";
+import { AuthProvider } from "./providers/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
 
 import "./App.css";
@@ -24,7 +23,7 @@ import "./App.css";
 const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <MockAuthProvider>
+      <AuthProvider>
         <Navbar />
         <Routes>
           {/* Public */}
@@ -41,15 +40,15 @@ const App: React.FC = () => {
           <Route path="/requirements/:programId" element={<RequirementSelectPage />} />
 
           <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
-            <Route path="/student/profile" element={<StudentPage />} />
+            <Route path="/profile/student" element={<StudentPage />} />
           </Route>
 
           {/* Protected: ADMIN PROFILE */}
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-            <Route path="/admin/profile" element={<AdminPage />} />
+            <Route path="/profile/admin" element={<AdminPage />} />
           </Route>
         </Routes>
-      </MockAuthProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 };
