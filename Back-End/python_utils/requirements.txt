@@ -1,0 +1,31 @@
+# API server
+fastapi==0.115.5
+uvicorn==0.32.0
+python-multipart==0.0.9
+
+# PyMuPDF for PDF parsing
+pymupdf>=1.23.0
+
+# Scraping dependencies
+beautifulsoup4==4.14.2
+bs4==0.0.2
+certifi==2025.10.5
+charset-normalizer==3.4.3
+click==8.3.0
+idna==3.11
+iniconfig==2.1.0
+lxml==6.0.2
+packaging==25.0
+pluggy==1.6.0
+Pygments==2.19.2
+requests==2.32.5
+soupsieve==2.8
+typing_extensions==4.15.0
+urllib3==2.5.0
+
+# Testing dependencies
+pytest>=8.4.2
+pytest-cov>=7.0.0
+coverage>=7.10.7
+coverage-lcov==0.3.0
+httpx==0.28.1
