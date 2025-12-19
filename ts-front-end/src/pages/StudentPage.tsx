@@ -1,14 +1,29 @@
 import React, { useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { api } from "../api/http-api-client";
+import LegacyStudentPage from "../legacy/pages/UserPage.jsx";
 
 const StudentPage: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
+  const [timelines, setTimelines] = React.useState<any[]>([]);
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const fetchWhatever = async () => {
+    const fetchUserTimelines = async () => {
       try {
-        // backend will read the JWT from the cookie
+        if(user && user.id) {
+          const fetchedTimelines = await api.get(`/timeline/user/${user.id}`);
+        
+          if (Array.isArray(fetchedTimelines)) {
+            // Sort timelines by last_modified in descending order (TypeScript safe)
+            const sortedTimelines = fetchedTimelines.sort((a: { last_modified: string }, b: { last_modified: string }) => {
+              const dateA = new Date(a.last_modified).getTime();
+              const dateB = new Date(b.last_modified).getTime();
+              return dateB - dateA;
+            });
+            setTimelines(sortedTimelines);
+          }
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -16,19 +31,14 @@ const StudentPage: React.FC = () => {
       }
     };
 
-    fetchWhatever();
+    fetchUserTimelines();
   }, [isAuthenticated]);
 
   if (!isAuthenticated) {
     return <p>Please log in to see your data.</p>;
   }
 
-  return (
-    <main style={{ padding: "2rem" }}>
-      <h1>Hello, Student {user?.name} 👋</h1>
-      <p>Welcome to your profile page.</p>
-    </main>
-  );
+  return <LegacyStudentPage student={user} timelines={timelines} />;
 };
 
 export default StudentPage;
