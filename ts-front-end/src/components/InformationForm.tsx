@@ -41,7 +41,7 @@ const InformationForm = () => {
   useEffect(() => {
     const getDegrees = async () => {
       try {
-        const response = await api.get<Degree[]>("/degrees");
+        const response = await api.get<Degree[]>("/degree");
         setDegrees(response);
       } catch (err: unknown) {
         alert("Error fetching degrees from server. Please try again later.");

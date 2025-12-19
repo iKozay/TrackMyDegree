@@ -4,7 +4,7 @@ import "../styles/components/navbar.css";
 import { useAuth } from "../hooks/useAuth";
 
 const navItems = [
-  { label: "Timeline", href: "/timeline/1233" },
+  { label: "Timeline", href: "/timeline" },
   { label: "Courses", href: "/courses" },
   { label: "Requirements", href: "/requirements" },
 ];
