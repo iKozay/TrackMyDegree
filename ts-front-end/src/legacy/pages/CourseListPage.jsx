@@ -7,14 +7,14 @@ import CourseListAccordion from '../components/CourseListAccordion.jsx';
 import '../css/CourseListPage.css';
 
 // Custom hooks
-import useDegrees from './CourseListPage/hooks/useDegree.jsx';
-import useCourses from './CourseListPage/hooks/useCourses.jsx';
-import useResponsive from './CourseListPage/hooks/useResponsive.jsx';
+import useDegrees from '../hooks/useDegree.jsx';
+import useCourses from '../hooks/useCourses.jsx';
+import useResponsive from '../hooks/useResponsive.jsx';
 
 // Components
-import DegreeSelector from './CourseListPage/components/DegreeSelector.jsx';
-import CourseDetailsCard from './CourseListPage/components/CourseDetailsCard.jsx';
-import CourseDetailsModal from './CourseListPage/components/CourseDetailsModal.jsx';
+import DegreeSelector from '../components/DegreeSelector.jsx';
+import CourseDetailsCard from '../components/CourseDetailsCard.jsx';
+import CourseDetailsModal from '../components/CourseDetailsModal.jsx';
 
 /**
  * Page for browsing courses by degree with detailed information

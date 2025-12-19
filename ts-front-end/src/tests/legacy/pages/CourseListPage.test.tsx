@@ -7,9 +7,9 @@ vi.mock('../../../legacy/pages/CourseListPage/hooks/useDegree', () => ({ default
 vi.mock('../../../legacy/pages/CourseListPage/hooks/useCourses', () => ({ default: vi.fn() }));
 vi.mock('../../../legacy/pages/CourseListPage/hooks/useResponsive', () => ({ default: vi.fn() }));
 
-import useDegrees from '../../../legacy/pages/CourseListPage/hooks/useDegree';
-import useCourses from '../../../legacy/pages/CourseListPage/hooks/useCourses';
-import useResponsive from '../../../legacy/pages/CourseListPage/hooks/useResponsive';
+import useDegrees from '../../../legacy/hooks/useDegree.jsx';
+import useCourses from '../../../legacy/hooks/useCourses.jsx';
+import useResponsive from '../../../legacy/hooks/useResponsive.jsx';
 
 const mockedUseDegrees = useDegrees as ReturnType<typeof vi.fn>;
 const mockedUseCourses = useCourses as ReturnType<typeof vi.fn>;

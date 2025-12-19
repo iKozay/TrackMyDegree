@@ -1,6 +1,6 @@
 // src/pages/CourseListPage/hooks/useCourses.js
 import { useState, useRef, useCallback } from 'react';
-import { api } from '../../../../api/http-api-client';
+import { api } from '../../api/http-api-client';
 
 /**
  * Custom hook for fetching courses by degree or all courses

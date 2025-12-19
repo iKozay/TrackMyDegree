@@ -1,7 +1,7 @@
 // src/pages/CourseListPage/hooks/useDegrees.js
 import { useState, useEffect } from 'react';
 import * as Sentry from '@sentry/react';
-import { api } from '../../../../api/http-api-client';
+import { api } from '../../api/http-api-client';
 
 /**
  * Custom hook for fetching degrees from the server

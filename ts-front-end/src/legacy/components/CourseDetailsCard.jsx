@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Card } from 'react-bootstrap';
-import { groupPrerequisites } from '../../../utils/groupPrerequisites.jsx';
-import CourseSectionButton from '../../../components/SectionModal.jsx';
+import { groupPrerequisites } from '../utils/groupPrerequisites.jsx';
+import CourseSectionButton from './SectionModal.jsx';
 
 /**
  * Component for displaying course details

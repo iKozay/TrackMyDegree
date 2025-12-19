@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
+import LegacyAdminPage from "../legacy/pages/AdminPage.jsx";
 
 const AdminPage: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
@@ -22,12 +23,7 @@ const AdminPage: React.FC = () => {
   if (!isAuthenticated) {
     return <p>Please log in to see your data.</p>;
   }
-  return (
-    <main style={{ padding: "2rem" }}>
-      <h1>Hello, Advisor {user?.name} 👋</h1>
-      <p>Welcome to your profile page.</p>
-    </main>
-  );
+  return <LegacyAdminPage />;
 };
 
 export default AdminPage;
