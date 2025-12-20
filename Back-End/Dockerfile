@@ -12,7 +12,7 @@ WORKDIR /app/backend
 
 # Copy backend package files and install dependencies
 COPY ./src/package.json ./
-RUN npm install --ignore-scripts
+RUN npm install
 
 # Copy backend source code
 COPY ./src ./
