@@ -1,11 +1,6 @@
-import { TranscriptParser } from '@utils/transcriptParser';
-import fs from 'node:fs';
-import path from 'node:path';
-
-import { promisify } from 'node:util';
+import { parseTranscript } from '../utils/pythonUtilsApi';
 import pdfParse from 'pdf-parse';
 import { AcceptanceLetterParser } from '@utils/acceptanceLetterParser';
-import { randomUUID } from 'node:crypto';
 
 
 export async function parseFile(fileBuffer: Buffer) {
@@ -24,29 +19,7 @@ export async function parseFile(fileBuffer: Buffer) {
     }
     // Check if the text contains keywords specific to transcripts
     else if (cleanText.toLowerCase().includes('student record')) {
-        let tempFilePath: string | null = null;
-        // Write buffer to temporary file for Python parser
-        tempFilePath = path.join(
-            '/tmp',
-            `transcript_${Date.now()}_${randomUUID()}.pdf`,
-        );
-        fs.writeFileSync(tempFilePath, fileBuffer);
-
-    
-        try{
-            const parser = new TranscriptParser();
-            return await parser.parseFromFile(tempFilePath);
-        }finally {
-        // Clean up temporary file
-            try {
-                const unlinkAsync = promisify(fs.unlink);
-                await unlinkAsync(tempFilePath);
-            } catch (cleanupError) {
-                // Log but don't throw - cleanup errors shouldn't affect the response
-                console.error('Failed to cleanup temp file:', cleanupError);
-            }
-        }
-
+        return await parseTranscript(fileBuffer);
     }else{
         throw new Error ('Uploaded PDF is neither a valid transcript nor an acceptance letter.')
     }
