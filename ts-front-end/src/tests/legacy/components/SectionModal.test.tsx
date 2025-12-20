@@ -20,7 +20,7 @@ describe('CourseSectionButton (SectionModal)', () => {
   });
 
   it('renders without crashing', () => {
-    render(<CourseSectionButton title="COMP 248" hidden={false} />);
+    render(<CourseSectionButton code="COMP 248" title="COMP 248" hidden={false} />);
     const button = screen.getByRole('button', { name: /Show Course Schedule/i });
     expect(button).toBeInTheDocument();
   });
@@ -54,7 +54,7 @@ describe('CourseSectionButton (SectionModal)', () => {
 
     mockedApi.get.mockResolvedValueOnce(mockSections);
 
-    render(<CourseSectionButton title="COMP 248" hidden={true} />);
+    render(<CourseSectionButton code="COMP 248" title="COMP 248" hidden={true} />);
     const button = screen.getByRole('button');
     fireEvent.click(button);
 
@@ -67,7 +67,7 @@ describe('CourseSectionButton (SectionModal)', () => {
   it('should handle fetch error', async () => {
     mockedApi.get.mockRejectedValueOnce(new Error('Network error'));
 
-    render(<CourseSectionButton title="COMP 248" hidden={true} />);
+    render(<CourseSectionButton code="COMP 248" title="COMP 248" hidden={true} />);
     const button = screen.getByRole('button');
     fireEvent.click(button);
 
@@ -81,7 +81,7 @@ describe('CourseSectionButton (SectionModal)', () => {
     abortError.name = 'AbortError';
     mockedApi.get.mockRejectedValueOnce(abortError);
 
-    render(<CourseSectionButton title="COMP 248" hidden={true} />);
+    render(<CourseSectionButton code="COMP 248" title="COMP 248" hidden={true} />);
     const button = screen.getByRole('button');
     fireEvent.click(button);
 
@@ -111,7 +111,7 @@ describe('CourseSectionButton (SectionModal)', () => {
 
     mockedApi.get.mockResolvedValueOnce(mockSections);
 
-    render(<CourseSectionButton title="COMP 248" hidden={true} />);
+    render(<CourseSectionButton code="COMP 248" title="COMP 248" hidden={true} />);
     const button = screen.getByRole('button');
     fireEvent.click(button);
 
@@ -155,7 +155,7 @@ describe('CourseSectionButton (SectionModal)', () => {
 
     mockedApi.get.mockResolvedValueOnce(mockSections);
 
-    render(<CourseSectionButton title="COMP 248" hidden={true} />);
+    render(<CourseSectionButton code="COMP 248" title="COMP 248" hidden={true} />);
     const button = screen.getByRole('button');
     fireEvent.click(button);
 
@@ -193,7 +193,7 @@ describe('CourseSectionButton (SectionModal)', () => {
 
     mockedApi.get.mockResolvedValueOnce(mockSections);
 
-    render(<CourseSectionButton title="COMP 248" hidden={true} />);
+    render(<CourseSectionButton code="COMP 248" title="COMP 248" hidden={true} />);
     const button = screen.getByRole('button');
     fireEvent.click(button);
 
@@ -205,12 +205,12 @@ describe('CourseSectionButton (SectionModal)', () => {
   it('should handle invalid course title format', async () => {
     mockedApi.get.mockRejectedValueOnce(new Error('Invalid course title format'));
 
-    render(<CourseSectionButton title="Invalid Title" hidden={true} />);
+    render(<CourseSectionButton code="Invalid Code" title="Invalid Title" hidden={true} />);
     const button = screen.getByRole('button');
     fireEvent.click(button);
 
     await waitFor(() => {
-      expect(screen.getByText(/Error: Invalid course title format/i)).toBeInTheDocument();
+      expect(screen.getByText(/Error: Invalid course code format/i)).toBeInTheDocument();
     });
   });
 });

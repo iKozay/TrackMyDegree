@@ -3,9 +3,9 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import CourseListPage from '../../../legacy/pages/CourseListPage.jsx';
 
 // Mock hooks
-vi.mock('../../../legacy/pages/CourseListPage/hooks/useDegree', () => ({ default: vi.fn() }));
-vi.mock('../../../legacy/pages/CourseListPage/hooks/useCourses', () => ({ default: vi.fn() }));
-vi.mock('../../../legacy/pages/CourseListPage/hooks/useResponsive', () => ({ default: vi.fn() }));
+vi.mock('../../../legacy/hooks/useDegree', () => ({ default: vi.fn() }));
+vi.mock('../../../legacy/hooks/useCourses', () => ({ default: vi.fn() }));
+vi.mock('../../../legacy/hooks/useResponsive', () => ({ default: vi.fn() }));
 
 import useDegrees from '../../../legacy/hooks/useDegree.jsx';
 import useCourses from '../../../legacy/hooks/useCourses.jsx';
@@ -16,7 +16,7 @@ const mockedUseCourses = useCourses as ReturnType<typeof vi.fn>;
 const mockedUseResponsive = useResponsive as ReturnType<typeof vi.fn>;
 
 // Mock child components
-vi.mock('../../../legacy/pages/CourseListPage/components/DegreeSelector', () => ({
+vi.mock('../../../legacy/components/DegreeSelector', () => ({
   default: (props: any) => (
     <div data-testid="degree-selector">
       <button data-testid="all-courses-btn" onClick={props.onAllCoursesSelect}>
@@ -33,14 +33,14 @@ vi.mock('../../../legacy/pages/CourseListPage/components/DegreeSelector', () => 
 }));
 
 vi.mock(
-  '../../../legacy/pages/CourseListPage/components/CourseDetailsCard',
+  '../../../legacy/components/CourseDetailsCard',
   () => ({
     default: (props: any) => (props.course ? <div data-testid="course-details-card">{props.course.title}</div> : null)
   })
 );
 
 vi.mock(
-  '../../../legacy/pages/CourseListPage/components/CourseDetailsModal',
+  '../../../legacy/components/CourseDetailsModal',
   () => ({
     default: (props: any) => (props.show ? <div data-testid="course-details-modal">{props.course?.title}</div> : null)
   })
