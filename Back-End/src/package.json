@@ -30,13 +30,12 @@
     "redis": "^4.7.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "tsconfig-paths": "^4.2.0",
     "uuid": "^13.0.0"
   },
   "scripts": {
     "prepare": "npx ts-patch install -s",
     "build": "tsc",
-    "start": "node -r tsconfig-paths/register dist/index.js",
+    "start": "node dist/index.js",
     "dev": "nodemon --config nodemon.json",
     "launch": "yarn build && yarn start",
     "test": "jest --coverage --verbose",
