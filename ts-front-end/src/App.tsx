@@ -14,11 +14,14 @@ import ForbiddenPage from "./pages/ForbiddenPage";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { Navbar } from "./components/NavBar";
+import { Footer } from "./components/Footer";
 
 import { AuthProvider } from "./providers/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
 
 import "./App.css";
+
+const deployment_version = import.meta.env.VITE_DEPLOYMENT_VERSION || 'dev';
 
 const App: React.FC = () => {
   return (
@@ -48,6 +51,7 @@ const App: React.FC = () => {
             <Route path="/profile/admin" element={<AdminPage />} />
           </Route>
         </Routes>
+        <Footer deployment_version={deployment_version} />
       </AuthProvider>
     </BrowserRouter>
   );

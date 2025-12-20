@@ -10,14 +10,14 @@ import SearchBar from './SearchBar.jsx';
 const RecordsTable = ({ selectedTable, records = [], columns = [], onSearch }) => {
   if (!selectedTable) {
     return (
-      <Col md={12} className="records-table-container">
+      <Col md={9} className="records-table-container">
         <Alert variant="info">Select a table to view its records.</Alert>
       </Col>
     );
   }
 
   return (
-    <Col md={12} className="records-table-container">
+    <Col md={9} className="records-table-container">
       <div>
         <h3>{selectedTable}</h3>
         <div className="search-bar">

@@ -3,22 +3,22 @@ import { useAuth } from "../hooks/useAuth";
 import LegacyAdminPage from "../legacy/pages/AdminPage.jsx";
 
 const AdminPage: React.FC = () => {
-  const { isAuthenticated, user } = useAuth();
-  useEffect(() => {
-    if (!isAuthenticated) return;
+  const { isAuthenticated } = useAuth();
+  // useEffect(() => {
+  //   if (!isAuthenticated) return;
 
-    const fetchWhatever = async () => {
-      try {
-        // backend will read the JWT from the cookie
-      } catch (err) {
-        console.error(err);
-      } finally {
-        //
-      }
-    };
+  //   const fetchWhatever = async () => {
+  //     try {
+  //       // backend will read the JWT from the cookie
+  //     } catch (err) {
+  //       console.error(err);
+  //     } finally {
+  //       //
+  //     }
+  //   };
 
-    fetchWhatever();
-  }, [isAuthenticated]);
+  //   fetchWhatever();
+  // }, [isAuthenticated]);
 
   if (!isAuthenticated) {
     return <p>Please log in to see your data.</p>;

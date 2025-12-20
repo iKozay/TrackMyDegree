@@ -2,30 +2,40 @@
 
 /* General Container Styling */
 .admin-container {
-  /* padding: 20px; */
   background-color: #ffffff;
-  max-height: 80vh;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   padding: 20px 50px 80px 50px;
-  max-width: 80vw;
+  max-width: 90vw;
   margin: 0 auto;
-  max-height: 60%;
+  min-height: 70vh;
 }
 
 /* Row Styling */
-.row {
-  display: grid;
-  grid-template-columns: 1fr 6fr; /* Creates a 2-column grid */
-  /* gap: 10px; Adds space between the two columns */
+.admin-container .row {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 20px;
+  align-items: flex-start;
+  flex: 1;
+  flex-wrap: nowrap !important;
 }
 
 /* Columns Styling */
-.col-md-3,
-.col-md-9 {
+.admin-container .col-md-3 {
+  flex: 0 0 280px !important;
   padding: 10px;
   box-sizing: border-box;
+  max-width: none !important;
+}
+
+.admin-container .col-md-9 {
+  flex: 1 !important;
+  padding: 10px;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: none !important;
 }
 
 /* Tables List Styling */
@@ -39,7 +49,6 @@
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   background-color: #ffffff;
-  /* padding: 10px; */
   box-sizing: border-box;
 }
 
@@ -76,7 +85,6 @@
 
 /* Constrain the table container to a specific height */
 .records-table-container {
-  margin-left: 20px; /* Space between tables list and records table */
   flex-grow: 1; /* Allows this section to grow with the layout */
   max-height: 65vh; /* Set a maximum height for the container */
   overflow: hidden; /* Prevents the entire container from overflowing */

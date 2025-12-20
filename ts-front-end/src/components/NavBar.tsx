@@ -59,7 +59,7 @@ export const Navbar: React.FC = () => {
           onClick={() => navigateTo("/")}>
           <div className="navbar__logo">🎓</div>
           <span className="navbar__brand-text">
-            Track My <span className="navbar__brand-highlight">Degree</span>
+            TrackMyDegree
           </span>
         </button>
 
