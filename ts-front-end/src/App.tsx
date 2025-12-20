@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import posthog from "posthog-js";
+
 import TimeLinePage from "./pages/TimelinePage";
 import TimelineSetupPage from "./pages/TimelineSetupPage";
 import StudentPage from "./pages/StudentPage";
@@ -21,9 +23,24 @@ import { ProtectedRoute } from "./ProtectedRoute";
 
 import "./App.css";
 
-const deployment_version = import.meta.env.VITE_DEPLOYMENT_VERSION || 'dev';
+const deployment_version = import.meta.env.VITE_DEPLOYMENT_VERSION || '1.0.0';
+const NODE_ENV = import.meta.env.VITE_NODE_ENV || 'development';
+
+// Only initialize PostHog if not in development mode
+if (NODE_ENV !== 'development') {
+  posthog.init(
+    import.meta.env.VITE_POSTHOG_KEY,
+    { api_host: import.meta.env.VITE_POSTHOG_HOST }
+  );
+}
 
 const App: React.FC = () => {
+  useEffect(() => {
+    if (NODE_ENV !== 'development') {
+      posthog.capture('app_loaded', { deployment_version, NODE_ENV });
+    }
+  }, []);
+
   return (
     <BrowserRouter>
       <AuthProvider>

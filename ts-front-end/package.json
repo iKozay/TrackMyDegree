@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "dotenv -e ../secrets/.env -- vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -16,6 +16,7 @@
     "bootstrap": "^5.3.8",
     "framer-motion": "^12.23.26",
     "lucide-react": "^0.554.0",
+    "posthog-js": "^1.309.1",
     "react": "^19.2.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.2.0",
@@ -24,6 +25,7 @@
     "typewriter-effect": "^2.22.0"
   },
   "devDependencies": {
+    "dotenv-cli": "^11.0.0",
     "@eslint/js": "^9.39.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",

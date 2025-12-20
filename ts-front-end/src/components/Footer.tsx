@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, MessageCircle, Info, Shield } from 'react-feather';
 import DisclaimerPopup from './DisclaimerPopup';
 import '../styles/components/Footer.css';
+import { posthog } from 'posthog-js';
 
 interface FooterProps {
   deployment_version?: string;
@@ -76,7 +77,10 @@ export const Footer: React.FC<FooterProps> = ({deployment_version}) => {
                     </a>
                   ))}
                 </div>
-                <button className="feedback-button">
+                <button
+                  className="feedback-button"
+                  onClick={() => posthog.displaySurvey('019aae42-7634-0000-52ab-b993e3b2f493')}
+                >
                   <MessageCircle size={16} />
                   Submit Feedback
                 </button>
