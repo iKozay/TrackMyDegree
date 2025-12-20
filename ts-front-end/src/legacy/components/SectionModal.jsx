@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../api/http-api-client';
 
-const CourseSectionButton = ({ title, hidden }) => {
+const CourseSectionButton = ({ code, title, hidden }) => {
     const [sections, setSections] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -17,13 +17,13 @@ const CourseSectionButton = ({ title, hidden }) => {
     }, [title]);
 
     const parseCourseCode = () => {
-        const match = title.match(/^([A-Z]+)\s+(\d+)/);
+        const match = code.match(/^([A-Z]+)\s+(\d+)/);
         if (!match) {
-            throw new Error('Invalid course title format');
+            throw new Error('Invalid course code format');
         }
         return {
-            subject: match[1],
-            catalog: match[2]
+            subject: match[1].trim(),
+            catalog: match[2].trim()
         };
     };
 
@@ -86,7 +86,6 @@ const CourseSectionButton = ({ title, hidden }) => {
             setSections([]);
 
             const { subject, catalog } = parseCourseCode();
-
             const data = await api.get(
                 `/section/schedule?subject=${subject}&catalog=${catalog}`,
                 {

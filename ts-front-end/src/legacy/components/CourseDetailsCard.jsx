@@ -48,7 +48,7 @@ const CourseDetailsCard = ({ course, showCard = true }) => {
 
       <Card.Text>
         <p>
-          <CourseSectionButton title={course.title} hidden={true} />
+          <CourseSectionButton code={course._id} title={course.title} hidden={true} />
         </p>
       </Card.Text>
 
