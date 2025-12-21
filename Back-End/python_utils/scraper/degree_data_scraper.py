@@ -52,6 +52,13 @@ class DegreeDataScraper():
             for course in course_list:
                 output.append(course.find('a').text)
                 self.courses.append(course_data_scraper.extract_course_data(course.find('a').text, urljoin(self.url_received,course.find('span', class_="course-code-number").find('a').get('href'))))
+        if output==[] and "Elective" in pool_name:
+            course_list = self.soup.find_all('div', class_="formatted-course")
+            for course in course_list:
+                temp_course_data=course_data_scraper.extract_course_data(course.find('span', class_="course-code-number").find('a').text, urljoin(self.url_received,course.find('span', class_="course-code-number").find('a').get('href')))
+                if temp_course_data not in self.courses:
+                    self.courses.append(temp_course_data)
+                    output.append(course.find('span', class_="course-code-number").find('a').text)
         return output
 
     def handle_engineering_core_restrictions(self, degree_name):
@@ -108,16 +115,22 @@ class DegreeDataScraper():
                     '_id': course_pool_id,
                     'name': name,
                     'creditsRequired': credits_required,
+                    'courses':[]
+                })
+                print({
+                    '_id': course_pool_id,
+                    'name': name,
+                    'creditsRequired': credits_required,
                     'courses':list(set(course_list))
                 })
-
+                print("\n\n")
                 self.degree["coursePools"].append(course_pool_id)
 
             self.handle_engineering_core_restrictions(self.degree["name"])
         except Exception as e:
             print(f"Error processing course block: {e}")
             raise e
-
+                
         #Output as JSON
         return {
             "degree":self.degree,
