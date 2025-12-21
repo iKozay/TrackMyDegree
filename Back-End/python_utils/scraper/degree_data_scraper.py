@@ -117,20 +117,13 @@ class DegreeDataScraper():
                     'creditsRequired': credits_required,
                     'courses':list(set(course_list))
                 })
-                print({
-                    '_id': course_pool_id,
-                    'name': name,
-                    'creditsRequired': credits_required,
-                    'courses':list(set(course_list))
-                })
-                print("\n\n")
                 self.degree["coursePools"].append(course_pool_id)
 
             self.handle_engineering_core_restrictions(self.degree["name"])
         except Exception as e:
             print(f"Error processing course block: {e}")
             raise e
-                
+
         #Output as JSON
         return {
             "degree":self.degree,

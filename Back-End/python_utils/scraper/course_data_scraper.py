@@ -57,7 +57,10 @@ def parse_title_and_credits(title_text, clean_text):
     match = re.match(pattern, title_text)
 
     if not match:
-        return None, clean_text(title_text), None
+        pattern = r'^([A-Z]{3}\s*\d+)\s+([^()]+?)\s*\(\s*(\d+(?:\.\d+)?)\s*credits\s*\)$'
+        match = re.match(pattern, title_text)
+        if not match:
+            return None, clean_text(title_text), None
 
     course_id = clean_text(match.group(1))
     title = clean_text(match.group(2))
