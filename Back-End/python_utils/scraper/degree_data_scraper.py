@@ -115,7 +115,7 @@ class DegreeDataScraper():
                     '_id': course_pool_id,
                     'name': name,
                     'creditsRequired': credits_required,
-                    'courses':[]
+                    'courses':list(set(course_list))
                 })
                 print({
                     '_id': course_pool_id,
