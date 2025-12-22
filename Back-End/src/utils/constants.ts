@@ -42,7 +42,7 @@ const DEGREES_URL: DegreeURLMap = {
 const RESULT_TTL_SECONDS = 60 * 60; // 1 hour
 
 // utils/pythonUtilsApi.ts
-const PYTHON_SERVICE_BASE_URL = 'http://localhost:5000';
+const PYTHON_SERVICE_BASE_URL = 'http://localhost:15001';
 
 export {
   DATABASE_CONNECTION_NOT_AVAILABLE,
