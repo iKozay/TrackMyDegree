@@ -3,7 +3,7 @@
  * Uses MongoMemoryServer for isolated DB
  * Mocks Redis + Nodemailer to avoid external dependencies
  */
-
+process.env.NODE_ENV = 'development';// force dev env for tests - this is to avoid smtp validation errors
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const { AuthController, UserType } = require('../controllers/authController');
@@ -17,15 +17,9 @@ jest.mock('@sentry/node', () => ({
   captureException: jest.fn(),
 }));
 
-// ─────────────────────────────────────────────
-// Mock Nodemailer
-jest.mock('nodemailer', () => ({
-  createTransport: jest.fn().mockReturnValue({
-    sendMail: jest.fn().mockResolvedValue(true),
-  }),
-}));
+// Mock Nodemailer (in __mocks__ folder)
+jest.mock('nodemailer');
 
-// ─────────────────────────────────────────────
 // Mock ioredis
 jest.mock('ioredis', () => {
   const mockRedisGet = jest.fn();

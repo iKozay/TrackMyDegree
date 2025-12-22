@@ -5,7 +5,7 @@ async function getUUID() {
   const { v4: uuidv4 } = await import('uuid');
   return uuidv4();
 }
-import nodemailer from 'nodemailer';
+import { mailServicePromise } from '@services/mailService';
 import Redis from 'ioredis';
 import { RESET_EXPIRY_MINUTES, DUMMY_HASH } from '@utils/constants';
 
@@ -118,7 +118,7 @@ export class AuthController {
       if (existingUser) return undefined;
 
       // Hash the password before storing
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await this.hashPassword(password);
 
       // Create new user with generated _id
       const newUser = await User.create({
@@ -158,7 +158,7 @@ export class AuthController {
         return { message: 'If the email exists, a reset link has been sent.' };
       }
 
-      const resetToken = getUUID();
+      const resetToken = await getUUID();
 
       const frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT;
       if (!frontendUrl) {
@@ -173,8 +173,9 @@ export class AuthController {
       // Mocro : Store token in Redis with expiry
       await redis.setex(`reset:${resetToken}`, expireSeconds, user.email);
 
-      // Mocro : Send reset email
-      await this.sendResetEmail(user.email, resetLink);
+      // Send reset email
+      const mailService = await mailServicePromise;
+      await mailService.sendPasswordReset(user.email, resetLink);
 
       return { message: 'Password reset link sent successfully', resetLink };
     } catch (error) {
@@ -199,11 +200,8 @@ export class AuthController {
       const user = await User.findOne({ email }).exec();
       if (!user) return false;
 
-      // Hash the new password before storing
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-      // Save new password
-      user.password = hashedPassword;
+      // Hash and update to new password
+      user.password = await this.hashPassword(newPassword);
       await user.save();
 
       // Mocro : Delete used token
@@ -231,10 +229,8 @@ export class AuthController {
 
       const match = await bcrypt.compare(oldPassword, user.password);
       if (!match) return false;
-
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-      user.password = hashedPassword;
+      // Hash and update to new password
+      user.password = await this.hashPassword(newPassword);
       await user.save();
 
       return true;
@@ -245,24 +241,6 @@ export class AuthController {
     }
   }
 
-  /**
-   * Internal helper: sends reset email
-   */
-  private async sendResetEmail(email: string, resetLink: string) {
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    });
-
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM,
-      to: email,
-      subject: 'Password Reset Link',
-      text: `Use this link to reset your password: ${resetLink}`,
-      html: `<p>Use this link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`,
-    });
-  }
   /*
     Checks if a user is an admin
    */
@@ -279,6 +257,13 @@ export class AuthController {
       return false;
     }
   }
+  /*
+   * helper to hash passwords - keeps SALT_ROUNDS consistent
+   */
+    private async hashPassword(plain: string): Promise<string> {
+        const SALT_ROUNDS = 10;
+        return bcrypt.hash(plain, SALT_ROUNDS);
+    }
 }
 
 export const authController = new AuthController();
