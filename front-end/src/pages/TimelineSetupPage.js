@@ -79,14 +79,10 @@ const TimelineSetupPage = ({ onDataProcessed }) => {
       const programInfo = parsedData.programInfo || {};
       
       // Match extracted degree with available degrees
-      const degreeName = programInfo.degree?.toLowerCase().split(',')[1]?.trim() || 
-                        programInfo.degree?.toLowerCase().split(',')[0]?.trim() || 
-                        'Unknown Degree';
-      const matched_degree = degrees.find((d) => 
-        d.name.toLowerCase().includes(degreeName) || 
-        degreeName.includes(d.name.toLowerCase())
-      );
-
+      const degreeName = programInfo.degree?.toLowerCase() || 'Unknown Degree';
+      //remove first two words from degree name from server and match the rest of the name with parsed degree
+      //ex: degree.name from server = "Beng in Software Engineering", remove "Beng in" and check if parsed degree includes "Software Engineering"
+      const matched_degree = degrees.find((d)=>degreeName.includes(d.name.split(' ').slice(2).join(' ').toLowerCase()))
       if (!matched_degree) {
         alert(
           `The extracted degree "${programInfo.degree || 'Unknown'}" does not match any available degrees in our system.`,
