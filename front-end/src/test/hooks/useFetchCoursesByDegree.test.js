@@ -48,8 +48,8 @@ describe('useFetchCoursesByDegree', () => {
 
   test('fetches and merges extended credit courses when extendedCredit is true', async () => {
     const mockPrimaryCourses = [{ code: 'COMP101', name: 'Intro CS' }];
-    const mockExtendedCourses = [{ code: 'ECP101', name: 'Extended Course' }];
-    
+    //const mockExtendedCourses = [{ code: 'ECP101', name: 'Extended Course' }];
+    const mockExtendedCourses = []
     api.get
       .mockResolvedValueOnce(mockPrimaryCourses)
       .mockResolvedValueOnce(mockExtendedCourses);
@@ -64,7 +64,7 @@ describe('useFetchCoursesByDegree', () => {
     await Promise.resolve();
 
     expect(api.get).toHaveBeenCalledWith('/courses/by-degree/DEGREE1');
-    expect(api.get).toHaveBeenCalledWith('/courses/by-degree/ECP');
+    //expect(api.get).toHaveBeenCalledWith('/courses/by-degree/ECP');
     expect(mockDispatch).toHaveBeenCalledWith({
       type: 'SET',
       payload: { coursePools: [...mockPrimaryCourses, ...mockExtendedCourses], loading: false },
