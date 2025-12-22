@@ -7,6 +7,7 @@ const { parseFile } = require('@services/parsingService');
 // Pull out the controller and middleware
 const pdfParsingController = pdfParsingControllerModule.default;
 const uploadMiddleware = pdfParsingControllerModule.uploadMiddleware;
+const Buffer = require('node:buffer').Buffer;
 
 // Mock the parsing service
 jest.mock('@services/parsingService', () => ({

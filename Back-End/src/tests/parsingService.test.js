@@ -7,7 +7,7 @@ const pythonUtilsApi = require('../utils/pythonUtilsApi');
 jest.mock('pdf-parse');
 jest.mock('@utils/acceptanceLetterParser');
 jest.mock('../utils/pythonUtilsApi');
-
+const Buffer = require('node:buffer').Buffer;
 describe('parseFile', () => {
   const fileBuffer = Buffer.from('fake pdf');
 
