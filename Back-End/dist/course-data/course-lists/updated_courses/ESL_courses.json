@@ -1,0 +1,81 @@
+[
+  {
+    "title": "ESLC 202 – Developing Academic English Language Skills",
+    "credits": 6,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Prerequisite: Placement by the Concordia Comprehensive ESL Placement Test (ConCEPT). This course helps non-native-speaking students develop the language skills necessary for academic work through an integrated program of grammar, vocabulary, reading, and writing. The coursework will enable students to build a wide range of vocabulary and grammatical structures and apply them to essential university tasks such as paraphrasing, expository writing, and processing academic texts. ",
+    "components": "",
+    "notes": "",
+    "offeredIn": [
+      "fall",
+      "winter",
+      "summer"
+    ]
+  },
+
+  {
+    "title": "ESLC 204 – Refining Academic English Language Skills",
+    "credits": 6,
+    "prerequisites": "ESLC 202 / PLAC 100.",
+    "corequisites": "",
+    "description": "",
+    "components": "",
+    "notes": "",
+    "offeredIn": [
+      "fall",
+      "winter",
+      "summer"
+    ]
+  },
+
+
+  {
+    "title": "ESLC 205 – Academic Oral Communication I",
+    "credits": 3,
+    "prerequisites": "PLAC 100",
+    "corequisites": "",
+    "description": "This course helps students develop the oral skills necessary for speaking and listening in an English-speaking academic environment. The focus of the course is the improvement of students' overall pronunciation skills, including native-like production of English speech at the level of individual sounds, words, and sentences, as well as the development the listening skills necessary for effective oral communication. This course includes a multimedia language lab component. ",
+    "components": "",
+    "notes": "",
+    "offeredIn": [
+      "fall",
+      "winter",
+      "summer"
+    ]
+  },
+
+
+  {
+    "title": "ESLC 206",
+    "credits": 3,
+    "prerequisites": "ESLC 205 / PLAC 100.",
+    "corequisites": "",
+    "description": "This course helps students achieve greater intelligibility and fluency by practicing oral communication skills in meaningful discourse, as part of communicative activities and public speaking assignments. Emphasis is placed on the learning of speech phenomena at the discourse level such as production of native-like stress, rhythm, intonation, and speaking rate. ",
+    "components": "",
+    "notes": "",
+    "offeredIn": [
+      "fall",
+      "winter",
+      "summer"
+    ]
+  },
+
+
+  {
+    "title": "PLAC 100 Placement by the Concordia Comprehensive ESL Placement Test (ConCEPT).",
+    "credits": 0,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "",
+    "components": "",
+    "notes": "",
+    "offeredIn": [
+      "fall",
+      "winter",
+      "summer"
+    ]
+  }
+
+
+        ]
