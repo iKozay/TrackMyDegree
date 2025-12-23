@@ -18,6 +18,8 @@ type DegreeURLMap = {
   [key: string]: string;
 };
 const DEGREES_URL: DegreeURLMap = {
+  'Computer Science':
+    'https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-70-department-of-computer-science-and-software-engineering/section-71-70-2-degree-requirements-bcompsc-.html',
   'Computer Engineering':
     'https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-30-department-of-electrical-and-computer-engineering/section-71-30-2-course-requirements-beng-in-computer-engineering-.html',
   'Mechanical Engineering':
