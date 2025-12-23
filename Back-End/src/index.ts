@@ -8,6 +8,8 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import { notFoundHandler, errorHandler } from '@middleware/errorHandler';
 
+import { connectRedis } from '@lib/redisClient';
+
 //Routes import
 import authRouter from '@routes/authRoutes';
 import coursesRouter from '@routes/courseRoutes';
@@ -126,9 +128,22 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 //Listen for requests
-app.listen(PORT, () => {
-  console.log(`Server listening on Port: ${PORT}`);
-});
+//start the server only after Redis + Mongo are connected or attempted
+const start = async () => {
+  try {
+    await connectRedis();
+  } catch (err) {
+    // Don’t crash the server if Redis is down (optional)
+    console.warn('⚠️ Redis not available, caching disabled:', err);
+    Sentry.captureException(err);
+  }
+
+  app.listen(PORT, () => {
+    console.log(`Server listening on Port: ${PORT}`);
+  });
+};
+
+start();
 
 // This will make sure to capture unhandled async errors
 process.on('unhandledRejection', (reason: any) => {
