@@ -13,12 +13,8 @@ const { User } = require('../models/user');
 const bcrypt = require('bcryptjs');
 const { authController } = require('../controllers/authController');
 
-// Mock Nodemailer
-jest.mock('nodemailer', () => ({
-  createTransport: jest.fn().mockReturnValue({
-    sendMail: jest.fn().mockResolvedValue(true),
-  }),
-}));
+// Mock Nodemailer (in __mocks__ folder)
+jest.mock('nodemailer');
 
 // Mock ioredis
 jest.mock('ioredis', () => {
@@ -373,9 +369,8 @@ describe('Auth Routes (MongoDB)', () => {
       const response = await request(app)
         .post('/auth/reset-password')
         .send({
-          token: 'validtoken',
+          resetToken: 'validtoken',
           newPassword: 'NewPass123!',
-          email: user.email,
         })
         .expect(202);
 
@@ -396,24 +391,43 @@ describe('Auth Routes (MongoDB)', () => {
       const response = await request(app)
         .post('/auth/reset-password')
         .send({
-          token: 'invalidtoken',
+          resetToken: 'invalidtoken',
           newPassword: 'NewPass123!',
-          email: user.email,
         })
         .expect(401);
 
       expect(response.body.error).toBe('Invalid or expired reset link');
     });
 
-    it('should return 400 for missing token or password', async () => {
-      const response = await request(app)
-        .post('/auth/reset-password')
-        .send({}) // Missing token and password
-        .expect(400);
+      it('should return 400 for missing resetToken', async () => {
+          const response = await request(app)
+              .post('/auth/reset-password')
+              .send({
+                  newPassword: 'NewPass123!',
+              })
+              .expect(400);
 
-      expect(response.body.error).toBe(
-        'Email, token, and newPassword are required',
-      );
-    });
+          expect(response.body.error).toBe('Token and newPassword are required');
+      });
+
+      it('should return 400 for missing newPassword', async () => {
+          const response = await request(app)
+              .post('/auth/reset-password')
+              .send({
+                  resetToken: 'validtoken',
+              })
+              .expect(400);
+
+          expect(response.body.error).toBe('Token and newPassword are required');
+      });
+
+      it('should return 400 for empty request body', async () => {
+          const response = await request(app)
+              .post('/auth/reset-password')
+              .send({})
+              .expect(400);
+
+          expect(response.body.error).toBe('Token and newPassword are required');
+      });
   });
 });

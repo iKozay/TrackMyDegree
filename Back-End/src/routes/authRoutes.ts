@@ -277,7 +277,7 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
 });
 
 /**
- * POST /auth/reset-password - Reset password with OTP
+ * POST /auth/reset-password - Reset password with URL token
  */
 router.post('/reset-password', async (req: Request, res: Response) => {
   try {
@@ -288,16 +288,16 @@ router.post('/reset-password', async (req: Request, res: Response) => {
       return;
     }
 
-    const { email, token, newPassword } = req.body;
+    const { resetToken, newPassword } = req.body;
 
-    if (!email || !token || !newPassword) {
+    if (!resetToken || !newPassword) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: 'Email, token, and newPassword are required',
+        error: 'Token and newPassword are required',
       });
       return;
     }
 
-    const result = await authController.resetPassword(token, newPassword);
+    const result = await authController.resetPassword(resetToken, newPassword);
     if (result) {
       res.status(HTTP.ACCEPTED).json({
         message: 'Password reset successfully',

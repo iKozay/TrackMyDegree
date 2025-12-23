@@ -3,7 +3,6 @@
  * Uses MongoMemoryServer for isolated DB
  * Mocks Redis + Nodemailer to avoid external dependencies
  */
-process.env.NODE_ENV = 'development';// force dev env for tests - this is to avoid smtp validation errors
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const { AuthController, UserType } = require('../controllers/authController');
