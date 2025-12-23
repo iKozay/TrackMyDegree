@@ -5,6 +5,7 @@ import requests
 import re
 from . import course_data_scraper
 from . import engr_general_electives_scraper
+from . import comp_utils
 
 # Set a user agent to mimic a real browser
 USERAGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -40,6 +41,7 @@ class DegreeDataScraper():
 
     def get_courses(self, url, pool_name):
         output = []
+
         if self.temp_url in self.url_received:
             course_list=self.soup.find('div', class_='defined-group', title=pool_name)
             course_list = course_list.find_all('div', class_="formatted-course")
@@ -52,6 +54,12 @@ class DegreeDataScraper():
             for course in course_list:
                 output.append(course.find('a').text)
                 self.courses.append(course_data_scraper.extract_course_data(course.find('a').text, urljoin(self.url_received,course.find('span', class_="course-code-number").find('a').get('href'))))
+        
+        if pool_name=="Computer Science Electives":
+            comp_courses_with_code_above_or_equal_to_325=comp_utils.get_comp_electives()
+            output+=comp_courses_with_code_above_or_equal_to_325[0]
+            self.courses+=comp_courses_with_code_above_or_equal_to_325[1]
+        
         if output==[] and "Elective" in pool_name:
             course_list = self.soup.find_all('div', class_="formatted-course")
             for course in course_list:
@@ -105,7 +113,10 @@ class DegreeDataScraper():
             pool_group = self.soup.find('div', class_='program-required-courses defined-group')
             pools = pool_group.find_all('tr')
             for pool in pools:
-                credits_required = float(pool.find('td').text)
+                try:
+                    credits_required = float(pool.find('td').text) #in case the scraper runs into a paragraph
+                except:
+                    continue
                 name = pool.find('a').text
                 self.temp_url = pool.find('a').get('href')
                 self.temp_url = re.sub(r'#\d+$', '', self.temp_url)
@@ -117,6 +128,13 @@ class DegreeDataScraper():
                     'creditsRequired': credits_required,
                     'courses':list(set(course_list))
                 })
+                print({
+                    '_id': course_pool_id,
+                    'name': name,
+                    'creditsRequired': credits_required,
+                    'courses':list(set(course_list))
+                })
+                print("\n")
                 self.degree["coursePools"].append(course_pool_id)
 
             self.handle_engineering_core_restrictions(self.degree["name"])
