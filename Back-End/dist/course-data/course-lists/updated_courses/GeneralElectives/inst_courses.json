@@ -1,0 +1,15 @@
+[
+  {
+    "title": "INST 250 Introductory Information Literacy Skills",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course is designed to introduce students to basic research practices. It familiarizes students with a variety of information sources in both print and non-print formats. Emphasis is placed on developing a systematic search strategy in the use and evaluation of the information sources. Topics such as outlining and bibliographic format are covered as part of the research process.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for EDUC 250 may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  }
+]
