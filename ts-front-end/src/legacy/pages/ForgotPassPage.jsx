@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
@@ -7,10 +6,9 @@ import '../css/SignInPage.css';
 import { motion } from 'framer-motion';
 import { api } from '../../api/http-api-client';
 
-//This page is used to help users that forgot their password. It checks if the email already exists in the database and if it does it redirects them to the ResetPassword page
+//This page is used to help users that forgot their password. It checks if the email already exists in the database and if it does it sends a reset link to that email and prompts users to check mailbox.
 function ForgotPassPage() {
   const [email, setEmail] = useState('');
-  const navigate = useNavigate();
 
   const [error, setError] = useState(null); // To handle error messages
   const [loading, setLoading] = useState(false); // To handle loading state
@@ -38,16 +36,14 @@ function ForgotPassPage() {
     setLoading(true); // Start loading
 
     try {
-      const data = await api.post('/auth/forgot-password', {
+      await api.post('/auth/forgot-password', {
         email,
       });
-      console.log(data);
-      // Store email in localStorage for reset password page
-      localStorage.setItem('resetPasswordEmail', email);
-      // API returns a success message and we can redirect to reset pass page
-      navigate('/reset-password');
+      // show a generic success, do not navigate or store email/token
+      setError('If the email exists, a reset link has been sent. Please check your inbox and spam folder.');
     } catch (err) {
-      setError(err.message || 'Email does not exist.');
+        console.log('Forgot password error:', err.message || 'Unknown error');
+        setError('If the email exists, a reset link has been sent. Please check your inbox and spam folder.');
     } finally {
       setLoading(false); // End loading
     }
@@ -63,7 +59,7 @@ function ForgotPassPage() {
             <form onSubmit={handleForgotPassword}>
               {/* Email Field */}
               <div className="mb-3">
-                <label htmlFor="email" className="form-label"></label>
+                <label htmlFor="email" className="form-label visually-hidden">Email</label> {/* Hidden label for accessibility and sonarqube compliance */}
                 <input
                   type="email"
                   className="form-control"

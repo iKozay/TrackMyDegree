@@ -51,10 +51,10 @@ const App: React.FC = () => {
           <Route path="/403" element={<ForbiddenPage />} />
           <Route path="/timeline" element={<TimelineSetupPage />} />
           <Route path="/timeline/:jobId" element={<TimeLinePage />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signin" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/forgot-password" element={<ForgetPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
           <Route path="/courses" element={<CoursePage />} />
           <Route path="/requirements" element={<RequirementsFormPage />} />
           <Route path="/requirements/:programId" element={<RequirementSelectPage />} />
