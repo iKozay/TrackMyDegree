@@ -42,6 +42,12 @@ class DegreeDataScraper():
     def get_courses(self, url, pool_name):
         output = []
 
+        if pool_name=="General Electives: BCompSc":
+            combined_course_codes_list = self.course_pool[-1]["courses"]+self.course_pool[-2]["courses"]
+            comp_gen_electives=comp_utils.get_comp_gen_electives(urljoin(self.url_received, url), combined_course_codes_list)
+            self.courses+=comp_gen_electives[1]
+            return comp_gen_electives[0]
+
         if self.temp_url in self.url_received:
             course_list=self.soup.find('div', class_='defined-group', title=pool_name)
             course_list = course_list.find_all('div', class_="formatted-course")

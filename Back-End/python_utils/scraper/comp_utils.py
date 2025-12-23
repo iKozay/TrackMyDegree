@@ -1,4 +1,5 @@
 from . import course_data_scraper
+from . import engr_general_electives_scraper
 import re
 
 def get_comp_electives():
@@ -18,5 +19,21 @@ def get_comp_electives():
     
     return [course_codes, courses]
 
-def get_comp_gen_electives():
-    pass
+def get_comp_gen_electives(url, course_codes):
+    #get exclusion list
+    soup=course_data_scraper.fetch_html(url)
+    soup=soup.find('div', class_='defined-group', title="General Electives Exclusion List")
+    exclusion_list = [a.text for a in soup.find_all('a')]
+
+    #getting course codes
+    engr_electives=engr_general_electives_scraper.scrape_electives()
+    output_codes=course_codes+engr_electives[0]
+
+    temp_electives_for_itteration = engr_electives[1].copy()
+    #removing exclusions
+    for course in temp_electives_for_itteration:
+        if course["code"] in exclusion_list:
+            output_codes.remove(course["code"])
+            engr_electives[1].remove(course)
+    
+    return [output_codes, engr_electives[1]]
