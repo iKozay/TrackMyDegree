@@ -79,7 +79,7 @@ describe('ForgotPassPage', () => {
     expect(errorElement).toBeInTheDocument();
   });
 
-  test('successfully submits email and navigates to reset password page', async () => {
+  test('successfully submits email and displays reset link message', async () => {
       mockedApi.post.mockResolvedValueOnce({ message: 'Email sent successfully' });
 
       render(<ForgotPassPage />);
