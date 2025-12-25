@@ -112,11 +112,11 @@ class TestMainFunction:
         with patch.object(sys, 'argv', test_args):
             from main import main
             main()
-            mock_uvicorn_run.assert_called_once_with("main:app", host="0.0.0.0", port=5000, reload=True)
+            mock_uvicorn_run.assert_called_once_with("main:app", host="0.0.0.0", port=15001, reload=True)
     @patch('uvicorn.run')
     def test_main_prod_mode(self, mock_uvicorn_run):
         test_args = ['main.py']
         with patch.object(sys, 'argv', test_args):
             from main import main
             main()
-            mock_uvicorn_run.assert_called_once_with("main:app", host="0.0.0.0", port=5000, workers=8)
+            mock_uvicorn_run.assert_called_once_with("main:app", host="0.0.0.0", port=15001, workers=8)

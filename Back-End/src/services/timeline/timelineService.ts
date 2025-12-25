@@ -3,7 +3,7 @@
 type TimelineFileData = {
   type: 'file';
   // eslint-disable-next-line no-undef
-  data: Buffer | Express.Multer.File; // adjust if you only use Buffer
+  data: Buffer;
 };
 
 type TimelineObjectData = {
@@ -19,7 +19,6 @@ export const buildTimeline = async (
 ): Promise<unknown> => {
   const { type, data } = params;
 
-  // here you can branch logic if needed
   if (type === 'file') {
     // data is Buffer | Express.Multer.File
     // parse file and build timeline
