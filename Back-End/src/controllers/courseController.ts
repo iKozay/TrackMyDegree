@@ -8,7 +8,7 @@ export interface CourseData {
   description?: string;
   credits: number;
   offeredIn?: string[];
-  "prerequisites/corequisites"?: string;
+  prereqCoreqText?: string;
   rules?: {
     prereq?: string[][];
     coreq?: string[][];

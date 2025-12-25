@@ -180,7 +180,7 @@ def extract_course_data(course_code, url):
             "credits": course_credits,
             "description": sections.get("Description:", ""),
             "offeredIn": [""],
-            "prerequisites/corequisites": raw_prereq_coreq,
+            "prereqCoreqText": raw_prereq_coreq,
             "rules":{
                 "prereq":make_prereq_coreq_into_array(prereq),
                 "coreq":make_prereq_coreq_into_array(coreq),

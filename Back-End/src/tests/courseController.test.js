@@ -40,7 +40,7 @@ describe('CourseController', () => {
           description: 'Basic programming concepts',
           credits: 3,
           offeredIn: ['Fall', 'Winter'],
-          "prerequisites/corequisites": "",
+          prereqCoreqText: "",
           rules: {
             prereq: [['MATH101']],
             coreq: [],
@@ -53,7 +53,7 @@ describe('CourseController', () => {
           description: 'Basic programming concepts',
           credits: 3,
           offeredIn: ['Fall', 'Winter'],
-          "prerequisites/corequisites": "",
+          prereqCoreqText: "",
           rules: {
             prereq: [['MATH102']],
             coreq: [],

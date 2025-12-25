@@ -6,7 +6,7 @@ const CourseSchema = new Schema({
   credits: { type: Number, required: true },
   description: { type: String, required: true },
   offeredIn: [{ type: String }], // e.g., ['fall', 'winter']
-  "prerequisites/corequisites": { type: String }, // textual representation
+  prereqCoreqText: { type: String }, // textual representation
   rules: {
     prereq: [[{ type: String, ref: 'Course' }]],
     coreq: [[{ type: String, ref: 'Course' }]],
