@@ -6,8 +6,12 @@ const CourseSchema = new Schema({
   credits: { type: Number, required: true },
   description: { type: String, required: true },
   offeredIn: [{ type: String }], // e.g., ['fall', 'winter']
-  corequisites: [{ type: String, ref: 'Course' }], // references to Course _id
-  prerequisites: [{ type: String, ref: 'Course' }], // references to Course _id
+  "prerequisites/corequisites": { type: String }, // textual representation
+  rules: {
+    prereq: [[{ type: String, ref: 'Course' }]],
+    coreq: [[{ type: String, ref: 'Course' }]],
+    not_taken: [{ type: String, ref: 'Course' }],
+  },
 });
 
 export const Course = model('Course', CourseSchema);
