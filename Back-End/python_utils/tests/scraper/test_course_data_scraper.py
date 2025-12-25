@@ -138,7 +138,7 @@ def test_extract_valid_course(mock_fetch):
     mock_fetch.return_value = make_mock_soup(HTML_VALID)
     result = extract_course_data("SOEN 357", "https://dummy-url.com")
     # FIXED: Check for the actual prerequisite, not the course ID.
-    assert "previously: SOEN 287." == result["prerequisites/corequisites"]
+    assert "previously: SOEN 287." == result["prereqCoreqText"]
     assert result["credits"] == 3
 
 def test_rules():
