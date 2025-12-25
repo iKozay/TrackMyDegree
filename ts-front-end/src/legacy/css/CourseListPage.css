@@ -21,13 +21,13 @@
   gap: 1rem;
 }
 
-.course-code {
+.course-code-legacy {
   font-size: 1.1rem;
   font-weight: bold;
   margin-bottom: 5px;
 }
 
-.course-credits {
+.course-credits-legacy {
   font-size: 0.9rem;
   color: #666;
   margin-bottom: 8px;
@@ -97,7 +97,7 @@
   padding: 0 15px;
 }
 
-.course-card {
+.course-card-legacy {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -113,7 +113,7 @@
   transition: transform 0.2s ease;
 }
 
-.course-card:hover {
+.course-card-legacy:hover {
   transform: translateY(-2px);
 }
 
@@ -142,7 +142,7 @@
     font-size: 1.1rem;
   }
 
-  .course-code {
+  .course-code-legacy {
     font-size: 1.2rem;
   }
 
@@ -173,11 +173,11 @@
     font-size: 1.2rem;
   }
 
-  .course-code {
+  .course-code-legacy {
     font-size: 1.3rem;
   }
 
-  .course-credits {
+  .course-credits-legacy {
     font-size: 1rem;
   }
 
@@ -186,7 +186,7 @@
     line-height: 1.4;
   }
 
-  .course-card {
+  .course-card-legacy {
     min-height: 150px;
     padding: 12px;
   }
