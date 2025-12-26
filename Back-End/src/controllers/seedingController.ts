@@ -25,13 +25,13 @@ export async function seedDegreeData(degreeName: string): Promise<void> {
 
 export async function seedAllDegreeData(): Promise<void> {
   const degreeNames = Object.keys(DEGREES_URL);
-  await Promise.all(
-    degreeNames.map((degreeName) =>
-      seedDegreeData(degreeName).catch((err) => {
-        console.error(`Seeding failed for degree ${degreeName}:`, err);
-      }),
-    ),
-  );
+  for (const degreeName of degreeNames) {
+    try {
+      await seedDegreeData(degreeName);
+    } catch (err) {
+      console.error(`Seeding failed for degree ${degreeName}:`, err);
+    }
+  }
   console.log('Seeding completed for all degrees.');
 }
 
@@ -59,25 +59,8 @@ async function saveToMongoDB(
 
   // Run course pool and course creation in parallel
   try {
-    const [poolsOk, coursesOk] = await Promise.all([
-      coursepoolController.bulkCreateCoursePools(data['course_pool']),
-      courseController.bulkCreateCourses(data['courses']),
-    ]);
-
-    if (poolsOk) {
-      console.log(`Course pools created for degree: ${degreeName}`);
-    } else {
-      console.warn(
-        `Some course pools may not have been created for degree: ${degreeName}`,
-      );
-    }
-    if (coursesOk) {
-      console.log(`Courses created for degree: ${degreeName}`);
-    } else {
-      console.warn(
-        `Some courses may not have been created for degree: ${degreeName}`,
-      );
-    }
+      await coursepoolController.bulkCreateCoursePools(data['course_pool']);
+      await courseController.bulkCreateCourses(data['courses']);
   } catch (err) {
     console.error(
       `Error creating course pools or courses for degree: ${degreeName}`,

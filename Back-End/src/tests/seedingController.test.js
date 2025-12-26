@@ -87,12 +87,6 @@ describe('seedingController', () => {
       expect(consoleLogSpy).toHaveBeenCalledWith(
         'Degree deg1 created successfully.',
       );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Course pools created for degree: Test Degree',
-      );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Courses created for degree: Test Degree',
-      );
     });
 
     it('updates degree when it already exists', async () => {
@@ -187,10 +181,6 @@ describe('seedingController', () => {
       }));
 
       await seedDegreeData('Test Degree');
-
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Some course pools may not have been created for degree: Test Degree',
-      );
     });
 
     it('warns when some courses are not created', async () => {
@@ -218,10 +208,6 @@ describe('seedingController', () => {
       }));
 
       await seedDegreeData('Test Degree');
-
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Some courses may not have been created for degree: Test Degree',
-      );
     });
 
     it('handles error when creating course pools or courses fails', async () => {

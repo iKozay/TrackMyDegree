@@ -85,7 +85,7 @@ Ensure you have the following installed on your machine:
    ```bash
    cd front-end
    npm i
-   cd ../Back-End
+   cd ../Back-End/src
    npm i
    cd ..
    npm i
