@@ -77,7 +77,7 @@ export const buildTimeline = async (
     
     //add transfer credits to course completed
     if(parsedData?.transferedCourses){
-      for (const course of parsedData?.transferedCourses){
+      for (const course of parsedData.transferedCourses){
         courseStatusMap[normalizeCourseCode(course)] = {
             status: "complete",
             semester: null,
@@ -86,7 +86,7 @@ export const buildTimeline = async (
     }
 
     if (parsedData?.exemptedCourses){
-      for (const course of parsedData?.exemptedCourses){
+      for (const course of parsedData.exemptedCourses){
         courseStatusMap[normalizeCourseCode(course)] = {
             status: "complete",
             semester: null,
