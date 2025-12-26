@@ -78,7 +78,7 @@ export const buildTimeline = async (
     //add transfer credits to course completed
     if(parsedData?.transferedCourses){
       for (const course of parsedData?.transferedCourses){
-        courseStatusMap[course] = {
+        courseStatusMap[normalizeCourseCode(course)] = {
             status: "complete",
             semester: null,
           };
@@ -87,7 +87,7 @@ export const buildTimeline = async (
 
     if (parsedData?.exemptedCourses){
       for (const course of parsedData?.exemptedCourses){
-        courseStatusMap[course] = {
+        courseStatusMap[normalizeCourseCode(course)] = {
             status: "complete",
             semester: null,
           };
@@ -96,7 +96,7 @@ export const buildTimeline = async (
 
     const courseResults = Object.fromEntries(
       Object.entries(courses).map(([code, course]) => {
-        const override = courseStatusMap[code.replace(" ",'')];
+        const override = courseStatusMap[code];
         return [
           code,
           {
@@ -128,19 +128,33 @@ function processSemestersFromParsedData(parsedData:ParsedData, degree:DegreeData
         let coursesInfo = []
         for (const course of semester.courses){
           //get course status
-          let status = "";
+          let status: CourseStatus = "incomplete";
           let message = "";
+          let normalizedCode = normalizeCourseCode(course.code);
+          let courseData = allCourses[normalizedCode];
+
+          if (!courseData) {
+            // Course not part of degree → skip or mark as unknown
+            coursesInfo.push({
+              code: normalizedCode,
+              message: "Course not part of degree requirements",
+            });
+            continue;
+          }
+
+          let courseCode = courseData._id;
+          
           if (isInprogress(term))
               status = "inprogress" 
           else if (isPlanned(term)) //maybe planned and inprogress should be merged under inprogress
               status = "planned"
-          else if(parsedData.programInfo?.isCoop && course.code.toUpperCase().includes("CWTE")){
+          else if(parsedData.programInfo?.isCoop && courseCode.toUpperCase().includes("CWTE")){
               if(course.grade?.toUpperCase() == "PASS") status = "complete"      
           } else{
               
             let minGrade = 'D-'
-            if (coursesThatNeedCMinus.has(course.code)) minGrade = 'C-'
-            let satisfactoryGrade = validateGrade(course,'C-')
+            if (coursesThatNeedCMinus.has(courseCode)) minGrade = 'C-'
+            let satisfactoryGrade = validateGrade(course, minGrade)
             
             //let validatedRequistes = validateRequisites(course, allCourses, parsedData.semesters, term)
 
@@ -152,10 +166,10 @@ function processSemestersFromParsedData(parsedData:ParsedData, degree:DegreeData
               message = `Minimum grade not met: ${minGrade} is needed to pass this course.`;
             }
           }
-          coursesInfo.push({code:course.code, message: message});
-          const existing = courseStatusMap[course.code];
+          coursesInfo.push({code:courseCode, message: message});
+          const existing = courseStatusMap[courseCode];
           if (!existing || existing.status !== "complete") {//course can be taken two times
-            courseStatusMap[course.code] = {status: status, semester: term}
+            courseStatusMap[courseCode] = {status: status, semester: term}
           } 
           
         }
@@ -203,12 +217,13 @@ function getCoursesThatNeedCMinus(degreeName:string,  coursePools: CoursePoolInf
   const coursesThatNeedCMinus:Set<string> = new Set<string>();
   const requiredCourses:Set<string> = new Set<string>();
 
-  if(!degreeName.includes('engr') && !degreeName.includes('comp')) return coursesThatNeedCMinus;
+  const name = degreeName.toLowerCase();
+  if (!name.includes('engr') && !name.includes('comp')) return coursesThatNeedCMinus;
 
   for(const pool of coursePools){ 
     if (!pool.name.toLowerCase().includes('elective')){ //core courses
       for(const courseCode of pool.courses){
-        requiredCourses.add(allCourses[courseCode]._id);
+        requiredCourses.add(courseCode);
       }
     }
   }
@@ -228,6 +243,13 @@ function getCoursesThatNeedCMinus(degreeName:string,  coursePools: CoursePoolInf
   }
 
   return coursesThatNeedCMinus;
+}
+
+function normalizeCourseCode(code: string): string {
+  return code
+    .replace(/\s+/g, '')
+    .replace(/([a-zA-Z]+)(\d+)/, '$1 $2')
+    .toUpperCase();
 }
 
 
