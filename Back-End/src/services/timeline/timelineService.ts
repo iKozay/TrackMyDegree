@@ -175,11 +175,10 @@ async function getDegreeData( degree_name :string){
     // We remove "BEng in" and check if the degree_name "contains Computer Engineering"
     let degrees = await degreeController.readAllDegrees()
     let degree_id = degrees.find((d)=>degree_name.toLowerCase().includes(d.name.split(' ').slice(2).join(' ').toLowerCase()))?._id
-    if(!degree_id) return undefined //or return error instead
+    if(!degree_id) return undefined
     return await degreeController.readDegreeData(degree_id)
 }
 function isInprogress(currentTerm:string){
-  // check if course is in progress
   const today = new Date();
   const { start, end } = getTermRanges(currentTerm);
 
@@ -187,7 +186,6 @@ function isInprogress(currentTerm:string){
 } 
 
 function isPlanned(currentTerm:string){
-  // check if course is planned
   const today = new Date();
   const { start, end } = getTermRanges(currentTerm);
 
@@ -208,7 +206,7 @@ function getCoursesThatNeedCMinus(degreeName:string,  coursePools: CoursePoolInf
   if(!degreeName.includes('engr') && !degreeName.includes('comp')) return coursesThatNeedCMinus;
 
   for(const pool of coursePools){ 
-    if (!pool.name.toLowerCase().includes('elective')){ //if core courses
+    if (!pool.name.toLowerCase().includes('elective')){ //core courses
       for(const courseCode of pool.courses){
         requiredCourses.add(allCourses[courseCode]._id);
       }
@@ -216,16 +214,16 @@ function getCoursesThatNeedCMinus(degreeName:string,  coursePools: CoursePoolInf
   }
   
   for(const requiredCourse of requiredCourses){
-    for (const prereq of allCourses[requiredCourse].prerequisites){
-          
-      if(!requiredCourses.has(prereq)) continue; //only required courses need C-
-
-      //if course is a prereq for core courses
-      let codeNumberMatch= /\b(\d{3})\b/.exec(prereq)
-      let is200LevelCourse  = codeNumberMatch?.[1].startsWith("2") ?? false;
-      if(!is200LevelCourse) continue; // only 200-level courses need C-
-      
-      coursesThatNeedCMinus.add(prereq)
+    for (const prereqs of allCourses[requiredCourse].rules.prereq){//if course is a prereq for core courses
+      for(const prereq of prereqs){ 
+        
+        if(!requiredCourses.has(prereq)) continue; //only required courses need C-
+        
+        let codeNumberMatch= /\b(\d{3})\b/.exec(prereq)
+        let is200LevelCourse  = codeNumberMatch?.[1].startsWith("2") ?? false;
+        if(!is200LevelCourse) continue; // only 200-level courses need C-
+        
+        coursesThatNeedCMinus.add(prereq)}
     }
   }
 

@@ -28,8 +28,12 @@ export interface CourseData {
   credits: number;
   description: string;
   offeredIn: string[];
-  corequisites: string[];
-  prerequisites: string[];
+  prereqCoreqText: string, // textual representation
+  rules: {
+    prereq: string[][],
+    coreq: string[][],
+    not_taken: string[],
+  }
 }
 
 
