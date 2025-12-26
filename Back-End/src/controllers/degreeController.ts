@@ -1,5 +1,5 @@
 import { BaseMongoController } from './baseMongoController';
-import { Degree } from '@models';
+import { Degree, CoursePool, Course } from '@models';
 import { DEGREE_WITH_ID_DOES_NOT_EXIST } from '@utils/constants';
 
 export interface DegreeData {
@@ -22,6 +22,17 @@ export interface CoursePoolInfo {
   courses: string[];
 }
 
+export interface CourseData {
+  _id: string;
+  title: string;
+  credits: number;
+  description: string;
+  offeredIn: string[];
+  corequisites: string[];
+  prerequisites: string[];
+}
+
+
 export class DegreeController extends BaseMongoController<any> {
   constructor() {
     super(Degree, 'Degree');
@@ -30,6 +41,57 @@ export class DegreeController extends BaseMongoController<any> {
   // ==========================
   // DEGREE OPERATIONS
   // ==========================
+
+
+  async readDegreeData(
+    _id: string
+  ): Promise<{
+    degree: DegreeData;
+    pools: CoursePoolInfo[];
+    courses: Record<string, CourseData>;
+  }> {
+    try{
+    // 1. Fetch degree
+    const degree = await this.model
+      .findById(_id)
+      .lean<DegreeData>()
+      .exec();
+
+    if (!degree) {
+      throw new Error("Degree not found");
+    }
+
+    // 2. Fetch pools
+    const pools = await CoursePool
+      .find({ _id: { $in: degree.coursePools ?? [] } })
+      .lean<CoursePoolInfo[]>()
+      .exec();
+
+    // 3. Gather all course IDs
+    const courseIds = pools.flatMap((p) => p.courses);
+
+    // 4. Fetch all courses
+    const courseArr = await Course
+      .find({ _id: { $in: courseIds } })
+      .lean<CourseData[]>()
+      .exec();
+
+    // Build dictionary
+    const courses: Record<string, CourseData> = {};
+    for (const c of courseArr) {
+      courses[c._id] = c;
+    }
+    // 5. Return the result
+    return {
+      degree,
+      pools,
+      courses
+    };
+  }catch (error) {
+      this.handleError(error, 'readDegreeData');
+    }
+  }
+
 
   /**
    * Create a new degree
