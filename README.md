@@ -2,7 +2,7 @@
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=iKozay_TrackMyDegree&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=iKozay_TrackMyDegree) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=iKozay_TrackMyDegree&metric=bugs)](https://sonarcloud.io/summary/new_code?id=iKozay_TrackMyDegree) [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=iKozay_TrackMyDegree&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=iKozay_TrackMyDegree) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=iKozay_TrackMyDegree&metric=coverage)](https://sonarcloud.io/summary/new_code?id=iKozay_TrackMyDegree) [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=iKozay_TrackMyDegree&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=iKozay_TrackMyDegree)
 
-### [Try Now](https://stg.trackmydegree.ca)
+### [Try Now](https://trackmydegree.ca)
 
 ### Release 1 Deliverable
 - [Presentation](https://docs.google.com/presentation/d/1CXDA9PgEQqeyCek9WGNIhLl0sTdgGOUpxeh2253D3KQ/edit?usp=sharing)
