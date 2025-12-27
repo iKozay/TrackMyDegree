@@ -6,11 +6,9 @@ async function getUUID() {
   return uuidv4();
 }
 import { mailServicePromise } from '@services/mailService';
-import Redis from 'ioredis';
+import redisClient from '@lib/redisClient'; // import the Redis client instance
 import { RESET_EXPIRY_MINUTES, DUMMY_HASH } from '@utils/constants';
 
-// Mocro : create Redis client for storing password reset tokens temporarily
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
 
 export enum UserType {
   STUDENT = 'student',
@@ -170,8 +168,8 @@ export class AuthController {
       const resetLink = `${frontendUrl.replace(/\/$/, '')}/reset-password/${resetToken}`;
       const expireSeconds = RESET_EXPIRY_MINUTES * 60;
 
-      // Mocro : Store token in Redis with expiry
-      await redis.setex(`reset:${resetToken}`, expireSeconds, user.email);
+      // Store token in Redis with expiry
+      await redisClient.set(`reset:${resetToken}`, user.email, { EX: expireSeconds });
 
       // Send reset email
       const mailService = await mailServicePromise;
@@ -194,7 +192,7 @@ export class AuthController {
   ): Promise<boolean> {
     try {
       // Mocro : Get email from Redis
-      const email = await redis.get(`reset:${resetToken}`);
+      const email = await redisClient.get(`reset:${resetToken}`);
       if (!email) return false; // invalid or expired token
 
       const user = await User.findOne({ email }).exec();
@@ -204,8 +202,8 @@ export class AuthController {
       user.password = await this.hashPassword(newPassword);
       await user.save();
 
-      // Mocro : Delete used token
-      await redis.del(`reset:${resetToken}`);
+      // Delete the token from Redis
+      await redisClient.del(`reset:${resetToken}`);
 
       return true;
     } catch (error) {
