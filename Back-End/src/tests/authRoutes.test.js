@@ -3,6 +3,19 @@ process.env.JWT_ORG_ID = 'test-org-id';
 process.env.JWT_SECRET = 'test-secret-key';
 process.env.SESSION_ALGO = 'aes-256-gcm';
 
+const mockRedisGet = jest.fn();
+const mockRedisSet = jest.fn();
+const mockRedisDel = jest.fn();
+
+jest.mock('../lib/redisClient', () => ({
+    __esModule: true,
+    default: {
+        get: mockRedisGet,
+        set: mockRedisSet,
+        del: mockRedisDel,
+    },
+}));
+
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
@@ -15,27 +28,6 @@ const { authController } = require('../controllers/authController');
 
 // Mock Nodemailer (in __mocks__ folder)
 jest.mock('nodemailer');
-
-// Mock ioredis
-jest.mock('ioredis', () => {
-  const mockRedisGet = jest.fn();
-  const mockRedisSetex = jest.fn();
-  const mockRedisDel = jest.fn();
-
-  const Redis = jest.fn().mockImplementation(() => ({
-    get: mockRedisGet,
-    setex: mockRedisSetex,
-    del: mockRedisDel,
-  }));
-
-  // expose mocks for external use
-  Redis.__mocks__ = { mockRedisGet, mockRedisSetex, mockRedisDel };
-  return Redis;
-});
-
-// Get access to redis mocks
-const Redis = require('ioredis');
-const { mockRedisGet, mockRedisSetex, mockRedisDel } = Redis.__mocks__;
 
 // Mock JWT service
 jest.mock('../services/jwtService', () => ({
@@ -328,7 +320,7 @@ describe('Auth Routes (MongoDB)', () => {
         type: 'student',
       });
 
-      mockRedisSetex.mockResolvedValueOnce();
+      mockRedisSet.mockResolvedValueOnce();
 
       const response = await request(app)
         .post('/auth/forgot-password')
@@ -336,7 +328,7 @@ describe('Auth Routes (MongoDB)', () => {
         .expect(202);
 
       expect(response.body.message).toContain(
-        'Password reset link sent successfully',
+        'If the email exists, a reset link has been sent.',
       );
     });
 
