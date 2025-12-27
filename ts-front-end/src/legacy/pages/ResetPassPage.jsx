@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
@@ -9,7 +9,7 @@ import { api } from '../../api/http-api-client';
 
 //This is the page where the users can reset their password. This is just a form because the reset happens on the server side
 function ResetPassPage() {
-  const [otp, setOTP] = useState(''); //This is the one-time password sent to the user via email
+  const { token } = useParams(); // token from /reset-password/:token
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
@@ -25,13 +25,13 @@ function ResetPassPage() {
     await new Promise((resolve) => setTimeout(resolve, 10));
 
     // Basic validation checks
-    if (otp.trim() === '' || password.trim() === '' || confirmPassword.trim() === '') {
+    if (password.trim() === '' || confirmPassword.trim() === '') {
       setError('All fields are required.');
       return;
     }
 
-    if (otp.length !== 4) {
-      setError('OTP must be 4 digits long.');
+    if (!token) {
+      setError('Invalid or expired reset link.');
       return;
     }
 
@@ -45,26 +45,16 @@ function ResetPassPage() {
 
     //The password reset process is done in the backend so the data from the form is being sent there
     try {
-      // Retrieve email from localStorage (set in ForgotPassPage)
-      const email = localStorage.getItem('resetPasswordEmail');
-      if (!email) {
-        setError('Email not found. Please start the password reset process again.');
-        setLoading(false);
-        return;
-      }
-
-      const data = await api.post('/auth/reset-password', {
-        email,
-        otp,
-        newPassword: password, // Backend expects newPassword, will hash it
-      });
-      console.log(data);
-      // Clear email from localStorage after successful reset
-      localStorage.removeItem('resetPasswordEmail');
+        // Send token from URL and the new password
+        await api.post('/auth/reset-password', {
+            resetToken: token,
+            newPassword: password,
+        });
       // API returns a success message and we can redirect to login page
       navigate('/signin');
     } catch (err) {
-      setError(err.message || 'Error resetting password!');
+      console.log('Password reset error:', err.message || 'Unknown error');
+      setError('Unable to reset password. Your link may have expired. Please request a new password reset.');
     } finally {
       setLoading(false); // End loading
     }
@@ -79,24 +69,6 @@ function ResetPassPage() {
             <h3 className="text-center mb-7">Reset Password</h3>
             <div className="position-relative">
               <form onSubmit={handleResetPassword}>
-                {/* OTP Field */}
-                <div className="mb-3">
-                  <label htmlFor="otp" className="form-label">
-                    OTP Code:
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    id="otp"
-                    placeholder="* Enter your OTP"
-                    value={otp}
-                    onChange={(e) => {
-                      setOTP(e.target.value);
-                      setError(null);
-                    }}
-                  />
-                </div>
-
                 {/* Password Field */}
                 <div className="mb-3">
                   <label htmlFor="password" className="form-label">

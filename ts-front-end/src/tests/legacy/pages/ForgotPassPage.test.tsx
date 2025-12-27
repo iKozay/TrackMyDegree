@@ -79,23 +79,21 @@ describe('ForgotPassPage', () => {
     expect(errorElement).toBeInTheDocument();
   });
 
-  test('successfully submits email and navigates to reset password page', async () => {
-    mockedApi.post.mockResolvedValueOnce({ message: 'Email sent successfully' });
+  test('successfully submits email and displays reset link message', async () => {
+      mockedApi.post.mockResolvedValueOnce({ message: 'Email sent successfully' });
 
-    render(<ForgotPassPage />);
+      render(<ForgotPassPage />);
+      const emailInput = screen.getByPlaceholderText('Enter your email');
+      fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+      fireEvent.click(screen.getByText('Submit'));
 
-    const emailInput = screen.getByPlaceholderText('Enter your email');
-    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-
-    const submitButton = screen.getByText('Submit');
-    fireEvent.click(submitButton);
-
-    await waitFor(() => {
-      expect(api.post).toHaveBeenCalledWith('/auth/forgot-password', {
-        email: 'test@example.com',
+      await waitFor(() => {
+          expect(api.post).toHaveBeenCalledWith('/auth/forgot-password', { email: 'test@example.com' });
+          expect(
+              screen.getByText('If the email exists, a reset link has been sent. Please check your inbox and spam folder.')
+          ).toBeInTheDocument();
+          expect(mockNavigate).not.toHaveBeenCalled();
       });
-      expect(mockNavigate).toHaveBeenCalledWith('/reset-password');
-    });
   });
 
   test('handles API error correctly', async () => {
@@ -110,7 +108,10 @@ describe('ForgotPassPage', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Email does not exist')).toBeInTheDocument();
+        expect(
+            screen.getByText('If the email exists, a reset link has been sent. Please check your inbox and spam folder.')
+        ).toBeInTheDocument();
+        expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 

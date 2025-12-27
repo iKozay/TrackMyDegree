@@ -1,20 +1,5 @@
-jest.mock('nodemailer', () => {
-  const mockSendMail = jest.fn().mockResolvedValue({});
-  return {
-    createTransport: jest.fn(() => ({ sendMail: mockSendMail })),
-    getTestMessageUrl: jest.fn().mockReturnValue('preview-url'),
-    createTestAccount: jest.fn().mockResolvedValue({
-      user: 'test@ethereal.email',
-      pass: 'test-password',
-      smtp: {
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false,
-      },
-    }),
-    __mockSendMail: mockSendMail,
-  };
-});
+// Mock Nodemailer (in __mocks__ folder)
+jest.mock('nodemailer');
 
 jest.mock('@sentry/node', () => ({
   captureException: jest.fn(),
