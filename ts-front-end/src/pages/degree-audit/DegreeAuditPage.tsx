@@ -1,21 +1,45 @@
-import React, { useEffect, useState } from 'react';
-import { Download, FileText, AlertTriangle, CheckCircle, Circle, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
-import { generateMockDegreeAudit, type DegreeAuditData, type RequirementCategory } from '../../mock/degreeAuditGenerator';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Download, FileText, AlertTriangle, CheckCircle, Circle, XCircle, ChevronDown, ChevronUp, RefreshCw, Inbox } from 'lucide-react';
+import { generateMockDegreeAudit, type DegreeAuditData, type RequirementCategory } from '../../mock/degreeAudit';
+import DegreeAuditSkeleton from './DegreeAuditSkeleton';
 import './DegreeAuditPage.css';
 
 const DegreeAuditPage: React.FC = () => {
     const [data, setData] = useState<DegreeAuditData | null>(null);
     const [expandedReqs, setExpandedReqs] = useState<Set<string>>(new Set());
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        // Simulate API fetch
-        const mockData = generateMockDegreeAudit();
-        setData(mockData);
-        // Expand first requirement by default
-        if (mockData.requirements.length > 0) {
-            setExpandedReqs(new Set([mockData.requirements[0].id]));
+    const fetchData = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            // Simulate API fetch delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Randomly simulate error (10% chance) for demonstration
+            if (Math.random() < 0.1) {
+                throw new Error("Failed to connect to the audit server. Please try again.");
+            }
+
+            const mockData = generateMockDegreeAudit();
+            setData(mockData);
+
+            // Expand first requirement by default
+            if (mockData.requirements.length > 0) {
+                setExpandedReqs(new Set([mockData.requirements[0].id]));
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "An unexpected error occurred");
+        } finally {
+            setIsLoading(false);
         }
     }, []);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     const toggleReq = (id: string) => {
         const newExpanded = new Set(expandedReqs);
@@ -27,7 +51,44 @@ const DegreeAuditPage: React.FC = () => {
         setExpandedReqs(newExpanded);
     };
 
-    if (!data) return <div className="p-5">Loading...</div>;
+    if (isLoading) {
+        return <DegreeAuditSkeleton />;
+    }
+
+    if (error) {
+        return (
+            <div className="degree-audit-page">
+                <div className="state-container">
+                    <div className="state-icon error">
+                        <AlertTriangle size={32} />
+                    </div>
+                    <h3>Something went wrong</h3>
+                    <p>{error}</p>
+                    <button className="btn-retry" onClick={fetchData}>
+                        <RefreshCw size={18} style={{ marginRight: '8px', display: 'inline' }} />
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (!data || data.requirements.length === 0) {
+        return (
+            <div className="degree-audit-page">
+                <div className="state-container">
+                    <div className="state-icon empty">
+                        <Inbox size={32} />
+                    </div>
+                    <h3>No Audit Data Found</h3>
+                    <p>We couldn't find any degree audit information for your account. If you just enrolled, it might take a few hours to process.</p>
+                    <button className="btn-primary" onClick={fetchData}>
+                        <FileText size={18} /> Generate Audit
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="degree-audit-page">
@@ -41,7 +102,7 @@ const DegreeAuditPage: React.FC = () => {
                     <button className="btn btn-outline">
                         <Download size={18} /> Export PDF
                     </button>
-                    <button className="btn btn-primary">
+                    <button className="btn btn-primary" onClick={fetchData}>
                         <FileText size={18} /> Generate Audit
                     </button>
                 </div>

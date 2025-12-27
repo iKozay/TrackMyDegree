@@ -27,6 +27,57 @@
     --slate-600: #64748b;
     --slate-900: #0f172a;
     --border-gray: rgba(0, 0, 0, 0.1);
+
+    /* Skeleton Loading Color */
+    --skeleton-bg: #f1f5f9;
+    --skeleton-shimmer: linear-gradient(90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0) 100%);
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.skeleton {
+    background-color: var(--skeleton-bg);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: var(--skeleton-shimmer);
+    animation: shimmer 2s infinite;
+}
+
+.skeleton-text {
+    height: 14px;
+    margin-bottom: 8px;
+    width: 60%;
+}
+
+.skeleton-title {
+    height: 24px;
+    margin-bottom: 12px;
+    width: 40%;
+}
+
+.skeleton-card {
+    height: 200px;
 }
 
 .degree-audit-page {
@@ -520,4 +571,72 @@
         align-self: stretch;
         text-align: center;
     }
+}
+
+/* State Screens */
+.state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+    background-color: white;
+    border-radius: 13px;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 0px 0.5px 0px, rgba(0, 0, 0, 0.15) 0px 1px 3px 0px;
+    margin: 24px;
+}
+
+.state-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.state-icon.info {
+    background-color: var(--badge-blue-bg);
+    color: var(--badge-blue-text);
+}
+
+.state-icon.error {
+    background-color: var(--badge-red-bg);
+    color: white;
+}
+
+.state-icon.empty {
+    background-color: var(--badge-slate-bg);
+    color: var(--badge-slate-text);
+}
+
+.state-container h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--slate-900);
+    margin: 0 0 12px 0;
+}
+
+.state-container p {
+    color: var(--slate-600);
+    font-size: 16px;
+    max-width: 400px;
+    margin: 0 0 24px 0;
+}
+
+.btn-retry {
+    background-color: var(--primary-maroon);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-retry:hover {
+    background-color: #7a152d;
 }

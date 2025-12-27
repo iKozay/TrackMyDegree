@@ -12,6 +12,7 @@ interface MenuItem {
     icon: React.ReactNode;
     path: string;
     badge?: string;
+    disabled?: boolean;
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
@@ -26,14 +27,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     }, [location.pathname]);
 
     const baseMenuItems: MenuItem[] = [
-        { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/dashboard' },
-        { label: 'Missing Requirements', icon: <ListChecks size={20} />, path: '/missing-requirements' },
+        { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/dashboard', disabled: true },
+        { label: 'Missing Requirements', icon: <ListChecks size={20} />, path: '/missing-requirements', disabled: true },
         { label: 'Degree Audit', icon: <FileCheck size={20} />, path: '/degree-audit' },
-        { label: 'Co-op Sequence', icon: <Briefcase size={20} />, path: '/co-op' },
+        { label: 'Co-op Sequence', icon: <Briefcase size={20} />, path: '/co-op', disabled: true },
     ];
 
     const advisorMenuItems: MenuItem[] = [
-        { label: 'Class Builder', icon: <Calendar size={20} />, path: '/class-builder', badge: 'Advisor' },
+        { label: 'Class Builder', icon: <Calendar size={20} />, path: '/class-builder', badge: 'Advisor', disabled: true },
     ];
 
     const menuItems: MenuItem[] = activeRole === 'Advisor'
@@ -44,9 +45,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         <div className="dashboard-container">
             {/* Mobile Header */}
             <header className="mobile-header">
-                <div className="mobile-logo">
-                    <GraduationCap size={24} color="#881337" />
-                    <span>TrackMyDegree</span>
+                <div className="sidebar-header-section mobile-header-logo">
+                    <div className="logo-wrapper">
+                        <GraduationCap className="logo-icon-main" strokeWidth={2} />
+                        <div className="logo-title-group">
+                            <h1>TrackMyDegree</h1>
+                            <p>Concordia University</p>
+                        </div>
+                    </div>
                 </div>
                 <button className="hamburger-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
                     {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
@@ -95,6 +101,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                                 <button
                                     className={`nav-item-btn ${location.pathname === item.path ? 'active' : ''}`}
                                     onClick={() => navigate(item.path)}
+                                    disabled={item.disabled}
                                 >
                                     <span className="nav-item-icon">
                                         {React.cloneElement(item.icon as React.ReactElement<any>, { size: 20 })}
