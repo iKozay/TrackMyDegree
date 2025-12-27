@@ -7,25 +7,30 @@ jest.mock('@services/parsingService');
 jest.mock('@controllers/degreeController');
 
 describe('buildTimeline', () => {
-  const mockDegreeData = {
-    degree: { _id: 'deg1', name: 'Beng in Computer Engineering' },
-    pools: [
+  const mockDegreeData =  { _id: 'deg1', name: 'Beng in Computer Engineering' }
+
+  const mockPools = [
       { name: 'Core Courses', courses: ['COMP 232', 'COMP 248','COMP 249'] }
-    ],
-    courses: {
-      'COMP 232': { _id: 'COMP 232', name: 'Discrete Math', rules: { prereq: [] } },
-      'COMP 248': { _id: 'COMP 248', name: 'Object Oriented Programing', rules: { prereq: [] } },
-      'COMP 249': { _id: 'COMP 249', name: 'Object Oriented Programing 2', rules: { prereq: [['COMP 248'],['COMP 232']] } }
-    }
-  };
+    ]
+    
+  const mockCourses = [
+    { _id: 'COMP 232', title: 'Discrete Math', rules: { prereq: [] } },
+    { _id: 'COMP 248', title: 'Object Oriented Programming', rules: { prereq: [] } },
+    { _id: 'COMP 249', title: 'Object Oriented Programming 2', rules: { prereq: [['COMP 248'], ['COMP 232']] } }
+  ]
+
 
   beforeEach(() => {
-    jest.resetAllMocks();
-    degreeController.readAllDegrees.mockResolvedValue([
-      { _id: 'deg1', name: 'BEng in Computer Engineering' }
-    ]);
-    degreeController.readDegreeData.mockResolvedValue(mockDegreeData);
-  });
+  jest.resetAllMocks();
+  degreeController.readAllDegrees.mockResolvedValue([mockDegreeData]);
+  
+  degreeController.readDegree.mockResolvedValue(mockDegreeData);
+  
+  degreeController.getCoursePoolsForDegree.mockResolvedValue(mockPools);
+
+  degreeController.getCoursesForDegree.mockResolvedValue(mockCourses);
+});
+
 
   it('builds timeline from form data', async () => {
     const formData = {
@@ -75,12 +80,13 @@ describe('buildTimeline', () => {
     const result = await buildTimeline(fileData);
 
     expect(result).toBeDefined();
-    expect(result.courses['COMP 232'].status).toBe('complete');
+    expect(result.courses['COMP 232'].status.semester).toBe("FALL 2023");
+    expect(result.courses['COMP 232'].status.status).toBe("complete");
     expect(result.semesters[0].courses[0].code).toBe('COMP 232');
   });
 
   it('throws error if degree not found', async () => {
-    degreeController.readDegreeData.mockResolvedValue(undefined);
+    degreeController.readDegree.mockResolvedValue(undefined);
 
     const formData = {
       type: 'form',
@@ -130,15 +136,18 @@ describe('buildTimeline', () => {
     const comp248 = result.courses['COMP 248'];
     const comp249 = result.courses['COMP 249'];
 
-    expect(comp232.status).toBe('incomplete');
+    expect(comp232.status.status).toBe('incomplete');
+    expect(comp232.status.semester).toBe("FALL 2023");
     expect(result.semesters[0].courses.find(c => c.code === 'COMP 232').message)
       .toContain('Minimum grade not met');
 
-    expect(comp248.status).toBe('complete');
-    expect(result.semesters[0].courses.find(c => c.code === 'COMP 248').message).toBe('');
+    expect(comp248.status.status).toBe('complete');
+    expect(comp248.status.semester).toBe("FALL 2023");
+    expect(result.semesters[0].courses.find(c => c.code === 'COMP 248').message).toBe(undefined);
 
 
-    expect(comp249.status).toBe('incomplete');
+    expect(comp249.status.status).toBe('incomplete');
+    expect(comp249.status.semester).toBe(null);
     expect(result.semesters[0].courses.find(c => c.code === 'COMP 249')).toBe(undefined);
   });
 });

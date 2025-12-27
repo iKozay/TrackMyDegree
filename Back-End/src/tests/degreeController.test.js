@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const { DegreeController } = require('../controllers/degreeController');
 const { Degree } = require('../models/degree');
-const { CoursePool } = require('../models/coursePool');
-const { Course } = require('../models/course');
+const { CoursePool } = require('../models/coursepool');
 
 
 describe('DegreeController', () => {
@@ -25,6 +24,7 @@ describe('DegreeController', () => {
 
   beforeEach(async () => {
     await Degree.deleteMany({});
+    await CoursePool.deleteMany({})
   });
 
   describe('Constructor', () => {
@@ -133,86 +133,6 @@ describe('DegreeController', () => {
       degreeController.updateById = originalUpdate;
     });
   });
-
-
-  describe('readDegreeData', () => {
-  it('should return degree, pools, and courses mapped by id', async () => {
-    await CoursePool.create([
-      {
-        _id: 'POOL1',
-        name: 'Core Pool',
-        creditsRequired: 30,
-        courses: ['COURSE1', 'COURSE2'],
-      },
-    ]);
-
-    await Course.create([
-      {
-        _id: 'COURSE1',
-        title: 'Intro to CS',
-        credits: 3,
-        description: 'Basics',
-        offeredIn: ['FALL'],
-        prereqCoreqText: '',
-        rules: { prereq: [], coreq: [], not_taken: [] },
-      },
-      {
-        _id: 'COURSE2',
-        title: 'Data Structures',
-        credits: 3,
-        description: 'DS',
-        offeredIn: ['WINTER'],
-        prereqCoreqText: '',
-        rules: { prereq: [], coreq: [], not_taken: [] },
-      },
-    ]);
-
-    await Degree.create({
-      _id: 'COMP',
-      name: 'Computer Science',
-      totalCredits: 120,
-      coursePools: ['POOL1'],
-    });
-
-    const result = await degreeController.readDegreeData('COMP');
-
-    expect(result.degree).toMatchObject({
-      _id: 'COMP',
-      name: 'Computer Science',
-      totalCredits: 120,
-      coursePools: ['POOL1'],
-    });
-
-    expect(result.pools).toHaveLength(1);
-    expect(result.pools[0]._id).toBe('POOL1');
-
-    expect(Object.keys(result.courses)).toEqual(
-      expect.arrayContaining(['COURSE1', 'COURSE2']),
-    );
-  });
-
-  it('should throw error when degree does not exist', async () => {
-    await expect(
-      degreeController.readDegreeData('NON_EXISTENT'),
-    ).rejects.toThrow('Degree not found');
-  });
-
-  it('should handle database errors', async () => {
-    const originalFindById = degreeController.model.findById;
-
-    degreeController.model.findById = jest.fn(() => ({
-      lean: () => ({
-        exec: jest.fn().mockRejectedValue(new Error('Database failure')),
-      }),
-    }));
-
-    await expect(
-      degreeController.readDegreeData('COMP'),
-    ).rejects.toThrow('Database failure');
-
-    degreeController.model.findById = originalFindById;
-  });
-});
 
 
   describe('readDegree', () => {
@@ -381,9 +301,36 @@ describe('DegreeController', () => {
         coursePools: ['COMP_CORE', 'COMP_ELECTIVES'],
       });
 
+      await CoursePool.create({
+        _id: 'COMP_CORE',
+        name: 'COMP_CORE',
+        creditsRequired: 60,
+        courses: ['course 1'],
+      })
+
+      await CoursePool.create({
+        _id: 'COMP_ELECTIVES',
+        name: 'COMP_ELECTIVES',
+        creditsRequired: 60,
+        courses: ['course 2'],
+      })
+
+
       const result = await degreeController.getCoursePoolsForDegree('COMP123');
 
-      expect(result).toEqual(['COMP_CORE', 'COMP_ELECTIVES']);
+      expect(result).toEqual(
+        [{
+        _id: 'COMP_CORE',
+        name: 'COMP_CORE',
+        creditsRequired: 60,
+        courses: ['course 1'],
+      },
+      {
+        _id: 'COMP_ELECTIVES',
+        name: 'COMP_ELECTIVES',
+        creditsRequired: 60,
+        courses: ['course 2'],
+      }]);
     });
 
     it('should throw error for non-existent degree', async () => {

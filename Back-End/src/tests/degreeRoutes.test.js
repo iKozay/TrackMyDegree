@@ -4,6 +4,7 @@ const request = require('supertest');
 const express = require('express');
 const degreeRoutes = require('../routes/degreeRoutes').default;
 const { Degree } = require('../models/degree');
+const { CoursePool } = require('../models/coursepool');
 
 // Increase timeout for mongodb-memory-server binary download/startup
 jest.setTimeout(60000);
@@ -33,6 +34,7 @@ describe('Degree Routes', () => {
 
   beforeEach(async () => {
     await Degree.deleteMany({});
+    await CoursePool.deleteMany({});
   });
 
   describe('GET /degree/:id', () => {
@@ -350,14 +352,42 @@ describe('Degree Routes', () => {
         totalCredits: 120,
         coursePools: ['POOL1', 'POOL2'],
       });
+      await CoursePool.create({
+        _id: 'POOL1',
+        name: 'COMP_CORE',
+        creditsRequired: 60,
+        courses: ['course 1'],
+      })
+      
+      await CoursePool.create({
+        _id: 'POOL2',
+        name: 'COMP_ELECTIVES',
+        creditsRequired: 60,
+        courses: ['course 2'],
+      })
     });
+
+    
 
     it('should get course pools for a degree', async () => {
       const response = await request(app).get('/degree/CS/coursepools');
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body).toEqual(['POOL1', 'POOL2']);
+      expect(response.body).toEqual(
+        [{
+        _id: 'POOL1',
+        name: 'COMP_CORE',
+        creditsRequired: 60,
+        courses: ['course 1'],
+      },
+      {
+        _id: 'POOL2',
+        name: 'COMP_ELECTIVES',
+        creditsRequired: 60,
+        courses: ['course 2'],
+      }]);
+      
     });
 
     it('should return 404 for non-existent degree', async () => {

@@ -73,7 +73,7 @@ export const buildTimeline = async (
     const result = await getDegreeData(programInfo.degree);
     if (!result) throw new Error( "Error fetching degree data from database")
     
-    const { degree, pools: coursePools, courses } = result;
+    const { degreeData: degree, coursePools, courses } = result;
     let semesters_results: SemesterResult[]; 
     const courseStatusMap: Record<string, {
       status: CourseStatus;
@@ -218,14 +218,26 @@ async function getDegreeData( degree_name :string){
     // check if degree_name (received as function parameter) includes the resulting string
     // example:
     // degree name in DB: BEng in Computer Engineering
-    // degree_name: Bachelor of Engineering Computer Engineering
+    // degree_name: Bachelor of Engineering Computer Engineering 
     // We remove "BEng in" and check if the degree_name "contains Computer Engineering"
+    //Beng in Software engineeering_ecp
     let degrees = await degreeController.readAllDegrees()
     let degree_id = degrees.find((d)=>degree_name.toLowerCase().includes(d.name.split(' ').slice(2).join(' ').toLowerCase()))?._id
     if(!degree_id) return undefined
-    //const degree:DegreeData = await degreeController.readDegree(degree_id);
-    //const coursePool: CoursePoolInfo = await degreeController.getCoursePoolsForDegree(degree_id)
-    return await degreeController.readDegreeData(degree_id)
+   
+    const [degreeData, coursePools, courseArr] = await Promise.all([
+      degreeController.readDegree(degree_id),
+      degreeController.getCoursePoolsForDegree(degree_id),
+      degreeController.getCoursesForDegree(degree_id),
+    ]);
+
+    // Build dictionary
+    const courses: Record<string, CourseData> = {};
+    for (const c of courseArr) {
+      courses[c._id] = c;
+    }
+    
+    return {degreeData, coursePools, courses}
 }
 function isInprogress(currentTerm:string){
   const today = new Date();
