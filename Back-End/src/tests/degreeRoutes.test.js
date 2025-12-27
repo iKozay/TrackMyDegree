@@ -60,6 +60,7 @@ describe('Degree Routes', () => {
         _id: 'COMP',
         name: 'Computer Science',
         totalCredits: 120,
+        coursePools: [ 'COMP_CORE']
       });
     });
 

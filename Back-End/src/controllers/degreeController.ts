@@ -124,7 +124,7 @@ export class DegreeController extends BaseMongoController<any> {
    */
   async readDegree(_id: string): Promise<DegreeData> {
     try {
-      const result = await this.findById(_id, 'name totalCredits');
+      const result = await this.findById(_id);
 
       if (!result.success) {
         throw new Error(DEGREE_WITH_ID_DOES_NOT_EXIST);
@@ -186,20 +186,6 @@ export class DegreeController extends BaseMongoController<any> {
   /**
    * Get course pools for a degree (optimized - only fetches coursePools field)
    */
-  async getCoursePoolsForDegree2(_id: string): Promise<string[]> {
-    try {
-      // Using populate to get full course pool details
-      const result = await this.findById(_id, 'coursePools');
-
-      if (!result.success) {
-        throw new Error(DEGREE_WITH_ID_DOES_NOT_EXIST);
-      }
-
-      return result.data.coursePools || [];
-    } catch (error) {
-      this.handleError(error, 'getCoursePoolsForDegree');
-    }
-  }
  async getCoursePoolsForDegree(_id: string): Promise<CoursePoolInfo[]> {
     try {
       // Using populate to get full course pool details
