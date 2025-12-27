@@ -1,8 +1,9 @@
 // services/buildTimeline.ts
 import { degreeController } from "@controllers/degreeController";
 import { parseFile } from "@services/parsingService";
-import { ParsedData, ProgramInfo, Semester } from "../../types/transcript";
-import { CourseData, CoursePoolInfo, DegreeData } from "@controllers/degreeController";
+import { ParsedData, ProgramInfo, Semester, CourseStatus } from "../../types/transcript";
+import { CoursePoolInfo, DegreeData } from "@controllers/degreeController";
+import { CourseData } from "@controllers/courseController";
 
 type TimelineFileData = {
   type: 'file';
@@ -19,21 +20,30 @@ export interface TimelineResult {
     degree?: DegreeData;
     pools?: CoursePoolInfo[];
     semesters: SemesterResult[];
-    courses: Record<string, CourseResult>;
+    courses: Record<string, TimelineCourse>;
 }
-export type CourseStatus = "complete" | "incomplete" | "inprogress" | "planned"| string;
 
-interface CourseResult extends CourseData{
-  status: CourseStatus;
-  semester : string | null;
+
+interface TimelineCourse {
+  id: string;
+  title: string;
+  credits: number;
+  description?: string;
+  offeredIN: string[];
+  prerequisites: { anyOf: string[] }[];
+  corequisites: { anyOf: string[] }[];
+  status: {
+    status: CourseStatus;
+    semester: string | null;
+  };
 }
-export interface CourseTaken {
-  code: string;
-  message: string;
-}
+
 export interface SemesterResult{
   term:string,
-  courses: CourseTaken[]
+  courses:  {
+    code: string;
+    message?: string;
+  }[]
 }
 
 export type BuildTimelineParams = TimelineFileData | TimelineObjectData;
@@ -81,19 +91,16 @@ export const buildTimeline = async (
     if (parsedData?.exemptedCourses) addToCourseStatusMap(parsedData?.exemptedCourses,courseStatusMap)
     
 
-    const courseResults = Object.fromEntries(
+    //transform courses obtained from db to the format expected by the frontend
+    const courseResults: Record<string, TimelineCourse> = Object.fromEntries(
       Object.entries(courses).map(([code, course]) => {
-        const override = courseStatusMap[code];
         return [
           code,
-          {
-            ...course,
-            status: override?.status ?? "incomplete",
-            semester: override?.semester ?? null,
-          },
+          toTimelineCourse(course, courseStatusMap[code]),
         ];
       })
     );
+
     
     let timelineResult:TimelineResult= {
           degree: degree,    
@@ -104,6 +111,36 @@ export const buildTimeline = async (
 
   return timelineResult;
 };
+
+function toTimelineCourse(
+  course: CourseData,
+  override?: { status: CourseStatus; semester: string | null }
+): TimelineCourse {
+  return {
+    id: course._id,
+    title: course.title,
+    credits: course.credits,
+    description: course.description,
+    offeredIN: course.offeredIn ?? [],
+    prerequisites: mapRequisites(course.rules?.prereq),
+    corequisites: mapRequisites(course.rules?.coreq),
+    status: {
+      status: override?.status ?? "incomplete",
+      semester: override?.semester ?? null,
+    },
+  };
+}
+
+// Converts prerequisite/corequisite rules from the DB format
+// (string[][] where each inner array represents an OR group)
+// into the timeline format: [{ anyOf: string[] }]
+function mapRequisites(reqs?: string[][]) {
+  return reqs?.map(group => ({
+    anyOf: group.map(normalizeCourseCode),
+  })) ?? [];
+}
+
+
 function processSemestersFromParsedData(parsedData:ParsedData, degree:DegreeData, coursePools:CoursePoolInfo[], allCourses:Record<string, CourseData>, courseStatusMap: Record<string, {status: CourseStatus;semester: string | null;}> ){
   if(!parsedData.semesters) return []
 
@@ -144,9 +181,9 @@ function processSemestersFromParsedData(parsedData:ParsedData, degree:DegreeData
 }
 function getCourseStatus(term:string, isCoop:boolean|undefined, courseCode:string, coursesThatNeedCMinus:Set<string>, courseGrade?:string){
   let status: CourseStatus = "incomplete";
-  let message = "";
+  let message;
   if (isInprogress(term))
-              status = "inprogress" 
+      status = "inprogress" 
   else if (isPlanned(term)) 
       status = "planned"
   else if(isCoop && courseCode.toUpperCase().includes("CWTE")){
@@ -165,12 +202,13 @@ function getCourseStatus(term:string, isCoop:boolean|undefined, courseCode:strin
   }
   return {status, message}
 }
+
 function addToCourseStatusMap(courses:string[], courseStatusMap: Record<string, { status: CourseStatus; semester: string | null;}>){
   for (const course of courses){
     courseStatusMap[normalizeCourseCode(course)] = {
         status: "complete",
         semester: null,
-      };
+    };
   }
 }
 
@@ -185,6 +223,8 @@ async function getDegreeData( degree_name :string){
     let degrees = await degreeController.readAllDegrees()
     let degree_id = degrees.find((d)=>degree_name.toLowerCase().includes(d.name.split(' ').slice(2).join(' ').toLowerCase()))?._id
     if(!degree_id) return undefined
+    //const degree:DegreeData = await degreeController.readDegree(degree_id);
+    //const coursePool: CoursePoolInfo = await degreeController.getCoursePoolsForDegree(degree_id)
     return await degreeController.readDegreeData(degree_id)
 }
 function isInprogress(currentTerm:string){
@@ -229,7 +269,9 @@ function getCoursesThatNeedCMinus(degreeName:string, requiredCourses:Set<string>
   };
 
   for(const requiredCourse of requiredCourses){
-    for (const prereqs of allCourses[requiredCourse].rules.prereq){//if course is a prereq for core courses
+    const prereqList = allCourses[requiredCourse]?.rules?.prereq;
+    if(!prereqList) continue;
+    for (const prereqs of prereqList){//if course is a prereq for core courses
       for(const prereq of prereqs){ 
         if(!requiredCourses.has(prereq) && is200LevelCourse(prereq)) continue; //only required 200-level courses need C- 
         
@@ -240,10 +282,14 @@ function getCoursesThatNeedCMinus(degreeName:string, requiredCourses:Set<string>
   return coursesThatNeedCMinus;
 }
 
+
+// Normalizes a course code by removing all whitespace, 
+// inserting a space between the letter prefix and numeric part, and converting it to uppercase.
+// Example: " engr   201 " → "ENGR 201" or "ENGR201" -> "ENGR 201"
 function normalizeCourseCode(code: string): string {
   return code
-    .replace(/\s+/g, '')
-    .replace(/([a-zA-Z]+)(\d+)/, '$1 $2')
+    .replace(/\s+/g, '') //Removes all whitespace
+    .replace(/([a-zA-Z]+)(\d+)/, '$1 $2') //Inserts a space between letters and numbers
     .toUpperCase();
 }
 
