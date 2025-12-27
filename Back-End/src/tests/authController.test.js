@@ -325,7 +325,7 @@ describe('AuthController', () => {
       });
 
       const res = await authController.forgotPassword('reset@example.com');
-      expect(res.resetLink).toContain('/reset-password/');
+      expect(res.message).toContain('If the email exists, a reset link has been sent.')
       expect(mockRedisSet).toHaveBeenCalled();
     });
 

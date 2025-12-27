@@ -175,7 +175,7 @@ export class AuthController {
       const mailService = await mailServicePromise;
       await mailService.sendPasswordReset(user.email, resetLink);
 
-      return { message: 'If the email exists, a reset link has been sent.', resetLink };
+      return { message: 'If the email exists, a reset link has been sent.'};
     } catch (error) {
       Sentry.captureException(error, { tags: { operation: 'forgotPassword' } });
       console.error('[AuthController] Password reset error', error);
