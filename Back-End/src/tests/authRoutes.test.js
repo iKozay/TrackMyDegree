@@ -3,6 +3,19 @@ process.env.JWT_ORG_ID = 'test-org-id';
 process.env.JWT_SECRET = 'test-secret-key';
 process.env.SESSION_ALGO = 'aes-256-gcm';
 
+const mockRedisGet = jest.fn();
+const mockRedisSet = jest.fn();
+const mockRedisDel = jest.fn();
+
+jest.mock('../lib/redisClient', () => ({
+    __esModule: true,
+    default: {
+        get: mockRedisGet,
+        set: mockRedisSet,
+        del: mockRedisDel,
+    },
+}));
+
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
@@ -13,33 +26,8 @@ const { User } = require('../models/user');
 const bcrypt = require('bcryptjs');
 const { authController } = require('../controllers/authController');
 
-// Mock Nodemailer
-jest.mock('nodemailer', () => ({
-  createTransport: jest.fn().mockReturnValue({
-    sendMail: jest.fn().mockResolvedValue(true),
-  }),
-}));
-
-// Mock ioredis
-jest.mock('ioredis', () => {
-  const mockRedisGet = jest.fn();
-  const mockRedisSetex = jest.fn();
-  const mockRedisDel = jest.fn();
-
-  const Redis = jest.fn().mockImplementation(() => ({
-    get: mockRedisGet,
-    setex: mockRedisSetex,
-    del: mockRedisDel,
-  }));
-
-  // expose mocks for external use
-  Redis.__mocks__ = { mockRedisGet, mockRedisSetex, mockRedisDel };
-  return Redis;
-});
-
-// Get access to redis mocks
-const Redis = require('ioredis');
-const { mockRedisGet, mockRedisSetex, mockRedisDel } = Redis.__mocks__;
+// Mock Nodemailer (in __mocks__ folder)
+jest.mock('nodemailer');
 
 // Mock JWT service
 jest.mock('../services/jwtService', () => ({
@@ -332,7 +320,7 @@ describe('Auth Routes (MongoDB)', () => {
         type: 'student',
       });
 
-      mockRedisSetex.mockResolvedValueOnce();
+      mockRedisSet.mockResolvedValueOnce();
 
       const response = await request(app)
         .post('/auth/forgot-password')
@@ -340,7 +328,7 @@ describe('Auth Routes (MongoDB)', () => {
         .expect(202);
 
       expect(response.body.message).toContain(
-        'Password reset link sent successfully',
+        'If the email exists, a reset link has been sent.',
       );
     });
 
@@ -373,9 +361,8 @@ describe('Auth Routes (MongoDB)', () => {
       const response = await request(app)
         .post('/auth/reset-password')
         .send({
-          token: 'validtoken',
+          resetToken: 'validtoken',
           newPassword: 'NewPass123!',
-          email: user.email,
         })
         .expect(202);
 
@@ -396,24 +383,43 @@ describe('Auth Routes (MongoDB)', () => {
       const response = await request(app)
         .post('/auth/reset-password')
         .send({
-          token: 'invalidtoken',
+          resetToken: 'invalidtoken',
           newPassword: 'NewPass123!',
-          email: user.email,
         })
         .expect(401);
 
       expect(response.body.error).toBe('Invalid or expired reset link');
     });
 
-    it('should return 400 for missing token or password', async () => {
-      const response = await request(app)
-        .post('/auth/reset-password')
-        .send({}) // Missing token and password
-        .expect(400);
+      it('should return 400 for missing resetToken', async () => {
+          const response = await request(app)
+              .post('/auth/reset-password')
+              .send({
+                  newPassword: 'NewPass123!',
+              })
+              .expect(400);
 
-      expect(response.body.error).toBe(
-        'Email, token, and newPassword are required',
-      );
-    });
+          expect(response.body.error).toBe('Token and newPassword are required');
+      });
+
+      it('should return 400 for missing newPassword', async () => {
+          const response = await request(app)
+              .post('/auth/reset-password')
+              .send({
+                  resetToken: 'validtoken',
+              })
+              .expect(400);
+
+          expect(response.body.error).toBe('Token and newPassword are required');
+      });
+
+      it('should return 400 for empty request body', async () => {
+          const response = await request(app)
+              .post('/auth/reset-password')
+              .send({})
+              .expect(400);
+
+          expect(response.body.error).toBe('Token and newPassword are required');
+      });
   });
 });

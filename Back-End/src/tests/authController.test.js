@@ -4,6 +4,28 @@
  * Mocks Redis + Nodemailer to avoid external dependencies
  */
 
+// Mock Sentry
+jest.mock('@sentry/node', () => ({
+    captureException: jest.fn(),
+}));
+
+// Mock Nodemailer (in __mocks__ folder)
+jest.mock('nodemailer');
+
+// Mock shared Redis client
+const mockRedisGet = jest.fn();
+const mockRedisSet = jest.fn();
+const mockRedisDel = jest.fn();
+
+jest.mock('@lib/redisClient', () => ({
+    __esModule: true,
+    default: {
+        get: mockRedisGet,
+        set: mockRedisSet,
+        del: mockRedisDel,
+    },
+}));
+
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const { AuthController, UserType } = require('../controllers/authController');
@@ -12,46 +34,6 @@ const UserModule = require('../models/user');
 const User = UserModule.User || UserModule.default || UserModule;
 const bcrypt = require('bcryptjs');
 const Sentry = require('@sentry/node');
-
-jest.mock('@sentry/node', () => ({
-  captureException: jest.fn(),
-}));
-
-// ─────────────────────────────────────────────
-// Mock Nodemailer
-jest.mock('nodemailer', () => ({
-  createTransport: jest.fn().mockReturnValue({
-    sendMail: jest.fn().mockResolvedValue(true),
-  }),
-}));
-
-// ─────────────────────────────────────────────
-// Mock ioredis
-jest.mock('ioredis', () => {
-  const mockRedisGet = jest.fn();
-  const mockRedisSetex = jest.fn();
-  const mockRedisDel = jest.fn();
-
-  const Redis = jest.fn().mockImplementation(() => ({
-    get: mockRedisGet,
-    setex: mockRedisSetex,
-    del: mockRedisDel,
-  }));
-
-  // expose mocks for external use
-  Redis.__mocks__ = { mockRedisGet, mockRedisSetex, mockRedisDel };
-  return Redis;
-});
-
-// Get access to redis mocks
-const Redis = require('ioredis');
-const { mockRedisGet, mockRedisSetex } = Redis.__mocks__;
-
-// ─────────────────────────────────────────────
-// Mock Sentry
-jest.mock('@sentry/node', () => ({
-  captureException: jest.fn(),
-}));
 
 describe('AuthController', () => {
   let mongoServer, mongoUri, authController, testUser;
@@ -343,8 +325,8 @@ describe('AuthController', () => {
       });
 
       const res = await authController.forgotPassword('reset@example.com');
-      expect(res.resetLink).toContain('/reset-password/');
-      expect(mockRedisSetex).toHaveBeenCalled();
+      expect(res.message).toContain('If the email exists, a reset link has been sent.')
+      expect(mockRedisSet).toHaveBeenCalled();
     });
 
     it('should handle non-existent user', async () => {
@@ -392,6 +374,14 @@ describe('AuthController', () => {
         'NewPass123!',
       );
       expect(res).toBe(true);
+      expect(mockRedisDel).toHaveBeenCalledWith('reset:validtoken');
+      // verify token is deleted and cannot be reused
+      mockRedisGet.mockResolvedValueOnce(null);
+      const res2 = await authController.resetPassword(
+          'validtoken',
+          'AnotherPass123!',
+      );
+      expect(res2).toBe(false);
     });
 
     it('should fail invalid token', async () => {

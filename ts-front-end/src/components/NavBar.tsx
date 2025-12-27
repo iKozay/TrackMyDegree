@@ -84,7 +84,7 @@ export const Navbar: React.FC = () => {
               <button
                 className="navbar__btn navbar__btn--ghost"
                 type="button"
-                onClick={() => navigateTo("/login")}>
+                onClick={() => navigateTo("/signin")}>
                 Login
               </button>
               <button
