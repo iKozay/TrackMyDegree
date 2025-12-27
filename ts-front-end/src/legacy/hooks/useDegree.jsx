@@ -1,6 +1,4 @@
-// src/pages/CourseListPage/hooks/useDegrees.js
 import { useState, useEffect } from 'react';
-import * as Sentry from '@sentry/react';
 import { api } from '../../api/http-api-client';
 
 /**

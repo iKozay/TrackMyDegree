@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import posthog from "posthog-js";
 
 import TimeLinePage from "./pages/TimelinePage";
@@ -15,8 +15,11 @@ import CoursePage from "./pages/CoursePage";
 import ForbiddenPage from "./pages/ForbiddenPage";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import DegreeAuditPage from "./pages/degree-audit/DegreeAuditPage";
+
 import { Navbar } from "./components/NavBar";
 import { Footer } from "./components/Footer";
+import DashboardLayout from "./components/DashboardLayout/DashboardLayout";
 
 import { AuthProvider } from "./providers/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
@@ -41,36 +44,44 @@ const App: React.FC = () => {
     }
   }, []);
 
+  const location = useLocation();
+  const dashboardRoutes = ['/dashboard', '/degree-audit', '/missing-requirements', '/co-op', '/class-builder'];
+  const isDashboardPage = dashboardRoutes.some(route => location.pathname.startsWith(route));
+
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Navbar />
-        <Routes>
-          {/* Public */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/403" element={<ForbiddenPage />} />
-          <Route path="/timeline" element={<TimelineSetupPage />} />
-          <Route path="/timeline/:jobId" element={<TimeLinePage />} />
-          <Route path="/signin" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/forgot-password" element={<ForgetPasswordPage />} />
-          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
-          <Route path="/courses" element={<CoursePage />} />
-          <Route path="/requirements" element={<RequirementsFormPage />} />
-          <Route path="/requirements/:programId" element={<RequirementSelectPage />} />
+    <AuthProvider>
+      {!isDashboardPage && <Navbar />}
+      <Routes>
+        {/* Public */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/403" element={<ForbiddenPage />} />
+        <Route path="/timeline" element={<TimelineSetupPage />} />
+        <Route path="/timeline/:jobId" element={<TimeLinePage />} />
+        <Route path="/signin" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/forgot-password" element={<ForgetPasswordPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+        <Route path="/courses" element={<CoursePage />} />
+        <Route path="/requirements" element={<RequirementsFormPage />} />
+        <Route path="/requirements/:programId" element={<RequirementSelectPage />} />
+        <Route path="/degree-audit" element={
+          <DashboardLayout>
+            <DegreeAuditPage />
+          </DashboardLayout>
+        } />
 
-          <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
-            <Route path="/profile/student" element={<StudentPage />} />
-          </Route>
+        {/* Dashboard Routes (Protected) */}
+        <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
+          <Route path="/profile/student" element={<StudentPage />} />
+        </Route>
 
-          {/* Protected: ADMIN PROFILE */}
-          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-            <Route path="/profile/admin" element={<AdminPage />} />
-          </Route>
-        </Routes>
-        <Footer deployment_version={deployment_version} />
-      </AuthProvider>
-    </BrowserRouter>
+        {/* Protected: ADMIN PROFILE */}
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/profile/admin" element={<AdminPage />} />
+        </Route>
+      </Routes>
+      {!isDashboardPage && <Footer deployment_version={deployment_version} />}
+    </AuthProvider>
   );
 };
 
