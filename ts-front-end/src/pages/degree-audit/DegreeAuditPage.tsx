@@ -90,11 +90,12 @@ const DegreeAuditPage: React.FC = () => {
                     </div>
                 </div>
 
+                <hr className="da-divider" />
+
                 {/* Overall Progress */}
                 <div className="audit-progress">
-                    <h3 className="section-title" style={{ marginTop: '2rem' }}>Overall Progress</h3>
                     <div className="progress-header">
-                        <span>{data.progress.completed} credits completed</span>
+                        <h3 className="section-title">Overall Progress</h3>
                         <span className="progress-percentage">{data.progress.percentage}%</span>
                     </div>
                     <div className="progress-bar-container">

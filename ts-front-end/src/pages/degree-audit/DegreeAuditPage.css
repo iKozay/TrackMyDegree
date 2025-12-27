@@ -30,7 +30,6 @@
 }
 
 .degree-audit-page {
-    padding: 32px;
     background-color: #f8fafc;
     min-height: 100%;
 }
@@ -83,13 +82,13 @@
     transform: translateY(0);
 }
 
-.btn-outline {
+.btn.btn-outline {
     background-color: white;
     border: 1px solid var(--border-gray);
     color: var(--slate-900);
 }
 
-.btn-outline:hover {
+.btn.btn-outline:hover {
     background-color: #f8fafc;
 }
 
@@ -111,6 +110,14 @@
     margin-bottom: 24px;
     box-shadow: rgba(0, 0, 0, 0.3) 0px 0px 0.5px 0px, rgba(0, 0, 0, 0.15) 0px 1px 3px 0px;
     border: none;
+}
+
+.da-divider {
+    border: none;
+    border-top: 1px solid var(--slate-200);
+    margin: 2rem 0 0;
+    width: 100%;
+    opacity: 0.8;
 }
 
 /* Student Info */
@@ -146,7 +153,7 @@
 
 .value {
     color: var(--slate-900);
-    font-weight: 500;
+    font-weight: 600;
     font-size: 14px;
 }
 
@@ -158,9 +165,12 @@
 .progress-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.75rem;
-    align-items: baseline;
-    /* Align text properly */
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.progress-header .section-title {
+    margin-bottom: 0;
 }
 
 .progress-title {
@@ -175,11 +185,11 @@
 }
 
 .progress-bar-container {
-    height: 12px;
+    height: 10px;
     background-color: var(--primary-rose-alpha);
     border-radius: 99px;
     overflow: hidden;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 
 .progress-bar-fill {
@@ -424,7 +434,7 @@
 }
 
 .course-status-badge .badge {
-    padding: 1px 6px;
+    padding: 4px 10px;
     font-size: 10px;
     border-radius: 4px;
 }
