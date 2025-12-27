@@ -76,23 +76,10 @@ export const buildTimeline = async (
       semesters_results = generateSemesters(programInfo.firstTerm, programInfo.lastTerm)
     
     //add transfer credits to course completed
-    if(parsedData?.transferedCourses){
-      for (const course of parsedData.transferedCourses){
-        courseStatusMap[normalizeCourseCode(course)] = {
-            status: "complete",
-            semester: null,
-          };
-      }
-    }
+    if(parsedData?.transferedCourses) addToCourseStatusMap(parsedData?.transferedCourses,courseStatusMap)
 
-    if (parsedData?.exemptedCourses){
-      for (const course of parsedData.exemptedCourses){
-        courseStatusMap[normalizeCourseCode(course)] = {
-            status: "complete",
-            semester: null,
-          };
-      }
-    }
+    if (parsedData?.exemptedCourses) addToCourseStatusMap(parsedData?.exemptedCourses,courseStatusMap)
+    
 
     const courseResults = Object.fromEntries(
       Object.entries(courses).map(([code, course]) => {
@@ -120,16 +107,15 @@ export const buildTimeline = async (
 function processSemestersFromParsedData(parsedData:ParsedData, degree:DegreeData, coursePools:CoursePoolInfo[], allCourses:Record<string, CourseData>, courseStatusMap: Record<string, {status: CourseStatus;semester: string | null;}> ){
   if(!parsedData.semesters) return []
 
-  //if degree is in gina cody 
-  let coursesThatNeedCMinus:Set<string>  = getCoursesThatNeedCMinus(degree.name, coursePools, allCourses)
+  let requiredCourses = getRequiredCourses(coursePools)
+  let coursesThatNeedCMinus:Set<string>  = getCoursesThatNeedCMinus(degree.name, requiredCourses, allCourses)
   let semesters_results = []; 
+
   for (const semester of parsedData.semesters){
         let term = semester.term.toUpperCase()
         let coursesInfo = []
         for (const course of semester.courses){
           //get course status
-          let status: CourseStatus = "incomplete";
-          let message = "";
           let normalizedCode = normalizeCourseCode(course.code);
           let courseData = allCourses[normalizedCode];
 
@@ -143,29 +129,8 @@ function processSemestersFromParsedData(parsedData:ParsedData, degree:DegreeData
           }
 
           let courseCode = courseData._id;
-          
-          if (isInprogress(term))
-              status = "inprogress" 
-          else if (isPlanned(term)) //maybe planned and inprogress should be merged under inprogress
-              status = "planned"
-          else if(parsedData.programInfo?.isCoop && courseCode.toUpperCase().includes("CWTE")){
-              if(course.grade?.toUpperCase() == "PASS") status = "complete"      
-          } else{
-              
-            let minGrade = 'D-'
-            if (coursesThatNeedCMinus.has(courseCode)) minGrade = 'C-'
-            let satisfactoryGrade = validateGrade(course, minGrade)
-            
-            //let validatedRequistes = validateRequisites(course, allCourses, parsedData.semesters, term)
+          let {status, message} = getCourseStatus(term, parsedData?.programInfo?.isCoop, courseCode, coursesThatNeedCMinus, course.grade);
 
-            //TODO: check if the course is part of the degreee
-            if(satisfactoryGrade){
-              status = "complete"
-            }else{
-              status = "incomplete";
-              message = `Minimum grade not met: ${minGrade} is needed to pass this course.`;
-            }
-          }
           coursesInfo.push({code:courseCode, message: message});
           const existing = courseStatusMap[courseCode];
           if (!existing || existing.status !== "complete") {//course can be taken two times
@@ -177,7 +142,37 @@ function processSemestersFromParsedData(parsedData:ParsedData, degree:DegreeData
       }
   return semesters_results
 }
-
+function getCourseStatus(term:string, isCoop:boolean|undefined, courseCode:string, coursesThatNeedCMinus:Set<string>, courseGrade?:string){
+  let status: CourseStatus = "incomplete";
+  let message = "";
+  if (isInprogress(term))
+              status = "inprogress" 
+  else if (isPlanned(term)) 
+      status = "planned"
+  else if(isCoop && courseCode.toUpperCase().includes("CWTE")){
+      if(courseGrade?.toUpperCase() == "PASS") status = "complete"      
+  } else{
+    let minGrade = 'D-'
+    if (coursesThatNeedCMinus.has(courseCode)) minGrade = 'C-'
+    let satisfactoryGrade = validateGrade(minGrade, courseGrade)
+    //TODO: check if the course is part of the degreee
+    if(satisfactoryGrade){
+      status = "complete"
+    }else{
+      status = "incomplete";
+      message = `Minimum grade not met: ${minGrade} is needed to pass this course.`;
+    }
+  }
+  return {status, message}
+}
+function addToCourseStatusMap(courses:string[], courseStatusMap: Record<string, { status: CourseStatus; semester: string | null;}>){
+  for (const course of courses){
+    courseStatusMap[normalizeCourseCode(course)] = {
+        status: "complete",
+        semester: null,
+      };
+  }
+}
 
 async function getDegreeData( degree_name :string){
     // We get all degree names from DB
@@ -210,16 +205,8 @@ function validateRequisites (course:{ code: string; grade?: string },allCourses:
   //TODO
   return true
 }
-
-function getCoursesThatNeedCMinus(degreeName:string,  coursePools: CoursePoolInfo[], allCourses:Record<string, CourseData>){
-  //if degree is in gina cody and the course is a 200 level course
-    
-  const coursesThatNeedCMinus:Set<string> = new Set<string>();
+function getRequiredCourses(coursePools: CoursePoolInfo[]){
   const requiredCourses:Set<string> = new Set<string>();
-
-  const name = degreeName.toLowerCase();
-  if (!name.includes('engr') && !name.includes('comp')) return coursesThatNeedCMinus;
-
   for(const pool of coursePools){ 
     if (!pool.name.toLowerCase().includes('elective')){ //core courses
       for(const courseCode of pool.courses){
@@ -227,16 +214,24 @@ function getCoursesThatNeedCMinus(degreeName:string,  coursePools: CoursePoolInf
       }
     }
   }
+  return requiredCourses;
+}
+
+function getCoursesThatNeedCMinus(degreeName:string, requiredCourses:Set<string>, allCourses:Record<string, CourseData>){
+  //if degree is in gina cody and the course is a 200 level course  
+  const coursesThatNeedCMinus:Set<string> = new Set<string>();
+  const name = degreeName.toLowerCase();
+  if (!name.includes('engr') && !name.includes('comp')) return coursesThatNeedCMinus;
   
+  const is200LevelCourse = (code: string) => {
+    const match = /\b(\d{3})\b/.exec(code);
+    return match?.[1].startsWith("2") ?? false;
+  };
+
   for(const requiredCourse of requiredCourses){
     for (const prereqs of allCourses[requiredCourse].rules.prereq){//if course is a prereq for core courses
       for(const prereq of prereqs){ 
-        
-        if(!requiredCourses.has(prereq)) continue; //only required courses need C-
-        
-        let codeNumberMatch= /\b(\d{3})\b/.exec(prereq)
-        let is200LevelCourse  = codeNumberMatch?.[1].startsWith("2") ?? false;
-        if(!is200LevelCourse) continue; // only 200-level courses need C-
+        if(!requiredCourses.has(prereq) && is200LevelCourse(prereq)) continue; //only required 200-level courses need C- 
         
         coursesThatNeedCMinus.add(prereq)}
     }
@@ -253,20 +248,20 @@ function normalizeCourseCode(code: string): string {
 }
 
 
-function validateGrade( course: { code: string; grade?: string }, minGrade:string ): boolean {
+function validateGrade( minGrade:string, courseGrade?: string  ): boolean {
   //validates that a course received sufficent grade (for 200 core classes in gina cody at least C- is required)
   
-  if (!course.grade) return true //if no grade is provided assume that either course is in progress or course is passed
+  if (!courseGrade) return true //if no grade is provided assume that either course is in progress or course is passed
 
-  if (course.grade.toUpperCase() == 'DISC') return false
+  if (courseGrade.toUpperCase() == 'DISC') return false
   
-  if (course.grade.toUpperCase() == 'EX') return true
+  if (courseGrade.toUpperCase() == 'EX') return true
 
   const gradeValues: Record<string, number> = {
   "A+": 12, "A": 11, "A-": 10, "B+": 9, "B": 8, "B-": 7, "C+": 6, "C": 5, "C-": 4, "D+": 3, "D": 2, "D-": 1, "F": 0
   };
  
-  const studentValue = gradeValues[course.grade.toUpperCase()] ?? 0;
+  const studentValue = gradeValues[courseGrade.toUpperCase()] ?? 0;
   const minValue = gradeValues[minGrade.toUpperCase()] ?? 0;
 
   return studentValue >= minValue;
