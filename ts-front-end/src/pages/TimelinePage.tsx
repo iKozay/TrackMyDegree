@@ -36,6 +36,7 @@ const TimeLinePage: React.FC = () => {
 
   return (
     <TimelineDndProvider
+      semesters={state.semesters}
       onMoveFromPoolToSemester={actions.moveFromPoolToSemester}
       onMoveBetweenSemesters={actions.moveBetweenSemesters}>
       <div className="app">

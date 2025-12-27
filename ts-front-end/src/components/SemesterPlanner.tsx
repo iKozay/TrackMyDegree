@@ -1,15 +1,16 @@
 import React from "react";
 import { DroppableSemester } from "./DroppableSemester";
+
 import type {
   CourseMap,
   CourseCode,
   SemesterId,
-  SemesterMap,
+  SemesterList,
 } from "../types/timeline.types";
 import { Plus } from "lucide-react";
 
 interface SemesterPlannerProps {
-  semesters: SemesterMap;
+  semesters: SemesterList;
   courses: CourseMap;
   onCourseSelect: (courseId: CourseCode) => void;
   selectedCourse?: CourseCode | null;
@@ -33,12 +34,12 @@ const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
         </button>
       </div>
       <div className="semesters-grid">
-        {Object.entries(semesters).map(([semesterId, semesterCourses]) => (
+        {semesters.map(({ term, courses: semesterCourses }) => (
           <DroppableSemester
-            key={semesterId}
-            semesterId={semesterId as SemesterId}
+            key={term}
+            semesterId={term as SemesterId}
             courses={courses}
-            semesterCourses={semesterCourses}
+            semesterCourses={semesterCourses.map((c) => c.code)}
             onCourseSelect={onCourseSelect}
             selectedCourse={selectedCourse}
             onRemoveCourse={onRemoveCourse}

@@ -4,6 +4,7 @@ import React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, act } from "@testing-library/react";
 import * as DndKitCore from "@dnd-kit/core";
+import type { SemesterList } from "../../types/timeline.types";
 
 import TimelineDndProvider from "../../providers/timelineDndProvider";
 import { useTimelineDnd } from "../../contexts/timelineDndContext";
@@ -61,10 +62,12 @@ describe("TimelineDndProvider", () => {
     onMoveFromPoolToSemester.mockClear();
     onMoveBetweenSemesters.mockClear();
   });
+  const semesters: SemesterList = [{ term: "FALL 2025", courses: [] }];
 
   it("provides context with activeCourseId and shows overlay while dragging", () => {
     render(
       <TimelineDndProvider
+        semesters={semesters}
         onMoveFromPoolToSemester={onMoveFromPoolToSemester}
         onMoveBetweenSemesters={onMoveBetweenSemesters}>
         <ActiveCourseConsumer />

@@ -21,7 +21,17 @@ export interface Pool {
 export type Term = "FALL" | "WINTER" | "SUMMER"; // TODO: add FALL/WINTER
 export type SemesterId = `${Term} ${number}`; // e.g. "FALL 2025"
 
-export type SemesterMap = Record<SemesterId, CourseCode[]>;
+export type SemesterCourse = {
+  code: CourseCode;
+  message: string;
+};
+
+export type Semester = {
+  term: SemesterId;
+  courses: SemesterCourse[];
+};
+
+export type SemesterList = Semester[];
 
 // One “group” of requisites like { anyOf: ["COMP 248", "COMP 249"] }
 export interface RequisiteGroup {
@@ -62,7 +72,7 @@ export type CourseMap = Record<CourseCode, Course>;
 export interface TimelineResult {
   degree: Degree;
   pools: Pool[];
-  semesters: SemesterMap;
+  semesters: SemesterList;
   courses: CourseMap;
 }
 
@@ -74,7 +84,7 @@ export interface TimelineJobResponse {
 
 type Snapshot = {
   courses: CourseMap;
-  semesters: SemesterMap;
+  semesters: SemesterList;
 };
 
 type modalState = {
@@ -85,7 +95,7 @@ type modalState = {
 export interface TimelineState {
   pools: Pool[];
   courses: CourseMap;
-  semesters: SemesterMap;
+  semesters: SemesterList;
   selectedCourse: CourseCode | null;
   history: Snapshot[];
   future: Snapshot[];
@@ -100,7 +110,7 @@ import { TimelineActionConstants } from "./actions";
 export type TimelineActionType =
   | {
       type: typeof TimelineActionConstants.Init;
-      payload: { pools: Pool[]; courses: CourseMap; semesters: SemesterMap };
+      payload: { pools: Pool[]; courses: CourseMap; semesters: SemesterList };
     }
   | {
       type: typeof TimelineActionConstants.SelectCourse;

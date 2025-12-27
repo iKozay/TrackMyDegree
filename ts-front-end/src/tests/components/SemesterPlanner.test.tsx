@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import SemesterPlanner from "../../components/SemesterPlanner";
 import type {
   CourseMap,
-  SemesterMap,
+  SemesterList,
   CourseCode,
   SemesterId,
 } from "../../types/timeline.types";
@@ -41,10 +41,16 @@ describe("SemesterPlanner", () => {
     },
   };
 
-  const semesters: SemesterMap = {
-    "FALL 2025": ["COMP 248"],
-    "WINTER 2026": ["SOEN 228"],
-  };
+  const semesters: SemesterList = [
+    {
+      term: "FALL 2025",
+      courses: [{ code: "COMP 248", message: "" }],
+    },
+    {
+      term: "WINTER 2026",
+      courses: [{ code: "SOEN 228", message: "" }],
+    },
+  ];
 
   const onCourseSelect = vi.fn();
   const onRemoveCourse = vi.fn();

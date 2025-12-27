@@ -120,22 +120,25 @@
         "courses": ["Cegep Mathematics 103"]
       }
     ],
-    "semesters": {
-      "FALL 2025": ["ENGR 213"],
-      "WINTER 2025": [],
-      "SUMMER 2025": [],
-      "FALL 2026": [],
-      "WINTER 2026": [],
-      "SUMMER 2026": [],
-      "FALL 2027": [],
-      "WINTER 2027": [],
-      "SUMMER 2027": [],
-      "FALL 2028": [],
-      "WINTER 2028": [],
-      "SUMMER 2028": [],
-      "FALL 2029": [],
-      "WINTER 2029": []
-    },
+    "semesters": [
+      {
+        "term": "FALL 2025",
+        "courses": [{ "code": "ENGR 213", "message": "" }]
+      },
+      { "term": "WINTER 2025", "courses": [] },
+      { "term": "SUMMER 2025", "courses": [] },
+      { "term": "FALL 2026", "courses": [] },
+      { "term": "WINTER 2026", "courses": [] },
+      { "term": "SUMMER 2026", "courses": [] },
+      { "term": "FALL 2027", "courses": [] },
+      { "term": "WINTER 2027", "courses": [] },
+      { "term": "SUMMER 2027", "courses": [] },
+      { "term": "FALL 2028", "courses": [] },
+      { "term": "WINTER 2028", "courses": [] },
+      { "term": "SUMMER 2028", "courses": [] },
+      { "term": "FALL 2029", "courses": [] },
+      { "term": "WINTER 2029", "courses": [] }
+    ],
     "courses": {
       "SOEN 228": {
         "id": "SOEN 228",
@@ -1549,7 +1552,7 @@
         "corequisites": "",
         "status": {
           "status": "completed",
-          "semester": null
+          "semester": "FALL 2025"
         }
       },
       "CHEM 205 (Cegep Chemistry 101)": {

@@ -64,15 +64,23 @@ export function moveFromPoolToSemester(
   const s1 = withPushedHistory(state);
   const { courseId, toSemesterId } = payload;
 
-  const current = s1.semesters[toSemesterId] ?? [];
-  if (current.includes(courseId)) return s1;
+  const semesterIndex = s1.semesters.findIndex((s) => s.term === toSemesterId);
+
+  if (semesterIndex === -1) return s1;
+
+  const semester = s1.semesters[semesterIndex];
+
+  if (semester.courses.some((c) => c.code === courseId)) return s1;
+
+  const updatedSemesters = [...s1.semesters];
+  updatedSemesters[semesterIndex] = {
+    ...semester,
+    courses: [...semester.courses, { code: courseId, message: "" }],
+  };
 
   return {
     ...s1,
-    semesters: {
-      ...s1.semesters,
-      [toSemesterId]: [...current, courseId],
-    },
+    semesters: updatedSemesters,
     courses: {
       ...s1.courses,
       [courseId]: {
@@ -99,21 +107,34 @@ export function moveBetweenSemesters(
   if (fromSemesterId === toSemesterId) return state;
 
   const s1 = withPushedHistory(state);
-  const fromList = s1.semesters[fromSemesterId] ?? [];
-  const toList = s1.semesters[toSemesterId] ?? [];
 
-  if (!fromList.includes(courseId)) return s1;
+  const fromIndex = s1.semesters.findIndex((s) => s.term === fromSemesterId);
+  const toIndex = s1.semesters.findIndex((s) => s.term === toSemesterId);
 
-  const newFrom = fromList.filter((c) => c !== courseId);
-  const newTo = toList.includes(courseId) ? toList : [...toList, courseId];
+  if (fromIndex === -1 || toIndex === -1) return s1;
+
+  const fromSemester = s1.semesters[fromIndex];
+  const toSemester = s1.semesters[toIndex];
+
+  if (!fromSemester.courses.some((c) => c.code === courseId)) return s1;
+
+  const updatedSemesters = [...s1.semesters];
+
+  updatedSemesters[fromIndex] = {
+    ...fromSemester,
+    courses: fromSemester.courses.filter((c) => c.code !== courseId),
+  };
+
+  updatedSemesters[toIndex] = {
+    ...toSemester,
+    courses: toSemester.courses.some((c) => c.code === courseId)
+      ? toSemester.courses
+      : [...toSemester.courses, { code: courseId, message: "" }],
+  };
 
   return {
     ...s1,
-    semesters: {
-      ...s1.semesters,
-      [fromSemesterId]: newFrom,
-      [toSemesterId]: newTo,
-    },
+    semesters: updatedSemesters,
     courses: {
       ...s1.courses,
       [courseId]: {
@@ -135,14 +156,23 @@ export function removeFromSemester(
   const s1 = withPushedHistory(state);
   const { courseId, semesterId } = payload;
 
-  const list = s1.semesters[semesterId] ?? [];
+  const semesterIndex = s1.semesters.findIndex((s) => s.term === semesterId);
+
+  if (semesterIndex === -1) return s1;
+
+  const semester = s1.semesters[semesterIndex];
+
+  if (!semester.courses.some((c) => c.code === courseId)) return s1;
+
+  const updatedSemesters = [...s1.semesters];
+  updatedSemesters[semesterIndex] = {
+    ...semester,
+    courses: semester.courses.filter((c) => c.code !== courseId),
+  };
 
   return {
     ...s1,
-    semesters: {
-      ...s1.semesters,
-      [semesterId]: list.filter((c) => c !== courseId),
-    },
+    semesters: updatedSemesters,
     courses: {
       ...s1.courses,
       [courseId]: {

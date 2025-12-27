@@ -12,9 +12,12 @@ import {
 import type { CourseCode, SemesterId } from "../types/timeline.types";
 import type { DragCourseData, DroppableSemesterData } from "../types/dnd.types";
 import { TimelineDndContext } from "../contexts/timelineDndContext";
+import type { SemesterList } from "../types/timeline.types";
+import { canDropCourse } from "../utils/timelineUtils";
 
 interface TimelineDndProviderProps {
   children: ReactNode;
+  semesters: SemesterList;
   onMoveFromPoolToSemester: (
     courseId: CourseCode,
     toSemesterId: SemesterId
@@ -28,6 +31,7 @@ interface TimelineDndProviderProps {
 
 const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
   children,
+  semesters,
   onMoveFromPoolToSemester,
   onMoveBetweenSemesters,
 }) => {
@@ -47,6 +51,7 @@ const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+
     setActiveCourseId(null);
 
     if (!over) return;
@@ -63,6 +68,13 @@ const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
     const toSemesterId = overData.semesterId;
 
     if (!toSemesterId) return;
+
+    const validation = canDropCourse(semesters, courseId, fromSemesterId);
+
+    if (!validation.allowed) {
+      alert(validation.reason);
+      return;
+    }
 
     if (fromSource === "pool") {
       onMoveFromPoolToSemester(courseId, toSemesterId);
