@@ -101,7 +101,11 @@ describe('buildTimeline', () => {
     await expect(buildTimeline(formData)).rejects.toThrow('Error fetching degree data from database');
   });
 
-  it('correctly validates 200-level C- requirement', async () => {
+  it('correctly computes courses statuses and validates 200-level C- requirement', async () => {
+    
+    const nextYear = new Date().getFullYear() + 1;
+    const futureTerm = `WINTER ${nextYear}`;
+
     const mockParsedData = {
       programInfo: {
         degree: 'Bachelor of Engineering Computer Engineering',
@@ -112,16 +116,29 @@ describe('buildTimeline', () => {
       },
       semesters: [
         {
-          term: 'FALL 2023',
+          term: 'SUMMER 2023',
           courses: [
             { code: 'COMP232', grade: 'D' }, // fails C-
+          ]
+        },
+        {
+          term: 'FALL 2023',
+          courses: [
             { code: 'COMP248', grade: 'C+' } // passes
+          ]
+        },
+        {
+          term: futureTerm,
+          courses: [
+            { code: 'COMP249' } // planned
           ]
         }
       ],
       transferedCourses: [],
       exemptedCourses: []
     };
+
+
 
     parseFile.mockResolvedValue(mockParsedData);
 
@@ -137,17 +154,17 @@ describe('buildTimeline', () => {
     const comp249 = result.courses['COMP 249'];
 
     expect(comp232.status.status).toBe('incomplete');
-    expect(comp232.status.semester).toBe("FALL 2023");
+    expect(comp232.status.semester).toBe("SUMMER 2023");
     expect(result.semesters[0].courses.find(c => c.code === 'COMP 232').message)
       .toContain('Minimum grade not met');
 
     expect(comp248.status.status).toBe('complete');
     expect(comp248.status.semester).toBe("FALL 2023");
-    expect(result.semesters[0].courses.find(c => c.code === 'COMP 248').message).toBe(undefined);
+    expect(result.semesters[1].courses.find(c => c.code === 'COMP 248').message).toBeUndefined();
 
 
-    expect(comp249.status.status).toBe('incomplete');
-    expect(comp249.status.semester).toBe(null);
-    expect(result.semesters[0].courses.find(c => c.code === 'COMP 249')).toBe(undefined);
+    expect(comp249.status.status).toBe('planned');
+    expect(comp249.status.semester).toBe(futureTerm);
+    expect(result.semesters[2].courses.find(c => c.code === 'COMP 249').message).toBeUndefined();
   });
 });

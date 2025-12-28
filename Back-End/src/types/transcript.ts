@@ -8,7 +8,8 @@ export interface ParsedData {
   exemptedCourses?: string[]; // List of course codes
   deficiencyCourses?: string[]; // List of course codes
 }
-export type CourseStatus = "complete" | "incomplete" | "inprogress" | "planned";
+export type CourseStatus = "completed" | "incomplete" | "inprogress" | "planned";
+
 export interface Semester {
   term: string; // Season (e.g., "Fall 2022")
   courses: { code: string; grade?: string }[];

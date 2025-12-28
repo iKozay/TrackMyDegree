@@ -3,6 +3,7 @@ import { parseFile } from "@services/parsingService";
 import { ParsedData, ProgramInfo, Semester, CourseStatus } from "../../types/transcript";
 import { degreeController, CoursePoolInfo, DegreeData } from "@controllers/degreeController";
 import { CourseData } from "@controllers/courseController";
+import { SEASONS } from "@utils/constants";
 
 type TimelineFileData = {
   type: 'file';
@@ -169,7 +170,7 @@ function processSemestersFromParsedData(parsedData:ParsedData, degree:DegreeData
 
           coursesInfo.push({code:courseCode, message: message});
           const existing = courseStatusMap[courseCode];
-          if (!existing || existing.status !== "complete") {//course can be taken two times
+          if (existing?.status !== "completed") {//course can be taken two times
             courseStatusMap[courseCode] = {status: status, semester: term}
           } 
           
@@ -186,14 +187,14 @@ function getCourseStatus(term:string, isCoop:boolean|undefined, courseCode:strin
   else if (isPlanned(term)) 
       status = "planned"
   else if(isCoop && courseCode.toUpperCase().includes("CWTE")){
-      if(courseGrade?.toUpperCase() == "PASS") status = "complete"      
+      if(courseGrade?.toUpperCase() == "PASS") status = "completed"      
   } else{
     let minGrade = 'D-'
     if (coursesThatNeedCMinus.has(courseCode)) minGrade = 'C-'
     let satisfactoryGrade = validateGrade(minGrade, courseGrade)
     //TODO: check if the course is part of the degreee
     if(satisfactoryGrade){
-      status = "complete"
+      status = "completed"
     }else{
       message = `Minimum grade not met: ${minGrade} is needed to pass this course.`;
     }
@@ -204,7 +205,7 @@ function getCourseStatus(term:string, isCoop:boolean|undefined, courseCode:strin
 function addToCourseStatusMap(courses:string[], courseStatusMap: Record<string, { status: CourseStatus; semester: string | null;}>){
   for (const course of courses){
     courseStatusMap[normalizeCourseCode(course)] = {
-        status: "complete",
+        status: "completed",
         semester: null,
     };
   }
@@ -337,15 +338,15 @@ function generateTerms(startTerm?: string, endTerm?:string){
   if (!startTerm) {
     // This shouldn't trigger but if does we use a default starting term
     const currentYear = new Date().getFullYear();
-    startTerm = `FALL ${currentYear - 4}`;
+    startTerm = `${SEASONS.FALL} ${currentYear - 4}`;
   }
-  const terms = ['WINTER', 'SUMMER', 'FALL'];
+  const terms = [SEASONS.WINTER, SEASONS.SUMMER, SEASONS.FALL];
   const startYear = Number.parseInt(startTerm.split(' ')[1]); // Extracting the year
-  const startSeason = startTerm.split(' ')[0]; // Extracting the season
+  const startSeason = startTerm.split(' ')[0].toUpperCase(); // Extracting the season
   let endYear, endSeason;
   if (endTerm) {
     endYear = Number.parseInt(endTerm.split(' ')[1]); // Extracting the year
-    endSeason = endTerm.split(' ')[0]; // Extracting the season
+    endSeason = endTerm.split(' ')[0].toUpperCase(); // Extracting the season
   } else {
     endYear = startYear + 3;
     endSeason = startSeason;
@@ -377,7 +378,7 @@ function getTermRanges(term: string): { start: Date; end: Date } {
   // Example: "FALL 2026" or "FALL/WINTER 2025-26"
   //TODO: change dates to reflect actual calendar
   let [name, yearStr] = term.split(" ");
-  if(name == "FALL/WINTER"){
+  if(name == SEASONS.FALL_WINTER){
     yearStr = yearStr.split('-')[0]
   }
   const year = Number(yearStr);
@@ -386,21 +387,21 @@ function getTermRanges(term: string): { start: Date; end: Date } {
   let end: Date;
 
   switch (name) {
-    case "WINTER":
+    case SEASONS.WINTER:
       start = new Date(year, 0, 1);       // Jan 1
       end   = new Date(year, 3, 30);      // Apr 30
       break;
 
-    case "SUMMER":
+    case SEASONS.SUMMER:
       start = new Date(year, 4, 1);       // May 1
       end   = new Date(year, 7, 31);      // Aug 31
       break;
 
-    case "FALL":
+    case SEASONS.FALL:
       start = new Date(year, 8, 1);       // Sep 1
       end   = new Date(year, 11, 31);     // Dec 31
       break;
-    case "FALL/WINTER":
+    case SEASONS.FALL_WINTER:
       start = new Date(year, 8, 1);       // Sep 1
       end   = new Date(year+1, 3, 30);  // Apr 30
       break;     
