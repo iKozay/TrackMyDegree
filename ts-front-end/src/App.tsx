@@ -64,18 +64,18 @@ const App: React.FC = () => {
         <Route path="/courses" element={<CoursePage />} />
         <Route path="/requirements" element={<RequirementsFormPage />} />
         <Route path="/requirements/:programId" element={<RequirementSelectPage />} />
-        <Route path="/degree-audit" element={
-          <DashboardLayout>
-            <DegreeAuditPage />
-          </DashboardLayout>
-        } />
+        {NODE_ENV == 'development' && (
+            <Route path="/degree-audit" element={
+              <DashboardLayout>
+                <DegreeAuditPage />
+              </DashboardLayout>
+            } />
+        )}
 
-        {/* Dashboard Routes (Protected) */}
         <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
           <Route path="/profile/student" element={<StudentPage />} />
         </Route>
 
-        {/* Protected: ADMIN PROFILE */}
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/profile/admin" element={<AdminPage />} />
         </Route>
