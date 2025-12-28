@@ -61,7 +61,7 @@
 }
 
 .pool-chevron {
-  flex-shrink: 0; /* ⭐ prevents shrinking */
+  flex-shrink: 0;
   display: flex;
   align-items: center;
 }
@@ -594,6 +594,118 @@
   gap: 0.35rem;
 }
 
+.course-status-toggle {
+  display: inline-flex;
+  border-radius: 8px;
+  background: #f1f5f9;
+  padding: 4px;
+  gap: 4px;
+}
+
+.status-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #334155;
+
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.status-option:hover {
+  background: #e2e8f0;
+}
+
+.status-option.active.incomplete {
+  background: #fde68a;
+  color: #92400e;
+}
+
+.status-option.active.completed {
+  background: #bbf7d0;
+  color: #065f46;
+}
+
+.status-option svg {
+  flex-shrink: 0;
+}
+.course-status-actions {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.status-actions-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.status-actions-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.status-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.status-action-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Incomplete */
+.status-action-btn.incomplete {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fde68a;
+}
+
+.status-action-btn.incomplete:hover:not(:disabled) {
+  background: #fde68a;
+}
+
+/* Completed */
+.status-action-btn.completed {
+  background: #dcfce7;
+  color: #065f46;
+  border-color: #bbf7d0;
+}
+
+.status-action-btn.completed:hover:not(:disabled) {
+  background: #bbf7d0;
+}
+/* Remove / Danger */
+.status-action-btn.danger {
+  background: #fee2e2; /* light red */
+  color: #7f1d1d; /* dark red text */
+  border-color: #fecaca;
+}
+
+.status-action-btn.danger:hover:not(:disabled) {
+  background: #fecaca; /* stronger red on hover */
+}
+
 /* Animations */
 @keyframes planner-spin {
   to {
@@ -644,11 +756,6 @@
   background: transparent;
   font-size: 1.25rem;
   cursor: pointer;
-}
-.course-credits-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .course-warning {

@@ -137,4 +137,8 @@ export type TimelineActionType =
   | {
       type: typeof TimelineActionConstants.OpenModal;
       payload: { open: boolean; type: string };
+    }
+  | {
+      type: typeof TimelineActionConstants.ChangeCourseStatus;
+      payload: { courseId: CourseCode; status: CourseStatusValue };
     };

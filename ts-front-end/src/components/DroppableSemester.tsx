@@ -16,7 +16,6 @@ interface DroppableSemesterProps {
   semesterCourses: SemesterCourse[];
   onCourseSelect: (courseId: CourseCode) => void;
   selectedCourse?: CourseCode | null;
-  onRemoveCourse: (courseId: CourseCode, semesterId: SemesterId) => void;
 }
 
 export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
@@ -25,7 +24,6 @@ export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
   semesterCourses,
   onCourseSelect,
   selectedCourse,
-  onRemoveCourse,
 }) => {
   const { isOver, setNodeRef } = useDroppable({
     id: semesterId,
@@ -40,8 +38,6 @@ export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
     const course = courses[c.code];
     return sum + (course?.credits ?? 0);
   }, 0);
-
-  console.log("Rendering DroppableSemester:", semesterId, { semesterCourses });
 
   return (
     <div ref={setNodeRef} className={`semester ${isOver ? "drag-over" : ""}`}>
@@ -74,7 +70,6 @@ export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
                 course={course}
                 onCourseSelect={onCourseSelect}
                 isSelected={selectedCourse === c.code}
-                onRemove={() => onRemoveCourse(c.code, semesterId)}
                 semesterId={semesterId}
               />
             );

@@ -10,18 +10,27 @@ import {
 import { RequisiteGroup } from "./RequisiteGroup";
 import type {
   Course,
+  CourseCode,
   CourseMap,
   CourseStatusValue,
+  SemesterId,
 } from "../types/timeline.types"; // adjust path
-
+import { CourseStatusActions } from "./CourseStatusToggle";
 interface CourseDetailsProps {
   course?: Course | null;
   courses?: CourseMap;
+  onRemoveCourse?: (courseId: CourseCode, semesterId: SemesterId) => void;
+  onChangeCourseStatus?: (
+    courseId: CourseCode,
+    status: CourseStatusValue
+  ) => void;
 }
 
 const CourseDetail: React.FC<CourseDetailsProps> = ({
   course,
   courses = {},
+  onRemoveCourse,
+  onChangeCourseStatus,
 }) => {
   if (!course) {
     return (
@@ -113,6 +122,12 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
         title="Corequisites"
         groups={course.corequisites}
         courses={courses}
+      />
+      <CourseStatusActions
+        currentStatus={course.status.status}
+        onRemoveCourse={onRemoveCourse}
+        onChangeCourseStatus={onChangeCourseStatus}
+        course={course}
       />
     </div>
   );

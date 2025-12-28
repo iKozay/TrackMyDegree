@@ -7598,7 +7598,7 @@
         "offeredIN": [""],
         "prerequisites": [{ "anyOf": ["COMP 352"] }],
         "corequisites": [],
-        "status": { "status": "inprogress", "semester": "FALL 2025" }
+        "status": { "status": "planned", "semester": "FALL 2025" }
       },
       "SOEN 384": {
         "id": "SOEN 384",

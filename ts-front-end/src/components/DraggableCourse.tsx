@@ -1,6 +1,6 @@
 import React from "react";
 import { useDraggable } from "@dnd-kit/core";
-import { Minus, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 
 import type {
   Course,
@@ -16,7 +16,6 @@ interface DraggableCourseProps {
   course: Course;
   onCourseSelect: (courseId: CourseCode) => void;
   isSelected: boolean;
-  onRemove?: (courseId: CourseCode) => void;
   semesterId?: SemesterId | null;
   message?: string;
 }
@@ -26,7 +25,6 @@ export const DraggableCourse: React.FC<DraggableCourseProps> = ({
   course,
   onCourseSelect,
   isSelected,
-  onRemove,
   semesterId = null,
   message,
 }) => {
@@ -87,30 +85,15 @@ export const DraggableCourse: React.FC<DraggableCourseProps> = ({
         }}>
         <div className="course-btn">
           <div className="course-code">{course.id}</div>
-          {onRemove && (
-            <button
-              className="remove-course-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemove(courseId);
-              }}
-              onMouseDown={(e) => e.stopPropagation()}
-              onPointerDown={(e) => e.stopPropagation()}>
-              <Minus size={12} />
-            </button>
-          )}
-        </div>
-
-        <div className="course-name">{course.title}</div>
-        <div className="course-credits-wrapper">
-          <span className="course-credits">{course.credits} cr</span>
-
           {message && message.trim() !== "" && (
             <span className="course-warning" title={message}>
               <AlertTriangle size={20} />
             </span>
           )}
         </div>
+
+        <div className="course-name">{course.title}</div>
+        <span className="course-credits">{course.credits} cr</span>
       </div>
     </div>
   );

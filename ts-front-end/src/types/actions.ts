@@ -11,4 +11,5 @@ export const TimelineActionConstants = {
   Undo: "UNDO",
   Redo: "REDO",
   OpenModal: "OPEN-MODAL",
+  ChangeCourseStatus: "CHANGE-COURSE-STATUS",
 } as const;

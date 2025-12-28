@@ -12,7 +12,8 @@ import type {
   JobStatus,
   Pool,
   CourseMap,
-  SemesterMap,
+  SemesterList,
+  CourseStatusValue,
 } from "../types/timeline.types";
 import mockPlannerResponse from "../mock/plannerResponse.json";
 
@@ -22,7 +23,7 @@ export interface TimelineActions {
   initTimelineState: (
     pools: Pool[],
     courses: CourseMap,
-    semesters: SemesterMap
+    semesters: SemesterList
   ) => void;
   selectCourse: (courseId: CourseCode | null) => void;
   moveFromPoolToSemester: (
@@ -38,6 +39,7 @@ export interface TimelineActions {
   undo: () => void;
   redo: () => void;
   openModal: (open: boolean, type: string) => void;
+  changeCourseStatus: (courseId: CourseCode, status: CourseStatusValue) => void;
 }
 
 export interface UseTimelineStateResult {
@@ -51,7 +53,7 @@ export interface UseTimelineStateResult {
 const EMPTY_TIMELINE_STATE: TimelineState = {
   pools: [],
   courses: {},
-  semesters: {},
+  semesters: [],
   selectedCourse: null,
   history: [],
   future: [],
@@ -108,6 +110,12 @@ function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
       dispatch({
         type: TimelineActionConstants.OpenModal,
         payload: { open, type },
+      });
+    },
+    changeCourseStatus(courseId, status) {
+      dispatch({
+        type: TimelineActionConstants.ChangeCourseStatus,
+        payload: { courseId, status },
       });
     },
   };

@@ -14,7 +14,6 @@ interface SemesterPlannerProps {
   courses: CourseMap;
   onCourseSelect: (courseId: CourseCode) => void;
   selectedCourse?: CourseCode | null;
-  onRemoveCourse: (courseId: CourseCode, semesterId: SemesterId) => void;
 }
 
 const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
@@ -22,7 +21,6 @@ const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
   courses,
   onCourseSelect,
   selectedCourse,
-  onRemoveCourse,
 }) => {
   return (
     <div className="timeline">
@@ -42,7 +40,6 @@ const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
             semesterCourses={semesterCourses}
             onCourseSelect={onCourseSelect}
             selectedCourse={selectedCourse}
-            onRemoveCourse={onRemoveCourse}
           />
         ))}
       </div>

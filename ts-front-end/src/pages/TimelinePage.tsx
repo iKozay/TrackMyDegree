@@ -76,7 +76,6 @@ const TimeLinePage: React.FC = () => {
               courses={state.courses}
               onCourseSelect={actions.selectCourse}
               selectedCourse={state.selectedCourse}
-              onRemoveCourse={actions.removeFromSemester}
             />
           </section>
 
@@ -88,6 +87,8 @@ const TimeLinePage: React.FC = () => {
                   : null
               }
               courses={state.courses}
+              onRemoveCourse={actions.removeFromSemester}
+              onChangeCourseStatus={actions.changeCourseStatus}
             />
           </aside>
         </main>

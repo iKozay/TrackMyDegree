@@ -1,4 +1,4 @@
-import type { TimelineState } from "../types/timeline.types";
+import type { CourseStatusValue, TimelineState } from "../types/timeline.types";
 import type { CourseCode, SemesterId } from "../types/timeline.types";
 
 type Snapshot = {
@@ -226,5 +226,65 @@ export function openModal(
   return {
     ...state,
     modal: { open: payload.open, type: payload.type },
+  };
+}
+
+export function changeCourseStatus(
+  state: TimelineState,
+  payload: {
+    courseId: CourseCode;
+    status: CourseStatusValue;
+  }
+): TimelineState {
+  const s1 = withPushedHistory(state);
+  const { courseId, status } = payload;
+
+  const course = s1.courses[courseId];
+  if (!course) return s1;
+
+  // -------- COMPLETED --------
+  if (status === "completed") {
+    return {
+      ...s1,
+      courses: {
+        ...s1.courses,
+        [courseId]: {
+          ...course,
+          status: {
+            ...course.status,
+            status: "completed",
+          },
+        },
+      },
+    };
+  }
+
+  // -------- INCOMPLETE --------
+  // Remove from any semester if present
+  const updatedSemesters = s1.semesters.map((semester) => {
+    if (!semester.courses.some((c) => c.code === courseId)) {
+      return semester;
+    }
+
+    return {
+      ...semester,
+      courses: semester.courses.filter((c) => c.code !== courseId),
+    };
+  });
+
+  return {
+    ...s1,
+    semesters: updatedSemesters,
+    courses: {
+      ...s1.courses,
+      [courseId]: {
+        ...course,
+        status: {
+          ...course.status,
+          status: "incomplete",
+          semester: null,
+        },
+      },
+    },
   };
 }
