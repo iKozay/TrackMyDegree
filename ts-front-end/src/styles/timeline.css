@@ -52,10 +52,22 @@
   text-align: left;
   cursor: pointer;
   transition: background-color 0.2s;
+
+  align-items: flex-start; /* supports multi-line text */
 }
 
 .pool-header:hover {
   background: #f8fafc;
+}
+
+.pool-chevron {
+  flex-shrink: 0; /* ⭐ prevents shrinking */
+  display: flex;
+  align-items: center;
+}
+
+.pool-name {
+  flex: 1; /* allows wrapping */
 }
 
 .course-count {
@@ -632,6 +644,23 @@
   background: transparent;
   font-size: 1.25rem;
   cursor: pointer;
+}
+.course-credits-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.course-warning {
+  color: #facc15; /* dark amber / danger */
+  display: flex;
+  align-items: center;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.course-warning:hover {
+  color: #dc2626; /* red on hover */
+  transform: scale(1.1);
 }
 
 /* Responsive Design */

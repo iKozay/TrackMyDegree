@@ -39,7 +39,7 @@ const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
             key={term}
             semesterId={term as SemesterId}
             courses={courses}
-            semesterCourses={semesterCourses.map((c) => c.code)}
+            semesterCourses={semesterCourses}
             onCourseSelect={onCourseSelect}
             selectedCourse={selectedCourse}
             onRemoveCourse={onRemoveCourse}

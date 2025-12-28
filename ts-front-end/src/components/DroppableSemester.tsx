@@ -6,13 +6,14 @@ import type {
   CourseMap,
   CourseCode,
   SemesterId,
+  SemesterCourse,
 } from "../types/timeline.types";
 import type { DroppableSemesterData } from "../types/dnd.types";
 
 interface DroppableSemesterProps {
   semesterId: SemesterId;
   courses: CourseMap;
-  semesterCourses: CourseCode[];
+  semesterCourses: SemesterCourse[];
   onCourseSelect: (courseId: CourseCode) => void;
   selectedCourse?: CourseCode | null;
   onRemoveCourse: (courseId: CourseCode, semesterId: SemesterId) => void;
@@ -35,10 +36,12 @@ export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
   const seasonLabel =
     season.charAt(0).toUpperCase() + season.slice(1).toLowerCase();
 
-  const totalCredits = semesterCourses.reduce((sum, courseId) => {
-    const course = courses[courseId];
+  const totalCredits = semesterCourses.reduce((sum, c) => {
+    const course = courses[c.code];
     return sum + (course?.credits ?? 0);
   }, 0);
+
+  console.log("Rendering DroppableSemester:", semesterId, { semesterCourses });
 
   return (
     <div ref={setNodeRef} className={`semester ${isOver ? "drag-over" : ""}`}>
@@ -59,18 +62,19 @@ export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
         {semesterCourses.length === 0 ? (
           <div className="empty-semester">Drop courses here</div>
         ) : (
-          semesterCourses.map((courseId) => {
-            const course = courses[courseId];
+          semesterCourses.map((c) => {
+            const course = courses[c.code];
             if (!course) return null;
 
             return (
               <DraggableCourse
-                key={courseId}
-                courseId={courseId}
+                key={c.code}
+                courseId={c.code}
+                message={c.message}
                 course={course}
                 onCourseSelect={onCourseSelect}
-                isSelected={selectedCourse === courseId}
-                onRemove={() => onRemoveCourse(courseId, semesterId)}
+                isSelected={selectedCourse === c.code}
+                onRemove={() => onRemoveCourse(c.code, semesterId)}
                 semesterId={semesterId}
               />
             );

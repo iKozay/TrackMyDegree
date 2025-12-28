@@ -1,6 +1,7 @@
 import React from "react";
 import { useDraggable } from "@dnd-kit/core";
-import { Minus } from "lucide-react";
+import { Minus, AlertTriangle } from "lucide-react";
+
 import type {
   Course,
   CourseCode,
@@ -17,6 +18,7 @@ interface DraggableCourseProps {
   isSelected: boolean;
   onRemove?: (courseId: CourseCode) => void;
   semesterId?: SemesterId | null;
+  message?: string;
 }
 
 export const DraggableCourse: React.FC<DraggableCourseProps> = ({
@@ -26,6 +28,7 @@ export const DraggableCourse: React.FC<DraggableCourseProps> = ({
   isSelected,
   onRemove,
   semesterId = null,
+  message,
 }) => {
   const isDraggable = course.status.status !== "completed";
 
@@ -99,7 +102,15 @@ export const DraggableCourse: React.FC<DraggableCourseProps> = ({
         </div>
 
         <div className="course-name">{course.title}</div>
-        <div className="course-credits">{course.credits} cr</div>
+        <div className="course-credits-wrapper">
+          <span className="course-credits">{course.credits} cr</span>
+
+          {message && message.trim() !== "" && (
+            <span className="course-warning" title={message}>
+              <AlertTriangle size={20} />
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
