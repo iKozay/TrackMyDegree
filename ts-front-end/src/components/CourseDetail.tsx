@@ -54,7 +54,7 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
         return (
           <LucideAlarmMinus className="status-icon incomplete" size={16} />
         );
-      case "in-progress":
+      case "inprogress":
         return <AlertCircle className="status-icon inprogress" size={16} />;
       default:
         return (
@@ -69,9 +69,10 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
         return "Completed";
       case "planned":
         return "Planned";
-      case "in-progress":
+      case "inprogress":
         return "In progress";
       case "incomplete":
+        return "Incomplete";
       default:
         return "Incomplete";
     }

@@ -93,14 +93,14 @@ describe("CourseDetail", () => {
     const statuses: CourseStatusValue[] = [
       "completed",
       "planned",
-      "in-progress",
+      "inprogress",
       "incomplete",
     ];
 
     const expectedText: Record<CourseStatusValue, string> = {
       completed: "Completed",
       planned: "Planned",
-      "in-progress": "In progress",
+      inprogress: "In progress",
       incomplete: "Incomplete",
     };
 

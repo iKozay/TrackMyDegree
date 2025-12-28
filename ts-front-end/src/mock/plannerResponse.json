@@ -1,5 +1,5 @@
 {
-  "jobId": "86dd8fe6-42b4-4a71-9e27-b7496719e41a",
+  "jobId": "85ad0a12-8d7b-4263-a8dc-251c0545b86a",
   "status": "done",
   "result": {
     "degree": {
@@ -2500,7 +2500,7 @@
           { "anyOf": ["MATH 203", "TICS 103", "MATH 204", "TICS 105"] }
         ],
         "corequisites": [],
-        "status": { "status": "planned", "semester": "FALL 2022" }
+        "status": { "status": "completed", "semester": "FALL 2022" }
       },
       "COMP 248": {
         "id": "COMP 248",
@@ -7598,7 +7598,7 @@
         "offeredIN": [""],
         "prerequisites": [{ "anyOf": ["COMP 352"] }],
         "corequisites": [],
-        "status": { "status": "planned", "semester": "FALL 2025" }
+        "status": { "status": "inprogress", "semester": "FALL 2025" }
       },
       "SOEN 384": {
         "id": "SOEN 384",
@@ -8717,10 +8717,7 @@
             "code": "CHEM 205",
             "message": "Course not part of degree requirements"
           },
-          {
-            "code": "COMP 232",
-            "message": "Prerequisite MATH 204 is not met"
-          },
+          { "code": "COMP 232" },
           { "code": "ENGR 201" },
           { "code": "ENGR 213" },
           {

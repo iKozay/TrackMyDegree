@@ -104,7 +104,7 @@ describe("DraggableCourse", () => {
     rerender(
       <DraggableCourse
         courseId={courseId}
-        course={baseCourse("in-progress")}
+        course={baseCourse("inprogress")}
         isSelected={false}
         onCourseSelect={() => {}}
       />

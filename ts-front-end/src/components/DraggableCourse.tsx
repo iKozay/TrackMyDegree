@@ -58,7 +58,7 @@ export const DraggableCourse: React.FC<DraggableCourseProps> = ({
         return "status-completed";
       case "planned":
         return "status-planned";
-      case "in-progress":
+      case "inprogress":
         return "status-inprogress";
       case "incomplete":
       default:
