@@ -1,14 +1,14 @@
 :root {
   --nav-height: 80px;
-  --nav-bg: rgba(239, 225, 190, 0.9);
-  --nav-border: rgba(0, 0, 0, 0.06);
-  --nav-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  --nav-bg: rgb(145, 35, 56);
+  --nav-border: #b85c7c;
+  --nav-shadow: 0 8px 24px rgba(60, 0, 30, 0.07);
 
-  --color-primary: #7f1431;
-  --color-primary-hover: #280505;
-  --color-text: #0f172a;
-  --color-muted: #64748b;
-  --color-bg-hover: rgba(37, 99, 235, 0.06);
+  --color-primary: #c94f6d;
+  --color-primary-hover: #a23850;
+  --color-text: #fff;
+  --color-muted: #f3dbe3;
+  --color-bg-hover: #7a1e36;
 }
 
 /* NAVBAR WRAPPER */
@@ -19,8 +19,8 @@
   z-index: 50;
   height: var(--nav-height);
   background: var(--nav-bg);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--nav-border);
+  color: var(--color-text);
+  border-bottom: 1.5px solid var(--nav-border);
   box-shadow: var(--nav-shadow);
 }
 
@@ -66,7 +66,7 @@
   font-weight: 700;
   letter-spacing: 0.03em;
   color: var(--color-text);
-  font-size: 1.05rem;
+  font-size: 1.2rem;
 }
 .navbar__brand--button {
   background: none;
@@ -79,7 +79,7 @@
 }
 
 .navbar__brand-highlight {
-  color: var(--color-primary);
+  color: var(--color-text); /* Make 'Degree' same color as 'Track My' */
 }
 
 /* CENTER: LINKS (desktop) */
@@ -102,24 +102,13 @@
 
 .navbar__link {
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 500;
   color: var(--color-muted);
   padding: 0.25rem 0;
   transition: color 0.15s ease, transform 0.15s ease;
 }
 
-.navbar__link::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -0.2rem;
-  width: 0%;
-  height: 2px;
-  border-radius: 999px;
-  background: var(--color-primary);
-  transition: width 0.2s ease;
-}
 .navbar__link--button,
 .navbar__mobile-link--button {
   background: none;
@@ -132,13 +121,11 @@
 
 .navbar__link:hover,
 .navbar__link:focus-visible {
-  color: var(--color-primary);
-  transform: translateY(-1px);
-}
-
-.navbar__link:hover::after,
-.navbar__link:focus-visible::after {
-  width: 100%;
+  color: var(--color-text);
+  background: none;
+  border-radius: 0;
+  transform: scale(1.08);
+  text-decoration: underline;
 }
 
 /* RIGHT: ACTIONS (desktop) */
@@ -162,31 +149,31 @@
 }
 
 .navbar__btn--ghost {
-  background: transparent;
-  color: var(--color-muted);
-  border-color: rgba(148, 163, 184, 0.5);
+  background: var(--color-primary-hover); /* Match signup button */
+  color: var(--color-text);
+  border: none;
+  box-shadow: 0 8px 12px rgba(60, 0, 30, 0.13);
 }
 
 .navbar__btn--ghost:hover,
 .navbar__btn--ghost:focus-visible {
-  background: var(--color-bg-hover);
-  color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-text);
   transform: translateY(-1px);
 }
 
 .navbar__btn--primary {
-  background: var(--color-primary);
-  color: #f9fafb;
-  box-shadow: 0 8px 12px rgba(37, 99, 235, 0.3);
+  background: var(--color-primary-hover);
+  color: var(--color-text);
+  box-shadow: 0 8px 12px rgba(60, 0, 30, 0.13);
 }
 
 .navbar__btn--primary:hover,
 .navbar__btn--primary:focus-visible {
-  background: var(--color-primary-hover);
+  background: var(--color-primary);
+  color: var(--color-text);
   transform: translateY(-1px);
 }
-
-/* HAMBURGER BUTTON */
 
 /* HAMBURGER BUTTON */
 
@@ -210,7 +197,7 @@
   width: 22px;
   height: 2px;
   border-radius: 999px;
-  background: var(--color-text); /* was #0f172a */
+  background: var(--color-text);
   display: block;
 }
 
@@ -226,8 +213,8 @@
   left: 0;
   right: 0;
   top: var(--nav-height);
-  background: var(--nav-bg);
-  border-bottom: 1px solid var(--nav-border);
+  background: var(--color-bg-hover);
+  border-bottom: 1.5px solid var(--nav-border);
   box-shadow: var(--nav-shadow);
   padding: 0.75rem 1rem 1rem;
   display: none;
@@ -245,16 +232,16 @@
 .navbar__mobile-link {
   text-decoration: none;
   color: var(--color-muted);
-  font-size: 0.98rem;
+  font-size: 1.05rem;
 }
 
-.navbar__mobile-link:hover {
-  color: var(--color-primary);
-}
-
-.navbar__mobile-actions {
-  display: flex;
-  gap: 0.75rem;
+.navbar__mobile-link:hover,
+.navbar__mobile-link:focus {
+  color: var(--color-text);
+  background: none;
+  border-radius: 0;
+  transform: scale(1.08);
+  text-decoration: underline;
 }
 
 /* PROFILE BUTTON (DESKTOP) */
@@ -267,17 +254,19 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: transparent;
-  border: 1px solid rgba(112, 113, 116, 0.741);
+  background: var(--color-bg-hover);
+  border: 1.5px solid var(--nav-border);
+  color: var(--color-text);
   border-radius: 999px;
   padding: 0.25rem 0.75rem;
   cursor: pointer;
-  transition: background-color 0.15s ease, box-shadow 0.15s ease,
-    transform 0.1s ease, border-color 0.15s ease;
+  transition: background 0.2s, color 0.2s, box-shadow 0.15s, transform 0.1s, border-color 0.15s;
 }
 
 .navbar__profile-btn:hover,
 .navbar__profile-btn:focus-visible {
+  background: var(--color-primary);
+  color: var(--color-text);
   border-color: var(--color-primary);
   box-shadow: 0 8px 16px rgba(127, 20, 49, 0.25);
   transform: translateY(-1px);
@@ -289,19 +278,12 @@
   border-radius: 999px;
   display: grid;
   place-items: center;
-
-  /* Typography */
-  font-size: 0.9rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-
-  /* Match logo gradient + colors */
-  background: radial-gradient(circle at 30% 0, #b33a55, #7f1431);
-  color: #f9fafb;
-
-  /* Optional: subtle border + shadow to match nav aesthetic */
-  border: 1px solid rgba(248, 250, 252, 0.5);
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.25);
+  font-size: 1.1rem;
+  font-weight: bold;
+  background: var(--color-primary);
+  color: var(--color-text);
+  border: 1px solid var(--nav-border);
+  box-shadow: 0 4px 10px rgba(60, 0, 30, 0.13);
 }
 
 .navbar__profile-info {
@@ -334,12 +316,12 @@
   right: 0;
   margin-top: 0.5rem;
   min-width: 170px;
-  background: var(--nav-bg); /* matches navbar background */
+  background: var(--color-bg-hover);
   border-radius: 0.75rem;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+  box-shadow: 0 18px 40px rgba(60, 0, 30, 0.13);
   padding: 0.4rem;
   z-index: 60;
-  border: 1px solid var(--nav-border);
+  border: 1.5px solid var(--nav-border);
 }
 
 .navbar__profile-menu-item {
@@ -349,94 +331,31 @@
   border: none;
   border-radius: 0.6rem;
   padding: 0.4rem 0.6rem;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   cursor: pointer;
   color: var(--color-text);
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  transition: background 0.2s, color 0.2s;
 }
 
-.navbar__profile-menu-item:hover {
-  background: rgba(127, 20, 49, 0.06);
-  color: var(--color-primary);
+.navbar__profile-menu-item:hover,
+.navbar__profile-menu-item:focus {
+  background: var(--color-primary);
+  color: var(--color-text);
 }
 
 .navbar__profile-menu-item--danger {
-  color: #b91c1c;
+  color: #ffd6d6;
 }
-
-.navbar__profile-menu-item--danger:hover {
-  background: rgba(239, 68, 68, 0.08);
-}
-
-/* MOBILE PROFILE SECTION */
-
-.navbar__mobile-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.navbar__mobile-profile {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.navbar__mobile-profile-header {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding-bottom: 0.25rem;
-  border-bottom: 1px solid var(--nav-border);
-  margin-bottom: 0.5rem;
-}
-
-.navbar__avatar--mobile {
-  width: 32px;
-  height: 32px;
-}
-
-.navbar__mobile-profile-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.navbar__mobile-profile-btn {
-  width: 100%;
-  border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.6);
-  padding: 0.45rem 0.9rem;
-  background: #ffffff;
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  text-align: center;
-  transition: background-color 0.15s ease, color 0.15s ease,
-    box-shadow 0.15s ease, transform 0.1s ease, border-color 0.15s ease;
-}
-
-.navbar__mobile-profile-btn:hover,
-.navbar__mobile-profile-btn:focus-visible {
-  background: rgba(127, 20, 49, 0.06);
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-  transform: translateY(-1px);
-}
-
-.navbar__mobile-profile-btn--danger {
-  border-color: rgba(248, 113, 113, 0.7);
-  color: #b91c1c;
-}
-
-.navbar__mobile-profile-btn--danger:hover {
-  background: rgba(239, 68, 68, 0.08);
+.navbar__profile-menu-item--danger:hover,
+.navbar__profile-menu-item--danger:focus {
+  background: #c94f6d;
+  color: #fff;
 }
 
 /* Buttons-as-links styling */
-
 .navbar__link--button,
 .navbar__mobile-link--button,
 .navbar__brand--button {

@@ -1,7 +1,15 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+html, body, #root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 body {
@@ -9,12 +17,7 @@ body {
     sans-serif;
   background: #f8fafc;
   color: #1e293b;
-}
-
-.app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  flex: 1;
 }
 
 /* Header */

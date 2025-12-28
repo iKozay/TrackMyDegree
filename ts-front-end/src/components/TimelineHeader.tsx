@@ -64,16 +64,23 @@ const CreditsSummary: React.FC<CreditsSummaryProps> = ({ earned, total }) => (
 );
 
 interface PrimaryActionsProps {
-  onShowInsights?: (open: boolean, type: string) => void;
+  onOpenModal?: (open: boolean, type: string) => void;
   onSave?: (open: boolean, type: string) => void;
 }
 
 const PrimaryActions: React.FC<PrimaryActionsProps> = ({
-  onShowInsights,
+  onOpenModal,
   onSave,
 }) => {
+  // TODO: merge all as one method handleModal(type: string)
   const handleInsights = () => {
-    if (onShowInsights) onShowInsights(true, "insights");
+    if (onOpenModal) onOpenModal(true, "insights");
+  };
+  const handleExemption = () => {
+    if (onOpenModal) onOpenModal(true, "exemption");
+  };
+  const handleDeficiency = () => {
+    if (onOpenModal) onOpenModal(true, "deficiency");
   };
   const handleSave = () => {
     if (onSave) onSave(true, "save");
@@ -85,12 +92,12 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({
         Show Insights
       </button>
 
-      <button className="btn btn-tertiary">
+      <button className="btn btn-tertiary" onClick={handleDeficiency}>
         <AlertTriangle size={16} />
         Add Deficiency
       </button>
 
-      <button className="btn btn-tertiary">
+      <button className="btn btn-tertiary" onClick={handleExemption}>
         <Plus size={16} />
         Add Exemption
       </button>
@@ -117,7 +124,7 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
   onRedo,
   earnedCredits,
   totalCredits,
-  onShowInsights,
+  onOpenModal,
   onSave,
 }) => (
   <header className="app-header">
@@ -130,6 +137,6 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
 
     <CreditsSummary earned={earnedCredits} total={totalCredits} />
 
-    <PrimaryActions onShowInsights={onShowInsights} onSave={onSave} />
+    <PrimaryActions onOpenModal={onOpenModal} onSave={onSave} />
   </header>
 );

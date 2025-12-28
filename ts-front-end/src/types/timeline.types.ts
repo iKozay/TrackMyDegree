@@ -141,4 +141,8 @@ export type TimelineActionType =
   | {
       type: typeof TimelineActionConstants.ChangeCourseStatus;
       payload: { courseId: CourseCode; status: CourseStatusValue };
+    }
+  | {
+      type: typeof TimelineActionConstants.AddCourse;
+      payload: { courseId: CourseCode; type: string };
     };

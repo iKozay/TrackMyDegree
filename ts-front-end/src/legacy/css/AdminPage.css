@@ -1,0 +1,181 @@
+/* AdminPage.css */
+
+/* General Container Styling */
+.admin-container {
+  background-color: #ffffff;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 50px 80px 50px;
+  max-width: 90vw;
+  margin: 0 auto;
+  min-height: 70vh;
+}
+
+/* Row Styling */
+.admin-container .row {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 20px;
+  align-items: flex-start;
+  flex: 1;
+  flex-wrap: nowrap !important;
+}
+
+/* Columns Styling */
+.admin-container .col-md-3 {
+  flex: 0 0 280px !important;
+  padding: 10px;
+  box-sizing: border-box;
+  max-width: none !important;
+}
+
+.admin-container .col-md-9 {
+  flex: 1 !important;
+  padding: 10px;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: none !important;
+}
+
+/* Tables List Styling */
+.table-list {
+  width: 100%;
+  max-width: 300px;
+  min-width: 200px;
+  height: 60vh;
+  max-height: 80vh;
+  overflow-y: auto;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.table-list .list-group-item {
+  word-wrap: break-word;
+  white-space: normal;
+  line-height: 1.5;
+  text-align: left;
+  padding: 8px;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+.table-list .list-group-item:hover {
+  background-color: #e9ecef;
+  color: #343a40;
+}
+
+.table-list .list-group-item.active {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: white;
+}
+
+/* Records Table Styling */
+.records-table {
+  width: 100%; /* Ensure the table spans its container */
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+  border-collapse: separate; /* Ensure consistent rendering across browsers */
+}
+
+/* Constrain the table container to a specific height */
+.records-table-container {
+  flex-grow: 1; /* Allows this section to grow with the layout */
+  max-height: 65vh; /* Set a maximum height for the container */
+  overflow: hidden; /* Prevents the entire container from overflowing */
+  position: relative; /* Ensures a stable positioning context */
+}
+
+/* Make only the table body scrollable */
+.records-table tbody {
+  display: block; /* Detach the tbody from the table layout */
+  max-height: 45vh; /* Set a maximum height for the scrollable records */
+  overflow-y: auto; /* Enable vertical scrolling for the records */
+}
+
+.records-table td {
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+    /* Allow text to wrap */
+    max-width: 200px;
+    /* Set a reasonable max width */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Show '...' when text overflows */
+    padding: 8px;
+}
+
+
+.records-table thead {
+  display: table; /* Retain the table layout for the header */
+  width: 100%; /* Ensure the header spans the table width */
+  background-color: #343a40;
+  color: white;
+  position: sticky; /* Keep the header fixed at the top */
+  top: 0; /* Stick to the top of the container */
+  z-index: 1; /* Ensure the header appears above the body content */
+  table-layout: fixed; /* Prevent uneven column alignment */
+}
+
+/* Ensure rows within tbody align properly */
+.records-table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed; /* Prevent uneven column alignment */
+}
+
+.records-table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.records-table tbody tr:hover {
+  background-color: #ddd;
+  cursor: pointer;
+}
+
+/* Search Bar Styling */
+.search-bar {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* Spinner Styling */
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Alert Styling */
+.alert {
+  margin-top: 20px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column;
+  }
+
+  .table-list {
+    max-width: 100%;
+    height: 40vh;
+    max-height: 60vh;
+  }
+
+  .records-table-container {
+    margin-left: 0; /* Remove margin for stacked layout */
+  }
+
+  .records-table {
+    overflow-x: auto;
+  }
+}

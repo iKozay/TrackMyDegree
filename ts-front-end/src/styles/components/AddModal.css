@@ -1,0 +1,184 @@
+
+/* Add Modal Styles */
+.add-modal-content {
+  min-width: 600px;
+  max-width: 800px;
+  max-height: 80vh;
+}
+
+.add-modal-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.add-modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+.add-modal-subtitle {
+  color: #64748b;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.add-modal-search {
+  margin-bottom: 1.5rem;
+}
+
+.add-modal-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: #f8fafc;
+  color: #4b4c4d;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.add-modal-search-input::placeholder {
+  color: rgba(148, 163, 184, 0.9);
+}
+
+.add-modal-search-input:focus {
+  border-color: #60a5fa;
+  background: #ffffff;
+  color: rgba(15, 23, 42, 1);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+.add-modal-search-input:hover:not(:focus) {
+  border-color: rgba(148, 163, 184, 0.9);
+}
+
+.add-modal-body {
+  min-height: 200px;
+}
+
+.add-modal-loading,
+.add-modal-error,
+.add-modal-no-results {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.add-modal-error {
+  color: #dc2626;
+}
+
+.add-modal-loading {
+  color: #64748b;
+}
+
+.add-modal-no-results {
+  color: #64748b;
+}
+
+.add-modal-courses {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.add-modal-course-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.add-modal-course-item:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.add-modal-course-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.add-modal-course-code {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.add-modal-course-title {
+  color: #475569;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  word-wrap: break-word;
+}
+
+.add-modal-course-credits {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.add-modal-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #10b981;
+  color: white;
+  font-size: 1.25rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.add-modal-add-btn:hover {
+  background: #059669;
+  transform: scale(1.05);
+}
+
+.add-modal-add-btn:active {
+  transform: scale(0.95);
+}
+
+/* Responsive adjustments for AddModal */
+@media (max-width: 768px) {
+  .add-modal-content {
+    min-width: 90vw;
+    max-width: 95vw;
+    margin: 1rem;
+  }
+
+  .add-modal-course-item {
+    padding: 0.75rem;
+  }
+
+  .add-modal-course-info {
+    margin-right: 0.75rem;
+  }
+
+  .add-modal-add-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+    margin-left: 0.75rem;
+  }
+}

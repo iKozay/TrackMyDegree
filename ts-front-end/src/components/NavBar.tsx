@@ -4,7 +4,7 @@ import "../styles/components/navbar.css";
 import { useAuth } from "../hooks/useAuth";
 
 const navItems = [
-  { label: "Timeline", href: "/timeline/1233" },
+  { label: "Timeline", href: "/timeline" },
   { label: "Courses", href: "/courses" },
   { label: "Requirements", href: "/requirements" },
 ];
@@ -36,7 +36,7 @@ export const Navbar: React.FC = () => {
 
   const goToProfile = () => {
     const profilePath =
-      user?.role === "admin" ? "/admin/profile" : "/student/profile";
+      user?.role === "admin" ? "/profile/admin" : "/profile/student";
     navigateTo(profilePath);
   };
 
@@ -59,7 +59,7 @@ export const Navbar: React.FC = () => {
           onClick={() => navigateTo("/")}>
           <div className="navbar__logo">🎓</div>
           <span className="navbar__brand-text">
-            Track My <span className="navbar__brand-highlight">Degree</span>
+            TrackMyDegree
           </span>
         </button>
 
@@ -84,7 +84,7 @@ export const Navbar: React.FC = () => {
               <button
                 className="navbar__btn navbar__btn--ghost"
                 type="button"
-                onClick={() => navigateTo("/login")}>
+                onClick={() => navigateTo("/signin")}>
                 Login
               </button>
               <button

@@ -1,5 +1,6 @@
 // BaseModal.tsx
 import React from "react";
+import "../styles/components/BaseModal.css";
 
 type BaseModalProps = {
   open: boolean;
