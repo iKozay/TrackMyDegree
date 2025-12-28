@@ -43,6 +43,7 @@ const TimeLinePage: React.FC = () => {
           <MainModal
             open={state.modal.open}
             type={state.modal.type} // "insights" | "exemption"
+            onAdd={actions.addCourse}
             onClose={actions.openModal}
           />
         )}
@@ -53,7 +54,7 @@ const TimeLinePage: React.FC = () => {
           onRedo={actions.redo}
           earnedCredits={0} // later: compute from courses
           totalCredits={120} // from degree.totalCredits
-          onShowInsights={actions.openModal}
+          onOpenModal={actions.openModal}
           onSave={() => {
             // TODO: trigger save actions.saveTimeline
           }}

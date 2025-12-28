@@ -1,4 +1,4 @@
-import type { TimelineState } from "../types/timeline.types";
+import type { Course, TimelineState } from "../types/timeline.types";
 import type { CourseCode, SemesterId } from "../types/timeline.types";
 
 type Snapshot = {
@@ -196,5 +196,82 @@ export function openModal(
   return {
     ...state,
     modal: { open: payload.open, type: payload.type },
+  };
+}
+
+export function addCourse(
+  state: TimelineState,
+  payload: { courseId: CourseCode; type: string }
+): TimelineState {
+  const { courseId, type } = payload;
+
+  const poolName =
+    type === "exemption"
+      ? "Exemptions"
+      : type === "deficiency"
+      ? "Deficiencies"
+      : null;
+
+  console.log("Adding course", courseId, "as", type);
+  if (!poolName) return state;
+  console.log("Target pool:", poolName);
+  console.log("Current courses:", state.courses);
+
+  const course = state.courses[courseId];
+  if (!course) return state;
+
+  console.log("Course found:", course);
+
+  // -----------------------------
+  // Update pools
+  // -----------------------------
+  let poolsChanged = false;
+
+  const updatedPools = state.pools.map(pool => {
+    if (pool.name !== poolName) return pool;
+
+    if (pool.courses.includes(courseId)) {
+      return pool;
+    }
+
+    poolsChanged = true;
+    const credits = course.credits || 0;
+    return {
+      ...pool,
+      courses: [...pool.courses, courseId],
+      creditsRequired: pool.creditsRequired + credits
+    };
+  });
+  console.log("Pools:", updatedPools);
+  if (!poolsChanged) return state;
+
+  // -----------------------------
+  // Update course status
+  // -----------------------------
+  const updatedCourse: Course =
+    type === "exemption"
+      ? {
+          ...course,
+          status: {
+            status: "completed",
+            semester: null
+          }
+        }
+      : course;
+
+  const updatedCourses = {
+    ...state.courses,
+    [courseId]: updatedCourse
+  };
+
+  console.log("Courses:", updatedCourse);
+
+  // -----------------------------
+  // Final state
+  // -----------------------------
+  return {
+    ...state,
+    pools: updatedPools,
+    courses: updatedCourses
   };
 }

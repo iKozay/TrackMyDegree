@@ -10,6 +10,7 @@ import {
   undo,
   redo,
   openModal,
+  addCourse,
 } from "../handlers/timelineHandler";
 
 export function timelineReducer(
@@ -42,6 +43,9 @@ export function timelineReducer(
 
     case TimelineActionConstants.OpenModal:
       return openModal(state, action.payload);
+    
+    case TimelineActionConstants.AddCourse:
+      return addCourse(state, action.payload);
 
     default:
       return state;

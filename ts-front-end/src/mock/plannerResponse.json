@@ -10,7 +10,10 @@
         "Software Engineering Core",
         "Computer Science Group: Software Engineering",
         "Engineering and Natural Science Group: Software Engineering",
-        "Software Engineering Electives"
+        "Software Engineering Electives",
+        "Exemptions",
+        "Deficiencies",
+        "Others"
       ]
     },
     "pools": [
@@ -113,6 +116,16 @@
           "SOEN 499",
           "ENGR 411"
         ]
+      },
+      {
+        "name": "Exemptions",
+        "creditsRequired": 0,
+        "courses": []
+      },
+      {
+        "name": "Deficiencies",
+        "creditsRequired": 0,
+        "courses": []
       },
       {
         "name": "Others",

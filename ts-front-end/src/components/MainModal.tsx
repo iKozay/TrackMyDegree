@@ -1,16 +1,20 @@
 // MainModal.tsx
 import React from "react";
 import { BaseModal } from "./BaseModal";
+import { AddModal } from "./AddModal";
+import type { CourseCode } from "../types/timeline.types";
 
 type MainModalProps = {
   open: boolean;
   type: string;
+  onAdd: (courseId: CourseCode, type: string) => void;
   onClose: (open: boolean, type: string) => void;
 };
 
 export const MainModal: React.FC<MainModalProps> = ({
   open,
   type,
+  onAdd,
   onClose,
 }) => {
   if (!open) return null;
@@ -27,12 +31,9 @@ export const MainModal: React.FC<MainModalProps> = ({
         );
 
       case "exemption":
-        return (
-          <div>
-            <h2>Exemption modal</h2>
-            {/* TODO: add exemption content */}
-          </div>
-        );
+        return <AddModal open={open} type="exemption" onAdd={onAdd} onClose={() => onClose(false, type)} />;
+      case "deficiency":
+        return <AddModal open={open} type="deficiency" onAdd={onAdd} onClose={() => onClose(false, type)} />;
       case "save":
         return (
           <div>
