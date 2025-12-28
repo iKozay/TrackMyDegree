@@ -1,8 +1,7 @@
 // services/buildTimeline.ts
-import { degreeController } from "@controllers/degreeController";
 import { parseFile } from "@services/parsingService";
 import { ParsedData, ProgramInfo, Semester, CourseStatus } from "../../types/transcript";
-import { CoursePoolInfo, DegreeData } from "@controllers/degreeController";
+import { degreeController, CoursePoolInfo, DegreeData } from "@controllers/degreeController";
 import { CourseData } from "@controllers/courseController";
 
 type TimelineFileData = {
@@ -196,7 +195,6 @@ function getCourseStatus(term:string, isCoop:boolean|undefined, courseCode:strin
     if(satisfactoryGrade){
       status = "complete"
     }else{
-      status = "incomplete";
       message = `Minimum grade not met: ${minGrade} is needed to pass this course.`;
     }
   }
@@ -236,7 +234,7 @@ async function getDegreeData( degree_name :string){
     for (const c of courseArr) {
       courses[c._id] = c;
     }
-    
+
     return {degreeData, coursePools, courses}
 }
 function isInprogress(currentTerm:string){
@@ -248,7 +246,7 @@ function isInprogress(currentTerm:string){
 
 function isPlanned(currentTerm:string){
   const today = new Date();
-  const { start, end } = getTermRanges(currentTerm);
+  const { start } = getTermRanges(currentTerm);
 
   return today <= start; //if the term didnt start yet, courses included in it are planned
 } 
@@ -300,7 +298,7 @@ function getCoursesThatNeedCMinus(degreeName:string, requiredCourses:Set<string>
 // Example: " engr   201 " → "ENGR 201" or "ENGR201" -> "ENGR 201"
 function normalizeCourseCode(code: string): string {
   return code
-    .replace(/\s+/g, '') //Removes all whitespace
+    .replaceAll(/\s+/g, '') //Removes all whitespace
     .replace(/([a-zA-Z]+)(\d+)/, '$1 $2') //Inserts a space between letters and numbers
     .toUpperCase();
 }
@@ -345,12 +343,12 @@ function generateTerms(startTerm?: string, endTerm?:string){
   const startYear = Number.parseInt(startTerm.split(' ')[1]); // Extracting the year
   const startSeason = startTerm.split(' ')[0]; // Extracting the season
   let endYear, endSeason;
-  if (!endTerm) {
-    endYear = startYear + 3;
-    endSeason = startSeason;
-  } else {
+  if (endTerm) {
     endYear = Number.parseInt(endTerm.split(' ')[1]); // Extracting the year
     endSeason = endTerm.split(' ')[0]; // Extracting the season
+  } else {
+    endYear = startYear + 3;
+    endSeason = startSeason;
   }
 
   const resultTerms = [];

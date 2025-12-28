@@ -3,6 +3,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const { DegreeController } = require('../controllers/degreeController');
 const { Degree } = require('../models/degree');
 const { CoursePool } = require('../models/coursepool');
+const { Course } = require('../models/course')
 
 
 describe('DegreeController', () => {
@@ -25,6 +26,7 @@ describe('DegreeController', () => {
   beforeEach(async () => {
     await Degree.deleteMany({});
     await CoursePool.deleteMany({})
+    await Course.deleteMany({});
   });
 
   describe('Constructor', () => {
@@ -411,4 +413,125 @@ describe('DegreeController', () => {
       degreeController.findById = originalFindById;
     });
   });
+
+  describe('getCoursesForDegree', () => {
+  beforeEach(async () => {
+    // Create course pools
+    await CoursePool.create([
+      {
+        _id: 'CORE_POOL',
+        name: 'Core Pool',
+        creditsRequired: 60,
+        courses: ['COMP232', 'COMP248'],
+      },
+      {
+        _id: 'ELEC_POOL',
+        name: 'Electives',
+        creditsRequired: 30,
+        courses: ['COMP249'],
+      },
+    ]);
+
+    // Create courses
+    await Course.create([
+      {
+        _id: 'COMP232',
+        title: 'Discrete Mathematics',
+        credits: 3,
+        description: 'Discrete math course',
+      },
+      {
+        _id: 'COMP248',
+        title: 'Object-Oriented Programming I',
+        credits: 3,
+        description: 'Intro to OOP',
+      },
+      {
+        _id: 'COMP249',
+        title: 'Object-Oriented Programming II',
+        credits: 3,
+        description: 'Advanced OOP',
+      },
+      ]);
+
+
+    // Create degree referencing the pools
+    await Degree.create({
+      _id: 'COMP',
+      name: 'Computer Science',
+      totalCredits: 120,
+      coursePools: ['CORE_POOL', 'ELEC_POOL'],
+    });
+  });
+
+  it('should return all courses associated with a degree', async () => {
+    const courses = await degreeController.getCoursesForDegree('COMP');
+
+    expect(courses).toHaveLength(3);
+
+    const ids = courses.map((c) => c._id).sort();
+    expect(ids).toEqual(['COMP232', 'COMP248', 'COMP249']);
+  });
+
+  it('should return an empty array if degree has no course pools', async () => {
+    await Degree.create({
+      _id: 'EMPTY',
+      name: 'Empty Degree',
+      totalCredits: 0,
+      coursePools: [],
+    });
+
+    const courses = await degreeController.getCoursesForDegree('EMPTY');
+
+    expect(courses).toEqual([]);
+  });
+
+  it('should throw an error if degree does not exist', async () => {
+    await expect(
+      degreeController.getCoursesForDegree('NONEXISTENT'),
+    ).rejects.toThrow('Degree not found');
+  });
+});
+
+describe('deleteDegree', () => {
+  beforeEach(async () => {
+    await Degree.create({
+      _id: 'COMP',
+      name: 'Computer Science',
+      totalCredits: 120,
+      coursePools: [],
+    });
+  });
+
+  it('should delete an existing degree', async () => {
+    const result = await degreeController.deleteDegree('COMP');
+
+    expect(result).toBe(true);
+
+    const deleted = await Degree.findById('COMP');
+    expect(deleted).toBeNull();
+  });
+
+  it('should throw error if degree does not exist', async () => {
+    await expect(
+      degreeController.deleteDegree('NONEXISTENT'),
+    ).rejects.toThrow("Degree not found");
+  });
+
+  it('should handle database errors', async () => {
+    const originalDeleteById = degreeController.deleteById;
+
+    degreeController.deleteById = jest
+      .fn()
+      .mockRejectedValue(new Error('Database connection failed'));
+
+    await expect(
+      degreeController.deleteDegree('COMP'),
+    ).rejects.toThrow('Database connection failed');
+
+    degreeController.deleteById = originalDeleteById;
+  });
+});
+
+
 });
