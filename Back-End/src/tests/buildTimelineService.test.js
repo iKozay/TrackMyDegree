@@ -81,7 +81,7 @@ describe('buildTimeline', () => {
 
     expect(result).toBeDefined();
     expect(result.courses['COMP 232'].status.semester).toBe("FALL 2023");
-    expect(result.courses['COMP 232'].status.status).toBe("complete");
+    expect(result.courses['COMP 232'].status.status).toBe("completed");
     expect(result.semesters[0].courses[0].code).toBe('COMP 232');
   });
 
@@ -158,7 +158,7 @@ describe('buildTimeline', () => {
     expect(result.semesters[0].courses.find(c => c.code === 'COMP 232').message)
       .toContain('Minimum grade not met');
 
-    expect(comp248.status.status).toBe('complete');
+    expect(comp248.status.status).toBe('completed');
     expect(comp248.status.semester).toBe("FALL 2023");
     expect(result.semesters[1].courses.find(c => c.code === 'COMP 248').message).toBeUndefined();
 
