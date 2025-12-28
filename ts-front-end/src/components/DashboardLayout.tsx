@@ -1,7 +1,7 @@
 import React, { type ReactNode, useState, useEffect } from 'react';
 import { LayoutDashboard, ListChecks, FileCheck, Briefcase, Calendar, GraduationCap, Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import './DashboardLayout.css';
+import '../styles/components/DashboardLayout.css';
 
 interface DashboardLayoutProps {
     children: ReactNode;

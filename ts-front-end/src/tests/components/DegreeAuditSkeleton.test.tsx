@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import DegreeAuditSkeleton from '../../pages/degree-audit/DegreeAuditSkeleton';
+import DegreeAuditSkeleton from '../../components/DegreeAuditSkeleton.tsx';
 
 describe('DegreeAuditSkeleton', () => {
     it('should render skeleton states correctly', () => {

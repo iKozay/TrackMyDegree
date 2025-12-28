@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { generateMockDegreeAudit } from '../../mock/degreeAudit';
+import { generateMockDegreeAudit } from '../../types/audit.types.ts';
 
 describe('degreeAudit mock', () => {
     it('should generate mock degree audit data', () => {

@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import DegreeAuditPage from '../../pages/degree-audit/DegreeAuditPage';
-import { generateMockDegreeAudit } from '../../mock/degreeAudit';
+import DegreeAuditPage from '../../pages/DegreeAuditPage.tsx';
+import { generateMockDegreeAudit } from '../../types/audit.types.ts';
 
 vi.mock('../../mock/degreeAudit');
 

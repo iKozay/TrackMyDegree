@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Download, FileText, AlertTriangle, CheckCircle, Circle, XCircle, ChevronDown, ChevronUp, RefreshCw, Inbox } from 'lucide-react';
-import { generateMockDegreeAudit, type DegreeAuditData, type RequirementCategory } from '../../mock/degreeAudit';
-import DegreeAuditSkeleton from './DegreeAuditSkeleton';
-import './DegreeAuditPage.css';
+import type { DegreeAuditData, RequirementCategory } from '../types/audit.types.ts';
+import mockDegreeAuditResponse from "../mock/degreeAuditResponse.json";
+import DegreeAuditSkeleton from '../components/DegreeAuditSkeleton.tsx';
+import '../styles/DegreeAuditPage.css';
 
 const DegreeAuditPage: React.FC = () => {
     const [data, setData] = useState<DegreeAuditData | null>(null);
@@ -23,7 +24,7 @@ const DegreeAuditPage: React.FC = () => {
                 throw new Error("Failed to connect to the audit server. Please try again.");
             }
 
-            const mockData = generateMockDegreeAudit();
+            const mockData = mockDegreeAuditResponse as DegreeAuditData;
             setData(mockData);
 
             // Expand first requirement by default

@@ -15,11 +15,11 @@ import CoursePage from "./pages/CoursePage";
 import ForbiddenPage from "./pages/ForbiddenPage";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
-import DegreeAuditPage from "./pages/degree-audit/DegreeAuditPage";
+import DegreeAuditPage from "./pages/DegreeAuditPage.tsx";
 
 import { Navbar } from "./components/NavBar";
 import { Footer } from "./components/Footer";
-import DashboardLayout from "./components/DashboardLayout/DashboardLayout";
+import DashboardLayout from "./components/DashboardLayout.tsx";
 
 import { AuthProvider } from "./providers/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";

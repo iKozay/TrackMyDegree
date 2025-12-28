@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import DashboardLayout from '../../components/DashboardLayout/DashboardLayout';
+import DashboardLayout from '../../components/DashboardLayout.tsx';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 vi.mock('react-router-dom', () => ({
