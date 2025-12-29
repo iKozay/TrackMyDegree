@@ -294,6 +294,79 @@ describe('CourseController', () => {
     });
   });
 
+  describe('getAllCourseCodes', () => {
+    beforeEach(async () => {
+      await Course.create([
+        {
+          _id: 'CODES101',
+          title: 'Introduction to Programming',
+          description: 'Basic programming concepts',
+          credits: 3,
+          offeredIn: ['Fall', 'Winter'],
+        },
+        {
+          _id: 'CODES102',
+          title: 'Data Structures',
+          description: 'Advanced data structures',
+          credits: 3,
+          offeredIn: ['Winter', 'Summer'],
+        },
+      ]);
+    });
+
+    it('should get all course codes', async () => {
+      const result = await courseController.getAllCourseCodes();
+
+      expect(result).toContain('CODES101');
+      expect(result).toContain('CODES102');
+      expect(result.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it('should handle database errors', async () => {
+      // Mock findAll to throw an error
+      const originalFindAll = courseController.findAll;
+      const mockFindAll = jest.fn().mockImplementation(() => {
+        throw new Error('Database connection failed');
+      });
+      courseController.findAll = mockFindAll;
+
+      try {
+        await expect(courseController.getAllCourseCodes()).rejects.toThrow(
+          'Database connection failed',
+        );
+      } finally {
+        // Restore original method immediately
+        courseController.findAll = originalFindAll;
+      }
+    });
+
+    it('should handle when findAll returns no data', async () => {
+      const originalFindAll = courseController.findAll;
+      courseController.findAll = jest.fn().mockResolvedValue({
+        success: true,
+        data: null,
+      });
+
+      const result = await courseController.getAllCourseCodes();
+      expect(result).toEqual([]);
+
+      courseController.findAll = originalFindAll;
+    });
+
+    it('should handle when findAll returns error response', async () => {
+      const originalFindAll = courseController.findAll;
+      courseController.findAll = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Database error',
+      });
+
+      const result = await courseController.getAllCourseCodes();
+      expect(result).toEqual([]);
+
+      courseController.findAll = originalFindAll;
+    });
+  });
+
   describe('getCourseByCode', () => {
     beforeEach(async () => {
       await Course.create({
@@ -385,16 +458,19 @@ describe('CourseController', () => {
     it('should handle database errors', async () => {
       // Mock findAll to throw an error
       const originalFindAll = courseController.findAll;
-      courseController.findAll = jest.fn().mockImplementation(() => {
+      const mockFindAll = jest.fn().mockImplementation(() => {
         throw new Error('Database connection failed');
       });
+      courseController.findAll = mockFindAll;
 
-      await expect(courseController.getCoursesByPool('Fall')).rejects.toThrow(
-        'Database connection failed',
-      );
-
-      // Restore original method
-      courseController.findAll = originalFindAll;
+      try {
+        await expect(courseController.getCoursesByPool('Fall')).rejects.toThrow(
+          'Database connection failed',
+        );
+      } finally {
+        // Restore original method immediately
+        courseController.findAll = originalFindAll;
+      }
     });
   });
 

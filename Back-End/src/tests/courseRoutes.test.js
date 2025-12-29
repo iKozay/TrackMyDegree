@@ -212,6 +212,61 @@ describe('Course Routes', () => {
     });
   });
 
+  describe('GET /courses/all-codes', () => {
+    beforeEach(async () => {
+      await Course.create([
+        {
+          _id: 'COMP101',
+          title: 'Introduction to Programming',
+          description: 'Basic programming concepts',
+          credits: 3,
+          offeredIn: ['Fall', 'Winter'],
+          prerequisites: [],
+          corequisites: [],
+        },
+        {
+          _id: 'COMP102',
+          title: 'Data Structures',
+          description: 'Advanced data structures',
+          credits: 3,
+          offeredIn: ['Winter', 'Summer'],
+          prerequisites: [],
+          corequisites: [],
+        },
+      ]);
+    });
+    
+    it('should get all course codes', async () => {
+      const response = await request(app)
+        .get('/courses/all-codes')
+        .expect(200);
+      const courseCodes = response.body.courseCodes;
+      expect(courseCodes).toContain('COMP101');
+      expect(courseCodes).toContain('COMP102');
+    });
+    
+    it('should handle server errors', async () => {
+      const spy = jest
+        .spyOn(courseController, 'getAllCourseCodes')
+        .mockRejectedValue(new Error('Database error'));
+      const response = await request(app)
+        .get('/courses/all-codes')
+        .expect(500);
+      expect(response.body.error).toBe('Internal server error');
+      spy.mockRestore();
+    });
+    
+    it('should handle errors during fetch', async () => {
+      const spy = jest
+        .spyOn(courseController, 'getAllCourseCodes')
+        .mockRejectedValue(new Error('Database error'));
+      const response = await request(app).get('/courses/all-codes');
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty('error', 'Internal server error');
+      spy.mockRestore();
+    });
+  });
+
   describe('GET /courses/by-degree/:degreeId', () => {
     const { Degree } = require('../models/degree');
     const { CoursePool } = require('../models/coursepool');

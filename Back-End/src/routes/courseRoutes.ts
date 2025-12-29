@@ -98,6 +98,16 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
+router.get('/all-codes', async (req: Request, res: Response) => {
+  try {
+    const courseCodes = await courseController.getAllCourseCodes();
+    res.status(HTTP.OK).json({ courseCodes });
+  } catch (error) {
+    console.error('Error in GET /courses/all-codes', error);
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+  }
+});
+
 /**
  * GET /courses/by-degree/:degreeId - Get courses grouped by pools for a degree
  */
