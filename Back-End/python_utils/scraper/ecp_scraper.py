@@ -65,6 +65,9 @@ def scrape_engr_ecp():
     course_pool[2]['courses']+=gen_electives[0]
     courses+=gen_electives[1]
 
+    for pool in course_pool:
+        degree['coursePools']+=pool['name']
+
     return [degree, course_pool, courses]
 
 def scrape_comp_ecp():
@@ -109,10 +112,53 @@ def scrape_comp_ecp():
     course_pool[1]['courses']+=gen_electives[0]
     courses+=gen_electives[1]
 
-    print(exclusion_list[0])
-
     for course in exclusion_list[1]:
         if course["code"] in course_pool[1]['courses']:
             course_pool[1]['courses'].remove(course['code'])
             courses.remove(course)
 
+    # Option Electives
+
+    ENGR_URL='https://www.concordia.ca/academics/undergraduate/calendar/current/quick-links/gina-cody-school-of-engineering-and-computer-science-courses.html'
+    DESIGN_URL='https://www.concordia.ca/academics/undergraduate/calendar/current/section-81-faculty-of-fine-arts/section-81-90-department-of-design-and-computation-arts/design-courses.html'
+    COMP_ART_URL='https://www.concordia.ca/academics/undergraduate/calendar/current/section-81-faculty-of-fine-arts/section-81-90-department-of-design-and-computation-arts/computation-arts-courses.html'
+    MATH_STAT_URL='https://www.concordia.ca/academics/undergraduate/calendar/current/section-31-faculty-of-arts-and-science/section-31-200-department-of-mathematics-and-statistics/mathematics-and-statistics-courses.html'
+
+    gina_cody_classes=[]
+    comp_and_soen_classes=[]
+    design_and_comp_art_classes=course_data_scraper.extract_course_data('ANY', DESIGN_URL)[0]+course_data_scraper.extract_course_data('ANY', COMP_ART_URL)[0]
+    math_and_stat_classes=course_data_scraper.extract_course_data('ANY', MATH_STAT_URL)
+
+    gina_cody_html=course_data_scraper.fetch_html(ENGR_URL)
+    gina_cody_html=gina_cody_html.find('div', class_='content-main parsys')
+    departments = gina_cody_html.findAll('a')
+    for dep in departments:
+        if 'Computer Science' in dep.text or 'Software Engineering' in dep.text:
+            comp_and_soen_classes+=course_data_scraper.extract_course_data('ANY', dep.get('href'))
+        else:
+            gina_cody_classes+=course_data_scraper.extract_course_data('ANY', dep.get('href'))
+    
+    
+    course_pool.append({
+        '_id': "(ANYTHING EXCEPT COURSES IN THIS COURSE POOL) ECP Electives: BCompSc (other than Joint Majors)",
+        'name': "(ANYTHING EXCEPT COURSES IN THIS COURSE POOL) ECP Electives: BCompSc (other than Joint Majors)",
+        'creditsRequired': 15,
+        'courses':exclusion_list[0]+gina_cody_classes
+    })
+    course_pool.append({
+        '_id': "(ANYTHING EXCEPT COURSES IN THIS COURSE POOL) ECP Electives: Joint Major in Computation Arts and Computer Science",
+        'name': "(ANYTHING EXCEPT COURSES IN THIS COURSE POOL) ECP Electives: Joint Major in Computation Arts and Computer Science",
+        'creditsRequired': 15,
+        'courses':exclusion_list[0]+gina_cody_classes+comp_and_soen_classes+design_and_comp_art_classes
+    })
+    course_pool.append({
+        '_id': "(ANYTHING EXCEPT COURSES IN THIS COURSE POOL) ECP Electives: Joint Major in Data Science",
+        'name': "(ANYTHING EXCEPT COURSES IN THIS COURSE POOL) ECP Electives: Joint Major in Data Science",
+        'creditsRequired': 15,
+        'courses':exclusion_list[0]+gina_cody_classes+comp_and_soen_classes+math_and_stat_classes[0]
+    })
+
+    for pool in course_pool:
+        degree['coursePools']+=pool['name']
+    
+    return [degree, course_pool, courses]
