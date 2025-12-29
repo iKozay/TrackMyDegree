@@ -8,14 +8,21 @@ export const cacheGET =
 
     try {
       const cached = await cacheGet<unknown>(key);
-      if (cached) return res.status(200).json(cached);
-    } catch {
-      // If Redis is down, do not block the request
+      if (cached) {
+        console.log(`CACHE HIT  → ${key}`);
+        return res.status(200).json(cached);
+      }
+      console.log(`CACHE MISS → ${key}`);
+    } catch (err) {
+      console.warn(`CACHE ERROR → ${key}`, err);
     }
 
     const originalJson = res.json.bind(res);
     res.json = (body: unknown) => {
-      cacheSet(key, body, ttlSeconds).catch(() => {});
+      // Only cache 2xx responses. 404 does not exist should not be cached.
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        cacheSet(key, body, ttlSeconds).catch(() => {});
+      }
       return originalJson(body);
     };
 
