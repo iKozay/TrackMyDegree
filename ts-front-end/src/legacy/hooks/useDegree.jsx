@@ -1,4 +1,3 @@
-// src/pages/CourseListPage/hooks/useDegrees.js
 import { useState, useEffect } from 'react';
 import { api } from '../../api/http-api-client';
 

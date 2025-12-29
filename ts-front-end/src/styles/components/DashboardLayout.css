@@ -1,0 +1,330 @@
+:root {
+    --sidebar-width: 256px;
+    --maroon: #881337;
+    --maroon-light: #fff1f2;
+    --maroon-hover: #ffe4e6;
+    --slate-900: #0f172a;
+    --slate-600: #475569;
+    --slate-500: #64748b;
+    --slate-200: #e2e8f0;
+    --slate-100: #f1f5f9;
+    --slate-50: #f8fafc;
+    --white: #ffffff;
+    --bg-color: #f8fafc;
+    --border-color: #e2e8f0;
+}
+
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--bg-color);
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+}
+
+/* Sidebar Container */
+.dashboard-sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background-color: var(--white);
+    border-right: 1px solid var(--slate-200);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Sidebar Header */
+.sidebar-header-section {
+    padding: 1.5rem;
+}
+
+.logo-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.logo-icon-main {
+    width: 2rem;
+    height: 2rem;
+    color: var(--maroon);
+}
+
+.logo-title-group h1 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--slate-900);
+    margin: 0;
+    line-height: 1.25;
+}
+
+.logo-title-group p {
+    font-size: 0.75rem;
+    color: var(--slate-500);
+    margin: 0;
+}
+
+.header-divider {
+    height: 1px;
+    width: 100%;
+    background-color: var(--slate-200);
+}
+
+/* Role Toggle Section */
+.role-toggle-section {
+    padding: 1rem;
+}
+
+.role-button-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.role-toggle-btn {
+    flex: 1;
+    height: 2rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid var(--slate-200);
+    background-color: var(--white);
+    color: var(--slate-600);
+}
+
+.role-toggle-btn:hover {
+    background-color: var(--slate-50);
+}
+
+.role-toggle-btn.active {
+    background-color: var(--maroon);
+    color: var(--white);
+    border-color: var(--maroon);
+}
+
+/* Navigation Section */
+.sidebar-nav-container {
+    flex: 1;
+    padding: 0 0.75rem;
+    overflow-y: auto;
+}
+
+.nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-list li {
+    margin-bottom: 0.25rem;
+}
+
+.nav-item-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--slate-600);
+    text-align: left;
+}
+
+.nav-item-btn:hover {
+    background-color: var(--slate-50);
+    color: var(--slate-900);
+}
+
+.nav-item-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: var(--slate-400);
+}
+
+.nav-item-btn:disabled:hover {
+    background-color: transparent;
+    color: var(--slate-400);
+}
+
+.nav-item-btn.active {
+    background-color: var(--maroon-light);
+    color: var(--maroon);
+    font-weight: 500;
+}
+
+.nav-item-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.nav-item-label {
+    font-size: 0.875rem;
+}
+
+.nav-item-badge {
+    margin-left: auto;
+    font-size: 0.75rem;
+    background-color: var(--slate-100);
+    color: var(--slate-600);
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.375rem;
+}
+
+/* User Footer Section */
+.sidebar-footer-section {
+    padding: 1rem;
+    border-top: 1px solid var(--slate-200);
+}
+
+.user-profile-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-avatar-circle {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    background-color: var(--maroon-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-avatar-text {
+    color: var(--maroon);
+    font-weight: 600;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--slate-900);
+    margin: 0;
+}
+
+.user-id-text {
+    font-size: 0.75rem;
+    color: var(--slate-500);
+    margin: 0;
+}
+
+/* Main Content Area */
+.dashboard-main {
+    flex: 1;
+    padding: 32px;
+    overflow-y: auto;
+    background-color: var(--bg-color);
+}
+
+/* Mobile Specifics */
+.mobile-header {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: var(--white);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 100;
+    padding: 0 16px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mobile-header-logo {
+    padding: 0 !important;
+}
+
+.mobile-header-logo .logo-wrapper {
+    margin-bottom: 0 !important;
+    gap: 0.5rem;
+}
+
+.mobile-header-logo .logo-icon-main {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+}
+
+.mobile-header-logo .logo-title-group h1 {
+    font-size: 1rem !important;
+}
+
+.mobile-header-logo .logo-title-group p {
+    font-size: 0.65rem !important;
+}
+
+.hamburger-btn {
+    background: none;
+    border: none;
+    color: var(--slate-900);
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 40;
+    backdrop-filter: blur(2px);
+}
+
+@media (max-width: 768px) {
+    .mobile-header {
+        display: flex;
+    }
+
+    .dashboard-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 50;
+        transform: translateX(-100%);
+        box-shadow: 10px 0 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .dashboard-sidebar .sidebar-header-section,
+    .dashboard-sidebar .header-divider {
+        display: none;
+    }
+
+    .dashboard-main {
+        padding: calc(60px + 1rem) 1rem 1rem 1rem;
+        width: 100%;
+    }
+}
+
+@media (min-width: 769px) {
+    .dashboard-sidebar {
+        position: sticky;
+        top: 0;
+    }
+}
