@@ -20,8 +20,8 @@ export const useFetchCoursesByDegree = (degree_Id, extendedCredit, dispatch) => 
 
                 // If extendedCredit is true, fetch and merge ECP courses
                 if (extendedCredit) {
-                    const extendedData = await api.get("/courses/by-degree/ECP");
-                    combinedData = [...primaryData, ...extendedData];
+                    // const extendedData = await api.get("/courses/by-degree/ECP");
+                    // combinedData = [...primaryData, ...extendedData];
                 }
 
                 dispatch({ type: 'SET', payload: { coursePools: combinedData, loading: false } });

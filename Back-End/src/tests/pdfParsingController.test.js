@@ -1,54 +1,25 @@
 const request = require('supertest');
 const express = require('express');
+
 const pdfParsingControllerModule = require('../controllers/pdfParsingController');
-const pdfParse = require('pdf-parse');
-const { Buffer } = require('node:buffer');
+const { parseFile } = require('@services/parsingService');
+
 // Pull out the controller and middleware
 const pdfParsingController = pdfParsingControllerModule.default;
 const uploadMiddleware = pdfParsingControllerModule.uploadMiddleware;
+const Buffer = require('node:buffer').Buffer;
 
-// Mock pdf-parse so we don't actually read PDFs
-jest.mock('pdf-parse', () => jest.fn());
-
-// Mock the custom parsers
-jest.mock('../utils/pythonUtilsApi', () => ({
-  parseTranscript: jest.fn().mockResolvedValue({
-    programInfo: {
-      degree: 'B.Sc., Computer Science',
-      firstTerm: 'Fall 2024',
-      minimumProgramLength: 120,
-    },
-    semesters: [
-      {
-        term: 'Fall 2024',
-        courses: [{ code: 'COMP202', grade: 'A' }],
-      },
-    ],
-    transferedCourses: [],
-    exemptedCourses: [],
-    deficiencyCourses: [],
-  }),
-}));
-
-jest.mock('@utils/acceptanceLetterParser', () => ({
-  AcceptanceLetterParser: jest.fn().mockImplementation(() => ({
-    parse: jest.fn().mockReturnValue({
-      programInfo: {
-        degree: 'Computer Science',
-        firstTerm: 'Fall 2024',
-      },
-      semesters: [],
-      exemptedCourses: [],
-      deficiencyCourses: [],
-      transferedCourses: [],
-    }),
-  })),
+// Mock the parsing service
+jest.mock('@services/parsingService', () => ({
+  parseFile: jest.fn(),
 }));
 
 // Create test app
 const app = express();
-app.post('/api/upload/parse', uploadMiddleware, (req, res) =>
-  pdfParsingController.parseDocument(req, res),
+app.post(
+  '/api/upload/parse',
+  uploadMiddleware,
+  (req, res) => pdfParsingController.parseDocument(req, res)
 );
 
 describe('PDFParsingController', () => {
@@ -58,77 +29,90 @@ describe('PDFParsingController', () => {
 
   test('returns 400 if no file is uploaded', async () => {
     const response = await request(app).post('/api/upload/parse');
+
     expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
     expect(response.body.message).toMatch(/No file uploaded/);
   });
 
-  test('parses acceptance letter PDF successfully', async () => {
-    pdfParse.mockResolvedValueOnce({
-      text: 'Congratulations! OFFER OF ADMISSION to Computer Science',
+  test('parses acceptance letter successfully', async () => {
+    parseFile.mockResolvedValueOnce({
+      programInfo: {
+        degree: 'Computer Science',
+        firstTerm: 'Fall 2024',
+      },
+      semesters: [],
     });
 
     const response = await request(app)
       .post('/api/upload/parse')
-      .attach('file', Buffer.from('fake pdf data'), {
-        filename: 'acceptance.pdf',
-        contentType: 'application/pdf',
-      });
+      .attach(
+        'file',
+        Buffer.from('fake pdf'),
+        { filename: 'acceptance.pdf', contentType: 'application/pdf' }
+      );
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
     expect(response.body.message).toBe('Document parsed successfully');
-    expect(response.body.data.programInfo).toBeDefined();
     expect(response.body.data.programInfo.degree).toBe('Computer Science');
   });
 
-  test('parses transcript PDF successfully', async () => {
-    pdfParse.mockResolvedValueOnce({
-      text: 'Student Record - Transcript of Grades',
+  test('parses transcript successfully', async () => {
+    parseFile.mockResolvedValueOnce({
+      programInfo: {
+        degree: 'B.Sc., Computer Science',
+        firstTerm: 'Fall 2024',
+      },
+      semesters: [
+        {
+          term: 'Fall 2024',
+          courses: [{ code: 'COMP202', grade: 'A' }],
+        },
+      ],
     });
 
     const response = await request(app)
       .post('/api/upload/parse')
-      .attach('file', Buffer.from('fake pdf data'), {
-        filename: 'transcript.pdf',
-        contentType: 'application/pdf',
-      });
+      .attach(
+        'file',
+        Buffer.from('fake pdf'),
+        { filename: 'transcript.pdf', contentType: 'application/pdf' }
+      );
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
-    expect(response.body.data.programInfo).toBeDefined();
-    expect(response.body.data.programInfo.degree).toContain('Computer Science');
-    expect(response.body.data.semesters).toBeDefined();
     expect(response.body.data.semesters[0].courses[0].code).toBe('COMP202');
   });
 
   test('rejects non-PDF file uploads', async () => {
     const response = await request(app)
       .post('/api/upload/parse')
-      .attach('file', Buffer.from('not a pdf'), {
-        filename: 'file.txt',
-        contentType: 'text/plain',
-      });
+      .attach(
+        'file',
+        Buffer.from('not a pdf'),
+        { filename: 'file.txt', contentType: 'text/plain' }
+      );
 
+    // Multer error → Express → 500
     expect(response.status).toBe(500);
   });
 
-  test('returns 400 for unrecognized PDF', async () => {
-    pdfParse.mockResolvedValueOnce({
-      text: 'This is just some random document text.',
-    });
+  test('returns 500 when parsing service throws', async () => {
+    parseFile.mockRejectedValueOnce(
+      new Error('Uploaded PDF is neither a valid transcript nor an acceptance letter.')
+    );
 
     const response = await request(app)
       .post('/api/upload/parse')
-      .attach('file', Buffer.from('random pdf'), {
-        filename: 'random.pdf',
-        contentType: 'application/pdf',
-      });
+      .attach(
+        'file',
+        Buffer.from('random pdf'),
+        { filename: 'random.pdf', contentType: 'application/pdf' }
+      );
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(500);
     expect(response.body.success).toBe(false);
-    expect(response.body.message).toMatch(
-      /neither a valid transcript nor an acceptance letter/,
-    );
+    expect(response.body.message).toBe('Failed to parse transcript');
   });
 });

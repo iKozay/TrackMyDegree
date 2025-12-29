@@ -2,7 +2,6 @@ import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { courseController } from '@controllers/courseController';
 import { degreeController } from '@controllers/degreeController';
-import { coursepoolController } from '@controllers/coursepoolController';
 
 const router = express.Router();
 const INTERNAL_SERVER_ERROR = 'Internal server error';
@@ -121,39 +120,32 @@ router.get('/by-degree/:degreeId', async (req: Request, res: Response) => {
       });
       return;
     }
-
-    // Get course pool IDs for the degree
-    const coursePoolIds =
+    const coursePools =
       await degreeController.getCoursePoolsForDegree(degreeId);
 
     // Fetch full course pool objects for each ID
-    const coursePools = await Promise.all(
-      coursePoolIds.map(async (poolId) => {
-        const coursePool = await coursepoolController
-          .getCoursePool(poolId)
-          .catch(() => null);
-        const courseIds = coursePool?.courses;
-        const courses = courseIds
-          ? await Promise.all(
-              courseIds.map(async (courseId) => {
-                try {
-                  return await courseController.getCourseByCode(courseId);
-                } catch {
-                  return null;
-                }
-              }),
-            )
-          : [];
+    const populatedPools = await Promise.all(
+      coursePools.map(async (coursePool) => {
+        const courses = await Promise.all(
+          coursePool.courses.map(async (courseId) => {
+            try {
+              return await courseController.getCourseByCode(courseId);
+            } catch {
+              return null;
+            }
+          }),
+        );
+
         return {
           _id: coursePool?._id,
           name: coursePool?.name,
           creditsRequired: coursePool?.creditsRequired,
-          courses: courses.filter((course) => course !== null),
+          courses: courses.filter(Boolean),
         };
       }),
     );
-
-    res.status(HTTP.OK).json(coursePools);
+    
+    res.status(HTTP.OK).json(populatedPools);
   } catch (error) {
     console.error('Error in GET /courses/by-degree/:degreeId', error);
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });

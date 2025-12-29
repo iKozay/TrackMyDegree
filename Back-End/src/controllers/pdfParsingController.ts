@@ -1,11 +1,8 @@
 import { Request, Response } from 'express';
-import { parseTranscript } from '../utils/pythonUtilsApi';
 import HTTP from '@utils/httpCodes';
 import type { ParsePDFResponse } from '../types/transcript';
 import multer from 'multer';
-
-import pdfParse from 'pdf-parse';
-import { AcceptanceLetterParser } from '@utils/acceptanceLetterParser';
+import { parseFile } from "@services/parsingService";
 
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -23,11 +20,11 @@ const upload = multer({
 });
 
 /**
- * Controller for handling transcript parsing operations
+ * Controller for handling pdf parsing operations
  */
 class PDFParsingController {
   /**
-   * Parse uploaded transcript PDF
+   * Parse uploaded PDF
    * @route POST /api/upload/parse
    */
   async parseDocument(req: Request, res: Response): Promise<void> {
@@ -40,33 +37,8 @@ class PDFParsingController {
         return;
       }
 
-      // Step 1: Use pdf-parse to detect document type and parse acceptance letters
-      const pdfParseData = await pdfParse(req.file.buffer);
-      const cleanText = pdfParseData.text;
-      let data;
-
-      if (!cleanText || cleanText.length === 0) {
-        throw new Error('No text extracted from PDF.');
-      }
-
-      // Check if the text contains keywords specific to acceptance letters
-      if (cleanText.toUpperCase().includes('OFFER OF ADMISSION')) {
-        const parser = new AcceptanceLetterParser();
-        data = parser.parse(cleanText);
-      }
-      // Check if the text contains keywords specific to transcripts
-      else if (cleanText.toLowerCase().includes('student record')) {
-        // Pass PDF buffer directly to Python parser
-        data = await parseTranscript(req.file.buffer);
-      } else {
-        res.status(HTTP.BAD_REQUEST).json({
-          success: false,
-          message:
-            'Uploaded PDF is neither a valid transcript nor an acceptance letter.',
-        });
-        return;
-      }
-
+      let data = await parseFile(req.file?.buffer)
+  
       const response: ParsePDFResponse = {
         success: true,
         message: 'Document parsed successfully',
@@ -80,7 +52,7 @@ class PDFParsingController {
         message: 'Failed to parse transcript',
         error: error instanceof Error ? error.message : 'Unknown error',
       });
-    }
+    } 
   }
 }
 
