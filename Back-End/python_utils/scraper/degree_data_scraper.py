@@ -134,13 +134,6 @@ class DegreeDataScraper():
                     'creditsRequired': credits_required,
                     'courses':list(set(course_list))
                 })
-                print({
-                    '_id': course_pool_id,
-                    'name': name,
-                    'creditsRequired': credits_required,
-                    'courses':list(set(course_list))
-                })
-                print("\n")
                 self.degree["coursePools"].append(course_pool_id)
 
             self.handle_engineering_core_restrictions(self.degree["name"])
