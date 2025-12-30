@@ -44,6 +44,8 @@ const TimeLinePage: React.FC = () => {
           <MainModal
             open={state.modal.open}
             type={state.modal.type} // "insights" | "exemption"
+            pools={state.pools}
+            courses={state.courses}
             onAdd={actions.addCourse}
             onClose={actions.openModal}
           />
