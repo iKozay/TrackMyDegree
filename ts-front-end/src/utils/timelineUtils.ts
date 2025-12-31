@@ -1,4 +1,4 @@
-import type { Course, CourseMap, SemesterId } from "../types/timeline.types";
+import type { Course, CourseMap, SemesterId, TimelineState } from "../types/timeline.types";
 
 // Function that checks if a course already exists in a semester
 export function canDropCourse(
@@ -36,4 +36,10 @@ export function calculateEarnedCredits(courses: CourseMap): number {
     }
     return total;
   }, 0);
+}
+
+export function saveTimeline(userId: string, timelineName: string, state: TimelineState) {
+  console.log("Saving timeline for user:", userId, "with name:", timelineName);
+  console.log("Timeline state:", state);
+  // API call to save the timeline
 }

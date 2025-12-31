@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import CoursePool from "../components/CoursePool";
 import SemesterPlanner from "../components/SemesterPlanner";
 import CourseDetails from "../components/CourseDetail";
@@ -8,20 +8,27 @@ import TimelineDndProvider from "../providers/timelineDndProvider";
 import { useTimelineState } from "../hooks/useTimelineState";
 import { TimelineLoader } from "../components/TimelineLoader";
 import { TimelineError } from "../components/TimelineError";
-import { useNavigate } from "react-router-dom";
 import { MainModal } from "../components/MainModal";
 import "../styles/timeline.css";
-import { calculateEarnedCredits } from "../utils/timelineUtils";
+import { calculateEarnedCredits, saveTimeline } from "../utils/timelineUtils";
+import { useAuth } from "../hooks/useAuth";
 
 type TimeLinePageRouteParams = {
   jobId?: string;
 };
 
 const TimeLinePage: React.FC = () => {
+  const { user, isAuthenticated } = useAuth();
   const { jobId } = useParams<TimeLinePageRouteParams>();
+  const location = useLocation();
 
   const { status, state, actions, canUndo, canRedo } = useTimelineState(jobId);
   const navigate = useNavigate();
+
+  const handleLogin = () => {
+    localStorage.setItem("redirectAfterLogin", location.pathname);
+    navigate("/signin", { replace: true });
+  };
 
   // TO DISCUSS
   const tryAgain = () => {
@@ -47,6 +54,8 @@ const TimeLinePage: React.FC = () => {
             type={state.modal.type} // "insights" | "exemption"
             pools={state.pools}
             courses={state.courses}
+            timelineName={state.timelineName}
+            onSave={(timelineName: string) => {if (user) saveTimeline(user.id, timelineName, state)}}
             onAdd={actions.addCourse}
             onClose={actions.openModal}
           />
@@ -59,9 +68,7 @@ const TimeLinePage: React.FC = () => {
           earnedCredits={calculateEarnedCredits(state.courses)}
           totalCredits={state.degree.totalCredits}
           onOpenModal={actions.openModal}
-          onSave={() => {
-            // TODO: trigger save actions.saveTimeline
-          }}
+          onSave={isAuthenticated ? (open: boolean, type: string) => actions.openModal(open, type) : handleLogin}
         />
 
         <main className="timeline-main">

@@ -3,6 +3,7 @@ import React from "react";
 import { BaseModal } from "./BaseModal";
 import { AddModal } from "./AddModal";
 import { InsightsModal } from "./InsightsModal";
+import { SaveTimelineModal } from "./SaveTimelineModal";
 import type { CourseCode, CourseMap, Pool } from "../types/timeline.types";
 
 type MainModalProps = {
@@ -10,6 +11,8 @@ type MainModalProps = {
   type: string;
   pools: Pool[];
   courses: CourseMap;
+  timelineName: string;
+  onSave: (timelineName: string) => void;
   onAdd: (courseId: CourseCode, type: string) => void;
   onClose: (open: boolean, type: string) => void;
 };
@@ -19,6 +22,8 @@ export const MainModal: React.FC<MainModalProps> = ({
   type,
   pools,
   courses,
+  timelineName,
+  onSave,
   onAdd,
   onClose,
 }) => {
@@ -33,14 +38,7 @@ export const MainModal: React.FC<MainModalProps> = ({
       case "deficiency":
         return <AddModal open={open} type="deficiency" onAdd={onAdd} onClose={() => onClose(false, type)} />;
       case "save":
-        return (
-          <div>
-            <h2>Save modal</h2>
-            {/* TODO: add Save content */}
-          </div>
-        );
-
-      // add more types here
+        return <SaveTimelineModal open={open} timelineName={timelineName} onSave={onSave} onClose={() => onClose(false, type)} />;
       default:
         return (
           <div>

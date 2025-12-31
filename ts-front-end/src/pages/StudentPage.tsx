@@ -2,12 +2,18 @@ import React, { useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { api } from "../api/http-api-client";
 import LegacyStudentPage from "../legacy/pages/UserPage.jsx";
+import { useNavigate } from "react-router-dom";
 
 const StudentPage: React.FC = () => {
+  const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const [timelines, setTimelines] = React.useState<any[]>([]);
   useEffect(() => {
     if (!isAuthenticated) return;
+    // Check for redirect path
+    const redirect = localStorage.getItem("redirectAfterLogin");
+    localStorage.removeItem("redirectAfterLogin");
+    if (redirect) navigate(redirect, { replace: true });
 
     const fetchUserTimelines = async () => {
       try {

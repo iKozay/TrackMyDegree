@@ -22,6 +22,7 @@ type TimelineDispatch = Dispatch<TimelineActionType>;
 
 export interface TimelineActions {
   initTimelineState: (
+    timelineName: string,
     degree: Degree,
     pools: Pool[],
     courses: CourseMap,
@@ -55,6 +56,7 @@ export interface UseTimelineStateResult {
 }
 
 const EMPTY_TIMELINE_STATE: TimelineState = {
+  timelineName: "",
   degree: {
     name: "",
     totalCredits: 0,
@@ -74,10 +76,10 @@ const EMPTY_TIMELINE_STATE: TimelineState = {
 // TODO : Add more actions like saveTimeLine, addExemption...
 function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
   return {
-    initTimelineState(degree, pools, courses, semesters) {
+    initTimelineState(timelineName, degree, pools, courses, semesters) {
       dispatch({
         type: TimelineActionConstants.Init,
-        payload: { degree, pools, courses, semesters },
+        payload: { timelineName, degree, pools, courses, semesters },
       });
     },
     selectCourse(courseId) {
@@ -163,9 +165,10 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
 
         if (data.status === "done" && data.result && !initialized) {
           const { degree, pools, courses, semesters } = data.result;
+          const timelineName = data.result.timelineName || `timeline-${Date.now()}`;
 
           // THIS is where the reducer gets real data
-          actions.initTimelineState(degree, pools, courses, semesters);
+          actions.initTimelineState(timelineName, degree, pools, courses, semesters);
           setInitialized(true);
         }
       } catch (err) {
