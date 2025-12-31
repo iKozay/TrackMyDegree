@@ -15,7 +15,7 @@ import type {
   SemesterList,
   CourseStatusValue,
 } from "../types/timeline.types";
-import mockPlannerResponse from "../mock/plannerResponse.json";
+import { api } from "../api/http-api-client.ts";
 
 type TimelineDispatch = Dispatch<TimelineActionType>;
 
@@ -140,8 +140,9 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
 
     async function fetchResult() {
       try {
-        // For now, just use the local JSON
-        const data = mockPlannerResponse as TimelineJobResponse;
+        // add 1 second delay to avoid polling too fast
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const data: TimelineJobResponse = await api.get(`/jobs/${jobId}`);
 
         if (!isMounted) return;
 

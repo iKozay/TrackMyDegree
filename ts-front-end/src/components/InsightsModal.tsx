@@ -30,7 +30,8 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({
         const activeCourses = Object.entries(courses).filter(
             ([, course]) =>
                 course.status?.status === "planned" ||
-                course.status?.status === "completed"
+                course.status?.status === "completed" ||
+                course.status?.status === "inprogress"
         );
 
         return pools.map((pool) => {
