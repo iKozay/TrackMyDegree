@@ -1,4 +1,5 @@
 import React from "react";
+import "../styles/components/CourseDetail.css";
 import {
   Book,
   Clock,
