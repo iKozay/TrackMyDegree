@@ -13,4 +13,5 @@ export const TimelineActionConstants = {
   OpenModal: "OPEN-MODAL",
   ChangeCourseStatus: "CHANGE-COURSE-STATUS",
   AddCourse: "ADD-COURSE",
+  AddSemester: "ADD-SEMESTER",
 } as const;

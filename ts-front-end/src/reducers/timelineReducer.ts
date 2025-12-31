@@ -12,6 +12,7 @@ import {
   openModal,
   changeCourseStatus,
   addCourse,
+  addSemester,
 } from "../handlers/timelineHandler";
 
 export function timelineReducer(
@@ -49,6 +50,9 @@ export function timelineReducer(
 
     case TimelineActionConstants.AddCourse:
       return addCourse(state, action.payload);
+
+    case TimelineActionConstants.AddSemester:
+      return addSemester(state);
 
     default:
       return state;

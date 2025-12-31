@@ -80,6 +80,7 @@ const TimeLinePage: React.FC = () => {
               courses={state.courses}
               onCourseSelect={actions.selectCourse}
               selectedCourse={state.selectedCourse}
+              onAddSemester={actions.addSemester}
             />
           </section>
 

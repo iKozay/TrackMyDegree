@@ -14,6 +14,7 @@ interface SemesterPlannerProps {
   courses: CourseMap;
   onCourseSelect: (courseId: CourseCode) => void;
   selectedCourse?: CourseCode | null;
+  onAddSemester: () => void;
 }
 
 const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
@@ -21,12 +22,13 @@ const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
   courses,
   onCourseSelect,
   selectedCourse,
+  onAddSemester,
 }) => {
   return (
     <div className="timeline">
       <div className="planner-header">
         <h2>Academic Plan</h2>
-        <button className="btn btn-tertiary">
+        <button className="btn btn-tertiary" onClick={onAddSemester}>
           <Plus size={16} />
           Add Semester
         </button>

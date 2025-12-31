@@ -2,8 +2,10 @@ import type {
   CourseStatusValue,
   TimelineState,
   Course,
+  Semester,
+  CourseCode,
+  SemesterId,
 } from "../types/timeline.types";
-import type { CourseCode, SemesterId } from "../types/timeline.types";
 
 type Snapshot = {
   courses: TimelineState["courses"];
@@ -368,5 +370,36 @@ export function addCourse(
     ...state,
     pools: updatedPools,
     courses: updatedCourses,
+  };
+}
+
+export function addSemester(state: TimelineState): TimelineState {
+  const s1 = withPushedHistory(state);
+
+  const lastSemester: Semester | undefined = s1.semesters.at(-1);
+  if (!lastSemester) return state;
+
+  const [season, yearStr] = lastSemester.term.split(" ");
+  const year = Number.parseInt(yearStr, 10);
+  const order = ["FALL", "WINTER", "SUMMER"];
+  const index = order.indexOf(season);
+
+  // Check if invalid semester
+  if (index === -1 || Number.isNaN(year)) return state;
+
+  let newTerm: SemesterId;
+  if (season === "FALL") newTerm = `WINTER ${year + 1}`;
+  else if (season === "WINTER") newTerm = `SUMMER ${year}`;
+  else if (season === "SUMMER") newTerm = `FALL ${year}`;
+  else return state;
+
+  const newSemester = {
+    term: newTerm,
+    courses: [] as { code: CourseCode; message: string }[],
+  };
+
+  return {
+    ...s1,
+    semesters: [...s1.semesters, newSemester],
   };
 }
