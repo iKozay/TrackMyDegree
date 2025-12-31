@@ -11,6 +11,7 @@ import { TimelineError } from "../components/TimelineError";
 import { useNavigate } from "react-router-dom";
 import { MainModal } from "../components/MainModal";
 import "../styles/timeline.css";
+import { calculateEarnedCredits } from "../utils/timelineUtils";
 
 type TimeLinePageRouteParams = {
   jobId?: string;
@@ -55,8 +56,8 @@ const TimeLinePage: React.FC = () => {
           canRedo={canRedo}
           onUndo={actions.undo}
           onRedo={actions.redo}
-          earnedCredits={0} // later: compute from courses
-          totalCredits={120} // from degree.totalCredits
+          earnedCredits={calculateEarnedCredits(state.courses)}
+          totalCredits={state.degree.totalCredits}
           onOpenModal={actions.openModal}
           onSave={() => {
             // TODO: trigger save actions.saveTimeline

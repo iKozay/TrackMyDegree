@@ -32,12 +32,14 @@ export function withPushedHistory(state: TimelineState): TimelineState {
 export function initTimelineState(
   _state: TimelineState,
   payload: {
+    degree: TimelineState["degree"];
     pools: TimelineState["pools"];
     courses: TimelineState["courses"];
     semesters: TimelineState["semesters"];
   }
 ): TimelineState {
   return {
+    degree: payload.degree,
     pools: payload.pools,
     courses: payload.courses,
     semesters: payload.semesters,

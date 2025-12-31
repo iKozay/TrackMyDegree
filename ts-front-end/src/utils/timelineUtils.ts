@@ -1,4 +1,4 @@
-import type { Course, SemesterId } from "../types/timeline.types";
+import type { Course, CourseMap, SemesterId } from "../types/timeline.types";
 
 // Function that checks if a course already exists in a semester
 export function canDropCourse(
@@ -27,4 +27,13 @@ export function canDropCourse(
     allowed: false,
     reason: `Course already in ${currentSemester}`,
   };
+}
+
+export function calculateEarnedCredits(courses: CourseMap): number {
+  return Object.values(courses).reduce((total, course) => {
+    if (course.status.status === "completed") {
+      return total + (course.credits || 0);
+    }
+    return total;
+  }, 0);
 }

@@ -14,6 +14,7 @@ import type {
   CourseMap,
   SemesterList,
   CourseStatusValue,
+  Degree,
 } from "../types/timeline.types";
 import { api } from "../api/http-api-client.ts";
 
@@ -21,6 +22,7 @@ type TimelineDispatch = Dispatch<TimelineActionType>;
 
 export interface TimelineActions {
   initTimelineState: (
+    degree: Degree,
     pools: Pool[],
     courses: CourseMap,
     semesters: SemesterList
@@ -52,6 +54,11 @@ export interface UseTimelineStateResult {
 }
 
 const EMPTY_TIMELINE_STATE: TimelineState = {
+  degree: {
+    name: "",
+    totalCredits: 0,
+    coursePools: []
+  },
   pools: [],
   courses: {},
   semesters: [],
@@ -66,10 +73,10 @@ const EMPTY_TIMELINE_STATE: TimelineState = {
 // TODO : Add more actions like saveTimeLine, addExemption...
 function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
   return {
-    initTimelineState(pools, courses, semesters) {
+    initTimelineState(degree, pools, courses, semesters) {
       dispatch({
         type: TimelineActionConstants.Init,
-        payload: { pools, courses, semesters },
+        payload: { degree, pools, courses, semesters },
       });
     },
     selectCourse(courseId) {
@@ -149,10 +156,10 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
         setStatus(data.status);
 
         if (data.status === "done" && data.result && !initialized) {
-          const { pools, courses, semesters } = data.result;
+          const { degree, pools, courses, semesters } = data.result;
 
           // THIS is where the reducer gets real data
-          actions.initTimelineState(pools, courses, semesters);
+          actions.initTimelineState(degree, pools, courses, semesters);
           setInitialized(true);
         }
       } catch (err) {

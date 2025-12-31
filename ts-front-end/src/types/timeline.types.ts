@@ -93,6 +93,7 @@ type modalState = {
 };
 
 export interface TimelineState {
+  degree: Degree;
   pools: Pool[];
   courses: CourseMap;
   semesters: SemesterList;
@@ -110,7 +111,7 @@ import { TimelineActionConstants } from "./actions";
 export type TimelineActionType =
   | {
       type: typeof TimelineActionConstants.Init;
-      payload: { pools: Pool[]; courses: CourseMap; semesters: SemesterList };
+      payload: { degree: Degree, pools: Pool[]; courses: CourseMap; semesters: SemesterList };
     }
   | {
       type: typeof TimelineActionConstants.SelectCourse;
