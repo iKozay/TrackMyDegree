@@ -66,13 +66,11 @@ class DegreeDataScraper():
             output+=comp_courses_with_code_above_or_equal_to_325[0]
             self.courses+=comp_courses_with_code_above_or_equal_to_325[1]
         
-        if output==[] and "Elective" in pool_name:
-            course_list = self.soup.find_all('div', class_="formatted-course")
-            for course in course_list:
-                temp_course_data=course_data_scraper.extract_course_data(course.find('span', class_="course-code-number").find('a').text, urljoin(self.url_received,course.find('span', class_="course-code-number").find('a').get('href')))
-                if temp_course_data not in self.courses:
-                    self.courses.append(temp_course_data)
-                    output.append(course.find('span', class_="course-code-number").find('a').text)
+        if output==[]:
+            sub_pools=self.soup.find('div', class_='defined-group', title=pool_name.rstrip())
+            a_tags=sub_pools.find_all('a')
+            for a in a_tags:
+                output+=self.get_courses(a.get('href'), a.text)
         return output
 
     def handle_engineering_core_restrictions(self, degree_name):
