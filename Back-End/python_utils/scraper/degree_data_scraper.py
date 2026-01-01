@@ -49,7 +49,7 @@ class DegreeDataScraper():
             return comp_gen_electives[0]
 
         if self.temp_url in self.url_received:
-            course_list=self.soup.find('div', class_='defined-group', title=pool_name)
+            course_list=self.soup.find('div', class_='defined-group', title=pool_name.rstrip())
             course_list = course_list.find_all('div', class_="formatted-course")
             for course in course_list:
                 output.append(course.find('span', class_="course-code-number").find('a').text)
@@ -123,18 +123,26 @@ class DegreeDataScraper():
                     credits_required = float(pool.find('td').text) #in case the scraper runs into a paragraph
                 except:
                     continue
-                name = pool.find('a').text
-                self.temp_url = pool.find('a').get('href')
-                self.temp_url = re.sub(r'#\d+$', '', self.temp_url)
-                course_list=self.get_courses(self.temp_url, name)
-                course_pool_id = self.degree["name"].split(" ")[2][:4].upper() + "_" + name
-                self.course_pool.append({
-                    '_id': course_pool_id,
-                    'name': name,
-                    'creditsRequired': credits_required,
-                    'courses':list(set(course_list))
-                })
-                self.degree["coursePools"].append(course_pool_id)
+                a_tags=pool.findAll('a')
+                for a in a_tags:
+                    name = a.text
+                    self.temp_url = a.get('href')
+                    self.temp_url = re.sub(r'#\d+$', '', self.temp_url)
+                    course_list=self.get_courses(self.temp_url, name)
+                    course_pool_id = self.degree["name"].split(" ")[2][:4].upper() + "_" + name
+                    self.course_pool.append({
+                        '_id': course_pool_id,
+                        'name': name,
+                        'creditsRequired': credits_required,
+                        'courses':list(set(course_list))
+                    })
+                    print({
+                        '_id': course_pool_id,
+                        'name': name,
+                        'creditsRequired': credits_required,
+                        'courses':list(set(course_list))
+                    })
+                    self.degree["coursePools"].append(course_pool_id)
 
             self.handle_engineering_core_restrictions(self.degree["name"])
         except Exception as e:
