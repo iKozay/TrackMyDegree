@@ -1,12 +1,13 @@
 // workers/queue.ts
 import { Queue, Worker, Job } from 'bullmq';
 import { readFile, unlink } from 'node:fs/promises';
-import { buildTimeline } from '../services/timeline/timelineService';
+import { buildTimeline, buildTimelineFromDB } from '../services/timeline/timelineService';
 import { cacheJobResult } from '../lib/cache';
 
 export type CourseProcessorJobData =
   | { jobId: string; kind: 'file'; filePath: string }
-  | { jobId: string; kind: 'body'; body: any };
+  | { jobId: string; kind: 'body'; body: any }
+  | { jobId: string; kind: 'timelineData'; timelineId: string };
 
 const redisOptions = {
   host: process.env.REDIS_HOST || '127.0.0.1',
@@ -34,12 +35,13 @@ export const courseProcessorWorker = new Worker<CourseProcessorJobData>(
           type: 'file',
           data: fileBuffer,
         });
-      } else {
-        // kind === "body"
+      } else if (job.data.kind === 'body') {
         result = await buildTimeline({
           type: 'form',
           data: job.data.body,
         });
+      } else{
+        result = await buildTimelineFromDB(job.data.timelineId)
       }
 
       await cacheJobResult(jobId, {

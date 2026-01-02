@@ -23,6 +23,7 @@ export const getTimelineByJobId: RequestHandler<GetResultParams> = async (
     if (!jobId) {
       return res.status(404).json({ message: 'Job not passed' });
     }
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // get result from cache
     const cached = await getJobResult<CachedJobResult>(jobId);
