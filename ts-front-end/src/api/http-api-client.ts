@@ -1,6 +1,6 @@
 import { request } from "./request";
 
-const SERVER = "http://localhost:8000";
+const SERVER = import.meta.env.VITE_API_SERVER || "http://localhost:8000";
 
 type HTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 

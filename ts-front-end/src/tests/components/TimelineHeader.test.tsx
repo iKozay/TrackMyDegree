@@ -72,15 +72,16 @@ describe("TimelineHeader", () => {
   });
 
   it("calls onShowInsights when Show Insights is clicked", () => {
-    const onShowInsights = vi.fn();
+    const onOpenModal = vi.fn();
 
-    render(<TimelineHeader {...baseProps} onShowInsights={onShowInsights} />);
+    render(<TimelineHeader {...baseProps} onOpenModal={onOpenModal} />);
 
     const insightsBtn = screen.getByRole("button", { name: /show insights/i });
 
     fireEvent.click(insightsBtn);
 
-    expect(onShowInsights).toHaveBeenCalledTimes(1);
+    expect(onOpenModal).toHaveBeenCalledTimes(1);
+    expect(onOpenModal).toHaveBeenCalledWith(true, "insights");
   });
 
   it("calls onSave when Save Data is clicked", () => {

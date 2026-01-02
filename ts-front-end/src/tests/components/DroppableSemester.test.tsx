@@ -6,6 +6,7 @@ import type {
   CourseMap,
   CourseCode,
   SemesterId,
+  SemesterCourse,
 } from "../../types/timeline.types";
 import { useDroppable } from "@dnd-kit/core";
 
@@ -73,16 +74,19 @@ describe("DroppableSemester", () => {
       status: { status: "incomplete", semester: null },
     },
   };
+  const semesterCourses: SemesterCourse[] = [
+    { code: "COMP 248" as CourseCode, message: "" },
+    { code: "SOEN 228" as CourseCode, message: "" },
+  ];
 
   it("renders formatted semester title and total credits", () => {
     render(
       <DroppableSemester
         semesterId={semesterId}
         courses={courses}
-        semesterCourses={["COMP 248", "SOEN 228"]}
+        semesterCourses={semesterCourses}
         onCourseSelect={() => {}}
         selectedCourse={null}
-        onRemoveCourse={() => {}}
       />
     );
 
@@ -101,7 +105,6 @@ describe("DroppableSemester", () => {
         semesterCourses={[]}
         onCourseSelect={() => {}}
         selectedCourse={null}
-        onRemoveCourse={() => {}}
       />
     );
 
@@ -114,10 +117,9 @@ describe("DroppableSemester", () => {
       <DroppableSemester
         semesterId={semesterId}
         courses={courses}
-        semesterCourses={["COMP 248", "SOEN 228"]}
+        semesterCourses={semesterCourses}
         onCourseSelect={() => {}}
         selectedCourse={null}
-        onRemoveCourse={() => {}}
       />
     );
 
@@ -135,10 +137,9 @@ describe("DroppableSemester", () => {
       <DroppableSemester
         semesterId={semesterId}
         courses={courses}
-        semesterCourses={["COMP 248"]}
+        semesterCourses={semesterCourses}
         onCourseSelect={onCourseSelect}
         selectedCourse={null}
-        onRemoveCourse={() => {}}
       />
     );
 
@@ -147,27 +148,6 @@ describe("DroppableSemester", () => {
 
     expect(onCourseSelect).toHaveBeenCalledTimes(1);
     expect(onCourseSelect).toHaveBeenCalledWith("COMP 248");
-  });
-
-  it("calls onRemoveCourse with correct args when remove is triggered", () => {
-    const onRemoveCourse = vi.fn();
-
-    render(
-      <DroppableSemester
-        semesterId={semesterId}
-        courses={courses}
-        semesterCourses={["COMP 248"]}
-        onCourseSelect={() => {}}
-        selectedCourse={null}
-        onRemoveCourse={onRemoveCourse}
-      />
-    );
-
-    const removeBtn = screen.getByTestId("remove-COMP 248");
-    fireEvent.click(removeBtn);
-
-    expect(onRemoveCourse).toHaveBeenCalledTimes(1);
-    expect(onRemoveCourse).toHaveBeenCalledWith("COMP 248", semesterId);
   });
 
   it("adds drag-over class when useDroppable reports isOver = true", () => {
@@ -187,7 +167,6 @@ describe("DroppableSemester", () => {
         semesterCourses={[]}
         onCourseSelect={() => {}}
         selectedCourse={null}
-        onRemoveCourse={() => {}}
       />
     );
 

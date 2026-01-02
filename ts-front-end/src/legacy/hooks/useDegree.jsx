@@ -19,7 +19,6 @@ const useDegrees = () => {
         setDegrees(degrees || []);
       } catch (err) {
         setError(err.message || 'Failed to fetch degrees');
-        Sentry.captureException(err);
         console.error('Error fetching degrees:', err);
       } finally {
         setLoading(false);

@@ -198,31 +198,6 @@ describe("DraggableCourse", () => {
     expect(onCourseSelect).not.toHaveBeenCalled();
   });
 
-  it("renders remove button when onRemove is provided and calls it on click", () => {
-    const course = baseCourse("incomplete");
-    const onRemove = vi.fn();
-    const onCourseSelect = vi.fn();
-
-    render(
-      <DraggableCourse
-        courseId={courseId}
-        course={course}
-        isSelected={false}
-        onCourseSelect={onCourseSelect}
-        onRemove={onRemove}
-      />
-    );
-
-    const removeBtn = screen.getByRole("button");
-    fireEvent.click(removeBtn);
-
-    expect(onRemove).toHaveBeenCalledTimes(1);
-    expect(onRemove).toHaveBeenCalledWith(courseId);
-
-    // ensure it didn't trigger select because of stopPropagation
-    expect(onCourseSelect).not.toHaveBeenCalled();
-  });
-
   it("uses different drag id depending on whether semesterId is provided", () => {
     const course = baseCourse("incomplete");
 

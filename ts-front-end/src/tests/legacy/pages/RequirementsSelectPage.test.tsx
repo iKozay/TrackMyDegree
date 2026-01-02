@@ -238,7 +238,6 @@ describe('RequirementsSelectPage', () => {
 
   describe('Edge Cases', () => {
     test('handles empty programs array gracefully', () => {
-      // NOTE: vi.doMock is not available in Vitest stable. This test will be skipped or needs refactor if dynamic mocking is required.
       //verify the current implementation works with 5 programs
       renderWithRouter();
       expect(screen.getAllByRole('button')).toHaveLength(5);
