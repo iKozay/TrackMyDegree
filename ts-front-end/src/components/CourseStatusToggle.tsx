@@ -24,7 +24,7 @@ export const CourseStatusActions: React.FC<CourseStatusActionsProps> = ({
   onRemoveCourse,
 }) => {
   const canMarkIncomplete = currentStatus === "completed";
-  const canMarkCompleted = currentStatus === "incomplete";
+  const canMarkCompleted = ["incomplete", "planned"].includes(currentStatus);
   const canRemoveFromTimeline = currentStatus === "planned";
 
   const semesterId = course.status.semester;

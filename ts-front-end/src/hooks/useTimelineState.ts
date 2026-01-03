@@ -1,8 +1,9 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import type { Dispatch } from "react";
 
 import { timelineReducer } from "../reducers/timelineReducer";
 import { TimelineActionConstants } from "../types/actions";
+import { computeTimelinePartialUpdate } from "../utils/timelineUtils";
 import type {
   TimelineState,
   TimelineActionType,
@@ -60,7 +61,7 @@ const EMPTY_TIMELINE_STATE: TimelineState = {
   degree: {
     name: "",
     totalCredits: 0,
-    coursePools: []
+    coursePools: [],
   },
   pools: [],
   courses: {},
@@ -156,7 +157,7 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
     async function fetchResult() {
       try {
         // add 1 second delay to avoid polling too fast
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // await new Promise((resolve) => setTimeout(resolve, 1000));
         const data: TimelineJobResponse = await api.get(`/jobs/${jobId}`);
 
         if (!isMounted) return;
@@ -165,10 +166,17 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
 
         if (data.status === "done" && data.result && !initialized) {
           const { degree, pools, courses, semesters } = data.result;
-          const timelineName = data.result.timelineName || `timeline-${Date.now()}`;
+          const timelineName =
+            data.result.timelineName || `timeline-${Date.now()}`;
 
           // THIS is where the reducer gets real data
-          actions.initTimelineState(timelineName, degree, pools, courses, semesters);
+          actions.initTimelineState(
+            timelineName,
+            degree,
+            pools,
+            courses,
+            semesters
+          );
           setInitialized(true);
         }
       } catch (err) {
@@ -179,13 +187,35 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
     }
 
     // simple one-shot for now; you can re-add polling if you want
-    fetchResult();
-    // const intervalId = setInterval(fetchResult, 1000);
+    // fetchResult();
+    const intervalId = setInterval(fetchResult, 1000);
     return () => {
       isMounted = false;
-      // clearInterval(intervalId);
+      clearInterval(intervalId);
     };
   }, [jobId, initialized, actions]);
+
+  const prevStateRef = useRef<TimelineState | null>(null);
+
+  useEffect(() => {
+    if (!jobId || !initialized) return;
+
+    const prev = prevStateRef.current;
+    if (!prev) {
+      prevStateRef.current = state;
+      return;
+    }
+
+    const update = computeTimelinePartialUpdate(prev, state);
+
+    if (update) {
+      api.post(`/jobs/${jobId}`, update).catch((err) => {
+        console.error("Failed to sync timeline update", err);
+      });
+    }
+
+    prevStateRef.current = state;
+  }, [state, jobId, initialized]);
 
   const canUndo = state.history.length > 0;
   const canRedo = state.future.length > 0;

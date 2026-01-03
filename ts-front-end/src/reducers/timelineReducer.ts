@@ -13,29 +13,26 @@ import {
   changeCourseStatus,
   addCourse,
   addSemester,
+  validateTimeline,
 } from "../handlers/timelineHandler";
 
 export function timelineReducer(
   state: TimelineState,
   action: TimelineActionType
 ): TimelineState {
-  // TODO : Add more actions like saveTimeLine, addExemption...
+  let nextState: TimelineState;
+
   switch (action.type) {
-    case TimelineActionConstants.Init: {
+    case TimelineActionConstants.Init:
       return initTimelineState(state, action.payload);
-    }
 
     case TimelineActionConstants.SelectCourse:
       return selectCourse(state, action.payload);
 
-    case TimelineActionConstants.MoveFromPoolToSemester:
-      return moveFromPoolToSemester(state, action.payload);
+    case TimelineActionConstants.OpenModal:
+      return openModal(state, action.payload);
 
-    case TimelineActionConstants.MoveBetweenSemesters:
-      return moveBetweenSemesters(state, action.payload);
-
-    case TimelineActionConstants.RemoveFromSemester:
-      return removeFromSemester(state, action.payload);
+    /* ---------- STATE RESTORATION ---------- */
 
     case TimelineActionConstants.Undo:
       return undo(state);
@@ -43,18 +40,36 @@ export function timelineReducer(
     case TimelineActionConstants.Redo:
       return redo(state);
 
-    case TimelineActionConstants.OpenModal:
-      return openModal(state, action.payload);
+    /* ---------- STATE CONSTRUCTION ---------- */
+
+    case TimelineActionConstants.MoveFromPoolToSemester:
+      nextState = moveFromPoolToSemester(state, action.payload);
+      break;
+
+    case TimelineActionConstants.MoveBetweenSemesters:
+      nextState = moveBetweenSemesters(state, action.payload);
+      break;
+
+    case TimelineActionConstants.RemoveFromSemester:
+      nextState = removeFromSemester(state, action.payload);
+      break;
+
     case TimelineActionConstants.ChangeCourseStatus:
-      return changeCourseStatus(state, action.payload);
+      nextState = changeCourseStatus(state, action.payload);
+      break;
 
     case TimelineActionConstants.AddCourse:
-      return addCourse(state, action.payload);
+      nextState = addCourse(state, action.payload);
+      break;
 
     case TimelineActionConstants.AddSemester:
-      return addSemester(state);
+      nextState = addSemester(state);
+      break;
 
     default:
       return state;
   }
+
+  // 🔍 Validate ONLY newly constructed states
+  return validateTimeline(nextState);
 }

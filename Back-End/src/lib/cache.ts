@@ -11,9 +11,15 @@ export async function cacheJobResult(
   await redisClient.set(resultKey(jobId), JSON.stringify(payload));
 }
 
+interface CachedJobResult<T = unknown> {
+  payload: {
+    status: string;
+    data: T;
+  };
+}
 export async function getJobResult<T = unknown>(
   jobId: string,
-): Promise<T | null> {
+): Promise<CachedJobResult<T> | null> {
   // TS thinks this might be string | Buffer, but you know it's always string
   const raw = (await redisClient.get(resultKey(jobId))) as unknown as
     | string
@@ -23,7 +29,7 @@ export async function getJobResult<T = unknown>(
     return null; // expired / not found
   }
 
-  return JSON.parse(raw) as T;
+  return JSON.parse(raw) as CachedJobResult<T>;
 }
 
 export async function deleteJobResult(jobId: string): Promise<void> {

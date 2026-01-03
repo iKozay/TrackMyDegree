@@ -13,6 +13,7 @@ export interface Degree {
 export type CourseCode = string;
 
 export interface Pool {
+  _id: string;
   name: string;
   creditsRequired: number;
   courses: CourseCode[];
@@ -105,6 +106,13 @@ export interface TimelineState {
   modal: modalState;
 }
 
+export type TimelinePartialUpdate = {
+  exemptions?: CourseCode[];
+  deficiencies?: CourseCode[];
+  courses?: CourseMap;
+  semesters?: SemesterList;
+};
+
 import { TimelineActionConstants } from "./actions";
 
 /**
@@ -113,7 +121,13 @@ import { TimelineActionConstants } from "./actions";
 export type TimelineActionType =
   | {
       type: typeof TimelineActionConstants.Init;
-      payload: { timelineName: string, degree: Degree, pools: Pool[]; courses: CourseMap; semesters: SemesterList };
+      payload: {
+        timelineName: string;
+        degree: Degree;
+        pools: Pool[];
+        courses: CourseMap;
+        semesters: SemesterList;
+      };
     }
   | {
       type: typeof TimelineActionConstants.SelectCourse;
@@ -149,4 +163,4 @@ export type TimelineActionType =
       type: typeof TimelineActionConstants.AddCourse;
       payload: { courseId: CourseCode; type: string };
     }
-  | {type: typeof TimelineActionConstants.AddSemester;};
+  | { type: typeof TimelineActionConstants.AddSemester };
