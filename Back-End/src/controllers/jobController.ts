@@ -12,7 +12,7 @@ interface CachedJobResult<T = unknown> {
   };
 }
 
-export const getTimelineByJobId: RequestHandler<GetResultParams> = async (
+export const getByJobId: RequestHandler<GetResultParams> = async (
   req,
   res,
 ) => {

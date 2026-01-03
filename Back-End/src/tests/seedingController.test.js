@@ -12,6 +12,12 @@ jest.mock('../controllers/degreeController');
 jest.mock('../controllers/coursepoolController');
 jest.mock('../controllers/courseController');
 jest.mock('../utils/constants', () => ({
+  SEASONS: {
+    WINTER: 'WINTER',
+    SUMMER: 'SUMMER',
+    FALL: 'FALL',
+    FALL_WINTER: 'FALL/WINTER',
+  },
   DEGREES_URL: {
     'Test Degree': 'https://example.com/test-degree',
     DegreeA: 'https://example.com/degA',

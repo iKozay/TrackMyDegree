@@ -8,7 +8,7 @@ jest.mock('../lib/cache', () => ({
 }));
 
 // Import after mocks
-const { getTimelineByJobId } = require('../controllers/timelineJobController');
+const { getByJobId } = require('../controllers/jobController');
 
 const createMockResponse = () => {
   const res = {};
@@ -17,7 +17,7 @@ const createMockResponse = () => {
   return res;
 };
 
-describe('getTimelineByJobId', () => {
+describe('getByJobId', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -28,7 +28,7 @@ describe('getTimelineByJobId', () => {
     };
     const res = createMockResponse();
 
-    await getTimelineByJobId(req, res, jest.fn());
+    await getByJobId(req, res, jest.fn());
 
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.json).toHaveBeenCalledWith({
@@ -45,7 +45,7 @@ describe('getTimelineByJobId', () => {
 
     mockGetJobResult.mockResolvedValueOnce(null);
 
-    await getTimelineByJobId(req, res, jest.fn());
+    await getByJobId(req, res, jest.fn());
 
     expect(mockGetJobResult).toHaveBeenCalledWith('job-123');
     expect(res.status).toHaveBeenCalledWith(410);
@@ -69,7 +69,7 @@ describe('getTimelineByJobId', () => {
 
     mockGetJobResult.mockResolvedValueOnce(cached);
 
-    await getTimelineByJobId(req, res, jest.fn());
+    await getByJobId(req, res, jest.fn());
 
     expect(mockGetJobResult).toHaveBeenCalledWith('job-456');
     expect(res.json).toHaveBeenCalledWith({
@@ -89,7 +89,7 @@ describe('getTimelineByJobId', () => {
 
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    await getTimelineByJobId(req, res, jest.fn());
+    await getByJobId(req, res, jest.fn());
 
     expect(mockGetJobResult).toHaveBeenCalledWith('job-error');
     expect(res.status).toHaveBeenCalledWith(500);
