@@ -148,9 +148,6 @@ describe('User Routes', () => {
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        degree: 'COMP',
-        deficiencies: [],
-        exemptions: [],
       });
     });
 
@@ -166,7 +163,6 @@ describe('User Routes', () => {
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        degree: 'COMP',
       });
     });
 
@@ -205,14 +201,12 @@ describe('User Routes', () => {
           email: 'user1@example.com',
           fullname: 'User One',
           type: 'student',
-          degree: 'COMP',
         },
         {
           _id: new mongoose.Types.ObjectId().toString(),
           email: 'user2@example.com',
           fullname: 'User Two',
           type: 'advisor',
-          degree: 'SOEN',
         },
       ]);
     });
@@ -226,7 +220,6 @@ describe('User Routes', () => {
       expect(response.body[0]).toHaveProperty('email');
       expect(response.body[0]).toHaveProperty('fullname');
       expect(response.body[0]).toHaveProperty('type');
-      expect(response.body[0]).toHaveProperty('degree');
     });
 
     it('should handle server errors', async () => {
@@ -254,7 +247,6 @@ describe('User Routes', () => {
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        degree: 'COMP',
       });
     });
 
@@ -314,7 +306,6 @@ describe('User Routes', () => {
         _id: new mongoose.Types.ObjectId().toString(),
         email: 'test@example.com',
         fullname: 'Test User',
-
         type: 'student',
       });
     });
@@ -386,39 +377,27 @@ describe('User Routes', () => {
       require('../controllers/userController').userController.deleteUser =
         originalDeleteUser;
     });
+  });
 
-    describe('GET /users/:id/data', () => {
-      let testUser, testDegree, testTimeline;
+   describe('GET /users/:id/data', () => {
+      let testUser, testTimeline;
 
       beforeEach(async () => {
-        testDegree = await Degree.create({
-          _id: 'COMP',
-          name: 'Computer Science',
-          totalCredits: 120,
-        });
 
         testUser = await User.create({
           _id: new mongoose.Types.ObjectId().toString(),
           email: 'test@example.com',
           fullname: 'Test User',
           type: 'student',
-          degree: 'COMP',
-          deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }],
-          exemptions: ['COMP101', 'COMP102'],
         });
 
+        
         testTimeline = await Timeline.create({
-          _id: new mongoose.Types.ObjectId().toString(),
           userId: testUser._id.toString(),
+          degreeId: 'COMP',
           name: 'Test Timeline',
-          items: [
-            {
-              _id: new mongoose.Types.ObjectId().toString(),
-              season: 'fall',
-              year: 2023,
-              courses: ['COMP101', 'MATH101'],
-            },
-          ],
+          isExtendedCredit: false,
+          isCoop: false,
         });
       });
 
@@ -437,9 +416,13 @@ describe('User Routes', () => {
           fullname: 'Test User',
           type: 'student',
         });
-        expect(Array.isArray(response.body.timeline)).toBe(true);
-        expect(Array.isArray(response.body.deficiencies)).toBe(true);
-        expect(Array.isArray(response.body.exemptions)).toBe(true);
+        expect(response.body.timelines[0]).toMatchObject({
+          _id: expect.any(String),
+          degreeId: 'COMP',
+          name: 'Test Timeline',
+          isExtendedCredit: false,
+          isCoop: false,
+        });
       });
 
       it('should return 404 for non-existent user', async () => {
@@ -470,646 +453,7 @@ describe('User Routes', () => {
       });
     });
 
-    it('should return 404 for non-existent user', async () => {
-      const fakeId = new mongoose.Types.ObjectId().toString();
-      const response = await request(app)
-        .get(`/users/${fakeId}/data`)
-        .expect(404);
-
-      expect(response.body.error).toContain('does not exist');
-    });
-
-    it('should handle server errors', async () => {
-      // Mock userController.getUserData to throw an error
-      const originalGetUserData = require('../controllers/userController')
-        .userController.getUserData;
-      require('../controllers/userController').userController.getUserData = jest
-        .fn()
-        .mockRejectedValue(new Error('Database error'));
-
-      const response = await request(app)
-        .get(`/users/${testUser._id}/data`)
-        .expect(500);
-
-      expect(response.body.error).toBe('Internal server error');
-
-      // Restore original method
-      require('../controllers/userController').userController.getUserData =
-        originalGetUserData;
-    });
-  });
-
-  describe('POST /users/:id/deficiencies', () => {
-    beforeEach(async () => {
-      testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
-        email: 'test@example.com',
-        password: 'hashedpassword',
-        fullname: 'Test User',
-        type: 'student',
-        deficiencies: [],
-      });
-    });
-
-    it('should create deficiency', async () => {
-      const deficiencyData = {
-        coursepool: 'Math',
-        creditsRequired: 6,
-      };
-
-      const response = await request(app)
-        .post(`/users/${testUser._id}/deficiencies`)
-        .send(deficiencyData)
-        .expect(201);
-
-      expect(response.body).toBeDefined();
-      expect(response.body).toMatchObject({
-        coursepool: 'Math',
-        user_id: testUser._id.toString(),
-        creditsRequired: 6,
-      });
-    });
-
-    it('should return 400 for missing required fields', async () => {
-      const deficiencyData = {
-        coursepool: 'Math',
-        // Missing creditsRequired
-      };
-
-      const response = await request(app)
-        .post(`/users/${testUser._id}/deficiencies`)
-        .send(deficiencyData)
-        .expect(400);
-
-      expect(response.body.error).toBe(
-        'User ID, coursepool, and creditsRequired are required',
-      );
-    });
-
-    it('should return 409 for duplicate deficiency', async () => {
-      await User.findByIdAndUpdate(testUser._id, {
-        deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }],
-      });
-
-      const deficiencyData = {
-        coursepool: 'Math',
-        creditsRequired: 8,
-      };
-
-      const response = await request(app)
-        .post(`/users/${testUser._id}/deficiencies`)
-        .send(deficiencyData)
-        .expect(409);
-
-      expect(response.body.error).toContain('already exists');
-    });
-
-    it('should return 404 for non-existent user', async () => {
-      const fakeId = new mongoose.Types.ObjectId().toString();
-      const deficiencyData = {
-        coursepool: 'Math',
-        creditsRequired: 6,
-      };
-
-      const response = await request(app)
-        .post(`/users/${fakeId}/deficiencies`)
-        .send(deficiencyData)
-        .expect(404);
-
-      expect(response.body.error).toContain('does not exist');
-    });
-
-    it('should handle server errors', async () => {
-      const originalCreateDeficiency = require('../controllers/userController')
-        .userController.createDeficiency;
-      require('../controllers/userController').userController.createDeficiency =
-        jest.fn().mockRejectedValue(new Error('Database error'));
-
-      const deficiencyData = {
-        coursepool: 'Math',
-        creditsRequired: 6,
-      };
-
-      const response = await request(app)
-        .post(`/users/${testUser._id}/deficiencies`)
-        .send(deficiencyData)
-        .expect(500);
-
-      expect(response.body.error).toBe('Internal server error');
-
-      require('../controllers/userController').userController.createDeficiency =
-        originalCreateDeficiency;
-    });
-  });
-
-  describe('PUT /users/:userId/deficiencies', () => {
-    beforeEach(async () => {
-      testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
-        email: 'test@example.com',
-        password: 'hashedpassword',
-        fullname: 'Test User',
-        type: 'student',
-        deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }],
-      });
-    });
-
-    it('should update deficiency', async () => {
-      const response = await request(app)
-        .put(`/users/${testUser._id}/deficiencies`)
-        .send({ coursepool: 'Math', creditsRequired: 9 })
-        .expect(200);
-
-      expect(response.body).toBeDefined();
-      expect(response.body).toMatchObject({
-        coursepool: 'Math',
-        user_id: testUser._id.toString(),
-        creditsRequired: 9,
-      });
-
-      const updatedUser = await User.findById(testUser._id);
-      expect(updatedUser.deficiencies[0].creditsRequired).toBe(9);
-    });
-
-    it('should return 400 for missing required fields', async () => {
-      const response = await request(app)
-        .put(`/users/${testUser._id}/deficiencies`)
-        .send({})
-        .expect(400);
-
-      expect(response.body.error).toBe(
-        'User ID, coursepool, and creditsRequired are required',
-      );
-    });
-
-    it('should return 400 for missing coursepool', async () => {
-      const response = await request(app)
-        .put(`/users/${testUser._id}/deficiencies`)
-        .send({ creditsRequired: 9 })
-        .expect(400);
-
-      expect(response.body.error).toBe(
-        'User ID, coursepool, and creditsRequired are required',
-      );
-    });
-
-    it('should return 400 for invalid creditsRequired', async () => {
-      const response = await request(app)
-        .put(`/users/${testUser._id}/deficiencies`)
-        .send({ coursepool: 'Math', creditsRequired: 'not a number' })
-        .expect(400);
-
-      expect(response.body.error).toBe(
-        'User ID, coursepool, and creditsRequired are required',
-      );
-    });
-
-    it('should return 404 for non-existent deficiency', async () => {
-      const response = await request(app)
-        .put(`/users/${testUser._id}/deficiencies`)
-        .send({ coursepool: 'Science', creditsRequired: 9 })
-        .expect(404);
-
-      expect(response.body.error).toContain('not found');
-    });
-
-    it('should handle server errors', async () => {
-      const originalUpdateDeficiency = require('../controllers/userController')
-        .userController.updateDeficiency;
-      require('../controllers/userController').userController.updateDeficiency =
-        jest.fn().mockRejectedValue(new Error('Database error'));
-
-      const response = await request(app)
-        .put(`/users/${testUser._id}/deficiencies`)
-        .send({ coursepool: 'Math', creditsRequired: 9 })
-        .expect(500);
-
-      expect(response.body.error).toBe('Internal server error');
-
-      require('../controllers/userController').userController.updateDeficiency =
-        originalUpdateDeficiency;
-    });
-  });
-
-  describe('GET /users/:userId/deficiencies', () => {
-    beforeEach(async () => {
-      testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
-        email: 'test@example.com',
-        fullname: 'Test User',
-        type: 'student',
-        deficiencies: [
-          { coursepool: 'Math', creditsRequired: 6 },
-          { coursepool: 'Science', creditsRequired: 3 },
-        ],
-      });
-    });
-
-    it('should get all deficiencies for user', async () => {
-      const response = await request(app)
-        .get(`/users/${testUser._id}/deficiencies`)
-        .expect(200);
-
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body).toHaveLength(2);
-      expect(response.body[0]).toMatchObject({
-        coursepool: 'Math',
-        user_id: testUser._id.toString(),
-        creditsRequired: 6,
-      });
-    });
-
-    it('should return 404 for non-existent user', async () => {
-      const fakeId = new mongoose.Types.ObjectId().toString();
-      const response = await request(app)
-        .get(`/users/${fakeId}/deficiencies`)
-        .expect(404);
-
-      expect(response.body.error).toContain('does not exist');
-    });
-
-    it('should handle server errors', async () => {
-      // Mock userController.getAllDeficienciesByUser to throw an error
-      const originalGetAllDeficienciesByUser =
-        require('../controllers/userController').userController
-          .getAllDeficienciesByUser;
-      require('../controllers/userController').userController.getAllDeficienciesByUser =
-        jest.fn().mockRejectedValue(new Error('Database error'));
-
-      const response = await request(app)
-        .get(`/users/${testUser._id}/deficiencies`)
-        .expect(500);
-
-      expect(response.body.error).toBe('Internal server error');
-
-      // Restore original method
-      require('../controllers/userController').userController.getAllDeficienciesByUser =
-        originalGetAllDeficienciesByUser;
-    });
-  });
-
-  describe('PUT /users/:userId/deficiencies', () => {
-    beforeEach(async () => {
-      testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
-        email: 'test@example.com',
-        password: 'hashedpassword',
-        fullname: 'Test User',
-        type: 'student',
-        deficiencies: [{ coursepool: 'Math', creditsRequired: 6 }],
-      });
-    });
-
-    it('should update deficiency', async () => {
-      const response = await request(app)
-        .put(`/users/${testUser._id}/deficiencies`)
-        .send({ coursepool: 'Math', creditsRequired: 9 })
-        .expect(200);
-
-      expect(response.body).toBeDefined();
-      expect(response.body).toMatchObject({
-        coursepool: 'Math',
-        user_id: testUser._id.toString(),
-        creditsRequired: 9,
-      });
-    });
-
-    it('should return 400 for missing required fields', async () => {
-      const response = await request(app)
-        .put(`/users/${testUser._id}/deficiencies`)
-        .send({})
-        .expect(400);
-
-      expect(response.body.error).toBe(
-        'User ID, coursepool, and creditsRequired are required',
-      );
-    });
-
-    it('should return 404 for non-existent deficiency', async () => {
-      const response = await request(app)
-        .put(`/users/${testUser._id}/deficiencies`)
-        .send({ coursepool: 'Science', creditsRequired: 9 })
-        .expect(404);
-
-      expect(response.body.error).toContain('not found');
-    });
-
-    it('should handle server errors', async () => {
-      const originalUpdateDeficiency = require('../controllers/userController')
-        .userController.updateDeficiency;
-      require('../controllers/userController').userController.updateDeficiency =
-        jest.fn().mockRejectedValue(new Error('Database error'));
-
-      const response = await request(app)
-        .put(`/users/${testUser._id}/deficiencies`)
-        .send({ coursepool: 'Math', creditsRequired: 9 })
-        .expect(500);
-
-      expect(response.body.error).toBe('Internal server error');
-
-      require('../controllers/userController').userController.updateDeficiency =
-        originalUpdateDeficiency;
-    });
-  });
-
-  describe('POST /users/:userId/exemptions', () => {
-    beforeEach(async () => {
-      testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
-        email: 'test@example.com',
-        fullname: 'Test User',
-        type: 'student',
-        exemptions: [],
-      });
-    });
-
-    it('should create exemptions with empty array', async () => {
-      const response = await request(app)
-        .post(`/users/${testUser._id}/exemptions`)
-        .send({ coursecodes: [] })
-        .expect(201);
-
-      expect(response.body.created).toHaveLength(0);
-      expect(response.body.alreadyExists).toHaveLength(0);
-    });
-  });
-
-  describe('GET /users/:id/exemptions', () => {
-    beforeEach(async () => {
-      testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
-        email: 'test@example.com',
-        fullname: 'Test User',
-        type: 'student',
-        exemptions: ['COMP101', 'COMP102'],
-      });
-    });
-
-    it('should get all exemptions for user', async () => {
-      const response = await request(app)
-        .get(`/users/${testUser._id}/exemptions`)
-        .expect(200);
-
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body).toHaveLength(2);
-      expect(response.body[0]).toMatchObject({
-        coursecode: 'COMP101',
-        user_id: testUser._id.toString(),
-      });
-    });
-
-    it('should return 404 for non-existent user', async () => {
-      const fakeId = new mongoose.Types.ObjectId().toString();
-      const response = await request(app)
-        .get(`/users/${fakeId}/exemptions`)
-        .expect(404);
-
-      expect(response.body.error).toContain('does not exist');
-    });
-  });
-
-  describe('POST /users/:id/exemptions', () => {
-    beforeEach(async () => {
-      testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
-        email: 'test@example.com',
-        password: 'hashedpassword',
-        fullname: 'Test User',
-        type: 'student',
-        exemptions: [],
-      });
-
-      await Course.create([
-        {
-          _id: 'COMP101',
-          title: 'Intro to Programming',
-          description: 'Introduction to programming',
-          credits: 3,
-        },
-        {
-          _id: 'COMP102',
-          title: 'Data Structures',
-          description: 'Data structures course',
-          credits: 3,
-        },
-        {
-          _id: 'MATH101',
-          title: 'Calculus I',
-          description: 'Calculus course',
-          credits: 3,
-        },
-      ]);
-    });
-
-    it('should create exemptions', async () => {
-      const exemptionData = {
-        coursecodes: ['COMP101', 'COMP102'],
-      };
-
-      const response = await request(app)
-        .post(`/users/${testUser._id}/exemptions`)
-        .send(exemptionData)
-        .expect(201);
-
-      expect(response.body).toBeDefined();
-      expect(response.body.created).toHaveLength(2);
-    });
-
-    it('should return 400 for missing coursecodes', async () => {
-      const response = await request(app)
-        .post(`/users/${testUser._id}/exemptions`)
-        .send({})
-        .expect(400);
-
-      expect(response.body.error).toBe(
-        'User ID and coursecodes array are required',
-      );
-    });
-
-    it('should return 404 for non-existent course', async () => {
-      const exemptionData = {
-        coursecodes: ['COMP101', 'NONEXISTENT'],
-      };
-
-      const response = await request(app)
-        .post(`/users/${testUser._id}/exemptions`)
-        .send(exemptionData)
-        .expect(404);
-
-      expect(response.body.error).toContain('does not exist');
-    });
-
-    it('should return 404 for non-existent user', async () => {
-      const fakeId = new mongoose.Types.ObjectId().toString();
-      const exemptionData = {
-        coursecodes: ['COMP101'],
-      };
-
-      const response = await request(app)
-        .post(`/users/${fakeId}/exemptions`)
-        .send(exemptionData)
-        .expect(404);
-
-      expect(response.body.error).toContain('does not exist');
-    });
-
-    it('should handle server errors', async () => {
-      // Mock userController.createExemptions to throw an error
-      const originalCreateExemptions = require('../controllers/userController')
-        .userController.createExemptions;
-      require('../controllers/userController').userController.createExemptions =
-        jest.fn().mockRejectedValue(new Error('Database error'));
-
-      const exemptionData = {
-        coursecodes: ['COMP101'],
-      };
-
-      const response = await request(app)
-        .post(`/users/${testUser._id}/exemptions`)
-        .send(exemptionData)
-        .expect(500);
-
-      expect(response.body.error).toBe('Internal server error');
-
-      // Restore original method
-      require('../controllers/userController').userController.createExemptions =
-        originalCreateExemptions;
-    });
-  });
-
-  describe('GET /users/:id/exemptions', () => {
-    beforeEach(async () => {
-      testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
-        email: 'test@example.com',
-        fullname: 'Test User',
-        type: 'student',
-        exemptions: ['COMP101', 'COMP102'],
-      });
-    });
-
-    it('should get all exemptions for user', async () => {
-      const response = await request(app)
-        .get(`/users/${testUser._id}/exemptions`)
-        .expect(200);
-
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body).toHaveLength(2);
-      expect(response.body[0]).toMatchObject({
-        coursecode: 'COMP101',
-        user_id: testUser._id.toString(),
-      });
-    });
-
-    it('should return empty array for user with no exemptions', async () => {
-      const userNoExemptions = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
-        email: 'noexemp@example.com',
-        fullname: 'No Exemptions',
-        type: 'student',
-        exemptions: [],
-      });
-
-      const response = await request(app)
-        .get(`/users/${userNoExemptions._id}/exemptions`)
-        .expect(200);
-
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body).toHaveLength(0);
-    });
-
-    it('should return 404 for non-existent user', async () => {
-      const fakeId = new mongoose.Types.ObjectId().toString();
-      const response = await request(app)
-        .get(`/users/${fakeId}/exemptions`)
-        .expect(404);
-
-      expect(response.body.error).toContain('does not exist');
-    });
-
-    it('should handle server errors', async () => {
-      const originalGetAllExemptionsByUser =
-        require('../controllers/userController').userController
-          .getAllExemptionsByUser;
-      require('../controllers/userController').userController.getAllExemptionsByUser =
-        jest.fn().mockRejectedValue(new Error('Database error'));
-
-      const response = await request(app)
-        .get(`/users/${testUser._id}/exemptions`)
-        .expect(500);
-
-      expect(response.body.error).toBe('Internal server error');
-
-      require('../controllers/userController').userController.getAllExemptionsByUser =
-        originalGetAllExemptionsByUser;
-    });
-  });
-
-  describe('DELETE /users/:userId/exemptions', () => {
-    beforeEach(async () => {
-      testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
-        email: 'test@example.com',
-        fullname: 'Test User',
-        type: 'student',
-        exemptions: ['COMP101', 'COMP102'],
-      });
-    });
-
-    it('should delete exemption', async () => {
-      const response = await request(app)
-        .delete(`/users/${testUser._id}/exemptions`)
-        .send({ coursecode: 'COMP101' })
-        .expect(200);
-
-      expect(typeof response.body).toBe('string');
-      expect(response.body).toContain('successfully deleted');
-
-      // Verify exemption was removed
-      const updatedUser = await User.findById(testUser._id);
-      expect(updatedUser.exemptions).toHaveLength(1);
-      expect(updatedUser.exemptions).toContain('COMP102');
-      expect(updatedUser.exemptions).not.toContain('COMP101');
-    });
-
-    it('should return 400 for missing required fields', async () => {
-      const response = await request(app)
-        .delete(`/users/${testUser._id}/exemptions`)
-        .send({})
-        .expect(400);
-
-      expect(response.body.error).toBe('User ID and coursecode are required');
-    });
-
-    it('should return 404 for non-existent user', async () => {
-      const fakeId = new mongoose.Types.ObjectId().toString();
-      const response = await request(app)
-        .delete(`/users/${fakeId}/exemptions`)
-        .send({ coursecode: 'COMP101' })
-        .expect(404);
-
-      expect(response.body.error).toContain('does not exist');
-    });
-
-    it('should handle server errors', async () => {
-      // Mock userController.deleteExemption to throw an error
-      const originalDeleteExemption = require('../controllers/userController')
-        .userController.deleteExemption;
-      require('../controllers/userController').userController.deleteExemption =
-        jest.fn().mockRejectedValue(new Error('Database error'));
-
-      const response = await request(app)
-        .delete(`/users/${testUser._id}/exemptions`)
-        .send({ coursecode: 'COMP101' })
-        .expect(500);
-
-      expect(response.body.error).toBe('Internal server error');
-
-      // Restore original method
-      require('../controllers/userController').userController.deleteExemption =
-        originalDeleteExemption;
-    });
-  });
+   
 
   // Additional tests for uncovered error handling branches
   describe('Error handling edge cases', () => {
@@ -1119,10 +463,8 @@ describe('User Routes', () => {
         email: 'test@example.com',
         fullname: 'Test User',
         type: 'student',
-        degree: 'COMP',
-        deficiencies: [],
-        exemptions: [],
       });
+      jest.clearAllMocks();
     });
 
     describe('POST /users error branches', () => {
@@ -1236,6 +578,16 @@ describe('User Routes', () => {
         require('../controllers/userController').userController.updateUser =
           originalUpdateUser;
       });
+      
+      it('returns 400 if id is not a valid ObjectId', async () => {
+        const res = await request(app)
+          .put('/users/123')
+          .send({ fullname: 'New Name' });
+
+        expect(res.status).toBe(400);
+        expect(res.body.error).toBe('Invalid user id format');
+      });
+
 
       it('should handle general errors (not "does not exist")', async () => {
         const originalUpdateUser = require('../controllers/userController')
@@ -1271,6 +623,12 @@ describe('User Routes', () => {
         require('../controllers/userController').userController.deleteUser =
           originalDeleteUser;
       });
+       it('returns 400 if id is not a valid ObjectId', async () => {
+          const res = await request(app).delete('/users/not-an-id');
+
+          expect(res.status).toBe(400);
+          expect(res.body.error).toBe('Invalid user id format');
+        });
 
       it('should handle general errors (not "does not exist")', async () => {
         const originalDeleteUser = require('../controllers/userController')
@@ -1290,6 +648,15 @@ describe('User Routes', () => {
     });
 
     describe('GET /users/:id/data error branches', () => {
+      
+      it('returns 400 if id is not a valid ObjectId', async () => {
+        const res = await request(app).get('/users/invalid-id');
+
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({
+          error: 'Invalid user id format',
+        });
+      });
       it('should handle "does not exist" error specifically', async () => {
         const originalGetUserData = require('../controllers/userController')
           .userController.getUserData;
@@ -1323,300 +690,5 @@ describe('User Routes', () => {
       });
     });
 
-    describe('POST /users/:userId/deficiencies error branches', () => {
-      it('should handle "does not exist" error specifically', async () => {
-        const originalCreateDeficiency =
-          require('../controllers/userController').userController
-            .createDeficiency;
-        require('../controllers/userController').userController.createDeficiency =
-          jest.fn().mockRejectedValue(new Error('User does not exist'));
-
-        const response = await request(app)
-          .post(`/users/${testUser._id}/deficiencies`)
-          .send({ coursepool: 'MATH', creditsRequired: 3 })
-          .expect(404);
-
-        expect(response.body.error).toBe('User does not exist');
-
-        require('../controllers/userController').userController.createDeficiency =
-          originalCreateDeficiency;
-      });
-
-      it('should handle "already exists" error specifically', async () => {
-        const originalCreateDeficiency =
-          require('../controllers/userController').userController
-            .createDeficiency;
-        require('../controllers/userController').userController.createDeficiency =
-          jest.fn().mockRejectedValue(new Error('Deficiency already exists'));
-
-        const response = await request(app)
-          .post(`/users/${testUser._id}/deficiencies`)
-          .send({ coursepool: 'MATH', creditsRequired: 3 })
-          .expect(409);
-
-        expect(response.body.error).toBe('Deficiency already exists');
-
-        require('../controllers/userController').userController.createDeficiency =
-          originalCreateDeficiency;
-      });
-
-      it('should handle general errors', async () => {
-        const originalCreateDeficiency =
-          require('../controllers/userController').userController
-            .createDeficiency;
-        require('../controllers/userController').userController.createDeficiency =
-          jest.fn().mockRejectedValue(new Error('General error'));
-
-        const response = await request(app)
-          .post(`/users/${testUser._id}/deficiencies`)
-          .send({ coursepool: 'MATH', creditsRequired: 3 })
-          .expect(500);
-
-        expect(response.body.error).toBe('Internal server error');
-
-        require('../controllers/userController').userController.createDeficiency =
-          originalCreateDeficiency;
-      });
-    });
-
-    describe('GET /users/:userId/deficiencies error branches', () => {
-      it('should handle "does not exist" error specifically', async () => {
-        const originalGetAllDeficienciesByUser =
-          require('../controllers/userController').userController
-            .getAllDeficienciesByUser;
-        require('../controllers/userController').userController.getAllDeficienciesByUser =
-          jest.fn().mockRejectedValue(new Error('User does not exist'));
-
-        const response = await request(app)
-          .get(`/users/${testUser._id}/deficiencies`)
-          .expect(404);
-
-        expect(response.body.error).toBe('User does not exist');
-
-        require('../controllers/userController').userController.getAllDeficienciesByUser =
-          originalGetAllDeficienciesByUser;
-      });
-
-      it('should handle general errors (not "does not exist")', async () => {
-        const originalGetAllDeficienciesByUser =
-          require('../controllers/userController').userController
-            .getAllDeficienciesByUser;
-        require('../controllers/userController').userController.getAllDeficienciesByUser =
-          jest.fn().mockRejectedValue(new Error('General error'));
-
-        const response = await request(app)
-          .get(`/users/${testUser._id}/deficiencies`)
-          .expect(500);
-
-        expect(response.body.error).toBe('Internal server error');
-
-        require('../controllers/userController').userController.getAllDeficienciesByUser =
-          originalGetAllDeficienciesByUser;
-      });
-    });
-
-    describe('PUT /users/:userId/deficiencies error branches', () => {
-      it('should handle "does not exist" error specifically', async () => {
-        const originalUpdateDeficiency =
-          require('../controllers/userController').userController
-            .updateDeficiency;
-        require('../controllers/userController').userController.updateDeficiency =
-          jest.fn().mockRejectedValue(new Error('Deficiency not found'));
-
-        const response = await request(app)
-          .put(`/users/${testUser._id}/deficiencies`)
-          .send({ coursepool: 'Math', creditsRequired: 5 })
-          .expect(404);
-
-        expect(response.body.error).toBe('Deficiency not found');
-
-        require('../controllers/userController').userController.updateDeficiency =
-          originalUpdateDeficiency;
-      });
-
-      it('should handle general errors (not "does not exist")', async () => {
-        const originalUpdateDeficiency =
-          require('../controllers/userController').userController
-            .updateDeficiency;
-        require('../controllers/userController').userController.updateDeficiency =
-          jest.fn().mockRejectedValue(new Error('General error'));
-
-        const response = await request(app)
-          .put(`/users/${testUser._id}/deficiencies`)
-          .send({ coursepool: 'Math', creditsRequired: 5 })
-          .expect(500);
-
-        expect(response.body.error).toBe('Internal server error');
-
-        require('../controllers/userController').userController.updateDeficiency =
-          originalUpdateDeficiency;
-      });
-    });
-
-    describe('DELETE /users/:userId/deficiencies error branches', () => {
-      it('should handle "does not exist" error specifically', async () => {
-        const originalDeleteDeficiency =
-          require('../controllers/userController').userController
-            .deleteDeficiency;
-        require('../controllers/userController').userController.deleteDeficiency =
-          jest.fn().mockRejectedValue(new Error('Deficiency does not exist'));
-
-        const response = await request(app)
-          .delete(`/users/${testUser._id}/deficiencies`)
-          .send({ coursepool: 'Math' })
-          .expect(404);
-
-        expect(response.body.error).toBe('Deficiency does not exist');
-
-        require('../controllers/userController').userController.deleteDeficiency =
-          originalDeleteDeficiency;
-      });
-
-      it('should handle general errors (not "does not exist")', async () => {
-        const originalDeleteDeficiency =
-          require('../controllers/userController').userController
-            .deleteDeficiency;
-        require('../controllers/userController').userController.deleteDeficiency =
-          jest.fn().mockRejectedValue(new Error('General error'));
-
-        const response = await request(app)
-          .delete(`/users/${testUser._id}/deficiencies`)
-          .send({ coursepool: 'Math' })
-          .expect(500);
-
-        expect(response.body.error).toBe('Internal server error');
-
-        require('../controllers/userController').userController.deleteDeficiency =
-          originalDeleteDeficiency;
-      });
-    });
-
-    describe('POST /users/:userId/exemptions error branches', () => {
-      it('should handle "does not exist" error specifically', async () => {
-        const originalCreateExemptions =
-          require('../controllers/userController').userController
-            .createExemptions;
-        require('../controllers/userController').userController.createExemptions =
-          jest.fn().mockRejectedValue(new Error('User does not exist'));
-
-        const response = await request(app)
-          .post(`/users/${testUser._id}/exemptions`)
-          .send({ coursecodes: ['COMP101'] })
-          .expect(404);
-
-        expect(response.body.error).toBe('User does not exist');
-
-        require('../controllers/userController').userController.createExemptions =
-          originalCreateExemptions;
-      });
-
-      it('should handle "already exists" error specifically', async () => {
-        const originalCreateExemptions =
-          require('../controllers/userController').userController
-            .createExemptions;
-        require('../controllers/userController').userController.createExemptions =
-          jest.fn().mockRejectedValue(new Error('Exemption already exists'));
-
-        const response = await request(app)
-          .post(`/users/${testUser._id}/exemptions`)
-          .send({ coursecodes: ['COMP101'] })
-          .expect(500);
-
-        expect(response.body.error).toBe('Internal server error');
-
-        require('../controllers/userController').userController.createExemptions =
-          originalCreateExemptions;
-      });
-
-      it('should handle general errors', async () => {
-        const originalCreateExemptions =
-          require('../controllers/userController').userController
-            .createExemptions;
-        require('../controllers/userController').userController.createExemptions =
-          jest.fn().mockRejectedValue(new Error('General error'));
-
-        const response = await request(app)
-          .post(`/users/${testUser._id}/exemptions`)
-          .send({ coursecodes: ['COMP101'] })
-          .expect(500);
-
-        expect(response.body.error).toBe('Internal server error');
-
-        require('../controllers/userController').userController.createExemptions =
-          originalCreateExemptions;
-      });
-    });
-
-    describe('GET /users/:userId/exemptions error branches', () => {
-      it('should handle "does not exist" error specifically', async () => {
-        const originalGetAllExemptionsByUser =
-          require('../controllers/userController').userController
-            .getAllExemptionsByUser;
-        require('../controllers/userController').userController.getAllExemptionsByUser =
-          jest.fn().mockRejectedValue(new Error('User does not exist'));
-
-        const response = await request(app)
-          .get(`/users/${testUser._id}/exemptions`)
-          .expect(404);
-
-        expect(response.body.error).toBe('User does not exist');
-
-        require('../controllers/userController').userController.getAllExemptionsByUser =
-          originalGetAllExemptionsByUser;
-      });
-
-      it('should handle general errors (not "does not exist")', async () => {
-        const originalGetAllExemptionsByUser =
-          require('../controllers/userController').userController
-            .getAllExemptionsByUser;
-        require('../controllers/userController').userController.getAllExemptionsByUser =
-          jest.fn().mockRejectedValue(new Error('General error'));
-
-        const response = await request(app)
-          .get(`/users/${testUser._id}/exemptions`)
-          .expect(500);
-
-        expect(response.body.error).toBe('Internal server error');
-
-        require('../controllers/userController').userController.getAllExemptionsByUser =
-          originalGetAllExemptionsByUser;
-      });
-    });
-
-    describe('DELETE /users/:userId/exemptions error branches', () => {
-      it('should handle "does not exist" error specifically', async () => {
-        const originalDeleteExemption = require('../controllers/userController')
-          .userController.deleteExemption;
-        require('../controllers/userController').userController.deleteExemption =
-          jest.fn().mockRejectedValue(new Error('User does not exist'));
-
-        const response = await request(app)
-          .delete(`/users/${testUser._id}/exemptions`)
-          .send({ coursecode: 'COMP101' })
-          .expect(404);
-
-        expect(response.body.error).toBe('User does not exist');
-
-        require('../controllers/userController').userController.deleteExemption =
-          originalDeleteExemption;
-      });
-
-      it('should handle general errors (not "does not exist")', async () => {
-        const originalDeleteExemption = require('../controllers/userController')
-          .userController.deleteExemption;
-        require('../controllers/userController').userController.deleteExemption =
-          jest.fn().mockRejectedValue(new Error('General error'));
-
-        const response = await request(app)
-          .delete(`/users/${testUser._id}/exemptions`)
-          .send({ coursecode: 'COMP101' })
-          .expect(500);
-
-        expect(response.body.error).toBe('Internal server error');
-
-        require('../controllers/userController').userController.deleteExemption =
-          originalDeleteExemption;
-      });
-    });
   });
 });
