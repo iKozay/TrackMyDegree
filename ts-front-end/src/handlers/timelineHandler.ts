@@ -6,6 +6,7 @@ import type {
   CourseCode,
   SemesterId,
 } from "../types/timeline.types";
+import { getCourseValidationMessage } from "../utils/timelineUtils";
 
 type Snapshot = {
   courses: TimelineState["courses"];
@@ -403,5 +404,25 @@ export function addSemester(state: TimelineState): TimelineState {
   return {
     ...s1,
     semesters: [...s1.semesters, newSemester],
+  };
+}
+
+export function validateTimeline(state: TimelineState): TimelineState {
+  const updatedSemesters = state.semesters.map((semester) => ({
+    ...semester,
+    courses: semester.courses.map((sc) => {
+      const course = state.courses[sc.code];
+      if (!course) return sc;
+
+      return {
+        ...sc,
+        message: getCourseValidationMessage(course, state),
+      };
+    }),
+  }));
+
+  return {
+    ...state,
+    semesters: updatedSemesters,
   };
 }

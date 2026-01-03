@@ -45,6 +45,7 @@ const TimeLinePage: React.FC = () => {
   return (
     <TimelineDndProvider
       courses={state.courses}
+      semesters={state.semesters}
       onMoveFromPoolToSemester={actions.moveFromPoolToSemester}
       onMoveBetweenSemesters={actions.moveBetweenSemesters}>
       <div className="app">
@@ -55,7 +56,9 @@ const TimeLinePage: React.FC = () => {
             pools={state.pools}
             courses={state.courses}
             timelineName={state.timelineName}
-            onSave={(timelineName: string) => {if (user) saveTimeline(user.id, timelineName, state)}}
+            onSave={(timelineName: string) => {
+              if (user) saveTimeline(user.id, timelineName, state);
+            }}
             onAdd={actions.addCourse}
             onClose={actions.openModal}
           />
@@ -68,7 +71,11 @@ const TimeLinePage: React.FC = () => {
           earnedCredits={calculateEarnedCredits(state.courses)}
           totalCredits={state.degree.totalCredits}
           onOpenModal={actions.openModal}
-          onSave={isAuthenticated ? (open: boolean, type: string) => actions.openModal(open, type) : handleLogin}
+          onSave={
+            isAuthenticated
+              ? (open: boolean, type: string) => actions.openModal(open, type)
+              : handleLogin
+          }
         />
 
         <main className="timeline-main">

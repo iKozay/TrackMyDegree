@@ -17,6 +17,7 @@ import type {
   SemesterId,
 } from "../types/timeline.types"; // adjust path
 import { CourseStatusActions } from "./CourseStatusToggle";
+import { CourseScheduleModal } from "../legacy/components/CourseScheduleModal";
 interface CourseDetailsProps {
   course?: Course | null;
   courses?: CourseMap;
@@ -112,6 +113,9 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
             <span>Scheduled: {course.status.semester}</span>
           </div>
         )}
+        <div className="info-item">
+          <CourseScheduleModal code={course.id} />
+        </div>
       </div>
 
       <RequisiteGroup

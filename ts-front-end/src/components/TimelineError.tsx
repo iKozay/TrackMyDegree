@@ -22,7 +22,7 @@ export const TimelineError: React.FC<TimelineErrorProps> = ({
 
         {onRetry && (
           <button
-            className="btn btn-secondary planner-retry-btn"
+            className="btn btn-secondary planner-retry-btn centered-btn"
             onClick={onRetry}>
             <RotateCw size={16} />
             <span>Try again</span>

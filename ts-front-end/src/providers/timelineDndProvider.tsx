@@ -9,7 +9,11 @@ import {
   type DragStartEvent,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import type { CourseCode, SemesterId } from "../types/timeline.types";
+import type {
+  CourseCode,
+  SemesterId,
+  SemesterList,
+} from "../types/timeline.types";
 import type { DragCourseData, DroppableSemesterData } from "../types/dnd.types";
 import { TimelineDndContext } from "../contexts/timelineDndContext";
 import type { CourseMap } from "../types/timeline.types";
@@ -18,6 +22,7 @@ import { canDropCourse } from "../utils/timelineUtils";
 interface TimelineDndProviderProps {
   children: ReactNode;
   courses: CourseMap;
+  semesters: SemesterList;
   onMoveFromPoolToSemester: (
     courseId: CourseCode,
     toSemesterId: SemesterId
@@ -32,6 +37,7 @@ interface TimelineDndProviderProps {
 const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
   children,
   courses,
+  semesters,
   onMoveFromPoolToSemester,
   onMoveBetweenSemesters,
 }) => {
@@ -69,7 +75,13 @@ const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
 
     if (!toSemesterId) return;
 
-    const validation = canDropCourse(courses[courseId], fromSemesterId);
+    const validation = canDropCourse(
+      courses[courseId],
+      courses,
+      semesters,
+      fromSemesterId,
+      toSemesterId
+    );
 
     if (!validation.allowed) {
       alert(validation.reason);

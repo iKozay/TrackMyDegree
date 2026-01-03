@@ -17,6 +17,14 @@
     },
     "pools": [
       {
+        "_id": "Exemptions",
+        "courses": ["MATH 204"]
+      },
+      {
+        "_id": "Deficiencies",
+        "courses": []
+      },
+      {
         "_id": "SOFT_Engineering Core",
         "courses": [
           "ENGR 201",

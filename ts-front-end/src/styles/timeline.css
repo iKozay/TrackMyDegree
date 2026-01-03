@@ -594,6 +594,10 @@
   align-items: center;
   gap: 0.35rem;
 }
+.centered-btn {
+  display: block;
+  margin: 0 auto;
+}
 
 .course-status-toggle {
   display: inline-flex;
