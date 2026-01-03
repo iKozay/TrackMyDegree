@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "dotenv -e ../secrets/.env -- vite",
     "build": "tsc -b && vite build",
+    "start": "vite preview --host",
+    "deploy": "npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
