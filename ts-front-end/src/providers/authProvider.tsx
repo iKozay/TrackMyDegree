@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { api } from "../api/http-api-client";
 import type { AuthResponse } from "../types/response.types";
 import type { AuthUser, AuthContextValue } from "../types/auth.types";
@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setUser(data.user);
   };
 
-  const login: AuthContextValue["login"] = async (email, password) => {
+  const login: AuthContextValue["login"] = useCallback(async (email, password) => {
     try {
       const res = await api.post<AuthResponse>("/auth/login", {
         email,
@@ -43,9 +43,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // normalize + rethrow so UI can show a message
       throw new Error("Invalid email or password");
     }
-  };
+  }, []);
 
-  const signup: AuthContextValue["signup"] = async (payload) => {
+  const signup: AuthContextValue["signup"] = useCallback(async (payload) => {
     try {
       const res = await api.post<AuthResponse>("/auth/signup", payload);
       handleAuthSuccess(res);
@@ -53,9 +53,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Signup failed", err);
       throw new Error("Could not create account. Please try again.");
     }
-  };
+  }, []);
 
-  const logout: AuthContextValue["logout"] = async () => {
+  const logout: AuthContextValue["logout"] = useCallback(async () => {
     try {
       await api.post("/auth/logout");
     } catch (err) {
@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } finally {
       setUser(null);
     }
-  };
+  }, []);
 
   const value: AuthContextValue = useMemo(
     () => ({

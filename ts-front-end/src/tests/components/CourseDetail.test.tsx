@@ -13,7 +13,6 @@ import type {
 const requisiteMock = vi.fn();
 
 vi.mock("../../components/RequisiteGroup", () => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   RequisiteGroup: (props: any) => {
     requisiteMock(props);
     return (

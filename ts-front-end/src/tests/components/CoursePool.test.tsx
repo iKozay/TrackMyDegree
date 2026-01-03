@@ -12,7 +12,6 @@ import type {
 const poolCoursesListMock = vi.fn();
 
 vi.mock("../../components/PoolCoursesList", () => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   PoolCoursesList: (props: any) => {
     poolCoursesListMock(props);
     return (

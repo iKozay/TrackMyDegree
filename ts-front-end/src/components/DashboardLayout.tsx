@@ -23,7 +23,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
     // Close sidebar on mobile when route changes
     useEffect(() => {
-        setIsSidebarOpen(false);
+        Promise.resolve().then(() => setIsSidebarOpen(false));
     }, [location.pathname]);
 
     const baseMenuItems: MenuItem[] = [
@@ -104,7 +104,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                                     disabled={item.disabled}
                                 >
                                     <span className="nav-item-icon">
-                                        {React.cloneElement(item.icon as React.ReactElement<any>, { size: 20 })}
+                                        {React.cloneElement(item.icon as React.ReactElement<{size?: number}>, { size: 20 })}
                                     </span>
                                     <span className="nav-item-label">{item.label}</span>
                                     {item.badge && (

@@ -15,7 +15,7 @@ export const passwordsMatch = (password: string, confirmPassword: string): boole
 };
 
 // Validate required fields are not empty (with trimming for strings)
-export const validateRequiredFields = (...fields: any[]): boolean => {
+export const validateRequiredFields = (...fields: unknown[]): boolean => {
   return fields.every((field) => {
     if (typeof field === 'string') {
       return field.trim() !== '';

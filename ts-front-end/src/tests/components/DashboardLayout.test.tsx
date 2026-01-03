@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import DashboardLayout from '../../components/DashboardLayout.tsx';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -109,7 +109,7 @@ describe('DashboardLayout', () => {
         expect(sidebar?.classList.contains('open')).toBe(false);
     });
 
-    it('should close sidebar when route changes', () => {
+    it('should close sidebar when route changes', async () => {
         const { container, rerender } = render(
             <DashboardLayout>
                 <div>Test Child</div>
@@ -128,8 +128,10 @@ describe('DashboardLayout', () => {
             </DashboardLayout>
         );
 
-        const sidebar = container.querySelector('.dashboard-sidebar');
-        expect(sidebar?.classList.contains('open')).toBe(false);
+        await waitFor(() => {
+            const sidebar = container.querySelector('.dashboard-sidebar');
+            expect(sidebar?.classList.contains('open')).toBe(false);
+        });
     });
 
     it('should show advisor specific menu items in advisor role', () => {

@@ -21,7 +21,7 @@ const LoginPage: React.FC = () => {
     }else if (isAuthenticated && user?.role === "admin") {
       navigate("/profile/admin", { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, user]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
