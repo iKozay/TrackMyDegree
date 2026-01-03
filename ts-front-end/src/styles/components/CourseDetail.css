@@ -1,0 +1,34 @@
+.course-info {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.course-info h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  color: #1e293b;
+  line-height: 1.4;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.5;
+  width: 100%;
+}
+
+.info-item svg {
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.info-item span {
+  color: #334155;
+  font-weight: 400;
+}

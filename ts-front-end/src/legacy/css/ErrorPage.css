@@ -1,0 +1,55 @@
+/* Shared styles for both error pages */
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.error-content {
+  text-align: center;
+  padding: 2rem;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 90%;
+}
+
+.error-icon svg {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1.5rem;
+}
+
+h1 {
+  color: #912338;
+  margin-bottom: 1rem;
+  font-size: 2.5rem;
+}
+
+p {
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.error-button {
+  background-color: #912338;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  margin-top: 1.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.error-button:hover {
+  background-color: #7a1d2e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(146, 35, 56, 0.3);
+}

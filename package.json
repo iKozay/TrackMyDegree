@@ -11,8 +11,10 @@
     "ioredis": "^5.8.2",
     "moment": "^2.30.1",
     "mongoose": "^8.19.1",
+    "nodemon": "^3.1.11",
     "react-icons": "^5.5.0",
-    "recharts": "^2.15.1"
+    "recharts": "^2.15.1",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
@@ -35,6 +37,6 @@
     "test:coverage": "jest --coverage",
     "dev": "concurrently --names \"BACKEND,FRONTEND\" --prefix-colors \"blue,green\" \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd Back-End/src && npm run dev",
-    "dev:frontend": "cd front-end && dotenv -e ../secrets/.env -- npm start"
+    "dev:frontend": "cd ts-front-end && dotenv -e ../secrets/.env -- npm run dev"
   }
 }

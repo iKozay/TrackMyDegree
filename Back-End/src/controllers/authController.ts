@@ -5,12 +5,10 @@ async function getUUID() {
   const { v4: uuidv4 } = await import('uuid');
   return uuidv4();
 }
-import nodemailer from 'nodemailer';
-import Redis from 'ioredis';
+import { mailServicePromise } from '@services/mailService';
+import redisClient from '@lib/redisClient'; // import the Redis client instance
 import { RESET_EXPIRY_MINUTES, DUMMY_HASH } from '@utils/constants';
 
-// Mocro : create Redis client for storing password reset tokens temporarily
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
 
 export enum UserType {
   STUDENT = 'student',
@@ -23,9 +21,10 @@ export interface Credentials {
   password: string;
 }
 
-export interface UserInfo extends Credentials {
+export interface UserInfo {
   _id: string;
   fullname: string;
+  email: string;
   type: UserType;
 }
 
@@ -52,7 +51,6 @@ export class AuthController {
         fullname: user.fullname,
         email: user.email,
         type: user.type as UserType,
-        password: '', // never return password
       };
     } catch (error) {
       Sentry.captureException(error, {
@@ -88,7 +86,6 @@ export class AuthController {
           fullname: user.fullname,
           email: user.email,
           type: user.type as UserType,
-          password: '',
         };
       }
 
@@ -103,7 +100,7 @@ export class AuthController {
   /**
    * Registers a new user after validating input
    */
-  async registerUser(userInfo: UserInfo): Promise<
+  async registerUser(userInfo: UserInfo, password: string): Promise<
     | {
         _id: string;
         email: string;
@@ -112,14 +109,14 @@ export class AuthController {
       }
     | undefined
   > {
-    const { email, password, fullname, type } = userInfo;
+    const { email, fullname, type } = userInfo;
 
     try {
       const existingUser = await User.exists({ email }).exec();
       if (existingUser) return undefined;
 
       // Hash the password before storing
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await this.hashPassword(password);
 
       // Create new user with generated _id
       const newUser = await User.create({
@@ -159,7 +156,7 @@ export class AuthController {
         return { message: 'If the email exists, a reset link has been sent.' };
       }
 
-      const resetToken = getUUID();
+      const resetToken = await getUUID();
 
       const frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT;
       if (!frontendUrl) {
@@ -171,13 +168,14 @@ export class AuthController {
       const resetLink = `${frontendUrl.replace(/\/$/, '')}/reset-password/${resetToken}`;
       const expireSeconds = RESET_EXPIRY_MINUTES * 60;
 
-      // Mocro : Store token in Redis with expiry
-      await redis.setex(`reset:${resetToken}`, expireSeconds, user.email);
+      // Store token in Redis with expiry
+      await redisClient.set(`reset:${resetToken}`, user.email, { EX: expireSeconds });
 
-      // Mocro : Send reset email
-      await this.sendResetEmail(user.email, resetLink);
+      // Send reset email
+      const mailService = await mailServicePromise;
+      await mailService.sendPasswordReset(user.email, resetLink);
 
-      return { message: 'Password reset link sent successfully', resetLink };
+      return { message: 'If the email exists, a reset link has been sent.'};
     } catch (error) {
       Sentry.captureException(error, { tags: { operation: 'forgotPassword' } });
       console.error('[AuthController] Password reset error', error);
@@ -194,21 +192,18 @@ export class AuthController {
   ): Promise<boolean> {
     try {
       // Mocro : Get email from Redis
-      const email = await redis.get(`reset:${resetToken}`);
+      const email = await redisClient.get(`reset:${resetToken}`);
       if (!email) return false; // invalid or expired token
 
       const user = await User.findOne({ email }).exec();
       if (!user) return false;
 
-      // Hash the new password before storing
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-      // Save new password
-      user.password = hashedPassword;
+      // Hash and update to new password
+      user.password = await this.hashPassword(newPassword);
       await user.save();
 
-      // Mocro : Delete used token
-      await redis.del(`reset:${resetToken}`);
+      // Delete the token from Redis
+      await redisClient.del(`reset:${resetToken}`);
 
       return true;
     } catch (error) {
@@ -232,10 +227,8 @@ export class AuthController {
 
       const match = await bcrypt.compare(oldPassword, user.password);
       if (!match) return false;
-
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-      user.password = hashedPassword;
+      // Hash and update to new password
+      user.password = await this.hashPassword(newPassword);
       await user.save();
 
       return true;
@@ -246,24 +239,6 @@ export class AuthController {
     }
   }
 
-  /**
-   * Internal helper: sends reset email
-   */
-  private async sendResetEmail(email: string, resetLink: string) {
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    });
-
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM,
-      to: email,
-      subject: 'Password Reset Link',
-      text: `Use this link to reset your password: ${resetLink}`,
-      html: `<p>Use this link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`,
-    });
-  }
   /*
     Checks if a user is an admin
    */
@@ -280,6 +255,13 @@ export class AuthController {
       return false;
     }
   }
+  /*
+   * helper to hash passwords - keeps SALT_ROUNDS consistent
+   */
+    private async hashPassword(plain: string): Promise<string> {
+        const SALT_ROUNDS = 10;
+        return bcrypt.hash(plain, SALT_ROUNDS);
+    }
 }
 
 export const authController = new AuthController();

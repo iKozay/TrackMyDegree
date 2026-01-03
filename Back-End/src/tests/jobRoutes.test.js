@@ -9,8 +9,16 @@ const mockGetByJobId = jest.fn((req, res) => {
   });
 });
 
+const mockCacheTimelineByJobId = jest.fn((req, res) => {
+  return res.status(200).json({
+    called: true,
+    jobId: req.params.jobId,
+  });
+});
+
 jest.mock('../controllers/jobController', () => ({
   getByJobId: mockGetByJobId,
+  cacheTimelineByJobId: mockCacheTimelineByJobId,
 }));
 
 // --- Import the router AFTER mocks ---

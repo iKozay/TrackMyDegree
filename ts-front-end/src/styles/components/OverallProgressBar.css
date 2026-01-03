@@ -1,0 +1,50 @@
+.insights-overall-progress-container {
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.insights-overall-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.insights-overall-progress-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.insights-overall-progress-percentage {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.insights-overall-progress-bar-container {
+    width: 100%;
+    height: 20px;
+    background-color: #d3d3d3;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.insights-overall-progress-bar {
+    height: 100%;
+    background-color: #912338;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.insights-overall-progress-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.5rem;
+}

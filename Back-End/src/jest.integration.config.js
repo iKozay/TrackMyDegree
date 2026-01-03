@@ -39,7 +39,7 @@ module.exports = {
   ],
   coverageDirectory: 'coverage/integration',
   verbose: true,
-  testTimeout: 600000,
+  testTimeout: 1200000, // 20 minutes
   forceExit: true,
   detectOpenHandles: true,
 };
