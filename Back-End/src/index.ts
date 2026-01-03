@@ -97,27 +97,27 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Swagger (docs)
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.get('/openapi.json', (_req, res) => res.json(swaggerSpec));
+app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/api/openapi.json', (_req, res) => res.json(swaggerSpec));
 
 // Apply rate limiters of forgot-password and reset-password routes
-app.use('/auth/forgot-password', forgotPasswordLimiter);
-app.use('/auth/reset-password', resetPasswordLimiter);
-app.use('/auth/login', loginLimiter);
-app.use('/auth/signup', signupLimiter);
+app.use('/api/auth/forgot-password', forgotPasswordLimiter);
+app.use('/api/auth/reset-password', resetPasswordLimiter);
+app.use('/api/auth/login', loginLimiter);
+app.use('/api/auth/signup', signupLimiter);
 
 //Routes
-app.use('/auth', authRouter);
-app.use('/courses', coursesRouter);
-app.use('/degree', degreeRouter);
-app.use('/timeline', timelineRouter);
-app.use('/coursepool', coursepoolRouter);
-app.use('/users', userRouter);
-app.use('/admin', adminRouter);
-app.use('/feedback', feedbackRouter);
-app.use('/section', sectionsRoutes);
-app.use('/upload', uploadRouter);
-app.use('/jobs', timelineJobRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/courses', coursesRouter);
+app.use('/api/degree', degreeRouter);
+app.use('/api/timeline', timelineRouter);
+app.use('/api/coursepool', coursepoolRouter);
+app.use('/api/users', userRouter);
+app.use('/api/admin', adminRouter);
+app.use('/api/feedback', feedbackRouter);
+app.use('/api/section', sectionsRoutes);
+app.use('/api/upload', uploadRouter);
+app.use('/api/jobs', timelineJobRouter);
 
 //Handle 404
 app.use(notFoundHandler);
