@@ -27,17 +27,17 @@ jobs:
           node-version: '22'
 
       - name: Install dependencies for frontend
-        working-directory: ./front-end
+        working-directory: ./ts-front-end
         run: |
           npm install
 
       - name: Run ESLint for frontend
-        working-directory: ./front-end
+        working-directory: ./ts-front-end
         run: |
           npm run lint
 
       - name: Run frontend tests with coverage
-        working-directory: ./front-end
+        working-directory: ./ts-front-end
         env:
           # Setting CI to false to avoid treating warnings as errors
           CI: false
@@ -49,7 +49,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
-          path: front-end/coverage
+          path: ts-front-end/coverage
 
   backend:
     runs-on: ubuntu-latest
@@ -146,7 +146,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-coverage
-          path: front-end/coverage
+          path: ts-front-end/coverage
 
       - name: Download backend coverage artifact (backend)
         uses: actions/download-artifact@v4
@@ -181,7 +181,7 @@ jobs:
             context: ./Back-End
             image: trackmydegree-backend
           - name: frontend
-            context: ./front-end
+            context: ./ts-front-end
             image: trackmydegree-frontend
 
     steps:
@@ -220,4 +220,6 @@ jobs:
           push: true
           tags: |
             ${{ steps.version.outputs.latest_tag }}
-            ${{ steps.version.outputs.versioned_tag }}         
+            ${{ steps.version.outputs.versioned_tag }}
+          build-args: |
+            VITE_DEPLOYMENT_VERSION=${{ steps.version.outputs.versioned_tag }}         

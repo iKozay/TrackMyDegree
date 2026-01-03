@@ -28,7 +28,7 @@ services:
     image: ghcr.io/ikozay/trackmydegree-frontend:latest
     restart: always
     expose:
-      - "3000"
+      - "5173"
     volumes:
       - ./secrets/frontend.env:/app/.env:ro
     networks:
@@ -42,7 +42,7 @@ services:
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.middlewares=basic-auth@file"
-      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+      - "traefik.http.services.frontend.loadbalancer.server.port=5173"
 
   backend:
     container_name: backend

@@ -28,7 +28,7 @@ services:
     image: ghcr.io/ikozay/trackmydegree-frontend:production
     restart: always
     expose:
-      - "3000"
+      - "5173"
     volumes:
       - ./secrets/frontend.env:/app/.env:ro
     networks:
@@ -41,7 +41,7 @@ services:
       - "traefik.http.routers.frontend.rule=Host(`${DOMAIN}`) && !PathPrefix(`/auth`) && !PathPrefix(`/courses`) && !PathPrefix(`/degree`) && !PathPrefix(`/timeline`) && !PathPrefix(`/coursepool`) && !PathPrefix(`/users`) && !PathPrefix(`/admin`) && !PathPrefix(`/feedback`) && !PathPrefix(`/session`) && !PathPrefix(`/section`) && !PathPrefix(`/upload`) && !PathPrefix(`/api-docs`) && !PathPrefix(`/openapi.json`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls=true"
-      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+      - "traefik.http.services.frontend.loadbalancer.server.port=5173"
 
   backend:
     container_name: backend

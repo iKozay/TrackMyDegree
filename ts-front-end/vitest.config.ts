@@ -11,5 +11,9 @@ export default defineConfig({
     globals: true, // optional, lets you use describe/it/expect without imports
     setupFiles: "./src/setupTests.ts",
     css: true,
+    coverage: {
+      reporter: ['text', 'lcov', 'html'],
+      reportsDirectory: './coverage',
+    },
   },
 });
