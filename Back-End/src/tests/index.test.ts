@@ -52,7 +52,7 @@ import Sentry from '@sentry/node';
 
 describe('index.ts', () => {
   it('serves /openapi.json (Swagger spec)', async () => {
-    const res = await request(app).get('/openapi.json');
+    const res = await request(app).get('/api/openapi.json');
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toMatch(/application\/json/);
     expect(res.body?.openapi).toBe('3.0.0');
