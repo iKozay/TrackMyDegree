@@ -1,9 +1,7 @@
-import mongoose from 'mongoose';
 import { BaseMongoController } from './baseMongoController';
-import { User, Course, Degree, Timeline } from '@models';
+import { User, Timeline } from '@models';
 
 const USER_WITH_ID_DOES_NOT_EXIST = 'User with this id does not exist.';
-const USER_DOES_NOT_EXIST = 'User does not exist.';
 
 export interface UserData {
   _id: string;

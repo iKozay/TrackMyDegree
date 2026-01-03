@@ -72,15 +72,15 @@ async function  getDataFromParams(params:BuildTimelineParams){
       status: CourseStatus;
       semester: string | null;
     }> = {}; 
-    let exemptions:string [] | undefined;
-    let deficiencies:string [] | undefined;
+    let exemptions:string [] = [];
+    let deficiencies:string [] = [];
   switch (type){
     case 'file': 
       parsedData = await parseFile(data)
       if (!parsedData?.programInfo) throw new Error("Error parsing document")
       programInfo = parsedData.programInfo
-      deficiencies = parsedData.deficiencyCourses
-      exemptions = parsedData.exemptedCourses
+      deficiencies = parsedData.deficiencyCourses ?? []
+      exemptions = parsedData.exemptedCourses ?? []
     break;
     case 'form':
       if (!data.degree) throw new Error("Form Data received does not contain a degree")
@@ -94,13 +94,13 @@ async function  getDataFromParams(params:BuildTimelineParams){
       }
       semestersResults = data.semesters;
       courseStatusMap = data.courseStatusMap;
-      exemptions = data.exemptions;
-      deficiencies = data.deficiencies;
+      exemptions = data.exemptions ?? [];
+      deficiencies = data.deficiencies ?? [];
       break;
     default:
       throw new Error('type not handled by timeline builder'); 
   }
-  return {parsedData, programInfo, semestersResults, courseStatusMap, exemptions, deficiencies};
+  return {parsedData, programInfo, semestersResults, courseStatusMap, exemptions , deficiencies};
 }
 
 export const buildTimeline = async (
@@ -135,12 +135,12 @@ export const buildTimeline = async (
     //add transfer credits to course completed
     if(parsedData?.transferedCourses) addToCourseStatusMap(parsedData?.transferedCourses,courseStatusMap, 'completed');
 
-    if (deficiencies) addToCoursePools('deficiencies', deficiencies, courses,coursePools);
+    //add deficiencies course pool (if there is no deficiencies the courses field will contain an empty array)
+    addToCoursePools('deficiencies', deficiencies, courses,coursePools);
 
-    if (exemptions) {
-      addToCourseStatusMap(exemptions,courseStatusMap, 'exempted');
-      addToCoursePools('exemptions', exemptions, courses, coursePools, false);
-    }
+    // add exempted satus to exempted courses and add an exemption course pool
+    addToCourseStatusMap(exemptions,courseStatusMap, 'exempted');
+    addToCoursePools('exemptions', exemptions, courses, coursePools, false);
     
     
     //transform courses obtained from db to the format expected by the frontend
@@ -276,8 +276,8 @@ function addToCoursePools(coursePoolName:string, coursesToAdd:string[], allCours
   )
 }
 
-function addToCourseStatusMap(courses:string[], courseStatusMap: Record<string, { status: CourseStatus; semester: string | null;}>, status:CourseStatus){
-  for (const course of courses){
+function addToCourseStatusMap(coursesToAdd:string[], courseStatusMap: Record<string, { status: CourseStatus; semester: string | null;}>, status:CourseStatus){
+  for (const course of coursesToAdd){
     courseStatusMap[normalizeCourseCode(course)] = {
         status: status,
         semester: null,
