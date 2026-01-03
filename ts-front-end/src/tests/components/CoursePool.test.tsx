@@ -30,11 +30,13 @@ vi.mock("../../components/PoolCoursesList", () => ({
 
 const pools: Pool[] = [
   {
+    _id: "pool-engr",
     name: "Engineering Core",
     creditsRequired: 30.5,
     courses: ["ENGR 201", "ENGR 233"] as CourseCode[],
   },
   {
+    _id: "pool-soen",
     name: "Software Engineering Core",
     creditsRequired: 47.5,
     courses: ["SOEN 228", "SOEN 287"] as CourseCode[],

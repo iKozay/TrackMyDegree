@@ -29,6 +29,7 @@ describe("MainModal", () => {
 
   const mockPools: Pool[] = [
     {
+      _id: "pool-cs-core",
       name: "Computer Science Core",
       courses: ["COMP 248", "COMP 249"],
       creditsRequired: 30,

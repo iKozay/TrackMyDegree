@@ -67,11 +67,13 @@ describe("InsightsModal", () => {
 
   const mockPools: Pool[] = [
     {
+      _id: "pool-cs",
       name: "Computer Science Core",
       courses: ["COMP 248", "COMP 249", "SOEN 228"],
       creditsRequired: 30,
     },
     {
+      _id: "pool-math",
       name: "Mathematics",
       courses: ["MATH 203"],
       creditsRequired: 12,

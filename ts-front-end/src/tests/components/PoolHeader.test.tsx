@@ -5,6 +5,7 @@ import type { Pool, CourseCode } from "../../types/timeline.types";
 
 describe("PoolHeader", () => {
   const pool: Pool = {
+    _id: "pool-soen-header",
     name: "Software Engineering Core",
     creditsRequired: 47.5,
     courses: ["SOEN 228", "SOEN 287", "SOEN 321"] as CourseCode[],

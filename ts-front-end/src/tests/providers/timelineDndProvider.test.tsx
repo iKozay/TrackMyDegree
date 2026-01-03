@@ -78,6 +78,7 @@ describe("TimelineDndProvider", () => {
     render(
       <TimelineDndProvider
         courses={courses}
+        semesters={[]}
         onMoveFromPoolToSemester={onMoveFromPoolToSemester}
         onMoveBetweenSemesters={onMoveBetweenSemesters}>
         <ActiveCourseConsumer />

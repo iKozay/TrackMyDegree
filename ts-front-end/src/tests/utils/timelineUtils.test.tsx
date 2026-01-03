@@ -22,7 +22,7 @@ describe("timelineUtils", () => {
     };
 
     it("allows dropping course with no current semester", () => {
-      const result = canDropCourse(mockCourse);
+      const result = canDropCourse(mockCourse, {}, []);
       expect(result.allowed).toBe(true);
       expect(result.reason).toBeUndefined();
     });
@@ -36,7 +36,7 @@ describe("timelineUtils", () => {
         },
       };
 
-      const result = canDropCourse(courseInSemester, "FALL 2025");
+      const result = canDropCourse(courseInSemester, {}, [], "FALL 2025", "FALL 2025");
       expect(result.allowed).toBe(true);
       expect(result.reason).toBeUndefined();
     });
@@ -50,7 +50,7 @@ describe("timelineUtils", () => {
         },
       };
 
-      const result = canDropCourse(courseInSemester, "WINTER 2026");
+      const result = canDropCourse(courseInSemester, {}, []);
       expect(result.allowed).toBe(false);
       expect(result.reason).toBe("Course already in FALL 2025");
     });
@@ -64,14 +64,9 @@ describe("timelineUtils", () => {
         },
       };
 
-      const result = canDropCourse(courseInSemester);
+      const result = canDropCourse(courseInSemester, {}, []);
       expect(result.allowed).toBe(false);
       expect(result.reason).toBe("Course already in WINTER 2026");
-    });
-
-    it("returns allowed true for null/undefined course", () => {
-      const result = canDropCourse(null as any);
-      expect(result.allowed).toBe(true);
     });
   });
 

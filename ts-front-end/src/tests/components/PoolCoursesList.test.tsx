@@ -33,6 +33,7 @@ vi.mock("../../components/DraggableCourse", () => {
 
 describe("PoolCoursesList", () => {
   const pool: Pool = {
+    _id: "pool-soen-core",
     name: "Software Engineering Core",
     creditsRequired: 47.5,
     courses: ["SOEN 228", "SOEN 287", "SOEN 321"] as CourseCode[],

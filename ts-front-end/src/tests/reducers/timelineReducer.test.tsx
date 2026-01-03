@@ -52,6 +52,7 @@ const initialState: TimelineState = {
   },
   pools: [
     {
+      _id: "pool-engr-reducer",
       name: "Engineering Core",
       creditsRequired: 30,
       courses: ["COMP 248", "COMP 249"],
