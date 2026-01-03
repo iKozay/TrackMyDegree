@@ -1,22 +1,21 @@
 const { Buffer } = require('buffer');
-const { buildTimeline } = require('../services/timeline/timelineService'); // adjust path if needed
+const { buildTimeline, buildTimelineFromDB } = require('../services/timeline/timelineService'); // adjust path if needed
 const { parseFile } = require('@services/parsingService');
 const { degreeController } = require('@controllers/degreeController');
+const { Timeline } = require('../models/timeline');
 
 jest.mock('@services/parsingService');
 jest.mock('@controllers/degreeController');
 
-describe('buildTimeline', () => {
+describe('timelineService', () => {
   const mockDegreeData =  { _id: 'deg1', name: 'Beng in Computer Engineering' }
-
-  const mockPools = [
-      { name: 'Core Courses', courses: ['COMP 232', 'COMP 248','COMP 249'] }
-    ]
     
   const mockCourses = [
-    { _id: 'COMP 232', title: 'Discrete Math', rules: { prereq: [] } },
-    { _id: 'COMP 248', title: 'Object Oriented Programming', rules: { prereq: [] } },
-    { _id: 'COMP 249', title: 'Object Oriented Programming 2', rules: { prereq: [['COMP 248'], ['COMP 232']] } }
+    { _id: 'COMP 232', title: 'Discrete Math', rules: { prereq: [] }, credits: 3 },
+    { _id: 'COMP 248', title: 'Object Oriented Programming', rules: { prereq: [] }, credits: 3  },
+    { _id: 'COMP 249', title: 'Object Oriented Programming 2', rules: { prereq: [['COMP 248'], ['COMP 232']] }, credits: 3  },
+    { _id: 'MATH 204', title: 'Algebra', rules: { prereq: [] }, credits: 3  },
+    { _id: 'CHEM 206', title: 'General Chemistry', rules: { prereq: [] }, credits: 3  },
   ]
 
 
@@ -26,11 +25,16 @@ describe('buildTimeline', () => {
   
   degreeController.readDegree.mockResolvedValue(mockDegreeData);
   
-  degreeController.getCoursePoolsForDegree.mockResolvedValue(mockPools);
+  degreeController.getCoursePoolsForDegree.mockResolvedValue([
+      { name: 'Core Courses', courses: ['COMP 232', 'COMP 248','COMP 249'] }
+    ]);
 
   degreeController.getCoursesForDegree.mockResolvedValue(mockCourses);
 });
 
+afterEach(() => {
+  jest.restoreAllMocks(); // restores any spyOn
+});
 
   it('builds timeline from form data', async () => {
     const formData = {
@@ -48,7 +52,7 @@ describe('buildTimeline', () => {
     expect(result).toBeDefined();
     expect(result.degree._id).toBe('deg1');
     expect(result.pools.length).toBe(1);
-    expect(Object.keys(result.courses).length).toBe(3);
+    expect(Object.keys(result.courses).length).toBe(5);
     expect(result.semesters.length).toBeGreaterThan(0);
   });
 
@@ -88,20 +92,31 @@ describe('buildTimeline', () => {
   it('throws error if degree not found', async () => {
     degreeController.readDegree.mockResolvedValue(undefined);
 
-    const formData = {
-      type: 'form',
-      data: {
-        degree: 'Nonexistent Degree',
+    const mockParsedData = {
+      programInfo: {
+        degree: 'Non existant degree',
         firstTerm: 'FALL 2023',
         lastTerm: 'FALL 2024',
         isExtendedCreditProgram: false
-      }
+      },
+      semesters: [
+        {
+          term: 'FALL 2023',
+          courses: [{ code: 'COMP232', grade: 'A' }]
+        }
+      ],
+      transferedCourses: [],
+      exemptedCourses: []
     };
-
-    await expect(buildTimeline(formData)).rejects.toThrow('Error fetching degree data from database');
+    parseFile.mockResolvedValue(mockParsedData);
+     const fileData = {
+      type: 'file',
+      data: Buffer.from('mock file')
+    };    
+    await expect(buildTimeline(fileData)).rejects.toThrow('Error fetching degree data from database');
   });
 
-  it('correctly computes courses statuses and validates 200-level C- requirement', async () => {
+  it('builds timeline from parsedData and correctly computes courses statuses and validates 200-level C- requirement', async () => {
     
     const nextYear = new Date().getFullYear() + 1;
     const futureTerm = `WINTER ${nextYear}`;
@@ -167,4 +182,160 @@ describe('buildTimeline', () => {
     expect(comp249.status.semester).toBe(futureTerm);
     expect(result.semesters[2].courses.find(c => c.code === 'COMP 249').message).toBeUndefined();
   });
+
+  it('builds timeline from timelineData and reuses stored semesters and courseStatusMap', async () => {
+  const timelineData = {
+    _id: 'timeline1',
+    userId: 'user1',
+    name: 'My Timeline',
+    degreeId: 'Bachelor of Engineering Computer Engineering',
+    isExtendedCredit: false,
+    isCoop: false,
+    semesters: [
+      {
+        term: 'FALL 2023',
+        courses: [{ code: 'COMP 232' }]
+      }
+    ],
+    courseStatusMap: {
+      'COMP 232': {
+        status: 'completed',
+        semester: 'FALL 2023'
+      },
+      'COMP 248': {
+        status: 'planned',
+        semester: 'WINTER 2024'
+      }
+    }
+  };
+
+  const result = await buildTimeline({
+    type: 'timelineData',
+    data: timelineData
+  });
+
+  // sanity
+  expect(result).toBeDefined();
+
+  // semesters reused exactly
+  expect(result.semesters).toEqual(timelineData.semesters);
+
+  // course statuses come from courseStatusMap
+  expect(result.courses['COMP 232'].status).toEqual({
+    status: 'completed',
+    semester: 'FALL 2023'
+  });
+
+  expect(result.courses['COMP 248'].status).toEqual({
+    status: 'planned',
+    semester: 'WINTER 2024'
+  });
+
+  // course without entry defaults to incomplete
+  expect(result.courses['COMP 249'].status).toEqual({
+    status: 'incomplete',
+    semester: null
+  });
+
+  // parseFile must NOT be called
+  expect(parseFile).not.toHaveBeenCalled();
 });
+
+  it('adds exemptions correctly', async () => {
+    const mockParsedData = {
+      programInfo: {
+        degree: 'Bachelor of Engineering Computer Engineering',
+        firstTerm: 'FALL 2023',
+        lastTerm: 'FALL 2024',
+        isExtendedCreditProgram: false
+      },
+      semesters: [],
+      transferedCourses: [],
+      exemptedCourses: ['COMP 232'],
+      deficiencyCourses: []
+    };
+
+    parseFile.mockResolvedValue(mockParsedData);
+
+    const fileData = { type: 'file', data: Buffer.from('mock file') };
+    const result = await buildTimeline(fileData);
+
+    // Exemption pool exists
+    const exemptionPool = result.pools.find(p => p._id === 'exemptions');
+    expect(exemptionPool).toBeDefined();
+    expect(exemptionPool.courses).toContain('COMP 232');
+
+    // Status map updated
+    expect(result.courses['COMP 232'].status.status).toBe('exempted');
+    expect(result.courses['COMP 232'].status.semester).toBeNull();
+  });
+
+  it('adds deficiencies correctly', async () => {
+    const mockParsedData = {
+      programInfo: {
+        degree: 'Bachelor of Engineering Computer Engineering',
+        firstTerm: 'FALL 2023',
+        lastTerm: 'FALL 2024',
+        isExtendedCreditProgram: false
+      },
+      semesters: [],
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: ['COMP 249']
+    };
+
+    parseFile.mockResolvedValue(mockParsedData);
+
+    const fileData = { type: 'file', data: Buffer.from('mock file') };
+    const result = await buildTimeline(fileData);
+  
+    const deficiencyPool = result.pools.find(p => p._id === 'deficiencies');
+    expect(deficiencyPool).toBeDefined();
+    expect(deficiencyPool.courses).toContain('COMP 249');
+    
+    // creditsRequired matches course
+    const course = mockCourses.find(c => c._id === 'COMP 249');
+    expect(deficiencyPool.creditsRequired).toBe(course?.credits);
+
+    expect(result.courses['COMP 249'].status.status).toBe('incomplete');
+    expect(result.courses['COMP 249'].status.semester).toBeNull();
+  });
+
+  it('buildTimelineFromDB returns timeline correctly', async () => {
+    const mockTimeline = {
+      _id: 'timeline1',
+      userId: 'user1',
+      name: 'My Timeline',
+      degreeId: 'Bachelor of Engineering Computer Engineering',
+      semesters: [],
+      isExtendedCredit: false,
+      isCoop: false,
+      courseStatusMap: {
+        'MATH 204': { status: 'completed', semester: 'FALL 2023' }
+      },
+      exemptions: ['MATH 204'],
+      deficiencies: ['CHEM 206']
+    };
+
+    // mock Mongoose findById().lean().exec()
+    const findByIdMock = {
+      lean: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue(mockTimeline)
+    };
+    jest.spyOn(Timeline, 'findById').mockReturnValue(findByIdMock);
+
+    const result = await buildTimelineFromDB('timeline1');
+    console.log(result)
+    expect(result).toBeDefined();
+    expect(result.courses['MATH 204'].status.status).toBe('exempted');
+    expect(result.courses['CHEM 206'].status.status).toBe('incomplete');
+
+    const exemptionPool = result.pools.find(p => p._id === 'exemptions');
+    expect(exemptionPool.courses).toContain('MATH 204');
+
+    const deficiencyPool = result.pools.find(p => p._id === 'deficiencies');
+    expect(deficiencyPool.courses).toContain('CHEM 206');
+  });
+
+});
+

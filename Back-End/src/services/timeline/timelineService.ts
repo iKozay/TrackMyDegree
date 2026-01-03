@@ -4,27 +4,20 @@ import { ParsedData, ProgramInfo, Semester, CourseStatus } from "../../types/tra
 import { degreeController, CoursePoolInfo, DegreeData } from "@controllers/degreeController";
 import { CourseData } from "@controllers/courseController";
 import { SEASONS } from "@utils/constants";
+import { Timeline } from '@models';
 
-type TimelineFileData = {
-  type: 'file';
-  // eslint-disable-next-line no-undef
-  data: Buffer;
-};
 
-type TimelineObjectData = {
-  type: 'form';
-  data: ProgramInfo
-};
 
 export interface TimelineResult {
     degree?: DegreeData;
     pools?: CoursePoolInfo[];
-    semesters: SemesterResult[];
+    semesters: TimelineSemester[];
+    isExtendedCredit?: boolean;
+    isCoop?: boolean;
     courses: Record<string, TimelineCourse>;
 }
 
-
-interface TimelineCourse {
+export interface TimelineCourse {
   id: string;
   title: string;
   credits: number;
@@ -38,59 +31,118 @@ interface TimelineCourse {
   };
 }
 
-export interface SemesterResult{
+export interface TimelineSemester{
   term:string,
   courses:  {
     code: string;
     message?: string;
   }[]
 }
+// Timeline as stored in DB
+export interface TimelineDocument {
+  _id?: string;
+  userId: string;
+  name: string;
+  degreeId: string;
+  semesters: TimelineSemester[];
+  isExtendedCredit?: boolean;
+  isCoop?: boolean;
+  last_modified?: Date;
+  courseStatusMap: Record<string, {
+    status: CourseStatus;
+    semester: string | null;
+  }>; // only the minimal course status info
+  exemptions: string[]
+  deficiencies: string[],
+}
 
-export type BuildTimelineParams = TimelineFileData | TimelineObjectData;
+
+// Timeline builder inputs
+export type BuildTimelineParams =
+  | { type: 'file'; data: Buffer }              // uploaded transcript or acceptance letter
+  | { type: 'form'; data: ProgramInfo }        // frontend form input
+  | { type: 'timelineData'; data: TimelineDocument }; // timeline object from database
+
+async function  getDataFromParams(params:BuildTimelineParams){
+  const { type, data } = params;
+    let programInfo: ProgramInfo;
+    let parsedData: ParsedData|undefined;
+    let semestersResults: TimelineSemester[] | undefined;
+    let courseStatusMap: Record<string, {
+      status: CourseStatus;
+      semester: string | null;
+    }> = {}; 
+    let exemptions:string [] = [];
+    let deficiencies:string [] = [];
+  switch (type){
+    case 'file': 
+      parsedData = await parseFile(data)
+      if (!parsedData?.programInfo) throw new Error("Error parsing document")
+      programInfo = parsedData.programInfo
+      deficiencies = parsedData.deficiencyCourses ?? []
+      exemptions = parsedData.exemptedCourses ?? []
+    break;
+    case 'form':
+      if (!data.degree) throw new Error("Form Data received does not contain a degree")
+      programInfo = data;
+    break;
+    case 'timelineData': 
+      programInfo = {
+        degree:data.degreeId,
+        isCoop: data.isCoop,
+        isExtendedCreditProgram: data.isExtendedCredit,
+      }
+      semestersResults = data.semesters;
+      courseStatusMap = data.courseStatusMap;
+      exemptions = data.exemptions ?? [];
+      deficiencies = data.deficiencies ?? [];
+      break;
+    default:
+      throw new Error('type not handled by timeline builder'); 
+  }
+  return {parsedData, programInfo, semestersResults, courseStatusMap, exemptions , deficiencies};
+}
 
 export const buildTimeline = async (
   params: BuildTimelineParams,
 ): Promise<TimelineResult | undefined> => {
-    const { type, data } = params;
-    let programInfo: ProgramInfo;
-    let parsedData: ParsedData|undefined;
-    
-    if (type === 'file') {
-      parsedData = await parseFile(data)
-      if (!parsedData?.programInfo) throw new Error("Error parsing document")
-      programInfo = parsedData.programInfo
-    } else {
-      if (!data.degree) throw new Error("Form Data received does not contain a degree")
-      programInfo = data;
-    }    
-  
+    let {parsedData, programInfo, semestersResults, courseStatusMap, exemptions, deficiencies} = await getDataFromParams(params)
+
     if(programInfo.isExtendedCreditProgram){
       //TODO: get ecp degree from db and merge course pools with regular degreee
       //      handle defficiencies
     }
 
-    //get degree from DB that matches provided degree Name
-    const result = await getDegreeData(programInfo.degree);
+    let degreeId;
+
+    //parsed degree does not always match the degree in the DB
+    if(parsedData) degreeId = await getDegreeId(programInfo.degree)
+    else degreeId = programInfo.degree
+
+    const result = await getDegreeData(degreeId);
     if (!result) throw new Error( "Error fetching degree data from database")
     
     const { degreeData: degree, coursePools, courses } = result;
-    let semesters_results: SemesterResult[]; 
-    const courseStatusMap: Record<string, {
-      status: CourseStatus;
-      semester: string | null;
-    }> = {};
    
-    if(parsedData?.semesters)
-      semesters_results = processSemestersFromParsedData(parsedData,degree,coursePools,courses, courseStatusMap)
-    else
-      semesters_results = generateSemesters(programInfo.firstTerm, programInfo.lastTerm)
+    if(!semestersResults){
+      if(parsedData?.semesters)
+        semestersResults = processSemestersFromParsedData(parsedData,degree,coursePools,courses, courseStatusMap)
+      else
+        semestersResults = generateSemesters(programInfo.firstTerm, programInfo.lastTerm)
+    }
+    
     
     //add transfer credits to course completed
-    if(parsedData?.transferedCourses) addToCourseStatusMap(parsedData?.transferedCourses,courseStatusMap)
+    if(parsedData?.transferedCourses) addToCourseStatusMap(parsedData?.transferedCourses,courseStatusMap, 'completed');
 
-    if (parsedData?.exemptedCourses) addToCourseStatusMap(parsedData?.exemptedCourses,courseStatusMap)
+    //add deficiencies course pool (if there is no deficiencies the courses field will contain an empty array)
+    addToCoursePools('deficiencies', deficiencies, courses,coursePools);
+
+    // add exempted satus to exempted courses and add an exemption course pool
+    addToCourseStatusMap(exemptions,courseStatusMap, 'exempted');
+    addToCoursePools('exemptions', exemptions, courses, coursePools, false);
     
-
+    
     //transform courses obtained from db to the format expected by the frontend
     const courseResults: Record<string, TimelineCourse> = Object.fromEntries(
       Object.entries(courses).map(([code, course]) => {
@@ -106,7 +158,7 @@ export const buildTimeline = async (
           degree: degree,    
           pools: coursePools,
           courses: courseResults,
-          semesters: semesters_results,
+          semesters: semestersResults
         };
 
   return timelineResult;
@@ -202,17 +254,39 @@ function getCourseStatus(term:string, isCoop:boolean|undefined, courseCode:strin
   return {status, message}
 }
 
-function addToCourseStatusMap(courses:string[], courseStatusMap: Record<string, { status: CourseStatus; semester: string | null;}>){
-  for (const course of courses){
+function addToCoursePools(coursePoolName:string, coursesToAdd:string[], allCourses:Record<string, CourseData>,coursePools: CoursePoolInfo[], calculateCredits:boolean = true){
+  if(coursesToAdd.length <= 0) return;
+  //calculate number of credits required and create a new coursePool with the deficiency courses.
+  let creditsRequired = 0; 
+  if(calculateCredits){
+    for (const courseId of coursesToAdd) {
+      const course = allCourses[courseId];
+      if (course) {
+        creditsRequired += course.credits;
+      }
+    }
+  }
+  coursePools.push(
+    {
+      _id: coursePoolName,
+      name: coursePoolName,
+      creditsRequired: creditsRequired,
+      courses: coursesToAdd
+    }
+  )
+}
+
+function addToCourseStatusMap(coursesToAdd:string[], courseStatusMap: Record<string, { status: CourseStatus; semester: string | null;}>, status:CourseStatus){
+  for (const course of coursesToAdd){
     courseStatusMap[normalizeCourseCode(course)] = {
-        status: "completed",
+        status: status,
         semester: null,
     };
   }
 }
 
-async function getDegreeData( degree_name :string){
-    // We get all degree names from DB
+async function getDegreeId(degreeName:string){
+  // We get all degree names from DB
     // We then remove first 2 words (like "BEng in") from them and 
     // check if degree_name (received as function parameter) includes the resulting string
     // example:
@@ -221,23 +295,27 @@ async function getDegreeData( degree_name :string){
     // We remove "BEng in" and check if the degree_name "contains Computer Engineering"
     //Beng in Software engineeering_ecp
     let degrees = await degreeController.readAllDegrees()
-    let degree_id = degrees.find((d)=>degree_name.toLowerCase().includes(d.name.split(' ').slice(2).join(' ').toLowerCase()))?._id
-    if(!degree_id) return undefined
-   
-    const [degreeData, coursePools, courseArr] = await Promise.all([
-      degreeController.readDegree(degree_id),
-      degreeController.getCoursePoolsForDegree(degree_id),
-      degreeController.getCoursesForDegree(degree_id),
-    ]);
-
-    // Build dictionary
-    const courses: Record<string, CourseData> = {};
-    for (const c of courseArr) {
-      courses[c._id] = c;
-    }
-
-    return {degreeData, coursePools, courses}
+    let degreeId = degrees.find((d)=>degreeName.toLowerCase().includes(d.name.split(' ').slice(2).join(' ').toLowerCase()))?._id;
+    if (!degreeId) throw new Error('Error fetching degree data from database')
+    return degreeId
 }
+
+async function getDegreeData( degreeId :string){
+  const [degreeData, coursePools, courseArr] = await Promise.all([
+    degreeController.readDegree(degreeId),
+    degreeController.getCoursePoolsForDegree(degreeId),
+    degreeController.getCoursesForDegree(degreeId),
+  ]);
+
+  // Build dictionary
+  const courses: Record<string, CourseData> = {};
+  for (const c of courseArr) {
+    courses[c._id] = c;
+  }
+
+  return {degreeData, coursePools, courses}
+}
+
 function isInprogress(currentTerm:string){
   const today = new Date();
   const { start, end } = getTermRanges(currentTerm);
@@ -326,7 +404,7 @@ function validateGrade( minGrade:string, courseGrade?: string  ): boolean {
 
 
 function generateSemesters( startTerm?: string, endTerm?:string ){
-  const results: SemesterResult[] = [];
+  const results: TimelineSemester[] = [];
     let terms = generateTerms(startTerm,endTerm)
     for (const term of terms) {
       results.push({term:term,courses:[]});
@@ -411,5 +489,21 @@ function getTermRanges(term: string): { start: Date; end: Date } {
 
   return { start, end };
 }
+
+export async function buildTimelineFromDB(
+  timelineId: string,
+): Promise<TimelineResult|undefined> {
+  const timeline = await Timeline.findById(timelineId).lean<TimelineDocument>().exec();
+
+  if (!timeline) {
+    throw new Error('Timeline not found');
+  }
+
+  return buildTimeline({
+    type: 'timelineData',
+    data: timeline,
+  });
+}
+
 
 

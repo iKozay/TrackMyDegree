@@ -1,12 +1,13 @@
 // workers/queue.ts
 import { Queue, Worker, Job } from 'bullmq';
 import { readFile, unlink } from 'node:fs/promises';
-import { buildTimeline } from '../services/timeline/timelineService';
+import { buildTimeline, buildTimelineFromDB } from '../services/timeline/timelineService';
 import { cacheJobResult } from '../lib/cache';
 
 export type CourseProcessorJobData =
   | { jobId: string; kind: 'file'; filePath: string }
-  | { jobId: string; kind: 'body'; body: any };
+  | { jobId: string; kind: 'body'; body: any }
+  | { jobId: string; kind: 'timelineData'; timelineId: string };
 
 const redisOptions = {
   host: process.env.REDIS_HOST || '127.0.0.1',
@@ -26,21 +27,33 @@ export const courseProcessorWorker = new Worker<CourseProcessorJobData>(
 
     try {
       let result;
+      switch (job.data.kind) {
+        case 'file': {
+          const fileBuffer = await readFile(job.data.filePath);
+          result = await buildTimeline({
+            type: 'file',
+            data: fileBuffer,
+          });
+          break;
+        }
 
-      if (job.data.kind === 'file') {
-        const fileBuffer = await readFile(job.data.filePath);
+        case 'body': {
+          result = await buildTimeline({
+            type: 'form',
+            data: job.data.body,
+          });
+          break;
+        }
 
-        result = await buildTimeline({
-          type: 'file',
-          data: fileBuffer,
-        });
-      } else {
-        // kind === "body"
-        result = await buildTimeline({
-          type: 'form',
-          data: job.data.body,
-        });
+        case 'timelineData': {
+          result = await buildTimelineFromDB(job.data.timelineId);
+          break;
+        }
+
+        default:
+          throw new Error(`the job data type provided is not supported`);
       }
+
 
       await cacheJobResult(jobId, {
         payload: { status: 'done', data: result },
