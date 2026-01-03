@@ -28,7 +28,7 @@ const StudentPage: React.FC = () => {
         
           if (Array.isArray(fetchedTimelines)) {
             // Sort timelines by last_modified in descending order (TypeScript safe)
-            const sortedTimelines = fetchedTimelines.toSorted((a: { last_modified: string }, b: { last_modified: string }) => {
+            const sortedTimelines = [...fetchedTimelines].sort((a: { last_modified: string }, b: { last_modified: string }) => {
               const dateA = new Date(a.last_modified).getTime();
               const dateB = new Date(b.last_modified).getTime();
               return dateB - dateA;

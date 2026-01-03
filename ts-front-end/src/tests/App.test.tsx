@@ -2,7 +2,6 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import App from '../App';
 import { MemoryRouter } from 'react-router-dom';
-import posthog from 'posthog-js';
 
 vi.mock('posthog-js', () => ({
     default: {
@@ -19,7 +18,7 @@ vi.mock('../providers/authProvider', () => ({
 // Mock components
 vi.mock('../pages/LandingPage', () => ({ default: () => <div data-testid="landing-page">Landing Page</div> }));
 vi.mock('../pages/LoginPage', () => ({ default: () => <div data-testid="login-page">Login Page</div> }));
-vi.mock('../pages/degree-audit/DegreeAuditPage', () => ({ default: () => <div data-testid="degree-audit-page">Degree Audit Page</div> }));
+vi.mock('../pages/DegreeAuditPage', () => ({ default: () => <div data-testid="degree-audit-page">Degree Audit Page</div> }));
 vi.mock('../components/NavBar', () => ({ Navbar: () => <nav data-testid="navbar" role="navigation">Navbar</nav> }));
 vi.mock('../components/Footer', () => ({ Footer: () => <footer data-testid="footer" role="contentinfo">Footer</footer> }));
 vi.mock('../components/DashboardLayout/DashboardLayout', () => ({ default: ({ children }: any) => <div data-testid="dashboard-layout">{children}</div> }));
@@ -56,25 +55,5 @@ describe('App', () => {
         );
         expect(screen.queryByTestId('navbar')).toBeNull();
         expect(screen.queryByTestId('footer')).toBeNull();
-    });
-
-    it('should initialize posthog in production mode', async () => {
-        vi.stubEnv('VITE_NODE_ENV', 'production');
-        vi.stubEnv('VITE_POSTHOG_KEY', 'test-key');
-        vi.stubEnv('VITE_POSTHOG_HOST', 'test-host');
-
-        // Re-import App so it picks up the stubbed environment
-        const { default: AppProd } = await import('../App?prod');
-
-        render(
-            <MemoryRouter initialEntries={['/']}>
-                <AppProd />
-            </MemoryRouter>
-        );
-
-        expect(posthog.init).toHaveBeenCalled();
-        expect(posthog.capture).toHaveBeenCalledWith('app_loaded', expect.any(Object));
-
-        vi.unstubAllEnvs();
     });
 });

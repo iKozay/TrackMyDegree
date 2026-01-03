@@ -53,7 +53,7 @@ describe("SemesterPlanner", () => {
   ];
 
   const onCourseSelect = vi.fn();
-  const onRemoveCourse = vi.fn();
+  const onAddSemester = vi.fn();
 
   it("renders the header title and Add Semester button", () => {
     render(
@@ -62,7 +62,7 @@ describe("SemesterPlanner", () => {
         courses={courses}
         onCourseSelect={onCourseSelect}
         selectedCourse={null}
-        onRemoveCourse={onRemoveCourse}
+        onAddSemester={onAddSemester}
       />
     );
 
@@ -82,7 +82,7 @@ describe("SemesterPlanner", () => {
         courses={courses}
         onCourseSelect={onCourseSelect}
         selectedCourse={null}
-        onRemoveCourse={onRemoveCourse}
+        onAddSemester={onAddSemester}
       />
     );
 
@@ -101,7 +101,7 @@ describe("SemesterPlanner", () => {
         courses={courses}
         onCourseSelect={onCourseSelect}
         selectedCourse={"COMP 248"}
-        onRemoveCourse={onRemoveCourse}
+        onAddSemester={onAddSemester}
       />
     );
 
