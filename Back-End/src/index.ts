@@ -19,7 +19,7 @@ import feedbackRouter from '@routes/feedbackRoutes';
 import userRouter from '@routes/userRoutes';
 import sectionsRoutes from '@routes/sectionsRoutes';
 import uploadRouter from '@routes/uploadRoutes';
-import timelineJobRouter from '@routes/timelineJobRoutes';
+import jobRouter from '@routes/jobRoutes';
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
@@ -117,7 +117,7 @@ app.use('/admin', adminRouter);
 app.use('/feedback', feedbackRouter);
 app.use('/section', sectionsRoutes);
 app.use('/upload', uploadRouter);
-app.use('/jobs', timelineJobRouter);
+app.use('/jobs', jobRouter);
 
 //Handle 404
 app.use(notFoundHandler);
