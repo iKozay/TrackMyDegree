@@ -62,15 +62,13 @@ const DOES_NOT_EXIST = 'does not exist';
  */
 router.post('/', async (req: Request, res: Response) => {
   try {
+    console.log('POST /timeline called with body:', req.body);
     const timelineData = req.body;
 
-    if (
-      !timelineData.userId ||
-      !timelineData.name ||
-      !timelineData.degreeId
-    ) {
+    if (!timelineData.userId || !timelineData.name || !timelineData.degreeId) {
       res.status(HTTP.BAD_REQUEST).json({
-        error: 'User ID, timeline name, and degree ID, courses and coursePools are required',
+        error:
+          'User ID, timeline name, and degree ID, courses and coursePools are required',
       });
       return;
     }
@@ -82,8 +80,6 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
-
-
 
 /**
  * GET /timeline/:id - Get timeline by ID
@@ -119,42 +115,37 @@ router.post('/', async (req: Request, res: Response) => {
  *         description: Internal server error
  */
 // routes/timeline.ts
-router.get(
-  '/:id',
-  assignJobId,
-  async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const { jobId } = req as RequestWithJobId;
+router.get('/:id', assignJobId, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { jobId } = req as RequestWithJobId;
 
-     if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(HTTP.BAD_REQUEST).json({
         error: INVALID_ID_FORMAT,
       });
     }
 
-      if (!jobId) {
-        res.status(500).json({ error: 'Job ID missing' });
-        return;
-      }
-
-      await queue.add('processData', {
-        jobId,
-        kind: 'timelineData',
-        timelineId: id,
-      });
-
-      res.status(HTTP.ACCEPTED).json({
-        jobId,
-        status: 'processing',
-      });
-    } catch (error) {
-      console.error('Error in GET /timeline/:id', error);
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    if (!jobId) {
+      res.status(500).json({ error: 'Job ID missing' });
+      return;
     }
-  },
-);
 
+    await queue.add('processData', {
+      jobId,
+      kind: 'timelineData',
+      timelineId: id,
+    });
+
+    res.status(HTTP.ACCEPTED).json({
+      jobId,
+      status: 'processing',
+    });
+  } catch (error) {
+    console.error('Error in GET /timeline/:id', error);
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+  }
+});
 
 /**
  * PUT /timeline/:id - Update timeline
@@ -250,7 +241,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-   if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(HTTP.BAD_REQUEST).json({
         error: INVALID_ID_FORMAT,
       });
@@ -262,7 +253,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     console.error('Error in DELETE /timeline/:id', error);
     if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
       res.status(HTTP.NOT_FOUND).json({ error: error.message });
-    }else {
+    } else {
       res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
   }

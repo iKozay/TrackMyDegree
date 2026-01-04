@@ -64,14 +64,26 @@ export function calculateEarnedCredits(courses: CourseMap): number {
   }, 0);
 }
 
-export function saveTimeline(
+import { toast } from "react-toastify";
+import { api } from "../api/http-api-client";
+
+export async function saveTimeline(
   userId: string,
   timelineName: string,
-  state: TimelineState
+  jobId?: string
 ) {
-  console.log("Saving timeline for user:", userId, "with name:", timelineName);
-  console.log("Timeline state:", state);
-  // API call to save the timeline
+  try {
+    await api.post("/timeline", {
+      userId,
+      timelineName,
+      ...(jobId && { jobId }),
+    });
+
+    toast.success("Timeline saved successfully");
+  } catch (error: unknown) {
+    console.error("Error saving timeline:", error);
+    toast.error("Failed to save timeline. Please try again.");
+  }
 }
 
 function isCourseSatisfied(

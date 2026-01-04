@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import CoursePool from "../components/CoursePool";
 import SemesterPlanner from "../components/SemesterPlanner";
 import CourseDetails from "../components/CourseDetail";
@@ -18,21 +18,15 @@ type TimeLinePageRouteParams = {
 };
 
 const TimeLinePage: React.FC = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const { jobId } = useParams<TimeLinePageRouteParams>();
-  const location = useLocation();
 
   const { status, state, actions, canUndo, canRedo } = useTimelineState(jobId);
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    localStorage.setItem("redirectAfterLogin", location.pathname);
-    navigate("/signin", { replace: true });
-  };
-
   // TO DISCUSS
   const tryAgain = () => {
-    navigate(`/timeline/${jobId}`);
+    navigate("/timeline");
   };
   if (status === "processing") {
     return <TimelineLoader />;
@@ -57,7 +51,7 @@ const TimeLinePage: React.FC = () => {
             courses={state.courses}
             timelineName={state.timelineName}
             onSave={(timelineName: string) => {
-              if (user) saveTimeline(user.id, timelineName, state);
+              if (user) saveTimeline(user.id, timelineName, jobId);
             }}
             onAdd={actions.addCourse}
             onClose={actions.openModal}
@@ -71,11 +65,6 @@ const TimeLinePage: React.FC = () => {
           earnedCredits={calculateEarnedCredits(state.courses)}
           totalCredits={state.degree.totalCredits}
           onOpenModal={actions.openModal}
-          onSave={
-            isAuthenticated
-              ? (open: boolean, type: string) => actions.openModal(open, type)
-              : handleLogin
-          }
         />
 
         <main className="timeline-main">

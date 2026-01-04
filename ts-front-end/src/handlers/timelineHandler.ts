@@ -307,15 +307,15 @@ export function addCourse(
 
   const poolName =
     type === "exemption"
-      ? "Exemptions"
+      ? "exemptions"
       : type === "deficiency"
-      ? "Deficiencies"
+      ? "deficiencies"
       : null;
 
   console.log("Adding course", courseId, "as", type);
   if (!poolName) return state;
   console.log("Target pool:", poolName);
-  console.log("Current courses:", state.courses);
+  console.log("Current degree:", state.degree);
 
   const course = state.courses[courseId];
   if (!course) return state;
@@ -328,6 +328,7 @@ export function addCourse(
   let poolsChanged = false;
 
   const updatedPools = state.pools.map((pool) => {
+    console.log("Checking pool:", pool.name);
     if (pool.name !== poolName) return pool;
 
     if (pool.courses.includes(courseId)) {

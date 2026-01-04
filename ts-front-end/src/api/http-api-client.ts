@@ -1,7 +1,7 @@
 import { ENV } from "../config";
 import { request } from "./request";
 
-const SERVER = ENV.API_SERVER || "http://localhost:8000";
+const SERVER = ENV.API_SERVER || "http://localhost:8000/api";
 
 type HTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
