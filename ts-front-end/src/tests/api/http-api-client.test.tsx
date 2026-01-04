@@ -6,6 +6,12 @@ vi.mock("../../api/request", () => ({
   request: vi.fn(),
 }));
 
+vi.mock("../../config", () => ({
+  ENV: {
+    API_SERVER: "http://localhost:8000",
+  },
+}));
+
 describe("http-api-client", () => {
   const mockRequest = vi.mocked(requestModule.request);
 
