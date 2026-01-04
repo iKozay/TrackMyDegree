@@ -211,6 +211,7 @@ jobs:
 
           echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
           echo "versioned_tag=${VERSIONED_TAG}" >> $GITHUB_OUTPUT
+          echo "version_tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
           
 
       - name: Build and Push ${{ matrix.name }} Image
@@ -222,4 +223,4 @@ jobs:
             ${{ steps.version.outputs.latest_tag }}
             ${{ steps.version.outputs.versioned_tag }}
           build-args: |
-            VITE_DEPLOYMENT_VERSION=${{ steps.version.outputs.versioned_tag }}         
+            VITE_DEPLOYMENT_VERSION=${{ steps.version.outputs.version_tag }}

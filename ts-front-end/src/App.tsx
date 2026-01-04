@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { ENV } from "./config";
 import { Routes, Route, useLocation } from "react-router-dom";
 import posthog from "posthog-js";
 
@@ -27,13 +28,13 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import "./App.css";
 
 const deployment_version = import.meta.env.VITE_DEPLOYMENT_VERSION || '1.0.0';
-const NODE_ENV = import.meta.env.VITE_NODE_ENV || 'development';
+const NODE_ENV = ENV.NODE_ENV || 'development';
 
 // Only initialize PostHog if not in development mode
 if (NODE_ENV !== 'development') {
   posthog.init(
-    import.meta.env.VITE_POSTHOG_KEY,
-    { api_host: import.meta.env.VITE_POSTHOG_HOST }
+    ENV.POSTHOG_KEY,
+    { api_host: ENV.POSTHOG_HOST }
   );
 }
 

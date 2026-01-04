@@ -20,6 +20,9 @@ FROM node:22
 
 WORKDIR /app
 
+# Install envsubst
+RUN apt-get update && apt-get install -y gettext-base && rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./package.json
@@ -27,4 +30,4 @@ COPY --from=build /app/vite.config.ts ./vite.config.ts
 
 EXPOSE 5173
 
-CMD ["npm", "run", "start"]
+CMD envsubst < ./dist/env.js > ./dist/env.runtime.js && mv ./dist/env.runtime.js ./dist/env.js && npm run start
