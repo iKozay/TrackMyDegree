@@ -37,6 +37,6 @@
     "test:coverage": "jest --coverage",
     "dev": "concurrently --names \"BACKEND,FRONTEND\" --prefix-colors \"blue,green\" \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd Back-End/src && npm run dev",
-    "dev:frontend": "cd ts-front-end && dotenv -e ../secrets/.env -- npm run dev"
+    "dev:frontend": "cd ts-front-end && npm run dev"
   }
 }

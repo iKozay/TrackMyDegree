@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "dotenv -e ../secrets/.env -- vite",
+    "dev": "VITE_NODE_ENV=development VITE_API_SERVER=http://localhost:8000/api vite",
     "build": "tsc -b && vite build",
     "start": "vite preview --host",
     "deploy": "npm run build",
