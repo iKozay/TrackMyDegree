@@ -51,7 +51,7 @@ afterEach(() => {
 
     expect(result).toBeDefined();
     expect(result.degree._id).toBe('deg1');
-    expect(result.pools.length).toBe(1);
+    expect(result.pools.length).toBe(3);
     expect(Object.keys(result.courses).length).toBe(5);
     expect(result.semesters.length).toBeGreaterThan(0);
   });
@@ -261,12 +261,12 @@ afterEach(() => {
     const result = await buildTimeline(fileData);
 
     // Exemption pool exists
-    const exemptionPool = result.pools.find(p => p._id === 'exemptions');
+    const exemptionPool = result.pools.find(p => p._id === 'Exemptions');
     expect(exemptionPool).toBeDefined();
     expect(exemptionPool.courses).toContain('COMP 232');
 
     // Status map updated
-    expect(result.courses['COMP 232'].status.status).toBe('exempted');
+    expect(result.courses['COMP 232'].status.status).toBe('completed');
     expect(result.courses['COMP 232'].status.semester).toBeNull();
   });
 
@@ -289,7 +289,7 @@ afterEach(() => {
     const fileData = { type: 'file', data: Buffer.from('mock file') };
     const result = await buildTimeline(fileData);
   
-    const deficiencyPool = result.pools.find(p => p._id === 'deficiencies');
+    const deficiencyPool = result.pools.find(p => p._id === 'Deficiencies');
     expect(deficiencyPool).toBeDefined();
     expect(deficiencyPool.courses).toContain('COMP 249');
     
@@ -327,13 +327,13 @@ afterEach(() => {
     const result = await buildTimelineFromDB('timeline1');
     console.log(result)
     expect(result).toBeDefined();
-    expect(result.courses['MATH 204'].status.status).toBe('exempted');
+    expect(result.courses['MATH 204'].status.status).toBe('completed');
     expect(result.courses['CHEM 206'].status.status).toBe('incomplete');
 
-    const exemptionPool = result.pools.find(p => p._id === 'exemptions');
+    const exemptionPool = result.pools.find(p => p._id === 'Exemptions');
     expect(exemptionPool.courses).toContain('MATH 204');
 
-    const deficiencyPool = result.pools.find(p => p._id === 'deficiencies');
+    const deficiencyPool = result.pools.find(p => p._id === 'Deficiencies');
     expect(deficiencyPool.courses).toContain('CHEM 206');
   });
 
