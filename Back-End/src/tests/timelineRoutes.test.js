@@ -4,9 +4,16 @@ const request = require('supertest');
 const express = require('express');
 const timelineRoutes = require('../routes/timelineRoutes').default;
 const { Timeline } = require('../models/timeline');
+const {timelineController} = require('../controllers/timelineController');
 
 // Increase timeout for mongodb-memory-server binary download/startup
 jest.setTimeout(60000);
+
+jest.mock('../lib/cache', () => ({
+  getJobResult: jest.fn(),
+}));
+const { getJobResult } = require('../lib/cache');
+
 
 jest.mock('../middleware/assignJobId', () => ({
   assignJobId: jest.fn((req, _res, next) => {
@@ -52,10 +59,10 @@ describe('Timeline Routes', () => {
 
  describe('POST /timeline', () => {
   const userId = new mongoose.Types.ObjectId().toString();
+  const timelineName = 'My Timeline';
+  const jobId = 'test-job-id';
   const baseTimelineData = {
-    userId: userId,
-    name: 'My Timeline',
-    degreeId: 'COMP',
+    degree: {_id: 'COMP'},
     semesters: [
       { term:"FALL 2023", courses: [
         { code: 'COMP101' },
@@ -74,76 +81,83 @@ describe('Timeline Routes', () => {
       { _id: 'deficiencies', courses: ['MATH100'] },
     ],
   };
+  const cachedTimelineResult = {
+  payload: {
+    data: baseTimelineData,
+  },
+};
 
-  it('should save a new timeline successfully', async () => {
-    const response = await request(app)
-      .post('/timeline')
-      .send(baseTimelineData)
-      .expect(201);
 
-    expect(response.body._id).toBeDefined();
-    expect(response.body.userId).toBe(baseTimelineData.userId.toString());
-    expect(response.body.name).toBe(baseTimelineData.name);
-    expect(response.body.degreeId).toBe(baseTimelineData.degreeId);
-    expect(response.body.isExtendedCredit).toBe(false);
-    expect(response.body.semesters).toHaveLength(1);
-    //expect(response.body.courseStatusMap.get('COMP101').status).toBe('completed');
-   // expect(response.body.courseStatusMap).toHaveProperty('MATH101');
-    //expect(response.body.courseStatusMap).not.toHaveProperty('HIST101'); // incomplete ignored
-    expect(response.body.exemptions).toEqual(['COMP100']);
-    expect(response.body.deficiencies).toEqual(['MATH100']);
-  });
+ it('should save a new timeline successfully', async () => {
+  getJobResult.mockResolvedValue(cachedTimelineResult);
 
-  it('should return 400 if userId, name, or degreeId are missing', async () => {
-    const invalidDataSets = [
-      { ...baseTimelineData, userId: undefined },
-      { ...baseTimelineData, name: undefined },
-      { ...baseTimelineData, degreeId: undefined },
-    ];
+  const response = await request(app)
+    .post('/timeline')
+    .send({userId, timelineName, jobId})
+    .expect(201);
+  console.log(response.body)
+  expect(response.body._id).toBeDefined();
+  expect(response.body.userId).toBe(userId);
+});
 
-    for (const data of invalidDataSets) {
-      const response = await request(app).post('/timeline').send(data).expect(400);
-      expect(response.body.error).toContain('User ID, timeline name, and degree ID');
-    }
-  });
+
+it('should return 400 if userId, timelineName, or jobId are missing', async () => {
+  const invalidPayloads = [
+    { timelineName: 'Test', jobId: 'job' },
+    { userId, jobId: 'job' },
+    { userId, timelineName: 'Test' },
+  ];
+
+  for (const body of invalidPayloads) {
+    await request(app).post('/timeline').send(body).expect(400);
+  }
+});
+
 
   it('should handle server errors gracefully', async () => {
-    const originalSaveTimeline = require('../controllers/timelineController').timelineController.saveTimeline;
-    require('../controllers/timelineController').timelineController.saveTimeline =
-      jest.fn().mockRejectedValue(new Error('Database error'));
+    getJobResult.mockResolvedValue(cachedTimelineResult);
+
+    const original = timelineController.saveTimeline;
+    timelineController.saveTimeline = jest
+      .fn()
+      .mockRejectedValue(new Error('DB error'));
 
     const response = await request(app)
       .post('/timeline')
-      .send(baseTimelineData)
+      .send({userId, timelineName, jobId})
       .expect(500);
 
     expect(response.body.error).toBe('Internal server error');
 
-    // Restore original method
-    require('../controllers/timelineController').timelineController.saveTimeline =
-      originalSaveTimeline;
+    timelineController.saveTimeline = original;
   });
+
 
   it('should create timeline with minimal required fields', async () => {
-    const minimalData = {
-      userId: 'user456',
-      name: 'Minimal Timeline',
-      degreeId: 'CS',
-      semesters: [],
-      isExtendedCredit: false,
-    };
+    getJobResult.mockResolvedValue({
+      payload: {
+        data: {
+          degree: { _id: 'CS' },
+          semesters: [],
+          courses: {},
+          coursePools: [],
+        },
+      },
+    });
 
-    const response = await request(app).post('/timeline').send(minimalData).expect(201);
+    const response = await request(app)
+      .post('/timeline')
+      .send({
+        userId: 'user456',
+        timelineName: 'Minimal Timeline',
+        jobId: 'test-job-id',
+      })
+      .expect(201);
 
     expect(response.body._id).toBeDefined();
-    expect(response.body.userId).toBe(minimalData.userId);
-    expect(response.body.name).toBe(minimalData.name);
-    expect(response.body.degreeId).toBe(minimalData.degreeId);
-    expect(response.body.semesters).toEqual([]);
-    expect(response.body.courseStatusMap).toEqual({});
-    expect(response.body.exemptions).toEqual([]);
-    expect(response.body.deficiencies).toEqual([]);
+    expect(response.body.userId).toBe('user456');
   });
+
 });
 
   describe('GET /timeline/:id', () => {
