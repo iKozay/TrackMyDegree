@@ -56,13 +56,17 @@ function CourseListPage() {
     setSelectedCourse(null);
   };
 
+  const normalize = (value = "") => String(value).toLowerCase().replace(/\s+/g, '');
+  const match = (courseId, searchTerm) => normalize(courseId).includes(normalize(searchTerm));
+
   // Filter courses based on search term
   const filteredCourseList = courseList
     .map((group) => ({
       ...group,
-      courses: group.courses.filter((course) => course.title.toLowerCase().includes(searchTerm.toLowerCase())),
+      courses: group.courses.filter((course) => match(course._id, searchTerm)),
     }))
     .filter((group) => group.courses.length > 0);
+  
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>

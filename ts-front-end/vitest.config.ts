@@ -10,7 +10,7 @@ export default defineConfig({
     environment: "jsdom", // 👈 this gives you window, document, etc.
     globals: true, // optional, lets you use describe/it/expect without imports
     setupFiles: "./src/setupTests.ts",
-    css: true,
+    css: false,
     coverage: {
       reporter: ['text', 'lcov', 'html'],
       reportsDirectory: './coverage',

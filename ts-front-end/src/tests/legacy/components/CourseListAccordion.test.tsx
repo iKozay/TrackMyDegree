@@ -78,8 +78,8 @@ describe('CourseListAccordion', () => {
     expect(screen.getByText('COMP 249')).toBeInTheDocument();
     expect(screen.getAllByText('3 credits')).toHaveLength(2);
     expect(screen.getByText('4 credits')).toBeInTheDocument();
-    expect(screen.getByText('ng I')).toBeInTheDocument();
-    expect(screen.getByText('ng II')).toBeInTheDocument();
+    expect(screen.getByText('Programming I')).toBeInTheDocument();
+    expect(screen.getByText('Programming II')).toBeInTheDocument();
   });
 
   it('highlights the selected course', () => {
@@ -119,7 +119,7 @@ describe('CourseListAccordion', () => {
     expect(screen.getAllByText('Electives')).toHaveLength(2);
     expect(screen.getByText(/Minimum of 6 credits/)).toBeInTheDocument();
     expect(screen.getByText('COMP 345')).toBeInTheDocument();
-    expect(screen.getByText('s of Programming Languages')).toBeInTheDocument();
+    expect(screen.getByText('Principles of Programming Languages')).toBeInTheDocument();
   });
 
   it('renders with empty courseList', () => {
