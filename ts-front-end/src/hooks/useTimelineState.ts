@@ -208,7 +208,6 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
       mountedRef.current = false;
 
       if (intervalRef.current) {
-        console.log("Cleaning up timeline polling interval");
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
