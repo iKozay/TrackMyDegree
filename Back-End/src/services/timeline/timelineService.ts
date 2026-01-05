@@ -9,6 +9,7 @@ import { Timeline } from '@models';
 
 
 export interface TimelineResult {
+    _id?: string;
     degree?: DegreeData;
     pools?: CoursePoolInfo[];
     semesters: TimelineSemester[];
@@ -136,11 +137,11 @@ export const buildTimeline = async (
     if(parsedData?.transferedCourses) addToCourseStatusMap(parsedData?.transferedCourses,courseStatusMap, 'completed');
 
     //add deficiencies course pool (if there is no deficiencies the courses field will contain an empty array)
-    addToCoursePools('deficiencies', deficiencies, courses,coursePools);
+    addToCoursePools('Deficiencies', deficiencies, courses,coursePools);
 
     // add exempted satus to exempted courses and add an exemption course pool
-    addToCourseStatusMap(exemptions,courseStatusMap, 'exempted');
-    addToCoursePools('exemptions', exemptions, courses, coursePools, false);
+    addToCourseStatusMap(exemptions,courseStatusMap, 'completed');
+    addToCoursePools('Exemptions', exemptions, courses, coursePools, false);
     
     
     //transform courses obtained from db to the format expected by the frontend
@@ -231,15 +232,18 @@ function processSemestersFromParsedData(parsedData:ParsedData, degree:DegreeData
       }
   return semesters_results
 }
+
 function getCourseStatus(term:string, isCoop:boolean|undefined, courseCode:string, coursesThatNeedCMinus:Set<string>, courseGrade?:string){
   let status: CourseStatus = "incomplete";
   let message;
-  if (isInprogress(term))
-      status = "inprogress" 
+  if (courseGrade?.toUpperCase() === 'DISC')
+    message = 'DISC'
+  else if (isInprogress(term))
+    status = "inprogress" 
   else if (isPlanned(term)) 
-      status = "planned"
+    status = "planned"
   else if(isCoop && courseCode.toUpperCase().includes("CWTE")){
-      if(courseGrade?.toUpperCase() == "PASS") status = "completed"      
+    if(courseGrade?.toUpperCase() == "PASS") status = "completed"      
   } else{
     let minGrade = 'D-'
     if (coursesThatNeedCMinus.has(courseCode)) minGrade = 'C-'
@@ -255,7 +259,6 @@ function getCourseStatus(term:string, isCoop:boolean|undefined, courseCode:strin
 }
 
 function addToCoursePools(coursePoolName:string, coursesToAdd:string[], allCourses:Record<string, CourseData>,coursePools: CoursePoolInfo[], calculateCredits:boolean = true){
-  if(coursesToAdd.length <= 0) return;
   //calculate number of credits required and create a new coursePool with the deficiency courses.
   let creditsRequired = 0; 
   if(calculateCredits){

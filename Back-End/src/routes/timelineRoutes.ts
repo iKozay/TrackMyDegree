@@ -4,6 +4,8 @@ import { timelineController } from '@controllers/timelineController';
 import { assignJobId, RequestWithJobId } from '@middleware/assignJobId';
 import { queue } from '../workers/queue';
 import mongoose from 'mongoose';
+import { getJobResult } from '../lib/cache';
+import { TimelineResult } from '@services/timeline/timelineService';
 
 const router = express.Router();
 
@@ -59,13 +61,18 @@ const DOES_NOT_EXIST = 'does not exist';
  *         description: Missing required fields
  *       500:
  *         description: Internal server error
+ * 
+ *  userId: '69585bfa18efc3e74fe8a82b',
+    timelineName: 'timeline-1767563685136',
+    jobId: '88a6bf9a-fe52-413e-b133-6c16ddae38e8'
  */
+
 router.post('/', async (req: Request, res: Response) => {
   try {
     console.log('POST /timeline called with body:', req.body);
-    const timelineData = req.body;
+    const {userId, timelineName, jobId } = req.body;
 
-    if (!timelineData.userId || !timelineData.name || !timelineData.degreeId) {
+    if (!userId || !timelineName || !jobId) {
       res.status(HTTP.BAD_REQUEST).json({
         error:
           'User ID, timeline name, and degree ID, courses and coursePools are required',
@@ -73,7 +80,15 @@ router.post('/', async (req: Request, res: Response) => {
       return;
     }
 
-    const timeline = await timelineController.saveTimeline(timelineData);
+// get result from cache
+    const cached = await getJobResult<TimelineResult>(jobId);
+
+    if (!cached) {
+      return res.status(410).json({ error: 'result expired' });
+    }
+    const cachedTimeline = cached.payload.data;
+
+    const timeline = await timelineController.saveTimeline(userId, timelineName, cachedTimeline);
     res.status(HTTP.CREATED).json(timeline);
   } catch (error) {
     console.error('Error in POST /timeline', error);
