@@ -61,10 +61,6 @@ const DOES_NOT_EXIST = 'does not exist';
  *         description: Missing required fields
  *       500:
  *         description: Internal server error
- * 
- *  userId: '69585bfa18efc3e74fe8a82b',
-    timelineName: 'timeline-1767563685136',
-    jobId: '88a6bf9a-fe52-413e-b133-6c16ddae38e8'
  */
 
 router.post('/', async (req: Request, res: Response) => {
