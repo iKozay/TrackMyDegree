@@ -30,10 +30,11 @@ describe('TimelineController', () => {
   });
 
   describe('saveTimeline', () => {
+    const userId = 'user123';
+    const name= 'My Timeline';
     const baseTimeline = {
-      userId: 'user123',
-      name: 'My Timeline',
-      degreeId: 'COMP',
+      
+      degree: { _id: 'COMP'},
       semesters: [
         {
           term: 'FALL 2023',
@@ -54,7 +55,7 @@ describe('TimelineController', () => {
     };
 
     it('creates a new timeline successfully', async () => {
-      const result = await timelineController.saveTimeline(baseTimeline);
+      const result = await timelineController.saveTimeline(userId, name, baseTimeline);
       expect(result).toBeDefined();
       expect(result.userId).toBe('user123');
       expect(result.degreeId).toBe('COMP');
@@ -62,9 +63,9 @@ describe('TimelineController', () => {
     });
 
     it('updates an existing timeline', async () => {
-      const created = await timelineController.saveTimeline(baseTimeline);
+      const created = await timelineController.saveTimeline(userId, name, baseTimeline);
 
-      const updated = await timelineController.saveTimeline({
+      const updated = await timelineController.saveTimeline(userId, name, {
         ...baseTimeline,
         _id: created._id.toString(),
         courses: {
@@ -79,8 +80,7 @@ describe('TimelineController', () => {
 
     it('throws error when required fields are missing', async () => {
       await expect(
-        timelineController.saveTimeline({
-          name: 'Invalid',
+        timelineController.saveTimeline(userId, 'Invalid',{
           semesters: [],
           courses: {},
           coursePools: [],
@@ -91,7 +91,7 @@ describe('TimelineController', () => {
     });
 
     it('filters out incomplete courses', async () => {
-      const result = await timelineController.saveTimeline({
+      const result = await timelineController.saveTimeline(userId, name, {
         ...baseTimeline,
         courses: {
           COMP248: {
@@ -108,7 +108,7 @@ describe('TimelineController', () => {
       timelineController.create = jest.fn().mockResolvedValue({ success: false });
 
       await expect(
-        timelineController.saveTimeline(baseTimeline),
+        timelineController.saveTimeline(userId, name, baseTimeline),
       ).rejects.toThrow('Failed to save timeline');
 
       timelineController.create = originalCreate;

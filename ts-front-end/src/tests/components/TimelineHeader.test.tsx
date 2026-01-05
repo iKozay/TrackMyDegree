@@ -2,6 +2,18 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { TimelineHeader } from "../../components/TimelineHeader";
 
+vi.mock("../../hooks/useAuth", () => ({
+  useAuth: () => ({
+    isAuthenticated: true,
+    user: {
+      id: "u1",
+      email: "test@test.com",
+      fullname: "Test User",
+      type: "student",
+    },
+  }),
+}));
+
 describe("TimelineHeader", () => {
   const baseProps = {
     canUndo: false,
@@ -82,17 +94,5 @@ describe("TimelineHeader", () => {
 
     expect(onOpenModal).toHaveBeenCalledTimes(1);
     expect(onOpenModal).toHaveBeenCalledWith(true, "insights");
-  });
-
-  it("calls onSave when Save Data is clicked", () => {
-    const onSave = vi.fn();
-
-    render(<TimelineHeader {...baseProps} onSave={onSave} />);
-
-    const saveBtn = screen.getByRole("button", { name: /save data/i });
-
-    fireEvent.click(saveBtn);
-
-    expect(onSave).toHaveBeenCalledTimes(1);
   });
 });

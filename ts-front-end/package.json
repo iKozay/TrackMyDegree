@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "VITE_NODE_ENV=development VITE_API_SERVER=http://localhost:8000/api vite",
+    "dev": "vite",
     "build": "tsc -b && vite build",
     "start": "vite preview --host",
     "deploy": "npm run build",
@@ -28,6 +28,7 @@
     "react-dom": "^19.2.0",
     "react-feather": "^2.0.10",
     "react-router-dom": "^7.9.6",
+    "react-toastify": "^11.0.5",
     "typewriter-effect": "^2.22.0"
   },
   "devDependencies": {

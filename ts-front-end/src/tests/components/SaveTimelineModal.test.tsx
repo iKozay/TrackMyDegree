@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { SaveTimelineModal } from "../../components/SaveTimelineModal";
 
@@ -20,13 +20,14 @@ describe("SaveTimelineModal", () => {
   it("should not render when open is false", () => {
     render(<SaveTimelineModal {...defaultProps} open={false} />);
 
-    expect(screen.queryByText("Save Timeline")).not.toBeInTheDocument();
+    expect(screen.queryByText("Name Your Timeline")).not.toBeInTheDocument();
   });
 
   it("should render modal when open is true", () => {
     render(<SaveTimelineModal {...defaultProps} />);
 
-    expect(screen.getByText("Save Timeline")).toBeInTheDocument();
+    expect(screen.getByText("Name Your Timeline")).toBeInTheDocument();
+
     expect(screen.getByText("Cancel")).toBeInTheDocument();
     expect(screen.getByText("Save")).toBeInTheDocument();
   });
@@ -34,27 +35,36 @@ describe("SaveTimelineModal", () => {
   it("should display input with initial timeline name", () => {
     render(<SaveTimelineModal {...defaultProps} />);
 
-    const input: HTMLInputElement = screen.getByPlaceholderText("Timeline name");
+    const input = screen.getByPlaceholderText(
+      "Timeline name"
+    ) as HTMLInputElement;
+
     expect(input.value).toBe("My Timeline");
   });
 
   it("should update input value when typing", () => {
     render(<SaveTimelineModal {...defaultProps} />);
 
-    const input: HTMLInputElement = screen.getByPlaceholderText("Timeline name");
-    fireEvent.change(input, { target: { value: "New Timeline Name" } });
+    const input = screen.getByPlaceholderText(
+      "Timeline name"
+    ) as HTMLInputElement;
+
+    fireEvent.change(input, {
+      target: { value: "New Timeline Name" },
+    });
 
     expect(input.value).toBe("New Timeline Name");
   });
 
-  it("should call onSave with timeline name when Save button is clicked", () => {
+  it("should call onSave with trimmed timeline name and close modal", () => {
     render(<SaveTimelineModal {...defaultProps} />);
 
     const input = screen.getByPlaceholderText("Timeline name");
-    fireEvent.change(input, { target: { value: "Updated Timeline  " } });
+    fireEvent.change(input, {
+      target: { value: "Updated Timeline  " },
+    });
 
-    const saveButton = screen.getByText("Save");
-    fireEvent.click(saveButton);
+    fireEvent.click(screen.getByText("Save"));
 
     expect(mockOnSave).toHaveBeenCalledWith("Updated Timeline");
     expect(mockOnClose).toHaveBeenCalledTimes(1);
@@ -63,8 +73,7 @@ describe("SaveTimelineModal", () => {
   it("should call onClose when Cancel button is clicked", () => {
     render(<SaveTimelineModal {...defaultProps} />);
 
-    const cancelButton = screen.getByText("Cancel");
-    fireEvent.click(cancelButton);
+    fireEvent.click(screen.getByText("Cancel"));
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);
     expect(mockOnSave).not.toHaveBeenCalled();
@@ -73,11 +82,13 @@ describe("SaveTimelineModal", () => {
   it("should call onClose when backdrop is clicked", () => {
     render(<SaveTimelineModal {...defaultProps} />);
 
-    const backdrop = screen.getByText("Save Timeline").closest(".modal-backdrop");
-    
-    if (backdrop) {
-      fireEvent.click(backdrop);
-      expect(mockOnClose).toHaveBeenCalledTimes(1);
-    }
+    const title = screen.getByText("Name Your Timeline");
+    const backdrop = title.closest(".modal-backdrop");
+
+    expect(backdrop).toBeTruthy();
+
+    fireEvent.click(backdrop!);
+
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 });

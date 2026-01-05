@@ -2,13 +2,14 @@
 import { parseFile } from "@services/parsingService";
 import { ParsedData, ProgramInfo, Semester, CourseStatus } from "../../types/transcript";
 import { degreeController, CoursePoolInfo, DegreeData } from "@controllers/degreeController";
-import { CourseData } from "@controllers/courseController";
+import { CourseData, courseController } from "@controllers/courseController";
 import { SEASONS } from "@utils/constants";
 import { Timeline } from '@models';
 
 
 
 export interface TimelineResult {
+    _id?: string;
     degree?: DegreeData;
     pools?: CoursePoolInfo[];
     semesters: TimelineSemester[];
@@ -123,24 +124,28 @@ export const buildTimeline = async (
     if (!result) throw new Error( "Error fetching degree data from database")
     
     const { degreeData: degree, coursePools, courses } = result;
+
+    // Load exemption and deficiency courses if they are missing from the data loaded from the database
+    await loadMissingCourses(exemptions, courses)
+    await loadMissingCourses(deficiencies, courses)
    
     if(!semestersResults){
       if(parsedData?.semesters)
-        semestersResults = processSemestersFromParsedData(parsedData,degree,coursePools,courses, courseStatusMap)
+        semestersResults = await processSemestersFromParsedData(parsedData,degree,coursePools,courses, courseStatusMap)
       else
         semestersResults = generateSemesters(programInfo.firstTerm, programInfo.lastTerm)
     }
     
     
     //add transfer credits to course completed
-    if(parsedData?.transferedCourses) addToCourseStatusMap(parsedData?.transferedCourses,courseStatusMap, 'completed');
+    addToCourseStatusMap(parsedData?.transferedCourses,courseStatusMap, 'completed');
 
     //add deficiencies course pool (if there is no deficiencies the courses field will contain an empty array)
-    addToCoursePools('deficiencies', deficiencies, courses,coursePools);
+    addToCoursePools('Deficiencies', deficiencies, courses,coursePools);
 
-    // add exempted satus to exempted courses and add an exemption course pool
-    addToCourseStatusMap(exemptions,courseStatusMap, 'exempted');
-    addToCoursePools('exemptions', exemptions, courses, coursePools, false);
+    // add exemptions to course completed and add an Exemptions course pool
+    addToCourseStatusMap(exemptions,courseStatusMap, 'completed');
+    addToCoursePools('Exemptions', exemptions, courses, coursePools, false);
     
     
     //transform courses obtained from db to the format expected by the frontend
@@ -193,7 +198,7 @@ function mapRequisites(reqs?: string[][]) {
 }
 
 
-function processSemestersFromParsedData(parsedData:ParsedData, degree:DegreeData, coursePools:CoursePoolInfo[], allCourses:Record<string, CourseData>, courseStatusMap: Record<string, {status: CourseStatus;semester: string | null;}> ){
+async function processSemestersFromParsedData(parsedData:ParsedData, degree:DegreeData, coursePools:CoursePoolInfo[], allCourses:Record<string, CourseData>, courseStatusMap: Record<string, {status: CourseStatus;semester: string | null;}> ){
   if(!parsedData.semesters) return []
 
   let requiredCourses = getRequiredCourses(coursePools)
@@ -209,7 +214,9 @@ function processSemestersFromParsedData(parsedData:ParsedData, degree:DegreeData
           let courseData = allCourses[normalizedCode];
 
           if (!courseData) {
-            // Course not part of degree → skip or mark as unknown
+            // Course not part of degree → fetch its info and mark it as not part of the degree
+            const courseData:CourseData = await getCourseData(normalizedCode);
+            if(courseData) allCourses[courseData._id] = courseData;
             coursesInfo.push({
               code: normalizedCode,
               message: "Course not part of degree requirements",
@@ -231,20 +238,22 @@ function processSemestersFromParsedData(parsedData:ParsedData, degree:DegreeData
       }
   return semesters_results
 }
+
 function getCourseStatus(term:string, isCoop:boolean|undefined, courseCode:string, coursesThatNeedCMinus:Set<string>, courseGrade?:string){
   let status: CourseStatus = "incomplete";
   let message;
-  if (isInprogress(term))
-      status = "inprogress" 
+  if (courseGrade?.toUpperCase() === 'DISC')
+    message = 'DISC'
+  else if (isInprogress(term))
+    status = "inprogress" 
   else if (isPlanned(term)) 
-      status = "planned"
+    status = "planned"
   else if(isCoop && courseCode.toUpperCase().includes("CWTE")){
-      if(courseGrade?.toUpperCase() == "PASS") status = "completed"      
+    if(courseGrade?.toUpperCase() == "PASS") status = "completed"      
   } else{
     let minGrade = 'D-'
     if (coursesThatNeedCMinus.has(courseCode)) minGrade = 'C-'
     let satisfactoryGrade = validateGrade(minGrade, courseGrade)
-    //TODO: check if the course is part of the degreee
     if(satisfactoryGrade){
       status = "completed"
     }else{
@@ -255,7 +264,6 @@ function getCourseStatus(term:string, isCoop:boolean|undefined, courseCode:strin
 }
 
 function addToCoursePools(coursePoolName:string, coursesToAdd:string[], allCourses:Record<string, CourseData>,coursePools: CoursePoolInfo[], calculateCredits:boolean = true){
-  if(coursesToAdd.length <= 0) return;
   //calculate number of credits required and create a new coursePool with the deficiency courses.
   let creditsRequired = 0; 
   if(calculateCredits){
@@ -276,11 +284,12 @@ function addToCoursePools(coursePoolName:string, coursesToAdd:string[], allCours
   )
 }
 
-function addToCourseStatusMap(coursesToAdd:string[], courseStatusMap: Record<string, { status: CourseStatus; semester: string | null;}>, status:CourseStatus){
+function addToCourseStatusMap(coursesToAdd:string[]| undefined, courseStatusMap: Record<string, { status: CourseStatus; semester: string | null;}>, status:CourseStatus, semester:string|null = null){
+  if(!coursesToAdd) return
   for (const course of coursesToAdd){
     courseStatusMap[normalizeCourseCode(course)] = {
         status: status,
-        semester: null,
+        semester: semester,
     };
   }
 }
@@ -400,6 +409,27 @@ function validateGrade( minGrade:string, courseGrade?: string  ): boolean {
   const minValue = gradeValues[minGrade.toUpperCase()] ?? 0;
 
   return studentValue >= minValue;
+}
+
+async function  loadMissingCourses(coursesToAdd:string[], degreeCourses: Record<string, CourseData>){
+  for (const courseCode of coursesToAdd){
+    if(!degreeCourses[courseCode]){
+      const courseData:CourseData = await getCourseData(courseCode);
+      if (!courseData) continue
+      degreeCourses[courseData._id] = courseData;
+    }
+  }
+}
+
+async function getCourseData(courseCode:string) {
+  try{
+    const normalizedCourseCode = normalizeCourseCode(courseCode)
+    return await courseController.getCourseByCode(normalizedCourseCode);
+    //TODO: handle courses that are not in the db
+  } catch(error){
+    console.log(error)
+    return null;
+  }
 }
 
 

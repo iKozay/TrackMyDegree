@@ -7,20 +7,43 @@ import { motion } from 'framer-motion';
 import moment from 'moment';
 import { api } from '../../api/http-api-client';
 import avatar from '../../icons/avatar.svg';
+import { useNavigate } from "react-router-dom";
 
 import DeleteModal from '../components/DeleteModal.jsx';
 import TrashLogo from '../../icons/trashlogo.jsx';
 
 const UserPage = (prop) => {
+  const navigate = useNavigate();
   const user = prop.student || {};
-  const [userTimelines, setUserTimelines] = useState(prop.timelines || []);
+  const [userTimelines, setUserTimelines] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [timelineToDelete, setTimelineToDelete] = useState(null);
-
+  // 🔑 Sync props → state
+  useEffect(() => {
+    if (prop.timelines) {
+      setUserTimelines(prop.timelines);
+    }
+  }, [prop.timelines]);
   // Fetch degree credits (wrapped in util)
   const handleTimelineClick = async (obj) => {
     // TODO: Handle click to load timeline
-    globalThis.alert('Timeline loading is under maintenance. Please check back later.');
+
+    try {
+      const response = await api.get(`/timeline/${obj._id}`);
+      if (response?.jobId) {
+        navigate(`/timeline/${response.jobId}`);
+        return;
+      }
+
+      alert("Unexpected response from server.");
+    } catch (error) {
+      console.error("Error processing loading from db:", error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : "An unknown error occurred while processing the form.";
+      alert(message);
+    }
   };
 
   // Delete timeline handler using utils
@@ -32,7 +55,7 @@ const UserPage = (prop) => {
   const handleDelete = async (timeline_id) => {
     try {
       await api.delete(`/timeline/${timeline_id}`);
-      setUserTimelines((prev) => prev.filter((obj) => obj.id !== timeline_id));
+      setUserTimelines((prev) => prev.filter((obj) => obj._id !== timeline_id));
     } catch (e) {
       console.error('Error deleting timeline:', e);
     }
@@ -115,7 +138,7 @@ const UserPage = (prop) => {
 
         {/* Delete Modal */}
         {showModal && (
-            <DeleteModal open={showModal} onClose={() => setShowModal(false)}>
+          <DeleteModal open={showModal} onClose={() => setShowModal(false)}>
             <div className="tw-text-center tw-w-56">
               <TrashLogo size={56} className="tw-mx-auto tw-text-red-500" />
               <div className="tw-mx-auto tw-my-4 tw-w-48">
@@ -126,7 +149,7 @@ const UserPage = (prop) => {
                 <button
                   className="btn btn-danger tw-w-full"
                   onClick={() => {
-                    handleDelete(timelineToDelete?.id);
+                    handleDelete(timelineToDelete?._id);
                     setShowModal(false);
                   }}
                 >

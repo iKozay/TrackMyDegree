@@ -1,21 +1,7 @@
 import { BaseMongoController } from './baseMongoController';
 import { Timeline } from '@models';
-import {TimelineSemester,TimelineCourse,} from '@services/timeline/timelineService';
+import { TimelineResult, TimelineDocument,} from '@services/timeline/timelineService';
 import { CourseStatus } from '../types/transcript';
-import { CoursePoolInfo } from './degreeController';
-
-// Timeline as received from frontend for saving/editing
-export interface TimelineData {
-  _id?: string; // optional if creating a new timeline
-  userId: string;
-  name: string;
-  degreeId: string;
-  semesters: TimelineSemester[];
-  isExtendedCredit?: boolean;
-  isCoop?: boolean;
-  courses: Record<string, TimelineCourse>; // full course info
-  coursePools: CoursePoolInfo[]
-}
 
 
 export class TimelineController extends BaseMongoController<any> {
@@ -27,11 +13,11 @@ export class TimelineController extends BaseMongoController<any> {
    * Save or update a timeline (upsert operation)
    * Optimized with single database operation
    */
-  async saveTimeline(timeline:TimelineData){
+  async saveTimeline(userId:string, timelineName:string, timeline:TimelineResult){
     try {
-      const { _id, userId, name, degreeId, semesters, isExtendedCredit, isCoop, courses, coursePools } = timeline;
+      const { _id, degree, semesters, isExtendedCredit, isCoop, courses, pools } = timeline;
 
-      if (!userId || !name || !degreeId) {
+      if (!userId || !timelineName || !degree?._id) {
         throw new Error('User ID, timeline name, and degree ID are required');
       }
       
@@ -49,14 +35,14 @@ export class TimelineController extends BaseMongoController<any> {
               ])
           );
          
-      const exemptionPool = (coursePools || []).find(p => p._id === 'exemptions');
-      const deficiencyPool = (coursePools || []).find(p => p._id === 'deficiencies');
+      const exemptionPool = (pools || []).find(p => p._id === 'Exemptions');
+      const deficiencyPool = (pools || []).find(p => p._id === 'Deficiencies');
       const exemptions  = exemptionPool?.courses ?? [];
       const deficiencies = deficiencyPool?.courses ?? [];
       const record = {
           userId,
-          name,
-          degreeId,
+          name: timelineName,
+          degreeId: degree?._id,
           semesters: semesters ?? [],
           isExtendedCredit: isExtendedCredit ?? false,
           isCoop: isCoop ?? false,
@@ -101,10 +87,7 @@ export class TimelineController extends BaseMongoController<any> {
     /**
    * Update timeline
    */
-  async updateTimeline(
-    timeline_id: string,
-    updates: Partial<TimelineData>,
-  ): Promise<TimelineData> {
+  async updateTimeline( timeline_id: string, updates: Partial<TimelineDocument>) {
     try {
       const result = await this.updateById(timeline_id, updates);
 

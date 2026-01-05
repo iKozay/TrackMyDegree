@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 
 import {
   Undo2,
@@ -10,6 +10,7 @@ import {
   Plus,
   Save,
 } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
 
 interface HistoryControlsProps {
   canUndo: boolean;
@@ -18,92 +19,91 @@ interface HistoryControlsProps {
   onRedo: () => void;
 }
 
-function shareTimeline(setShow: React.Dispatch<React.SetStateAction<boolean>>): void {
+function shareTimeline(
+  setShow: React.Dispatch<React.SetStateAction<boolean>>
+): void {
   // copy current url in browser to clipboard
-  navigator.clipboard.writeText(globalThis.location.href).then(() => {
-    console.log('Timeline URL copied to clipboard');
-  }).catch((err) => {
-    console.error('Failed to copy timeline URL: ', err);
-  });
+  navigator.clipboard
+    .writeText(globalThis.location.href)
+    .then(() => {
+      console.log("Timeline URL copied to clipboard");
+    })
+    .catch((err) => {
+      console.error("Failed to copy timeline URL: ", err);
+    });
   setShow(true);
   setTimeout(() => setShow(false), 2000);
 }
 
 function downloadTimeline(): void {
-  const semestersGrid = document.querySelector('.semesters-grid') as HTMLElement;
+  const semestersGrid = document.querySelector(
+    ".semesters-grid"
+  ) as HTMLElement;
   if (!semestersGrid) {
-    console.error('Semesters grid not found');
+    console.error("Semesters grid not found");
     return;
   }
 
-  Promise.all([
-    import('html2canvas'),
-    import('jspdf')
-  ]).then(async ([html2canvasModule, jsPDFModule]) => {
-    const html2canvas = html2canvasModule.default;
-    const jsPDF = jsPDFModule.jsPDF;
+  Promise.all([import("html2canvas"), import("jspdf")])
+    .then(async ([html2canvasModule, jsPDFModule]) => {
+      const html2canvas = html2canvasModule.default;
+      const jsPDF = jsPDFModule.jsPDF;
 
-    // 1. Clone the node
-    const clone = semestersGrid.cloneNode(true) as HTMLElement;
+      // 1. Clone the node
+      const clone = semestersGrid.cloneNode(true) as HTMLElement;
 
-    // 2. Create offscreen container
-    const wrapper = document.createElement("div");
-    wrapper.style.position = "fixed";
-    wrapper.style.left = "-100000px";
-    wrapper.style.top = "-100000px";
-    wrapper.style.width = `${semestersGrid.scrollWidth}px`;
-    wrapper.style.height = `${semestersGrid.scrollHeight}px`;
-    wrapper.style.overflow = "visible";
-    wrapper.style.background = "white";
+      // 2. Create offscreen container
+      const wrapper = document.createElement("div");
+      wrapper.style.position = "fixed";
+      wrapper.style.left = "-100000px";
+      wrapper.style.top = "-100000px";
+      wrapper.style.width = `${semestersGrid.scrollWidth}px`;
+      wrapper.style.height = `${semestersGrid.scrollHeight}px`;
+      wrapper.style.overflow = "visible";
+      wrapper.style.background = "white";
 
-    // 3. Force full width on clone
-    clone.style.width = "auto";
-    clone.style.maxWidth = "none";
-    clone.style.overflow = "visible";
+      // 3. Force full width on clone
+      clone.style.width = "auto";
+      clone.style.maxWidth = "none";
+      clone.style.overflow = "visible";
 
-    wrapper.appendChild(clone);
-    document.body.appendChild(wrapper);
+      wrapper.appendChild(clone);
+      document.body.appendChild(wrapper);
 
-    try {
-      // 4. Render full content
-      const canvas = await html2canvas(clone, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        width: clone.scrollWidth,
-        height: clone.scrollHeight,
-        windowWidth: clone.scrollWidth,
-        windowHeight: clone.scrollHeight,
-      });
+      try {
+        // 4. Render full content
+        const canvas = await html2canvas(clone, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          width: clone.scrollWidth,
+          height: clone.scrollHeight,
+          windowWidth: clone.scrollWidth,
+          windowHeight: clone.scrollHeight,
+        });
 
-      wrapper.remove();
+        wrapper.remove();
 
-      // 6. Create SINGLE-PAGE PDF
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "px",
-        format: [canvas.width, canvas.height],
-      });
+        // 6. Create SINGLE-PAGE PDF
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF({
+          orientation: "landscape",
+          unit: "px",
+          format: [canvas.width, canvas.height],
+        });
 
-      pdf.addImage(
-        imgData,
-        "PNG",
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
+        pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
 
-      pdf.save("timeline.pdf");
-    } catch (err) {
-      // 5. Cleanup on error
-      wrapper.remove();
-      console.error('Failed to generate PDF:', err);
-    }
-  }).catch((err: Error) => {
-    console.error('Failed to load PDF libraries:', err);
-  });
+        pdf.save("timeline.pdf");
+      } catch (err) {
+        // 5. Cleanup on error
+        wrapper.remove();
+        console.error("Failed to generate PDF:", err);
+      }
+    })
+    .catch((err: Error) => {
+      console.error("Failed to load PDF libraries:", err);
+    });
 }
 
 const HistoryControls: React.FC<HistoryControlsProps> = ({
@@ -132,9 +132,11 @@ const HistoryControls: React.FC<HistoryControlsProps> = ({
         <Redo2 size={16} />
       </button>
 
-      <button className="btn btn-secondary" onClick={() => shareTimeline(setShow)}>
+      <button
+        className="btn btn-secondary"
+        onClick={() => shareTimeline(setShow)}>
         <Share2 size={16} />
-        {show ? 'Copied' : 'Share'}
+        {show ? "Copied" : "Share"}
       </button>
 
       <button className="btn btn-secondary" onClick={downloadTimeline}>
@@ -142,7 +144,8 @@ const HistoryControls: React.FC<HistoryControlsProps> = ({
         Download
       </button>
     </div>
-)};
+  );
+};
 
 interface CreditsSummaryProps {
   earned: number;
@@ -157,13 +160,10 @@ const CreditsSummary: React.FC<CreditsSummaryProps> = ({ earned, total }) => (
 
 interface PrimaryActionsProps {
   onOpenModal?: (open: boolean, type: string) => void;
-  onSave?: (open: boolean, type: string) => void;
 }
 
-const PrimaryActions: React.FC<PrimaryActionsProps> = ({
-  onOpenModal,
-  onSave,
-}) => {
+const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
+  const { isAuthenticated } = useAuth();
   // TODO: merge all as one method handleModal(type: string)
   const handleInsights = () => {
     if (onOpenModal) onOpenModal(true, "insights");
@@ -175,7 +175,7 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({
     if (onOpenModal) onOpenModal(true, "deficiency");
   };
   const handleSave = () => {
-    if (onSave) onSave(true, "save");
+    if (onOpenModal) onOpenModal(true, "save");
   };
   return (
     <div className="header-actions">
@@ -194,10 +194,12 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({
         Add Exemption
       </button>
 
-      <button className="btn btn-secondary" onClick={handleSave}>
-        <Save size={16} />
-        Save Data
-      </button>
+      {isAuthenticated && (
+        <button className="btn btn-secondary" onClick={handleSave}>
+          <Save size={16} />
+          Save Data
+        </button>
+      )}
     </div>
   );
 };
@@ -217,7 +219,6 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
   earnedCredits,
   totalCredits,
   onOpenModal,
-  onSave,
 }) => (
   <header className="app-header">
     <HistoryControls
@@ -229,6 +230,6 @@ export const TimelineHeader: React.FC<TimelineHeaderProps> = ({
 
     <CreditsSummary earned={earnedCredits} total={totalCredits} />
 
-    <PrimaryActions onOpenModal={onOpenModal} onSave={onSave} />
+    <PrimaryActions onOpenModal={onOpenModal} />
   </header>
 );
