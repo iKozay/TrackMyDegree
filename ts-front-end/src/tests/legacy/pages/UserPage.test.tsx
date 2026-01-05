@@ -121,6 +121,40 @@ describe('UserPage', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/timeline/job123');
   });
 
+  test('pressing Enter on timeline navigates to the job ID', async () => {
+    const timelines = [{ _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
+    vi.mocked(api.get).mockResolvedValueOnce({ jobId: 'job456' });
+    renderWithRouter({ student: baseUser, timelines });
+
+    const timelineInfo = screen.getByRole('button', { name: /Plan A/i });
+    fireEvent.keyDown(timelineInfo, { key: 'Enter' });
+
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/timeline/t1'));
+    expect(mockNavigate).toHaveBeenCalledWith('/timeline/job456');
+  });
+
+  test('pressing Space on timeline navigates to the job ID', async () => {
+    const timelines = [{ _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
+    vi.mocked(api.get).mockResolvedValueOnce({ jobId: 'job789' });
+    renderWithRouter({ student: baseUser, timelines });
+
+    const timelineInfo = screen.getByRole('button', { name: /Plan A/i });
+    fireEvent.keyDown(timelineInfo, { key: ' ' });
+
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/timeline/t1'));
+    expect(mockNavigate).toHaveBeenCalledWith('/timeline/job789');
+  });
+
+  test('pressing other keys on timeline does not navigate', async () => {
+    const timelines = [{ _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
+    renderWithRouter({ student: baseUser, timelines });
+
+    const timelineInfo = screen.getByRole('button', { name: /Plan A/i });
+    fireEvent.keyDown(timelineInfo, { key: 'Tab' });
+
+    expect(api.get).not.toHaveBeenCalled();
+  });
+
   test('clicking delete opens modal and does not call API', async () => {
     const timelines = [{ _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
     renderWithRouter({ student: baseUser, timelines });

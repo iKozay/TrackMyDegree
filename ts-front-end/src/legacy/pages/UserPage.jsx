@@ -117,6 +117,14 @@ const UserPage = (prop) => {
                       <div
                         className="timeline-info flex-grow-1 text-start"
                         onClick={() => handleTimelineClick(obj)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleTimelineClick(obj);
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
                         style={{ cursor: 'pointer' }}
                       >
                         <div className="timeline-text mb-0">{obj.name}</div>
