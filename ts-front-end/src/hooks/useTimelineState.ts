@@ -151,25 +151,29 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
   const [state, dispatch] = useReducer(timelineReducer, EMPTY_TIMELINE_STATE);
 
   const actions = createTimelineActions(dispatch);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const mountedRef = useRef(true);
+
   useEffect(() => {
-    let isMounted = true;
+    mountedRef.current = true;
 
-    async function fetchResult() {
+    // guard
+    if (!jobId) return;
+    if (initialized) return; // ✅ don't start polling if already initialized
+
+    const fetchResult = async () => {
       try {
-        // add 1 second delay to avoid polling too fast
-        // await new Promise((resolve) => setTimeout(resolve, 1000));
-        const data: TimelineJobResponse = await api.get(`/jobs/${jobId}`);
+        const data = await api.get<TimelineJobResponse>(`/jobs/${jobId}`);
 
-        if (!isMounted) return;
+        if (!mountedRef.current) return;
 
         setStatus(data.status);
 
-        if (data.status === "done" && data.result && !initialized) {
+        if (data.status === "done" && data.result) {
           const { degree, pools, courses, semesters } = data.result;
           const timelineName =
             data.result.timelineName || `timeline-${Date.now()}`;
 
-          // THIS is where the reducer gets real data
           actions.initTimelineState(
             timelineName,
             degree,
@@ -178,20 +182,36 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
             semesters
           );
           setInitialized(true);
+
+          // ✅ STOP polling immediately
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
         }
       } catch (err) {
         console.error("Error fetching timeline result:", err);
-        if (!isMounted) return;
+        if (!mountedRef.current) return;
         setStatus("error");
-      }
-    }
 
-    // simple one-shot for now; you can re-add polling if you want
-    // fetchResult();
-    const intervalId = setInterval(fetchResult, 1000);
+        // optional: stop on error
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+      }
+    };
+
+    intervalRef.current = setInterval(fetchResult, 1000);
+
     return () => {
-      isMounted = false;
-      clearInterval(intervalId);
+      mountedRef.current = false;
+
+      if (intervalRef.current) {
+        console.log("Cleaning up timeline polling interval");
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
   }, [jobId, initialized, actions]);
 
