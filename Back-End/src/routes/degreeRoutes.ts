@@ -15,7 +15,7 @@ const DEGREE_ID_REQUIRED = 'Degree ID is required';
 const DOES_NOT_EXIST = 'does not exist';
 
 //Cache Time To Live
-const DEGREE_CACHE_TTL = 1800; // ✅ 30 minutes
+const DEGREE_CACHE_TTL = 1800; // 30 minutes
 
 /**
  * @openapi
