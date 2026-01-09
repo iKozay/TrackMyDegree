@@ -6,6 +6,7 @@ import re
 from . import course_data_scraper
 from . import engr_general_electives_scraper
 from . import comp_utils
+from . import ecp_scraper
 
 # Set a user agent to mimic a real browser
 USERAGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -102,6 +103,10 @@ class DegreeDataScraper():
             return
 
     def scrape_degree(self, url):
+        if url == "engr_ecp":
+            return ecp_scraper.scrape_engr_ecp()
+        elif url == "comp_ecp":
+            return ecp_scraper.scrape_comp_ecp()
         self.url_received = url
         self.soup = self.get_page(url)
         try:
