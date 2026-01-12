@@ -120,10 +120,6 @@ const DegreeAuditPage: React.FC = () => {
                                 <span className="value">{data.student.name}</span>
                             </div>
                             <div className="info-row">
-                                <span className="label">Student ID:</span>
-                                <span className="value">{data.student.studentId}</span>
-                            </div>
-                            <div className="info-row">
                                 <span className="label">Program:</span>
                                 <span className="value">{data.student.program}</span>
                             </div>

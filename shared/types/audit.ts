@@ -1,6 +1,5 @@
 export interface StudentInfo {
   name: string;
-  studentId: string;
   program: string;
   advisor?: string;
   gpa?: string;

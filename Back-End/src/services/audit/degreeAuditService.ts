@@ -200,9 +200,6 @@ function processPoolToRequirement(
   });
 
   const creditsTotal = pool.creditsRequired || 0;
-  const missingCount = auditCourses.filter(
-    (c) => c.status === 'Missing' || c.status === 'Not Started',
-  ).length;
   const reqStatus = determineRequirementStatus(
     creditsCompleted,
     creditsInProgress,
@@ -220,10 +217,10 @@ function processPoolToRequirement(
   }
 
   return {
-    id: `req-${pool._id}`,
+    id: `req-${pool._id.replace(/\s+/g, '-')}`,
     title: displayName || 'Unknown Requirement',
     status: reqStatus,
-    missingCount: missingCount > 0 ? missingCount : undefined,
+    missingCount: Math.ceil((creditsTotal - creditsCompleted) / 3), // This doesn't always work, we need to add in course pool how many courses are required, so what is missing can be calculated reliably
     creditsCompleted,
     creditsTotal,
     courses: auditCourses,
@@ -428,7 +425,6 @@ function buildStudentInfo(
 ): StudentInfo {
   return {
     name: user.fullname,
-    studentId: user._id.toString(),
     program: degreeData.name,
     admissionTerm: firstSemester,
     expectedGraduation: estimateGraduation(remainingCredits),
