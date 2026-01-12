@@ -33,7 +33,12 @@ redisClient.on('connect', () => {
 });
 // Connect to Redis
 // Establish a connection to the Redis server
-redisClient.connect();
+// Explicit connect function (called once at app startup)
+export const connectRedis = async () => {
+  if (!redisClient.isOpen) {
+    await redisClient.connect();
+  }
+};
 
 // Export the Redis client for use in other parts of the application
 export default redisClient;
