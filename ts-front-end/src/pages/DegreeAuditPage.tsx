@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Download, FileText, AlertTriangle, CheckCircle, Circle, XCircle, ChevronDown, ChevronUp, RefreshCw, Inbox } from 'lucide-react';
-import type { DegreeAuditData, RequirementCategory } from '../types/audit.types.ts';
+import type { DegreeAuditData, RequirementCategory } from '@shared/audit';
 import mockDegreeAuditResponse from "../mock/degreeAuditResponse.json";
 import DegreeAuditSkeleton from '../components/DegreeAuditSkeleton.tsx';
 import '../styles/DegreeAuditPage.css';
