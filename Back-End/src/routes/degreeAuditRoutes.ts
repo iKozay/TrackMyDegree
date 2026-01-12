@@ -49,7 +49,6 @@ const INVALID_ID_FORMAT = 'Invalid id format';
  *                   type: object
  *                   properties:
  *                     name: { type: string }
- *                     studentId: { type: string }
  *                     program: { type: string }
  *                     advisor: { type: string }
  *                     gpa: { type: string }

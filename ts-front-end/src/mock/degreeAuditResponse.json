@@ -1,7 +1,6 @@
 {
   "student": {
     "name": "John Smith",
-    "studentId": "40123456",
     "program": "Bachelor of Computer Science",
     "advisor": "Dr. Sarah Johnson",
     "gpa": "3.45 / 4.0",
