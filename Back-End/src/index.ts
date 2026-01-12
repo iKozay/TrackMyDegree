@@ -84,6 +84,7 @@ mongoose.connection.on('disconnected', () => {
 });
 
 Sentry.setupExpressErrorHandler(app);
+app.set('query parser', 'simple'); // to have type string for query params instead of string | string[]
 
 if (process.env.NODE_ENV === 'development') {
   const corsOptions = {
