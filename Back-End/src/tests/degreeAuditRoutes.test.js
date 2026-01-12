@@ -1,8 +1,9 @@
-import { Types } from 'mongoose';
-import request from 'supertest';
-import express, { json } from 'express';
-import degreeAuditRoutes from '../routes/degreeAuditRoutes';
-import { degreeAuditController } from '@controllers/degreeAuditController';
+const { Types } = require('mongoose');
+const request = require('supertest');
+const express = require('express');
+const { json } = express;
+const degreeAuditRoutes = require('../routes/degreeAuditRoutes');
+const { degreeAuditController } = require('@controllers/degreeAuditController');
 
 const app = express();
 app.use(json());
