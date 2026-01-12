@@ -5,6 +5,9 @@ const mockSet = jest.fn();
 const mockGet = jest.fn();
 const mockDel = jest.fn();
 const mockExpire = jest.fn();
+const mockSetEx = jest.fn();
+const mockKeys = jest.fn();
+
 
 jest.mock('../lib/redisClient', () => ({
   __esModule: true,
@@ -13,6 +16,8 @@ jest.mock('../lib/redisClient', () => ({
     get: mockGet,
     del: mockDel,
     expire: mockExpire,
+    setEx: mockSetEx,
+    keys: mockKeys,
   },
 }));
 
@@ -22,6 +27,10 @@ const {
   getJobResult,
   deleteJobResult,
   extendJobTTL,
+  cacheGet,
+  cacheSet,
+  cacheDel,
+  cacheDelPattern,
 } = require('../lib/cache');
 
 describe('cache helpers (lib/cache)', () => {
@@ -83,5 +92,53 @@ describe('cache helpers (lib/cache)', () => {
     // TTL is 60 * 60 = 3600
     expect(mockExpire).toHaveBeenCalledTimes(1);
     expect(mockExpire).toHaveBeenCalledWith('job:timeline:job-ttl-999', 3600);
+  });
+
+  test('cacheGet returns null when redis returns null', async () => {
+    mockGet.mockResolvedValueOnce(null);
+    await expect(cacheGet('k1')).resolves.toBeNull();
+  });
+
+  test('cacheGet parses when redis returns string JSON', async () => {
+    mockGet.mockResolvedValueOnce('{"a":1}');
+    await expect(cacheGet('k2')).resolves.toEqual({ a: 1 });
+  });
+
+  test('cacheGet parses when redis returns Uint8Array (Buffer branch)', async () => {
+    const json = '{"b":2}';
+    const u8 = Uint8Array.from(json.split('').map(c => c.charCodeAt(0)));
+
+    mockGet.mockResolvedValueOnce(u8);
+
+    await expect(cacheGet('k3')).resolves.toEqual({ b: 2 });
+  });
+
+  test('cacheGet hits fallback conversion and returns null on invalid JSON (catch branch)', async () => {
+    mockGet.mockResolvedValueOnce({ hello: 'world' }); // String(...) => "[object Object]" => invalid JSON
+    await expect(cacheGet('k4')).resolves.toBeNull();
+  });
+
+  //cacheSet/cacheDel/cacheDelPattern ---
+
+  test('cacheSet uses setEx with ttl and JSON string', async () => {
+    await cacheSet('k5', { z: 9 }, 10);
+    expect(mockSetEx).toHaveBeenCalledWith('k5', 10, '{"z":9}');
+  });
+
+  test('cacheDel calls del with key', async () => {
+    await cacheDel('k6');
+    expect(mockDel).toHaveBeenCalledWith('k6');
+  });
+
+  test('cacheDelPattern does nothing when no keys', async () => {
+    mockKeys.mockResolvedValueOnce([]);
+    await cacheDelPattern('job:*');
+    expect(mockDel).not.toHaveBeenCalled();
+  });
+
+  test('cacheDelPattern deletes all matching keys when keys exist', async () => {
+    mockKeys.mockResolvedValueOnce(['a', 'b']);
+    await cacheDelPattern('job:*');
+    expect(mockDel).toHaveBeenCalledWith(['a', 'b']);
   });
 });
