@@ -29,7 +29,7 @@ const CourseListAccordion = ({ courseList, selectedCourse, setSelectedCourse }) 
                       {course._id.slice(0, 4)} {course._id.slice(4)}
                     </Card.Title>
                     <Card.Subtitle className="course-credits">{course.credits} credits</Card.Subtitle>
-                    <Card.Text className="course-title">{course.title.slice(9)}</Card.Text>
+                    <Card.Text className="course-title">{course.title}</Card.Text>
                   </Card.Body>
                 </Card>
               ))}
