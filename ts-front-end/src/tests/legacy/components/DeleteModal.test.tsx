@@ -21,17 +21,14 @@ describe('DeleteModal', () => {
     expect(screen.getByText('Hello Modal')).toBeInTheDocument();
   });
 
-  test('does not render content when open is false (overlay still exists but invisible)', () => {
+  test('does not render content when open is false', () => {
     render(
       <DeleteModal open={false} onClose={onCloseMock}>
         <div data-testid="modal-content">Hello Modal</div>
       </DeleteModal>,
     );
 
-    const content = screen.getByTestId('modal-content');
-    expect(content).toBeInTheDocument();
-    // modal should have tw-invisible class
-    expect(content.parentElement!.parentElement).toHaveClass('tw-invisible');
+    expect(screen.queryByTestId('modal-content')).not.toBeInTheDocument();
   });
 
   test('calls onClose when overlay is clicked', () => {
