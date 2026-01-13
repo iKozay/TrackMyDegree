@@ -54,6 +54,13 @@
   font-size: 1rem;
   margin-bottom: 15px;
 }
+.show-course-button {
+  background-color: #800020;
+  color: white;
+  border: none;
+  border-radius: 7px;
+  padding: 10px 20px;
+}
 
 .course-list-dropdown-toggle {
   background-color: #912338 !important;
