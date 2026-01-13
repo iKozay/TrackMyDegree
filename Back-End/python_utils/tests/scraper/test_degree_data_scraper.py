@@ -256,3 +256,29 @@ def test_get_courses_computer_science_electives(mock_comp_electives):
     assert any(c["_id"] == "COMP 325" for c in s.courses)
     assert any(c["_id"] == "COMP 335" for c in s.courses)
 
+@patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
+def test_get_courses_option_branch(monkeypatch):
+    """Test the branch where output==[] and 'Option' in pool_name"""
+    from scraper.degree_data_scraper import DegreeDataScraper
+    from bs4 import BeautifulSoup
+
+    s = DegreeDataScraper()
+    s.url_received = "http://fakeurl.com"
+    s.temp_url = "fake"
+
+    # The pool_name contains 'Option', initial scrape returns empty
+    html = """
+    <div class='defined-group' title='Some Option Pool'>
+        <a href='subpool1.html'>Sub Pool 1</a>
+        <a href='subpool2.html'>Sub Pool 2</a>
+    </div>
+    """
+    s.soup = BeautifulSoup(html, "lxml")
+
+    # Mock get_courses to return a non-empty list for sub-pools
+    def fake_get_courses(url, pool_name):
+        return ["COURSE1", "COURSE2"]
+    monkeypatch.setattr(s, "get_courses", fake_get_courses)
+
+    result = s.get_courses("fake.html", "Some Option Pool")
+    assert result == ["COURSE1", "COURSE2"]  # ensures Option branch is exercised
