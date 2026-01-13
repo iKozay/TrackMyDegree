@@ -63,7 +63,7 @@ class ApiClient {
   }
 
   async seedAllData() {
-    return await this.get('/admin/seed-data');
+    return await this.get('/api/admin/seed-data');
   }
 }
 

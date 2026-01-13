@@ -10,7 +10,7 @@ const {
   logValidationSummary,
 } = require('./utils/data/seedTestHelpers');
 
-describe('Seed ALL via /admin/seed-data endpoint', () => {
+describe('Seed ALL via /api/admin/seed-data endpoint', () => {
   let apiClient;
   let app;
 
