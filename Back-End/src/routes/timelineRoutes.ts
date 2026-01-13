@@ -83,8 +83,6 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-
-
 /**
  * GET /timeline/:id - Get timeline by ID
  */

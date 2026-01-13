@@ -34,7 +34,7 @@ class ApiClient {
 
   // Login method that handles authentication and token extraction
   async login(credentials) {
-    const loginResponse = await this.post('/auth/login', credentials);
+    const loginResponse = await this.post('/api/auth/login', credentials);
     const token = this.extractTokenFromCookies(loginResponse);
     this.setAuthToken(token);
     return loginResponse;
@@ -62,8 +62,8 @@ class ApiClient {
     return await request.expect(expectedStatus);
   }
 
-  async seedAllData() {
-    return await this.get('/admin/seed-data');
+  async seedDegreeData(degreeName) {
+    return await this.get(`/api/admin/seed-data/${degreeName}`);
   }
 }
 
