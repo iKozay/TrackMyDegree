@@ -83,15 +83,6 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-
-    const timelines = await timelineController.getTimelinesByUser(userId as string);
-    res.status(HTTP.OK).json(timelines);
-  } catch (error) {
-    console.error('Error in GET /timeline/user/:userId', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
-});
-
 /**
  * GET /timeline/:id - Get timeline by ID
  */
@@ -134,7 +125,7 @@ router.get(
       const { id } = req.params;
       const { jobId } = req as RequestWithJobId;
 
-     if (!mongoose.Types.ObjectId.isValid(id)) {
+     if (!mongoose.Types.ObjectId.isValid(id as string)) {
       return res.status(HTTP.BAD_REQUEST).json({
         error: INVALID_ID_FORMAT,
       });
@@ -146,7 +137,7 @@ router.get(
       }
 
       await queue.add('processData', {
-        jobId as string,
+        jobId,
         kind: 'timelineData',
         timelineId: id as string,
       });
@@ -208,7 +199,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const updates = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(id as string)) {
       return res.status(HTTP.BAD_REQUEST).json({
         error: INVALID_ID_FORMAT,
       });
@@ -257,13 +248,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-   if (!mongoose.Types.ObjectId.isValid(id)) {
+   if (!mongoose.Types.ObjectId.isValid(id as string)) {
       return res.status(HTTP.BAD_REQUEST).json({
         error: INVALID_ID_FORMAT,
       });
     }
 
-    const result = await timelineController.removeUserTimeline(id as string);
+    const result = await timelineController.deleteTimeline(id as string);
     res.status(HTTP.OK).json(result);
   } catch (error) {
     console.error('Error in DELETE /timeline/:id', error);
@@ -308,7 +299,7 @@ router.delete('/user/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
+    if (!mongoose.Types.ObjectId.isValid(userId as string)) {
       return res.status(HTTP.BAD_REQUEST).json({
         error: INVALID_ID_FORMAT,
       });
