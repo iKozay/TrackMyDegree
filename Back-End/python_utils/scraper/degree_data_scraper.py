@@ -153,6 +153,7 @@ class DegreeDataScraper():
             raise e
 
         #Output as JSON
+        self.courses = list({c["_id"]: c for c in self.courses}.values())
         return {
             "degree":self.degree,
             "course_pool":self.course_pool,
