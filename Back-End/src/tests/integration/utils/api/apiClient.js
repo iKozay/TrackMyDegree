@@ -34,7 +34,7 @@ class ApiClient {
 
   // Login method that handles authentication and token extraction
   async login(credentials) {
-    const loginResponse = await this.post('/auth/login', credentials);
+    const loginResponse = await this.post('/api/auth/login', credentials);
     const token = this.extractTokenFromCookies(loginResponse);
     this.setAuthToken(token);
     return loginResponse;
