@@ -66,7 +66,7 @@ def scrape_engr_ecp():
     courses+=gen_electives[1]
 
     for pool in course_pool:
-        degree['coursePools']+=pool['name']
+        degree['coursePools'].append(pool['name'])
     print({'degree':degree, 'course_pool':course_pool, 'courses':len(courses)})
     return {'degree':degree, 'course_pool':course_pool, 'courses':courses}
 
@@ -159,6 +159,6 @@ def scrape_comp_ecp():
     })
 
     for pool in course_pool:
-        degree['coursePools']+=pool['name']
+        degree['coursePools'].append(pool['name'])
     
     return {'degree':degree, 'course_pool':course_pool, 'courses':courses}
