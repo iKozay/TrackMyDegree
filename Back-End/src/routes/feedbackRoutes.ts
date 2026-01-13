@@ -188,7 +188,7 @@ router.get('/:id', async (req: Request, res: Response) => {
       return;
     }
 
-    const feedback = await feedbackController.getFeedbackById(id);
+    const feedback = await feedbackController.getFeedbackById(id as string);
     res.status(HTTP.OK).json({
       message: 'Feedback retrieved successfully',
       feedback,
@@ -244,7 +244,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       return;
     }
 
-    const message = await feedbackController.deleteFeedback(id);
+    const message = await feedbackController.deleteFeedback(id as string);
     res.status(HTTP.OK).json({
       message,
     });
@@ -298,7 +298,7 @@ router.delete('/user/:userId', async (req: Request, res: Response) => {
       return;
     }
 
-    const count = await feedbackController.deleteUserFeedback(userId);
+    const count = await feedbackController.deleteUserFeedback(userId as string);
     res.status(HTTP.OK).json({
       message: 'All user feedback deleted successfully',
       deletedCount: count,
