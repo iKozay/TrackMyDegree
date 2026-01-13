@@ -137,7 +137,10 @@ def scrape_comp_ecp():
         else:
             gina_cody_classes += [d["_id"] for d in course_data_scraper.extract_course_data('ANY', urljoin(BASE_URL, dep.get('href')))]
 
-    
+    design_and_comp_art_classes=list(set(design_and_comp_art_classes))
+    math_and_stat_classes=list(set(math_and_stat_classes))
+    comp_and_soen_classes=list(set(comp_and_soen_classes))
+    gina_cody_classes=list(set(gina_cody_classes))
     
     course_pool.append({
         '_id': "(ANYTHING EXCEPT COURSES IN THIS COURSE POOL) ECP Electives: BCompSc (other than Joint Majors)",
