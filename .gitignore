@@ -3,6 +3,7 @@ backups/*
 Back-End/src/yarn.lock
 Back-End/src/dist
 Back-End/src/coverage
+Back-End/coverage
 front-end/yarn.lock
 package-lock.json
 **/.env
