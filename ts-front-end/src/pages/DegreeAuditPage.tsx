@@ -2,15 +2,13 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Download, FileText, AlertTriangle, CheckCircle, Circle, XCircle, ChevronDown, ChevronUp, RefreshCw, Inbox, ArrowLeft } from 'lucide-react';
 import DegreeAuditSkeleton from '../components/DegreeAuditSkeleton.tsx';
-import { api } from '../api/http-api-client';
-import { useAuth } from '../hooks/useAuth';
+import mockDegreeAuditResponse from "../mock/degreeAuditResponse.json";
 import '../styles/DegreeAuditPage.css';
 import type {DegreeAuditData, RequirementCategory, Notice, Course} from "../types/audit.types.ts";
 
 const DegreeAuditPage: React.FC = () => {
     const { timelineId } = useParams();
     const navigate = useNavigate();
-    const { user } = useAuth();
     const [data, setData] = useState<DegreeAuditData | null>(null);
     const [expandedReqs, setExpandedReqs] = useState<Set<string>>(new Set());
     const [isLoading, setIsLoading] = useState(true);
@@ -21,28 +19,27 @@ const DegreeAuditPage: React.FC = () => {
         setError(null);
 
         try {
-            let auditData: DegreeAuditData;
+            // Simulate API fetch delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
 
-            if (timelineId && user?.id) {
-                auditData = await api.get<DegreeAuditData>(
-                    `/audit/timeline/${timelineId}?userId=${user.id}`
-                );
-            } else if (user?.id) {
-                auditData = await api.get<DegreeAuditData>(
-                    `/audit/user/${user.id}`
-                );
-            } else {
-                throw new Error("User not authenticated");
+            // Randomly simulate error (10% chance) for demonstration
+            if (Math.random() < 0.1) {
+                throw new Error("Failed to connect to the audit server. Please try again.");
             }
 
-            setData(auditData);
+            const mockData = mockDegreeAuditResponse as DegreeAuditData;
+            setData(mockData);
+
+            // Expand first requirement by default
+            if (mockData.requirements.length > 0) {
+                setExpandedReqs(new Set([mockData.requirements[0].id]));
+            }
         } catch (err) {
-            console.error('Error fetching degree audit:', err);
             setError(err instanceof Error ? err.message : "An unexpected error occurred");
         } finally {
             setIsLoading(false);
         }
-    }, [timelineId, user?.id]);
+    }, []);
 
     useEffect(() => {
         fetchData();
@@ -278,15 +275,12 @@ const RequirementItem: React.FC<{
 
             {isExpanded && (
                 <div className="courses-list">
-                    {/* Requirement Progress Bar */}
-                    <div className="req-progress-container">
                         <div className="req-progress-bar">
                             <div
                                 className="req-progress-fill completed"
                                 style={{ width: `${percentage}%` }}
                             ></div>
                         </div>
-                    </div>
 
                     {/* Credit summary legend */}
                     <div className="req-credit-legend">

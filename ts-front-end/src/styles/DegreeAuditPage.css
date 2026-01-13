@@ -405,17 +405,11 @@
     border-radius: 12px;
 }
 
-/* Requirement Progress Bar */
-.req-progress-container {
-    margin-bottom: 0.75rem;
-}
-
 .req-progress-bar {
     height: 12px;
     background-color: var(--primary-rose-alpha);
     border-radius: 9999px;
     overflow: hidden;
-    margin-bottom: 24px;
 }
 
 .req-progress-fill {
@@ -474,8 +468,9 @@
 
 .course-info {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    gap: 12px;
+    margin: 0;
 }
 
 .course-icon {
