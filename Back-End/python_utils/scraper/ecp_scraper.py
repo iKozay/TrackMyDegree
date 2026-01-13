@@ -67,8 +67,8 @@ def scrape_engr_ecp():
 
     for pool in course_pool:
         degree['coursePools']+=pool['name']
-
-    return [degree, course_pool, courses]
+    print({'degree':degree, 'course_pool':course_pool, 'courses':len(courses)})
+    return {'degree':degree, 'course_pool':course_pool, 'courses':courses}
 
 def scrape_comp_ecp():
     URL="https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-70-department-of-computer-science-and-software-engineering/section-71-70-3-extended-credit-program.html"
@@ -161,4 +161,4 @@ def scrape_comp_ecp():
     for pool in course_pool:
         degree['coursePools']+=pool['name']
     
-    return [degree, course_pool, courses]
+    return {'degree':degree, 'course_pool':course_pool, 'courses':courses}
