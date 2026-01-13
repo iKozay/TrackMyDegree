@@ -63,6 +63,10 @@ export default function CoopSequencePlannerPage() {
     return COOP_PROGRAMS.find((p) => p.id === pendingProgramId) ?? null;
   }, [pendingProgramId]);
 
+  // ✅ Narrow the mode so ProgramChoiceModal never receives "direct"
+  const choiceMode =
+    pendingConfig && pendingConfig.mode.kind !== "direct" ? pendingConfig.mode : null;
+
   const onSelectProgram = (programId: ProgramId) => {
     const config = COOP_PROGRAMS.find((p) => p.id === programId);
 
@@ -94,13 +98,15 @@ export default function CoopSequencePlannerPage() {
       <>
         <ProgramGrid onSelectProgram={onSelectProgram} />
 
-        <ProgramChoiceModal
-          open={Boolean(pendingConfig && pendingConfig.mode.kind !== "direct")}
-          programTitle={pendingConfig?.title ?? ""}
-          mode={pendingConfig?.mode as any}
-          onClose={closeModal}
-          onPick={handlePick}
-        />
+        {choiceMode && (
+          <ProgramChoiceModal
+            open
+            programTitle={pendingConfig!.title}
+            mode={choiceMode}
+            onClose={closeModal}
+            onPick={handlePick}
+          />
+        )}
       </>
     );
   }
