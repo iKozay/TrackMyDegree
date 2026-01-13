@@ -175,7 +175,7 @@ function processPoolToRequirement(
     }
 
     auditCourses.push({
-      id: `course-${courseCode.replace(/\s+/g, '-')}`,
+      id: `course-${courseCode.replaceAll(/\s+/g, '-')}`,
       code: courseCode,
       title: courseData.title || 'Unknown Course',
       credits,
@@ -213,7 +213,7 @@ function processPoolToRequirement(
   }
 
   return {
-    id: `req-${pool._id.replace(/\s+/g, '-')}`,
+    id: `req-${pool._id.replaceAll(/\s+/g, '-')}`,
     title: displayName || 'Unknown Requirement',
     status: reqStatus,
     creditsCompleted,
@@ -316,7 +316,7 @@ function processDeficiencies(
     }
 
     deficiencyCourses.push({
-      id: `course-def-${courseCode.replace(/\s+/g, '-')}`,
+      id: `course-def-${courseCode.replaceAll(/\s+/g, '-')}`,
       code: courseCode,
       title: courseData?.title || 'Deficiency Course',
       credits,
@@ -352,7 +352,7 @@ function processExemptions(
     exemptionCredits += credits;
 
     exemptionCourses.push({
-      id: `course-ex-${courseCode.replace(/\s+/g, '-')}`,
+      id: `course-ex-${courseCode.replaceAll(/\s+/g, '-')}`,
       code: courseCode,
       title: courseData?.title || 'Exempted Course',
       credits,
@@ -574,7 +574,7 @@ export async function generateDegreeAuditForUser(
     .lean<TimelineWithUser>()
     .exec();
 
-  if (!timeline || !timeline._id) {
+  if (!timeline?._id) {
     throw new Error('No timeline found for this user');
   }
 
