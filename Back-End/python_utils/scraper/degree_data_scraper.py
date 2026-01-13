@@ -67,12 +67,23 @@ class DegreeDataScraper():
             output+=comp_courses_with_code_above_or_equal_to_325[0]
             self.courses+=comp_courses_with_code_above_or_equal_to_325[1]
         
-        if output==[]:
+        if output==[] and "Option" in pool_name:
             sub_pools=self.soup.find('div', class_='defined-group', title=pool_name.rstrip())
             a_tags=sub_pools.find_all('a')
             for a in a_tags:
-                output+=self.get_courses(a.get('href'), a.text)
+                output+=self.get_courses(urljoin(self.url_received,a.get('href')), a.text)
+        
+    
+        if output==[] and "Elective" in pool_name:
+            course_list = self.soup.find_all('div', class_="formatted-course")
+            for course in course_list:
+                temp_course_data=course_data_scraper.extract_course_data(course.find('span', class_="course-code-number").find('a').text, urljoin(self.url_received,course.find('span', class_="course-code-number").find('a').get('href')))
+                if temp_course_data not in self.courses:
+                    self.courses.append(temp_course_data)
+                    output.append(course.find('span', class_="course-code-number").find('a').text)
+
         return output
+
 
     def handle_engineering_core_restrictions(self, degree_name):
         if degree_name!="BEng in Industrial Engineering":
@@ -126,7 +137,7 @@ class DegreeDataScraper():
                     credits_required = float(pool.find('td').text) #in case the scraper runs into a paragraph
                 except:
                     continue
-                a_tags=pool.findAll('a')
+                a_tags=pool.find_all('a')
                 for a in a_tags:
                     name = a.text
                     self.temp_url = a.get('href')
@@ -139,14 +150,9 @@ class DegreeDataScraper():
                         'creditsRequired': credits_required,
                         'courses':list(set(course_list))
                     })
-                    print({
-                        '_id': course_pool_id,
-                        'name': name,
-                        'creditsRequired': credits_required,
-                        'courses':list(set(course_list))
-                    })
                     self.degree["coursePools"].append(course_pool_id)
-
+                    if "Core" in name:
+                        break
             self.handle_engineering_core_restrictions(self.degree["name"])
         except Exception as e:
             print(f"Error processing course block: {e}")
