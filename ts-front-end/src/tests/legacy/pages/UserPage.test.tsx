@@ -14,29 +14,31 @@ vi.mock('framer-motion', () => {
   return { motion: { div: MotionDivMock } };
 });
 
-/* ---------------- Mock DeleteModal and TrashLogo ---------------- */
+/* ---------------- Mock DeleteModal ---------------- */
 vi.mock('../../../legacy/components/DeleteModal', () => {
   const DeleteModalMock = ({ open, children }: any) => (open ? <div data-testid="delete-modal">{children}</div> : null);
   return { default: DeleteModalMock };
-});
-
-vi.mock('../../../icons/trashlogo', () => {
-  const TrashLogoMock = ({ className }: any) => (
-    <span data-testid="trash-logo" className={className}>
-      🗑️
-    </span>
-  );
-  return { default: TrashLogoMock };
 });
 
 /* ---------------- Mock API ---------------- */
 vi.mock('../../../api/http-api-client', () => ({
   api: {
     delete: vi.fn(),
+    get: vi.fn(),
   },
 }));
 
 import { api } from '../../../api/http-api-client';
+
+/* ---------------- Mock react-router-dom navigate ---------------- */
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router-dom')>();
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
 
 /* ---------------- Helpers ---------------- */
 function renderWithRouter({ student, timelines = [] }: any = {}) {
@@ -96,29 +98,28 @@ describe('UserPage', () => {
     expect(screen.getByText('Plan A')).toBeInTheDocument();
     expect(screen.getByText('Plan B')).toBeInTheDocument();
 
-    // "+" Add New Timeline link should exist when list is rendered
-    expect(screen.getByText('+')).toBeInTheDocument();
+    // "Create New Timeline" link should exist when list is rendered
+    expect(screen.getByText(/Create New Timeline/i)).toBeInTheDocument();
   });
 
-  test('clicking a timeline shows alert for maintenance', () => {
-    const timelines = [{ id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
+  test('clicking a timeline navigates to the job ID', async () => {
+    const timelines = [{ _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
+    vi.mocked(api.get).mockResolvedValueOnce({ jobId: 'job123' });
     renderWithRouter({ student: baseUser, timelines });
 
     const name = screen.getByText('Plan A');
     fireEvent.click(name);
 
-    expect(alertSpy).toHaveBeenCalledWith('Timeline loading is under maintenance. Please check back later.');
+    await waitFor(() => expect(api.get).toHaveBeenCalledWith('/timeline/t1'));
+    expect(mockNavigate).toHaveBeenCalledWith('/timeline/job123');
   });
 
-  test('clicking trash opens modal and does not call API', async () => {
-    const timelines = [{ id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
+  test('clicking delete opens modal and does not call API', async () => {
+    const timelines = [{ _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
     renderWithRouter({ student: baseUser, timelines });
 
-    const rowTitle = screen.getByText('Plan A');
-    const row = rowTitle.closest('.timeline-box');
-    const trash = within(row as HTMLElement).getByTestId('trash-logo');
-    const deleteBtn = trash.closest('button');
-    fireEvent.click(deleteBtn!);
+    const deleteBtn = screen.getByTitle('Delete');
+    fireEvent.click(deleteBtn);
 
     await waitFor(() => expect(screen.getByTestId('delete-modal')).toBeInTheDocument());
     expect(api.delete).not.toHaveBeenCalled();
@@ -126,21 +127,18 @@ describe('UserPage', () => {
 
   test('confirm delete removes the timeline and calls api.delete', async () => {
     const timelines = [
-      { id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' },
-      { id: 't2', name: 'Plan B', last_modified: '2025-10-01T10:00:00Z' },
+      { _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' },
+      { _id: 't2', name: 'Plan B', last_modified: '2025-10-01T10:00:00Z' },
     ];
     vi.mocked(api.delete).mockResolvedValueOnce(undefined as any);
 
     renderWithRouter({ student: baseUser, timelines });
 
-    const rowTitle = screen.getByText('Plan A');
-    const row = rowTitle.closest('.timeline-box');
-    const trash = within(row as HTMLElement).getByTestId('trash-logo');
-    const delBtn = trash.closest('button');
-    fireEvent.click(delBtn!);
+    const deleteBtn = screen.getAllByTitle('Delete')[0];
+    fireEvent.click(deleteBtn);
 
     const modal = await screen.findByTestId('delete-modal');
-    const confirm = within(modal).getByRole('button', { name: /^Delete$/i });
+    const confirm = within(modal).getByRole('button', { name: /Yes, Delete/i });
     fireEvent.click(confirm);
 
     await waitFor(() => expect(api.delete).toHaveBeenCalledWith('/timeline/t1'));
@@ -149,17 +147,14 @@ describe('UserPage', () => {
   });
 
   test('cancel in delete modal does not delete', async () => {
-    const timelines = [{ id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
+    const timelines = [{ _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
     renderWithRouter({ student: baseUser, timelines });
 
-    const rowTitle = screen.getByText('Plan A');
-    const row = rowTitle.closest('.timeline-box');
-    const trash = within(row as HTMLElement).getByTestId('trash-logo');
-    const delBtn = trash.closest('button');
-    fireEvent.click(delBtn!);
+    const deleteBtn = screen.getByTitle('Delete');
+    fireEvent.click(deleteBtn);
 
     const modal = await screen.findByTestId('delete-modal');
-    const cancel = within(modal).getByRole('button', { name: /^Cancel$/i });
+    const cancel = within(modal).getByRole('button', { name: /Keep it/i });
     fireEvent.click(cancel);
 
     expect(api.delete).not.toHaveBeenCalled();
@@ -170,8 +165,8 @@ describe('UserPage', () => {
   test('renders with default values when user is not provided', () => {
     renderWithRouter({ student: null, timelines: [] });
 
-    expect(screen.getAllByText('NULL').length).toBe(2); // Default name and email in table
-    expect(screen.getByText('User')).toBeInTheDocument(); // Default role
+    expect(screen.getAllByText('N/A').length).toBe(2); // Default name and email in table
+    expect(screen.getByText('Student')).toBeInTheDocument(); // Default role
     expect(screen.getAllByText('Full Name').length).toBeGreaterThanOrEqual(1); // Appears as heading and label
   });
 });
