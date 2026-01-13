@@ -15,6 +15,17 @@ vi.mock('../providers/authProvider', () => ({
     AuthProvider: ({ children }: any) => <div data-testid="auth-provider">{children}</div>
 }));
 
+// Mock useAuth to provide auth context
+vi.mock('../hooks/useAuth', () => ({
+    useAuth: () => ({
+        isAuthenticated: true,
+        user: { id: 'test-id', name: 'Test User', role: 'student' },
+        loading: false,
+        login: vi.fn(),
+        logout: vi.fn(),
+    }),
+}));
+
 // Mock components
 vi.mock('../pages/LandingPage', () => ({ default: () => <div data-testid="landing-page">Landing Page</div> }));
 vi.mock('../pages/LoginPage', () => ({ default: () => <div data-testid="login-page">Login Page</div> }));
@@ -47,13 +58,15 @@ describe('App', () => {
         expect(screen.getByTestId('footer')).toBeTruthy();
     });
 
-    it('should not show Navbar and Footer on dashboard pages', () => {
+    it('should render protected routes when authenticated', () => {
         render(
             <MemoryRouter initialEntries={['/degree-audit']}>
                 <App />
             </MemoryRouter>
         );
-        expect(screen.queryByTestId('navbar')).toBeNull();
-        expect(screen.queryByTestId('footer')).toBeNull();
+        // Navbar and Footer are rendered on all pages including protected routes
+        expect(screen.getByTestId('navbar')).toBeTruthy();
+        expect(screen.getByTestId('footer')).toBeTruthy();
+        expect(screen.getByTestId('degree-audit-page')).toBeTruthy();
     });
 });
