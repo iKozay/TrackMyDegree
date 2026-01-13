@@ -58,12 +58,3 @@ export interface GenerateAuditParams {
   timelineId: string;
   userId: string;
 }
-
-export interface AuditByTimelineRequest {
-  timelineId: string;
-  userId: string;
-}
-
-export interface AuditByUserRequest {
-  userId: string;
-}

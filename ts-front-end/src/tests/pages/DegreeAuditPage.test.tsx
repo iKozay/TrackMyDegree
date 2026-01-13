@@ -169,18 +169,6 @@ describe('DegreeAuditPage', () => {
         expect(screen.getAllByText('Missing').length).toBeGreaterThan(0);
     });
 
-    it('should display missing count badges', async () => {
-        vi.spyOn(Math, 'random').mockReturnValue(0.5);
-        render(<DegreeAuditPage />);
-
-        await act(async () => {
-            vi.advanceTimersByTime(1500);
-        });
-
-        // Check for missing count badges
-        expect(screen.getAllByText('2 missing').length).toBeGreaterThan(0);
-    });
-
     it('should display all course statuses correctly', async () => {
         vi.spyOn(Math, 'random').mockReturnValue(0.5);
         render(<DegreeAuditPage />);

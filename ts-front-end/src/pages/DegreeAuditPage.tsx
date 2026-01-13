@@ -234,11 +234,6 @@ const RequirementItem: React.FC<{
             badges.push(<span key="status" className="badge badge-missing">Missing</span>);
         }
 
-        // Secondary missing badge if count > 0
-        if (req.missingCount && req.missingCount > 0) {
-            badges.push(<span key="missing" className="badge badge-missing" style={{ marginLeft: '8px' }}>{req.missingCount} missing</span>);
-        }
-
         return badges;
     };
 

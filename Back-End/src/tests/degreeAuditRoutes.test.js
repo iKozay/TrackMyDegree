@@ -2,7 +2,7 @@ const { Types } = require('mongoose');
 const request = require('supertest');
 const express = require('express');
 const { json } = express;
-const degreeAuditRoutes = require('../routes/degreeAuditRoutes');
+const degreeAuditRoutes = require('../routes/degreeAuditRoutes').default;
 const { degreeAuditController } = require('@controllers/degreeAuditController');
 
 const app = express();

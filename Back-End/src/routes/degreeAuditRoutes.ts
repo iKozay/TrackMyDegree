@@ -5,10 +5,6 @@ import mongoose from 'mongoose';
 
 const router = express.Router();
 
-// ==========================
-// DEGREE AUDIT ROUTES
-// ==========================
-
 const INTERNAL_SERVER_ERROR = 'Internal server error';
 const INVALID_ID_FORMAT = 'Invalid id format';
 

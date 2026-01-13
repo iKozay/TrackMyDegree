@@ -87,11 +87,7 @@ function generateNotices(
           type: 'warning',
           message: `${req.title} requirements not yet started (${req.creditsTotal} credits needed)`,
         });
-      } else if (
-        coursesInProgress === 0 &&
-        req.missingCount &&
-        req.missingCount > 0
-      ) {
+      } else if (coursesInProgress === 0 && missingCredits > 0) {
         notices.push({
           id: `notice-${noticeId++}`,
           type: 'warning',
@@ -220,7 +216,6 @@ function processPoolToRequirement(
     id: `req-${pool._id.replace(/\s+/g, '-')}`,
     title: displayName || 'Unknown Requirement',
     status: reqStatus,
-    missingCount: Math.ceil((creditsTotal - creditsCompleted) / 3), // This doesn't always work, we need to add in course pool how many courses are required, so what is missing can be calculated reliably
     creditsCompleted,
     creditsTotal,
     courses: auditCourses,
@@ -335,9 +330,6 @@ function processDeficiencies(
     title: 'Deficiency Courses',
     status:
       deficiencyCompleted >= deficiencyCredits ? 'Complete' : 'Incomplete',
-    missingCount:
-      deficiencyCourses.filter((c) => c.status !== 'Completed').length ||
-      undefined,
     creditsCompleted: deficiencyCompleted,
     creditsTotal: deficiencyCredits,
     courses: deficiencyCourses,
