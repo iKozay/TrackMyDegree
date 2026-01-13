@@ -17,6 +17,7 @@ import ForbiddenPage from "./pages/ForbiddenPage";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import DegreeAuditPage from "./pages/DegreeAuditPage.tsx";
+import CoopSequencePlannerPage from "./pages/CoopSequencePlanner.tsx";
 
 import { Navbar } from "./components/NavBar";
 import { Footer } from "./components/Footer";
@@ -46,7 +47,7 @@ const App: React.FC = () => {
   }, []);
 
   const location = useLocation();
-  const dashboardRoutes = ['/dashboard', '/degree-audit', '/missing-requirements', '/co-op', '/class-builder'];
+  const dashboardRoutes = ['/dashboard', '/degree-audit', '/missing-requirements', '/class-builder'];
   const isDashboardPage = dashboardRoutes.some(route => location.pathname.startsWith(route));
 
   return (
@@ -65,6 +66,7 @@ const App: React.FC = () => {
         <Route path="/courses" element={<CoursePage />} />
         <Route path="/requirements" element={<RequirementsFormPage />} />
         <Route path="/requirements/:programId" element={<RequirementSelectPage />} />
+        <Route path="/co-op" element={<CoopSequencePlannerPage />} />
         {NODE_ENV == 'development' && (
             <Route path="/degree-audit" element={
               <DashboardLayout>

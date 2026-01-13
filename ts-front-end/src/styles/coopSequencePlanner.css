@@ -1,0 +1,470 @@
+/* Page */
+.csp-page {
+  /* Match Missing Requirements: inner wrapper maxWidth 1100, centered */
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 0; /* similar feel to container py-4 */
+  color: #111827;
+}
+
+.csp-pageTitle {
+  /* Match Missing Requirements h2 look */
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.csp-pageSubtitle {
+  /* Match Missing Requirements subtitle */
+  margin: 6px 0 24px 0;
+  max-width: 520px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+/* Back link */
+.csp-backLink {
+  background: transparent;
+  border: none;
+  color: #111827;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+
+/* Program grid */
+.csp-programGrid {
+  /* Match Missing Requirements grid */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: stretch;
+  margin-top: 0;
+}
+
+.csp-programCard {
+  /* Match Missing Requirements card */
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .08s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+
+.csp-programCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,.08);
+}
+
+.csp-programHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.csp-programTitle {
+  /* Match Missing Requirements card title */
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+/* keep class (icon removed in TSX) */
+.csp-capIcon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.csp-programBullets {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* Header row */
+.csp-headerRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 6px 0 14px;
+}
+
+.csp-titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.csp-subInfo {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* Validated pill */
+.csp-validatedPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid rgba(22, 101, 52, 0.18);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+/* Toolbar */
+.csp-toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 16px 0 18px;
+}
+
+.csp-toolBtn {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 800;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.csp-toolBtnPrimary {
+  border-color: #7f1d1d;
+  background: #7f1d1d;
+  color: white;
+}
+
+.csp-toolBtn:hover {
+  border-color: #d1d5db;
+}
+
+/* Panel */
+.csp-panel {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.csp-panelTitle {
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+/* Terms grid */
+.csp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(230px, 1fr));
+  gap: 16px;
+}
+
+/* Term cards */
+.csp-termCard {
+  border-radius: 16px;
+  border: 1px solid transparent;
+  padding: 16px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  background: #fff;
+}
+
+.csp-academic {
+  background: #fff1f2; /* light pink */
+  border-color: #fecdd3;
+}
+
+.csp-coop {
+  background: #f5f3ff; /* light purple */
+  border-color: #ddd6fe;
+}
+
+.csp-termHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.csp-termTitle {
+  display: flex;
+  gap: 10px;
+}
+
+/* icons removed in TSX */
+.csp-termIcon {
+  font-size: 18px;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.csp-termName {
+  font-weight: 900;
+  font-size: 18px;
+}
+
+.csp-termSub {
+  color: #6b7280;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.csp-pill {
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 900;
+  font-size: 12px;
+  border: 1px solid transparent;
+}
+
+.csp-pillAcademic {
+  background: #7f1d1d;
+  border-color: #7f1d1d;
+  color: white;
+}
+
+.csp-pillCoop {
+  background: #ede9fe;
+  border-color: #ddd6fe;
+  color: #5b21b6;
+}
+
+.csp-termBody {
+  color: #374151;
+}
+
+.csp-courseUl {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.csp-coopLabel {
+  font-weight: 800;
+  color: #374151;
+}
+
+/* Delete term button (user-added terms only) */
+.csp-deleteTermBtn {
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  background: transparent;
+  color: #111827;
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.csp-deleteTermBtn:hover {
+  border-color: rgba(185, 28, 28, 0.35);
+  color: #b91c1c;
+}
+
+/* Add term card */
+.csp-addCard {
+  border: 2px dashed #d1d5db;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.csp-addPlus {
+  font-size: 34px;
+  font-weight: 900;
+  color: #6b7280;
+}
+
+.csp-addText {
+  margin-top: 6px;
+  color: #6b7280;
+  font-weight: 900;
+}
+
+/* Stats */
+.csp-statsRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.csp-statCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 18px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.csp-statLabel {
+  color: #6b7280;
+  font-weight: 800;
+}
+
+.csp-statValue {
+  margin-top: 10px;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+/* Modals */
+.csp-modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.csp-modal {
+  background: #fff;
+  width: 560px;
+  max-width: 96vw;
+  border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+  border: 1px solid #e5e7eb;
+}
+
+.csp-modalWide {
+  width: 680px;
+}
+
+.csp-modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 18px 10px;
+}
+
+.csp-modalTitle {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.csp-modalSubtitle {
+  margin-top: 6px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.csp-modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 14px 18px 18px;
+}
+
+.csp-iconBtn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Forms */
+.csp-form {
+  padding: 0 18px 6px;
+}
+
+.csp-label {
+  display: block;
+  font-weight: 900;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.csp-select,
+.csp-input {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 12px;
+  outline: none;
+  font-weight: 700;
+}
+
+.csp-select:focus,
+.csp-input:focus {
+  border-color: #9ca3af;
+}
+
+.csp-rowBetween {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.csp-courseList {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.csp-courseRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.csp-btn {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.csp-btnPrimary {
+  border-color: #7f1d1d;
+  background: #7f1d1d;
+  color: white;
+}
+
+.csp-btnSmall {
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .csp-grid {
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .csp-grid {
+    grid-template-columns: 1fr;
+  }
+  .csp-statsRow {
+    grid-template-columns: 1fr;
+  }
+}
