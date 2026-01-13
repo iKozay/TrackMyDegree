@@ -280,5 +280,6 @@ def test_get_courses_option_branch(monkeypatch):
         return ["COURSE1", "COURSE2"]
     monkeypatch.setattr(s, "get_courses", fake_get_courses)
 
+    result = s.get_courses("fake.html", "Elective")
     result = s.get_courses("fake.html", "Some Option Pool")
     assert result == ["COURSE1", "COURSE2"]  # ensures Option branch is exercised
