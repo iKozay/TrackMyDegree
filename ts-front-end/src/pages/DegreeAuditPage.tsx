@@ -1,11 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Download, FileText, AlertTriangle, CheckCircle, Circle, XCircle, ChevronDown, ChevronUp, RefreshCw, Inbox } from 'lucide-react';
-import type { DegreeAuditData, RequirementCategory } from '../types/audit.types.ts';
-import mockDegreeAuditResponse from "../mock/degreeAuditResponse.json";
+import { useParams, useNavigate } from 'react-router-dom';
+import { Download, FileText, AlertTriangle, CheckCircle, Circle, XCircle, ChevronDown, ChevronUp, RefreshCw, Inbox, ArrowLeft } from 'lucide-react';
 import DegreeAuditSkeleton from '../components/DegreeAuditSkeleton.tsx';
+import { api } from '../api/http-api-client';
+import { useAuth } from '../hooks/useAuth';
 import '../styles/DegreeAuditPage.css';
+import type {DegreeAuditData, RequirementCategory, Notice, Course} from "../types/audit.types.ts";
 
 const DegreeAuditPage: React.FC = () => {
+    const { timelineId } = useParams();
+    const navigate = useNavigate();
+    const { user } = useAuth();
     const [data, setData] = useState<DegreeAuditData | null>(null);
     const [expandedReqs, setExpandedReqs] = useState<Set<string>>(new Set());
     const [isLoading, setIsLoading] = useState(true);
@@ -16,31 +21,36 @@ const DegreeAuditPage: React.FC = () => {
         setError(null);
 
         try {
-            // Simulate API fetch delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            let auditData: DegreeAuditData;
 
-            // Randomly simulate error (10% chance) for demonstration
-            if (Math.random() < 0.1) {
-                throw new Error("Failed to connect to the audit server. Please try again.");
+            if (timelineId && user?.id) {
+                auditData = await api.get<DegreeAuditData>(
+                    `/audit/timeline/${timelineId}?userId=${user.id}`
+                );
+            } else if (user?.id) {
+                auditData = await api.get<DegreeAuditData>(
+                    `/audit/user/${user.id}`
+                );
+            } else {
+                throw new Error("User not authenticated");
             }
 
-            const mockData = mockDegreeAuditResponse as DegreeAuditData;
-            setData(mockData);
-
-            // Expand first requirement by default
-            if (mockData.requirements.length > 0) {
-                setExpandedReqs(new Set([mockData.requirements[0].id]));
-            }
+            setData(auditData);
         } catch (err) {
+            console.error('Error fetching degree audit:', err);
             setError(err instanceof Error ? err.message : "An unexpected error occurred");
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [timelineId, user?.id]);
 
     useEffect(() => {
         fetchData();
     }, [fetchData]);
+
+    const handleBackClick = () => {
+        navigate('/profile/student');
+    };
 
     const toggleReq = (id: string) => {
         const newExpanded = new Set(expandedReqs);
@@ -93,6 +103,14 @@ const DegreeAuditPage: React.FC = () => {
 
     return (
         <div className="degree-audit-page">
+            {/* Back Button */}
+            {timelineId && (
+                <button className="back-btn" onClick={handleBackClick}>
+                    <ArrowLeft size={18} />
+                    <span>Back to Profile</span>
+                </button>
+            )}
+
             {/* Header */}
             <div className="da-header">
                 <div className="da-title">
@@ -104,7 +122,7 @@ const DegreeAuditPage: React.FC = () => {
                         <Download size={18} /> Export PDF
                     </button>
                     <button className="btn btn-primary" onClick={fetchData}>
-                        <FileText size={18} /> Generate Audit
+                        <FileText size={18} /> Refresh Audit
                     </button>
                 </div>
             </div>
@@ -118,10 +136,6 @@ const DegreeAuditPage: React.FC = () => {
                             <div className="info-row">
                                 <span className="label">Name:</span>
                                 <span className="value">{data.student.name}</span>
-                            </div>
-                            <div className="info-row">
-                                <span className="label">Student ID:</span>
-                                <span className="value">{data.student.studentId}</span>
                             </div>
                             <div className="info-row">
                                 <span className="label">Program:</span>
@@ -181,7 +195,7 @@ const DegreeAuditPage: React.FC = () => {
                     Important Notices
                 </h3>
                 <div className="notices-list">
-                    {data.notices.map(notice => (
+                    {data.notices.map((notice: Notice) => (
                         <div key={notice.id} className={`notice-item notice-${notice.type}`}>
                             {notice.type === 'warning' ? <AlertTriangle size={18} /> :
                                 notice.type === 'info' ? <Circle size={18} /> : <CheckCircle size={18} />}
@@ -195,7 +209,7 @@ const DegreeAuditPage: React.FC = () => {
             <div className="card">
                 <h3 className="section-title">Requirements Breakdown</h3>
                 <div className="requirements-list">
-                    {data.requirements.map(req => (
+                    {data.requirements.map((req: RequirementCategory) => (
                         <RequirementItem
                             key={req.id}
                             req={req}
@@ -238,17 +252,12 @@ const RequirementItem: React.FC<{
             badges.push(<span key="status" className="badge badge-missing">Missing</span>);
         }
 
-        // Secondary missing badge if count > 0
-        if (req.missingCount && req.missingCount > 0) {
-            badges.push(<span key="missing" className="badge badge-missing" style={{ marginLeft: '8px' }}>{req.missingCount} missing</span>);
-        }
-
         return badges;
     };
 
     const creditsInProgress = req.courses
-        .filter(c => c.status === 'In Progress')
-        .reduce((acc, c) => acc + c.credits, 0);
+        .filter((c: Course) => c.status === 'In Progress')
+        .reduce((acc: number, c: Course) => acc + c.credits, 0);
 
     const creditsRemaining = Math.max(0, req.creditsTotal - req.creditsCompleted - creditsInProgress);
 
@@ -299,7 +308,7 @@ const RequirementItem: React.FC<{
                         )}
                     </div>
 
-                    {req.courses.map(course => (
+                    {req.courses.map((course : Course) => (
                         <div key={course.id} className="course-item">
                             <div className="course-info">
                                 <span className="course-icon">
