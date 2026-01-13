@@ -125,7 +125,7 @@ router.get('/:id', async (req: Request, res: Response) => {
       return;
     }
 
-    const user = await userController.getUserById(id);
+    const user = await userController.getUserById(id as string);
     res.status(HTTP.OK).json(user);
   } catch (error) {
     console.error('Error in GET /users/:id', error);
@@ -225,7 +225,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return;
     }
 
-    const user = await userController.updateUser(id, updates);
+    const user = await userController.updateUser(id as string, updates);
     res.status(HTTP.OK).json(user);
   } catch (error) {
     console.error('Error in PUT /users/:id', error);
@@ -278,7 +278,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       return;
     }
 
-    const message = await userController.deleteUser(id);
+    const message = await userController.deleteUser(id as string);
     res.status(HTTP.OK).json(message);
   } catch (error) {
     console.error('Error in DELETE /users/:id', error);
@@ -331,7 +331,7 @@ router.get('/:id/data', async (req: Request, res: Response) => {
       return;
     }
 
-    const userData = await userController.getUserData(id);
+    const userData = await userController.getUserData(id as string);
     res.status(HTTP.OK).json(userData);
   } catch (error) {
     console.error('Error in GET /users/:id/data', error);
@@ -399,7 +399,7 @@ router.post(DEFICIENCIES_PATH, async (req: Request, res: Response) => {
 
     const deficiency = await userController.createDeficiency(
       coursepool,
-      userId,
+      userId as string,
       creditsRequired,
     );
     res.status(HTTP.CREATED).json(deficiency);
@@ -464,7 +464,7 @@ router.get(DEFICIENCIES_PATH, async (req: Request, res: Response) => {
       return;
     }
 
-    const deficiencies = await userController.getAllDeficienciesByUser(userId);
+    const deficiencies = await userController.getAllDeficienciesByUser(userId as string);
     res.status(HTTP.OK).json(deficiencies);
   } catch (error) {
     console.error('Error in GET /users/:userId/deficiencies', error);
@@ -524,7 +524,7 @@ router.put(DEFICIENCIES_PATH, async (req: Request, res: Response) => {
 
     const deficiency = await userController.updateDeficiency(
       coursepool,
-      userId,
+      userId as string,
       creditsRequired,
     );
     res.status(HTTP.OK).json(deficiency);
@@ -583,7 +583,7 @@ router.delete(DEFICIENCIES_PATH, async (req: Request, res: Response) => {
       return;
     }
 
-    const message = await userController.deleteDeficiency(coursepool, userId);
+    const message = await userController.deleteDeficiency(coursepool, userId as string);
     res.status(HTTP.OK).json(message);
   } catch (error) {
     console.error('Error in DELETE /users/:userId/deficiencies', error);
@@ -648,7 +648,7 @@ router.post(EXEMPTION_PATH, async (req: Request, res: Response) => {
       return;
     }
 
-    const result = await userController.createExemptions(coursecodes, userId);
+    const result = await userController.createExemptions(coursecodes, userId as string);
     res.status(HTTP.CREATED).json(result);
   } catch (error) {
     console.error('Error in POST /users/:userId/exemptions', error);
@@ -706,7 +706,7 @@ router.get(EXEMPTION_PATH, async (req: Request, res: Response) => {
       return;
     }
 
-    const exemptions = await userController.getAllExemptionsByUser(userId);
+    const exemptions = await userController.getAllExemptionsByUser(userId as string);
     res.status(HTTP.OK).json(exemptions);
   } catch (error) {
     console.error('Error in GET /users/:userId/exemptions', error);
@@ -763,7 +763,7 @@ router.delete(EXEMPTION_PATH, async (req: Request, res: Response) => {
       return;
     }
 
-    const message = await userController.deleteExemption(coursecode, userId);
+    const message = await userController.deleteExemption(coursecode, userId as string);
     res.status(HTTP.OK).json(message);
   } catch (error) {
     console.error('Error in DELETE /users/:userId/exemptions', error);

@@ -154,7 +154,7 @@ router.get(
       }
 
       const documents = await adminController.getCollectionDocuments(
-        collectionName,
+        collectionName as string,
         {
           keyword: keyword as string,
           page: page ? Number.parseInt(page as string) : undefined,
@@ -225,7 +225,7 @@ router.delete(
         return;
       }
 
-      const count = await adminController.clearCollection(collectionName);
+      const count = await adminController.clearCollection(collectionName as string);
       res.status(HTTP.OK).json({
         success: true,
         message: `${count} documents cleared successfully`,

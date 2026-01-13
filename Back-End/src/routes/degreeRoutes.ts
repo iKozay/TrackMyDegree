@@ -67,7 +67,7 @@ router.get('/:id', async (req: Request, res: Response) => {
       return;
     }
 
-    const degree = await degreeController.readDegree(id);
+    const degree = await degreeController.readDegree(id as string);
     res.status(HTTP.OK).json(degree);
   } catch (error) {
     console.error('Error in GET /degree/:id', error);
@@ -164,7 +164,7 @@ router.get('/:id/credits', async (req: Request, res: Response) => {
       return;
     }
 
-    const credits = await degreeController.getCreditsForDegree(id);
+    const credits = await degreeController.getCreditsForDegree(id as string);
     res.status(HTTP.OK).json({
       totalCredits: credits,
     });
@@ -227,7 +227,7 @@ router.get('/:id/coursepools', async (req: Request, res: Response) => {
       return;
     }
 
-    const coursePools = await degreeController.getCoursePoolsForDegree(id);
+    const coursePools = await degreeController.getCoursePoolsForDegree(id as string);
     res.status(HTTP.OK).json(coursePools);
   } catch (error) {
     console.error('Error in GET /degree/:id/coursepools', error);

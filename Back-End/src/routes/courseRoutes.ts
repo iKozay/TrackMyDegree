@@ -111,7 +111,7 @@ router.get('/by-degree/:degreeId', async (req: Request, res: Response) => {
       return;
     }
     const coursePools =
-      await degreeController.getCoursePoolsForDegree(degreeId);
+      await degreeController.getCoursePoolsForDegree(degreeId as string);
 
     // Fetch full course pool objects for each ID
     const populatedPools = await Promise.all(
@@ -190,7 +190,7 @@ router.get('/:code', async (req: Request, res: Response) => {
       return;
     }
 
-    const course = await courseController.getCourseByCode(code);
+    const course = await courseController.getCourseByCode(code as string);
     res.status(HTTP.OK).json(course);
   } catch (error) {
     console.error('Error in GET /courses/:code', error);

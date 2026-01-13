@@ -123,7 +123,7 @@ router.get('/user/:userId', async (req: Request, res: Response) => {
       return;
     }
 
-    const timelines = await timelineController.getTimelinesByUser(userId);
+    const timelines = await timelineController.getTimelinesByUser(userId as string);
     res.status(HTTP.OK).json(timelines);
   } catch (error) {
     console.error('Error in GET /timeline/user/:userId', error);
@@ -175,7 +175,7 @@ router.get('/:id', async (req: Request, res: Response) => {
       return;
     }
 
-    const timeline = await timelineController.getTimelineById(id);
+    const timeline = await timelineController.getTimelineById(id as string);
     res.status(HTTP.OK).json(timeline);
   } catch (error) {
     console.error('Error in GET /timeline/:id', error);
@@ -239,7 +239,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return;
     }
 
-    const timeline = await timelineController.updateTimeline(id, updates);
+    const timeline = await timelineController.updateTimeline(id as string, updates);
     res.status(HTTP.OK).json(timeline);
   } catch (error) {
     console.error('Error in PUT /timeline/:id', error);
@@ -289,7 +289,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       return;
     }
 
-    const result = await timelineController.removeUserTimeline(id);
+    const result = await timelineController.removeUserTimeline(id as string);
     res.status(HTTP.OK).json(result);
   } catch (error) {
     console.error('Error in DELETE /timeline/:id', error);
@@ -337,7 +337,7 @@ router.delete('/user/:userId', async (req: Request, res: Response) => {
       return;
     }
 
-    const count = await timelineController.deleteAllUserTimelines(userId);
+    const count = await timelineController.deleteAllUserTimelines(userId as string);
     res.status(HTTP.OK).json({
       message: `Deleted ${count} timelines for user`,
     });

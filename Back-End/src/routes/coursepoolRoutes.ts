@@ -47,7 +47,7 @@ const INTERNAL_SERVER_ERROR = 'Internal server error';
  */
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const coursePool = await coursepoolController.getCoursePool(req.params.id);
+    const coursePool = await coursepoolController.getCoursePool(req.params.id as string);
     if (!coursePool) {
       return res
         .status(HTTP.NOT_FOUND)
