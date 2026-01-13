@@ -39,7 +39,6 @@ export class CourseController extends BaseMongoController<any> {
       return true;
     } catch (error) {
       this.handleError(error, 'bulkCreateCourse');
-      return false;
     }
   }
 
@@ -94,6 +93,21 @@ export class CourseController extends BaseMongoController<any> {
       return result.data || [];
     } catch (error) {
       this.handleError(error, 'getAllCourses');
+    }
+  }
+
+  async getAllCourseCodes(): Promise<string[]> {
+    try {
+      const result = await this.findAll({}, { fields: ['_id'] });
+
+      if (!result.success || !result.data) {
+        return [];
+      }
+
+      return result.data.map((course: any) => course._id);
+    } catch (error) {
+      this.handleError(error, 'getAllCourseCodes');
+      return [];
     }
   }
 

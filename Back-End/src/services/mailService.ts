@@ -23,7 +23,7 @@ class MailService {
   static async create(): Promise<MailService> {
     // default to development environment if NODE_ENV is missing
     const isDevelopment =
-      !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
+      !process.env.NODE_ENV || process.env.NODE_ENV === 'development'|| process.env.NODE_ENV === 'test';
     // use Ethereal for testing in development environment
     if (isDevelopment) {
       const testAccount = await nodemailer.createTestAccount();
