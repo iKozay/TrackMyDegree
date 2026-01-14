@@ -6,6 +6,7 @@ import re
 from . import course_data_scraper
 from . import engr_general_electives_scraper
 from . import comp_utils
+from . import ecp_scraper
 
 # Set a user agent to mimic a real browser
 USERAGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -49,7 +50,7 @@ class DegreeDataScraper():
             return comp_gen_electives[0]
 
         if self.temp_url in self.url_received:
-            course_list=self.soup.find('div', class_='defined-group', title=pool_name)
+            course_list=self.soup.find('div', class_='defined-group', title=pool_name.rstrip())
             course_list = course_list.find_all('div', class_="formatted-course")
             for course in course_list:
                 output.append(course.find('span', class_="course-code-number").find('a').text)
@@ -66,6 +67,13 @@ class DegreeDataScraper():
             output+=comp_courses_with_code_above_or_equal_to_325[0]
             self.courses+=comp_courses_with_code_above_or_equal_to_325[1]
         
+        if output==[] and "Option" in pool_name:
+            sub_pools=self.soup.find('div', class_='defined-group', title=pool_name.rstrip())
+            a_tags=sub_pools.find_all('a')
+            for a in a_tags:
+                output+=self.get_courses(urljoin(self.url_received,a.get('href')), a.text)
+        
+    
         if output==[] and "Elective" in pool_name:
             course_list = self.soup.find_all('div', class_="formatted-course")
             for course in course_list:
@@ -73,7 +81,9 @@ class DegreeDataScraper():
                 if temp_course_data not in self.courses:
                     self.courses.append(temp_course_data)
                     output.append(course.find('span', class_="course-code-number").find('a').text)
+
         return output
+
 
     def handle_engineering_core_restrictions(self, degree_name):
         if degree_name!="BEng in Industrial Engineering":
@@ -104,6 +114,10 @@ class DegreeDataScraper():
             return
 
     def scrape_degree(self, url):
+        if url == "engr_ecp":
+            return ecp_scraper.scrape_engr_ecp()
+        elif url == "comp_ecp":
+            return ecp_scraper.scrape_comp_ecp()
         self.url_received = url
         self.soup = self.get_page(url)
         try:
@@ -123,25 +137,29 @@ class DegreeDataScraper():
                     credits_required = float(pool.find('td').text) #in case the scraper runs into a paragraph
                 except:
                     continue
-                name = pool.find('a').text
-                self.temp_url = pool.find('a').get('href')
-                self.temp_url = re.sub(r'#\d+$', '', self.temp_url)
-                course_list=self.get_courses(self.temp_url, name)
-                course_pool_id = self.degree["name"].split(" ")[2][:4].upper() + "_" + name
-                self.course_pool.append({
-                    '_id': course_pool_id,
-                    'name': name,
-                    'creditsRequired': credits_required,
-                    'courses':list(set(course_list))
-                })
-                self.degree["coursePools"].append(course_pool_id)
-
+                a_tags=pool.find_all('a')
+                for a in a_tags:
+                    name = a.text
+                    self.temp_url = a.get('href')
+                    self.temp_url = re.sub(r'#\d+$', '', self.temp_url)
+                    course_list=self.get_courses(self.temp_url, name)
+                    course_pool_id = self.degree["name"].split(" ")[2][:4].upper() + "_" + name
+                    self.course_pool.append({
+                        '_id': course_pool_id,
+                        'name': name,
+                        'creditsRequired': credits_required,
+                        'courses':list(set(course_list))
+                    })
+                    self.degree["coursePools"].append(course_pool_id)
+                    if "Core" in name:
+                        break
             self.handle_engineering_core_restrictions(self.degree["name"])
         except Exception as e:
             print(f"Error processing course block: {e}")
             raise e
 
         #Output as JSON
+        self.courses = list({c["_id"]: c for c in self.courses}.values())
         return {
             "degree":self.degree,
             "course_pool":self.course_pool,

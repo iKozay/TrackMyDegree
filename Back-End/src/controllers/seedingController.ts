@@ -25,14 +25,47 @@ export async function seedDegreeData(degreeName: string): Promise<void> {
 
 export async function seedAllDegreeData(): Promise<void> {
   const degreeNames = Object.keys(DEGREES_URL);
-  for (const degreeName of degreeNames) {
+  
+  console.log(`Starting parallel scraping for ${degreeNames.length} degrees...`);
+  
+  // Start all parsing operations in parallel
+  const parsingPromises = degreeNames.map(async (degreeName) => {
     try {
-      await seedDegreeData(degreeName);
+      console.log(`Starting to scrape data for degree: ${degreeName}`);
+      const data: ParseDegreeResponse = await parseDegree(DEGREES_URL[degreeName]);
+      console.log(`Scraped data for degree: ${degreeName}`);
+      return { degreeName, data, success: true };
     } catch (err) {
-      console.error(`Seeding failed for degree ${degreeName}:`, err);
+      console.error(`Scraping failed for degree ${degreeName}:`, err);
+      return { degreeName, data: null, success: false, error: err };
+    }
+  });
+  
+  // Wait for all parsing to complete
+  const results = await Promise.all(parsingPromises);
+  console.log('All scraping operations completed. Processing results...');
+  
+  // Process successful results sequentially to avoid overwhelming the database
+  let successCount = 0;
+  let failCount = 0;
+  
+  for (const result of results) {
+    if (result.success && result.data) {
+      try {
+        console.log(`Seeding database for degree: ${result.degreeName}`);
+        await saveToMongoDB(result.degreeName, result.data);
+        console.log(`Seeding completed for degree: ${result.degreeName}`);
+        successCount++;
+      } catch (err) {
+        console.error(`Database seeding failed for degree ${result.degreeName}:`, err);
+        failCount++;
+      }
+    } else {
+      failCount++;
     }
   }
-  console.log('Seeding completed for all degrees.');
+  
+  console.log(`Seeding completed for all degrees. Success: ${successCount}, Failed: ${failCount}`);
 }
 
 async function saveToMongoDB(
