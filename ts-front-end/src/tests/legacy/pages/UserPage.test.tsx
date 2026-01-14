@@ -1,26 +1,35 @@
-import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { vi } from 'vitest';
+import {
+  render,
+  screen,
+  waitFor,
+  fireEvent,
+  within,
+} from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import { vi } from "vitest";
 
-import UserPage from '../../../legacy/pages/UserPage';
+import UserPage from "../../../legacy/pages/UserPage";
 
 /* ---------------- Silence CSS imports ---------------- */
-vi.mock('bootstrap/dist/css/bootstrap.min.css', () => ({}));
-vi.mock('../../../legacy/css/UserPage.css', () => ({}));
+vi.mock("bootstrap/dist/css/bootstrap.min.css", () => ({}));
+vi.mock("../../../legacy/css/UserPage.css", () => ({}));
 
 /* ---------------- Mock framer-motion ---------------- */
-vi.mock('framer-motion', () => {
-  const MotionDivMock = ({ children }: any) => <div data-testid="motion-div">{children}</div>;
+vi.mock("framer-motion", () => {
+  const MotionDivMock = ({ children }: any) => (
+    <div data-testid="motion-div">{children}</div>
+  );
   return { motion: { div: MotionDivMock } };
 });
 
 /* ---------------- Mock DeleteModal and TrashLogo ---------------- */
-vi.mock('../../../legacy/components/DeleteModal', () => {
-  const DeleteModalMock = ({ open, children }: any) => (open ? <div data-testid="delete-modal">{children}</div> : null);
+vi.mock("../../../legacy/components/DeleteModal", () => {
+  const DeleteModalMock = ({ open, children }: any) =>
+    open ? <div data-testid="delete-modal">{children}</div> : null;
   return { default: DeleteModalMock };
 });
 
-vi.mock('../../../icons/trashlogo', () => {
+vi.mock("../../../icons/trashlogo", () => {
   const TrashLogoMock = ({ className }: any) => (
     <span data-testid="trash-logo" className={className}>
       🗑️
@@ -30,20 +39,30 @@ vi.mock('../../../icons/trashlogo', () => {
 });
 
 /* ---------------- Mock API ---------------- */
-vi.mock('../../../api/http-api-client', () => ({
+vi.mock("../../../api/http-api-client", () => ({
   api: {
     delete: vi.fn(),
+    get: vi.fn(),
   },
 }));
 
-import { api } from '../../../api/http-api-client';
+import { api } from "../../../api/http-api-client";
+
+const navigateMock = vi.fn();
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom");
+  return {
+    ...(actual as object),
+    useNavigate: () => navigateMock,
+  };
+});
 
 /* ---------------- Helpers ---------------- */
 function renderWithRouter({ student, timelines = [] }: any = {}) {
   return render(
     <MemoryRouter>
       <UserPage student={student} timelines={timelines} />
-    </MemoryRouter>,
+    </MemoryRouter>
   );
 }
 
@@ -52,126 +71,178 @@ let alertSpy: ReturnType<typeof vi.spyOn> | undefined;
 
 beforeEach(() => {
   vi.clearAllMocks();
-  consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-  alertSpy = vi.spyOn(globalThis, 'alert').mockImplementation(() => undefined);
+  consoleErrorSpy = vi
+    .spyOn(console, "error")
+    .mockImplementation(() => undefined);
+  alertSpy = vi.spyOn(globalThis, "alert").mockImplementation(() => undefined);
 });
 
 afterEach(() => {
   consoleErrorSpy?.mockRestore();
   alertSpy?.mockRestore();
+  navigateMock.mockReset();
 });
 
 /* ---------------- Tests ---------------- */
-describe('UserPage', () => {
+describe("UserPage", () => {
   const baseUser = {
-    name: 'John Doe',
-    email: 'john@example.com',
-    role: 'student',
+    name: "John Doe",
+    email: "john@example.com",
+    role: "student",
   };
 
-  test('renders profile info from props', () => {
+  test("renders profile info from props", () => {
     renderWithRouter({ student: baseUser });
 
     expect(screen.getByText(/My Profile/i)).toBeInTheDocument();
-    expect(screen.getAllByText('John Doe').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText('student')).toBeInTheDocument();
-    expect(screen.getByText('Full Name')).toBeInTheDocument();
-    expect(screen.getByText('Email')).toBeInTheDocument();
-    expect(screen.getByText('john@example.com')).toBeInTheDocument();
+    expect(screen.getAllByText("John Doe").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("student")).toBeInTheDocument();
+    expect(screen.getByText("Full Name")).toBeInTheDocument();
+    expect(screen.getByText("Email")).toBeInTheDocument();
+    expect(screen.getByText("john@example.com")).toBeInTheDocument();
   });
 
-  test('shows empty-state link when there are no timelines', () => {
+  test("shows empty-state link when there are no timelines", () => {
     renderWithRouter({ student: baseUser, timelines: [] });
 
-    expect(screen.getByText(/You haven't saved any timelines yet/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/You haven't saved any timelines yet/i)
+    ).toBeInTheDocument();
   });
 
-  test('renders timelines list with names', () => {
+  test("renders timelines list with names", () => {
     const timelines = [
-      { id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' },
-      { id: 't2', name: 'Plan B', last_modified: '2025-10-01T10:00:00Z' },
+      { _id: "t1", name: "Plan A", last_modified: "2025-10-02T10:00:00Z" },
+      { _id: "t2", name: "Plan B", last_modified: "2025-10-01T10:00:00Z" },
     ];
     renderWithRouter({ student: baseUser, timelines });
 
-    expect(screen.getByText('Plan A')).toBeInTheDocument();
-    expect(screen.getByText('Plan B')).toBeInTheDocument();
+    expect(screen.getByText("Plan A")).toBeInTheDocument();
+    expect(screen.getByText("Plan B")).toBeInTheDocument();
 
     // "+" Add New Timeline link should exist when list is rendered
-    expect(screen.getByText('+')).toBeInTheDocument();
+    expect(screen.getByText("+")).toBeInTheDocument();
   });
 
-  test('clicking a timeline shows alert for maintenance', () => {
-    const timelines = [{ id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
+  test("clicking trash opens modal and does not call API", async () => {
+    const timelines = [
+      { _id: "t1", name: "Plan A", last_modified: "2025-10-02T10:00:00Z" },
+    ];
     renderWithRouter({ student: baseUser, timelines });
 
-    const name = screen.getByText('Plan A');
-    fireEvent.click(name);
-
-    expect(alertSpy).toHaveBeenCalledWith('Timeline loading is under maintenance. Please check back later.');
-  });
-
-  test('clicking trash opens modal and does not call API', async () => {
-    const timelines = [{ id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
-    renderWithRouter({ student: baseUser, timelines });
-
-    const rowTitle = screen.getByText('Plan A');
-    const row = rowTitle.closest('.timeline-box');
-    const trash = within(row as HTMLElement).getByTestId('trash-logo');
-    const deleteBtn = trash.closest('button');
+    const rowTitle = screen.getByText("Plan A");
+    const row = rowTitle.closest(".timeline-box");
+    const trash = within(row as HTMLElement).getByTestId("trash-logo");
+    const deleteBtn = trash.closest("button");
     fireEvent.click(deleteBtn!);
 
-    await waitFor(() => expect(screen.getByTestId('delete-modal')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByTestId("delete-modal")).toBeInTheDocument()
+    );
     expect(api.delete).not.toHaveBeenCalled();
   });
 
-  test('confirm delete removes the timeline and calls api.delete', async () => {
+  test("confirm delete removes the timeline and calls api.delete", async () => {
     const timelines = [
-      { id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' },
-      { id: 't2', name: 'Plan B', last_modified: '2025-10-01T10:00:00Z' },
+      { _id: "t1", name: "Plan A", last_modified: "2025-10-02T10:00:00Z" },
+      { _id: "t2", name: "Plan B", last_modified: "2025-10-01T10:00:00Z" },
     ];
     vi.mocked(api.delete).mockResolvedValueOnce(undefined as any);
 
     renderWithRouter({ student: baseUser, timelines });
 
-    const rowTitle = screen.getByText('Plan A');
-    const row = rowTitle.closest('.timeline-box');
-    const trash = within(row as HTMLElement).getByTestId('trash-logo');
-    const delBtn = trash.closest('button');
+    const rowTitle = screen.getByText("Plan A");
+    const row = rowTitle.closest(".timeline-box");
+    const trash = within(row as HTMLElement).getByTestId("trash-logo");
+    const delBtn = trash.closest("button");
     fireEvent.click(delBtn!);
 
-    const modal = await screen.findByTestId('delete-modal');
-    const confirm = within(modal).getByRole('button', { name: /^Delete$/i });
+    const modal = await screen.findByTestId("delete-modal");
+    const confirm = within(modal).getByRole("button", { name: /^Delete$/i });
     fireEvent.click(confirm);
 
-    await waitFor(() => expect(api.delete).toHaveBeenCalledWith('/timeline/t1'));
-    await waitFor(() => expect(screen.queryByText('Plan A')).not.toBeInTheDocument());
-    expect(screen.getByText('Plan B')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(api.delete).toHaveBeenCalledWith("/timeline/t1")
+    );
+    await waitFor(() =>
+      expect(screen.queryByText("Plan A")).not.toBeInTheDocument()
+    );
+    expect(screen.getByText("Plan B")).toBeInTheDocument();
   });
 
-  test('cancel in delete modal does not delete', async () => {
-    const timelines = [{ id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
+  test("cancel in delete modal does not delete", async () => {
+    const timelines = [
+      { _id: "t1", name: "Plan A", last_modified: "2025-10-02T10:00:00Z" },
+    ];
     renderWithRouter({ student: baseUser, timelines });
 
-    const rowTitle = screen.getByText('Plan A');
-    const row = rowTitle.closest('.timeline-box');
-    const trash = within(row as HTMLElement).getByTestId('trash-logo');
-    const delBtn = trash.closest('button');
+    const rowTitle = screen.getByText("Plan A");
+    const row = rowTitle.closest(".timeline-box");
+    const trash = within(row as HTMLElement).getByTestId("trash-logo");
+    const delBtn = trash.closest("button");
     fireEvent.click(delBtn!);
 
-    const modal = await screen.findByTestId('delete-modal');
-    const cancel = within(modal).getByRole('button', { name: /^Cancel$/i });
+    const modal = await screen.findByTestId("delete-modal");
+    const cancel = within(modal).getByRole("button", { name: /^Cancel$/i });
     fireEvent.click(cancel);
 
     expect(api.delete).not.toHaveBeenCalled();
     // modal closed
-    await waitFor(() => expect(screen.queryByTestId('delete-modal')).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByTestId("delete-modal")).not.toBeInTheDocument()
+    );
   });
 
-  test('renders with default values when user is not provided', () => {
+  test("clicking a timeline navigates when jobId is returned", async () => {
+    const timelines = [
+      { _id: "t1", name: "Plan A", last_modified: "2025-10-02T10:00:00Z" },
+    ];
+    vi.mocked(api.get).mockResolvedValueOnce({ jobId: "job-123" } as any);
+
+    renderWithRouter({ student: baseUser, timelines });
+
+    fireEvent.click(screen.getByText("Plan A"));
+
+    await waitFor(() =>
+      expect(navigateMock).toHaveBeenCalledWith("/timeline/job-123")
+    );
+  });
+
+  test("shows alert when API returns no jobId", async () => {
+    const timelines = [
+      { _id: "t1", name: "Plan A", last_modified: "2025-10-02T10:00:00Z" },
+    ];
+    vi.mocked(api.get).mockResolvedValueOnce({} as any);
+
+    renderWithRouter({ student: baseUser, timelines });
+
+    fireEvent.click(screen.getByText("Plan A"));
+
+    await waitFor(() =>
+      expect(alertSpy).toHaveBeenCalledWith("Unexpected response from server.")
+    );
+  });
+
+  test("shows alert on load error", async () => {
+    const timelines = [
+      { _id: "t1", name: "Plan A", last_modified: "2025-10-02T10:00:00Z" },
+    ];
+    vi.mocked(api.get).mockRejectedValueOnce(new Error("boom"));
+
+    renderWithRouter({ student: baseUser, timelines });
+
+    fireEvent.click(screen.getByText("Plan A"));
+
+    await waitFor(() =>
+      expect(alertSpy).toHaveBeenCalledWith("boom")
+    );
+  });
+
+  test("renders with default values when user is not provided", () => {
     renderWithRouter({ student: null, timelines: [] });
 
-    expect(screen.getAllByText('NULL').length).toBe(2); // Default name and email in table
-    expect(screen.getByText('User')).toBeInTheDocument(); // Default role
-    expect(screen.getAllByText('Full Name').length).toBeGreaterThanOrEqual(1); // Appears as heading and label
+    expect(screen.getAllByText("NULL").length).toBe(2); // Default name and email in table
+    expect(screen.getByText("User")).toBeInTheDocument(); // Default role
+    expect(screen.getAllByText("Full Name").length).toBeGreaterThanOrEqual(1); // Appears as heading and label
   });
 });
