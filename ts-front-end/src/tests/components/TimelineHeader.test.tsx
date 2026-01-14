@@ -4,17 +4,17 @@ import { TimelineHeader } from "../../components/TimelineHeader";
 import * as authHook from "../../hooks/useAuth";
 import type { AuthContextValue } from "../../types/auth.types";
 
-const downloadTimelinePdfMock = vi.fn();
-
 vi.mock("../../utils/timelineUtils", async () => {
   const actual = await vi.importActual<
     typeof import("../../utils/timelineUtils")
   >("../../utils/timelineUtils");
   return {
     ...actual,
-    downloadTimelinePdf: downloadTimelinePdfMock,
+    downloadTimelinePdf: vi.fn(),
   };
 });
+
+import { downloadTimelinePdf } from "../../utils/timelineUtils";
 
 vi.mock("../../hooks/useAuth", () => ({
   useAuth: vi.fn(),
@@ -32,7 +32,7 @@ describe("TimelineHeader", () => {
   };
 
   beforeEach(() => {
-    downloadTimelinePdfMock.mockReset();
+    vi.mocked(downloadTimelinePdf).mockReset();
     const authValue: AuthContextValue = {
       isAuthenticated: true,
       user: {
@@ -138,7 +138,7 @@ describe("TimelineHeader", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /download/i }));
 
-    expect(downloadTimelinePdfMock).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(downloadTimelinePdf)).toHaveBeenCalledTimes(1);
   });
 
   it("logs when Share fails", async () => {
@@ -151,12 +151,14 @@ describe("TimelineHeader", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /share/i }));
 
-    await Promise.resolve();
-    expect(errorSpy).toHaveBeenCalled();
+    // Wait for the promise rejection to propagate
+    await vi.waitFor(() => {
+      expect(errorSpy).toHaveBeenCalled();
+    });
   });
 
   it("logs when Download fails", async () => {
-    downloadTimelinePdfMock.mockRejectedValueOnce(new Error("download failed"));
+    vi.mocked(downloadTimelinePdf).mockRejectedValueOnce(new Error("download failed"));
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
     render(<TimelineHeader {...baseProps} />);

@@ -1,16 +1,15 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import posthog from 'posthog-js';
-
-const posthogMock = {
-    init: vi.fn(),
-    capture: vi.fn(),
-};
 
 vi.mock('posthog-js', () => ({
-    default: posthogMock
+    default: {
+        init: vi.fn(),
+        capture: vi.fn(),
+    }
 }));
+
+import posthog from 'posthog-js';
 
 // Mock AuthProvider to avoid network calls
 vi.mock('../providers/authProvider', () => ({
@@ -38,8 +37,8 @@ async function renderApp(path: string) {
 describe('App', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        posthogMock.init.mockClear();
-        posthogMock.capture.mockClear();
+        vi.mocked(posthog.init).mockClear();
+        vi.mocked(posthog.capture).mockClear();
         window.__ENV__ = {
             NODE_ENV: 'development',
             POSTHOG_KEY: 'ph-key',

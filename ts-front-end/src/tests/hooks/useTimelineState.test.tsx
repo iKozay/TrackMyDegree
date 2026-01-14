@@ -145,6 +145,8 @@ describe("useTimelineState", () => {
       },
     } as any);
 
+    vi.mocked(api.post).mockResolvedValue({} as any);
+
     const { result } = renderHook(() => useTimelineState("job-3"));
 
     await act(async () => {

@@ -33,7 +33,10 @@ vi.mock("html2canvas", () => ({
 }));
 
 vi.mock("jspdf", () => ({
-  jsPDF: vi.fn(),
+  jsPDF: vi.fn(() => ({
+    addImage: vi.fn(),
+    save: vi.fn(),
+  })),
 }));
 
 import { api } from "../../api/http-api-client";
@@ -431,10 +434,12 @@ describe("timelineUtils", () => {
 
       const addImage = vi.fn();
       const save = vi.fn();
-      vi.mocked(jsPDF as any).mockImplementationOnce(() => ({
-        addImage,
-        save,
-      }));
+      const MockJsPDF = vi.mocked(jsPDF);
+      MockJsPDF.mockImplementation(function (this: any) {
+        this.addImage = addImage;
+        this.save = save;
+        return this;
+      } as any);
 
       await downloadTimelinePdf();
 
