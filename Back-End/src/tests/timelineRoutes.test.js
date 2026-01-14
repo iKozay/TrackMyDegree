@@ -109,7 +109,8 @@ it('should return 400 if userId, timelineName, or jobId are missing', async () =
   ];
 
   for (const body of invalidPayloads) {
-    await request(app).post('/timeline/').send(body).expect(400);
+    const response = await request(app).post('/timeline/').send(body).expect(400);
+    expect(response.body).toHaveProperty('error');
   }
 });
 

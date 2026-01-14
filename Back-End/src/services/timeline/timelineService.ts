@@ -436,9 +436,10 @@ async function loadMissingCourses(
 async function getCourseData(courseCode: string) {
   try {
     return await courseController.getCourseByCode(courseCode);
-    // TODO: handle courses that are not in the db
   } catch (error) {
-    console.log(error);
+    // Courses not in the database are handled gracefully by callers,
+    // which skip adding them to the degree course list.
+    console.warn(`Course not found in database: ${courseCode}`);
     return null;
   }
 }

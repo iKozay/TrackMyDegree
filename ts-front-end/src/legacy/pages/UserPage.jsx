@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../css/UserPage.css';
 import { motion } from 'framer-motion';
 import moment from 'moment';
 import { api } from '../../api/http-api-client';
 import avatar from '../../icons/avatar.svg';
-import { useNavigate } from "react-router-dom";
 
 import DeleteModal from '../components/DeleteModal.jsx';
 import TrashLogo from '../../icons/trashlogo.jsx';
