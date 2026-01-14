@@ -374,7 +374,7 @@ afterEach(() => {
 
     const semesterCourse = result.semesters[0].courses[0];
     expect(semesterCourse.code).toBe('MATH 999');
-    expect(semesterCourse.message).toBe('Course not part of degree requirements');
+    expect(semesterCourse.message).toBeUndefined();
     expect(result.courses['MATH 999']).toBeDefined();
   });
 

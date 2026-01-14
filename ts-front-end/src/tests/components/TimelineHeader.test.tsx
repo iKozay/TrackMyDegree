@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { TimelineHeader } from "../../components/TimelineHeader";
 import * as authHook from "../../hooks/useAuth";
+import type { AuthContextValue } from "../../types/auth.types";
 
 const downloadTimelinePdfMock = vi.fn();
 
@@ -32,15 +33,20 @@ describe("TimelineHeader", () => {
 
   beforeEach(() => {
     downloadTimelinePdfMock.mockReset();
-    vi.mocked(authHook.useAuth).mockReturnValue({
+    const authValue: AuthContextValue = {
       isAuthenticated: true,
       user: {
         id: "u1",
         email: "test@test.com",
-        fullname: "Test User",
-        type: "student",
+        name: "Test User",
+        role: "student",
       },
-    });
+      loading: false,
+      login: vi.fn(),
+      signup: vi.fn(),
+      logout: vi.fn(),
+    };
+    vi.mocked(authHook.useAuth).mockReturnValue(authValue);
     vi.spyOn(console, "error").mockImplementation(() => undefined);
     Object.assign(globalThis.navigator, {
       clipboard: {
@@ -162,10 +168,15 @@ describe("TimelineHeader", () => {
   });
 
   it("hides Save Data button when unauthenticated", () => {
-    vi.mocked(authHook.useAuth).mockReturnValue({
+    const authValue: AuthContextValue = {
       isAuthenticated: false,
       user: null,
-    });
+      loading: false,
+      login: vi.fn(),
+      signup: vi.fn(),
+      logout: vi.fn(),
+    };
+    vi.mocked(authHook.useAuth).mockReturnValue(authValue);
 
     render(<TimelineHeader {...baseProps} />);
 

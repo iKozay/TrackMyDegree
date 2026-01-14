@@ -10,6 +10,8 @@ import {
 import type {
   Course,
   CourseMap,
+  Semester,
+  SemesterId,
   TimelineState,
 } from "../../types/timeline.types";
 
@@ -51,7 +53,7 @@ describe("timelineUtils", () => {
       title: "Object-Oriented Programming I",
       credits: 3,
       description: "Introduction to programming",
-      offeredIN: ["FALL 2025"],
+      offeredIN: ["FALL 2025" as SemesterId],
       prerequisites: [],
       corequisites: [],
       status: {
@@ -71,7 +73,7 @@ describe("timelineUtils", () => {
         ...mockCourse,
         status: {
           status: "planned",
-          semester: "FALL 2025",
+          semester: "FALL 2025" as SemesterId,
         },
       };
 
@@ -85,7 +87,7 @@ describe("timelineUtils", () => {
         ...mockCourse,
         status: {
           status: "planned",
-          semester: "FALL 2025",
+          semester: "FALL 2025" as SemesterId,
         },
       };
 
@@ -99,7 +101,7 @@ describe("timelineUtils", () => {
         ...mockCourse,
         status: {
           status: "planned",
-          semester: "WINTER 2026",
+          semester: "WINTER 2026" as SemesterId,
         },
       };
 
@@ -109,8 +111,8 @@ describe("timelineUtils", () => {
     });
 
     it("blocks drop when semester credit limit would be exceeded", () => {
-      const heavySemester = {
-        term: "FALL 2025",
+      const heavySemester: Semester = {
+        term: "FALL 2025" as SemesterId,
         courses: [
           { code: "COMP 248", message: "" },
           { code: "COMP 249", message: "" },
@@ -136,7 +138,7 @@ describe("timelineUtils", () => {
         courses,
         [heavySemester],
         undefined,
-        "FALL 2025"
+        "FALL 2025" as SemesterId
       );
       expect(result.allowed).toBe(false);
       expect(result.reason).toMatch(/credit limit/i);
@@ -157,12 +159,12 @@ describe("timelineUtils", () => {
           title: "OOP I",
           credits: 3,
           description: "",
-          offeredIN: ["FALL 2025"],
+          offeredIN: ["FALL 2025" as SemesterId],
           prerequisites: [],
           corequisites: [],
           status: {
             status: "completed",
-            semester: "FALL 2025",
+            semester: "FALL 2025" as SemesterId,
           },
         },
         "COMP 249": {
@@ -170,12 +172,12 @@ describe("timelineUtils", () => {
           title: "OOP II",
           credits: 3,
           description: "",
-          offeredIN: ["WINTER 2026"],
+          offeredIN: ["WINTER 2026" as SemesterId],
           prerequisites: [],
           corequisites: [],
           status: {
             status: "planned",
-            semester: "WINTER 2026",
+            semester: "WINTER 2026" as SemesterId,
           },
         },
         "COMP 348": {
@@ -183,7 +185,7 @@ describe("timelineUtils", () => {
           title: "Advanced Programming",
           credits: 4,
           description: "",
-          offeredIN: ["FALL 2026"],
+          offeredIN: ["FALL 2026" as SemesterId],
           prerequisites: [],
           corequisites: [],
           status: {
@@ -233,10 +235,10 @@ describe("timelineUtils", () => {
       title: "OOP I",
       credits: 3,
       description: "",
-      offeredIN: ["FALL 2025"],
+      offeredIN: ["FALL 2025" as SemesterId],
       prerequisites: [],
       corequisites: [],
-      status: { status: "planned", semester: "FALL 2025" },
+      status: { status: "planned", semester: "FALL 2025" as SemesterId },
     };
 
     const baseState: TimelineState = {
@@ -248,15 +250,18 @@ describe("timelineUtils", () => {
       future: [],
       modal: { open: false, type: "" },
       semesters: [
-        { term: "FALL 2025", courses: [{ code: "COMP 248", message: "" }] },
-        { term: "WINTER 2026", courses: [] },
+        {
+          term: "FALL 2025" as SemesterId,
+          courses: [{ code: "COMP 248", message: "" }],
+        },
+        { term: "WINTER 2026" as SemesterId, courses: [] },
       ],
       courses: {
         "COMP 248": baseCourse,
         "COMP 249": {
           ...baseCourse,
           id: "COMP 249",
-          status: { status: "planned", semester: "WINTER 2026" },
+          status: { status: "planned", semester: "WINTER 2026" as SemesterId },
         },
       },
     };
@@ -271,7 +276,10 @@ describe("timelineUtils", () => {
 
     it("returns empty message when semester is not found", () => {
       const result = getCourseValidationMessage(
-        { ...baseCourse, status: { status: "planned", semester: "SUMMER 2030" } },
+        {
+          ...baseCourse,
+          status: { status: "planned", semester: "SUMMER 2030" as SemesterId },
+        },
         baseState
       );
       expect(result).toBe("");
@@ -298,13 +306,13 @@ describe("timelineUtils", () => {
     });
 
     it("returns empty message when requisites are satisfied", () => {
-      const state = {
+      const state: TimelineState = {
         ...baseState,
         courses: {
           ...baseState.courses,
           "COMP 249": {
             ...baseState.courses["COMP 249"],
-            status: { status: "completed", semester: "FALL 2025" },
+            status: { status: "completed", semester: "FALL 2025" as SemesterId },
           },
         },
       };
@@ -341,13 +349,18 @@ describe("timelineUtils", () => {
           title: "OOP",
           credits: 3,
           description: "",
-          offeredIN: [],
+          offeredIN: [] as SemesterId[],
           prerequisites: [],
           corequisites: [],
-          status: { status: "completed", semester: "FALL 2025" },
+          status: { status: "completed", semester: "FALL 2025" as SemesterId },
         },
       },
-      semesters: [{ term: "FALL 2025", courses: [{ code: "COMP 248", message: "" }] }],
+      semesters: [
+        {
+          term: "FALL 2025" as SemesterId,
+          courses: [{ code: "COMP 248", message: "" }],
+        },
+      ],
       selectedCourse: null,
       history: [],
       future: [],
@@ -369,7 +382,7 @@ describe("timelineUtils", () => {
           ...baseState.courses,
           "COMP 248": {
             ...baseState.courses["COMP 248"],
-            status: { status: "planned", semester: "WINTER 2026" },
+            status: { status: "planned", semester: "WINTER 2026" as SemesterId },
           },
         },
       };
@@ -381,11 +394,11 @@ describe("timelineUtils", () => {
     });
 
     it("detects semester list changes", () => {
-      const updated = {
+      const updated: TimelineState = {
         ...baseState,
         semesters: [
           ...baseState.semesters,
-          { term: "WINTER 2026", courses: [] },
+          { term: "WINTER 2026" as SemesterId, courses: [] },
         ],
       };
       const update = computeTimelinePartialUpdate(baseState, updated);
