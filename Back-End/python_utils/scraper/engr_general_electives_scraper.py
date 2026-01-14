@@ -26,6 +26,10 @@ def scrape_electives():
     course_codes = [c["_id"] for c in filtered_courses]
     courses[:] = filtered_courses
 
+    #remove duplicates
+    courses = list({c["_id"]: c for c in courses}.values())
+    course_codes = list(set(course_codes))
+
     return [course_codes, courses]
 
     

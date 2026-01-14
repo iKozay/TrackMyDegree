@@ -131,7 +131,7 @@ router.get('/:id', assignJobId, async (req: Request, res: Response) => {
     const { id } = req.params;
     const { jobId } = req as RequestWithJobId;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+     if (!mongoose.Types.ObjectId.isValid(id as string)) {
       return res.status(HTTP.BAD_REQUEST).json({
         error: INVALID_ID_FORMAT,
       });
@@ -142,11 +142,11 @@ router.get('/:id', assignJobId, async (req: Request, res: Response) => {
       return;
     }
 
-    await queue.add('processData', {
-      jobId,
-      kind: 'timelineData',
-      timelineId: id,
-    });
+      await queue.add('processData', {
+        jobId,
+        kind: 'timelineData',
+        timelineId: id as string,
+      });
 
     res.status(HTTP.ACCEPTED).json({
       jobId,
@@ -203,13 +203,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const updates = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(id as string)) {
       return res.status(HTTP.BAD_REQUEST).json({
         error: INVALID_ID_FORMAT,
       });
     }
 
-    const timeline = await timelineController.updateTimeline(id, updates);
+    const timeline = await timelineController.updateTimeline(id as string, updates);
     res.status(HTTP.OK).json(timeline);
   } catch (error) {
     console.error('Error in PUT /timeline/:id', error);
@@ -252,13 +252,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+   if (!mongoose.Types.ObjectId.isValid(id as string)) {
       return res.status(HTTP.BAD_REQUEST).json({
         error: INVALID_ID_FORMAT,
       });
     }
 
-    const result = await timelineController.deleteTimeline(id);
+    const result = await timelineController.deleteTimeline(id as string);
     res.status(HTTP.OK).json(result);
   } catch (error) {
     console.error('Error in DELETE /timeline/:id', error);
@@ -303,13 +303,13 @@ router.delete('/user/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
+    if (!mongoose.Types.ObjectId.isValid(userId as string)) {
       return res.status(HTTP.BAD_REQUEST).json({
         error: INVALID_ID_FORMAT,
       });
     }
 
-    const count = await timelineController.deleteAllUserTimelines(userId);
+    const count = await timelineController.deleteAllUserTimelines(userId as string);
     res.status(HTTP.OK).json({
       message: `Deleted ${count} timelines for user`,
     });
