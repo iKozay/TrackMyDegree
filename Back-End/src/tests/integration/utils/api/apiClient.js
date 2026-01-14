@@ -6,6 +6,7 @@ class ApiClient {
   constructor(app) {
     this.app = app;
     this.authToken = null;
+    this.base = '/api'; // base path for endpoints
   }
 
   setAuthToken(token) {
@@ -34,7 +35,7 @@ class ApiClient {
 
   // Login method that handles authentication and token extraction
   async login(credentials) {
-    const loginResponse = await this.post('/auth/login', credentials);
+    const loginResponse = await this.post(`${this.base}/auth/login`, credentials);
     const token = this.extractTokenFromCookies(loginResponse);
     this.setAuthToken(token);
     return loginResponse;
@@ -63,7 +64,7 @@ class ApiClient {
   }
 
   async seedAllData() {
-    return await this.get('/admin/seed-data');
+    return await this.get(`${this.base}/admin/seed-data`);
   }
 }
 
