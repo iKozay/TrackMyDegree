@@ -41,10 +41,10 @@ const DOES_NOT_EXIST = 'does not exist';
  *           schema:
  *             type: object
  *             properties:
- *               user_id: { type: string }
- *               name: { type: string }
- *               degree_id: { type: string }
- *             required: [user_id, name, degree_id]
+ *               userId: { type: string }
+ *               timelineName: { type: string }
+ *               jobId: { type: string }
+ *             required: [userId, timelineName, jobId]
  *     responses:
  *       201:
  *         description: Timeline saved successfully
@@ -65,7 +65,7 @@ const DOES_NOT_EXIST = 'does not exist';
 
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const {userId, timelineName, jobId } = req.body;
+    const { userId, timelineName, jobId } = req.body;
 
     if (!userId || !timelineName || !jobId) {
       res.status(HTTP.BAD_REQUEST).json({
