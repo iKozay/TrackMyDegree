@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Download, FileText, AlertTriangle, CheckCircle, Circle, XCircle, ChevronDown, ChevronUp, RefreshCw, Inbox } from 'lucide-react';
-import type { DegreeAuditData, RequirementCategory } from '../types/audit.types.ts';
+import type { DegreeAuditData, RequirementCategory } from '@shared/audit';
 import mockDegreeAuditResponse from "../mock/degreeAuditResponse.json";
 import DegreeAuditSkeleton from '../components/DegreeAuditSkeleton.tsx';
 import '../styles/DegreeAuditPage.css';
@@ -120,10 +120,6 @@ const DegreeAuditPage: React.FC = () => {
                                 <span className="value">{data.student.name}</span>
                             </div>
                             <div className="info-row">
-                                <span className="label">Student ID:</span>
-                                <span className="value">{data.student.studentId}</span>
-                            </div>
-                            <div className="info-row">
                                 <span className="label">Program:</span>
                                 <span className="value">{data.student.program}</span>
                             </div>
@@ -236,11 +232,6 @@ const RequirementItem: React.FC<{
             badges.push(<span key="status" className="badge badge-notstarted">Not Started</span>);
         } else if (req.status === 'Missing') {
             badges.push(<span key="status" className="badge badge-missing">Missing</span>);
-        }
-
-        // Secondary missing badge if count > 0
-        if (req.missingCount && req.missingCount > 0) {
-            badges.push(<span key="missing" className="badge badge-missing" style={{ marginLeft: '8px' }}>{req.missingCount} missing</span>);
         }
 
         return badges;

@@ -1,7 +1,6 @@
 module.exports = {
   studentInfo: {
     studentName: 'John Doe Student',
-    studentId: '123456789',
     city: 'Montreal',
     province: 'QC',
   },
