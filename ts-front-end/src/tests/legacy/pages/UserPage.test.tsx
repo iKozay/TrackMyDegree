@@ -16,7 +16,14 @@ vi.mock('framer-motion', () => {
 
 /* ---------------- Mock DeleteModal ---------------- */
 vi.mock('../../../legacy/components/DeleteModal', () => {
-  const DeleteModalMock = ({ open, children }: any) => (open ? <div data-testid="delete-modal">{children}</div> : null);
+  const DeleteModalMock = ({ open, onClose, children }: any) => (
+    open ? (
+      <div data-testid="delete-modal">
+        <button data-testid="modal-overlay" onClick={onClose}>Close</button>
+        {children}
+      </div>
+    ) : null
+  );
   return { default: DeleteModalMock };
 });
 
@@ -41,7 +48,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
 });
 
 /* ---------------- Helpers ---------------- */
-function renderWithRouter({ student, timelines = [] }: any = {}) {
+function renderWithRouter({ student, timelines }: { student?: any; timelines?: any[] } = {}) {
   return render(
     <MemoryRouter>
       <UserPage student={student} timelines={timelines} />
@@ -72,7 +79,7 @@ describe('UserPage', () => {
   };
 
   test('renders profile info from props', () => {
-    renderWithRouter({ student: baseUser });
+    renderWithRouter({ student: baseUser, timelines: [] });
 
     expect(screen.getByText(/My Profile/i)).toBeInTheDocument();
     expect(screen.getAllByText('John Doe').length).toBeGreaterThanOrEqual(1);
@@ -168,5 +175,92 @@ describe('UserPage', () => {
     expect(screen.getAllByText('N/A').length).toBe(2); // Default name and email in table
     expect(screen.getByText('Student')).toBeInTheDocument(); // Default role
     expect(screen.getAllByText('Full Name').length).toBeGreaterThanOrEqual(1); // Appears as heading and label
+  });
+
+  test('handles undefined timelines prop gracefully', () => {
+    renderWithRouter({ student: baseUser }); // No timelines prop passed
+
+    expect(screen.getByText(/My Timelines/i)).toBeInTheDocument();
+    expect(screen.getByText(/You haven't saved any timelines yet/i)).toBeInTheDocument();
+  });
+
+  test('shows alert when API returns no jobId', async () => {
+    const timelines = [{ _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
+    vi.mocked(api.get).mockResolvedValueOnce({ someOtherField: 'value' }); // No jobId
+    renderWithRouter({ student: baseUser, timelines });
+
+    const name = screen.getByText('Plan A');
+    fireEvent.click(name);
+
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('Unexpected response from server.'));
+  });
+
+  test('shows alert with error message when timeline click fails with Error', async () => {
+    const timelines = [{ _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
+    vi.mocked(api.get).mockRejectedValueOnce(new Error('Network failure'));
+    renderWithRouter({ student: baseUser, timelines });
+
+    const name = screen.getByText('Plan A');
+    fireEvent.click(name);
+
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('Network failure'));
+    expect(consoleErrorSpy).toHaveBeenCalled();
+  });
+
+  test('shows generic alert when timeline click fails with non-Error', async () => {
+    const timelines = [{ _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
+    vi.mocked(api.get).mockRejectedValueOnce('string error');
+    renderWithRouter({ student: baseUser, timelines });
+
+    const name = screen.getByText('Plan A');
+    fireEvent.click(name);
+
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('An unknown error occurred while processing the form.'));
+  });
+
+  test('handles delete API failure gracefully', async () => {
+    const timelines = [{ _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
+    vi.mocked(api.delete).mockRejectedValueOnce(new Error('Delete failed'));
+
+    renderWithRouter({ student: baseUser, timelines });
+
+    const deleteBtn = screen.getByTitle('Delete');
+    fireEvent.click(deleteBtn);
+
+    const modal = await screen.findByTestId('delete-modal');
+    const confirm = within(modal).getByRole('button', { name: /Yes, Delete/i });
+    fireEvent.click(confirm);
+
+    await waitFor(() => expect(api.delete).toHaveBeenCalledWith('/timeline/t1'));
+    await waitFor(() => expect(consoleErrorSpy).toHaveBeenCalledWith('Error deleting timeline:', expect.any(Error)));
+    // Timeline should still be there since delete failed
+    expect(screen.getByText('Plan A')).toBeInTheDocument();
+  });
+
+  test('clicking audit button navigates to degree audit page', async () => {
+    const timelines = [{ _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
+    renderWithRouter({ student: baseUser, timelines });
+
+    const auditBtn = screen.getByTitle('Degree Audit');
+    fireEvent.click(auditBtn);
+
+    expect(mockNavigate).toHaveBeenCalledWith('/degree-audit/t1');
+  });
+
+  test('closing modal via onClose callback closes the modal', async () => {
+    const timelines = [{ _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
+    renderWithRouter({ student: baseUser, timelines });
+
+    const deleteBtn = screen.getByTitle('Delete');
+    fireEvent.click(deleteBtn);
+
+    const modal = await screen.findByTestId('delete-modal');
+    expect(modal).toBeInTheDocument();
+
+    // Click overlay to close (uses onClose prop)
+    const overlayClose = screen.getByTestId('modal-overlay');
+    fireEvent.click(overlayClose);
+
+    await waitFor(() => expect(screen.queryByTestId('delete-modal')).not.toBeInTheDocument());
   });
 });
