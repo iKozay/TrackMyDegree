@@ -1,17 +1,22 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { TimelineHeader } from "../../components/TimelineHeader";
+import * as authHook from "../../hooks/useAuth";
+
+const downloadTimelinePdfMock = vi.fn();
+
+vi.mock("../../utils/timelineUtils", async () => {
+  const actual = await vi.importActual<
+    typeof import("../../utils/timelineUtils")
+  >("../../utils/timelineUtils");
+  return {
+    ...actual,
+    downloadTimelinePdf: downloadTimelinePdfMock,
+  };
+});
 
 vi.mock("../../hooks/useAuth", () => ({
-  useAuth: () => ({
-    isAuthenticated: true,
-    user: {
-      id: "u1",
-      email: "test@test.com",
-      fullname: "Test User",
-      type: "student",
-    },
-  }),
+  useAuth: vi.fn(),
 }));
 
 describe("TimelineHeader", () => {
@@ -22,9 +27,27 @@ describe("TimelineHeader", () => {
     onRedo: vi.fn(),
     earnedCredits: 30,
     totalCredits: 120,
-    onShowInsights: vi.fn(),
-    onSave: vi.fn(),
+    onOpenModal: vi.fn(),
   };
+
+  beforeEach(() => {
+    downloadTimelinePdfMock.mockReset();
+    vi.mocked(authHook.useAuth).mockReturnValue({
+      isAuthenticated: true,
+      user: {
+        id: "u1",
+        email: "test@test.com",
+        fullname: "Test User",
+        type: "student",
+      },
+    });
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    Object.assign(globalThis.navigator, {
+      clipboard: {
+        writeText: vi.fn().mockResolvedValue(undefined),
+      },
+    });
+  });
 
   it("renders credits summary correctly", () => {
     render(<TimelineHeader {...baseProps} />);
@@ -94,5 +117,60 @@ describe("TimelineHeader", () => {
 
     expect(onOpenModal).toHaveBeenCalledTimes(1);
     expect(onOpenModal).toHaveBeenCalledWith(true, "insights");
+  });
+
+  it("copies URL when Share is clicked", async () => {
+    render(<TimelineHeader {...baseProps} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /share/i }));
+
+    expect(globalThis.navigator.clipboard.writeText).toHaveBeenCalled();
+  });
+
+  it("calls downloadTimelinePdf when Download is clicked", () => {
+    render(<TimelineHeader {...baseProps} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /download/i }));
+
+    expect(downloadTimelinePdfMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("logs when Share fails", async () => {
+    vi.mocked(globalThis.navigator.clipboard.writeText).mockRejectedValueOnce(
+      new Error("copy failed")
+    );
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    render(<TimelineHeader {...baseProps} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /share/i }));
+
+    await Promise.resolve();
+    expect(errorSpy).toHaveBeenCalled();
+  });
+
+  it("logs when Download fails", async () => {
+    downloadTimelinePdfMock.mockRejectedValueOnce(new Error("download failed"));
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    render(<TimelineHeader {...baseProps} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /download/i }));
+
+    await Promise.resolve();
+    expect(errorSpy).toHaveBeenCalled();
+  });
+
+  it("hides Save Data button when unauthenticated", () => {
+    vi.mocked(authHook.useAuth).mockReturnValue({
+      isAuthenticated: false,
+      user: null,
+    });
+
+    render(<TimelineHeader {...baseProps} />);
+
+    expect(
+      screen.queryByRole("button", { name: /save data/i })
+    ).not.toBeInTheDocument();
   });
 });

@@ -2,10 +2,12 @@ const { Buffer } = require('buffer');
 const { buildTimeline, buildTimelineFromDB } = require('../services/timeline/timelineService'); // adjust path if needed
 const { parseFile } = require('@services/parsingService');
 const { degreeController } = require('@controllers/degreeController');
+const { courseController } = require('@controllers/courseController');
 const { Timeline } = require('../models/timeline');
 
 jest.mock('@services/parsingService');
 jest.mock('@controllers/degreeController');
+jest.mock('@controllers/courseController');
 
 describe('timelineService', () => {
   const mockDegreeData =  { _id: 'deg1', name: 'Beng in Computer Engineering' }
@@ -30,6 +32,7 @@ describe('timelineService', () => {
     ]);
 
   degreeController.getCoursesForDegree.mockResolvedValue(mockCourses);
+  courseController.getCourseByCode.mockResolvedValue(null);
 });
 
 afterEach(() => {
@@ -335,6 +338,148 @@ afterEach(() => {
 
     const deficiencyPool = result.pools.find(p => p._id === 'deficiencies');
     expect(deficiencyPool.courses).toContain('CHEM 206');
+  });
+
+  it('adds missing course data for non-degree courses', async () => {
+    const mockParsedData = {
+      programInfo: {
+        degree: 'Bachelor of Engineering Computer Engineering',
+        firstTerm: 'FALL 2023',
+        lastTerm: 'FALL 2024',
+        isExtendedCreditProgram: false,
+      },
+      semesters: [
+        {
+          term: 'FALL 2023',
+          courses: [{ code: 'MATH999', grade: 'A' }],
+        },
+      ],
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: ['MATH999'],
+    };
+
+    parseFile.mockResolvedValue(mockParsedData);
+    courseController.getCourseByCode.mockResolvedValue({
+      _id: 'MATH 999',
+      title: 'Special Topics',
+      rules: { prereq: [] },
+      credits: 3,
+    });
+
+    const result = await buildTimeline({
+      type: 'file',
+      data: Buffer.from('mock file'),
+    });
+
+    const semesterCourse = result.semesters[0].courses[0];
+    expect(semesterCourse.code).toBe('MATH 999');
+    expect(semesterCourse.message).toBe('Course not part of degree requirements');
+    expect(result.courses['MATH 999']).toBeDefined();
+  });
+
+  it('marks DISC grades with message', async () => {
+    const mockParsedData = {
+      programInfo: {
+        degree: 'Bachelor of Engineering Computer Engineering',
+        firstTerm: 'FALL 2023',
+        lastTerm: 'FALL 2024',
+        isExtendedCreditProgram: false,
+      },
+      semesters: [
+        {
+          term: 'FALL 2023',
+          courses: [{ code: 'COMP232', grade: 'DISC' }],
+        },
+      ],
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
+    };
+
+    parseFile.mockResolvedValue(mockParsedData);
+
+    const result = await buildTimeline({
+      type: 'file',
+      data: Buffer.from('mock file'),
+    });
+
+    expect(result.semesters[0].courses[0].message).toBe('DISC');
+  });
+
+  it('sets inprogress and planned statuses based on term', async () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2023, 9, 1)); // Oct 1, 2023
+
+    const mockParsedData = {
+      programInfo: {
+        degree: 'Bachelor of Engineering Computer Engineering',
+        firstTerm: 'FALL 2023',
+        lastTerm: 'FALL 2024',
+        isExtendedCreditProgram: false,
+      },
+      semesters: [
+        {
+          term: 'FALL 2023',
+          courses: [{ code: 'COMP248' }],
+        },
+        {
+          term: 'FALL 2024',
+          courses: [{ code: 'COMP249' }],
+        },
+      ],
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
+    };
+
+    parseFile.mockResolvedValue(mockParsedData);
+
+    const result = await buildTimeline({
+      type: 'file',
+      data: Buffer.from('mock file'),
+    });
+
+    expect(result.courses['COMP 248'].status.status).toBe('inprogress');
+    expect(result.courses['COMP 249'].status.status).toBe('planned');
+
+    jest.useRealTimers();
+  });
+
+  it('marks coop CWTE courses as completed when PASS', async () => {
+    const mockParsedData = {
+      programInfo: {
+        degree: 'Bachelor of Engineering Computer Engineering',
+        firstTerm: 'FALL 2023',
+        lastTerm: 'FALL 2024',
+        isExtendedCreditProgram: false,
+        isCoop: true,
+      },
+      semesters: [
+        {
+          term: 'FALL 2023',
+          courses: [{ code: 'CWTE123', grade: 'PASS' }],
+        },
+      ],
+      transferedCourses: [],
+      exemptedCourses: [],
+      deficiencyCourses: [],
+    };
+
+    parseFile.mockResolvedValue(mockParsedData);
+    degreeController.getCoursePoolsForDegree.mockResolvedValue([
+      { name: 'Core Courses', courses: ['CWTE 123'] },
+    ]);
+    degreeController.getCoursesForDegree.mockResolvedValue([
+      { _id: 'CWTE 123', title: 'Co-op', rules: { prereq: [] }, credits: 0 },
+    ]);
+
+    const result = await buildTimeline({
+      type: 'file',
+      data: Buffer.from('mock file'),
+    });
+
+    expect(result.courses['CWTE 123'].status.status).toBe('completed');
   });
 
 });

@@ -1,11 +1,50 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   canDropCourse,
   calculateEarnedCredits,
+  computeTimelinePartialUpdate,
+  downloadTimelinePdf,
+  getCourseValidationMessage,
+  saveTimeline,
 } from "../../utils/timelineUtils";
-import type { Course, CourseMap } from "../../types/timeline.types";
+import type {
+  Course,
+  CourseMap,
+  TimelineState,
+} from "../../types/timeline.types";
+
+vi.mock("../../api/http-api-client", () => ({
+  api: {
+    post: vi.fn(),
+  },
+}));
+
+vi.mock("react-toastify", () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
+vi.mock("html2canvas", () => ({
+  default: vi.fn(),
+}));
+
+vi.mock("jspdf", () => ({
+  jsPDF: vi.fn(),
+}));
+
+import { api } from "../../api/http-api-client";
+import { toast } from "react-toastify";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 
 describe("timelineUtils", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    document.body.innerHTML = "";
+  });
+
   describe("canDropCourse", () => {
     const mockCourse: Course = {
       id: "COMP 248",
@@ -68,6 +107,40 @@ describe("timelineUtils", () => {
       expect(result.allowed).toBe(false);
       expect(result.reason).toBe("Course already in WINTER 2026");
     });
+
+    it("blocks drop when semester credit limit would be exceeded", () => {
+      const heavySemester = {
+        term: "FALL 2025",
+        courses: [
+          { code: "COMP 248", message: "" },
+          { code: "COMP 249", message: "" },
+          { code: "COMP 346", message: "" },
+          { code: "COMP 348", message: "" },
+          { code: "COMP 352", message: "" },
+          { code: "COMP 445", message: "" },
+          { code: "COMP 472", message: "" },
+        ],
+      };
+      const courses: CourseMap = {
+        "COMP 248": { ...mockCourse, credits: 3 },
+        "COMP 249": { ...mockCourse, credits: 3 },
+        "COMP 346": { ...mockCourse, credits: 3 },
+        "COMP 348": { ...mockCourse, credits: 3 },
+        "COMP 352": { ...mockCourse, credits: 3 },
+        "COMP 445": { ...mockCourse, credits: 3 },
+        "COMP 472": { ...mockCourse, credits: 3 },
+      };
+
+      const result = canDropCourse(
+        { ...mockCourse, credits: 4 },
+        courses,
+        [heavySemester],
+        undefined,
+        "FALL 2025"
+      );
+      expect(result.allowed).toBe(false);
+      expect(result.reason).toMatch(/credit limit/i);
+    });
   });
 
   describe("calculateEarnedCredits", () => {
@@ -122,6 +195,238 @@ describe("timelineUtils", () => {
 
       const result = calculateEarnedCredits(courses);
       expect(result).toBe(3);
+    });
+  });
+
+  describe("saveTimeline", () => {
+    it("posts timeline payload and shows success toast", async () => {
+      vi.mocked(api.post).mockResolvedValueOnce({} as any);
+
+      await saveTimeline("user-1", "My Timeline", "job-1");
+
+      expect(api.post).toHaveBeenCalledWith("/timeline", {
+        userId: "user-1",
+        timelineName: "My Timeline",
+        jobId: "job-1",
+      });
+      expect(toast.success).toHaveBeenCalledWith("Timeline saved successfully");
+    });
+
+    it("handles API errors and shows error toast", async () => {
+      vi.mocked(api.post).mockRejectedValueOnce(new Error("boom"));
+
+      await saveTimeline("user-2", "Other Timeline");
+
+      expect(api.post).toHaveBeenCalledWith("/timeline", {
+        userId: "user-2",
+        timelineName: "Other Timeline",
+      });
+      expect(toast.error).toHaveBeenCalledWith(
+        "Failed to save timeline. Please try again."
+      );
+    });
+  });
+
+  describe("getCourseValidationMessage", () => {
+    const baseCourse: Course = {
+      id: "COMP 248",
+      title: "OOP I",
+      credits: 3,
+      description: "",
+      offeredIN: ["FALL 2025"],
+      prerequisites: [],
+      corequisites: [],
+      status: { status: "planned", semester: "FALL 2025" },
+    };
+
+    const baseState: TimelineState = {
+      timelineName: "Test",
+      degree: { name: "CS", totalCredits: 90, coursePools: [] },
+      pools: [],
+      selectedCourse: null,
+      history: [],
+      future: [],
+      modal: { open: false, type: "" },
+      semesters: [
+        { term: "FALL 2025", courses: [{ code: "COMP 248", message: "" }] },
+        { term: "WINTER 2026", courses: [] },
+      ],
+      courses: {
+        "COMP 248": baseCourse,
+        "COMP 249": {
+          ...baseCourse,
+          id: "COMP 249",
+          status: { status: "planned", semester: "WINTER 2026" },
+        },
+      },
+    };
+
+    it("returns empty message when course has no semester", () => {
+      const result = getCourseValidationMessage(
+        { ...baseCourse, status: { status: "planned", semester: null } },
+        baseState
+      );
+      expect(result).toBe("");
+    });
+
+    it("returns empty message when semester is not found", () => {
+      const result = getCourseValidationMessage(
+        { ...baseCourse, status: { status: "planned", semester: "SUMMER 2030" } },
+        baseState
+      );
+      expect(result).toBe("");
+    });
+
+    it("flags unmet prerequisites", () => {
+      const course = {
+        ...baseCourse,
+        prerequisites: [{ anyOf: ["COMP 249"] }],
+      };
+
+      const result = getCourseValidationMessage(course, baseState);
+      expect(result).toContain("Prerequisite");
+    });
+
+    it("flags unmet corequisites", () => {
+      const course = {
+        ...baseCourse,
+        corequisites: [{ anyOf: ["COMP 249"] }],
+      };
+
+      const result = getCourseValidationMessage(course, baseState);
+      expect(result).toContain("Corequisite");
+    });
+
+    it("returns empty message when requisites are satisfied", () => {
+      const state = {
+        ...baseState,
+        courses: {
+          ...baseState.courses,
+          "COMP 249": {
+            ...baseState.courses["COMP 249"],
+            status: { status: "completed", semester: "FALL 2025" },
+          },
+        },
+      };
+
+      const course = {
+        ...baseCourse,
+        prerequisites: [{ anyOf: ["COMP 249"] }],
+      };
+
+      expect(getCourseValidationMessage(course, state)).toBe("");
+    });
+
+    it("ignores non-object requisite groups", () => {
+      const course = {
+        ...baseCourse,
+        prerequisites: "COMP 249",
+        corequisites: "COMP 249",
+      };
+      expect(getCourseValidationMessage(course, baseState)).toBe("");
+    });
+  });
+
+  describe("computeTimelinePartialUpdate", () => {
+    const baseState: TimelineState = {
+      timelineName: "Test",
+      degree: { name: "CS", totalCredits: 90, coursePools: [] },
+      pools: [
+        { _id: "exemptions", name: "exemptions", creditsRequired: 0, courses: [] },
+        { _id: "deficiencies", name: "deficiencies", creditsRequired: 0, courses: [] },
+      ],
+      courses: {
+        "COMP 248": {
+          id: "COMP 248",
+          title: "OOP",
+          credits: 3,
+          description: "",
+          offeredIN: [],
+          prerequisites: [],
+          corequisites: [],
+          status: { status: "completed", semester: "FALL 2025" },
+        },
+      },
+      semesters: [{ term: "FALL 2025", courses: [{ code: "COMP 248", message: "" }] }],
+      selectedCourse: null,
+      history: [],
+      future: [],
+      modal: { open: false, type: "" },
+    };
+
+    it("returns null when no changes detected", () => {
+      expect(computeTimelinePartialUpdate(baseState, baseState)).toBeNull();
+    });
+
+    it("detects changes in pools and courses", () => {
+      const updated: TimelineState = {
+        ...baseState,
+        pools: [
+          { ...baseState.pools[0], courses: ["COMP 248"] },
+          baseState.pools[1],
+        ],
+        courses: {
+          ...baseState.courses,
+          "COMP 248": {
+            ...baseState.courses["COMP 248"],
+            status: { status: "planned", semester: "WINTER 2026" },
+          },
+        },
+      };
+
+      const update = computeTimelinePartialUpdate(baseState, updated);
+
+      expect(update?.exemptions).toEqual(["COMP 248"]);
+      expect(update?.courses).toBeDefined();
+    });
+
+    it("detects semester list changes", () => {
+      const updated = {
+        ...baseState,
+        semesters: [
+          ...baseState.semesters,
+          { term: "WINTER 2026", courses: [] },
+        ],
+      };
+      const update = computeTimelinePartialUpdate(baseState, updated);
+      expect(update?.semesters).toHaveLength(2);
+    });
+  });
+
+  describe("downloadTimelinePdf", () => {
+    it("logs an error if semesters grid is missing", async () => {
+      const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+      await downloadTimelinePdf();
+      expect(errorSpy).toHaveBeenCalledWith("Semesters grid not found");
+    });
+
+    it("renders and saves a PDF when grid exists", async () => {
+      const grid = document.createElement("div");
+      grid.className = "semesters-grid";
+      grid.style.width = "100px";
+      grid.style.height = "100px";
+      document.body.appendChild(grid);
+
+      const toDataURL = vi.fn(() => "data:image/png;base64,abc");
+      const canvas = {
+        width: 200,
+        height: 100,
+        toDataURL,
+      };
+
+      vi.mocked(html2canvas as any).mockResolvedValueOnce(canvas);
+
+      const addImage = vi.fn();
+      const save = vi.fn();
+      vi.mocked(jsPDF as any).mockImplementationOnce(() => ({
+        addImage,
+        save,
+      }));
+
+      await downloadTimelinePdf();
+
+      expect(addImage).toHaveBeenCalled();
+      expect(save).toHaveBeenCalledWith("timeline.pdf");
     });
   });
 });

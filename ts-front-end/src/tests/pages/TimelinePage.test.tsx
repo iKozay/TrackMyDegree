@@ -4,10 +4,28 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import TimeLinePage from "../../pages/TimelinePage";
 import * as useAuthHook from "../../hooks/useAuth";
 import * as useTimelineStateHook from "../../hooks/useTimelineState";
+import * as timelineUtils from "../../utils/timelineUtils";
 
 // Mock the hooks
 vi.mock("../../hooks/useAuth");
 vi.mock("../../hooks/useTimelineState");
+vi.mock("../../utils/timelineUtils", async () => {
+  const actual = await vi.importActual<
+    typeof import("../../utils/timelineUtils")
+  >("../../utils/timelineUtils");
+  return {
+    ...actual,
+    saveTimeline: vi.fn(),
+    calculateEarnedCredits: vi.fn(() => 0),
+  };
+});
+
+vi.mock("../../components/MainModal", () => ({
+  MainModal: ({ onSave }: { onSave?: (name: string) => void }) => {
+    onSave?.("Saved Timeline");
+    return <div data-testid="main-modal" />;
+  },
+}));
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
@@ -49,6 +67,7 @@ const mockTimelineState = {
   },
   canUndo: false,
   canRedo: false,
+  errorMessage: null,
 };
 
 const mockAuthState = {
@@ -89,11 +108,15 @@ describe("TimeLinePage", () => {
     mockUseTimelineState.mockReturnValue({
       ...mockTimelineState,
       status: "error",
+      errorMessage: "Timeline generation expired. Please try again.",
     });
 
     renderPage();
 
     expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/timeline generation expired/i)
+    ).toBeInTheDocument();
   });
 
   it("renders the main timeline interface when status is success", () => {
@@ -115,5 +138,24 @@ describe("TimeLinePage", () => {
     renderPage();
 
     expect(screen.getByRole("main")).toBeInTheDocument();
+  });
+
+  it("calls saveTimeline from modal save when authenticated", () => {
+    mockUseTimelineState.mockReturnValue({
+      ...mockTimelineState,
+      state: {
+        ...mockTimelineState.state,
+        modal: { open: true, type: "save" },
+      },
+    });
+
+    renderPage();
+
+    expect(screen.getByTestId("main-modal")).toBeInTheDocument();
+    expect(timelineUtils.saveTimeline).toHaveBeenCalledWith(
+      "test-user-id",
+      "Saved Timeline",
+      "test-job-id"
+    );
   });
 });

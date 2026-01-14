@@ -113,6 +113,17 @@ it('should return 400 if userId, timelineName, or jobId are missing', async () =
   }
 });
 
+it('should return 410 if cached result expired', async () => {
+  getJobResult.mockResolvedValue(null);
+
+  const response = await request(app)
+    .post('/timeline')
+    .send({ userId, timelineName, jobId })
+    .expect(410);
+
+  expect(response.body.error).toBe('result expired');
+});
+
 
   it('should handle server errors gracefully', async () => {
     getJobResult.mockResolvedValue(cachedTimelineResult);

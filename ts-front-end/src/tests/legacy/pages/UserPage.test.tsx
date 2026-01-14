@@ -42,10 +42,20 @@ vi.mock("../../../icons/trashlogo", () => {
 vi.mock("../../../api/http-api-client", () => ({
   api: {
     delete: vi.fn(),
+    get: vi.fn(),
   },
 }));
 
 import { api } from "../../../api/http-api-client";
+
+const navigateMock = vi.fn();
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom");
+  return {
+    ...(actual as object),
+    useNavigate: () => navigateMock,
+  };
+});
 
 /* ---------------- Helpers ---------------- */
 function renderWithRouter({ student, timelines = [] }: any = {}) {
@@ -70,6 +80,7 @@ beforeEach(() => {
 afterEach(() => {
   consoleErrorSpy?.mockRestore();
   alertSpy?.mockRestore();
+  navigateMock.mockReset();
 });
 
 /* ---------------- Tests ---------------- */
@@ -179,6 +190,51 @@ describe("UserPage", () => {
     // modal closed
     await waitFor(() =>
       expect(screen.queryByTestId("delete-modal")).not.toBeInTheDocument()
+    );
+  });
+
+  test("clicking a timeline navigates when jobId is returned", async () => {
+    const timelines = [
+      { _id: "t1", name: "Plan A", last_modified: "2025-10-02T10:00:00Z" },
+    ];
+    vi.mocked(api.get).mockResolvedValueOnce({ jobId: "job-123" } as any);
+
+    renderWithRouter({ student: baseUser, timelines });
+
+    fireEvent.click(screen.getByText("Plan A"));
+
+    await waitFor(() =>
+      expect(navigateMock).toHaveBeenCalledWith("/timeline/job-123")
+    );
+  });
+
+  test("shows alert when API returns no jobId", async () => {
+    const timelines = [
+      { _id: "t1", name: "Plan A", last_modified: "2025-10-02T10:00:00Z" },
+    ];
+    vi.mocked(api.get).mockResolvedValueOnce({} as any);
+
+    renderWithRouter({ student: baseUser, timelines });
+
+    fireEvent.click(screen.getByText("Plan A"));
+
+    await waitFor(() =>
+      expect(alertSpy).toHaveBeenCalledWith("Unexpected response from server.")
+    );
+  });
+
+  test("shows alert on load error", async () => {
+    const timelines = [
+      { _id: "t1", name: "Plan A", last_modified: "2025-10-02T10:00:00Z" },
+    ];
+    vi.mocked(api.get).mockRejectedValueOnce(new Error("boom"));
+
+    renderWithRouter({ student: baseUser, timelines });
+
+    fireEvent.click(screen.getByText("Plan A"));
+
+    await waitFor(() =>
+      expect(alertSpy).toHaveBeenCalledWith("boom")
     );
   });
 
