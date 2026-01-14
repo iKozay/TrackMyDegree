@@ -36,12 +36,6 @@ function shareTimeline(
   setTimeout(() => setShow(false), 2000);
 }
 
-function downloadTimeline(): void {
-  downloadTimelinePdf().catch((err) => {
-    console.error("Failed to load PDF libraries:", err);
-  });
-}
-
 const HistoryControls: React.FC<HistoryControlsProps> = ({
   canUndo,
   canRedo,
@@ -75,7 +69,7 @@ const HistoryControls: React.FC<HistoryControlsProps> = ({
         {show ? "Copied" : "Share"}
       </button>
 
-      <button className="btn btn-secondary" onClick={downloadTimeline}>
+      <button className="btn btn-secondary" onClick={downloadTimelinePdf}>
         <Download size={16} />
         Download
       </button>

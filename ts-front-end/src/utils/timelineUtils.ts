@@ -1,3 +1,5 @@
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import type {
   Course,
   CourseCode,
@@ -238,14 +240,6 @@ export async function downloadTimelinePdf(): Promise<void> {
     console.error("Semesters grid not found");
     return;
   }
-
-  const [html2canvasModule, jsPDFModule] = await Promise.all([
-    import("html2canvas"),
-    import("jspdf"),
-  ]);
-
-  const html2canvas = html2canvasModule.default;
-  const jsPDF = jsPDFModule.jsPDF;
 
   // 1. Clone the node
   const clone = semestersGrid.cloneNode(true) as HTMLElement;
