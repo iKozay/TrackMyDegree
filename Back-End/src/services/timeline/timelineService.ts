@@ -142,11 +142,11 @@ export const buildTimeline = async (
     //add transfer credits to course completed
     addToCourseStatusMap(parsedData?.transferedCourses,courseStatusMap, 'completed');
 
-    //add deficiencies course pool (if there is no deficiencies the courses field will contain an empty array)
-    addToCoursePools('deficiencies', deficiencies, courses,coursePools);
+    // add deficiencies course pool (even if empty to keep UI consistent)
+    addToCoursePools('deficiencies', deficiencies, courses, coursePools);
 
     // add exemptions to course completed and add an exemptions course pool
-    addToCourseStatusMap(exemptions,courseStatusMap, 'completed');
+    addToCourseStatusMap(exemptions, courseStatusMap, "completed");
     addToCoursePools('exemptions', exemptions, courses, coursePools, false);
     
     
@@ -265,25 +265,31 @@ function getCourseStatus(term:string, isCoop:boolean|undefined, courseCode:strin
   return {status, message}
 }
 
-function addToCoursePools(coursePoolName:string, coursesToAdd:string[], allCourses:Record<string, CourseData>,coursePools: CoursePoolInfo[], calculateCredits:boolean = true){
-  //calculate number of credits required and create a new coursePool with the deficiency courses.
-  let creditsRequired = 0; 
-  if(calculateCredits){
-    for (const courseId of coursesToAdd) {
+function addToCoursePools(
+  coursePoolName: string,
+  coursesToAdd: string[],
+  allCourses: Record<string, CourseData>,
+  coursePools: CoursePoolInfo[],
+  calculateCredits: boolean = true,
+) {
+  const normalizedCourses = coursesToAdd.map(normalizeCourseCode);
+
+  // calculate number of credits required and create a new coursePool with the deficiency courses.
+  let creditsRequired = 0;
+  if (calculateCredits) {
+    for (const courseId of normalizedCourses) {
       const course = allCourses[courseId];
       if (course) {
         creditsRequired += course.credits;
       }
     }
   }
-  coursePools.push(
-    {
-      _id: coursePoolName,
-      name: coursePoolName,
-      creditsRequired: creditsRequired,
-      courses: coursesToAdd
-    }
-  )
+  coursePools.push({
+    _id: coursePoolName,
+    name: coursePoolName,
+    creditsRequired: creditsRequired,
+    courses: normalizedCourses,
+  });
 }
 
 function addToCourseStatusMap(coursesToAdd:string[]| undefined, courseStatusMap: Record<string, { status: CourseStatus; semester: string | null;}>, status:CourseStatus, semester:string|null = null){
@@ -413,23 +419,26 @@ function validateGrade( minGrade:string, courseGrade?: string  ): boolean {
   return studentValue >= minValue;
 }
 
-async function  loadMissingCourses(coursesToAdd:string[], degreeCourses: Record<string, CourseData>){
-  for (const courseCode of coursesToAdd){
-    if(!degreeCourses[courseCode]){
-      const courseData:CourseData = await getCourseData(courseCode);
-      if (!courseData) continue
+async function loadMissingCourses(
+  coursesToAdd: string[],
+  degreeCourses: Record<string, CourseData>,
+) {
+  for (const courseCode of coursesToAdd) {
+    const normalizedCode = normalizeCourseCode(courseCode);
+    if (!degreeCourses[normalizedCode]) {
+      const courseData: CourseData = await getCourseData(normalizedCode);
+      if (!courseData) continue;
       degreeCourses[courseData._id] = courseData;
     }
   }
 }
 
-async function getCourseData(courseCode:string) {
-  try{
-    const normalizedCourseCode = normalizeCourseCode(courseCode)
-    return await courseController.getCourseByCode(normalizedCourseCode);
-    //TODO: handle courses that are not in the db
-  } catch(error){
-    console.log(error)
+async function getCourseData(courseCode: string) {
+  try {
+    return await courseController.getCourseByCode(courseCode);
+    // TODO: handle courses that are not in the db
+  } catch (error) {
+    console.log(error);
     return null;
   }
 }

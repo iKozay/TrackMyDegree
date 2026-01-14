@@ -11,6 +11,7 @@ import {
   Save,
 } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
+import { downloadTimelinePdf } from "../utils/timelineUtils";
 
 interface HistoryControlsProps {
   canUndo: boolean;
@@ -36,74 +37,9 @@ function shareTimeline(
 }
 
 function downloadTimeline(): void {
-  const semestersGrid = document.querySelector(
-    ".semesters-grid"
-  ) as HTMLElement;
-  if (!semestersGrid) {
-    console.error("Semesters grid not found");
-    return;
-  }
-
-  Promise.all([import("html2canvas"), import("jspdf")])
-    .then(async ([html2canvasModule, jsPDFModule]) => {
-      const html2canvas = html2canvasModule.default;
-      const jsPDF = jsPDFModule.jsPDF;
-
-      // 1. Clone the node
-      const clone = semestersGrid.cloneNode(true) as HTMLElement;
-
-      // 2. Create offscreen container
-      const wrapper = document.createElement("div");
-      wrapper.style.position = "fixed";
-      wrapper.style.left = "-100000px";
-      wrapper.style.top = "-100000px";
-      wrapper.style.width = `${semestersGrid.scrollWidth}px`;
-      wrapper.style.height = `${semestersGrid.scrollHeight}px`;
-      wrapper.style.overflow = "visible";
-      wrapper.style.background = "white";
-
-      // 3. Force full width on clone
-      clone.style.width = "auto";
-      clone.style.maxWidth = "none";
-      clone.style.overflow = "visible";
-
-      wrapper.appendChild(clone);
-      document.body.appendChild(wrapper);
-
-      try {
-        // 4. Render full content
-        const canvas = await html2canvas(clone, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-          width: clone.scrollWidth,
-          height: clone.scrollHeight,
-          windowWidth: clone.scrollWidth,
-          windowHeight: clone.scrollHeight,
-        });
-
-        wrapper.remove();
-
-        // 6. Create SINGLE-PAGE PDF
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF({
-          orientation: "landscape",
-          unit: "px",
-          format: [canvas.width, canvas.height],
-        });
-
-        pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
-
-        pdf.save("timeline.pdf");
-      } catch (err) {
-        // 5. Cleanup on error
-        wrapper.remove();
-        console.error("Failed to generate PDF:", err);
-      }
-    })
-    .catch((err: Error) => {
-      console.error("Failed to load PDF libraries:", err);
-    });
+  downloadTimelinePdf().catch((err) => {
+    console.error("Failed to load PDF libraries:", err);
+  });
 }
 
 const HistoryControls: React.FC<HistoryControlsProps> = ({

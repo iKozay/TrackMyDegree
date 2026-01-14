@@ -174,9 +174,9 @@ export function getCourseValidationMessage(
 
 function getPoolCourses(
   pools: Pool[],
-  id: "Exemptions" | "Deficiencies"
+  id: "exemptions" | "deficiencies"
 ): CourseCode[] {
-  return pools.find((p) => p._id === id)?.courses ?? [];
+  return pools.find((p) => p._id.toLowerCase() === id)?.courses ?? [];
 }
 
 export function computeTimelinePartialUpdate(
@@ -186,16 +186,16 @@ export function computeTimelinePartialUpdate(
   const update: TimelinePartialUpdate = {};
 
   /* ---------- EXEMPTIONS ---------- */
-  const prevEx = [...getPoolCourses(prev.pools, "Exemptions")].sort();
-  const currEx = [...getPoolCourses(curr.pools, "Exemptions")].sort();
+  const prevEx = [...getPoolCourses(prev.pools, "exemptions")].sort();
+  const currEx = [...getPoolCourses(curr.pools, "exemptions")].sort();
 
   if (JSON.stringify(prevEx) !== JSON.stringify(currEx)) {
     update.exemptions = currEx;
   }
 
   /* ---------- DEFICIENCIES ---------- */
-  const prevDef = [...getPoolCourses(prev.pools, "Deficiencies")].sort();
-  const currDef = [...getPoolCourses(curr.pools, "Deficiencies")].sort();
+  const prevDef = [...getPoolCourses(prev.pools, "deficiencies")].sort();
+  const currDef = [...getPoolCourses(curr.pools, "deficiencies")].sort();
 
   if (JSON.stringify(prevDef) !== JSON.stringify(currDef)) {
     update.deficiencies = currDef;
@@ -228,4 +228,73 @@ export function computeTimelinePartialUpdate(
   }
 
   return Object.keys(update).length > 0 ? update : null;
+}
+
+export async function downloadTimelinePdf(): Promise<void> {
+  const semestersGrid = document.querySelector(
+    ".semesters-grid"
+  ) as HTMLElement | null;
+  if (!semestersGrid) {
+    console.error("Semesters grid not found");
+    return;
+  }
+
+  const [html2canvasModule, jsPDFModule] = await Promise.all([
+    import("html2canvas"),
+    import("jspdf"),
+  ]);
+
+  const html2canvas = html2canvasModule.default;
+  const jsPDF = jsPDFModule.jsPDF;
+
+  // 1. Clone the node
+  const clone = semestersGrid.cloneNode(true) as HTMLElement;
+
+  // 2. Create offscreen container
+  const wrapper = document.createElement("div");
+  wrapper.style.position = "fixed";
+  wrapper.style.left = "-100000px";
+  wrapper.style.top = "-100000px";
+  wrapper.style.width = `${semestersGrid.scrollWidth}px`;
+  wrapper.style.height = `${semestersGrid.scrollHeight}px`;
+  wrapper.style.overflow = "visible";
+  wrapper.style.background = "white";
+
+  // 3. Force full width on clone
+  clone.style.width = "auto";
+  clone.style.maxWidth = "none";
+  clone.style.overflow = "visible";
+
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+
+  try {
+    // 4. Render full content
+    const canvas = await html2canvas(clone, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      width: clone.scrollWidth,
+      height: clone.scrollHeight,
+      windowWidth: clone.scrollWidth,
+      windowHeight: clone.scrollHeight,
+    });
+
+    wrapper.remove();
+
+    // 5. Create single-page PDF
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "px",
+      format: [canvas.width, canvas.height],
+    });
+
+    pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+
+    pdf.save("timeline.pdf");
+  } catch (err) {
+    wrapper.remove();
+    console.error("Failed to generate PDF:", err);
+  }
 }

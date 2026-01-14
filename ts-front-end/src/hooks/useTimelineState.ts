@@ -54,6 +54,7 @@ export interface UseTimelineStateResult {
   actions: TimelineActions;
   canUndo: boolean;
   canRedo: boolean;
+  errorMessage: string | null;
 }
 
 const EMPTY_TIMELINE_STATE: TimelineState = {
@@ -74,7 +75,6 @@ const EMPTY_TIMELINE_STATE: TimelineState = {
     type: "",
   },
 };
-// TODO : Add more actions like saveTimeLine, addExemption...
 function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
   return {
     initTimelineState(timelineName, degree, pools, courses, semesters) {
@@ -146,6 +146,7 @@ function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
 
 export function useTimelineState(jobId?: string): UseTimelineStateResult {
   const [status, setStatus] = useState<JobStatus>("processing");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
 
   const [state, dispatch] = useReducer(timelineReducer, EMPTY_TIMELINE_STATE);
@@ -193,6 +194,11 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
         console.error("Error fetching timeline result:", err);
         if (!mountedRef.current) return;
         setStatus("error");
+        if (err instanceof Error && err.message.includes("HTTP 410")) {
+          setErrorMessage("Timeline generation expired. Please try again.");
+        } else {
+          setErrorMessage(null);
+        }
 
         // optional: stop on error
         if (intervalRef.current) {
@@ -245,5 +251,6 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
     actions,
     canUndo,
     canRedo,
+    errorMessage,
   };
 }

@@ -21,7 +21,8 @@ const TimeLinePage: React.FC = () => {
   const { user } = useAuth();
   const { jobId } = useParams<TimeLinePageRouteParams>();
 
-  const { status, state, actions, canUndo, canRedo } = useTimelineState(jobId);
+  const { status, state, actions, canUndo, canRedo, errorMessage } =
+    useTimelineState(jobId);
   const navigate = useNavigate();
 
   // TO DISCUSS
@@ -33,7 +34,7 @@ const TimeLinePage: React.FC = () => {
   }
 
   if (status === "error") {
-    return <TimelineError onRetry={tryAgain} />;
+    return <TimelineError onRetry={tryAgain} message={errorMessage ?? undefined} />;
   }
 
   return (
