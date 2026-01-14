@@ -312,15 +312,10 @@ export function addCourse(
       ? "deficiencies"
       : null;
 
-  console.log("Adding course", courseId, "as", type);
   if (!poolName) return state;
-  console.log("Target pool:", poolName);
-  console.log("Current degree:", state.degree);
 
   const course = state.courses[courseId];
   if (!course) return state;
-
-  console.log("Course found:", course);
 
   // -----------------------------
   // Update pools
@@ -328,7 +323,6 @@ export function addCourse(
   let poolsChanged = false;
 
   const updatedPools = state.pools.map((pool) => {
-    console.log("Checking pool:", pool.name);
     if (pool.name !== poolName) return pool;
 
     if (pool.courses.includes(courseId)) {
@@ -343,7 +337,7 @@ export function addCourse(
       creditsRequired: pool.creditsRequired + credits,
     };
   });
-  console.log("Pools:", updatedPools);
+
   if (!poolsChanged) return state;
 
   // -----------------------------
@@ -364,8 +358,6 @@ export function addCourse(
     ...state.courses,
     [courseId]: updatedCourse,
   };
-
-  console.log("Courses:", updatedCourse);
 
   // -----------------------------
   // Final state

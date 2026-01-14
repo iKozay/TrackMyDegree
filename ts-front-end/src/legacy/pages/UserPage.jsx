@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../css/UserPage.css';
 import { motion } from 'framer-motion';
@@ -24,10 +23,7 @@ const UserPage = (prop) => {
       setUserTimelines(prop.timelines);
     }
   }, [prop.timelines]);
-  // Fetch degree credits (wrapped in util)
   const handleTimelineClick = async (obj) => {
-    // TODO: Handle click to load timeline
-
     try {
       const response = await api.get(`/timeline/${obj._id}`);
       if (response?.jobId) {

@@ -35,8 +35,8 @@ export class TimelineController extends BaseMongoController<any> {
               ])
           );
          
-      const exemptionPool = (pools || []).find(p => p._id === 'Exemptions');
-      const deficiencyPool = (pools || []).find(p => p._id === 'Deficiencies');
+      const exemptionPool = (pools || []).find(p => p._id === 'exemptions');
+      const deficiencyPool = (pools || []).find(p => p._id === 'deficiencies');
       const exemptions  = exemptionPool?.courses ?? [];
       const deficiencies = deficiencyPool?.courses ?? [];
       const record = {

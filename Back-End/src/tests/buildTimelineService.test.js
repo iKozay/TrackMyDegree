@@ -261,7 +261,7 @@ afterEach(() => {
     const result = await buildTimeline(fileData);
 
     // Exemption pool exists
-    const exemptionPool = result.pools.find(p => p._id === 'Exemptions');
+    const exemptionPool = result.pools.find(p => p._id === 'exemptions');
     expect(exemptionPool).toBeDefined();
     expect(exemptionPool.courses).toContain('COMP 232');
 
@@ -289,7 +289,7 @@ afterEach(() => {
     const fileData = { type: 'file', data: Buffer.from('mock file') };
     const result = await buildTimeline(fileData);
   
-    const deficiencyPool = result.pools.find(p => p._id === 'Deficiencies');
+    const deficiencyPool = result.pools.find(p => p._id === 'deficiencies');
     expect(deficiencyPool).toBeDefined();
     expect(deficiencyPool.courses).toContain('COMP 249');
     
@@ -330,10 +330,10 @@ afterEach(() => {
     expect(result.courses['MATH 204'].status.status).toBe('completed');
     expect(result.courses['CHEM 206'].status.status).toBe('incomplete');
 
-    const exemptionPool = result.pools.find(p => p._id === 'Exemptions');
+    const exemptionPool = result.pools.find(p => p._id === 'exemptions');
     expect(exemptionPool.courses).toContain('MATH 204');
 
-    const deficiencyPool = result.pools.find(p => p._id === 'Deficiencies');
+    const deficiencyPool = result.pools.find(p => p._id === 'deficiencies');
     expect(deficiencyPool.courses).toContain('CHEM 206');
   });
 

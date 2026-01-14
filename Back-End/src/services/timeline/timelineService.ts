@@ -125,7 +125,9 @@ export const buildTimeline = async (
     
     const { degreeData: degree, coursePools, courses } = result;
 
-    // Load exemption and deficiency courses if they are missing from the data loaded from the database
+    // Load exemption and deficiency courses that are not part of the degree requirements.
+    // This occurs when the timeline is loaded from the database ('timelineData' case) or when
+    // parsing a transcript with exemptions/deficiencies for courses outside the degree program.
     await loadMissingCourses(exemptions, courses)
     await loadMissingCourses(deficiencies, courses)
    
@@ -141,11 +143,11 @@ export const buildTimeline = async (
     addToCourseStatusMap(parsedData?.transferedCourses,courseStatusMap, 'completed');
 
     //add deficiencies course pool (if there is no deficiencies the courses field will contain an empty array)
-    addToCoursePools('Deficiencies', deficiencies, courses,coursePools);
+    addToCoursePools('deficiencies', deficiencies, courses,coursePools);
 
-    // add exemptions to course completed and add an Exemptions course pool
+    // add exemptions to course completed and add an exemptions course pool
     addToCourseStatusMap(exemptions,courseStatusMap, 'completed');
-    addToCoursePools('Exemptions', exemptions, courses, coursePools, false);
+    addToCoursePools('exemptions', exemptions, courses, coursePools, false);
     
     
     //transform courses obtained from db to the format expected by the frontend

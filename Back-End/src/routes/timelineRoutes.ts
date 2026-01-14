@@ -65,13 +65,11 @@ const DOES_NOT_EXIST = 'does not exist';
 
 router.post('/', async (req: Request, res: Response) => {
   try {
-    console.log('POST /timeline called with body:', req.body);
     const {userId, timelineName, jobId } = req.body;
 
     if (!userId || !timelineName || !jobId) {
       res.status(HTTP.BAD_REQUEST).json({
-        error:
-          'User ID, timeline name, and degree ID, courses and coursePools are required',
+        error: 'User ID, timeline name, and job ID are required',
       });
       return;
     }
