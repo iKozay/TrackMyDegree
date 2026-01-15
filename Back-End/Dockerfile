@@ -7,8 +7,8 @@ RUN apt-get update && apt-get --no-install-recommends install -y \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-COPY shared/ /app/shared/
-COPY tsconfig.json /app/tsconfig.json
+COPY shared/ /shared/
+COPY tsconfig.json /tsconfig.json
 
 # Set the working directory for backend
 WORKDIR /app/backend
