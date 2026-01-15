@@ -3,6 +3,7 @@ FROM node:22 AS build
 
 WORKDIR /app
 
+COPY tsconfig.json ./
 COPY package.json ./
 COPY *lock* ./
 RUN npm install
