@@ -5,7 +5,7 @@ import DegreeAuditSkeleton from '../components/DegreeAuditSkeleton.tsx';
 import { api } from '../api/http-api-client';
 import { useAuth } from '../hooks/useAuth';
 import '../styles/DegreeAuditPage.css';
-import type {DegreeAuditData, RequirementCategory, Notice, Course} from "../types/audit.types.ts";
+import type {DegreeAuditData, RequirementCategory, Notice, AuditCourse} from "@shared/audit"
 
 const DegreeAuditPage: React.FC = () => {
     const { timelineId } = useParams();
@@ -256,8 +256,8 @@ const RequirementItem: React.FC<{
     };
 
     const creditsInProgress = req.courses
-        .filter((c: Course) => c.status === 'In Progress')
-        .reduce((acc: number, c: Course) => acc + c.credits, 0);
+        .filter((c: AuditCourse) => c.status === 'In Progress')
+        .reduce((acc: number, c: AuditCourse) => acc + c.credits, 0);
 
     const creditsRemaining = Math.max(0, req.creditsTotal - req.creditsCompleted - creditsInProgress);
 
@@ -305,7 +305,7 @@ const RequirementItem: React.FC<{
                         )}
                     </div>
 
-                    {req.courses.map((course : Course) => (
+                    {req.courses.map((course : AuditCourse) => (
                         <div key={course.id} className="course-item">
                             <div className="course-info">
                                 <span className="course-icon">
