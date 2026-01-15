@@ -178,7 +178,7 @@ jobs:
       matrix:
         include:
           - name: backend
-            context: ./Back-End
+            context: .
             dockerfile: ./Back-End/Dockerfile
             image: trackmydegree-backend
           - name: frontend
