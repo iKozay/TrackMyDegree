@@ -6,6 +6,7 @@
     "sourceMap": true,
     "inlineSources": true,
     "allowJs": true,
+    "noEmit": false,
     "baseUrl": ".",
     "noImplicitReturns": false,
     "paths": {
