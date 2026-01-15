@@ -6,6 +6,7 @@ import { api } from '../api/http-api-client';
 import { useAuth } from '../hooks/useAuth';
 import '../styles/DegreeAuditPage.css';
 import type {DegreeAuditData, RequirementCategory, Notice, AuditCourse} from "@shared/audit"
+import { downloadPdf } from '../utils/downloadUtils.ts';
 
 const DegreeAuditPage: React.FC = () => {
     const { timelineId } = useParams();
@@ -118,7 +119,7 @@ const DegreeAuditPage: React.FC = () => {
                     <p>Comprehensive analysis of your degree progress</p>
                 </div>
                 <div className="da-actions">
-                    <button className="btn btn-outline">
+                    <button className="btn btn-outline" onClick={() => downloadPdf(".audit-container","degree-audit")}>
                         <Download size={18} /> Export PDF
                     </button>
                     <button className="btn btn-primary" onClick={fetchData}>
@@ -126,103 +127,104 @@ const DegreeAuditPage: React.FC = () => {
                     </button>
                 </div>
             </div>
-
-            {/* Student Info Card */}
-            <div className="card">
-                <div className="info-grid">
-                    <div>
-                        <h3 className="section-title">Student Information</h3>
-                        <div className="info-rows">
-                            <div className="info-row">
-                                <span className="label">Name:</span>
-                                <span className="value">{data.student.name}</span>
+            <div className="audit-container">
+                {/* Student Info Card */}
+                <div className="card">
+                    <div className="info-grid">
+                        <div>
+                            <h3 className="section-title">Student Information</h3>
+                            <div className="info-rows">
+                                <div className="info-row">
+                                    <span className="label">Name:</span>
+                                    <span className="value">{data.student.name}</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="label">Program:</span>
+                                    <span className="value">{data.student.program}</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="label">Academic Advisor:</span>
+                                    <span className="value">{data.student.advisor}</span>
+                                </div>
                             </div>
-                            <div className="info-row">
-                                <span className="label">Program:</span>
-                                <span className="value">{data.student.program}</span>
-                            </div>
-                            <div className="info-row">
-                                <span className="label">Academic Advisor:</span>
-                                <span className="value">{data.student.advisor}</span>
+                        </div>
+                        <div>
+                            <h3 className="section-title">Audit Summary</h3>
+                            <div className="info-rows">
+                                <div className="info-row">
+                                    <span className="label">GPA:</span>
+                                    <span className="value">{data.student.gpa}</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="label">Admission Term:</span>
+                                    <span className="value">{data.student.admissionTerm}</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="label">Expected Graduation:</span>
+                                    <span className="value">{data.student.expectedGraduation}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div>
-                        <h3 className="section-title">Audit Summary</h3>
-                        <div className="info-rows">
-                            <div className="info-row">
-                                <span className="label">GPA:</span>
-                                <span className="value">{data.student.gpa}</span>
-                            </div>
-                            <div className="info-row">
-                                <span className="label">Admission Term:</span>
-                                <span className="value">{data.student.admissionTerm}</span>
-                            </div>
-                            <div className="info-row">
-                                <span className="label">Expected Graduation:</span>
-                                <span className="value">{data.student.expectedGraduation}</span>
-                            </div>
+
+                    <hr className="da-divider" />
+
+                    {/* Overall Progress */}
+                    <div className="audit-progress">
+                        <div className="progress-header">
+                            <h3 className="section-title">Overall Progress</h3>
+                            <span className="progress-percentage">{data.progress.percentage}%</span>
+                        </div>
+                        <div className="progress-bar-container">
+                            <div
+                                className="progress-bar-fill"
+                                style={{ width: `${data.progress.percentage}%` }}
+                            ></div>
+                        </div>
+                        <div className="progress-legends">
+                            <span>{data.progress.completed} credits completed</span>
+                            <span>{data.progress.inProgress} credits in progress</span>
+                            <span>{data.progress.remaining} credits remaining</span>
                         </div>
                     </div>
                 </div>
 
-                <hr className="da-divider" />
-
-                {/* Overall Progress */}
-                <div className="audit-progress">
-                    <div className="progress-header">
-                        <h3 className="section-title">Overall Progress</h3>
-                        <span className="progress-percentage">{data.progress.percentage}%</span>
-                    </div>
-                    <div className="progress-bar-container">
-                        <div
-                            className="progress-bar-fill"
-                            style={{ width: `${data.progress.percentage}%` }}
-                        ></div>
-                    </div>
-                    <div className="progress-legends">
-                        <span>{data.progress.completed} credits completed</span>
-                        <span>{data.progress.inProgress} credits in progress</span>
-                        <span>{data.progress.remaining} credits remaining</span>
+                {/* Notices */}
+                <div className="card">
+                    <h3 className="section-title">
+                        <AlertTriangle size={20} style={{ display: 'inline', marginRight: '0.5rem', marginTop: '-4px' }} color="#F59E0B" />
+                        Important Notices
+                    </h3>
+                    <div className="notices-list">
+                        {data.notices.map((notice: Notice) => (
+                            <div key={notice.id} className={`notice-item notice-${notice.type}`}>
+                                {notice.type === 'warning' ? <AlertTriangle size={18} /> :
+                                    notice.type === 'info' ? <Circle size={18} /> : <CheckCircle size={18} />}
+                                {notice.message}
+                            </div>
+                        ))}
                     </div>
                 </div>
-            </div>
 
-            {/* Notices */}
-            <div className="card">
-                <h3 className="section-title">
-                    <AlertTriangle size={20} style={{ display: 'inline', marginRight: '0.5rem', marginTop: '-4px' }} color="#F59E0B" />
-                    Important Notices
-                </h3>
-                <div className="notices-list">
-                    {data.notices.map((notice: Notice) => (
-                        <div key={notice.id} className={`notice-item notice-${notice.type}`}>
-                            {notice.type === 'warning' ? <AlertTriangle size={18} /> :
-                                notice.type === 'info' ? <Circle size={18} /> : <CheckCircle size={18} />}
-                            {notice.message}
-                        </div>
-                    ))}
+                {/* Requirements Breakdown */}
+                <div className="card">
+                    <h3 className="section-title">Requirements Breakdown</h3>
+                    <div className="requirements-list">
+                        {data.requirements.map((req: RequirementCategory) => (
+                            <RequirementItem
+                                key={req.id}
+                                req={req}
+                                isExpanded={expandedReqs.has(req.id)}
+                                toggle={() => toggleReq(req.id)}
+                            />
+                        ))}
+                    </div>
                 </div>
-            </div>
 
-            {/* Requirements Breakdown */}
-            <div className="card">
-                <h3 className="section-title">Requirements Breakdown</h3>
-                <div className="requirements-list">
-                    {data.requirements.map((req: RequirementCategory) => (
-                        <RequirementItem
-                            key={req.id}
-                            req={req}
-                            isExpanded={expandedReqs.has(req.id)}
-                            toggle={() => toggleReq(req.id)}
-                        />
-                    ))}
+                {/* Disclaimer Note */}
+                <div className="disclaimer-note">
+                    <strong>Note:</strong> This is an unofficial audit for planning purposes only. Please consult with your academic advisor for official degree evaluation.
                 </div>
-            </div>
-
-            {/* Disclaimer Note */}
-            <div className="disclaimer-note">
-                <strong>Note:</strong> This is an unofficial audit for planning purposes only. Please consult with your academic advisor for official degree evaluation.
             </div>
         </div>
     );

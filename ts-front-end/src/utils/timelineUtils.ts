@@ -238,6 +238,7 @@ export function computeTimelinePartialUpdate(
 }
 
 export async function downloadTimelinePdf(): Promise<void> {
+  // TODO: refactor this to use downloadUtils.ts
   const semestersGrid = document.querySelector(
     ".semesters-grid"
   ) as HTMLElement | null;

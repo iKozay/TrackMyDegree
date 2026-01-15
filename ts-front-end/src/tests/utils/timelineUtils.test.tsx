@@ -9,6 +9,7 @@ import {
 } from "../../utils/timelineUtils";
 import type {
   Course,
+  Pool,
   CourseMap,
   Semester,
   SemesterId,
@@ -151,7 +152,13 @@ describe("timelineUtils", () => {
   describe("calculateEarnedCredits", () => {
     it("returns 0 for empty course map", () => {
       const courses: CourseMap = {};
-      const result = calculateEarnedCredits(courses);
+      const exemptionPool: Pool = {
+        _id: "exemptions",
+        name: "exemptions",
+        creditsRequired: 0,
+        courses: [],
+      };
+      const result = calculateEarnedCredits(courses, exemptionPool);
       expect(result).toBe(0);
     });
 
@@ -198,7 +205,13 @@ describe("timelineUtils", () => {
         },
       };
 
-      const result = calculateEarnedCredits(courses);
+      const exemptionPool: Pool = {
+        _id: "exemptions",
+        name: "exemptions",
+        creditsRequired: 0,
+        courses: [],
+      };
+      const result = calculateEarnedCredits(courses, exemptionPool);
       expect(result).toBe(3);
     });
   });
