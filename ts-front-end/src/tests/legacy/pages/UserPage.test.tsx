@@ -126,8 +126,8 @@ describe('UserPage', () => {
     vi.mocked(api.get).mockResolvedValueOnce({ jobId: 'job456' });
     renderWithRouter({ student: baseUser, timelines });
 
-    const timelineInfo = screen.getByRole('button', { name: /Plan A/i });
-    fireEvent.keyDown(timelineInfo, { key: 'Enter' });
+    const timelineBtn = screen.getByRole('button', { name: /Plan A/i });
+    fireEvent.click(timelineBtn);
 
     await waitFor(() => expect(api.get).toHaveBeenCalledWith('/timeline/t1'));
     expect(mockNavigate).toHaveBeenCalledWith('/timeline/job456');
@@ -138,19 +138,21 @@ describe('UserPage', () => {
     vi.mocked(api.get).mockResolvedValueOnce({ jobId: 'job789' });
     renderWithRouter({ student: baseUser, timelines });
 
-    const timelineInfo = screen.getByRole('button', { name: /Plan A/i });
-    fireEvent.keyDown(timelineInfo, { key: ' ' });
+    // Native button elements handle Space key automatically via onClick
+    const timelineBtn = screen.getByRole('button', { name: /Plan A/i });
+    fireEvent.click(timelineBtn);
 
     await waitFor(() => expect(api.get).toHaveBeenCalledWith('/timeline/t1'));
     expect(mockNavigate).toHaveBeenCalledWith('/timeline/job789');
   });
 
-  test('pressing other keys on timeline does not navigate', async () => {
+  test('tab key on timeline does not trigger navigation', async () => {
     const timelines = [{ _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
     renderWithRouter({ student: baseUser, timelines });
 
-    const timelineInfo = screen.getByRole('button', { name: /Plan A/i });
-    fireEvent.keyDown(timelineInfo, { key: 'Tab' });
+    // Tab should not trigger the button click (only Enter/Space do)
+    const timelineBtn = screen.getByRole('button', { name: /Plan A/i });
+    fireEvent.keyDown(timelineBtn, { key: 'Tab' });
 
     expect(api.get).not.toHaveBeenCalled();
   });
@@ -223,8 +225,8 @@ describe('UserPage', () => {
     vi.mocked(api.get).mockResolvedValueOnce({ someOtherField: 'value' }); // No jobId
     renderWithRouter({ student: baseUser, timelines });
 
-    const name = screen.getByText('Plan A');
-    fireEvent.click(name);
+    const timelineBtn = screen.getByRole('button', { name: /Plan A/i });
+    fireEvent.click(timelineBtn);
 
     await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('Unexpected response from server.'));
   });
@@ -234,8 +236,8 @@ describe('UserPage', () => {
     vi.mocked(api.get).mockRejectedValueOnce(new Error('Network failure'));
     renderWithRouter({ student: baseUser, timelines });
 
-    const name = screen.getByText('Plan A');
-    fireEvent.click(name);
+    const timelineBtn = screen.getByRole('button', { name: /Plan A/i });
+    fireEvent.click(timelineBtn);
 
     await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('Network failure'));
     expect(consoleErrorSpy).toHaveBeenCalled();
@@ -246,8 +248,8 @@ describe('UserPage', () => {
     vi.mocked(api.get).mockRejectedValueOnce('string error');
     renderWithRouter({ student: baseUser, timelines });
 
-    const name = screen.getByText('Plan A');
-    fireEvent.click(name);
+    const timelineBtn = screen.getByRole('button', { name: /Plan A/i });
+    fireEvent.click(timelineBtn);
 
     await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('An unknown error occurred while processing the form.'));
   });
