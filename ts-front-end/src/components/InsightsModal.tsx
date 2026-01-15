@@ -26,15 +26,27 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({
   onClose,
 }) => {
   const poolProgress = useMemo((): PoolProgress[] => {
-    // Get courses that are planned or completed
-    const activeCourses = Object.entries(courses).filter(
-      ([, course]) =>
-        course.status?.status === "planned" ||
-        course.status?.status === "completed" ||
-        course.status?.status === "inprogress"
+    // Filter out exemptions pool
+    const nonExemptionPools = pools.filter(
+      (pool) => !pool._id.toLowerCase().includes("exemption")
     );
 
-    return pools.map((pool) => {
+    // Get exemption courses to exclude from progress
+    const exemptionPool = pools.find((pool) => 
+      pool._id.toLowerCase().includes("exemption")
+    );
+    const exemptionCourseIds = new Set(exemptionPool?.courses || []);
+
+    // Get courses that are planned or completed (excluding exemptions)
+    const activeCourses = Object.entries(courses).filter(
+      ([courseId, course]) =>
+        !exemptionCourseIds.has(courseId) &&
+        (course.status?.status === "planned" ||
+        course.status?.status === "completed" ||
+        course.status?.status === "inprogress")
+    );
+
+    return nonExemptionPools.map((pool) => {
       // Get course IDs in this pool
       const poolCourseIds = new Set(pool.courses.map((courseId) => courseId));
 
