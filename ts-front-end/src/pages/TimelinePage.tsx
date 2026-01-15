@@ -36,7 +36,14 @@ const TimeLinePage: React.FC = () => {
   if (status === "error") {
     return <TimelineError onRetry={tryAgain} message={errorMessage ?? undefined} />;
   }
-
+  
+  // Find the exemption pool, with fallback to empty pool
+  const exemptionCoursePool = state.pools.find(pool => 
+    pool._id.toLowerCase().includes("exemption")
+  ) || { _id: "exemption", name: "Exemption", creditsRequired: 0, courses: [] };
+  const deficiencyCoursePool = state.pools.find(pool => 
+    pool._id.toLowerCase().includes("deficiency")
+  ) || { _id: "deficiency", name: "Deficiency", creditsRequired: 0, courses: [] };
   return (
     <TimelineDndProvider
       courses={state.courses}
@@ -63,8 +70,8 @@ const TimeLinePage: React.FC = () => {
           canRedo={canRedo}
           onUndo={actions.undo}
           onRedo={actions.redo}
-          earnedCredits={calculateEarnedCredits(state.courses)}
-          totalCredits={state.degree.totalCredits}
+          earnedCredits={calculateEarnedCredits(state.courses, exemptionCoursePool)}
+          totalCredits={state.degree.totalCredits + deficiencyCoursePool.creditsRequired}
           onOpenModal={actions.openModal}
         />
 

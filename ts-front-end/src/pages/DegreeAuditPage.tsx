@@ -1,11 +1,17 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Download, FileText, AlertTriangle, CheckCircle, Circle, XCircle, ChevronDown, ChevronUp, RefreshCw, Inbox } from 'lucide-react';
-import type { DegreeAuditData, RequirementCategory } from '@shared/audit';
-import mockDegreeAuditResponse from "../mock/degreeAuditResponse.json";
+import { useParams, useNavigate } from 'react-router-dom';
+import { Download, FileText, AlertTriangle, CheckCircle, Circle, XCircle, ChevronDown, ChevronUp, RefreshCw, Inbox, ArrowLeft } from 'lucide-react';
 import DegreeAuditSkeleton from '../components/DegreeAuditSkeleton.tsx';
+import { api } from '../api/http-api-client';
+import { useAuth } from '../hooks/useAuth';
 import '../styles/DegreeAuditPage.css';
+import type {DegreeAuditData, RequirementCategory, Notice, AuditCourse} from "@shared/audit"
+import { downloadPdf } from '../utils/downloadUtils.ts';
 
 const DegreeAuditPage: React.FC = () => {
+    const { timelineId } = useParams();
+    const navigate = useNavigate();
+    const { user } = useAuth();
     const [data, setData] = useState<DegreeAuditData | null>(null);
     const [expandedReqs, setExpandedReqs] = useState<Set<string>>(new Set());
     const [isLoading, setIsLoading] = useState(true);
@@ -16,31 +22,36 @@ const DegreeAuditPage: React.FC = () => {
         setError(null);
 
         try {
-            // Simulate API fetch delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            let auditData: DegreeAuditData;
 
-            // Randomly simulate error (10% chance) for demonstration
-            if (Math.random() < 0.1) {
-                throw new Error("Failed to connect to the audit server. Please try again.");
+            if (timelineId && user?.id) {
+                auditData = await api.get<DegreeAuditData>(
+                    `/audit/timeline/${timelineId}?userId=${user.id}`
+                );
+            } else if (user?.id) {
+                auditData = await api.get<DegreeAuditData>(
+                    `/audit/user/${user.id}`
+                );
+            } else {
+                throw new Error("User not authenticated");
             }
 
-            const mockData = mockDegreeAuditResponse as DegreeAuditData;
-            setData(mockData);
+            setData(auditData);
 
-            // Expand first requirement by default
-            if (mockData.requirements.length > 0) {
-                setExpandedReqs(new Set([mockData.requirements[0].id]));
-            }
         } catch (err) {
             setError(err instanceof Error ? err.message : "An unexpected error occurred");
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [timelineId, user?.id]);
 
     useEffect(() => {
         fetchData();
     }, [fetchData]);
+
+    const handleBackClick = () => {
+        navigate('/profile/student');
+    };
 
     const toggleReq = (id: string) => {
         const newExpanded = new Set(expandedReqs);
@@ -93,6 +104,14 @@ const DegreeAuditPage: React.FC = () => {
 
     return (
         <div className="degree-audit-page">
+            {/* Back Button */}
+            {timelineId && (
+                <button className="back-btn" onClick={handleBackClick}>
+                    <ArrowLeft size={18} />
+                    <span>Back to Profile</span>
+                </button>
+            )}
+
             {/* Header */}
             <div className="da-header">
                 <div className="da-title">
@@ -100,111 +119,112 @@ const DegreeAuditPage: React.FC = () => {
                     <p>Comprehensive analysis of your degree progress</p>
                 </div>
                 <div className="da-actions">
-                    <button className="btn btn-outline">
+                    <button className="btn btn-outline" onClick={() => downloadPdf(".audit-container","degree-audit")}>
                         <Download size={18} /> Export PDF
                     </button>
                     <button className="btn btn-primary" onClick={fetchData}>
-                        <FileText size={18} /> Generate Audit
+                        <FileText size={18} /> Refresh Audit
                     </button>
                 </div>
             </div>
-
-            {/* Student Info Card */}
-            <div className="card">
-                <div className="info-grid">
-                    <div>
-                        <h3 className="section-title">Student Information</h3>
-                        <div className="info-rows">
-                            <div className="info-row">
-                                <span className="label">Name:</span>
-                                <span className="value">{data.student.name}</span>
+            <div className="audit-container">
+                {/* Student Info Card */}
+                <div className="card">
+                    <div className="info-grid">
+                        <div>
+                            <h3 className="section-title">Student Information</h3>
+                            <div className="info-rows">
+                                <div className="info-row">
+                                    <span className="label">Name:</span>
+                                    <span className="value">{data.student.name}</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="label">Program:</span>
+                                    <span className="value">{data.student.program}</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="label">Academic Advisor:</span>
+                                    <span className="value">{data.student.advisor}</span>
+                                </div>
                             </div>
-                            <div className="info-row">
-                                <span className="label">Program:</span>
-                                <span className="value">{data.student.program}</span>
-                            </div>
-                            <div className="info-row">
-                                <span className="label">Academic Advisor:</span>
-                                <span className="value">{data.student.advisor}</span>
+                        </div>
+                        <div>
+                            <h3 className="section-title">Audit Summary</h3>
+                            <div className="info-rows">
+                                <div className="info-row">
+                                    <span className="label">GPA:</span>
+                                    <span className="value">{data.student.gpa}</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="label">Admission Term:</span>
+                                    <span className="value">{data.student.admissionTerm}</span>
+                                </div>
+                                <div className="info-row">
+                                    <span className="label">Expected Graduation:</span>
+                                    <span className="value">{data.student.expectedGraduation}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div>
-                        <h3 className="section-title">Audit Summary</h3>
-                        <div className="info-rows">
-                            <div className="info-row">
-                                <span className="label">GPA:</span>
-                                <span className="value">{data.student.gpa}</span>
-                            </div>
-                            <div className="info-row">
-                                <span className="label">Admission Term:</span>
-                                <span className="value">{data.student.admissionTerm}</span>
-                            </div>
-                            <div className="info-row">
-                                <span className="label">Expected Graduation:</span>
-                                <span className="value">{data.student.expectedGraduation}</span>
-                            </div>
+
+                    <hr className="da-divider" />
+
+                    {/* Overall Progress */}
+                    <div className="audit-progress">
+                        <div className="progress-header">
+                            <h3 className="section-title">Overall Progress</h3>
+                            <span className="progress-percentage">{data.progress.percentage}%</span>
+                        </div>
+                        <div className="progress-bar-container">
+                            <div
+                                className="progress-bar-fill"
+                                style={{ width: `${data.progress.percentage}%` }}
+                            ></div>
+                        </div>
+                        <div className="progress-legends">
+                            <span>{data.progress.completed} credits completed</span>
+                            <span>{data.progress.inProgress} credits in progress</span>
+                            <span>{data.progress.remaining} credits remaining</span>
                         </div>
                     </div>
                 </div>
 
-                <hr className="da-divider" />
-
-                {/* Overall Progress */}
-                <div className="audit-progress">
-                    <div className="progress-header">
-                        <h3 className="section-title">Overall Progress</h3>
-                        <span className="progress-percentage">{data.progress.percentage}%</span>
-                    </div>
-                    <div className="progress-bar-container">
-                        <div
-                            className="progress-bar-fill"
-                            style={{ width: `${data.progress.percentage}%` }}
-                        ></div>
-                    </div>
-                    <div className="progress-legends">
-                        <span>{data.progress.completed} credits completed</span>
-                        <span>{data.progress.inProgress} credits in progress</span>
-                        <span>{data.progress.remaining} credits remaining</span>
+                {/* Notices */}
+                <div className="card">
+                    <h3 className="section-title">
+                        <AlertTriangle size={20} style={{ display: 'inline', marginRight: '0.5rem', marginTop: '-4px' }} color="#F59E0B" />
+                        Important Notices
+                    </h3>
+                    <div className="notices-list">
+                        {data.notices.map((notice: Notice) => (
+                            <div key={notice.id} className={`notice-item notice-${notice.type}`}>
+                                {notice.type === 'warning' ? <AlertTriangle size={18} /> :
+                                    notice.type === 'info' ? <Circle size={18} /> : <CheckCircle size={18} />}
+                                {notice.message}
+                            </div>
+                        ))}
                     </div>
                 </div>
-            </div>
 
-            {/* Notices */}
-            <div className="card">
-                <h3 className="section-title">
-                    <AlertTriangle size={20} style={{ display: 'inline', marginRight: '0.5rem', marginTop: '-4px' }} color="#F59E0B" />
-                    Important Notices
-                </h3>
-                <div className="notices-list">
-                    {data.notices.map(notice => (
-                        <div key={notice.id} className={`notice-item notice-${notice.type}`}>
-                            {notice.type === 'warning' ? <AlertTriangle size={18} /> :
-                                notice.type === 'info' ? <Circle size={18} /> : <CheckCircle size={18} />}
-                            {notice.message}
-                        </div>
-                    ))}
+                {/* Requirements Breakdown */}
+                <div className="card">
+                    <h3 className="section-title">Requirements Breakdown</h3>
+                    <div className="requirements-list">
+                        {data.requirements.map((req: RequirementCategory) => (
+                            <RequirementItem
+                                key={req.id}
+                                req={req}
+                                isExpanded={expandedReqs.has(req.id)}
+                                toggle={() => toggleReq(req.id)}
+                            />
+                        ))}
+                    </div>
                 </div>
-            </div>
 
-            {/* Requirements Breakdown */}
-            <div className="card">
-                <h3 className="section-title">Requirements Breakdown</h3>
-                <div className="requirements-list">
-                    {data.requirements.map(req => (
-                        <RequirementItem
-                            key={req.id}
-                            req={req}
-                            isExpanded={expandedReqs.has(req.id)}
-                            toggle={() => toggleReq(req.id)}
-                        />
-                    ))}
+                {/* Disclaimer Note */}
+                <div className="disclaimer-note">
+                    <strong>Note:</strong> This is an unofficial audit for planning purposes only. Please consult with your academic advisor for official degree evaluation.
                 </div>
-            </div>
-
-            {/* Disclaimer Note */}
-            <div className="disclaimer-note">
-                <strong>Note:</strong> This is an unofficial audit for planning purposes only. Please consult with your academic advisor for official degree evaluation.
             </div>
         </div>
     );
@@ -238,8 +258,8 @@ const RequirementItem: React.FC<{
     };
 
     const creditsInProgress = req.courses
-        .filter(c => c.status === 'In Progress')
-        .reduce((acc, c) => acc + c.credits, 0);
+        .filter((c: AuditCourse) => c.status === 'In Progress')
+        .reduce((acc: number, c: AuditCourse) => acc + c.credits, 0);
 
     const creditsRemaining = Math.max(0, req.creditsTotal - req.creditsCompleted - creditsInProgress);
 
@@ -260,15 +280,12 @@ const RequirementItem: React.FC<{
 
             {isExpanded && (
                 <div className="courses-list">
-                    {/* Requirement Progress Bar */}
-                    <div className="req-progress-container">
                         <div className="req-progress-bar">
                             <div
                                 className="req-progress-fill completed"
                                 style={{ width: `${percentage}%` }}
                             ></div>
                         </div>
-                    </div>
 
                     {/* Credit summary legend */}
                     <div className="req-credit-legend">
@@ -290,7 +307,7 @@ const RequirementItem: React.FC<{
                         )}
                     </div>
 
-                    {req.courses.map(course => (
+                    {req.courses.map((course : AuditCourse) => (
                         <div key={course.id} className="course-item">
                             <div className="course-info">
                                 <span className="course-icon">

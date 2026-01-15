@@ -1,71 +1,69 @@
-import { describe, test, expect, beforeEach, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
-import DeleteModal from "../../../legacy/components/DeleteModal";
+// DeleteModal.test.js
+import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import DeleteModal from '../../../legacy/components/DeleteModal';
 
-describe("DeleteModal", () => {
+describe('DeleteModal', () => {
   const onCloseMock = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  test("renders children when open is true", () => {
+  test('renders children when open is true', () => {
     render(
       <DeleteModal open={true} onClose={onCloseMock}>
         <div data-testid="modal-content">Hello Modal</div>
-      </DeleteModal>
+      </DeleteModal>,
     );
 
-    expect(screen.getByTestId("modal-content")).toBeInTheDocument();
-    expect(screen.getByText("Hello Modal")).toBeInTheDocument();
+    expect(screen.getByTestId('modal-content')).toBeInTheDocument();
+    expect(screen.getByText('Hello Modal')).toBeInTheDocument();
   });
 
-  test("does not render anything when open is false", () => {
+  test('does not render content when open is false', () => {
     render(
       <DeleteModal open={false} onClose={onCloseMock}>
         <div data-testid="modal-content">Hello Modal</div>
-      </DeleteModal>
+      </DeleteModal>,
     );
 
-    expect(screen.queryByTestId("modal-content")).not.toBeInTheDocument();
+    expect(screen.queryByTestId('modal-content')).not.toBeInTheDocument();
   });
 
-  test("calls onClose when overlay is clicked", () => {
+  test('calls onClose when overlay is clicked', () => {
     render(
       <DeleteModal open={true} onClose={onCloseMock}>
         <div>Modal</div>
-      </DeleteModal>
+      </DeleteModal>,
     );
 
-    // Overlay = outermost div
-    const overlay = screen.getByText("Modal").parentElement!.parentElement!;
-    fireEvent.click(overlay);
-
+    const overlay = screen.getByText('Modal').parentElement!.parentElement;
+    fireEvent.click(overlay!);
     expect(onCloseMock).toHaveBeenCalledTimes(1);
   });
 
-  test("calls onClose when close button is clicked", () => {
+  test('calls onClose when close button is clicked', () => {
     render(
       <DeleteModal open={true} onClose={onCloseMock}>
         <div>Modal</div>
-      </DeleteModal>
+      </DeleteModal>,
     );
 
-    const closeButton = screen.getByRole("button");
+    const closeButton = screen.getByRole('button');
     fireEvent.click(closeButton);
-
     expect(onCloseMock).toHaveBeenCalledTimes(1);
   });
 
-  test("click inside modal content does not trigger onClose", () => {
+  test('click inside modal content does not trigger onClose', () => {
     render(
       <DeleteModal open={true} onClose={onCloseMock}>
         <div data-testid="modal-inner">Inner Content</div>
-      </DeleteModal>
+      </DeleteModal>,
     );
 
-    fireEvent.click(screen.getByTestId("modal-inner"));
-
+    const innerContent = screen.getByTestId('modal-inner');
+    fireEvent.click(innerContent);
     expect(onCloseMock).not.toHaveBeenCalled();
   });
 });

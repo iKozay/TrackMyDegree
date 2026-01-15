@@ -57,8 +57,13 @@ export function canDropCourse(
   };
 }
 
-export function calculateEarnedCredits(courses: CourseMap): number {
+export function calculateEarnedCredits(courses: CourseMap, exemptionCoursePool: Pool): number {
   return Object.values(courses).reduce((total, course) => {
+    // Exclude exempted courses from the calculation
+    if (exemptionCoursePool.courses.includes(course.id)) {
+      return total;
+    }
+    
     if (course.status.status === "completed") {
       return total + (course.credits || 0);
     }
@@ -233,6 +238,7 @@ export function computeTimelinePartialUpdate(
 }
 
 export async function downloadTimelinePdf(): Promise<void> {
+  // TODO: refactor this to use downloadUtils.ts
   const semestersGrid = document.querySelector(
     ".semesters-grid"
   ) as HTMLElement | null;

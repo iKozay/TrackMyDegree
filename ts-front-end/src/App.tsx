@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { ENV } from "./config";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import posthog from "posthog-js";
 
 import TimeLinePage from "./pages/TimelinePage";
@@ -17,49 +17,36 @@ import ForbiddenPage from "./pages/ForbiddenPage";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import DegreeAuditPage from "./pages/DegreeAuditPage.tsx";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 import { Navbar } from "./components/NavBar";
 import { Footer } from "./components/Footer";
-import DashboardLayout from "./components/DashboardLayout.tsx";
 
 import { AuthProvider } from "./providers/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
 
 import "./App.css";
 
-const deployment_version = import.meta.env.VITE_DEPLOYMENT_VERSION || "1.0.0";
-const NODE_ENV = ENV.NODE_ENV || "development";
+const deployment_version = import.meta.env.VITE_DEPLOYMENT_VERSION || '1.0.0';
+const NODE_ENV = ENV.NODE_ENV || 'development';
 
 // Only initialize PostHog if not in development mode
-if (NODE_ENV !== "development") {
-  posthog.init(ENV.POSTHOG_KEY, { api_host: ENV.POSTHOG_HOST });
+if (NODE_ENV !== 'development') {
+  posthog.init(
+    ENV.POSTHOG_KEY,
+    { api_host: ENV.POSTHOG_HOST }
+  );
 }
 
 const App: React.FC = () => {
   useEffect(() => {
-    if (NODE_ENV !== "development") {
-      posthog.capture("app_loaded", { deployment_version, NODE_ENV });
+    if (NODE_ENV !== 'development') {
+      posthog.capture('app_loaded', { deployment_version, NODE_ENV });
     }
   }, []);
 
-  const location = useLocation();
-  const dashboardRoutes = [
-    "/dashboard",
-    "/degree-audit",
-    "/missing-requirements",
-    "/co-op",
-    "/class-builder",
-  ];
-  const isDashboardPage = dashboardRoutes.some((route) =>
-    location.pathname.startsWith(route)
-  );
-
   return (
     <AuthProvider>
-      <ToastContainer position="top-right" />
-      {!isDashboardPage && <Navbar />}
+      <Navbar />
       <Routes>
         {/* Public */}
         <Route path="/" element={<LandingPage />} />
@@ -72,22 +59,9 @@ const App: React.FC = () => {
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
         <Route path="/courses" element={<CoursePage />} />
         <Route path="/requirements" element={<RequirementsFormPage />} />
-        <Route
-          path="/requirements/:programId"
-          element={<RequirementSelectPage />}
-        />
-        {NODE_ENV == "development" && (
-          <Route
-            path="/degree-audit"
-            element={
-              <DashboardLayout>
-                <DegreeAuditPage />
-              </DashboardLayout>
-            }
-          />
-        )}
-
+        <Route path="/requirements/:programId" element={<RequirementSelectPage />} />
         <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
+          <Route path="/degree-audit/:timelineId?" element={<DegreeAuditPage />} />
           <Route path="/profile/student" element={<StudentPage />} />
         </Route>
 
@@ -95,7 +69,7 @@ const App: React.FC = () => {
           <Route path="/profile/admin" element={<AdminPage />} />
         </Route>
       </Routes>
-      {!isDashboardPage && <Footer deployment_version={deployment_version} />}
+      <Footer deployment_version={deployment_version} />
     </AuthProvider>
   );
 };

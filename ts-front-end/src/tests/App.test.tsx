@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import App from '../App';
 import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('posthog-js', () => ({
@@ -14,6 +15,17 @@ import posthog from 'posthog-js';
 // Mock AuthProvider to avoid network calls
 vi.mock('../providers/authProvider', () => ({
     AuthProvider: ({ children }: any) => <div data-testid="auth-provider">{children}</div>
+}));
+
+// Mock useAuth to provide auth context
+vi.mock('../hooks/useAuth', () => ({
+    useAuth: () => ({
+        isAuthenticated: true,
+        user: { id: 'test-id', name: 'Test User', role: 'student' },
+        loading: false,
+        login: vi.fn(),
+        logout: vi.fn(),
+    }),
 }));
 
 // Mock components
@@ -57,10 +69,15 @@ describe('App', () => {
         expect(screen.getByTestId('footer')).toBeTruthy();
     });
 
-    it('should not show Navbar and Footer on dashboard pages', async () => {
-        await renderApp('/degree-audit');
-        expect(screen.queryByTestId('navbar')).toBeNull();
-        expect(screen.queryByTestId('footer')).toBeNull();
+    it('should render protected routes when authenticated', () => {
+        render(
+            <MemoryRouter initialEntries={['/degree-audit']}>
+                <App />
+            </MemoryRouter>
+        );
+        // Navbar and Footer are rendered on all pages including protected routes
+        expect(screen.getByTestId('navbar')).toBeTruthy();
+        expect(screen.getByTestId('footer')).toBeTruthy();
         expect(screen.getByTestId('degree-audit-page')).toBeTruthy();
     });
 

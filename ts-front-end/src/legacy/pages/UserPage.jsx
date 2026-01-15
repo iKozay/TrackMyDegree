@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../css/UserPage.css';
 import { motion } from 'framer-motion';
 import moment from 'moment';
 import { api } from '../../api/http-api-client';
 import avatar from '../../icons/avatar.svg';
+import { useNavigate } from "react-router-dom";
 
 import DeleteModal from '../components/DeleteModal.jsx';
-import TrashLogo from '../../icons/trashlogo.jsx';
+import { Trash2, FileText, Plus, AlertTriangle } from 'lucide-react';
 
 const UserPage = (prop) => {
   const navigate = useNavigate();
@@ -16,12 +17,12 @@ const UserPage = (prop) => {
   const [userTimelines, setUserTimelines] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [timelineToDelete, setTimelineToDelete] = useState(null);
-  // 🔑 Sync props → state
   useEffect(() => {
     if (prop.timelines) {
       setUserTimelines(prop.timelines);
     }
   }, [prop.timelines]);
+
   const handleTimelineClick = async (obj) => {
     try {
       const response = await api.get(`/timeline/${obj._id}`);
@@ -58,100 +59,140 @@ const UserPage = (prop) => {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.7 }}>
-      <div className="container-fluid">
-        <div className="row vh-100">
-          <div className="col-12 col-md-4 d-flex flex-column align-items-center text-center mx-auto">
-            <h2 className="mb-4">My Profile</h2>
-            <div className="profile-container d-flex">
-              <div className="max-w-sm w-full">
-                <div className="bg-white shadow-xl rounded-lg py-4">
-                  <div className="photo-wrapper p-3">
+      <div className="container py-4">
+        <div className="row min-vh-100 g-4">
+          {/* Left Side - Profile */}
+          <div className="col-12 col-lg-5 d-flex flex-column align-items-center">
+            <h2 className="mb-4 text-center w-100">My Profile</h2>
+            <div className="d-flex w-100 justify-content-center align-items-start">
+              <div className="card shadow-sm border-0 w-100" style={{ maxWidth: '400px' }}>
+                <div className="card-body p-4 text-center">
+                  <div className="mb-4">
                     <img
-                      className="w-40 h-40 rounded-full mx-auto"
+                      className="rounded-circle shadow-sm"
                       src={avatar}
                       alt="Profile Avatar"
+                      style={{ width: '150px', height: '150px', objectFit: 'cover' }}
                     />
                   </div>
-                  <div className="p-3">
-                    <h3 className="text-center text-2xl text-gray-900 font-medium leading-8">
-                      {user.name || 'Full Name'}
-                    </h3>
-                    <div className="text-center text-gray-400 text-sm font-semibold">
-                      <p>{user.role || 'User'}</p>
+                  <h3 className="h4 mb-1 fw-bold text-dark">
+                    {user.name || 'Full Name'}
+                  </h3>
+                  <p className="text-muted small mb-4">{user.role || 'Student'}</p>
+                  
+                  <div className="text-start">
+                    <div className="d-flex justify-content-between py-2 border-bottom">
+                      <span className="text-muted small fw-bold">Full Name</span>
+                      <span className="small">{user.name || 'N/A'}</span>
                     </div>
-                    <table className="text-sm my-4">
-                      <tbody>
-                        <tr>
-                          <td className="px-3 py-2 text-gray-500 font-semibold">Full Name</td>
-                          <td className="px-3 py-2">{user.name || 'NULL'}</td>
-                        </tr>
-                        <tr>
-                          <td className="px-3 py-2 text-gray-500 font-semibold">Email</td>
-                          <td className="px-3 py-2">{user.email || 'NULL'}</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                    <div className="d-flex justify-content-between py-2">
+                      <span className="text-muted small fw-bold">Email</span>
+                      <span className="small">{user.email || 'N/A'}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="separator-line"></div>
+              <div className="separator-line d-none d-lg-block"></div>
             </div>
           </div>
 
-          {/* Right Side - My Timelines (Unchanged) */}
-          <div className="col-12 col-md-6 d-flex flex-column text-center mx-auto mt-3 mt-md-0">
-            <h2 className="mb-5">My Timelines</h2>
-            {userTimelines.length === 0 ? (
-              <Link to="/timeline">
-                <p>You haven't saved any timelines yet, click here to start now!</p>
-              </Link>
-            ) : (
-              <div className="list-group">
-                {userTimelines.map((obj) => (
-                  <div key={obj.id} className="timeline-box d-flex align-items-center justify-content-between">
-                    <span className="timeline-link" onClick={() => handleTimelineClick(obj)} aria-hidden="true">
-                      <span className="timeline-text">{obj.name}</span>
-                      <span className="timeline-text">
-                        Last Modified: {moment(obj.last_modified).format('MMM DD, YYYY h:mm A')}
-                      </span>
-                    </span>
-                    <button
-                      onClick={() => handleDeleteClick(obj)}
-                      className="timeline-delete btn btn-lg p-0 border-0 bg-transparent"
+          {/* Right Side - My Timelines */}
+          <div className="col-12 col-lg-7">
+            <h2 className="mb-4 text-center text-lg-start">My Timelines</h2>
+            <div className="mx-auto mx-lg-0" style={{ maxWidth: '750px' }}>
+              {userTimelines.length === 0 ? (
+                <div className="text-center py-5 bg-light rounded-3">
+                  <p className="text-muted mb-3">You haven't saved any timelines yet.</p>
+                  <Link to="/timeline" className="btn btn-outline-primary rounded-pill px-4">
+                    Start Your First Timeline
+                  </Link>
+                </div>
+              ) : (
+                <div className="list-group gap-2">
+                  {userTimelines.map((obj) => (
+                    <div
+                      key={obj._id || obj.id}
+                      className="timeline-box d-flex align-items-center justify-content-between px-3 py-3"
                     >
-                      <TrashLogo size={25} className="me-1 text-danger" />
-                    </button>
-                  </div>
-                ))}
-                <Link to="/timeline" className="timeline-add">
-                  <span className="timeline-text">+</span>
-                </Link>
-              </div>
-            )}
+                      <div
+                        className="timeline-info flex-grow-1 text-start"
+                        onClick={() => handleTimelineClick(obj)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleTimelineClick(obj);
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className="timeline-text mb-0">{obj.name}</div>
+                        <div className="timeline-text small" style={{ fontSize: '0.8rem' }}>
+                          Modified {moment(obj.last_modified).fromNow()}
+                        </div>
+                      </div>
+                      <div className="timeline-actions d-flex gap-2 align-items-center">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/degree-audit/${obj._id}`);
+                          }}
+                          className="btn btn-audit d-flex align-items-center gap-2"
+                          title="Degree Audit"
+                        >
+                          <FileText size={14} />
+                          <span className="d-none d-sm-inline">Audit</span>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClick(obj);
+                          }}
+                          className="btn-delete-icon d-flex align-items-center justify-content-center rounded-circle"
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  <Link to="/timeline" className="timeline-add text-decoration-none transition-all">
+                    <Plus size={20} />
+                    <span>Create New Timeline</span>
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Delete Modal */}
         {showModal && (
           <DeleteModal open={showModal} onClose={() => setShowModal(false)}>
-            <div className="tw-text-center tw-w-56">
-              <TrashLogo size={56} className="tw-mx-auto tw-text-red-500" />
-              <div className="tw-mx-auto tw-my-4 tw-w-48">
-                <h3 className="tw-text-lg tw-font-black tw-text-gray-800">Confirm Delete</h3>
-                <p className="tw-text-sm tw-text-gray-500">Are you sure you want to delete "{timelineToDelete?.name}"?</p>
+            <div className="modal-content-clean">
+              <div className="modal-icon-container">
+                <AlertTriangle size={32} />
               </div>
-              <div className="tw-flex tw-gap-4">
+              <h3 className="modal-title">Delete Timeline?</h3>
+              <p className="modal-body-text">
+                This will permanently remove <strong>{timelineToDelete?.name}</strong>. This action cannot be undone.
+              </p>
+              <div className="modal-actions">
                 <button
-                  className="btn btn-danger tw-w-full"
+                  className="btn-modal-cancel"
+                  onClick={() => setShowModal(false)}
+                >
+                  Keep it
+                </button>
+                <button
+                  className="btn-modal-delete"
                   onClick={() => {
                     handleDelete(timelineToDelete?._id);
                     setShowModal(false);
                   }}
                 >
-                  Delete
-                </button>
-                <button className="btn btn-light tw-w-full" onClick={() => setShowModal(false)}>
-                  Cancel
+                  Yes, Delete
                 </button>
               </div>
             </div>
