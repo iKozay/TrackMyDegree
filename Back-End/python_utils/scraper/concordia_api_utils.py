@@ -1,11 +1,8 @@
 import requests
-from dotenv import load_dotenv
 import os
 
-load_dotenv()
-
-API_USER=os.getenv("CONCORDIA_USER")
-API_KEY=os.getenv("CONCORDIA_KEY")
+API_USER=os.getenv("CONCORDIA_API_USER")
+API_KEY=os.getenv("CONCORDIA_API_KEY")
 
 TERM=["0", "Summer", "Fall", "Fall/Winter", "Winter", "Spring (for CCCE career only)", "Summer (for CCCE career only)"]
 

@@ -4,6 +4,7 @@ import uvicorn
 from parser.transcript_parser import parse_transcript
 from scraper.degree_data_scraper import DegreeDataScraper
 import sys
+from dotenv import load_dotenv
 
 app = FastAPI(title="TrackMyDegree Python Utils API", version="0.0.1")
 
@@ -33,6 +34,7 @@ def main():
 	# Check if running in development (--dev) or production (add nothing)
 	if "--dev" in sys.argv:
 		# Single worker with reload for development
+		load_dotenv("../../secrets/.env")
 		uvicorn.run("main:app", host="0.0.0.0", port=15001, reload=True)
 	else:
 		# Production with multiple workers
