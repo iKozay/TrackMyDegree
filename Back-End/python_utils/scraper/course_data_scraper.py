@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from bs4.dammit import EncodingDetector
 import requests
 import re
+from . import concordia_api_utils as apiu
 
 
 #----------------------------------
@@ -182,7 +183,7 @@ def extract_course_data(course_code, url):
             "title": title,
             "credits": course_credits,
             "description": sections.get("Description:", ""),
-            "offeredIn": [""],
+            "offeredIn": [apiu.get_term(course_id)],
             "prereqCoreqText": raw_prereq_coreq,
             "rules":{
                 "prereq":make_prereq_coreq_into_array(prereq),
