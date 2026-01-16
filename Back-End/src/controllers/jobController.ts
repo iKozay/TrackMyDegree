@@ -12,17 +12,13 @@ interface CachedJobResult<T = unknown> {
   };
 }
 
-export const getByJobId: RequestHandler<GetResultParams> = async (
-  req,
-  res,
-) => {
+export const getByJobId: RequestHandler<GetResultParams> = async (req, res) => {
   try {
     const { jobId } = req.params;
 
     if (!jobId) {
       return res.status(404).json({ message: 'Job not passed' });
     }
-
     // get result from cache
     const cached = await getJobResult<CachedJobResult>(jobId);
 
@@ -92,8 +88,6 @@ export const cacheTimelineByJobId: RequestHandler<GetResultParams> = async (
   try {
     const { jobId } = req.params;
     const partialUpdate = req.body as TimelinePartialUpdate;
-
-    console.log('Received partial update for jobId', jobId, partialUpdate);
 
     if (!jobId) {
       return res.status(404).json({ message: 'Job ID not provided' });

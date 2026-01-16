@@ -1,3 +1,5 @@
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import type {
   Course,
   CourseCode,
@@ -55,8 +57,13 @@ export function canDropCourse(
   };
 }
 
-export function calculateEarnedCredits(courses: CourseMap): number {
+export function calculateEarnedCredits(courses: CourseMap, exemptionCoursePool: Pool): number {
   return Object.values(courses).reduce((total, course) => {
+    // Exclude exempted courses from the calculation
+    if (exemptionCoursePool.courses.includes(course.id)) {
+      return total;
+    }
+    
     if (course.status.status === "completed") {
       return total + (course.credits || 0);
     }
@@ -64,14 +71,26 @@ export function calculateEarnedCredits(courses: CourseMap): number {
   }, 0);
 }
 
-export function saveTimeline(
+import { toast } from "react-toastify";
+import { api } from "../api/http-api-client";
+
+export async function saveTimeline(
   userId: string,
   timelineName: string,
-  state: TimelineState
+  jobId?: string
 ) {
-  console.log("Saving timeline for user:", userId, "with name:", timelineName);
-  console.log("Timeline state:", state);
-  // API call to save the timeline
+  try {
+    await api.post("/timeline", {
+      userId,
+      timelineName,
+      ...(jobId && { jobId }),
+    });
+
+    toast.success("Timeline saved successfully");
+  } catch (error: unknown) {
+    console.error("Error saving timeline:", error);
+    toast.error("Failed to save timeline. Please try again.");
+  }
 }
 
 function isCourseSatisfied(
@@ -162,9 +181,9 @@ export function getCourseValidationMessage(
 
 function getPoolCourses(
   pools: Pool[],
-  id: "Exemptions" | "Deficiencies"
+  id: "exemptions" | "deficiencies"
 ): CourseCode[] {
-  return pools.find((p) => p._id === id)?.courses ?? [];
+  return pools.find((p) => p._id.toLowerCase() === id)?.courses ?? [];
 }
 
 export function computeTimelinePartialUpdate(
@@ -174,16 +193,16 @@ export function computeTimelinePartialUpdate(
   const update: TimelinePartialUpdate = {};
 
   /* ---------- EXEMPTIONS ---------- */
-  const prevEx = [...getPoolCourses(prev.pools, "Exemptions")].sort();
-  const currEx = [...getPoolCourses(curr.pools, "Exemptions")].sort();
+  const prevEx = [...getPoolCourses(prev.pools, "exemptions")].sort();
+  const currEx = [...getPoolCourses(curr.pools, "exemptions")].sort();
 
   if (JSON.stringify(prevEx) !== JSON.stringify(currEx)) {
     update.exemptions = currEx;
   }
 
   /* ---------- DEFICIENCIES ---------- */
-  const prevDef = [...getPoolCourses(prev.pools, "Deficiencies")].sort();
-  const currDef = [...getPoolCourses(curr.pools, "Deficiencies")].sort();
+  const prevDef = [...getPoolCourses(prev.pools, "deficiencies")].sort();
+  const currDef = [...getPoolCourses(curr.pools, "deficiencies")].sort();
 
   if (JSON.stringify(prevDef) !== JSON.stringify(currDef)) {
     update.deficiencies = currDef;
@@ -216,4 +235,66 @@ export function computeTimelinePartialUpdate(
   }
 
   return Object.keys(update).length > 0 ? update : null;
+}
+
+export async function downloadTimelinePdf(): Promise<void> {
+  // TODO: refactor this to use downloadUtils.ts
+  const semestersGrid = document.querySelector(
+    ".semesters-grid"
+  ) as HTMLElement | null;
+  if (!semestersGrid) {
+    console.error("Semesters grid not found");
+    return;
+  }
+
+  // 1. Clone the node
+  const clone = semestersGrid.cloneNode(true) as HTMLElement;
+
+  // 2. Create offscreen container
+  const wrapper = document.createElement("div");
+  wrapper.style.position = "fixed";
+  wrapper.style.left = "-100000px";
+  wrapper.style.top = "-100000px";
+  wrapper.style.width = `${semestersGrid.scrollWidth}px`;
+  wrapper.style.height = `${semestersGrid.scrollHeight}px`;
+  wrapper.style.overflow = "visible";
+  wrapper.style.background = "white";
+
+  // 3. Force full width on clone
+  clone.style.width = "auto";
+  clone.style.maxWidth = "none";
+  clone.style.overflow = "visible";
+
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+
+  try {
+    // 4. Render full content
+    const canvas = await html2canvas(clone, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      width: clone.scrollWidth,
+      height: clone.scrollHeight,
+      windowWidth: clone.scrollWidth,
+      windowHeight: clone.scrollHeight,
+    });
+
+    wrapper.remove();
+
+    // 5. Create single-page PDF
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF({
+      orientation: "landscape",
+      unit: "px",
+      format: [canvas.width, canvas.height],
+    });
+
+    pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+
+    pdf.save("timeline.pdf");
+  } catch (err) {
+    wrapper.remove();
+    console.error("Failed to generate PDF:", err);
+  }
 }

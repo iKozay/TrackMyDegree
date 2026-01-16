@@ -1,7 +1,6 @@
 {
   "student": {
     "name": "John Smith",
-    "studentId": "40123456",
     "program": "Bachelor of Computer Science",
     "advisor": "Dr. Sarah Johnson",
     "gpa": "3.45 / 4.0",
@@ -37,7 +36,6 @@
       "id": "req-core-cs",
       "title": "Core Computer Science",
       "status": "In Progress",
-      "missingCount": 2,
       "creditsCompleted": 15,
       "creditsTotal": 24,
       "courses": [
@@ -68,7 +66,6 @@
       "id": "req-tech-elec",
       "title": "Technical Electives",
       "status": "In Progress",
-      "missingCount": 3,
       "creditsCompleted": 12,
       "creditsTotal": 27,
       "courses": [
@@ -79,7 +76,6 @@
       "id": "req-gen-ed",
       "title": "General Education",
       "status": "Incomplete",
-      "missingCount": 2,
       "creditsCompleted": 12,
       "creditsTotal": 18,
       "courses": []
@@ -96,7 +92,6 @@
       "id": "req-capstone",
       "title": "Capstone Project",
       "status": "Not Started",
-      "missingCount": 1,
       "creditsCompleted": 0,
       "creditsTotal": 6,
       "courses": []

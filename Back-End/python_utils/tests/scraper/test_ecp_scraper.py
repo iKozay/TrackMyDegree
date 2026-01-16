@@ -1,12 +1,16 @@
-import types
 import pytest
 import sys
 import os
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(
+    0,
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 
 from scraper import ecp_scraper
 
+
+# ---------- Fake HTML objects ----------
 
 class FakeA:
     def __init__(self, text, href="#"):
@@ -21,7 +25,7 @@ class FakeCourseDiv:
     def __init__(self, code):
         self.code = code
 
-    def find(self, tag):
+    def find(self, tag, **kwargs):
         return FakeA(self.code, f"/{self.code.lower()}")
 
 
@@ -35,7 +39,7 @@ class FakeTR:
             return self.courses
         return []
 
-    def find(self, tag):
+    def find(self, tag, **kwargs):
         return FakeA(self.title)
 
 
@@ -50,9 +54,10 @@ class FakeGroup:
             return self.trs
         if tag == "div":
             return self.courses
+        return []
 
     def find(self, tag, **kwargs):
-        return FakeA("Natural Science")
+        return FakeA(self.title or "Natural Science")
 
 
 class FakeSoup:
@@ -71,16 +76,32 @@ class FakeSoup:
             return self
 
     def findAll(self, tag):
+        # departments list
         return [
             FakeA("Computer Science", "/cs"),
+            FakeA("Software Engineering", "/soen"),
             FakeA("Mechanical Engineering", "/mech"),
         ]
 
+
+# ---------- Fixtures ----------
+
 @pytest.fixture(autouse=True)
 def mock_dependencies(monkeypatch):
+    """
+    Fully mocks:
+    - extract_course_data (single + ANY mode)
+    - scrape_electives
+    - fetch_html
+    """
+
     def fake_extract(code, url):
         if code == "ANY":
-            return ["ANY101"], [{"code": "ANY101"}]
+            return [
+                {"_id": "ANY101"},
+                {"_id": "ANY102"},
+            ]
+
         return {"code": code}
 
     monkeypatch.setattr(
@@ -92,15 +113,15 @@ def mock_dependencies(monkeypatch):
     monkeypatch.setattr(
         ecp_scraper.engr_general_electives_scraper,
         "scrape_electives",
-        lambda: (["GEN101"], [{"code": "GEN101"}]),
+        lambda: (["GEN101", "GEN102"], [{"code": "GEN101"}, {"code": "GEN102"}]),
     )
 
     def fake_fetch_html(url):
         course = FakeCourseDiv("COMP101")
 
         trs = [
-            FakeTR([]),
-            FakeTR([course]),
+            FakeTR([]),                        
+            FakeTR([course]),                  
             FakeTR([course], title="Natural Science"),
         ]
 
@@ -116,6 +137,9 @@ def mock_dependencies(monkeypatch):
         fake_fetch_html,
     )
 
+
+# ---------- Tests ----------
+
 def test_add_courses():
     course = FakeCourseDiv("ENGR201")
 
@@ -125,25 +149,70 @@ def test_add_courses():
     assert courses == [{"code": "ENGR201"}]
 
 
-def test_scrape_engr_ecp():
-    degree, pools, courses = ecp_scraper.scrape_engr_ecp()
+def test_scrape_engr_ecp_full_coverage():
+    result = ecp_scraper.scrape_engr_ecp()
+
+    degree = result["degree"]
+    pools = result["course_pool"]
+    courses = result["courses"]
 
     assert degree["_id"] == "ENGR_ECP"
+    assert degree["totalCredits"] == 30
     assert len(pools) == 3
-    assert len(courses) >= 2
+
+    # Core
     assert pools[0]["_id"] == "ECP_ENGR_Core"
+    assert "COMP101" in pools[0]["courses"]
+
+    # Natural science
+    assert pools[1]["creditsRequired"] == 6
+    assert "COMP101" in pools[1]["courses"]
+
+    # General electives
+    assert pools[2]["courses"] == ["GEN101", "GEN102"]
+
+    # coursePools propagation
+    assert degree["coursePools"] == [p["name"] for p in pools]
+
+    # courses list contains extracted dicts
+    assert {"code": "COMP101"} in courses
+    assert {"code": "GEN101"} in courses
 
 
-def test_scrape_comp_ecp_exclusion_and_options():
-    degree, pools, courses = ecp_scraper.scrape_comp_ecp()
+def test_scrape_comp_ecp_exclusions_and_options():
+    result = ecp_scraper.scrape_comp_ecp()
+
+    degree = result["degree"]
+    pools = result["course_pool"]
+    courses = result["courses"]
 
     assert degree["_id"] == "COMP_ECP"
     assert len(pools) >= 5
 
-    # General electives pool
-    assert "GEN101" in pools[1]["courses"]
+    # ----- Core -----
+    assert pools[0]["_id"] == "ECP_COMP_Core"
+    assert "COMP101" in pools[0]["courses"]
 
-    # Option electives pools
-    for pool in pools[-3:]:
+    # ----- General electives (with exclusion applied) -----
+    gen_pool = pools[1]
+    assert "GEN101" in gen_pool["courses"]
+    # COMP101 was in exclusion list, must be removed
+    assert "COMP101" not in gen_pool["courses"]
+
+    # ----- Option electives -----
+    option_pools = pools[-3:]
+
+    for pool in option_pools:
         assert pool["creditsRequired"] == 15
         assert isinstance(pool["courses"], list)
+        assert "COMP101" in pool["courses"]
+
+    
+    joint_comp_art = option_pools[1]["courses"]
+    joint_data = option_pools[2]["courses"]
+
+    assert "ANY101" in joint_comp_art
+    assert "ANY102" in joint_data
+
+    
+    assert degree["coursePools"] == [p["name"] for p in pools]

@@ -280,7 +280,7 @@ describe('seedingController', () => {
 
       await seedAllDegreeData();
 
-      // parseDegree should be invoked once per degree in degreesURL
+      // parseDegree should be invoked once per degree in degreesURL (in parallel)
       expect(pythonUtilsApi.parseDegree).toHaveBeenCalledTimes(3);
       expect(pythonUtilsApi.parseDegree).toHaveBeenCalledWith(
         'https://example.com/test-degree',
@@ -297,7 +297,7 @@ describe('seedingController', () => {
       expect(bulkCreateCoursePoolsMock).toHaveBeenCalledTimes(3);
       expect(bulkCreateCoursesMock).toHaveBeenCalledTimes(3);
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Seeding completed for all degrees.',
+        'Seeding completed for all degrees. Success: 3, Failed: 0',
       );
     });
 
@@ -335,20 +335,20 @@ describe('seedingController', () => {
 
       await seedAllDegreeData();
 
-      // parseDegree should be invoked once per degree
+      // parseDegree should be invoked once per degree (all in parallel)
       expect(pythonUtilsApi.parseDegree).toHaveBeenCalledTimes(3);
 
       // Only 2 degrees should succeed
       expect(createDegreeMock).toHaveBeenCalledTimes(2);
 
-      // Error should be logged for the failed degree
+      // Error should be logged for the failed degree during scraping phase
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Seeding failed for degree'),
+        expect.stringContaining('Scraping failed for degree'),
         expect.any(Error),
       );
 
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Seeding completed for all degrees.',
+        'Seeding completed for all degrees. Success: 2, Failed: 1',
       );
     });
   });

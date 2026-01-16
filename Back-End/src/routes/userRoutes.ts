@@ -328,7 +328,6 @@ router.get('/:id/data', async (req: Request, res: Response) => {
       });
     }
 
-
     const userData = await userController.getUserData(id as string);
     res.status(HTTP.OK).json(userData);
   } catch (error) {
