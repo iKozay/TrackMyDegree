@@ -49,7 +49,7 @@ class PDFParsingController {
     } catch (error) {
       res.status(HTTP.SERVER_ERR).json({
         success: false,
-        message: 'Failed to parse transcript',
+        message: 'Failed to parse transcript/acceptance letter',
         error: error instanceof Error ? error.message : 'Unknown error',
       });
     } 

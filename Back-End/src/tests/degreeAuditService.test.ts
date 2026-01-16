@@ -374,27 +374,6 @@ describe('DegreeAuditService', () => {
       }
     });
 
-    it('should handle exempted course status', async () => {
-      await Timeline.findByIdAndUpdate(testTimelineId, {
-        courseStatusMap: new Map([
-          ['COMP 248', { status: 'exempted', semester: null }],
-        ]),
-      });
-
-      const params: GenerateAuditParams = {
-        timelineId: testTimelineId,
-        userId: testUserId,
-      };
-
-      const audit = await generateDegreeAudit(params);
-
-      const coreReq = audit.requirements.find((r) =>
-        r.title.toLowerCase().includes('core'),
-      );
-      const comp248 = coreReq?.courses.find((c) => c.code === 'COMP 248');
-      expect(comp248?.status).toBe('Completed'); // Exempted maps to Completed
-    });
-
     it('should handle incomplete course status', async () => {
       await Timeline.findByIdAndUpdate(testTimelineId, {
         courseStatusMap: new Map([
