@@ -1,0 +1,93 @@
+[
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 213",
+            "ENGR 242",
+            "MIAE 211",
+            "MIAE 215",
+            "MIAE 221"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENCS 282",
+            "ENGR 233",
+            "ENGR 243",
+            "ENGR 244",
+            "MIAE 313"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 201",
+            "ENGR 202",
+            "ENGR 251",
+            "ENGR 311",
+            "MIAE 311",
+            "MIAE 312"
+        ]
+    },
+    {
+        "type": "Co-op",
+        "coopLabel": "Co-op Work Term I"
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "MECH 321",
+            "MECH 343",
+            "MECH 351",
+            "MECH 368",
+            "MIAE 380"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 301",
+            "ENGR 361",
+            "ENGR 371",
+            "ENGR 391",
+            "MECH 370"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "MECH 344",
+            "MECH 352",
+            "MECH 361",
+            "MECH 371",
+            "MECH 390"
+        ]
+    },
+    {
+        "type": "Co-op",
+        "coopLabel": "Co-op Work Term II"
+    },
+    {
+        "type": "Co-op",
+        "coopLabel": "Co-op Work Term III"
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "MECH 373",
+            "MECH 375",
+            "MECH 490",
+            "Technical Electives"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 392",
+            "MECH 490",
+            "General Studies",
+            "Technical Electives"
+        ]
+    }
+]

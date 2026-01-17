@@ -1,0 +1,92 @@
+[
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 213",
+            "INDU 211",
+            "MIAE 211",
+            "MIAE 215",
+            "MIAE 221"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ACCO 220",
+            "ENCS 282",
+            "ENGR 201",
+            "ENGR 245",
+            "MIAE 313"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 202",
+            "ENGR 233",
+            "ENGR 251",
+            "ENGR 371",
+            "MIAE 311",
+            "MIAE 312"
+        ]
+    },
+    {
+        "type": "Co-op",
+        "coopLabel": "Co-op Work Term I"
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "INDU 323",
+            "INDU 371",
+            "INDU 371",
+            "INDU 411",
+            "MIAE 380"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 301",
+            "ENGR 311",
+            "ENGR 391",
+            "ENGR 392"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "INDU 311",
+            "INDU 320",
+            "INDU 324",
+            "INDU 330",
+            "INDU 412"
+        ]
+    },
+    {
+        "type": "Co-op",
+        "coopLabel": "Co-op Work Term II"
+    },
+    {
+        "type": "Co-op",
+        "coopLabel": "Co-op Work Term III"
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "INDU 421",
+            "INDU 423",
+            "INDU 490",
+            "Technical Electives"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "INDU 321",
+            "INDU 342",
+            "INDU 490",
+            "Technical Electives"
+        ]
+    }
+]

@@ -1,0 +1,64 @@
+[
+    {
+        "type": "Academic",
+        "courses": [
+            "COMP 232",
+            "COMP 248",
+            "General Education Elective",
+            "General Education Elective",
+            "General Education Elective"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "COMP 228",
+            "COMP 233",
+            "COMP 249",
+            "ENCS 282",
+            "Elective"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "COMP 348",
+            "COMP 352",
+            "Electives"
+        ]
+    },
+    {
+        "type": "Co-op",
+        "coopLabel": "Co-op Work Term I"
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "COMP 346",
+            "COMP 354",
+            "Electives"
+        ]
+    },
+    {
+        "type": "Co-op",
+        "coopLabel": "Co-op Work Term II"
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENCS 393",
+            "Electives"
+        ]
+    },
+    {
+        "type": "Co-op",
+        "coopLabel": "Co-op Work Term III"
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "COMP 335",
+            "Electives"
+        ]
+    }
+]

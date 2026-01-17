@@ -1,0 +1,93 @@
+[
+    {
+        "type": "Academic",
+        "courses": [
+            "COEN 243",
+            "COEN 212",
+            "COEN 231",
+            "ENGR 213",
+            "ENGR 201",
+            "ENGR 202"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "COEN 311",
+            "ELEC 273",
+            "COEN 244",
+            "ENGR 233",
+            "ENCS 282"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ELEC 242",
+            "COEN 352",
+            "ENGR 371",
+            "ENGR 391"
+        ]
+    },
+    {
+        "type": "Co-op",
+        "coopLabel": "Co-op Work Term I"
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ELEC 342",
+            "ELEC 321",
+            "ELEC 311",
+            "ENGR 290",
+            "ELEC 251"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ELEC 372",
+            "COEN 313",
+            "ENGR 392",
+            "ENGR 301"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ELEC 331",
+            "ELEC 366",
+            "ELEC 312",
+            "ELEC 351",
+            "ELEC 390"
+        ]
+    },
+    {
+        "type": "Co-op",
+        "coopLabel": "Co-op Work Term II"
+    },
+    {
+        "type": "Co-op",
+        "coopLabel": "Co-op Work Term III"
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ELEC 490",
+            "ELEC 367",
+            "Elective",
+            "Elective",
+            "Elective"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ELEC 490",
+            "General Education Elective",
+            "Elective",
+            "Elective",
+            "Elective"
+        ]
+    }
+]

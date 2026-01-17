@@ -1,0 +1,106 @@
+[
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 201",
+            "ENGR 213",
+            "ENGR 245",
+            "ENGR 251",
+            "CHME 200",
+            "CHME 214"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 233",
+            "ENCS 282",
+            "ENGR 311"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "MIAE 221",
+            "ENGR 361",
+            "CHME 215",
+            "CHME 220",
+            "CHME 351"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 202",
+            "CHEM 221",
+            "CHME 201",
+            "CHME 216",
+            "CHME 240"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 301",
+            "ENGR 371",
+            "ENGR 392",
+            "General Eduction Elective"
+        ]
+    },
+    {
+        "type": "Co-op",
+        "coopLabel": "Co-op Work Term I"
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 391",
+            "CHME 301",
+            "CHME 320",
+            "CHME 360"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CHME 321",
+            "CHME 361",
+            "CHME 470",
+            "Technical Elective"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CHME 300",
+            "CHME 330",
+            "CHME 340",
+            "CHME 362",
+            "CHME 390"
+        ]
+    },
+    {
+        "type": "Co-op",
+        "coopLabel": "Co-op Work Term II"
+    },
+    {
+        "type": "Co-op",
+        "coopLabel": "Co-op Work Term III"
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CHME 490",
+            "CHME 316",
+            "CHME 415",
+            "CHME 440",
+            "CHME 352"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CHME 490"
+        ]
+    }
+]
