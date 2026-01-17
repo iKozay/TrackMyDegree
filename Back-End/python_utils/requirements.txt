@@ -23,6 +23,7 @@ soupsieve==2.8
 typing_extensions==4.15.0
 urllib3==2.5.0
 python-dotenv
+pandas==2.3.3
 
 
 # Testing dependencies

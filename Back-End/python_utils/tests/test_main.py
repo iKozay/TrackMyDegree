@@ -105,6 +105,98 @@ class TestScrapeDegree:
         assert 'Scraping error' in data['detail']
         mock_scrape.assert_called_once_with(url)
 
+class TestGetCourse:
+    @patch('main.get_instance')
+    def test_get_course_success(self, mock_get_instance):
+        """Test successful course retrieval returns 200"""
+        mock_apiu = mock_get_instance.return_value
+        mock_apiu.get_course_from_catalog.return_value = {
+            "_id": "COMP 248",
+            "code": "COMP 248",
+            "title": "Object-Oriented Programming I",
+            "credits": "3.5",
+            "description": "Introduction to programming using an object oriented language.",
+            "offeredIn": ["Fall", "Winter", "Summer"],
+            "prereqCoreqText": "Prerequisite: Cegep level mathematics or MATH 203 or 204.",
+            "rules": {
+                "prereq": [["MATH 203", "MATH 204"]],
+                "coreq": [],
+                "not_taken": []
+            }
+        }
+        
+        response = client.get("/get-course", params={"code": "COMP 248"})
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["code"] == "COMP 248"
+        assert data["title"] == "Object-Oriented Programming I"
+        assert data["credits"] == "3.5"
+        assert "Fall" in data["offeredIn"]
+        mock_apiu.get_course_from_catalog.assert_called_once_with("COMP 248")
+
+    @patch('main.get_instance')
+    def test_get_course_error(self, mock_get_instance):
+        """Test course retrieval failure returns 500"""
+        # Mock course retrieval exception
+        mock_apiu = mock_get_instance.return_value
+        mock_apiu.get_course_from_catalog.side_effect = Exception("Some error occurred")
+        
+        response = client.get("/get-course", params={"code": "COMP 248"})
+        
+        assert response.status_code == 500
+        data = response.json()
+        assert 'detail' in data
+        assert 'Some error occurred' in data['detail']
+        mock_apiu.get_course_from_catalog.assert_called_once_with("COMP 248")
+
+class TestGetAllCourses:
+    @patch('main.get_instance')
+    def test_get_all_courses_success(self, mock_get_instance):
+        """Test successful retrieval of all courses returns 200"""
+        # Mock successful all courses data retrieval
+        mock_apiu = mock_get_instance.return_value
+        mock_apiu.get_all_courses.return_value = [
+            {
+                "_id": "COMP 248",
+                "code": "COMP 248", 
+                "title": "Object-Oriented Programming I",
+                "credits": "3.5"
+            },
+            {
+                "_id": "COMP 249",
+                "code": "COMP 249",
+                "title": "Object-Oriented Programming II", 
+                "credits": "3.5"
+            }
+        ]
+        
+        response = client.get("/get-all-courses")
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 2
+        assert data[0]["code"] == "COMP 248"
+        assert data[1]["code"] == "COMP 249"
+        assert data[0]["title"] == "Object-Oriented Programming I"
+        assert data[1]["title"] == "Object-Oriented Programming II"
+        mock_apiu.get_all_courses.assert_called_once()
+
+    @patch('main.get_instance')
+    def test_get_all_courses_error(self, mock_get_instance):
+        """Test all courses retrieval failure returns 500"""
+        # Mock all courses retrieval exception
+        mock_apiu = mock_get_instance.return_value
+        mock_apiu.get_all_courses.side_effect = Exception("Some error occurred")
+        
+        response = client.get("/get-all-courses")
+        
+        assert response.status_code == 500
+        data = response.json()
+        assert 'detail' in data
+        assert 'Some error occurred' in data['detail']
+        mock_apiu.get_all_courses.assert_called_once()
+
 class TestMainFunction:
     @patch('uvicorn.run')
     def test_main_dev_mode(self, mock_uvicorn_run):
