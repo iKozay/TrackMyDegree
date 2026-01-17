@@ -119,8 +119,6 @@ export const buildTimeline = async (
 
     const { degreeData: degree, coursePools, courses } = result;
 
-    // Filter out ENGR_ECP from coursePools
-    const filteredCoursePools = coursePools.filter(pool => pool._id !== "ENGR_ECP");
 
     if (programInfo.isExtendedCreditProgram) {
         if (degreeId.includes("BEng")) {
