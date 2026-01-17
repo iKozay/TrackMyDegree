@@ -107,7 +107,14 @@ async function  getDataFromParams(params:BuildTimelineParams){
 export const buildTimeline = async (
   params: BuildTimelineParams,
 ): Promise<TimelineResult | undefined> => {
-    let {parsedData, programInfo, semestersResults, courseStatusMap, exemptions, deficiencies} = await getDataFromParams(params)
+  let {
+    parsedData,
+    programInfo,
+    semestersResults,
+    courseStatusMap,
+    exemptions,
+    deficiencies,
+  } = await getDataFromParams(params);
     let degreeId;
 
     //parsed degree does not always match the degree in the DB
@@ -120,20 +127,29 @@ export const buildTimeline = async (
     const { degreeData: degree, coursePools, courses } = result;
 
 
-    if (programInfo.isExtendedCreditProgram) {
-        if (degreeId.includes("BEng")) {
-            const ecpResult = await getDegreeData("ENGR_ECP");
-            if (ecpResult) {
-                coursePools.push(...ecpResult.coursePools);
-                deficiencies.push(...ecpResult.coursePools.map(pool => pool.name));
-            }
-        } else if (degreeId.includes("BCompSc")) {
-            const ecpResult = await getDegreeData("COMP_ECP");
-            if (ecpResult) {
-                coursePools.push(...ecpResult.coursePools);
-                deficiencies.push(...ecpResult.coursePools.map(pool => pool.name));
-            }
+    // Helper function to handle ECP course pools
+    async function addEcpCoursePools(
+      degreeId: string,
+      coursePools: CoursePoolInfo[],
+      deficiencies: string[],
+    ) {
+      const ecpMapping: Record<string, string> = {
+        BEng: 'ENGR_ECP',
+        BCompSc: 'COMP_ECP',
+      };
+
+      const ecpKey = Object.keys(ecpMapping).find((key) => degreeId.includes(key));
+      if (ecpKey) {
+        const ecpResult = await getDegreeData(ecpMapping[ecpKey]);
+        if (ecpResult) {
+          coursePools.push(...ecpResult.coursePools);
+          deficiencies.push(...ecpResult.coursePools.map((pool) => pool.name));
         }
+      }
+    }
+
+    if (programInfo.isExtendedCreditProgram) {
+      await addEcpCoursePools(degreeId, coursePools, deficiencies);
     }
     
     // Load exemption and deficiency courses that are not part of the degree requirements.
