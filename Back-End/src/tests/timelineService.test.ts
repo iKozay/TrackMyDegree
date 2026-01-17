@@ -7,6 +7,8 @@ import { SEASONS } from '../utils/constants';
 const MOCK_DEGREE_ID = 'degree-123';
 const ENGR_ECP_DEGREE_ID = 'ENGR_ECP';
 const COMP_ECP_DEGREE_ID = 'COMP_ECP';
+const BENG_COMP_ENG_NAME = 'BEng in Computer Engineering';
+const INTRO_TO_ENGINEERING_TITLE = 'Intro to Engineering';
 
 // Mock the degreeController and courseController
 jest.mock('../controllers/degreeController', () => ({
@@ -51,7 +53,7 @@ describe('buildTimeline', () => {
       // Mock degree data
       const mockDegree = {
         _id: MOCK_DEGREE_ID,
-        name: 'BEng in Computer Engineering',
+        name: BENG_COMP_ENG_NAME,
         totalCredits: 120,
       };
       
@@ -60,14 +62,19 @@ describe('buildTimeline', () => {
       ];
 
       const mockCourses = {
-        'ENGR 201': { _id: 'ENGR 201', title: 'Intro to Engineering', credits: 3, offeredIn: ['FALL', 'WINTER'] },
+        'ENGR 201': {
+          _id: 'ENGR 201',
+          title: INTRO_TO_ENGINEERING_TITLE,
+          credits: 3,
+          offeredIn: ['FALL', 'WINTER'],
+        },
         'ENGR 202': { _id: 'ENGR 202', title: 'Engineering Math', credits: 3, offeredIn: ['FALL', 'WINTER'] },
       };
 
       mockReadDegree.mockResolvedValue(mockDegree);
       mockGetCoursePoolsForDegree.mockResolvedValue(mockCoursePools);
       mockGetCoursesForDegree.mockResolvedValue(Object.values(mockCourses));
-      mockReadAllDegrees.mockResolvedValue([{ _id: MOCK_DEGREE_ID, name: 'BEng in Computer Engineering', totalCredits: 120 }]);
+      mockReadAllDegrees.mockResolvedValue([{ _id: MOCK_DEGREE_ID, name: BENG_COMP_ENG_NAME, totalCredits: 120 }]);
 
       // Mock parsed data
       const mockParsedData: ParsedData = {
@@ -112,7 +119,7 @@ describe('buildTimeline', () => {
       ];
 
       const mockCourses = {
-        'ENGR 201': { _id: 'ENGR 201', title: 'Intro to Engineering', credits: 3, offeredIn: ['FALL', 'WINTER'] },
+        'ENGR 201': { _id: 'ENGR 201', title: INTRO_TO_ENGINEERING_TITLE, credits: 3, offeredIn: ['FALL', 'WINTER'] },
       };
 
       mockReadDegree.mockResolvedValue(mockDegree);
@@ -121,7 +128,7 @@ describe('buildTimeline', () => {
       mockReadAllDegrees.mockResolvedValue([{ _id: MOCK_DEGREE_ID, name: 'BEng in Software Engineering', totalCredits: 120 }]);
 
       const formData: ProgramInfo = {
-        degree: 'degree-123',
+        degree: MOCK_DEGREE_ID,
         firstTerm: 'FALL 2024',
         lastTerm: 'WINTER 2027',
         isCoop: false,
@@ -134,7 +141,7 @@ describe('buildTimeline', () => {
       });
 
       expect(result).toBeDefined();
-      expect(mockReadDegree).toHaveBeenCalledWith('degree-123');
+      expect(mockReadDegree).toHaveBeenCalledWith(MOCK_DEGREE_ID);
     });
   });
 });
@@ -160,7 +167,7 @@ describe('addEcpCoursePools', () => {
       ];
       const deficiencies: string[] = [];
 
-      await addEcpCoursePools('degree-123-BEng', coursePools, deficiencies);
+      await addEcpCoursePools(`${MOCK_DEGREE_ID}-BEng`, coursePools, deficiencies);
 
       expect(mockGetCoursePoolsForDegree).toHaveBeenCalledWith('ENGR_ECP');
       expect(mockReadDegree).toHaveBeenCalledWith('ENGR_ECP');
@@ -215,7 +222,7 @@ describe('addEcpCoursePools', () => {
 
   describe('when ECP degree data is not found in DB', () => {
     it('should not crash and should not modify arrays', async () => {
-      mockReadDegree.mockResolvedValue(null);
+      mockReadDegree.mockResolvedValue(null as unknown as DegreeData);
       mockGetCoursePoolsForDegree.mockResolvedValue([]);
 
       const coursePools: CoursePoolInfo[] = [
@@ -223,7 +230,7 @@ describe('addEcpCoursePools', () => {
       ];
       const deficiencies: string[] = [];
 
-      await addEcpCoursePools('degree-123-BEng', coursePools, deficiencies);
+      await addEcpCoursePools(`${MOCK_DEGREE_ID}-BEng`, coursePools, deficiencies);
 
       // getCoursePoolsForDegree is called inside getDegreeData even when readDegree returns null
       // but the function should handle this gracefully without crashing
@@ -246,7 +253,7 @@ describe('addEcpCoursePools', () => {
       const deficiencies: string[] = [];
 
       // Test with degreeId format that exactly matches "BEng" (case-sensitive)
-      await addEcpCoursePools('degree-123-BEng', coursePools, deficiencies);
+      await addEcpCoursePools(`${MOCK_DEGREE_ID}-BEng`, coursePools, deficiencies);
 
       expect(mockGetCoursePoolsForDegree).toHaveBeenCalledWith('ENGR_ECP');
       expect(coursePools.length).toBe(1);
@@ -275,7 +282,7 @@ describe('buildTimelineFromDB', () => {
       _id: 'timeline-123',
       userId: 'user-1',
       name: 'My Timeline',
-      degreeId: 'degree-123',
+      degreeId: MOCK_DEGREE_ID,
       semesters: [{ term: 'FALL 2024', courses: [{ code: 'ENGR 201' }] }],
       courseStatusMap: {},
       isExtendedCredit: false,
@@ -286,7 +293,7 @@ describe('buildTimelineFromDB', () => {
 
     const mockDegree = {
       _id: MOCK_DEGREE_ID,
-      name: 'BEng in Computer Engineering',
+      name: BENG_COMP_ENG_NAME,
       totalCredits: 120,
     };
     
@@ -295,7 +302,7 @@ describe('buildTimelineFromDB', () => {
     ];
 
     const mockCourses = {
-      'ENGR 201': { _id: 'ENGR 201', title: 'Intro to Engineering', credits: 3, offeredIn: ['FALL', 'WINTER'] },
+      'ENGR 201': { _id: 'ENGR 201', title: INTRO_TO_ENGINEERING_TITLE, credits: 3, offeredIn: ['FALL', 'WINTER'] },
     };
 
     mockTimelineFindById.mockReturnValue({
@@ -307,13 +314,13 @@ describe('buildTimelineFromDB', () => {
     mockReadDegree.mockResolvedValue(mockDegree);
     mockGetCoursePoolsForDegree.mockResolvedValue(mockCoursePools);
     mockGetCoursesForDegree.mockResolvedValue(Object.values(mockCourses));
-    mockReadAllDegrees.mockResolvedValue([{ _id: MOCK_DEGREE_ID, name: 'BEng in Computer Engineering', totalCredits: 120 }]);
+    mockReadAllDegrees.mockResolvedValue([{ _id: MOCK_DEGREE_ID, name: BENG_COMP_ENG_NAME, totalCredits: 120 }]);
 
     const result = await buildTimelineFromDB('timeline-123');
 
     expect(result).toBeDefined();
     expect(result?.semesters).toBeDefined();
-    expect(mockReadDegree).toHaveBeenCalledWith('degree-123');
+    expect(mockReadDegree).toHaveBeenCalledWith(MOCK_DEGREE_ID);
   });
 });
 
