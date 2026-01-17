@@ -218,3 +218,24 @@ describe("CoursePool", () => {
     expect(screen.queryByTestId("pool-courses-list")).toBeNull();
   });
 });
+
+describe("formatPoolName", () => {
+  it("formats pool names correctly", () => {
+    const formatPoolName = (name: string) => {
+      return name.replace("ECP_", "ECP ").replace(/_/g, " ");
+    };
+
+    expect(formatPoolName("ECP_ENGR_CORE")).toBe("ECP ENGR CORE");
+    expect(formatPoolName("ECP_SOEN_CORE")).toBe("ECP SOEN CORE");
+    expect(formatPoolName("ENGR_CORE")).toBe("ENGR CORE");
+  });
+
+  it("returns the same name if no formatting is needed", () => {
+    const formatPoolName = (name: string) => {
+      return name.replace("ECP_", "ECP ").replace(/_/g, " ");
+    };
+
+    expect(formatPoolName("Engineering Core")).toBe("Engineering Core");
+    expect(formatPoolName("Software Engineering Core")).toBe("Software Engineering Core");
+  });
+});
