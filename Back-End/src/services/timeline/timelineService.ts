@@ -108,12 +108,6 @@ export const buildTimeline = async (
   params: BuildTimelineParams,
 ): Promise<TimelineResult | undefined> => {
     let {parsedData, programInfo, semestersResults, courseStatusMap, exemptions, deficiencies} = await getDataFromParams(params)
-
-    if(programInfo.isExtendedCreditProgram){
-      //TODO: get ecp degree from db and merge course pools with regular degreee
-      //      handle defficiencies
-    }
-
     let degreeId;
 
     //parsed degree does not always match the degree in the DB
@@ -122,9 +116,27 @@ export const buildTimeline = async (
 
     const result = await getDegreeData(degreeId);
     if (!result) throw new Error( "Error fetching degree data from database")
-    
+
     const { degreeData: degree, coursePools, courses } = result;
 
+    if (programInfo.isExtendedCreditProgram) {
+        if (degreeId.includes("BEng")) {
+            const ecpResult = await getDegreeData("ENGR_ECP");
+            if (ecpResult) {
+                coursePools.push(...ecpResult.coursePools);
+                addToCoursePools("ENGR_ECP", [], courses, coursePools, false);
+                deficiencies.push(...ecpResult.coursePools.map(pool => pool.name));
+            }
+        } else if (degreeId.includes("BCompSc")) {
+            const ecpResult = await getDegreeData("COMP_ECP");
+            if (ecpResult) {
+                coursePools.push(...ecpResult.coursePools);
+                addToCoursePools("COMP_ECP", [], courses, coursePools, false);
+                deficiencies.push(...ecpResult.coursePools.map(pool => pool.name));
+            }
+        }
+    }
+    
     // Load exemption and deficiency courses that are not part of the degree requirements.
     // This occurs when the timeline is loaded from the database ('timelineData' case) or when
     // parsing a transcript with exemptions/deficiencies for courses outside the degree program.
