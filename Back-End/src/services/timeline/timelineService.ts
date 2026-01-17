@@ -119,19 +119,20 @@ export const buildTimeline = async (
 
     const { degreeData: degree, coursePools, courses } = result;
 
+    // Filter out ENGR_ECP from coursePools
+    const filteredCoursePools = coursePools.filter(pool => pool._id !== "ENGR_ECP");
+
     if (programInfo.isExtendedCreditProgram) {
         if (degreeId.includes("BEng")) {
             const ecpResult = await getDegreeData("ENGR_ECP");
             if (ecpResult) {
                 coursePools.push(...ecpResult.coursePools);
-                addToCoursePools("ENGR_ECP", [], courses, coursePools, false);
                 deficiencies.push(...ecpResult.coursePools.map(pool => pool.name));
             }
         } else if (degreeId.includes("BCompSc")) {
             const ecpResult = await getDegreeData("COMP_ECP");
             if (ecpResult) {
                 coursePools.push(...ecpResult.coursePools);
-                addToCoursePools("COMP_ECP", [], courses, coursePools, false);
                 deficiencies.push(...ecpResult.coursePools.map(pool => pool.name));
             }
         }
