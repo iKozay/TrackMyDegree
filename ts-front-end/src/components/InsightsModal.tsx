@@ -28,12 +28,12 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({
   const poolProgress = useMemo((): PoolProgress[] => {
     // Filter out exemptions pool
     const nonExemptionPools = pools.filter(
-      (pool) => !pool._id.toLowerCase().includes("exemption")
+      (pool) => !pool._id.toLowerCase().includes("exemption"),
     );
 
     // Get exemption courses to exclude from progress
-    const exemptionPool = pools.find((pool) => 
-      pool._id.toLowerCase().includes("exemption")
+    const exemptionPool = pools.find((pool) =>
+      pool._id.toLowerCase().includes("exemption"),
     );
     const exemptionCourseIds = new Set(exemptionPool?.courses || []);
 
@@ -42,8 +42,7 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({
       ([courseId, course]) =>
         !exemptionCourseIds.has(courseId) &&
         (course.status?.status === "planned" ||
-        course.status?.status === "completed" ||
-        course.status?.status === "inprogress")
+          course.status?.status === "completed"),
     );
 
     return nonExemptionPools.map((pool) => {
@@ -64,7 +63,7 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({
       // Get remaining courses (courses in pool not yet taken)
       const takenCourseSet = new Set(takenCourses);
       const remainingCourses = pool.courses.filter(
-        (courseId) => !takenCourseSet.has(courseId)
+        (courseId) => !takenCourseSet.has(courseId),
       );
 
       return {
@@ -81,14 +80,14 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({
     () => ({
       totalTaken: poolProgress.reduce(
         (sum, pool) => sum + pool.creditsTaken,
-        0
+        0,
       ),
       totalRequired: poolProgress.reduce(
         (sum, pool) => sum + pool.creditsRequired,
-        0
+        0,
       ),
     }),
-    [poolProgress]
+    [poolProgress],
   );
 
   if (!open) return null;

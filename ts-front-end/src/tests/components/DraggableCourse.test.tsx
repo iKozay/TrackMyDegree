@@ -62,12 +62,12 @@ describe("DraggableCourse", () => {
         course={course}
         isSelected={false}
         onCourseSelect={() => {}}
-      />
+      />,
     );
 
     expect(screen.getByText("COMP 248")).toBeInTheDocument();
     expect(
-      screen.getByText("Object-Oriented Programming I")
+      screen.getByText("Object-Oriented Programming I"),
     ).toBeInTheDocument();
     expect(screen.getByText(/3 cr/i)).toBeInTheDocument();
   });
@@ -81,7 +81,7 @@ describe("DraggableCourse", () => {
         course={course}
         isSelected={false}
         onCourseSelect={() => {}}
-      />
+      />,
     );
 
     const card = container.querySelector(".course-card")!;
@@ -95,7 +95,7 @@ describe("DraggableCourse", () => {
         course={baseCourse("planned")}
         isSelected={false}
         onCourseSelect={() => {}}
-      />
+      />,
     );
     expect(card).toHaveClass("status-planned");
 
@@ -103,12 +103,12 @@ describe("DraggableCourse", () => {
     rerender(
       <DraggableCourse
         courseId={courseId}
-        course={baseCourse("inprogress")}
+        course={baseCourse("planned")}
         isSelected={false}
         onCourseSelect={() => {}}
-      />
+      />,
     );
-    expect(card).toHaveClass("status-inprogress");
+    expect(card).toHaveClass("status-planned");
 
     // Test incomplete
     rerender(
@@ -117,7 +117,7 @@ describe("DraggableCourse", () => {
         course={baseCourse("incomplete")}
         isSelected={false}
         onCourseSelect={() => {}}
-      />
+      />,
     );
     expect(card).toHaveClass("status-incomplete");
   });
@@ -131,7 +131,7 @@ describe("DraggableCourse", () => {
         course={course}
         isSelected={false}
         onCourseSelect={() => {}}
-      />
+      />,
     );
 
     const card = container.querySelector(".course-card")!;
@@ -143,7 +143,7 @@ describe("DraggableCourse", () => {
         course={course}
         isSelected={true}
         onCourseSelect={() => {}}
-      />
+      />,
     );
 
     expect(card).toHaveClass("selected");
@@ -159,7 +159,7 @@ describe("DraggableCourse", () => {
         course={course}
         isSelected={false}
         onCourseSelect={onCourseSelect}
-      />
+      />,
     );
 
     const content = screen.getByText("COMP 248").closest(".course-content")!;
@@ -188,7 +188,7 @@ describe("DraggableCourse", () => {
         course={course}
         isSelected={false}
         onCourseSelect={onCourseSelect}
-      />
+      />,
     );
 
     const content = screen.getByText("COMP 248").closest(".course-content")!;
@@ -207,7 +207,7 @@ describe("DraggableCourse", () => {
         course={course}
         isSelected={false}
         onCourseSelect={() => {}}
-      />
+      />,
     );
 
     expect(useDraggable).toHaveBeenCalledWith(
@@ -218,7 +218,7 @@ describe("DraggableCourse", () => {
           courseId,
           semesterId: undefined,
         }),
-      })
+      }),
     );
 
     (useDraggable as any).mockClear();
@@ -231,7 +231,7 @@ describe("DraggableCourse", () => {
         isSelected={false}
         onCourseSelect={() => {}}
         semesterId={"FALL 2025" as SemesterId}
-      />
+      />,
     );
 
     expect(useDraggable).toHaveBeenCalledWith(
@@ -242,7 +242,7 @@ describe("DraggableCourse", () => {
           courseId,
           semesterId: "FALL 2025",
         }),
-      })
+      }),
     );
   });
 });
