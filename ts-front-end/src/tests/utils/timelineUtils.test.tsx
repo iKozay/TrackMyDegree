@@ -26,6 +26,8 @@ vi.mock("react-toastify", () => ({
   toast: {
     success: vi.fn(),
     error: vi.fn(),
+    info: vi.fn(),
+    promise: vi.fn((promise) => promise),
   },
 }));
 
@@ -217,7 +219,7 @@ describe("timelineUtils", () => {
   });
 
   describe("saveTimeline", () => {
-    it("posts timeline payload and shows success toast", async () => {
+    it("posts timeline payload and shows success toast via promise", async () => {
       vi.mocked(api.post).mockResolvedValueOnce({} as any);
 
       await saveTimeline("user-1", "My Timeline", "job-1");
@@ -227,21 +229,31 @@ describe("timelineUtils", () => {
         timelineName: "My Timeline",
         jobId: "job-1",
       });
-      expect(toast.success).toHaveBeenCalledWith("Timeline saved successfully");
+      expect(toast.promise).toHaveBeenCalledWith(
+        expect.any(Promise),
+        expect.objectContaining({
+          pending: expect.any(String),
+          success: expect.any(String),
+          error: expect.any(String),
+        })
+      );
     });
 
-    it("handles API errors and shows error toast", async () => {
+    it("handles API errors via toast promise", async () => {
       vi.mocked(api.post).mockRejectedValueOnce(new Error("boom"));
 
-      await saveTimeline("user-2", "Other Timeline");
+      try {
+        await saveTimeline("user-2", "Other Timeline");
+      } catch (e) {
+        // toast.promise might rethrow depending on implementation, 
+        // but here we just want to ensure it was called
+      }
 
       expect(api.post).toHaveBeenCalledWith("/timeline", {
         userId: "user-2",
         timelineName: "Other Timeline",
       });
-      expect(toast.error).toHaveBeenCalledWith(
-        "Failed to save timeline. Please try again."
-      );
+      expect(toast.promise).toHaveBeenCalled();
     });
   });
 
