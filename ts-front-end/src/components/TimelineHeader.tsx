@@ -10,7 +10,6 @@ import {
   Plus,
   Save,
 } from "lucide-react";
-import { useAuth } from "../hooks/useAuth";
 import { downloadTimelinePdf } from "../utils/timelineUtils";
 
 interface HistoryControlsProps {
@@ -93,7 +92,6 @@ interface PrimaryActionsProps {
 }
 
 const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
-  const { isAuthenticated } = useAuth();
   // TODO: merge all as one method handleModal(type: string)
   const handleInsights = () => {
     if (onOpenModal) onOpenModal(true, "insights");
@@ -124,12 +122,10 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
         Add Exemption
       </button>
 
-      {isAuthenticated && (
         <button className="btn btn-secondary" onClick={handleSave}>
           <Save size={16} />
           Save Data
         </button>
-      )}
     </div>
   );
 };

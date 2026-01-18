@@ -12,6 +12,7 @@ import { MainModal } from "../components/MainModal";
 import "../styles/timeline.css";
 import { calculateEarnedCredits, saveTimeline } from "../utils/timelineUtils";
 import { useAuth } from "../hooks/useAuth";
+import { toast } from "react-toastify";
 
 type TimeLinePageRouteParams = {
   jobId?: string;
@@ -44,6 +45,16 @@ const TimeLinePage: React.FC = () => {
   const deficiencyCoursePool = state.pools.find(pool => 
     pool._id.toLowerCase().includes("deficiency")
   ) || { _id: "deficiency", name: "Deficiency", creditsRequired: 0, courses: [] };
+  const handleOpenModal = (open: boolean, type: string) => {
+    if (type === "save" && !user) {
+      toast.info("Please sign in or sign up to save your timeline");
+      const returnUrl = encodeURIComponent(window.location.pathname);
+      navigate(`/signin?redirectTo=${returnUrl}`);
+      return;
+    }
+    actions.openModal(open, type);
+  };
+
   return (
     <TimelineDndProvider
       courses={state.courses}
@@ -72,7 +83,7 @@ const TimeLinePage: React.FC = () => {
           onRedo={actions.redo}
           earnedCredits={calculateEarnedCredits(state.courses, exemptionCoursePool)}
           totalCredits={state.degree.totalCredits + deficiencyCoursePool.creditsRequired}
-          onOpenModal={actions.openModal}
+          onOpenModal={handleOpenModal}
         />
 
         <main className="timeline-main">

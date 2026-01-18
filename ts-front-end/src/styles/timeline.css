@@ -363,6 +363,11 @@
   color: #ef4444;
 }
 
+.course-info {
+  display: flex!important;
+  flex-direction: column!important;
+}
+
 .course-info h3 {
   font-size: 1.125rem;
   margin-bottom: 1rem;
