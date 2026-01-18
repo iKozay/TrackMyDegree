@@ -126,28 +126,6 @@ export const buildTimeline = async (
 
     const { degreeData: degree, coursePools, courses } = result;
 
-
-    // Helper function to handle ECP course pools
-    async function addEcpCoursePools(
-      degreeId: string,
-      coursePools: CoursePoolInfo[],
-      deficiencies: string[],
-    ) {
-      const ecpMapping: Record<string, string> = {
-        BEng: 'ENGR_ECP',
-        BCompSc: 'COMP_ECP',
-      };
-
-      const ecpKey = Object.keys(ecpMapping).find((key) => degreeId.includes(key));
-      if (ecpKey) {
-        const ecpResult = await getDegreeData(ecpMapping[ecpKey]);
-        if (ecpResult) {
-          coursePools.push(...ecpResult.coursePools);
-          deficiencies.push(...ecpResult.coursePools.map((pool) => pool.name));
-        }
-      }
-    }
-
     if (programInfo.isExtendedCreditProgram) {
       await addEcpCoursePools(degreeId, coursePools, deficiencies);
     }
@@ -574,5 +552,24 @@ export async function buildTimelineFromDB(
   });
 }
 
+// Moved addEcpCoursePools outside buildTimeline for better testability
+export async function addEcpCoursePools(
+  degreeId: string,
+  coursePools: CoursePoolInfo[],
+  deficiencies: string[],
+) {
+  const ecpMapping: Record<string, string> = {
+    BEng: 'ENGR_ECP',
+    BCompSc: 'COMP_ECP',
+  };
 
+  const ecpKey = Object.keys(ecpMapping).find((key) => degreeId.includes(key));
+  if (ecpKey) {
+    const ecpResult = await getDegreeData(ecpMapping[ecpKey]);
+    if (ecpResult) {
+      coursePools.push(...ecpResult.coursePools);
+      deficiencies.push(...ecpResult.coursePools.map((pool) => pool.name));
+    }
+  }
+}
 
