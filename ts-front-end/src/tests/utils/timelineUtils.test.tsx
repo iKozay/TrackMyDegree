@@ -242,12 +242,7 @@ describe("timelineUtils", () => {
     it("handles API errors via toast promise", async () => {
       vi.mocked(api.post).mockRejectedValueOnce(new Error("boom"));
 
-      try {
-        await saveTimeline("user-2", "Other Timeline");
-      } catch (e) {
-        // toast.promise might rethrow depending on implementation, 
-        // but here we just want to ensure it was called
-      }
+      await saveTimeline("user-2", "Other Timeline");
 
       expect(api.post).toHaveBeenCalledWith("/timeline", {
         userId: "user-2",
