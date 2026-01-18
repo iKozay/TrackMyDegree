@@ -149,10 +149,10 @@ class ConcordiaAPIUtils:
             "_id": course_code,
             "code": course_code,
             "title": response.get("Long Title", ""),
-            "credits": response.get("Class Units", ""),
+            "credits": float(response.get("Class Units", "0")),
             "description": extracted_text["description"],
             "offeredIn": self.get_term(course_code),
-            "prereqCoreqText": response.get("Prerequisite/Corequisite", ""),
+            "prereqCoreqText": extracted_text["prereqCoreqText"],
             "rules": {
                 "prereq": extracted_text["prereq"],
                 "coreq": extracted_text["coreq"],
@@ -163,12 +163,38 @@ class ConcordiaAPIUtils:
     def get_all_courses(self):
         if CSV_SOURCES["course_catalog"]["cache"] is None:
             self.update_cache(["course_catalog"])
+        if CSV_SOURCES["course_description"]["cache"] is None:
+            self.update_cache(["course_description"])
         
-        df = CSV_SOURCES["course_catalog"]["cache"]
+        df_catalog = CSV_SOURCES["course_catalog"]["cache"]
+        df_description = CSV_SOURCES["course_description"]["cache"]
+        matches = df_catalog[(df_catalog["Career"] == "UGRD") & (df_catalog["Component Code"] == "LEC")]
+        records = self._sanitize_data(matches.to_dict('records'))
         courses = []
-        for _, row in df.iterrows():
+        for row in records:
             course_code = f"{row['Subject']} {row['Catalog']}"
-            courses.append(self.get_course_from_catalog(course_code))
+            description_row = df_description[df_description["Course ID"] == row["Course ID"]]
+            sanitized_description = self._sanitize_data(description_row.to_dict('records'))
+            description_text = ""
+            if sanitized_description:
+                description_text = sanitized_description[0]["Descr"]
+            extracted_text = self.parse_description_and_rules(description_text)
+            course = {
+                "_id": course_code,
+                "code": course_code,
+                "title": row.get("Long Title", ""),
+                "credits": float(row.get("Class Units", "0")),
+                "description": extracted_text["description"],
+                "offeredIn": self.get_term(course_code),
+                "prereqCoreqText": extracted_text["prereqCoreqText"],
+                "rules": {
+                    "prereq": extracted_text["prereq"],
+                    "coreq": extracted_text["coreq"],
+                    "not_taken": extracted_text["not_taken"]
+                }
+            }
+            courses.append(course)
+
         return courses
 
     def get_course_description(self, course_id):
@@ -184,6 +210,7 @@ class ConcordiaAPIUtils:
         if not text:
             return {
                 "description": "",
+                "prereqCoreqText": "",
                 "prereq": [],
                 "coreq": [],
                 "not_taken": []
@@ -203,11 +230,13 @@ class ConcordiaAPIUtils:
         # Parse prerequisites - stop at any other section marker
         prereq_match = re.search(r'Pre-?requisites?[:\s]+(.+?)(?=' + section_markers + r'|$)', text, re.I | re.S)
         prereq_text = prereq_match.group(1).strip() if prereq_match else ""
+        prereq_coreq_text = prereq_text
         prereq = make_prereq_coreq_into_array(prereq_text)
         
         # Parse corequisites - stop at any other section marker
         coreq_match = re.search(r'Co-?requisites?[:\s]+(.+?)(?=' + section_markers + r'|$)', text, re.I | re.S)
         coreq_text = coreq_match.group(1).strip() if coreq_match else ""
+        prereq_coreq_text += " " + coreq_text
         coreq = make_prereq_coreq_into_array(coreq_text)
         
         # Parse not_taken from NOTE sections
@@ -215,6 +244,7 @@ class ConcordiaAPIUtils:
         
         return {
             "description": description,
+            "prereqCoreqText": prereq_coreq_text.strip(),
             "prereq": prereq,
             "coreq": coreq,
             "not_taken": not_taken

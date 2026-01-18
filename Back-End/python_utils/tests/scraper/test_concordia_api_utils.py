@@ -173,6 +173,7 @@ class TestConcordiaAPIUtils:
         mock_get_term.return_value = ["Fall", "Winter"]
         mock_parse.return_value = {
             "description": "Programming course description",
+            "prereqCoreqText": "Math 205.",
             "prereq": [["MATH 205"]],
             "coreq": [],
             "not_taken": []
@@ -182,8 +183,10 @@ class TestConcordiaAPIUtils:
         
         assert result["code"] == "COMP 248"
         assert result["title"] == "Object-Oriented Programming I"
-        assert result["credits"] == "3"
+        assert abs(result["credits"] - 3.0) < 1e-9
         assert result["offeredIn"] == ["Fall", "Winter"]
+        assert result["description"] == "Programming course description"
+        assert result["prereqCoreqText"] == "Math 205."
         assert result["rules"]["prereq"] == [["MATH 205"]]
 
     @patch.object(ConcordiaAPIUtils, 'get_from_csv')
@@ -201,7 +204,81 @@ class TestConcordiaAPIUtils:
         
         result = self.api.get_course_description("NONEXISTENT")
         assert result == ""
+    
+    def test_parse_course_descritpion_with_none(self):
+        # Test parsing description when input is None
+        result = self.api.parse_description_and_rules(None)
+        assert result["description"] == ""
+        assert result["prereqCoreqText"] == ""
+        assert result["prereq"] == []
+        assert result["coreq"] == []
+        assert result["not_taken"] == []
 
+    @patch('scraper.concordia_api_utils.CSV_SOURCES')
+    @patch.object(ConcordiaAPIUtils, 'update_cache')
+    @patch.object(ConcordiaAPIUtils, 'get_term')
+    @patch.object(ConcordiaAPIUtils, 'parse_description_and_rules')
+    def test_get_all_courses(self, mock_parse, mock_get_term, mock_update_cache, mock_csv_sources):
+        # Test getting all courses
+        
+        # Mock catalog dataframe
+        catalog_data = pd.DataFrame({
+            "Subject": ["COMP", "MATH", "ENGR"],
+            "Catalog": ["248", "205", "201"],
+            "Course ID": ["COMP248", "MATH205", "ENGR201"],
+            "Long Title": ["Object-Oriented Programming I", "Differential Calculus", "Professional Practice"],
+            "Class Units": ["3.0", "3.0", "1.0"],
+            "Career": ["UGRD", "UGRD", "UGRD"],
+            "Component Code": ["LEC", "LEC", "LEC"]
+        })
+        
+        # Mock description dataframe
+        description_data = pd.DataFrame({
+            "Course ID": ["COMP248", "MATH205", "ENGR201"],
+            "Descr": ["Programming course description", "Calculus description", "Professional practice description"]
+        })
+        
+        # Setup CSV_SOURCES mock
+        def get_csv_source(key):
+            if key == "course_catalog":
+                return {"cache": catalog_data}
+            elif key == "course_description":
+                return {"cache": description_data}
+            return {"cache": None}
+            
+        mock_csv_sources.__getitem__.side_effect = get_csv_source
+        
+        # Mock other dependencies
+        mock_get_term.side_effect = lambda code: ["Fall", "Winter"] if "COMP" in code else ["Fall"]
+        mock_parse.return_value = {
+            "description": "Parsed description",
+            "prereqCoreqText": "No prerequisites",
+            "prereq": [],
+            "coreq": [],
+            "not_taken": []
+        }
+        
+        # Call the method
+        result = self.api.get_all_courses()
+        
+        # Verify results
+        assert len(result) == 3
+        
+        # Check first course (COMP 248)
+        comp_course = next(course for course in result if course["code"] == "COMP 248")
+        assert comp_course["_id"] == "COMP 248"
+        assert comp_course["title"] == "Object-Oriented Programming I"
+        assert abs(comp_course["credits"] - 3.0) < 1e-9
+        assert comp_course["description"] == "Parsed description"
+        assert comp_course["offeredIn"] == ["Fall", "Winter"]
+        assert comp_course["prereqCoreqText"] == "No prerequisites"
+        assert "prereq" in comp_course["rules"]
+        assert "coreq" in comp_course["rules"]
+        assert "not_taken" in comp_course["rules"]
+        
+        # Verify methods were called
+        assert mock_get_term.call_count == 3
+        assert mock_parse.call_count == 3
 
 def test_get_instance_singleton():
     # Test singleton pattern
