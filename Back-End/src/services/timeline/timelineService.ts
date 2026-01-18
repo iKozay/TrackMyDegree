@@ -107,13 +107,14 @@ async function  getDataFromParams(params:BuildTimelineParams){
 export const buildTimeline = async (
   params: BuildTimelineParams,
 ): Promise<TimelineResult | undefined> => {
-    let {parsedData, programInfo, semestersResults, courseStatusMap, exemptions, deficiencies} = await getDataFromParams(params)
-
-    if(programInfo.isExtendedCreditProgram){
-      //TODO: get ecp degree from db and merge course pools with regular degreee
-      //      handle defficiencies
-    }
-
+  let {
+    parsedData,
+    programInfo,
+    semestersResults,
+    courseStatusMap,
+    exemptions,
+    deficiencies,
+  } = await getDataFromParams(params);
     let degreeId;
 
     //parsed degree does not always match the degree in the DB
@@ -122,9 +123,13 @@ export const buildTimeline = async (
 
     const result = await getDegreeData(degreeId);
     if (!result) throw new Error( "Error fetching degree data from database")
-    
+
     const { degreeData: degree, coursePools, courses } = result;
 
+    if (programInfo.isExtendedCreditProgram) {
+      await addEcpCoursePools(degreeId, coursePools, deficiencies);
+    }
+    
     // Load exemption and deficiency courses that are not part of the degree requirements.
     // This occurs when the timeline is loaded from the database ('timelineData' case) or when
     // parsing a transcript with exemptions/deficiencies for courses outside the degree program.
@@ -547,5 +552,24 @@ export async function buildTimelineFromDB(
   });
 }
 
+// Moved addEcpCoursePools outside buildTimeline for better testability
+export async function addEcpCoursePools(
+  degreeId: string,
+  coursePools: CoursePoolInfo[],
+  deficiencies: string[],
+) {
+  const ecpMapping: Record<string, string> = {
+    BEng: 'ENGR_ECP',
+    BCompSc: 'COMP_ECP',
+  };
 
+  const ecpKey = Object.keys(ecpMapping).find((key) => degreeId.includes(key));
+  if (ecpKey) {
+    const ecpResult = await getDegreeData(ecpMapping[ecpKey]);
+    if (ecpResult) {
+      coursePools.push(...ecpResult.coursePools);
+      deficiencies.push(...ecpResult.coursePools.map((pool) => pool.name));
+    }
+  }
+}
 
