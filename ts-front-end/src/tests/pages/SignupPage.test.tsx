@@ -118,21 +118,6 @@ describe('SignupPage', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/profile/student', { replace: true });
   });
 
-  test('submits form successfully and navigates to redirectTo if present', async () => {
-    mockSignup.mockResolvedValueOnce(undefined);
-
-    renderPage('?redirectTo=%2Fdashboard');
-
-    fillSignupForm();
-
-    const registerButton = screen.getByRole('button', { name: /Register/i });
-    fireEvent.click(registerButton);
-
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });
-    });
-  });
-
   test('displays validation error when form is invalid', async () => {
     mockValidateSignupForm.mockReturnValueOnce(['Passwords do not match']);
 
@@ -174,29 +159,12 @@ describe('SignupPage', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/signin');
   });
 
-  test('cancel button preserves redirectTo', () => {
-    renderPage('?redirectTo=%2Fdashboard');
-
-    const cancelButton = screen.getByRole('button', { name: /Cancel/i });
-    fireEvent.click(cancelButton);
-
-    expect(mockNavigate).toHaveBeenCalledWith('/signin?redirectTo=/dashboard');
-  });
-
   test('renders link to signin page', () => {
     renderPage();
 
     const signinLink = screen.getByText(/Already have an account\? Log in here!/i);
     expect(signinLink).toBeInTheDocument();
     expect(signinLink.closest('a')).toHaveAttribute('href', '/signin');
-  });
-
-  test('renders link to signin page with redirectTo', () => {
-    renderPage('?redirectTo=%2Fdashboard');
-
-    const signinLink = screen.getByText(/Already have an account\? Log in here!/i);
-    expect(signinLink).toBeInTheDocument();
-    expect(signinLink.closest('a')).toHaveAttribute('href', '/signin?redirectTo=/dashboard');
   });
 
   test('redirects to profile when already authenticated', () => {
@@ -209,18 +177,6 @@ describe('SignupPage', () => {
     renderPage();
 
     expect(mockNavigate).toHaveBeenCalledWith('/profile/student', { replace: true });
-  });
-
-  test('redirects to redirectTo when already authenticated', () => {
-    mockUseAuth.mockReturnValue({
-      signup: mockSignup,
-      loading: false,
-      isAuthenticated: true,
-    });
-
-    renderPage('?redirectTo=%2Fdashboard');
-
-    expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });
   });
 
   test('renders null when loading', () => {

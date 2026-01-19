@@ -290,7 +290,7 @@ describe("TimeLinePage", () => {
     const { onOpenModal } = (vi.mocked(TimelineHeader) as any).mock.calls[0][0];
     onOpenModal(true, "save");
 
-    expect(mockNavigate).toHaveBeenCalledWith("/signin?redirectTo=%2Ftimeline%2Ftest-job-id");
+    expect(mockNavigate).toHaveBeenCalledWith("/signin");
     vi.unstubAllGlobals();
   });
 

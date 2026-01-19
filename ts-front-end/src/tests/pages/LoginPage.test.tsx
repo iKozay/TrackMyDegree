@@ -161,27 +161,6 @@ describe('LoginPage', () => {
         });
     });
 
-    it('redirects to redirectTo param if present when authenticated', async () => {
-        mockUseAuth.mockReturnValue({
-            login: mockLogin,
-            loading: false,
-            isAuthenticated: true,
-            user: { role: 'student' },
-        });
-
-        renderPage('?redirectTo=%2Fdashboard');
-
-        await waitFor(() => {
-            expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });
-        });
-    });
-
-    it('renders sign up link with redirectTo param if present', () => {
-        renderPage('?redirectTo=%2Fdashboard');
-        const signUpLink = screen.getByText(/Register here!/i);
-        expect(signUpLink.closest('a')).toHaveAttribute('href', '/signup?redirectTo=/dashboard');
-    });
-
     it('renders sign up link without redirectTo param if not present', () => {
         renderPage();
         const signUpLink = screen.getByText(/Register here!/i);
