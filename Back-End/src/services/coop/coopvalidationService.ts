@@ -73,7 +73,7 @@ function extractSemestersFromResult(timeline: TimelineResult): SemesterData[] {
  * Accepts both TimelineDocument (Mongoose) and TimelineResult (plain object)
  */
 export function validateCoopTimeline(
-  timeline: TimelineDocument | TimelineResult
+  timeline: TimelineDocument | TimelineResult | any
 ): CoopValidationResult {
   const errors: CoopRuleResult[] = [];
   const warnings: CoopRuleResult[] = [];
