@@ -1,6 +1,5 @@
 // Back-End/src/services/CoopValidationService.ts
 import type { TimelineDocument } from "@models/timeline";
-import type { TimelineResult } from "@services/timeline/timelineService";
 
 export type RuleSeverity = "ERROR" | "WARNING";
 
@@ -32,19 +31,15 @@ interface SemesterData {
  * Converts Mongoose DocumentArray to plain JS array
  * This avoids TS2590 "Expression produces a union type that is too complex to represent"
  */
-function extractSemestersFromDocument(timeline: any): SemesterData[] {
+function extractSemesters(timeline: TimelineDocument): SemesterData[] {
   if (!timeline.semesters) return [];
   
-  return Array.from(timeline.semesters).map((semester: any) => {
+  return Array.from(timeline.semesters).map((semester) => {
     const sem = semester.toObject();
-    const courses = Array.isArray(sem.courses) 
-      ? sem.courses 
-      : Array.from(sem.courses || []);
-    
     return {
       _id: sem._id.toString(),
       term: sem.term,
-      courses: courses.map((c: any) => ({
+      courses: sem.courses.map((c) => ({
         code: c.code,
         message: c.message,
       })),
@@ -53,35 +48,16 @@ function extractSemestersFromDocument(timeline: any): SemesterData[] {
 }
 
 /**
- * Extracts semesters from TimelineResult (plain object from cache)
- */
-function extractSemestersFromResult(timeline: any): SemesterData[] {
-  if (!timeline.semesters) return [];
-  
-  return timeline.semesters.map((semester: any, index: number) => ({
-    _id: semester._id?.toString() || `semester-${index}`,
-    term: semester.term,
-    courses: (semester.courses || []).map((c: any) => ({
-      code: c.code,
-      message: c.message,
-    })),
-  }));
-}
-
-/**
  * Main validation entry point for Co-op timelines
- * Accepts both TimelineDocument (Mongoose) and TimelineResult (plain object)
  */
 export function validateCoopTimeline(
-  timeline: any
+  timeline: TimelineDocument
 ): CoopValidationResult {
   const errors: CoopRuleResult[] = [];
   const warnings: CoopRuleResult[] = [];
 
-  // Detect which type we received and extract accordingly
-  const semestersArray = timeline.toObject && typeof timeline.toObject === 'function'
-    ? extractSemestersFromDocument(timeline)
-    : extractSemestersFromResult(timeline);
+  // Convert Mongoose DocumentArray to plain JS array
+  const semestersArray = extractSemesters(timeline);
 
   const studyTerms = semestersArray.filter((s) => s.term === "STUDY");
   const workTerms = semestersArray.filter((s) => s.term === "WORK");
