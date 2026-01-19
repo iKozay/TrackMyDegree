@@ -48,8 +48,9 @@ const TimeLinePage: React.FC = () => {
   const handleOpenModal = (open: boolean, type: string) => {
     if (type === "save" && !user) {
       toast.info("Please sign in or sign up to save your timeline");
-      const returnUrl = encodeURIComponent(window.location.pathname);
-      navigate(`/signin?redirectTo=${returnUrl}`);
+      const returnUrl = encodeURIComponent(globalThis.location.pathname);
+      localStorage.setItem("redirectAfterLogin", returnUrl);
+      navigate(`/signin`);
       return;
     }
     actions.openModal(open, type);
