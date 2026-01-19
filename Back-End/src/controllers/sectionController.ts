@@ -12,7 +12,7 @@ async function getCourseSchedule(subject: string, catalog: string) {
     const authHeader =
       'Basic ' +
       Buffer.from(
-        `${process.env.SCHEDULE_USER}:${process.env.SCHEDULE_PASS}`,
+        `${process.env.CONCORDIA_API_USER}:${process.env.CONCORDIA_API_KEY}`,
       ).toString('base64');
 
     // Send GET request to Concordia's schedule API with subject + catalog

@@ -113,6 +113,6 @@ describe('PDFParsingController', () => {
 
     expect(response.status).toBe(500);
     expect(response.body.success).toBe(false);
-    expect(response.body.message).toBe('Failed to parse transcript');
+    expect(response.body.message).toBe('Failed to parse transcript/acceptance letter');
   });
 });

@@ -35,8 +35,6 @@ function mapCourseStatus(status: CourseStatus): CourseAuditStatus {
     case 'planned':
       // eslint-disable-next-line sonarjs/no-duplicate-string
       return 'Not Started';
-    case 'exempted':
-      return 'Completed'; // Exempted courses count as completed
     case 'incomplete':
     default:
       return 'Missing';

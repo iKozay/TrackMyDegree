@@ -8,7 +8,7 @@ export async function parseFile(fileBuffer: Buffer) {
     const pdfParseData = await pdfParse(fileBuffer);
     const cleanText = pdfParseData.text;
   
-    if (!cleanText || cleanText.length === 0) {
+    if (!cleanText || cleanText.trim().length === 0) {
         throw new Error('No text extracted from PDF.');
     }
 

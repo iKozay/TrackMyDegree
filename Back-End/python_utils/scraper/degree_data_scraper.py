@@ -160,6 +160,17 @@ class DegreeDataScraper():
 
         #Output as JSON
         self.courses = list({c["_id"]: c for c in self.courses}.values())
+        # Fix General Electives (hotfix)
+        result = engr_general_electives_scraper.scrape_electives()
+        self.course_pool = [
+			{
+				'_id': GENERAL_ELECTIVES,
+				'name': GENERAL_ELECTIVES,
+				'creditsRequired': 3,
+				'courses': list(set(result[0]))
+			} if pool.get('_id') == GENERAL_ELECTIVES else pool
+			for pool in self.course_pool
+		]
         return {
             "degree":self.degree,
             "course_pool":self.course_pool,
