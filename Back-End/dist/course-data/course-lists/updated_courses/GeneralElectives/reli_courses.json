@@ -1,0 +1,1151 @@
+[
+  {
+    "title": "RELI 209 The Religious Imagination",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores the conceptual elements that underlie the religious experience. These elements include the notion of the sacred, beliefs, cosmologies and myths, the origins and understanding of evil, ethics and salvation.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for RELI 211 may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 210 Religion in Practice",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course focuses on the day‑to‑day practice of religious traditions. Included are the expression of religious experiences through art, music, and scripture; transmission of these religious expressions through ritual, worship and mystical/ecstatic practices; and the construction and maintenance of different types of religious authority and communal identities.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for RELI 211 may not take this course for credit.",
+    "offeredIn": [
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 214 Religions of the West",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course surveys the history, doctrines, institutions, and practices of religions that arose in Western Asia, including Judaism, Christianity, and Islam. The course examines contemporary forms of religious life in those parts of the world where these traditions have spread, as well as indigenous religions. The course explores the religious activities and experiences of both women and men within these various traditions.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for RELI 213 may not take this course for credit.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "RELI 215 Religions of Asia",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course surveys the history, doctrines, institutions, and practices of religions that have arisen in and spread throughout Asia, including Hinduism, Buddhism, and the religions of China and Japan. The course explores the religious activities and experiences of both women and men within these traditions.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for RELI 213 may not take this course for credit.",
+    "offeredIn": [
+      "summer"
+    ]
+  },
+  {
+    "title": "RELI 216 Encountering Religions",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course serves as an introduction to some of the religions of today’s world, and explores several contemporary contexts where people of diverse religious backgrounds come into contact with one another.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 298 number may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 220 Introduction to Judaism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the continuities and changes in Jewish society, institutions, concepts, and traditions from ancient times to the present. It also provides an introduction to Jewish practice and belief in its contemporary diversity, including a survey of the rituals, symbols, and ceremonies of Jews today.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for RELI 222 may not take this course for credit.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "RELI 223 Introduction to Christianity",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course provides an introductory survey of key developments and enduring structures in the historical evolution of Christianity. It examines the variety of expressions of faith embodied in different churches, and traces the ways in which beliefs, institutions, symbols, and rituals have in the past and continue today to carry forward the Christian tradition as a world religion in a variety of cultural contexts.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 224 Introduction to Islam",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores the religious tradition of Islam through the beliefs and practices of the vast number of Muslims scattered throughout the world — in the Middle East, South and Southeast Asia, North America, and other places. It examines the scriptures and common rituals or “pillars” of the religion, as well as expressions of life and culture in the past and present such as the law (shariah), mystical orders, and the arts.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "RELI 225 Introduction to Hinduism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course surveys Hinduism in its diverse history, sects, schools of thought, sacred texts, spiritual practices, and contemporary interpretations. Students focus on several prominent dimensions of the tradition, including the Hindu temple, mysticism and metaphysics in the Upanishads, karma and rebirth, dharma (religious duty and the cosmic/social order), moksha (liberation), gender and caste, devotional traditions, and narrative literatures.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "RELI 226 Introduction to Buddhism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course introduces students to the diversity of forms of Buddhism that have emerged in history and are practised today. It examines those aspects that are shared in common by Buddhists all over the world, including reverence for the Buddha, support of the monastic order, and adherence to the Buddha’s teachings. The course explores the ways in which these ideals and beliefs are expressed through such Buddhist practices as worship, study, pilgrimage, and meditation.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 227 Introduction to Iranian Civilization",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Iran has played a central role in world history, giving rise to Zoroastrianism, Manichaeism, and the Baha’i faith, as well as numerous minor sects. Iranian culture has also played a major role in informing and transforming Judaism, Christianity, Buddhism and Islam. This course covers the long history of Iranian civilization and its influence on peoples from the Mediterranean world to South and East Asia in the realms of religion, literature, architecture, and the arts.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for RELI 412 or for this topic under a RELI 298 number may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 230 Judaism and Popular Culture",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores examples of American popular culture — film, television, comedy, graphic novels — from the early‑20th to the early‑21st century that touch on Jews and Judaism. The course reveals ways in which Judaism has developed in the past century and the nature of a uniquely Jewish current that has developed a life of its own in the sphere of popular culture.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 298 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 231 Jews and Food",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course introduces students to the link between Jews and food. It explores the interrelationship between sacred texts, cookbooks, film, fiction, and current theories on ethnic “foodways.” The study of foodways is a growing field that yields insight into the patterns of group formation, cultural development and communal identity. Judaism provides a good case study of these variables.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 298 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 233 Introduction to Women and Religion",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This introduction to the particular problems and issues in the study of women and religion uses case studies from various religious traditions. The course presents a survey of the different levels of participation, the complex ritual activities, and the intriguing divine imagery associated with women that are found in many religious traditions. Questions pertaining to the contemporary feminist discourse on such topics as witchcraft, matriarchy, and goddess religions are also explored.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 235 The Holocaust",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Beginning with a discussion of Jewish communities in Europe and America before 1933, this course traces the evolution of anti‑Semitism, nationalism, and racism, the rise of Hitler and the Nazi movement, the shaping of Nazi ideology, the growing demonization of the victims of the Holocaust and the genocide against them in their various countries, resistance by the victims, and the parts played by bystanders in the outcome of the Holocaust.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for HIST 235, HISW 235 or RELI 338 may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 250 Decolonizing the Local: Concordia University and Montreal",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines recent patterns in Canadian recognition of colonialism and its impact on Indigenous people. It uses as its epicentre Concordia’s campuses and radiates out to the rest of the city, to examine Christian missionizing and colonial activity. The course makes use of memoir, artwork, online sources, and film to convey this history and its contemporary relevance. It considers links between local institutional history and Canadian Residential Schools, nationally funded institutions run by churches and orders, including those closely linked with Concordia and its surroundings. Students make use of literary and other creative responses, attend to the way Montreal developed and changed, while examining Concordia's platforms for addressing diversity, Indigenization, and decolonization.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a HIST 298 or RELI 298 number may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 298 Selected Topics in Religions and Cultures",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 300 Cults and New Religious Movements in North America",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course takes a sociological and historical approach towards understanding new religious movements (NRMs), popularly known as “cults.” The course examines the reasons for their controversial status in society, and undertakes a survey of the beliefs, rituals, leadership, membership, recruitment strategies, and social organization of a number of specific NRMs.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for RELI 217 or for this topic under a RELI 298 number may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 301 The Hebrew Bible",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course introduces students to one of the great works of world literature, the Hebrew Bible. It familiarizes the student with the major genres of the Hebrew Bible and with the history, culture, and religion of ancient Israel. Particular attention is given to modern scholarly methods of interpretation, to the literary dimensions of the Bible, and to the subsequent development of Jewish interpretation and practice that builds on the Bible.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 306 Religion and Society in Contemporary Iran",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Heir to one of the world’s great civilizations, Iran today is often viewed negatively by the West. However, the reality of life in the Islamic Republic differs in many ways from popular conceptions. This course explores the roots, development and current situation of a uniquely modern and dynamic contemporary Muslim society. Topics include gender relations, political theory, contemporary literature and the arts.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 307 Christian Mystics",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Based on the study of significant texts, this course offers a historical and sociological exploration of the range of mystical and ecstatic experiences within the Christian tradition. Special consideration is given to the role which gender plays in understanding these experiences.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 308 Christianity in North America",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course introduces students to the history of Christianity in Canada and the United States. It traces some of the key characteristics of the varieties of Christianity in North America, with an emphasis on the social and attention paid to significant developments in ideas and practices. Points of contrast between Christianity in Canada and the U.S. are highlighted. The course covers important historical events and movements, including early settler churches, Black churches, evangelicals, revivals and awakenings, missions, abolition and slavery, residential schools, fundamentalism, Pentecostals, civil rights, women, and Indigenous Christians and reconciliation.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 310 Self and Other: Identity and Ethical Development",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course considers ethical issues arising in the context of personal and interpersonal relations, families and friendships, and health and medical care. These issues are discussed in relation to traditional and contemporary moral perspectives, both religious and non‑religious. Topics covered may vary from year to year, but may include discussions of conscience and career, privacy, sexual relations, harassment, substance abuse, abortion, euthanasia, and gay and lesbian relations.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 311 Global Christianities",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines contemporary Christianity in its many forms around the world, placing special emphasis on the Global South. It pays special attention to how people, ideas and ministries cross borders and the implications of globalization for Christian practice and theology. Topics covered may include televangelism and media, Internet religion, pilgrimage, immigration, refugees and “transplanted” religion, mega‑church networks, post‑colonial missions and “reverse” missionaries, Pentecostalism and the rise of African and Asian Independent Churches.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 312 Justice and Social Conflict in a Globalized World",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course considers ethical issues arising in the context of social, legal, and political relations. These issues are discussed in relation to both traditional and contemporary moral perspectives, both religious and non‑religious. Topics covered typically include discussions of social and economic inequality, welfare, poverty, just punishment, business ethics, public ethics, economic development, and sustainable development.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 313 Zoroastrianism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Zoroastrianism, an ancient but little‑known faith now counting no more than a few hundred thousand practitioners living mainly in India and Iran, is one of the most significant traditions in the history of religions. It provided a world‑view and ethical framework later adopted by Judaism, Christianity, and Islam and shares significant common roots with Hinduism. The Zoroastrians of India — the Parsis — have continued to play an influential role in shaping that country’s development in modern times. This course covers the 3,000‑year history of Zoroastrianism, including controversies surrounding its origins, its contributions to other religions, its eventual decline and the surviving global Zoroastrian diaspora of contemporary times.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 3140 Malcolm X",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores the life, activism, ministry, and enduring importance of Malcolm X, a Black civil rights leader who made an indelible impact on North American society as a devout Muslim. Students analyze primary sources and identify Malcolm X’s complex religious and political philosophy as it evolved through his career and in its wider cultural and ideological contexts. Topics covered may include Malcolm X’s vision on faith, race relations, social justice, and Islam in America, as well as the history of the Nation of Islam and the socio-political landscape of liberation theology, radical political movements, and Islamic revivalism of the 1960s.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "RELI 315 Muslim Cultures in Southern Asia",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "About one‑third of the world’s Muslims live in India, Pakistan, or Bangladesh, making Southern Asia the world region with the largest proportion of Muslims. Yet many aspects of Muslim belief and practice in these countries have a distinctively South Asian flavour and in some cases derive from regional cultural traditions. This course looks at the history of Muslim presence in Southern Asia, including its extensive political and cultural impact from the seventh century to the present, and investigates the complexities of communal identity over the course of that history. The role of Sufism and Muslim contributions to South Asian literature, art, architecture, and music are also explored.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 316 Classical Islam",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "The course explores the various aspects of Muslim civilization from its initial spread from Arabia to Spain, sub‑Saharan Africa, India, and China, up to the age of the Ottoman, Safavid, and Mughal empires in the 16th and 17th centuries. Special attention is given to the emergence of schools of law, theology, philosophy, and mystical orders, as well as the literature, arts, and architecture of diverse Muslim societies.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 317 Sufism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "The course explores the emergence and development of Islamic mysticism, beginning with pious individuals in the eighth century and coalescing into institutional forms by the 10th. Attention is given to the teachings of key mystical figures, the Sufi orders, and the social role of Sufism. Sufi poetry, music, and other forms of devotion and practice are studied in the contexts of diverse Muslim societies over the past 1,000 years.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 379 number may not may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 318 Shiite Islam",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores the history and ideas of Shiism, from the inception of the movement to the present. The various sects are introduced and studied, including the Twelvers, Ismailis, Druze, and Alawites. Shiite doctrines related to esoterism, quietism, and messianism are considered in comparison with other religions, while study of the modern period treats subjects such as theocracy, political activism, and martyrdom.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 319 Modern Islam",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course surveys some of the questions raised by modernity for Muslims and the various responses Muslims have sought to formulate and put into practice. Issues addressed may include government, law, gender, relations with the West, and religious authority.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 320 The Making of Christianity",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines Christianity in the Roman Empire. It introduces students to critical engagement with a wide variety of ancient sources for studying the earliest Christians and ancient traditions about Jesus. The course also considers how scholars have used these sources to generate histories about Christianity and the implications, both past and present, of these historical representations. Topics considered may include authority, ritual, prophecy and visions, sacred space, scripture, as well as gender and the body, violence, slavery, and Roman imperialism.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for RELI 303 or for this topic under a RELI 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 321 The Medieval Christian World",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines one of the more significant periods in the development of Christianity, that of the Medieval West. Among the topics considered are the papacy, the growth of monasticism and the friars’ movements, mysticism, the Crusades, the emergence of scholastic learning and the universities, and forms of popular religiosity, such as devotion to saints and pilgrimages.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 324 On the Margins of Christianity",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines marginal forms of Christianity that have found themselves ignored, excluded, or suppressed by more mainstream Christian groups and institutions. Topics may include “heretical,” apocalyptic, millenarian, and charismatic movements. The course considers the practices, self‑understanding, and worldviews of marginal forms of Christianity within their particular cultural, political, and historical contexts.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 325 Leaders, Rebels and Saints",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course, which varies in focus from year to year, investigates the lives of controversial or influential women and men in the history of different religious traditions. Going beyond mere biography, the course situates particular figures within their social and cultural contexts, while dealing with how such prominent figures were viewed, portrayed, and used by others. Specific topics for this course are stated in the Undergraduate Class Schedule; examples are Moses, Jesus and Mary.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 326 Ancient Judaism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course is a survey of Jewish religion, culture, and literature in its formative period, from the fifth century Before the Common Era to the 10th century of the Common Era. The focus is on key moments, movements, and cultural motifs that demonstrate the ways in which Jewish groups were both part of their larger cultural world and distinctive; both divided into a variety of groups, but also united.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 327 Medieval Jewish Thought and Institutions",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the intellectual, religious, and social history of selected Jewish communities during the Middle Ages. Both internal Jewish developments and changing Jewish relations with their non‑Jewish neighbours are considered.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 328 Modern Judaism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course surveys the major historical events, sociological and political forces, and intellectual currents which shaped Judaism in the modern period as well as the ways that Jewish communities responded to these forces. Among the topics explored are Emancipation, forms of religious adjustment, anti‑semitism, the experience of Jewish communities in Russia and North America, the Holocaust, and Zionism and the state of Israel.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "RELI 329 Israel: Religion and State",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course studies the emergence and development of the state of Israel, from the beginnings of the Zionist movement to the present time. It also explores the major political, social, and intellectual developments in both the pre‑ and post‑state periods. The role of Judaism within the changing state is a primary focus.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 3300 Psalms to Leonard Cohen: Poetry, Music, Performance in Judaism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores music in the context of Jewish religious tradition, literature, and popular culture. It examines early religious forms including biblical Psalms as well as the Klezmer tradition, which flourished from the seventeenth century to the beginning of the Second World War. Montreal’s distinctive creative forces are explored through the output of Leonard Cohen.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "RELI 331 Literature and the Holocaust",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Religious, historical, literary, and political contexts have been applied to come to terms with the events of the Holocaust. All of these are relevant as students read important and provocative novels dealing with such issues as ethics, the relationship between art and history, the use of humour and popular cultural forms, as well as the way that storytelling helps direct our understanding of events that are often said to be incomprehensible. The wider impact of fiction dealing with the Holocaust on the popular media, including film, CD‑ROMs, video, and news reporting, is also considered.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 332 Canadian Jewish Literature",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores the Jewish voice in Canadian literature which can be seen to be the first opening toward a multicultural tradition in this country. Writers such as A.M. Klein, Mordecai Richler, Henry Kreisel, and Leonard Cohen created an English-language tradition of Jewish writing that is varied, provocative, and lively. Students look at novels, short stories, some poetry, memoir, and criticism. Students also consider non‑Jewish authors, such as Gwethalyn Graham and Mavis Gallant, who were among the first to write about Jewish characters for an English-speaking Canadian audience. This course allows students to consider issues related to Canadian identity and culture, ethnic studies, and multiculturalism alongside literary questions.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 333 Stories in Judaism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "In this course, stories are read from the entire scope of Jewish history — from the Bible to modern Jewish film and fiction. Each of these stories will reveal something about the cultures from which they emerged — their fantasies about themselves and about others; about humans, not-so-humans, and God; about life and death and everything in between. Taken together, these stories tell the story of Judaism, in all its inexhaustible variety and colour.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 334 Introduction to Canadian Jewish Studies",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course introduces the history of the Canadian Jewish community and the themes, personalities, and media which have contributed to Canadian Jewish culture and life. Students explore historical texts, novels, films, and museums in order to gain a sense of the particularity of Jewish culture in Canada and its place in the Canadian multicultural ethic. The relationship of Canadian Jewry to communities in the United States, Europe, and Israel, and to its own past, is also examined.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 3350 The Bible and Contemporary Literature",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course introduces students to important literary works of the past century that update, revise, or provocatively interrogate established religious texts and narratives. It engages with the history and literary character of the Hebrew Bible and its influence on literary tradition, focusing on the way its narratives supply archetypal stories, characters, and motifs.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for ENGL 3350, or for this topic under an ENGL 398 or RELI 398 number, may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 3360 Sounds of the Middle East",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This interdisciplinary course critically examines how the study of music and sound can fundamentally enrich our understanding of the Middle East. Beginning with an overview of sound studies, the course explores several key themes, including the connection of sound and music to religious practices, popular culture, protest, mass media, gender, nationalism, and space. The course considers an array of examples of both sacred and popular musical styles across the region as well as soundscapes reflecting the exceptional and the everyday. Case studies include religious sound and dance practices that enable the ecstatic experience, the Call to Prayer, audio-cassette sermons, and the political mobilization of popular musical forms and figures. This course also explores the minority experience through sound, and includes segments on Coptic Chant, Syriac hymns, the music of the Jewish communities of the Middle East, and Bedouin musical and poetical forms.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 337 The Dead Sea Scrolls",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "The discovery of the Dead Sea Scrolls changed our understanding of early Judaism and shed new light on Christian origins. The Scrolls preserve the oldest copies of the books that would come to be included in the Hebrew Bible, plus hundreds of other Jewish writings of the Hellenistic and early Roman eras: apocalypses, biblical interpretation and apocryphal stories, community rules, hymns and poems, legal and liturgical texts, wisdom literature, and much more. This course provides students with a basic introduction to the Dead Sea Scrolls — the texts, the community, and their ideas — examined in the larger context of early Judaism.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 343 Yoga in History, Thought, and Practice",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the history, thought, and practices of Yoga in their religious and cultural contexts. In the modern West, Yoga has become popular as a secular form of exercise. However, as this course shows, the diverse Yoga traditions of India have also involved sophisticated analyses of the mind and systems of meditation. Intrinsic to no single religion, Yoga has had roles in most South Asian traditions, including Hinduism, Buddhism, Jainism, and Sufism or Islamic mysticism. The course surveys this rich history, and the various forms of meditative and physical discipline Yoga has entailed.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 344 Hindu Myth and Narrative: the Epics and Puranas",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course approaches Hinduism through its narrative literature, especially the great epics (the Mahabharata and Ramayana) and mythological texts (Puranas — the “Ancient Books”). Through stories of gods, devotees, villains, and heroes, the course explores the development of significant themes in the Hindu tradition, from ethics and philosophy to asceticism and devotion. An important focus of the course is the enduring cultural significance of myth and the epics, as retold through the ages in a variety of languages, cultural contexts, and media, including classical and vernacular texts, the oral tradition, drama, dance, and cinema.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 346 Gandhi, Colonialism, and Beyond",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the religious philosophy and politics in South Asia during the colonial period and after independence. South Asia has been home to a multiplicity of religions and their coexistence has been both tense and tolerant. The imposition of colonial rule and the extractive and divisive politics of the British government significantly impacted the knowledge systems and practices of these religious traditions, as well as the relationships between the communities. Students acquire an understanding of how religion became an academic and political category under colonial education, its use in the independence movement by various leaders, the transnational popularity of ideas such as transcendentalism and postural yoga, and the post-colonial conditions of statehood, diaspora, and secularism in South Asia.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 347 The Arts in South Asia and Beyond",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course is an introduction to the arts of South Asia in terms of its historical and contemporary influences and exchanges across geographical regions such as Southeast Asia as well as through diasporic contexts. It centres on an examination of architecture, sculpture, painting, and performing arts from Hindu, Buddhist, Islamic, Christian, and Indigenous traditions. The course examines the ways in which sacred art is related to myth and symbol, religious values and goals, ritual, religious experience, and social and political realities.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "RELI 348 Religion and Society in South and Southeast Asia",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This historical and sociological examination of religion’s impact on and intersection with the structures of South and Southeast Asian society, explores such issues as caste and class, gender and family relations, links between religion and the state, and relations between Hindu, Buddhist, and Muslim communities.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 350 Theravada Buddhism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the early history, doctrine, institutions, and practices of Buddhism in India, and follows the development of Theravada Buddhism in the countries of Southeast Asia up to the present day.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 351 Jewish Eastern Europe",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course takes into account the arrival of large numbers of Western European Jews in Poland and the Russian empire; the rise of Chasidism; the pre-World War II Yiddish cultural ferment; literature and music; religious and political parties, including the impact of Zionism on established social and political life. The course examines recent developments: the rise of tourism to Eastern Europe; the historical, educational and memorial challenges associated with a reclamation of identity; and contemporary musical, religious and literary expressions.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 or RELI 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 353 Arts and Religion in the West",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores the way in which the fine arts, literary arts, and performing arts have given expression to, and shaped the experience of, religious realities in the history of the West, and also considers the ways in which, in a more recent and contemporary context, art may be seen as engaging with aspects of divinity and spirituality.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 354 Religion and Film",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines films that deal with religious themes — explicitly or implicitly — and provides an opportunity to analyze the language of film as a form of narrative through which cultural and religious ideas are transmitted.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 355 Religion and Violence",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores how religion may be seen to engender or exacerbate violence, as well as the ways that religion may critique, prevent or even offer alternatives to violence. Sacred writings, theologies, rituals and communal actions of particular communities are studied, as well as notions of the self, the group, others, outsiders and enemies. In particular, the life‑work and writings of such key figures as Mahatma Gandhi and Martin Luther King are studied in order to provide some religious perspectives on the relationship between non‑violence and the resistance to injustice.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 358 Anthropology of Religion",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course introduces students to debates and themes that have coloured the anthropology of religion over the last century. After covering classic anthropological texts, it focuses on contemporary issues including self‑reflexivity, power/agency, materiality and consumption, post‑colonization, post‑modernity/secularity and communitas.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under an ANTH 398 or RELI 398 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 360 Religions of China",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course concentrates on the historical development of Chinese religions from the earliest periods of Chinese civilization to contemporary times. It investigates the relationships among the classical religious traditions as portrayed through scriptures, commentaries, and rituals. Focus is placed on the unfolding of the five great religious currents of China: the classical imperial cults, Daoism, Confucianism, Buddhism, and popular cults.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for RELI 349 may not take this course for credit.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "RELI 361 Religions of Japan",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course uses a historical approach to understand the development of Japanese religious traditions. It investigates popular Japanese cults and religions, the assimilation of foreign religious thought and practices, and the implantation of Buddhism, Confucianism, and other models from China. Religious sectarianism, state‑regulated religious schools, cults, and the role of religion in the establishment of Japanese national identity are also studied.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for RELI 349 may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 362 Religions of Tibet",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "The goal of this course is to familiarize students with current issues in Tibetan studies and to enhance understanding of Tibetan religion in Tibet, China and the rest of the world. It examines the “nameless” popular religions of Tibet, including mountain cults, shamanism, spirit possession and a variety of manifestations of popular religion. Students become familiar with the main schools of Tibetan Buddhism and the Bon religion, their history, dogma, lineages, philosophical enquiries, ritual and ascetic practices.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 364 Mahayana Buddhism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course studies the origins and evolution of the Mahayana Buddhist in India, and the spread and growth of various Mahayana traditions in East Asia. It examines developments in texts, doctrine, philosophy, ethical ideals, practices (worship and meditation), and institutions.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 365 Religion and Literature",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines how literary works assist in the understanding of religious traditions, and how literary texts can stand as reinterpretations of religious texts and beliefs in a number of religious traditions. Readings include canonical religious, literary, and critical texts. Consideration is given to how certain provocative books have created social and political unrest, as well as to how certain thinkers understand literary undertakings as expressions of religious modes of thought and creativity.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 366 Religion and Music",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores sacred music in its religious and cultural contexts. It examines the ways in which religion has served as an inspiration and performance context for music across the world, and some of the ways in which musical expression has been central to religious practice. Topics range from Gregorian chant to Quranic recitation, from Hindu, Muslim, and Sikh devotional song in South Asia to esoteric Tibetan chant, and from J.S. Bach to Gospel singing in African‑American churches.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 3660 Hip-Hop Culture and Social Change",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course looks at hip-hop culture from its Afro-diasporic origins to its grassroots beginnings in African-American communities in the 1970s, to its proliferation as a highly impactful international social, cultural, and artistic movement taking many forms across communities and spaces. Students explore hip-hop culture’s engagement with topics such as racism, discrimination, religion and spirituality, gender, and Indigeneity, as well as hip-hop's role as an emancipatory source for disenfranchised communities and as a vehicle of expression for religious minorities in the secular nation-state. While all four elements of hip-hop are examined — rap, DJing, graffiti art, and breakdancing — particular attention is paid to the musical, sonic, and embodied aspects of rap music.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 368 Religion and Indigenous Traditions",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the diverse Indigenous Traditions in the context of Turtle Island, or North America. Foregrounding the perspectives of Indigenous peoples, the course considers the impact of settler colonialism on indigenous communities. Topics may include Christian missions, residential schools, indigenous views of sacred, the land, gender and sexuality, ethics, and storytelling.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 3690 Decolonizing Religion",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores how the category, conceptualization, and history of religion is connected to colonialism, past and present. Students learn to interrogate how colonial discourses, power, and history shape the way one thinks about religion and various possibilities for moving beyond these colonial assumptions. The course covers topics such as decolonization, post-colonialism, indigeneity, settler colonialism, power/knowledge, colonial discourse theory, Black anti-colonial philosophy, Marxism, queer theory, the protestant presuppositions of religion, and the deconstruction of \"religion.\"Notes:Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "components": null,
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 370 Topics in Comparative Religion",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course treats various topics in comparative perspective, examining religious themes as they are represented in two or more religious traditions. Topics covered change from year to year, and may include comparative religious law, comparative ritual, comparative philosophy, or comparative ethics. Specific topics for this course are stated in the Undergraduate Class Schedule.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 371 Care and Healing",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the intersection between religion, defined broadly, and the concepts and techniques of care. The course explores the ways in which the body is defined in various cultures, the relationship between the body, health, and ethics, gendered approaches to health and healing, and the epistemologies of spiritual care. With an interdisciplinary approach, this course combines the study of primary documents with historical, medical, anthropological, popular and social media narratives.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for RELI 369 may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 372 Religion and the Body",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This study of religious attitudes to the human body focuses on the body as a foundation for religious symbolism, religious community and identity, ritual, and religious experience. The course examines these problems with reference to various religious traditions. Issues examined include purification of the body; eating; mortification and mutilation of the body; attitudes towards dead bodies and physical immortality; attitudes towards bodies as gendered; embodied spirituality and incarnation.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "RELI 373 Topics in Mysticism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines mystical ideas, themes, texts, and practices in different religious traditions. The specific topic and religious tradition vary from year to year. Topics may include Jewish, Christian, Islamic, and Buddhist mysticisms and mysticism from a comparative standpoint. Specific topics may take a historical, literary, or thematic perspective.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 374 Religion and Science",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "How has religion viewed science, and how has science viewed religion? This course explores the relationship between religion and science both within particular religio‑cultural contexts and in comparative perspective. The contexts considered may include those belonging to Christian, Jewish, Muslim, Hindu, or other Asian worldviews. Points of conflict and contact between scientific and religious discourses are also explored.",
+    "components": null,
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 375 Religions of Canada",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the role religions have played in the development of Canada as well as their influence in Canadian society, politics, and culture. Attention is paid as well to the interaction of different religious groups in the Canadian context.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for RELI 363 may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 378 Death and Dying",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course provides a comparative perspective on the variety of conceptions and practices related to death and dying that are found in different world religions. In addition, the course considers how people in contemporary North American society utilize traditional religious concepts and rituals, scientific understandings and medical procedures, or innovative combinations of ideas and practices with which to cope.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "summer"
+    ]
+  },
+  {
+    "title": "RELI 379 Philosophy of Religion",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course introduces students to some classical and contemporary discussions in the field of philosophy of religion. It explores such topics as the nature of religion, religious experience, faith and reason, religious language, religion and science, religious diversity, and religion and morality. It examines in what ways comparative philosophy of religion and feminist philosophy of religion challenge the very nature, parameters, and traditional questions of philosophy of religion as a whole.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 380 Religion and Sexuality",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines, from a comparative and historical perspective, the interplay between religion and sexuality. It looks at the development of attitudes towards sexuality within diverse religious traditions, and religious manifestations of sexuality. Topics include, among others: human reproduction, gender roles and identity, birth control, abortion, celibacy, sexual variance, and homosexuality.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 381 Women, Gender, and Sexuality: Judaism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course focuses on women, gender, and sexuality in relation to Jewish people, groups, texts, and culture. The main focus may be on women's experiences and expressions of Judaism or on a range of gender and sexual identities. Topics may include the investigation of stories, ritual practice, the legal sphere, the status and religious roles of women, Jewish constructions of gender and sexuality, the voices of women and queer Jews, the intersections of gender, sexuality, and Jewishness, and feminist and queer readings of primary texts.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 382 Women, Gender, and Sexuality: Christianity",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the categories of women, gender, and sexuality, and the experiences related to those categories, in Christian contexts. Topics under investigation include feminist historiography, feminist, womanist and queer readings of primary sources and traditional Christian symbols, sexual practice and reproductive health, and the intersections of gender, race and colonialism. The course proceeds historically, offering examples from across the Christian tradition, but places emphasis on contemporary North America.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "RELI 383 Women, Gender, and Sexuality: Islam",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "The course explores various issues related to women and gender in Islam, including role models, ritual, gendered space, the rulings of Islamic law, and sexuality. The issues are examined principally through the lens of modern Islam and lives of modern Muslims, including those in Canada and the West.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 3840 Women, Gender, and Sexuality: Buddhism, Hinduism and Jainism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course considers the situations, activities and experiences of women and gender non-conforming people in relation to the religious traditions of Buddhism, Jainism, and Hinduism. The course focuses on South and Southeast Asia within historical and contemporary post-colonial frameworks, including diasporic contexts. Among the topics considered are definitions and models for gendered identities, ritual practices and labour, asceticism, erotics and sexual ethics, the politics of gender, and new perspectives on feminist, queer and transgender theories.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 3841 Religious Bodies in South Asia",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores embodied practices and conceptions of embodiment in South Asian religions, including Buddhism, Jainism, Hinduism, and Islam. In this course, students examine bodily disciplines and asceticism, as well as ecstatic practices, possession, and the adornment and celebration of the body. Divine bodies and the bodies of animals and plants, gendered bodies, and the body in life and death are considered. Students gain an understanding of the variety of ways that physiology and the senses are linked to the moral, spiritual, and psychological dimensions of human being - and the methods employed to influence and transform the character of this being. Notes:Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "components": null,
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "RELI 386 Witchcraft, Magic and Religion",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course approaches the study of magic, witchcraft, and religion from a variety of perspectives. Taking examples from indigenous cultures, the ancient world, medieval Europe, the early modern period and contemporary movements, the practices and rituals that have been labelled magic or witchcraft are examined, along with the responses to them. The course explores how magicians and witches view themselves, how different cultures relate to them, and how magic, witchcraft, and religion merge and diverge.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 387 Goddesses and Religious Images of Women",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This comparative survey of female divinity and feminine imagery studies various religious traditions. Among the issues to be explored are the imaging of goddesses as mothers; the conception of forces like fertility, energy, materiality, and knowledge as feminine; the correspondences and relations between goddesses and women; and the contemporary feminist recovery of the Goddess.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 388 Queering the Bible",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the wide variety of perspectives on sexuality in the Bible from a feminist and queer studies approach. It considers the ancient contexts in which these texts were composed, and how they have been received over time. The focus will principally be on Christian interpretations, with some attention paid to Jewish readings as well. The course also addresses how queer and feminist critiques of and engagements with the Bible can challenge heteronormative views of gender and sexuality today. Among the topics considered are racialization, gendered and sexual identities, same-sex relationships, erotics and sexual desire, celibacy, marriage, kinship, and human reproduction.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 3890 Queer Spiritualities",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course treats gender, sexuality, spirituality and religiosity from an intersectional and queer theoretical approach. It introduces students to histories and discourses around these interrelated areas of human experience. It also addresses the construction and production of queer spiritualities and the queering of religion. Topics may include global sexualities; celibacy, asexuality and queerness; queerness in history; colonial and post-colonial understandings of sexuality and religion; queer pornography; and tantric practice and other forms of esoteric spirituality.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a LOYC 398 or RELI 398 number may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 390 Angels and Demons in Judaism",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores the Jewish version of the supernatural world. Students are introduced to the varieties of Jewish belief and experience that have existed from ancient times to today; the ways of thinking about Jewish and human experience that have shifted and evolved over time; and the different reasons why authors may choose to engage with the supernatural world.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 392 Women in Jewish History",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines the lives and experiences of Jewish women throughout history, focusing especially on the modern period. The immigrations to North America and the subsequent development of the community provide the framework for investigating Jewish women’s encounter with and contribution to modern Jewish life. The course briefly attends to Jewish women in the ancient and medieval periods to provide historical context for the main focus on North America. Using primary sources such as fiction, biography, and autobiography, and taking a feminist point of view, students analyze the history, literature, ideas, practices and general contributions of Jewish women.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 393 Women in Israel",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores women’s experience in the development of Israeli society. Students are introduced to the history, social planning, politics and religious authority that have shaped the current status of women in Israel.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 394 History of Satan: Evil Personified in Judaism and Christianity",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course investigates the origins, development, and significance of Satan in early Judaism and the history of Christianity. Consideration is given to some of the most important literary and visual depictions of this figure from the ancient world through the Middle Ages to present day. The course sheds light on how intellectuals thought of this figure and also how Satan came to play an important role in popular culture down through the centuries.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 3950 Cultural Diversity and Canadian Film",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course explores the relationship between film and religious narratives, concentrating on the approach of Canadian film and cultural criticism. The course examines the film culture of Canada with an awareness of the influence of American and European film and with an eye to the expressions of Canadian cultural diversity. It highlights independent films and the output of the National Film Board of Canada (NFB), with particular attention to NFB documentary tradition and the work within that context of Indigenous directors and writers. Topics covered include the special challenges and outcomes of addressing religious themes and the ways in which films are suited to exploring religious narratives and ideas.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a FMST 398 or RELI 398 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 396 Food and Religion",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course examines food cultures and food rituals and explores religious meanings and the making of religious identities. The preparing and sharing of food defines religious community and expresses religious values. In looking at food in several world religions, this course focuses on how food can serve as a medium of transmission and transaction, and on the roles that women and men, gods and ancestors, and other beings and forces have in this network.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 398 number may not take this course for credit.",
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "RELI 3970 Perspectives on Animals and Sustainability",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course investigates how human-animal relationships and human interactions with the environment have been perceived and justified in various cultures and religions and how they are being debated and re-imagined today. Students engage with histories, texts, and ethical positions of a variety of groups, movements, and thinkers regarding the relationships between animals and humans and their material environments. Students explore theoretical and philosophical perspectives about why humans have related to animals and the environment in the way they do, and how these positions impact, for example, practical choices about diet, ethics of scientific research, understandings of humans' place in the world, and increasingly, ecological issues of habitat preservation, environmental degradation, and collective futures.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for LOYC 397, or for this topic under a LOYC 398 or RELI 398 number, may not take this course for credit.",
+    "offeredIn": [
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 398 Selected Topics in Religions and Cultures",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  },
+  {
+    "title": "RELI 401 Studies in Hebrew Texts",
+    "credits": 3,
+    "prerequisites": "The following courses must be completed previously: HEBR 210, HEBR 241, HEBR 242. If prerequisites are not satisfied, Permission of the Department is required.",
+    "corequisites": "",
+    "description": "A reading of representative selections of classical and modern Hebrew texts. Attention is paid to the historical and philosophical background of the texts.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 405 Food, Sex, and Death in Judaism",
+    "credits": 3,
+    "prerequisites": "Permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course explores three activities associated with the body — food, sex, and death — as they have been constructed throughout the past 2,000 years of Jewish history. Special attention is given to the cultural contexts in which Jewish practices and attitudes have been shaped, to the relationship between ritual practice and the construction of supernatural worlds, and to the interaction between embodiment and religious experience.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 407 Topics in Judaic Studies",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course deals with advanced topics in Judaic Studies. Topics covered change from year to year, and may include Jewish law, Jewish ritual, and Jewish mysticism. Specific topics for this course are stated in the Undergraduate Class Schedule.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for RELI 394 or RELI 397 may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 409 Methodology and the Study of Religion",
+    "credits": 3,
+    "prerequisites": "Permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course examines the various methodological approaches that inform the comparative study of religion. Questions investigated pertain to the collection and interpretation of evidence, the types of resources available and techniques used, the complex differences between men’s and women’s religious experiences and expressions, as well as the impact of significant theoretical approaches on the analysis of religion.",
+    "components": "Lecture",
+    "notes": null,
+    "offeredIn": [
+      "fall"
+    ]
+  },
+  {
+    "title": "RELI 410 Honours Thesis",
+    "credits": 6,
+    "prerequisites": "Honours standing in Religions and Cultures or Judaic Studies is required.",
+    "corequisites": "",
+    "description": "The student works with an individual faculty member in a particular field of religious or Judaic studies. Students are asked to produce a sustained piece of written work to be read by their advisor and at least one other member of the Department.",
+    "components": "Research",
+    "notes": "Students who have received credit for RELI 499 may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 440 Greco-Roman Religions",
+    "credits": 3,
+    "prerequisites": "Permission of the Department is required.",
+    "corequisites": "",
+    "description": "This course examines how ancient Greeks and Romans interacted with their gods and other sacred beings. It demonstrates the religious and cultural diversity that marked religious life in the ancient Mediterranean world. Among the topics considered are religion and state, domestic cult, funerary practice, hero devotion, mystery cults, the occult and magic, voluntary associations, and philosophical schools.",
+    "components": "Lecture",
+    "notes": "Students who have received credit for this topic under a RELI 498 number may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 496 Independent Studies in Religions and Cultures",
+    "credits": 3,
+    "prerequisites": "Permission of the Department is required.",
+    "corequisites": "",
+    "description": "The student works with an individual faculty member in a particular field of religious orJudaic studies, as a reading course.",
+    "components": "Independent Study",
+    "notes": "Students who have received credit for RELI 495 may not take this course for credit.",
+    "offeredIn": []
+  },
+  {
+    "title": "RELI 498 Advanced Topics in Religions and Cultures",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+    "components": null,
+    "notes": null,
+    "offeredIn": [
+      "fall",
+      "winter"
+    ]
+  }
+]
