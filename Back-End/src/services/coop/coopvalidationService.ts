@@ -55,13 +55,13 @@ function extractSemestersFromDocument(timeline: any): SemesterData[] {
 /**
  * Extracts semesters from TimelineResult (plain object from cache)
  */
-function extractSemestersFromResult(timeline: TimelineResult): SemesterData[] {
+function extractSemestersFromResult(timeline: any): SemesterData[] {
   if (!timeline.semesters) return [];
   
-  return timeline.semesters.map((semester) => ({
-    _id: semester._id?.toString() || '',
+  return timeline.semesters.map((semester: any, index: number) => ({
+    _id: semester._id?.toString() || `semester-${index}`,
     term: semester.term,
-    courses: (semester.courses || []).map((c) => ({
+    courses: (semester.courses || []).map((c: any) => ({
       code: c.code,
       message: c.message,
     })),
