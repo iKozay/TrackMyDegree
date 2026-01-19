@@ -32,10 +32,10 @@ interface SemesterData {
  * Converts Mongoose DocumentArray to plain JS array
  * This avoids TS2590 "Expression produces a union type that is too complex to represent"
  */
-function extractSemestersFromDocument(timeline: TimelineDocument): SemesterData[] {
+function extractSemestersFromDocument(timeline: any): SemesterData[] {
   if (!timeline.semesters) return [];
   
-  return Array.from(timeline.semesters).map((semester) => {
+  return Array.from(timeline.semesters).map((semester: any) => {
     const sem = semester.toObject();
     const courses = Array.isArray(sem.courses) 
       ? sem.courses 
