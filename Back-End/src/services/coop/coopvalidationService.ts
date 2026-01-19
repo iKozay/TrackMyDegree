@@ -73,15 +73,15 @@ function extractSemestersFromResult(timeline: TimelineResult): SemesterData[] {
  * Accepts both TimelineDocument (Mongoose) and TimelineResult (plain object)
  */
 export function validateCoopTimeline(
-  timeline: TimelineDocument | TimelineResult | any
+  timeline: any
 ): CoopValidationResult {
   const errors: CoopRuleResult[] = [];
   const warnings: CoopRuleResult[] = [];
 
   // Detect which type we received and extract accordingly
-  const semestersArray = 'toObject' in timeline
-    ? extractSemestersFromDocument(timeline as TimelineDocument)
-    : extractSemestersFromResult(timeline as TimelineResult);
+  const semestersArray = timeline.toObject && typeof timeline.toObject === 'function'
+    ? extractSemestersFromDocument(timeline)
+    : extractSemestersFromResult(timeline);
 
   const studyTerms = semestersArray.filter((s) => s.term === "STUDY");
   const workTerms = semestersArray.filter((s) => s.term === "WORK");
