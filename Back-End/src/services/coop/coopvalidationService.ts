@@ -36,10 +36,14 @@ function extractSemesters(timeline: TimelineDocument): SemesterData[] {
   
   return Array.from(timeline.semesters).map((semester) => {
     const sem = semester.toObject();
+    const courses = Array.isArray(sem.courses) 
+      ? sem.courses 
+      : Array.from(sem.courses || []);
+    
     return {
       _id: sem._id.toString(),
       term: sem.term,
-      courses: sem.courses.map((c) => ({
+      courses: courses.map((c: any) => ({
         code: c.code,
         message: c.message,
       })),
