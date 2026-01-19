@@ -4,7 +4,13 @@ import { InsightsModal } from "../../components/InsightsModal";
 import type { Pool, CourseMap } from "../../types/timeline.types";
 
 vi.mock("../../components/OverallProgressBar", () => ({
-  OverallProgressBar: ({ totalTaken, totalRequired }: { totalTaken: number; totalRequired: number }) => (
+  OverallProgressBar: ({
+    totalTaken,
+    totalRequired,
+  }: {
+    totalTaken: number;
+    totalRequired: number;
+  }) => (
     <div data-testid="overall-progress-bar">
       Overall: {totalTaken}/{totalRequired}
     </div>
@@ -12,7 +18,15 @@ vi.mock("../../components/OverallProgressBar", () => ({
 }));
 
 vi.mock("../../components/PoolProgressChart", () => ({
-  PoolProgressChart: ({ poolName, creditsTaken, creditsRequired }: { poolName: string; creditsTaken: number; creditsRequired: number }) => (
+  PoolProgressChart: ({
+    poolName,
+    creditsTaken,
+    creditsRequired,
+  }: {
+    poolName: string;
+    creditsTaken: number;
+    creditsRequired: number;
+  }) => (
     <div data-testid="pool-progress-chart">
       {poolName}: {creditsTaken}/{creditsRequired}
     </div>
@@ -61,7 +75,7 @@ describe("InsightsModal", () => {
       offeredIN: [],
       prerequisites: [],
       corequisites: [],
-      status: { status: "inprogress", semester: null },
+      status: { status: "planned", semester: null },
     },
   };
 
@@ -116,7 +130,7 @@ describe("InsightsModal", () => {
 
     // Computer Science Core: COMP 248 (3) + COMP 249 (3) = 6 taken, 30 required
     expect(screen.getByText("Computer Science Core: 6/30")).toBeInTheDocument();
-    
+
     // Mathematics: MATH 203 (3) = 3 taken, 12 required
     expect(screen.getByText("Mathematics: 3/12")).toBeInTheDocument();
   });
@@ -124,13 +138,15 @@ describe("InsightsModal", () => {
   it("should call onClose when close button is clicked", () => {
     render(<InsightsModal {...defaultProps} />);
 
-    const closeButton = screen.getByRole("button", { name: /close insights modal/i });
+    const closeButton = screen.getByRole("button", {
+      name: /close insights modal/i,
+    });
     fireEvent.click(closeButton);
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
-  it("should filter only active courses (planned, completed, inprogress)", () => {
+  it("should filter only active courses (planned, completed)", () => {
     render(<InsightsModal {...defaultProps} />);
 
     // SOEN 228 is incomplete, so it should not be counted
@@ -143,12 +159,7 @@ describe("InsightsModal", () => {
       "COMP 248": mockCourses["COMP 248"],
     };
 
-    render(
-      <InsightsModal
-        {...defaultProps}
-        courses={coursesWithoutMath}
-      />
-    );
+    render(<InsightsModal {...defaultProps} courses={coursesWithoutMath} />);
 
     // Math pool should show 0 taken
     expect(screen.getByText("Mathematics: 0/12")).toBeInTheDocument();
