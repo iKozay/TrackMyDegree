@@ -1,5 +1,6 @@
 // Back-End/src/services/CoopValidationService.ts
 import type { TimelineDocument } from "@models/timeline";
+import type { TimelineResult } from "@services/timeline/timelineService";
 
 export type RuleSeverity = "ERROR" | "WARNING";
 
@@ -31,7 +32,7 @@ interface SemesterData {
  * Converts Mongoose DocumentArray to plain JS array
  * This avoids TS2590 "Expression produces a union type that is too complex to represent"
  */
-function extractSemesters(timeline: TimelineDocument): SemesterData[] {
+function extractSemestersFromDocument(timeline: TimelineDocument): SemesterData[] {
   if (!timeline.semesters) return [];
   
   return Array.from(timeline.semesters).map((semester) => {
@@ -52,16 +53,35 @@ function extractSemesters(timeline: TimelineDocument): SemesterData[] {
 }
 
 /**
+ * Extracts semesters from TimelineResult (plain object from cache)
+ */
+function extractSemestersFromResult(timeline: TimelineResult): SemesterData[] {
+  if (!timeline.semesters) return [];
+  
+  return timeline.semesters.map((semester) => ({
+    _id: semester._id?.toString() || '',
+    term: semester.term,
+    courses: (semester.courses || []).map((c) => ({
+      code: c.code,
+      message: c.message,
+    })),
+  }));
+}
+
+/**
  * Main validation entry point for Co-op timelines
+ * Accepts both TimelineDocument (Mongoose) and TimelineResult (plain object)
  */
 export function validateCoopTimeline(
-  timeline: TimelineDocument
+  timeline: TimelineDocument | TimelineResult
 ): CoopValidationResult {
   const errors: CoopRuleResult[] = [];
   const warnings: CoopRuleResult[] = [];
 
-  // Convert Mongoose DocumentArray to plain JS array
-  const semestersArray = extractSemesters(timeline);
+  // Detect which type we received and extract accordingly
+  const semestersArray = 'toObject' in timeline
+    ? extractSemestersFromDocument(timeline as TimelineDocument)
+    : extractSemestersFromResult(timeline as TimelineResult);
 
   const studyTerms = semestersArray.filter((s) => s.term === "STUDY");
   const workTerms = semestersArray.filter((s) => s.term === "WORK");
