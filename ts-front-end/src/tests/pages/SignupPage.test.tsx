@@ -1,16 +1,18 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { vi } from 'vitest';
+import { vi, describe, test, expect, beforeEach } from 'vitest';
 
 import SignupPage from '../../pages/SignupPage';
 
 /* ---------------- Mock hooks and utilities ---------------- */
 const mockNavigate = vi.fn();
+const mockLocation = { search: '', pathname: '/signup' };
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
     useNavigate: () => mockNavigate,
+    useLocation: () => mockLocation,
   };
 });
 
@@ -31,9 +33,10 @@ vi.mock('framer-motion', () => ({
   },
 }));
 
-const renderPage = () => {
+const renderPage = (search = '') => {
+  mockLocation.search = search;
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[`/signup${search}`]}>
       <SignupPage />
     </MemoryRouter>,
   );
@@ -45,28 +48,29 @@ const fillSignupForm = (
   password: string = "password123",
   confirmPassword: string = "password123"
 ) => {
-    const nameInput: HTMLInputElement = screen.getByPlaceholderText(/Enter your full name/i);
-    const emailInput: HTMLInputElement = screen.getByPlaceholderText(/Enter your email/i);
-    const passwordInput: HTMLInputElement = screen.getByPlaceholderText(/Enter your password/i);
-    const confirmPasswordInput: HTMLInputElement = screen.getByPlaceholderText(/Confirm your password/i);
+  const nameInput: HTMLInputElement = screen.getByPlaceholderText(/Enter your full name/i);
+  const emailInput: HTMLInputElement = screen.getByPlaceholderText(/Enter your email/i);
+  const passwordInput: HTMLInputElement = screen.getByPlaceholderText(/Enter your password/i);
+  const confirmPasswordInput: HTMLInputElement = screen.getByPlaceholderText(/Confirm your password/i);
 
-    fireEvent.change(nameInput, { target: { value: name } });
-    fireEvent.change(emailInput, { target: { value: email } });
-    fireEvent.change(passwordInput, { target: { value: password } });
-    fireEvent.change(confirmPasswordInput, { target: { value: confirmPassword } });
-    return { nameInput, emailInput, passwordInput, confirmPasswordInput };
+  fireEvent.change(nameInput, { target: { value: name } });
+  fireEvent.change(emailInput, { target: { value: email } });
+  fireEvent.change(passwordInput, { target: { value: password } });
+  fireEvent.change(confirmPasswordInput, { target: { value: confirmPassword } });
+  return { nameInput, emailInput, passwordInput, confirmPasswordInput };
 };
 
 /* ---------------- Tests ---------------- */
 describe('SignupPage', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     mockUseAuth.mockReturnValue({
       signup: mockSignup,
       loading: false,
       isAuthenticated: false,
     });
     mockValidateSignupForm.mockReturnValue([]);
+    mockLocation.search = '';
   });
 
   test('renders signup form with all fields', () => {
@@ -95,7 +99,7 @@ describe('SignupPage', () => {
     renderPage();
 
     fillSignupForm();
-    
+
     const registerButton = screen.getByRole('button', { name: /Register/i });
     fireEvent.click(registerButton);
 
@@ -114,11 +118,26 @@ describe('SignupPage', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/profile/student', { replace: true });
   });
 
+  test('submits form successfully and navigates to redirectTo if present', async () => {
+    mockSignup.mockResolvedValueOnce(undefined);
+
+    renderPage('?redirectTo=%2Fdashboard');
+
+    fillSignupForm();
+
+    const registerButton = screen.getByRole('button', { name: /Register/i });
+    fireEvent.click(registerButton);
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });
+    });
+  });
+
   test('displays validation error when form is invalid', async () => {
     mockValidateSignupForm.mockReturnValueOnce(['Passwords do not match']);
 
     renderPage();
-    
+
     fillSignupForm('John Doe', 'john@example.com', 'password123', 'different');
 
     const registerButton = screen.getByRole('button', { name: /Register/i });
@@ -155,12 +174,29 @@ describe('SignupPage', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/signin');
   });
 
+  test('cancel button preserves redirectTo', () => {
+    renderPage('?redirectTo=%2Fdashboard');
+
+    const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+    fireEvent.click(cancelButton);
+
+    expect(mockNavigate).toHaveBeenCalledWith('/signin?redirectTo=/dashboard');
+  });
+
   test('renders link to signin page', () => {
     renderPage();
 
     const signinLink = screen.getByText(/Already have an account\? Log in here!/i);
     expect(signinLink).toBeInTheDocument();
     expect(signinLink.closest('a')).toHaveAttribute('href', '/signin');
+  });
+
+  test('renders link to signin page with redirectTo', () => {
+    renderPage('?redirectTo=%2Fdashboard');
+
+    const signinLink = screen.getByText(/Already have an account\? Log in here!/i);
+    expect(signinLink).toBeInTheDocument();
+    expect(signinLink.closest('a')).toHaveAttribute('href', '/signin?redirectTo=/dashboard');
   });
 
   test('redirects to profile when already authenticated', () => {
@@ -173,5 +209,28 @@ describe('SignupPage', () => {
     renderPage();
 
     expect(mockNavigate).toHaveBeenCalledWith('/profile/student', { replace: true });
+  });
+
+  test('redirects to redirectTo when already authenticated', () => {
+    mockUseAuth.mockReturnValue({
+      signup: mockSignup,
+      loading: false,
+      isAuthenticated: true,
+    });
+
+    renderPage('?redirectTo=%2Fdashboard');
+
+    expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });
+  });
+
+  test('renders null when loading', () => {
+    mockUseAuth.mockReturnValue({
+      signup: mockSignup,
+      loading: true,
+      isAuthenticated: false,
+    });
+
+    const { container } = renderPage();
+    expect(container.firstChild).toBeNull();
   });
 });
