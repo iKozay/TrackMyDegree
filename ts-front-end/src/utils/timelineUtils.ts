@@ -79,18 +79,17 @@ export async function saveTimeline(
   timelineName: string,
   jobId?: string
 ) {
-  try {
-    await api.post("/timeline", {
-      userId,
-      timelineName,
-      ...(jobId && { jobId }),
-    });
+  const savePromise = api.post("/timeline", {
+    userId,
+    timelineName,
+    ...(jobId && { jobId }),
+  });
 
-    toast.success("Timeline saved successfully");
-  } catch (error: unknown) {
-    console.error("Error saving timeline:", error);
-    toast.error("Failed to save timeline. Please try again.");
-  }
+  return toast.promise(savePromise, {
+    pending: "Saving timeline...",
+    success: "Timeline saved successfully! 👌",
+    error: "Failed to save timeline. Please try again. 🤯",
+  });
 }
 
 function isCourseSatisfied(
