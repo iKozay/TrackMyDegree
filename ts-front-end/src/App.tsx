@@ -37,6 +37,9 @@ if (NODE_ENV !== 'development') {
   );
 }
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const App: React.FC = () => {
   useEffect(() => {
     if (NODE_ENV !== 'development') {
@@ -70,6 +73,18 @@ const App: React.FC = () => {
         </Route>
       </Routes>
       <Footer deployment_version={deployment_version} />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </AuthProvider>
   );
 };

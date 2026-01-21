@@ -29,6 +29,14 @@ const CoursePool: React.FC<CoursePoolProps> = ({
   const togglePool = (name: string) =>
     setExpandedPools((prev) => ({ ...prev, [name]: !prev[name] }));
 
+  const formatPoolName = (name: string) => {
+    // Modify ECP course pools to retain 'ECP' and format the rest of the name
+    if (name.startsWith("ECP_")) {
+      return name.replace("ECP_", "ECP ").replace(/_/g, " ");
+    }
+    return name; // Return the name unchanged for non-ECP course pools
+  };
+
   return (
     <div className="course-pool">
       <h2>Course Pool</h2>
@@ -61,7 +69,7 @@ const CoursePool: React.FC<CoursePoolProps> = ({
         return (
           <div key={`${pool.name}-${index}`} className="pool-section">
             <PoolHeader
-              pool={pool}
+              pool={{ ...pool, name: formatPoolName(pool.name) }}
               isExpanded={isExpanded}
               onToggle={() => togglePool(pool.name)}
               visibleCourseIds={visibleCourseIds}
@@ -70,7 +78,7 @@ const CoursePool: React.FC<CoursePoolProps> = ({
 
             {isExpanded && (
               <PoolCoursesList
-                pool={pool}
+                pool={{ ...pool, name: formatPoolName(pool.name) }}
                 visibleCourseIds={visibleCourseIds}
                 courses={courses}
                 selectedCourse={selectedCourse}

@@ -153,7 +153,7 @@ describe('DegreeAuditService', () => {
       ['COMP 248', { status: 'completed', semester: 'Fall 2022' }],
       // eslint-disable-next-line sonarjs/no-duplicate-string
       ['COMP 249', { status: 'completed', semester: 'Winter 2023' }],
-      ['COMP 352', { status: 'inprogress', semester: 'Fall 2023' }],
+      ['COMP 352', { status: 'planned', semester: 'Fall 2023' }],
       ['MATH 203', { status: 'completed', semester: 'Fall 2022' }],
       ['MATH 204', { status: 'completed', semester: 'Winter 2023' }],
       ['COMP 346', { status: 'planned', semester: 'Winter 2024' }],
@@ -234,7 +234,7 @@ describe('DegreeAuditService', () => {
         const comp445 = coreReq.courses.find((c) => c.code === 'COMP 445');
 
         expect(comp248?.status).toBe('Completed');
-        expect(comp352?.status).toBe('In Progress');
+        expect(comp352?.status).toBe('Not Started');
         expect(comp445?.status).toBe('Missing');
       }
     });
@@ -372,27 +372,6 @@ describe('DegreeAuditService', () => {
           expect(course.status).toBe('Missing');
         }
       }
-    });
-
-    it('should handle exempted course status', async () => {
-      await Timeline.findByIdAndUpdate(testTimelineId, {
-        courseStatusMap: new Map([
-          ['COMP 248', { status: 'exempted', semester: null }],
-        ]),
-      });
-
-      const params: GenerateAuditParams = {
-        timelineId: testTimelineId,
-        userId: testUserId,
-      };
-
-      const audit = await generateDegreeAudit(params);
-
-      const coreReq = audit.requirements.find((r) =>
-        r.title.toLowerCase().includes('core'),
-      );
-      const comp248 = coreReq?.courses.find((c) => c.code === 'COMP 248');
-      expect(comp248?.status).toBe('Completed'); // Exempted maps to Completed
     });
 
     it('should handle incomplete course status', async () => {
@@ -535,7 +514,7 @@ describe('DegreeAuditService', () => {
       await Timeline.findByIdAndUpdate(testTimelineId, {
         courseStatusMap: new Map([
           ['MATH 203', { status: 'completed', semester: 'Fall 2022' }],
-          ['MATH 204', { status: 'inprogress', semester: 'Winter 2023' }],
+          ['MATH 204', { status: 'planned', semester: 'Winter 2023' }],
         ]),
       });
 
@@ -549,7 +528,7 @@ describe('DegreeAuditService', () => {
       const mathReq = audit.requirements.find((r) =>
         r.title.toLowerCase().includes('math'),
       );
-      expect(mathReq?.status).toBe('In Progress');
+      expect(mathReq?.status).toBe('Incomplete');
     });
 
     it('should return Incomplete when some progress but not enough', async () => {

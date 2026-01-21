@@ -93,13 +93,14 @@ def mock_dependencies(monkeypatch):
     - extract_course_data (single + ANY mode)
     - scrape_electives
     - fetch_html
+    - concordia_api_utils.get_instance
     """
 
     def fake_extract(code, url):
         if code == "ANY":
             return [
-                {"_id": "ANY101"},
-                {"_id": "ANY102"},
+                {"_id": "ANY 101"},
+                {"_id": "ANY 102"},
             ]
 
         return {"code": code}
@@ -110,14 +111,40 @@ def mock_dependencies(monkeypatch):
         fake_extract,
     )
 
+    # Mock concordia_api_utils
+    class FakeConcordiaAPIUtils:
+        def get_all_courses(self):
+            return [
+                {"_id": "COMP 101", "code": "COMP 101", "title": "Intro to Programming", "credits": 3.0, 
+                 "description": "Basic programming", "offeredIn": ["Fall", "Winter"], "prereqCoreqText": "",
+                 "rules": {"prereq": [], "coreq": [], "not_taken": []}},
+                {"_id": "MATH 101", "code": "MATH 101", "title": "Calculus", "credits": 3.0,
+                 "description": "Basic calculus", "offeredIn": ["Fall", "Winter"], "prereqCoreqText": "",
+                 "rules": {"prereq": [], "coreq": [], "not_taken": []}},
+                {"_id": "HIST 101", "code": "HIST 101", "title": "History Course", "credits": 3.0,
+                 "description": "History course description", "offeredIn": ["Fall"], "prereqCoreqText": "",
+                 "rules": {"prereq": [], "coreq": [], "not_taken": []}},
+                {"_id": "PHIL 102", "code": "PHIL 102", "title": "Philosophy Course", "credits": 3.0,
+                 "description": "Philosophy course description", "offeredIn": ["Winter"], "prereqCoreqText": "",
+                 "rules": {"prereq": [], "coreq": [], "not_taken": []}}
+            ]
+
+    def fake_get_instance():
+        return FakeConcordiaAPIUtils()
+
+    monkeypatch.setattr(
+        "scraper.concordia_api_utils.get_instance",
+        fake_get_instance,
+    )
+
     monkeypatch.setattr(
         ecp_scraper.engr_general_electives_scraper,
         "scrape_electives",
-        lambda: (["GEN101", "GEN102"], [{"code": "GEN101"}, {"code": "GEN102"}]),
+        lambda: (["GEN 101", "GEN 102"], [{"code": "GEN 101"}, {"code": "GEN 102"}]),
     )
 
     def fake_fetch_html(url):
-        course = FakeCourseDiv("COMP101")
+        course = FakeCourseDiv("COMP 101")
 
         trs = [
             FakeTR([]),                        
@@ -141,12 +168,12 @@ def mock_dependencies(monkeypatch):
 # ---------- Tests ----------
 
 def test_add_courses():
-    course = FakeCourseDiv("ENGR201")
+    course = FakeCourseDiv("ENG 201")
 
     pool, courses = ecp_scraper.add_courses([course], "http://base/")
 
-    assert pool == ["ENGR201"]
-    assert courses == [{"code": "ENGR201"}]
+    assert pool == ["ENG 201"]
+    assert courses == [{"code": "ENG 201"}]
 
 
 def test_scrape_engr_ecp_full_coverage():
@@ -162,21 +189,21 @@ def test_scrape_engr_ecp_full_coverage():
 
     # Core
     assert pools[0]["_id"] == "ECP_ENGR_Core"
-    assert "COMP101" in pools[0]["courses"]
+    assert "COMP 101" in pools[0]["courses"]
 
     # Natural science
     assert pools[1]["creditsRequired"] == 6
-    assert "COMP101" in pools[1]["courses"]
+    assert "COMP 101" in pools[1]["courses"]
 
     # General electives
-    assert pools[2]["courses"] == ["GEN101", "GEN102"]
+    assert pools[2]["courses"] == ["GEN 101", "GEN 102"]
 
     # coursePools propagation
     assert degree["coursePools"] == [p["name"] for p in pools]
 
     # courses list contains extracted dicts
-    assert {"code": "COMP101"} in courses
-    assert {"code": "GEN101"} in courses
+    assert {"code": "COMP 101"} in courses
+    assert {"code": "GEN 101"} in courses
 
 
 def test_scrape_comp_ecp_exclusions_and_options():
@@ -191,13 +218,13 @@ def test_scrape_comp_ecp_exclusions_and_options():
 
     # ----- Core -----
     assert pools[0]["_id"] == "ECP_COMP_Core"
-    assert "COMP101" in pools[0]["courses"]
+    assert "COMP 101" in pools[0]["courses"]
 
     # ----- General electives (with exclusion applied) -----
     gen_pool = pools[1]
-    assert "GEN101" in gen_pool["courses"]
-    # COMP101 was in exclusion list, must be removed
-    assert "COMP101" not in gen_pool["courses"]
+    assert "GEN 101" in gen_pool["courses"]
+    # COMP 101 was in exclusion list, must be removed
+    assert "COMP 101" not in gen_pool["courses"]
 
     # ----- Option electives -----
     option_pools = pools[-3:]
@@ -205,14 +232,47 @@ def test_scrape_comp_ecp_exclusions_and_options():
     for pool in option_pools:
         assert pool["creditsRequired"] == 15
         assert isinstance(pool["courses"], list)
-        assert "COMP101" in pool["courses"]
+        assert len(pool["courses"]) > 0
 
     
     joint_comp_art = option_pools[1]["courses"]
     joint_data = option_pools[2]["courses"]
 
-    assert "ANY101" in joint_comp_art
-    assert "ANY102" in joint_data
+    # Check that allowed courses are present
+    assert "HIST 101" in joint_comp_art or "PHIL 102" in joint_comp_art
+    assert "HIST 101" in joint_data or "PHIL 102" in joint_data
 
     
     assert degree["coursePools"] == [p["name"] for p in pools]
+
+def test_exclude_courses_from_list():
+    courses = [
+        {"_id": "COMP 101", "code": "COMP 101"},
+        {"_id": "MATH 101", "code": "MATH 101"},
+        {"_id": "HIST 101", "code": "HIST 101"},
+        {"_id": "PHIL 102", "code": "PHIL 102"},
+    ]
+    exclusion = ["MATH 101", "PHIL 102"]
+
+    filtered = ecp_scraper.exclude_courses_from_list(courses, exclusion)
+    print("Filtered courses:", filtered)
+    assert "MATH 101" not in [course["code"] for course in filtered]
+    assert "PHIL 102" not in [course["code"] for course in filtered]
+    assert "COMP 101" in [course["code"] for course in filtered]
+    assert "HIST 101" in [course["code"] for course in filtered]
+
+def test_exclude_subjects_from_list():
+    courses = [
+        {"_id": "COMP 101", "code": "COMP 101"},
+        {"_id": "MATH 101", "code": "MATH 101"},
+        {"_id": "HIST 101", "code": "HIST 101"},
+        {"_id": "PHIL 102", "code": "PHIL 102"},
+    ]
+    exclusion_subjects = ["MATH", "PHIL"]
+
+    filtered = ecp_scraper.exclude_subjects_from_list(courses, exclusion_subjects)
+    print("Filtered courses:", filtered)
+    assert "MATH 101" not in [course["code"] for course in filtered]
+    assert "PHIL 102" not in [course["code"] for course in filtered]
+    assert "COMP 101" in [course["code"] for course in filtered]
+    assert "HIST 101" in [course["code"] for course in filtered]

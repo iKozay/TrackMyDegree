@@ -183,21 +183,45 @@ export const buildTimeline = async (
   // Load exemption and deficiency courses that are not part of the degree requirements.
   // This occurs when the timeline is loaded from the database ('timelineData' case) or when
   // parsing a transcript with exemptions/deficiencies for courses outside the degree program.
-  await loadMissingCourses(exemptions, courses)
-  await loadMissingCourses(deficiencies, courses)
+  await loadMissingCourses(exemptions, courses);
+  await loadMissingCourses(deficiencies, courses);
 
   if (!semestersResults) {
     if (parsedData?.semesters)
-      semestersResults = await processSemestersFromParsedData(parsedData, degree, coursePools, courses, courseStatusMap)
-    else if (programInfo.predefinedSequence)
-      semestersResults = await generateSemestersFromPredefinedSequence(programInfo.predefinedSequence, programInfo.firstTerm, courses, courseStatusMap)
+      semestersResults = await processSemestersFromParsedData(
+        parsedData,
+        degree,
+        coursePools,
+        courses,
+        courseStatusMap,
+      );
     else
-      semestersResults = generateSemesters(programInfo.firstTerm, programInfo.lastTerm)
+      semestersResults = await generateSemestersFromPredefinedSequence(
+        programInfo.predefinedSequence,
+        programInfo.firstTerm,
+        courses,
+        courseStatusMap,        
+      );
+    else 
+      semestersResults = generateSemesters(
+        programInfo.firstTerm,
+        programInfo.lastTerm,
+      );
+  } else {
+    await mapNonDegreeSemesterCoursesToUsedUnusedPool(
+      semestersResults,
+      courses,
+      courseStatusMap,
+      coursePools,
+    );
   }
 
-
   //add transfer credits to course completed
-  addToCourseStatusMap(parsedData?.transferedCourses, courseStatusMap, 'completed');
+  addToCourseStatusMap(
+    parsedData?.transferedCourses,
+    courseStatusMap,
+    'completed',
+  );
 
   // add deficiencies course pool (even if empty to keep UI consistent)
   addToCoursePools('deficiencies', deficiencies, courses, coursePools);
@@ -303,7 +327,7 @@ async function processSemestersFromParsedData(
 
         continue;
       }
-      
+
       let courseCode = courseData._id;
       coursesInfo.push({ code: courseCode, message: message });
       const existing = courseStatusMap[courseCode];
@@ -315,7 +339,7 @@ async function processSemestersFromParsedData(
     semesters_results.push({ term: term, courses: coursesInfo });
   }
   return semesters_results;
-}  
+}
 
 function getCourseStatus(
   term: string,
@@ -338,7 +362,6 @@ function getCourseStatus(
     let satisfactoryGrade = validateGrade(minGrade, courseGrade);
     if (satisfactoryGrade) {
       status = 'completed';
->>>>>>> main
     } else {
       message = `Minimum grade not met: ${minGrade} is needed to pass this course.`;
     }

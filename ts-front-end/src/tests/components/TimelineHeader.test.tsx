@@ -169,7 +169,7 @@ describe("TimelineHeader", () => {
     expect(errorSpy).toHaveBeenCalled();
   });
 
-  it("hides Save Data button when unauthenticated", () => {
+  it("shows Save Data button even when unauthenticated", () => {
     const authValue: AuthContextValue = {
       isAuthenticated: false,
       user: null,
@@ -183,7 +183,7 @@ describe("TimelineHeader", () => {
     render(<TimelineHeader {...baseProps} />);
 
     expect(
-      screen.queryByRole("button", { name: /save data/i })
-    ).not.toBeInTheDocument();
+      screen.getByRole("button", { name: /save data/i })
+    ).toBeInTheDocument();
   });
 });

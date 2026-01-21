@@ -50,7 +50,7 @@ describe("CourseDetail", () => {
 
     expect(screen.getByText(/select a course/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/click on any course to view its details/i)
+      screen.getByText(/click on any course to view its details/i),
     ).toBeInTheDocument();
 
     // Should not render course header
@@ -65,13 +65,13 @@ describe("CourseDetail", () => {
     expect(screen.getByText("COMP 248")).toBeInTheDocument();
     // Title
     expect(
-      screen.getByText("Object-Oriented Programming I")
+      screen.getByText("Object-Oriented Programming I"),
     ).toBeInTheDocument();
     // Credits
     expect(screen.getByText(/3 Credits/i)).toBeInTheDocument();
     // Offered in
     expect(screen.getByText(/Offered in:/i).textContent).toContain(
-      "FALL 2025, WINTER 2026"
+      "FALL 2025, WINTER 2026",
     );
     // Scheduled semester
     expect(screen.getByText(/Scheduled: FALL 2025/i)).toBeInTheDocument();
@@ -92,14 +92,12 @@ describe("CourseDetail", () => {
     const statuses: CourseStatusValue[] = [
       "completed",
       "planned",
-      "inprogress",
       "incomplete",
     ];
 
     const expectedText: Record<CourseStatusValue, string> = {
       completed: "Completed",
       planned: "Planned",
-      inprogress: "In progress",
       incomplete: "Incomplete",
     };
 
