@@ -1,4 +1,5 @@
 import "../styles/TimelineSetupPage.css";
+import { ENV } from "../config";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/http-api-client.ts";
@@ -24,6 +25,9 @@ export interface ProgramInfo extends Record<string, unknown> {
   isExtendedCreditProgram?: boolean;
   minimumProgramLength?: number;
 }
+
+// const NODE_ENV = ENV.NODE_ENV || 'development';
+const NODE_ENV = 'production';
 
 const InformationForm = () => {
   const navigate = useNavigate();
@@ -307,7 +311,7 @@ const InformationForm = () => {
           </label>
         </div>
 
-        <div className="radio-group">
+        {NODE_ENV !== 'production' && <div className="radio-group">
           <span className="cooo">Co-op Program? </span>
           <label>
             <input
@@ -318,7 +322,7 @@ const InformationForm = () => {
               onChange={() => handleRadioChange("coOp", true)}
             />
           </label>
-        </div>
+        </div>}
 
         {selectedRadio.coOp && (
           <div className="radio-group">
