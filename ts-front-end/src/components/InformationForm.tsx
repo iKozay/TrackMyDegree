@@ -1,5 +1,4 @@
 import "../styles/TimelineSetupPage.css";
-import { ENV } from "../config";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/http-api-client.ts";
