@@ -157,22 +157,6 @@ export const buildTimeline = async (
   await loadMissingCourses(exemptions, courses);
   await loadMissingCourses(deficiencies, courses);
 
-  if (!semestersResults) {
-    if (parsedData?.semesters)
-      semestersResults = await processSemestersFromParsedData(
-        parsedData,
-        degree,
-        coursePools,
-        courses,
-        courseStatusMap,
-      );
-    else
-      semestersResults = generateSemesters(
-        programInfo.firstTerm,
-        programInfo.lastTerm,
-      );
-  }
-
   //add transfer credits to course completed
   addToCourseStatusMap(
     parsedData?.transferedCourses,
@@ -180,14 +164,8 @@ export const buildTimeline = async (
     'completed',
   );
 
-  // Load exemption and deficiency courses that are not part of the degree requirements.
-  // This occurs when the timeline is loaded from the database ('timelineData' case) or when
-  // parsing a transcript with exemptions/deficiencies for courses outside the degree program.
-  await loadMissingCourses(exemptions, courses);
-  await loadMissingCourses(deficiencies, courses);
-
   if (!semestersResults) {
-    if (parsedData?.semesters)
+    if (parsedData?.semesters) {
       semestersResults = await processSemestersFromParsedData(
         parsedData,
         degree,
@@ -195,19 +173,21 @@ export const buildTimeline = async (
         courses,
         courseStatusMap,
       );
-    else
+    } else if (programInfo.predefinedSequence) {
       semestersResults = await generateSemestersFromPredefinedSequence(
         programInfo.predefinedSequence,
         programInfo.firstTerm,
         courses,
-        courseStatusMap,        
+        courseStatusMap,
       );
-    else 
+    } else {
       semestersResults = generateSemesters(
         programInfo.firstTerm,
         programInfo.lastTerm,
       );
+    }
   } else {
+    // If we already have semestersResults (e.g. from DB), ensure all courses are in pools
     await mapNonDegreeSemesterCoursesToUsedUnusedPool(
       semestersResults,
       courses,
@@ -215,13 +195,6 @@ export const buildTimeline = async (
       coursePools,
     );
   }
-
-  //add transfer credits to course completed
-  addToCourseStatusMap(
-    parsedData?.transferedCourses,
-    courseStatusMap,
-    'completed',
-  );
 
   // add deficiencies course pool (even if empty to keep UI consistent)
   addToCoursePools('deficiencies', deficiencies, courses, coursePools);
