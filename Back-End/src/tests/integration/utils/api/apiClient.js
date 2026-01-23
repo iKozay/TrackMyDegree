@@ -63,8 +63,8 @@ class ApiClient {
     return await request.expect(expectedStatus);
   }
 
-  async seedAllData() {
-    return await this.get(`${this.base}/admin/seed-data`);
+  async seedDegreeData(degreeName) {
+      return await this.get(`${this.base}/admin/seed-data/${degreeName}`);
   }
 }
 
