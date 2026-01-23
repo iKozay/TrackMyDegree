@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import "../styles/ClassBuilder.css"
 
 
 const ClassBuilderPage: React.FC = () => {
