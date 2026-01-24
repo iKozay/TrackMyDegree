@@ -14,6 +14,11 @@ const { DEGREES_URL } = require('../../utils/constants');
 describe('Seed via /api/admin/seed-data endpoint', () => {
   let apiClient;
   let app;
+  // Promise to signal when setup is complete - avoids concurrent tests to start before scraper data is ready
+  let setupReadyResolve;
+  const setupReadyPromise = new Promise((resolve) => {
+    setupReadyResolve = resolve;
+  });
 
   beforeAll(async () => {
     console.log('Starting test setup...');
@@ -28,6 +33,9 @@ describe('Seed via /api/admin/seed-data endpoint', () => {
     // Get and save scraper data in temp files
     await getScraperData();
     console.log('Setup complete...');
+    // signal that setup is ready
+    setupReadyResolve();
+    console.log('Setup ready. Running concurrent degree set and validation tests...')
   });
 
   afterAll(async () => {
@@ -37,9 +45,10 @@ describe('Seed via /api/admin/seed-data endpoint', () => {
 
   // Create individual test for each degree
   const degreeNames = Object.keys(DEGREES_URL);
-  
-  degreeNames.forEach((degreeName) => {
-    test(`seeds and validates ${degreeName} degree`, async () => {
+    // concurrently test each degree to speed up the test process
+    test.concurrent.each(degreeNames)('seeds and validates %s degree', async (degreeName) => {
+      // Wait for setup to complete
+      await setupReadyPromise;
       console.log(`Starting seed operation for ${degreeName}...`);
       
       // Seed specific degree
@@ -96,4 +105,3 @@ describe('Seed via /api/admin/seed-data endpoint', () => {
       }
     });
   });
-});

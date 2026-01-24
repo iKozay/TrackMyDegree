@@ -66,7 +66,7 @@ def scrape_engr_ecp():
     courses+=gen_electives[1]
 
     for pool in course_pool:
-        degree['coursePools'].append(pool['name'])
+        degree['coursePools'].append(pool['_id'])
     # remove any duplicate courses
     courses = list({course['code']: course for course in courses}.values())
     return {'degree':degree, 'course_pool':course_pool, 'courses':courses}
@@ -158,7 +158,7 @@ def scrape_comp_ecp():
     courses+=electives_joint_major_data_science_courses
 
     for pool in course_pool:
-        degree['coursePools'].append(pool['name'])
+        degree['coursePools'].append(pool['_id'])
     # remove any duplicate courses
     courses = list({course['code']: course for course in courses}.values())
     return {'degree':degree, 'course_pool':course_pool, 'courses':courses}
