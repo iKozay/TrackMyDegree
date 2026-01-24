@@ -199,7 +199,7 @@ def test_scrape_engr_ecp_full_coverage():
     assert pools[2]["courses"] == ["GEN 101", "GEN 102"]
 
     # coursePools propagation
-    assert degree["coursePools"] == [p["name"] for p in pools]
+    assert degree["coursePools"] == [p["_id"] for p in pools]
 
     # courses list contains extracted dicts
     assert {"code": "COMP 101"} in courses
@@ -242,8 +242,7 @@ def test_scrape_comp_ecp_exclusions_and_options():
     assert "HIST 101" in joint_comp_art or "PHIL 102" in joint_comp_art
     assert "HIST 101" in joint_data or "PHIL 102" in joint_data
 
-    
-    assert degree["coursePools"] == [p["name"] for p in pools]
+    assert degree["coursePools"] == [p["_id"] for p in pools]
 
 def test_exclude_courses_from_list():
     courses = [

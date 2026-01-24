@@ -1,6 +1,6 @@
 import sys
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 import requests
 import os
 
@@ -16,6 +16,18 @@ class MockEngrElectivesScraper:
             ["ELEC 390", "ENGR 400"],
             [{"_id": "ELEC 390"}, {"_id": "ENGR 400"}]
         ]
+
+@pytest.fixture
+def mock_requests_get(monkeypatch):
+    def create_mock_response(content=b"<html></html>"):
+        mock = MagicMock()
+        mock.content = content
+        mock.encoding = "utf-8"
+        mock.status_code = 200
+        return mock
+
+    monkeypatch.setattr("requests.get", lambda url, headers=None: create_mock_response())
+    return create_mock_response
 
 @pytest.fixture
 def fake_html():
@@ -135,7 +147,7 @@ def test_handle_engineering_variants(monkeypatch):
     assert found
 
 @patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-def test_get_courses_both_paths(monkeypatch):
+def test_get_courses_both_paths(monkeypatch, mock_requests_get):
     from scraper.degree_data_scraper import DegreeDataScraper
     from bs4 import BeautifulSoup
 
@@ -195,7 +207,7 @@ def mock_comp_electives(monkeypatch):
     )
 
 @patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-def test_get_courses_general_electives_bcomp(mock_comp_gen_electives):
+def test_get_courses_general_electives_bcomp(mock_comp_gen_electives, monkeypatch, mock_requests_get):
     from scraper.degree_data_scraper import DegreeDataScraper
 
     s = DegreeDataScraper()
@@ -213,13 +225,36 @@ def test_get_courses_general_electives_bcomp(mock_comp_gen_electives):
     assert any(c["_id"] == "COMP 346" for c in s.courses)
 
 @patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-def test_get_courses_computer_science_electives(mock_comp_electives):
+def test_get_courses_computer_science_electives(mock_comp_electives, monkeypatch, mock_requests_get):
     from scraper.degree_data_scraper import DegreeDataScraper
     from bs4 import BeautifulSoup
+
+    # Mock comp_utils functions
+    def fake_get_comp_electives():
+        return (
+            ["COMP 325", "COMP 335"],
+            [
+                {"_id": "COMP 325"},
+                {"_id": "COMP 335"}
+            ]
+        )
+
+    monkeypatch.setattr(
+        "scraper.degree_data_scraper.comp_utils.get_comp_electives",
+        fake_get_comp_electives
+    )
+
+    monkeypatch.setattr(
+        "scraper.degree_data_scraper.course_data_scraper.extract_course_data",
+        lambda code, url: {"_id": code, "code": code, "title": "Mock Title", "credits": 3}
+    )
+
+    monkeypatch.setattr("requests.get", lambda url, headers=None: create_mock_response())
 
     s = DegreeDataScraper()
     s.url_received = "http://fakeurl.com"
     s.temp_url = "fake"
+    s.courses = []
     html = """
     <div class="defined-group" title="Computer Science Electives">
         <div class="formatted-course">
@@ -230,8 +265,14 @@ def test_get_courses_computer_science_electives(mock_comp_electives):
     </div>
     """
     s.soup = BeautifulSoup(html, "lxml")
+
+    def fake_get_page(url):
+        return s.soup
+
+    monkeypatch.setattr(s, "get_page", fake_get_page)
+
     result = s.get_courses("fake", "Computer Science Electives")
-    # scraped + augmented
+    # Check the courses were found
     assert "COMP 232" in result
     assert "COMP 325" in result
     assert "COMP 335" in result
@@ -240,11 +281,15 @@ def test_get_courses_computer_science_electives(mock_comp_electives):
     assert any(c["_id"] == "COMP 335" for c in s.courses)
 
 @patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-def test_get_courses_option_in_pool_name():
+def test_get_courses_option_in_pool_name(monkeypatch, mock_requests_get):
     """Test the case where output==[] and 'Option' is in pool_name"""
     from scraper.degree_data_scraper import DegreeDataScraper
     from bs4 import BeautifulSoup
 
+    monkeypatch.setattr(
+        "scraper.degree_data_scraper.course_data_scraper.extract_course_data",
+        lambda code, url: {"_id": code, "code": code, "title": "Mock Title", "credits": 3}
+    )
     s = DegreeDataScraper()
     s.url_received = "http://fakeurl.com"
     s.temp_url = "fake"
@@ -256,26 +301,37 @@ def test_get_courses_option_in_pool_name():
         <a href="software-track1.html">Track 1</a>
         <a href="software-track2.html">Track 2</a>
     </div>
-    <div class="defined-group" title="Track 1">
-        <div class="formatted-course">
-            <span class="course-code-number">
-                <a href="comp450.html">COMP 450</a>
-            </span>
-        </div>
-    </div>
-    <div class="defined-group" title="Track 2">
-        <div class="formatted-course">
-            <span class="course-code-number">
-                <a href="comp451.html">COMP 451</a>
-            </span>
-        </div>
-    </div>
     """
     s.soup = BeautifulSoup(html, "lxml")
-    
-    result = s.get_courses("fake", "Software Option")
-    
-    # Should recursively get courses from the linked sub-pools
+
+    # Mock get_page to return appropriate content for each URL
+    def fake_get_page(url):
+        if "track1" in url:
+            track1_html = """
+            <div class="formatted-course">
+                <span class="course-code-number">
+                    <a href="comp450.html">COMP 450</a>
+                </span>
+            </div>
+            """
+            return BeautifulSoup(track1_html, "lxml")
+        elif "track2" in url:
+            track2_html = """
+            <div class="formatted-course">
+                <span class="course-code-number">
+                    <a href="comp451.html">COMP 451</a>
+                </span>
+            </div>
+            """
+            return BeautifulSoup(track2_html, "lxml")
+        return BeautifulSoup("<html></html>", "lxml")
+
+    monkeypatch.setattr(s, "get_page", fake_get_page)
+    monkeypatch.setattr("requests.get", lambda url, headers=None: create_mock_response(b"<html></html>"))
+
+    # Call with a fragment href to trigger same-page logic, then option processing
+    result = s.get_courses("#software-option", "Software Option")
+
     assert isinstance(result, list)
     assert "COMP 450" in result
     assert "COMP 451" in result
@@ -283,14 +339,21 @@ def test_get_courses_option_in_pool_name():
     assert any(c["_id"] == "COMP 451" for c in s.courses)
 
 @patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-def test_get_courses_elective_in_pool_name():
+def test_get_courses_elective_in_pool_name(monkeypatch, mock_requests_get):
     """Test the case where output==[] and 'Elective' is in pool_name"""
     from scraper.degree_data_scraper import DegreeDataScraper
     from bs4 import BeautifulSoup
 
+    monkeypatch.setattr(
+        "scraper.degree_data_scraper.course_data_scraper.extract_course_data",
+        lambda code, url: {"_id": code, "code": code, "title": "Mock Title", "credits": 3}
+    )
+
+    monkeypatch.setattr("requests.get", lambda url, headers=None: create_mock_response())
+
     s = DegreeDataScraper()
     s.url_received = "http://fakeurl.com/fake"
-    s.temp_url = "fake"  # This makes temp_url in url_received = True
+    s.temp_url = "fake"
     s.courses = []
     
     # HTML with an empty defined-group for "Math Elective", so output==[]
@@ -311,7 +374,9 @@ def test_get_courses_elective_in_pool_name():
     </div>
     """
     s.soup = BeautifulSoup(html, "lxml")
-    
+    def fake_get_page(url):
+        return s.soup
+    monkeypatch.setattr(s, "get_page", fake_get_page)
     result = s.get_courses("fake", "Math Elective")
     
     # Should get all formatted courses from the page
