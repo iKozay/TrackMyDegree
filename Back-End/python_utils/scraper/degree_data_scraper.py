@@ -75,7 +75,7 @@ class DegreeDataScraper():
             return grp
         # last resort: scan all groups
         for dg in self.soup.select("div.defined-group"):
-            t = _normalize(dg.get("title") or dg.get_text(" "))
+            t = _normalize(dg.get_text(" "))
             if norm and norm in t:
                 return dg
         return None

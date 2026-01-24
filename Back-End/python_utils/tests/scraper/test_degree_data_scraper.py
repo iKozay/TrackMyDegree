@@ -385,3 +385,96 @@ def test_get_courses_elective_in_pool_name(monkeypatch, mock_requests_get):
     assert "MATH 201" in result
     assert any(c["_id"] == "MATH 200" for c in s.courses)
     assert any(c["_id"] == "MATH 201" for c in s.courses)
+
+@patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
+def test_find_same_page_group_last_resort_scan(monkeypatch, mock_requests_get):
+    """Test the last resort scanning logic when fragment and title matching fail"""
+    from scraper.degree_data_scraper import DegreeDataScraper
+    from bs4 import BeautifulSoup
+
+    s = DegreeDataScraper()
+    html = """
+    <div class="defined-group" title="Some Other Title">
+        <p>This group contains engineering core in its text content</p>
+    </div>
+    <div class="defined-group" title="Another Group">
+        <p>Unrelated content</p>
+    </div>
+    """
+    s.soup = BeautifulSoup(html, "lxml")
+    s.url_received = "http://fakeurl.com"
+
+    # Test with search term that will match after normalization
+    result = s._find_same_page_group("engineering core", "")
+
+    assert result is not None
+    assert "Some Other Title" in result.get("title", "")
+
+    # Also test the case where no match is found
+    result_none = s._find_same_page_group("Nonexistent Term", "")
+    assert result_none is None
+
+@patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
+@patch("scraper.degree_data_scraper.engr_general_electives_scraper", new=MockEngrElectivesScraper())
+def test_scrape_degree_edge_cases(monkeypatch):
+    """Test edge cases in the main scraping loop"""
+    from scraper.degree_data_scraper import DegreeDataScraper
+
+    html_with_edge_cases = """
+    <html>
+    <body>
+        <div class="title program-title">
+            <h3>BEng in Industrial Engineering (90 credits)</h3>
+        </div>
+        <div class="program-required-courses defined-group">
+            <table>
+                <tr>
+                    <!-- Row with no td -->
+                </tr>
+                <tr>
+                    <td>No credits text here</td>
+                    <td><a href="#core">Core Courses</a></td>
+                </tr>
+                <tr>
+                    <td>15</td>
+                    <td>
+                        <a href="">Empty href</a>
+                        <a>No href</a>
+                        <a href="#valid">Valid Link</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="defined-group" title="Valid Link">
+            <div class="formatted-course">
+                <span class="course-code-number">
+                    <a href="test101.html">TEST 101</a>
+                </span>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    class DummyResponse:
+        def __init__(self, html):
+            self.content = html.encode('utf-8')
+            self.status_code = 200
+            self.encoding = "utf-8"
+            self.headers = {"content-type": "text/html; charset=utf-8"}
+        def raise_for_status(self):
+            return None
+
+    def mock_get(url, headers=None):
+        return DummyResponse(html_with_edge_cases)
+
+    monkeypatch.setattr("requests.get", mock_get)
+
+    s = DegreeDataScraper()
+    result = s.scrape_degree("http://test-url.com")
+
+    # Should handle edge cases gracefully
+    assert result["degree"]["name"] == "BEng in Industrial Engineering"
+    assert result["degree"]["totalCredits"] == 90
+    # Should have found the valid link and processed it
+    assert len(result["course_pool"]) >= 1
