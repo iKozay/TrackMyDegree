@@ -83,6 +83,40 @@
 .degree-audit-page {
     background-color: #f8fafc;
     min-height: 100%;
+    padding: 1rem;
+}
+
+/* Back Button */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background-color: white;
+    border: 1px solid var(--border-gray);
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--slate-600);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.back-btn:hover {
+    background-color: #f8fafc;
+    border-color: var(--primary-maroon);
+    color: var(--primary-maroon);
+    transform: translateX(-2px);
+}
+
+.back-btn svg {
+    transition: transform 0.2s ease;
+}
+
+.back-btn:hover svg {
+    transform: translateX(-3px);
 }
 
 .da-header {
@@ -371,17 +405,11 @@
     border-radius: 12px;
 }
 
-/* Requirement Progress Bar */
-.req-progress-container {
-    margin-bottom: 0.75rem;
-}
-
 .req-progress-bar {
     height: 12px;
     background-color: var(--primary-rose-alpha);
     border-radius: 9999px;
     overflow: hidden;
-    margin-bottom: 24px;
 }
 
 .req-progress-fill {
@@ -440,8 +468,9 @@
 
 .course-info {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    gap: 12px;
+    margin: 0;
 }
 
 .course-icon {

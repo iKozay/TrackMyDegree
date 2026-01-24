@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { ENV } from "./config";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import posthog from "posthog-js";
 
 import TimeLinePage from "./pages/TimelinePage";
@@ -20,7 +20,6 @@ import DegreeAuditPage from "./pages/DegreeAuditPage.tsx";
 
 import { Navbar } from "./components/NavBar";
 import { Footer } from "./components/Footer";
-import DashboardLayout from "./components/DashboardLayout.tsx";
 
 import { AuthProvider } from "./providers/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
@@ -38,6 +37,9 @@ if (NODE_ENV !== 'development') {
   );
 }
 
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const App: React.FC = () => {
   useEffect(() => {
     if (NODE_ENV !== 'development') {
@@ -45,13 +47,9 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const location = useLocation();
-  const dashboardRoutes = ['/dashboard', '/degree-audit', '/missing-requirements', '/co-op', '/class-builder'];
-  const isDashboardPage = dashboardRoutes.some(route => location.pathname.startsWith(route));
-
   return (
     <AuthProvider>
-      {!isDashboardPage && <Navbar />}
+      <Navbar />
       <Routes>
         {/* Public */}
         <Route path="/" element={<LandingPage />} />
@@ -65,15 +63,8 @@ const App: React.FC = () => {
         <Route path="/courses" element={<CoursePage />} />
         <Route path="/requirements" element={<RequirementsFormPage />} />
         <Route path="/requirements/:programId" element={<RequirementSelectPage />} />
-        {NODE_ENV == 'development' && (
-            <Route path="/degree-audit" element={
-              <DashboardLayout>
-                <DegreeAuditPage />
-              </DashboardLayout>
-            } />
-        )}
-
         <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
+          <Route path="/degree-audit/:timelineId?" element={<DegreeAuditPage />} />
           <Route path="/profile/student" element={<StudentPage />} />
         </Route>
 
@@ -81,7 +72,19 @@ const App: React.FC = () => {
           <Route path="/profile/admin" element={<AdminPage />} />
         </Route>
       </Routes>
-      {!isDashboardPage && <Footer deployment_version={deployment_version} />}
+      <Footer deployment_version={deployment_version} />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </AuthProvider>
   );
 };

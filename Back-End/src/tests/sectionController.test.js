@@ -16,12 +16,12 @@ describe('sectionController', () => {
   let authHeader;
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.SCHEDULE_USER = 'testUser';
-    process.env.SCHEDULE_PASS = 'testPass';
+    process.env.CONCORDIA_API_USER = 'testUser';
+    process.env.CONCORDIA_API_KEY = 'testPass';
     authHeader =
       'Basic ' +
       Buffer.from(
-        `${process.env.SCHEDULE_USER}:${process.env.SCHEDULE_PASS}`,
+        `${process.env.CONCORDIA_API_USER}:${process.env.CONCORDIA_API_KEY}`,
       ).toString('base64');
   });
 

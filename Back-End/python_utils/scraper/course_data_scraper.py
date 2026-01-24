@@ -2,14 +2,13 @@ from bs4 import BeautifulSoup
 from bs4.dammit import EncodingDetector
 import requests
 import re
+from .concordia_api_utils import get_instance
 
 
 #----------------------------------
 #There is code for scraping course data in course data/ Scraping. It might be duplicated with this file.
 #This scraper includes function for cleaning and normalizing text with proper spacing.
 #----------------------------------
-
-courses=[]
 
 # Function to clean and normalize text with proper spacing
 def clean_text(text):
@@ -158,6 +157,7 @@ def extract_course_data(course_code, url):
     if not soup:
         return None
 
+    parsed_courses = []
     for block in soup.find_all('div', class_='course'):
         title_el = block.find('h3', class_='accordion-header xlarge')
         if not title_el:
@@ -176,13 +176,14 @@ def extract_course_data(course_code, url):
         raw_prereq_coreq = sections.get("Prerequisite/Corequisite:", "")
         prereq, coreq = parse_prereq_coreq(raw_prereq_coreq, clean_text)
 
+        apiu = get_instance()
         course={
             "_id":course_id,
             "code": course_id,
             "title": title,
             "credits": course_credits,
             "description": sections.get("Description:", ""),
-            "offeredIn": [""],
+            "offeredIn": apiu.get_term(course_id),
             "prereqCoreqText": raw_prereq_coreq,
             "rules":{
                 "prereq":make_prereq_coreq_into_array(prereq),
@@ -190,12 +191,11 @@ def extract_course_data(course_code, url):
                 "not_taken": get_not_taken(sections.get("Notes:", ""))
             }
         }
-
         if course_code == 'ANY':
-            courses.append(course)
+            parsed_courses.append(course)
         else:
             return course
     if course_code == 'ANY':
-        return courses
+        return parsed_courses
     else:
         return None

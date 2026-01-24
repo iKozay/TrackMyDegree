@@ -32,7 +32,7 @@ def scrape_engr_ecp():
     #Core courses
     course_pool.append({
         '_id': "ECP_ENGR_Core",
-        'name': "ECP_ENGR_Core",
+        'name': "ECP ENGR Core",
         'creditsRequired': 18,
         'courses':[]
     })
@@ -43,7 +43,7 @@ def scrape_engr_ecp():
     # Natural Science Electives
     course_pool.append({
         '_id': "ECP_ENGR_Natural_Science_Electives",
-        'name': "ECP_ENGR_Natural_Science_Electives",
+        'name': "ECP ENGR Natural Science Electives",
         'creditsRequired': 6,
         'courses':[]
     })
@@ -56,7 +56,7 @@ def scrape_engr_ecp():
     # General Electives
     course_pool.append({
         '_id': "ECP_ENGR_General_Electives",
-        'name': "ECP_ENGR_General_Electives",
+        'name': "ECP ENGR General Electives",
         'creditsRequired': 6,
         'courses':[]
     })
@@ -66,7 +66,9 @@ def scrape_engr_ecp():
     courses+=gen_electives[1]
 
     for pool in course_pool:
-        degree['coursePools'].append(pool['name'])
+        degree['coursePools'].append(pool['_id'])
+    # remove any duplicate courses
+    courses = list({course['code']: course for course in courses}.values())
     return {'degree':degree, 'course_pool':course_pool, 'courses':courses}
 
 def scrape_comp_ecp():
@@ -87,7 +89,7 @@ def scrape_comp_ecp():
     #Core courses
     course_pool.append({
         '_id': "ECP_COMP_Core",
-        'name': "ECP_COMP_Core",
+        'name': "ECP COMP Core",
         'creditsRequired': 9,
         'courses':[]
     })
@@ -98,8 +100,8 @@ def scrape_comp_ecp():
 
     # General Electives
     course_pool.append({
-        '_id': "ECP_ENGR_General_Electives",
-        'name': "ECP_ENGR_General_Electives",
+        '_id': "ECP_COMP_General_Electives",
+        'name': "ECP COMP General Electives",
         'creditsRequired': 6,
         'courses':[]
     })
@@ -117,50 +119,57 @@ def scrape_comp_ecp():
             courses.remove(course)
 
     # Option Electives
+    gina_cody_exlcuded_subjects = ["ENCS", "ENGR", "AERO", "BCEE", "BLDG", "CIVI", "COEN", "ELEC", "IADI", "INDU", "MECH", "MIAE", "COMP", "SOEN"]
+    design_and_comp_art_excluded_subjects = ["DART", "CART"]
+    math_and_stat_excluded_subjects = ["ACTU", "MACF", "MATH", "MAST", "STAT"]
 
-    ENGR_URL='https://www.concordia.ca/academics/undergraduate/calendar/current/quick-links/gina-cody-school-of-engineering-and-computer-science-courses.html'
-    DESIGN_URL='https://www.concordia.ca/academics/undergraduate/calendar/current/section-81-faculty-of-fine-arts/section-81-90-department-of-design-and-computation-arts/design-courses.html'
-    COMP_ART_URL='https://www.concordia.ca/academics/undergraduate/calendar/current/section-81-faculty-of-fine-arts/section-81-90-department-of-design-and-computation-arts/computation-arts-courses.html'
-    MATH_STAT_URL='https://www.concordia.ca/academics/undergraduate/calendar/current/section-31-faculty-of-arts-and-science/section-31-200-department-of-mathematics-and-statistics/mathematics-and-statistics-courses.html'
-    BASE_URL='https://www.concordia.ca'
-    gina_cody_classes=[]
-    comp_and_soen_classes=[]
-    design_and_comp_art_classes=[d["_id"] for d in course_data_scraper.extract_course_data('ANY', DESIGN_URL)]+[d["_id"] for d in course_data_scraper.extract_course_data('ANY', COMP_ART_URL)]
-    math_and_stat_classes=[d["_id"] for d in course_data_scraper.extract_course_data('ANY', MATH_STAT_URL)]
+    from .concordia_api_utils import get_instance
+    all_concordia_courses = get_instance().get_all_courses()
+    courses_without_exlcusions = exclude_courses_from_list(all_concordia_courses, exclusion_list[0])
 
-    gina_cody_html=course_data_scraper.fetch_html(ENGR_URL)
-    gina_cody_html=gina_cody_html.find('div', class_='content-main parsys')
-    departments = gina_cody_html.findAll('a')
-    for dep in departments:
-        if 'Computer Science' in dep.text or 'Software Engineering' in dep.text:
-            comp_and_soen_classes+=[d["_id"] for d in course_data_scraper.extract_course_data('ANY', urljoin(BASE_URL, dep.get('href')))]
-        else:
-            gina_cody_classes += [d["_id"] for d in course_data_scraper.extract_course_data('ANY', urljoin(BASE_URL, dep.get('href')))]
+    electives_bcompsc_courses = exclude_subjects_from_list(courses_without_exlcusions, gina_cody_exlcuded_subjects)
+    course_ids = [course["code"] for course in electives_bcompsc_courses]
+    course_pool.append({
+        '_id': "ECP Electives: BCompSc (other than Joint Majors)",
+        'name': "ECP Electives: BCompSc (other than Joint Majors)",
+        'creditsRequired': 15,
+        'courses': course_ids
+    })
+    courses+=electives_bcompsc_courses
 
-    design_and_comp_art_classes=list(set(design_and_comp_art_classes))
-    math_and_stat_classes=list(set(math_and_stat_classes))
-    comp_and_soen_classes=list(set(comp_and_soen_classes))
-    gina_cody_classes=list(set(gina_cody_classes))
-    
+    electives_joint_major_comp_art_courses = exclude_subjects_from_list(courses_without_exlcusions, (gina_cody_exlcuded_subjects + design_and_comp_art_excluded_subjects))
+    course_ids = [course["code"] for course in electives_joint_major_comp_art_courses]
     course_pool.append({
-        '_id': "(ANYTHING EXCEPT COURSES IN THIS COURSE POOL) ECP Electives: BCompSc (other than Joint Majors)",
-        'name': "(ANYTHING EXCEPT COURSES IN THIS COURSE POOL) ECP Electives: BCompSc (other than Joint Majors)",
+        '_id': "ECP Electives: Joint Major in Computation Arts and Computer Science",
+        'name': "ECP Electives: Joint Major in Computation Arts and Computer Science",
         'creditsRequired': 15,
-        'courses':exclusion_list[0]+gina_cody_classes
+        'courses': course_ids
     })
+    courses+=electives_joint_major_comp_art_courses
+
+    electives_joint_major_data_science_courses = exclude_subjects_from_list(courses_without_exlcusions, (gina_cody_exlcuded_subjects + math_and_stat_excluded_subjects))
+    course_ids = [course["code"] for course in electives_joint_major_data_science_courses]
     course_pool.append({
-        '_id': "(ANYTHING EXCEPT COURSES IN THIS COURSE POOL) ECP Electives: Joint Major in Computation Arts and Computer Science",
-        'name': "(ANYTHING EXCEPT COURSES IN THIS COURSE POOL) ECP Electives: Joint Major in Computation Arts and Computer Science",
+        '_id': "ECP Electives: Joint Major in Data Science",
+        'name': "ECP Electives: Joint Major in Data Science",
         'creditsRequired': 15,
-        'courses':exclusion_list[0]+gina_cody_classes+comp_and_soen_classes+design_and_comp_art_classes
+        'courses': course_ids
     })
-    course_pool.append({
-        '_id': "(ANYTHING EXCEPT COURSES IN THIS COURSE POOL) ECP Electives: Joint Major in Data Science",
-        'name': "(ANYTHING EXCEPT COURSES IN THIS COURSE POOL) ECP Electives: Joint Major in Data Science",
-        'creditsRequired': 15,
-        'courses':exclusion_list[0]+gina_cody_classes+comp_and_soen_classes+math_and_stat_classes
-    })
+    courses+=electives_joint_major_data_science_courses
 
     for pool in course_pool:
-        degree['coursePools'].append(pool['name'])
+        degree['coursePools'].append(pool['_id'])
+    # remove any duplicate courses
+    courses = list({course['code']: course for course in courses}.values())
     return {'degree':degree, 'course_pool':course_pool, 'courses':courses}
+
+# Course manipulation functions for ecp
+def exclude_courses_from_list(course_list, exclusion_list):
+    exclusion_set = set(exclusion_list)
+    excluded_courses = [course for course in course_list if course["code"] not in exclusion_set]
+    return excluded_courses
+
+def exclude_subjects_from_list(course_list, excluded_subjects):
+    excluded_subjects_set = set(excluded_subjects)
+    excluded_courses = [course for course in course_list if course["code"].split()[0] not in excluded_subjects_set]
+    return excluded_courses

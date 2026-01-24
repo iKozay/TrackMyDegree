@@ -6,7 +6,6 @@ import {
   Calendar,
   LucideAlarmMinus,
   CheckCircle,
-  AlertCircle,
 } from "lucide-react";
 import { RequisiteGroup } from "./RequisiteGroup";
 import type {
@@ -24,7 +23,7 @@ interface CourseDetailsProps {
   onRemoveCourse?: (courseId: CourseCode, semesterId: SemesterId) => void;
   onChangeCourseStatus?: (
     courseId: CourseCode,
-    status: CourseStatusValue
+    status: CourseStatusValue,
   ) => void;
 }
 
@@ -56,8 +55,6 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
         return (
           <LucideAlarmMinus className="status-icon incomplete" size={16} />
         );
-      case "inprogress":
-        return <AlertCircle className="status-icon inprogress" size={16} />;
       default:
         return (
           <LucideAlarmMinus className="status-icon incomplete" size={16} />
@@ -71,8 +68,6 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
         return "Completed";
       case "planned":
         return "Planned";
-      case "inprogress":
-        return "In progress";
       case "incomplete":
         return "Incomplete";
       default:
