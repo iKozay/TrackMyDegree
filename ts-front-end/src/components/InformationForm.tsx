@@ -18,15 +18,12 @@ interface SelectedRadio {
 
 export interface ProgramInfo extends Record<string, unknown> {
   degree: string;
-  firstTerm?: string; // e.g., "Fall 2022"
-  lastTerm?: string; // e.g., "Spring 2026"
+  firstTerm?: string;
+  lastTerm?: string;
   isCoop?: boolean;
   isExtendedCreditProgram?: boolean;
   minimumProgramLength?: number;
 }
-
-// const NODE_ENV = ENV.NODE_ENV || 'development';
-const NODE_ENV = 'production';
 
 const InformationForm = () => {
   const navigate = useNavigate();
@@ -76,11 +73,9 @@ const InformationForm = () => {
     setAerospaceOption("");
   };
 
-  // Check if selected degree is Aerospace
   const selectedDegree = degrees.find((d) => d._id === selectedDegreeId);
   const isAerospace = selectedDegree?.name?.toLowerCase().includes("aerospace") ?? false;
 
-  // Map degree names to their sequence file names
   const getDegreeSequenceFile = (degreeName: string, entryTerm: string): string | null => {
     const name = degreeName.toLowerCase();
 
@@ -97,7 +92,6 @@ const InformationForm = () => {
         : "chemical_fall_entry.json";
     }
 
-    // Map other degrees
     if (name.includes("building")) return "building_engineering.json";
     if (name.includes("civil")) return "civil_engineering.json";
     if (name.includes("computer") && name.includes("engineering")) return "computer_engineering.json";
@@ -110,17 +104,15 @@ const InformationForm = () => {
     return null;
   };
 
-  // Calculate empty terms to prepend based on entry term
-  // All sequences assume Fall start. If user starts in Winter or Summer, add empty terms.
-  const getEmptyTermsCount = (entryTerm: string, degreeName: string): number => {
-    // Chemical has specific sequences for each entry, no padding needed
-    if (degreeName.toLowerCase().includes("chemical")) return 0;
+  const checkSequenceAvailability = (degreeName: string, entryTerm: string): boolean => {
+    const name = degreeName.toLowerCase();
+    const term = entryTerm.toLowerCase();
 
-    // For other programs: Fall = 0 empty terms, Winter = 2, Summer = 1
-    if (entryTerm === "Fall") return 0;
-    if (entryTerm === "Winter") return 2; // Winter (empty) + Summer (empty)
-    if (entryTerm === "Summer") return 1; // Summer (empty)
-    return 0;
+    if (name.includes("chemical")) {
+      return term === "fall" || term === "winter";
+    }
+
+    return term === "fall";
   };
 
   const handleNextButtonClick = async () => {
@@ -137,9 +129,7 @@ const InformationForm = () => {
     const startingSemester = `${selectedTerm} ${selectedYear}`;
     const matched_degree = degrees.find((d) => d._id === selectedDegreeId);
 
-    // Handle predefined sequence loading
     if (selectedRadio.coOp && loadPredefinedSequence && matched_degree) {
-      // Validation for Aerospace
       if (isAerospace && !aerospaceOption) {
         alert("Please select an Aerospace option.");
         return;
@@ -153,7 +143,6 @@ const InformationForm = () => {
       }
 
       try {
-        // Fetch the sequence from public folder
         const response = await fetch(`/coop-sequences/${sequenceFile}`);
         if (!response.ok) {
           throw new Error(`Failed to load sequence: ${response.statusText}`);
@@ -161,24 +150,12 @@ const InformationForm = () => {
 
         const sequenceData = await response.json();
 
-        // Calculate empty terms to prepend
-        const emptyTermsCount = getEmptyTermsCount(selectedTerm, matched_degree.name);
-
-        // Prepend empty terms if needed
-        const emptyTerms = Array.from({ length: emptyTermsCount }, () => ({
-          type: "Academic",
-          courses: []
-        }));
-
-        const adjustedSequence = [...emptyTerms, ...sequenceData];
-
-        // Send the predefined sequence to backend for processing
         const formDataWithSequence: ProgramInfo = {
           degree: matched_degree._id,
           firstTerm: startingSemester,
           isCoop: true,
           isExtendedCreditProgram: selectedRadio.extendedCredit,
-          predefinedSequence: adjustedSequence,
+          predefinedSequence: sequenceData,
         };
 
         try {
@@ -205,7 +182,6 @@ const InformationForm = () => {
       }
     }
 
-    // Standard flow - send to backend
     const formData: ProgramInfo = {
       degree: matched_degree?._id || selectedDegreeId,
       firstTerm: startingSemester,
@@ -310,7 +286,7 @@ const InformationForm = () => {
           </label>
         </div>
 
-        {NODE_ENV !== 'production' && <div className="radio-group">
+        <div className="radio-group">
           <span className="cooo">Co-op Program? </span>
           <label>
             <input
@@ -321,9 +297,9 @@ const InformationForm = () => {
               onChange={() => handleRadioChange("coOp", true)}
             />
           </label>
-        </div>}
+        </div>
 
-        {selectedRadio.coOp && (
+        {selectedRadio.coOp && selectedDegree && checkSequenceAvailability(selectedDegree.name, selectedTerm) && (
           <div className="radio-group">
             <span className="cooo">Load predefined co-op sequence? </span>
             <label>
