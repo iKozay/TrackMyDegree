@@ -1,179 +1,173 @@
-import type React from "react";
+import React, { useState } from "react";
+
+interface ClassItem {
+    name: string;
+    section: string;
+    room: string;
+    day: number; // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+    startTime: number; // hour in 24h format (8-22)
+    endTime: number; // hour in 24h format (8-22)
+}
 
 const WeeklySchedule: React.FC = () => {
+    const [classes, setClasses] = useState<ClassItem[]>([
+        { name: "COMP 352", section: "Sec A", room: "H-637", day: 1, startTime: 9, endTime: 11 },
+        { name: "COMP 352", section: "Sec A", room: "H-637", day: 3, startTime: 9, endTime: 11 },
+        { name: "COMP 346", section: "Sec B", room: "MB-2.210", day: 2, startTime: 10, endTime: 12 },
+        { name: "COMP 346", section: "Sec B", room: "MB-2.210", day: 4, startTime: 10, endTime: 12 },
+        { name: "SOEN 341", section: "Sec C", room: "H-537", day: 1, startTime: 13, endTime: 15 },
+        { name: "SOEN 341", section: "Sec C", room: "H-537", day: 3, startTime: 13, endTime: 15 },
+    ]);
+
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const hours = Array.from({ length: 15 }, (_, i) => i + 8); // 8 to 22
+
+    const getClassForCell = (day: number, hour: number) => {
+        return classes.find(
+            (c) => c.day === day && hour >= c.startTime && hour < c.endTime
+        );
+    };
+
+    const isFirstHourOfClass = (classItem: ClassItem, hour: number) => {
+        return hour === classItem.startTime;
+    };
+
     return (
-        <div data-slot="card" className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border p-6">
-            <h2 className="text-slate-900 mb-4">Weekly Schedule</h2>
-            <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
+        <div className="schedule-container">
+            <style>{`
+        .schedule-container {
+          background: white;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          padding: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+        
+        .schedule-title {
+          color: #0f172a;
+          margin-bottom: 16px;
+          font-size: 1.25rem;
+          font-weight: 600;
+        }
+        
+        .schedule-scroll {
+          overflow: auto;
+          max-height: 600px;
+        }
+        
+        .schedule-table {
+          width: 100%;
+          border-collapse: collapse;
+          min-width: 800px;
+        }
+        
+        .schedule-table th,
+        .schedule-table td {
+          border: 1px solid #e2e8f0;
+          padding: 8px;
+          height: 60px;
+          min-width: 100px;
+        }
+        
+        .schedule-table th {
+          background: #f8fafc;
+          font-weight: 500;
+          position: sticky;
+          top: 0;
+          z-index: 10;
+        }
+        
+        .time-column {
+          background: #f8fafc;
+          color: #64748b;
+          text-align: center;
+          font-size: 0.875rem;
+          width: 80px;
+          min-width: 80px;
+          position: sticky;
+          left: 0;
+          z-index: 5;
+        }
+        
+        .time-column-header {
+          position: sticky;
+          left: 0;
+          z-index: 15;
+          background: #f8fafc;
+        }
+        
+        .day-header {
+          color: #0f172a;
+        }
+        
+        .empty-cell {
+          background: white;
+        }
+        
+        .class-cell {
+          background: #ffe4e6;
+          position: relative;
+        }
+        
+        .class-info {
+          font-size: 0.75rem;
+        }
+        
+        .class-name {
+          color: #881337;
+          font-weight: 500;
+        }
+        
+        .class-section {
+          color: #be123c;
+        }
+        
+        .class-room {
+          color: #e11d48;
+        }
+      `}</style>
+
+            <h2 className="schedule-title">Weekly Schedule</h2>
+            <div className="schedule-scroll">
+                <table className="schedule-table">
                     <thead>
                         <tr>
-                            <th className="border border-slate-200 p-2 bg-slate-50 w-20 text-slate-600">Time</th>
-                            <th className="border border-slate-200 p-2 bg-slate-50 text-slate-900">Mon</th>
-                            <th className="border border-slate-200 p-2 bg-slate-50 text-slate-900">Tue</th>
-                            <th className="border border-slate-200 p-2 bg-slate-50 text-slate-900">Wed</th>
-                            <th className="border border-slate-200 p-2 bg-slate-50 text-slate-900">Thu</th>
-                            <th className="border border-slate-200 p-2 bg-slate-50 text-slate-900">Fri</th>
+                            <th className="time-column time-column-header">Time</th>
+                            {days.map((day) => (
+                                <th key={day} className="day-header">{day}</th>
+                            ))}
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td className="border border-slate-200 p-2 text-sm text-slate-600 text-center">8:00</td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                        </tr>
-                        <tr>
-                            <td className="border border-slate-200 p-2 text-sm text-slate-600 text-center">9:00</td>
-                            <td className="border border-slate-200 p-2 relative bg-rose-100 ">
-                                <div className="text-xs " style={{ zIndex: 0 }}>
-                                    <div className="">
-                                        <p className="text-rose-900">COMP 352</p>
-                                        <p className="text-rose-700">Sec A</p>
-                                        <p className="text-rose-600">H-637</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative bg-rose-100 ">
-                                <div className="text-xs " style={{ zIndex: 0 }}>
-                                    <div className="">
-                                        <p className="text-rose-900">COMP 352</p>
-                                        <p className="text-rose-700">Sec A</p>
-                                        <p className="text-rose-600">H-637</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                        </tr>
-                        <tr>
-                            <td className="border border-slate-200 p-2 text-sm text-slate-600 text-center">10:00</td>
-                            <td className="border border-slate-200 p-2 relative bg-rose-100 "></td>
-                            <td className="border border-slate-200 p-2 relative bg-rose-100 ">
-                                <div className="text-xs " style={{ zIndex: 0 }}>
-                                    <div className="">
-                                        <p className="text-rose-900">COMP 346</p>
-                                        <p className="text-rose-700">Sec B</p>
-                                        <p className="text-rose-600">MB-2.210</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td className="border border-slate-200 p-2 relative bg-rose-100 "></td>
-                            <td className="border border-slate-200 p-2 relative bg-rose-100 ">
-                                <div className="text-xs " style={{ zIndex: 0 }}>
-                                    <div className="">
-                                        <p className="text-rose-900">COMP 346</p>
-                                        <p className="text-rose-700">Sec B</p>
-                                        <p className="text-rose-600">MB-2.210</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                        </tr>
-                        <tr>
-                            <td className="border border-slate-200 p-2 text-sm text-slate-600 text-center">11:00</td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative bg-rose-100 "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative bg-rose-100 "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                        </tr>
-                        <tr>
-                            <td className="border border-slate-200 p-2 text-sm text-slate-600 text-center">12:00</td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                        </tr>
-                        <tr>
-                            <td className="border border-slate-200 p-2 text-sm text-slate-600 text-center">13:00</td>
-                            <td className="border border-slate-200 p-2 relative bg-rose-100 ">
-                                <div className="text-xs " style={{ zIndex: 0 }}>
-                                    <div className="">
-                                        <p className="text-rose-900">SOEN 341</p>
-                                        <p className="text-rose-700">Sec C</p>
-                                        <p className="text-rose-600">H-537</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative bg-rose-100 ">
-                                <div className="text-xs " style={{ zIndex: 0 }}>
-                                    <div className="">
-                                        <p className="text-rose-900">SOEN 341</p>
-                                        <p className="text-rose-700">Sec C</p>
-                                        <p className="text-rose-600">H-537</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                        </tr>
-                        <tr>
-                            <td className="border border-slate-200 p-2 text-sm text-slate-600 text-center">14:00</td>
-                            <td className="border border-slate-200 p-2 relative bg-rose-100 "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative bg-rose-100 "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                        </tr>
-                        <tr>
-                            <td className="border border-slate-200 p-2 text-sm text-slate-600 text-center">15:00</td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                        </tr>
-                        <tr>
-                            <td className="border border-slate-200 p-2 text-sm text-slate-600 text-center">16:00</td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                        </tr>
-                        <tr>
-                            <td className="border border-slate-200 p-2 text-sm text-slate-600 text-center">17:00</td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                        </tr>
-                        <tr>
-                            <td className="border border-slate-200 p-2 text-sm text-slate-600 text-center">18:00</td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                        </tr>
-                        <tr>
-                            <td className="border border-slate-200 p-2 text-sm text-slate-600 text-center">19:00</td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                        </tr>
-                        <tr>
-                            <td className="border border-slate-200 p-2 text-sm text-slate-600 text-center">20:00</td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                            <td className="border border-slate-200 p-2 relative  "></td>
-                        </tr>
+                        {hours.map((hour) => (
+                            <tr key={hour}>
+                                <td className="time-column">{hour}:00</td>
+                                {days.map((_, dayIndex) => {
+                                    const classItem = getClassForCell(dayIndex, hour);
+                                    return (
+                                        <td
+                                            key={dayIndex}
+                                            className={classItem ? "class-cell" : "empty-cell"}
+                                        >
+                                            {classItem && isFirstHourOfClass(classItem, hour) && (
+                                                <div className="class-info">
+                                                    <p className="class-name">{classItem.name}</p>
+                                                    <p className="class-section">{classItem.section}</p>
+                                                    <p className="class-room">{classItem.room}</p>
+                                                </div>
+                                            )}
+                                        </td>
+                                    );
+                                })}
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default WeeklySchedule;
