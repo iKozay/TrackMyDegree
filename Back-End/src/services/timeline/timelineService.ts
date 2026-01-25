@@ -577,22 +577,22 @@ async function generateSemestersFromPredefinedSequence(
   const terms = [SEASONS.WINTER, SEASONS.SUMMER, SEASONS.FALL];
 
   // Parse starting term
-  let currentYear: number;
+  let startYear: number;
   let currentSeasonIndex: number;
 
   if (startTerm) {
-    const startYear = Number.parseInt(startTerm.split(' ')[1]);
+    const parsedStartYear = Number.parseInt(startTerm.split(' ')[1]);
     const startSeason = startTerm.split(' ')[0].toUpperCase();
-    currentYear = startYear;
+    startYear = parsedStartYear;
     currentSeasonIndex = terms.indexOf(startSeason);
     if (currentSeasonIndex === -1) currentSeasonIndex = 2; // Default to Fall
   } else {
-    currentYear = new Date().getFullYear();
+    startYear = new Date().getFullYear();
     currentSeasonIndex = 2; // Fall
   }
 
   for (const sequenceTerm of predefinedSequence) {
-    const termLabel = `${terms[currentSeasonIndex]} ${currentYear}`;
+    const termLabel = `${terms[currentSeasonIndex]} ${startYear}`;
 
     let coursesInfo: { code: string; message?: string }[] = [];
 
@@ -600,7 +600,6 @@ async function generateSemestersFromPredefinedSequence(
       for (const courseCode of sequenceTerm.courses) {
         const normalizedCode = normalizeCourseCode(courseCode);
 
-        // Check if this is a placeholder (contains spaces after normalization or is a generic term)
         const isPlaceholder = courseCode.includes("Elective") ||
           courseCode.includes("General") ||
           courseCode.includes("Technical") ||
@@ -608,12 +607,10 @@ async function generateSemestersFromPredefinedSequence(
           courseCode.includes("NATURAL SCIENCE");
 
         if (isPlaceholder) {
-          // Keep placeholder as-is for display
           coursesInfo.push({ code: courseCode, message: "Placeholder - select a course" });
           continue;
         }
 
-        // Load course if not already in courses map
         if (!courses[normalizedCode]) {
           const courseData = await getCourseData(normalizedCode);
           if (courseData) {
@@ -629,7 +626,7 @@ async function generateSemestersFromPredefinedSequence(
         }
       }
     } else if (sequenceTerm.type === "Co-op") {
-      // Add co-op work term placeholder
+      // co-op work term placeholder
       const coopLabel = sequenceTerm.coopLabel || "Co-op Work Term";
       coursesInfo.push({ code: coopLabel, message: "Co-op Work Term" });
     }
@@ -640,7 +637,7 @@ async function generateSemestersFromPredefinedSequence(
     currentSeasonIndex++;
     if (currentSeasonIndex === terms.length) {
       currentSeasonIndex = 0;
-      currentYear++;
+      startYear++;
     }
   }
 
