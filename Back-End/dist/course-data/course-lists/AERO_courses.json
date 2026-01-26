@@ -1,0 +1,191 @@
+[
+    {
+        "title": "AERO 201 Introduction to Flight and Aerospace Systems",
+        "credits": 4,
+        "prerequisites": "ENGR 213.",
+        "corequisites": "ENGR 213.",
+        "description": "Introduction to flight vehicles in the atmosphere and in space; elements of aerodynamics, airfoils and wings; aerospace technologies including structures, materials and propulsion systems; elements of aircraft performance; basic principles of flight stability, control and systems integration; aspects of aircraft conceptual design.",
+        "components": "Lecture 3 hours per week; Laboratory 4 hours per week, alternate weeks",
+        "notes": "Permission of the Department is required for non - Aerospace Engineering students."
+    },
+    {
+        "title": "AERO 290 Introduction to Aircraft Design",
+        "credits": 3,
+        "prerequisites": "ENCS 282.",
+        "corequisites": "ENCS 282.",
+        "description": "Students taking this course will work as part of a multidisciplinary team to solve an assigned aerospace conceptual design problem. The course provides introductory, design-related knowledge on aerospace design topics including structural layout, powerplant integration, integrated systems requirements (such as avionics, electrical, flight controls, hydraulic, fuel, air, pressurization) and preliminary performance predictions. Lectures instruct students on the conceptual design process; aircraft sizing including take-off weight, empty weight and fuel-fraction estimates; mission analysis and trade studies; airfoil selection; constraint diagrams for thrust-to-weight and wing loading estimation; fuselage layout, engines and control surface sizing; structural and systems layout; introductory stability, control and performance; and cost analysis methods.",
+        "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
+        "notes": null
+    },
+    {
+        "title": "AERO 371 Modelling and Control Systems",
+        "credits": 3.5,
+        "prerequisites": "ENGR 311.",
+        "corequisites": "ENGR 311.",
+        "description": "Definition and classification of dynamic systems and components. Modelling of system components using ordinary differential equations: mechanical, electrical, electromechanical, and electrohydraulic subsystems in an airplane. Modelling of systems using transfer function models, block diagrams and signal flow graphs. Linearization of non-linear systems. Transient and steady-state characteristics of dynamic systems. Systems analyses using time domain methods, root-locus methods, and frequency response methods. Characteristics and performance of linear feedback control systems. System stability. Proportional, integral and derivative controllers. Simulation technique using Matlab/Simulink.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week, alternate weeks",
+        "notes": "Students who have received credit for ELEC 372 or MECH 371 may not take this course for credit."
+    },
+    {
+        "title": "AERO 390 Aerospace Engineering Design Project",
+        "credits": 3,
+        "prerequisites": "AERO 290, AERO 371; ENCS 282.",
+        "corequisites": "",
+        "description": "This course focuses on general design philosophy and the design process. The following topics are covered: design factors such as product safety, reliability, life cycle costs and manufacturability; design in the aerospace context (vehicle and system design with regard to mission requirements, configuration, sizing, loads, etc. ); mathematical modelling, analysis, and validation; introduction to Computer-Aided Design and Engineering (CAD and CAE); design documentation. A team-based project in which an aerospace system/subsystem is designed, implemented, documented and presented is an intrinsic part of this course.",
+        "components": "Lecture 3 hours per week; Tutorial 2 hours per week",
+        "notes": null
+    },
+    {
+        "title": "AERO 417 Standards, Regulations and Certification",
+        "credits": 3,
+        "prerequisites": "ENGR 201.",
+        "corequisites": "",
+        "description": "Overview of DoT and other international aviation standards (e. g. FAA), regulations and certification procedures; regulatory areas, namely, pilot training/testing, air traffic procedures, aircraft systems design and airworthiness; development process for new regulations and criteria for certification.",
+        "components": "Lecture 3 hours per week",
+        "notes": "Students who have received credit for ENGR 417 or for this topic under an ENGR 498 number may not take this course for credit."
+    },
+    {
+        "title": "AERO 431 Principles of Aeroelasticity",
+        "credits": 3.5,
+        "prerequisites": "ENGR 361; MECH 375.",
+        "corequisites": "",
+        "description": "This course covers the following topics: aerodynamic loading of elastic airfoils; phenomenon of divergence; effect of flexible control surface on divergence of main structure; divergence of one- and two- dimensional wing models; phenomenon of flutter; flutter of two- and three-dimensional wings; flutter prevention and control; panel flutter in high-speed vehicles, flutter of turbomachine bladings, galloping, vortex-induced oscillations, bridge buffeting.",
+        "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks.",
+        "notes": "Students who have received credit for MECH 431 may not take this course for credit."
+    },
+    {
+        "title": "AERO 446 Aerospace Vehicle Performance",
+        "credits": 3,
+        "prerequisites": "MECH 361.",
+        "corequisites": "",
+        "description": "Introduction to fixed-wing aircraft operation. Flying environment and its measurement by aircraft instrumentation. Computation of lift and drag, effects of viscosity and compressibility. Review of piston, turboprop, turbojet and turbofan power plants. Operational performance of aircraft in climb, cruise, descent and on ground. Advanced aircraft systems. Operational considerations in aircraft design. Projects on selected topics.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
+        "notes": null
+    },
+    {
+        "title": "AERO 455 Computational Fluid Dynamics for Aerospace Applications",
+        "credits": 3.75,
+        "prerequisites": "ENGR 311, ENGR 391; MECH 361.",
+        "corequisites": "",
+        "description": "Introduction to computational methods in fluid dynamics using commercial CFD codes; aspects of geometry modelling, structured and unstructured grid generation, solution strategy, and post-processing; conversion of CAD to CFD models; an overview of basic numerical methods for the Navier-Stokes equations with emphasis on accuracy evaluation and efficiency. Elements of turbulence closure modelling. User-defined function for customized physical models into commercial CFD codes.",
+        "components": "Lecture 3 hours per week; Laboratory 3 hours per week, alternate weeks",
+        "notes": null
+    },
+    {
+        "title": "AERO 462 Turbomachinery and Propulsion",
+        "credits": 3,
+        "prerequisites": "MECH 351, MECH 361.",
+        "corequisites": "",
+        "description": "This course covers the following topics: review of the gas turbine cycle and components arrangement; turbo-propulsion (turboprop, turbofan, turbojet and turboshafts); energy transfer in turbomachines (Euler equation, velocity triangles); dimensional analysis of turbomachines; flow in turbomachines; three-dimensional flow in turbomachines; mechanisms of losses in turbomachines; axial-flow turbines and compressors; centrifugal compressors; compressor and turbine performance maps; surge and stall.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
+        "notes": "This course is equivalent to MECH 462. Students who have received credit for MECH 462 may not take this course for credit. Students who have received credit for MECH 468 may not take this course for credit."
+    },
+    {
+        "title": "AERO 464 Aerodynamics",
+        "credits": 3,
+        "prerequisites": "MECH 361.",
+        "corequisites": "",
+        "description": "Flow conservation equations, incompressible Navier-Stokes equations, inviscid irrotational and rotational flows: the Euler equations, the potential and stream function equations. Dynamics of an incompressible inviscid flow field: the Kelvin, Stokes, and Helmholtz theorems. Elementary flows and their superposition, panel method for non-lifting bodies. Airfoil and wing characteristics, aerodynamic forces and moments coefficients. Incompressible flows around thin airfoils, Biot-Savart law, vortex sheets. Incompressible flow around thick airfoils, the panel method for lifting bodies. Incompressible flow around wings, Prandtl's lifting line theory, induced angle and down-wash, unswept wings, swept wings. Compressible subsonic flow: linearized theory, Prandlt-Glauert equation and other compressibility correction rules, the area rule. Transonic flow: Von Karman's ransonic small disturbance equation, transonic full potential equation, super-critical airfoils.",
+        "components": "Lecture 3 hours per week; Tutorial 1 hour per week",
+        "notes": "This course is equivalent to MECH 464. Students who have received credit for MECH 464 may not take this course for credit."
+    },
+    {
+        "title": "AERO 465 Gas Turbine Design",
+        "credits": 3.5,
+        "prerequisites": "AERO 462.",
+        "corequisites": "",
+        "description": "Review of turbo-propulsion types and energy transfer in turbomachines. Two- and three-dimensional flow. Lift and drag for airfoils. Cascade tests and correlations. Aerodynamic losses: physics, mechanisms, control of viscous effects. Preliminary and detailed design of turbines and compressors. Structural and thermal design requirements. Failure considerations: creep, fatigue and corrosion. Performance matching. Combustion and gearbox design. Air and oil systems design requirements. Installations and acoustics. Evolution of design. Recent trends in technologies.",
+        "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
+        "notes": "This course is equivalent to MECH 465. Students who have received credit for MECH 465 may not take this course for credit."
+    },
+    {
+        "title": "AERO 471 Aircraft Hydro-Mechanical and Fuel Systems",
+        "credits": 3.5,
+        "prerequisites": "AERO 201.",
+        "corequisites": "",
+        "description": "This course focuses on design principles and sizing of the following aircraft systems: hydraulic system, primary and secondary flight control actuation systems, landing gear systems, and fuel system. Traditional and new technology implementations in aircraft, helicopters and other aerospace vehicles are considered. Associated standards and regulations are described. Principles of architecture development and integration, as well as engineering tools for system sizing and simulation, are covered.",
+        "components": "Lecture 3 hours per week; Laboratory 12 hours total",
+        "notes": null
+    },
+    {
+        "title": "AERO 472 Aircraft Pneumatic and Electrical Power Systems",
+        "credits": 3.5,
+        "prerequisites": "AERO 201; ENGR 361.",
+        "corequisites": "",
+        "description": "This course focuses on design principles and sizing of the following aircraft systems: electrical power system, auxiliary and emergency power systems, environmental control system, ice and rain protection system, and pneumatic power system. Traditional and new technology implementations in aircraft, helicopters and other aerospace vehicles are considered. Associated standards and regulations are described. Principles of architecture development and integration, as well as engineering tools for system sizing and simulation, are covered. A project is required, including a laboratory component.",
+        "components": "Lecture 3 hours per week; Laboratory 12 hours total",
+        "notes": null
+    },
+    {
+        "title": "AERO 480 Flight Control Systems",
+        "credits": 3.5,
+        "prerequisites": "AERO 371 / ELEC 372 / MECH 371 / SOEN 385.",
+        "corequisites": "",
+        "description": "Basic flight control and flight dynamics principles. Aircraft dynamic equations and performance data. Implementation of aircraft control: control surfaces and their operations, development of thrust and its control; autopilot systems, their algorithms, dynamics and interaction problems. Flight instruments, principles of operation and dynamics. Cockpit layouts — basic configuration, ergonomic design, control field forces; advanced concepts in instruments, avionics and displays; HUD; flight management systems, and communication equipment. Introduction to flight simulation: overview of visual, audio and motion simulator systems; advanced concepts in flight simulators.",
+        "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
+        "notes": "This course is equivalent to ELEC 415 and to MECH 480. Students who have received credit for ELEC 415 or MECH 480 may not take this course for credit."
+    },
+    {
+        "title": "AERO 481 Materials Engineering for Aerospace",
+        "credits": 3.5,
+        "prerequisites": "MECH 221 / MIAE 221.",
+        "corequisites": "",
+        "description": "Different types of materials used in aerospace. Metals, composites, ceramics, polymers. Failure prediction and prevention. Modes of material failure, fracture, fatigue, creep, corrosion, impact. Effect of high temperature and multiaxial loadings. High temperature materials. Cumulative damage in fatigue and creep. Materials selection.",
+        "components": "Lecture 3 hours per week; Laboratory 2 hours per week, alternate weeks",
+        "notes": "This course is equivalent to MECH 481. Students who have received credit for MECH 481 may not take this course for credit. Students who have received credit for MECH 321 may not take this course for credit."
+    },
+    {
+        "title": "AERO 482 Avionic Navigation Systems",
+        "credits": 3,
+        "prerequisites": "ENGR 371 / COMP 233; AERO 371 / ELEC 372 / MECH 370 / SOEN 385.",
+        "corequisites": "",
+        "description": "Basics of modern electronic navigation systems, history of air navigation, earth coordinate and mapping systems; basic theory and analysis of modern electronic navigation instrumentation, communication and radar systems, approach aids, airborne systems, transmitters and antenna coverage; noise and losses, target detection, digital processing, display systems and technology; demonstration of avionic systems using flight simulator.",
+        "components": "Lecture 3 hours per week",
+        "notes": "This course is equivalent to ELEC 416 and to MECH 482. Students who have received credit for ELEC 416 or MECH 482 may not take this course for credit."
+    },
+    {
+        "title": "AERO 483 Integration of Avionics Systems",
+        "credits": 3,
+        "prerequisites": "AERO 482; ELEC 481.",
+        "corequisites": "",
+        "description": "This course covers the following topics: introduction to the basic principles of integration of avionics systems; review of Earth's geometry and Newton's laws; inertial navigation sensors and systems (INS); errors and uncertainty in navigation; Global Positioning System (GPS); differential and carrier tracking GPS applications; terrestrial radio navigation systems; Kalman filtering; integration of navigation systems using Kalman filtering; integration of GPS and INS using Kalman filtering.",
+        "components": "Lecture 3 hours per week",
+        "notes": "This course is equivalent to ENGR 418. Students who have received credit for ENGR 418 may not take this course for credit."
+    },
+    {
+        "title": "AERO 485 Introduction to Space Systems",
+        "credits": 3,
+        "prerequisites": "MECH 351, MECH 361.",
+        "corequisites": "",
+        "description": "Classification of space propulsion systems; Tsiolkovskj's equation; ideal rocket and nozzle design; flight performance; basic orbital mechanics; chemical propellant rocket performance analysis; fundamentals of liquid and solid propellant rocket motors; electric, solar, fusion thruster.",
+        "components": "Lecture 3 hours per week",
+        "notes": "This course is equivalent to MECH 485. Students who have received credit for MECH 485 or for this topic under a MECH 498 number may not take this course for credit."
+    },
+    {
+        "title": "AERO 486 Aircraft Stress Analysis",
+        "credits": 3,
+        "prerequisites": "ENGR 243, ENGR 244.",
+        "corequisites": "",
+        "description": "Definition of load paths in typical aircraft structures. Derivation of analysis procedures to enable the designer to size preliminary designs. Internal shear flow distributions that balance external loads. Stress analysis of open and closed cell beams; statically indeterminate beams and frames; single and multi cell torque boxes; symmetric heavy fuselage frames. Structural instability of columns, beams, plates and flanges in compression and shear. Centres of twist and flexure; structural warping; margins of safety; concepts of optimum design; lug analysis and mechanical joints; matrix analysis methods leading to the Finite Element method. Stress analysis of thin-walled metallic structures.",
+        "components": "Lecture 3 hours per week",
+        "notes": "This course is equivalent to MECH 486. Students who have received credit for MECH 486 may not take this course for credit."
+    },
+    {
+        "title": "AERO 487 Design of Aircraft Structures",
+        "credits": 3,
+        "prerequisites": "AERO 486.",
+        "corequisites": "",
+        "description": "Design process for aircraft structures. Aero/performance aspects of aircraft structures. Airworthiness and design considerations. Materials. Static, vibratory and aeroelastic loadings. Propulsion-induced loadings. Functions and fabrication of structural components. Design for buckling of aircraft structures: local buckling, instability of stiffened panels, flexural torsional buckling. Design for fracture and fatigue failures. Stress analysis and design of wings, fuselages, stringers, fuselage frames, wing ribs, cut-outs in wings and fuselages, and laminated structures. Design using Finite Element Method. Concept of Optimum Design of Aircraft Structures. Design case studies.",
+        "components": "Lecture 3 hours per week",
+        "notes": "This course is equivalent to MECH 487. Students who have received credit for MECH 487 may not take this course for credit."
+    },
+    {
+        "title": "AERO 490 Capstone Aerospace Engineering Design Project",
+        "credits": 6,
+        "prerequisites": "AERO 390; ENGR 301.",
+        "corequisites": "",
+        "description": "This course includes a supervised design, simulation or experimental capstone design project including a preliminary project proposal with complete project plan and a technical report at the end of the fall term; a final report by the group and presentation at the end of the winter term.",
+        "components": "Lecture 1 hour per week, one term; Laboratory Equivalent time, 5 hours per week, two terms",
+        "notes": "Students work in groups under direct supervision of a faculty member. With permission of the Department, students may enrol in MECH 490 instead of AERO 490 on the condition that they choose to complete an aerospace - oriented project."
+    }
+]

@@ -1,0 +1,100 @@
+[
+  {
+    "title": "MATH 201 Elementary Functions",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "This course focuses on basic functions (power functions, polynomials, rational and algebraic function, exponentials and logarithms, trigonometric functions), and operations on functions, including inverse functions, transformations and composition of functions. The course also includes a detailed study of trigonometry of angles, geometry of triangles and related trigonometric transformations.",
+    "components": "Lecture; Tutorial",
+    "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration. Students who have received credit or exemption for MATH 203 or equivalent, or for a course having MATH 203 or equivalent in its sequence of prerequisites, may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "MATH 203 Differential and Integral Calculus I",
+    "credits": 3,
+    "prerequisites": "MATH 201",
+    "corequisites": "",
+    "description": "This course is the first of two connected calculus courses (followed by MATH 205). This course focuses on an overview of functions and limits; derivative as rate of change, differentiation of elementary functions (power, exponential, logarithmic, trigonometric); differentiation rules (product, quotient, and chain rules); implicit differentiation; higher derivatives; approximations using linearization and the differential. Applications include related rates; optimization, analysis of functions (determining maxima, minima and inflection points) and graphing.",
+    "components": "Lecture; Tutorial",
+    "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration. Students who have received credit or an exemption for a course at the level of ACTU 256 or above; MAST 218 or above; MATH 251 or above; STAT 249 or above; or for a course having any of these courses in its sequence of prerequisites, may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "MATH 204 Vectors and Matrices",
+    "credits": 3,
+    "prerequisites": "MATH 201",
+    "corequisites": "",
+    "description": "This is an introductory course in elementary linear algebra. In this course, students learn algebra and geometry of vectors, dot and cross products, lines and planes. A key objective is learning methods to solve systems of linear equations, which are reformulated with matrix multiplication, matrix inversion, and determinants. Finally, these methods are clarified through linear transformations.",
+    "components": "Lecture; Tutorial",
+    "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration. Students who have received credit or an exemption for a course at the level of ACTU 256 or above; MATH 218 or above; MATH 251 or above; STAT 249 or above; or for a course having any of these courses in its sequence of prerequisites, may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "MATH 205 Differential and Integral Calculus II",
+    "credits": 3,
+    "prerequisites": "MATH 203",
+    "corequisites": "",
+    "description": "This course is the second of two connected courses on differential and integral calculus (preceded by MATH 203). In this course, students learn about definite integrals and antiderivatives, the fundamental theorem of calculus, indefinite integrals and techniques of integration (substitutions, integration by parts, partial fractions, trigonometric functions), improper integrals, applications of integration (area between curves, volumes of solids of revolurion); infinite sequences and series: tests for convergence; power series, Taylor and Maclaurin series.",
+    "components": "Lecture; Tutorial",
+    "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration. Students who have received credit or an exemption for a course at the level of ACTU 256 or above; MAST 218 or above; MATH 251 or above; STAT 249 or above; or for a course having any of these courses in its sequence of prerequisites, may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "MATH 206 Algebra and Functions",
+    "credits": 3,
+    "prerequisites": "",
+    "corequisites": "",
+    "description": "Coordinate systems. Radicals and distance formula. Polynomials, factoring, and graphing. Relations and functions. Linear and quadratic functions, equations, and systems. Exponents, exponential and logarithmic functions and equations.",
+    "components": "Lecture; Tutorial",
+    "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration. Students who have received credit or exemption for a course at the level of MATH 201 or above may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "MATH 208 Fundamental Mathematics I",
+    "credits": 3,
+    "prerequisites": "MATH 206",
+    "corequisites": "",
+    "description": "Topics covered in this course include matrices, Gaussian elimination, input‑output analysis, progressions, compound interest, annuities, permutations and combinations, probability, exponential and logarithmic functions, inequalities, linear programming.",
+    "components": "Lecture",
+    "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration. This is a prerequisite course for John Molson School of Business students. See Section 61.20 Admission Requirements and Section 14.2.2 John Molson School of Business under Mature Entry. Students who have received credit or an exemption for a course at the level of ACTU 256 or above; MAST 218 or above; MATH 251 or above; STAT 249 or above; or for a course having any of these courses in its sequence of prerequisites, may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "title": "MATH 209 Fundamental Mathematics II",
+    "credits": 3,
+    "prerequisites": "MATH 206",
+    "corequisites": "",
+    "description": "This course is a prerequisite course for John Molson School of Business students*. Limits; differentiation of rational, exponential, and logarithmic functions; theory of maxima and minima; integration.",
+    "components": "Lecture",
+    "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration. See Mature Entry and Section 61.20 Admission Requirements. Students who have received credit or exemption for MATH 203 or equivalent may not take this course for credit.",
+    "offeredIn": [
+      "fall",
+      "summer",
+      "winter"
+    ]
+  }
+]
