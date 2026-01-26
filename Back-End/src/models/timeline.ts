@@ -1,5 +1,6 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, InferSchemaType } from 'mongoose';
 
+/* --- schemas --- */
 const SemesterSchema = new Schema(
   {
     term: { type: String, required: true },
@@ -27,7 +28,6 @@ const CourseStatusSchema = new Schema(
 
 const TimelineSchema = new Schema(
   {
-    // _id is automatically created by MongoDB
     userId: { type: String, ref: 'User', required: true },
     degreeId: { type: String, ref: 'Degree', required: true },
     name: { type: String, required: true },
@@ -35,7 +35,6 @@ const TimelineSchema = new Schema(
     isCoop: { type: Boolean, default: false },
     semesters: { type: [SemesterSchema], default: [] },
     courseStatusMap: {
-      //key:course code (string)
       type: Map,
       of: CourseStatusSchema,
       default: () => new Map(),
@@ -49,4 +48,8 @@ const TimelineSchema = new Schema(
 /* INDEXES */
 TimelineSchema.index({ userId: 1, updatedAt: -1 });
 
-export const Timeline = model('Timeline', TimelineSchema);
+/* --- TYPE pour le document Mongoose --- */
+export type TimelineDocument = InferSchemaType<typeof TimelineSchema>;
+
+/* --- MODEL --- */
+export const Timeline = model<TimelineDocument>('Timeline', TimelineSchema);

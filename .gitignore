@@ -18,3 +18,5 @@ Back-End/python_utils/**/.pytest_cache/
 Back-End/python_utils/venv/
 Back-End/python_utils/**/.coverage
 Back-End/python_utils/**/coverage.*
+Back-End/coverage
+Back-End/dist
