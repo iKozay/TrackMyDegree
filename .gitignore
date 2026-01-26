@@ -19,3 +19,7 @@ Back-End/python_utils/venv/
 Back-End/python_utils/**/.coverage
 Back-End/python_utils/**/coverage.*
 Back-End/coverage
+coverage/
+**/coverage/
+.coverage
+coverage.*
