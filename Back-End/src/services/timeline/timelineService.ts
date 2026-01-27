@@ -791,13 +791,17 @@ async function addCoopCoursePool(
     console.log("added coop to degree course pools")
   }
   const coopCoursePool = await coursepoolController.getCoursePool("Coop Courses")
-  const coopCoursesList = coopCoursePool ? coopCoursePool.courses || [] : [];
-  const coopCourses = await Promise.all(coopCoursesList.map(async (code) => await getCourseData(code)));
-  coursePools.push(coopCoursePool as CoursePoolInfo);
-  for (const c of coopCourses) {
-    if (c) {
-      courses[c._id] = c;
+  if (coopCoursePool) {
+    const coopCoursesList = coopCoursePool.courses || [];
+    const coopCourses = await Promise.all(coopCoursesList.map(async (code) => await getCourseData(code)));
+    coursePools.push(coopCoursePool as CoursePoolInfo);
+    for (const c of coopCourses) {
+      if (c) {
+        courses[c._id] = c;
+      }
     }
+  } else {
+    console.warn("Coop Courses pool not found, skipping.");
   }
 }
 
