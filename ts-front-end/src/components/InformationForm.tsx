@@ -282,6 +282,7 @@ const InformationForm = () => {
               value="yes"
               checked={selectedRadio.extendedCredit === true}
               onChange={() => handleRadioChange("extendedCredit", true)}
+              aria-label="Extended Credit Program?"
             />
           </label>
         </div>
@@ -295,6 +296,7 @@ const InformationForm = () => {
               value="yes"
               checked={selectedRadio.coOp === true}
               onChange={() => handleRadioChange("coOp", true)}
+              aria-label="Co-op Program?"
             />
           </label>
         </div>
@@ -309,6 +311,7 @@ const InformationForm = () => {
                 value="yes"
                 checked={loadPredefinedSequence}
                 onChange={() => setLoadPredefinedSequence(!loadPredefinedSequence)}
+                aria-label="Load predefined co-op sequence?"
               />
             </label>
           </div>
