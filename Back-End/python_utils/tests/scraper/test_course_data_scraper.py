@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 from scraper.course_data_scraper import (
     extract_course_data, clean_text, fetch_html,
     parse_title_and_credits, split_sections, parse_prereq_coreq,
-    make_prereq_coreq_into_array, get_not_taken
+    make_prereq_coreq_into_array, get_not_taken, get_coop_courses
 )
 
 # NOTE: The global 'courses' list must be managed manually in tests
@@ -161,3 +161,61 @@ def test_extract_all_courses_any_code(mock_fetch):
 def test_extract_data_fetch_fail(mock_fetch):
     result = extract_course_data("SOEN 999", "https://dummy-url.com")
     assert result is None
+
+@patch("scraper.course_data_scraper.fetch_html")
+@patch("scraper.course_data_scraper.get_instance")
+def test_extract_valid_course(mock_get_instance, mock_fetch):
+    mock_api = Mock()
+    mock_api.get_term.return_value = ["Fall", "Winter"]
+    mock_get_instance.return_value = mock_api
+
+    mock_fetch.return_value = make_mock_soup(HTML_VALID)
+    result = extract_course_data("SOEN 357", "https://dummy-url.com")
+
+    assert result["_id"] == "SOEN 357"
+    assert result["credits"] == 3
+    assert "previously: SOEN 287." == result["prereqCoreqText"]
+    assert result["offeredIn"] == ["Fall", "Winter"]
+
+@patch("scraper.course_data_scraper.fetch_html")
+@patch("scraper.course_data_scraper.get_instance")
+def test_extract_all_courses_any_code(mock_get_instance, mock_fetch):
+    mock_api = Mock()
+    mock_api.get_term.return_value = ["Fall"]
+    mock_get_instance.return_value = mock_api
+
+    mock_fetch.return_value = make_mock_soup(HTML_MULTIPLE_COURSES)
+    result = extract_course_data("ANY", "https://dummy-url.com")
+
+    assert isinstance(result, list)
+    assert len(result) == 2
+    assert result[0]["_id"] == "SOEN 228"
+    assert result[1]["_id"] == "SOEN 357"
+
+@patch("scraper.course_data_scraper.fetch_html")
+def test_extract_course_not_found(mock_fetch):
+    mock_fetch.return_value = make_mock_soup(HTML_VALID)
+    result = extract_course_data("COMP 999", "https://dummy-url.com")
+    assert result is None
+
+def test_parse_title_and_credits_three_letter_code():
+    course_id, title, credits = parse_title_and_credits("CSE 101 Intro Programming (3 credits)", clean_text)
+    assert course_id == "CSE 101"
+    assert title == "Intro Programming"
+    assert credits == 3
+
+def test_parse_title_and_credits_no_match():
+    course_id, title, credits = parse_title_and_credits("Invalid Format", clean_text)
+    assert course_id is None
+    assert title == "Invalid Format"
+    assert credits is None
+
+def test_get_coop_courses():
+    coop_courses = get_coop_courses()
+    assert len(coop_courses) == 6
+    assert coop_courses[0]["_id"] == "CWT 100"
+    assert coop_courses[1]["_id"] == "CWT 101"
+    assert coop_courses[2]["_id"] == "CWT 200"
+    assert coop_courses[3]["_id"] == "CWT 201"
+    assert coop_courses[4]["_id"] == "CWT 300"
+    assert coop_courses[5]["_id"] == "CWT 301"

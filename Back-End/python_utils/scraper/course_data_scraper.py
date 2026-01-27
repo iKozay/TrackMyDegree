@@ -201,3 +201,91 @@ def extract_course_data(course_code, url):
         return courses
     else:
         return None
+
+def get_coop_courses():
+    return [
+        {
+            "_id":"CWT 100",
+            "code": "CWT 100",
+            "title": "COOP Work Term 1",
+            "credits": 0,
+            "description": "COOP Work Term 1",
+            "offeredIn": ["Fall", "Winter", "Summer"],
+            "prereqCoreqText": "",
+            "rules":{
+                "prereq":[],
+                "coreq":[],
+                "not_taken": []
+            }
+        },
+        {
+            "_id":"CWT 101",
+            "code": "CWT 101",
+            "title": "Reflective Learning I",
+            "credits": 0,
+            "description": "Reflective Learning I",
+            "offeredIn": ["Fall", "Winter", "Summer"],
+            "prereqCoreqText": "",
+            "rules":{
+                "prereq":[],
+                "coreq":[],
+                "not_taken": []
+            }
+        },
+        {
+            "_id":"CWT 200",
+            "code": "CWT 200",
+            "title": "COOP Work Term 2",
+            "credits": 0,
+            "description": "COOP Work Term 2",
+            "offeredIn": ["Fall", "Winter", "Summer"],
+            "prereqCoreqText": "",
+            "rules":{
+                "prereq":[["CWT 100"]],
+                "coreq":[],
+                "not_taken": []
+            }
+        },
+        {
+            "_id":"CWT 201",
+            "code": "CWT 201",
+            "title": "Reflective Learning II",
+            "credits": 0,
+            "description": "Reflective Learning II",
+            "offeredIn": ["Fall", "Winter", "Summer"],
+            "prereqCoreqText": "",
+            "rules":{
+                "prereq":[["CWT 101"]],
+                "coreq":[],
+                "not_taken": []
+            }
+        },
+        {
+            "_id":"CWT 300",
+            "code": "CWT 300",
+            "title": "COOP Work Term 3",
+            "credits": 0,
+            "description": "COOP Work Term 3",
+            "offeredIn": ["Fall", "Winter", "Summer"],
+            "prereqCoreqText": "",
+            "rules":{
+                "prereq":[["CWT 200"]],
+                "coreq":[],
+                "not_taken": []
+            }
+        },
+        {
+            "_id":"CWT 301",
+            "code": "CWT 301",
+            "title": "Reflective Learning III",
+            "credits": 0,
+            "description": "Reflective Learning III",
+            "offeredIn": ["Fall", "Winter", "Summer"],
+            "prereqCoreqText": "",
+            "rules":{
+                "prereq":[["CWT 201"]],
+                "coreq":[],
+                "not_taken": []
+            }
+        }
+    ]
