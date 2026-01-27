@@ -1057,10 +1057,14 @@ def parse_transcript(pdf_bytes):
         # Extract coop status
         if latest_program.get('coop'):
             program_info['isCoop'] = True
+        else:
+            program_info['isCoop'] = False
         
         # Extract extended credit program status (check both program history and full page text)
         if latest_program.get('extendedCreditProgram') or extended_credit_program:
             program_info['isExtendedCreditProgram'] = True
+        else:
+            program_info['isExtendedCreditProgram'] = False
         
         # Extract minimum program length
         min_credits = latest_program.get('minCreditsRequired')

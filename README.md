@@ -2,7 +2,7 @@
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=iKozay_TrackMyDegree&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=iKozay_TrackMyDegree) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=iKozay_TrackMyDegree&metric=bugs)](https://sonarcloud.io/summary/new_code?id=iKozay_TrackMyDegree) [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=iKozay_TrackMyDegree&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=iKozay_TrackMyDegree) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=iKozay_TrackMyDegree&metric=coverage)](https://sonarcloud.io/summary/new_code?id=iKozay_TrackMyDegree) [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=iKozay_TrackMyDegree&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=iKozay_TrackMyDegree)
 
-### [Try Now](https://stg.trackmydegree.ca)
+### [Try Now](https://trackmydegree.ca)
 
 ### Release 1 Deliverable
 - [Presentation](https://docs.google.com/presentation/d/1CXDA9PgEQqeyCek9WGNIhLl0sTdgGOUpxeh2253D3KQ/edit?usp=sharing)
@@ -63,6 +63,7 @@ Ensure you have the following installed on your machine:
 - **Docker**: For containerization.
 - **Docker Compose**: To manage multi-container applications.
 - **Yarn** and **npm**: This project requires both package managers.
+- **Python 3.11**: For the python utils (Transcript parser and Scraper) in the backend
 
 ### Setup Instructions
 
@@ -83,9 +84,9 @@ Ensure you have the following installed on your machine:
 
 3. **Install dependencies**:
    ```bash
-   cd front-end
+   cd ts-front-end
    npm i
-   cd ../Back-End
+   cd ../Back-End/src
    npm i
    cd ..
    npm i

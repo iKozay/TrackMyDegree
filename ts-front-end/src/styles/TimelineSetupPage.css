@@ -1,0 +1,151 @@
+.top-down {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive styling for screens smaller than 1000px */
+@media screen and (max-width: 1000px) {
+  .top-down {
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center-align items */
+  }
+
+  .form-container-al,
+  .upload-container-al {
+    margin: 0; /* Reset margins for vertical layout */
+    width: 100%; /* Make containers take full width */
+  }
+
+  .or-divider {
+    margin: 10px 0; /* Add vertical spacing for the OR divider */
+  }
+}
+
+.g-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  gap: 20px;
+}
+
+.form-container-al {
+  width: 35%;
+  text-align: center;
+  margin-left: 10vh;
+}
+
+
+h2 {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+p {
+  font-size: 14px;
+  color: #666;
+}
+
+.form-container-al h2 {
+  text-align: center;
+}
+
+.form-container-al label {
+  font-size: 16px;
+  font-weight: 500;
+  margin-top: 10px;
+  display: block;
+}
+
+.input-field {
+  width: 20vw;
+  height: 40px;
+  max-width: 200px;
+  margin-top: 5px;
+  padding: 0 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.radio-group {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.radio-group .cooo {
+  font-weight: 500;
+  font-size: 16px;
+  margin-left: 15%;
+}
+
+.radio-group label {
+  margin-right: 10%;
+  display: flex;
+  align-items: center;
+}
+
+.radio-group label input {
+  margin-left: 2px;
+}
+
+.cancel-button,
+.next-button {
+  width: 80px;
+  height: 35px;
+  margin-top: 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancel-button {
+  margin-top: 20px;
+  width: 150px;
+  height: 40px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: #e0e0e0;
+  color: #000;
+  margin-right: 10px;
+}
+
+.next-button {
+  background-color: #8b0000;
+  color: #fff;
+}
+
+
+.upload-container-al .create-button:hover,
+.next-button:hover {
+  background-color: #a61c1c;
+}
+
+.or-divider {
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+  text-align: center;
+  white-space: nowrap;
+  margin-top: 30vh;
+}
+
+/* Button to Open Modal */
+.open-modal-btn {
+  background-color: #0c6fd9;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.open-modal-btn:hover {
+  background-color: #084d8c;
+}

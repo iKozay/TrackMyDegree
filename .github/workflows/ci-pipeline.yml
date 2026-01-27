@@ -27,17 +27,17 @@ jobs:
           node-version: '22'
 
       - name: Install dependencies for frontend
-        working-directory: ./front-end
+        working-directory: ./ts-front-end
         run: |
           npm install
 
       - name: Run ESLint for frontend
-        working-directory: ./front-end
+        working-directory: ./ts-front-end
         run: |
           npm run lint
 
       - name: Run frontend tests with coverage
-        working-directory: ./front-end
+        working-directory: ./ts-front-end
         env:
           # Setting CI to false to avoid treating warnings as errors
           CI: false
@@ -49,7 +49,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
-          path: front-end/coverage
+          path: ts-front-end/coverage
 
   backend:
     runs-on: ubuntu-latest
@@ -146,7 +146,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-coverage
-          path: front-end/coverage
+          path: ts-front-end/coverage
 
       - name: Download backend coverage artifact (backend)
         uses: actions/download-artifact@v4
@@ -178,10 +178,12 @@ jobs:
       matrix:
         include:
           - name: backend
-            context: ./Back-End
+            context: .
+            dockerfile: ./Back-End/Dockerfile
             image: trackmydegree-backend
           - name: frontend
-            context: ./front-end
+            context: .
+            dockerfile: ./ts-front-end/Dockerfile
             image: trackmydegree-frontend
 
     steps:
@@ -211,13 +213,17 @@ jobs:
 
           echo "latest_tag=${LATEST_TAG}" >> $GITHUB_OUTPUT
           echo "versioned_tag=${VERSIONED_TAG}" >> $GITHUB_OUTPUT
+          echo "version_tag=${VERSION_TAG}" >> $GITHUB_OUTPUT
           
 
       - name: Build and Push ${{ matrix.name }} Image
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: |
             ${{ steps.version.outputs.latest_tag }}
-            ${{ steps.version.outputs.versioned_tag }}         
+            ${{ steps.version.outputs.versioned_tag }}
+          build-args: |
+            VITE_DEPLOYMENT_VERSION=${{ steps.version.outputs.version_tag }}

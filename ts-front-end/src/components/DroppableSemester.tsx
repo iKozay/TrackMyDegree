@@ -1,0 +1,81 @@
+import React from "react";
+import { useDroppable } from "@dnd-kit/core";
+import { Calendar, Clock } from "lucide-react";
+import { DraggableCourse } from "./DraggableCourse";
+import type {
+  CourseMap,
+  CourseCode,
+  SemesterId,
+  SemesterCourse,
+} from "../types/timeline.types";
+import type { DroppableSemesterData } from "../types/dnd.types";
+
+interface DroppableSemesterProps {
+  semesterId: SemesterId;
+  courses: CourseMap;
+  semesterCourses: SemesterCourse[];
+  onCourseSelect: (courseId: CourseCode) => void;
+  selectedCourse?: CourseCode | null;
+}
+
+export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
+  semesterId,
+  courses,
+  semesterCourses,
+  onCourseSelect,
+  selectedCourse,
+}) => {
+  const { isOver, setNodeRef } = useDroppable({
+    id: semesterId,
+    data: { type: "semester", semesterId } as DroppableSemesterData,
+  });
+
+  const [season, year] = semesterId.split(" ");
+  const seasonLabel =
+    season.charAt(0).toUpperCase() + season.slice(1).toLowerCase();
+
+  const totalCredits = semesterCourses.reduce((sum, c) => {
+    const course = courses[c.code];
+    return sum + (course?.credits ?? 0);
+  }, 0);
+
+  return (
+    <div ref={setNodeRef} className={`semester ${isOver ? "drag-over" : ""}`}>
+      <div className="semester-header">
+        <div className="semester-title">
+          <Calendar size={16} />
+          <span>
+            {seasonLabel} {year}
+          </span>
+        </div>
+        <div className="semester-credits">
+          <Clock size={14} />
+          {totalCredits} credits
+        </div>
+      </div>
+
+      <div className="semester-courses">
+        {semesterCourses.length === 0 ? (
+          <div className="empty-semester">Drop courses here</div>
+        ) : (
+          semesterCourses.map((c) => {
+            const course = courses[c.code];
+            if (!course) return null;
+
+            return (
+              <DraggableCourse
+                key={c.code}
+                courseId={c.code}
+                message={c.message}
+                course={course}
+                onCourseSelect={onCourseSelect}
+                isSelected={selectedCourse === c.code}
+                semesterId={semesterId}
+              />
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+};

@@ -1,55 +1,31 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    /* Visit https://aka.ms/tsconfig to read more about this file */
-    
-    /* Language and Environment */
-    "target": "ES2022",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
-    "lib": ["ES2022"],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
-
-    /* Modules */
-    "module": "commonjs",                                /* Specify what module code is generated. */
-    "moduleResolution": "node",                      /* Specify how TypeScript resolves modules. */
-    "baseUrl": ".",                                  /* Specify the base directory to resolve non-relative module names. */
+    "module": "commonjs",
+    "outDir": "./dist",
+    "sourceMap": true,
+    "inlineSources": true,
+    "allowJs": true,
+    "noEmit": false,
+    "baseUrl": ".",
+    "noImplicitReturns": false,
     "paths": {
-      "@controllers/*"  : ["./controllers/*"],
-      "@lib/*"          : ["./lib/*"],
-      "@middleware/*"   : ["./middleware/*"],
-      "@models/*"       : ["./models/*"],
-      "@models"         : ["./models/index"],
-      "@routes/*"       : ["./routes/*"],
-      "@services/*"     : ["./services/*"],
+      "@controllers/*": ["./controllers/*"],
+      "@lib/*": ["./lib/*"],
+      "@middleware/*": ["./middleware/*"],
+      "@models/*": ["./models/*"],
+      "@models": ["./models/index"],
+      "@routes/*": ["./routes/*"],
+      "@services/*": ["./services/*"],
       "@types/*"        : ["./types/*"],
-      "@utils/*"        : ["./utils/*"],
-     },                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
+      "@utils/*": ["./utils/*"],
+      "@shared/*": ["../../shared/types/*"]
+    },
     "plugins": [
-         {
-            "transform": "typescript-transform-paths"
-         },
-         {
-            "transform"         : "typescript-transform-paths",
-            "afterDeclarations" : true
-         }
-    ],
-
-    /* JavaScript Support */
-    "allowJs": true,                                  /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */
-
-    "outDir": "./dist",                                   /* Specify an output folder for all emitted files. */
-
-    /* Emit */
-    "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
-    "inlineSources": true,                            /* Include source code in the source maps inside the emitted JavaScript. */
-
-    /* Interop Constraints */
-    "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
-    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
-
-    /* Type Checking */
-    "strict": true,                                      /* Enable all strict type-checking options. */
-
-    /* Completeness */
-    "skipLibCheck": true /* Skip type checking all .d.ts files. */
+      { "transform": "typescript-transform-paths" },
+      { "transform": "typescript-transform-paths", "afterDeclarations": true }
+    ]
   },
-  "exclude" : ["dist", "coverage"],
-  "include" : ["./**/*.ts"]
+  "include": ["./**/*.ts"],
+  "exclude": ["dist", "coverage"]
 }

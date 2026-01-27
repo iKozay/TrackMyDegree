@@ -1,0 +1,671 @@
+:root {
+    --primary-maroon: #881337;
+    --primary-rose: #fff1f2;
+    --primary-rose-alpha: rgba(136, 19, 55, 0.1);
+
+    /* Figma OKLCH Colors */
+    --badge-blue-bg: oklch(.932 .032 255.585);
+    --badge-blue-text: oklch(.488 .243 264.376);
+
+    --badge-green-bg: oklch(0.962 0.044 156.743);
+    --badge-green-text: oklch(0.527 0.154 150.069);
+
+    --badge-amber-bg: oklch(0.962 0.059 95.617);
+    --badge-amber-text: oklch(.555 .163 48.998);
+
+    --badge-slate-bg: oklch(0.968 0.007 247.896);
+    --badge-slate-text: oklch(0.372 0.044 257.287);
+
+    --badge-red-bg: #D4193D;
+    --badge-red-text: rgb(255, 255, 255);
+
+    --slate-50: oklch(0.985 0.001 254.912);
+    --slate-100: oklch(0.968 0.007 247.896);
+    --slate-200: oklch(0.929 0.013 255.508);
+    --slate-400: oklch(0.707 0.022 261.325);
+    --slate-500: oklch(0.554 0.046 257.417);
+    --slate-600: #64748b;
+    --slate-900: #0f172a;
+    --border-gray: rgba(0, 0, 0, 0.1);
+
+    /* Skeleton Loading Color */
+    --skeleton-bg: #f1f5f9;
+    --skeleton-shimmer: linear-gradient(90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0) 100%);
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.skeleton {
+    background-color: var(--skeleton-bg);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: var(--skeleton-shimmer);
+    animation: shimmer 2s infinite;
+}
+
+.skeleton-text {
+    height: 14px;
+    margin-bottom: 8px;
+    width: 60%;
+}
+
+.skeleton-title {
+    height: 24px;
+    margin-bottom: 12px;
+    width: 40%;
+}
+
+.skeleton-card {
+    height: 200px;
+}
+
+.degree-audit-page {
+    background-color: #f8fafc;
+    min-height: 100%;
+    padding: 1rem;
+}
+
+/* Back Button */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background-color: white;
+    border: 1px solid var(--border-gray);
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--slate-600);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.back-btn:hover {
+    background-color: #f8fafc;
+    border-color: var(--primary-maroon);
+    color: var(--primary-maroon);
+    transform: translateX(-2px);
+}
+
+.back-btn svg {
+    transition: transform 0.2s ease;
+}
+
+.back-btn:hover svg {
+    transform: translateX(-3px);
+}
+
+.da-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.da-title h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--slate-900);
+    margin: 0 0 4px 0;
+}
+
+.da-title p {
+    color: var(--slate-600);
+    font-size: 14px;
+    margin: 0;
+}
+
+.da-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn.btn-outline {
+    background-color: white;
+    border: 1px solid var(--border-gray);
+    color: var(--slate-900);
+}
+
+.btn.btn-outline:hover {
+    background-color: #f8fafc;
+}
+
+.btn-primary {
+    background-color: #881337 !important;
+    border: 1px solid #881337 !important;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background-color: #7a152d !important;
+}
+
+/* Card Common */
+.card {
+    background-color: white;
+    border-radius: 13px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 0px 0.5px 0px, rgba(0, 0, 0, 0.15) 0px 1px 3px 0px;
+    border: none;
+}
+
+.da-divider {
+    border: none;
+    border-top: 1px solid var(--slate-200);
+    margin: 2rem 0 0;
+    width: 100%;
+    opacity: 0.8;
+}
+
+/* Student Info */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--slate-900);
+    margin-bottom: 20px;
+}
+
+.info-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.label {
+    color: var(--slate-600);
+    font-weight: 400;
+    font-size: 14px;
+}
+
+.value {
+    color: var(--slate-900);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Progress Section */
+.audit-progress {
+    margin-top: 1rem;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.progress-header .section-title {
+    margin-bottom: 0;
+}
+
+.progress-title {
+    font-weight: 600;
+    color: var(--slate-900);
+    font-size: 16px;
+}
+
+.progress-percentage {
+    font-weight: 600;
+    font-size: 20px;
+}
+
+.progress-bar-container {
+    height: 10px;
+    background-color: var(--primary-rose-alpha);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.progress-bar-fill {
+    background-color: var(--primary-maroon);
+    height: 100%;
+    border-radius: 99px;
+}
+
+/* If you want multi-segment (completed, in-progress) */
+.progress-bar-segment {
+    height: 100%;
+}
+
+.segment-completed {
+    background-color: var(--primary-maroon);
+}
+
+.segment-inprogress {
+    background-color: #d1d5db;
+    /* Grey or light blue */
+}
+
+.progress-legends {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--slate-500);
+}
+
+/* Notices */
+.notices-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.notice-item {
+    padding: 16px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.notice-warning {
+    background-color: var(--badge-amber-bg);
+    border: 1px solid oklch(0.962 0.059 95.617);
+    color: var(--badge-amber-text);
+}
+
+.notice-info {
+    background-color: var(--badge-blue-bg);
+    border: 1px solid oklch(0.932 0.032 255.585);
+    color: var(--badge-blue-text);
+}
+
+
+/* Requirements */
+.req-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 12px 0;
+}
+
+.req-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.req-name {
+    font-weight: 600;
+    color: var(--slate-900);
+    font-size: 16px;
+}
+
+.badge {
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge.badge-progress {
+    background-color: var(--badge-blue-bg);
+    color: var(--badge-blue-text);
+}
+
+.badge.badge-missing {
+    background-color: var(--badge-red-bg);
+    color: var(--badge-red-text);
+}
+
+.badge.badge-complete {
+    background-color: var(--badge-green-bg);
+    color: var(--badge-green-text);
+}
+
+.badge.badge-incomplete {
+    background-color: var(--badge-amber-bg);
+    color: var(--badge-amber-text);
+}
+
+.badge.badge-notstarted {
+    background-color: var(--badge-slate-bg);
+    color: var(--badge-slate-text);
+}
+
+.req-stats {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.875rem;
+}
+
+.courses-list {
+    margin: 8px 0 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background-color: #fcfcfc;
+    border-radius: 12px;
+}
+
+.req-progress-bar {
+    height: 12px;
+    background-color: var(--primary-rose-alpha);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.req-progress-fill {
+    height: 100%;
+    border-radius: 9999px;
+}
+
+.req-progress-fill.completed {
+    background-color: var(--primary-maroon);
+}
+
+/* Credit Legend */
+.req-credit-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.legend-completed {
+    color: oklch(0.627 0.194 149.214);
+}
+
+.legend-inprogress {
+    color: oklch(0.546 0.245 262.881);
+}
+
+.legend-remaining {
+    color: #D4183D;
+}
+
+.course-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px;
+    background-color: white;
+    border-radius: 12px;
+    border: 1px solid var(--slate-200);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.01);
+    transition: all 0.2s ease;
+}
+
+.course-item:hover {
+    background-color: #ffffff;
+    border-color: var(--slate-400);
+}
+
+.course-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0;
+}
+
+.course-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.text-success {
+    color: var(--badge-green-text);
+}
+
+.text-danger {
+    color: var(--badge-red-bg);
+}
+
+.text-primary {
+    color: var(--badge-blue-text);
+}
+
+.text-gray {
+    color: var(--slate-400);
+}
+
+.course-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.course-code {
+    font-weight: 400;
+    color: var(--slate-900);
+    font-size: 16px;
+}
+
+.course-title {
+    font-size: 0.85rem;
+    color: var(--slate-500);
+}
+
+.course-status-badge .badge {
+    padding: 4px 10px;
+    font-size: 10px;
+    border-radius: 4px;
+}
+
+.course-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0px;
+}
+
+.grade-tag {
+    font-size: 12px;
+    color: var(--slate-500);
+}
+
+/* Disclaimer Note */
+.disclaimer-note {
+    background-color: var(--badge-blue-bg);
+    border: 1px solid oklch(0.85 0.05 255);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 16px;
+    color: var(--slate-600);
+    margin-top: 24px;
+}
+
+.disclaimer-note strong {
+    color: var(--badge-blue-text);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .degree-audit-page {
+        padding: 16px;
+    }
+
+    .da-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .da-actions {
+        width: 100%;
+    }
+
+    .da-actions .btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .progress-header {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .progress-legends {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .req-stats {
+        display: none;
+    }
+
+    .course-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .course-status-badge {
+        align-self: stretch;
+        text-align: center;
+    }
+}
+
+/* State Screens */
+.state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+    background-color: white;
+    border-radius: 13px;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 0px 0.5px 0px, rgba(0, 0, 0, 0.15) 0px 1px 3px 0px;
+    margin: 24px;
+}
+
+.state-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.state-icon.info {
+    background-color: var(--badge-blue-bg);
+    color: var(--badge-blue-text);
+}
+
+.state-icon.error {
+    background-color: var(--badge-red-bg);
+    color: white;
+}
+
+.state-icon.empty {
+    background-color: var(--badge-slate-bg);
+    color: var(--badge-slate-text);
+}
+
+.state-container h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--slate-900);
+    margin: 0 0 12px 0;
+}
+
+.state-container p {
+    color: var(--slate-600);
+    font-size: 16px;
+    max-width: 400px;
+    margin: 0 0 24px 0;
+}
+
+.btn-retry {
+    background-color: var(--primary-maroon);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-retry:hover {
+    background-color: #7a152d;
+}

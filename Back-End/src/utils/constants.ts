@@ -18,6 +18,8 @@ type DegreeURLMap = {
   [key: string]: string;
 };
 const DEGREES_URL: DegreeURLMap = {
+  'Computer Science':
+    'https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-70-department-of-computer-science-and-software-engineering/section-71-70-2-degree-requirements-bcompsc-.html',
   'Computer Engineering':
     'https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-30-department-of-electrical-and-computer-engineering/section-71-30-2-course-requirements-beng-in-computer-engineering-.html',
   'Mechanical Engineering':
@@ -36,15 +38,27 @@ const DEGREES_URL: DegreeURLMap = {
     'https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-50-department-of-building-civil-and-environmental-engineering/section-71-50-2-course-requirements-beng-in-civil-engineering-.html',
   'Software Engineering':
     'https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-70-department-of-computer-science-and-software-engineering/section-71-70-9-degree-requirements-for-the-beng-in-software-engineering.html',
+  'ENGR ECP':
+    'engr_ecp',
+  'COMP ECP':
+    'comp_ecp'
 };
 
 // lib/cache.ts
 const RESULT_TTL_SECONDS = 60 * 60; // 1 hour
 
 // utils/pythonUtilsApi.ts
-const PYTHON_SERVICE_BASE_URL = 'http://localhost:5000';
+const PYTHON_SERVICE_BASE_URL = 'http://localhost:15001';
+
+const SEASONS = {
+  WINTER: "WINTER",
+  SUMMER: "SUMMER",
+  FALL: "FALL",
+  FALL_WINTER: "FALL/WINTER",
+};
 
 export {
+  SEASONS,
   DATABASE_CONNECTION_NOT_AVAILABLE,
   RESET_EXPIRY_MINUTES,
   DUMMY_HASH,

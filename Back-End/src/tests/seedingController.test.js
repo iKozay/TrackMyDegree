@@ -12,6 +12,12 @@ jest.mock('../controllers/degreeController');
 jest.mock('../controllers/coursepoolController');
 jest.mock('../controllers/courseController');
 jest.mock('../utils/constants', () => ({
+  SEASONS: {
+    WINTER: 'WINTER',
+    SUMMER: 'SUMMER',
+    FALL: 'FALL',
+    FALL_WINTER: 'FALL/WINTER',
+  },
   DEGREES_URL: {
     'Test Degree': 'https://example.com/test-degree',
     DegreeA: 'https://example.com/degA',
@@ -86,12 +92,6 @@ describe('seedingController', () => {
       expect(bulkCreateCoursesMock).toHaveBeenCalledWith(fakeData.courses);
       expect(consoleLogSpy).toHaveBeenCalledWith(
         'Degree deg1 created successfully.',
-      );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Course pools created for degree: Test Degree',
-      );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Courses created for degree: Test Degree',
       );
     });
 
@@ -187,10 +187,6 @@ describe('seedingController', () => {
       }));
 
       await seedDegreeData('Test Degree');
-
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Some course pools may not have been created for degree: Test Degree',
-      );
     });
 
     it('warns when some courses are not created', async () => {
@@ -218,10 +214,6 @@ describe('seedingController', () => {
       }));
 
       await seedDegreeData('Test Degree');
-
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Some courses may not have been created for degree: Test Degree',
-      );
     });
 
     it('handles error when creating course pools or courses fails', async () => {
@@ -288,7 +280,7 @@ describe('seedingController', () => {
 
       await seedAllDegreeData();
 
-      // parseDegree should be invoked once per degree in degreesURL
+      // parseDegree should be invoked once per degree in degreesURL (in parallel)
       expect(pythonUtilsApi.parseDegree).toHaveBeenCalledTimes(3);
       expect(pythonUtilsApi.parseDegree).toHaveBeenCalledWith(
         'https://example.com/test-degree',
@@ -305,7 +297,7 @@ describe('seedingController', () => {
       expect(bulkCreateCoursePoolsMock).toHaveBeenCalledTimes(3);
       expect(bulkCreateCoursesMock).toHaveBeenCalledTimes(3);
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Seeding completed for all degrees.',
+        'Seeding completed for all degrees. Success: 3, Failed: 0',
       );
     });
 
@@ -343,20 +335,20 @@ describe('seedingController', () => {
 
       await seedAllDegreeData();
 
-      // parseDegree should be invoked once per degree
+      // parseDegree should be invoked once per degree (all in parallel)
       expect(pythonUtilsApi.parseDegree).toHaveBeenCalledTimes(3);
 
       // Only 2 degrees should succeed
       expect(createDegreeMock).toHaveBeenCalledTimes(2);
 
-      // Error should be logged for the failed degree
+      // Error should be logged for the failed degree during scraping phase
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Seeding failed for degree'),
+        expect.stringContaining('Scraping failed for degree'),
         expect.any(Error),
       );
 
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Seeding completed for all degrees.',
+        'Seeding completed for all degrees. Success: 2, Failed: 1',
       );
     });
   });

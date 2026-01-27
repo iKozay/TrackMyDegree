@@ -1,0 +1,55 @@
+.insights-pool-progress-container {
+    text-align: center;
+    padding: 1rem;
+    min-width: 250px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background-color: white;
+    position: relative;
+}
+
+.insights-pool-progress-title {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.insights-pool-chart-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+.insights-pool-chart {
+    width: 100%;
+    height: 100%;
+}
+
+.insights-pool-background-circle,
+.insights-pool-progress-circle {
+    cursor: pointer;
+}
+
+.insights-pool-background-circle:hover,
+.insights-pool-progress-circle:hover {
+    filter: brightness(1.1);
+}
+
+.insights-pool-percentage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.insights-pool-credits {
+    font-size: 0.875rem;
+    color: #555;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}

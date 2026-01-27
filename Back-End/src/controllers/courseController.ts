@@ -7,18 +7,13 @@ export interface CourseData {
   title: string;
   description?: string;
   credits: number;
-  prerequisites?: string[];
-  corequisites?: string[];
   offeredIn?: string[];
-  [key: string]: unknown;
-}
-
-export type RequisiteType = 'pre' | 'co';
-
-export interface RequisiteData {
-  code1: string;
-  code2: string;
-  type: RequisiteType;
+  prereqCoreqText?: string;
+  rules?: {
+    prereq?: string[][];
+    coreq?: string[][];
+    not_taken?: string[];
+  };
 }
 
 export class CourseController extends BaseMongoController<any> {
@@ -44,7 +39,6 @@ export class CourseController extends BaseMongoController<any> {
       return true;
     } catch (error) {
       this.handleError(error, 'bulkCreateCourse');
-      return false;
     }
   }
 
@@ -102,6 +96,21 @@ export class CourseController extends BaseMongoController<any> {
     }
   }
 
+  async getAllCourseCodes(): Promise<string[]> {
+    try {
+      const result = await this.findAll({}, { fields: ['_id'] });
+
+      if (!result.success || !result.data) {
+        return [];
+      }
+
+      return result.data.map((course: any) => course._id);
+    } catch (error) {
+      this.handleError(error, 'getAllCourseCodes');
+      return [];
+    }
+  }
+
   /**
    * Get course by code
    */
@@ -149,108 +158,6 @@ export class CourseController extends BaseMongoController<any> {
       return `Course '${code}' deleted successfully.`;
     } catch (error) {
       this.handleError(error, 'deleteCourse');
-    }
-  }
-
-  // ==========================
-  // REQUISITE OPERATIONS
-  // ==========================
-
-  /**
-   * Create a new course requisite
-   */
-  async createRequisite(
-    code1: string,
-    code2: string,
-    type: RequisiteType,
-  ): Promise<RequisiteData> {
-    try {
-      // Validate both courses exist (parallel query)
-      const [exists1, exists2] = await Promise.all([
-        Course.exists({ _id: code1 }).exec(),
-        Course.exists({ _id: code2 }).exec(),
-      ]);
-
-      if (!exists1 || !exists2) {
-        throw new Error(
-          `One or both courses ('${code1}', '${code2}') do not exist.`,
-        );
-      }
-
-      const field = type === 'pre' ? 'prerequisites' : 'corequisites';
-
-      // Add requisite atomically (won't add if already exists)
-      const result = await Course.updateOne(
-        { _id: code1 },
-        { $addToSet: { [field]: code2 } },
-      ).exec();
-
-      if (result.modifiedCount === 0) {
-        throw new Error('Requisite already exists or course not found.');
-      }
-
-      return { code1, code2, type };
-    } catch (error) {
-      this.handleError(error, 'createRequisite');
-    }
-  }
-
-  /**
-   * Get all requisites for a course
-   */
-  async getRequisites(code1: string): Promise<RequisiteData[]> {
-    try {
-      const course = await Course.findById(code1)
-        .select('prerequisites corequisites')
-        .lean()
-        .exec();
-
-      if (!course) {
-        throw new Error(`Course '${code1}' does not exist.`);
-      }
-
-      const requisites: RequisiteData[] = [];
-
-      // Add prerequisites
-      for (const code2 of course.prerequisites || []) {
-        requisites.push({ code1, code2, type: 'pre' });
-      }
-
-      // Add corequisites
-      for (const code2 of course.corequisites || []) {
-        requisites.push({ code1, code2, type: 'co' });
-      }
-
-      return requisites;
-    } catch (error) {
-      this.handleError(error, 'getRequisites');
-    }
-  }
-
-  /**
-   * Delete a requisite
-   * Optimized with atomic operation
-   */
-  async deleteRequisite(
-    code1: string,
-    code2: string,
-    type: RequisiteType,
-  ): Promise<string> {
-    try {
-      const field = type === 'pre' ? 'prerequisites' : 'corequisites';
-
-      const result = await Course.updateOne(
-        { _id: code1 },
-        { $pull: { [field]: code2 } },
-      ).exec();
-
-      if (result.modifiedCount === 0) {
-        throw new Error('Requisite not found or already deleted.');
-      }
-
-      return `Requisite deleted successfully.`;
-    } catch (error) {
-      this.handleError(error, 'deleteRequisite');
     }
   }
 }

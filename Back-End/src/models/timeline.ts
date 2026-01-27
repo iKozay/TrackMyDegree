@@ -1,33 +1,52 @@
 import { Schema, model } from 'mongoose';
 
-const TimelineItemSchema = new Schema({
-  _id: { type: String, required: true },
-  season: {
-    type: String,
-    enum: [
-      'fall',
-      'winter',
-      'summer1',
-      'summer2',
-      'fall/winter',
-      'summer',
-      'exempted',
-      'deficiencies',
+const SemesterSchema = new Schema(
+  {
+    term: { type: String, required: true },
+    courses: [
+      {
+        code: { type: String, required: true },
+        message: { type: String },
+      },
     ],
-    required: true,
   },
-  year: { type: Number, required: true },
-  courses: [{ type: String, ref: 'Course' }], // references to Course _id
-});
+  { _id: false },
+);
 
-const TimelineSchema = new Schema({
-  // _id is automatically created by MongoDB
-  userId: { type: String, ref: 'User', required: true },
-  degreeId: { type: String, ref: 'Degree' },
-  name: { type: String, required: true },
-  isExtendedCredit: { type: Boolean, default: false },
-  last_modified: { type: Date, default: Date.now },
-  items: [TimelineItemSchema],
-});
+const CourseStatusSchema = new Schema(
+  {
+    status: {
+      type: String,
+      enum: ['completed', 'incomplete', 'planned', 'exempted'],
+      required: true,
+    },
+    semester: { type: String, default: null },
+  },
+  { _id: false },
+);
+
+const TimelineSchema = new Schema(
+  {
+    // _id is automatically created by MongoDB
+    userId: { type: String, ref: 'User', required: true },
+    degreeId: { type: String, ref: 'Degree', required: true },
+    name: { type: String, required: true },
+    isExtendedCredit: { type: Boolean, default: false },
+    isCoop: { type: Boolean, default: false },
+    semesters: { type: [SemesterSchema], default: [] },
+    courseStatusMap: {
+      //key:course code (string)
+      type: Map,
+      of: CourseStatusSchema,
+      default: () => new Map(),
+    },
+    exemptions: { type: [String], default: [] },
+    deficiencies: { type: [String], default: [] },
+  },
+  { timestamps: true },
+);
+
+/* INDEXES */
+TimelineSchema.index({ userId: 1, updatedAt: -1 });
 
 export const Timeline = model('Timeline', TimelineSchema);

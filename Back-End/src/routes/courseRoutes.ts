@@ -2,10 +2,15 @@ import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { courseController } from '@controllers/courseController';
 import { degreeController } from '@controllers/degreeController';
-import { coursepoolController } from '@controllers/coursepoolController';
+
+import { cacheGET } from '@middleware/cacheGet';
 
 const router = express.Router();
 const INTERNAL_SERVER_ERROR = 'Internal server error';
+// Cache Time To Live
+const COURSE_CACHE_TTL = 900; // 15 minutes
+const COURSE_BY_DEGREE_CACHE_TTL = 1800; // 30 minutes
+
 
 // ==========================
 // COURSE ROUTES (READ ONLY)
@@ -79,21 +84,32 @@ const INTERNAL_SERVER_ERROR = 'Internal server error';
  *       500:
  *         description: Internal server error.
  */
-router.get('/', async (req: Request, res: Response) => {
-  try {
-    const { pool, search, page, limit, sort } = req.query;
+router.get('/',
+  cacheGET(COURSE_CACHE_TTL), 
+  async (req: Request, res: Response) => {
+    try {
+      const { pool, search, page, limit, sort } = req.query;
 
-    const courses = await courseController.getAllCourses({
-      pool: pool as string,
-      search: search as string,
-      page: page ? Number.parseInt(page as string) : undefined,
-      limit: limit ? Number.parseInt(limit as string) : undefined,
-      sort: sort as string,
+      const courses = await courseController.getAllCourses({
+        pool: pool as string,
+        search: search as string,
+        page: page ? Number.parseInt(page as string) : undefined,
+        limit: limit ? Number.parseInt(limit as string) : undefined,
+        sort: sort as string,
     });
+      res.status(HTTP.OK).json(courses);
+    } catch (error) {
+      console.error('Error in GET /courses', error);
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    }
+  });
 
-    res.status(HTTP.OK).json(courses);
+router.get('/all-codes', async (req: Request, res: Response) => {
+  try {
+    const courseCodes = await courseController.getAllCourseCodes();
+    res.status(HTTP.OK).json({ courseCodes });
   } catch (error) {
-    console.error('Error in GET /courses', error);
+    console.error('Error in GET /courses/all-codes', error);
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
@@ -101,7 +117,7 @@ router.get('/', async (req: Request, res: Response) => {
 /**
  * GET /courses/by-degree/:degreeId - Get courses grouped by pools for a degree
  */
-router.get('/by-degree/:degreeId', async (req: Request, res: Response) => {
+router.get('/by-degree/:degreeId', cacheGET(COURSE_BY_DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
   try {
     const { degreeId } = req.params;
 
@@ -111,39 +127,32 @@ router.get('/by-degree/:degreeId', async (req: Request, res: Response) => {
       });
       return;
     }
-
-    // Get course pool IDs for the degree
-    const coursePoolIds =
-      await degreeController.getCoursePoolsForDegree(degreeId);
+    const coursePools =
+      await degreeController.getCoursePoolsForDegree(degreeId as string);
 
     // Fetch full course pool objects for each ID
-    const coursePools = await Promise.all(
-      coursePoolIds.map(async (poolId) => {
-        const coursePool = await coursepoolController
-          .getCoursePool(poolId)
-          .catch(() => null);
-        const courseIds = coursePool?.courses;
-        const courses = courseIds
-          ? await Promise.all(
-              courseIds.map(async (courseId) => {
-                try {
-                  return await courseController.getCourseByCode(courseId);
-                } catch {
-                  return null;
-                }
-              }),
-            )
-          : [];
+    const populatedPools = await Promise.all(
+      coursePools.map(async (coursePool) => {
+        const courses = await Promise.all(
+          coursePool.courses.map(async (courseId) => {
+            try {
+              return await courseController.getCourseByCode(courseId);
+            } catch {
+              return null;
+            }
+          }),
+        );
+
         return {
           _id: coursePool?._id,
           name: coursePool?.name,
           creditsRequired: coursePool?.creditsRequired,
-          courses: courses.filter((course) => course !== null),
+          courses: courses.filter(Boolean),
         };
       }),
     );
-
-    res.status(HTTP.OK).json(coursePools);
+    
+    res.status(HTTP.OK).json(populatedPools);
   } catch (error) {
     console.error('Error in GET /courses/by-degree/:degreeId', error);
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
@@ -187,7 +196,7 @@ router.get('/by-degree/:degreeId', async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error.
  */
-router.get('/:code', async (req: Request, res: Response) => {
+router.get('/:code', cacheGET(COURSE_CACHE_TTL), async (req: Request, res: Response) => {
   try {
     const { code } = req.params;
 
@@ -198,7 +207,7 @@ router.get('/:code', async (req: Request, res: Response) => {
       return;
     }
 
-    const course = await courseController.getCourseByCode(code);
+    const course = await courseController.getCourseByCode(code as string);
     res.status(HTTP.OK).json(course);
   } catch (error) {
     console.error('Error in GET /courses/:code', error);

@@ -8,7 +8,9 @@ services:
       dockerfile: Dockerfile
     container_name: python_utils_service
     ports:
-      - "5000:5000"
+      - "15001:15001"
+    env_file:
+      - ./secrets/.env
     networks:
       - app-network
 

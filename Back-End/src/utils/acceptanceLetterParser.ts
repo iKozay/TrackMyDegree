@@ -24,10 +24,14 @@ export class AcceptanceLetterParser {
       /Co-op Program/.exec(text)
     ) {
       programInfo.isCoop = true;
+    }else{
+      programInfo.isCoop = false;
     }
 
     if (/Extended Credit Program/.exec(text)) {
       programInfo.isExtendedCreditProgram = true;
+    }else{
+      programInfo.isExtendedCreditProgram = false;
     }
 
     // Extract Starting Semester (Term)

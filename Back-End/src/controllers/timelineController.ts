@@ -1,22 +1,8 @@
 import { BaseMongoController } from './baseMongoController';
 import { Timeline } from '@models';
+import { TimelineResult, TimelineDocument,} from '@services/timeline/timelineService';
+import { CourseStatus } from '../types/transcript';
 
-export interface TimelineData {
-  _id: string;
-  user_id: string;
-  name: string;
-  degree_id: string;
-  items: TimelineItem[];
-  isExtendedCredit: boolean;
-  last_modified?: Date;
-}
-
-export interface TimelineItem {
-  _id: string;
-  season: 'fall' | 'winter' | 'summer1' | 'summer2' | 'fall/winter' | 'summer';
-  year: number;
-  courses: string[];
-}
 
 export class TimelineController extends BaseMongoController<any> {
   constructor() {
@@ -27,153 +13,92 @@ export class TimelineController extends BaseMongoController<any> {
    * Save or update a timeline (upsert operation)
    * Optimized with single database operation
    */
-  async saveTimeline(timeline: TimelineData): Promise<TimelineData> {
+  async saveTimeline(userId:string, timelineName:string, timeline:TimelineResult){
     try {
-      const { user_id, name, degree_id, items, isExtendedCredit } = timeline;
+      const { _id, degree, semesters, isExtendedCredit, isCoop, courses, pools } = timeline;
 
-      if (!user_id || !name || !degree_id) {
+      if (!userId || !timelineName || !degree?._id) {
         throw new Error('User ID, timeline name, and degree ID are required');
       }
+      
+      //creates a map to store only completed and planned courses
+     const courseStatusMap: Record<string,{ status: CourseStatus; semester: string | null } > = 
+          Object.fromEntries(
+            Object.entries( courses || {})
+              .filter(([, course]) => course.status.status !== 'incomplete')
+              .map(([courseId, course]) => [
+                courseId,
+                {
+                  status: course.status.status,
+                  semester: course.status.semester,
+                },
+              ])
+          );
+         
+      const exemptionPool = (pools || []).find(p => p._id === 'exemptions');
+      const deficiencyPool = (pools || []).find(p => p._id === 'deficiencies');
+      const exemptions  = exemptionPool?.courses ?? [];
+      const deficiencies = deficiencyPool?.courses ?? [];
+      const record = {
+          userId,
+          name: timelineName,
+          degreeId: degree?._id,
+          semesters: semesters ?? [],
+          isExtendedCredit: isExtendedCredit ?? false,
+          isCoop: isCoop ?? false,
+          courseStatusMap,
+          exemptions,
+          deficiencies
+        }
 
-      // Map API fields (snake_case) to model fields (camelCase)
-      // Ensure items have _id field
-      const mappedItems = (items || []).map((item, index) => ({
-        _id: item._id || `item-${index}`,
-        season: item.season,
-        year: item.year,
-        courses: item.courses || [],
-      }));
+      let result;
+      if (_id)
+        result = await this.updateById(_id, record);
+      else
+        result = await this.create(record)
+     
 
-      const result = await this.upsert(
-        { userId: user_id, name, degreeId: degree_id },
-        {
-          userId: user_id,
-          name,
-          degreeId: degree_id,
-          items: mappedItems,
-          isExtendedCredit,
-          last_modified: new Date(),
-        },
-      );
-
-      if (!result.success) {
-        throw new Error('Failed to save timeline');
+      if (!result?.success) {
+        const message = result.error ?? "Failed to save timeline"
+        throw new Error(message);
       }
 
-      return this.formatTimelineResponse(result.data);
+      return result.data;
     } catch (error) {
       this.handleError(error, 'saveTimeline');
     }
   }
-
-  /**
-   * Get all timelines for a user
-   */
-  async getTimelinesByUser(user_id: string): Promise<TimelineData[]> {
-    try {
-      const result = await this.findAll(
-        { userId: user_id },
-        { sort: { last_modified: -1 } },
-      );
-
-      if (!result.success) {
-        throw new Error('Failed to fetch timelines');
-      }
-
-      return (result.data || []).map((timeline) =>
-        this.formatTimelineResponse(timeline),
-      );
-    } catch (error) {
-      this.handleError(error, 'getTimelinesByUser');
-    }
-  }
-
-  /**
-   * Get specific timeline by ID
-   */
-  async getTimelineById(timeline_id: string): Promise<TimelineData> {
-    try {
-      const result = await this.findById(timeline_id);
-
-      if (!result.success) {
-        throw new Error('Timeline not found');
-      }
-
-      return this.formatTimelineResponse(result.data);
-    } catch (error) {
-      this.handleError(error, 'getTimelineById');
-    }
-  }
-
-  /**
-   * Update timeline
-   */
-  async updateTimeline(
-    timeline_id: string,
-    updates: Partial<TimelineData>,
-  ): Promise<TimelineData> {
-    try {
-      // Map API fields (snake_case) to model fields (camelCase)
-      const mappedUpdates: any = {
-        last_modified: new Date(),
-      };
-
-      if (updates.user_id !== undefined) {
-        mappedUpdates.userId = updates.user_id;
-      }
-      if (updates.degree_id !== undefined) {
-        mappedUpdates.degreeId = updates.degree_id;
-      }
-      if (updates.name !== undefined) {
-        mappedUpdates.name = updates.name;
-      }
-      if (updates.isExtendedCredit !== undefined) {
-        mappedUpdates.isExtendedCredit = updates.isExtendedCredit;
-      }
-      if (updates.items !== undefined) {
-        // Ensure items have id field
-        mappedUpdates.items = (updates.items || []).map((item, index) => ({
-          _id: item._id,
-          season: item.season,
-          year: item.year,
-          courses: item.courses || [],
-        }));
-      }
-
-      const result = await this.updateById(timeline_id, mappedUpdates);
-
-      if (!result.success) {
-        throw new Error('Timeline not found');
-      }
-
-      return this.formatTimelineResponse(result.data);
-    } catch (error) {
-      this.handleError(error, 'updateTimeline');
-    }
-  }
-
   /**
    * Remove a timeline by ID
    */
-  async removeUserTimeline(
-    timeline_id: string,
-  ): Promise<{ success: boolean; message: string }> {
+  async deleteTimeline(timeline_id: string) {
     try {
       const result = await this.deleteById(timeline_id);
 
-      if (!result.success) {
-        return { success: false, message: `Timeline ${timeline_id} not found` };
+       if (!result?.success) {
+        throw new Error(`Timeline with this id does not exist`);
       }
 
-      return {
-        success: true,
-        message: `Timeline ${timeline_id} deleted successfully`,
-      };
-    } catch {
-      return {
-        success: false,
-        message: 'Error occurred while deleting timeline.',
-      };
+      return result.message;
+    } catch (error) {
+      this.handleError(error, 'deleteTimeline');
+    }
+  }
+    /**
+   * Update timeline
+   */
+  async updateTimeline( timeline_id: string, updates: Partial<TimelineDocument>) {
+    try {
+      const result = await this.updateById(timeline_id, updates);
+
+      if (!result.success) {
+       const message = result.error ?? 'Timeline not found';
+        throw new Error(message);
+      }
+
+      return result.data;
+    } catch (error) {
+      this.handleError(error, 'updateTimeline');
     }
   }
 
@@ -192,26 +117,6 @@ export class TimelineController extends BaseMongoController<any> {
     } catch (error) {
       this.handleError(error, 'deleteAllUserTimelines');
     }
-  }
-
-  /**
-   * Format timeline response to match expected interface
-   */
-  private formatTimelineResponse(timeline: any): TimelineData {
-    return {
-      _id: timeline._id,
-      user_id: timeline.userId || timeline.user_id,
-      name: timeline.name,
-      degree_id: timeline.degreeId || timeline.degree_id,
-      items: (timeline.items || []).map((item: any) => ({
-        _id: item._id,
-        season: item.season,
-        year: item.year,
-        courses: item.courses || [],
-      })),
-      isExtendedCredit: timeline.isExtendedCredit,
-      last_modified: timeline.last_modified,
-    };
   }
 }
 

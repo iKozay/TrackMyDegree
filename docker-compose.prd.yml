@@ -28,9 +28,12 @@ services:
     image: ghcr.io/ikozay/trackmydegree-frontend:production
     restart: always
     expose:
-      - "3000"
-    volumes:
-      - ./secrets/frontend.env:/app/.env:ro
+      - "4173"
+    environment:
+      - VITE_NODE_ENV=production
+      - VITE_API_SERVER=https://trackmydegree.ca/api
+      - VITE_POSTHOG_KEY=phc_F2YuzjGC9JBSTL3xgdrH2OKv9u8voG2e7XSYiAP7F5z
+      - VITE_POSTHOG_HOST=https://us.i.posthog.com
     networks:
       - app-network
     depends_on:
@@ -38,10 +41,10 @@ services:
       - traefik
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN}`) && !PathPrefix(`/auth`) && !PathPrefix(`/courses`) && !PathPrefix(`/degree`) && !PathPrefix(`/timeline`) && !PathPrefix(`/coursepool`) && !PathPrefix(`/users`) && !PathPrefix(`/admin`) && !PathPrefix(`/feedback`) && !PathPrefix(`/session`) && !PathPrefix(`/section`) && !PathPrefix(`/upload`) && !PathPrefix(`/api-docs`) && !PathPrefix(`/openapi.json`)"
+      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN}`) && !PathPrefix(`/api`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls=true"
-      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+      - "traefik.http.services.frontend.loadbalancer.server.port=4173"
 
   backend:
     container_name: backend
@@ -60,7 +63,7 @@ services:
       - mongodb
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`${DOMAIN}`) && (PathPrefix(`/auth`) || PathPrefix(`/courses`) || PathPrefix(`/degree`) || PathPrefix(`/timeline`) || PathPrefix(`/coursepool`) || PathPrefix(`/users`) || PathPrefix(`/admin`) || PathPrefix(`/feedback`) || PathPrefix(`/session`) || PathPrefix(`/section`) || PathPrefix(`/upload`) || PathPrefix(`/api-docs`) || PathPrefix(`/openapi.json`))"
+      - "traefik.http.routers.backend.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`))"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls=true"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"

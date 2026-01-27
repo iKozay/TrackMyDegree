@@ -1,6 +1,7 @@
 import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { coursepoolController } from '@controllers/coursepoolController';
+import { cacheGET } from '@middleware/cacheGet';
 
 const router = express.Router();
 
@@ -9,6 +10,8 @@ const router = express.Router();
 // ==========================
 
 const INTERNAL_SERVER_ERROR = 'Internal server error';
+const COURSEPOOL_CACHE_TTL = 1800; // 30 minutes
+
 
 /**
  * @openapi
@@ -45,9 +48,9 @@ const INTERNAL_SERVER_ERROR = 'Internal server error';
  *       500:
  *         description: Server error
  */
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', cacheGET(COURSEPOOL_CACHE_TTL), async (req: Request, res: Response) => {
   try {
-    const coursePool = await coursepoolController.getCoursePool(req.params.id);
+    const coursePool = await coursepoolController.getCoursePool(req.params.id as string);
     if (!coursePool) {
       return res
         .status(HTTP.NOT_FOUND)
@@ -82,7 +85,7 @@ router.get('/:id', async (req: Request, res: Response) => {
  *       500:
  *         description: Server error
  */
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', cacheGET(COURSEPOOL_CACHE_TTL), async (req: Request, res: Response) => {
   try {
     const coursePools = await coursepoolController.getAllCoursePools();
     return res.status(HTTP.OK).json(coursePools);

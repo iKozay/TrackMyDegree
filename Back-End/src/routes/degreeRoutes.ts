@@ -2,6 +2,8 @@ import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { degreeController } from '@controllers/degreeController';
 
+import { cacheGET } from '@middleware/cacheGet';
+
 const router = express.Router();
 
 // ==========================
@@ -11,6 +13,9 @@ const router = express.Router();
 const INTERNAL_SERVER_ERROR = 'Internal server error';
 const DEGREE_ID_REQUIRED = 'Degree ID is required';
 const DOES_NOT_EXIST = 'does not exist';
+
+//Cache Time To Live
+const DEGREE_CACHE_TTL = 1800; // 30 minutes
 
 /**
  * @openapi
@@ -56,7 +61,7 @@ const DOES_NOT_EXIST = 'does not exist';
  *       500:
  *         description: Internal server error.
  */
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -67,7 +72,7 @@ router.get('/:id', async (req: Request, res: Response) => {
       return;
     }
 
-    const degree = await degreeController.readDegree(id);
+    const degree = await degreeController.readDegree(id as string);
     res.status(HTTP.OK).json(degree);
   } catch (error) {
     console.error('Error in GET /degree/:id', error);
@@ -107,7 +112,7 @@ router.get('/:id', async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error.
  */
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
   try {
     const degrees = await degreeController.readAllDegrees();
     res.status(HTTP.OK).json(degrees);
@@ -153,7 +158,7 @@ router.get('/', async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error.
  */
-router.get('/:id/credits', async (req: Request, res: Response) => {
+router.get('/:id/credits', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -164,7 +169,7 @@ router.get('/:id/credits', async (req: Request, res: Response) => {
       return;
     }
 
-    const credits = await degreeController.getCreditsForDegree(id);
+    const credits = await degreeController.getCreditsForDegree(id as string);
     res.status(HTTP.OK).json({
       totalCredits: credits,
     });
@@ -217,7 +222,7 @@ router.get('/:id/credits', async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error.
  */
-router.get('/:id/coursepools', async (req: Request, res: Response) => {
+router.get('/:id/coursepools', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     if (!id) {
@@ -227,7 +232,7 @@ router.get('/:id/coursepools', async (req: Request, res: Response) => {
       return;
     }
 
-    const coursePools = await degreeController.getCoursePoolsForDegree(id);
+    const coursePools = await degreeController.getCoursePoolsForDegree(id as string);
     res.status(HTTP.OK).json(coursePools);
   } catch (error) {
     console.error('Error in GET /degree/:id/coursepools', error);
