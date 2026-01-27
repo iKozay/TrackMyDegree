@@ -327,7 +327,6 @@ function getCourseStatus(
   let status: CourseStatus = 'incomplete';
   let message;
   if (courseGrade?.toUpperCase() === 'DISC') message = 'DISC';
-  else if (isInprogress(term)) status = "inprogress";
   else if (isPlanned(term)) status = 'planned';
   else if (isCoop && courseCode.toUpperCase().includes('CWT')) {
     if (courseGrade?.toUpperCase() == 'PASS') status = 'completed';
