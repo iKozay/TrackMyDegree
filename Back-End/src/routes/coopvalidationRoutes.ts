@@ -27,7 +27,7 @@ router.get(
       const { timelineId } = req.params;
       const { jobId } = req as RequestWithJobId;
 
-      if (!mongoose.Types.ObjectId.isValid(timelineId)) {
+      if (!mongoose.Types.ObjectId.isValid(timelineId as string)) {
         return res.status(HTTP.BAD_REQUEST).json({
           error: INVALID_ID_FORMAT,
         });
@@ -43,7 +43,7 @@ router.get(
       await queue.add('processData', {
         jobId,
         kind: 'timelineData',
-        timelineId,
+        timelineId: timelineId as string,
       });
 
       return res.status(HTTP.ACCEPTED).json({
@@ -70,7 +70,7 @@ router.get(
     try {
       const { jobId } = req.params;
 
-      const cached = await getJobResult<TimelineResult>(jobId);
+      const cached = await getJobResult<TimelineResult>(jobId as string);
 
       if (!cached) {
         return res.status(410).json({
