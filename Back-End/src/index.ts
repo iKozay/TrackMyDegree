@@ -22,6 +22,7 @@ import userRouter from '@routes/userRoutes';
 import sectionsRoutes from '@routes/sectionsRoutes';
 import uploadRouter from '@routes/uploadRoutes';
 import jobRouter from '@routes/jobRoutes';
+import degreeAuditRouter from '@routes/degreeAuditRoutes';
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
@@ -120,6 +121,7 @@ app.use('/api/feedback', feedbackRouter);
 app.use('/api/section', sectionsRoutes);
 app.use('/api/upload', uploadRouter);
 app.use('/api/jobs', jobRouter);
+app.use('/api/audit', degreeAuditRouter);
 
 //Handle 404
 app.use(notFoundHandler);

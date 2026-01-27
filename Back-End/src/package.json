@@ -34,7 +34,7 @@
   "scripts": {
     "prepare": "npx ts-patch install -s",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node dist/app/backend/index.js",
     "dev": "nodemon --config nodemon.json",
     "launch": "yarn build && yarn start",
     "test": "jest --coverage --verbose",

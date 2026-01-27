@@ -45,7 +45,6 @@ export const DraggableCourse: React.FC<DraggableCourseProps> = ({
       } as DragCourseData,
       disabled: !isDraggable,
     });
-
   const style: React.CSSProperties | undefined = transform
     ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
@@ -58,8 +57,6 @@ export const DraggableCourse: React.FC<DraggableCourseProps> = ({
         return "status-completed";
       case "planned":
         return "status-planned";
-      case "inprogress":
-        return "status-inprogress";
       case "incomplete":
       default:
         return "status-incomplete";

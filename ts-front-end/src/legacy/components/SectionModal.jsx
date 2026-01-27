@@ -109,7 +109,7 @@ const CourseSectionButton = ({ code, title, hidden }) => {
 
     return (
         <div>
-            <button className={`show-course-button${!hidden ? " hidden" : ""}`} onClick={fetchSections} disabled={loading}>
+            <button className={`show-course-button btn-primary ${!hidden ? "hidden" : ""}`} onClick={fetchSections} disabled={loading}>
                 {loading ? 'Loading...' : 'Show Course Schedule'}
             </button>
 

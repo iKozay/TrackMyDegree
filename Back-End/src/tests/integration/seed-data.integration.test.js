@@ -9,10 +9,16 @@ const {
   processDegreeFile,
   logValidationSummary,
 } = require('./utils/data/seedTestHelpers');
+const { DEGREES_URL } = require('../../utils/constants');
 
-describe('Seed ALL via /admin/seed-data endpoint', () => {
+describe('Seed via /api/admin/seed-data endpoint', () => {
   let apiClient;
   let app;
+  // Promise to signal when setup is complete - avoids concurrent tests to start before scraper data is ready
+  let setupReadyResolve;
+  const setupReadyPromise = new Promise((resolve) => {
+    setupReadyResolve = resolve;
+  });
 
   beforeAll(async () => {
     console.log('Starting test setup...');
@@ -27,6 +33,9 @@ describe('Seed ALL via /admin/seed-data endpoint', () => {
     // Get and save scraper data in temp files
     await getScraperData();
     console.log('Setup complete...');
+    // signal that setup is ready
+    setupReadyResolve();
+    console.log('Setup ready. Running concurrent degree set and validation tests...')
   });
 
   afterAll(async () => {
@@ -34,57 +43,65 @@ describe('Seed ALL via /admin/seed-data endpoint', () => {
     await cleanupScraperFiles();
   });
 
-  test('seeds all degrees and validates integrity', async () => {
-    // Seed all data and expect 200 response
-    console.log('Starting seed operation...');
-    const seedRes = await apiClient.seedAllData();
-    expect(seedRes.status).toBe(200);
+  // Create individual test for each degree
+  const degreeNames = Object.keys(DEGREES_URL);
+    // concurrently test each degree to speed up the test process
+    test.concurrent.each(degreeNames)('seeds and validates %s degree', async (degreeName) => {
+      // Wait for setup to complete
+      await setupReadyPromise;
+      console.log(`Starting seed operation for ${degreeName}...`);
+      
+      // Seed specific degree
+      const seedRes = await apiClient.seedDegreeData(degreeName);
+      expect(seedRes.status).toBe(200);
 
-    // Get and process validation files
-    const degreeFiles = getValidationFiles();
-    let successCount = 0;
-    let totalCourses = 0;
-    let totalPools = 0;
-    const validationErrors = [];
+      // Get validation files and find the one for this degree
+      const degreeFiles = getValidationFiles();
+      const safeName = degreeName.replaceAll(' ', '_');
+      const expectedFileName = `temp_scraper_output_${safeName}.json`;
+      const degreeFile = degreeFiles.find(file => file === expectedFileName);
 
-    for (const [index, file] of degreeFiles.entries()) {
+      if (!degreeFile) {
+        console.log('Available files:', degreeFiles);
+        console.log('Looking for:', expectedFileName);
+        throw new Error(`Validation file not found for degree: ${degreeName}`);
+      }
+
       try {
-        // Process each degree file
-        const result = await processDegreeFile(file, index, degreeFiles.length);
+        // Process this specific degree file
+        const result = await processDegreeFile(degreeFile, 0, 1);
 
         if (result.hasErrors) {
-          validationErrors.push({
-            degreeId: result.degreeId,
-            errorReporter: result.errorReporter,
-          });
-        } else {
-          successCount++;
+          const totalErrors = result.errorReporter.errors.length;
+          console.error(`Validation errors for ${degreeName}:`, result.errorReporter.errors);
+          
+          const errorMessages = result.errorReporter.errors.map(error => {
+            if (typeof error === 'string') return error;
+            if (error.message) return error.message;
+            if (error.error) return error.error;
+            return JSON.stringify(error);
+          }).filter(Boolean);
+          
+          const limitedErrors = errorMessages.slice(0, 20);
+          const remainingCount = errorMessages.length - 20;
+          
+          if (remainingCount > 0) {
+            limitedErrors.push(`+ ${remainingCount} more errors`);
+          }
+          
+          throw new Error(
+            `${totalErrors} validation errors found for ${degreeName}:\n${limitedErrors.join('\n')}`
+          );
         }
 
-        totalCourses += result.coursesCount;
-        totalPools += result.poolsCount;
+        console.log(`${degreeName}: ${result.coursesCount} courses, ${result.poolsCount} pools validated successfully`);
+        
+        expect(result.hasErrors).toBe(false);
+        expect(result.coursesCount).toBeGreaterThan(0);
+        expect(result.poolsCount).toBeGreaterThan(0);
       } catch (error) {
-        console.error(`Failed to process file ${file}:`, error.message);
+        console.error(`Failed to process ${degreeName}:`, error.message);
         throw error;
       }
-    }
-
-    // Final validation check
-    if (validationErrors.length > 0) {
-      const totalErrors = validationErrors.reduce(
-        (sum, { errorReporter }) => sum + errorReporter.errors.length,
-        0,
-      );
-      throw new Error(
-        `${totalErrors} total validation errors found across ${validationErrors.length} degrees`,
-      );
-    }
-
-    logValidationSummary(
-      successCount,
-      degreeFiles.length,
-      totalCourses,
-      totalPools,
-    );
+    });
   });
-});

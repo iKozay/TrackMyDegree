@@ -178,10 +178,12 @@ jobs:
       matrix:
         include:
           - name: backend
-            context: ./Back-End
+            context: .
+            dockerfile: ./Back-End/Dockerfile
             image: trackmydegree-backend
           - name: frontend
-            context: ./ts-front-end
+            context: .
+            dockerfile: ./ts-front-end/Dockerfile
             image: trackmydegree-frontend
 
     steps:
@@ -218,6 +220,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: |
             ${{ steps.version.outputs.latest_tag }}

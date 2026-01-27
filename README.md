@@ -63,6 +63,7 @@ Ensure you have the following installed on your machine:
 - **Docker**: For containerization.
 - **Docker Compose**: To manage multi-container applications.
 - **Yarn** and **npm**: This project requires both package managers.
+- **Python 3.11**: For the python utils (Transcript parser and Scraper) in the backend
 
 ### Setup Instructions
 
@@ -83,7 +84,7 @@ Ensure you have the following installed on your machine:
 
 3. **Install dependencies**:
    ```bash
-   cd front-end
+   cd ts-front-end
    npm i
    cd ../Back-End/src
    npm i

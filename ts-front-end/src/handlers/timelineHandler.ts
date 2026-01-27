@@ -307,20 +307,15 @@ export function addCourse(
 
   const poolName =
     type === "exemption"
-      ? "Exemptions"
+      ? "exemptions"
       : type === "deficiency"
-      ? "Deficiencies"
+      ? "deficiencies"
       : null;
 
-  console.log("Adding course", courseId, "as", type);
   if (!poolName) return state;
-  console.log("Target pool:", poolName);
-  console.log("Current courses:", state.courses);
 
   const course = state.courses[courseId];
   if (!course) return state;
-
-  console.log("Course found:", course);
 
   // -----------------------------
   // Update pools
@@ -342,7 +337,7 @@ export function addCourse(
       creditsRequired: pool.creditsRequired + credits,
     };
   });
-  console.log("Pools:", updatedPools);
+
   if (!poolsChanged) return state;
 
   // -----------------------------
@@ -363,8 +358,6 @@ export function addCourse(
     ...state.courses,
     [courseId]: updatedCourse,
   };
-
-  console.log("Courses:", updatedCourse);
 
   // -----------------------------
   // Final state

@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import CoursePool from "../components/CoursePool";
 import SemesterPlanner from "../components/SemesterPlanner";
 import CourseDetails from "../components/CourseDetail";
@@ -12,35 +12,49 @@ import { MainModal } from "../components/MainModal";
 import "../styles/timeline.css";
 import { calculateEarnedCredits, saveTimeline } from "../utils/timelineUtils";
 import { useAuth } from "../hooks/useAuth";
+import { toast } from "react-toastify";
 
 type TimeLinePageRouteParams = {
   jobId?: string;
 };
 
 const TimeLinePage: React.FC = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const { jobId } = useParams<TimeLinePageRouteParams>();
-  const location = useLocation();
 
-  const { status, state, actions, canUndo, canRedo } = useTimelineState(jobId);
+  const { status, state, actions, canUndo, canRedo, errorMessage } =
+    useTimelineState(jobId);
   const navigate = useNavigate();
-
-  const handleLogin = () => {
-    localStorage.setItem("redirectAfterLogin", location.pathname);
-    navigate("/signin", { replace: true });
-  };
 
   // TO DISCUSS
   const tryAgain = () => {
-    navigate(`/timeline/${jobId}`);
+    navigate("/timeline");
   };
   if (status === "processing") {
     return <TimelineLoader />;
   }
 
   if (status === "error") {
-    return <TimelineError onRetry={tryAgain} />;
+    return <TimelineError onRetry={tryAgain} message={errorMessage ?? undefined} />;
   }
+  
+  // Find the exemption pool, with fallback to empty pool
+  const exemptionCoursePool = state.pools.find(pool => 
+    pool._id.toLowerCase().includes("exemption")
+  ) || { _id: "exemption", name: "Exemption", creditsRequired: 0, courses: [] };
+  const deficiencyCoursePool = state.pools.find(pool => 
+    pool._id.toLowerCase().includes("deficiency")
+  ) || { _id: "deficiency", name: "Deficiency", creditsRequired: 0, courses: [] };
+  const handleOpenModal = (open: boolean, type: string) => {
+    if (type === "save" && !user) {
+      toast.info("Please sign in or sign up to save your timeline");
+      const returnUrl = globalThis.location.pathname;
+      localStorage.setItem("redirectAfterLogin", returnUrl);
+      navigate(`/signin`);
+      return;
+    }
+    actions.openModal(open, type);
+  };
 
   return (
     <TimelineDndProvider
@@ -57,7 +71,7 @@ const TimeLinePage: React.FC = () => {
             courses={state.courses}
             timelineName={state.timelineName}
             onSave={(timelineName: string) => {
-              if (user) saveTimeline(user.id, timelineName, state);
+              if (user) saveTimeline(user.id, timelineName, jobId);
             }}
             onAdd={actions.addCourse}
             onClose={actions.openModal}
@@ -68,14 +82,9 @@ const TimeLinePage: React.FC = () => {
           canRedo={canRedo}
           onUndo={actions.undo}
           onRedo={actions.redo}
-          earnedCredits={calculateEarnedCredits(state.courses)}
-          totalCredits={state.degree.totalCredits}
-          onOpenModal={actions.openModal}
-          onSave={
-            isAuthenticated
-              ? (open: boolean, type: string) => actions.openModal(open, type)
-              : handleLogin
-          }
+          earnedCredits={calculateEarnedCredits(state.courses, exemptionCoursePool)}
+          totalCredits={state.degree.totalCredits + deficiencyCoursePool.creditsRequired}
+          onOpenModal={handleOpenModal}
         />
 
         <main className="timeline-main">

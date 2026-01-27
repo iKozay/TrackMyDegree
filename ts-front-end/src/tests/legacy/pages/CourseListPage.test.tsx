@@ -52,7 +52,7 @@ vi.mock('../../../legacy/components/CourseListAccordion', () => ({
     <div data-testid="course-accordion">
       {props.courseList.map((group: any) =>
         group.courses.map((course: any) => (
-          <button key={course.id} data-testid={`course-${course.id}`} onClick={() => props.setSelectedCourse(course)}>
+          <button key={course._id} data-testid={`course-${course._id}`} onClick={() => props.setSelectedCourse(course)}>
             {course.title}
           </button>
         )),
@@ -72,8 +72,8 @@ describe('CourseListPage', () => {
       poolId: 'core',
       poolName: 'Core Courses',
       courses: [
-        { id: 'CS101', title: 'Intro to CS' },
-        { id: 'CS102', title: 'Data Structures' },
+        { _id: 'CS101', title: 'Intro to CS' },
+        { _id: 'CS102', title: 'Data Structures' },
       ],
     },
   ] as const;
@@ -146,8 +146,11 @@ describe('CourseListPage', () => {
     render(<CourseListPage />);
     const searchInput = screen.getByTestId('search-input');
 
-    fireEvent.change(searchInput, { target: { value: 'Intro' } });
+    fireEvent.change(searchInput, { target: { value: 'CS101' } });
 
-    await waitFor(() => expect(screen.getByTestId('course-accordion')).toBeInTheDocument());
+    await waitFor(() => {
+      expect(screen.queryByTestId('course-CS101')).toBeInTheDocument();
+      expect(screen.queryByTestId('course-CS102')).not.toBeInTheDocument();
+    });
   });
 });

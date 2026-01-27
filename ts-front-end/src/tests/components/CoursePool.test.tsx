@@ -30,6 +30,12 @@ vi.mock("../../components/PoolCoursesList", () => ({
 
 const pools: Pool[] = [
   {
+    _id: "pool-ecp",
+    name: "ECP_ENGR_CORE",
+    creditsRequired: 0,
+    courses: ["ENGR 201"] as CourseCode[],
+  },
+  {
     _id: "pool-engr",
     name: "Engineering Core",
     creditsRequired: 30.5,
@@ -127,42 +133,50 @@ describe("CoursePool", () => {
   });
 
   it("toggles a pool open/closed when clicking the header (no search)", () => {
-    const onCourseSelect = vi.fn();
+  const onCourseSelect = vi.fn();
 
-    const { container } = render(
-      <CoursePool
-        pools={pools}
-        courses={courses}
-        onCourseSelect={onCourseSelect}
-        selectedCourse={null}
-      />
-    );
+  const { container, queryByTestId } = render(
+    <CoursePool
+      pools={pools}
+      courses={courses}
+      onCourseSelect={onCourseSelect}
+      selectedCourse={null}
+    />
+  );
 
-    // Grab the first pool header button directly
-    const headerButton = container.querySelector(
-      ".pool-section .pool-header"
-    ) as HTMLButtonElement | null;
+  // Find the header button that contains the text "Engineering Core"
+  const headerButtons = Array.from(
+    container.querySelectorAll(".pool-section .pool-header")
+  ) as HTMLButtonElement[];
 
-    expect(headerButton).not.toBeNull();
+  const engineeringHeader = headerButtons.find((btn) =>
+    btn.textContent?.includes("Engineering Core")
+  );
 
-    // Initially collapsed
-    expect(screen.queryByTestId("pool-courses-list")).toBeNull();
+  expect(engineeringHeader).toBeTruthy();
 
-    // Click to expand
-    fireEvent.click(headerButton!);
+  // Initially collapsed
+  expect(queryByTestId("pool-courses-list")).toBeNull();
 
-    const listsAfterExpand = screen.getAllByTestId("pool-courses-list");
-    expect(listsAfterExpand.length).toBe(1);
-    expect(listsAfterExpand[0]).toHaveAttribute(
-      "data-pool-name",
-      "Engineering Core"
-    );
+  // Click to expand Engineering Core
+  fireEvent.click(engineeringHeader!);
 
-    // Click again to collapse
-    fireEvent.click(headerButton!);
+  // Now at least one list exists and one of them is Engineering Core
+  const listsAfterExpand = screen.getAllByTestId("pool-courses-list");
+  const engineeringList = listsAfterExpand.find(
+    (el: HTMLElement) => el.getAttribute("data-pool-name") === "Engineering Core"
+  );
 
-    expect(screen.queryByTestId("pool-courses-list")).toBeNull();
-  });
+  expect(engineeringList).toBeTruthy();
+
+  // Click again to collapse Engineering Core
+  fireEvent.click(engineeringHeader!);
+
+  // If another pool is still collapsed, this should be null again
+  // (since only Engineering Core was expanded by click)
+  expect(queryByTestId("pool-courses-list")).toBeNull();
+});
+
 
   it("filters courses per pool when searching and auto-expands pools with matches", () => {
     const onCourseSelect = vi.fn();
@@ -217,4 +231,34 @@ describe("CoursePool", () => {
     // No pool should be expanded → no PoolCoursesList rendered
     expect(screen.queryByTestId("pool-courses-list")).toBeNull();
   });
+
+  it("formats ECP pool names when passing pool props to children", () => {
+    const onCourseSelect = vi.fn();
+
+    render(
+      <CoursePool
+        pools={pools}
+        courses={courses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+      />
+    );
+
+    const input = screen.getByPlaceholderText(/search courses by code or title/i);
+
+    // "engr" matches ENGR 201 title/code -> ECP pool has ENGR 201 so it should auto-expand
+    fireEvent.change(input, { target: { value: "engr" } });
+
+    const lists: HTMLElement[] = screen.getAllByTestId("pool-courses-list");
+
+    const ecpList = lists.find(
+    (el) => el.getAttribute("data-pool-name") === "ECP ENGR CORE"
+      );
+
+    expect(ecpList).toBeDefined();
+
+  });
+
+  
 });
+

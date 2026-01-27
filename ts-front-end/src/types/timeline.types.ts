@@ -40,11 +40,7 @@ export interface RequisiteGroup {
 }
 
 // Course status
-export type CourseStatusValue =
-  | "incomplete"
-  | "completed"
-  | "inprogress"
-  | "planned";
+export type CourseStatusValue = "incomplete" | "completed" | "planned";
 
 export interface CourseStatus {
   status: CourseStatusValue;
