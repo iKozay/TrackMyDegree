@@ -14,7 +14,7 @@ import {
 import { CourseData, courseController } from '@controllers/courseController';
 import { SEASONS } from '@utils/constants';
 import { Timeline } from '@models';
-import { parse } from 'node:path';
+import { coursepoolController } from '@controllers/coursepoolController';
 
 export interface TimelineResult {
   _id?: string;
@@ -149,6 +149,22 @@ export const buildTimeline = async (
 
   if (programInfo.isExtendedCreditProgram) {
     await addEcpCoursePools(degreeId, coursePools, deficiencies);
+  }
+  if (programInfo.isCoop) {
+    //TODO: refactor to use existing methods in this file
+    if(degree.coursePools){
+      degree.coursePools.push("Coop Courses");
+      console.log("added coop to degree course pools")
+    }
+    const coopCoursePool = await coursepoolController.getCoursePool("Coop Courses")
+    const coopCoursesList = coopCoursePool ? coopCoursePool.courses || [] : [];
+    const coopCourses = await Promise.all(coopCoursesList.map(async (code) => await getCourseData(code)));
+    coursePools.push(coopCoursePool as CoursePoolInfo);
+    for (const c of coopCourses) {
+      if (c) {
+        courses[c._id] = c;
+      }
+    }
   }
 
   // Load exemption and deficiency courses that are not part of the degree requirements.
@@ -345,7 +361,7 @@ function getCourseStatus(
   let message;
   if (courseGrade?.toUpperCase() === 'DISC') message = 'DISC';
   else if (isPlanned(term)) status = 'planned';
-  else if (isCoop && courseCode.toUpperCase().includes('CWTE')) {
+  else if (isCoop && courseCode.toUpperCase().includes('CWT')) {
     if (courseGrade?.toUpperCase() == 'PASS') status = 'completed';
   } else {
     let minGrade = 'D-';
