@@ -189,11 +189,12 @@ class DegreeDataScraper():
             return
     def add_coop_courses(self):
         coop_courses = course_data_scraper.get_coop_courses()
+        coop_courses_codes = [course["_id"] for course in coop_courses]
         coop_course_pool = {
             '_id': "Coop Courses",
             'name': "Coop Courses",
             'creditsRequired': 0,
-            'courses': coop_courses
+            'courses': coop_courses_codes
         }
         self.degree["coursePools"].append(coop_course_pool["_id"])
         self.course_pool.append(coop_course_pool)
