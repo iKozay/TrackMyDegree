@@ -151,20 +151,7 @@ export const buildTimeline = async (
     await addEcpCoursePools(degreeId, coursePools, deficiencies);
   }
   if (programInfo.isCoop) {
-    //TODO: refactor to use existing methods in this file
-    if(degree.coursePools){
-      degree.coursePools.push("Coop Courses");
-      console.log("added coop to degree course pools")
-    }
-    const coopCoursePool = await coursepoolController.getCoursePool("Coop Courses")
-    const coopCoursesList = coopCoursePool ? coopCoursePool.courses || [] : [];
-    const coopCourses = await Promise.all(coopCoursesList.map(async (code) => await getCourseData(code)));
-    coursePools.push(coopCoursePool as CoursePoolInfo);
-    for (const c of coopCourses) {
-      if (c) {
-        courses[c._id] = c;
-      }
-    }
+    await addCoopCoursePool(degree, coursePools, courses);
   }
 
   // Load exemption and deficiency courses that are not part of the degree requirements.
@@ -800,6 +787,25 @@ export async function addEcpCoursePools(
       deficiencies.push(...ecpResult.coursePools.map((pool) => pool.name));
     }
   }
+}
+async function addCoopCoursePool(
+  degree: DegreeData,
+  coursePools: CoursePoolInfo[],
+  courses: Record<string, CourseData>,
+) {
+    if(degree.coursePools){
+      degree.coursePools.push("Coop Courses");
+      console.log("added coop to degree course pools")
+    }
+    const coopCoursePool = await coursepoolController.getCoursePool("Coop Courses")
+    const coopCoursesList = coopCoursePool ? coopCoursePool.courses || [] : [];
+    const coopCourses = await Promise.all(coopCoursesList.map(async (code) => await getCourseData(code)));
+    coursePools.push(coopCoursePool as CoursePoolInfo);
+    for (const c of coopCourses) {
+      if (c) {
+        courses[c._id] = c;
+      }
+    }
 }
 
 /**

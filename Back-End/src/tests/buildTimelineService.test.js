@@ -10,7 +10,6 @@ jest.mock('@services/parsingService');
 jest.mock('@controllers/degreeController');
 jest.mock('@controllers/courseController');
 jest.mock('@controllers/coursepoolController');
-// jest.setTimeout(20000);
 
 describe('timelineService', () => {
   const mockDegreeData = { _id: 'deg1', name: 'Beng in Computer Engineering', coursePools: [] }
