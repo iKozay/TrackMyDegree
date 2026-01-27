@@ -35,7 +35,7 @@ describe('InformationForm', () => {
       { _id: '1', name: 'CS', totalCredits: 120 },
       { _id: '2', name: 'EE', totalCredits: 120 },
     ];
-    (api.get as Mock).mockResolvedValue( mockDegrees );
+    (api.get as Mock).mockResolvedValue(mockDegrees);
 
     render(
       <MemoryRouter>
@@ -60,7 +60,7 @@ describe('InformationForm', () => {
     const nextButton = screen.getByText('Next');
 
     // Mock alert
-    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => { });
 
     fireEvent.click(nextButton);
     expect(alertMock).toHaveBeenCalledWith('Please select a degree before continuing.');
@@ -71,7 +71,7 @@ describe('InformationForm', () => {
   it('submits the form and navigates when valid', async () => {
     const mockDegrees = [{ _id: '1', name: 'CS', totalCredits: 120 }];
     (api.get as Mock).mockResolvedValue(mockDegrees);
-    (api.post as Mock).mockResolvedValue({jobId: '123',});
+    (api.post as Mock).mockResolvedValue({ jobId: '123', });
 
 
     render(
@@ -97,7 +97,138 @@ describe('InformationForm', () => {
         firstTerm: 'Fall 2023',
       }));
       expect(mockedNavigate).toHaveBeenCalledWith('/timeline/123');
-});
+    });
 
   });
+
+  it('toggles checkboxes correctly', async () => {
+    (api.get as Mock).mockResolvedValue([{ _id: '1', name: 'CS', totalCredits: 120 }]);
+
+    render(
+      <MemoryRouter>
+        <InformationForm />
+      </MemoryRouter>
+    );
+
+    const coopCheckbox = screen.getByLabelText(/Co-op Program?/i);
+    const ecpCheckbox = screen.getByLabelText(/Extended Credit Program?/i);
+
+    fireEvent.click(coopCheckbox);
+    expect(coopCheckbox).toBeChecked();
+
+    fireEvent.click(ecpCheckbox);
+    expect(ecpCheckbox).toBeChecked();
+
+    fireEvent.click(coopCheckbox);
+    expect(coopCheckbox).not.toBeChecked();
+  });
+
+  it('shows predefined sequence option for Co-op students in valid degrees/terms', async () => {
+    const mockDegrees = [{ _id: '100', name: 'Bachelor of Engineering Computer Engineering', totalCredits: 120 }];
+    (api.get as Mock).mockResolvedValue(mockDegrees);
+
+    render(
+      <MemoryRouter>
+        <InformationForm />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => screen.getByText('Bachelor of Engineering Computer Engineering'));
+
+    // Select Degree
+    fireEvent.change(screen.getByLabelText('Degree Concentration:'), { target: { value: '100' } });
+
+    // Select Fall Term
+    fireEvent.change(screen.getByLabelText('Starting Term:'), { target: { value: 'Fall' } });
+
+    // Click Co-op
+    const coopCheckbox = screen.getByLabelText(/Co-op Program?/i);
+    fireEvent.click(coopCheckbox);
+
+    // Predefined sequence checkbox should appear
+    await waitFor(() => {
+      expect(screen.getByText(/Load predefined co-op sequence?/i)).toBeInTheDocument();
+    });
+  });
+
+  it('handles Aerospace option selection for predefined sequence', async () => {
+    const mockDegrees = [{ _id: 'ae1', name: 'Bachelor of Engineering Aerospace Engineering', totalCredits: 120 }];
+    (api.get as Mock).mockResolvedValue(mockDegrees);
+    (api.post as Mock).mockResolvedValue({ jobId: 'job_aero' });
+
+    // Mock fetch for sequence file
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ([{ term: 'Term 1', type: 'Academic' }]),
+    } as Response);
+
+
+    render(
+      <MemoryRouter>
+        <InformationForm />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => screen.getByText('Bachelor of Engineering Aerospace Engineering'));
+
+    // Fill form
+    fireEvent.change(screen.getByLabelText('Degree Concentration:'), { target: { value: 'ae1' } });
+    fireEvent.change(screen.getByLabelText('Starting Term:'), { target: { value: 'Fall' } });
+    fireEvent.change(screen.getByLabelText('Starting Year:'), { target: { value: '2023' } });
+
+    // Select Co-op
+    fireEvent.click(screen.getByLabelText(/Co-op Program?/i));
+
+    // Select Predefined Sequence
+    await waitFor(() => screen.getByLabelText(/Load predefined co-op sequence?/i));
+    fireEvent.click(screen.getByLabelText(/Load predefined co-op sequence?/i));
+
+    // Select Aerospace Option
+    await waitFor(() => screen.getByLabelText(/Select Aerospace Option:/i));
+    fireEvent.change(screen.getByLabelText(/Select Aerospace Option:/i), { target: { value: 'option_a' } });
+
+    // Submit
+    await act(async () => {
+      fireEvent.click(screen.getByText('Next'));
+    });
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/coop-sequences/aerospace_option_a.json');
+      expect(api.post).toHaveBeenCalledWith('/upload/form', expect.objectContaining({
+        predefinedSequence: expect.any(Array)
+      }));
+    });
+  });
+
+  it('submits correctly without predefined sequence when unchecked', async () => {
+    const mockDegrees = [{ _id: '100', name: 'Bachelor of Engineering Computer Engineering', totalCredits: 120 }];
+    (api.get as Mock).mockResolvedValue(mockDegrees);
+    (api.post as Mock).mockResolvedValue({ jobId: 'job_no_seq' });
+
+    render(
+      <MemoryRouter>
+        <InformationForm />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => screen.getByText('Bachelor of Engineering Computer Engineering'));
+
+    fireEvent.change(screen.getByLabelText('Degree Concentration:'), { target: { value: '100' } });
+    fireEvent.change(screen.getByLabelText('Starting Term:'), { target: { value: 'Fall' } });
+    fireEvent.change(screen.getByLabelText('Starting Year:'), { target: { value: '2023' } });
+
+    // Select Co-op but NOT predefined sequence
+    fireEvent.click(screen.getByLabelText(/Co-op Program?/i));
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Next'));
+    });
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith('/upload/form', expect.not.objectContaining({
+        predefinedSequence: expect.anything()
+      }));
+    });
+  });
+
 });
