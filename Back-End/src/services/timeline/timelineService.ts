@@ -423,29 +423,6 @@ async function getDegreeData(degreeId: string) {
   return { degreeData, coursePools, courses };
 }
 
-function isInprogress(currentTerm: string) {
-  const today = new Date();
-  const { start, end } = getTermRanges(currentTerm);
-
-  return today >= start && today <= end;
-}
-
-function isPlanned(currentTerm: string) {
-  const today = new Date();
-  const { end } = getTermRanges(currentTerm);
-
-  return today <= end; //if the term didnt start yet, courses included in it are planned
-}
-
-function validateRequisites(
-  course: { code: string; grade?: string },
-  allCourses: Record<string, CourseData>,
-  parsedSemesters: Semester[],
-  currentTerm: string,
-) {
-  //TODO
-  return true;
-}
 function getRequiredCourses(coursePools: CoursePoolInfo[]) {
   const requiredCourses: Set<string> = new Set<string>();
   for (const pool of coursePools) {
@@ -549,7 +526,7 @@ async function loadMissingCourses(
 async function getCourseData(courseCode: string) {
   try {
     return await courseController.getCourseByCode(courseCode);
-  } catch (error) {
+  } catch {
     // Courses not in the database are handled gracefully by callers,
     // which skip adding them to the degree course list.
     console.warn(`Course not found in database: ${courseCode}`);
@@ -566,63 +543,21 @@ async function generateSemestersFromPredefinedSequence(
   courseStatusMap: Record<string, { status: CourseStatus; semester: string | null }>
 ): Promise<TimelineSemester[]> {
   const results: TimelineSemester[] = [];
-
-  // Generate term labels starting from startTerm
   const terms = [SEASONS.WINTER, SEASONS.SUMMER, SEASONS.FALL];
 
-  // Parse starting term
-  let startYear: number;
-  let currentSeasonIndex: number;
-
-  if (startTerm) {
-    const parsedStartYear = Number.parseInt(startTerm.split(' ')[1]);
-    const startSeason = startTerm.split(' ')[0].toUpperCase();
-    startYear = parsedStartYear;
-    currentSeasonIndex = terms.indexOf(startSeason);
-    if (currentSeasonIndex === -1) currentSeasonIndex = 2; // Default to Fall
-  } else {
-    startYear = new Date().getFullYear();
-    currentSeasonIndex = 2; // Fall
-  }
+  let { startYear, currentSeasonIndex } = parseStartTerm(startTerm, terms);
 
   for (const sequenceTerm of predefinedSequence) {
     const termLabel = `${terms[currentSeasonIndex]} ${startYear}`;
-
     let coursesInfo: { code: string; message?: string }[] = [];
 
     if (sequenceTerm.type === "Academic" && sequenceTerm.courses) {
-      for (const courseCode of sequenceTerm.courses) {
-        const normalizedCode = normalizeCourseCode(courseCode);
-
-        const isPlaceholder = courseCode.includes("Elective") ||
-          courseCode.includes("General") ||
-          courseCode.includes("Technical") ||
-          courseCode.includes("GEN ED") ||
-          courseCode.includes("NATURAL SCIENCE");
-
-        if (isPlaceholder) {
-          coursesInfo.push({ code: courseCode, message: "Placeholder - select a course" });
-          continue;
-        }
-
-        if (!courses[normalizedCode]) {
-          const courseData = await getCourseData(normalizedCode);
-          if (courseData) {
-            courses[courseData._id] = courseData;
-          }
-        }
-
-        if (courses[normalizedCode]) {
-          coursesInfo.push({ code: normalizedCode });
-          courseStatusMap[normalizedCode] = { status: "planned", semester: termLabel };
-        } else {
-          coursesInfo.push({ code: normalizedCode, message: "Course not found in database" });
-        }
-      }
+      coursesInfo = await processPredefinedCourses(sequenceTerm.courses, termLabel, courses, courseStatusMap);
     } else if (sequenceTerm.type === "Co-op") {
-      // co-op work term placeholder
-      const coopLabel = sequenceTerm.coopLabel || "Co-op Work Term";
-      coursesInfo.push({ code: coopLabel, message: "Co-op Work Term" });
+      coursesInfo.push({
+        code: sequenceTerm.coopLabel || "Co-op Work Term",
+        message: "Co-op Work Term"
+      });
     }
 
     results.push({ term: termLabel, courses: coursesInfo });
@@ -636,6 +571,65 @@ async function generateSemestersFromPredefinedSequence(
   }
 
   return results;
+}
+
+function parseStartTerm(startTerm: string | undefined, terms: string[]) {
+  if (startTerm) {
+    const parsedStartYear = Number.parseInt(startTerm.split(' ')[1]);
+    const startSeason = startTerm.split(' ')[0].toUpperCase();
+    let currentSeasonIndex = terms.indexOf(startSeason);
+    if (currentSeasonIndex === -1) currentSeasonIndex = 2; // Default to Fall
+    return { startYear: parsedStartYear, currentSeasonIndex };
+  }
+  return { startYear: new Date().getFullYear(), currentSeasonIndex: 2 }; // Fall
+}
+
+async function processPredefinedCourses(
+  courseCodes: string[],
+  termLabel: string,
+  courses: Record<string, CourseData>,
+  courseStatusMap: Record<string, { status: CourseStatus; semester: string | null }>
+): Promise<{ code: string; message?: string }[]> {
+  const coursesInfo: { code: string; message?: string }[] = [];
+
+  for (const courseCode of courseCodes) {
+    const normalizedCode = normalizeCourseCode(courseCode);
+
+    if (isPlaceholderCourse(courseCode)) {
+      coursesInfo.push({ code: courseCode, message: "Placeholder - select a course" });
+      continue;
+    }
+
+    if (!courses[normalizedCode]) {
+      const courseData = await getCourseData(normalizedCode);
+      if (courseData) {
+        courses[courseData._id] = courseData;
+      }
+    }
+
+    if (courses[normalizedCode]) {
+      coursesInfo.push({ code: normalizedCode });
+      courseStatusMap[normalizedCode] = { status: "planned", semester: termLabel };
+    } else {
+      coursesInfo.push({ code: normalizedCode, message: "Course not found in database" });
+    }
+  }
+  return coursesInfo;
+}
+
+function isPlaceholderCourse(courseCode: string): boolean {
+  return courseCode.includes("Elective") ||
+    courseCode.includes("General") ||
+    courseCode.includes("Technical") ||
+    courseCode.includes("GEN ED") ||
+    courseCode.includes("NATURAL SCIENCE");
+}
+
+function isPlanned(currentTerm: string) {
+  const today = new Date();
+  const { end } = getTermRanges(currentTerm);
+
+  return today <= end; //if the term didnt start yet, courses included in it are planned
 }
 
 function generateSemesters(startTerm?: string, endTerm?: string) {
@@ -792,19 +786,19 @@ async function addCoopCoursePool(
   coursePools: CoursePoolInfo[],
   courses: Record<string, CourseData>,
 ) {
-    if(degree.coursePools){
-      degree.coursePools.push("Coop Courses");
-      console.log("added coop to degree course pools")
+  if (degree.coursePools) {
+    degree.coursePools.push("Coop Courses");
+    console.log("added coop to degree course pools")
+  }
+  const coopCoursePool = await coursepoolController.getCoursePool("Coop Courses")
+  const coopCoursesList = coopCoursePool ? coopCoursePool.courses || [] : [];
+  const coopCourses = await Promise.all(coopCoursesList.map(async (code) => await getCourseData(code)));
+  coursePools.push(coopCoursePool as CoursePoolInfo);
+  for (const c of coopCourses) {
+    if (c) {
+      courses[c._id] = c;
     }
-    const coopCoursePool = await coursepoolController.getCoursePool("Coop Courses")
-    const coopCoursesList = coopCoursePool ? coopCoursePool.courses || [] : [];
-    const coopCourses = await Promise.all(coopCoursesList.map(async (code) => await getCourseData(code)));
-    coursePools.push(coopCoursePool as CoursePoolInfo);
-    for (const c of coopCourses) {
-      if (c) {
-        courses[c._id] = c;
-      }
-    }
+  }
 }
 
 /**
