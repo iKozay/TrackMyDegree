@@ -6,8 +6,6 @@ from urllib.parse import urljoin
 USERAGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 headers = {"User-Agent": USERAGENT}
 
-courses=[]
-course_codes=[]
 url="https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-110-complementary-studies-for-engineering-and-computer-science-students"
 def scrape_electives():
     soup = course_data_scraper.fetch_html(url)
@@ -17,19 +15,25 @@ def scrape_electives():
     excluded_courses = [a.text for a in exclusion_tr.find_all('a')]
 
     faculties = tbody[1].find_all('a') + tbody[2].find_all('a')
-    global courses
+    # accumulate parsed courses from all faculty pages
+    parsed_courses = []
+    course_codes=[]
     for faculty in faculties:
-        courses += course_data_scraper.extract_course_data('ANY', urljoin(url, faculty.get('href')))
+        # extract courses for each faculty
+        courses = course_data_scraper.extract_course_data('ANY', urljoin(url, faculty.get('href')))
+        if courses:
+            parsed_courses.extend(courses)
 
-    global course_codes
-    filtered_courses = [c for c in courses if c["_id"] not in excluded_courses]
-    course_codes = [c["_id"] for c in filtered_courses]
-    courses[:] = filtered_courses
+    # filter exclusions
+    filtered_courses = [c for c in parsed_courses if c.get("_id") and c["_id"] not in excluded_courses]
 
-    #remove duplicates
-    courses = list({c["_id"]: c for c in courses}.values())
-    course_codes = list(set(course_codes))
+    # dedup objects by _id
+    dedup = {c["_id"]: c for c in filtered_courses}
+    filtered_courses = list(dedup.values())
 
-    return [course_codes, courses]
+    # export codes (deduped)
+    course_codes = list(dedup.keys())
+
+    return [course_codes, filtered_courses]
 
     
