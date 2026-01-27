@@ -14,7 +14,7 @@ const { ValidationErrorReporter } = require('./errorReporter');
  * Uses batch queries and lookup maps for efficiency
  */
 
-// Main function to validate degree integrity
+// Main function to validate degree integrity takes degree data from the scraper
 async function validateDegreeIntegrity(degreeData) {
   const { degree, course_pool } = degreeData;
   const errorReporter = new ValidationErrorReporter();
@@ -31,9 +31,8 @@ async function validateDegreeIntegrity(degreeData) {
   ]);
 
   // Create lookup sets and maps - for faster validation and reduction of nested queries
-  const poolSet = new Set(dbPools.map((p) => p._id.toString()));
-  const courseSet = new Set(dbCourses.map((c) => c._id.toString()));
-  const poolMap = new Map(dbPools.map((p) => [p._id.toString(), p]));
+  const courseSet = new Set(dbCourses.map((c) => c._id.toString())); // set of existing course IDs
+  const poolMap = new Map(dbPools.map((p) => [p._id.toString(), p])); // key-value map of course pool ID to course pool document
 
   // Validate degree
   if (!dbDegree) {
@@ -58,7 +57,6 @@ async function validateDegreeIntegrity(degreeData) {
 
   // Validate course pools
   validateCoursePoolIntegrity(course_pool, {
-    poolSet,
     poolMap,
     courseSet,
     dbDegree,
@@ -84,30 +82,34 @@ function validateCoursePoolFields(scraperPool, dbPool, errorReporter) {
       'pool_fields',
       'matching fields',
       error.message,
-      { poolId: scraperPool._id },
+      { poolId: scraperPool._id, dbPoolId: dbPool._id },
     );
   }
 }
 // validate integrity of course pools within a degree using pre-fetched data from batch queries
 function validateCoursePoolIntegrity(
   course_pool,
-  { poolSet, poolMap, courseSet, dbDegree, errorReporter, degreeId },
+  { poolMap, courseSet, dbDegree, errorReporter, degreeId },
 ) {
   // Validate course pools existence
   if (!course_pool || !Array.isArray(course_pool)) return;
   // Iterate through each course pool in the degree data
   for (const scraperPool of course_pool) {
     // Get pool ID string from scraper data
-    const poolIdStr = scraperPool._id.toString();
-    if (!poolSet.has(poolIdStr)) {
-      errorReporter.addMissingEntity('CoursePool', scraperPool._id, {
-        degreeId,
-      });
-      continue;
-    }
-    // Get corresponding DB pool
-    const dbPool = poolMap.get(poolIdStr);
+    const scraperPoolId = scraperPool._id.toString();
+        // look up corresponding DB pool
+      const dbPool = poolMap.get(scraperPoolId);
 
+      if (!dbPool) {
+          errorReporter.addMissingEntity('CoursePool', scraperPool._id, {
+              degreeId,
+              poolName: scraperPool.name,
+              parentType: 'Degree',
+              parentId: degreeId
+          });
+          continue;
+      }
+    console.log('Validating Scraper CoursePool:', scraperPoolId, 'against DB pool:', dbPool._id.toString());
     // Validate pool fields
     validateCoursePoolFields(scraperPool, dbPool, errorReporter);
 
@@ -120,16 +122,18 @@ function validateCoursePoolIntegrity(
         'pool_reference',
         'valid reference',
         error.message,
-        { poolId: scraperPool._id },
+        { poolId: scraperPool._id, dbPoolId: dbPool._id }
       );
     }
 
     // Check course existence
     for (const courseId of scraperPool.courses || []) {
       if (!courseSet.has(courseId.toString())) {
-        errorReporter.addMissingEntity('Course', courseId, {
-          poolId: scraperPool._id,
-        });
+          errorReporter.addMissingEntity('Course', courseId, {
+              degreeId,
+              parentType: 'CoursePool',
+              parentId: scraperPool._id
+          });
       }
     }
   }

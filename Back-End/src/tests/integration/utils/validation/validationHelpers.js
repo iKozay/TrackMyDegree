@@ -12,18 +12,19 @@ function validateFields(source, target, fieldMappings) {
   }
 }
 
-// Validates that the arrays in the target contain all elements from the source arrays
+// Validates that arrays match as unordered sets (membership, not order)
 function validateArrayFields(source, target, arrayFieldMappings) {
-  for (const [sourceField, targetField = sourceField] of Object.entries(
-    arrayFieldMappings,
-  )) {
-    expect(target[targetField]).toEqual(
-      expect.arrayContaining(source[sourceField]),
-    );
-    expect(source[sourceField]).toHaveLength(target[targetField].length);
-  }
-}
+    for (const [sourceField, targetField = sourceField] of Object.entries(arrayFieldMappings)) {
+        const src = (source[sourceField] || []).map((x) => x?.toString());
+        const tgt = (target[targetField] || []).map((x) => x?.toString());
 
+        const srcSet = new Set(src);
+        const tgtSet = new Set(tgt);
+
+        // Validate sets have identical membership
+        expect(srcSet).toEqual(tgtSet);
+    }
+}
 //Validates that a parent document contains a reference to a child document
 function validateReference(parentDoc, parentField, childId) {
   expect(parentDoc[parentField]).toContain(childId);
