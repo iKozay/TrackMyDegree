@@ -14,7 +14,7 @@ import {
 import { CourseData, courseController } from '@controllers/courseController';
 import { SEASONS } from '@utils/constants';
 import { Timeline } from '@models';
-import { parse } from 'node:path';
+import { coursepoolController } from '@controllers/coursepoolController';
 
 export interface TimelineResult {
   _id?: string;
@@ -149,6 +149,22 @@ export const buildTimeline = async (
 
   if (programInfo.isExtendedCreditProgram) {
     await addEcpCoursePools(degreeId, coursePools, deficiencies);
+  }
+  if (programInfo.isCoop) {
+    //TODO: refactor to use existing methods in this file
+    if(degree.coursePools){
+      degree.coursePools.push("Coop Courses");
+      console.log("added coop to degree course pools")
+    }
+    const coopCoursePool = await coursepoolController.getCoursePool("Coop Courses")
+    const coopCoursesList = coopCoursePool ? coopCoursePool.courses || [] : [];
+    const coopCourses = await Promise.all(coopCoursesList.map(async (code) => await getCourseData(code)));
+    coursePools.push(coopCoursePool as CoursePoolInfo);
+    for (const c of coopCourses) {
+      if (c) {
+        courses[c._id] = c;
+      }
+    }
   }
 
   // Load exemption and deficiency courses that are not part of the degree requirements.
@@ -326,9 +342,8 @@ function getCourseStatus(
   if (courseGrade?.toUpperCase() === 'DISC') message = 'DISC';
   else if (isInprogress(term)) status = "inprogress";
   else if (isPlanned(term)) status = 'planned';
-  else if (isCoop && isCoopWorkTermCourse(courseCode)) {
-    // Co-op work term courses (CWTE, CWTC, etc.) are pass/fail
-    if (courseGrade?.toUpperCase() === "PASS") status = "completed";
+  else if (isCoop && courseCode.toUpperCase().includes('CWT')) {
+    if (courseGrade?.toUpperCase() == 'PASS') status = 'completed';
   } else {
     let minGrade = 'D-';
     if (coursesThatNeedCMinus.has(courseCode)) minGrade = 'C-';
@@ -499,13 +514,6 @@ export function normalizeCourseCode(code: string): string {
     .replace(/([a-zA-Z]+)(\d+)/, '$1 $2') //Inserts a space between letters and numbers
     .toUpperCase();
 }
-
-// Checks if a course code is a Co-op Work Term course (CWTE, CWTC, CWT-prefixed)
-function isCoopWorkTermCourse(courseCode: string): boolean {
-  const code = courseCode.toUpperCase().replace(/\s+/g, '');
-  return code.startsWith('CWTE') || code.startsWith('CWTC') || code.startsWith('CWT');
-}
-
 
 function validateGrade(minGrade: string, courseGrade?: string): boolean {
   //validates that a course received sufficent grade (for 200 core classes in gina cody at least C- is required)
