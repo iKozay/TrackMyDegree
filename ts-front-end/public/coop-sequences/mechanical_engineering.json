@@ -31,8 +31,11 @@
         ]
     },
     {
-        "type": "Co-op",
-        "coopLabel": "Co-op Work Term I"
+        "type": "Academic",
+        "courses": [
+            "CWT 100",
+            "CWT 101"
+        ]
     },
     {
         "type": "Academic",
@@ -65,12 +68,18 @@
         ]
     },
     {
-        "type": "Co-op",
-        "coopLabel": "Co-op Work Term II"
+        "type": "Academic",
+        "courses": [
+            "CWT 200",
+            "CWT 201"
+        ]
     },
     {
-        "type": "Co-op",
-        "coopLabel": "Co-op Work Term III"
+        "type": "Academic",
+        "courses": [
+            "CWT 300",
+            "CWT 301"
+        ]
     },
     {
         "type": "Academic",
