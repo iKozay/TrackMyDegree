@@ -69,7 +69,7 @@ async function validateDegreeIntegrity(degreeData) {
     degreeId: degree._id,
   });
 
-  // Validate courses prerequisities and corequisites
+  // Validate courses prerequisites and corequisites
   validateCoursePrereqCoreqIntegrity(dbCourses, { degreeId: degree._id, errorReporter });
   
   return errorReporter;
@@ -147,7 +147,7 @@ function validateCoursePoolIntegrity(
   }
 }
 
-async function validateCoursePrereqCoreqIntegrity(
+function validateCoursePrereqCoreqIntegrity(
   dbCourses,
   { degreeId, errorReporter },
 ) {
