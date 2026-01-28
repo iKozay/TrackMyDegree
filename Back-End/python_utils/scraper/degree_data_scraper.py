@@ -187,6 +187,18 @@ class DegreeDataScraper():
                 self.courses.append(course_data_scraper.extract_course_data("BLDG 482","https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-60-engineering-course-descriptions/building-engineering-courses.html#3750"))
         else:
             return
+    def add_coop_courses(self):
+        coop_courses = course_data_scraper.get_coop_courses()
+        coop_courses_codes = [course["_id"] for course in coop_courses]
+        coop_course_pool = {
+            '_id': "Coop Courses",
+            'name': "Coop Courses",
+            'creditsRequired': 0,
+            'courses': coop_courses_codes
+        }
+        self.degree["coursePools"].append(coop_course_pool["_id"])
+        self.course_pool.append(coop_course_pool)
+        self.courses += coop_courses
     # scrape_degree: main method to scrape degree data from the given URL
     def scrape_degree(self, url):
         if url == "engr_ecp":
@@ -234,6 +246,7 @@ class DegreeDataScraper():
                     if "Core" in name:
                         break
             self.handle_engineering_core_restrictions(self.degree["name"])
+            self.add_coop_courses()
         except Exception as e:
             print(f"Error processing course block: {e}")
             raise e

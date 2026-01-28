@@ -1,0 +1,102 @@
+[
+    {
+        "type": "Academic",
+        "courses": [
+            "AERO 201",
+            "ENGR 201",
+            "ENGR 213",
+            "ENGR 242",
+            "MIAE 215"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENCS 282",
+            "ENGR 233",
+            "ENGR 243",
+            "ENGR 244",
+            "ENGR 251"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 202",
+            "ENGR 311",
+            "ENGR 361",
+            "ENGR 371",
+            "MIAE 211"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CWT 100",
+            "CWT 101"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "AERO 290",
+            "AERO 371",
+            "MECH 343",
+            "MECH 352",
+            "MIAE 211"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 301",
+            "ENGR 391",
+            "ENGR 392",
+            "General Studies"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "AERO 390",
+            "AERO 417",
+            "AERO 481",
+            "MECH 361",
+            "MECH 351"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CWT 200",
+            "CWT 201"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CWT 300",
+            "CWT 301"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "AERO 462",
+            "AERO 464",
+            "MECH 461",
+            "AERO 490",
+            "Technical Elective"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "AERO 446",
+            "AERO 465",
+            "AERO 455",
+            "AERO 490",
+            "Technical Elective"
+        ]
+    }
+]

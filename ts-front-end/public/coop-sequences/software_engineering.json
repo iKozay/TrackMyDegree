@@ -1,0 +1,99 @@
+[
+    {
+        "type": "Academic",
+        "courses": [
+            "COMP 232",
+            "COMP 248",
+            "ENGR 201",
+            "ENGR 213",
+            "GEN ED ELECTIVE"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "COMP 249",
+            "ENGR 233",
+            "SOEN 228",
+            "SOEN 287",
+            "NATURAL SCIENCE (SOEN)"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "COMP 348",
+            "COMP 352",
+            "ENCS 282",
+            "ENGR 202",
+            "ENGR 371"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CWT 100",
+            "CWT 101"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "COMP 346",
+            "ELEC 275",
+            "SOEN 331",
+            "SOEN 341"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CWT 200",
+            "CWT 201"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "COMP 335",
+            "SOEN 342",
+            "SOEN 343",
+            "SOEN 384"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "SOEN 363",
+            "SOEN 345",
+            "SOEN 357",
+            "SOEN 390",
+            "ELECTIVE"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CWT 300",
+            "CWT 301"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 301",
+            "SOEN 321",
+            "SOEN 490",
+            "ELECTIVE"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 392",
+            "ENGR 391",
+            "SOEN 490",
+            "ELECTIVE"
+        ]
+    }
+]

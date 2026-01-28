@@ -14,7 +14,7 @@ import {
 import { CourseData, courseController } from '@controllers/courseController';
 import { SEASONS } from '@utils/constants';
 import { Timeline } from '@models';
-import { parse } from 'node:path';
+import { coursepoolController } from '@controllers/coursepoolController';
 
 export interface TimelineResult {
   _id?: string;
@@ -150,28 +150,15 @@ export const buildTimeline = async (
   if (programInfo.isExtendedCreditProgram) {
     await addEcpCoursePools(degreeId, coursePools, deficiencies);
   }
+  if (programInfo.isCoop) {
+    await addCoopCoursePool(degree, coursePools, courses);
+  }
 
   // Load exemption and deficiency courses that are not part of the degree requirements.
   // This occurs when the timeline is loaded from the database ('timelineData' case) or when
   // parsing a transcript with exemptions/deficiencies for courses outside the degree program.
   await loadMissingCourses(exemptions, courses);
   await loadMissingCourses(deficiencies, courses);
-
-  if (!semestersResults) {
-    if (parsedData?.semesters)
-      semestersResults = await processSemestersFromParsedData(
-        parsedData,
-        degree,
-        coursePools,
-        courses,
-        courseStatusMap,
-      );
-    else
-      semestersResults = generateSemesters(
-        programInfo.firstTerm,
-        programInfo.lastTerm,
-      );
-  }
 
   //add transfer credits to course completed
   addToCourseStatusMap(
@@ -180,14 +167,8 @@ export const buildTimeline = async (
     'completed',
   );
 
-  // Load exemption and deficiency courses that are not part of the degree requirements.
-  // This occurs when the timeline is loaded from the database ('timelineData' case) or when
-  // parsing a transcript with exemptions/deficiencies for courses outside the degree program.
-  await loadMissingCourses(exemptions, courses);
-  await loadMissingCourses(deficiencies, courses);
-
   if (!semestersResults) {
-    if (parsedData?.semesters)
+    if (parsedData?.semesters) {
       semestersResults = await processSemestersFromParsedData(
         parsedData,
         degree,
@@ -195,12 +176,21 @@ export const buildTimeline = async (
         courses,
         courseStatusMap,
       );
-    else
+    } else if (programInfo.predefinedSequence) {
+      semestersResults = await generateSemestersFromPredefinedSequence(
+        programInfo.predefinedSequence,
+        programInfo.firstTerm,
+        courses,
+        courseStatusMap,
+      );
+    } else {
       semestersResults = generateSemesters(
         programInfo.firstTerm,
         programInfo.lastTerm,
       );
+    }
   } else {
+    // If we already have semestersResults (e.g. from DB), ensure all courses are in pools
     await mapNonDegreeSemesterCoursesToUsedUnusedPool(
       semestersResults,
       courses,
@@ -208,13 +198,6 @@ export const buildTimeline = async (
       coursePools,
     );
   }
-
-  //add transfer credits to course completed
-  addToCourseStatusMap(
-    parsedData?.transferedCourses,
-    courseStatusMap,
-    'completed',
-  );
 
   // add deficiencies course pool (even if empty to keep UI consistent)
   addToCoursePools('deficiencies', deficiencies, courses, coursePools);
@@ -345,7 +328,7 @@ function getCourseStatus(
   let message;
   if (courseGrade?.toUpperCase() === 'DISC') message = 'DISC';
   else if (isPlanned(term)) status = 'planned';
-  else if (isCoop && courseCode.toUpperCase().includes('CWTE')) {
+  else if (isCoop && courseCode.toUpperCase().includes('CWT')) {
     if (courseGrade?.toUpperCase() == 'PASS') status = 'completed';
   } else {
     let minGrade = 'D-';
@@ -440,29 +423,6 @@ async function getDegreeData(degreeId: string) {
   return { degreeData, coursePools, courses };
 }
 
-function isInprogress(currentTerm: string) {
-  const today = new Date();
-  const { start, end } = getTermRanges(currentTerm);
-
-  return today >= start && today <= end;
-}
-
-function isPlanned(currentTerm: string) {
-  const today = new Date();
-  const { end } = getTermRanges(currentTerm);
-
-  return today <= end; //if the term didnt start yet, courses included in it are planned
-}
-
-function validateRequisites(
-  course: { code: string; grade?: string },
-  allCourses: Record<string, CourseData>,
-  parsedSemesters: Semester[],
-  currentTerm: string,
-) {
-  //TODO
-  return true;
-}
 function getRequiredCourses(coursePools: CoursePoolInfo[]) {
   const requiredCourses: Set<string> = new Set<string>();
   for (const pool of coursePools) {
@@ -566,12 +526,110 @@ async function loadMissingCourses(
 async function getCourseData(courseCode: string) {
   try {
     return await courseController.getCourseByCode(courseCode);
-  } catch (error) {
+  } catch {
     // Courses not in the database are handled gracefully by callers,
     // which skip adding them to the degree course list.
     console.warn(`Course not found in database: ${courseCode}`);
     return null;
   }
+}
+
+import { PredefinedSequenceTerm } from "../../types/transcript";
+
+async function generateSemestersFromPredefinedSequence(
+  predefinedSequence: PredefinedSequenceTerm[],
+  startTerm: string | undefined,
+  courses: Record<string, CourseData>,
+  courseStatusMap: Record<string, { status: CourseStatus; semester: string | null }>
+): Promise<TimelineSemester[]> {
+  const results: TimelineSemester[] = [];
+  const terms = [SEASONS.WINTER, SEASONS.SUMMER, SEASONS.FALL];
+
+  let { startYear, currentSeasonIndex } = parseStartTerm(startTerm, terms);
+
+  for (const sequenceTerm of predefinedSequence) {
+    const termLabel = `${terms[currentSeasonIndex]} ${startYear}`;
+    let coursesInfo: { code: string; message?: string }[] = [];
+
+    if (sequenceTerm.type === "Academic" && sequenceTerm.courses) {
+      coursesInfo = await processPredefinedCourses(sequenceTerm.courses, termLabel, courses, courseStatusMap);
+    } else if (sequenceTerm.type === "Co-op") {
+      coursesInfo.push({
+        code: sequenceTerm.coopLabel || "Co-op Work Term",
+        message: "Co-op Work Term"
+      });
+    }
+
+    results.push({ term: termLabel, courses: coursesInfo });
+
+    // Move to next term
+    currentSeasonIndex++;
+    if (currentSeasonIndex === terms.length) {
+      currentSeasonIndex = 0;
+      startYear++;
+    }
+  }
+
+  return results;
+}
+
+function parseStartTerm(startTerm: string | undefined, terms: string[]) {
+  if (startTerm) {
+    const parsedStartYear = Number.parseInt(startTerm.split(' ')[1]);
+    const startSeason = startTerm.split(' ')[0].toUpperCase();
+    let currentSeasonIndex = terms.indexOf(startSeason);
+    if (currentSeasonIndex === -1) currentSeasonIndex = 2; // Default to Fall
+    return { startYear: parsedStartYear, currentSeasonIndex };
+  }
+  return { startYear: new Date().getFullYear(), currentSeasonIndex: 2 }; // Fall
+}
+
+async function processPredefinedCourses(
+  courseCodes: string[],
+  termLabel: string,
+  courses: Record<string, CourseData>,
+  courseStatusMap: Record<string, { status: CourseStatus; semester: string | null }>
+): Promise<{ code: string; message?: string }[]> {
+  const coursesInfo: { code: string; message?: string }[] = [];
+
+  for (const courseCode of courseCodes) {
+    const normalizedCode = normalizeCourseCode(courseCode);
+
+    if (isPlaceholderCourse(courseCode)) {
+      coursesInfo.push({ code: courseCode, message: "Placeholder - select a course" });
+      continue;
+    }
+
+    if (!courses[normalizedCode]) {
+      const courseData = await getCourseData(normalizedCode);
+      if (courseData) {
+        courses[courseData._id] = courseData;
+      }
+    }
+
+    if (courses[normalizedCode]) {
+      coursesInfo.push({ code: normalizedCode });
+      courseStatusMap[normalizedCode] = { status: "planned", semester: termLabel };
+    } else {
+      coursesInfo.push({ code: normalizedCode, message: "Course not found in database" });
+    }
+  }
+  return coursesInfo;
+}
+
+function isPlaceholderCourse(courseCode: string): boolean {
+  return courseCode.includes("Elective") ||
+    courseCode.includes("General") ||
+    courseCode.includes("Technical") ||
+    courseCode.includes("GEN ED") ||
+    courseCode.includes("NATURAL SCIENCE");
+}
+
+function isPlanned(currentTerm: string) {
+  const today = new Date();
+  const { end } = getTermRanges(currentTerm);
+
+  return today <= end; //if the term didnt start yet, courses included in it are planned
 }
 
 function generateSemesters(startTerm?: string, endTerm?: string) {
@@ -721,6 +779,29 @@ export async function addEcpCoursePools(
       coursePools.push(...ecpResult.coursePools);
       deficiencies.push(...ecpResult.coursePools.map((pool) => pool.name));
     }
+  }
+}
+async function addCoopCoursePool(
+  degree: DegreeData,
+  coursePools: CoursePoolInfo[],
+  courses: Record<string, CourseData>,
+) {
+  if (degree.coursePools) {
+    degree.coursePools.push("Coop Courses");
+    console.log("added coop to degree course pools")
+  }
+  const coopCoursePool = await coursepoolController.getCoursePool("Coop Courses")
+  if (coopCoursePool) {
+    const coopCoursesList = coopCoursePool.courses || [];
+    const coopCourses = await Promise.all(coopCoursesList.map(async (code) => await getCourseData(code)));
+    coursePools.push(coopCoursePool as CoursePoolInfo);
+    for (const c of coopCourses) {
+      if (c) {
+        courses[c._id] = c;
+      }
+    }
+  } else {
+    console.warn("Coop Courses pool not found, skipping.");
   }
 }
 
