@@ -1,0 +1,772 @@
+[
+  {
+    "_id": "ELEC 242",
+    "code": "ELEC 242",
+    "title": "Continuous‑Time Signals and Systems",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 273; ENGR 213.",
+    "rules": {
+      "prereq": [["ENGR 213"], ["ELEC 273"]],
+      "coreq": [],
+      "not_taken": ["ELEC 264"]
+    }
+  },
+  {
+    "_id": "ELEC 251",
+    "code": "ELEC 251",
+    "title": "Fundamentals of Applied Electromagnetics",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 273; ENGR 233.",
+    "rules": {
+      "prereq": [["ENGR 233"], ["ELEC 273"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 273",
+    "code": "ELEC 273",
+    "title": "Basic Circuit Analysis",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: PHYS 205; ENGR 213.",
+    "rules": {
+      "prereq": [["PHYS 205"], ["ENGR 213"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 275",
+    "code": "ELEC 275",
+    "title": "Principles of Electrical Engineering",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: PHYS 205. The following course must be completed previously or concurrently: ENGR 213.",
+    "rules": {
+      "prereq": [["PHYS 205"], ["ENGR 213"]],
+      "coreq": [["ENGR 213"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 311",
+    "code": "ELEC 311",
+    "title": "Electronics I",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 273.",
+    "rules": {
+      "prereq": [["ELEC 273"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 312",
+    "code": "ELEC 312",
+    "title": "Electronics II",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 311; ELEC 242 or ELEC 364.",
+    "rules": {
+      "prereq": [["ELEC 311"], ["ELEC 242", "ELEC 364"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 321",
+    "code": "ELEC 321",
+    "title": "Introduction to Semiconductor Materials and Devices",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: CHEM 205; ENGR 213.",
+    "rules": {
+      "prereq": [["CHEM 205"], ["ENGR 213"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 331",
+    "code": "ELEC 331",
+    "title": "Fundamentals of Electrical Power Engineering",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 251, ELEC 273.",
+    "rules": {
+      "prereq": [["ELEC 273"], ["ELEC 251"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 342",
+    "code": "ELEC 342",
+    "title": "Discrete‑Time Signals and Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 242 or ELEC 264.",
+    "rules": {
+      "prereq": [["ELEC 242", "ELEC 264"]],
+      "coreq": [],
+      "not_taken": ["ELEC 364"]
+    }
+  },
+  {
+    "_id": "ELEC 351",
+    "code": "ELEC 351",
+    "title": "Electromagnetic Waves and Guiding Structures",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 242, ELEC 251.",
+    "rules": {
+      "prereq": [["ELEC 242"], ["ELEC 251"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 365",
+    "code": "ELEC 365",
+    "title": "Complex Variables and Partial Differential Equations",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233.",
+    "rules": {
+      "prereq": [["ENGR 213"], ["ENGR 233"]],
+      "coreq": [],
+      "not_taken": ["ELEC 261", "ELEC 262"]
+    }
+  },
+  {
+    "_id": "ELEC 366",
+    "code": "ELEC 366",
+    "title": "Telecommunication Networks",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 352; ELEC 342 or ELEC 364; ENGR 371.",
+    "rules": {
+      "prereq": [["COEN 352"], ["ELEC 342", "ELEC 364"], ["ENGR 371"]],
+      "coreq": [],
+      "not_taken": ["COEN 366", "COEN 445", "ELEC 463"]
+    }
+  },
+  {
+    "_id": "ELEC 367",
+    "code": "ELEC 367",
+    "title": "Introduction to Digital Communications",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 342 or ELEC 364; ENGR 371.",
+    "rules": {
+      "prereq": [["ELEC 342", "ELEC 364"], ["ENGR 371"]],
+      "coreq": [],
+      "not_taken": ["ELEC 462"]
+    }
+  },
+  {
+    "_id": "ELEC 372",
+    "code": "ELEC 372",
+    "title": "Fundamentals of Control Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 242 or ELEC 364.",
+    "rules": {
+      "prereq": [["ELEC 242", "ELEC 364"]],
+      "coreq": [],
+      "not_taken": ["AERO 371", "ENGR 372", "MECH 371"]
+    }
+  },
+  {
+    "_id": "ELEC 390",
+    "code": "ELEC 390",
+    "title": "Electrical Engineering Product Design Project",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Students must complete a minimum of 45 credits in the BEng (Electrical) prior to enrolling, including the following courses: COEN 352; ELEC 311; ENGR 290.",
+    "rules": {
+      "prereq": [["COEN 352"], ["ELEC 311"], ["ENGR 290"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 413",
+    "code": "ELEC 413",
+    "title": "Mixed‑Signal VLSI for Communication Systems",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 312, ELEC 372.",
+    "rules": {
+      "prereq": [["ELEC 372"], ["ELEC 312"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 421",
+    "code": "ELEC 421",
+    "title": "Solid State Devices",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 321.",
+    "rules": {
+      "prereq": [["ELEC 321"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 422",
+    "code": "ELEC 422",
+    "title": "Design of Integrated Circuit Components",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 421.",
+    "rules": {
+      "prereq": [["ELEC 421"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 423",
+    "code": "ELEC 423",
+    "title": "Introduction to Analog VLSI",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 312.",
+    "rules": {
+      "prereq": [["ELEC 312"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 424",
+    "code": "ELEC 424",
+    "title": "VLSI Process Technology",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 311, ELEC 321.",
+    "rules": {
+      "prereq": [["ELEC 321"], ["ELEC 311"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 425",
+    "code": "ELEC 425",
+    "title": "Optical Devices for High‑Speed Communications",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 321, ELEC 351.",
+    "rules": {
+      "prereq": [["ELEC 351"], ["ELEC 321"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 430",
+    "code": "ELEC 430",
+    "title": "Electrical Power Equipment",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
+    "rules": {
+      "prereq": [["ELEC 331"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 431",
+    "code": "ELEC 431",
+    "title": "Electrical Power Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
+    "rules": {
+      "prereq": [["ELEC 331"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 432",
+    "code": "ELEC 432",
+    "title": "Control of Electrical Power Conversion Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 331, ELEC 372.",
+    "rules": {
+      "prereq": [["ELEC 372"], ["ELEC 331"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 433",
+    "code": "ELEC 433",
+    "title": "Power Electronics",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 311, ELEC 331.",
+    "rules": {
+      "prereq": [["ELEC 331"], ["ELEC 311"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 434",
+    "code": "ELEC 434",
+    "title": "Behaviour of Power Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
+    "rules": {
+      "prereq": [["ELEC 331"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 435",
+    "code": "ELEC 435",
+    "title": "Electromechanical Energy Conversion Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
+    "rules": {
+      "prereq": [["ELEC 331"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 436",
+    "code": "ELEC 436",
+    "title": "Protection of Power Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
+    "rules": {
+      "prereq": [["ELEC 331"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 437",
+    "code": "ELEC 437",
+    "title": "Renewable Energy Systems",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
+    "rules": {
+      "prereq": [["ELEC 331"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 438",
+    "code": "ELEC 438",
+    "title": "Industrial Electrical Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
+    "rules": {
+      "prereq": [["ELEC 331"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 439",
+    "code": "ELEC 439",
+    "title": "Hybrid Electric Vehicle Power System Design and Control",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
+    "rules": {
+      "prereq": [["ELEC 331"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 440",
+    "code": "ELEC 440",
+    "title": "Controlled Electric Drives",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 331, ELEC 372.",
+    "rules": {
+      "prereq": [["ELEC 331"], ["ELEC 372"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 441",
+    "code": "ELEC 441",
+    "title": "Modern Analog Filter Design",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 342 or ELEC 364.",
+    "rules": {
+      "prereq": [["ELEC 342", "ELEC 364"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 442",
+    "code": "ELEC 442",
+    "title": "Advanced Signal Processing",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 342 or ELEC 364; ENGR 371.",
+    "rules": {
+      "prereq": [["ELEC 342", "ELEC 364"], ["ENGR 371"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 443",
+    "code": "ELEC 443",
+    "title": "Electric Power Distribution Networks",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
+    "rules": {
+      "prereq": [["ELEC 331"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 444",
+    "code": "ELEC 444",
+    "title": "Medical Image Processing",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 342 or ELEC 364.",
+    "rules": {
+      "prereq": [["ELEC 342", "ELEC 364"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 445",
+    "code": "ELEC 445",
+    "title": "Biological Signal Processing",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 342.",
+    "rules": {
+      "prereq": [["ELEC 342"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 446",
+    "code": "ELEC 446",
+    "title": "Electrical Power Generation",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 431.",
+    "rules": {
+      "prereq": [["ELEC 431"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 447",
+    "code": "ELEC 447",
+    "title": "Video Processing and Recognition",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "ELEC 342",
+    "rules": {
+      "prereq": [["ELEC 342"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 453",
+    "code": "ELEC 453",
+    "title": "Microwave Engineering",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 351.",
+    "rules": {
+      "prereq": [["ELEC 351"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 455",
+    "code": "ELEC 455",
+    "title": "Acoustics",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 351.",
+    "rules": {
+      "prereq": [["ELEC 351"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 456",
+    "code": "ELEC 456",
+    "title": "Antennas",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 351.",
+    "rules": {
+      "prereq": [["ELEC 351"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 457",
+    "code": "ELEC 457",
+    "title": "Design of Wireless RF Systems",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 453.",
+    "rules": {
+      "prereq": [["ELEC 453"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 458",
+    "code": "ELEC 458",
+    "title": "Techniques in Electromagnetic Compatibility",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 351.",
+    "rules": {
+      "prereq": [["ELEC 351"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 464",
+    "code": "ELEC 464",
+    "title": "Wireless Communications",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 367.",
+    "rules": {
+      "prereq": [["ELEC 367"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 465",
+    "code": "ELEC 465",
+    "title": "Network Security and Management",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COEN 366 or COEN 445 or ELEC 366 or ELEC 463.",
+    "rules": {
+      "prereq": [["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"]],
+      "coreq": [],
+      "not_taken": ["SOEN 321"]
+    }
+  },
+  {
+    "_id": "ELEC 466",
+    "code": "ELEC 466",
+    "title": "Introduction to Optical Communication Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 351, ELEC 367.",
+    "rules": {
+      "prereq": [["ELEC 351"], ["ELEC 367"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 470",
+    "code": "ELEC 470",
+    "title": "Broadcast Signal Transmission",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 363 or ELEC 367.",
+    "rules": {
+      "prereq": [["ELEC 363", "ELEC 367"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 472",
+    "code": "ELEC 472",
+    "title": "Advanced Telecommunication Networks",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COEN 366 or COEN 445 or ELEC 366 or ELEC 463.",
+    "rules": {
+      "prereq": [["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 473",
+    "code": "ELEC 473",
+    "title": "Autonomy for Mobile Robots",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 372; ENGR 371.",
+    "rules": {
+      "prereq": [["ELEC 372"], ["ENGR 371"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 481",
+    "code": "ELEC 481",
+    "title": "Linear Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: AERO 371 or ELEC 372 or MECH 371.",
+    "rules": {
+      "prereq": [["AERO 371", "ELEC 372", "MECH 371"]],
+      "coreq": [],
+      "not_taken": ["ENGR 471"]
+    }
+  },
+  {
+    "_id": "ELEC 482",
+    "code": "ELEC 482",
+    "title": "System Optimization",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 391 or EMAT 391.",
+    "rules": {
+      "prereq": [["ENGR 391", "EMAT 391"]],
+      "coreq": [],
+      "not_taken": ["ENGR 472"]
+    }
+  },
+  {
+    "_id": "ELEC 483",
+    "code": "ELEC 483",
+    "title": "Real‑Time Computer Control Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: AERO 371 or ELEC 372; ELEC 342 or ELEC 364.",
+    "rules": {
+      "prereq": [["AERO 371", "ELEC 372"], ["ELEC 342", "ELEC 364"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 490",
+    "code": "ELEC 490",
+    "title": "Capstone Electrical Engineering Design Project",
+    "credits": 6.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 301, ENGR 371; COEN 311; ELEC 342 or 364; ELEC 390. Students must complete a minimum of 75 credits in the BEng (Electrical), as well as the C.Edge work term or one co-op work term prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+    "rules": {
+      "prereq": [["ENGR 301"], ["ENGR 371"], ["COEN 311"], ["ELEC 342", "ELEC 364"], ["ELEC 390"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ELEC 498",
+    "code": "ELEC 498",
+    "title": "Topics in Electrical Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the Department is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  }
+]

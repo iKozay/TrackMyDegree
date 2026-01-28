@@ -1,0 +1,338 @@
+[
+  {
+    "_id": "ENGR 108",
+    "code": "ENGR 108",
+    "title": "Engineering C.Edge Option Reflective Learning I",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the GCS is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 201",
+    "code": "ENGR 201",
+    "title": "Professional Practice and Responsibility",
+    "credits": 1.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 202",
+    "code": "ENGR 202",
+    "title": "Sustainable Development and Environmental Stewardship",
+    "credits": 1.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 208",
+    "code": "ENGR 208",
+    "title": "Engineering C.Edge Option Reflective Learning II",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 108. Permission of the GCS is required.",
+    "rules": {
+      "prereq": [["ENGR 108"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 213",
+    "code": "ENGR 213",
+    "title": "Applied Ordinary Differential Equations",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: MATH 204 (Cegep Mathematics 105). The following course must be completed previously: MATH 205 (Cegep Mathematics 203).",
+    "rules": {
+      "prereq": [["MATH 204"]],
+      "coreq": [["MATH 204"],["MATH 205"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 233",
+    "code": "ENGR 233",
+    "title": "Applied Advanced Calculus",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MATH 204 (Cegep Mathematics 105); MATH 205 (Cegep Mathematics 203).",
+    "rules": {
+      "prereq": [["MATH 204"],["MATH 205"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 242",
+    "code": "ENGR 242",
+    "title": "Statics",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: ENGR 213. The following courses must be completed previously PHYS 204; MATH 204.",
+    "rules": {
+      "prereq": [["ENGR 213"]],
+      "coreq": [["ENGR 213"],["PHYS 204"],["MATH 204"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 243",
+    "code": "ENGR 243",
+    "title": "Dynamics",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 242.",
+    "rules": {
+      "prereq": [["ENGR 213"],["ENGR 242"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 244",
+    "code": "ENGR 244",
+    "title": "Mechanics of Materials",
+    "credits": 3.75,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 213; ENGR 242 or ENGR 245. The following courses must be completed previously or concurrently: ENGR 233.",
+    "rules": {
+      "prereq": [["ENGR 213"],["ENGR 242"],["ENGR 245"], ["ENGR 233"]],
+      "coreq": [["ENGR 233"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 245",
+    "code": "ENGR 245",
+    "title": "Mechanical Analysis",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: PHYS 204. The following course must be completed previously or concurrently: ENGR 213.",
+    "rules": {
+      "prereq": [["PHYS 204"], ["ENGR 213"]],
+      "coreq": [["ENGR 213"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 251",
+    "code": "ENGR 251",
+    "title": "Thermodynamics I",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MATH 203 (Cegep Mathematics 103).",
+    "rules": {
+      "prereq": [["MATH 203"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 290",
+    "code": "ENGR 290",
+    "title": "Introductory Engineering Team Design Project",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 243; ENCS 282; ENGR 213, ENGR 233.",
+    "rules": {
+      "prereq": [["COEN 243"],["ENGR 213"],["ENCS 282"],["ENGR 233"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 301",
+    "code": "ENGR 301",
+    "title": "Engineering Management Principles and Economics",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 308",
+    "code": "ENGR 308",
+    "title": "Engineering C.Edge Option Reflective Learning III",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 208. Permission of the GCS is required.",
+    "rules": {
+      "prereq": [["ENGR 208"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 311",
+    "code": "ENGR 311",
+    "title": "Transform Calculus and Partial Differential Equations",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233.",
+    "rules": {
+      "prereq": [["ENGR 213"],["ENGR 233"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 361",
+    "code": "ENGR 361",
+    "title": "Fluid Mechanics I",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233, ENGR 251.",
+    "rules": {
+      "prereq": [["ENGR 213"],["ENGR 233"],["ENGR 251"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 371",
+    "code": "ENGR 371",
+    "title": "Probability and Statistics in Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233.",
+    "rules": {
+      "prereq": [["ENGR 213"],["ENGR 233"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 391",
+    "code": "ENGR 391",
+    "title": "Numerical Methods in Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233; COMP 248 or COEN 243 or MECH 215 or MIAE 215 or BCEE 231.",
+    "rules": {
+      "prereq": [["ENGR 213"],["ENGR 233"], ["COMP 248", "COEN 243", "MECH 215", "MIAE 215", "BCEE 231"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 392",
+    "code": "ENGR 392",
+    "title": "Impact of Technology on Society",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENCS 282; ENGR 201, ENGR 202.",
+    "rules": {
+      "prereq": [["ENCS 282"],["ENGR 201"],["ENGR 202"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 411",
+    "code": "ENGR 411",
+    "title": "Special Technical Report",
+    "credits": 1.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENCS 282. Permission of the Department is required.",
+    "rules": {
+      "prereq": [["ENCS 282"]],
+      "coreq": [],
+      "not_taken": ["ENGR 410"]
+    }
+  },
+  {
+    "_id": "ENGR 412",
+    "code": "ENGR 412",
+    "title": "Honours Research Project",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENCS 282. Students must complete a minimum 75 credits in the BEng program with a cumulative GPA of 3.00 or better prior to enrolling. Permission of the Department is required.",
+    "rules": {
+      "prereq": [["ENCS 282"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 472",
+    "code": "ENGR 472",
+    "title": "Robot Manipulators",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 372 or MECH 371.",
+    "rules": {
+      "prereq": [["ELEC 372", "MECH 371"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 490",
+    "code": "ENGR 490",
+    "title": "Multidisciplinary Capstone Design Project",
+    "credits": 6.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Students must be eligible to register in one of the following courses: AERO 490; BLDG 490; CIVI 490; COEN 490; ELEC 490; INDU 490; MECH 490; COMP 490 or SOEN 490.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENGR 498",
+    "code": "ENGR 498",
+    "title": "Topics in Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the GCS is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  }
+]

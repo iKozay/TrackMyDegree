@@ -1,0 +1,324 @@
+[
+  {
+    "_id": "INDU 211",
+    "code": "INDU 211",
+    "title": "Introduction to Production and Manufacturing Systems",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 311",
+    "code": "INDU 311",
+    "title": "Simulation of Industrial Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 371.",
+    "rules": {
+      "prereq": [["ENGR 371"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 320",
+    "code": "INDU 320",
+    "title": "Production Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: INDU 323.",
+    "rules": {
+      "prereq": [["INDU 323"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 321",
+    "code": "INDU 321",
+    "title": "Lean Manufacturing",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: INDU 320.",
+    "rules": {
+      "prereq": [["INDU 320"]],
+      "coreq": [],
+      "not_taken": ["INDU 420"]
+    }
+  },
+  {
+    "_id": "INDU 323",
+    "code": "INDU 323",
+    "title": "Operations Research I",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 213, ENGR 233; INDU 211.",
+    "rules": {
+      "prereq": [["ENGR 213"], ["ENGR 233"], ["INDU 211"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 324",
+    "code": "INDU 324",
+    "title": "Operations Research II",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: INDU 323.",
+    "rules": {
+      "prereq": [["INDU 323"]],
+      "coreq": [],
+      "not_taken": ["INDU 430"]
+    }
+  },
+  {
+    "_id": "INDU 330",
+    "code": "INDU 330",
+    "title": "Engineering Management",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENCS 282. The following course must be completed previously or concurrently: ENGR 301.",
+    "rules": {
+      "prereq": [["ENCS 282"], ["ENGR 301"]],
+      "coreq": [["ENGR 301"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 342",
+    "code": "INDU 342",
+    "title": "Logistics Network Models",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: INDU 324.",
+    "rules": {
+      "prereq": [["INDU 324"]],
+      "coreq": [],
+      "not_taken": ["INDU 442"]
+    }
+  },
+  {
+    "_id": "INDU 371",
+    "code": "INDU 371",
+    "title": "Stochastic Models in Industrial Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 371.",
+    "rules": {
+      "prereq": [["ENGR 371"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 372",
+    "code": "INDU 372",
+    "title": "Quality Control and Reliability",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 371.",
+    "rules": {
+      "prereq": [["ENGR 371"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 410",
+    "code": "INDU 410",
+    "title": "Safety Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 311 or MIAE 311. The following course must be completed previously or concurrently: MIAE 312.",
+    "rules": {
+      "prereq": [["MECH 311", "MIAE 311"], ["MIAE 312"]],
+      "coreq": [["MIAE 312"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 411",
+    "code": "INDU 411",
+    "title": "Computer Integrated Manufacturing",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 311 or MIAE 311. The following course must be completed previously or concurrently: MIAE 312.",
+    "rules": {
+      "prereq": [["MECH 311", "MIAE 311"], ["MIAE 312"]],
+      "coreq": [["MIAE 312"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 412",
+    "code": "INDU 412",
+    "title": "Human Factors Engineering",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 371.",
+    "rules": {
+      "prereq": [["ENGR 371"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 421",
+    "code": "INDU 421",
+    "title": "Facilities Design and Material Handling Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: INDU 311. The following course must be completed previously: INDU 320.",
+    "rules": {
+      "prereq": [["INDU 311"], ["INDU 320"]],
+      "coreq": [["INDU 311"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 423",
+    "code": "INDU 423",
+    "title": "Inventory Control",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: INDU 320.",
+    "rules": {
+      "prereq": [["INDU 320"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 424",
+    "code": "INDU 424",
+    "title": "Introduction to Enterprise Resource Planning",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: INDU 320.",
+    "rules": {
+      "prereq": [["INDU 320"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 431",
+    "code": "INDU 431",
+    "title": "Quantitative Methods in Health‑care Systems",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 441",
+    "code": "INDU 441",
+    "title": "Introduction to Six Sigma",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: INDU 372.",
+    "rules": {
+      "prereq": [["INDU 372"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 466",
+    "code": "INDU 466",
+    "title": "Decision Models in Service Sector",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 371; INDU 320.",
+    "rules": {
+      "prereq": [["ENGR 371"], ["INDU 320"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 475",
+    "code": "INDU 475",
+    "title": "Advanced Concepts in Quality Improvement",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: INDU 372.",
+    "rules": {
+      "prereq": [["INDU 372"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 480",
+    "code": "INDU 480",
+    "title": "Cases in Industrial Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: INDU 311, INDU 324.",
+    "rules": {
+      "prereq": [["INDU 311"], ["INDU 324"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 490",
+    "code": "INDU 490",
+    "title": "Capstone Industrial Engineering Design Project",
+    "credits": 6.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 301; MIAE 380. The following courses must be completed previously or concurrently: INDU 421. Students must complete 75 credits in the program prior to enrolling.",
+    "rules": {
+      "prereq": [["ENGR 301"], ["MIAE 380"], ["INDU 421"]],
+      "coreq": [["INDU 421"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "INDU 498",
+    "code": "INDU 498",
+    "title": "Topics in Industrial Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the Department Chair is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  }
+]
