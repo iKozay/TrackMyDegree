@@ -64,8 +64,8 @@
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: MATH 204 (Cegep Mathematics 105). The following course must be completed previously: MATH 205 (Cegep Mathematics 203).",
     "rules": {
-      "prereq": [["MATH 204"]],
-      "coreq": [["MATH 204"],["MATH 205"]],
+      "prereq": [["MATH 204"], ["MATH 205"]],
+      "coreq": [["MATH 204"]],
       "not_taken": []
     }
   },
@@ -92,8 +92,8 @@
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: ENGR 213. The following courses must be completed previously PHYS 204; MATH 204.",
     "rules": {
-      "prereq": [["ENGR 213"]],
-      "coreq": [["ENGR 213"],["PHYS 204"],["MATH 204"]],
+      "prereq": [["ENGR 213"],["PHYS 204"],["MATH 204"]],
+      "coreq": [["ENGR 213"]],
       "not_taken": []
     }
   },

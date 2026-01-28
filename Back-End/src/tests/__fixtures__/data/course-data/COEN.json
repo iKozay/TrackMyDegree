@@ -290,7 +290,7 @@
     "rules": {
       "prereq": [["COEN 244"], ["COEN 212"]],
       "coreq": [],
-      "not_taken": ["BIOL 475"]
+      "not_taken": ["BIOL 475", "BIOL 498"]
     }
   },
   {
@@ -304,7 +304,7 @@
     "rules": {
       "prereq": [["COEN 244", "BIOL 261"], ["ENGR 290", "COMP 249"]],
       "coreq": [],
-      "not_taken": ["BIOL 476"]
+      "not_taken": ["BIOL 476", "BIOL 498"]
     }
   },
   {

@@ -66,7 +66,7 @@
     "rules": {
       "prereq": [["ENGR 201"]],
       "coreq": [],
-      "not_taken": ["ENGR 417"]
+      "not_taken": ["ENGR 417", "ENGR 498"]
     }
   },
   {
@@ -248,7 +248,7 @@
     "rules": {
       "prereq": [["MECH 361"], ["MECH 351"]],
       "coreq": [],
-      "not_taken": ["MECH 485"]
+      "not_taken": ["MECH 485", "MECH 498"]
     }
   },
   {

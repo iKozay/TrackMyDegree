@@ -117,20 +117,22 @@ def test_split_sections_full():
 def test_split_sections_missing_middle():
     text = "Prerequisite/Corequisite: P. Notes: N."
     sections = split_sections(text, clean_text)
-    assert sections["Prerequisite/Corequisite:"] == "P. Notes: N."
+    assert sections["Prerequisite/Corequisite:"] == "P."
     assert sections["Description:"] == ""
+    assert sections["Component(s):"] == ""
+    assert sections["Notes:"] == "N."
 
 
 @pytest.mark.parametrize("input_text, expected_pre_contains, expected_co_contains", [
-    ("previously or concurrently: SOEN 287.", "SOEN 287", "SOEN 287"),
-    ("previously: SOEN 287 and COMP 248.", "SOEN 287", ""),
-    ("concurrently: ENGR 301.", "", "ENGR 301"),
+    ("must be completed previously or concurrently: SOEN 287.", "SOEN 287", "SOEN 287"),
+    ("must be completed previously: SOEN 287 and COMP 248.", "SOEN 287", ""),
+    ("must be completed concurrently: ENGR 301.", "", "ENGR 301"),
     ("18 credits in Engineering.", "18 credits in Engineering", ""),
 ])
 def test_parse_prereq_coreq_coverage_branches(input_text, expected_pre_contains, expected_co_contains):
     prereq, coreq = parse_prereq_coreq(input_text, clean_text)
-    assert expected_pre_contains.strip() in prereq
-    assert expected_co_contains.strip() in coreq
+    assert expected_pre_contains in prereq
+    assert expected_co_contains in coreq
 
 
 '''@patch("scraper.course_data_scraper.fetch_html")
@@ -143,7 +145,7 @@ def test_extract_valid_course(mock_fetch):
 
 def test_rules():
     assert make_prereq_coreq_into_array("") == []
-    assert make_prereq_coreq_into_array("COEN 243 / MECH 215") == [["COEN 243", "MECH 215"]]
+    assert make_prereq_coreq_into_array("COEN 243 or MECH 215") == [["COEN 243", "MECH 215"]]
     assert get_not_taken("") == []
     assert get_not_taken("Students who have received credit for COMP 249 may not take this course for credit.") == ["COMP 249"]
 

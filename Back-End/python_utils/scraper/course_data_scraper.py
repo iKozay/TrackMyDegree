@@ -80,75 +80,136 @@ def split_sections(text, clean_text):
             continue
 
         start += len(marker)
-        next_marker = markers[i + 1] if i < len(markers) - 1 else None
-        end = remaining.find(next_marker) if next_marker else len(remaining)
-        if end == -1:
-            end = len(remaining)
+        end = len(remaining)  # Default to end of text
+        
+        # Look for any remaining markers to find the actual end
+        for j in range(i + 1, len(markers)):
+            next_marker_pos = remaining.find(markers[j])
+            if next_marker_pos != -1 and next_marker_pos < end:
+                end = next_marker_pos
 
         sections[marker] = clean_text(remaining[start:end].strip())
         remaining = remaining[end:]
 
     return sections
 
-
+def extract_prereq_coreq_from_sentence(sentences, clean_text):
+    prereq_parts = []
+    coreq_parts = []
+    patterns = [
+        # (pattern, action)
+        (r'must be completed? previously or concurrently[: ]+([^.]+)', lambda m: (m, m)),
+        (r'must be completed? previously[: ]+([^.]+)', lambda m: (m, None)),
+        (r'must be completed? concurrently[: ]+([^.]+)', lambda m: (None, m)),
+        (r'by passing ([A-Z]{4}\s+\d{3})', lambda m: (m, None)),
+        (r'must complete.*?including the following courses?[: ]+([^.]+)', lambda m: (m, None)),
+    ]
+    for sentence in sentences:
+        sentence = sentence.strip()
+        if not sentence:
+            continue
+        for pat, act in patterns:
+            match = re.search(pat, sentence, re.I)
+            if match:
+                course_text = clean_text(match.group(1))
+                if course_text:
+                    prereq_val, coreq_val = act(course_text)
+                    if prereq_val:
+                        prereq_parts.append(prereq_val)
+                    if coreq_val:
+                        coreq_parts.append(coreq_val)
+                break
+    return prereq_parts, coreq_parts
+    
 def parse_prereq_coreq(text, clean_text):
     """Extract prerequisites and corequisites from text."""
-    patterns = {
-        "both": r'previously\s+or\s+concurrently[: ]+([A-Z]{4}\s+\d{3}[^.]*)',
-        "pre": r'previously[: ]+([^.]*)',
-        "co": r'concurrently[: ]+([A-Z]{4}\s+\d{3}[^.]*)',
-    }
+    if not text:
+        return "", ""
+    
+    # Clean the text first
+    text = clean_text(text)
+        
+    # Split the text by sentences (periods followed by capital letters or end)
+    sentences = re.split(r'\.\s*(?=[A-Z]|$)', text)
+    prereq_parts, coreq_parts = extract_prereq_coreq_from_sentence(sentences, clean_text)
+ 
+    # if no previously/concurrently patterns found, assume all are prerequisites
+    if not prereq_parts and not coreq_parts:
+        # Avoid adding eligibility statements as prerequisites (see ENGR 490)
+        if not re.search(r'must be eligible to register in[: ]+([^:]+)', text, re.I):
+            prereq_parts.append(text)
 
-    prereq = coreq = ""
-    if (match := re.search(patterns["both"], text, re.I)):
-        prereq = coreq = clean_text(match.group(1) + '.')
-    elif (match := re.search(patterns["pre"], text, re.I)):
-        prereq = clean_text(match.group(1) + '.')
-    elif (match := re.search(patterns["co"], text, re.I)):
-        coreq = clean_text(match.group(1) + '.')
-    else:
-        cleaned = re.sub(r'(previously|or concurrently)[: ]+', '', text, flags=re.I)
-        prereq = clean_text(cleaned)
+    # Join all parts with semicolons to separate different requirements
+    prereq = "; ".join(prereq_parts)
+    coreq = "; ".join(coreq_parts)
+    
+    return prereq.strip(), coreq.strip()
 
-    if prereq:
-        prereq = re.sub(r'\s{0,5}or\s{0,5}', ' / ', prereq, flags=re.I)
-
-    return prereq, coreq
+# Handle patterns like "ELEC 342 or 364" - expand to "ELEC 342 or ELEC 364"
+def expand_course_shorthand(match):
+    full_course = match.group(1)  # e.g., "ELEC 342"
+    dept = full_course[:4]        # e.g., "ELEC"
+    number_only = match.group(2)  # e.g., "364"
+    return f"{full_course} or {dept} {number_only}"
 
 def make_prereq_coreq_into_array(s):
-    tokens = re.findall(r"[A-Za-z]{4} \d{3}", s)
-
-    if not tokens:
+    if not s or not s.strip():
         return []
-
-    placeholder = "§"
-    temp = s
-    for t in tokens:
-        temp = temp.replace(t, placeholder, 1)
-
-    comma_groups = temp.split(",")
-
+        
+    s = re.sub(r'([A-Z]{4}\s+\d{3})\s+or\s+(\d{3})', expand_course_shorthand, s)
+    
+    # Split by semicolons first (main separators between different requirements)
+    main_groups = [group.strip() for group in s.split(';') if group.strip()]
+    
     result = []
-    token_index = 0
-
-    for group in comma_groups:
-        slash_parts = group.split("/")
-        inner_list = []
-        for _ in slash_parts:
-            if token_index < len(tokens):
-                inner_list.append(tokens[token_index])
-                token_index += 1
-        if inner_list:
-            result.append(inner_list)
-
+    
+    for main_group in main_groups:
+        # Extract all valid course codes (4 uppercase letters + space + 3 digits) from this group
+        course_pattern = r'[A-Z]{4}\s+\d{3}'
+        all_courses = re.findall(course_pattern, main_group)
+        
+        if not all_courses:
+            continue
+        
+        # Check if this group contains 'or' keywords (alternatives)
+        if re.search(r'\bor\b', main_group, re.I):
+            # Split by 'or' to find alternatives
+            or_parts = re.split(r'\s+or\s+', main_group, flags=re.I)
+            alternatives = []
+            
+            for part in or_parts:
+                # Find courses in this part
+                part_courses = re.findall(course_pattern, part)
+                alternatives.extend(part_courses)
+            
+            if alternatives:
+                # Remove duplicates while preserving order
+                unique_alternatives = []
+                for alt in alternatives:
+                    if alt not in unique_alternatives:
+                        unique_alternatives.append(alt)
+                result.append(unique_alternatives)
+        else:
+            # No 'or' in this group - check if comma-separated individual requirements
+            if ',' in main_group:
+                # Split by commas for individual requirements
+                comma_parts = [part.strip() for part in main_group.split(',') if part.strip()]
+                for part in comma_parts:
+                    part_courses = re.findall(course_pattern, part)
+                    for course in part_courses:
+                        result.append([course])
+            else:
+                # Single requirement or multiple courses in same requirement
+                for course in all_courses:
+                    result.append([course])
+    
     return result
 
 def get_not_taken(s):
-
-    if "may not take this course for credit" not in s:
+    if "not take this course for credit" not in s:
         return []
     
-    tokens = re.findall(r"[A-Za-z]{4} \d{3}", s)
+    tokens = re.findall(r'[A-Z]{4}\s+\d{3}', s)
     return tokens
 
 def extract_course_data(course_code, url):
