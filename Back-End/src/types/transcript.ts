@@ -22,6 +22,13 @@ export interface ProgramInfo {
   isCoop?: boolean;
   isExtendedCreditProgram?: boolean;
   minimumProgramLength?: number;
+  predefinedSequence?: PredefinedSequenceTerm[];
+}
+
+export interface PredefinedSequenceTerm {
+  type: "Academic" | "Co-op";
+  courses?: string[];
+  coopLabel?: string;
 }
 
 /**

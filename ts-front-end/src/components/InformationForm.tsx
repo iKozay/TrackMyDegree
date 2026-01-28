@@ -18,8 +18,8 @@ interface SelectedRadio {
 
 export interface ProgramInfo extends Record<string, unknown> {
   degree: string;
-  firstTerm?: string; // e.g., "Fall 2022"
-  lastTerm?: string; // e.g., "Spring 2026"
+  firstTerm?: string;
+  lastTerm?: string;
   isCoop?: boolean;
   isExtendedCreditProgram?: boolean;
   minimumProgramLength?: number;
@@ -36,6 +36,8 @@ const InformationForm = () => {
     coOp: false,
     extendedCredit: false,
   });
+  const [loadPredefinedSequence, setLoadPredefinedSequence] = useState<boolean>(false);
+  const [aerospaceOption, setAerospaceOption] = useState<string>("");
 
   // Fetch degrees on mount
   useEffect(() => {
@@ -67,6 +69,50 @@ const InformationForm = () => {
       coOp: false,
       extendedCredit: false,
     });
+    setLoadPredefinedSequence(false);
+    setAerospaceOption("");
+  };
+
+  const selectedDegree = degrees.find((d) => d._id === selectedDegreeId);
+  const isAerospace = selectedDegree?.name?.toLowerCase().includes("aerospace") ?? false;
+
+  const getDegreeSequenceFile = (degreeName: string, entryTerm: string): string | null => {
+    const name = degreeName.toLowerCase();
+
+    // Handle Aerospace with options
+    if (name.includes("aerospace")) {
+      if (!aerospaceOption) return null;
+      return `aerospace_${aerospaceOption}.json`;
+    }
+
+    // Handle Chemical with entry term
+    if (name.includes("chemical")) {
+      return entryTerm.toLowerCase() === "winter"
+        ? "chemical_winter_entry.json"
+        : "chemical_fall_entry.json";
+    }
+
+    if (name.includes("building")) return "building_engineering.json";
+    if (name.includes("civil")) return "civil_engineering.json";
+    if (name.includes("computer") && name.includes("engineering")) return "computer_engineering.json";
+    if (name.includes("computer") && name.includes("science")) return "computer_science.json";
+    if (name.includes("electrical")) return "electrical_engineering.json";
+    if (name.includes("industrial")) return "industrial_engineering.json";
+    if (name.includes("mechanical")) return "mechanical_engineering.json";
+    if (name.includes("software")) return "software_engineering.json";
+
+    return null;
+  };
+
+  const checkSequenceAvailability = (degreeName: string, entryTerm: string): boolean => {
+    const name = degreeName.toLowerCase();
+    const term = entryTerm.toLowerCase();
+
+    if (name.includes("chemical")) {
+      return term === "fall" || term === "winter";
+    }
+
+    return term === "fall";
   };
 
   const handleNextButtonClick = async () => {
@@ -82,6 +128,59 @@ const InformationForm = () => {
 
     const startingSemester = `${selectedTerm} ${selectedYear}`;
     const matched_degree = degrees.find((d) => d._id === selectedDegreeId);
+
+    if (selectedRadio.coOp && loadPredefinedSequence && matched_degree) {
+      if (isAerospace && !aerospaceOption) {
+        alert("Please select an Aerospace option.");
+        return;
+      }
+
+      const sequenceFile = getDegreeSequenceFile(matched_degree.name, selectedTerm);
+
+      if (!sequenceFile) {
+        alert("No predefined sequence available for this degree.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`/coop-sequences/${sequenceFile}`);
+        if (!response.ok) {
+          throw new Error(`Failed to load sequence: ${response.statusText}`);
+        }
+
+        const sequenceData = await response.json();
+
+        const formDataWithSequence: ProgramInfo = {
+          degree: matched_degree._id,
+          firstTerm: startingSemester,
+          isCoop: true,
+          isExtendedCreditProgram: selectedRadio.extendedCredit,
+          predefinedSequence: sequenceData,
+        };
+
+        try {
+          const apiResponse = await api.post<UploadResponse>("/upload/form", formDataWithSequence);
+
+          if (apiResponse?.jobId) {
+            navigate(`/timeline/${apiResponse.jobId}`);
+            return;
+          }
+
+          alert("Unexpected response from server.");
+        } catch (apiError: unknown) {
+          console.error("Error processing predefined sequence:", apiError);
+          const message =
+            apiError instanceof Error
+              ? apiError.message
+              : "An unknown error occurred while processing the predefined sequence.";
+          alert(message);
+        }
+        return;
+      } catch (error) {
+        console.error("Error loading predefined sequence:", error);
+        alert("Failed to load predefined sequence. Falling back to standard generation.");
+      }
+    }
 
     const formData: ProgramInfo = {
       degree: matched_degree?._id || selectedDegreeId,
@@ -183,9 +282,56 @@ const InformationForm = () => {
               value="yes"
               checked={selectedRadio.extendedCredit === true}
               onChange={() => handleRadioChange("extendedCredit", true)}
+              aria-label="Extended Credit Program?"
             />
           </label>
         </div>
+
+        <div className="radio-group">
+          <span className="cooo">Co-op Program? </span>
+          <label>
+            <input
+              type="checkbox"
+              name="co-op"
+              value="yes"
+              checked={selectedRadio.coOp === true}
+              onChange={() => handleRadioChange("coOp", true)}
+              aria-label="Co-op Program?"
+            />
+          </label>
+        </div>
+
+        {selectedRadio.coOp && selectedDegree && checkSequenceAvailability(selectedDegree.name, selectedTerm) && (
+          <div className="radio-group">
+            <span className="cooo">Load predefined co-op sequence? </span>
+            <label>
+              <input
+                type="checkbox"
+                name="load-predefined"
+                value="yes"
+                checked={loadPredefinedSequence}
+                onChange={() => setLoadPredefinedSequence(!loadPredefinedSequence)}
+                aria-label="Load predefined co-op sequence?"
+              />
+            </label>
+          </div>
+        )}
+
+        {selectedRadio.coOp && loadPredefinedSequence && isAerospace && (
+          <div>
+            <label htmlFor="aerospace-option">Select Aerospace Option:</label>
+            <select
+              id="aerospace-option"
+              className="input-field"
+              value={aerospaceOption}
+              onChange={(e) => setAerospaceOption(e.target.value)}>
+              <option value="">-- Select Option --</option>
+              <option value="option_a">Option A - Aerodynamics and Propulsion</option>
+              <option value="option_b">Option B - Structures and Materials</option>
+              <option value="option_c">Option C - Avionics & Aerospace Systems</option>
+            </select>
+          </div>
+        )}
       </form>
 
       <button className="cancel-button" onClick={handleCancel}>
