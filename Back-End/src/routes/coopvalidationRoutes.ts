@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import redisClient from '@/config/redis';
-import { validateCoopTimeline } from '@/services/coop/coopvalidationService';
+import { validateCoopTimeline } from '@/services/coop/coopvalidationService.';
 
 const router = Router();
 
