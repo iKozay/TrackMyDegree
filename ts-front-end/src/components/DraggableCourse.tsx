@@ -74,6 +74,7 @@ export const DraggableCourse: React.FC<DraggableCourseProps> = ({
       {/* drag handle + click-to-select */}
       <div
         className="course-content"
+        role="presentation"
         {...listeners}
         onClick={() => {
           // if this interaction was actually a drag, ignore click

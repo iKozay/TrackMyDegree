@@ -265,7 +265,7 @@ const RequirementItem: React.FC<{
 
     return (
         <div className="requirement-group">
-            <div className="req-header-row" onClick={toggle}>
+            <div className="req-header-row" onClick={toggle} role="presentation">
                 <div className="req-title-group">
                     <span className="req-name">{req.title}</span>
                     <div style={{ display: 'flex' }}>

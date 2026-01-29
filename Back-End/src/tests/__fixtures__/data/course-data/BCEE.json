@@ -1,0 +1,240 @@
+[
+  {
+    "_id": "BCEE 231",
+    "code": "BCEE 231",
+    "title": "Structured Programming and Applications for Building and Civil Engineers",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MATH 204. The following course must be completed previously or concurrently: ENGR 242.",
+    "rules": {
+      "prereq": [["MATH 204"], ["ENGR 242"]],
+      "coreq": [["ENGR 242"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BCEE 342",
+    "code": "BCEE 342",
+    "title": "Structural Analysis I",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 244.",
+    "rules": {
+      "prereq": [["ENGR 244"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BCEE 343",
+    "code": "BCEE 343",
+    "title": "Structural Analysis II",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BCEE 342.",
+    "rules": {
+      "prereq": [["BCEE 342"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BCEE 344",
+    "code": "BCEE 344",
+    "title": "Structural Design of Steel and Wood Elements",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BCEE 342.",
+    "rules": {
+      "prereq": [["BCEE 342"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BCEE 345",
+    "code": "BCEE 345",
+    "title": "Structural Design of Reinforced Concrete Elements",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BCEE 342.",
+    "rules": {
+      "prereq": [["BCEE 342"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BCEE 371",
+    "code": "BCEE 371",
+    "title": "Surveying",
+    "credits": 2.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BLDG 212 or CIVI 212.",
+    "rules": {
+      "prereq": [["BLDG 212", "CIVI 212"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BCEE 432",
+    "code": "BCEE 432",
+    "title": "Soil Mechanics",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 244.",
+    "rules": {
+      "prereq": [["ENGR 244"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BCEE 451",
+    "code": "BCEE 451",
+    "title": "Construction Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BLDG 341 or CIVI 341.",
+    "rules": {
+      "prereq": [["BLDG 341", "CIVI 341"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BCEE 452",
+    "code": "BCEE 452",
+    "title": "Fundamentals of Finite Element Analysis of Structures",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233; BCEE 231, BCEE 343.",
+    "rules": {
+      "prereq": [["ENGR 213"], ["BCEE 231"], ["ENGR 233"], ["BCEE 343"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BCEE 455",
+    "code": "BCEE 455",
+    "title": "Introduction to Structural Dynamics",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 243, ENGR 391; BCEE 342.",
+    "rules": {
+      "prereq": [["ENGR 243"], ["BCEE 342"], ["ENGR 391"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BCEE 464",
+    "code": "BCEE 464",
+    "title": "Project Cost Estimating",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 301.",
+    "rules": {
+      "prereq": [["ENGR 301"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BCEE 465",
+    "code": "BCEE 465",
+    "title": "Construction Planning and Control",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BCEE 478 or equivalent.",
+    "rules": {
+      "prereq": [["BCEE 478"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BCEE 466",
+    "code": "BCEE 466",
+    "title": "Simulations and Design of Construction Operations",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BCEE 451.",
+    "rules": {
+      "prereq": [["BCEE 451"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BCEE 478",
+    "code": "BCEE 478",
+    "title": "Project Management for Construction",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: BLDG 341 or CIVI 341.",
+    "rules": {
+      "prereq": [["BLDG 341", "CIVI 341"]],
+      "coreq": [],
+      "not_taken": ["BLDG 478"]
+    }
+  },
+  {
+    "_id": "BCEE 491",
+    "code": "BCEE 491",
+    "title": "Labour and Industrial Relations in Construction",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 301.",
+    "rules": {
+      "prereq": [["ENGR 301"]],
+      "coreq": [],
+      "not_taken": ["BLDG 491"]
+    }
+  },
+  {
+    "_id": "BCEE 492",
+    "code": "BCEE 492",
+    "title": "Construction Processes",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BCEE 451 or ENGR 451.",
+    "rules": {
+      "prereq": [["BCEE 451", "ENGR 451"]],
+      "coreq": [],
+      "not_taken": ["BLDG 492"]
+    }
+  },
+  {
+    "_id": "BCEE 493",
+    "code": "BCEE 493",
+    "title": "Legal Issues in Construction",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 301.",
+    "rules": {
+      "prereq": [["ENGR 301"]],
+      "coreq": [],
+      "not_taken": ["BLDG 493"]
+    }
+  }
+]

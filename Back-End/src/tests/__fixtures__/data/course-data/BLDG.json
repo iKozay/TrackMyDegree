@@ -1,0 +1,338 @@
+[
+  {
+    "_id": "BLDG 212",
+    "code": "BLDG 212",
+    "title": "Building Engineering Drawing and Introduction to Design",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 341",
+    "code": "BLDG 341",
+    "title": "Building Engineering Systems",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: BCEE 231.",
+    "rules": {
+      "prereq": [["BCEE 231"]],
+      "coreq": [["BCEE 231"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 365",
+    "code": "BLDG 365",
+    "title": "Building Science",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 251.",
+    "rules": {
+      "prereq": [["ENGR 251"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 366",
+    "code": "BLDG 366",
+    "title": "Acoustics and Lighting",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 243.",
+    "rules": {
+      "prereq": [["ENGR 243"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 371",
+    "code": "BLDG 371",
+    "title": "Building Service Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: BLDG 365.",
+    "rules": {
+      "prereq": [["BLDG 365"]],
+      "coreq": [["BLDG 365"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 390",
+    "code": "BLDG 390",
+    "title": "Building Engineering Design Project",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: BLDG 341; ENCS 282. The following course must be completed previously or concurrently: BCEE 344.",
+    "rules": {
+      "prereq": [["BLDG 341"], ["ENCS 282"], ["BCEE 344"]],
+      "coreq": [["BCEE 344"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 462",
+    "code": "BLDG 462",
+    "title": "Non-structural Building Materials",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: CIVI 321.",
+    "rules": {
+      "prereq": [["CIVI 321"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 463",
+    "code": "BLDG 463",
+    "title": "Building Envelope Design",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BLDG 365.",
+    "rules": {
+      "prereq": [["BLDG 365"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 465",
+    "code": "BLDG 465",
+    "title": "Fire and Smoke Control in Buildings",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BLDG 365.",
+    "rules": {
+      "prereq": [["BLDG 365"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 471",
+    "code": "BLDG 471",
+    "title": "HVAC System Design",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BLDG 371. The following course must be completed previously or concurrently: BLDG 476.",
+    "rules": {
+      "prereq": [["BLDG 371"], ["BLDG 476"]],
+      "coreq": [["BLDG 476"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 472",
+    "code": "BLDG 472",
+    "title": "Energy Management in Buildings",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: BLDG 471.",
+    "rules": {
+      "prereq": [["BLDG 471"]],
+      "coreq": [["BLDG 471"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 473",
+    "code": "BLDG 473",
+    "title": "Building Acoustics",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BLDG 366.",
+    "rules": {
+      "prereq": [["BLDG 366"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 474",
+    "code": "BLDG 474",
+    "title": "Building Illumination and Daylighting",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BLDG 366.",
+    "rules": {
+      "prereq": [["BLDG 366"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 475",
+    "code": "BLDG 475",
+    "title": "Indoor Air Quality and Ventilation",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: BLDG 371.",
+    "rules": {
+      "prereq": [["BLDG 371"]],
+      "coreq": [["BLDG 371"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 476",
+    "code": "BLDG 476",
+    "title": "Thermal Analysis of Buildings",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: BLDG 365; ENGR 361.",
+    "rules": {
+      "prereq": [["BLDG 365"], ["ENGR 361"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 477",
+    "code": "BLDG 477",
+    "title": "Control Systems in Buildings",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: BLDG 371.",
+    "rules": {
+      "prereq": [["BLDG 371"]],
+      "coreq": [["BLDG 371"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 479",
+    "code": "BLDG 479",
+    "title": "Commissioning of HVAC Systems in Buildings",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: BLDG 471.",
+    "rules": {
+      "prereq": [["BLDG 471"]],
+      "coreq": [["BLDG 471"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 480",
+    "code": "BLDG 480",
+    "title": "Building Information Modelling in Construction",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 481",
+    "code": "BLDG 481",
+    "title": "Fundamentals of Facility Management",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 482",
+    "code": "BLDG 482",
+    "title": "Impact of Technology on Society and Architecture",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Students must complete 20 courses in the BEng program prior to enrolling.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 483",
+    "code": "BLDG 483",
+    "title": "Solar Building Modelling, Design and Operation",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 484",
+    "code": "BLDG 484",
+    "title": "Diagnostics and Rehabilitation of Building Envelope",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: BLDG 463.",
+    "rules": {
+      "prereq": [["BLDG 463"]],
+      "coreq": [["BLDG 463"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 490",
+    "code": "BLDG 490",
+    "title": "Capstone Building Engineering Design Project",
+    "credits": 6.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Students must complete a minimum of 75 credits in the BEng (Bldg) program prior to enrolling, including ENCS 282; BCEE 344, BCEE 345; BLDG 371, BLDG 390; ENGR 301.",
+    "rules": {
+      "prereq": [["ENCS 282"], ["BCEE 344"], ["BCEE 345"], ["BLDG 371"], ["BLDG 390"], ["ENGR 301"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "BLDG 498",
+    "code": "BLDG 498",
+    "title": "Topics in Building Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the Department is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  }
+]

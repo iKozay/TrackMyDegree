@@ -1,0 +1,366 @@
+[
+  {
+    "_id": "CIVI 212",
+    "code": "CIVI 212",
+    "title": "Civil Engineering Drawing and Introduction to Design",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 231",
+    "code": "CIVI 231",
+    "title": "Geology for Civil Engineers",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 321",
+    "code": "CIVI 321",
+    "title": "Engineering Materials",
+    "credits": 3.75,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: CHEM 205 or equivalent.",
+    "rules": {
+      "prereq": [["CHEM 205"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 341",
+    "code": "CIVI 341",
+    "title": "Civil Engineering Systems",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: BCEE 231.",
+    "rules": {
+      "prereq": [["BCEE 231"]],
+      "coreq": [["BCEE 231"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 361",
+    "code": "CIVI 361",
+    "title": "Introduction to Environmental Engineering",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 361.",
+    "rules": {
+      "prereq": [["ENGR 361"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 372",
+    "code": "CIVI 372",
+    "title": "Transportation Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: BCEE 371; CIVI 341.",
+    "rules": {
+      "prereq": [["BCEE 371"], ["CIVI 341"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 381",
+    "code": "CIVI 381",
+    "title": "Hydraulics",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 361, ENGR 391.",
+    "rules": {
+      "prereq": [["ENGR 391"], ["ENGR 361"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 382",
+    "code": "CIVI 382",
+    "title": "Water Resources Engineering",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: CIVI 381; ENGR 391 or EMAT 391.",
+    "rules": {
+      "prereq": [["CIVI 381"], ["ENGR 391", "EMAT 391"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 390",
+    "code": "CIVI 390",
+    "title": "Civil Engineering Design Project",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENCS 282. The following courses must be completed previously or concurrently: CIVI 361; BCEE 344; BCEE 345.",
+    "rules": {
+      "prereq": [["ENCS 282"], ["CIVI 361"], ["BCEE 344"], ["BCEE 345"]],
+      "coreq": [["CIVI 361"], ["BCEE 344"], ["BCEE 345"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 435",
+    "code": "CIVI 435",
+    "title": "Foundation Design",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BCEE 432.",
+    "rules": {
+      "prereq": [["BCEE 432"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 437",
+    "code": "CIVI 437",
+    "title": "Advanced Geotechnical Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BCEE 432.",
+    "rules": {
+      "prereq": [["BCEE 432"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 440",
+    "code": "CIVI 440",
+    "title": "Computer Applications in Civil Engineering Practice",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BCEE 231. Students must complete 75 credits in the program prior to enrolling.",
+    "rules": {
+      "prereq": [["BCEE 231"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 453",
+    "code": "CIVI 453",
+    "title": "Design of Reinforced Concrete Structures",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BCEE 345. The following course must be completed previously or concurrently: CIVI 390 or BLDG 390.",
+    "rules": {
+      "prereq": [["BCEE 345"], ["CIVI 390", "BLDG 390"]],
+      "coreq": [["CIVI 390", "BLDG 390"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 454",
+    "code": "CIVI 454",
+    "title": "Design of Steel Structures",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: BCEE 344. The following course must be completed previously or concurrently: CIVI 390 or BLDG 390.",
+    "rules": {
+      "prereq": [["BCEE 344"], ["CIVI 390", "BLDG 390"]],
+      "coreq": [["CIVI 390", "BLDG 390"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 464",
+    "code": "CIVI 464",
+    "title": "Environmental Impact Assessment",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: CIVI 361.",
+    "rules": {
+      "prereq": [["CIVI 361"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 465",
+    "code": "CIVI 465",
+    "title": "Water Pollution and Control",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: CIVI 361.",
+    "rules": {
+      "prereq": [["CIVI 361"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 466",
+    "code": "CIVI 466",
+    "title": "Engineering Aspects of Chemical and Biological Processes",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: CIVI 361.",
+    "rules": {
+      "prereq": [["CIVI 361"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 467",
+    "code": "CIVI 467",
+    "title": "Air Pollution and Emission Control",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: CIVI 361.",
+    "rules": {
+      "prereq": [["CIVI 361"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 468",
+    "code": "CIVI 468",
+    "title": "Waste Management",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: CIVI 361.",
+    "rules": {
+      "prereq": [["CIVI 361"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 469",
+    "code": "CIVI 469",
+    "title": "Geo‑Environmental Engineering",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously:CIVI 361.",
+    "rules": {
+      "prereq": [["CIVI 361"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 471",
+    "code": "CIVI 471",
+    "title": "Highway and Pavement Design",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: BCEE 371; CIVI 321.",
+    "rules": {
+      "prereq": [["BCEE 371"], ["CIVI 321"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 474",
+    "code": "CIVI 474",
+    "title": "Transportation Planning and Design",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: CIVI 372.",
+    "rules": {
+      "prereq": [["CIVI 372"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 483",
+    "code": "CIVI 483",
+    "title": "Hydrology",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: CIVI 381.",
+    "rules": {
+      "prereq": [["CIVI 381"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 484",
+    "code": "CIVI 484",
+    "title": "Hydraulic Engineering",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: CIVI 381.",
+    "rules": {
+      "prereq": [["CIVI 381"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 490",
+    "code": "CIVI 490",
+    "title": "Capstone Civil Engineering Design Project",
+    "credits": 6.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Students must complete a minimum of 75 credits in the BEng (Civil) including the following courses: ENGR 301; CIVI 361, CIVI 390; BCEE 344, BCEE 345.",
+    "rules": {
+      "prereq": [["ENGR 301"], ["CIVI 361"], ["CIVI 390"], ["BCEE 344"], ["BCEE 345"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "CIVI 498",
+    "code": "CIVI 498",
+    "title": "Topics in Civil Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the Department is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  }
+]

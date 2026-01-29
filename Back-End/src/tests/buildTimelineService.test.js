@@ -476,6 +476,11 @@ describe('timelineService', () => {
       .mockResolvedValueOnce({ _id: 'CWT 101', title: 'Reflective Learning I', credits: 0 });
 
 
+    courseController.getCourseByCode
+      .mockResolvedValueOnce({ _id: 'CWT 100', title: 'Work Term 1', credits: 0 })
+      .mockResolvedValueOnce({ _id: 'CWT 101', title: 'Reflective Learning I', credits: 0 });
+
+  
     const result = await buildTimeline({
       type: 'file',
       data: Buffer.from('mock file'),

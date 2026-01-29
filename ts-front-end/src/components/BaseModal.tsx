@@ -23,11 +23,11 @@ export const BaseModal: React.FC<BaseModalProps> = ({
     <div
       className="modal-backdrop"
       onClick={handleOnClose}
-      aria-modal="true"
-      role="dialog">
+      role="presentation">
       <div
         className="modal-content"
         onClick={(e) => e.stopPropagation()} // don't close when clicking inside
+        role="menuitem"
       >
         <button className="modal-close" onClick={handleOnClose}>
           ×

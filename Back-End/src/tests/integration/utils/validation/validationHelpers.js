@@ -54,6 +54,45 @@ function validateArrayContains(sourceArray, targetArray) {
   expect(targetArray).toEqual(expect.arrayContaining(sourceArray));
 }
 
+/**
+ * Compare arrays of arrays (for prereq/coreq)
+ * @param {Array[]} dbArray - Database array of arrays
+ * @param {Array[]} expectedArray - Expected array of arrays
+ * @returns {Object} - Object with missing and extra individual items
+ */
+function compareArraysOfArrays(dbArray, expectedArray) {
+  // Flatten all arrays and get unique items
+  const dbItems = new Set(dbArray.flat());
+  const expectedItems = new Set(expectedArray.flat());
+  
+  // Find missing items (in expected but not in DB)
+  const missing = Array.from(expectedItems).filter(item => !dbItems.has(item));
+  
+  // Find extra items (in DB but not in expected)
+  const extra = Array.from(dbItems).filter(item => !expectedItems.has(item));
+  
+  return { missing, extra };
+}
+
+/**
+ * Compare simple arrays (for not_taken)
+ * @param {Array} dbArray - Database simple array
+ * @param {Array} expectedArray - Expected simple array
+ * @returns {Object} - Object with missing and extra items
+ */
+function compareSimpleArrays(dbArray, expectedArray) {
+  const dbSet = new Set(dbArray);
+  const expectedSet = new Set(expectedArray);
+  
+  // Find missing from DB
+  const missing = expectedArray.filter(item => !dbSet.has(item));
+  
+  // Find extra in DB
+  const extra = dbArray.filter(item => !expectedSet.has(item));
+  
+  return { missing, extra };
+}
+
 module.exports = {
   validateFields,
   validateArrayFields,
@@ -61,4 +100,6 @@ module.exports = {
   validateDocumentExists,
   validateSubsetFields,
   validateArrayContains,
+  compareArraysOfArrays,
+  compareSimpleArrays,
 };

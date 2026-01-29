@@ -34,6 +34,7 @@ export const SaveTimelineModal: React.FC<SaveTimelineModalProps> = ({
   return (
     <div
       className="modal-backdrop"
+      role="presentation"
       style={{
         position: "fixed",
         top: 0,
@@ -49,6 +50,7 @@ export const SaveTimelineModal: React.FC<SaveTimelineModalProps> = ({
       onClick={handleBackdropClick}>
       <div
         className="modal-content"
+        role="presentation"
         style={{
           background: "#fff",
           padding: 24,
