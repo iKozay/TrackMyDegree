@@ -32,7 +32,7 @@ interface CachedSemester {
 
 /**
  * A semester is a WORK term if it contains:
- * CWT100, CWT200, or CWT300
+ * CWT 100, CWT 200, or CWT 300
  */
 function isWorkTerm(semester: CachedSemester): boolean {
   if (!Array.isArray(semester.courses)) {
@@ -41,9 +41,9 @@ function isWorkTerm(semester: CachedSemester): boolean {
 
   return semester.courses.some(
     (course: CachedCourse) =>
-      course.code === 'CWT100' ||
-      course.code === 'CWT200' ||
-      course.code === 'CWT300',
+      course.code === 'CWT 100' ||
+      course.code === 'CWT 200' ||
+      course.code === 'CWT 300',
   );
 }
 
@@ -126,7 +126,10 @@ export function validateCoopTimeline(timeline: any): CoopValidationResult {
   }
 
   // Warning if timeline is long
-  if (termTypes.length > 8) {
+  const degreeId = timeline?.degree?._id || '';
+  const maxTerms = degreeId.includes('BEng') ? 12 : 9;
+  
+  if (termTypes.length > maxTerms) {
     warnings.push({
       ruleId: 'LONG_SEQUENCE_WARNING',
       message:

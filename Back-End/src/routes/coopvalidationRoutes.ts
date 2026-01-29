@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import redisClient from '../lib/redisClient';
+import {  getJobResult } from '../lib/cache';
 import { validateCoopTimeline } from '../services/coop/coopvalidationService';
-
+import { CachedJobResult } from '../controllers/jobController';
 const router = Router();
 
 /**
@@ -15,13 +15,15 @@ router.get('/validate/:jobId', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'jobId is required' });
     }
 
-    const cachedTimeline = await redisClient.get(jobId);
+      // get result from cache
+      const cachedTimeline = await getJobResult<CachedJobResult>(jobId as string);
+  
 
     if (!cachedTimeline) {
       return res.status(404).json({ error: 'Timeline not found in cache' });
     }
 
-    const timeline = JSON.parse(cachedTimeline);
+    const timeline = cachedTimeline.payload.data;
 
     const result = validateCoopTimeline(timeline);
 
