@@ -9,6 +9,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 class MockCourseDataScraper:
     def extract_course_data(self, course_code, url):
         return {"_id": course_code, "code": course_code, "title": "Mock Title", "credits": 3}
+    def get_coop_courses(self):
+        return [{"_id": "CWT 123", "code": "CWT 123", "title": "Coop", "credits": 0}]
 
 class MockEngrElectivesScraper:
     def scrape_electives(self):
