@@ -1,11 +1,14 @@
 import { Router, Request, Response } from 'express';
-import redisClient from '../config/redis';
-import { validateCoopTimeline } from '../services/coop/coopvalidationService';
+import redisClient from '@/config/redis';
+import { validateCoopTimeline } from '@/services/coop/coopvalidationService';
 
 const router = Router();
 
 /**
  * GET /api/coop/validate/:jobId
+ * - jobId is provided by frontend
+ * - timeline is fetched from Redis
+ * - no timeline service is re-run
  */
 router.get('/validate/:jobId', async (req: Request, res: Response) => {
   try {
@@ -18,7 +21,9 @@ router.get('/validate/:jobId', async (req: Request, res: Response) => {
     const cachedTimeline = await redisClient.get(jobId);
 
     if (!cachedTimeline) {
-      return res.status(404).json({ error: 'Timeline not found in cache' });
+      return res.status(404).json({
+        error: 'Timeline not found in cache',
+      });
     }
 
     const timeline = JSON.parse(cachedTimeline);
@@ -27,8 +32,10 @@ router.get('/validate/:jobId', async (req: Request, res: Response) => {
 
     return res.status(200).json(result);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Error validating coop timeline:', error);
+    return res.status(500).json({
+      error: 'Internal server error',
+    });
   }
 });
 
