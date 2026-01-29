@@ -81,7 +81,7 @@ export const AddModal: React.FC<AddModalProps> = ({
       role="presentation">
       <div
         className="modal-content add-modal-content"
-        role="presentation"
+        role="menuitem"
         onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={handleClose}>
           ×
