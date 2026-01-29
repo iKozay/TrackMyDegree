@@ -78,9 +78,10 @@ export const AddModal: React.FC<AddModalProps> = ({
       className="modal-backdrop"
       onClick={handleClose}
       aria-modal="true"
-      role="dialog">
+      role="presentation">
       <div
         className="modal-content add-modal-content"
+        role="presentation"
         onClick={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={handleClose}>
           ×

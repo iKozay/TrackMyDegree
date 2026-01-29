@@ -100,7 +100,7 @@ export const CoopValidationModal: React.FC<CoopValidationModalProps> = ({ isOpen
   
 
   return (
-    <div className="coop-modal-backdrop" onClick={handleBackdropClick}>
+    <div className="coop-modal-backdrop" onClick={handleBackdropClick} role="presentation">
         <div className="coop-modal-content">
             <div className="coop-modal-container">
                 {/* Header */}
