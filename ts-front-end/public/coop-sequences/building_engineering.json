@@ -1,0 +1,102 @@
+[
+    {
+        "type": "Academic",
+        "courses": [
+            "BCEE 231",
+            "BLDG 212",
+            "BLDG 341",
+            "ENGR 213",
+            "ENGR 242"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 201",
+            "ENGR 233",
+            "ENGR 243",
+            "ENGR 244",
+            "ENGR 251"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "BCEE 342",
+            "BCEE 371",
+            "ENCS 282",
+            "ENGR 311",
+            "ENGR 361"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CWT 100",
+            "CWT 101"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "BCEE 344",
+            "BLDG 365",
+            "ELEC 275",
+            "BLDG 371",
+            "CIVI 321"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "General Education Elective",
+            "ENGR 301",
+            "ENGR 371",
+            "ENGR 391"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "BCEE 345",
+            "BLDG 390",
+            "BLDG 476",
+            "BCEE 432",
+            "Technical Elective"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CWT 200",
+            "CWT 201"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CWT 300",
+            "CWT 301"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "BLDG 463",
+            "BLDG 471",
+            "BLDG 490",
+            "Technical Elective"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "BLDG 490",
+            "BLDG 482",
+            "BCEE 451",
+            "Technical Elective",
+            "Technical Elective",
+            "Technical Elective"
+        ]
+    }
+]

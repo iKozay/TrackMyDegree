@@ -1,0 +1,44 @@
+[
+  {
+    "_id": "IADI 301",
+    "code": "IADI 301",
+    "title": "Undergraduate Aerospace Industry Project I",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Students must complete a minimum of 24 credits within their respective Engineering program prior to enrolling.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "IADI 401",
+    "code": "IADI 401",
+    "title": "Undergraduate Aerospace Industry Project II",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: IADI 301 with a grade of Pass.",
+    "rules": {
+      "prereq": [["IADI 301"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "IADI 420",
+    "code": "IADI 420",
+    "title": "Professional Development and Experiential Learning in Aerospace",
+    "credits": 0.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  }
+]

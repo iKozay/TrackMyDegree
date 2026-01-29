@@ -64,3 +64,36 @@ describe('parseFile', () => {
     await expect(parseFile(fileBuffer)).rejects.toThrow(error);
   });
 });
+
+test('normalizes CWT courses in transcript', async () => {
+  const fileBuffer = Buffer.from('fake pdf');
+  const pdfText = 'Student Record - Transcript of Grades';
+  const mockTranscript = {
+    semesters: [
+      {
+        term: 'Fall 2023',
+        courses: [
+          { code: 'COMP 248', grade: 'A' },
+          { code: 'CWTE 100', grade: 'PASS' },
+          { code: 'CWTC 200', grade: 'PASS' },
+          { code: 'CWT 300', grade: 'PASS' }
+        ]
+      }
+    ]
+  };
+
+  // Mock pdf-parse to return transcript identification text
+  const pdfParse = require('pdf-parse');
+  pdfParse.mockResolvedValue({ text: pdfText });
+
+  // Mock pythonUtilsApi.parseTranscript to return the mock transcript
+  const pythonUtilsApi = require('../utils/pythonUtilsApi');
+  pythonUtilsApi.parseTranscript.mockResolvedValue(mockTranscript);
+
+  const result = await parseFile(fileBuffer);
+
+  expect(result.semesters[0].courses[0].code).toBe('COMP 248');
+  expect(result.semesters[0].courses[1].code).toBe('CWT100'); // Normalized
+  expect(result.semesters[0].courses[2].code).toBe('CWT200'); // Normalized
+  expect(result.semesters[0].courses[3].code).toBe('CWT300'); // Already normalized (stripped space)
+});

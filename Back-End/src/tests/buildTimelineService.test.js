@@ -35,11 +35,11 @@ describe('timelineService', () => {
 
     degreeController.getCoursesForDegree.mockResolvedValue(mockCourses);
     courseController.getCourseByCode.mockResolvedValue(null);
-    
+
     // Mock coursepoolController for coop courses
     coursepoolController.getCoursePool.mockResolvedValue({
       _id: 'Coop Courses',
-      name: 'Coop Courses', 
+      name: 'Coop Courses',
       creditsRequired: 0,
       courses: ['CWT 100', 'CWT 101']
     });
@@ -461,7 +461,7 @@ describe('timelineService', () => {
       semesters: [
         {
           term: 'FALL 2023',
-          courses: [{ code: 'CWT 100', grade: 'PASS' },{ code: 'CWT 101', grade: 'PASS' }],
+          courses: [{ code: 'CWT 100', grade: 'PASS' }, { code: 'CWT 101', grade: 'PASS' }],
         },
       ],
       transferedCourses: [],
@@ -470,6 +470,11 @@ describe('timelineService', () => {
     };
 
     parseFile.mockResolvedValue(mockParsedData);
+
+    courseController.getCourseByCode
+      .mockResolvedValueOnce({ _id: 'CWT 100', title: 'Work Term 1', credits: 0 })
+      .mockResolvedValueOnce({ _id: 'CWT 101', title: 'Reflective Learning I', credits: 0 });
+
 
     courseController.getCourseByCode
       .mockResolvedValueOnce({ _id: 'CWT 100', title: 'Work Term 1', credits: 0 })
@@ -514,6 +519,40 @@ describe('timelineService', () => {
 
     // Verify that the coursepoolController was called
     expect(coursepoolController.getCoursePool).toHaveBeenCalledWith('Coop Courses');
+  });
+
+  it('builds timeline from predefined sequence', async () => {
+    const formData = {
+      type: 'form',
+      data: {
+        degree: 'Bachelor of Engineering Computer Engineering',
+        firstTerm: 'FALL 2023',
+        lastTerm: 'FALL 2024',
+        isExtendedCreditProgram: false,
+        predefinedSequence: [
+          {
+            term: 'Term 1',
+            type: 'Academic',
+            courses: ['COMP 232', 'COMP 248']
+          },
+          {
+            term: 'Term 2',
+            type: 'Co-op',
+            coopLabel: 'Work Term 1'
+          }
+        ]
+      }
+    };
+
+    const result = await buildTimeline(formData);
+
+    expect(result).toBeDefined();
+    expect(result.semesters.length).toBe(2);
+    expect(result.semesters[0].term).toContain('FALL 2023');
+    expect(result.semesters[0].courses.length).toBe(2);
+    expect(result.semesters[0].courses[0].code).toBe('COMP 232');
+    expect(result.semesters[1].term).toContain('WINTER 2024'); // Implicitly calculated next term
+    expect(result.semesters[1].courses[0].code).toBe('Work Term 1');
   });
 
 });

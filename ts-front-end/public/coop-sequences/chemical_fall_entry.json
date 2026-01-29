@@ -1,0 +1,105 @@
+[
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 213",
+            "CHME 200",
+            "CHME 215",
+            "MIAE 221",
+            "CHEM 214",
+            "ENGR 201"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 233",
+            "CHME 221",
+            "CHME 216",
+            "CHME 220",
+            "ENGR 251"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 361",
+            "ENCS 282",
+            "CHME 351",
+            "ENGR 311",
+            "ENGR 301"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CWT 100",
+            "CWT 101"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 245",
+            "CHME 240",
+            "CHME 201",
+            "CHME 301",
+            "CHME 320",
+            "CHME 360"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 202",
+            "ENGR 371",
+            "CHME 321",
+            "CHME 361",
+            "CHME 470"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 391",
+            "CHME 300",
+            "CHME 330",
+            "CHME 340",
+            "ENGR 362",
+            "CHME 390"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CWT 200",
+            "CWT 201"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CWT 300",
+            "CWT 301"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CHME 316",
+            "CHME 352",
+            "CHME 415",
+            "CHME 440",
+            "CHME 490"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ENGR 392",
+            "CHME 490",
+            "Technical Elective",
+            "General Education Elective"
+        ]
+    }
+]

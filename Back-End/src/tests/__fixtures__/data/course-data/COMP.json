@@ -1,0 +1,660 @@
+[
+  {
+    "_id": "COMP 108",
+    "code": "COMP 108",
+    "title": "Computer Science C.Edge Option Reflective Learning I",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the GCS is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 208",
+    "code": "COMP 208",
+    "title": "Computer Science C.Edge Option Reflective Learning II",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 108. Permission of the GCS is required.",
+    "rules": {
+      "prereq": [["COMP 108"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 218",
+    "code": "COMP 218",
+    "title": "Fundamentals of Programming",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MATH 201 or equivalent. No prior experience with computers is assumed.",
+    "rules": {
+      "prereq": [["MATH 201"]],
+      "coreq": [],
+      "not_taken": ["COEN 243","COMP 248"]
+    }
+  },
+  {
+    "_id": "COMP 228",
+    "code": "COMP 228",
+    "title": "System Hardware",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 248. The following courses must be completed previously or concurrently: MATH 203 or Cegep Mathematics 103 or NYA; MATH 204 or Cegep Mathematics 105 or NYC.",
+    "rules": {
+      "prereq": [["COMP 248"], ["MATH 203"], ["MATH 204"]],
+      "coreq": [["MATH 203"], ["MATH 204"]],
+      "not_taken": ["SOEN 228"]
+    }
+  },
+  {
+    "_id": "COMP 232",
+    "code": "COMP 232",
+    "title": "Mathematics for Computer Science",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: MATH 203 or Cegep Mathematics 103 or NYA; MATH 204 or Cegep Mathematics 105 or NYC.",
+    "rules": {
+      "prereq": [["MATH 203"], ["MATH 204"]],
+      "coreq": [],
+      "not_taken": ["COMP 238","COEN 231"]
+    }
+  },
+  {
+    "_id": "COMP 233",
+    "code": "COMP 233",
+    "title": "Probability and Statistics for Computer Science",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MATH 205 or Cegep Mathematics 203 or NYB.",
+    "rules": {
+      "prereq": [["MATH 205"]],
+      "coreq": [],
+      "not_taken": ["BIOL 322", "ENGR 371", "STAT 249", "STAT 250", "COMM 215", "MAST 221", "MAST 333"]
+    }
+  },
+  {
+    "_id": "COMP 248",
+    "code": "COMP 248",
+    "title": "Object‑Oriented Programming I",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously or concurrently: MATH 204 or Cegep Mathematics 105 or NYC.",
+    "rules": {
+      "prereq": [["MATH 204"]],
+      "coreq": [["MATH 204"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 249",
+    "code": "COMP 249",
+    "title": "Object‑Oriented Programming II",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 248; MATH 203 or Cegep Mathematics 103 or NYA. The following courses must be completed previously or concurrently: MATH 205 or Cegep Mathematics 203 or NYB.",
+    "rules": {
+      "prereq": [["COMP 248"], ["MATH 203"], ["MATH 205"]],
+      "coreq": [["MATH 205"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 326",
+    "code": "COMP 326",
+    "title": "Computer Architecture",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 346.",
+    "rules": {
+      "prereq": [["COMP 346"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 333",
+    "code": "COMP 333",
+    "title": "Data Analytics",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 233 or ENGR 371; COMP 352; ENCS 282.",
+    "rules": {
+      "prereq": [["COMP 233", "ENGR 371"], ["COMP 352"], ["ENCS 282"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 335",
+    "code": "COMP 335",
+    "title": "Introduction to Theoretical Computer Science",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 232 or COEN 231; and COMP 249 or COEN 244.",
+    "rules": {
+      "prereq": [["COMP 232", "COEN 231"], ["COMP 249", "COEN 244"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 339",
+    "code": "COMP 339",
+    "title": "Combinatorics",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 232; or students must complete have completed 18 credits in post‑Cegep Mathematics prior to enrolling.",
+    "rules": {
+      "prereq": [["COMP 232"]],
+      "coreq": [],
+      "not_taken": ["MATH 339"]
+    }
+  },
+  {
+    "_id": "COMP 345",
+    "code": "COMP 345",
+    "title": "Advanced Program Design with C++",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: COMP 352.",
+    "rules": {
+      "prereq": [["COMP 352"]],
+      "coreq": [["COMP 352"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 346",
+    "code": "COMP 346",
+    "title": "Operating Systems",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 228 or SOEN 228; COMP 352.",
+    "rules": {
+      "prereq": [["COMP 228", "SOEN 228"], ["COMP 352"]],
+      "coreq": [],
+      "not_taken": ["COEN 346"]
+    }
+  },
+  {
+    "_id": "COMP 348",
+    "code": "COMP 348",
+    "title": "Principles of Programming Languages",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 249.",
+    "rules": {
+      "prereq": [["COMP 249"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 352",
+    "code": "COMP 352",
+    "title": "Data Structures and Algorithms",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: COMP 232. The following courses must be completed previously: COMP 249.",
+    "rules": {
+      "prereq": [["COMP 232"], ["COMP 249"]],
+      "coreq": [["COMP 232"]],
+      "not_taken": ["COEN 352"]
+    }
+  },
+  {
+    "_id": "COMP 353",
+    "code": "COMP 353",
+    "title": "Databases",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 232 or COEN 231; and COMP 352 or COEN 352.",
+    "rules": {
+      "prereq": [["COMP 232", "COEN 231"], ["COMP 352", "COEN 352"]],
+      "coreq": [],
+      "not_taken": ["SOEN 363"]
+    }
+  },
+  {
+    "_id": "COMP 354",
+    "code": "COMP 354",
+    "title": "Introduction to Software Engineering",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 352; ENCS 282.",
+    "rules": {
+      "prereq": [["COMP 352"], ["ENCS 282"]],
+      "coreq": [],
+      "not_taken": ["SOEN 341"]
+    }
+  },
+  {
+    "_id": "COMP 361",
+    "code": "COMP 361",
+    "title": "Elementary Numerical Methods",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 232, COMP 249.",
+    "rules": {
+      "prereq": [["COMP 232"], ["COMP 249"]],
+      "coreq": [],
+      "not_taken": ["ENGR 391","MAST 334"]
+    }
+  },
+  {
+    "_id": "COMP 367",
+    "code": "COMP 367",
+    "title": "Techniques in Symbolic Computation",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: MATH 222 or COMP 232 or equivalent; COMP 248 or equivalent.",
+    "rules": {
+      "prereq": [["MATH 222", "COMP 232"], ["COMP 248"]],
+      "coreq": [],
+      "not_taken": ["MAST 332"]
+    }
+  },
+  {
+    "_id": "COMP 371",
+    "code": "COMP 371",
+    "title": "Computer Graphics",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 232 or COEN 231; COMP 352 or COEN 352.",
+    "rules": {
+      "prereq": [["COMP 232", "COEN 231"], ["COMP 352", "COEN 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 376",
+    "code": "COMP 376",
+    "title": "Introduction to Game Development",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 371.",
+    "rules": {
+      "prereq": [["COMP 371"]],
+      "coreq": [],
+      "not_taken": ["CART 315"]
+    }
+  },
+  {
+    "_id": "COMP 425",
+    "code": "COMP 425",
+    "title": "Computer Vision",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 426",
+    "code": "COMP 426",
+    "title": "Multicore Programming",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 346 or COEN 346.",
+    "rules": {
+      "prereq": [["COMP 346", "COEN 346"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 428",
+    "code": "COMP 428",
+    "title": "Parallel Programming",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 346 or COEN 346.",
+    "rules": {
+      "prereq": [["COMP 346", "COEN 346"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 432",
+    "code": "COMP 432",
+    "title": "Machine Learning",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 352.",
+    "rules": {
+      "prereq": [["COMP 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 433",
+    "code": "COMP 433",
+    "title": "Introduction to Deep Learning",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 352.",
+    "rules": {
+      "prereq": [["COMP 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 438",
+    "code": "COMP 438",
+    "title": "Geometric Modelling and Processing",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 352.",
+    "rules": {
+      "prereq": [["COMP 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 442",
+    "code": "COMP 442",
+    "title": "Compiler Design",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 228 or SOEN 228 or COEN 311; COMP 335; COMP 352 or COEN 352.",
+    "rules": {
+      "prereq": [["COMP 228", "SOEN 228", "COEN 311"], ["COMP 335"], ["COMP 352", "COEN 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 444",
+    "code": "COMP 444",
+    "title": "System Software Design",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 346.",
+    "rules": {
+      "prereq": [["COMP 346"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 445",
+    "code": "COMP 445",
+    "title": "Data Communication and Computer Networks",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 346.",
+    "rules": {
+      "prereq": [["COMP 346"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 451",
+    "code": "COMP 451",
+    "title": "Database Design",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 353.",
+    "rules": {
+      "prereq": [["COMP 353"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 465",
+    "code": "COMP 465",
+    "title": "Design and Analysis of Algorithms",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 232 or COEN 231; COMP 339; COMP 352 or COEN 352.",
+    "rules": {
+      "prereq": [["COMP 232", "COEN 231"], ["COMP 339"], ["COMP 352", "COEN 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 472",
+    "code": "COMP 472",
+    "title": "Artificial Intelligence",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 352 or COEN 352.",
+    "rules": {
+      "prereq": [["COMP 352", "COEN 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 473",
+    "code": "COMP 473",
+    "title": "Pattern Recognition",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 352.",
+    "rules": {
+      "prereq": [["COMP 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 474",
+    "code": "COMP 474",
+    "title": "Intelligent Systems",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 352 or COEN 352.",
+    "rules": {
+      "prereq": [["COMP 352", "COEN 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 475",
+    "code": "COMP 475",
+    "title": "Immersive Technologies",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 371.",
+    "rules": {
+      "prereq": [["COMP 371"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 476",
+    "code": "COMP 476",
+    "title": "Advanced Game Development",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 361 or ENGR 391; COMP 376.",
+    "rules": {
+      "prereq": [["COMP 361", "ENGR 391"], ["COMP 376"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 477",
+    "code": "COMP 477",
+    "title": "Animation for Computer Games",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 361 or ENGR 391, COMP 371.",
+    "rules": {
+      "prereq": [["COMP 361", "ENGR 391"], ["COMP 371"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 478",
+    "code": "COMP 478",
+    "title": "Image Processing",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 352.",
+    "rules": {
+      "prereq": [["COMP 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 479",
+    "code": "COMP 479",
+    "title": "Information Retrieval and Web Search",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 233 or ENGR 371; COMP 352.",
+    "rules": {
+      "prereq": [["COMP 233", "ENGR 371"], ["COMP 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 490",
+    "code": "COMP 490",
+    "title": "Computer Science Project I",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENCS 282. Students must complete 60 credits prior to enrolling. Permission of the Department is required.",
+    "rules": {
+      "prereq": [["ENCS 282"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 492",
+    "code": "COMP 492",
+    "title": "Computer Science Project II",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously or concurrently: COMP 490. Permission of the Department is required.",
+    "rules": {
+      "prereq": [["COMP 490"]],
+      "coreq": [["COMP 490"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 493",
+    "code": "COMP 493",
+    "title": "Computational Biology Team Project",
+    "credits": 6.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: BIOL 367; COMP 352. Students must complete a minimum of 54 credits in the BCompSc in Health and Life Sciences program prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+    "rules": {
+      "prereq": [["BIOL 367"], ["COMP 352"]],
+      "coreq": [],
+      "not_taken": ["BIOL 493"]
+    }
+  },
+  {
+    "_id": "COMP 495",
+    "code": "COMP 495",
+    "title": "Honours Seminar",
+    "credits": 1.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENCS 282. Registration in the final year of the honours program is required.",
+    "rules": {
+      "prereq": [["ENCS 282"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 498",
+    "code": "COMP 498",
+    "title": "Topics in Computer Science",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the Department is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COMP 499",
+    "code": "COMP 499",
+    "title": "Topics in Computer Science with Lab",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the Department is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  }
+]

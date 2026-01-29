@@ -199,7 +199,6 @@ class DegreeDataScraper():
         self.degree["coursePools"].append(coop_course_pool["_id"])
         self.course_pool.append(coop_course_pool)
         self.courses += coop_courses
-
     # scrape_degree: main method to scrape degree data from the given URL
     def scrape_degree(self, url):
         if url == "engr_ecp":

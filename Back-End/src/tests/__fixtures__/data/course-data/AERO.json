@@ -1,0 +1,296 @@
+[
+  {
+    "_id": "AERO 201",
+    "code": "AERO 201",
+    "title": "Introduction to Flight and Aerospace Systems",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: ENGR 213.",
+    "rules": {
+      "prereq": [["ENGR 213"]],
+      "coreq": [["ENGR 213"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "AERO 290",
+    "code": "AERO 290",
+    "title": "Introduction to Aircraft Design",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: AERO 201. The following course must be completed previously or concurrently: ENCS 282.",
+    "rules": {
+      "prereq": [["AERO 201"], ["ENCS 282"]],
+      "coreq": [["ENCS 282"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "AERO 371",
+    "code": "AERO 371",
+    "title": "Modelling and Control Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: PHYS 205; ENGR 213, ENGR 243. The following course must be completed previously or concurrently: ENGR 311 or ELEC 342 or ELEC 364.",
+    "rules": {
+      "prereq": [["PHYS 205"], ["ENGR 213"], ["ENGR 243"], ["ENGR 311", "ELEC 342", "ELEC 364"]],
+      "coreq": [["ENGR 311", "ELEC 342", "ELEC 364"]],
+      "not_taken": ["ELEC 372", "MECH 371"]
+    }
+  },
+  {
+    "_id": "AERO 390",
+    "code": "AERO 390",
+    "title": "Aerospace Engineering Design Project",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: AERO 290, AERO 371; ENCS 282.",
+    "rules": {
+      "prereq": [["AERO 290"], ["AERO 371"], ["ENCS 282"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "AERO 417",
+    "code": "AERO 417",
+    "title": "Standards, Regulations and Certification",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 201.",
+    "rules": {
+      "prereq": [["ENGR 201"]],
+      "coreq": [],
+      "not_taken": ["ENGR 417", "ENGR 498"]
+    }
+  },
+  {
+    "_id": "AERO 431",
+    "code": "AERO 431",
+    "title": "Principles of Aeroelasticity",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 361; MECH 375.",
+    "rules": {
+      "prereq": [["MECH 375"], ["ENGR 361"]],
+      "coreq": [],
+      "not_taken": ["MECH 431"]
+    }
+  },
+  {
+    "_id": "AERO 446",
+    "code": "AERO 446",
+    "title": "Aerospace Vehicle Performance",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 361.",
+    "rules": {
+      "prereq": [["MECH 361"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "AERO 455",
+    "code": "AERO 455",
+    "title": "Computational Fluid Dynamics for Aerospace Applications",
+    "credits": 3.75,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 311, ENGR 391; MECH 361.",
+    "rules": {
+      "prereq": [["MECH 361"], ["ENGR 311"], ["ENGR 391"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "AERO 462",
+    "code": "AERO 462",
+    "title": "Turbomachinery and Propulsion",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: MECH 351, MECH 361.",
+    "rules": {
+      "prereq": [["MECH 361"], ["MECH 351"]],
+      "coreq": [],
+      "not_taken": ["MECH 462","MECH 468"]
+    }
+  },
+  {
+    "_id": "AERO 464",
+    "code": "AERO 464",
+    "title": "Aerodynamics",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 361.",
+    "rules": {
+      "prereq": [["MECH 361"]],
+      "coreq": [],
+      "not_taken": ["MECH 464"]
+    }
+  },
+  {
+    "_id": "AERO 465",
+    "code": "AERO 465",
+    "title": "Gas Turbine Design",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: AERO 462.",
+    "rules": {
+      "prereq": [["AERO 462"]],
+      "coreq": [],
+      "not_taken": ["MECH 465"]
+    }
+  },
+  {
+    "_id": "AERO 471",
+    "code": "AERO 471",
+    "title": "Aircraft Hydro‑Mechanical and Fuel Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: AERO 201. If prerequisites are not satisfied, permission of the Department is required.",
+    "rules": {
+      "prereq": [["AERO 201"]],
+      "coreq":[],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "AERO 472",
+    "code": "AERO 472",
+    "title": "Aircraft Pneumatic and Electrical Power Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: AERO 201; ENGR 361.",
+    "rules": {
+      "prereq": [["AERO 201"], ["ENGR 361"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "AERO 480",
+    "code": "AERO 480",
+    "title": "Flight Control Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: AERO 371 or ELEC 372 or MECH 371 or SOEN 385.",
+    "rules": {
+      "prereq": [["AERO 371", "ELEC 372", "MECH 371", "SOEN 385"]],
+      "coreq": [],
+      "not_taken": ["MECH 480","ELEC 415"]
+    }
+  },
+  {
+    "_id": "AERO 481",
+    "code": "AERO 481",
+    "title": "Materials Engineering for Aerospace",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 221 or MIAE 221.",
+    "rules": {
+      "prereq": [["MECH 221", "MIAE 221"]],
+      "coreq": [],
+      "not_taken": ["MECH 481","MECH 321"]
+    }
+  },
+  {
+    "_id": "AERO 482",
+    "code": "AERO 482",
+    "title": "Avionic Navigation Systems",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 371 or COMP 233; AERO 371 or ELEC 372 or MECH 370 or SOEN 385.",
+    "rules": {
+      "prereq": [["ENGR 371", "COMP 233"], ["AERO 371", "ELEC 372", "MECH 370", "SOEN 385"]],
+      "coreq": [],
+      "not_taken": ["MECH 482","ELEC 416"]
+    }
+  },
+  {
+    "_id": "AERO 483",
+    "code": "AERO 483",
+    "title": "Integration of Avionics Systems",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: AERO 482; ELEC 481.",
+    "rules": {
+      "prereq": [["AERO 482"], ["ELEC 481"]],
+      "coreq": [],
+      "not_taken": ["ENGR 418"]
+    }
+  },
+  {
+    "_id": "AERO 485",
+    "code": "AERO 485",
+    "title": "Introduction to Space Systems",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: MECH 351, MECH 361.",
+    "rules": {
+      "prereq": [["MECH 361"], ["MECH 351"]],
+      "coreq": [],
+      "not_taken": ["MECH 485", "MECH 498"]
+    }
+  },
+  {
+    "_id": "AERO 486",
+    "code": "AERO 486",
+    "title": "Aircraft Stress Analysis",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 243, ENGR 244.",
+    "rules": {
+      "prereq": [["ENGR 244"], ["ENGR 243"]],
+      "coreq": [],
+      "not_taken": ["MECH 486"]
+    }
+  },
+  {
+    "_id": "AERO 487",
+    "code": "AERO 487",
+    "title": "Design of Aircraft Structures",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: AERO 486.",
+    "rules": {
+      "prereq": [["AERO 486"]],
+      "coreq": [],
+      "not_taken": ["MECH 487"]
+    }
+  },
+  {
+    "_id": "AERO 490",
+    "code": "AERO 490",
+    "title": "Capstone Aerospace Engineering Design Project",
+    "credits": 6.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: AERO 390; ENGR 301. Students must have completed 75 credits in the program prior to enrolling.",
+    "rules": {
+      "prereq": [["ENGR 301"], ["AERO 390"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  }
+]

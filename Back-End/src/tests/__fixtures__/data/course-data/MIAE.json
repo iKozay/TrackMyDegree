@@ -1,0 +1,100 @@
+[
+  {
+    "_id": "MIAE 211",
+    "code": "MIAE 211",
+    "title": "Mechanical Engineering Drawing",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": ["MECH 211"]
+    }
+  },
+  {
+    "_id": "MIAE 215",
+    "code": "MIAE 215",
+    "title": "Programming for Mechanical and Industrial Engineers",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MATH 204 (Cegep mathematics 105).",
+    "rules": {
+      "prereq": [["MATH 204"]],
+      "coreq": [],
+      "not_taken": ["COEN 243","MECH 215"]
+    }
+  },
+  {
+    "_id": "MIAE 221",
+    "code": "MIAE 221",
+    "title": "Materials Science",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: CHEM 205 (Cegep Chemistry 101).",
+    "rules": {
+      "prereq": [["CHEM 205"]],
+      "coreq": [],
+      "not_taken": ["MECH 221"]
+    }
+  },
+  {
+    "_id": "MIAE 311",
+    "code": "MIAE 311",
+    "title": "Manufacturing Processes",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 313 or MIAE 313.",
+    "rules": {
+      "prereq": [["MECH 313", "MIAE 313"]],
+      "coreq": [],
+      "not_taken": ["MECH 311"]
+    }
+  },
+  {
+    "_id": "MIAE 312",
+    "code": "MIAE 312",
+    "title": "Engineering Design and Manufacturing Processes Lab",
+    "credits": 1.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: MIAE 311.",
+    "rules": {
+      "prereq": [["MIAE 311"]],
+      "coreq": [["MIAE 311"]],
+      "not_taken": ["MECH 311", "MIAE 311"]
+    }
+  },
+  {
+    "_id": "MIAE 313",
+    "code": "MIAE 313",
+    "title": "Machine Drawing and Design",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 211 or MIAE 211.",
+    "rules": {
+      "prereq": [["MECH 211", "MIAE 211"]],
+      "coreq": [],
+      "not_taken": ["MECH 313"]
+    }
+  },
+  {
+    "_id": "MIAE 380",
+    "code": "MIAE 380",
+    "title": "Product Design and Development",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENCS 282; MECH 211 or MIAE 211.",
+    "rules": {
+      "prereq": [["ENCS 282"], ["MECH 211", "MIAE 211"]],
+      "coreq": [],
+      "not_taken": ["INDU 440","AERO 444"]
+    }
+  }
+]

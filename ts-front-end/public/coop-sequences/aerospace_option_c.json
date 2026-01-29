@@ -1,0 +1,101 @@
+[
+    {
+        "type": "Academic",
+        "courses": [
+            "AERO 201",
+            "COEN 343",
+            "ENGR 213",
+            "ENGR 233",
+            "ENGR 242"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ELEC 273",
+            "ENCS 282",
+            "ENGR 243",
+            "ENGR 244",
+            "ENGR 251"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "ELEC 242",
+            "ENGR 201",
+            "ENGR 202",
+            "ENGR 371",
+            "ENGR 391"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CWT 100",
+            "CWT 101"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "AERO 290",
+            "AERO 371",
+            "COEN 244",
+            "ELEC 342",
+            "ENGR 301"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "COEN 231",
+            "COEN 212",
+            "ENGR 361",
+            "ENGR 392"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "AERO 390",
+            "AERO 417",
+            "COEN 311",
+            "COEN 352",
+            "General Studies"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CWT 200",
+            "CWT 201"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "CWT 300",
+            "CWT 301"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "AERO 482",
+            "ELEC 481",
+            "AERO 490",
+            "Technical Electives"
+        ]
+    },
+    {
+        "type": "Academic",
+        "courses": [
+            "AERO 483",
+            "ELEC 483",
+            "SOEN 341",
+            "AERO 490",
+            "Technical Electives"
+        ]
+    }
+]

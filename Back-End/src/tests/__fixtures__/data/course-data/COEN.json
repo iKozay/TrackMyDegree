@@ -1,0 +1,394 @@
+[
+  {
+    "_id": "COEN 212",
+    "code": "COEN 212",
+    "title": "Digital Systems Design I",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MATH 204 (Cegep Mathematics 105).",
+    "rules": {
+      "prereq": [["MATH 204"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 231",
+    "code": "COEN 231",
+    "title": "Introduction to Discrete Mathematics",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MATH 204 (Cegep Mathematics 105).",
+    "rules": {
+      "prereq": [["MATH 204"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 243",
+    "code": "COEN 243",
+    "title": "Programming Methodology I",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MATH 204 (Cegep Mathematics 105).",
+    "rules": {
+      "prereq": [["MATH 204"]],
+      "coreq": [],
+      "not_taken": ["COMP 248", "MIAE 215", "MECH 215"]
+    }
+  },
+  {
+    "_id": "COEN 244",
+    "code": "COEN 244",
+    "title": "Programming Methodology II",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COEN 243 or MECH 215 or MIAE 215.",
+    "rules": {
+      "prereq": [["COEN 243", "MECH 215", "MIAE 215"]],
+      "coreq": [],
+      "not_taken": ["COMP 249"]
+    }
+  },
+  {
+    "_id": "COEN 311",
+    "code": "COEN 311",
+    "title": "Computer Organization and Software",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 212, COEN 243.",
+    "rules": {
+      "prereq": [["COEN 243", "COEN 212"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 313",
+    "code": "COEN 313",
+    "title": "Digital Systems Design II",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 212, COEN 231.",
+    "rules": {
+      "prereq": [["COEN 231"], ["COEN 212"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 314",
+    "code": "COEN 314",
+    "title": "Digital Electronics I",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 212; ELEC 273.",
+    "rules": {
+      "prereq": [["COEN 212"], ["ELEC 273"]],
+      "coreq": [],
+      "not_taken": ["COEN 315","COEN 415"]
+    }
+  },
+  {
+    "_id": "COEN 316",
+    "code": "COEN 316",
+    "title": "Computer Architecture and Design",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 311, COEN 313.",
+    "rules": {
+      "prereq": [["COEN 311"], ["COEN 313"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 317",
+    "code": "COEN 317",
+    "title": "Microprocessor‑Based Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 311 or COMP 228 or SOEN 228; COEN 313.",
+    "rules": {
+      "prereq": [["COEN 313", "COMP 228", "SOEN 228"], ["COEN 311"]],
+      "coreq": [],
+      "not_taken": ["COEN 417"]
+    }
+  },
+  {
+    "_id": "COEN 320",
+    "code": "COEN 320",
+    "title": "Introduction to Real‑Time Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 346 or COMP 346.",
+    "rules": {
+      "prereq": [["COEN 346", "COMP 346"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 346",
+    "code": "COEN 346",
+    "title": "Operating Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 311; COMP 352 or COEN 352.",
+    "rules": {
+      "prereq": [["COEN 311"], ["COMP 352", "COEN 352"]],
+      "coreq": [],
+      "not_taken": ["COMP 346"]
+    }
+  },
+  {
+    "_id": "COEN 352",
+    "code": "COEN 352",
+    "title": "Data Structures and Algorithms",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 231, COEN 244.",
+    "rules": {
+      "prereq": [["COEN 244"], ["COEN 231"]],
+      "coreq": [],
+      "not_taken": ["COMP 352"]
+    }
+  },
+  {
+    "_id": "COEN 366",
+    "code": "COEN 366",
+    "title": "Communication Networks and Protocols",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COEN 346.",
+    "rules": {
+      "prereq": [["COEN 346"]],
+      "coreq": [],
+      "not_taken": ["ELEC 366","ELEC 463","COEN 445"]
+    }
+  },
+  {
+    "_id": "COEN 390",
+    "code": "COEN 390",
+    "title": "Computer Engineering Product Design Project",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 311, COEN 352; ENGR 290. Students must complete a minimum of 45 credits in the BEng (Computer) prior to enrolling.",
+    "rules": {
+      "prereq": [["ENGR 290"], ["COEN 311"], ["COEN 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 413",
+    "code": "COEN 413",
+    "title": "Hardware Functional Verification",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COEN 313.",
+    "rules": {
+      "prereq": [["COEN 313"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 414",
+    "code": "COEN 414",
+    "title": "Digital Electronics II",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COEN 314.",
+    "rules": {
+      "prereq": [["COEN 314"]],
+      "coreq": [],
+      "not_taken": ["COEN 315", "COEN 415"]
+    }
+  },
+  {
+    "_id": "COEN 421",
+    "code": "COEN 421",
+    "title": "Embedded Systems Design",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 317, COEN 320; SOEN 341.",
+    "rules": {
+      "prereq": [["COEN 317"], ["COEN 320"], ["SOEN 341"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 422",
+    "code": "COEN 422",
+    "title": "Foundations of Cyber‑Physical Systems",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 346; ELEC 372.",
+    "rules": {
+      "prereq": [["COEN 346"], ["ELEC 372"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 424",
+    "code": "COEN 424",
+    "title": "Programming on the Cloud",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COEN 346.",
+    "rules": {
+      "prereq": [["COEN 346"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 432",
+    "code": "COEN 432",
+    "title": "Applied Machine Learning and Evolutionary Algorithms",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COEN 352 or COMP 352.",
+    "rules": {
+      "prereq": [["COEN 352"], ["COMP 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 433",
+    "code": "COEN 433",
+    "title": "Biological Computing and Synthetic Biology",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 212, COEN 244.",
+    "rules": {
+      "prereq": [["COEN 244"], ["COEN 212"]],
+      "coreq": [],
+      "not_taken": ["BIOL 475", "BIOL 498"]
+    }
+  },
+  {
+    "_id": "COEN 434",
+    "code": "COEN 434",
+    "title": "Microfluidic Devices for Synthetic Biology",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 244 and ENGR 290; or BIOL 261 and COMP 249.",
+    "rules": {
+      "prereq": [["COEN 244", "BIOL 261"], ["ENGR 290", "COMP 249"]],
+      "coreq": [],
+      "not_taken": ["BIOL 476", "BIOL 498"]
+    }
+  },
+  {
+    "_id": "COEN 446",
+    "code": "COEN 446",
+    "title": "Internet of Things",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COEN 366 or 445 or ELEC 366 or 463.",
+    "rules": {
+      "prereq": [["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 447",
+    "code": "COEN 447",
+    "title": "Software‑Defined Networking",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 317; COEN 366 or 445 or ELEC 366 or 463.",
+    "rules": {
+      "prereq": [["COEN 317"], ["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 448",
+    "code": "COEN 448",
+    "title": "Software Testing and Validation",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: SOEN 341.",
+    "rules": {
+      "prereq": [["SOEN 341"]],
+      "coreq": [],
+      "not_taken": ["COEN 345"]
+    }
+  },
+  {
+    "_id": "COEN 451",
+    "code": "COEN 451",
+    "title": "VLSI Circuit Design",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COEN 212; ELEC 311 or COEN 314.",
+    "rules": {
+      "prereq": [["COEN 212"], ["ELEC 311", "COEN 314"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 490",
+    "code": "COEN 490",
+    "title": "Capstone Computer Engineering Design Project",
+    "credits": 6.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be complete previously: ENGR 301, ENGR 371; COEN 390; SOEN 341. Students must complete a minimum of 75 credits in the BEng (Computer), as well as the C.Edge work term or one co-op work term prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+    "rules": {
+      "prereq": [["ENGR 301"], ["ENGR 371"], ["COEN 390"], ["SOEN 341"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "COEN 498",
+    "code": "COEN 498",
+    "title": "Topics in Computer Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the Department is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  }
+]
