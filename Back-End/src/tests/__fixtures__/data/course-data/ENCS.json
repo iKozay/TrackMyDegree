@@ -1,0 +1,114 @@
+[
+  {
+    "_id": "ENCS 272",
+    "code": "ENCS 272",
+    "title": "Composition and Argumentation for Engineers",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Students must complete all English as a Second Language (ESL) Courses required on admission prior to enrolling.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENCS 282",
+    "code": "ENCS 282",
+    "title": "Technical Writing and Communication",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Students must have satisfied the requirements in Section 71.20.7 Writing Skills Requirement, by passing the Engineering Writing Test (EWT) or bypassing ENCS 272 with a grade of C‑ or higher, prior to enrolling.",
+    "rules": {
+      "prereq": [["ENCS 272"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENCS 333",
+    "code": "ENCS 333",
+    "title": "Research Methods, Ethics, Law and Regulation for Computational Biology",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENCS 282 or equivalent. Students must complete a minimum of 27 credits as part of the BCompSc in Health and Life Sciences or BSc in Systems and Information Biology programs prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+    "rules": {
+      "prereq": [["ENCS 282"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENCS 393",
+    "code": "ENCS 393",
+    "title": "Social and Ethical Dimensions of Information and Communication Technologies",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENCS 282. Students must complete 30 credits in their degree program prior to enrolling.",
+    "rules": {
+      "prereq": [["ENCS 282"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENCS 483",
+    "code": "ENCS 483",
+    "title": "Creativity, Innovation and Critical Thinking in Science and Technology",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Students must complete a minimum of 60 credits in an engineering program or minimum of 45 credits in a non-engineering program prior to enrolling.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": ["ENCS 283"]
+    }
+  },
+  {
+    "_id": "ENCS 484",
+    "code": "ENCS 484",
+    "title": "Development and Global Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Students must complete a minimum of 60 credits in an engineering program or minimum of 45 credits in a non-engineering program prior to enrolling.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENCS 485",
+    "code": "ENCS 485",
+    "title": "Field Course in Engineering and Sustainable Development",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Students must complete a minimum of 24 credits towards an undergraduate program offered by the Gina Cody School of Engineering and Computer Science prior to enrolling, with a minimum GPA of 2.50.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "ENCS 498",
+    "code": "ENCS 498",
+    "title": "Topics in Engineering and Computer Science",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the GCS is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  }
+]

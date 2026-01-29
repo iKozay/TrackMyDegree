@@ -1,0 +1,548 @@
+[
+  {
+    "_id": "MECH 321",
+    "code": "MECH 321",
+    "title": "Properties and Failure of Materials",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 221 or MIAE 221.",
+    "rules": {
+      "prereq": [["MECH 221", "MIAE 221"]],
+      "coreq": [],
+      "not_taken": ["AERO 481"]
+    }
+  },
+  {
+    "_id": "MECH 343",
+    "code": "MECH 343",
+    "title": "Theory of Machines",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233, ENGR 243.",
+    "rules": {
+      "prereq": [["ENGR 213"], ["ENGR 233"], ["ENGR 243"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 344",
+    "code": "MECH 344",
+    "title": "Machine Element Design",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 244; MECH 313 or MIAE 313. The following courses must be completed previously or concurrently: MECH 343.",
+    "rules": {
+      "prereq": [["ENGR 244"], ["MECH 313", "MIAE 313"], ["MECH 343"]],
+      "coreq": [["MECH 343"]],
+      "not_taken": ["MECH 441"]
+    }
+  },
+  {
+    "_id": "MECH 351",
+    "code": "MECH 351",
+    "title": "Thermodynamics II",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 251.",
+    "rules": {
+      "prereq": [["ENGR 251"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 352",
+    "code": "MECH 352",
+    "title": "Heat Transfer I",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 311, ENGR 361.",
+    "rules": {
+      "prereq": [["ENGR 311"], ["ENGR 361"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 361",
+    "code": "MECH 361",
+    "title": "Fluid Mechanics II",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 361.",
+    "rules": {
+      "prereq": [["ENGR 361"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 368",
+    "code": "MECH 368",
+    "title": "Electronics for Mechanical Engineers",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: PHYS 205; MIAE 215.",
+    "rules": {
+      "prereq": [["MIAE 215"], ["PHYS 205"]],
+      "coreq": [],
+      "not_taken": ["MECH 470"]
+    }
+  },
+  {
+    "_id": "MECH 370",
+    "code": "MECH 370",
+    "title": "Modelling and Analysis of Dynamic Systems",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: PHYS 205; ENGR 213; ENGR 243 or ENGR 245. The following course must be completed previously or concurrently: ENGR 311.",
+    "rules": {
+      "prereq": [["PHYS 205"], ["ENGR 213"], ["ENGR 243", "ENGR 245"], ["ENGR 311"]],
+      "coreq": [["ENGR 311"]],
+      "not_taken": ["ELEC 370"]
+    }
+  },
+  {
+    "_id": "MECH 371",
+    "code": "MECH 371",
+    "title": "Analysis and Design of Control Systems",
+    "credits": 3.75,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 311; MECH 370.",
+    "rules": {
+      "prereq": [["MECH 370"], ["ENGR 311"]],
+      "coreq": [],
+      "not_taken": ["ELEC 372"]
+    }
+  },
+  {
+    "_id": "MECH 373",
+    "code": "MECH 373",
+    "title": "Instrumentation and Measurements",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 311; AERO 371 or MECH 370.",
+    "rules": {
+      "prereq": [["ENGR 311"], ["AERO 371", "MECH 370"]],
+      "coreq": [],
+      "not_taken": ["MECH 411"]
+    }
+  },
+  {
+    "_id": "MECH 375",
+    "code": "MECH 375",
+    "title": "Mechanical Vibrations",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: AERO 371 or MECH 370.",
+    "rules": {
+      "prereq": [["AERO 371", "MECH 370"]],
+      "coreq": [],
+      "not_taken": ["MECH 443"]
+    }
+  },
+  {
+    "_id": "MECH 390",
+    "code": "MECH 390",
+    "title": "Mechanical Engineering Design Project",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: MECH 311 or MIAE 311; MECH 343; MIAE 380. The following course must be completed previously or concurrently: MECH 344.",
+    "rules": {
+      "prereq": [["MECH 311", "MIAE 311"], ["MECH 344"], ["MIAE 380"], ["MECH 343"]],
+      "coreq": [["MECH 344"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 412",
+    "code": "MECH 412",
+    "title": "Computer‑Aided Mechanical Design",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 311 or MIAE 311.",
+    "rules": {
+      "prereq": [["MECH 311", "MIAE 311"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 414",
+    "code": "MECH 414",
+    "title": "Computer Numerically Controlled Machining",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: MECH 311 or MIAE 311. The following course must be completed previously or concurrently: MIAE 312.",
+    "rules": {
+      "prereq": [["MECH 311", "MIAE 311"], ["MIAE 312"]],
+      "coreq": [["MIAE 312"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 415",
+    "code": "MECH 415",
+    "title": "Advanced Programming for Mechanical and Industrial Engineers",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 215 or MIAE 215.",
+    "rules": {
+      "prereq": [["MECH 215", "MIAE 215"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 421",
+    "code": "MECH 421",
+    "title": "Mechanical Shaping of Metals and Plastics",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 221 or MIAE 221.",
+    "rules": {
+      "prereq": [["MECH 221", "MIAE 221"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 422",
+    "code": "MECH 422",
+    "title": "Mechanical Behaviour of Polymer Composite Materials",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 233, ENGR 244; MECH 221 or MIAE 221.",
+    "rules": {
+      "prereq": [["ENGR 233"], ["ENGR 244"], ["MECH 221", "MIAE 221"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 423",
+    "code": "MECH 423",
+    "title": "Casting, Welding, Heat Treating, and Non‑Destructive Testing",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 221 or MIAE 221.",
+    "rules": {
+      "prereq": [["MECH 221", "MIAE 221"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 424",
+    "code": "MECH 424",
+    "title": "MEMS — Design and Fabrication",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: MECH 311 or MIAE 311; MECH 343. The following course must be completed previously or concurrently: MIAE 312.",
+    "rules": {
+      "prereq": [["MECH 311", "MIAE 311"], ["MECH 343"], ["MIAE 312"]],
+      "coreq": [["MIAE 312"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 425",
+    "code": "MECH 425",
+    "title": "Manufacturing of Composites",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 311 or MIAE 311. The following course must be completed previously or concurrently: MIAE 312.",
+    "rules": {
+      "prereq": [["MECH 311", "MIAE 311"], ["MIAE 312"]],
+      "coreq": [["MIAE 312"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 426",
+    "code": "MECH 426",
+    "title": "Stress and Failure Analysis of Machinery",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 233, ENGR 244; AERO 481 or MECH 321.",
+    "rules": {
+      "prereq": [["ENGR 233"], ["ENGR 244"], ["AERO 481", "MECH 321"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 428",
+    "code": "MECH 428",
+    "title": "Failure Analysis of Machine Systems",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 344.",
+    "rules": {
+      "prereq": [["MECH 344"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 444",
+    "code": "MECH 444",
+    "title": "Guided Vehicle Systems",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 375.",
+    "rules": {
+      "prereq": [["MECH 375"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 447",
+    "code": "MECH 447",
+    "title": "Fundamentals of Vehicle System Design",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 343. The following course must be completed previously or concurrently: MECH 375.",
+    "rules": {
+      "prereq": [["MECH 343"], ["MECH 375"]],
+      "coreq": [["MECH 375"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 451",
+    "code": "MECH 451",
+    "title": "Renewable Energy: Fundamentals and Applications",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: MECH 351, MECH 352, MECH 361.",
+    "rules": {
+      "prereq": [["MECH 361"], ["MECH 351"], ["MECH 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 452",
+    "code": "MECH 452",
+    "title": "Heat Transfer II",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: MECH 351, MECH 352, MECH 361.",
+    "rules": {
+      "prereq": [["MECH 361"], ["MECH 351"], ["MECH 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 453",
+    "code": "MECH 453",
+    "title": "Heating, Ventilation and Air Conditioning Systems",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 352.",
+    "rules": {
+      "prereq": [["MECH 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 454",
+    "code": "MECH 454",
+    "title": "Vehicular Internal Combustion Engines",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: MECH 351, MECH 361.",
+    "rules": {
+      "prereq": [["MECH 361"], ["MECH 351"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 460",
+    "code": "MECH 460",
+    "title": "Finite Element Analysis",
+    "credits": 3.75,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 244, ENGR 391.",
+    "rules": {
+      "prereq": [["ENGR 244"], ["ENGR 391"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 461",
+    "code": "MECH 461",
+    "title": "Gas Dynamics",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 361.",
+    "rules": {
+      "prereq": [["MECH 361"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 463",
+    "code": "MECH 463",
+    "title": "Fluid Power Control",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 361; MECH 371.",
+    "rules": {
+      "prereq": [["MECH 371"], ["ENGR 361"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 468",
+    "code": "MECH 468",
+    "title": "Wind Turbine Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: MECH 343, MECH 361. The following courses must be completed previously or concurrently: MECH 344, MECH 371.",
+    "rules": {
+      "prereq": [["MECH 343"], ["MECH 361"], ["MECH 344"], ["MECH 371"]],
+      "coreq": [["MECH 344"], ["MECH 371"]],
+      "not_taken": ["MECH 462"]
+    }
+  },
+  {
+    "_id": "MECH 471",
+    "code": "MECH 471",
+    "title": "Microcontrollers for Mechatronics",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 311; MECH 368.",
+    "rules": {
+      "prereq": [["ENGR 311"], ["MECH 368"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 472",
+    "code": "MECH 472",
+    "title": "Mechatronics and Automation",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: MECH 215 or MIAE 215. The following courses must be completed previously or concurrently: MECH 371.",
+    "rules": {
+      "prereq": [["MECH 215", "MIAE 215"], ["MECH 371"]],
+      "coreq": [["MECH 371"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 473",
+    "code": "MECH 473",
+    "title": "Control System Design",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 372 or MECH 371.",
+    "rules": {
+      "prereq": [["ELEC 372", "MECH 371"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 474",
+    "code": "MECH 474",
+    "title": "Mechatronics",
+    "credits": 3.75,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ELEC 372 or MECH 371.",
+    "rules": {
+      "prereq": [["ELEC 372", "MECH 371"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 476",
+    "code": "MECH 476",
+    "title": "Generative Design and Manufacturing in Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: MECH 313 or MIAE 313. The following course must be completed previously or concurrently: AERO 390 or MECH 390.",
+    "rules": {
+      "prereq": [["MECH 313", "MIAE 313"], ["AERO 390", "MECH 390"]],
+      "coreq": [["AERO 390", "MECH 390"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 490",
+    "code": "MECH 490",
+    "title": "Capstone Mechanical Engineering Design Project",
+    "credits": 6.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 301; MECH 344, MECH 390; MIAE 312. Students must complete 75 credits in the program prior to enrolling.",
+    "rules": {
+      "prereq": [["ENGR 301"], ["MECH 344"], ["MECH 390"], ["MIAE 312"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "MECH 498",
+    "code": "MECH 498",
+    "title": "Topics in Mechanical Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the Department Chair is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  }
+]

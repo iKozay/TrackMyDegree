@@ -5,8 +5,13 @@ const {
   validateFields,
   validateArrayFields,
   validateReference,
+  compareArraysOfArrays,
+  compareSimpleArrays
 } = require('./validationHelpers');
 const { ValidationErrorReporter } = require('./errorReporter');
+const {
+  findExpectedCourseData,
+} = require('../data/courseDataHelper');
 /*
  * Helper functions to validate degree integrity against the database
  * Ensures that all referenced course pools and courses exist
@@ -64,6 +69,9 @@ async function validateDegreeIntegrity(degreeData) {
     degreeId: degree._id,
   });
 
+  // Validate courses prerequisites and corequisites
+  validateCoursePrereqCoreqIntegrity(dbCourses, { degreeId: degree._id, errorReporter });
+  
   return errorReporter;
 }
 
@@ -136,6 +144,70 @@ function validateCoursePoolIntegrity(
           });
       }
     }
+  }
+}
+
+function validateCoursePrereqCoreqIntegrity(
+  dbCourses,
+  { degreeId, errorReporter },
+) {
+  // Helper function to report validation failures
+  function reportValidationFailure(comparison, fieldName, courseId) {
+    if (comparison.missing.length > 0) {
+      errorReporter.addValidationFailure(
+        'course_rules_missing',
+        `${fieldName} requirements`,
+        `Missing ${fieldName} requirements: ${JSON.stringify(comparison.missing)}`,
+        { degreeId: degreeId, courseId, fieldName }
+      );
+      console.log(`Missing ${fieldName} requirements for course ${courseId}:`, comparison.missing);
+    }
+    
+    if (comparison.extra.length > 0) {
+      errorReporter.addValidationFailure(
+        'course_rules_extra',
+        `${fieldName} requirements`,
+        `Extra ${fieldName} requirements: ${JSON.stringify(comparison.extra)}`,
+        { degreeId: degreeId, courseId, fieldName }
+      );
+      console.log(`Extra ${fieldName} requirements for course ${courseId}:`, comparison.extra);
+    }
+  }
+  
+  // Get all courses from database for this degree
+  for (const dbCourse of dbCourses) {
+    const courseId = dbCourse._id.toString();
+    // Find expected course data using helper
+    const expectedCourse = findExpectedCourseData(courseId);
+    if (!expectedCourse) {
+      continue; // Skip courses that don't match any catalog or not found
+    }
+    
+    // Compare rules objects
+    const dbRules = dbCourse.rules || { prereq: [], coreq: [], not_taken: [] };
+    const expectedRules = expectedCourse.rules || { prereq: [], coreq: [], not_taken: [] };
+    
+    // Compare prereq (array of arrays)
+    const prereqComparison = compareArraysOfArrays(
+      dbRules.prereq || [], 
+      expectedRules.prereq || []
+    );
+    reportValidationFailure(prereqComparison, 'prereq', courseId);
+
+    // Compare coreq (array of arrays)
+    const coreqComparison = compareArraysOfArrays(
+      dbRules.coreq || [], 
+      expectedRules.coreq || []
+    );
+    reportValidationFailure(coreqComparison, 'coreq', courseId);
+
+    // Compare not_taken (simple array)
+    const notTakenComparison = compareSimpleArrays(
+      dbRules.not_taken || [], 
+      expectedRules.not_taken || []
+    );
+    reportValidationFailure(notTakenComparison, 'not_taken', courseId);
+
   }
 }
 

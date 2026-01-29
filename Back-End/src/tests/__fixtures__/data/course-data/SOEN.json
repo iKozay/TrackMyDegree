@@ -1,0 +1,352 @@
+[
+  {
+    "_id": "SOEN 228",
+    "code": "SOEN 228",
+    "title": "System Hardware",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: MATH 203 or Cegep Mathematics 103, MATH 204 or Cegep Mathematics 105.",
+    "rules": {
+      "prereq": [["MATH 203"], ["MATH 204"]],
+      "coreq": [],
+      "not_taken": ["COMP 228"]
+    }
+  },
+  {
+    "_id": "SOEN 287",
+    "code": "SOEN 287",
+    "title": "Web Programming",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 248.",
+    "rules": {
+      "prereq": [["COMP 248"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 298",
+    "code": "SOEN 298",
+    "title": "System Hardware Lab",
+    "credits": 1.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the undergraduate program director is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 321",
+    "code": "SOEN 321",
+    "title": "Information Systems Security",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 346 or COEN 346.",
+    "rules": {
+      "prereq": [["COMP 346", "COEN 346"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 331",
+    "code": "SOEN 331",
+    "title": "Formal Methods for Software Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: COMP 232, COMP 249.",
+    "rules": {
+      "prereq": [["COMP 232"], ["COMP 249"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 341",
+    "code": "SOEN 341",
+    "title": "Software Process and Practices",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously or concurrently: COMP 352 or COEN 352; ENCS 282.",
+    "rules": {
+      "prereq": [["COMP 352", "COEN 352"], ["ENCS 282"]],
+      "coreq": [["COMP 352", "COEN 352"], ["ENCS 282"]],
+      "not_taken": ["COMP 354"]
+    }
+  },
+  {
+    "_id": "SOEN 342",
+    "code": "SOEN 342",
+    "title": "Software Requirements and Deployment",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: SOEN 341.",
+    "rules": {
+      "prereq": [["SOEN 341"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 343",
+    "code": "SOEN 343",
+    "title": "Software Architecture and Design",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously or concurrently: SOEN 341; SOEN 342.",
+    "rules": {
+      "prereq": [["SOEN 341"], ["SOEN 342"]],
+      "coreq": [["SOEN 341"], ["SOEN 342"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 344",
+    "code": "SOEN 344",
+    "title": "Advanced Software Architecture and Design",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: SOEN 343.",
+    "rules": {
+      "prereq": [["SOEN 343"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 345",
+    "code": "SOEN 345",
+    "title": "Software Testing, Verification and Quality Assurance",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously or concurrently: SOEN 343.",
+    "rules": {
+      "prereq": [["SOEN 343"]],
+      "coreq": [["SOEN 343"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 357",
+    "code": "SOEN 357",
+    "title": "User Interface Design",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: SOEN 341 or COMP 354.",
+    "rules": {
+      "prereq": [["SOEN 341", "COMP 354"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 363",
+    "code": "SOEN 363",
+    "title": "Data Systems for Software Engineers",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 352.",
+    "rules": {
+      "prereq": [["COMP 352"]],
+      "coreq": [],
+      "not_taken": ["COMP 353"]
+    }
+  },
+  {
+    "_id": "SOEN 384",
+    "code": "SOEN 384",
+    "title": "Management, Measurement and Quality Control",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENCS 282; SOEN 341.",
+    "rules": {
+      "prereq": [["ENCS 282"], ["SOEN 341"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 385",
+    "code": "SOEN 385",
+    "title": "Control Systems and Applications",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233.",
+    "rules": {
+      "prereq": [["ENGR 213"], ["ENGR 233"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 387",
+    "code": "SOEN 387",
+    "title": "Web‑Based Enterprise Application Design",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously or concurrently: COMP 353 or SOEN 363. The following courses must be completed previously: COMP 354 or SOEN 341; SOEN 287.",
+    "rules": {
+      "prereq": [["COMP 353", "SOEN 363"], ["COMP 354", "SOEN 341"], ["SOEN 287"]],
+      "coreq": [["COMP 353", "SOEN 363"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 390",
+    "code": "SOEN 390",
+    "title": "Software Engineering Team Design Project",
+    "credits": 3.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously or concurrently: SOEN 345 and SOEN 357.",
+    "rules": {
+      "prereq": [["SOEN 345"], ["SOEN 357"]],
+      "coreq": [["SOEN 345"], ["SOEN 357"]],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 422",
+    "code": "SOEN 422",
+    "title": "Embedded Systems and Software",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 346.",
+    "rules": {
+      "prereq": [["COMP 346"]],
+      "coreq": [],
+      "not_taken": ["COEN 421"]
+    }
+  },
+  {
+    "_id": "SOEN 423",
+    "code": "SOEN 423",
+    "title": "Distributed Systems",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 346.",
+    "rules": {
+      "prereq": [["COMP 346"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 448",
+    "code": "SOEN 448",
+    "title": "Management of Evolving Systems",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: SOEN 342, SOEN 343.",
+    "rules": {
+      "prereq": [["SOEN 342"], ["SOEN 343"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 471",
+    "code": "SOEN 471",
+    "title": "Big Data Analytics",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: COMP 352.",
+    "rules": {
+      "prereq": [["COMP 352"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 487",
+    "code": "SOEN 487",
+    "title": "Web Services and Applications",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: SOEN 387.",
+    "rules": {
+      "prereq": [["SOEN 387"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 490",
+    "code": "SOEN 490",
+    "title": "Capstone Software Engineering Design Project",
+    "credits": 6.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following courses must be completed previously: SOEN 390. Students must have completed 75 credits in the program prior to enrolling.",
+    "rules": {
+      "prereq": [["SOEN 390"]],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 491",
+    "code": "SOEN 491",
+    "title": "Software Engineering Project",
+    "credits": 1.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the undergraduate program director is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 498",
+    "code": "SOEN 498",
+    "title": "Topics in Software Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the undergraduate program director is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  },
+  {
+    "_id": "SOEN 499",
+    "code": "SOEN 499",
+    "title": "Topics in Software Engineering with Lab",
+    "credits": 4.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "Permission of the Department is required.",
+    "rules": {
+      "prereq": [],
+      "coreq": [],
+      "not_taken": []
+    }
+  }
+]
