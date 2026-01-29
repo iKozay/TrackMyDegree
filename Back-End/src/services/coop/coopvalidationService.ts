@@ -33,7 +33,7 @@ interface SemesterData {
  * This avoids TS2590 "Expression produces a union type that is too complex to represent"
  */
 
-/*shouldnt be any*/
+/*shouldnt be any*
 
 function extractSemestersFromDocument(timeline: any): SemesterData[] {
   if (!timeline.semesters) return [];
