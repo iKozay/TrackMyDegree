@@ -1,9 +1,14 @@
-export type RuleSeverity = 'ERROR' | 'WARNING';
+// Back-End/src/services/CoopValidationService.ts
+import type { TimelineDocument } from "@models/timeline";
+import type { TimelineResult } from "@services/timeline/timelineService";
+
+export type RuleSeverity = "ERROR" | "WARNING";
 
 export interface CoopRuleResult {
   ruleId: string;
   message: string;
   severity: RuleSeverity;
+  affectedTerms?: string[];
 }
 
 export interface CoopValidationResult {
@@ -17,114 +22,167 @@ export interface CoopValidationResult {
   };
 }
 
-/**
- * A semester is a WORK term if it contains:
- * CWT100, CWT200, or CWT300
- */
-function isWorkTerm(semester: any): boolean {
-  if (!semester || !Array.isArray(semester.courses)) {
-    return false;
-  }
-
-  return semester.courses.some((course: any) =>
-    ['CWT100', 'CWT200', 'CWT300'].includes(course.code)
-  );
+interface SemesterData {
+  _id: string;
+  term: string;
+  courses: { code: string; message?: string | null }[];
 }
 
 /**
- * Main validation entry point
- * Input: plain JS object from Redis cache
+ * Converts Mongoose DocumentArray to plain JS array
+ * This avoids TS2590 "Expression produces a union type that is too complex to represent"
  */
-export function validateCoopTimeline(timeline: any): CoopValidationResult {
+
+/*shouldnt be any*/
+
+function extractSemestersFromDocument(timeline: any): SemesterData[] {
+  if (!timeline.semesters) return [];
+  
+  return Array.from(timeline.semesters).map((semester: any) => {
+    const sem = semester.toObject();
+    const courses = Array.isArray(sem.courses) 
+      ? sem.courses 
+      : Array.from(sem.courses || []);
+    
+    return {
+      _id: sem._id.toString(),
+      term: sem.term,
+      courses: courses.map((c: any) => ({
+        code: c.code,
+        message: c.message,
+      })),
+    };
+  });
+}
+
+/**
+ * Extracts semesters from TimelineResult (plain object from cache)
+ */
+function extractSemestersFromResult(timeline: any): SemesterData[] {
+  if (!timeline.semesters) return [];
+  
+  return timeline.semesters.map((semester: any, index: number) => ({
+    _id: semester._id?.toString() || `semester-${index}`,
+    term: semester.term,
+    courses: (semester.courses || []).map((c: any) => ({
+      code: c.code,
+      message: c.message,
+    })),
+  }));
+}
+
+/**
+ * Main validation entry point for Co-op timelines
+ * Accepts both TimelineDocument (Mongoose) and TimelineResult (plain object)
+ */
+export function validateCoopTimeline(
+  timeline: any
+): CoopValidationResult {
   const errors: CoopRuleResult[] = [];
   const warnings: CoopRuleResult[] = [];
 
-  const semesters = Array.isArray(timeline?.semesters)
-    ? timeline.semesters
-    : [];
+  // Detect which type we received and extract accordingly
+  const semestersArray = timeline.toObject && typeof timeline.toObject === 'function'
+    ? extractSemestersFromDocument(timeline)
+    : extractSemestersFromResult(timeline);
 
-  const termTypes = semesters.map((semester: any) =>
-    isWorkTerm(semester) ? 'WORK' : 'STUDY'
-  );
+  const studyTerms = semestersArray.filter((s) => s.term === "STUDY");
+  const workTerms = semestersArray.filter((s) => s.term === "WORK");
 
-  const studyTerms = termTypes.filter((t) => t === 'STUDY');
-  const workTerms = termTypes.filter((t) => t === 'WORK');
-
-  // Must start with study
-  if (termTypes.length > 0 && termTypes[0] !== 'STUDY') {
+  // -----------------------------
+  // RULE: Must begin with study
+  // -----------------------------
+  if (semestersArray.length > 0 && semestersArray[0].term !== "STUDY") {
     errors.push({
-      ruleId: 'SEQ_STARTS_WITH_STUDY',
-      message: 'Degree must begin with a study term.',
-      severity: 'ERROR',
+      ruleId: "SEQ_STARTS_WITH_STUDY",
+      message: "Degree must begin with a study term.",
+      severity: "ERROR",
     });
   }
 
-  // Must end with study
+  // -----------------------------
+  // RULE: Must end with study
+  // -----------------------------
   if (
-    termTypes.length > 0 &&
-    termTypes[termTypes.length - 1] !== 'STUDY'
+    semestersArray.length > 0 &&
+    semestersArray[semestersArray.length - 1].term !== "STUDY"
   ) {
     errors.push({
-      ruleId: 'SEQ_ENDS_WITH_STUDY',
-      message: 'Degree must end with a study term.',
-      severity: 'ERROR',
+      ruleId: "SEQ_ENDS_WITH_STUDY",
+      message: "Degree must end with a study term.",
+      severity: "ERROR",
     });
   }
 
-  // Exactly 3 work terms
+  // -----------------------------
+  // RULE: Exactly 3 work terms
+  // -----------------------------
   if (workTerms.length !== 3) {
     errors.push({
-      ruleId: 'THREE_WORK_TERMS_REQUIRED',
+      ruleId: "THREE_WORK_TERMS_REQUIRED",
       message:
-        'Undergraduate Co-op students must complete exactly 3 work terms.',
-      severity: 'ERROR',
+        "Undergraduate Co-op students must complete exactly 3 work terms.",
+      severity: "ERROR",
     });
   }
 
-  // At least 2 study terms before first work
-  const firstWorkIndex = termTypes.indexOf('WORK');
+  // -----------------------------
+  // RULE: At least 2 study terms before first work
+  // -----------------------------
+  const firstWorkIndex = semestersArray.findIndex((s) => s.term === "WORK");
   if (firstWorkIndex !== -1) {
-    const studyBeforeFirstWork = termTypes
+    const studyBeforeFirstWork = semestersArray
       .slice(0, firstWorkIndex)
-      .filter((t) => t === 'STUDY').length;
+      .filter((s) => s.term === "STUDY").length;
 
     if (studyBeforeFirstWork < 2) {
       errors.push({
-        ruleId: 'MIN_TWO_STUDY_BEFORE_WORK',
+        ruleId: "MIN_TWO_STUDY_BEFORE_WORK",
         message:
-          'At least two study terms are required before the first work term.',
-        severity: 'ERROR',
+          "At least two study terms are required before the first work term.",
+        severity: "ERROR",
       });
     }
   }
 
-  // No consecutive work terms
-  for (let i = 1; i < termTypes.length; i++) {
-    if (termTypes[i] === 'WORK' && termTypes[i - 1] === 'WORK') {
+  // -----------------------------
+  // RULE: No consecutive work terms
+  // -----------------------------
+  for (let i = 1; i < semestersArray.length; i++) {
+    if (
+      semestersArray[i].term === "WORK" &&
+      semestersArray[i - 1].term === "WORK"
+    ) {
       errors.push({
-        ruleId: 'NO_CONSECUTIVE_WORK_TERMS',
-        message: 'Consecutive work terms are not allowed.',
-        severity: 'ERROR',
+        ruleId: "NO_CONSECUTIVE_WORK_TERMS",
+        message: "Consecutive work terms are not allowed.",
+        severity: "ERROR",
+        affectedTerms: [semestersArray[i - 1]._id, semestersArray[i]._id],
       });
     }
   }
 
-  // Warning if timeline is long
-  if (termTypes.length > 8) {
+  // -----------------------------
+  // WARNING: Long sequence (>8 terms)
+  // -----------------------------
+  if (semestersArray.length > 8) {
     warnings.push({
-      ruleId: 'LONG_SEQUENCE_WARNING',
+      ruleId: "LONG_SEQUENCE_WARNING",
       message:
-        'This course sequence is longer than the typical co-op duration.',
-      severity: 'WARNING',
+        "This course sequence is longer than the typical co-op duration.",
+      severity: "WARNING",
     });
   }
 
+  // -----------------------------
+  // Final result
+  // -----------------------------
   return {
     valid: errors.length === 0,
     errors,
     warnings,
     metadata: {
-      totalTerms: termTypes.length,
+      totalTerms: semestersArray.length,
       studyTerms: studyTerms.length,
       workTerms: workTerms.length,
     },
