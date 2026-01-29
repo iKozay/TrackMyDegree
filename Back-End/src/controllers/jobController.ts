@@ -5,7 +5,7 @@ interface GetResultParams {
   jobId: string;
 }
 
-interface CachedJobResult<T = unknown> {
+export interface CachedJobResult<T = unknown> {
   payload: {
     status: string;
     data: T;

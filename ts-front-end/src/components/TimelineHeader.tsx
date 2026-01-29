@@ -6,6 +6,7 @@ import {
   Share2,
   Download,
   BarChart3,
+  Briefcase,
   AlertTriangle,
   Plus,
   Save,
@@ -105,11 +106,18 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
   const handleSave = () => {
     if (onOpenModal) onOpenModal(true, "save");
   };
+  const handleCoopValidation = () => {
+    if (onOpenModal) onOpenModal(true, "coop");
+  };
   return (
     <div className="header-actions">
       <button className="btn btn-success" onClick={handleInsights}>
         <BarChart3 size={16} />
         Show Insights
+      </button>
+      <button className="btn btn-secondary" onClick={handleCoopValidation}>
+        <Briefcase size={16} />
+        Coop Validation
       </button>
 
       <button className="btn btn-tertiary" onClick={handleDeficiency}>

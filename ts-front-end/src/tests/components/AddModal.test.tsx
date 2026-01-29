@@ -44,7 +44,7 @@ describe("AddModal", () => {
 
     render(<AddModal {...defaultProps} />);
 
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByRole("presentation")).toBeInTheDocument();
     expect(screen.getByText(/exemption - Add Course/i)).toBeInTheDocument();
   });
 
@@ -204,7 +204,7 @@ describe("AddModal", () => {
       expect(screen.getByText("COMP 248")).toBeInTheDocument();
     });
 
-    const backdrop = screen.getByRole("dialog");
+    const backdrop = screen.getByRole("presentation");
     fireEvent.click(backdrop);
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);

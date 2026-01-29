@@ -39,7 +39,7 @@ describe("BaseModal", () => {
       </BaseModal>
     );
 
-    const backdrop = screen.getByRole("dialog"); // this *is* the backdrop
+    const backdrop = screen.getByRole("button"); // this *is* the backdrop
     fireEvent.click(backdrop);
 
     expect(onCloseMock).toHaveBeenCalledTimes(1);
