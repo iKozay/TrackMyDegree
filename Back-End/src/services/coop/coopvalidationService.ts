@@ -1,5 +1,4 @@
 export type RuleSeverity = 'ERROR' | 'WARNING';
-export type TermType = 'STUDY' | 'WORK';
 
 export interface CoopRuleResult {
   ruleId: string;
@@ -19,31 +18,16 @@ export interface CoopValidationResult {
 }
 
 /**
- * Minimal semester shape coming from Redis
- */
-interface CachedCourse {
-  code: string;
-  message?: string;
-}
-
-interface CachedSemester {
-  courses?: CachedCourse[];
-}
-
-/**
  * A semester is a WORK term if it contains:
  * CWT100, CWT200, or CWT300
  */
-function isWorkTerm(semester: CachedSemester): boolean {
-  if (!Array.isArray(semester.courses)) {
+function isWorkTerm(semester: any): boolean {
+  if (!semester || !Array.isArray(semester.courses)) {
     return false;
   }
 
-  return semester.courses.some(
-    (course: CachedCourse) =>
-      course.code === 'CWT100' ||
-      course.code === 'CWT200' ||
-      course.code === 'CWT300',
+  return semester.courses.some((course: any) =>
+    ['CWT100', 'CWT200', 'CWT300'].includes(course.code)
   );
 }
 
@@ -55,16 +39,16 @@ export function validateCoopTimeline(timeline: any): CoopValidationResult {
   const errors: CoopRuleResult[] = [];
   const warnings: CoopRuleResult[] = [];
 
-  const semesters: CachedSemester[] = Array.isArray(timeline?.semesters)
+  const semesters = Array.isArray(timeline?.semesters)
     ? timeline.semesters
     : [];
 
-  const termTypes: TermType[] = semesters.map((semester: CachedSemester) =>
-    isWorkTerm(semester) ? 'WORK' : 'STUDY',
+  const termTypes = semesters.map((semester: any) =>
+    isWorkTerm(semester) ? 'WORK' : 'STUDY'
   );
 
-  const studyTerms = termTypes.filter((t: TermType) => t === 'STUDY');
-  const workTerms = termTypes.filter((t: TermType) => t === 'WORK');
+  const studyTerms = termTypes.filter((t) => t === 'STUDY');
+  const workTerms = termTypes.filter((t) => t === 'WORK');
 
   // Must start with study
   if (termTypes.length > 0 && termTypes[0] !== 'STUDY') {
@@ -102,7 +86,7 @@ export function validateCoopTimeline(timeline: any): CoopValidationResult {
   if (firstWorkIndex !== -1) {
     const studyBeforeFirstWork = termTypes
       .slice(0, firstWorkIndex)
-      .filter((t: TermType) => t === 'STUDY').length;
+      .filter((t) => t === 'STUDY').length;
 
     if (studyBeforeFirstWork < 2) {
       errors.push({
