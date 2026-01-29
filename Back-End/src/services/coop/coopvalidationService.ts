@@ -32,13 +32,10 @@ interface SemesterData {
  * Converts Mongoose DocumentArray to plain JS array
  * This avoids TS2590 "Expression produces a union type that is too complex to represent"
  */
-
-/*shouldnt be any*
-
-function extractSemestersFromDocument(timeline: any): SemesterData[] {
+function extractSemestersFromDocument(timeline: TimelineDocument): SemesterData[] {
   if (!timeline.semesters) return [];
   
-  return Array.from(timeline.semesters).map((semester: any) => {
+  return Array.from(timeline.semesters).map((semester) => {
     const sem = semester.toObject();
     const courses = Array.isArray(sem.courses) 
       ? sem.courses 
@@ -58,13 +55,13 @@ function extractSemestersFromDocument(timeline: any): SemesterData[] {
 /**
  * Extracts semesters from TimelineResult (plain object from cache)
  */
-function extractSemestersFromResult(timeline: any): SemesterData[] {
+function extractSemestersFromResult(timeline: TimelineResult): SemesterData[] {
   if (!timeline.semesters) return [];
   
-  return timeline.semesters.map((semester: any, index: number) => ({
-    _id: semester._id?.toString() || `semester-${index}`,
+  return timeline.semesters.map((semester) => ({
+    _id: semester._id?.toString() || '',
     term: semester.term,
-    courses: (semester.courses || []).map((c: any) => ({
+    courses: (semester.courses || []).map((c) => ({
       code: c.code,
       message: c.message,
     })),
@@ -76,15 +73,15 @@ function extractSemestersFromResult(timeline: any): SemesterData[] {
  * Accepts both TimelineDocument (Mongoose) and TimelineResult (plain object)
  */
 export function validateCoopTimeline(
-  timeline: any
+  timeline: TimelineDocument | TimelineResult | any
 ): CoopValidationResult {
   const errors: CoopRuleResult[] = [];
   const warnings: CoopRuleResult[] = [];
 
   // Detect which type we received and extract accordingly
-  const semestersArray = timeline.toObject && typeof timeline.toObject === 'function'
-    ? extractSemestersFromDocument(timeline)
-    : extractSemestersFromResult(timeline);
+  const semestersArray = 'toObject' in timeline
+    ? extractSemestersFromDocument(timeline as TimelineDocument)
+    : extractSemestersFromResult(timeline as TimelineResult);
 
   const studyTerms = semestersArray.filter((s) => s.term === "STUDY");
   const workTerms = semestersArray.filter((s) => s.term === "WORK");
