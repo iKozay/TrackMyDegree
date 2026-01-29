@@ -5,6 +5,7 @@ import { AddModal } from "./AddModal";
 import { InsightsModal } from "./InsightsModal";
 import { SaveTimelineModal } from "./SaveTimelineModal";
 import type { CourseCode, CourseMap, Pool } from "../types/timeline.types";
+import { CoopValidationModal } from "./CoopValidationModal";
 
 type MainModalProps = {
   open: boolean;
@@ -39,6 +40,8 @@ export const MainModal: React.FC<MainModalProps> = ({
         return <AddModal open={open} type="deficiency" onAdd={onAdd} onClose={() => onClose(false, type)} />;
       case "save":
         return <SaveTimelineModal open={open} timelineName={timelineName} onSave={onSave} onClose={() => onClose(false, type)} />;
+      case "coop":
+        return <CoopValidationModal isOpen={open} onClose={() => onClose(false, type)}/>
       default:
         return (
           <div>
