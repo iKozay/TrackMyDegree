@@ -1,0 +1,551 @@
+[
+    {
+        "title": "MATH 200 Fundamental Concepts of Algebra",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course is designed to give students the background necessary for MATH 201. Some previous exposure to algebra is assumed. Sets, algebraic techniques, inequalities, graphs of equations.",
+        "components": "Lecture",
+        "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration.Students who have received credit or exemption for a course at the level of MATH 201 or above may not take this course for credit."
+    },
+    {
+        "title": "MATH 201 Elementary Functions",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course focuses on basic functions (power functions, polynomials, rational and algebraic function, exponentials and logarithms, trigonometric functions), and operations on functions, including inverse functions, transformations and composition of functions. The course also includes a detailed study of trigonometry of angles, geometry of triangles and related trigonometric transformations.",
+        "components": "Lecture; Tutorial",
+        "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration.Students who have received credit or exemption for MATH 203 or equivalent, or for a course having MATH 203 or equivalent in its sequence of prerequisites, may not take this course for credit."
+    },
+    {
+        "title": "MATH 202 College Algebra",
+        "credits": 3,
+        "prerequisites": "MATH 201 or equivalent.",
+        "corequisites": "",
+        "description": "This course introduces students to the fundamental notions of algebra. Topics may include progressions, combinations, permutations, mathematical induction, inequalities, polynomials, and the Cartesian and polar forms of complex numbers.",
+        "components": "Lecture; Tutorial",
+        "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration.Students who have received credit or an exemption for a course at the level of ACTU 256 or above; MAST 218 or above; MATH 251 or above; STAT 249 or above; or for a course having any of these courses in its sequence of prerequisites, may not take this course for credit."
+    },
+    {
+        "title": "MATH 203 Differential and Integral Calculus I",
+        "credits": 3,
+        "prerequisites": "MATH 201 or equivalent.",
+        "corequisites": "",
+        "description": "This course is the first of two connected calculus courses (followed by MATH 205). This course focuses on an overview of functions and limits; derivative as rate of change, differentiation of elementary functions (power, exponential, logarithmic, trigonometric); differentiation rules (product, quotient, and chain rules); implicit differentiation; higher derivatives; approximations using linearization and the differential. Applications include related rates; optimization, analysis of functions (determining maxima, minima and inflection points) and graphing.",
+        "components": "Lecture; Tutorial",
+        "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration.Students who have received credit or an exemption for a course at the level of ACTU 256 or above; MAST 218 or above; MATH 251 or above; STAT 249 or above; or for a course having any of these courses in its sequence of prerequisites, may not take this course for credit."
+    },
+    {
+        "title": "MATH 204 Vectors and Matrices",
+        "credits": 3,
+        "prerequisites": "MATH 201 or equivalent.",
+        "corequisites": "",
+        "description": "This is an introductory course in elementary linear algebra. In this course, students learn algebra and geometry of vectors, dot and cross products, lines and planes. A key objective is learning methods to solve systems of linear equations, which are reformulated with matrix multiplication, matrix inversion, and determinants. Finally, these methods are clarified through linear transformations.",
+        "components": "Lecture; Tutorial",
+        "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration.Students who have received credit or an exemption for a course at the level of ACTU 256 or above; MATH 218 or above; MATH 251 or above; STAT 249 or above; or for a course having any of these courses in its sequence of prerequisites, may not take this course for credit."
+    },
+    {
+        "title": "MATH 205 Differential and Integral Calculus II",
+        "credits": 3,
+        "prerequisites": "MATH 203 or equivalent.",
+        "corequisites": "",
+        "description": "This course is the second of two connected courses on differential and integral calculus (preceded by MATH 203). In this course, students learn about definite integrals and antiderivatives, the fundamental theorem of calculus, indefinite integrals and techniques of integration (substitutions, integration by parts, partial fractions, trigonometric functions), improper integrals, applications of integration (area between curves, volumes of solids of revolurion); infinite sequences and series: tests for convergence; power series, Taylor and Maclaurin series.",
+        "components": "Lecture; Tutorial",
+        "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration.Students who have received credit or an exemption for a course at the level of ACTU 256 or above; MAST 218 or above; MATH 251 or above; STAT 249 or above; or for a course having any of these courses in its sequence of prerequisites, may not take this course for credit."
+    },
+    {
+        "title": "MATH 206 Algebra and Functions",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Coordinate systems. Radicals and distance formula. Polynomials, factoring, and graphing. Relations and functions. Linear and quadratic functions, equations, and systems. Exponents, exponential and logarithmic functions and equations.",
+        "components": "Lecture; Tutorial",
+        "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration.Students who have received credit or exemption for a course at the level of MATH 201 or above may not take this course for credit."
+    },
+    {
+        "title": "MATH 208 Fundamental Mathematics I",
+        "credits": 3,
+        "prerequisites": "MATH 206 or equivalent.",
+        "corequisites": "",
+        "description": "Topics covered in this course include matrices, Gaussian elimination, input‑output analysis, progressions, compound interest, annuities, permutations and combinations, probability, exponential and logarithmic functions, inequalities, linear programming.",
+        "components": "Lecture",
+        "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration.This is a prerequisite course for John Molson School of Business students. See Section 61.20 Admission Requirements and Section 14.2.2 John Molson School of Business under Mature Entry.Students who have received credit or an exemption for a course at the level of ACTU 256 or above; MAST 218 or above; MATH 251 or above; STAT 249 or above; or for a course having any of these courses in its sequence of prerequisites, may not take this course for credit."
+    },
+    {
+        "title": "MATH 209 Fundamental Mathematics II",
+        "credits": 3,
+        "prerequisites": "MATH 206 or equivalent.",
+        "corequisites": "",
+        "description": "This course is a prerequisite course for John Molson School of Business students*. Limits; differentiation of rational, exponential, and logarithmic functions; theory of maxima and minima; integration.",
+        "components": "Lecture",
+        "notes": "Students in programs leading to the BSc degree or the BA programs in Mathematics and Statistics may not take this course for credit to be applied to their program of concentration.See Mature Entry and Section 61.20 Admission Requirements.Students who have received credit or exemption for MATH 203 or equivalent may not take this course for credit."
+    },
+    {
+        "title": "MATH 212 The Fascinating World of Numbers",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course deals with a blend of fascinating mathematical themes in various contexts: historical, cultural, and practical. It is intended for non‑mathematics students. One of the aims of the course is to demonstrate the presence of mathematics and mathematical ideas in many aspects of modern life. At a deeper level, it is also intended to explain what mathematics is all about and why some easily stated assertions, such as Fermat’s last theorem, are so difficult to prove. Students who complete the course successfully should have enough understanding and knowledge of fundamental ideas and techniques of mathematics to appreciate its power, its beauty, and its relevance in so many different fields such as architecture, art, commerce, engineering, music, and all of the sciences.",
+        "components": "Lecture",
+        "notes": "Students enrolled in a Mathematics and Statistics program and students who have taken mathematics beyond the pre-calculus level may not take this course for credit.Students who have received credit for this topic under a MATH 298 number may not take this course for credit."
+    },
+    {
+        "title": "MATH 215 Great Ideas in Mathematics",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Mathematics is used to unravel the secrets of nature. This course introduces students to the world of mathematical ideas and mathematical thinking. Without being overly technical, that is, without requiring any formal background from the student other than high school mathematics, the course delves into some of the great ideas of mathematics. The topics discussed range from the geometric results of the Ancient Greeks to the notion of infinity to more modern developments.",
+        "components": "Lecture",
+        "notes": "This course is designed as a suitable elective for students following an undergraduate program. It has no formal prerequisites and will not qualify students to enrol for any other Mathematics course, and cannot be used to satisfy a Mathematics requirement in any BSc or BA program.Students who have received credit for INTE 215 may not take this course for credit."
+    },
+    {
+        "title": "MATH 217 Topics in Mathematics and Statistics",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course is designed as an elective course for students who are not registered in a Mathematics and Statistics program. The particular topic varies from one term to the next and the material is dealt with in a manner appropriate for students who have no background in university‑level mathematics.",
+        "components": "Lecture",
+        "notes": "Students registered in a Mathematics and Statistics program may not take this course for credit."
+    },
+    {
+        "title": "MATH 218 Reading Course in Mathematics and Statistics",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course is designed as an elective course for students who are not registered in a Mathematics and Statistics program. The particular topic varies from one term to the next and the material is dealt with in a manner appropriate for students who have no background in university‑level mathematics.",
+        "components": "Reading",
+        "notes": "Students registered in a Mathematics and Statistics program may not take this course for credit."
+    },
+    {
+        "title": "MATH 220 Mathematical Methods in Chemistry",
+        "credits": 3,
+        "prerequisites": "Cegep Mathematics 203 or 201-NYB or MATH 205.",
+        "corequisites": "",
+        "description": "First‑order differential equations (first‑ and second‑order chemical reactions). Hermite, Laguerre, and Legendre equations. Solutions by power series. Eigenfunctions and eigenvalues, Sturm‑Liouville theory.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "MATH 222 Logic, Proofs, and Discrete Structures",
+        "credits": 3,
+        "prerequisites": "MATH 204, MATH 205 or equivalent.",
+        "corequisites": "",
+        "description": "This course provides an introduction to formal logic and standard techniques for constructing proofs from a mathematical perspective. This is done in tandem with an introduction to a variety of fundamental mathematical structures so that students learn to identify, understand, and create rigorous mathematical proofs. Topics may include logic and proofs, basic structures, algorithms, number theory and cryptography, induction and recursion, counting techniques, relations and their properties, graphs, trees, Boolean algebra, and modelling computation.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MAST 217 or COMP 232 may not take this course for credit."
+    },
+    {
+        "title": "MATH 251 Linear Algebra I",
+        "credits": 3,
+        "prerequisites": "MATH 204 and MATH 205 or equivalent.",
+        "corequisites": "",
+        "description": "This course is an introduction to vector spaces and linear transformations. The following topics are treated with mathematical rigour: matrices and linear equations; vector spaces; bases, dimension and rank; linear mappings and algebra of linear operators; matrix representation of linear operators; determinants; eigenvalues and eigenvectors; diagonalization.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MAST 234 or ECON 325 may not take this course for credit."
+    },
+    {
+        "title": "MATH 252 Linear Algebra II",
+        "credits": 3,
+        "prerequisites": "MATH 251 or equivalent.",
+        "corequisites": "",
+        "description": "This course continues the study of vector spaces and linear transformations, with mathematical rigour. Topics may include characteristic and minimum polynomials; invariant subspaces, invariant direct sums; cyclic subspaces; rational canonical form; bilinear and quadratic forms; inner product; orthogonality; adjoint operators and orthogonal operators; Jordan canonical form.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MAST 235 may not take this course for credit."
+    },
+    {
+        "title": "MATH 339 Combinatorics",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "General principles of counting, permutations, combinations, identities, partitions, generating functions, Fibonacci numbers, Stirling numbers, Catalan numbers, principle of inclusion‑exclusion. Graphs, subgraphs, isomorphism, Euler graphs, Hamilton paths and cycles, planar graphs, Kuratowski’s Theorem, trees, colouring, 5‑colour theorem, matching, Hall’s theorem.",
+        "components": "Lecture; Tutorial",
+        "notes": "Students who have received credit for COMP 339 may not take this course for credit."
+    },
+    {
+        "title": "MATH 352 Linear Algebra III",
+        "credits": 3,
+        "prerequisites": "MATH 252.",
+        "corequisites": "",
+        "description": "Matrices, linear transformations, determinants, metric concepts, inner‑product spaces, dual spaces, spectral theorem, bilinear and quadratic forms, canonical forms for linear transformation, matrix functions, selected topics.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "MATH 364 Analysis I",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course provides an introduction to mathematical analysis in one variable. Topics may include mathematical rigour: proofs and counter-examples, quantifiers; number systems, cardinality; decimal representation, density of the rationals, least upper bound, completeness; sequences of real numbers, limits; continuous functions, differentiability, intermediate value theorems, mean value theorem and Taylor’s formula.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "MATH 365 Analysis II",
+        "credits": 3,
+        "prerequisites": "MATH 364 or equivalent.",
+        "corequisites": "",
+        "description": "This course continues the study of mathematical analysis with more advanced topics and greater precision. The Riemann integral is defined rigorously. Examples and counter-examples are given. Families of Riemann integrable functions are studied as are improper integrals. Series of real numbers are studied, under the umbrella of absolute and conditional convergence. Important and useful tests for convergence and divergence are studied, including results by Abel and Dirichlet. The regrouping and rearrangement of series are also covered. The work on series of reals is followed by the topic of sequences and series of functions. The fundamental idea of uniform convergence of sequences and series of functions is studied in detail. This leads to the three preservation theorems and their applications to the M-test and to Taylor series. Further special topics may be explored.",
+        "components": null,
+        "notes": null
+    },
+    {
+        "title": "MATH 366 Complex Analysis I",
+        "credits": 3,
+        "prerequisites": "MAST 219 or equivalent.",
+        "corequisites": "",
+        "description": "This course covers the algebra and geometry of complex numbers, linear transformations, analytic functions, Laurent’s series, calculus of residues, and special functions.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "MATH 369 Abstract Algebra I",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course is the first of four connected courses in abstract algebra (followed by MATH 470, MATH 471, and MATH 472). In this course, students learn about the fundamental notion of groups and several of their properties such as subgroups, quotients, homomorphisms and group actions. Students also learn about Lagrange's theorem, Cayley's theorem, Sylow’s theorem, and their applications. Further special topics may be explored.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "MATH 370 Ordinary Differential Equations",
+        "credits": 3,
+        "prerequisites": "MAST 219; MATH 251 or MAST 234; or equivalent.",
+        "corequisites": "",
+        "description": "In this course, students are taught to recognize, interpret, and solve various differential equations and boundary value problems. Topics may include separable equations, exact equations, integrating factors, first order linear equations, second order equations, series solutions, reduction of order, variation of parameters, the Laplace transform, and higher-order linear equations with constant coefficients. Systems of linear differential equations may also be covered. Applications of these methods to population models, mechanical systems, and many other realistic situations are emphasized throughout.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MAST 330 may not take this course for credit."
+    },
+    {
+        "title": "MATH 387 Mathematics Lab III",
+        "credits": 2,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This lab will demonstrate the use of MAPLE software for Calculus, Linear Algebra, and Statistics.",
+        "components": "Laboratory",
+        "notes": "Students who have received credit for MATH 232 may not take this course for credit."
+    },
+    {
+        "title": "MATH 392 Elementary Number Theory and Cryptography",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course introduces students to the basic arithmetic concepts and classical results in number theory. Students learn about divisibility, greatest common divisor, and unique factorization; congruences, Euler's and Fermat's theorems; applications to primality testing and public key cryptography; primitive roots, quadratic residues and quadratic reciprocity; Diophantine equations. Further special topics may be explored.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "MATH 397 History of Mathematics",
+        "credits": 3,
+        "prerequisites": "MATH 252; MATH 365. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "Early mathematics, Greek mathematics, European mathematics in the Middle Ages, the origin and development of analytic geometry and calculus, mathematics as free creation, the generality of mathematics in the 20th century.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "MATH 433 Calculus of Variations",
+        "credits": 3,
+        "prerequisites": "MAST 219; MATH 365, MATH 370; or equivalent.",
+        "corequisites": "",
+        "description": "This course covers the nature of problems, weak variations, the first variation, Euler’s equation, the second variation, Jacobi’s equation, Legendre’s test, conjugate points, relative maxima and minima, and iso‑perimetrical problems. Integrals with variable end points, and applications to problems in pure and applied mathematics, the principle of least action, strong variations, and the Weierstrass E‑function are also discussed.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "MATH 464 Real Analysis",
+        "credits": 3,
+        "prerequisites": "MAST 219; MATH 365; or equivalent.",
+        "corequisites": "",
+        "description": "This course covers metric spaces; function spaces; compactness; completeness; and the following theorems: fixed‑point, Ascoli‑Arzela, and Weierstrass approximation.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "MATH 466 Complex Analysis II",
+        "credits": 3,
+        "prerequisites": "MAST 219; MATH 365, MATH 366; or equivalent.",
+        "corequisites": "",
+        "description": "This course focuses on Cauchy’s theorem, singularities, maximum modulus principle, uniqueness theorem, normal families, and Riemann mapping theorem.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "MATH 467 Measure Theory",
+        "credits": 3,
+        "prerequisites": "MAST 219 or equivalent; MATH 365",
+        "corequisites": "MATH 464 or equivalent",
+        "description": "In this course, students learn about the Lebesgue measure and integration on the real line, convergence theorems, Lp spaces, completeness of Lp[0,1], absolute continuity.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "MATH 470 Abstract Algebra II",
+        "credits": 3,
+        "prerequisites": "MATH 369 or equivalent.",
+        "corequisites": "",
+        "description": "This is an advanced course in algebra, introducing the notion of rings and studying the properties of several classes of rings. Topics may include an introduction to rings, ideals, euclidean domains, principal ideal domains and unique factorization domains; polynomial rings; introduction to modules.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "MATH 471 Abstract Algebra III",
+        "credits": 3,
+        "prerequisites": "MATH 470 or equivalent.",
+        "corequisites": "",
+        "description": "This course continues the study of rings and modules from MATH 470. Topics may include the structure theorem of modules over principal ideal domains; Noetherian rings and modules (including Hilbert basis theorem for rings and modules), and Hilbert’s Nullstellensatz.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MATH 491 may not take this course for credit."
+    },
+    {
+        "title": "MATH 472 Abstract Algebra IV",
+        "credits": 3,
+        "prerequisites": "MATH 470 or equivalent.",
+        "corequisites": "",
+        "description": "This course studies fields and their extensions. Topics may include elements of field and Galois theory, including straight-edge-and-compass construction and unsolvability of equations of fifth degree by radicals.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MATH 492 may not take this course for credit."
+    },
+    {
+        "title": "MATH 473 Partial Differential Equations",
+        "credits": 3,
+        "prerequisites": "MATH 370 or equivalent.",
+        "corequisites": "",
+        "description": "This course is an introduction to partial differential equations and focuses on recognizing, interpreting, and solving such equations. Particular attention is paid to the Laplace, Poisson, heat, and wave equations with various boundary conditions. Solution methods include separation of variables, Fourier expansions, variational methods, and energy methods. Theory developed in this course includes Green’s formula, the maximum principle, and properties of harmonic functions, such as the mean value theorem. Further special topics may be explored.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MATH 371 may not take this course for credit."
+    },
+    {
+        "title": "MATH 474 Linear and Non-Linear Dynamical Systems",
+        "credits": 3,
+        "prerequisites": "MAST 219; MATH 365; or equivalent. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course is an introduction to dynamical systems. Topics may include systems of linear differential equations; fundamental matrices; non-homogeneous linear systems; non-linear systems; solutions and trajectories; the phase plane; stability concepts; Liapounov’s second method; and periodic solutions and limit cycles.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MATH 373 may not take this course for credit."
+    },
+    {
+        "title": "MATH 475 Discrete Dynamical Systems, Chaos and Fractals",
+        "credits": 3,
+        "prerequisites": "MAST 219; MATH 365; or equivalent. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course provides a comprehensive investigation of complex dynamics and chaos in the context of discrete dynamical systems. Topics may include modelling with discrete equations, bifurcations, the period three theorem, symbolic dynamics, transitivity, conjugacies, Julia and Fatou sets, and fractals. Complex behaviour in discrete models is analyzed through computer simulations and in the context of iterated function systems.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MATH 379 may not take this course for credit."
+    },
+    {
+        "title": "MATH 478 Non-Linear Programming",
+        "credits": 3,
+        "prerequisites": "MATH 251 or MAST 234; MAST 218 or equivalent; MATH 364. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course provides an overview of nonlinear optimization and related topics. Students review unconstrained nonlinear optimization using methods from advanced calculus. The rudiments of convex analysis are covered and applied to deriving optimality conditions in constrained convex optimization via the classical Lagrangian approach. Nonlinear duality is covered as well. Further special topics (such as an introduction to nonsmooth analysis) may be explored.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MATH 436 may not take this course for credit."
+    },
+    {
+        "title": "MATH 479 Convex and Non-Linear Analysis",
+        "credits": 3,
+        "prerequisites": "MATH 365. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This is an introduction to convex analysis. Topics may include support and separation of convex sets, extreme point characterizations, convex and dual cones, Farkas’ theorem; convex functions, criteria for convexity, subgradient, Legendre-Fenchel conjugate, Young's inequality; Lagrangians, necessary and sufficient conditions for optimality in constrained minimization; the dual problem; functional inequalities and other applications.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "MATH 480 Geometry and Topology",
+        "credits": 3,
+        "prerequisites": "MATH 252, MATH 365, MATH 369.",
+        "corequisites": "",
+        "description": "In this course, students learn about differential geometry and the geometric topology of surfaces. The topics covered are selected from orientation, geodesics, curvature, Theorema Egregium, Gauss‑Bonnet theorem, Euler characteristic, classification of surfaces, cohomology, homotopy groups, applications of ideas and techniques from geometry and topology in knot or graph theory and map colourings.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MATH 380 may not take this course for credit."
+    },
+    {
+        "title": "MATH 494 Topics in Pure and Applied Mathematics",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+        "components": "Lecture",
+        "notes": "The content varies from term to term and from year to year. Students may re-register for this course, provided the course content has changed. Changes in content are indicated by the title of the course."
+    },
+    {
+        "title": "MATH 495 Reading Course in Pure and Applied Mathematics",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+        "components": "Reading",
+        "notes": "The content varies from term to term and from year to year. Students may re-register for this course, provided the course content has changed. Changes in content are indicated by the title of the course."
+    },
+    {
+        "title": "MATH 496 Honours Project in Pure and Applied Mathematics",
+        "credits": 6,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+        "components": "Research",
+        "notes": null
+    },
+    {
+        "title": "MAST 214 Calculus and Linear Algebra",
+        "credits": 6,
+        "prerequisites": "Cegep Mathematics 105 or 201-NYC, 203 or 201- NYB.",
+        "corequisites": "",
+        "description": "This course spans the range of single and multi-variable calculus as well as elementary linear algebra and is aimed at preparing for the more advanced topics of the curriculum as well as strengthening the necessary skillset of students. Topics from calculus include functions; maxima and minima; velocity and acceleration; iterative solution of equations and parametric equation of curves; integrals; change of variables; integration by parts; double integrals; numerical integration; conic sections. Topics from linear algebra include matrices; determinants; eigen‑values; eigenvectors; system of equations; series and their convergence. The course also includes an introduction to vector space and complex numbers.",
+        "components": "Lecture",
+        "notes": "This course can be counted as an elective towards a 90-credit degree program, but must be taken before any other post-Cegep Mathematics course except for MATH 222, which may be taken concurrently. It must be taken, upon entry, by newly admitted students in the MATH/STAT Major who have less than 70% average in Cegep Mathematics courses."
+    },
+    {
+        "title": "MAST 218 Multivariable Calculus I",
+        "credits": 3,
+        "prerequisites": "MATH 204 and MATH 205, or equivalent.",
+        "corequisites": "",
+        "description": "This is an introductory course in the theory of functions of several variables addressing differential and vector calculus. In this course, students focus on vector geometry; lines and planes; curves in Rn; vector functions; vector differential calculus; functions of several variables, chain rule and implicit differentiation, extrema, classification of extremal values and Lagrange multipliers.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MATH 264 may not take this course for credit."
+    },
+    {
+        "title": "MAST 219 Multivariable Calculus II",
+        "credits": 3,
+        "prerequisites": "MAST 218 or equivalent.",
+        "corequisites": "",
+        "description": "This course is a continuation of the theory of functions of several variables from MAST 218. In this course, students learn about the theory of integration of such functions and the applications of multiple integrals to physics. Topics include vector integral calculus; line and surface integrals; fundamental theorem of line integrals; Green’s, Stokes’ and Gauss’ theorems and Gauss' law; change of integration variables in multiple integrals and Jacobians; applications to multivariate random variables.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MATH 265 may not take this course for credit."
+    },
+    {
+        "title": "MAST 221 Applied Probability",
+        "credits": 3,
+        "prerequisites": "MATH 204 and MATH 205, or equivalent",
+        "corequisites": "MAST 218 or equivalent",
+        "description": "Counting rules, discrete probability distributions; random sampling; conditional probability; means and variances, normal and other continuous sampling distributions. Applications. Use of statistical software, e.g. MINITAB.",
+        "components": "Lecture",
+        "notes": "Students enrolled in a Mathematics and Statistics program who take probability/statistics courses in other departments may not receive credit for this course. Please consult the Mathematics and Statistics undergraduate program advisor.Students who have received credit for STAT 249, COMP 233 or ECON 221 may not take this course for credit."
+    },
+    {
+        "title": "MAST 223 Introduction to Stochastic Methods of Operations Research",
+        "credits": 3,
+        "prerequisites": "MAST 221 or equivalent.",
+        "corequisites": "",
+        "description": "This course is an introduction to stochastic methods of operations research. Topics may include Markov chains; queuing theory; inventory theory; Markov decision processes; applications to reliability.",
+        "components": "Lecture",
+        "notes": "Students enrolled in a Mathematics and Statistics program who take probability/statistics courses in other departments may not receive credit for this course. Please consult the Mathematics and Statistics undergraduate program advisor.Students who have received credit for STAT 349 may not take this course for credit."
+    },
+    {
+        "title": "MAST 232 Mathematics with Computer Algebra",
+        "credits": 3,
+        "prerequisites": "MATH 204, MATH 205; or equivalent.",
+        "corequisites": "",
+        "description": "An introduction to the use of a high‑level mathematical programming language as a practical aid in doing mathematics. Most classes are given in an interactive way in the computer laboratory. The aim is to arrive at a sufficient working familiarity with the computer algebra language to permit its regular use in subsequent studies and applications. The commands and online resources are introduced through a review of arithmetic, complex numbers, algebra, Euclidean geometry, trigonometry, coordinate systems and graphing, elementary functions and transformations, series, derivatives, integrals, vectors and matrices. There may be additional topics from domains such as number theory, differential equations, integral transforms, probability and statistics.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MAST 332 or COMP 367 or COMP 467 may not take this course for credit."
+    },
+    {
+        "title": "MAST 234 Linear Algebra and Applications I",
+        "credits": 3,
+        "prerequisites": "MATH 204 or equivalent.",
+        "corequisites": "",
+        "description": "In this course, students focus on two major concepts: vector spaces and linear transformations. Topics include system of linear equations, matrix operations, row echelon form; linear dependence; Rn and general vector spaces, subspaces; bases and coordinates; linear operators and their matrix representations; similar matrices; applications of determinants; eigenvalues and eigenvectors; diagonalization of matrices; and the applications of diagonalization (e.g. Markov chains). Computing environments/software may be used in the course as tools and/or assignment platforms, but not as objects of study.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MATH 251 or ECON 325 may not take this course for credit."
+    },
+    {
+        "title": "MAST 235 Linear Algebra and Applications II",
+        "credits": 3,
+        "prerequisites": "MAST 234 or equivalent.",
+        "corequisites": "",
+        "description": "In this course, the theory studied in MAST 234 is applied and further developed. Topics may include inner product spaces; orthogonal projection and Gram-Schmidt algorithm; orthogonal and unitary matrices; self-adjoint operators and Hermitian matrices; spectral theorem. Applications to economic models, networks, dynamical systems, normal equations and least square solutions to inconsistent systems, principal axes theorem and quadratic forms are examined. Further special topics (e.g. Cayley-Hamilton Theorem, singular values and SVD factorization) may be explored. Computing environments/software may be used in the course as tools and/or assignment platforms, but not as objects of study.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MATH 252 may not take this course for credit."
+    },
+    {
+        "title": "MAST 324 Introduction to Optimization",
+        "credits": 3,
+        "prerequisites": "MATH 203, MATH 204; or equivalent.",
+        "corequisites": "",
+        "description": "This course is an introduction to optimization. Topics may include linear models, linear programming (simplex algorithm, sensitivity analysis, duality and dual simplex algorithm), and the transportation problem (transportation simplex algorithm and sensitivity analysis). An introduction to unconstrained nonlinear optimization and the rudiments of constrained nonlinear optimization via basic facts about convex sets and functions may also be explored.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MAST 224 or MATH 361 may not take this course for credit."
+    },
+    {
+        "title": "MAST 331 Mathematical Modelling",
+        "credits": 3,
+        "prerequisites": "MAST 221, MAST 234; or equivalent",
+        "corequisites": "MAST 324",
+        "description": "This course provides opportunities for students to construct and analyze mathematical models that arise in the physical, biological, and social sciences. The course is driven by the derivation of models that describe a wide variety of phenomena. In-depth mathematical methods are presented that can be used to solve/analyze the derived models. This course covers multiple modelling techniques and may include optimization, ordinary differential equations, dynamical systems, and stochastic models, among others. These methods build upon each other as the course progresses. Specific topics may include linear programming, linear and nonlinear ordinary differential equations in one and two dimensions, construction of models from data, and Markov chains. The course uses mathematical techniques from calculus, probability, and linear algebra.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "MAST 332 Techniques in Symbolic Computation",
+        "credits": 3,
+        "prerequisites": "MATH 222 or COMP 232 or equivalent; COMP 248 or equivalent.",
+        "corequisites": "",
+        "description": "This course is an application-oriented introduction to algebraic methods involved in symbolic computation, as applied to number theory and modular algebra. Topics may include numbers, primes, modular arithmetic, Diophantine equations; congruence classes and applications, finite fields and rings; Fermat’s and Euler’s theorems; Chinese Remainder Theorem and applications; polynomial congruences and rings. Applications to error-correcting codes (Humming codes), Hill Cryptosystem, public key encryption schemes, polynomial factorization and polynomial interpolation are also covered. Computing environments/software may be used in the course as tools and/or assignment platforms, but not as objects of study.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for COMP 367 or COMP 467 may not take this course for credit."
+    },
+    {
+        "title": "MAST 333 Applied Statistics",
+        "credits": 3,
+        "prerequisites": "MAST 221 or equivalent.",
+        "corequisites": "",
+        "description": "Graphical and numerical descriptive methods; Estimation and hypothesis testing; linear regression and correlation; one way ANOVA; contingency and goodness of fit tests. Use of statistical software, e.g. MINITAB.",
+        "components": "Lecture",
+        "notes": "Students enrolled in a Mathematics and Statistics program who take probability/statistics courses in other departments may not receive credit for this course. Please consult the Mathematics and Statistics undergraduate program advisor.Students who have received credit for STAT 360, BIOL 322, COMM 215 or GEOG 362 may not take this course for credit."
+    },
+    {
+        "title": "MAST 334 Numerical Analysis",
+        "credits": 3,
+        "prerequisites": "MAST 218 or equivalent; MAST 234 or MATH 251 or equivalent.",
+        "corequisites": "",
+        "description": "In this course, students learn about numerical analysis, an algorithmic approach to finding approximate solutions when exact solutions are impossible or unreasonably complicated. Lying at the intersection of mathematics and computer science, numerical analysis is a key component of computational mathematics. Topics may include analysis of errors involved in computations; floating-point arithmetic; root-finding methods; interpolation theory and function approximation; orthogonal polynomials; numerical integration and quadrature formulas; error analysis of numerical algorithms.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for MATH 354 or COMP 361 may not take this course for credit."
+    },
+    {
+        "title": "MAST 335 Investment Mathematics",
+        "credits": 3,
+        "prerequisites": "MAST 218 or equivalent.",
+        "corequisites": "",
+        "description": "This course introduces the notion of interest and the basic principles of financial mathematics. Topics may include simple and compound interest; annuities; amortization and sinking funds; mortgage schemes; bonds and related securities; capital cost and depletion; spread‑sheet implementation.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for ACTU 256 may not take this course for credit."
+    },
+    {
+        "title": "MAST 336 Insurance Mathematics",
+        "credits": 3,
+        "prerequisites": "MAST 221 or equivalent; MAST 335 or equivalent.",
+        "corequisites": "",
+        "description": "This class provides an overview of techniques used by life insurers, pension plans and Property and Casualty insurers to quantify and measure their liabilities. The course is subdivided into two main parts. The first aims at studying life-contingent liabilities such as life insurance and annuities. The second part provides an overview of methods utilized by Property and Casualty insurers to represent their liabilities.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "MAST 387 Data Science Lab",
+        "credits": 3,
+        "prerequisites": "STAT 280; and MAST 333 or STAT 360.",
+        "corequisites": "",
+        "description": "This lab course offers hands-on exposure to a broad array of problems and tasks frequently encountered in the data science practice. Examples of topics that are covered may include dataset and table construction, data curation and preparation, data exploration, non-traditional data types and large data sets (big data). Extensive programming duties and data analysis projects are assigned to students.",
+        "components": "Laboratory",
+        "notes": null
+    },
+    {
+        "title": "MAST 397 Topics in Mathematics and Statistics",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Specific topics for this courses, and relevant prerequisites, are stated in the Undergraduate Class Schedule.",
+        "components": "Lecture",
+        "notes": "The content varies from term to term and from year to year. Students may re-register for this course, provided the course content has changed. Changes in content are indicated by the title of the course."
+    },
+    {
+        "title": "MAST 398 Reading Course in Mathematics and Statistics",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Specific topics for this courses, and relevant prerequisites, are stated in the Undergraduate Class Schedule.",
+        "components": "Reading",
+        "notes": "The content varies from term to term and from year to year. Students may re-register for this course, provided the course content has changed. Changes in content are indicated by the title of the course."
+    }
+]

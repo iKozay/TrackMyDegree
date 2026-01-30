@@ -1,0 +1,1217 @@
+[
+    {
+        "title": "HIST 200 Introduction to History",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course examines the methods and philosophy of history in specialized study of a selected subject. It offers an introduction to historical argumentation, research skills, and the interpretation of primary and secondary sources. The course will build skills in persuasive writing, library research, critical reading of documents, and the analysis of historical problems.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 202 Modern Europe",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "A survey of the history of Europe from the French Revolution to the present, with emphasis on the development of ideas and political institutions.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 202 may not take this course for credit."
+    },
+    {
+        "title": "HIST 203 History of Canada, Pre-Confederation",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "A survey of Canadian history, from settlement to Confederation, emphasizing readings and discussions on selected problems.",
+        "components": "Lecture; Conference",
+        "notes": "Students who have received credit for HISW 203 may not take this course for credit."
+    },
+    {
+        "title": "HIST 205 History of Canada, Post-Confederation",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "A survey of Canadian history from Confederation to the present, emphasizing readings and discussions on selected problems.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 205 or SCPA 205 may not take this course for credit."
+    },
+    {
+        "title": "HIST 206 Medieval Europe",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "A survey of the history of Europe during the Middle Ages, from the fifth century to the 15th century, with consideration of political, social, economic, intellectual, and religious developments.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HIST 201 or HISW 206 may not take this course for credit."
+    },
+    {
+        "title": "HIST 207 Early Modern Europe",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course offers an introduction to European history from the 15th through the 18th centuries. It encompasses the Renaissance, the Reformation, the Scientific Revolution, and the Enlightenment. Other topics include European contact with the New World, the formation of commercial and colonial empires, the related transformation of economic and social relations in Europe, and arguably the first modern political revolutions.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HIST 201 or HISW 207 may not take this course for credit."
+    },
+    {
+        "title": "HIST 208 Introduction to the History of the Balkans",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course surveys the history of Europe through the Balkans (a region consisting of present‑day Bulgaria, Romania, Macedonia, Albania, Greece, Montenegro, Kosovo/Kosova, Serbia, Bosnia‑Herzegovina, and Croatia), from the pre‑modern period to the present day. Emphasis is placed on the cultural diversity of the region and its impact on peace and conflict. Topics include the rise and fall of empires, economic change, religious transformation, violence, and the impact of ideologies such as nationalism, democracy, fascism, and communism.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 208 may not take this course for credit."
+    },
+    {
+        "title": "HIST 209 Quebec to 1867",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "An introductory survey of the history of Quebec from its origins as a colony to the creation of modern Canada by the British North American Act of 1867. Particular emphasis is placed on a consideration of those elements of Quebec’s past which best assist in the comprehension of the trends prevalent in modern Quebec.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 209 may not take this course for credit."
+    },
+    {
+        "title": "HIST 210 Quebec since Confederation",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "A survey of the history of Quebec from the time of Confederation until the present. While due emphasis is placed on political developments in the province, the purpose of the course is to acquaint the student with the significant economic and social trends in modern Quebec.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 210 or SCPA 210 may not take this course for credit."
+    },
+    {
+        "title": "HIST 211 History of Ireland",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "After establishing some broader historical context, this survey course traces modern Irish history in the 18th, 19th and 20th centuries. Special attention is given to the development of Irish nationalism and relations with Great Britain.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for IRST 211 or for this topic under an IRST 298 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 212 The Irish in Canada",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "From 17th‑century fishermen and traders arriving in Newfoundland to displaced victims of the Famine in the 19th century, to contemporary immigrants from Ireland, the Irish have had a presence in all parts of Canada from the earliest days of settlement. This course examines the emigration and settlement patterns of Irish immigrants in the various regions of Canada across a period of three centuries, paying particular attention to their role in the social, economic, political, cultural, and educational development of Canadian society. The course explores the various strategies by which Irish immigrants both adapted to and transformed the particular host society in which they found themselves, and looks at other immigrant communities as a means of understanding the special contribution of the Irish to Canada.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for IRST 210 or for this topic under a HIST 398 or IRST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 213 The Irish in Montreal",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Drawing on a diversity of historiographical materials, this interdisciplinary course examines the story of the Irish in Canada with a particular emphasis on Quebec, from the French colonial period through the City of Montreal’s golden era of mercantile prominence in the mid‑19th century to the break‑up of its older Irish neighbourhoods a century later. Starting with the demographics of Irish immigration and settlement, it devotes special attention to social and cultural relations between the Irish and other ethnic groups.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for IRST 205 or for this topic under a HIST 398 or IRST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 219 Ancient Near East",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "A political, social, economic, and intellectual history of the ancient Near East, this course surveys the period from the origins of civilization in the middle of the fourth millennium to Alexander the Great’s conquest of the Persian Empire in the latter part of the fourth century BC.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for CLAS 230 may not take this course for credit."
+    },
+    {
+        "title": "HIST 223 Greek History from the Bronze Age to Alexander",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course offers a political, social, economic, and cultural history of Greece from the Minoan‑Mycenaean period in the second millennium to the end of Classical Greek civilization in the fourth century BC, with special emphasis placed upon Athens.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for CLAS 240 may not take this course for credit."
+    },
+    {
+        "title": "HIST 225 History of the Roman Republic",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course offers a political, social, economic and cultural history of Rome from the city’s origins to the establishment of the Roman Empire under the Emperor Augustus.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for CLAS 242 may not take this course for credit."
+    },
+    {
+        "title": "HIST 235 The Holocaust",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Beginning with a discussion of Jewish communities in Europe and America before 1933, this course traces the evolution of anti‑Semitism, nationalism, and racism, the rise of Hitler and the Nazi movement, the shaping of Nazi ideology, the growing demonization of the victims of the Holocaust and the genocide against them in their various countries, resistance by the victims, and the parts played by bystanders in the outcome of the Holocaust.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 235, RELI 235 or 338 may not take this course for credit."
+    },
+    {
+        "title": "HIST 242 History of the Middle East",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course surveys the history of the Middle East from the rise of Islam to the present. It traces broadly the formation of an Islamic World over a millennium and follows its engagements with modernity, examining closely the shift from the overarching paradigm of the multi‑ethnic/multilinguistic Ottoman Empire to that of the mono‑ethnic/monolinguistic modern nation state. This course covers the political history of the region including the experience of British and French colonialism, the rise of nationalist movements, and the Arab‑Israeli conflict, and focuses on its social, intellectual, and cultural history.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HIST 240, 241 or HISW 242 may not take this course for credit."
+    },
+    {
+        "title": "HIST 251 History of the United States to the Civil War Era",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course surveys American history from settlement to the Civil War Era. It deals with the political and economic framework of American history, and with social and cultural trends.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 251 may not take this course for credit."
+    },
+    {
+        "title": "HIST 253 History of the United States since the Civil War Era",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course surveys American history from the Civil War Era to the present. It deals with the political and economic framework of American history, and with social and cultural trends.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 253 may not take this course for credit."
+    },
+    {
+        "title": "HIST 261 History of South Asia",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course is an introduction to the intellectual traditions, social structures, and political institutions of South Asia, with particular attention to developments during the past two centuries.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 261 may not take this course for credit."
+    },
+    {
+        "title": "HIST 262 History of China",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "A survey of China’s history from earliest times to the modern era.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 262 may not take this course for credit."
+    },
+    {
+        "title": "HIST 263 History of Japan",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course surveys Japan’s history from earliest times to the modern era. In addition to tracing political developments, it explores other themes such as the changing role of the samurai in history and the evolution of Japanese art, literature, and popular culture.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 263 may not take this course for credit."
+    },
+    {
+        "title": "HIST 264 History of Africa",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course is an introductory survey of the history of Africa. It examines the major phenomena of African historical experience, including the development of precolonial kingdoms and trans‑Saharan trade, the slave trade, colonial conquests, the rise of nationalism, the challenges of independence, and recent crises such as the Rwandan genocide and HIV‑AIDS. Emphasis is placed on popular cultural expression through which people on the continent have experienced, understood, remembered, and negotiated broad historical shifts.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 264 may not take this course for credit."
+    },
+    {
+        "title": "HIST 274 The Atlantic World",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course examines how an “Atlantic world” emerged between the 15th and 19th centuries. As societies in Africa, the Americas, and Europe came into increasingly regular contact, the ocean became a nexus rather than a gulf between them. By studying historical documents from the period and scholarly debates about how to interpret them, we explore why and how these long‑ distance connections provoked a range of unprecedented transformations for people on four continents.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 298 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 276 History of Latin America: The Colonial Period",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course surveys Latin America up to the wars of independence from Spain. The main themes examined are pre‑ and post‑Columbian indigenous cultures; the Spanish conquest; patterns of colonial trade and economy; the role of the church; and the Bourbon reforms.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 276 may not take this course for credit."
+    },
+    {
+        "title": "HIST 277 History of Latin America: The Modern Period",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course surveys Latin American society in the 19th and 20th centuries. The principal topics covered are the social and economic roots of political instability; Mexico under Porfirio Díaz; the Mexican Revolution; Argentina and Brazil under Perón and Vargas; U.S.‑Latin American relations; Castro’s Cuba; revolution and counter‑revolution in contemporary Latin America.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 277 may not take this course for credit."
+    },
+    {
+        "title": "HIST 281 Film in History",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course examines how selected commercial films interpret historical events or provide insight into the politics, society, and culture of the times in which they were produced. The course is designed to help develop critical skills for the understanding of film in an historical framework.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 281 or this topic under a HIST 298 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 283 The 20th Century: A Global History",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This course introduces students to the history of some of the forces and institutions that have shaped the history of the world in the 20th century, which has been characterized by widespread warfare, genocides, and massive violations against human rights and the natural environment. It has also been a time of unprecedented prosperity of some groups and parts of the globe, as well as an era of tremendous scientific advances.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HISW 283, LOYC 210, or for this topic under a HIST 298 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 285 Introduction to Law and Society",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "This interdisciplinary course examines the roles law plays in Canada and internationally, from the perspectives of history, political science, anthropology, sociology, and philosophy.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for ANTH 285, POLI 285, or SOCI 285, or for this topic under an ANTH 298, HIST 298, POLI 298, or SOCI 298 number, may not take this course for credit."
+    },
+    {
+        "title": "HIST 298 Selected Topics in History",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+        "components": null,
+        "notes": null
+    },
+    {
+        "title": "HIST 302 The Invasion of America: European Colonization and Indigenous Resistance before 1800",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines the interaction of European colonists with the first peoples of eastern North America before 1800. The emphasis is on cultural exchanges between colonists and Indigenous peoples in the areas of religion, trade, diplomacy, and warfare.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 303 Native North American History Since 1800",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines the history of Native North Americans, focusing on the period since 1800. Topics include the emergence of the reserve system and the policy of forced assimilation devised by the governments of Canada and the United States, and the political resurgence and cultural renaissance of Native communities since the mid‑20th century.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 304 Tutorial Preparation for the Honours Essay",
+        "credits": 3,
+        "prerequisites": "Approved honours standing in History is required. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course provides honours students in History with the opportunity for tutorial reading and research in preparation for the writing of the honours essay.",
+        "components": "Tutorial",
+        "notes": null
+    },
+    {
+        "title": "HIST 305 Race and Gender in Canadian History",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines the lives and experiences of Canadian women and men marginalized because of their race, gender and/or sexuality. By looking at people on the margins, this course explores the intersections of gender, race, and space, and speaks to two key issues of today: equality and justice.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 306 History and the Public",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course is an examination of the practice of history outside the academy and an introduction to the critical analysis of presentations of history in public and popular culture. Topics include archives, corporate and popular history, museums and historic sites, preservation, film and television, theme parks, and anniversary commemorations. A special emphasis is placed on public controversies and ethical dilemmas involving historical interpretations.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 307 History of Montreal",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "A study of the origins of the city, its role in the Empire of the St. Lawrence, and its rise to metropolitan dominance in Canada. Special emphasis on economic development and on ethnic groupings.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 308 Cultures in Contact: A History of Migration",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course traces the fluid journeys of voluntary and/or forced migrants. Topics may include enslavement, refugee experiences, displacement of other peoples, foodways, labour, and histories of child migration.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 309 Law and Society in Canadian History",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines selected issues in Canadian history through the lens of important and controversial court decisions. The influence of legal decisions on society as well as public influence on the development of law is considered.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 313 Quebec in the 19th Century",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course explores the major social, economic, and political issues that arose during the 1800s in the transformation of Quebec from a pre‑industrial to an industrial society.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 314 Quebec in the 20th Century",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course explores the major social, economic, and political issues of 20th‑century Quebec in the light of the concentration of economic power into relatively few hands early in the century and the declining importance of industrial production since World War II.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 315 Rights and Freedoms in Canadian Society",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines historical and contemporary aspects of Canada’s culture of rights. Topics include the origins and workings of the Canadian Charter and critiques of rights culture.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 or POLI 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 318 Modernist New York",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course explores the history of “Modernist New York” from the vantage points of social and cultural history. Focusing on the decades between 1870 and 1930, it examines the interplay of culture and commerce, the histories of elites and recent immigrants, the role of race, and the dramatic changes in the cityscape.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 320 American Culture, 1900–1945",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines how American cultural expression was affected by the broader historical context of the period. Attention is given to changing aesthetic styles, the impact of technology on production and reception, and the role of culture as a representation of American identity.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 321 American Culture Since 1945",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines different forms of artistic expression in the U.S. since World War II. Attention is given to changing aesthetic styles and technological developments, as well as to the role of culture as an expression of American identity at home and abroad.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 323 Greek History from Alexander to the Roman Conquest",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "A political, social, economic, and cultural history of the Greek world from Alexander the Great to the Roman conquest of Greece in 146 BC.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for CLAS 341 may not take this course for credit."
+    },
+    {
+        "title": "HIST 324 United States, 1877-1924",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course looks at the transformation of the United States from a rural debtor nation into an urban, industrial, and financial world power. It explores how a variety of social groups experienced this change as well as its impact on the meaning of democracy, the role of government and the definition of citizenship. The course also examines U.S. foreign relations in this period.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 326 Reformations in Early Modern Europe",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course surveys the history of Europe from the early Reformation through the end of Europe’s religious wars in the mid‑17th century. Major themes include the politics of religion, the growth of commerce and social change, competition for empire, and transformation in scientific and political worldviews.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 327 History of the Roman Empire",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course offers a political, social, economic, and cultural history of the Roman Empire from Augustus to the end of the Roman Empire in the West.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for CLAS 343 may not take this course for credit."
+    },
+    {
+        "title": "HIST 328 The Scientific Revolution",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course explores the Scientific Revolution in the context of early modern European society and culture. Major themes include the debates over the methods, purposes, and scope of science; the relationship between science, the supernatural, and the occult; the relationship between science, technology, and craft; and scientific networks, institutions, and means of communication.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 329 Music in History",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines music as a medium for understanding the past. Depending on the historical focus, issues such as colonialism, nationalism, social movements, urban culture, youth culture, race, gender, and class through the prism of contemporaneous music genres may be considered. The course may also address the transformation of acoustic spaces and musical instruments, the rise of sound recording, radio broadcasting, online streaming, and the history of music copyright in relation to its composition, performance, recording, broadcasting, and streaming. Students have an option to create a podcast or curate a DJ set for a term project.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic as HIST 398R Post-1945 United States History Through Music or under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 330 The Great Irish Famine",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines the social, political, economic, and cultural dimensions of the Great Irish Famine. Beginning with a thorough examination of society and politics in the pre‑Famine period, the course explores the causes and course of the 1845‑50 Famine, with emphasis on social conditions, mass mortality, emigration, and British government responses to conditions in Ireland. The outcomes and long‑term consequences of the Famine for Irish society, politics, Anglo‑Irish relations, and the Irish Diaspora are also explored. Some attention is also given to historiographical debates and Famine memory.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for IRST 312 or for this topic under a HIST 398 or IRST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 332 United States, Cuban and Mexican Relations",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines the history of the United States’ relations with both Cuba and Mexico from the mid‑19th century to the present. As well as studying the ramifications of U.S. involvement in such events as the Spanish‑American War (1898), the Mexican Revolution (1910), and the Cuban Revolution (1959), it examines the demographic, political, and cultural impact that Cubans and Mexicans have had on the modern development of the U.S.A.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 333 History of Haiti: From Contact to Independence",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course is a study of Haitian history from early colonization through French control to independence in 1804. It covers pre‑Columbian Taino society and the Spanish conquest; the period of piracy and French buccaneering in the 16th and 17th centuries; the emergence of a colonial slave society in the 18th century; the Haitian revolution and the rise of Toussaint Louverture; questions of class and colour; the emergence of the state; contingencies of citizenship and independence. The legacies of the colonial and revolutionary periods are fundamental to an understanding of post‑independence and present‑day Haiti.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 334 History of Haiti: From Independence to Present",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course is a study of Haitian history from independence to the present. It covers the early post‑independence regimes; the demise of the plantation economy and the emergence of the Haitian peasantry; the indemnity to France; later 19th‑century neo‑colonialism and political instability; the U.S. Marine Occupation (1915 – 1934); culture, race and politics during and after the Occupation; the rise of the Duvalieriest state; and post‑Duvalierist political instability.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 336 Deviancy and Orthodoxy in the History of Mexico",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course traces Mexican history from the colonial period to the modern era through an analysis of the various groups that state and society have defined as deviant, including barbarians, heretics, vagrants, lunatics, prostitutes, bandits, and insurgents. This course examines what the shifting preoccupations with and the persecutions of these groups reveal about the creation of political and social orthodoxy in Mexico across time.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 338 History and the Graphic Novel",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course explores the ways comics and graphic novels express and interpret history. The course examines comics as a medium, the history of the comic strip, the serialized comic, manga, and the graphic novel, exploring the advantages and challenges of telling true stories with comics, while considering ways to express abstract ideas and change over time in pictorial form.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 339 Crime and Punishment in Canadian History",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines the history of crime and punishment in Canada. Topics include the definition and regulation of deviance; policing; trials and the criminal law; prisons and theories of punishment; the death penalty; crime and the media. Students engage with a variety of primary and secondary sources in readings and assignments.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 340 Early Modern Britain and Ireland",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course surveys early modern British history, focusing on the Tudor and Stuart periods. Major themes include religious and cultural change, economic and social transformation, the formation of a modern state amid recurring periods of political conflict, changing relations between the “Three Kingdoms” of England, Scotland, and Ireland, and the beginnings of commercial and colonial expansion.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for HIST 342 may not take this course for credit."
+    },
+    {
+        "title": "HIST 342 Crime and Punishment in Medieval Europe",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course considers how crime was conceptualized and handled in Europe between circa 300 and 1500. Topics may include the early medieval law codes; violence and feud; trial by ordeal; punishments and mitigations; and the establishment of royal judicial prosecution of crime as an early aspect of European state formation.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 3430 History of the Ottoman Empire",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course surveys the history of the Ottoman Empire (broadly covering parts of the Balkans, Anatolia, the Middle East, and parts of northern Africa) from the 1300s to its demise in the 1920s. While following both internal and external developments, this course also pays close attention to the historiographical debates that have shaped the field.",
+        "components": "Lecture",
+        "notes": "Students who received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 344 Rise and Fall of Yugoslavia",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "Through the study of the rise and fall of Yugoslavia during the 20th century, this course examines themes of modern European history, including empire, nationalism, democracy, fascism, war, genocide, and ethnic cleansing.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 345 Postwar Japanese History",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines Japan since the end of World War II. While tracing Japan’s rise to the status of an economic power, this course focuses primarily on social and cultural history.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 346 Sexuality in History",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course looks at the topic of human sexuality taking a broad view, both in time (from the Ancient world to the 20th century) and space (featuring Asia and Africa as well as the Western world). Rather than surveying the impossibly large canvas of sex throughout world history, this course looks at a number of particular topics (e.g. marital sexuality, same‑sex relationships, sexual violence) in different cultures.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 347 Gender and Sexuality in South Asia",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course surveys the history of gender and sexuality in South Asia (India, Pakistan, and Bangladesh) from 1500 to the present, beginning in the Mughal period and concluding with an investigation of the post‑colonial experience. Topics may include masculinity at the Mughal court, the European woman’s imperial “burden,” the regulation of sexuality in the Indian anti‑colonial movement, the queer experience, identity formation in diaspora, and gender and religious fundamentalism.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 348 History of Violence: Middle East 1798 – Present",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines the multiple facets of violence in Middle Eastern historical contexts. The objective is to develop a critical approach for thinking about the nature of violence by using a historical perspective to complicate commonplace oppositions between its legitimate and illegitimate forms or its intelligibility and unintelligibility. Students explore the differences among state‑sanctioned violence, resistance movements, and terrorism.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 350 Medieval England",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines the history of England between the Norman Conquest in 1066 and 1500. Topics include the political, social, and cultural impact of the Norman Conquest; Jews and the expulsion of 1290; knights and peasants; the Peasant’s Revolt of 1381; crime and the Robin Hood legends; heresy and popular religion; urban culture and guilds.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 351 England in the Reign of Henry VIII",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines English history in the first half of the 16th century. In addition to specifically examining the personality and politics of Henry VIII himself, lectures and assignments examine broader social, religious, economic, and legal developments in the kingdom during his reign.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number or as HIST 398L Tudor England may not take this course for credit."
+    },
+    {
+        "title": "HIST 353 Colonial America and the Atlantic World",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course explores the economic, political, and cultural history of the Atlantic world as a context for understanding developments in 17th‑ and 18th‑century North America, including Native‑European relations, migrations, religious controversies, slavery, revolts and independence movements.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 354 Revolutionary America",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines themes and issues in the revolutionary and early national periods of American history.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 355 United States in the 19th Century, 1815–1850",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "A study of American political, social, and economic life from the end of the War of 1812 to about 1850 — the intensification of sectionalism. Topics include geographic expansion and the beginnings of industrialization, the characteristics of southern slave society, and the rise of a system of political parties during the age of Jackson.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 356 United States in the 19th Century: The Era of the Civil War",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "A study of American political, social, and economic life before and after the Civil War, from about 1850 to 1890. Topics include sectionalism and the breakdown of parties during the 1850s, the tasks of Reconstruction after the war, the New South, and the problems of a maturing industrial society.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 357 Foreign Relations of the United States to 1945",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course provides an analysis of United States foreign policy from the American Revolution to the conclusion of the Second World War, emphasizing the domestic debate over foreign policy, national security, and economic development; commercial and territorial expansion; and the dynamics of Canadian‑American relations.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 358 Foreign Relations of the United States, 1945 to the Present",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This is an historical investigation of United States foreign policy from the end of the Second World War to the present, emphasizing the United States’ responses to the challenge of revolutions in Asia, Africa, Europe and Latin America, American conceptions of a new world order, the rise of the multinational corporation, globalization, terrorism, humanitarian intervention, and developments in Canadian‑American relations.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 359 The History and Sociology of Genocide to 1945",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "Through the comparative and historical examination of a number of cases, this course investigates the meaning of genocide and the processes that have led to genocide up to 1945.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for SOCI 366 may not take this course for credit."
+    },
+    {
+        "title": "HIST 360 The History and Sociology of Genocide from 1945 to the Present",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "Through the comparative and historical examination of a number of cases, this course investigates the meaning of genocide and the processes that led to genocide from 1945 to the present.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for SOCI 367 may not take this course for credit."
+    },
+    {
+        "title": "HIST 3620 African Slavery in Global Perspective",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course introduces students to the history of African slavery from a global perspective (broadly covering the Americas, Africa, the Middle East, and parts of the Indian Ocean littoral) from the 15th century to its legacies in the present. Throughout, the aim is to tell this history from the perspective of the enslaved and their descendants.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 363 Africa in the 20th Century",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines 20th‑century African history. Beginning with the colonial conquests, the course traces the processes of social, cultural, and economic change that have shaped Africans’ experience of colonial domination and postcolonial statehood. Emphasis is placed on the ways in which historical change has been interpreted in African cultural production.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 364 Modern South Asia",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "British conquest established nearly two centuries of colonial rule over the world’s oldest civilization. This course examines the nature of imperial control, the resistance of traditional leaders, European intellectual imperialism, Indian cultural and religious revivalism, and modern nationalism. Special attention is paid to M.K. Gandhi and Gandhism as well as to Muslim separatism and the Pakistan movement.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 365 Human Rights and Genocide Prevention in History",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "Human rights and humanitarian intervention to prevent genocide are contested concepts. This course examines the roots of Western notions of human rights, the evolution of the concept, and case studies clarifying the challenges confronting advocates and critics of humanitarian intervention. Historical examples address the uses of diplomacy, economic assistance, conflict management, and force in mass atrocity prevention and interdiction.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 366 Early Modern China",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines Chinese history during the Qing dynasty (1644‑1912), with emphasis on political, social, diplomatic, and intellectual issues.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 367 Modern China",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines China’s history since the fall of the Qing dynasty in 1912, with particular emphasis on the Nationalist and Communist revolutionary movements and on China’s transformation since the establishment of the People’s Republic of China in 1949.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 368 African Popular Culture",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course explores the varied terrain of African popular culture in the 19th and 20th centuries. The materials examined in this course range broadly, including not only scholarly work, but also fiction, film, music, and images that provide entry points into the ways African artists, youth, officials, freedom fighters, market women, bachelors, gangsters, and others have engaged culturally with the world around them.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 369 Middle East: Empire, Gender, and Sexuality in Modern Times",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines the historical formation and intersection of three distinct phenomena: empire, gender, and sexuality. From the everyday practices of family life to the form of politics and the balance of geo‑strategic relations, the 19th and 20th centuries witnessed a radical transformation of human organization within the Middle East and globally. Topics may include imperialism, state formation, nationalism, Orientalism, feminism, and Islam.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 370 Japanese Popular Culture",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course traces the history of Japanese popular culture from the 1600s to the present, with emphasis on the last 50 years. The major focus is on the evolution of Japanese popular media such as films, anime, and manga. Other themes such as youth culture, fashion, and the spread of Japanese popular culture outside of the country’s borders are explored. No background knowledge or Japanese language skills are required.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 371 History of the Russian Revolutionary Movement, 1825-1922",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course traces the evolution of the Russian revolutionary movement from the Decembrist Revolt (1825) to the Bolshevik consolidation of power (1922). Emphasis is placed on the development of Russian conceptions of socialism, Marxism, and anarchism; the roles undertaken by women in various revolutionary groups; and the Russian contribution to the development of modern terrorism.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 372 Latin American History Via the Novel",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines modern Latin American history and its representation by comparing “fictional” and “factual” depictions of key issues and significant events including economic imperialism, political revolution, and race relations. Texts such as Gabriel García Márquez’s literary masterpiece One Hundred Years of Solitude are used.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 373 The Pacific War",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course explores the history of the Pacific War, from its origins in the expansion of the Japanese empire to the atomic bombings, Japan’s surrender, and the shaping of postwar Asia. While covering battles, strategy and tactics, and the weapons of war, the course also looks at diverse themes such as home fronts, propaganda, and how the war has been remembered and represented since 1945.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 374 Egypt and the World Since 1798",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course explores the social, cultural, and political histories of Egypt between the Napoleonic conquest and the present. Special attention is paid to the formation of Egyptian national identity in a post-Ottoman international context.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 3750 Global History in the Indian Ocean World",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course introduces students to the connected histories of the transregional arena labelled the Indian Ocean World. It pays particular attention to how the global as a modern geopolitical and economic conception of the world grew from deep roots in Afro-Asian coastlines and the oceanic highway connecting them.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 376 The Caribbean and the Atlantic World",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course covers the period from post‑Columbian contact to the late‑19th century. Themes include the link between sugar and slavery; the slave trade and the emergence of plantation‑based colonialism; racialized social and economic structures; slave resistance; the politics of abolition; alternative labour forms; and the rise of political movements.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 377 History of Russia, 1694-1917",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course traces Russian history from the era of Peter the Great to the Bolshevik Revolution. Emphasis is placed on long‑term trends that continue to affect Russia today such as political liberty, economic development, warfare and foreign affairs, and gender relations.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 378 History of the Soviet Union",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines the main economic, social, and political developments of the history of the Soviet Union from its creation in 1917 to its collapse in 1991. Particular attention is paid to the Stalin era, the impact of World War II, and the Cold War.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 379 History through Visual Media and Performance",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "Public encounters with history are increasingly mediated by visual media, artistic production, activism, and museological experiences, among others. This course explores the relationship between the public and the past by examining issues in the production, distribution, and reception of history via such changing technologies and practices.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 380 History and Digital Media",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course offers an introduction to the changes that new media and technologies are bringing to historical research, writing, presentation, and teaching of the past. The course begins with an overview of the history of the Internet and digital media, and then examines historical work on a variety of subjects — by scholars, teachers, archivists, museum curators, and popular historians — published on the web. Historical and critical readings provide the basis for the hands‑on section of the course in which students develop pilot online history projects.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this course under a HIST 387 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 381 The Politics of the Past",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines the uses of history and the role of the historian in the political arena, focusing on cases in which the past has underwritten social movements or mediated public controversies. Topics may include controversies over political recognition, historical apologies, reparations, restorative justice, and the repatriation of cultural artifacts.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 382 Age of Enlightenment",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course surveys the intellectual and cultural history of Europe and the Atlantic World from the later 17th century through the 18th century.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 383 Age of Revolution",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course focuses on the French political and English industrial revolutions and their consequences throughout Europe. Colonialism, slavery, and the Atlantic revolutions in the Americas are considered to the extent that they contributed to, or were influenced by, the revolutions in Europe.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 385 Age of Dictators: Europe, 1914-1945",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "A study of the internal development and external relations of the nations of Europe from the Great War to the end of World War II. The course examines this chaotic age primarily through an investigation of the revolutionary and reactionary upheavals that kept Europe socially, politically, and economically unbalanced for 30 years.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 386 Contemporary Europe: 1945 to the Present",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "A study of the internal development and external relations of the nations of Europe from the collapse of Nazi Germany to the present. The course concentrates on the divisions between East and West, the economic recovery of Europe and the effects of the energy crisis on social, economic, and political life throughout Europe.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 387 Selected Topics in Public History",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "Specific topics for this course, and relevant prerequisites, are stated in the Undergraduate Class Schedule.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 388 Oral History and Creative Practice",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course is an introduction to oral history theory, ethics, and practice, and surveys the many oral history projects underway in Montreal and around the globe.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 389 Ethnography: Doing Micro-History of the Present",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course introduces basic tools of ethnographic research and documenting using both traditional and new media, with attention to ethical, political, interpersonal, and aesthetic issues.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 390 Urban History Laboratory",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "Students conduct original archival and/or oral history research on a selected aspect of Montreal’s history and then go public with their research in creative and engaging ways.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this course topic under a HIST 387 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 391 Independent Study Tutorial in History",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course permits individual study, with a selected faculty member, in a specialized area not available among regular 300‑level classes.",
+        "components": "Tutorial",
+        "notes": null
+    },
+    {
+        "title": "HIST 392 War, Peace, and Society in France since 1870",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines the tumultuous history of France since the German invasion of 1870 which occasioned the fall of the Second Empire, the short-lived revolutionary Paris Commune of 1871, and the establishment of the Third Republic. Of central concern to this course is the way in which France has dealt with the challenges of three German invasions, internal political and social crises, and the heritage of decolonization in the post-Second World War period.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 393 Coffee in History",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course explores the history of coffee as a global food commodity, focusing on its political, ecological and social dimensions. Topics may include the legacies of slavery and colonialism in coffee production and trade; the spread of the coffee bean across the globe and the globalization of coffee as an essential item in modern diet; the growth of ecological awareness among coffee producers and consumers; the cultural dimensions of consuming coffee as a stimulant and intoxicant; and the emergence of the coffee shop and its role in the rise of new forms of sociability, new publics, and counterpublics.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 394 Food in History",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course considers the economic, political, and cultural changes in food production, diets and cuisines from 1700 to the present from a global, comparative perspective. Lectures, primary and secondary source readings, films, research and hands‑on activities explore diverse topics such as hunting and gathering; cooking traditions and innovations; cultural and ethical dimensions of eating and fasting; agriculture and food markets; the politics of famine; factory farms, industrial processing, and nutritional science; the emergence of the restaurant, the supermarket, fast food; and the globalization of modern diets.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 395 Environmental History",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course surveys major themes and problems in global environmental history from the last ice age to the present, but focusing primarily on Europe, Africa, Oceania, and the Americas since 1500. Topics include the history of ideas about nature; climate change; the Columbian Exchange; the environmental impact of science, technology, population growth, and urbanization; the politics of conservation; and environmentalism.",
+        "components": "Lecture",
+        "notes": "Students who have received credit for this topic under a HIST 398 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 396 The United States Since 1945",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "The immediate historical background of today’s America is the subject matter of this course. Major themes include civil rights, the rise of modern feminism, and economic change.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 397 History and Sound",
+        "credits": 3,
+        "prerequisites": "Students must have successfully completed 24 credits prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines sound as a historical subject and a medium for understanding the past. Emphasizing aural rather than visual sources, it addresses a variety of topics including the history of aural art forms such as music and radio; sound recording and transmission technologies; commercial uses of sound; architectural acoustics; and the evolution of soundscapes. The course may include training in the production of radio documentaries, urban sound walks, and audio podcasts.",
+        "components": "Lecture",
+        "notes": null
+    },
+    {
+        "title": "HIST 398 Selected Topics in History",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+        "components": null,
+        "notes": null
+    },
+    {
+        "title": "HIST 402 The Philosophy and Practice of History",
+        "credits": 3,
+        "prerequisites": "Approved honours standing in a History program is required. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines problems in the philosophy and practice of history. Particular attention is given to contemporary debates about history as a distinctive mode of understanding and explanation. This course is required of all honours students.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 403 Methodology and History",
+        "credits": 3,
+        "prerequisites": "Approved honours standing in a History program is required. If prerequisites are not satisfied, permission of the Department is required.",
+        "corequisites": "",
+        "description": "This course examines the variety of sources, methods, and modes of analysis used in the research and writing of history. It addresses both theoretical and practical aspects of method. This course is required of all honours students.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 412 Advanced Study in Canadian History",
+        "credits": 3,
+        "prerequisites": "Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department.",
+        "corequisites": "",
+        "description": "Advanced seminar in a selected topic in the history of Canada. The emphasis is on encouraging students to conduct historical investigation on their own, under a professor’s guidance. The specific content varies from year to year depending on the instructor.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 437 Advanced Study in European History",
+        "credits": 3,
+        "prerequisites": "Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department.",
+        "corequisites": "",
+        "description": "Advanced seminar in a selected topic in the history of Europe. The emphasis is on encouraging students to conduct historical investigation on their own, under a professor’s guidance. The specific content varies from year to year depending on the instructor.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 445 Advanced Study in Global and Thematic History",
+        "credits": 3,
+        "prerequisites": "Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students may request permission of the Department.",
+        "corequisites": "",
+        "description": "This course is an advanced seminar in a selected topic in global and/or thematic history. The emphasis is on encouraging students to conduct historical investigation on their own, under a professor's guidance. The specific content varies from year to year depending on the instructor.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 452 Advanced Study in American History",
+        "credits": 3,
+        "prerequisites": "Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department.",
+        "corequisites": "",
+        "description": "Advanced seminar in a selected topic in the history of the United States. The emphasis is on encouraging students to conduct historical investigation on their own, under a professor’s guidance. The specific content varies from year to year depending on the instructor.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 457 Advanced Study in Latin American and Caribbean History",
+        "credits": 3,
+        "prerequisites": "Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department.",
+        "corequisites": "",
+        "description": "Advanced seminar in a selected topic in Latin American and/or Caribbean history. The emphasis is on encouraging students to conduct historical investigation on their own, under a professor’s guidance. The specific content varies from year to year depending on the instructor.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 462 Advanced Study in Asian History",
+        "credits": 3,
+        "prerequisites": "Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department.",
+        "corequisites": "",
+        "description": "Advanced seminar in a selected topic in Asian history. The emphasis is on encouraging students to conduct historical investigation on their own, under a professor’s guidance. The specific content varies from year to year depending on the instructor.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 467 Advanced Study in Middle Eastern History",
+        "credits": 3,
+        "prerequisites": "Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department.",
+        "corequisites": "",
+        "description": "Advanced seminar in a selected topic in Middle Eastern history. The emphasis is on encouraging students to conduct historical investigation on their own, under a professor’s guidance. The specific content varies from year to year depending on the instructor.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 471 Advanced Study in African History",
+        "credits": 3,
+        "prerequisites": "Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department.",
+        "corequisites": "",
+        "description": "Advanced seminar in a selected topic in the history of Africa. The emphasis is on encouraging students to conduct historical investigation on their own, under a professor’s guidance. The specific content varies from year to year depending on the instructor.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 475 Advanced Study in the History of Gender and Sexuality",
+        "credits": 3,
+        "prerequisites": "Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department. Advanced seminar in a selected topic in the history of gender and sexuality.",
+        "corequisites": "",
+        "description": "The emphasis is on encouraging students to conduct historical investigation on their own, under a professor’s guidance. The specific content varies from year to year depending on the instructor.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 477 Advanced Study in the History of Human Rights and Justice",
+        "credits": 3,
+        "prerequisites": "Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department.",
+        "corequisites": "",
+        "description": "This advanced seminar focuses on a selected topic in the history of human rights and justice. The emphasis is on encouraging students to conduct historical investigation independently, under a professor’s supervision. The specific content may vary from year to year.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 479 Advanced Study in Women’s History",
+        "credits": 3,
+        "prerequisites": "Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department.",
+        "corequisites": "",
+        "description": "Advanced seminar in a selected topic in women’s history. The emphasis is on encouraging students to conduct historical investigation on their own, under a professor’s guidance. The specific content varies from year to year depending on the instructor.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 481 Advanced Study in Public History",
+        "credits": 3,
+        "prerequisites": "Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department.",
+        "corequisites": "",
+        "description": "Advanced seminar in a selected topic in public history. In addition to weekly discussions of relevant readings, the emphasis is on encouraging students to conduct historical investigation on their own, under a professor’s guidance. The specific content varies from year to year depending on the instructor.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 485 Public History Workshop",
+        "credits": 3,
+        "prerequisites": "The following course must be completed previously: HIST 306. Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department.",
+        "corequisites": "",
+        "description": "This course offers students the opportunity to conceive, plan, and carry out a project that presents a historical subject to the public. Students receive training in the public presentation of the past through several media and to a variety of audiences, and are encouraged to involve relevant parties outside the academy in the development of their project.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "HIST 486 Public History Internship",
+        "credits": 3,
+        "prerequisites": "The following course must be completed previously: HIST 306. Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department.",
+        "corequisites": "",
+        "description": "This internship in public history is designed to allow students to test and hone their skills in a non‑academic situation. Placements will be arranged by the faculty member responsible for the course and may be drawn from various potential employment sectors: public, non‑profit, and private. Students, in consultation with the employer and the faculty advisor, are expected to fully participate in the defining of their internships. Students work according to a detailed job description and devote a minimum of 100 hours to the fieldwork component of the internship, keep a logbook describing their work activities, and submit a 20‑25 page written report that summarizes and evaluates their work experience, positioning it in relation to broader academic questions in the field of public history. The employers participate in the assessment of the intern’s work. Students may find it useful to have second‑language proficiency for the purposes of this internship.",
+        "components": "Tutorial",
+        "notes": null
+    },
+    {
+        "title": "HIST 4900 Joint Seminar in History and English",
+        "credits": 6,
+        "prerequisites": "400-level courses are generally open to honours and specialization students, or students of high academic standing, with a minimum of 30 university credits.",
+        "corequisites": "",
+        "description": "This upper-level seminar explores literary and historical approaches to a selected topic, which varies from year to year. The course offers a unique opportunity for students to explore how the different disciplines of English and History think about knowledge production under the collaborative guidance of scholars in these two fields.",
+        "components": "Seminar",
+        "notes": "Students who have received credit for ENGL 490 or for this topic under a HIST 498 number may not take this course for credit."
+    },
+    {
+        "title": "HIST 491 Individual Study Tutorial in History",
+        "credits": 3,
+        "prerequisites": "Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department.",
+        "corequisites": "",
+        "description": "This course permits an individual student to pursue advanced study, with a selected faculty member, in a specialized area not available among scheduled 400‑level seminars.",
+        "components": "Tutorial",
+        "notes": null
+    },
+    {
+        "title": "HIST 492 Individual Study Tutorial in History",
+        "credits": 6,
+        "prerequisites": "Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department.",
+        "corequisites": "",
+        "description": "This course permits an individual student to pursue advanced study, with a selected faculty member, in a specialized area not available among scheduled 400‑level seminars.",
+        "components": "Tutorial",
+        "notes": null
+    },
+    {
+        "title": "HIST 493 Honours Essay Tutorial",
+        "credits": 6,
+        "prerequisites": "Students must be enrolled in an honours or specialization program offered by the Department of History. If this prerequisite is not satisfied, students in high academic standing may request permission of the Department.",
+        "corequisites": "",
+        "description": "This course is open only to honours students in History. The student works with an individual faculty member in a particular area of history. Students are asked to produce a sustained piece of written work, not exceeding 40 pages in length, to be read by their advisor and at least one other member of the Department.",
+        "components": "Tutorial",
+        "notes": null
+    },
+    {
+        "title": "HIST 498 Advanced Topics in History",
+        "credits": 3,
+        "prerequisites": "",
+        "corequisites": "",
+        "description": "Specific topics for this course, and prerequisites relevant in each case, are stated in the Undergraduate Class Schedule.",
+        "components": null,
+        "notes": null
+    },
+    {
+        "title": "LAWS 4100 Advanced Topics in Law and Society",
+        "credits": 3,
+        "prerequisites": "The following course must be completed previously: ANTH 285 or HIST 285 or POLI 285 or SOCI 285. Students must complete 15 credits in the minor and 60 university credits. Permission of the Law and Society program director is required.",
+        "corequisites": "",
+        "description": "This advanced seminar focuses on a selected topic in law and society. The specific content may vary from year to year.",
+        "components": "Seminar",
+        "notes": null
+    },
+    {
+        "title": "LAWS 4800 Cour du Québec Internship",
+        "credits": 3,
+        "prerequisites": "The following course must be completed previously: ANTH 285 or HIST 285 or POLI 285 or SOCI 285. Students must complete 15 credits in the minor and 60 university credits. Permission of the Law and Society program director is required.",
+        "corequisites": "",
+        "description": "This unpaid internship pairs students with one or more judges of the Civil, Criminal, and/or Youth Divisions of the Cour du Québec in Montreal. Students attend regular meetings at the court, where they are mentored by one or more judges. Students attend court, research cases, and discuss cases with judges and court personnel. In addition to attendance at court, students are expected to report on their internship in written papers and/or oral presentations.",
+        "components": "Fieldwork",
+        "notes": "French oral, comprehension, and reading skills at an intermediate level or higher are required."
+    },
+    {
+        "title": "LAWS 4900 Independent Research Project in Law and Society",
+        "credits": 3,
+        "prerequisites": "The following course must be completed previously: ANTH 285 or HIST 285 or POLI 285 or SOCI 285. Students must complete 15 credits in the minor and 60 university credits. Permission of the Law and Society program director is required.",
+        "corequisites": "",
+        "description": "Students undertake advanced research in law and society, under the guidance of a supervising faculty member.",
+        "components": "Seminar",
+        "notes": null
+    }
+]
