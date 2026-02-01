@@ -183,7 +183,7 @@ const ScheduledCourses: React.FC<ScheduledCoursesProps> = ({ classes, setClasses
 
             <h2 className="scheduled-courses-card__title">Scheduled Courses</h2>
             <div className="scheduled-courses-card__list">
-                {courses.map((course, i) => (
+                {courses.map((course) => (
                     <div className="course-item">
                         <button className="course-item__delete" onClick={() => removeCourse(course)} aria-label={`Remove ${course.name}`}>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
