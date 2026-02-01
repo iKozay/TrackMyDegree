@@ -1,40 +1,28 @@
-import React, { useState } from "react";
+import React from "react";
+import type { ClassItem } from "../../pages/ClassBuilderPage";
 
-interface ClassItem {
-    name: string;
-    section: string;
-    room: string;
-    day: number; // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
-    startTime: number; // hour in 24h format (8-22)
-    endTime: number; // hour in 24h format (8-22)
+interface WeeklyScheduleProps {
+  classes: ClassItem[];
 }
 
-const WeeklySchedule: React.FC = () => {
-    const [classes, setClasses] = useState<ClassItem[]>([
-        { name: "COMP 352", section: "Sec A", room: "H-637", day: 1, startTime: 9, endTime: 11 },
-        { name: "COMP 352", section: "Sec A", room: "H-637", day: 3, startTime: 9, endTime: 11 },
-        { name: "COMP 346", section: "Sec B", room: "MB-2.210", day: 2, startTime: 10, endTime: 12 },
-        { name: "COMP 346", section: "Sec B", room: "MB-2.210", day: 4, startTime: 10, endTime: 12 },
-        { name: "SOEN 341", section: "Sec C", room: "H-537", day: 1, startTime: 13, endTime: 15 },
-        { name: "SOEN 341", section: "Sec C", room: "H-537", day: 3, startTime: 13, endTime: 15 },
-    ]);
+const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({ classes }) => {
 
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const hours = Array.from({ length: 15 }, (_, i) => i + 8); // 8 to 22
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const hours = Array.from({ length: 15 }, (_, i) => i + 8); // 8 to 22
 
-    const getClassForCell = (day: number, hour: number) => {
-        return classes.find(
-            (c) => c.day === day && hour >= c.startTime && hour < c.endTime
-        );
-    };
+  const getClassForCell = (day: number, hour: number) => {
+    return classes.find(
+      (c) => c.day === day && hour >= c.startTime && hour < c.endTime
+    );
+  };
 
-    const isFirstHourOfClass = (classItem: ClassItem, hour: number) => {
-        return hour === classItem.startTime;
-    };
+  const isFirstHourOfClass = (classItem: ClassItem, hour: number) => {
+    return hour === classItem.startTime;
+  };
 
-    return (
-        <div className="schedule-container">
-            <style>{`
+  return (
+    <div className="schedule-container">
+      <style>{`
         .schedule-container {
           background: white;
           border-radius: 12px;
@@ -129,45 +117,45 @@ const WeeklySchedule: React.FC = () => {
         }
       `}</style>
 
-            <h2 className="schedule-title">Weekly Schedule</h2>
-            <div className="schedule-scroll">
-                <table className="schedule-table">
-                    <thead>
-                        <tr>
-                            <th className="time-column time-column-header">Time</th>
-                            {days.map((day) => (
-                                <th key={day} className="day-header">{day}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {hours.map((hour) => (
-                            <tr key={hour}>
-                                <td className="time-column">{hour}:00</td>
-                                {days.map((_, dayIndex) => {
-                                    const classItem = getClassForCell(dayIndex, hour);
-                                    return (
-                                        <td
-                                            key={dayIndex}
-                                            className={classItem ? "class-cell" : "empty-cell"}
-                                        >
-                                            {classItem && isFirstHourOfClass(classItem, hour) && (
-                                                <div className="class-info">
-                                                    <p className="class-name">{classItem.name}</p>
-                                                    <p className="class-section">{classItem.section}</p>
-                                                    <p className="class-room">{classItem.room}</p>
-                                                </div>
-                                            )}
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
+      <h2 className="schedule-title">Weekly Schedule</h2>
+      <div className="schedule-scroll">
+        <table className="schedule-table">
+          <thead>
+            <tr>
+              <th className="time-column time-column-header">Time</th>
+              {days.map((day) => (
+                <th key={day} className="day-header">{day}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {hours.map((hour) => (
+              <tr key={hour}>
+                <td className="time-column">{hour}:00</td>
+                {days.map((_, dayIndex) => {
+                  const classItem = getClassForCell(dayIndex, hour);
+                  return (
+                    <td
+                      key={dayIndex}
+                      className={classItem ? "class-cell" : "empty-cell"}
+                    >
+                      {classItem && isFirstHourOfClass(classItem, hour) && (
+                        <div className="class-info">
+                          <p className="class-name">{classItem.name}</p>
+                          <p className="class-section">{classItem.section}</p>
+                          <p className="class-room">{classItem.room}</p>
+                        </div>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 };
 
 export default WeeklySchedule;

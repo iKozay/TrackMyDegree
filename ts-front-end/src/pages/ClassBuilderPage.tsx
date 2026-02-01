@@ -1,10 +1,28 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import "../styles/ClassBuilder.css"
+import "../styles/ClassBuilder.css";
 import WeeklySchedule from "../components/ClassBuilderComponents/WeeklySchedule";
+import ScheduleStats from "../components/ClassBuilderComponents/ScheduleStats";
 
-
+export interface ClassItem {
+    name: string;
+    section: string;
+    room: string;
+    day: number; // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+    startTime: number; // hour in 24h format (8-22)
+    endTime: number; // hour in 24h format (8-22)
+}
 
 const ClassBuilderPage: React.FC = () => {
+    const [classes, setClasses] = useState<ClassItem[]>([
+        { name: "COMP 352", section: "Sec A", room: "H-637", day: 1, startTime: 9, endTime: 11 },
+        { name: "COMP 352", section: "Sec A", room: "H-637", day: 3, startTime: 9, endTime: 11 },
+        { name: "COMP 346", section: "Sec B", room: "MB-2.210", day: 2, startTime: 10, endTime: 12 },
+        { name: "COMP 346", section: "Sec B", room: "MB-2.210", day: 4, startTime: 10, endTime: 12 },
+        { name: "SOEN 341", section: "Sec C", room: "H-537", day: 1, startTime: 13, endTime: 15 },
+        { name: "SOEN 341", section: "Sec C", room: "H-537", day: 3, startTime: 13, endTime: 15 },
+    ]);
+
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
             <main className="flex-1 overflow-auto lg:pt-0 pt-16">
@@ -19,41 +37,10 @@ const ClassBuilderPage: React.FC = () => {
                                 className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background text-foreground hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[&gt;svg]:px-3 w-full sm:w-auto">Export
                                 Schedule</button></div>
                         </div>
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                            <div data-slot="card" className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border p-6">
-                                <div className="flex items-center gap-2 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" className="lucide lucide-clock size-5 text-rose-800" aria-hidden="true">
-                                    <path d="M12 6v6l4 2"></path>
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                </svg><span className="text-slate-600">Total Hours</span></div>
-                                <p className="text-slate-900">9 hours/week</p>
-                            </div>
-                            <div data-slot="card" className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border p-6">
-                                <div className="flex items-center gap-2 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" className="lucide lucide-users size-5 text-green-600" aria-hidden="true">
-                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                                    <path d="M16 3.128a4 4 0 0 1 0 7.744"></path>
-                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                </svg><span className="text-slate-600">Enrolled Courses</span></div>
-                                <p className="text-slate-900">3 courses</p>
-                            </div>
-                            <div data-slot="card" className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border p-6">
-                                <div className="flex items-center gap-2 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" className="lucide lucide-triangle-alert size-5 text-red-600" aria-hidden="true">
-                                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path>
-                                    <path d="M12 9v4"></path>
-                                    <path d="M12 17h.01"></path>
-                                </svg><span className="text-slate-600">Conflicts</span></div>
-                                <p className="text-slate-900">0</p>
-                            </div>
-                        </div>
+                        <ScheduleStats classes={classes} />
                         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                             <div className="lg:col-span-3">
-                                <WeeklySchedule />
+                                <WeeklySchedule classes={classes} />
                             </div>
                             <div className="space-y-6">
                                 <div data-slot="card" className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border p-6">
