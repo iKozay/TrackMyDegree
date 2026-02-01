@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import "../styles/ClassBuilder.css";
 import WeeklySchedule from "../components/ClassBuilderComponents/WeeklySchedule";
 import ScheduleStats from "../components/ClassBuilderComponents/ScheduleStats";
+import ScheduledCourses from "../components/ClassBuilderComponents/ScheduledCourses";
 
 export interface ClassItem {
     name: string;
