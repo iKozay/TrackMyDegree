@@ -27,6 +27,7 @@ describe('addEcpCoursePools', () => {
   const ECP_POOL_2_NAME = 'ECP Pool 2';
   const COMP_ECP_POOL_ID = 'comp_ecp_pool';
   const COMP_ECP_POOL_NAME = 'COMP ECP Pool';
+  const DEGREE_OBJ_NAME = 'Software Eng';
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -136,7 +137,7 @@ describe('addEcpCoursePools', () => {
     const deficiencies: string[] = [];
     const degreeObj: any = {
       _id: 'ENGR_SOFTWARE',
-      name: 'Software Eng',
+      name: DEGREE_OBJ_NAME,
       totalCredits: 120,
       coursePools: [],
     };
@@ -166,7 +167,7 @@ describe('addEcpCoursePools', () => {
     const deficiencies: string[] = [];
     const degreeObj: any = {
       _id: 'ENGR_SOFTWARE',
-      name: 'Software Eng',
+      name: DEGREE_OBJ_NAME,
       totalCredits: 120,
       coursePools: [],
     };
@@ -199,6 +200,39 @@ describe('addEcpCoursePools', () => {
     // credits were increased by 30
     expect(coursePools[0].creditsRequired).toBe(40);
     expect(deficiencies).toEqual([COMP_ECP_POOL_NAME]);
+  });
+
+  it('increments degree.totalCredits to 30 when ECP has no pools', async () => {
+    mockedDegreeController.readDegree.mockResolvedValue({ _id: ENGR_ECP, name: 'ENGR ECP' } as any);
+
+    // ECP degree with no pools
+    mockedDegreeController.getCoursePoolsForDegree.mockResolvedValue([] as any);
+    mockedDegreeController.getCoursesForDegree.mockResolvedValue([] as any);
+
+    const coursePools: any[] = [];
+    const deficiencies: string[] = [];
+    const degreeObj: any = { _id: 'ENGR_SOFTWARE', name: DEGREE_OBJ_NAME };
+
+    await addEcpCoursePools(BENG_SOFTWARE, coursePools, deficiencies, degreeObj);
+
+    expect(degreeObj.totalCredits).toBe(30);
+    expect(coursePools).toEqual([]);
+    expect(deficiencies).toEqual([]);
+  });
+
+  it('propagates errors when fetching ECP course pools fails', async () => {
+    mockedDegreeController.readDegree.mockResolvedValue({ _id: ENGR_ECP, name: 'ENGR ECP' } as any);
+
+    mockedDegreeController.getCoursePoolsForDegree.mockRejectedValue(new Error('DB fail'));
+
+    const coursePools: any[] = [];
+    const deficiencies: string[] = [];
+
+    await expect(addEcpCoursePools(BENG_SOFTWARE, coursePools, deficiencies)).rejects.toThrow('DB fail');
+
+    // Ensure nothing was mutated on failure
+    expect(coursePools).toEqual([]);
+    expect(deficiencies).toEqual([]);
   });
 
   it("does nothing if degreeId doesn't include BEng or BCompSc", async () => {
