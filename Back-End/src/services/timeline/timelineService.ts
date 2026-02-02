@@ -148,7 +148,7 @@ export const buildTimeline = async (
   const { degreeData: degree, coursePools, courses } = result;
 
   if (programInfo.isExtendedCreditProgram) {
-    await addEcpCoursePools(degreeId, coursePools, deficiencies);
+    await addEcpCoursePools(degreeId, coursePools, deficiencies, degree);
   }
   if (programInfo.isCoop) {
     await addCoopCoursePool(degree, coursePools, courses);
@@ -766,6 +766,7 @@ export async function addEcpCoursePools(
   degreeId: string,
   coursePools: CoursePoolInfo[],
   deficiencies: string[],
+  degree?: DegreeData, // optional: when provided, increment degree.totalCredits by 30
 ) {
   const ecpMapping: Record<string, string> = {
     BEng: 'ENGR_ECP',
@@ -776,8 +777,18 @@ export async function addEcpCoursePools(
   if (ecpKey) {
     const ecpResult = await getDegreeData(ecpMapping[ecpKey]);
     if (ecpResult) {
+      // Add 30 extra credits to each ECP pool's required credits
+      for (const pool of ecpResult.coursePools) {
+        pool.creditsRequired = (pool.creditsRequired ?? 0) + 30;
+      }
+
       coursePools.push(...ecpResult.coursePools);
       deficiencies.push(...ecpResult.coursePools.map((pool) => pool.name));
+
+      // If a degree object was passed in, increment its totalCredits by 30
+      if (degree) {
+        degree.totalCredits = (degree.totalCredits ?? 0) + 30;
+      }
     }
   }
 }
