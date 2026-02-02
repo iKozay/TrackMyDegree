@@ -149,6 +149,58 @@ describe('addEcpCoursePools', () => {
     expect(addedPools.every((p) => p.creditsRequired === 30)).toBe(true);
   });
 
+  it('adds 30 to existing pool creditsRequired values and degree.totalCredits when provided', async () => {
+    mockedDegreeController.readDegree.mockResolvedValue({
+      _id: ENGR_ECP,
+      name: 'ENGR ECP',
+    } as any);
+
+    mockedDegreeController.getCoursePoolsForDegree.mockResolvedValue([
+      { _id: 'ecp_pool_a', name: 'ECP A', creditsRequired: 12, courses: [] },
+      { _id: 'ecp_pool_b', name: 'ECP B', creditsRequired: 18, courses: [] },
+    ] as any);
+
+    mockedDegreeController.getCoursesForDegree.mockResolvedValue([] as any);
+
+    const coursePools: any[] = [];
+    const deficiencies: string[] = [];
+    const degreeObj: any = {
+      _id: 'ENGR_SOFTWARE',
+      name: 'Software Eng',
+      totalCredits: 120,
+      coursePools: [],
+    };
+
+    await addEcpCoursePools('BEng_SOFTWARE', coursePools, deficiencies, degreeObj);
+
+    // original credits + 30
+    expect(coursePools.map((p) => p.creditsRequired)).toEqual([42, 48]);
+    // deficiency names appended
+    expect(deficiencies).toEqual(['ECP A', 'ECP B']);
+    // degree incremented
+    expect(degreeObj.totalCredits).toBe(150);
+  });
+
+  it('adds ECP pools (with +30 credits) even when no degree object is provided', async () => {
+    mockedDegreeController.readDegree.mockResolvedValue({ _id: COMP_ECP, name: 'COMP ECP' } as any);
+
+    mockedDegreeController.getCoursePoolsForDegree.mockResolvedValue([
+      { _id: 'comp_pool', name: 'COMP ECP Pool', creditsRequired: 10, courses: [] },
+    ] as any);
+
+    mockedDegreeController.getCoursesForDegree.mockResolvedValue([] as any);
+
+    const coursePools: any[] = [];
+    const deficiencies: string[] = [];
+
+    await addEcpCoursePools('BCompSc_GENERAL', coursePools, deficiencies);
+
+    expect(coursePools.map((p) => p._id)).toEqual(['comp_pool']);
+    // credits were increased by 30
+    expect(coursePools[0].creditsRequired).toBe(40);
+    expect(deficiencies).toEqual(['COMP ECP Pool']);
+  });
+
   it("does nothing if degreeId doesn't include BEng or BCompSc", async () => {
     const coursePools: any[] = [{ _id: 'base_pool' }];
     const deficiencies: string[] = ['X'];
