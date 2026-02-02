@@ -52,7 +52,9 @@
   flex-direction: column; /* Stack the instruction steps vertically */
   gap: 30px;
 }
-.instructions h2 { color: #800020;}
+.instructions h2 {
+  color: #800020;
+}
 .steps-container {
   display: flex;
   flex-direction: row;
@@ -61,10 +63,8 @@
 }
 /* Individual instruction steps (Text and Image) */
 .step {
-    width: 33%;
-    
+  width: 33%;
 }
-
 
 /* Instruction Text */
 .step p {
@@ -85,7 +85,6 @@
   max-height: 20vw;
 }
 
-
 @media (max-width: 992px) {
   .steps-container {
     flex-direction: column;
@@ -96,4 +95,4 @@
   .step img {
     max-height: 40vw;
   }
-} */
+}

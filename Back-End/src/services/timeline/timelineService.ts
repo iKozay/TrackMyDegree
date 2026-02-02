@@ -786,9 +786,13 @@ async function addCoopCoursePool(
   coursePools: CoursePoolInfo[],
   courses: Record<string, CourseData>,
 ) {
-  if (degree.coursePools) {
+  if (degree.coursePools && !degree.coursePools.includes("Coop Courses")) {
     degree.coursePools.push("Coop Courses");
     console.log("added coop to degree course pools")
+  }
+  if (coursePools.find((p) => p.name === "Coop Courses")) {
+    console.log("Coop course pool already exists, skipping addition.");
+    return;
   }
   const coopCoursePool = await coursepoolController.getCoursePool("Coop Courses")
   if (coopCoursePool) {

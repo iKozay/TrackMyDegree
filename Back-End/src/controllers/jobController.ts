@@ -103,8 +103,8 @@ export const cacheTimelineByJobId: RequestHandler<GetResultParams> = async (
     const timeline = cached.payload.data;
 
     // ---- Apply partial updates (low complexity) ----
-    updatePool(timeline, 'Exemptions', partialUpdate.exemptions);
-    updatePool(timeline, 'Deficiencies', partialUpdate.deficiencies);
+    updatePool(timeline, 'exemptions', partialUpdate.exemptions);
+    updatePool(timeline, 'deficiencies', partialUpdate.deficiencies);
     updateCourses(timeline, partialUpdate.courses);
 
     if (partialUpdate.semesters) {
