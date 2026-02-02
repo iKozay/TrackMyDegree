@@ -19,11 +19,14 @@ describe('addEcpCoursePools', () => {
   // ✅ constants to avoid sonarjs/no-duplicate-string
   const ENGR_ECP = 'ENGR_ECP';
   const COMP_ECP = 'COMP_ECP';
+  const BENG_SOFTWARE = 'BEng_SOFTWARE';
 
   const ECP_POOL_1_ID = 'ecp_pool_1';
   const ECP_POOL_2_ID = 'ecp_pool_2';
   const ECP_POOL_1_NAME = 'ECP Pool 1';
   const ECP_POOL_2_NAME = 'ECP Pool 2';
+  const COMP_ECP_POOL_ID = 'comp_ecp_pool';
+  const COMP_ECP_POOL_NAME = 'COMP ECP Pool';
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -57,7 +60,7 @@ describe('addEcpCoursePools', () => {
     ];
     const deficiencies: string[] = ['SOEN 000'];
 
-    await addEcpCoursePools('BEng_SOFTWARE', coursePools, deficiencies);
+    await addEcpCoursePools(BENG_SOFTWARE, coursePools, deficiencies);
 
     expect(coursePools.map((p) => p._id)).toEqual([
       'base_pool',
@@ -82,13 +85,10 @@ describe('addEcpCoursePools', () => {
       name: 'COMP ECP',
     } as any);
 
-    const compEcpPoolId = 'comp_ecp_pool';
-    const compEcpPoolName = 'COMP ECP Pool';
-
     mockedDegreeController.getCoursePoolsForDegree.mockResolvedValue([
       {
-        _id: compEcpPoolId,
-        name: compEcpPoolName,
+        _id: COMP_ECP_POOL_ID,
+        name: COMP_ECP_POOL_NAME,
         creditsRequired: 0,
         courses: [],
       },
@@ -101,8 +101,8 @@ describe('addEcpCoursePools', () => {
 
     await addEcpCoursePools('BCompSc_GENERAL', coursePools, deficiencies);
 
-    expect(coursePools.map((p) => p._id)).toEqual([compEcpPoolId]);
-    expect(deficiencies).toEqual([compEcpPoolName]);
+    expect(coursePools.map((p) => p._id)).toEqual([COMP_ECP_POOL_ID]);
+    expect(deficiencies).toEqual([COMP_ECP_POOL_NAME]);
 
     expect(mockedDegreeController.readDegree).toHaveBeenCalledWith(COMP_ECP);
   });
@@ -141,7 +141,7 @@ describe('addEcpCoursePools', () => {
       coursePools: [],
     };
 
-    await addEcpCoursePools('BEng_SOFTWARE', coursePools, deficiencies, degreeObj);
+    await addEcpCoursePools(BENG_SOFTWARE, coursePools, deficiencies, degreeObj);
 
     expect(degreeObj.totalCredits).toBe(150);
 
@@ -171,7 +171,7 @@ describe('addEcpCoursePools', () => {
       coursePools: [],
     };
 
-    await addEcpCoursePools('BEng_SOFTWARE', coursePools, deficiencies, degreeObj);
+    await addEcpCoursePools(BENG_SOFTWARE, coursePools, deficiencies, degreeObj);
 
     // original credits + 30
     expect(coursePools.map((p) => p.creditsRequired)).toEqual([42, 48]);
@@ -185,7 +185,7 @@ describe('addEcpCoursePools', () => {
     mockedDegreeController.readDegree.mockResolvedValue({ _id: COMP_ECP, name: 'COMP ECP' } as any);
 
     mockedDegreeController.getCoursePoolsForDegree.mockResolvedValue([
-      { _id: 'comp_pool', name: 'COMP ECP Pool', creditsRequired: 10, courses: [] },
+      { _id: 'comp_pool', name: COMP_ECP_POOL_NAME, creditsRequired: 10, courses: [] },
     ] as any);
 
     mockedDegreeController.getCoursesForDegree.mockResolvedValue([] as any);
@@ -198,7 +198,7 @@ describe('addEcpCoursePools', () => {
     expect(coursePools.map((p) => p._id)).toEqual(['comp_pool']);
     // credits were increased by 30
     expect(coursePools[0].creditsRequired).toBe(40);
-    expect(deficiencies).toEqual(['COMP ECP Pool']);
+    expect(deficiencies).toEqual([COMP_ECP_POOL_NAME]);
   });
 
   it("does nothing if degreeId doesn't include BEng or BCompSc", async () => {
