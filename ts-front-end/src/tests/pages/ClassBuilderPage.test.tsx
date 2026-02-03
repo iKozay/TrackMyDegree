@@ -1,36 +1,45 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { describe, it, expect, vi } from 'vitest';
 import ClassBuilderPage from '../../pages/ClassBuilderPage';
 
 // Mock framer-motion to avoid animation issues in tests
-jest.mock('framer-motion', () => ({
+vi.mock('framer-motion', () => ({
     motion: {
         div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
     },
 }));
 
 // Mock child components
-jest.mock('../components/ClassBuilderComponents/WeeklySchedule', () => {
-    return function MockWeeklySchedule() {
-        return <div data-testid="weekly-schedule">Weekly Schedule Mock</div>;
+vi.mock('../components/ClassBuilderComponents/WeeklySchedule', () => {
+    return {
+        default: function MockWeeklySchedule() {
+            return <div data-testid="weekly-schedule">Weekly Schedule Mock</div>;
+        },
     };
 });
 
-jest.mock('../components/ClassBuilderComponents/ScheduleStats', () => {
-    return function MockScheduleStats() {
-        return <div data-testid="schedule-stats">Schedule Stats Mock</div>;
+vi.mock('../components/ClassBuilderComponents/ScheduleStats', () => {
+    return {
+        default: function MockScheduleStats() {
+            return <div data-testid="schedule-stats">Schedule Stats Mock</div>;
+        },
     };
 });
 
-jest.mock('../components/ClassBuilderComponents/ScheduledCourses', () => {
-    return function MockScheduledCourses() {
-        return <div data-testid="scheduled-courses">Scheduled Courses Mock</div>;
+vi.mock('../components/ClassBuilderComponents/ScheduledCourses', () => {
+    return {
+        default: function MockScheduledCourses() {
+            return <div data-testid="scheduled-courses">Scheduled Courses Mock</div>;
+        },
     };
 });
 
-jest.mock('../components/ClassBuilderComponents/SearchCourses', () => {
-    return function MockSearchCourses() {
-        return <div data-testid="search-courses">Search Courses Mock</div>;
+vi.mock('../components/ClassBuilderComponents/SearchCourses', () => {
+    return {
+        default: function MockSearchCourses() {
+            return <div data-testid="search-courses">Search Courses Mock</div>;
+        },
     };
 });
 

@@ -1,10 +1,11 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import ScheduledCourses from '../../../components/ClassBuilderComponents/ScheduledCourses';
 import type { ClassItem } from '../../../pages/ClassBuilderPage';
 
 describe('ScheduledCourses', () => {
-    const mockSetClasses = jest.fn();
+    const mockSetClasses = vi.fn();
 
     const mockClasses: ClassItem[] = [
         { name: "COMP 352", section: "Sec A", room: "H-637", day: 1, startTime: 9, endTime: 11 },
@@ -14,7 +15,7 @@ describe('ScheduledCourses', () => {
     ];
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     it('renders the component title', () => {

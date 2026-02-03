@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { describe, it, expect } from 'vitest';
 import WeeklySchedule from '../../../components/ClassBuilderComponents/WeeklySchedule';
 import type { ClassItem } from '../../../pages/ClassBuilderPage';
 
