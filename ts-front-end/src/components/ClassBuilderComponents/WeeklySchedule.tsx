@@ -132,11 +132,11 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({ classes }) => {
             {hours.map((hour) => (
               <tr key={hour}>
                 <td className="time-column">{hour}:00</td>
-                {days.map((_, dayIndex) => {
+                {days.map((day, dayIndex) => {
                   const classItem = getClassForCell(dayIndex, hour);
                   return (
                     <td
-                      key={dayIndex}
+                      key={`${day}-${hour}`}
                       className={classItem ? "class-cell" : "empty-cell"}
                     >
                       {classItem && isFirstHourOfClass(classItem, hour) && (
