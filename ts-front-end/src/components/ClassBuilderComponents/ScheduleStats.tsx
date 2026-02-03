@@ -81,7 +81,7 @@ const ScheduleStats: React.FC<ScheduleStatsProps> = ({ classes }) => {
             <div className="stat-card">
                 <div className="stat-card__header">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                         className="lucide lucide-clock stat-card__icon stat-card__icon--hours" aria-hidden="true">
                         <path d="M12 6v6l4 2"></path>
                         <circle cx="12" cy="12" r="10"></circle>
@@ -94,7 +94,7 @@ const ScheduleStats: React.FC<ScheduleStatsProps> = ({ classes }) => {
             <div className="stat-card">
                 <div className="stat-card__header">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                         className="lucide lucide-users stat-card__icon stat-card__icon--courses" aria-hidden="true">
                         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                         <path d="M16 3.128a4 4 0 0 1 0 7.744"></path>
@@ -109,7 +109,7 @@ const ScheduleStats: React.FC<ScheduleStatsProps> = ({ classes }) => {
             <div className="stat-card">
                 <div className="stat-card__header">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                         className="lucide lucide-triangle-alert stat-card__icon stat-card__icon--conflicts" aria-hidden="true">
                         <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path>
                         <path d="M12 9v4"></path>
