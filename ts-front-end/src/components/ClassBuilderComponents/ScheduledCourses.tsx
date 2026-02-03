@@ -184,10 +184,10 @@ const ScheduledCourses: React.FC<ScheduledCoursesProps> = ({ classes, setClasses
             <h2 className="scheduled-courses-card__title">Scheduled Courses</h2>
             <div className="scheduled-courses-card__list">
                 {courses.map((course) => (
-                    <div className="course-item">
+                    <div className="course-item" key={course.name}>
                         <button className="course-item__delete" onClick={() => removeCourse(course)} aria-label={`Remove ${course.name}`}>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                                 aria-hidden="true">
                                 <path d="M10 11v6"></path>
                                 <path d="M14 11v6"></path>
@@ -202,7 +202,7 @@ const ScheduledCourses: React.FC<ScheduledCoursesProps> = ({ classes, setClasses
 
                             <div className="course-item__row">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                                     aria-hidden="true">
                                     <path d="M12 6v6l4 2"></path>
                                     <circle cx="12" cy="12" r="10"></circle>
@@ -211,7 +211,7 @@ const ScheduledCourses: React.FC<ScheduledCoursesProps> = ({ classes, setClasses
                             </div>
                             <div className="course-item__row">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                                     aria-hidden="true">
                                     <path d="M12 6v6l4 2"></path>
                                     <circle cx="12" cy="12" r="10"></circle>
@@ -221,7 +221,7 @@ const ScheduledCourses: React.FC<ScheduledCoursesProps> = ({ classes, setClasses
 
                             <div className="course-item__row">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                                     aria-hidden="true">
                                     <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
                                     <circle cx="12" cy="10" r="3"></circle>
