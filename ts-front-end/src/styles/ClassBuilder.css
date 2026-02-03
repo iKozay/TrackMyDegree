@@ -174,6 +174,8 @@
 
     body {
         line-height: inherit;
+        background-color: var(--background);
+        color: var(--foreground);
     }
 
     hr {
@@ -295,16 +297,6 @@
         border-radius: 0;
     }
 
-    ::file-selector-button {
-        font: inherit;
-        font-feature-settings: inherit;
-        font-variation-settings: inherit;
-        letter-spacing: inherit;
-        color: inherit;
-        opacity: 1;
-        background-color: #0000;
-        border-radius: 0;
-    }
 
     :where(select:is([multiple], [size])) optgroup {
         font-weight: bolder;
@@ -312,10 +304,6 @@
 
     :where(select:is([multiple], [size])) optgroup option {
         padding-inline-start: 20px;
-    }
-
-    ::file-selector-button {
-        margin-inline-end: 4px;
     }
 
     ::placeholder {
@@ -350,9 +338,6 @@
         padding: 0;
     }
 
-    ::-webkit-datetime-edit {
-        padding-block: 0;
-    }
 
     ::-webkit-datetime-edit-year-field {
         padding-block: 0;
@@ -395,9 +380,6 @@
         appearance: button;
     }
 
-    ::file-selector-button {
-        appearance: button;
-    }
 
     ::-webkit-inner-spin-button {
         height: auto;
@@ -422,10 +404,6 @@
         }
     }
 
-    * {
-        border-color: var(--border);
-        outline-color: var(--ring);
-    }
 
     @supports (color: color-mix(in lab, red, red)) {
         * {
@@ -433,10 +411,6 @@
         }
     }
 
-    body {
-        background-color: var(--background);
-        color: var(--foreground);
-    }
 
     :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) h1 {
         font-size: var(--text-2xl);
