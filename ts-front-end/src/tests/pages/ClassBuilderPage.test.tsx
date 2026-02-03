@@ -1,47 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import ClassBuilderPage from '../../pages/ClassBuilderPage';
-
-// Mock framer-motion to avoid animation issues in tests
-vi.mock('framer-motion', () => ({
-    motion: {
-        div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
-    },
-}));
-
-// Mock child components
-vi.mock('../components/ClassBuilderComponents/WeeklySchedule', () => {
-    return {
-        default: function MockWeeklySchedule() {
-            return <div data-testid="weekly-schedule">Weekly Schedule Mock</div>;
-        },
-    };
-});
-
-vi.mock('../components/ClassBuilderComponents/ScheduleStats', () => {
-    return {
-        default: function MockScheduleStats() {
-            return <div data-testid="schedule-stats">Schedule Stats Mock</div>;
-        },
-    };
-});
-
-vi.mock('../components/ClassBuilderComponents/ScheduledCourses', () => {
-    return {
-        default: function MockScheduledCourses() {
-            return <div data-testid="scheduled-courses">Scheduled Courses Mock</div>;
-        },
-    };
-});
-
-vi.mock('../components/ClassBuilderComponents/SearchCourses', () => {
-    return {
-        default: function MockSearchCourses() {
-            return <div data-testid="search-courses">Search Courses Mock</div>;
-        },
-    };
-});
 
 describe('ClassBuilderPage', () => {
     it('renders the page title', () => {
@@ -59,18 +19,34 @@ describe('ClassBuilderPage', () => {
         expect(screen.getByText('Export Schedule')).toBeInTheDocument();
     });
 
-    it('renders all child components', () => {
+    it('renders WeeklySchedule component', () => {
         render(<ClassBuilderPage />);
-        expect(screen.getByTestId('weekly-schedule')).toBeInTheDocument();
-        expect(screen.getByTestId('schedule-stats')).toBeInTheDocument();
-        expect(screen.getByTestId('scheduled-courses')).toBeInTheDocument();
-        expect(screen.getByTestId('search-courses')).toBeInTheDocument();
+        expect(screen.getByText('Weekly Schedule')).toBeInTheDocument();
+    });
+
+    it('renders ScheduleStats component', () => {
+        render(<ClassBuilderPage />);
+        expect(screen.getByText('Total Hours')).toBeInTheDocument();
+        expect(screen.getByText('Enrolled Courses')).toBeInTheDocument();
+        expect(screen.getByText('Conflicts')).toBeInTheDocument();
+    });
+
+    it('renders ScheduledCourses component', () => {
+        render(<ClassBuilderPage />);
+        expect(screen.getByText('Scheduled Courses')).toBeInTheDocument();
+    });
+
+    it('renders SearchCourses component', () => {
+        render(<ClassBuilderPage />);
+        expect(screen.getByText('Search & Add Courses')).toBeInTheDocument();
     });
 
     it('initializes with default classes state', () => {
-        const { container } = render(<ClassBuilderPage />);
-        // The page should render without errors, indicating state is properly initialized
-        expect(container.querySelector('main')).toBeInTheDocument();
+        render(<ClassBuilderPage />);
+        // Default classes should be rendered
+        expect(screen.getByText('COMP 352')).toBeInTheDocument();
+        expect(screen.getByText('COMP 346')).toBeInTheDocument();
+        expect(screen.getByText('SOEN 341')).toBeInTheDocument();
     });
 
     it('has correct layout structure', () => {
@@ -109,12 +85,6 @@ describe('ClassBuilderPage', () => {
         expect(sidebar).toBeInTheDocument();
     });
 
-    it('renders with framer-motion wrapper', () => {
-        const { container } = render(<ClassBuilderPage />);
-        // The motion.div should be rendered as a regular div in our mock
-        expect(container.firstChild).toBeInstanceOf(HTMLDivElement);
-    });
-
     it('header has responsive layout classes', () => {
         const { container } = render(<ClassBuilderPage />);
         const header = container.querySelector('.flex.flex-col.sm\\:flex-row');
@@ -125,5 +95,42 @@ describe('ClassBuilderPage', () => {
         render(<ClassBuilderPage />);
         const button = screen.getByText('Export Schedule');
         expect(button).toHaveClass('w-full', 'sm:w-auto');
+    });
+
+    it('displays initial stat values correctly', () => {
+        render(<ClassBuilderPage />);
+        // With 6 classes (3 courses × 2 days each), each 2 hours = 12 hours total
+        expect(screen.getByText('12 hours/week')).toBeInTheDocument();
+        expect(screen.getByText('3 courses')).toBeInTheDocument();
+    });
+
+    it('renders all days of the week in schedule', () => {
+        render(<ClassBuilderPage />);
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        days.forEach(day => {
+            expect(screen.getByText(day)).toBeInTheDocument();
+        });
+    });
+
+    it('renders semester selector', () => {
+        render(<ClassBuilderPage />);
+        expect(screen.getByDisplayValue('Winter 2025')).toBeInTheDocument();
+    });
+
+    it('renders search input', () => {
+        render(<ClassBuilderPage />);
+        expect(screen.getByPlaceholderText('Search by course code or name...')).toBeInTheDocument();
+    });
+
+    it('renders all scheduled courses in sidebar', () => {
+        render(<ClassBuilderPage />);
+        // All three courses should appear in the sidebar
+        const comp352 = screen.getAllByText('COMP 352');
+        const comp346 = screen.getAllByText('COMP 346');
+        const soen341 = screen.getAllByText('SOEN 341');
+
+        expect(comp352.length).toBeGreaterThan(0);
+        expect(comp346.length).toBeGreaterThan(0);
+        expect(soen341.length).toBeGreaterThan(0);
     });
 });
