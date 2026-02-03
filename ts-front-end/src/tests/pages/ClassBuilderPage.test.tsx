@@ -43,10 +43,10 @@ describe('ClassBuilderPage', () => {
 
     it('initializes with default classes state', () => {
         render(<ClassBuilderPage />);
-        // Default classes should be rendered
-        expect(screen.getByText('COMP 352')).toBeInTheDocument();
-        expect(screen.getByText('COMP 346')).toBeInTheDocument();
-        expect(screen.getByText('SOEN 341')).toBeInTheDocument();
+        // Default classes should be rendered (multiple instances across schedule and sidebar)
+        expect(screen.getAllByText('COMP 352').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('COMP 346').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('SOEN 341').length).toBeGreaterThan(0);
     });
 
     it('has correct layout structure', () => {
