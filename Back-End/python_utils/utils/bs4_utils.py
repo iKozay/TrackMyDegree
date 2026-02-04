@@ -6,7 +6,7 @@ import sys
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from models.course import BS4Output, Course, CourseRules
+from models import BS4Output, Course, CourseRules
 
 webu = WebUtils()
 
