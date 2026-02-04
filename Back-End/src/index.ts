@@ -61,19 +61,19 @@ const PORT = process.env.BACKEND_PORT || 8000;
 
 // MongoDB connection
 const MONGODB_URI =
-    process.env.MONGODB_URI ||
-    'mongodb://admin:changeme123@localhost:27017/trackmydegree';
+  process.env.MONGODB_URI ||
+  'mongodb://admin:changeme123@localhost:27017/trackmydegree';
 
 // Connect to MongoDB using async/await
 mongoose
-    .connect(MONGODB_URI)
-    .then(() => {
-      console.log('Connected to MongoDB');
-    })
-    .catch((error: Error) => {
-      console.error('Error connecting to MongoDB:', error);
-      Sentry.captureException(error);
-    });
+  .connect(MONGODB_URI)
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch((error: Error) => {
+    console.error('Error connecting to MongoDB:', error);
+    Sentry.captureException(error);
+  });
 
 mongoose.connection.on('error', (error: Error) => {
   console.error('MongoDB connection error:', error);
@@ -123,7 +123,7 @@ app.use('/api/section', sectionsRoutes);
 app.use('/api/upload', uploadRouter);
 app.use('/api/jobs', jobRouter);
 app.use('/api/audit', degreeAuditRouter);
-app.use('/api/coop', coopvalidationRouter)
+app.use('/api/coop', coopvalidationRouter);
 
 //Handle 404
 app.use(notFoundHandler);
