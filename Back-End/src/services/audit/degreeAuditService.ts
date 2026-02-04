@@ -17,6 +17,7 @@ import {
   GenerateAuditParams,
 } from '@shared/audit';
 import { TimelineDocument } from '@services/timeline/timelineService';
+import { isTermInProgress } from '@utils/misc';
 
 interface TimelineWithUser extends TimelineDocument {
   userId: string;
@@ -24,8 +25,13 @@ interface TimelineWithUser extends TimelineDocument {
 
 /**
  * Maps internal course status to audit display status
+ * If a course is marked as 'planned' but is in the current term,
+ * it should be treated as 'In Progress' for graduation calculation purposes.
  */
-function mapCourseStatus(status: CourseStatus): CourseAuditStatus {
+function mapCourseStatus(
+  status: CourseStatus,
+  term?: string | null,
+): CourseAuditStatus {
   switch (status) {
     case 'completed':
       return 'Completed';
@@ -33,6 +39,9 @@ function mapCourseStatus(status: CourseStatus): CourseAuditStatus {
       // eslint-disable-next-line sonarjs/no-duplicate-string
       return 'In Progress';
     case 'planned':
+      if (term && isTermInProgress(term)) {
+        return 'In Progress';
+      }
       // eslint-disable-next-line sonarjs/no-duplicate-string
       return 'Not Started';
     case 'incomplete':
@@ -163,7 +172,9 @@ function processPoolToRequirement(
     if (!courseData) continue;
 
     const statusInfo = courseStatusMap[courseCode];
-    const status = statusInfo ? mapCourseStatus(statusInfo.status) : 'Missing';
+    const status = statusInfo
+      ? mapCourseStatus(statusInfo.status, statusInfo.semester)
+      : 'Missing';
     const credits = courseData.credits || 0;
 
     if (status === 'Completed') {
@@ -299,6 +310,7 @@ function processDeficiencies(
 ): RequirementCategory {
   let deficiencyCredits = 0;
   let deficiencyCompleted = 0;
+  let deficiencyInProgress = 0;
   const deficiencyCourses: AuditCourse[] = [];
 
   for (const courseCode of deficiencies) {
@@ -307,10 +319,14 @@ function processDeficiencies(
     deficiencyCredits += credits;
 
     const statusInfo = courseStatusMap[courseCode];
-    const status = statusInfo ? mapCourseStatus(statusInfo.status) : 'Missing';
+    const status = statusInfo
+      ? mapCourseStatus(statusInfo.status, statusInfo.semester)
+      : 'Missing';
 
     if (status === 'Completed') {
       deficiencyCompleted += credits;
+    } else if (status === 'In Progress') {
+      deficiencyInProgress += credits;
     }
 
     deficiencyCourses.push({
@@ -323,11 +339,17 @@ function processDeficiencies(
     });
   }
 
+  // Use the same status determination logic as regular requirements
+  const defStatus = determineRequirementStatus(
+    deficiencyCompleted,
+    deficiencyInProgress,
+    deficiencyCredits,
+  );
+
   return {
     id: 'deficiencies',
     title: 'Deficiency Courses',
-    status:
-      deficiencyCompleted >= deficiencyCredits ? 'Complete' : 'Incomplete',
+    status: defStatus,
     creditsCompleted: deficiencyCompleted,
     creditsTotal: deficiencyCredits,
     courses: deficiencyCourses,

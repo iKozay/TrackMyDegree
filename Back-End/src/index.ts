@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/node';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'node:path';
@@ -33,12 +32,22 @@ import {
   resetPasswordLimiter,
   signupLimiter,
 } from '@middleware/rateLimiter';
-// sentry init
+
+// sentry init - profiling integration is optional (native module may not be available on all platforms)
+let profilingIntegration: ReturnType<typeof Sentry.rewriteFramesIntegration> | undefined;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { nodeProfilingIntegration } = require('@sentry/profiling-node');
+  profilingIntegration = nodeProfilingIntegration();
+} catch {
+  console.warn('⚠️ Sentry profiling not available (native module not found), continuing without profiling');
+}
+
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
-  integrations: [nodeProfilingIntegration()],
+  integrations: profilingIntegration ? [profilingIntegration] : [],
   tracesSampleRate: 1,
-  profilesSampleRate: 1,
+  profilesSampleRate: profilingIntegration ? 1 : 0,
 });
 
 //Express Init
@@ -88,7 +97,7 @@ Sentry.setupExpressErrorHandler(app);
 
 if (process.env.NODE_ENV === 'development') {
   const corsOptions = {
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: ['http://localhost:3000', 'http://localhost:5174'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
