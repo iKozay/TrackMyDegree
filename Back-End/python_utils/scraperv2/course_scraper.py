@@ -5,6 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import re
 from utils.bs4_utils import get_list_from_div, extract_courses
+from models.course import BS4Output, Course
 
 class CourseScraper:
 
@@ -16,7 +17,7 @@ class CourseScraper:
         "Faculty of Fine Arts Courses"
     }
 
-    def get_faculties(self):
+    def get_faculties(self) -> list[BS4Output]:
         # Get faculties
         quick_links = get_list_from_div(self.QUICK_LINKS_ROOT_URL, ["content-main"])
         faculties = [
@@ -25,7 +26,7 @@ class CourseScraper:
         ]
         return faculties
 
-    def scrape_all_courses(self):
+    def scrape_all_courses(self) -> list[Course]:
         all_courses = []
         faculties = self.get_faculties()
         # Get all course catalogs for each faculty
@@ -34,7 +35,7 @@ class CourseScraper:
             all_courses.extend(self._extract_courses_from_catalogs(catalogs))
         return all_courses
     
-    def _extract_courses_from_catalogs(self, catalogs):
+    def _extract_courses_from_catalogs(self, catalogs) -> list[Course]:
         courses = []
         completed_codes = set()
         for catalog in catalogs:
