@@ -104,6 +104,7 @@ const TimeLinePage: React.FC = () => {
               onCourseSelect={actions.selectCourse}
               selectedCourse={state.selectedCourse}
               onAddSemester={actions.addSemester}
+              timelineName={state.timelineName}
             />
           </section>
 

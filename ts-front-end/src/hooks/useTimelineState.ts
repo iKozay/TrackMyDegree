@@ -173,7 +173,7 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
         if (data.status === "done" && data.result) {
           const { degree, pools, courses, semesters } = data.result;
           const timelineName =
-            data.result.timelineName || `timeline-${Date.now()}`;
+            data.result.timelineName ?? "";
 
           actions.initTimelineState(
             timelineName,

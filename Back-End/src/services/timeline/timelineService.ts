@@ -18,6 +18,7 @@ import { coursepoolController } from '@controllers/coursepoolController';
 
 export interface TimelineResult {
   _id?: string;
+  timelineName?: string;
   degree?: DegreeData;
   pools?: CoursePoolInfo[];
   semesters: TimelineSemester[];
@@ -733,10 +734,16 @@ export async function buildTimelineFromDB(
     throw new Error('Timeline not found');
   }
 
-  return buildTimeline({
-    type: 'timelineData',
-    data: timeline,
+   const result = await buildTimeline({
+      type: 'timelineData',
+      data: timeline,
   });
+
+  if (result) {
+      result.timelineName = timeline.name;
+  }
+
+  return result;
 }
 
 export function addCourseToUsedUnusedPool(

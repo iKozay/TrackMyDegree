@@ -91,4 +91,18 @@ describe("SaveTimelineModal", () => {
 
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
+
+    it("initializes with trimmed timeline name when provided", () => {
+        render(
+            <SaveTimelineModal
+                open={true}
+                timelineName={"   My Timeline   "}
+                onSave={vi.fn()}
+                onClose={vi.fn()}
+            />
+        );
+
+        const input = screen.getByPlaceholderText("Timeline name") as HTMLInputElement;
+        expect(input.value).toBe("My Timeline");
+    });
 });

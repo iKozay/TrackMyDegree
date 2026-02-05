@@ -164,4 +164,48 @@ describe("useTimelineState", () => {
       })
     );
   });
+
+    it("falls back to empty timelineName when missing", async () => {
+        vi.mocked(api.get).mockResolvedValueOnce({
+            status: "done",
+            result: {
+                degree: { name: "CS", totalCredits: 90, coursePools: [] },
+                pools: [],
+                courses: {},
+                semesters: [],
+                // timelineName intentionally omitted
+            },
+        } as any);
+
+        const { result } = renderHook(() => useTimelineState("job-no-name"));
+
+        await act(async () => {
+            vi.advanceTimersByTime(1000);
+        });
+
+        expect(result.current.status).toBe("done");
+        expect(result.current.state.timelineName).toBe("");
+    });
+
+    it("falls back to empty timelineName when null", async () => {
+        vi.mocked(api.get).mockResolvedValueOnce({
+            status: "done",
+            result: {
+                degree: { name: "CS", totalCredits: 90, coursePools: [] },
+                pools: [],
+                courses: {},
+                semesters: [],
+                timelineName: null,
+            },
+        } as any);
+
+        const { result } = renderHook(() => useTimelineState("job-null-name"));
+
+        await act(async () => {
+            vi.advanceTimersByTime(1000);
+        });
+
+        expect(result.current.status).toBe("done");
+        expect(result.current.state.timelineName).toBe("");
+    });
 });

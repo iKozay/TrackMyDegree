@@ -333,4 +333,21 @@ describe("TimeLinePage", () => {
     renderPage();
     expect(screen.getByRole("main")).toBeInTheDocument();
   });
+
+  it("passes non-empty timelineName to SemesterPlanner", () => {
+      mockUseTimelineState.mockReturnValue(mockTimelineState);
+       renderPage();
+       const props = (vi.mocked(SemesterPlanner) as any).mock.calls[0][0];
+      expect(props.timelineName).toBe("Test Timeline");
+  });
+
+  it("passes empty timelineName to SemesterPlanner", () => {
+      mockUseTimelineState.mockReturnValue({
+          ...mockTimelineState,
+          state: { ...mockTimelineState.state, timelineName: "" },
+      });
+       renderPage();
+       const props = (vi.mocked(SemesterPlanner) as any).mock.calls[0][0];
+      expect(props.timelineName).toBe("");
+  });
 });
