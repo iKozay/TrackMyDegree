@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 
 interface SaveTimelineModalProps {
   open: boolean;
@@ -13,16 +13,10 @@ export const SaveTimelineModal: React.FC<SaveTimelineModalProps> = ({
   onSave,
   onClose,
 }) => {
-  const [currentTimelineName, setCurrentTimelineName] = useState(timelineName);
-
-  // Update when modal opens or timelineName changes
-  useEffect(() => {
-      if (open) {
-          setCurrentTimelineName(
-              timelineName?.trim() || `timeline-${Date.now()}`
-          );
-      }
-  }, [open, timelineName]);
+    // Initializes once per mount (modal opens)
+    const [currentTimelineName, setCurrentTimelineName] = useState<string>(() =>
+        timelineName?.trim() || `timeline-${Date.now()}`
+    );
 
   if (!open) return null;
 
