@@ -19,6 +19,7 @@ class WebUtils:
         # Retry settings
         self.max_retries = 3
         self.retry_delay = 1.0
+        self.logger = Logger("WebUtils")
     
     def get(self, url: str) -> requests.Response:
         for attempt in range(self.max_retries + 1):
@@ -32,7 +33,7 @@ class WebUtils:
                     raise e
 
                 delay = self.retry_delay * (2 ** attempt) + random.uniform(0, 1)
-                Logger().warning(f"Request failed ({e}), retrying in {delay:.2f} seconds...")
+                self.logger.warning(f"Request failed ({e}), retrying in {delay:.2f} seconds...")
                 time.sleep(delay)
     
     def fetch_html(self, url: str) -> str:
@@ -52,9 +53,9 @@ class WebUtils:
                     if chunk:
                         f.write(chunk)
             
-            Logger().info(f"Downloaded: {url} -> {file_path}")
+            self.logger.info(f"Downloaded: {url} -> {file_path}")
             return True
             
         except Exception as e:
-            Logger().error(f"Download failed: {url} -> {file_path}, Error: {e}")
+            self.logger.error(f"Download failed: {url} -> {file_path}, Error: {e}")
             return False
