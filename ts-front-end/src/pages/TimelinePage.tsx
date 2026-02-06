@@ -75,7 +75,7 @@ const TimeLinePage: React.FC = () => {
                 try {
                     await saveTimeline(user.id, timelineName, jobId);
                     actions.setTimelineName(timelineName);
-                } catch (error) {
+                } catch {
                     toast.error("Failed to save timeline. Please try again.");
                 }
             }}

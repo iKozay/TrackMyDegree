@@ -15,13 +15,11 @@ export const SaveTimelineModal: React.FC<SaveTimelineModalProps> = ({
 }) => {
   const [currentTimelineName, setCurrentTimelineName] = useState(timelineName);
 
-  // Initialize the timeline name when the modal opens
+  // Update when modal opens or timelineName changes
   useEffect(() => {
       if (open) {
           setCurrentTimelineName(
-              timelineName && timelineName.trim()
-                  ? timelineName.trim()
-                  : `timeline-${Date.now()}`
+              timelineName?.trim() || `timeline-${Date.now()}`
           );
       }
   }, [open, timelineName]);

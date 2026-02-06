@@ -92,17 +92,27 @@ describe("SaveTimelineModal", () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
-    it("initializes with trimmed timeline name when provided", () => {
-        render(
-            <SaveTimelineModal
-                open={true}
-                timelineName={"   My Timeline   "}
-                onSave={vi.fn()}
-                onClose={vi.fn()}
-            />
-        );
+  it("initializes with trimmed timeline name when provided", () => {
+      render(
+          <SaveTimelineModal
+              open={true}
+              timelineName={"   My Timeline   "}
+              onSave={vi.fn()}
+              onClose={vi.fn()}
+          />
+      );
 
-        const input = screen.getByPlaceholderText("Timeline name") as HTMLInputElement;
-        expect(input.value).toBe("My Timeline");
-    });
+      const input = screen.getByPlaceholderText("Timeline name") as HTMLInputElement;
+      expect(input.value).toBe("My Timeline");
+  });
+  it("should update input when timelineName prop changes after mount", () => {
+      const { rerender } = render(<SaveTimelineModal {...defaultProps} timelineName="Initial" />);
+
+      const input = screen.getByPlaceholderText("Timeline name") as HTMLInputElement;
+      expect(input.value).toBe("Initial");
+
+      rerender(<SaveTimelineModal {...defaultProps} timelineName="Updated" open={true} />);
+
+      expect(input.value).toBe("Updated");
+  });
 });
