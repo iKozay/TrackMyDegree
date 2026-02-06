@@ -348,6 +348,17 @@ describe('timelineService', () => {
 
     const deficiencyPool = result.pools.find(p => p._id === 'deficiencies');
     expect(deficiencyPool.courses).toContain('CHEM 206');
+
+    expect(result.timelineName).toBe('My Timeline');
+  });
+
+  it('buildTimelineFromDB throws when timeline is not found', async () => {
+      const findByIdMock = {
+          lean: jest.fn().mockReturnThis(),
+          exec: jest.fn().mockResolvedValue(null)
+      };
+      jest.spyOn(Timeline, 'findById').mockReturnValue(findByIdMock);
+     await expect(buildTimelineFromDB('missing-id')).rejects.toThrow('Timeline not found');
   });
 
   it('adds missing course data for non-degree courses', async () => {
