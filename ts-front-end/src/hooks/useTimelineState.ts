@@ -46,6 +46,7 @@ export interface TimelineActions {
   changeCourseStatus: (courseId: CourseCode, status: CourseStatusValue) => void;
   addCourse: (courseId: CourseCode, type: string) => void;
   addSemester: () => void;
+  setTimelineName: (timelineName: string) => void;
 }
 
 export interface UseTimelineStateResult {
@@ -140,6 +141,9 @@ function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
       dispatch({
         type: TimelineActionConstants.AddSemester,
       });
+    },
+    setTimelineName(timelineName: string) { // NEW
+        dispatch({ type: TimelineActionConstants.SetTimelineName, payload: { timelineName } });
     },
   };
 }

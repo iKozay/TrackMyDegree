@@ -70,8 +70,14 @@ const TimeLinePage: React.FC = () => {
             pools={state.pools}
             courses={state.courses}
             timelineName={state.timelineName}
-            onSave={(timelineName: string) => {
-              if (user) saveTimeline(user.id, timelineName, jobId);
+            onSave={async (timelineName: string) => {
+                if (!user) return;
+                try {
+                    await saveTimeline(user.id, timelineName, jobId);
+                    actions.setTimelineName(timelineName);
+                } catch (error) {
+                    toast.error("Failed to save timeline. Please try again.");
+                }
             }}
             onAdd={actions.addCourse}
             onClose={actions.openModal}

@@ -38,6 +38,12 @@ vi.mock("../../reducers/timelineReducer", () => ({
         },
       };
     }
+    if (action.type === TimelineActionConstants.SetTimelineName) {
+        return {
+            ...state,
+            timelineName: action.payload.timelineName,
+        };
+    }
     return state;
   },
 }));
@@ -207,5 +213,15 @@ describe("useTimelineState", () => {
 
         expect(result.current.status).toBe("done");
         expect(result.current.state.timelineName).toBe("");
+    });
+
+    it("updates timelineName via setTimelineName action", () => {
+        const { result } = renderHook(() => useTimelineState(undefined));
+
+        act(() => {
+            result.current.actions.setTimelineName("My Timeline");
+        });
+
+        expect(result.current.state.timelineName).toBe("My Timeline");
     });
 });
