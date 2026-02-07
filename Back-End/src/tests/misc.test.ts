@@ -1,10 +1,12 @@
 import { getTermRanges, isTermInProgress } from '@utils/misc';
 import { SEASONS } from '@utils/constants';
 
+const WINTER_2024 = 'Winter 2024';
+
 describe('misc', () => {
   describe('getTermRanges', () => {
     it('returns Winter term range (Jan 1 - May 4)', () => {
-      const { start, end } = getTermRanges('Winter 2024');
+      const { start, end } = getTermRanges(WINTER_2024);
       expect(start).toEqual(new Date(2024, 0, 1));
       expect(end).toEqual(new Date(2024, 4, 4));
     });
@@ -58,29 +60,29 @@ describe('misc', () => {
     it('returns false when today is before term start', () => {
       // Winter 2024: Jan 1 - May 4. Set "today" to Dec 15, 2023
       jest.setSystemTime(new Date(2023, 11, 15));
-      expect(isTermInProgress('Winter 2024')).toBe(false);
+      expect(isTermInProgress(WINTER_2024)).toBe(false);
     });
 
     it('returns false when today is after term end', () => {
       // Winter 2024: Jan 1 - May 4. Set "today" to Jun 1, 2024
       jest.setSystemTime(new Date(2024, 5, 1));
-      expect(isTermInProgress('Winter 2024')).toBe(false);
+      expect(isTermInProgress(WINTER_2024)).toBe(false);
     });
 
     it('returns true when today is within term range', () => {
       // Winter 2024: Jan 1 - May 4. Set "today" to Feb 15, 2024
       jest.setSystemTime(new Date(2024, 1, 15));
-      expect(isTermInProgress('Winter 2024')).toBe(true);
+      expect(isTermInProgress(WINTER_2024)).toBe(true);
     });
 
     it('returns true when today equals term start', () => {
       jest.setSystemTime(new Date(2024, 0, 1));
-      expect(isTermInProgress('Winter 2024')).toBe(true);
+      expect(isTermInProgress(WINTER_2024)).toBe(true);
     });
 
     it('returns true when today equals term end', () => {
       jest.setSystemTime(new Date(2024, 4, 4));
-      expect(isTermInProgress('Winter 2024')).toBe(true);
+      expect(isTermInProgress(WINTER_2024)).toBe(true);
     });
   });
 });
