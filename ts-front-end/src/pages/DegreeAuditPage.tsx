@@ -309,7 +309,7 @@ const RequirementItem: React.FC<{
 
                     {req.courses.map((course : AuditCourse) => (
                         <div key={course.id} className="course-item">
-                            <div className="course-info">
+                            <div className="degree-course-info">
                                 <span className="course-icon">
                                     {course.status === 'Completed' && <CheckCircle className="text-success" size={20} />}
                                     {course.status === 'In Progress' && <Circle className="text-primary" size={20} />}

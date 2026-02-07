@@ -123,7 +123,7 @@ app.use('/api/section', sectionsRoutes);
 app.use('/api/upload', uploadRouter);
 app.use('/api/jobs', jobRouter);
 app.use('/api/audit', degreeAuditRouter);
-app.use('/api/coop', coopvalidationRouter)
+app.use('/api/coop', coopvalidationRouter);
 
 //Handle 404
 app.use(notFoundHandler);
