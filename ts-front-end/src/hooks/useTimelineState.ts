@@ -142,7 +142,7 @@ function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
         type: TimelineActionConstants.AddSemester,
       });
     },
-    setTimelineName(timelineName: string) { // NEW
+    setTimelineName(timelineName: string) {
         dispatch({ type: TimelineActionConstants.SetTimelineName, payload: { timelineName } });
     },
   };

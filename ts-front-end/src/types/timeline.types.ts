@@ -107,6 +107,7 @@ export type TimelinePartialUpdate = {
   deficiencies?: CourseCode[];
   courses?: CourseMap;
   semesters?: SemesterList;
+  timelineName?: string;
 };
 
 import { TimelineActionConstants } from "./actions";
