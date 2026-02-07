@@ -1,4 +1,3 @@
-import React from 'react';
 import { Carousel } from 'react-bootstrap';
 import "../css/LandingPage.css";
 import pic1 from '../images/courselistpage.png';
