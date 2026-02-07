@@ -147,7 +147,8 @@ describe('addEcpCoursePools', () => {
     expect(degreeObj.totalCredits).toBe(150);
 
     const addedPools = coursePools.slice(1);
-    expect(addedPools.every((p) => p.creditsRequired === 30)).toBe(true);
+    // pools retain their original credits (no +30 per-pool adjustment)
+    expect(addedPools.every((p) => p.creditsRequired === 0)).toBe(true);
   });
 
   it('adds 30 to existing pool creditsRequired values and degree.totalCredits when provided', async () => {
@@ -174,8 +175,8 @@ describe('addEcpCoursePools', () => {
 
     await addEcpCoursePools(BENG_SOFTWARE, coursePools, deficiencies, degreeObj);
 
-    // original credits + 30
-    expect(coursePools.map((p) => p.creditsRequired)).toEqual([42, 48]);
+    // original credits (no +30 per-pool adjustment)
+    expect(coursePools.map((p) => p.creditsRequired)).toEqual([12, 18]);
     // deficiency names appended
     expect(deficiencies).toEqual(['ECP A', 'ECP B']);
     // degree incremented
@@ -197,8 +198,8 @@ describe('addEcpCoursePools', () => {
     await addEcpCoursePools('BCompSc_GENERAL', coursePools, deficiencies);
 
     expect(coursePools.map((p) => p._id)).toEqual(['comp_pool']);
-    // credits were increased by 30
-    expect(coursePools[0].creditsRequired).toBe(40);
+    // credits remain unchanged (no per-pool +30)
+    expect(coursePools[0].creditsRequired).toBe(10);
     expect(deficiencies).toEqual([COMP_ECP_POOL_NAME]);
   });
 
