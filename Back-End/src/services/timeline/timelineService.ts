@@ -777,11 +777,6 @@ export async function addEcpCoursePools(
   if (ecpKey) {
     const ecpResult = await getDegreeData(ecpMapping[ecpKey]);
     if (ecpResult) {
-      // Add 30 extra credits to each ECP pool's required credits
-      for (const pool of ecpResult.coursePools) {
-        pool.creditsRequired = (pool.creditsRequired ?? 0) + 30;
-      }
-
       coursePools.push(...ecpResult.coursePools);
       deficiencies.push(...ecpResult.coursePools.map((pool) => pool.name));
 
