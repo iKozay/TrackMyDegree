@@ -45,12 +45,14 @@ type CachedTimeline = {
   courses: Record<string, Record<string, unknown>>;
 
   semesters: unknown[];
+  timelineName?: string;
 };
 type TimelinePartialUpdate = {
   exemptions?: string[];
   deficiencies?: string[];
   courses?: Record<string, Record<string, unknown>>;
   semesters?: unknown[];
+  timelineName?: string;
 };
 function updatePool(
   timeline: CachedTimeline,
@@ -109,6 +111,11 @@ export const cacheTimelineByJobId: RequestHandler<GetResultParams> = async (
 
     if (partialUpdate.semesters) {
       timeline.semesters = partialUpdate.semesters;
+    }
+
+    // handle timelineName update
+    if (partialUpdate.timelineName !== undefined) {
+        timeline.timelineName = partialUpdate.timelineName;
     }
 
     await cacheJobResult(jobId, {

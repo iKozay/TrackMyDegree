@@ -46,6 +46,7 @@ export interface TimelineActions {
   changeCourseStatus: (courseId: CourseCode, status: CourseStatusValue) => void;
   addCourse: (courseId: CourseCode, type: string) => void;
   addSemester: () => void;
+  setTimelineName: (timelineName: string) => void;
 }
 
 export interface UseTimelineStateResult {
@@ -141,6 +142,9 @@ function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
         type: TimelineActionConstants.AddSemester,
       });
     },
+    setTimelineName(timelineName: string) {
+        dispatch({ type: TimelineActionConstants.SetTimelineName, payload: { timelineName } });
+    },
   };
 }
 
@@ -173,7 +177,7 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
         if (data.status === "done" && data.result) {
           const { degree, pools, courses, semesters } = data.result;
           const timelineName =
-            data.result.timelineName || `timeline-${Date.now()}`;
+            data.result.timelineName ?? "";
 
           actions.initTimelineState(
             timelineName,

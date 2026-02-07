@@ -108,4 +108,36 @@ describe("SemesterPlanner", () => {
     // We don't assert much here, just that it renders successfully
     expect(screen.getByText(/academic plan/i)).toBeInTheDocument();
   });
+
+    it("shows default header when timelineName is undefined", () => {
+        render(
+            <SemesterPlanner
+                semesters={semesters}
+                courses={courses}
+                onCourseSelect={onCourseSelect}
+                selectedCourse={null}
+                onAddSemester={onAddSemester}
+                timelineName={undefined}
+            />
+        );
+        expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
+            "Academic Plan"
+        );
+    });
+
+    it("shows provided timelineName in header when defined", () => {
+        render(
+            <SemesterPlanner
+                semesters={semesters}
+                courses={courses}
+                onCourseSelect={onCourseSelect}
+                selectedCourse={null}
+                onAddSemester={onAddSemester}
+                timelineName={"MyTimeline12345"}
+            />
+        );
+        expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
+            "MyTimeline12345"
+        );
+    });
 });
