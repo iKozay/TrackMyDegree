@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from '@testing-library/react';
 import ImageCarousel from '../../components/ImageCarousel';
 
-vi.mock('../images/courselistpage.png', () => 'mock-pic1.jpg');
-vi.mock('../images/uploadAcceptanceletter.png', () => 'mock-pic2.jpg');
-vi.mock('../images/timelinepage.png', () => 'mock-pic4.jpg');
+vi.mock('../../images/courselistpage.png', () => 'mock-pic1.jpg');
+vi.mock('../../images/uploadAcceptanceletter.png', () => 'mock-pic2.jpg');
+vi.mock('../../images/timelinepage.png', () => 'mock-pic4.jpg');
 
 vi.mock('react-bootstrap', () => ({
   Carousel: ({ children, ...props }: any) => (
