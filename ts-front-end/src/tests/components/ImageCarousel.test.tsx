@@ -1,4 +1,3 @@
-import React from 'react';
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from '@testing-library/react';
 import ImageCarousel from '../../components/ImageCarousel';
@@ -44,13 +43,10 @@ describe('ImageCarousel', () => {
   });
 
   it('renders images array with correct number of elements (3)', () => {
-    const imagesSpy = vi.spyOn(ImageCarousel as any, 'images' as any);
-    imagesSpy.mockReturnValue(mockImages);
-    
     render(<ImageCarousel />);
     
-    expect(imagesSpy()).toHaveLength(3);
-    expect(imagesSpy()).toEqual(mockImages);
+    const items = screen.getAllByTestId('carousel-item');
+    expect(items).toHaveLength(3);
   });
 
   it.each([0, 1, 2])('renders Carousel.Item %i with correct key and img', (index) => {
