@@ -1,9 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import { describe, it, expect, vi } from "vitest";
 import ImageCarousel from '../../components/ImageCarousel';
 
-// Mock images
 vi.mock('../../images/courselistpage.png', () => ({
   default: 'pic1.png',
 }));
@@ -14,10 +13,7 @@ vi.mock('../../images/timelinepage.png', () => ({
   default: 'pic4.png',
 }));
 
-// Mock react-bootstrap Carousel
 vi.mock('react-bootstrap', async () => {
-  const React = await import('react');
-
   const Carousel = ({ children, pause, className, ...props }: any) => (
     <div
       data-testid="carousel"
