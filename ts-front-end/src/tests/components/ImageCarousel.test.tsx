@@ -9,7 +9,6 @@ jest.mock('../../images/timelinepage.png', () => 'pic4.png');
 
 // Mock react-bootstrap Carousel
 jest.mock('react-bootstrap', () => {
-  const React = require('react');
   return {
     Carousel: ({ children, pause, className, ...props }: any) => (
       <div
