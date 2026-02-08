@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ImageCarousel from '../../components/ImageCarousel';
@@ -27,7 +26,6 @@ jest.mock('react-bootstrap', () => {
 
 // Mock Carousel.Item
 jest.mock('react-bootstrap', () => {
-  const React = require('react');
   const Carousel = ({ children, pause, className, ...props }: any) => (
     <div
       data-testid="carousel"
