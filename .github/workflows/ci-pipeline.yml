@@ -24,7 +24,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'
+          node-version: '22.21'
 
       - name: Install dependencies for frontend
         working-directory: ./ts-front-end
@@ -62,7 +62,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'
+          node-version: '22.21'
 
       - name: Install dependencies for backend
         working-directory: ./Back-End/src
@@ -121,7 +121,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'
+          node-version: '22.21'
 
       - name: Install dependencies for backend
         working-directory: ./Back-End/src
