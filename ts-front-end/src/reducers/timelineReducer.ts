@@ -1,5 +1,5 @@
 import type { TimelineActionType } from "../types/timeline.types";
-import { TimelineActionConstants } from "../types/actions";
+import { TimelineActionConstants} from "../types/actions";
 import type { TimelineState } from "../types/timeline.types";
 import {
   initTimelineState,
@@ -31,6 +31,9 @@ export function timelineReducer(
 
     case TimelineActionConstants.OpenModal:
       return openModal(state, action.payload);
+
+    case TimelineActionConstants.SetTimelineName:
+        return { ...state, timelineName: action.payload.timelineName };
 
     /* ---------- STATE RESTORATION ---------- */
 

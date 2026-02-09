@@ -14,4 +14,5 @@ export const TimelineActionConstants = {
   ChangeCourseStatus: "CHANGE-COURSE-STATUS",
   AddCourse: "ADD-COURSE",
   AddSemester: "ADD-SEMESTER",
+  SetTimelineName: "SET-TIMELINE-NAME",
 } as const;

@@ -64,4 +64,31 @@ describe("SaveTimelineModal (content)", () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1);
     expect(mockOnSave).not.toHaveBeenCalled();
   });
+
+  it("should call onClose when backdrop is clicked", () => {
+    render(<SaveTimelineModal {...defaultProps} />);
+
+    const title = screen.getByText("Name Your Timeline");
+    const backdrop = title.closest(".modal-backdrop");
+
+    expect(backdrop).toBeTruthy();
+
+    fireEvent.click(backdrop!);
+
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("initializes with trimmed timeline name when provided", () => {
+      render(
+          <SaveTimelineModal
+              open={true}
+              timelineName={"   My Timeline   "}
+              onSave={vi.fn()}
+              onClose={vi.fn()}
+          />
+      );
+
+      const input = screen.getByPlaceholderText("Timeline name") as HTMLInputElement;
+      expect(input.value).toBe("My Timeline");
+  });
 });

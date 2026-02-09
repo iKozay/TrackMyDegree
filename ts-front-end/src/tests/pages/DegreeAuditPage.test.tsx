@@ -107,7 +107,7 @@ describe('DegreeAuditPage', () => {
         renderPage();
 
         await waitFor(() => {
-            expect(screen.getByText('Unofficial Degree Audit')).toBeTruthy();
+            expect(screen.getByText('Unofficial Degree Assessment')).toBeTruthy();
         });
         
         expect(screen.getByText('John Smith')).toBeTruthy();
@@ -127,7 +127,7 @@ describe('DegreeAuditPage', () => {
         fireEvent.click(retryBtn);
 
         await waitFor(() => {
-            expect(screen.getByText('Unofficial Degree Audit')).toBeTruthy();
+            expect(screen.getByText('Unofficial Degree Assessment')).toBeTruthy();
         });
     });
 
@@ -157,7 +157,7 @@ describe('DegreeAuditPage', () => {
         renderPage();
 
         await waitFor(() => {
-            expect(screen.getByText('Unofficial Degree Audit')).toBeTruthy();
+            expect(screen.getByText('Unofficial Degree Assessment')).toBeTruthy();
         });
 
         // Check that badges are rendered correctly
@@ -171,7 +171,7 @@ describe('DegreeAuditPage', () => {
         renderPage();
 
         await waitFor(() => {
-            expect(screen.getByText('Unofficial Degree Audit')).toBeTruthy();
+            expect(screen.getByText('Unofficial Degree Assessment')).toBeTruthy();
         });
 
         expect(mockApiGet).toHaveBeenCalledWith('/audit/user/test-user-id');
@@ -183,7 +183,7 @@ describe('DegreeAuditPage', () => {
         renderPage();
 
         await waitFor(() => {
-            expect(screen.getByText('Unofficial Degree Audit')).toBeTruthy();
+            expect(screen.getByText('Unofficial Degree Assessment')).toBeTruthy();
         });
 
         expect(mockApiGet).toHaveBeenCalledWith('/audit/timeline/timeline-123?userId=test-user-id');
@@ -209,10 +209,10 @@ describe('DegreeAuditPage', () => {
         renderPage();
 
         await waitFor(() => {
-            expect(screen.getByText('No Audit Data Found')).toBeTruthy();
+            expect(screen.getByText('No Assessment Data Found')).toBeTruthy();
         });
 
-        expect(screen.getByText(/We couldn't find any degree audit information/)).toBeTruthy();
+        expect(screen.getByText(/We couldn't find any degree assessment information/)).toBeTruthy();
     });
 
     it('should show empty state when data is null', async () => {
@@ -220,7 +220,7 @@ describe('DegreeAuditPage', () => {
         renderPage();
 
         await waitFor(() => {
-            expect(screen.getByText('No Audit Data Found')).toBeTruthy();
+            expect(screen.getByText('No Assessment Data Found')).toBeTruthy();
         });
     });
 
@@ -230,7 +230,7 @@ describe('DegreeAuditPage', () => {
         renderPage();
 
         await waitFor(() => {
-            expect(screen.getByText('Unofficial Degree Audit')).toBeTruthy();
+            expect(screen.getByText('Unofficial Degree Assessment')).toBeTruthy();
         });
 
         const backBtn = screen.getByText('Back to Profile');
@@ -246,7 +246,7 @@ describe('DegreeAuditPage', () => {
         renderPage();
 
         await waitFor(() => {
-            expect(screen.getByText('Unofficial Degree Audit')).toBeTruthy();
+            expect(screen.getByText('Unofficial Degree Assessment')).toBeTruthy();
         });
 
         expect(screen.queryByText('Back to Profile')).toBeNull();
@@ -371,36 +371,36 @@ describe('DegreeAuditPage', () => {
         expect(screen.getByText('An unexpected error occurred')).toBeTruthy();
     });
 
-    it('should call fetchData when Generate Audit button is clicked on empty state', async () => {
+    it('should call fetchData when Generate Assessment button is clicked on empty state', async () => {
         const emptyData = { ...mockAuditData, requirements: [] };
         mockApiGet.mockResolvedValueOnce(emptyData);
         renderPage();
 
         await waitFor(() => {
-            expect(screen.getByText('No Audit Data Found')).toBeTruthy();
+            expect(screen.getByText('No Assessment Data Found')).toBeTruthy();
         });
 
-        // Click Generate Audit
+        // Click Generate Assessment
         mockApiGet.mockResolvedValueOnce(mockAuditData);
-        const generateBtn = screen.getByText('Generate Audit');
+        const generateBtn = screen.getByText('Generate Assessment');
         fireEvent.click(generateBtn);
 
         await waitFor(() => {
-            expect(screen.getByText('Unofficial Degree Audit')).toBeTruthy();
+            expect(screen.getByText('Unofficial Degree Assessment')).toBeTruthy();
         });
     });
 
-    it('should call fetchData when Refresh Audit button is clicked', async () => {
+    it('should call fetchData when Refresh Assessment button is clicked', async () => {
         mockApiGet.mockResolvedValueOnce(mockAuditData);
         renderPage();
 
         await waitFor(() => {
-            expect(screen.getByText('Unofficial Degree Audit')).toBeTruthy();
+            expect(screen.getByText('Unofficial Degree Assessment')).toBeTruthy();
         });
 
-        // Click Refresh Audit
+        // Click Refresh Assessment
         mockApiGet.mockResolvedValueOnce(mockAuditData);
-        const refreshBtn = screen.getByText('Refresh Audit');
+        const refreshBtn = screen.getByText('Refresh Assessment');
         fireEvent.click(refreshBtn);
 
         await waitFor(() => {

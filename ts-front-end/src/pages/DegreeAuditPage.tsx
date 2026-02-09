@@ -92,10 +92,10 @@ const DegreeAuditPage: React.FC = () => {
                     <div className="state-icon empty">
                         <Inbox size={32} />
                     </div>
-                    <h3>No Audit Data Found</h3>
-                    <p>We couldn't find any degree audit information for your account. If you just enrolled, it might take a few hours to process.</p>
+                    <h3>No Assessment Data Found</h3>
+                    <p>We couldn't find any degree assessment information for your account. If you just enrolled, it might take a few hours to process.</p>
                     <button className="btn-primary" onClick={fetchData}>
-                        <FileText size={18} /> Generate Audit
+                        <FileText size={18} /> Generate Assessment
                     </button>
                 </div>
             </div>
@@ -115,18 +115,23 @@ const DegreeAuditPage: React.FC = () => {
             {/* Header */}
             <div className="da-header">
                 <div className="da-title">
-                    <h2>Unofficial Degree Audit</h2>
+                    <h2>Unofficial Degree Assessment</h2>
                     <p>Comprehensive analysis of your degree progress</p>
                 </div>
                 <div className="da-actions">
-                    <button className="btn btn-outline" onClick={() => downloadPdf(".audit-container","degree-audit")}>
+                    <button className="btn btn-outline" onClick={() => downloadPdf(".audit-container","degree-assessment")}>
                         <Download size={18} /> Export PDF
                     </button>
                     <button className="btn btn-primary" onClick={fetchData}>
-                        <FileText size={18} /> Refresh Audit
+                        <FileText size={18} /> Refresh Assessment
                     </button>
                 </div>
             </div>
+
+            <div className="disclaimer-note">
+                <strong>Note:</strong> This is an unofficial assessment for planning purposes only. Please consult with your academic advisor for official degree evaluation.
+            </div>
+
             <div className="audit-container">
                 {/* Student Info Card */}
                 <div className="card">
@@ -149,7 +154,7 @@ const DegreeAuditPage: React.FC = () => {
                             </div>
                         </div>
                         <div>
-                            <h3 className="section-title">Audit Summary</h3>
+                            <h3 className="section-title">Assessment Summary</h3>
                             <div className="info-rows">
                                 <div className="info-row">
                                     <span className="label">GPA:</span>
@@ -221,10 +226,6 @@ const DegreeAuditPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Disclaimer Note */}
-                <div className="disclaimer-note">
-                    <strong>Note:</strong> This is an unofficial audit for planning purposes only. Please consult with your academic advisor for official degree evaluation.
-                </div>
             </div>
         </div>
     );
@@ -309,7 +310,7 @@ const RequirementItem: React.FC<{
 
                     {req.courses.map((course : AuditCourse) => (
                         <div key={course.id} className="course-item">
-                            <div className="course-info">
+                            <div className="degree-course-info">
                                 <span className="course-icon">
                                     {course.status === 'Completed' && <CheckCircle className="text-success" size={20} />}
                                     {course.status === 'In Progress' && <Circle className="text-primary" size={20} />}
