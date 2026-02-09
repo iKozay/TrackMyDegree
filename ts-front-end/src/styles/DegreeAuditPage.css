@@ -466,7 +466,7 @@
     border-color: var(--slate-400);
 }
 
-.course-info {
+.degree-course-info {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -539,7 +539,7 @@
     padding: 16px;
     font-size: 16px;
     color: var(--slate-600);
-    margin-top: 24px;
+    margin-bottom: 24px;
 }
 
 .disclaimer-note strong {

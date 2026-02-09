@@ -71,3 +71,8 @@
 .upload-container-al .upload-box-al.dragover {
   border-color: #8b0000;
 }
+
+.upload-container-al .create-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}

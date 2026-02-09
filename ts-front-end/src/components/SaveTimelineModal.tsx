@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 
 interface SaveTimelineModalProps {
   timelineName: string;
@@ -11,7 +11,10 @@ export const SaveTimelineModal: React.FC<SaveTimelineModalProps> = ({
   onSave,
   onClose,
 }) => {
-  const [currentTimelineName, setCurrentTimelineName] = useState(timelineName);
+    // Initializes once per mount (modal opens)
+    const [currentTimelineName, setCurrentTimelineName] = useState<string>(() =>
+        timelineName?.trim() || `timeline-${Date.now()}`
+    );
 
   if (!open) return null;
 
