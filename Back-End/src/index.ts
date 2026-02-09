@@ -24,6 +24,7 @@ import uploadRouter from '@routes/uploadRoutes';
 import jobRouter from '@routes/jobRoutes';
 import degreeAuditRouter from '@routes/degreeAuditRoutes';
 import coopvalidationRouter from '@routes/coopvalidationRoutes';
+import creditFormRouter from '@routes/creditFormRoutes';
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
@@ -123,7 +124,8 @@ app.use('/api/section', sectionsRoutes);
 app.use('/api/upload', uploadRouter);
 app.use('/api/jobs', jobRouter);
 app.use('/api/audit', degreeAuditRouter);
-app.use('/api/coop', coopvalidationRouter)
+app.use('/api/coop', coopvalidationRouter);
+app.use('/api/credit-forms', creditFormRouter);
 
 //Handle 404
 app.use(notFoundHandler);
