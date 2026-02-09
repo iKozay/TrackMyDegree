@@ -1,14 +1,18 @@
 import { useRef, useState } from "react";
 import "../styles/components/UploadBox.css";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import type { UploadResponse } from "../types/response.types.ts";
 import { api } from "../api/http-api-client.ts";
+
+const REDIRECT_DELAY_MS = 1000;
 
 const UploadBox = () => {
   const navigate = useNavigate();
 
   const [fileName, setFileName] = useState<string>("No file chosen");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -59,17 +63,23 @@ const UploadBox = () => {
 
     const formData = new FormData();
     formData.append("file", selectedFile);
+    setIsUploading(true);
 
     try {
       const response = await api.post<UploadResponse>("/upload/file", formData);
 
       if (response.jobId) {
-        navigate(`/timeline/${response.jobId}`);
+        toast.success("Upload complete. Redirecting…");
+        setTimeout(() => {
+          navigate(`/timeline/${response.jobId}`);
+        }, REDIRECT_DELAY_MS);
         return;
       }
 
+      setIsUploading(false);
       alert("Unexpected response from server.");
     } catch (error: unknown) {
+      setIsUploading(false);
       console.error("Error processing file:", error);
       alert(
         error instanceof Error
@@ -95,6 +105,7 @@ const UploadBox = () => {
         Upload your acceptance letter or your unofficial transcript to
         automatically fill out the required information
       </p>
+
       <div
         className="upload-box-al"
         onDragOver={handleDragOver}
@@ -112,16 +123,20 @@ const UploadBox = () => {
           onChange={handleFileChange}
           ref={fileInputRef}
           style={{ display: "none" }}
+          disabled={isUploading}
         />
         <p className="file-name">{fileName}</p>
       </div>
 
-      <button className="cancel-button" onClick={handleCancel}>
+      <button className="cancel-button" onClick={handleCancel} disabled={isUploading}>
         Cancel
       </button>
 
-      <button className="create-button" onClick={handleSubmit}>
-        Create Timeline
+      <button
+        className="create-button"
+        onClick={handleSubmit}
+        disabled={isUploading}>
+        {isUploading ? "Uploading…" : "Create Timeline"}
       </button>
     </>
   );
