@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import type { ClassItem } from "../../pages/ClassBuilderPage";
+import type { ClassItem } from "src/types/classItem";
 
 interface ScheduleStatsProps {
     classes: ClassItem[];

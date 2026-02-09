@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, it, expect } from 'vitest';
 import ScheduleStats from '../../../components/ClassBuilderComponents/ScheduleStats';
-import type { ClassItem } from '../../../pages/ClassBuilderPage';
+import type { ClassItem } from '../../../types/classItem';
 
 describe('ScheduleStats', () => {
     const mockClasses: ClassItem[] = [

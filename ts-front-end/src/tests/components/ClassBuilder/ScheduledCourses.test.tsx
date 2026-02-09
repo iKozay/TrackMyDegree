@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import ScheduledCourses from '../../../components/ClassBuilderComponents/ScheduledCourses';
-import type { ClassItem } from '../../../pages/ClassBuilderPage';
+import type { ClassItem } from '../../../types/classItem';
 
 describe('ScheduledCourses', () => {
     const mockSetClasses = vi.fn();

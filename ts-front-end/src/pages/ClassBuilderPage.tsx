@@ -5,15 +5,7 @@ import WeeklySchedule from "../components/ClassBuilderComponents/WeeklySchedule"
 import ScheduleStats from "../components/ClassBuilderComponents/ScheduleStats";
 import ScheduledCourses from "../components/ClassBuilderComponents/ScheduledCourses";
 import SearchCourses from "../components/ClassBuilderComponents/SearchCourses";
-
-export interface ClassItem {
-    name: string;
-    section: string;
-    room: string;
-    day: number; // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
-    startTime: number; // hour in 24h format (8-22)
-    endTime: number; // hour in 24h format (8-22)
-}
+import type { ClassItem } from "src/types/classItem";
 
 const ClassBuilderPage: React.FC = () => {
     const [classes, setClasses] = useState<ClassItem[]>([
