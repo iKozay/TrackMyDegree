@@ -262,4 +262,20 @@ describe("timelineReducer", () => {
     expect(result.history.length).toBe(1);
     expect(result.future.length).toBe(0);
   });
+
+  it("handles SET_TIMELINE_NAME action", () => {
+      const action = {
+          type: TimelineActionConstants.SetTimelineName,
+          payload: { timelineName: "My Saved Timeline" },
+      };
+     const result = timelineReducer(initialState, action);
+     expect(result.timelineName).toBe("My Saved Timeline");
+      // Ensure unrelated state is unchanged
+      expect(result.degree).toEqual(initialState.degree);
+      expect(result.pools).toEqual(initialState.pools);
+      expect(result.courses).toEqual(initialState.courses);
+      expect(result.semesters).toEqual(initialState.semesters);
+      expect(result.selectedCourse).toBe(initialState.selectedCourse);
+      expect(result.modal).toEqual(initialState.modal);
+  });
 });

@@ -191,6 +191,10 @@ export function computeTimelinePartialUpdate(
 ): TimelinePartialUpdate | null {
   const update: TimelinePartialUpdate = {};
 
+  if (prev.timelineName !== curr.timelineName) {
+      update.timelineName = curr.timelineName;
+  }
+
   /* ---------- EXEMPTIONS ---------- */
   const prevEx = [...getPoolCourses(prev.pools, "exemptions")].sort();
   const currEx = [...getPoolCourses(curr.pools, "exemptions")].sort();

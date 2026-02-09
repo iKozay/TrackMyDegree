@@ -15,7 +15,15 @@ interface SemesterPlannerProps {
   onCourseSelect: (courseId: CourseCode) => void;
   selectedCourse?: CourseCode | null;
   onAddSemester: () => void;
+  timelineName?: string;
 }
+
+const getDisplayName = (timelineName: string | undefined): string => {
+    if (!timelineName) {
+        return "Academic Plan";
+    }
+    return timelineName;
+};
 
 const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
   semesters,
@@ -23,11 +31,12 @@ const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
   onCourseSelect,
   selectedCourse,
   onAddSemester,
+  timelineName
 }) => {
   return (
     <div className="timeline">
       <div className="planner-header">
-        <h2>Academic Plan</h2>
+        <h2>{getDisplayName(timelineName)}</h2>
         <button className="btn btn-tertiary" onClick={onAddSemester}>
           <Plus size={16} />
           Add Semester

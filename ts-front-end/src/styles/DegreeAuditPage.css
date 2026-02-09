@@ -466,7 +466,7 @@
     border-color: var(--slate-400);
 }
 
-.course-info {
+.degree-course-info {
     display: flex;
     flex-direction: row;
     align-items: center;
