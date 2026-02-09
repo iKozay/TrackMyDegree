@@ -1,7 +1,8 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import programs from '../data/requirementsPrograms';
+import staticPrograms from '../data/requirementsPrograms';
 
+const API_SERVER = import.meta.env.VITE_API_SERVER || 'http://localhost:8000/api';
 const BURGUNDY = '#7a0019';
 
 // Reusable button
@@ -57,9 +58,46 @@ export default function RequirementsFormPage() {
   const { programId } = useParams();
   const navigate = useNavigate();
   const iframeRef = useRef(null);
-
-  const program = useMemo(() => programs.find((p) => p.id === programId), [programId]);
   const [srcCacheBuster, setSrcCacheBuster] = useState(0);
+  const [program, setProgram] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch program data from API
+  useEffect(() => {
+    const fetchProgram = async () => {
+      try {
+        // First try to fetch from API
+        const response = await fetch(`${API_SERVER}/credit-forms/${programId}`, {
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setProgram(data);
+        } else {
+          // Fallback to static data
+          const staticProgram = staticPrograms.find((p) => p.id === programId);
+          setProgram(staticProgram || null);
+        }
+      } catch (error) {
+        console.error('Error fetching program:', error);
+        // Fallback to static data
+        const staticProgram = staticPrograms.find((p) => p.id === programId);
+        setProgram(staticProgram || null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProgram();
+  }, [programId]);
+
+  if (loading) {
+    return (
+      <div className="container py-4">
+        <p>Loading form...</p>
+      </div>
+    );
+  }
 
   if (!program) {
     return (
@@ -78,11 +116,14 @@ export default function RequirementsFormPage() {
   let effectiveSrc = null;
   if (program?.pdf) {
     effectiveSrc = program.pdf;
+    // If the PDF path starts with /api/, it's from our API, prepend the server
+    if (effectiveSrc.startsWith('/api/')) {
+      effectiveSrc = API_SERVER.replace('/api', '') + effectiveSrc;
+    }
     if (srcCacheBuster) {
       effectiveSrc += `?v=${srcCacheBuster}`;
     }
-}
-
+  }
 
   const onBack = () => navigate('/requirements');
 
@@ -97,7 +138,7 @@ export default function RequirementsFormPage() {
       iframeRef.current?.contentWindow?.focus();
       iframeRef.current?.contentWindow?.print();
     } catch {
-      globalThis.alert('Unable to trigger print automatically. Use the viewer’s print button or your browser menu.');
+      globalThis.alert("Unable to trigger print automatically. Use the viewer's print button or your browser menu.");
     }
   };
 
@@ -145,10 +186,11 @@ export default function RequirementsFormPage() {
           </div>
         ) : (
           <div className="alert alert-info">
-            The PDF for <strong>{program.title}</strong> isn’t available yet. Please check back soon.
+            The PDF for <strong>{program.title}</strong> is not available yet. Please check back soon.
           </div>
         )}
       </div>
     </div>
   );
 }
+
