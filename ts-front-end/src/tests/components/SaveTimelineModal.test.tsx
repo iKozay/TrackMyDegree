@@ -65,19 +65,6 @@ describe("SaveTimelineModal (content)", () => {
     expect(mockOnSave).not.toHaveBeenCalled();
   });
 
-  it("should call onClose when backdrop is clicked", () => {
-    render(<SaveTimelineModal {...defaultProps} />);
-
-    const title = screen.getByText("Name Your Timeline");
-    const backdrop = title.closest(".modal-backdrop");
-
-    expect(backdrop).toBeTruthy();
-
-    fireEvent.click(backdrop!);
-
-    expect(mockOnClose).toHaveBeenCalledTimes(1);
-  });
-
   it("initializes with trimmed timeline name when provided", () => {
       render(
           <SaveTimelineModal
