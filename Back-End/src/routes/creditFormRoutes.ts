@@ -29,6 +29,7 @@ const storage = multer.diskStorage({
     },
 });
 
+// eslint-disable-next-line no-undef
 const fileFilter = (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     if (file.mimetype === 'application/pdf') {
         cb(null, true);
