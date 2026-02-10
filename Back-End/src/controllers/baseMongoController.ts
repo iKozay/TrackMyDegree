@@ -88,10 +88,10 @@ export abstract class BaseMongoController<T extends BaseDocument> {
       let query = this.model.findById(id);
 
       if (select) {
-        query = query.select(select);
+        query = query.select(select) as typeof query;;
       }
 
-      const document = await query.lean<T & { _id: ObjectId }>().exec();
+      const document = await query.lean<T>().exec();
 
       if (!document) {
         return { success: false, error: `${this.modelName} not found` };
@@ -117,10 +117,10 @@ export abstract class BaseMongoController<T extends BaseDocument> {
       let query = this.model.findOne(filter);
 
       if (select) {
-        query = query.select(select);
+        query = query.select(select) as typeof query;
       }
 
-      const document = await query.lean<T & { _id: ObjectId }>().exec();
+      const document = await query.lean<T>().exec();
 
       if (!document) {
         return { success: false, error: `${this.modelName} not found` };
@@ -157,7 +157,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
 
       // Apply field selection
       if (options.select) {
-        query = query.select(options.select);
+        query = query.select(options.select) as typeof query;
       }
 
       // Apply sorting
@@ -171,7 +171,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
         query = query.skip(skip).limit(options.limit);
       }
 
-      const documents = await query.lean<Array<T & { _id: ObjectId }>>().exec();
+      const documents = await query.lean<T[]>().exec();
 
       return { success: true, data: documents };
     } catch (error) {
