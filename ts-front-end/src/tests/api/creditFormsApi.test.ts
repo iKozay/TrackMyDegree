@@ -30,6 +30,24 @@ const localStorageMock = (function () {
 })();
 vi.stubGlobal('localStorage', localStorageMock);
 
+// Helper to create a properly shaped mock response
+function mockResponse(body: unknown, options: { ok?: boolean; status?: number; statusText?: string } = {}) {
+    const { ok = true, status = 200, statusText = 'OK' } = options;
+    return {
+        ok,
+        status,
+        statusText,
+        headers: {
+            get: (name: string) => {
+                if (name.toLowerCase() === 'content-type') return 'application/json';
+                return null;
+            },
+        },
+        json: () => Promise.resolve(body),
+        text: () => Promise.resolve(JSON.stringify(body)),
+    };
+}
+
 describe('creditFormsApi', () => {
     beforeEach(() => {
         vi.clearAllMocks();
@@ -53,10 +71,7 @@ describe('creditFormsApi', () => {
                 ],
             };
 
-            mockFetch.mockResolvedValueOnce({
-                ok: true,
-                json: () => Promise.resolve(mockForms),
-            });
+            mockFetch.mockResolvedValueOnce(mockResponse(mockForms));
 
             const result = await fetchCreditForms();
 
@@ -70,11 +85,9 @@ describe('creditFormsApi', () => {
         });
 
         test('should throw error on failed request', async () => {
-            mockFetch.mockResolvedValueOnce({
-                ok: false,
-                status: 500,
-                json: () => Promise.resolve({ error: 'Server error' }),
-            });
+            mockFetch.mockResolvedValueOnce(
+                mockResponse({ error: 'Server error' }, { ok: false, status: 500, statusText: 'Internal Server Error' })
+            );
 
             await expect(fetchCreditForms()).rejects.toThrow();
         });
@@ -95,10 +108,7 @@ describe('creditFormsApi', () => {
                 pdf: '/api/credit-forms/file/software-engineering.pdf',
             };
 
-            mockFetch.mockResolvedValueOnce({
-                ok: true,
-                json: () => Promise.resolve(mockForm),
-            });
+            mockFetch.mockResolvedValueOnce(mockResponse(mockForm));
 
             const result = await fetchCreditFormById('software-engineering');
 
@@ -112,11 +122,9 @@ describe('creditFormsApi', () => {
         });
 
         test('should throw error for non-existent form', async () => {
-            mockFetch.mockResolvedValueOnce({
-                ok: false,
-                status: 404,
-                json: () => Promise.resolve({ error: 'Not found' }),
-            });
+            mockFetch.mockResolvedValueOnce(
+                mockResponse({ error: 'Not found' }, { ok: false, status: 404, statusText: 'Not Found' })
+            );
 
             await expect(fetchCreditFormById('nonexistent')).rejects.toThrow();
         });
@@ -129,7 +137,7 @@ describe('creditFormsApi', () => {
             const subtitle = 'New Program Credit Count Form';
             const file = new File(['test'], 'test.pdf', { type: 'application/pdf' });
 
-            const mockResponse = {
+            const mockResponseBody = {
                 message: 'Credit form created successfully',
                 form: {
                     id: 'new-program',
@@ -139,10 +147,7 @@ describe('creditFormsApi', () => {
                 },
             };
 
-            mockFetch.mockResolvedValueOnce({
-                ok: true,
-                json: () => Promise.resolve(mockResponse),
-            });
+            mockFetch.mockResolvedValueOnce(mockResponse(mockResponseBody));
 
             const result = await createCreditForm(programId, title, subtitle, file);
 
@@ -153,7 +158,7 @@ describe('creditFormsApi', () => {
                     body: expect.any(FormData),
                 })
             );
-            expect(result).toEqual(mockResponse);
+            expect(result).toEqual(mockResponseBody);
         });
 
         test('should include auth token in headers', async () => {
@@ -162,10 +167,7 @@ describe('creditFormsApi', () => {
             const subtitle = 'Test Subtitle';
             const file = new File(['test'], 'test.pdf', { type: 'application/pdf' });
 
-            mockFetch.mockResolvedValueOnce({
-                ok: true,
-                json: () => Promise.resolve({}),
-            });
+            mockFetch.mockResolvedValueOnce(mockResponse({}));
 
             await createCreditForm(programId, title, subtitle, file);
 
@@ -185,11 +187,9 @@ describe('creditFormsApi', () => {
             const subtitle = 'Existing Subtitle';
             const file = new File(['test'], 'test.pdf', { type: 'application/pdf' });
 
-            mockFetch.mockResolvedValueOnce({
-                ok: false,
-                status: 409,
-                json: () => Promise.resolve({ error: 'Form already exists' }),
-            });
+            mockFetch.mockResolvedValueOnce(
+                mockResponse({ error: 'Form already exists' }, { ok: false, status: 409, statusText: 'Conflict' })
+            );
 
             await expect(createCreditForm(programId, title, subtitle, file)).rejects.toThrow();
         });
@@ -199,7 +199,7 @@ describe('creditFormsApi', () => {
         test('should update an existing form', async () => {
             const title = 'Updated Title';
 
-            const mockResponse = {
+            const mockResponseBody = {
                 message: 'Credit form updated successfully',
                 form: {
                     id: 'software-engineering',
@@ -209,10 +209,7 @@ describe('creditFormsApi', () => {
                 },
             };
 
-            mockFetch.mockResolvedValueOnce({
-                ok: true,
-                json: () => Promise.resolve(mockResponse),
-            });
+            mockFetch.mockResolvedValueOnce(mockResponse(mockResponseBody));
 
             const result = await updateCreditForm('form-id-123', title);
 
@@ -223,15 +220,13 @@ describe('creditFormsApi', () => {
                     body: expect.any(FormData),
                 })
             );
-            expect(result).toEqual(mockResponse);
+            expect(result).toEqual(mockResponseBody);
         });
 
         test('should throw error for non-existent form', async () => {
-            mockFetch.mockResolvedValueOnce({
-                ok: false,
-                status: 404,
-                json: () => Promise.resolve({ error: 'Not found' }),
-            });
+            mockFetch.mockResolvedValueOnce(
+                mockResponse({ error: 'Not found' }, { ok: false, status: 404, statusText: 'Not Found' })
+            );
 
             await expect(updateCreditForm('nonexistent', 'Title')).rejects.toThrow();
         });
@@ -239,14 +234,11 @@ describe('creditFormsApi', () => {
 
     describe('deleteCreditForm', () => {
         test('should delete a form successfully', async () => {
-            const mockResponse = {
+            const mockResponseBody = {
                 message: 'Credit form deleted successfully',
             };
 
-            mockFetch.mockResolvedValueOnce({
-                ok: true,
-                json: () => Promise.resolve(mockResponse),
-            });
+            mockFetch.mockResolvedValueOnce(mockResponse(mockResponseBody));
 
             const result = await deleteCreditForm('form-id-123');
 
@@ -256,25 +248,21 @@ describe('creditFormsApi', () => {
                     method: 'DELETE',
                 })
             );
-            expect(result).toEqual(mockResponse);
+            expect(result).toEqual(mockResponseBody);
         });
 
         test('should throw error for non-existent form', async () => {
-            mockFetch.mockResolvedValueOnce({
-                ok: false,
-                status: 404,
-                json: () => Promise.resolve({ error: 'Not found' }),
-            });
+            mockFetch.mockResolvedValueOnce(
+                mockResponse({ error: 'Not found' }, { ok: false, status: 404, statusText: 'Not Found' })
+            );
 
             await expect(deleteCreditForm('nonexistent')).rejects.toThrow();
         });
 
         test('should throw error for unauthorized user', async () => {
-            mockFetch.mockResolvedValueOnce({
-                ok: false,
-                status: 403,
-                json: () => Promise.resolve({ error: 'Forbidden' }),
-            });
+            mockFetch.mockResolvedValueOnce(
+                mockResponse({ error: 'Forbidden' }, { ok: false, status: 403, statusText: 'Forbidden' })
+            );
 
             await expect(deleteCreditForm('form-id-123')).rejects.toThrow();
         });
@@ -282,15 +270,12 @@ describe('creditFormsApi', () => {
 
     describe('migrateCreditForms', () => {
         test('should trigger migration successfully', async () => {
-            const mockResponse = {
+            const mockResponseBody = {
                 message: 'Migration complete',
                 migratedCount: 5,
             };
 
-            mockFetch.mockResolvedValueOnce({
-                ok: true,
-                json: () => Promise.resolve(mockResponse),
-            });
+            mockFetch.mockResolvedValueOnce(mockResponse(mockResponseBody));
 
             const result = await migrateCreditForms();
 
@@ -300,7 +285,7 @@ describe('creditFormsApi', () => {
                     method: 'POST',
                 })
             );
-            expect(result).toEqual(mockResponse);
+            expect(result).toEqual(mockResponseBody);
         });
     });
 
@@ -308,10 +293,7 @@ describe('creditFormsApi', () => {
         test('should work without auth token for public endpoints', async () => {
             localStorageMock.getItem.mockReturnValue(null);
 
-            mockFetch.mockResolvedValueOnce({
-                ok: true,
-                json: () => Promise.resolve({ forms: [] }),
-            });
+            mockFetch.mockResolvedValueOnce(mockResponse({ forms: [] }));
 
             await fetchCreditForms();
 
@@ -319,10 +301,7 @@ describe('creditFormsApi', () => {
         });
 
         test('should include credentials in fetch options', async () => {
-            mockFetch.mockResolvedValueOnce({
-                ok: true,
-                json: () => Promise.resolve({ forms: [] }),
-            });
+            mockFetch.mockResolvedValueOnce(mockResponse({ forms: [] }));
 
             await fetchCreditForms();
 
