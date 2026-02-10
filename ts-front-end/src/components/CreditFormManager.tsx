@@ -271,8 +271,9 @@ export const CreditFormManager: React.FC = () => {
                         <form onSubmit={handleSubmit}>
                             {!editingForm && (
                                 <div style={{ marginBottom: '16px' }}>
-                                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 500 }}>Program ID</label>
+                                    <label htmlFor="programId" style={{ display: 'block', marginBottom: '6px', fontWeight: 500 }}>Program ID</label>
                                     <input
+                                        id="programId"
                                         type="text"
                                         value={programId}
                                         onChange={(e) => setProgramId(e.target.value)}
@@ -306,8 +307,9 @@ export const CreditFormManager: React.FC = () => {
                             )}
 
                             <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', marginBottom: '6px', fontWeight: 500 }}>Title</label>
+                                <label htmlFor="title" style={{ display: 'block', marginBottom: '6px', fontWeight: 500 }}>Title</label>
                                 <input
+                                    id="title"
                                     type="text"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
@@ -325,8 +327,9 @@ export const CreditFormManager: React.FC = () => {
                             </div>
 
                             <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', marginBottom: '6px', fontWeight: 500 }}>Subtitle</label>
+                                <label htmlFor="subtitle" style={{ display: 'block', marginBottom: '6px', fontWeight: 500 }}>Subtitle</label>
                                 <input
+                                    id="subtitle"
                                     type="text"
                                     value={subtitle}
                                     onChange={(e) => setSubtitle(e.target.value)}
@@ -344,10 +347,11 @@ export const CreditFormManager: React.FC = () => {
                             </div>
 
                             <div style={{ marginBottom: '24px' }}>
-                                <label style={{ display: 'block', marginBottom: '6px', fontWeight: 500 }}>
+                                <label htmlFor="pdfFile" style={{ display: 'block', marginBottom: '6px', fontWeight: 500 }}>
                                     PDF File {editingForm && '(leave empty to keep current)'}
                                 </label>
                                 <input
+                                    id="pdfFile"
                                     type="file"
                                     accept="application/pdf"
                                     onChange={handleFileChange}
