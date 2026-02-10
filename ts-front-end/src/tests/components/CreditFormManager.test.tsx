@@ -1,10 +1,17 @@
-import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { CreditFormManager } from '../../components/CreditFormManager';
 
-// Mock the API functions
-vi.mock('../../../api/creditFormsApi', () => ({
+// Mock react-toastify
+vi.mock('react-toastify', () => ({
+    toast: {
+        success: vi.fn(),
+        error: vi.fn(),
+    },
+}));
+
+// Mock creditFormsApi
+vi.mock('../../api/creditFormsApi', () => ({
     fetchCreditForms: vi.fn(),
     createCreditForm: vi.fn(),
     updateCreditForm: vi.fn(),
@@ -12,15 +19,7 @@ vi.mock('../../../api/creditFormsApi', () => ({
     migrateCreditForms: vi.fn(),
 }));
 
-// Mock react-toastify
-vi.mock('react-toastify', () => ({
-    toast: {
-        success: vi.fn(),
-        error: vi.fn(),
-        info: vi.fn(),
-    },
-}));
-
+import { toast } from 'react-toastify';
 import {
     fetchCreditForms,
     createCreditForm,
@@ -28,224 +27,198 @@ import {
     deleteCreditForm,
     migrateCreditForms,
 } from '../../api/creditFormsApi';
-import { toast } from 'react-toastify';
 
 const mockForms = [
     {
-        _id: 'form-1',
-        programId: 'software-engineering',
+        id: 'software-engineering',
         title: 'Software Engineering',
         subtitle: 'Bachelor of Software Engineering Credit Count Form',
         filename: 'software-engineering.pdf',
-        isActive: true,
     },
     {
-        _id: 'form-2',
-        programId: 'computer-science',
+        id: 'computer-science',
         title: 'Computer Science',
         subtitle: 'Bachelor of Computer Science Credit Count Form',
         filename: 'computer-science.pdf',
-        isActive: true,
     },
 ];
-
-const renderComponent = () => {
-    return render(
-        <MemoryRouter>
-            <CreditFormManager />
-        </MemoryRouter>
-    );
-};
 
 describe('CreditFormManager', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        (fetchCreditForms as ReturnType<typeof vi.fn>).mockResolvedValue(mockForms);
+        (fetchCreditForms as Mock).mockResolvedValue(mockForms);
+        // Mock window.confirm
+        vi.spyOn(window, 'confirm').mockReturnValue(true);
     });
 
-    afterEach(() => {
-        vi.resetAllMocks();
+    it('should show loading state initially', () => {
+        (fetchCreditForms as Mock).mockReturnValue(new Promise(() => { })); // never resolves
+        render(<CreditFormManager />);
+        expect(screen.getByText('Loading forms...')).toBeInTheDocument();
     });
 
-    describe('Rendering', () => {
-        test('renders loading state initially', () => {
-            renderComponent();
-            expect(screen.getByText('Loading...')).toBeInTheDocument();
+    it('should render forms table after loading', async () => {
+        render(<CreditFormManager />);
+        await waitFor(() => {
+            expect(screen.getByText('Software Engineering')).toBeInTheDocument();
         });
+        expect(screen.getByText('Computer Science')).toBeInTheDocument();
+        expect(screen.getByText('Credit Forms Management')).toBeInTheDocument();
+    });
 
-        test('renders title and buttons after loading', async () => {
-            renderComponent();
-
-            await waitFor(() => {
-                expect(screen.getByText('Credit Forms Management')).toBeInTheDocument();
-            });
-
-            expect(screen.getByText('Migrate Existing Forms')).toBeInTheDocument();
-            expect(screen.getByText('Add New Form')).toBeInTheDocument();
+    it('should render table headers correctly', async () => {
+        render(<CreditFormManager />);
+        await waitFor(() => {
+            expect(screen.getByText('Title')).toBeInTheDocument();
         });
+        expect(screen.getByText('Subtitle')).toBeInTheDocument();
+        expect(screen.getByText('ID')).toBeInTheDocument();
+        expect(screen.getByText('Actions')).toBeInTheDocument();
+    });
 
-        test('renders forms table with data', async () => {
-            renderComponent();
-
-            await waitFor(() => {
-                expect(screen.getByText('Software Engineering')).toBeInTheDocument();
-                expect(screen.getByText('Computer Science')).toBeInTheDocument();
-            });
+    it('should show empty state when no forms', async () => {
+        (fetchCreditForms as Mock).mockResolvedValue([]);
+        render(<CreditFormManager />);
+        await waitFor(() => {
+            expect(screen.getByText(/No credit forms found/)).toBeInTheDocument();
         });
+    });
 
-        test('renders table headers', async () => {
-            renderComponent();
-
-            await waitFor(() => {
-                expect(screen.getByText('Program ID')).toBeInTheDocument();
-                expect(screen.getByText('Title')).toBeInTheDocument();
-                expect(screen.getByText('Subtitle')).toBeInTheDocument();
-                expect(screen.getByText('Actions')).toBeInTheDocument();
-            });
-        });
-
-        test('renders Edit and Delete buttons for each form', async () => {
-            renderComponent();
-
-            await waitFor(() => {
-                const editButtons = screen.getAllByText('Edit');
-                const deleteButtons = screen.getAllByText('Delete');
-                expect(editButtons).toHaveLength(2);
-                expect(deleteButtons).toHaveLength(2);
-            });
-        });
-
-        test('shows empty state when no forms exist', async () => {
-            (fetchCreditForms as ReturnType<typeof vi.fn>).mockResolvedValue([]);
-            renderComponent();
-
-            await waitFor(() => {
-                expect(screen.getByText('No credit forms found.')).toBeInTheDocument();
-            });
+    it('should show error toast when loading fails', async () => {
+        (fetchCreditForms as Mock).mockRejectedValue(new Error('Network error'));
+        render(<CreditFormManager />);
+        await waitFor(() => {
+            expect(toast.error).toHaveBeenCalledWith('Failed to load credit forms');
         });
     });
 
     describe('Add Form Modal', () => {
-        test('opens modal when Add New Form button is clicked', async () => {
-            renderComponent();
-
+        it('should open add modal when Add New Form is clicked', async () => {
+            render(<CreditFormManager />);
             await waitFor(() => {
-                expect(screen.getByText('Add New Form')).toBeInTheDocument();
+                expect(screen.getByText('Software Engineering')).toBeInTheDocument();
             });
 
             fireEvent.click(screen.getByText('Add New Form'));
 
-            expect(screen.getByText('Add Credit Form')).toBeInTheDocument();
+            expect(screen.getByText('Add New Credit Form')).toBeInTheDocument();
+            expect(screen.getByLabelText('Program ID')).toBeInTheDocument();
+            expect(screen.getByLabelText('Title')).toBeInTheDocument();
+            expect(screen.getByLabelText('Subtitle')).toBeInTheDocument();
+            expect(screen.getByText('Create Form')).toBeInTheDocument();
+            expect(screen.getByText('Cancel')).toBeInTheDocument();
         });
 
-        test('modal contains all required form fields', async () => {
-            renderComponent();
-
+        it('should close modal when Cancel is clicked', async () => {
+            render(<CreditFormManager />);
             await waitFor(() => {
-                expect(screen.getByText('Add New Form')).toBeInTheDocument();
+                expect(screen.getByText('Software Engineering')).toBeInTheDocument();
             });
 
             fireEvent.click(screen.getByText('Add New Form'));
-
-            expect(screen.getByLabelText(/Program ID/i)).toBeInTheDocument();
-            expect(screen.getByLabelText(/Title/i)).toBeInTheDocument();
-            expect(screen.getByLabelText(/Subtitle/i)).toBeInTheDocument();
-            expect(screen.getByLabelText(/PDF File/i)).toBeInTheDocument();
-        });
-
-        test('closes modal when Cancel button is clicked', async () => {
-            renderComponent();
-
-            await waitFor(() => {
-                expect(screen.getByText('Add New Form')).toBeInTheDocument();
-            });
-
-            fireEvent.click(screen.getByText('Add New Form'));
-            expect(screen.getByText('Add Credit Form')).toBeInTheDocument();
+            expect(screen.getByText('Add New Credit Form')).toBeInTheDocument();
 
             fireEvent.click(screen.getByText('Cancel'));
-            expect(screen.queryByText('Add Credit Form')).not.toBeInTheDocument();
+            expect(screen.queryByText('Add New Credit Form')).not.toBeInTheDocument();
         });
 
-        test('submits form data when Save button is clicked', async () => {
-            (createCreditForm as ReturnType<typeof vi.fn>).mockResolvedValue({
-                form: { id: 'new-form' },
-            });
-
-            renderComponent();
-
+        it('should submit new form successfully', async () => {
+            (createCreditForm as Mock).mockResolvedValue({ id: 'new-form' });
+            render(<CreditFormManager />);
             await waitFor(() => {
-                expect(screen.getByText('Add New Form')).toBeInTheDocument();
+                expect(screen.getByText('Software Engineering')).toBeInTheDocument();
             });
 
             fireEvent.click(screen.getByText('Add New Form'));
 
-            fireEvent.change(screen.getByLabelText(/Program ID/i), { target: { value: 'new-program' } });
-            fireEvent.change(screen.getByLabelText(/Title/i), { target: { value: 'New Program' } });
-            fireEvent.change(screen.getByLabelText(/Subtitle/i), { target: { value: 'New Program Description' } });
+            // Fill in form fields
+            fireEvent.change(screen.getByLabelText('Program ID'), {
+                target: { value: 'new-program' },
+            });
+            fireEvent.change(screen.getByLabelText('Title'), {
+                target: { value: 'New Program' },
+            });
+            fireEvent.change(screen.getByLabelText('Subtitle'), {
+                target: { value: 'New Program Credit Count Form' },
+            });
 
-            // Create a mock file
-            const file = new File(['test'], 'test.pdf', { type: 'application/pdf' });
-            const fileInput = screen.getByLabelText(/PDF File/i);
+            // Create a mock PDF file
+            const file = new File(['pdf content'], 'test.pdf', { type: 'application/pdf' });
+            fireEvent.change(screen.getByLabelText(/PDF File/), {
+                target: { files: [file] },
+            });
 
-            // Use fireEvent.change for file input
-            fireEvent.change(fileInput, { target: { files: [file] } });
-
-            fireEvent.click(screen.getByText('Save'));
+            // Submit form - use fireEvent.submit to bypass jsdom's file input validation
+            const form = screen.getByText('Create Form').closest('form')!;
+            fireEvent.submit(form);
 
             await waitFor(() => {
                 expect(createCreditForm).toHaveBeenCalled();
             });
-        });
-
-        test('shows error toast on create failure', async () => {
-            (createCreditForm as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Create failed'));
-
-            renderComponent();
 
             await waitFor(() => {
-                expect(screen.getByText('Add New Form')).toBeInTheDocument();
+                expect(toast.success).toHaveBeenCalledWith('Form created successfully');
+            });
+        });
+
+        it('should show error toast when form creation fails', async () => {
+            (createCreditForm as Mock).mockRejectedValue(new Error('Server error'));
+            render(<CreditFormManager />);
+            await waitFor(() => {
+                expect(screen.getByText('Software Engineering')).toBeInTheDocument();
             });
 
             fireEvent.click(screen.getByText('Add New Form'));
 
-            fireEvent.change(screen.getByLabelText(/Program ID/i), { target: { value: 'test' } });
-            fireEvent.change(screen.getByLabelText(/Title/i), { target: { value: 'Test' } });
-            fireEvent.change(screen.getByLabelText(/Subtitle/i), { target: { value: 'Test' } });
+            fireEvent.change(screen.getByLabelText('Program ID'), {
+                target: { value: 'new-program' },
+            });
+            fireEvent.change(screen.getByLabelText('Title'), {
+                target: { value: 'New' },
+            });
+            fireEvent.change(screen.getByLabelText('Subtitle'), {
+                target: { value: 'Sub' },
+            });
 
-            const file = new File(['test'], 'test.pdf', { type: 'application/pdf' });
-            fireEvent.change(screen.getByLabelText(/PDF File/i), { target: { files: [file] } });
+            const file = new File(['pdf'], 'test.pdf', { type: 'application/pdf' });
+            fireEvent.change(screen.getByLabelText(/PDF File/), {
+                target: { files: [file] },
+            });
 
-            fireEvent.click(screen.getByText('Save'));
+            const form = screen.getByText('Create Form').closest('form')!;
+            fireEvent.submit(form);
 
             await waitFor(() => {
-                expect(toast.error).toHaveBeenCalled();
+                expect(toast.error).toHaveBeenCalledWith('Failed to save form');
             });
         });
     });
 
     describe('Edit Form Modal', () => {
-        test('opens edit modal with pre-filled data', async () => {
-            renderComponent();
-
+        it('should open edit modal with pre-filled data', async () => {
+            render(<CreditFormManager />);
             await waitFor(() => {
                 expect(screen.getByText('Software Engineering')).toBeInTheDocument();
             });
 
+            // Click the first Edit button
             const editButtons = screen.getAllByText('Edit');
             fireEvent.click(editButtons[0]);
 
             expect(screen.getByText('Edit Credit Form')).toBeInTheDocument();
-            expect(screen.getByDisplayValue('Software Engineering')).toBeInTheDocument();
+            expect(screen.getByText('Update Form')).toBeInTheDocument();
+            // Program ID field should NOT be shown in edit mode
+            expect(screen.queryByLabelText('Program ID')).not.toBeInTheDocument();
+            // Title and subtitle should be pre-filled
+            expect(screen.getByLabelText('Title')).toHaveValue('Software Engineering');
+            expect(screen.getByLabelText('Subtitle')).toHaveValue(
+                'Bachelor of Software Engineering Credit Count Form'
+            );
         });
 
-        test('updates form when save is clicked after edit', async () => {
-            (updateCreditForm as ReturnType<typeof vi.fn>).mockResolvedValue({
-                form: { id: 'form-1' },
-            });
-
-            renderComponent();
-
+        it('should submit updated form successfully', async () => {
+            (updateCreditForm as Mock).mockResolvedValue({ id: 'software-engineering' });
+            render(<CreditFormManager />);
             await waitFor(() => {
                 expect(screen.getByText('Software Engineering')).toBeInTheDocument();
             });
@@ -253,26 +226,27 @@ describe('CreditFormManager', () => {
             const editButtons = screen.getAllByText('Edit');
             fireEvent.click(editButtons[0]);
 
-            const titleInput = screen.getByDisplayValue('Software Engineering');
-            fireEvent.change(titleInput, { target: { value: 'Updated Title' } });
+            fireEvent.change(screen.getByLabelText('Title'), {
+                target: { value: 'Updated Title' },
+            });
 
-            fireEvent.click(screen.getByText('Save'));
+            fireEvent.click(screen.getByText('Update Form'));
 
             await waitFor(() => {
-                expect(updateCreditForm).toHaveBeenCalled();
+                expect(updateCreditForm).toHaveBeenCalledWith(
+                    'software-engineering',
+                    'Updated Title',
+                    'Bachelor of Software Engineering Credit Count Form',
+                    undefined
+                );
             });
         });
     });
 
     describe('Delete Form', () => {
-        test('calls delete when Delete button clicked and confirmed', async () => {
-            (deleteCreditForm as ReturnType<typeof vi.fn>).mockResolvedValue({});
-
-            // Mock window.confirm
-            vi.spyOn(window, 'confirm').mockImplementation(() => true);
-
-            renderComponent();
-
+        it('should delete form when confirmed', async () => {
+            (deleteCreditForm as Mock).mockResolvedValue({});
+            render(<CreditFormManager />);
             await waitFor(() => {
                 expect(screen.getByText('Software Engineering')).toBeInTheDocument();
             });
@@ -280,16 +254,16 @@ describe('CreditFormManager', () => {
             const deleteButtons = screen.getAllByText('Delete');
             fireEvent.click(deleteButtons[0]);
 
+            expect(window.confirm).toHaveBeenCalled();
             await waitFor(() => {
-                expect(deleteCreditForm).toHaveBeenCalledWith('form-1');
+                expect(deleteCreditForm).toHaveBeenCalledWith('software-engineering');
             });
+            expect(toast.success).toHaveBeenCalledWith('Form deleted successfully');
         });
 
-        test('does not call delete when user cancels confirmation', async () => {
-            vi.spyOn(window, 'confirm').mockImplementation(() => false);
-
-            renderComponent();
-
+        it('should not delete form when cancelled', async () => {
+            vi.spyOn(window, 'confirm').mockReturnValue(false);
+            render(<CreditFormManager />);
             await waitFor(() => {
                 expect(screen.getByText('Software Engineering')).toBeInTheDocument();
             });
@@ -300,12 +274,9 @@ describe('CreditFormManager', () => {
             expect(deleteCreditForm).not.toHaveBeenCalled();
         });
 
-        test('shows success toast after successful delete', async () => {
-            (deleteCreditForm as ReturnType<typeof vi.fn>).mockResolvedValue({});
-            vi.spyOn(window, 'confirm').mockImplementation(() => true);
-
-            renderComponent();
-
+        it('should show error toast when delete fails', async () => {
+            (deleteCreditForm as Mock).mockRejectedValue(new Error('Delete failed'));
+            render(<CreditFormManager />);
             await waitFor(() => {
                 expect(screen.getByText('Software Engineering')).toBeInTheDocument();
             });
@@ -314,21 +285,17 @@ describe('CreditFormManager', () => {
             fireEvent.click(deleteButtons[0]);
 
             await waitFor(() => {
-                expect(toast.success).toHaveBeenCalled();
+                expect(toast.error).toHaveBeenCalledWith('Failed to delete form');
             });
         });
     });
 
-    describe('Migration', () => {
-        test('calls migrate when Migrate button is clicked', async () => {
-            (migrateCreditForms as ReturnType<typeof vi.fn>).mockResolvedValue({
-                migratedCount: 5,
-            });
-
-            renderComponent();
-
+    describe('Migrate Forms', () => {
+        it('should migrate forms successfully', async () => {
+            (migrateCreditForms as Mock).mockResolvedValue({ migratedCount: 5 });
+            render(<CreditFormManager />);
             await waitFor(() => {
-                expect(screen.getByText('Migrate Existing Forms')).toBeInTheDocument();
+                expect(screen.getByText('Software Engineering')).toBeInTheDocument();
             });
 
             fireEvent.click(screen.getByText('Migrate Existing Forms'));
@@ -336,127 +303,91 @@ describe('CreditFormManager', () => {
             await waitFor(() => {
                 expect(migrateCreditForms).toHaveBeenCalled();
             });
-        });
-
-        test('shows success toast after successful migration', async () => {
-            (migrateCreditForms as ReturnType<typeof vi.fn>).mockResolvedValue({
-                migratedCount: 5,
-            });
-
-            renderComponent();
 
             await waitFor(() => {
-                expect(screen.getByText('Migrate Existing Forms')).toBeInTheDocument();
-            });
-
-            fireEvent.click(screen.getByText('Migrate Existing Forms'));
-
-            await waitFor(() => {
-                expect(toast.success).toHaveBeenCalled();
+                expect(toast.success).toHaveBeenCalledWith('5 forms migrated successfully');
             });
         });
 
-        test('shows error toast on migration failure', async () => {
-            (migrateCreditForms as ReturnType<typeof vi.fn>).mockRejectedValue(
-                new Error('Migration failed')
+        it('should show button text change while migrating', async () => {
+            let resolvePromise: (value: { message: string; migratedCount: number }) => void;
+            (migrateCreditForms as Mock).mockReturnValue(
+                new Promise((resolve) => { resolvePromise = resolve; })
             );
 
-            renderComponent();
-
+            render(<CreditFormManager />);
             await waitFor(() => {
-                expect(screen.getByText('Migrate Existing Forms')).toBeInTheDocument();
+                expect(screen.getByText('Software Engineering')).toBeInTheDocument();
             });
 
             fireEvent.click(screen.getByText('Migrate Existing Forms'));
 
             await waitFor(() => {
-                expect(toast.error).toHaveBeenCalled();
+                expect(screen.getByText('Migrating...')).toBeInTheDocument();
+            });
+
+            // Resolve the promise
+            await act(async () => {
+                resolvePromise!({ migratedCount: 3 });
+            });
+
+            await waitFor(() => {
+                expect(screen.getByText('Migrate Existing Forms')).toBeInTheDocument();
             });
         });
 
-        test('button shows loading state during migration', async () => {
-            let resolvePromise: (value: unknown) => void;
-            (migrateCreditForms as ReturnType<typeof vi.fn>).mockImplementation(
-                () => new Promise((resolve) => { resolvePromise = resolve; })
-            );
-
-            renderComponent();
-
+        it('should show error toast when migration fails', async () => {
+            (migrateCreditForms as Mock).mockRejectedValue(new Error('Migration failed'));
+            render(<CreditFormManager />);
             await waitFor(() => {
-                expect(screen.getByText('Migrate Existing Forms')).toBeInTheDocument();
+                expect(screen.getByText('Software Engineering')).toBeInTheDocument();
             });
 
             fireEvent.click(screen.getByText('Migrate Existing Forms'));
 
-            expect(screen.getByText('Migrating...')).toBeInTheDocument();
-
-            resolvePromise!({ migratedCount: 5 });
-
             await waitFor(() => {
-                expect(screen.getByText('Migrate Existing Forms')).toBeInTheDocument();
+                expect(toast.error).toHaveBeenCalledWith('Failed to migrate forms');
             });
         });
     });
 
-    describe('Error Handling', () => {
-        test('shows error message when fetching forms fails', async () => {
-            (fetchCreditForms as ReturnType<typeof vi.fn>).mockRejectedValue(
-                new Error('Failed to fetch')
-            );
-
-            renderComponent();
-
+    describe('Generate Program ID', () => {
+        it('should generate program ID from title', async () => {
+            render(<CreditFormManager />);
             await waitFor(() => {
-                expect(toast.error).toHaveBeenCalled();
-            });
-        });
-
-        test('refreshes form list after successful create', async () => {
-            (createCreditForm as ReturnType<typeof vi.fn>).mockResolvedValue({
-                form: { id: 'new-form' },
+                expect(screen.getByText('Software Engineering')).toBeInTheDocument();
             });
 
-            renderComponent();
-
-            await waitFor(() => {
-                expect(screen.getByText('Add New Form')).toBeInTheDocument();
-            });
-
-            // Open modal and fill form
             fireEvent.click(screen.getByText('Add New Form'));
-            fireEvent.change(screen.getByLabelText(/Program ID/i), { target: { value: 'new' } });
-            fireEvent.change(screen.getByLabelText(/Title/i), { target: { value: 'New' } });
-            fireEvent.change(screen.getByLabelText(/Subtitle/i), { target: { value: 'New' } });
 
-            const file = new File(['test'], 'test.pdf', { type: 'application/pdf' });
-            fireEvent.change(screen.getByLabelText(/PDF File/i), { target: { files: [file] } });
-
-            fireEvent.click(screen.getByText('Save'));
-
-            await waitFor(() => {
-                // fetchCreditForms should be called again after create
-                expect(fetchCreditForms).toHaveBeenCalledTimes(2);
+            // Type a title first
+            fireEvent.change(screen.getByLabelText('Title'), {
+                target: { value: 'Electrical Engineering' },
             });
+
+            // Click generate button
+            fireEvent.click(screen.getByText('Generate'));
+
+            // Program ID should be auto-generated
+            expect(screen.getByLabelText('Program ID')).toHaveValue('electrical-engineering');
         });
     });
 
-    describe('Styling', () => {
-        test('title has correct styling', async () => {
-            renderComponent();
-
+    describe('File validation', () => {
+        it('should show error toast for non-PDF files', async () => {
+            render(<CreditFormManager />);
             await waitFor(() => {
-                const title = screen.getByText('Credit Forms Management');
-                expect(title.tagName).toBe('H2');
+                expect(screen.getByText('Software Engineering')).toBeInTheDocument();
             });
-        });
 
-        test('buttons have correct styling classes', async () => {
-            renderComponent();
+            fireEvent.click(screen.getByText('Add New Form'));
 
-            await waitFor(() => {
-                const migrateButton = screen.getByText('Migrate Existing Forms');
-                expect(migrateButton.style.cursor).toBe('pointer');
+            const nonPdfFile = new File(['content'], 'test.txt', { type: 'text/plain' });
+            fireEvent.change(screen.getByLabelText(/PDF File/), {
+                target: { files: [nonPdfFile] },
             });
+
+            expect(toast.error).toHaveBeenCalledWith('Please select a PDF file');
         });
     });
 });
