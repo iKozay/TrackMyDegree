@@ -1,10 +1,20 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import { CreditForm, ICreditForm } from '@models/creditForm';
 import HTTP from '@utils/httpCodes';
 import path from 'node:path';
 import fs from 'node:fs';
 
+interface AuthenticatedRequest extends Request {
+    user?: {
+        userId: string;
+        type?: string;
+    };
+}
+
 const UPLOAD_DIR = path.resolve(__dirname, '../../uploads/credit-forms');
+const API_FILE_PREFIX = '/api/credit-forms/file/';
+const FORM_NOT_FOUND = 'Form not found';
 
 // Ensure upload directory exists
 if (!fs.existsSync(UPLOAD_DIR)) {
@@ -23,7 +33,7 @@ export async function getAllForms(req: Request, res: Response) {
             id: form.programId,
             title: form.title,
             subtitle: form.subtitle,
-            pdf: `/api/credit-forms/file/${form.filename}`,
+            pdf: `${API_FILE_PREFIX}${form.filename}`,
             uploadedAt: form.uploadedAt,
         }));
 
@@ -43,14 +53,14 @@ export async function getFormById(req: Request, res: Response) {
         const form = await CreditForm.findOne({ programId: id, isActive: true });
 
         if (!form) {
-            return res.status(HTTP.NOT_FOUND).json({ error: 'Form not found' });
+            return res.status(HTTP.NOT_FOUND).json({ error: FORM_NOT_FOUND });
         }
 
         res.status(HTTP.OK).json({
             id: form.programId,
             title: form.title,
             subtitle: form.subtitle,
-            pdf: `/api/credit-forms/file/${form.filename}`,
+            pdf: `${API_FILE_PREFIX}${form.filename}`,
             uploadedAt: form.uploadedAt,
         });
     } catch (error) {
@@ -78,7 +88,8 @@ export async function createForm(req: Request, res: Response) {
             return res.status(HTTP.BAD_REQUEST).json({ error: 'PDF file is required' });
         }
 
-        const userId = (req as any).user?.userId || null;
+        const userId = (req as AuthenticatedRequest).user?.userId;
+        const uploadedBy = userId ? new Types.ObjectId(userId) : null;
 
         // Check for existing form with same programId
         const existing = await CreditForm.findOne({ programId });
@@ -101,7 +112,7 @@ export async function createForm(req: Request, res: Response) {
             existing.title = title;
             existing.subtitle = subtitle;
             existing.filename = file.filename;
-            existing.uploadedBy = userId;
+            existing.uploadedBy = uploadedBy;
             existing.uploadedAt = new Date();
             existing.isActive = true;
 
@@ -113,7 +124,7 @@ export async function createForm(req: Request, res: Response) {
                     id: existing.programId,
                     title: existing.title,
                     subtitle: existing.subtitle,
-                    pdf: `/api/credit-forms/file/${existing.filename}`,
+                    pdf: `${API_FILE_PREFIX}${existing.filename}`,
                 },
             });
         }
@@ -124,7 +135,7 @@ export async function createForm(req: Request, res: Response) {
             title,
             subtitle,
             filename: file.filename,
-            uploadedBy: userId,
+            uploadedBy,
             uploadedAt: new Date(),
             isActive: true,
         });
@@ -137,7 +148,7 @@ export async function createForm(req: Request, res: Response) {
                 id: newForm.programId,
                 title: newForm.title,
                 subtitle: newForm.subtitle,
-                pdf: `/api/credit-forms/file/${newForm.filename}`,
+                pdf: `${API_FILE_PREFIX}${newForm.filename}`,
             },
         });
     } catch (error) {
@@ -158,7 +169,7 @@ export async function updateForm(req: Request, res: Response) {
         const form = await CreditForm.findOne({ programId: id });
         if (!form) {
             if (file) fs.unlinkSync(file.path);
-            return res.status(HTTP.NOT_FOUND).json({ error: 'Form not found' });
+            return res.status(HTTP.NOT_FOUND).json({ error: FORM_NOT_FOUND });
         }
 
         // Update fields
@@ -174,7 +185,8 @@ export async function updateForm(req: Request, res: Response) {
             form.filename = file.filename;
         }
 
-        form.uploadedBy = (req as any).user?.userId || null;
+        const userId = (req as AuthenticatedRequest).user?.userId;
+        form.uploadedBy = userId ? new Types.ObjectId(userId) : null;
         form.uploadedAt = new Date();
 
         await form.save();
@@ -185,7 +197,7 @@ export async function updateForm(req: Request, res: Response) {
                 id: form.programId,
                 title: form.title,
                 subtitle: form.subtitle,
-                pdf: `/api/credit-forms/file/${form.filename}`,
+                pdf: `${API_FILE_PREFIX}${form.filename}`,
             },
         });
     } catch (error) {
@@ -203,7 +215,7 @@ export async function deleteForm(req: Request, res: Response) {
 
         const form = await CreditForm.findOne({ programId: id });
         if (!form) {
-            return res.status(HTTP.NOT_FOUND).json({ error: 'Form not found' });
+            return res.status(HTTP.NOT_FOUND).json({ error: FORM_NOT_FOUND });
         }
 
         // Soft delete
@@ -287,7 +299,19 @@ export async function migrateExistingForms() {
             // Check if already exists
             const existing = await CreditForm.findOne({ programId: formData.programId });
             if (existing) {
-                console.log(`Form ${formData.programId} already exists, skipping migration.`);
+                // Check if file physically exists. If not, try to restore it from source
+                const destPath = path.join(UPLOAD_DIR, existing.filename);
+                if (!fs.existsSync(destPath) && existing.filename === formData.filename) {
+                    const sourcePath = path.join(SOURCE_DIR, formData.filename);
+                    if (fs.existsSync(sourcePath)) {
+                        fs.copyFileSync(sourcePath, destPath);
+                        // eslint-disable-next-line no-console
+                        console.log(`Restored missing file for existing form: ${existing.filename}`);
+                    }
+                } else {
+                    // eslint-disable-next-line no-console
+                    console.log(`Form ${formData.programId} already exists, skipping migration.`);
+                }
                 continue;
             }
 
@@ -297,6 +321,7 @@ export async function migrateExistingForms() {
 
             if (fs.existsSync(sourceFile)) {
                 fs.copyFileSync(sourceFile, destFile);
+                // eslint-disable-next-line no-console
                 console.log(`Copied PDF: ${formData.filename}`);
             } else {
                 console.warn(`Source PDF not found: ${sourceFile}, creating database record anyway`);
@@ -312,12 +337,14 @@ export async function migrateExistingForms() {
 
             await newForm.save();
             migratedCount++;
+            // eslint-disable-next-line no-console
             console.log(`Migrated form: ${formData.title}`);
         } catch (error) {
             console.error(`Error migrating form ${formData.programId}:`, error);
         }
     }
 
+    // eslint-disable-next-line no-console
     console.log(`Migration complete. ${migratedCount} forms migrated.`);
     return migratedCount;
 }
