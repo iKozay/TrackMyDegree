@@ -66,7 +66,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
 
       return {
         success: true,
-        data: document.toObject() as T,
+        data: document.toObject<T>(),
         message: `${this.modelName} created successfully`,
       };
     } catch (error) {
@@ -91,7 +91,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
         query = query.select(select);
       }
 
-      const document = await query.lean().exec() as T;
+      const document = await query.lean<T & { _id: ObjectId }>().exec();
 
       if (!document) {
         return { success: false, error: `${this.modelName} not found` };
@@ -120,7 +120,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
         query = query.select(select);
       }
 
-      const document = await query.lean().exec() as T;
+      const document = await query.lean<T & { _id: ObjectId }>().exec();
 
       if (!document) {
         return { success: false, error: `${this.modelName} not found` };
@@ -171,7 +171,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
         query = query.skip(skip).limit(options.limit);
       }
 
-      const documents = await query.lean().exec() as T[];
+      const documents = await query.lean<Array<T & { _id: ObjectId }>>().exec();
 
       return { success: true, data: documents };
     } catch (error) {
