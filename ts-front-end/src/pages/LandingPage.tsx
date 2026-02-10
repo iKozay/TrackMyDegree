@@ -43,8 +43,8 @@ const JourneySection: React.FC = () => {
       
       <div className="journey-path">
         {steps.map((step, index) => (
-          <div key={index} className={`journey-step step-${index}`}>
-            <div className="step-number">{step.number}</div>
+          <div key={step.number} className={`journey-step step-${index}`}>
+              <div className="step-number">{step.number}</div>
             
             <div className="step-card">
               <div className="step-img-container">
