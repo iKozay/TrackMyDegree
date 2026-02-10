@@ -13,6 +13,7 @@ interface AuthenticatedRequest extends Request {
 }
 
 const UPLOAD_DIR = path.resolve(__dirname, '../../uploads/credit-forms');
+const SOURCE_DIR = path.resolve(__dirname, '../../../ts-front-end/public/credit-forms');
 const API_FILE_PREFIX = '/api/credit-forms/file/';
 const FORM_NOT_FOUND = 'Form not found';
 
@@ -255,6 +256,57 @@ export async function serveFile(req: Request, res: Response) {
  * Migrate existing PDF files from public folder to database (one-time setup)
  * Also copies PDF files from frontend public folder to backend uploads folder
  */
+async function processFormMigration(formData: { programId: string; title: string; subtitle: string; filename: string }) {
+    try {
+        // Check if already exists
+        const existing = await CreditForm.findOne({ programId: formData.programId });
+        if (existing) {
+            // Check if file physically exists. If not, try to restore it from source
+            const destPath = path.join(UPLOAD_DIR, existing.filename);
+            if (!fs.existsSync(destPath) && existing.filename === formData.filename) {
+                const sourcePath = path.join(SOURCE_DIR, formData.filename);
+                if (fs.existsSync(sourcePath)) {
+                    fs.copyFileSync(sourcePath, destPath);
+                    // eslint-disable-next-line no-console
+                    console.log(`Restored missing file for existing form: ${existing.filename}`);
+                }
+            } else {
+                // eslint-disable-next-line no-console
+                console.log(`Form ${formData.programId} already exists, skipping migration.`);
+            }
+            return false;
+        }
+
+        // Try to copy the PDF file from the source location
+        const sourceFile = path.join(SOURCE_DIR, formData.filename);
+        const destFile = path.join(UPLOAD_DIR, formData.filename);
+
+        if (fs.existsSync(sourceFile)) {
+            fs.copyFileSync(sourceFile, destFile);
+            // eslint-disable-next-line no-console
+            console.log(`Copied PDF: ${formData.filename}`);
+        } else {
+            console.warn(`Source PDF not found: ${sourceFile}, creating database record anyway`);
+        }
+
+        // Create the form record
+        const newForm = new CreditForm({
+            ...formData,
+            uploadedBy: null,
+            uploadedAt: new Date(),
+            isActive: true,
+        });
+
+        await newForm.save();
+        // eslint-disable-next-line no-console
+        console.log(`Migrated form: ${formData.title}`);
+        return true;
+    } catch (error) {
+        console.error(`Error migrating form ${formData.programId}:`, error);
+        return false;
+    }
+}
+
 export async function migrateExistingForms() {
     const existingForms = [
         {
@@ -289,58 +341,11 @@ export async function migrateExistingForms() {
         },
     ];
 
-    // Source directory where the existing PDFs are located (frontend public folder)
-    const SOURCE_DIR = path.resolve(__dirname, '../../../ts-front-end/public/credit-forms');
-
     let migratedCount = 0;
 
     for (const formData of existingForms) {
-        try {
-            // Check if already exists
-            const existing = await CreditForm.findOne({ programId: formData.programId });
-            if (existing) {
-                // Check if file physically exists. If not, try to restore it from source
-                const destPath = path.join(UPLOAD_DIR, existing.filename);
-                if (!fs.existsSync(destPath) && existing.filename === formData.filename) {
-                    const sourcePath = path.join(SOURCE_DIR, formData.filename);
-                    if (fs.existsSync(sourcePath)) {
-                        fs.copyFileSync(sourcePath, destPath);
-                        // eslint-disable-next-line no-console
-                        console.log(`Restored missing file for existing form: ${existing.filename}`);
-                    }
-                } else {
-                    // eslint-disable-next-line no-console
-                    console.log(`Form ${formData.programId} already exists, skipping migration.`);
-                }
-                continue;
-            }
-
-            // Try to copy the PDF file from the source location
-            const sourceFile = path.join(SOURCE_DIR, formData.filename);
-            const destFile = path.join(UPLOAD_DIR, formData.filename);
-
-            if (fs.existsSync(sourceFile)) {
-                fs.copyFileSync(sourceFile, destFile);
-                // eslint-disable-next-line no-console
-                console.log(`Copied PDF: ${formData.filename}`);
-            } else {
-                console.warn(`Source PDF not found: ${sourceFile}, creating database record anyway`);
-            }
-
-            // Create the form record
-            const newForm = new CreditForm({
-                ...formData,
-                uploadedBy: null,
-                uploadedAt: new Date(),
-                isActive: true,
-            });
-
-            await newForm.save();
+        if (await processFormMigration(formData)) {
             migratedCount++;
-            // eslint-disable-next-line no-console
-            console.log(`Migrated form: ${formData.title}`);
-        } catch (error) {
-            console.error(`Error migrating form ${formData.programId}:`, error);
         }
     }
 
