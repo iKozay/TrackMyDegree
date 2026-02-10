@@ -292,7 +292,7 @@ describe('CreditFormManager', () => {
 
     describe('Migrate Forms', () => {
         it('should migrate forms successfully', async () => {
-            (migrateCreditForms as Mock).mockResolvedValue({ migratedCount: 5 });
+            (migrateCreditForms as Mock).mockResolvedValue({ message: 'Success', migratedCount: 5 });
             render(<CreditFormManager />);
             await waitFor(() => {
                 expect(screen.getByText('Software Engineering')).toBeInTheDocument();
@@ -328,7 +328,7 @@ describe('CreditFormManager', () => {
 
             // Resolve the promise
             await act(async () => {
-                resolvePromise!({ migratedCount: 3 });
+                resolvePromise!({ message: 'Success', migratedCount: 3 });
             });
 
             await waitFor(() => {
