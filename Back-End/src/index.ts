@@ -144,10 +144,12 @@ const start = async () => {
   }
 
   // Run migration for credit forms (restore missing files)
-  try {
-    await migrateExistingForms();
-  } catch (err) {
-    console.error('Error during startup migration:', err);
+  if (process.env.NODE_ENV !== 'test') {
+    try {
+      await migrateExistingForms();
+    } catch (err) {
+      console.error('Error during startup migration:', err);
+    }
   }
 
   app.listen(PORT, () => {
