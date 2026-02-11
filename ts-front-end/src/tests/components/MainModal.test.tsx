@@ -104,6 +104,11 @@ describe("MainModal", () => {
     expect(screen.getByText("Save Timeline Modal")).toBeInTheDocument();
   });
 
+  it("should render CoopValidationModal when type is coopValidation", () => {
+    render(<MainModal {...defaultProps} type="coop" />);
+    expect(screen.getByText("Co-op Validation")).toBeInTheDocument();
+  });
+
   it("should render unknown modal message for unrecognized type", () => {
     render(<MainModal {...defaultProps} type="unknown" />);
 
@@ -122,5 +127,9 @@ describe("MainModal", () => {
 
     rerender(<MainModal {...defaultProps} type="save" />);
     expect(screen.getByTestId("save-timeline-modal")).toBeInTheDocument();
+
+    rerender(<MainModal {...defaultProps} type="coop" />);
+    expect(screen.getByText("Co-op Validation")).toBeInTheDocument();
   });
+
 });
