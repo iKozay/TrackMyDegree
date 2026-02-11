@@ -1,6 +1,7 @@
 import sys
 import os
 import re
+from unidecode import unidecode
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from models import CourseRules
@@ -11,6 +12,7 @@ REGEX_NONE = r"a^"  # regex to match nothing
 TITLE_REGEX = r"^(.*)\((\d+(?:\.\d+)?) credits\)"
 COURSE_REGEX = r'[A-Z]{3,4}\s+\d{3}'
 CATALOG_COURSE_TITLE_REGEX = rf'^({COURSE_REGEX})\s+(.+?)\s*\(\s*(\d+(?:\.\d+)?)\s*credits\s*\)$'
+EM_DASH_PLACEHOLDER = "EM_DASH"
 
 # Helper functions for parsing course data
 def clean_text(text):
@@ -18,17 +20,19 @@ def clean_text(text):
         return ""
 
     text = re.sub(r'\s+', ' ', text)  # Collapse multiple spaces into one
-    # Avoid spliting degree abbreviations like BEng, BSc, MSc, etc.
-    text = re.sub(r'([a-zA-Z0-9])([A-Z][a-z])', lambda m: m.group(0) if re.match(r'[BMD][A-Z][a-z]+', m.group(0)) else SPACE_REPLACEMENT.replace(r'\1', m.group(1)).replace(r'\2', m.group(2)), text)
+    # Fix specific degree abbreviations
+    text = text.replace('B Eng', 'BEng')
+    text = text.replace('B Comp Sc', 'BCompSc')
     text = re.sub(r'([a-zA-Z])(\d)', SPACE_REPLACEMENT, text)  # Space between letters and numbers
     text = re.sub(r'(\d)([a-zA-Z])', SPACE_REPLACEMENT, text)  # Space between numbers and letters
-    text = text.replace('\u2011', '-')  # Non-breaking hyphen to regular hyphen
-    text = text.replace('\u2019', "'")  # Right single quote to straight quote
-    text = text.replace('\u2014', ' — ')  # En dash with spaces
-    text = text.replace('\u00a0', ' ')  # Non-breaking space to regular space
-    text = text.replace('\u00e2\u0080\u0091', '-')  # Another non-breaking hyphen to regular hyphen
-    text = text.replace("\u2013", "-").replace("\u2014", "-").replace("\xa0", " ") # Normalize unicode dashes and nbsp, collapse spaces
-    text = re.sub(r'\s*([.,:;])\s*', r'\1 ', text)  # Single space after punctuation
+    text = text.replace('–', EM_DASH_PLACEHOLDER)  # Temporarily replace em-dash
+    text = unidecode(text) # Convert ALL unicode characters to ASCII equivalents
+    text = text.replace(EM_DASH_PLACEHOLDER, '–')  # Restore em-dash
+    text = text.replace("--", "–")  # Replace double hyphens with em-dash
+    text = re.sub(r'(\d+)\s*\.\s*(?=\d)', r'\1.', text)  # Remove spaces around dots when followed by digits
+    # Single space after punctuation, but exclude dots between numbers
+    text = re.sub(r'\s*([,:;])\s*', r'\1 ', text)  # Comma, colon, semicolon
+    text = re.sub(r'\s*(\.)(?!\d)\s*', r'\1 ', text)  # Dot not followed by digit
     text = re.sub(r'\s+', ' ', text.strip())  # Final cleanup
     return text
 
@@ -59,7 +63,7 @@ def parse_course_title_and_credits(title_element):
     if course_id_match:
         course_id = course_id_match.group(0)
         title = name[len(course_id):].strip()
-        return course_id, title, float(course_credits)
+        return course_id, clean_text(title), float(course_credits)
     return None, name, float(course_credits)
 
 def split_sections(text):
@@ -217,7 +221,7 @@ def parse_course_components(component_text: str) -> list[str]:
     return components
 
 def get_course_sort_key(course_id: str):
-    match = re.match(COURSE_REGEX, course_id)
+    match = re.match(r'([A-Z]{3,4})\s+(\d{3})', course_id)
     if match:
         dept = match.group(1)
         num = int(match.group(2))

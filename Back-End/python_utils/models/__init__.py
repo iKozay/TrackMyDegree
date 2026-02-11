@@ -1,14 +1,21 @@
 from dataclasses import dataclass, field
+from typing import Optional
+from enum import Enum
+
+class DegreeType(Enum):
+    STANDALONE = "Standalone"
+    COOP = "Co-op"
+    ECP = "ECP"
+
+@dataclass(frozen=True)
+class AnchorLink():
+    text: str
+    url: str
 
 @dataclass
 class BaseModel:
-    def __str__(self):
+    def __str__(self) -> str:
         return str(serialize(self))
-
-@dataclass
-class AnchorLink(BaseModel):
-    text: str
-    url: str
 
 @dataclass
 class CourseRules(BaseModel):
@@ -20,7 +27,7 @@ class CourseRules(BaseModel):
 class Course(BaseModel):
     _id: str
     title: str
-    credits: int
+    credits: float
     description: str
     offered_in: list[str]
     prereq_coreq_text: str
@@ -32,23 +39,24 @@ class Course(BaseModel):
 class CoursePool(BaseModel):
     _id: str
     name: str
-    credits_required: int
+    credits_required: float
     courses: list[str] # List of course IDs only
 
 @dataclass
 class Degree(BaseModel):
     _id: str
     name: str
-    credits_required: int
+    degree_type: DegreeType
+    credits_required: float
     course_pools: list[str] # List of CoursePool IDs only
 
 @dataclass
-class DegreeRequirements(BaseModel):
+class ProgramRequirements(BaseModel):
     degree: Degree
     course_pools: list[CoursePool]
 
 @dataclass
-class ScraperAPIResponse(DegreeRequirements):
+class ScraperAPIResponse(ProgramRequirements):
     courses: list[Course]
 
 @dataclass
@@ -56,13 +64,20 @@ class DegreeScraperConfig(BaseModel):
     long_name: str
     short_name: str
     scraper_class: type
+    marker: Optional[str] = None
+
+    def __post_init__(self):
+        if self.marker is None:
+            self.marker = self.long_name
 
 # Helper function to serialize dataclass objects to dictionaries (JSON serializable)
 def serialize(obj):
     if isinstance(obj, list):
         return [serialize(item) for item in obj]
+    if isinstance(obj, Enum):
+        return obj.value
     if hasattr(obj, "__dict__"):
-        d = obj.__dict__.copy()
+        d = vars(obj).copy()  # Use vars() instead of __dict__ to avoid method conflicts
         for k, v in d.items():
             d[k] = serialize(v)
         return d
