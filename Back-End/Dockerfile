@@ -1,4 +1,4 @@
-FROM node:22
+FROM node:22.21
 
 # Install Python and pip
 RUN apt-get update && apt-get --no-install-recommends install -y \

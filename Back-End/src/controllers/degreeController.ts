@@ -147,7 +147,7 @@ export class DegreeController extends BaseMongoController<any> {
   async readAllDegrees(): Promise<DegreeData[]> {
     try {
       const result = await this.findAll(
-        { _id: { $ne: 'ECP' } },
+        { _id: { $not: /ECP/ } },
         { select: 'name totalCredits', sort: { name: 1 } },
       );
 

@@ -21,14 +21,13 @@ export const BaseModal: React.FC<BaseModalProps> = ({
 
   return (
     <div
-      className="modal-backdrop"
+      className="modal-backdrop "
       onClick={handleOnClose}
       role="presentation">
       <div
         className="modal-content"
         onClick={(e) => e.stopPropagation()} // don't close when clicking inside
-        role="menuitem"
-      >
+        role="menuitem">
         <button className="modal-close" onClick={handleOnClose}>
           ×
         </button>
