@@ -10,8 +10,13 @@ import {
   AlertTriangle,
   Plus,
   Save,
+  FileText
 } from "lucide-react";
 import { downloadTimelinePdf } from "../utils/timelineUtils";
+import { useNavigate, useParams } from "react-router-dom";
+type TimeLinePageRouteParams = {
+  jobId?: string;
+};
 
 interface HistoryControlsProps {
   canUndo: boolean;
@@ -93,6 +98,8 @@ interface PrimaryActionsProps {
 }
 
 const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
+  const navigate = useNavigate();
+  const { jobId } = useParams<TimeLinePageRouteParams>();
   // TODO: merge all as one method handleModal(type: string)
   const handleInsights = () => {
     if (onOpenModal) onOpenModal(true, "insights");
@@ -109,6 +116,9 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
   const handleCoopValidation = () => {
     if (onOpenModal) onOpenModal(true, "coop");
   };
+  const handleDegreeAssesment = () => {
+    navigate(`/degree-audit/${jobId}?fromPage=timelinePage`);
+  };
   return (
     <div className="header-actions">
       <button className="btn btn-success" onClick={handleInsights}>
@@ -119,7 +129,10 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
         <Briefcase size={16} />
         Coop Validation
       </button>
-
+      <button className="btn btn-secondary" onClick={handleDegreeAssesment}>
+        <FileText size={16} />
+        Degree Assesment
+      </button>
       <button className="btn btn-tertiary" onClick={handleDeficiency}>
         <AlertTriangle size={16} />
         Add Deficiency
