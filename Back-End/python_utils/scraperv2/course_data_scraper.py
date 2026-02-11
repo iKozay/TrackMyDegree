@@ -1,28 +1,123 @@
 import sys
 import os
+import tempfile
+import json
+import logging
 
 # Add the root folder (parent of scraper) to Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.bs4_utils import get_all_links_from_div, get_soup
-from utils.parsing_utils import clean_text, parse_course_rules, parse_course_title_and_credits, split_sections, parse_course_components
-from models import AnchorLink, Course
+from utils.parsing_utils import clean_text, parse_course_title_and_credits, parse_course_rules, split_sections, parse_course_components
+from scraper.concordia_api_utils import get_instance
+from models import AnchorLink, Course, CourseRules, serialize
 
 class CourseDataScraper:
-
     QUICK_LINKS_ROOT_URL = "https://www.concordia.ca/academics/undergraduate/calendar/current/quick-links.html"
     FACULTIES = {
         "Faculty of Arts and Science Courses",
         "John Molson School of Business Courses",
         "Gina Cody School of Engineering and Computer Science Courses",
-        "Faculty of Fine Arts Courses"
+        "Faculty of Fine Arts Courses",
+        "Institute for Co-operative Education Courses",
     }
+    ALL_SEMESTERS = ["Fall", "Winter", "Summer"]
 
-    def __init__(self):
-        # Dictionary to hold all courses
-        # {course_id: Course}
-        self.all_courses: dict[str, Course] = {}
+    all_courses: dict[str, Course] = {}
+    conu_api_instance = get_instance()
 
-    def get_faculties(self) -> list[AnchorLink]:
+    def __init__(self, dev_mode: bool = False):
+        self.logger = logging.getLogger(__name__)
+
+        # Configure logger if not already configured
+        if not self.logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
+            self.logger.setLevel(logging.INFO)
+
+        self.dev_mode = dev_mode
+        if self.dev_mode:
+            self.logger.info("Running in development mode. Loading course data from local cache file if available...")
+            self.local_cache_file = os.path.join(tempfile.gettempdir(), "course_data_cache.json")
+
+    def load_cache_from_file(self) -> None:
+        if os.path.exists(self.local_cache_file):
+            self.logger.info(f"Loading course data from local cache file: {self.local_cache_file}")
+            with open(self.local_cache_file, "r") as f:
+                cached_courses = json.load(f)
+                for course_data in cached_courses.values():
+                    course = Course(**course_data)
+                    self.all_courses[course._id] = course
+        else:
+            self.logger.info("No local cache file found. Scraping course data from website...")
+            self.scrape_all_courses()
+            self._save_cache_to_file()
+    
+    def _save_cache_to_file(self) -> None:
+        with open(self.local_cache_file, "w") as f:
+            json.dump({course_id: serialize(course) for course_id, course in self.all_courses.items()}, f, indent=4)
+
+    def scrape_all_courses(self) -> None:
+        self.logger.info("Scraping all courses from website...")
+        faculty_links = self._scrape_faculty_links()
+        # Get all course subjects for each faculty
+        for link in faculty_links:
+            self.logger.info(f"Scraping courses for faculty: {link.text}")
+            subjects = get_all_links_from_div(link.url, ["content-main"])
+            self.logger.info(f"Found {len(subjects)} subjects for faculty: {link.text}")
+
+            # remove duplicate subjects based on url path (ignore hash/fragment)
+            seen_urls = set()
+            unique_links = []
+            for subject_link in subjects:
+                url_no_hash = subject_link.url.split('#')[0]
+                if url_no_hash not in seen_urls:
+                    seen_urls.add(url_no_hash)
+                    unique_links.append(subject_link)
+            subjects = unique_links
+
+            courses = self._extract_courses_from_subjects(subjects)
+            self.logger.info(f"Extracted {len(courses)} courses for faculty: {link.text}")
+            for course in courses:
+                self.all_courses[course._id] = course
+        self.logger.info("Adding extra CWT 100,200,300 and 400 courses...")
+        self._add_extra_cwt_courses()
+        self.logger.info(f"Total courses scraped: {len(self.all_courses)}")
+    
+    def get_courses_by_subjects(self, subjects: list[str], inclusive: bool = True, return_full_object: bool = False) -> list[Course] | list[str]:
+        self._scrape_if_needed()
+        courses = []
+        for course_id, course_data in self.all_courses.items():
+            subject = course_id.split()[0]
+            if (inclusive and subject in subjects) or (not inclusive and subject not in subjects):
+                courses.append(course_data)
+        if not return_full_object:
+            return [course._id for course in courses]
+        return courses
+    
+    def get_courses_by_ids(self, course_ids: list[str], inclusive: bool = True, return_full_object: bool = False) -> list[Course] | list[str]:
+        self._scrape_if_needed()
+        courses = []
+        for course_id in course_ids:
+            course_data = self.all_courses.get(course_id)
+            if course_data and ((inclusive and course_id in course_ids) or (not inclusive and course_id not in course_ids)):
+                courses.append(course_data)
+        if not return_full_object:
+            return [course._id for course in courses]
+        return courses
+    
+    def get_all_courses(self, return_full_object: bool = False) -> list[Course] | list[str]:
+        self._scrape_if_needed()
+        if not return_full_object:
+            return list(self.all_courses.keys())
+        return list(self.all_courses.values())
+
+    def _scrape_if_needed(self) -> None:
+        if not self.all_courses:
+            self.scrape_all_courses()
+
+    def _scrape_faculty_links(self) -> list[AnchorLink]:
         # Get faculties
         quick_links = get_all_links_from_div(self.QUICK_LINKS_ROOT_URL, ["content-main"])
         faculties = [
@@ -31,38 +126,10 @@ class CourseDataScraper:
         ]
         return faculties
 
-    def scrape_all_courses(self) -> None:
-        faculties = self.get_faculties()
-        # Get all course catalogs for each faculty
-        for faculty in faculties:
-            catalogs = get_all_links_from_div(faculty.url, ["content-main"])
-            courses = self._extract_courses_from_catalogs(catalogs)
-            for course in courses:
-                self.all_courses[course._id] = course
-    
-    def get_courses_by_catalogs(self, catalogs: list[str]) -> list[Course]:
+    def _extract_courses_from_subjects(self, subjects) -> list[Course]:
         courses = []
-        for course_id, course_data in self.all_courses.items():
-            catalog = course_id.split()[0]
-            if catalog in catalogs:
-                courses.append(Course(**course_data))
-        return courses
-    
-    def get_courses_by_ids(self, course_ids: list[str]) -> list[Course]:
-        courses = []
-        for course_id in course_ids:
-            course_data = self.all_courses.get(course_id)
-            if course_data:
-                courses.append(Course(**course_data))
-        return courses
-    
-    def get_all_courses(self) -> list[Course]:
-        return list(self.all_courses.values())
-
-    def _extract_courses_from_catalogs(self, catalogs) -> list[Course]:
-        courses = []
-        for catalog in catalogs:
-            courses.extend(self._parse_course_objects(catalog.url))
+        for subject in subjects:
+            courses.extend(self._parse_course_objects(subject.url))
         return courses
 
     def _parse_course_objects(self, url: str) -> list[Course]:
@@ -89,13 +156,18 @@ class CourseDataScraper:
             
             sections = split_sections(full_text)
             
+            if "CWT" in course_id:
+                offered_in = self.ALL_SEMESTERS
+            else:
+                offered_in = self.conu_api_instance.get_term(course_id)
+
             # Create Course object
             course = Course(
                 _id=course_id,
                 title=title,
-                credits=course_credits or 0,
+                credits=course_credits,
                 description=sections.get("Description:", ""),
-                offered_in=[],
+                offered_in=offered_in,
                 prereq_coreq_text=sections.get("Prerequisite/Corequisite:", ""),
                 rules=parse_course_rules(sections.get("Prerequisite/Corequisite:", ""), sections.get("Notes:", "")),
                 notes=sections.get("Notes:", ""),
@@ -105,3 +177,15 @@ class CourseDataScraper:
             courses.append(course)
 
         return courses
+
+    def _add_extra_cwt_courses(self) -> None:
+        # Add CWT courses that are not listed in the quick links
+        extra_cwt_courses = [
+            Course(_id="CWT 100", title="Co-op Work Term 1", credits=0.0, description="Co-op Work Term 1", offered_in=self.ALL_SEMESTERS, prereq_coreq_text="Must be completed concurrently: CWT 101", rules=CourseRules(), notes="", components=[]),
+            Course(_id="CWT 200", title="Co-op Work Term 2", credits=0.0, description="Co-op Work Term 2", offered_in=self.ALL_SEMESTERS, prereq_coreq_text="Must be completed previously: CWT 100, CWT 101. Must be completed concurrently: CWT 201", rules=CourseRules(), notes="", components=[]),
+            Course(_id="CWT 300", title="Co-op Work Term 3", credits=0.0, description="Co-op Work Term 3", offered_in=self.ALL_SEMESTERS, prereq_coreq_text="Must be completed previously: CWT 200, CWT 201. Must be completed concurrently: CWT 301", rules=CourseRules(), notes="", components=[]),
+            Course(_id="CWT 400", title="Co-op Work Term 4", credits=0.0, description="Co-op Work Term 4", offered_in=self.ALL_SEMESTERS, prereq_coreq_text="Must be completed previously: CWT 300, CWT 301. Must be completed concurrently: CWT 401", rules=CourseRules(), notes="", components=[])
+        ]
+        for course in extra_cwt_courses:
+            course.rules = parse_course_rules(course.prereq_coreq_text, course.notes)
+            self.all_courses[course._id] = course
