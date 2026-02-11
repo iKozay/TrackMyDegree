@@ -88,7 +88,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
       let query = this.model.findById(id);
 
       if (select) {
-        query = query.select(select);
+        query = query.select(select) as typeof query;;
       }
 
       const document = await query.lean<T>().exec();
@@ -117,7 +117,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
       let query = this.model.findOne(filter);
 
       if (select) {
-        query = query.select(select);
+        query = query.select(select) as typeof query;
       }
 
       const document = await query.lean<T>().exec();
@@ -157,7 +157,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
 
       // Apply field selection
       if (options.select) {
-        query = query.select(options.select);
+        query = query.select(options.select) as typeof query;
       }
 
       // Apply sorting
