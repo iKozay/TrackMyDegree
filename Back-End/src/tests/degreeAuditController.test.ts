@@ -1,3 +1,4 @@
+/* eslint-disable */
 import * as Sentry from '@sentry/node';
 import { DegreeAuditController } from '@controllers/degreeAuditController';
 import * as degreeAuditService from '../services/audit/degreeAuditService';
