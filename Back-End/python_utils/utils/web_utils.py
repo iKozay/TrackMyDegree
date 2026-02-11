@@ -3,7 +3,7 @@ WebUtils - Web scraping and HTTP utilities module.
 Provides common functionality for web requests, parsing, and data extraction.
 """
 
-from logging import Logger
+import logging
 import requests
 import time
 import random
@@ -19,7 +19,15 @@ class WebUtils:
         # Retry settings
         self.max_retries = 3
         self.retry_delay = 1.0
-        self.logger = Logger("WebUtils")
+        self.logger = logging.getLogger(__name__)
+        
+        # Configure logger if not already configured
+        if not self.logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
+            self.logger.setLevel(logging.INFO)
     
     def get(self, url: str) -> requests.Response:
         for attempt in range(self.max_retries + 1):
