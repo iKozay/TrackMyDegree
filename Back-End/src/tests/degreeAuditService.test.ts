@@ -1,4 +1,3 @@
-// eslint-disable
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import {
@@ -15,6 +14,7 @@ const STATUS_COMPLETED = 'Completed';
 const STATUS_NOT_STARTED = 'Not Started';
 const STATUS_MISSING = 'Missing';
 const STATUS_IN_PROGRESS = 'In Progress';
+const DEGREE_NAME = 'Bachelor of Computer Science';
 
 // eslint-disable-next-line sonarjs/no-duplicate-string
 jest.mock('@utils/misc', () => {
@@ -164,7 +164,7 @@ describe('DegreeAuditService', () => {
     // Create degree
     await Degree.create({
       _id: 'COMP',
-      name: 'Bachelor of Computer Science',
+      name: DEGREE_NAME,
       totalCredits: 120,
       coursePools: ['CORE_CS', 'MATH_REQ', 'CAPSTONE', 'GEN_ED'],
     });
@@ -215,7 +215,7 @@ describe('DegreeAuditService', () => {
   describe('generateDegreeAuditFromTimeline', () => {
     const mockDegree = {
     _id: 'COMP',
-    name: 'Bachelor of Computer Science',
+    name: DEGREE_NAME,
     totalCredits: 120,
   };
 
@@ -297,7 +297,7 @@ describe('DegreeAuditService', () => {
 
       const audit = generateDegreeAuditFromTimeline(timeline);
 
-      expect(audit.student.program).toBe('Bachelor of Computer Science');
+      expect(audit.student.program).toBe(DEGREE_NAME);
       expect(audit.requirements.length).toBeGreaterThan(0);
 
       const coreReq = audit.requirements.find(r =>
@@ -356,7 +356,7 @@ describe('DegreeAuditService', () => {
       expect(audit).toBeDefined();
       expect(audit.student).toBeDefined();
       expect(audit.student.name).toBe('Test Student');
-      expect(audit.student.program).toBe('Bachelor of Computer Science');
+      expect(audit.student.program).toBe(DEGREE_NAME);
       expect(audit.progress).toBeDefined();
       expect(audit.notices).toBeDefined();
       expect(audit.requirements).toBeDefined();
