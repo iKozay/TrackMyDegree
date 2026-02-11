@@ -13,10 +13,6 @@ import {
   FileText
 } from "lucide-react";
 import { downloadTimelinePdf } from "../utils/timelineUtils";
-import { useNavigate, useParams } from "react-router-dom";
-type TimeLinePageRouteParams = {
-  jobId?: string;
-};
 
 interface HistoryControlsProps {
   canUndo: boolean;
@@ -98,8 +94,6 @@ interface PrimaryActionsProps {
 }
 
 const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
-  const navigate = useNavigate();
-  const { jobId } = useParams<TimeLinePageRouteParams>();
   // TODO: merge all as one method handleModal(type: string)
   const handleInsights = () => {
     if (onOpenModal) onOpenModal(true, "insights");
@@ -117,7 +111,7 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
     if (onOpenModal) onOpenModal(true, "coop");
   };
   const handleDegreeAssesment = () => {
-    navigate(`/degree-audit/${jobId}?fromPage=timelinePage`);
+    if (onOpenModal) onOpenModal(false, "degree-audit");
   };
   return (
     <div className="header-actions">

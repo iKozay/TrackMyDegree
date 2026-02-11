@@ -1,7 +1,12 @@
 import * as Sentry from '@sentry/node';
 import { DegreeAuditController } from '@controllers/degreeAuditController';
 import * as degreeAuditService from '../services/audit/degreeAuditService';
+import * as cache from '../lib/cache'; // wherever redisClient.get is exported
 
+jest.mock('../lib/cache', () => ({
+  getJobResult: jest.fn(),
+  resultKey: jest.fn((jobId) => `job:${jobId}`),
+}));
 jest.mock('@sentry/node', () => ({
   captureException: jest.fn(),
 }));
@@ -9,6 +14,7 @@ jest.mock('@sentry/node', () => ({
 jest.mock('../services/audit/degreeAuditService', () => ({
   generateDegreeAudit: jest.fn(),
   generateDegreeAuditForUser: jest.fn(),
+  generateDegreeAuditFromTimeline: jest.fn(),
 }));
 
 describe('DegreeAuditController', () => {
@@ -185,6 +191,79 @@ describe('DegreeAuditController', () => {
       consoleSpy.mockRestore();
     });
   });
+  describe('getAuditByCachedTimeline', () => {
+  const { getJobResult } = require('../lib/cache');
+
+  beforeEach(() => {
+    getJobResult.mockReset();
+  });
+
+  it('should throw when cached audit not found', async () => {
+    getJobResult.mockResolvedValue(null);
+
+    await expect(controller.getAuditByCachedTimeline('job123'))
+      .rejects.toThrow('RESULT_EXPIRED'); // matches controller
+
+    expect(Sentry.captureException).toHaveBeenCalled();
+  });
+
+  it('should handle non-Error objects', async () => {
+    const cachedTimeline = {
+      payload: { data: { degree: {}, pools: [], semesters: [], courses: {} } },
+    };
+    getJobResult.mockResolvedValue(cachedTimeline);
+
+    const errorString = 'Cache error';
+    (degreeAuditService.generateDegreeAuditFromTimeline as jest.Mock)
+      .mockRejectedValue(errorString);
+
+    await expect(controller.getAuditByCachedTimeline('job123'))
+      .rejects.toBe(errorString);
+
+    expect(Sentry.captureException).toHaveBeenCalled();
+  });
+
+  it('should log error to console', async () => {
+    const cachedTimeline = {
+      payload: { data: { degree: {}, pools: [], semesters: [], courses: {} } },
+    };
+    getJobResult.mockResolvedValue(cachedTimeline);
+
+    const error = new Error('Cache failure');
+    (degreeAuditService.generateDegreeAuditFromTimeline as jest.Mock)
+      .mockRejectedValue(error);
+
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    await expect(controller.getAuditByCachedTimeline('job123'))
+      .rejects.toThrow();
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      '[DegreeAudit] Error in getAuditByCachedTimelineJob:',
+      'Cache failure',
+    );
+
+    consoleSpy.mockRestore();
+  });
+
+  it('should return audit data for valid jobId', async () => {
+    const cachedTimeline = {
+      payload: { data: { degree: {}, pools: [], semesters: [], courses: {} } },
+    };
+    getJobResult.mockResolvedValue(cachedTimeline);
+
+    (degreeAuditService.generateDegreeAuditFromTimeline as jest.Mock)
+      .mockResolvedValue(mockAuditData);
+
+    const result = await controller.getAuditByCachedTimeline('job123');
+
+    expect(result).toEqual(mockAuditData);
+    expect(getJobResult).toHaveBeenCalledWith('job123');
+    expect(degreeAuditService.generateDegreeAuditFromTimeline)
+      .toHaveBeenCalledWith(cachedTimeline.payload.data);
+  });
+});
+
 
   describe('handleError', () => {
     it('should capture exception with correct tags', async () => {
