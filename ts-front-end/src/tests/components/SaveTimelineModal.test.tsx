@@ -68,7 +68,6 @@ describe("SaveTimelineModal (content)", () => {
   it("initializes with trimmed timeline name when provided", () => {
       render(
           <SaveTimelineModal
-              open={true}
               timelineName={"   My Timeline   "}
               onSave={vi.fn()}
               onClose={vi.fn()}
