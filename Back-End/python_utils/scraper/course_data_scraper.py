@@ -2,12 +2,12 @@ import sys
 import os
 import tempfile
 import json
-import logging
 
 # Add the root folder (parent of scraper) to Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.bs4_utils import get_all_links_from_div, get_soup
 from utils.parsing_utils import clean_text, parse_course_title_and_credits, parse_course_rules, split_sections, parse_course_components
+from utils.logging_utils import get_logger
 from scraper.concordia_api_utils import get_instance
 from models import AnchorLink, Course, CourseRules, serialize
 
@@ -26,15 +26,7 @@ class CourseDataScraper:
     conu_api_instance = get_instance()
 
     def __init__(self, dev_mode: bool = False):
-        self.logger = logging.getLogger(__name__)
-
-        # Configure logger if not already configured
-        if not self.logger.handlers:
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
-            self.logger.setLevel(logging.INFO)
+        self.logger = get_logger("CourseDataScraper")
 
         self.dev_mode = dev_mode
         if self.dev_mode:

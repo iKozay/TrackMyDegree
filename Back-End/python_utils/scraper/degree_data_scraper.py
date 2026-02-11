@@ -6,8 +6,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.bs4_utils import get_soup, get_all_links_from_div, extract_coursepool_and_required_credits, extract_coursepool_courses
 from utils.parsing_utils import COURSE_REGEX, extract_name_and_credits
 from models import AnchorLink, CoursePool, DegreeScraperConfig, ScraperAPIResponse, DegreeType
-from scraperv2.abstract_degree_scraper import AbstractDegreeScraper
-from scraperv2.course_data_scraper import CourseDataScraper
+from scraper.abstract_degree_scraper import AbstractDegreeScraper
+from scraper.course_data_scraper import CourseDataScraper
 
 class DegreeDataScraper():
     GINA_CODY_PROGRAMS_OFFERED_URL = "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-10-gina-cody-school-of-engineering-and-computer-science.html#9919"
