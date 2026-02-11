@@ -8,6 +8,8 @@ import { Course, CoursePool, Degree, Timeline, User } from '@models';
 import { GenerateAuditParams } from '@shared/audit';
 import * as misc from '@utils/misc';
 
+import { generateDegreeAuditFromTimeline } from '@services/audit';
+import { TimelineCourse, TimelineResult } from '../types/timeline';
 const STATUS_COMPLETED = 'Completed';
 const STATUS_NOT_STARTED = 'Not Started';
 const STATUS_MISSING = 'Missing';
@@ -197,6 +199,149 @@ describe('DegreeAuditService', () => {
     });
     testTimelineId = (timeline._id as mongoose.Types.ObjectId).toString();
   });
+  let realNow: typeof Date.now;
+   beforeAll(() => {
+    realNow = Date.now;
+
+    // Always return the fixed timestamp
+    Date.now = () => new Date('2025-01-15').getTime();
+  });
+
+  afterAll(() => {
+    // Restore original
+    Date.now = realNow;
+  });
+  describe('generateDegreeAuditFromTimeline', () => {
+    const mockDegree = {
+    _id: 'COMP',
+    name: 'Bachelor of Computer Science',
+    totalCredits: 120,
+  };
+
+  const mockPools = [
+    {
+      _id: 'CORE_CS',
+      name: 'core_computer_science',
+      creditsRequired: 6,
+      courses: ['COMP 248', 'COMP 249'],
+    },
+    {
+      _id: 'exemptions',
+      name: 'exemptions',
+      creditsRequired: 3,
+      courses: ['ENGL 101'],
+    },
+    {
+      _id: 'deficiencies',
+      name: 'deficiencies',
+      creditsRequired: 3,
+      courses: ['MATH 203'],
+    },
+  ];
+      const mockSemesters = [
+      {
+        term: 'Fall 2022',
+        courses: [{ code: 'COMP 248' }],
+      },
+    ];
+     const mockCourses : Record<string, TimelineCourse> = {
+      'COMP 248': {
+        id: 'COMP 248',
+        title: 'OOP I',
+        credits: 3,
+        description: '',
+        offeredIN: [],
+        prerequisites: [],
+        corequisites: [],
+        status: { status: 'completed', semester: 'Fall 2022' },
+      },
+      'COMP 249': {
+        id: 'COMP 249',
+        title: 'OOP II',
+        credits: 3,
+        description: '',
+        offeredIN: [],
+        prerequisites: [],
+        corequisites: [],
+        status: { status: 'planned', semester: 'Fall 2027' },
+      },
+      'ENGL 101': {
+        id: 'ENGL 101',
+        title: 'English',
+        credits: 3,
+        description: '',
+        offeredIN: [],
+        prerequisites: [],
+        corequisites: [],
+        status: { status: 'incomplete', semester: null },
+      },
+      'MATH 203': {
+        id: 'MATH 203',
+        title: 'Calculus I',
+        credits: 3,
+        description: '',
+        offeredIN: [],
+        prerequisites: [],
+        corequisites: [],
+        status: { status: 'planned', semester: 'Fall 2027' },
+      },
+    };
+    it('should generate degree audit correctly from timeline', () => {
+      const timeline: TimelineResult = {
+        degree: mockDegree,
+        pools: mockPools,
+        semesters: mockSemesters,
+        courses: mockCourses,
+      };
+
+      const audit = generateDegreeAuditFromTimeline(timeline);
+
+      expect(audit.student.program).toBe('Bachelor of Computer Science');
+      expect(audit.requirements.length).toBeGreaterThan(0);
+
+      const coreReq = audit.requirements.find(r =>
+        r.title.includes('Core Computer Science'),
+      );
+
+      expect(coreReq).toBeDefined();
+      expect(coreReq?.creditsCompleted).toBe(3);
+
+      const completedCourse = coreReq?.courses.find(
+        c => c.code === 'COMP 248',
+      );
+      expect(completedCourse?.status).toBe('Completed');
+
+      const plannedCourse = coreReq?.courses.find(
+        c => c.code === 'COMP 249',
+      );
+      expect(plannedCourse?.status).toBe('Not Started');
+
+      // Check exemption category exists and is complete
+      const exemptionReq = audit.requirements.find(
+        r => r.id === 'exemptions',
+      );
+      expect(exemptionReq).toBeDefined();
+      expect(exemptionReq?.status).toBe('Complete');
+
+      // Check deficiency category exists
+      const deficiencyReq = audit.requirements.find(
+        r => r.id === 'deficiencies',
+      );
+      expect(deficiencyReq).toBeDefined();
+      expect(deficiencyReq?.creditsTotal).toBe(3);
+    });
+
+  it('should throw error if required fields are missing', () => {
+    expect(() =>
+      generateDegreeAuditFromTimeline({
+        semesters: [],
+        courses: {},
+      } as TimelineResult),
+    ).toThrow(
+      'degree, coursePools and semesters are required to generate the degree audit',
+    );
+  });
+});
 
   describe('generateDegreeAudit', () => {
     it('should generate a complete degree audit', async () => {
