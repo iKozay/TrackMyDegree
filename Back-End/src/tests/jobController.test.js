@@ -120,8 +120,8 @@ describe('getByJobId', () => {
       const res = createMockResponse();
       const cachedTimeline = {
           pools: [
-              { _id: 'Exemptions', courses: [] },
-              { _id: 'Deficiencies', courses: [] },
+              { _id: 'exemptions', courses: [] },
+              { _id: 'deficiencies', courses: [] },
           ],
           courses: {
               'COMP 248': {
@@ -145,9 +145,9 @@ describe('getByJobId', () => {
         expect(mockGetJobResult).toHaveBeenCalledWith('job-123');
 
         // Exemptions / Deficiencies pools updated
-        expect(cachedTimeline.pools.find(p => p._id === 'Exemptions').courses)
+        expect(cachedTimeline.pools.find(p => p._id === 'exemptions').courses)
             .toEqual(['COMP 248']);
-        expect(cachedTimeline.pools.find(p => p._id === 'Deficiencies').courses)
+        expect(cachedTimeline.pools.find(p => p._id === 'deficiencies').courses)
             .toEqual(['MATH 203']);
 
         // Courses merged
@@ -183,8 +183,8 @@ describe('getByJobId', () => {
 
         const cachedTimeline = {
             pools: [
-                { _id: 'Exemptions', courses: [] },
-                { _id: 'Deficiencies', courses: [] },
+                { _id: 'exemptions', courses: [] },
+                { _id: 'deficiencies', courses: [] },
             ],
             courses: {},
             semesters: [],
@@ -228,8 +228,8 @@ describe('getByJobId', () => {
 
         const cachedTimeline = {
             pools: [
-                { _id: 'Exemptions', courses: [] },
-                { _id: 'Deficiencies', courses: [] },
+                { _id: 'exemptions', courses: [] },
+                { _id: 'deficiencies', courses: [] },
             ],
             courses: {},
             semesters: [],
