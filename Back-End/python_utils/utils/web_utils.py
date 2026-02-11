@@ -3,67 +3,57 @@ WebUtils - Web scraping and HTTP utilities module.
 Provides common functionality for web requests, parsing, and data extraction.
 """
 
-import logging
 import requests
 import time
 import random
+from .logging_utils import get_logger
 
-class WebUtils:
-    def __init__(self):
-        self.session = requests.Session()
-        self.default_headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-        self.session.headers.update(self.default_headers)
-        
-        # Retry settings
-        self.max_retries = 3
-        self.retry_delay = 1.0
-        self.logger = logging.getLogger(__name__)
-        
-        # Configure logger if not already configured
-        if not self.logger.handlers:
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
-            self.logger.setLevel(logging.INFO)
-    
-    def get(self, url: str) -> requests.Response:
-        for attempt in range(self.max_retries + 1):
-            try:
-                response = self.session.get(url)
-                response.raise_for_status()
-                return response
-                
-            except requests.RequestException as e:
-                if attempt == self.max_retries:
-                    raise e
+session = requests.Session()
+default_headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+}
+session.headers.update(default_headers)
 
-                delay = self.retry_delay * (2 ** attempt) + random.uniform(0, 1)
-                self.logger.warning(f"Request failed ({e}), retrying in {delay:.2f} seconds...")
-                time.sleep(delay)
-    
-    def fetch_html(self, url: str) -> str:
-        response = self.get(url)
-        return response.text
+# Retry settings
+max_retries = 3
+retry_delay = 1.0
+logger = get_logger("WebUtils")
 
-    def get_json(self, url: str) -> dict:
-        response = self.get(url)
-        return response.json()
-    
-    def download_file(self, url: str, file_path: str) -> bool:
+def get(url: str) -> requests.Response:
+    for attempt in range(max_retries + 1):
         try:
-            response = self.get(url)
+            response = session.get(url)
+            response.raise_for_status()
+            return response
             
-            with open(file_path, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:
-                        f.write(chunk)
-            
-            self.logger.info(f"Downloaded: {url} -> {file_path}")
-            return True
-            
-        except Exception as e:
-            self.logger.error(f"Download failed: {url} -> {file_path}, Error: {e}")
-            return False
+        except requests.RequestException as e:
+            if attempt == max_retries:
+                raise e
+
+            delay = retry_delay * (2 ** attempt) + random.uniform(0, 1)
+            logger.warning(f"Request failed ({e}), retrying in {delay:.2f} seconds...")
+            time.sleep(delay)
+
+def fetch_html(url: str) -> str:
+    response = get(url)
+    return response.text
+
+def get_json(url: str) -> dict:
+    response = get(url)
+    return response.json()
+
+def download_file(url: str, file_path: str) -> bool:
+    try:
+        response = get(url)
+        
+        with open(file_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+        
+        logger.info(f"Downloaded: {url} -> {file_path}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Download failed: {url} -> {file_path}, Error: {e}")
+        return False

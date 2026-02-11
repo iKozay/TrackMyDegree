@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup, ResultSet
 from bs4.dammit import EncodingDetector
 from urllib.parse import urljoin
-from .web_utils import WebUtils
+from .web_utils import get as web_get
 import re
 import sys
 import os
@@ -11,13 +11,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from models import AnchorLink, CoursePool
 from .parsing_utils import REGEX_ALL, REGEX_NONE, COURSE_REGEX, clean_text, get_course_sort_key
 
-webu = WebUtils()
-
 def get_soup(url: str) -> BeautifulSoup:
     """
     Fetches the content from the URL and returns a BeautifulSoup object.
     """
-    resp = webu.get(url)
+    resp = web_get(url)
     encoding = (
         EncodingDetector.find_declared_encoding(resp.content, is_html=True)
         or (resp.encoding if 'charset' in resp.headers.get('content-type', '').lower() else None)
