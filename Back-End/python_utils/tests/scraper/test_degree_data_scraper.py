@@ -1,482 +1,941 @@
-import sys
 import pytest
 from unittest.mock import patch, MagicMock
-import requests
+import sys
 import os
+from bs4 import BeautifulSoup
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-class MockCourseDataScraper:
-    def extract_course_data(self, course_code, url):
-        return {"_id": course_code, "code": course_code, "title": "Mock Title", "credits": 3}
-    def get_coop_courses(self):
-        return [{"_id": "CWT 123", "code": "CWT 123", "title": "Coop", "credits": 0}]
+from scraper.degree_data_scraper import *
+from scraper.abstract_degree_scraper import AbstractDegreeScraper
+from models import AnchorLink, ScraperAPIResponse, CoursePool, DegreeType
 
-class MockEngrElectivesScraper:
-    def scrape_electives(self):
-        return [
-            ["ELEC 390", "ENGR 400"],
-            [{"_id": "ELEC 390"}, {"_id": "ENGR 400"}]
+
+class MockDegreeScraper(AbstractDegreeScraper):
+    """Mock scraper for testing"""
+    def _get_program_requirements(self):
+        # Mock implementation
+        pass
+    
+    def _handle_special_cases(self):
+        # Mock implementation  
+        pass
+
+
+class TestDegreeDataScraper:
+    """Test DegreeDataScraper orchestration class"""
+
+    @patch('scraper.degree_data_scraper.get_all_links_from_div')
+    def test_init_scrapers(self, mock_get_links):
+        """Test initialization of degree scrapers from configuration"""
+        mock_get_links.return_value = [
+            AnchorLink(text="BEng in Computer Engineering", url="http://test.com")
+        ]
+        
+        scraper = DegreeDataScraper()
+        assert len(scraper.degree_scrapers) > 0
+
+    @patch('scraper.degree_data_scraper.get_all_links_from_div')
+    def test_get_degree_names(self, mock_get_links):
+        """Test getting list of available degree names"""
+        mock_get_links.return_value = [
+            AnchorLink(text="BEng in Computer Engineering", url="http://test.com")
+        ]
+        
+        scraper = DegreeDataScraper()
+        names = scraper.get_degree_names()
+        assert isinstance(names, list)
+
+    @patch('scraper.degree_data_scraper.get_all_links_from_div')
+    def test_scrape_degree_by_name_success(self, mock_get_links):
+        """Test scraping a degree by name successfully"""
+        mock_get_links.return_value = [
+            AnchorLink(text="BEng in Computer Engineering", url="http://test.com")
+        ]
+        
+        scraper = DegreeDataScraper()
+        degree_name = "BEng in Computer Engineering"
+        
+        # Mock the scraper's scrape_degree method
+        mock_degree = type('Degree', (), {'name': degree_name, 'credits_required': 120.0})()
+        mock_response = ScraperAPIResponse(degree=mock_degree, course_pools=[], courses=[])
+        
+        with patch.object(scraper.degree_scrapers[degree_name], 'scrape_degree', return_value=mock_response):
+            result = scraper.scrape_degree_by_name(degree_name)
+            assert isinstance(result, ScraperAPIResponse)
+
+    @patch('scraper.degree_data_scraper.get_all_links_from_div')
+    def test_scrape_degree_by_name_not_found(self, mock_get_links):
+        """Test scraping non-existent degree raises error"""
+        mock_get_links.return_value = []
+        scraper = DegreeDataScraper()
+        
+        with pytest.raises(ValueError, match="Degree scraper for 'NonExistent' not found"):
+            scraper.scrape_degree_by_name("NonExistent")
+
+    @patch('scraper.degree_data_scraper.get_all_links_from_div')
+    def test_scrape_all_degrees(self, mock_get_links):
+        """Test scraping all available degrees"""
+        mock_get_links.return_value = [
+            AnchorLink(text="BEng in Computer Engineering", url="http://test.com")
+        ]
+        
+        scraper = DegreeDataScraper()
+        
+        # Mock all scraper instances
+        for degree_name, degree_scraper in scraper.degree_scrapers.items():
+            mock_degree = type('Degree', (), {'name': degree_name, 'credits_required': 120.0})()
+            mock_response = ScraperAPIResponse(degree=mock_degree, course_pools=[], courses=[])
+            degree_scraper.scrape_degree = MagicMock(return_value=mock_response)
+        
+        results = scraper.scrape_all_degrees()
+        assert isinstance(results, list)
+        assert len(results) == len(scraper.degree_scrapers)
+
+
+class TestAbstractDegreeScraper:
+    """Test AbstractDegreeScraper base functionality"""
+
+    def test_scraper_initialization(self):
+        """Test abstract scraper initialization"""
+        scraper = MockDegreeScraper("Test Degree", "TEST", "http://test.com")
+        
+        assert scraper.degree_name == "Test Degree"
+        assert scraper.degree_short_name == "TEST"
+        assert scraper.requirements_url == "http://test.com"
+        assert scraper.program_requirements is None
+
+    def test_set_program_requirements(self):
+        """Test setting program requirements"""
+        scraper = MockDegreeScraper("Test Degree", "TEST", "http://test.com")
+        
+        test_pool = CoursePool(_id="test", name="Test Pool", credits_required=30, courses=["COMP 248"])
+        scraper._set_program_requirements("Test Program", 120.0, DegreeType.STANDALONE, [test_pool])
+        
+        assert scraper.program_requirements is not None
+        assert scraper.program_requirements.degree.name == "Test Program"
+
+    def test_add_courses_to_pool(self):
+        """Test adding courses to a course pool"""
+        scraper = MockDegreeScraper("Test Degree", "TEST", "http://test.com")
+        
+        test_pool = CoursePool(_id="test", name="Test Pool", credits_required=30, courses=["COMP 248"])
+        scraper._set_program_requirements("Test Program", 120.0, DegreeType.STANDALONE, [test_pool])
+        
+        scraper.add_courses_to_pool("Test Pool", ["COMP 249"])
+        
+        updated_pool = scraper.program_requirements.course_pools[0]
+        assert "COMP 249" in updated_pool.courses
+
+    def test_remove_courses_from_pool(self):
+        """Test removing courses from a course pool"""
+        scraper = MockDegreeScraper("Test Degree", "TEST", "http://test.com")
+        
+        test_pool = CoursePool(_id="test", name="Test Pool", credits_required=30, courses=["COMP 248", "COMP 249"])
+        scraper._set_program_requirements("Test Program", 120.0, DegreeType.STANDALONE, [test_pool])
+        
+        scraper.remove_courses_from_pool("Test Pool", ["COMP 249"])
+        
+        updated_pool = scraper.program_requirements.course_pools[0]
+        assert "COMP 249" not in updated_pool.courses
+
+    def test_scrape_degree_calls_required_methods(self):
+        """Test that scrape_degree calls required abstract methods"""
+        scraper = MockDegreeScraper("Test Degree", "TEST", "http://test.com")
+        
+        with patch.object(scraper, '_get_program_requirements') as mock_get_reqs, \
+             patch.object(scraper, '_handle_special_cases') as mock_handle_cases:
+            
+            test_pool = CoursePool(_id="test", name="Test Pool", credits_required=30, courses=[])
+            scraper._set_program_requirements("Test Program", 120.0, DegreeType.STANDALONE, [test_pool])
+            
+            result = scraper.scrape_degree()
+            
+            mock_get_reqs.assert_called_once()
+            mock_handle_cases.assert_called_once()
+            assert isinstance(result, ScraperAPIResponse)
+
+class TestGinaCodyDegreeScraper:
+    """Test Gina Cody School of Engineering and Computer Science scraper"""
+
+    @patch('scraper.degree_data_scraper.get_soup')
+    @patch('scraper.degree_data_scraper.extract_name_and_credits')
+    @patch('scraper.degree_data_scraper.extract_coursepool_courses')
+    def test_get_program_requirements(self, mock_extract_courses, mock_extract_name, mock_get_soup):
+        """Test getting program requirements"""
+        # Setup mocks
+        mock_soup = MagicMock()
+        mock_get_soup.return_value = mock_soup
+        
+        mock_program_node = MagicMock()
+        mock_soup.find.return_value = mock_program_node
+        
+        mock_h3 = MagicMock()
+        mock_program_node.find.return_value = mock_h3
+        
+        mock_extract_name.return_value = ("Test Program", 120.0)
+        mock_extract_courses.return_value = True
+        
+        # Mock table and coursepool extraction
+        mock_table = MagicMock()
+        mock_program_node.find.side_effect = [mock_h3, mock_table]
+        
+        with patch('scraper.degree_data_scraper.extract_coursepool_and_required_credits') as mock_extract_pools:
+            mock_extract_pools.return_value = []
+            
+            scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+            scraper._get_program_requirements()
+            
+            assert scraper.program_requirements is not None
+            assert scraper.program_requirements.degree.name == "Test Program"
+
+    def test_get_program_node_success(self):
+        """Test successfully finding program node"""
+        soup = BeautifulSoup('<div class="program-node" title="BEng in Computer Engineering">Content</div>', 'html.parser')
+        
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        result = scraper._get_program_node(soup)
+        
+        assert result is not None
+        assert result.get('title') == "BEng in Computer Engineering"
+
+    def test_get_program_node_not_found(self):
+        """Test when program node is not found"""
+        soup = BeautifulSoup('<div>No matching content</div>', 'html.parser')
+        
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        
+        with pytest.raises(ValueError, match="Program node for 'BEng in Computer Engineering' not found"):
+            scraper._get_program_node(soup)
+
+    @patch('scraper.degree_data_scraper.extract_coursepool_and_required_credits')
+    def test_get_course_pools_without_courses(self, mock_extract_pools):
+        """Test extracting course pools without courses"""
+        mock_extract_pools.return_value = [
+            (AnchorLink(text="Computer Science Core", url="http://test.com"), 45.0),
+            (AnchorLink(text="Engineering Core", url="http://test.com"), 30.0)
+        ]
+        
+        mock_program_node = MagicMock()
+        mock_table = MagicMock()
+        mock_program_node.find.return_value = mock_table
+        
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        result = scraper._get_course_pools_without_courses(mock_program_node)
+        
+        assert len(result) == 2
+        assert all(isinstance(pool, CoursePool) for pool in result)
+        assert result[0].name == "Computer Science Core"
+        assert result[0]._id == "COEN_Computer Science Core"
+        assert (result[0].credits_required - 45.0) < 1e-8
+
+    @patch('scraper.degree_data_scraper.extract_coursepool_courses')
+    def test_extract_course_pool_courses(self, mock_extract_courses):
+        """Test extracting courses for course pools"""
+        # Setup test pools
+        pool1 = CoursePool(_id="test1", name="Test Pool 1", credits_required=30, courses=[])
+        pool2 = CoursePool(_id="test2", name="Test Pool 2", credits_required=30, courses=["COMP 248"])
+        pool3 = CoursePool(_id="test3", name="Test Pool 3", credits_required=30, courses=[])
+        
+        # Mock extract_coursepool_courses to succeed for pool2, fail for pool1 and pool3
+        def mock_extract_side_effect(url, pool):
+            if pool.name == "Test Pool 2":
+                return True
+            else:
+                return False
+        
+        mock_extract_courses.side_effect = mock_extract_side_effect
+        
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        failed_pools = scraper._extract_course_pool_courses([pool1, pool2, pool3])
+        
+        # pool1 and pool3 should fail (no success or no courses)
+        assert len(failed_pools) == 2
+        assert pool1 in failed_pools
+        assert pool2 not in failed_pools
+        assert pool3 in failed_pools
+
+    @patch('scraper.degree_data_scraper.GinaCodyDegreeScraper._handle_engineering_core')
+    def test_handle_failed_course_pools_with_engineering_core(self, mock_handle_engineering):
+        """Test handling failed course pools with engineering core"""
+        pool1 = CoursePool(_id="test1", name="Engineering Core", credits_required=30, courses=[])
+        pool2 = CoursePool(_id="test2", name="Other Pool", credits_required=30, courses=[])
+        
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [])
+        
+        with patch('builtins.print') as mock_print:
+            scraper._handle_failed_course_pools([pool1, pool2])
+            
+            mock_handle_engineering.assert_called_once_with(pool1)
+            mock_print.assert_called_once()
+
+    def test_handle_failed_course_pools_without_special_handling(self):
+        """Test handling failed course pools without special handling"""
+        pool = CoursePool(_id="test", name="Random Pool", credits_required=30, courses=[])
+        
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [])
+        
+        with patch('builtins.print') as mock_print:
+            scraper._handle_failed_course_pools([pool])
+            
+            mock_print.assert_called_once_with(
+                "Warning: No special handling defined for failed course pool 'Random Pool' in 'Test' degree"
+            )
+
+    @patch('scraper.degree_data_scraper.get_all_links_from_div')
+    @patch('scraper.degree_data_scraper.GinaCodyDegreeScraper._get_general_education_pool')
+    def test_handle_engineering_core(self, mock_get_gen_ed, mock_get_links):
+        """Test handling engineering core courses"""
+        # Setup mocks
+        mock_get_links.return_value = [
+            AnchorLink(text="ENGR 201", url="http://test1.com"),
+            AnchorLink(text="ENGR 202", url="http://test2.com")
+        ]
+        
+        mock_gen_ed_pool = CoursePool(_id="gen_ed", name="General Education", credits_required=3, courses=[])
+        mock_get_gen_ed.return_value = mock_gen_ed_pool
+        
+        # Setup scraper with program requirements
+        pool = CoursePool(_id="eng_core", name="Engineering Core", credits_required=33, courses=[])
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [pool])
+        
+        scraper._handle_engineering_core(pool)
+        
+        # Check that courses were added
+        assert "ENGR 201" in pool.courses
+        assert "ENGR 202" in pool.courses
+        assert pool.credits_required == 30  # 33 - 3
+        
+        # Check that general education pool was added
+        assert len(scraper.program_requirements.course_pools) == 2
+        assert mock_gen_ed_pool in scraper.program_requirements.course_pools
+
+    @patch('scraper.degree_data_scraper.CourseDataScraper')
+    def test_get_general_education_pool(self, mock_course_scraper_class):
+        """Test generating general education pool"""
+        # Setup mock
+        mock_course_scraper = MagicMock()
+        mock_course_scraper_class.return_value = mock_course_scraper
+        mock_course_scraper.get_courses_by_subjects.return_value = [
+            "ANTH 200", "HIST 201", "PHIL 214", "ANTH 315", "SOCI 212"
+        ]
+        
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        result = scraper._get_general_education_pool(6.0)
+        
+        assert isinstance(result, CoursePool)
+        assert result._id == "General Education Humanities and Social Sciences Electives"
+        assert result.name == "General Education Humanities and Social Sciences Electives"
+        assert (result.credits_required - 6.0) < 1e-8
+        
+        # Check excluded courses were removed
+        assert "PHIL 214" not in result.courses
+        assert "ANTH 315" not in result.courses
+        assert "SOCI 212" not in result.courses
+        
+        # Check allowed courses remain
+        assert "ANTH 200" in result.courses
+        assert "HIST 201" in result.courses
+        
+        # Check other allowed courses were added
+        assert "COMS 360" in result.courses
+        assert "EDUC 230" in result.courses
+
+class TestAeroDegreeScraper:
+    """Test AeroDegreeScraper class"""
+
+    def test_init(self):
+        """Test AeroDegreeScraper initialization and degree name splitting"""
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        
+        assert scraper.degree_name == "BEng in Aerospace Engineering - Option A"
+        assert scraper.degree_short_name == "AERO"
+        assert scraper.requirements_url == "http://test.com"
+        assert scraper.degree_name_without_option == "BEng in Aerospace Engineering"
+        assert scraper.option_name == "Option A"
+
+    def test_get_program_node_success(self):
+        """Test successfully finding program node using degree_name_without_option"""
+        soup = BeautifulSoup('<div class="program-node" title="BEng in Aerospace Engineering">Content</div>', 'html.parser')
+        
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        result = scraper._get_program_node(soup)
+        
+        assert result is not None
+        assert result.get('title') == "BEng in Aerospace Engineering"
+
+    def test_get_program_node_not_found(self):
+        """Test when program node is not found"""
+        soup = BeautifulSoup('<div>No matching content</div>', 'html.parser')
+        
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        
+        with pytest.raises(ValueError, match="Program node for 'BEng in Aerospace Engineering - Option A' not found"):
+            scraper._get_program_node(soup)
+
+    @patch('scraper.degree_data_scraper.get_soup')
+    @patch('scraper.degree_data_scraper.extract_coursepool_and_required_credits')
+    def test_get_course_pools_without_courses(self, mock_extract_pools, mock_get_soup):
+        """Test extracting course pools with option handling"""
+        # Setup base course pools
+        base_pools = [
+            (AnchorLink(text="Core Courses", url="http://test.com"), 60.0),
+            (AnchorLink(text="Option A", url="http://test.com"), 54.75),
+            (AnchorLink(text="Option B", url="http://test.com"), 54.75)
+        ]
+        
+        # Setup option-specific pools
+        option_pools = [
+            (AnchorLink(text="Aerodynamics", url="http://test.com"), 30.0),
+            (AnchorLink(text="Propulsion", url="http://test.com"), 24.75)
+        ]
+        
+        # Mock extract_coursepool_and_required_credits calls
+        mock_extract_pools.side_effect = [base_pools, option_pools]
+        
+        # Mock the soup for finding option divs
+        mock_soup_obj = MagicMock()
+        mock_get_soup.return_value = mock_soup_obj
+        
+        # Create option div mock
+        option_div = MagicMock()
+        h3_element = MagicMock()
+        h3_element.string = "Option A — Aerodynamics and Propulsion (54.75 credits)"
+        option_div.find.side_effect = [h3_element, MagicMock()]  # h3 then table
+        
+        mock_soup_obj.find_all.return_value = [option_div]
+        
+        # Setup program node
+        mock_program_node = MagicMock()
+        mock_table = MagicMock()
+        mock_program_node.find.return_value = mock_table
+        
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        result = scraper._get_course_pools_without_courses(mock_program_node)
+        
+        # Should have core courses + option courses (no option pools)
+        assert len(result) == 3  # Core + 2 option courses
+        assert any(pool.name == "Core Courses" for pool in result)
+        assert any(pool.name == "Aerodynamics" for pool in result)
+        assert any(pool.name == "Propulsion" for pool in result)
+        
+        # Check IDs are properly formatted
+        core_pool = next(pool for pool in result if pool.name == "Core Courses")
+        assert core_pool._id == "AERO_Core Courses"
+
+    def test_remove_option_course_pools(self):
+        """Test removing option course pools and returning credits"""
+        coursepools = [
+            (AnchorLink(text="Core Courses", url="http://test.com"), 60.0),
+            (AnchorLink(text="Option A", url="http://test.com"), 54.75),
+            (AnchorLink(text="Option B", url="http://test.com"), 54.75),
+            (AnchorLink(text="Electives", url="http://test.com"), 15.0)
+        ]
+        
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        pool_credits = scraper._remove_option_course_pools(coursepools)
+        
+        # Should return the credits from the first option pool
+        assert pool_credits == 54.75
+        
+        # Should have removed both option pools
+        assert len(coursepools) == 2
+        remaining_names = [pool[0].text for pool in coursepools]
+        assert "Core Courses" in remaining_names
+        assert "Electives" in remaining_names
+        assert "Option A" not in remaining_names
+        assert "Option B" not in remaining_names
+
+    def test_remove_option_course_pools_no_options(self):
+        """Test removing option course pools when no options exist"""
+        coursepools = [
+            (AnchorLink(text="Core Courses", url="http://test.com"), 60.0),
+            (AnchorLink(text="Electives", url="http://test.com"), 15.0)
+        ]
+        
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        pool_credits = scraper._remove_option_course_pools(coursepools)
+        
+        # Should return 0 credits when no options found
+        assert pool_credits == 0
+        
+        # Should not remove any pools
+        assert len(coursepools) == 2
+
+    def test_handle_special_cases(self):
+        """Test handling special cases for Aerospace Engineering"""
+        # Setup scraper with program requirements including Engineering Core
+        engineering_core_pool = CoursePool(
+            _id="eng_core", 
+            name="Engineering Core", 
+            credits_required=30, 
+            courses=["ENGR 201", "ELEC 275", "MATH 205"]
+        )
+        
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
+        
+        scraper._handle_special_cases()
+        
+        updated_pool = scraper.program_requirements.course_pools[0]
+        assert "ELEC 275" not in updated_pool.courses
+        assert "ENGR 201" in updated_pool.courses
+        assert "MATH 205" in updated_pool.courses
+
+class TestBldgDegreeScraper:
+
+    def test_handle_special_cases(self):
+        """Test handling special cases for Building Engineering"""
+        # Setup scraper with program requirements including Engineering Core
+        engineering_core_pool = CoursePool(
+            _id="eng_core", 
+            name="Engineering Core", 
+            credits_required=30, 
+            courses=["ENGR 201", "ENGR 202", "ENGR 392"]
+        )
+        
+        scraper = BldgDegreeScraper("BEng in Building Engineering", "BLDG", "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
+        
+        scraper._handle_special_cases()
+        
+        updated_pool = scraper.program_requirements.course_pools[0]
+        assert "ENGR 201" in updated_pool.courses
+        assert "ENGR 202" not in updated_pool.courses
+        assert "ENGR 392" not in updated_pool.courses
+        assert "BLDG 482" in updated_pool.courses
+
+class TestCoenDegreeScraper:
+    def test_handle_special_cases(self):
+        """Test handling special cases for Computer Engineering"""
+        # Setup scraper with program requirements including Engineering Core
+        engineering_core_pool = CoursePool(
+            _id="eng_core", 
+            name="Engineering Core", 
+            credits_required=30, 
+            courses=["ENGR 201", "ENGR 202", "ELEC 275"]
+        )
+        
+        scraper = CoenDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
+        
+        scraper._handle_special_cases()
+        
+        updated_pool = scraper.program_requirements.course_pools[0]
+        assert "ENGR 201" in updated_pool.courses
+        assert "ENGR 202" in updated_pool.courses
+        assert "ELEC 275" not in updated_pool.courses
+        assert "ELEC 273" in updated_pool.courses
+
+class TestElecDegreeScraper:
+    def test_handle_special_cases(self):
+        """Test handling special cases for Electrical Engineering"""
+        # Setup scraper with program requirements including Engineering Core
+        engineering_core_pool = CoursePool(
+            _id="eng_core", 
+            name="Engineering Core", 
+            credits_required=30, 
+            courses=["ENGR 201", "ENGR 202", "ELEC 275"]
+        )
+        
+        scraper = ElecDegreeScraper("BEng in Electrical Engineering", "ELEC", "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
+        
+        scraper._handle_special_cases()
+        
+        updated_pool = scraper.program_requirements.course_pools[0]
+        assert "ENGR 201" in updated_pool.courses
+        assert "ENGR 202" in updated_pool.courses
+        assert "ELEC 275" not in updated_pool.courses
+        assert "ELEC 273" in updated_pool.courses
+
+class TestInduDegreeScraper:
+    def test_handle_special_cases(self):
+        """Test handling special cases for Industrial Engineering"""
+        engineering_core_pool = CoursePool(
+            _id="eng_core", 
+            name="Engineering Core", 
+            credits_required=30, 
+            courses=["ENGR 201", "ENGR 202", "ELEC 275"]
+        )
+        
+        general_electives_pool = CoursePool(
+            _id="gen_electives",
+            name="General Education Humanities and Social Sciences Electives",
+            credits_required=3,
+            courses=["ANTH 200", "HIST 201", "PHIL 214"]
+        )
+        
+        scraper = InduDegreeScraper("BEng in Industrial Engineering", "INDU", "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool, general_electives_pool])
+        
+        scraper._handle_special_cases()
+        
+        # Check Engineering Core changes
+        updated_engineering_pool = scraper.program_requirements.course_pools[0]
+        assert "ENGR 201" in updated_engineering_pool.courses
+        assert "ENGR 202" in updated_engineering_pool.courses
+        assert "ELEC 275" not in updated_engineering_pool.courses
+        
+        # Check General Education electives changes
+        updated_general_pool = scraper.program_requirements.course_pools[1]
+        assert updated_general_pool.courses == ["ACCO 220"]
+
+class TestMechDegreeScraper:
+    def test_handle_special_cases(self):
+        """Test handling special cases for Mechanical Engineering"""
+        engineering_core_pool = CoursePool(
+            _id="eng_core", 
+            name="Engineering Core", 
+            credits_required=30, 
+            courses=["ENGR 201", "ENGR 202", "ELEC 275"]
+        )
+        
+        scraper = MechDegreeScraper("BEng in Mechanical Engineering", "MECH", "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
+        
+        scraper._handle_special_cases()
+        
+        updated_pool = scraper.program_requirements.course_pools[0]
+        assert "ENGR 201" in updated_pool.courses
+        assert "ENGR 202" in updated_pool.courses
+        assert "ELEC 275" not in updated_pool.courses
+
+class TestSoenDegreeScraper:
+    def test_handle_special_cases(self):
+        """Test handling special cases for Software Engineering"""
+        engineering_core_pool = CoursePool(
+            _id="eng_core", 
+            name="Engineering Core", 
+            credits_required=30, 
+            courses=["ENGR 201", "ENGR 202", "ELEC 275"]
+        )
+        
+        scraper = SoenDegreeScraper("BEng in Software Engineering", "SOEN", "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
+        
+        scraper._handle_special_cases()
+        
+        updated_pool = scraper.program_requirements.course_pools[0]
+        assert "ENGR 201" in updated_pool.courses
+        assert "ENGR 202" in updated_pool.courses
+        assert "ELEC 275" in updated_pool.courses
+        assert "COMP 361" in updated_pool.courses
+
+class TestCompDegreeScraper:
+    """Test Computer Science degree scraper"""
+
+    def test_handle_special_cases(self):
+        """Test handling special cases"""
+        cs_electives_pool = CoursePool(
+            _id="cs_electives",
+            name="Computer Science Electives",
+            credits_required=30,
+            courses=["COMP 248"]
+        )
+        
+        general_electives_pool = CoursePool(
+            _id="gen_electives",
+            name="General Electives: BCompSc",
+            credits_required=15,
+            courses=["COMP 249"]
+        )
+        
+        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [cs_electives_pool, general_electives_pool])
+        
+        with patch.object(scraper, '_handle_computer_science_electives') as mock_handle_cs, \
+             patch.object(scraper, '_handle_computer_general_electives') as mock_handle_gen:
+            
+            scraper._handle_special_cases()
+            mock_handle_cs.assert_called_once_with(cs_electives_pool)
+            mock_handle_gen.assert_called_once_with(general_electives_pool)
+
+    @patch('scraper.degree_data_scraper.CourseDataScraper')
+    def test_handle_computer_science_electives(self, mock_course_scraper_class):
+        """Test handling computer science electives with COMP courses filtering"""
+        # Setup mock course data
+        mock_course_scraper = MagicMock()
+        mock_course_scraper_class.return_value = mock_course_scraper
+        
+        # Create mock course objects with _id attributes
+        mock_courses = []
+        for course_id in ["COMP 248", "COMP 324", "COMP 325", "COMP 445", "COMP 472", "COMP invalid"]:
+            mock_course = MagicMock()
+            mock_course._id = course_id
+            mock_courses.append(mock_course)
+        
+        mock_course_scraper.get_courses_by_subjects.return_value = mock_courses
+        
+        # Setup test pool
+        cs_electives_pool = CoursePool(
+            _id="cs_electives",
+            name="Computer Science Electives",
+            credits_required=30,
+            courses=["COMP 249"]
+        )
+        
+        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", "http://test.com")
+        scraper._handle_computer_science_electives(cs_electives_pool)
+        
+        # Check that courses >= 325 were added
+        assert "COMP 325" in cs_electives_pool.courses
+        assert "COMP 445" in cs_electives_pool.courses
+        assert "COMP 472" in cs_electives_pool.courses
+        
+        # Check that courses < 325 were not added
+        assert cs_electives_pool.courses.count("COMP 248") == 0
+        assert cs_electives_pool.courses.count("COMP 324") == 0
+        
+        # Check that original course remains
+        assert "COMP 249" in cs_electives_pool.courses
+        
+        # Check that invalid course was not added
+        assert "COMP invalid" not in cs_electives_pool.courses
+        
+        # Check no duplicates
+        assert len(cs_electives_pool.courses) == len(set(cs_electives_pool.courses))
+
+    @patch('scraper.degree_data_scraper.CourseDataScraper')
+    def test_handle_computer_science_electives_exception_handling(self, mock_course_scraper_class):
+        """Test handling computer science electives with exception handling for invalid course numbers"""
+        mock_course_scraper = MagicMock()
+        mock_course_scraper_class.return_value = mock_course_scraper
+        
+        # Create courses with invalid formats
+        mock_courses = []
+        for course_id in ["COMP ABC", "COMP", "INVALID FORMAT"]:
+            mock_course = MagicMock()
+            mock_course._id = course_id
+            mock_courses.append(mock_course)
+        
+        mock_course_scraper.get_courses_by_subjects.return_value = mock_courses
+        
+        cs_electives_pool = CoursePool(
+            _id="cs_electives",
+            name="Computer Science Electives",
+            credits_required=30,
+            courses=["COMP 249"]
+        )
+        
+        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", "http://test.com")
+        
+        # Should not raise exception
+        scraper._handle_computer_science_electives(cs_electives_pool)
+        
+        # Should only have the original course
+        assert cs_electives_pool.courses == ["COMP 249"]
+
+
+    @patch('scraper.degree_data_scraper.CompDegreeScraper._get_general_education_pool')
+    def test_handle_computer_general_electives_combined(self, mock_get_gen_ed):
+        """Test handling computer general electives with course combination and exclusion filtering"""
+        exclusion_list = ["BCEE 231", "BIOL 322", "BTM 380", "BTM 382", "CART 315", 
+                         "COMM 215", "EXCI 322", "GEOG 264", "INTE 296", "MAST 221", 
+                         "MAST 333", "MIAE 215", "PHYS 235", "PHYS 236", "SOCI 212"]
+
+        # Setup pools that contain excluded courses and valid courses
+        mock_gen_ed_pool = CoursePool(
+            _id="gen_ed",
+            name="General Education",
+            credits_required=3,
+            courses=["ANTH 200", "HIST 201", "SOCI 212"] + exclusion_list[:5]
+        )
+        mock_get_gen_ed.return_value = mock_gen_ed_pool
+
+        cs_electives_pool = CoursePool(
+            _id="cs_electives",
+            name="Computer Science Electives",
+            credits_required=30,
+            courses=["COMP 325", "COMP 445"] + exclusion_list[5:10]
+        )
+
+        math_electives_pool = CoursePool(
+            _id="math_electives",
+            name="Mathematics Electives: BCompSc",
+            credits_required=15,
+            courses=["MATH 205", "MAST 221"] + exclusion_list[10:]
+        )
+
+        general_electives_pool = CoursePool(
+            _id="general_electives",
+            name="General Electives: BCompSc",
+            credits_required=45,
+            courses=[]
+        )
+
+        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, 
+                                        [cs_electives_pool, math_electives_pool, general_electives_pool])
+
+        scraper._handle_computer_general_electives(general_electives_pool)
+
+        # Check that valid courses remain
+        assert "ANTH 200" in general_electives_pool.courses
+        assert "HIST 201" in general_electives_pool.courses
+        assert "COMP 325" in general_electives_pool.courses
+        assert "COMP 445" in general_electives_pool.courses
+        assert "MATH 205" in general_electives_pool.courses
+
+        # Check that all excluded courses are removed
+        assert "SOCI 212" not in general_electives_pool.courses
+        assert "MAST 221" not in general_electives_pool.courses
+        for excluded_course in exclusion_list:
+            assert excluded_course not in general_electives_pool.courses
+
+class TestEcpDegreeScraper:
+    
+    @patch('scraper.degree_data_scraper.get_all_links_from_div')
+    def test_get_ecp_core(self, mock_get_links):
+        """Test ECP core course pool extraction"""
+        # Setup mock course links
+        mock_get_links.return_value = [
+            AnchorLink(text="MATH 203", url="http://test1.com"),
+            AnchorLink(text="MATH 204", url="http://test2.com")
         ]
 
-@pytest.fixture
-def mock_requests_get(monkeypatch):
-    def create_mock_response(content=b"<html></html>"):
-        mock = MagicMock()
-        mock.content = content
-        mock.encoding = "utf-8"
-        mock.status_code = 200
-        return mock
+        scraper = EcpDegreeScraper("BEng in Extended Credit Program", "ECP", "http://test.com")
+        credits_required = 18.0
+        pool = scraper.get_ecp_core(credits_required)
 
-    monkeypatch.setattr("requests.get", lambda url, headers=None: create_mock_response())
-    return create_mock_response
+        assert isinstance(pool, CoursePool)
+        assert pool._id == "ECP_Core"
+        assert pool.name == "ECP Core"
+        assert (pool.credits_required - credits_required) < 1e8
+        assert pool.courses == ["MATH 203", "MATH 204"]
 
-@pytest.fixture
-def fake_html():
-    return """
-    <html>
-    <body>
-        <div class="title program-title">
-            <h3>BEng in Mechanical Engineering (120 credits)</h3>
-        </div>
-        <div class="program-required-courses defined-group">
-            <table>
-                <tr>
-                    <td>30</td>
-                    <td><a href="#core">Engineering Core</a></td>
-                </tr>
-            </table>
-        </div>
-        <div class="defined-group" title="Engineering Core">
-            <div class="formatted-course">
-                <span class="course-code-number">
-                    <a href="elec275.html">ELEC 275</a>
-                </span>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
+class TestEngrEcpDegreeScraper:
+        @patch('scraper.degree_data_scraper.get_all_links_from_div')
+        @patch('scraper.degree_data_scraper.EngrEcpDegreeScraper._get_general_education_pool')
+        def test_get_program_requirements(self, mock_get_gen_ed, mock_get_links):
+            """Test EngrEcpDegreeScraper _get_program_requirements sets all pools correctly"""
+            # Setup mocks for course links
+            def get_links_side_effect(url, classes, group_name, include_regex=None):
+                if group_name == "Extended Credit Program":
+                    return [AnchorLink(text="MATH 203", url="http://test1.com"), AnchorLink(text="MATH 204", url="http://test2.com")]
+                elif group_name == "Natural Science Electives":
+                    return [AnchorLink(text="CHEM 221", url="http://test3.com"), AnchorLink(text="PHYS 204", url="http://test4.com")]
+                return []
+            mock_get_links.side_effect = get_links_side_effect
 
-class DummyResponse:
-    def __init__(self, html, status_code=200, encoding="utf-8"):
-        self.content = html.encode(encoding)
-        self.status_code = status_code
-        self.encoding = encoding
-        self.headers = {"content-type": "text/html; charset=utf-8"}
+            # Setup mock for general education pool
+            mock_gen_ed_pool = CoursePool(_id="gen_ed", name="General Education", credits_required=6.0, courses=["ANTH 200", "HIST 201"])
+            mock_get_gen_ed.return_value = mock_gen_ed_pool
 
-    def raise_for_status(self):
-        # mimic requests.Response.raise_for_status()
-        if self.status_code >= 400:
-            err = requests.HTTPError(f"{self.status_code} Error")
-            err.response = self
-            raise err
-        return None
+            scraper = EngrEcpDegreeScraper("BEng in Extended Credit Program", "ECP", "http://test.com")
+            scraper._get_program_requirements()
 
-@patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-@patch("scraper.degree_data_scraper.engr_general_electives_scraper", new=MockEngrElectivesScraper())
-def test_degree_scraper_structural_integrity(monkeypatch, fake_html):
-    from scraper.degree_data_scraper import DegreeDataScraper
+            req = scraper.program_requirements
+            assert req.degree.name == "BEng in Extended Credit Program"
+            assert (req.degree.credits_required - 30.0) < 1e-8
+            assert req.degree.degree_type == DegreeType.ECP
+            assert len(req.course_pools) == 3
 
-    degree_data_scraper = DegreeDataScraper()
-    fake_url = "http://example.com/fake-degree-page.html"
+            # Check ECP Core pool
+            ecp_core_pool = req.course_pools[0]
+            assert ecp_core_pool.name == "ECP Core"
+            assert (ecp_core_pool.credits_required - 18.0) < 1e-8
+            assert ecp_core_pool.courses == ["MATH 203", "MATH 204"]
 
-    def mock_get(url, headers=None):
-        return DummyResponse(fake_html)
+            # Check Natural Science Electives pool
+            nat_sci_pool = req.course_pools[1]
+            assert nat_sci_pool.name == "Natural Science Electives"
+            assert (nat_sci_pool.credits_required - 6.0) < 1e-8
+            assert nat_sci_pool.courses == ["CHEM 221", "PHYS 204"]
 
-    monkeypatch.setattr(requests, "get", mock_get)
-    test_args = ["script_name.py", fake_url]
-    monkeypatch.setattr(sys, "argv", test_args)
+            # Check General Education pool
+            gen_ed_pool = req.course_pools[2]
+            assert gen_ed_pool is mock_gen_ed_pool
 
-    try:
-        output_data = degree_data_scraper.scrape_degree(fake_url)
-    except SystemExit:
-        pytest.fail("scrape_degree raised SystemExit")
+class TestCompEcpDegreeScraper:
+        @patch('scraper.degree_data_scraper.get_all_links_from_div')
+        @patch('scraper.degree_data_scraper.CompEcpDegreeScraper._get_general_education_pool')
+        @patch('scraper.degree_data_scraper.CompEcpDegreeScraper.get_ecp_core')
+        @patch('scraper.degree_data_scraper.CourseDataScraper.get_courses_by_subjects')
+        def test_get_program_requirements(self, mock_get_courses, mock_get_ecp_core, mock_get_gen_ed, mock_get_links):
+            """Test CompEcpDegreeScraper _get_program_requirements sets all pools correctly"""
+            # Mock ECP Core pool
+            ecp_core_pool = CoursePool(_id="ECP_Core", name="ECP Core", credits_required=9.0, courses=["MATH 203"])
+            mock_get_ecp_core.return_value = ecp_core_pool
 
-    assert isinstance(output_data, dict)
-    assert "degree" in output_data
-    assert "course_pool" in output_data
-    assert "courses" in output_data
+            # Mock General Education pool
+            gen_ed_pool = CoursePool(_id="gen_ed", name="General Education", credits_required=6.0, courses=["ANTH 200"])
+            mock_get_gen_ed.return_value = gen_ed_pool
 
-    degree = output_data["degree"]
-    assert isinstance(degree.get("name"), str)
-    assert degree["totalCredits"] > 0
-    assert isinstance(degree["coursePools"], list)
-    assert len(degree["coursePools"]) >= 1
+            # Mock exclusion list
+            exclusion_list = ["COMP 248", "COMP 249"]
+            mock_get_links.return_value = exclusion_list
 
-    course_pool = output_data["course_pool"]
-    assert isinstance(course_pool, list)
-    assert len(course_pool) >= 1
-    # At least one pool should have courses (some pools may be empty after restrictions)
-    assert any(len(pool.get("courses", [])) > 0 for pool in course_pool)
+            # Mock get_courses_by_subjects for each pool
+            def get_courses_side_effect(subjects, inclusive=False):
+                if set(subjects) == set(["ENCS", "ENGR", "AERO", "BCEE", "BLDG", "CIVI", "COEN", "ELEC", "IADI", "INDU", "MECH", "MIAE", "COMP", "SOEN"]):
+                    return ["COMP 248", "COMP 324", "COMP 445"]
+                elif set(subjects) == set(["ENCS", "ENGR", "AERO", "BCEE", "BLDG", "CIVI", "COEN", "ELEC", "IADI", "INDU", "MECH", "MIAE", "COMP", "SOEN", "DART", "CART"]):
+                    return ["CART 315", "COMP 249", "COMP 445"]
+                elif set(subjects) == set(["ENCS", "ENGR", "AERO", "BCEE", "BLDG", "CIVI", "COEN", "ELEC", "IADI", "INDU", "MECH", "MIAE", "COMP", "SOEN", "ACTU", "MACF", "MATH", "MAST", "STAT"]):
+                    return ["MAST 221", "COMP 324", "COMP 445"]
+                return []
+            mock_get_courses.side_effect = get_courses_side_effect
 
-    for pool in course_pool:
-        assert isinstance(pool, dict)
-        assert isinstance(pool.get("name"), str)
-        assert isinstance(pool.get("courses"), list)
+            scraper = CompEcpDegreeScraper("BCompSc in Computer Science", "COMP", "http://test.com")
+            scraper._get_program_requirements()
 
-    courses = output_data["courses"]
-    assert isinstance(courses, list)
-    assert len(courses) >= 2
-    for course in courses:
-        assert isinstance(course, dict)
-        assert isinstance(course.get("_id"), str)
+            req = scraper.program_requirements
+            assert req.degree.name == "BCompSc in Computer Science"
+            assert (req.degree.credits_required - 30.0) < 1e-8
+            assert req.degree.degree_type == DegreeType.ECP
+            assert len(req.course_pools) == 5
 
-@patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-@patch("scraper.degree_data_scraper.engr_general_electives_scraper", new=MockEngrElectivesScraper())
-def test_handle_engineering_variants(monkeypatch):
-    from scraper.degree_data_scraper import DegreeDataScraper
+            # ECP Core
+            assert req.course_pools[0] is ecp_core_pool
+            # General Education
+            assert req.course_pools[1] is gen_ed_pool
 
-    s = DegreeDataScraper()
-    s.courses = []
+            # ECP Electives: BCompSc (other than Joint Majors)
+            bcompsc_pool = req.course_pools[2]
+            assert bcompsc_pool.name == "ECP Electives: BCompSc (other than Joint Majors)"
+            assert (bcompsc_pool.credits_required - 15.0) < 1e-8
+            # Should filter out exclusion_list
+            assert bcompsc_pool.courses == ["COMP 324", "COMP 445"]
 
-    s.course_pool = [{"name": "Engineering Core", "creditsRequired": 30, "courses": ["ELEC 275", "ENGR 202", "ENGR 392"]}]
-    s.degree = {"coursePools": []}
-    s.handle_engineering_core_restrictions("BEng in Mechanical Engineering")
-    assert "ELEC 275" not in s.course_pool[0]["courses"]
+            # ECP Electives: Joint Major in Computation Arts and Computer Science
+            comp_arts_pool = req.course_pools[3]
+            assert comp_arts_pool.name == "ECP Electives: Joint Major in Computation Arts and Computer Science"
+            assert (comp_arts_pool.credits_required - 15.0) < 1e-8
+            assert comp_arts_pool.courses == ["CART 315", "COMP 445"]
 
-    s.course_pool = [{"name": "Engineering Core", "creditsRequired": 30, "courses": ["ELEC 275"]}]
-    s.handle_engineering_core_restrictions("BEng in Electrical Engineering")
-    assert "ELEC 273" in s.course_pool[0]["courses"]
+            # ECP Electives: Joint Major in Data Science
+            data_science_pool = req.course_pools[4]
+            assert data_science_pool.name == "ECP Electives: Joint Major in Data Science"
+            assert (data_science_pool.credits_required - 15.0) < 1e-8
+            assert data_science_pool.courses == ["MAST 221", "COMP 324", "COMP 445"]
 
-    s.course_pool = [{"name": "Engineering Core", "creditsRequired": 30, "courses": ["ENGR 202", "ENGR 392"]}]
-    s.handle_engineering_core_restrictions("BEng in Building Engineering")
-    assert "BLDG 482" in s.course_pool[0]["courses"]
+class TestCoopDegreeScraper:
+        @patch('scraper.degree_data_scraper.CourseDataScraper.get_courses_by_subjects')
+        def test_get_program_requirements(self, mock_get_courses):
+            """Test CoopDegreeScraper _get_program_requirements sets co-op pool and removes CWT 400/401"""
+            # Mock CWT courses
+            mock_get_courses.return_value = ["CWT 300", "CWT 400", "CWT 401", "CWT 402"]
 
-    s.course_pool = [{"name": "Engineering Core", "creditsRequired": 30, "courses": []}]
-    s.handle_engineering_core_restrictions("BEng in Industrial Engineering")
-    found = any(c["_id"] == "ACCO 220" for c in s.courses)
-    assert found
+            scraper = CoopDegreeScraper("BEng in Computer Engineering Co-op", "COEN", "http://test.com")
+            scraper._get_program_requirements()
 
-@patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-def test_get_courses_both_paths(monkeypatch, mock_requests_get):
-    from scraper.degree_data_scraper import DegreeDataScraper
-    from bs4 import BeautifulSoup
+            req = scraper.program_requirements
+            assert req.degree.name == "BEng in Computer Engineering Co-op"
+            assert (req.degree.credits_required - 0.0) < 1e-8
+            assert req.degree.degree_type == DegreeType.COOP
+            assert len(req.course_pools) == 1
 
-    s = DegreeDataScraper()
-    html = """
-    <div class='defined-group' title='Core'>
-        <div class='formatted-course'>
-            <span class='course-code-number'><a href='link.html'>COMP 248</a></span>
-        </div>
-    </div>
-    """
-    s.soup = BeautifulSoup(html, "lxml")
-    s.url_received = "http://fakeurl.com"
-
-    def fake_get_page(url):
-        html2 = """
-        <div class='formatted-course'>
-            <span class='course-code-number'><a href='link2.html'>COMP 249</a></span>
-        </div>
-        """
-        return BeautifulSoup(html2, "lxml")
-
-    monkeypatch.setattr(s, "get_page", fake_get_page)
-    s.temp_url = "notinargv"
-    res = s.get_courses("fake", "Core")
-    assert isinstance(res, list)
-    assert any("COMP" in c for c in res)
-
-@pytest.fixture
-def mock_comp_gen_electives(monkeypatch):
-    def fake_get_comp_gen_electives(url, combined_courses):
-        return (
-            ["COMP 352", "COMP 346"],
-            [
-                {"_id": "COMP 352"},
-                {"_id": "COMP 346"}
-            ]
-        )
-    monkeypatch.setattr(
-        "scraper.degree_data_scraper.comp_utils.get_comp_gen_electives",
-        fake_get_comp_gen_electives
-    )
-
-@pytest.fixture
-def mock_comp_electives(monkeypatch):
-    def fake_get_comp_electives():
-        return (
-            ["COMP 325", "COMP 335"],
-            [
-                {"_id": "COMP 325"},
-                {"_id": "COMP 335"}
-            ]
-        )
-    monkeypatch.setattr(
-        "scraper.degree_data_scraper.comp_utils.get_comp_electives",
-        fake_get_comp_electives
-    )
-
-@patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-def test_get_courses_general_electives_bcomp(mock_comp_gen_electives, monkeypatch, mock_requests_get):
-    from scraper.degree_data_scraper import DegreeDataScraper
-
-    s = DegreeDataScraper()
-    s.url_received = "http://fakeurl.com"
-    s.temp_url = "fake"
-    # REQUIRED: last two pools are read
-    s.course_pool = [
-        {"courses": ["COMP 248"]},
-        {"courses": ["COMP 249"]}
-    ]
-    result = s.get_courses("fake.html", "General Electives: BCompSc")
-    assert result == ["COMP 352", "COMP 346"]
-    # side effects
-    assert any(c["_id"] == "COMP 352" for c in s.courses)
-    assert any(c["_id"] == "COMP 346" for c in s.courses)
-
-@patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-def test_get_courses_computer_science_electives(mock_comp_electives, monkeypatch, mock_requests_get):
-    from scraper.degree_data_scraper import DegreeDataScraper
-    from bs4 import BeautifulSoup
-
-    # Mock comp_utils functions
-    def fake_get_comp_electives():
-        return (
-            ["COMP 325", "COMP 335"],
-            [
-                {"_id": "COMP 325"},
-                {"_id": "COMP 335"}
-            ]
-        )
-
-    monkeypatch.setattr(
-        "scraper.degree_data_scraper.comp_utils.get_comp_electives",
-        fake_get_comp_electives
-    )
-
-    monkeypatch.setattr(
-        "scraper.degree_data_scraper.course_data_scraper.extract_course_data",
-        lambda code, url: {"_id": code, "code": code, "title": "Mock Title", "credits": 3}
-    )
-
-    monkeypatch.setattr("requests.get", lambda url, headers=None: create_mock_response())
-
-    s = DegreeDataScraper()
-    s.url_received = "http://fakeurl.com"
-    s.temp_url = "fake"
-    s.courses = []
-    html = """
-    <div class="defined-group" title="Computer Science Electives">
-        <div class="formatted-course">
-            <span class="course-code-number">
-                <a href="link.html">COMP 232</a>
-            </span>
-        </div>
-    </div>
-    """
-    s.soup = BeautifulSoup(html, "lxml")
-
-    def fake_get_page(url):
-        return s.soup
-
-    monkeypatch.setattr(s, "get_page", fake_get_page)
-
-    result = s.get_courses("fake", "Computer Science Electives")
-    # Check the courses were found
-    assert "COMP 232" in result
-    assert "COMP 325" in result
-    assert "COMP 335" in result
-    # side effects
-    assert any(c["_id"] == "COMP 325" for c in s.courses)
-    assert any(c["_id"] == "COMP 335" for c in s.courses)
-
-@patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-def test_get_courses_option_in_pool_name(monkeypatch, mock_requests_get):
-    """Test the case where output==[] and 'Option' is in pool_name"""
-    from scraper.degree_data_scraper import DegreeDataScraper
-    from bs4 import BeautifulSoup
-
-    monkeypatch.setattr(
-        "scraper.degree_data_scraper.course_data_scraper.extract_course_data",
-        lambda code, url: {"_id": code, "code": code, "title": "Mock Title", "credits": 3}
-    )
-    s = DegreeDataScraper()
-    s.url_received = "http://fakeurl.com"
-    s.temp_url = "fake"
-    s.courses = []
+            pool = req.course_pools[0]
+            assert pool.name == "Co-op Work Terms"
+            assert (pool.credits_required - 0.0) < 1e-8
+            # CWT 400 and CWT 401 should be removed
+            assert "CWT 400" not in pool.courses
+            assert "CWT 401" not in pool.courses
+            assert set(pool.courses) == {"CWT 300", "CWT 402"}
     
-    # HTML with a pool that has no direct courses but has links to sub-options
-    html = """
-    <div class="defined-group" title="Software Option">
-        <a href="software-track1.html">Track 1</a>
-        <a href="software-track2.html">Track 2</a>
-    </div>
-    """
-    s.soup = BeautifulSoup(html, "lxml")
-
-    # Mock get_page to return appropriate content for each URL
-    def fake_get_page(url):
-        if "track1" in url:
-            track1_html = """
-            <div class="formatted-course">
-                <span class="course-code-number">
-                    <a href="comp450.html">COMP 450</a>
-                </span>
-            </div>
-            """
-            return BeautifulSoup(track1_html, "lxml")
-        elif "track2" in url:
-            track2_html = """
-            <div class="formatted-course">
-                <span class="course-code-number">
-                    <a href="comp451.html">COMP 451</a>
-                </span>
-            </div>
-            """
-            return BeautifulSoup(track2_html, "lxml")
-        return BeautifulSoup("<html></html>", "lxml")
-
-    monkeypatch.setattr(s, "get_page", fake_get_page)
-    monkeypatch.setattr("requests.get", lambda url, headers=None: create_mock_response(b"<html></html>"))
-
-    # Call with a fragment href to trigger same-page logic, then option processing
-    result = s.get_courses("#software-option", "Software Option")
-
-    assert isinstance(result, list)
-    assert "COMP 450" in result
-    assert "COMP 451" in result
-    assert any(c["_id"] == "COMP 450" for c in s.courses)
-    assert any(c["_id"] == "COMP 451" for c in s.courses)
-
-@patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-def test_get_courses_elective_in_pool_name(monkeypatch, mock_requests_get):
-    """Test the case where output==[] and 'Elective' is in pool_name"""
-    from scraper.degree_data_scraper import DegreeDataScraper
-    from bs4 import BeautifulSoup
-
-    monkeypatch.setattr(
-        "scraper.degree_data_scraper.course_data_scraper.extract_course_data",
-        lambda code, url: {"_id": code, "code": code, "title": "Mock Title", "credits": 3}
-    )
-
-    monkeypatch.setattr("requests.get", lambda url, headers=None: create_mock_response())
-
-    s = DegreeDataScraper()
-    s.url_received = "http://fakeurl.com/fake"
-    s.temp_url = "fake"
-    s.courses = []
     
-    # HTML with an empty defined-group for "Math Elective", so output==[]
-    # Then the fallback logic kicks in and finds all formatted-course divs
-    html = """
-    <div class="defined-group" title="Math Elective">
-        <!-- Empty, no formatted-course divs here -->
-    </div>
-    <div class="formatted-course">
-        <span class="course-code-number">
-            <a href="math200.html">MATH 200</a>
-        </span>
-    </div>
-    <div class="formatted-course">
-        <span class="course-code-number">
-            <a href="math201.html">MATH 201</a>
-        </span>
-    </div>
-    """
-    s.soup = BeautifulSoup(html, "lxml")
-    def fake_get_page(url):
-        return s.soup
-    monkeypatch.setattr(s, "get_page", fake_get_page)
-    result = s.get_courses("fake", "Math Elective")
-    
-    # Should get all formatted courses from the page
-    assert isinstance(result, list)
-    assert "MATH 200" in result
-    assert "MATH 201" in result
-    assert any(c["_id"] == "MATH 200" for c in s.courses)
-    assert any(c["_id"] == "MATH 201" for c in s.courses)
-
-@patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-def test_find_same_page_group_last_resort_scan(monkeypatch, mock_requests_get):
-    """Test the last resort scanning logic when fragment and title matching fail"""
-    from scraper.degree_data_scraper import DegreeDataScraper
-    from bs4 import BeautifulSoup
-
-    s = DegreeDataScraper()
-    html = """
-    <div class="defined-group" title="Some Other Title">
-        <p>This group contains engineering core in its text content</p>
-    </div>
-    <div class="defined-group" title="Another Group">
-        <p>Unrelated content</p>
-    </div>
-    """
-    s.soup = BeautifulSoup(html, "lxml")
-    s.url_received = "http://fakeurl.com"
-
-    # Test with search term that will match after normalization
-    result = s._find_same_page_group("engineering core", "")
-
-    assert result is not None
-    assert "Some Other Title" in result.get("title", "")
-
-    # Also test the case where no match is found
-    result_none = s._find_same_page_group("Nonexistent Term", "")
-    assert result_none is None
-
-@patch("scraper.degree_data_scraper.course_data_scraper", new=MockCourseDataScraper())
-@patch("scraper.degree_data_scraper.engr_general_electives_scraper", new=MockEngrElectivesScraper())
-def test_scrape_degree_edge_cases(monkeypatch):
-    """Test edge cases in the main scraping loop"""
-    from scraper.degree_data_scraper import DegreeDataScraper
-
-    html_with_edge_cases = """
-    <html>
-    <body>
-        <div class="title program-title">
-            <h3>BEng in Industrial Engineering (90 credits)</h3>
-        </div>
-        <div class="program-required-courses defined-group">
-            <table>
-                <tr>
-                    <!-- Row with no td -->
-                </tr>
-                <tr>
-                    <td>No credits text here</td>
-                    <td><a href="#core">Core Courses</a></td>
-                </tr>
-                <tr>
-                    <td>15</td>
-                    <td>
-                        <a href="">Empty href</a>
-                        <a>No href</a>
-                        <a href="#valid">Valid Link</a>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div class="defined-group" title="Valid Link">
-            <div class="formatted-course">
-                <span class="course-code-number">
-                    <a href="test101.html">TEST 101</a>
-                </span>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-
-    class DummyResponse:
-        def __init__(self, html):
-            self.content = html.encode('utf-8')
-            self.status_code = 200
-            self.encoding = "utf-8"
-            self.headers = {"content-type": "text/html; charset=utf-8"}
-        def raise_for_status(self):
-            return None
-
-    def mock_get(url, headers=None):
-        return DummyResponse(html_with_edge_cases)
-
-    monkeypatch.setattr("requests.get", mock_get)
-
-    s = DegreeDataScraper()
-    result = s.scrape_degree("http://test-url.com")
-
-    # Should handle edge cases gracefully
-    assert result["degree"]["name"] == "BEng in Industrial Engineering"
-    assert result["degree"]["totalCredits"] == 90
-    # Should have found the valid link and processed it
-    assert len(result["course_pool"]) >= 1
+        

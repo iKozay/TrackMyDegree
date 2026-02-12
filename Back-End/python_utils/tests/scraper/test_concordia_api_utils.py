@@ -125,10 +125,19 @@ class TestConcordiaAPIUtils:
         
         NOTE: Students who have received credit for COMP 200 may not take this course for credit."""
         
-        with patch('scraper.course_data_scraper.make_prereq_coreq_into_array') as mock_prereq, \
-             patch('scraper.course_data_scraper.get_not_taken') as mock_not_taken:
+        with patch('scraper.concordia_api_utils.make_prereq_coreq_into_array') as mock_prereq, \
+             patch('scraper.concordia_api_utils.get_not_taken') as mock_not_taken:
             
-            mock_prereq.side_effect = lambda x: [["MATH 205"]] if "MATH 205" in x else [["COMP 249"]] if "COMP 249" in x else []
+            # Mock for prerequisite section
+            def prereq_side_effect(text):
+                if "MATH 205" in text:
+                    return [["MATH 205"]]
+                elif "COMP 249" in text:
+                    return [["COMP 249"]]
+                else:
+                    return []
+            
+            mock_prereq.side_effect = prereq_side_effect
             mock_not_taken.return_value = ["COMP 200"]
             
             result = self.api.parse_description_and_rules(text)
@@ -146,8 +155,8 @@ class TestConcordiaAPIUtils:
         
         NOTE: May not take COMP 300 for credit."""
         
-        with patch('scraper.course_data_scraper.make_prereq_coreq_into_array') as mock_prereq, \
-             patch('scraper.course_data_scraper.get_not_taken') as mock_not_taken:
+        with patch('scraper.concordia_api_utils.make_prereq_coreq_into_array') as mock_prereq, \
+             patch('scraper.concordia_api_utils.get_not_taken') as mock_not_taken:
             
             mock_prereq.return_value = [["COMP 248"], ["COMP 249"]]
             mock_not_taken.return_value = ["COMP 300"]
@@ -205,7 +214,9 @@ class TestConcordiaAPIUtils:
         result = self.api.get_course_description("NONEXISTENT")
         assert result == ""
     
-    def test_parse_course_descritpion_with_none(self):
+    @patch('utils.parsing_utils.make_prereq_coreq_into_array')
+    @patch('utils.parsing_utils.get_not_taken')
+    def test_parse_course_descritpion_with_none(self, mock_get_not_taken, mock_make_prereq_coreq):
         # Test parsing description when input is None
         result = self.api.parse_description_and_rules(None)
         assert result["description"] == ""

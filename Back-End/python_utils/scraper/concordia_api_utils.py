@@ -1,8 +1,12 @@
+import sys
 import requests
 import pandas as pd
 import tempfile
 import os
 import re
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from utils.parsing_utils import make_prereq_coreq_into_array, get_not_taken
 
 TERM = ["0", "Summer", "Fall", "Fall/Winter", "Winter", "Spring (for CCCE career only)", "Summer (for CCCE career only)"]
 
@@ -72,13 +76,13 @@ class ConcordiaAPIUtils:
                 print(f"Cache for {csv_name} already exists, skipping...")
                 continue
                 
+            temp_dir = tempfile.gettempdir()
+            csv_file_path = os.path.join(temp_dir, f"{csv_name}.csv")
             print(f"Downloading cache for {csv_name}...")
-            # Download the CSV file
+            # Download the CSV file if not already downloaded
             response = requests.get(csv_info["url"], stream=True)
             response.raise_for_status()
             # Save to temp directory
-            temp_dir = tempfile.gettempdir()
-            csv_file_path = os.path.join(temp_dir, f"{csv_name}.csv")
             with open(csv_file_path, "wb") as temp_file:
                 for chunk in response.iter_content(chunk_size=8192):
                     temp_file.write(chunk)
@@ -205,8 +209,6 @@ class ConcordiaAPIUtils:
         return response.get("Descr", "")
     
     def parse_description_and_rules(self, text):
-        from .course_data_scraper import make_prereq_coreq_into_array, get_not_taken
-        
         if not text:
             return {
                 "description": "",

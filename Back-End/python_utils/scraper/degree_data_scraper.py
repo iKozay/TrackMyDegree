@@ -14,9 +14,9 @@ class DegreeDataScraper():
 
     def __init__(self):
         self.degree_scraper_config: list[DegreeScraperConfig] = [
-            DegreeScraperConfig(long_name="BEng in Aerospace Engineering - Option A", marker="BEng in Aerospace Engineering", short_name="AERO", scraper_class=AeroOptionADegreeScraper),
-            DegreeScraperConfig(long_name="BEng in Aerospace Engineering - Option B", marker="BEng in Aerospace Engineering", short_name="AERO", scraper_class=AeroOptionBDegreeScraper),
-            DegreeScraperConfig(long_name="BEng in Aerospace Engineering - Option C", marker="BEng in Aerospace Engineering", short_name="AERO", scraper_class=AeroOptionCDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Aerospace Engineering - Option A", marker="BEng in Aerospace Engineering", short_name="AERO", scraper_class=AeroDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Aerospace Engineering - Option B", marker="BEng in Aerospace Engineering", short_name="AERO", scraper_class=AeroDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Aerospace Engineering - Option C", marker="BEng in Aerospace Engineering", short_name="AERO", scraper_class=AeroDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Building Engineering", short_name="BLDG", scraper_class=BldgDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Chemical Engineering", short_name="CHEM", scraper_class=ChemDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Civil Engineering", short_name="CIVL", scraper_class=CiviDegreeScraper),
@@ -70,9 +70,6 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
     GENERAL_ELECTIVES = "General Education Humanities and Social Sciences Electives"
     ELEC_273 = "ELEC 273"
     ELEC_275 = "ELEC 275"
-
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
     
     def _get_program_requirements(self) -> None:
         soup = get_soup(self.requirements_url)
@@ -164,6 +161,10 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
             courses=general_education_courses
         )
 
+    def _handle_special_cases(self):
+        # To be implemented by child classes for degree-specific special case handling
+        pass
+
 class AeroDegreeScraper(GinaCodyDegreeScraper):
     def __init__(self, degree_name, degree_short_name, requirements_url):
         super().__init__(degree_name, degree_short_name, requirements_url)
@@ -230,22 +231,7 @@ class AeroDegreeScraper(GinaCodyDegreeScraper):
         # - Aerospace Engineering students are not required to take ELEC 275‌ in their program
         self.remove_courses_from_pool(self.ENGINEERING_CORE, [self.ELEC_275])
 
-class AeroOptionADegreeScraper(AeroDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-
-class AeroOptionBDegreeScraper(AeroDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-
-class AeroOptionCDegreeScraper(AeroDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-
 class BldgDegreeScraper(GinaCodyDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-
     def _handle_special_cases(self):
         # Engineering Core:
         # - Building Engineering students are not required to take ENGR 202‌ in their program.
@@ -255,25 +241,16 @@ class BldgDegreeScraper(GinaCodyDegreeScraper):
         self.add_courses_to_pool(self.ENGINEERING_CORE, ["BLDG 482"])
 
 class ChemDegreeScraper(GinaCodyDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-
     def _handle_special_cases(self):
         # No special cases for Chemical Engineering
         pass
 
 class CiviDegreeScraper(GinaCodyDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-
     def _handle_special_cases(self):
         # No special cases for Civil Engineering
         pass
 
 class CoenDegreeScraper(GinaCodyDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-
     def _handle_special_cases(self):
         # Engineering Core:
         # - Students in the BEng in Computer Engineering‌ and the BEng in Computer Engineering shall replace ELEC 275‌ with ELEC 273‌.
@@ -281,9 +258,6 @@ class CoenDegreeScraper(GinaCodyDegreeScraper):
         self.add_courses_to_pool(self.ENGINEERING_CORE, [self.ELEC_273])
 
 class ElecDegreeScraper(GinaCodyDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-
     def _handle_special_cases(self):
         # Engineering Core:
         # - Students in the BEng in Electrical Engineering‌ and the BEng in Computer Engineering shall replace ELEC 275‌ with ELEC 273‌.
@@ -291,9 +265,6 @@ class ElecDegreeScraper(GinaCodyDegreeScraper):
         self.add_courses_to_pool(self.ENGINEERING_CORE, [self.ELEC_273])
 
 class InduDegreeScraper(GinaCodyDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-
     def _handle_special_cases(self):
         # Engineering Core:
         # - Industrial Engineering students are not required to take ELEC 275‌ in their program
@@ -304,27 +275,18 @@ class InduDegreeScraper(GinaCodyDegreeScraper):
                 pool.courses = ["ACCO 220"]
 
 class MechDegreeScraper(GinaCodyDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-
     def _handle_special_cases(self):
         # Engineering Core:
         # - Mechanical Engineering students are not required to take ELEC 275‌ in their program
         self.remove_courses_from_pool(self.ENGINEERING_CORE, [self.ELEC_275])
 
 class SoenDegreeScraper(GinaCodyDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-
     def _handle_special_cases(self):
         # Engineering Core:
         # - Students in the BEng in Software Engineering‌ may replace ENGR 391‌ with COMP 361‌.
         self.add_courses_to_pool(self.ENGINEERING_CORE, ["COMP 361"])
 
 class CompDegreeScraper(GinaCodyDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-
     def _handle_special_cases(self):
         for pool in self.program_requirements.course_pools:
             if "Computer Science Electives" in pool.name:
@@ -373,9 +335,6 @@ class CompDegreeScraper(GinaCodyDegreeScraper):
         comp_general_electives_pool.courses = list(allowed_courses)
 
 class EcpDegreeScraper(GinaCodyDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-    
     def get_ecp_core(self, credits_required: float) -> CoursePool:
         ecp_core_pool_courses = get_all_links_from_div(self.requirements_url, ["defined-group"], "Extended Credit Program", include_regex=COURSE_REGEX)
         ecp_core_pool = CoursePool(
@@ -387,9 +346,6 @@ class EcpDegreeScraper(GinaCodyDegreeScraper):
         return ecp_core_pool
 
 class EngrEcpDegreeScraper(EcpDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-
     def _get_program_requirements(self) -> None:
         program_name, total_credits = self.degree_name, 30.0
 
@@ -416,9 +372,6 @@ class EngrEcpDegreeScraper(EcpDegreeScraper):
         pass
 
 class CompEcpDegreeScraper(EcpDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-
     def _get_program_requirements(self) -> None:
         program_name, total_credits = self.degree_name, 30.0
 
@@ -471,9 +424,6 @@ class CompEcpDegreeScraper(EcpDegreeScraper):
         pass
 
 class CoopDegreeScraper(GinaCodyDegreeScraper):
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
-
     def _get_program_requirements(self) -> None:
         program_name, total_credits = self.degree_name, 0.0
 
