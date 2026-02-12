@@ -1,12 +1,23 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Download, FileText, AlertTriangle, CheckCircle, Circle, XCircle, ChevronDown, ChevronUp, RefreshCw, Inbox, ArrowLeft } from 'lucide-react';
+import { Download, FileText, AlertTriangle, CheckCircle, Circle, XCircle, ChevronDown, ChevronUp, RefreshCw, Inbox, ArrowLeft, Minimize2, Maximize2 } from 'lucide-react';
 import DegreeAuditSkeleton from '../components/DegreeAuditSkeleton.tsx';
 import { api } from '../api/http-api-client';
 import { useAuth } from '../hooks/useAuth';
 import '../styles/DegreeAuditPage.css';
 import type {DegreeAuditData, RequirementCategory, Notice, AuditCourse} from "@shared/audit"
 import { downloadPdf } from '../utils/downloadUtils.ts';
+
+// Helper function to get the appropriate icon for a notice type
+const getNoticeIcon = (type: string): React.ReactNode => {
+    if (type === 'warning') {
+        return <AlertTriangle size={18} />;
+    }
+    if (type === 'info') {
+        return <Circle size={18} />;
+    }
+    return <CheckCircle size={18} />;
+};
 
 const DegreeAuditPage: React.FC = () => {
     const { timelineId } = useParams();
@@ -44,6 +55,19 @@ const DegreeAuditPage: React.FC = () => {
             setIsLoading(false);
         }
     }, [timelineId, user?.id]);
+
+    const expandAll = useCallback(() => {
+        if (data?.requirements) {
+            setExpandedReqs(new Set(data.requirements.map(req => req.id)));
+        }
+    }, [data?.requirements]);
+
+    const collapseAll = useCallback(() => {
+        setExpandedReqs(new Set());
+    }, []);
+
+    const hasAnyExpanded = expandedReqs.size > 0;
+    const hasAllExpanded = data?.requirements ? expandedReqs.size === data.requirements.length : false;
 
     useEffect(() => {
         fetchData();
@@ -203,8 +227,7 @@ const DegreeAuditPage: React.FC = () => {
                     <div className="notices-list">
                         {data.notices.map((notice: Notice) => (
                             <div key={notice.id} className={`notice-item notice-${notice.type}`}>
-                                {notice.type === 'warning' ? <AlertTriangle size={18} /> :
-                                    notice.type === 'info' ? <Circle size={18} /> : <CheckCircle size={18} />}
+                                {getNoticeIcon(notice.type)}
                                 {notice.message}
                             </div>
                         ))}
@@ -213,7 +236,31 @@ const DegreeAuditPage: React.FC = () => {
 
                 {/* Requirements Breakdown */}
                 <div className="card">
-                    <h3 className="section-title">Requirements Breakdown</h3>
+                    <div className="requirements-header">
+                        <h3 className="section-title">Requirements Breakdown</h3>
+                        <div className="requirements-controls">
+                            {hasAnyExpanded && (
+                                <button
+                                    className="btn-toggle-all"
+                                    onClick={collapseAll}
+                                    title="Collapse all sections"
+                                >
+                                    <Minimize2 size={16} />
+                                    Collapse All
+                                </button>
+                            )}
+                            {!hasAllExpanded && (
+                                <button
+                                    className="btn-toggle-all"
+                                    onClick={expandAll}
+                                    title="Expand all sections"
+                                >
+                                    <Maximize2 size={16} />
+                                    Expand All
+                                </button>
+                            )}
+                        </div>
+                    </div>
                     <div className="requirements-list">
                         {data.requirements.map((req: RequirementCategory) => (
                             <RequirementItem
@@ -221,6 +268,7 @@ const DegreeAuditPage: React.FC = () => {
                                 req={req}
                                 isExpanded={expandedReqs.has(req.id)}
                                 toggle={() => toggleReq(req.id)}
+                                collapseAll={collapseAll}
                             />
                         ))}
                     </div>
@@ -234,10 +282,15 @@ const DegreeAuditPage: React.FC = () => {
 const RequirementItem: React.FC<{
     req: RequirementCategory,
     isExpanded: boolean,
-    toggle: () => void
-}> = ({ req, isExpanded, toggle }) => {
+    toggle: () => void,
+    collapseAll: () => void
+}> = ({ req, isExpanded, toggle, collapseAll }) => {
+    const [showStickyHeader, setShowStickyHeader] = useState(false);
+    const headerRef = React.useRef<HTMLButtonElement>(null);
 
-    const percentage = Math.round((req.creditsCompleted / req.creditsTotal) * 100);
+    const percentage = req.creditsTotal === 0
+        ? 100 // No credits required = 100% complete (avoid NaN from divide by zero)
+        : Math.round((req.creditsCompleted / req.creditsTotal) * 100);
 
     const renderBadges = () => {
         const badges: React.ReactNode[] = [];
@@ -264,9 +317,37 @@ const RequirementItem: React.FC<{
 
     const creditsRemaining = Math.max(0, req.creditsTotal - req.creditsCompleted - creditsInProgress);
 
+    // Monitor scroll position to show/hide sticky header
+    useEffect(() => {
+        const handleScroll = () => {
+            if (!isExpanded) {
+                // Don't show sticky header when section is collapsed
+                setShowStickyHeader(false);
+                return;
+            }
+
+            if (headerRef.current) {
+                const rect = headerRef.current.getBoundingClientRect();
+                // Show sticky header only when this requirement's header is out of view
+                setShowStickyHeader(rect.bottom <= 0);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        handleScroll(); // Check initial position
+
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [isExpanded]);
+
     return (
         <div className="requirement-group">
-            <div className="req-header-row" onClick={toggle} role="presentation">
+            <button
+                ref={headerRef}
+                className="req-header-row"
+                onClick={toggle}
+                aria-expanded={isExpanded}
+                type="button"
+            >
                 <div className="req-title-group">
                     <span className="req-name">{req.title}</span>
                     <div style={{ display: 'flex' }}>
@@ -277,16 +358,42 @@ const RequirementItem: React.FC<{
                     <span>{req.creditsCompleted}/{req.creditsTotal} credits ({percentage}%)</span>
                     {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                 </div>
-            </div>
+            </button>
 
             {isExpanded && (
                 <div className="courses-list">
-                        <div className="req-progress-bar">
-                            <div
-                                className="req-progress-fill completed"
-                                style={{ width: `${percentage}%` }}
-                            ></div>
+                    {/* Sticky header inside the expanded section - only show when main header is hidden */}
+                    {showStickyHeader && (
+                        <div className="req-sticky-header">
+                            <div className="req-sticky-title">
+                                <span className="req-name">{req.title}</span>
+                            </div>
+                            <span className="req-sticky-stats">{req.creditsCompleted}/{req.creditsTotal} credits ({percentage}%)</span>
+                            <div className="req-sticky-actions">
+                                <button
+                                    className="btn-collapse-section icon-only"
+                                    onClick={collapseAll}
+                                    title="Collapse All Sections"
+                                >
+                                    <Minimize2 size={16} />
+                                </button>
+                                <button
+                                    className="btn-collapse-section icon-only"
+                                    onClick={toggle}
+                                    title={`Collapse ${req.title}`}
+                                >
+                                    <ChevronUp size={16} />
+                                </button>
+                            </div>
                         </div>
+                    )}
+
+                    <div className="req-progress-bar">
+                        <div
+                            className="req-progress-fill completed"
+                            style={{ width: `${percentage}%` }}
+                        ></div>
+                    </div>
 
                     {/* Credit summary legend */}
                     <div className="req-credit-legend">
