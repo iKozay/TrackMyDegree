@@ -50,7 +50,7 @@ export class DegreeAuditController {
       throw new Error('RESULT_EXPIRED');
     }
 
-    return await generateDegreeAuditFromTimeline(
+    return generateDegreeAuditFromTimeline(
       cached.payload.data,
     );
   } catch (error) {
