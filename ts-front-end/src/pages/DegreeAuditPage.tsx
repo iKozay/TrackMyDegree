@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Download, FileText, AlertTriangle, CheckCircle, Circle, XCircle, ChevronDown, ChevronUp, RefreshCw, Inbox, ArrowLeft } from 'lucide-react';
 import DegreeAuditSkeleton from '../components/DegreeAuditSkeleton.tsx';
 import { api } from '../api/http-api-client';
@@ -10,6 +10,8 @@ import { downloadPdf } from '../utils/downloadUtils.ts';
 
 const DegreeAuditPage: React.FC = () => {
     const { timelineId } = useParams();
+    const query = new URLSearchParams(useLocation().search);
+    const fromPage = query.get('fromPage');
     const navigate = useNavigate();
     const { user } = useAuth();
     const [data, setData] = useState<DegreeAuditData | null>(null);
@@ -23,17 +25,20 @@ const DegreeAuditPage: React.FC = () => {
 
         try {
             let auditData: DegreeAuditData;
-
-            if (timelineId && user?.id) {
+            if (fromPage === 'timelinePage'){ //if coming from timeline page use the cached timeline to generate the degree audit
+                 auditData = await api.get<DegreeAuditData>(
+                    `/audit/timeline/job/${timelineId}`
+                );
+            } else if (timelineId && user?.id) { //if users chose a saved timeline from user profile
                 auditData = await api.get<DegreeAuditData>(
                     `/audit/timeline/${timelineId}?userId=${user.id}`
                 );
-            } else if (user?.id) {
+            } else if (user?.id) { //generates degree audit from the first timeline for this user found in the db
                 auditData = await api.get<DegreeAuditData>(
                     `/audit/user/${user.id}`
                 );
             } else {
-                throw new Error("User not authenticated");
+                throw new Error("Login or Create a timeline to access the degree audit");
             }
 
             setData(auditData);
@@ -105,7 +110,7 @@ const DegreeAuditPage: React.FC = () => {
     return (
         <div className="degree-audit-page">
             {/* Back Button */}
-            {timelineId && (
+            {user && (
                 <button className="back-btn" onClick={handleBackClick}>
                     <ArrowLeft size={18} />
                     <span>Back to Profile</span>
@@ -139,35 +144,50 @@ const DegreeAuditPage: React.FC = () => {
                         <div>
                             <h3 className="section-title">Student Information</h3>
                             <div className="info-rows">
-                                <div className="info-row">
-                                    <span className="label">Name:</span>
-                                    <span className="value">{data.student.name}</span>
-                                </div>
-                                <div className="info-row">
-                                    <span className="label">Program:</span>
-                                    <span className="value">{data.student.program}</span>
-                                </div>
-                                <div className="info-row">
-                                    <span className="label">Academic Advisor:</span>
-                                    <span className="value">{data.student.advisor}</span>
-                                </div>
+                                {/* Name with fallback */}
+                                {(data.student.name || user?.name) && (
+                                    <div className="info-row">
+                                        <span className="label">Name:</span>
+                                        <span className="value">{data.student.name ?? user?.name}</span>
+                                    </div>
+                                )}
+                                {/* Program */}
+                                {data.student.program && (
+                                    <div className="info-row">
+                                        <span className="label">Program:</span>
+                                        <span className="value">{data.student.program}</span>
+                                    </div>
+                                )}
+                                {/* Academic Advisor */}
+                                {data.student.advisor && (
+                                    <div className="info-row">
+                                        <span className="label">Academic Advisor:</span>
+                                        <span className="value">{data.student.advisor}</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div>
                             <h3 className="section-title">Assessment Summary</h3>
                             <div className="info-rows">
-                                <div className="info-row">
-                                    <span className="label">GPA:</span>
-                                    <span className="value">{data.student.gpa}</span>
-                                </div>
-                                <div className="info-row">
-                                    <span className="label">Admission Term:</span>
-                                    <span className="value">{data.student.admissionTerm}</span>
-                                </div>
-                                <div className="info-row">
-                                    <span className="label">Expected Graduation:</span>
-                                    <span className="value">{data.student.expectedGraduation}</span>
-                                </div>
+                                {data.student.gpa !== undefined && (
+                                    <div className="info-row">
+                                        <span className="label">GPA:</span>
+                                        <span className="value">{data.student.gpa}</span>
+                                    </div>
+                                )}
+                                {data.student.admissionTerm && (
+                                    <div className="info-row">
+                                        <span className="label">Admission Term:</span>
+                                        <span className="value">{data.student.admissionTerm}</span>
+                                    </div>
+                                )}
+                                {data.student.expectedGraduation && (
+                                    <div className="info-row">
+                                        <span className="label">Expected Graduation:</span>
+                                        <span className="value">{data.student.expectedGraduation}</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

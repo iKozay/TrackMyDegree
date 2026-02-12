@@ -10,59 +10,7 @@ import { CourseData, courseController } from '@controllers/courseController';
 import { SEASONS } from '@utils/constants';
 import { Timeline } from '@models';
 import { coursepoolController } from '@controllers/coursepoolController';
-
-export interface TimelineResult {
-  _id?: string;
-  timelineName?: string;
-  degree?: DegreeData;
-  pools?: CoursePoolInfo[];
-  semesters: TimelineSemester[];
-  isExtendedCredit?: boolean;
-  isCoop?: boolean;
-  courses: Record<string, TimelineCourse>;
-}
-
-export interface TimelineCourse {
-  id: string;
-  title: string;
-  credits: number;
-  description?: string;
-  offeredIN: string[];
-  prerequisites: { anyOf: string[] }[];
-  corequisites: { anyOf: string[] }[];
-  status: {
-    status: CourseStatus;
-    semester: string | null;
-  };
-}
-
-export interface TimelineSemester {
-  term: string;
-  courses: {
-    code: string;
-    message?: string;
-  }[];
-}
-// Timeline as stored in DB
-export interface TimelineDocument {
-  _id?: string;
-  userId: string;
-  name: string;
-  degreeId: string;
-  semesters: TimelineSemester[];
-  isExtendedCredit?: boolean;
-  isCoop?: boolean;
-  last_modified?: Date;
-  courseStatusMap: Record<
-    string,
-    {
-      status: CourseStatus;
-      semester: string | null;
-    }
-  >; // only the minimal course status info
-  exemptions: string[];
-  deficiencies: string[];
-}
+import {TimelineResult, TimelineCourse, TimelineDocument, TimelineSemester} from '../../types/timeline'
 
 // Timeline builder inputs
 export type BuildTimelineParams =

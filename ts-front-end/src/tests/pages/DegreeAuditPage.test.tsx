@@ -6,6 +6,7 @@ import DegreeAuditPage from '../../pages/DegreeAuditPage.tsx';
 /* ---------------- Mock hooks and API ---------------- */
 const mockNavigate = vi.fn();
 let mockTimelineId: string | undefined = undefined;
+const mockUseLocation = vi.fn();
 
 vi.mock('react-router-dom', async () => {
     const actual = await vi.importActual('react-router-dom');
@@ -13,6 +14,7 @@ vi.mock('react-router-dom', async () => {
         ...actual,
         useNavigate: () => mockNavigate,
         useParams: () => ({ timelineId: mockTimelineId }),
+        useLocation: () => mockUseLocation(),
     };
 });
 
@@ -86,6 +88,7 @@ describe('DegreeAuditPage', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         mockTimelineId = undefined;
+        mockUseLocation.mockReturnValue({ search: '' });
         mockUseAuth.mockReturnValue({
             user: { id: 'test-user-id', name: 'Test User' },
             isAuthenticated: true,
@@ -189,7 +192,8 @@ describe('DegreeAuditPage', () => {
         expect(mockApiGet).toHaveBeenCalledWith('/audit/timeline/timeline-123?userId=test-user-id');
     });
 
-    it('should show error when user is not authenticated', async () => {
+    it('should show error when user is not authenticated and timelineId is undefined', async () => {
+        mockTimelineId = undefined;
         mockUseAuth.mockReturnValue({
             user: null,
             isAuthenticated: false,
@@ -200,7 +204,7 @@ describe('DegreeAuditPage', () => {
             expect(screen.getByText('Something went wrong')).toBeTruthy();
         });
 
-        expect(screen.getByText('User not authenticated')).toBeTruthy();
+        expect(screen.getByText('Login or Create a timeline to access the degree audit')).toBeTruthy();
     });
 
     it('should show empty state when no requirements are returned', async () => {
@@ -240,9 +244,17 @@ describe('DegreeAuditPage', () => {
         expect(mockNavigate).toHaveBeenCalledWith('/profile/student');
     });
 
-    it('should not show back button when timelineId is not provided', async () => {
-        mockTimelineId = undefined;
+    it('should not show back button when user is not logged in', async () => {
+        mockUseAuth.mockReturnValue({
+            user: null,
+            isAuthenticated: false,
+        });
+        mockTimelineId = 'timeline-123';
         mockApiGet.mockResolvedValueOnce(mockAuditData);
+        mockUseLocation.mockReturnValueOnce({
+            search: '?fromPage=timelinePage',
+        });
+
         renderPage();
 
         await waitFor(() => {

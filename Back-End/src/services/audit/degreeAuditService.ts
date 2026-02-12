@@ -2,6 +2,7 @@ import { Timeline, User } from '@models';
 import {
   degreeController,
   CoursePoolInfo,
+  DegreeData,
 } from '@controllers/degreeController';
 import { CourseData } from '@controllers/courseController';
 import { CourseStatus } from '../../types/transcript';
@@ -16,7 +17,7 @@ import {
   RequirementStatus,
   GenerateAuditParams,
 } from '@shared/audit';
-import { TimelineDocument } from '@services/timeline/timelineService';
+import { TimelineCourse, TimelineDocument, TimelineResult, TimelineSemester } from '../../types/timeline';
 import { isTermInProgress } from '@utils/misc';
 
 interface TimelineWithUser extends TimelineDocument {
@@ -289,12 +290,20 @@ function calculateFutureGraduation(
  * Extracts courseStatusMap from timeline, returning empty object if not present
  */
 function buildCourseStatusMap(
-  timeline: TimelineWithUser,
+  courses: Record<string, TimelineCourse>,
 ): Record<string, { status: CourseStatus; semester: string | null }> {
-  if (!timeline.courseStatusMap) {
-    return {};
-  }
-  return { ...timeline.courseStatusMap };
+  
+  return Object.fromEntries(
+        Object.entries( courses || {})
+          .filter(([, course]) => course.status.status !== 'incomplete')
+          .map(([courseId, course]) => [
+            courseId,
+            {
+              status: course.status.status,
+              semester: course.status.semester,
+            },
+          ])
+      );
 }
 
 /**
@@ -430,13 +439,13 @@ function calculateProgressStats(
  * Builds student info from user and degree data
  */
 function buildStudentInfo(
-  user: { _id: string; fullname: string; email: string },
   degreeData: { name: string },
   firstSemester: string | undefined,
   remainingCredits: number,
+  user?: { _id: string; fullname: string; email: string },
 ): StudentInfo {
   return {
-    name: user.fullname,
+    name: user?.fullname,
     program: degreeData.name,
     admissionTerm: firstSemester,
     expectedGraduation: estimateGraduation(remainingCredits),
@@ -545,33 +554,62 @@ export async function generateDegreeAudit(
   ]);
 
   const allCourses = buildCoursesDictionary(courseArr);
-  const courseStatusMap = buildCourseStatusMap(timeline);
+  const courseStatusMap = timeline.courseStatusMap ?? {};
 
+  return buildDegreeAudit(
+    degreeData,
+    coursePools,
+    allCourses,
+    courseStatusMap,
+    timeline.deficiencies,
+    timeline.exemptions,
+    timeline.semesters,
+    user
+  )
+}
+
+function buildDegreeAudit(
+  degreeData: DegreeData,
+  coursePools: CoursePoolInfo[],
+  allCourses: Record<string, CourseData>,
+  courseStatusMap: Record<string, {
+    status: CourseStatus;
+    semester: string | null;
+  }>,
+  deficiencies: string[],
+  exemptions: string[],
+  semesters: TimelineSemester[],
+  user?:{
+    _id: string;
+    fullname: string;
+    email: string;
+  },
+) {
   const requirements = processCoursePools(
     coursePools,
     allCourses,
     courseStatusMap,
   );
 
-  if (timeline.deficiencies && timeline.deficiencies.length > 0) {
+  if (deficiencies && deficiencies.length > 0) {
     requirements.push(
-      processDeficiencies(timeline.deficiencies, allCourses, courseStatusMap),
+      processDeficiencies(deficiencies, allCourses, courseStatusMap),
     );
   }
 
-  if (timeline.exemptions && timeline.exemptions.length > 0) {
-    requirements.push(processExemptions(timeline.exemptions, allCourses));
+  if (exemptions && exemptions.length > 0) {
+    requirements.push(processExemptions(exemptions, allCourses));
   }
 
   const totalCredits = degreeData.totalCredits || 120;
   const progress = calculateProgressStats(requirements, totalCredits);
 
-  const firstSemester = timeline.semesters?.[0]?.term;
+  const firstSemester = semesters?.[0]?.term;
   const student = buildStudentInfo(
-    user,
     degreeData,
     firstSemester,
     progress.remaining,
+    user,
   );
 
   const notices = generateNotices(requirements, progress);
@@ -602,4 +640,43 @@ export async function generateDegreeAuditForUser(
     timelineId: timeline._id.toString(),
     userId,
   });
+}
+
+export function generateDegreeAuditFromTimeline(timeline:TimelineResult){
+  if(!timeline.degree || !timeline.pools || !timeline.semesters)
+    throw new Error('degree, coursePools and semesters are required to generate the degree audit');
+
+  const allCourses: Record<string, CourseData> = Object.fromEntries(
+    Object.entries(timeline.courses).map(([code, course]) => {
+      return [code, {
+      _id: course.id,
+      code: course.id,
+      title: course.title,
+      description: course.description,
+      credits: course.credits,
+      offeredIn: course.offeredIN,
+    }];
+    }),
+  );
+  const courseStatusMap = buildCourseStatusMap(timeline.courses)
+  const coursePools = timeline.pools || []
+  const exemptionPool = coursePools.find(p => p._id === 'exemptions');
+  const deficiencyPool = coursePools.find(p => p._id === 'deficiencies');
+  const exemptions  = exemptionPool?.courses ?? [];
+  const deficiencies = deficiencyPool?.courses ?? [];
+  // REMOVE exemptions & deficiencies from pools
+  const filteredPools = coursePools.filter(
+    p => p._id !== 'exemptions' && p._id !== 'deficiencies'
+  );
+
+
+return buildDegreeAudit(
+    timeline.degree,
+    filteredPools,
+    allCourses,
+    courseStatusMap,
+    deficiencies,
+    exemptions,
+    timeline.semesters
+  )
 }
