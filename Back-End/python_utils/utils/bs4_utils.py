@@ -137,7 +137,7 @@ def extract_coursepool_courses(url: str, course_pool: CoursePool, automatically_
         bool: True if courses were found and assigned, False otherwise.
     """
     soup = get_soup(url)
-    course_pool_div = soup.find("div", class_="defined-group", attrs={"title": lambda t: t and clean_text(t).strip() == clean_text(course_pool.name).strip()})
+    course_pool_div = soup.find("div", class_="defined-group", attrs={"title": lambda t: t and clean_text(t).strip() == course_pool.name})
 
     if course_pool_div:
         course_ids = []
@@ -148,7 +148,7 @@ def extract_coursepool_courses(url: str, course_pool: CoursePool, automatically_
                 for sublink in sublinks:
                     title = sublink.text
                     sublink_div = soup.find("div", class_="defined-group", attrs={"title": lambda t: t and clean_text(t).strip() == clean_text(title).strip()})
-                    course_ids = _get_all_links_from_element(url, [sublink_div], include_regex=COURSE_REGEX, require_exact_regex_match=True)
+                    course_ids.extend(_get_all_links_from_element(url, [sublink_div], include_regex=COURSE_REGEX, require_exact_regex_match=True))
         else:
             course_ids = _get_all_links_from_element(url, [course_pool_div], include_regex=COURSE_REGEX, require_exact_regex_match=True)
 
