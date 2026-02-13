@@ -1,6 +1,5 @@
 import sys
 import pandas as pd
-import tempfile
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -29,22 +28,14 @@ class ConcordiaAPIUtils:
 
     data_cache = {}
 
-    def __init__(self, dev_mode: bool = False):
-        self.dev_mode = dev_mode
+    def __init__(self, cache_dir: str):
         self.logger = get_logger("ConcordiaAPIUtils")
+        self.cache_dir = cache_dir
 
     def download_datasets(self):
-        if self.dev_mode:
-            self.logger.info("Running in development mode. Caching CSV datasets locally...")
-            cache_dir = os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data_cache")
-            os.makedirs(cache_dir, exist_ok=True)
-        else:
-            self.logger.info("Running in production mode. Using temporary directory for CSV datasets...")
-            cache_dir = tempfile.gettempdir()
-
         for csv_name, csv_info in CSV_SOURCES.items():
-            csv_file_path = os.path.join(cache_dir, f"{csv_name}.csv")
-            if self.dev_mode and os.path.exists(csv_file_path):
+            csv_file_path = os.path.join(self.cache_dir, f"{csv_name}.csv")
+            if os.path.exists(csv_file_path):
                     self.logger.info(f"Loading {csv_name} from local cache: {csv_file_path}")
                     self.data_cache[csv_name] = pd.read_csv(csv_file_path, engine="pyarrow", encoding="utf-16")
                     continue
@@ -103,3 +94,14 @@ class ConcordiaAPIUtils:
 
         records = matches.to_dict('records')
         return self._sanitize_data(records)
+
+concordia_api_instance: ConcordiaAPIUtils = None
+def init_concordia_api_instance(cache_dir: str) -> None:
+    global concordia_api_instance
+    concordia_api_instance = ConcordiaAPIUtils(cache_dir=cache_dir)
+
+def get_concordia_api_instance() -> ConcordiaAPIUtils:
+    global concordia_api_instance
+    if concordia_api_instance is None:
+        raise RuntimeError("ConcordiaAPIUtils instance not initialized. Call init_concordia_api_instance() first.")
+    return concordia_api_instance

@@ -1,10 +1,11 @@
 import sys
 import os
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from unittest.mock import patch, MagicMock
 from io import BytesIO
 from main import app
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 class TestParseTranscript:
     def test_parse_transcript_success(self):
@@ -332,54 +333,3 @@ class TestCourseEndpoints:
                 data = response.get_json()
                 assert 'error' in data
                 assert 'Scraping error' in data['error']
-
-class TestInitInstances:
-    def setup_method(self):
-        # Ensure module globals are reset before each test
-        import main as main_module
-        main_module.course_scraper_instance = None
-        main_module.degree_data_scraper_instance = None
-        main_module.concordia_api_instance = None
-
-    def test_init(self):
-        """Test successful initialization"""
-        import main as main_module
-        with app.test_client() as client:
-            with patch('main.ConcordiaAPIUtils') as mock_concordia_cls, \
-                 patch('main.CourseDataScraper') as mock_course_cls, \
-                 patch('main.DegreeDataScraper') as mock_degree_cls:
-                with patch.object(main_module, 'dev_mode', False):
-                    conc_instance = mock_concordia_cls.return_value
-                    course_instance = mock_course_cls.return_value
-                    degree_instance = mock_degree_cls.return_value
-
-                    response = client.get('/init')
-
-                    assert response.status_code == 200
-                    data = response.get_json()
-                    assert data['message'] == 'All modules initialized successfully'
-                    assert data['module_status']['concordia_api'] == 'ready'
-                    assert data['module_status']['course_scraper'] == 'ready'
-                    assert data['module_status']['degree_scraper'] == 'ready'
-
-                    mock_concordia_cls.assert_called_once_with(dev_mode=False)
-                    conc_instance.download_datasets.assert_called_once()
-                    mock_course_cls.assert_called_once_with(dev_mode=False)
-                    course_instance.scrape_all_courses.assert_called_once()
-                    course_instance.load_cache_from_file.assert_not_called()
-                    mock_degree_cls.assert_called_once()
-
-    def test_init_failure_returns_500(self):
-        with app.test_client() as client:
-            with patch('main.ConcordiaAPIUtils') as mock_concordia_cls:
-                # Make download fail
-                conc_instance = mock_concordia_cls.return_value
-                conc_instance.download_datasets.side_effect = Exception("Download failed")
-
-                response = client.get('/init')
-
-                assert response.status_code == 500
-                data = response.get_json()
-                assert 'error' in data
-                assert 'Initialization failed' in data['error']
-                assert 'Download failed' in data['error']

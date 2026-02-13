@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 class TestConcordiaAPIUtils:
     
     def setup_method(self):
-        self.api = ConcordiaAPIUtils()
+        self.api = ConcordiaAPIUtils(cache_dir="test_cache")
         
     def test_sanitize_data_dict(self):
         # Test sanitizing dictionary data

@@ -1,16 +1,17 @@
 from flask import Flask, request, jsonify
 import sys
 from dotenv import load_dotenv
+import argparse
+import os
 from parser.transcript_parser import parse_transcript
 from scraper.degree_data_scraper import DegreeDataScraper
-from scraper.course_data_scraper import CourseDataScraper
-from utils.concordia_api_utils import ConcordiaAPIUtils
+from scraper.course_data_scraper import init_course_scraper_instance, get_course_scraper_instance
+from utils.concordia_api_utils import init_concordia_api_instance, get_concordia_api_instance
 from utils.logging_utils import get_logger
 from models import serialize
 
 app = Flask(__name__)
 logger = get_logger("MainApp")
-dev_mode = ("--dev" in sys.argv)
 
 # Global variables
 course_scraper_instance = None
@@ -104,51 +105,59 @@ def get_all_courses_api():
     except Exception as e:
         return jsonify({"error": f"Error retrieving course data: {str(e)}"}), 500
 
-@app.route('/init', methods=['GET'])
 def init_instances():
     global course_scraper_instance, degree_data_scraper_instance, concordia_api_instance
-    
-    try:
-        # Step 1: Initialize Concordia API
-        if concordia_api_instance is None:
-            logger.info("Initializing Concordia API...")
-            concordia_api_instance = ConcordiaAPIUtils(dev_mode=dev_mode)
-            concordia_api_instance.download_datasets()
-            logger.info("Concordia API instance created")    
-            module_status["concordia_api"] = "ready"
-        
-        # Step 2: Initialize Course Data Scraper  
-        if course_scraper_instance is None:
-            logger.info("Initializing Course Data Scraper...")
-            course_scraper_instance = CourseDataScraper(dev_mode=dev_mode)
-            if dev_mode:
-                course_scraper_instance.load_cache_from_file()
-            else:
-                course_scraper_instance.scrape_all_courses()
-            logger.info("Course scraper instance created")
-            module_status["course_scraper"] = "ready"
-        
-        # Step 3: Initialize Degree Data Scraper
-        if degree_data_scraper_instance is None:
-            logger.info("Initializing Degree Data Scraper...")
-            degree_data_scraper_instance = DegreeDataScraper()
-            logger.info("Degree scraper instance created")        
-            module_status["degree_scraper"] = "ready"
-        
-        logger.info("All modules initialized successfully")
 
-        return jsonify({"message": "All modules initialized successfully", "module_status": module_status})
-    except Exception as e:
-        logger.error(f"Error during initialization: {e}")
-        return jsonify({"error": f"Initialization failed: {str(e)}"}), 500
+    # Step 1: Initialize Concordia API
+    if concordia_api_instance is None:
+        logger.info("Initializing Concordia API...")
+        init_concordia_api_instance(cache_dir=cache_path)
+        concordia_api_instance = get_concordia_api_instance()
+        concordia_api_instance.download_datasets()
+        logger.info("Concordia API instance created")    
+        module_status["concordia_api"] = "ready"
+    
+    # Step 2: Initialize Course Data Scraper  
+    if course_scraper_instance is None:
+        logger.info("Initializing Course Data Scraper...")
+        init_course_scraper_instance(cache_dir=cache_path)
+        course_scraper_instance = get_course_scraper_instance()
+        course_scraper_instance.load_cache_from_file()
+        logger.info("Course scraper instance created")
+        module_status["course_scraper"] = "ready"
+    
+    # Step 3: Initialize Degree Data Scraper
+    if degree_data_scraper_instance is None:
+        logger.info("Initializing Degree Data Scraper...")
+        degree_data_scraper_instance = DegreeDataScraper()
+        logger.info("Degree scraper instance created")        
+        module_status["degree_scraper"] = "ready"
+    
+    logger.info("All modules initialized successfully")
+
+# Initialize configuration
+def get_config():
+    cache_path = os.getenv("CACHE_PATH", os.path.join(os.path.dirname(__file__), "data_cache"))
+    env_file = os.getenv("ENV_FILE", os.path.join(os.path.dirname(__file__), "../../secrets/.env"))
+    dev_mode = os.getenv("DEV_MODE", "false").lower() == "true"
+    return cache_path, env_file, dev_mode
+
+cache_path, env_file, dev_mode = get_config()
+if cache_path:
+    os.makedirs(cache_path, exist_ok=True)
+if dev_mode and env_file:
+    load_dotenv(env_file)
+
+# Auto-initialize instances only if not running as main script (local dev)
+if __name__ != "__main__":
+    init_instances()
 
 def main():
-    if dev_mode:
-        logger.info("Starting development server...")
-        load_dotenv("../../secrets/.env")
-    else:
-        logger.info("Starting production server...")
-    app.run(host="0.0.0.0", port=15001, threaded=True)
+    # If running main.py directly, we assume it's in development mode
+    global dev_mode
+    dev_mode = True
+    init_instances()
+    app.run(host="0.0.0.0", port=15001)
 
 if __name__ == "__main__":
     main()

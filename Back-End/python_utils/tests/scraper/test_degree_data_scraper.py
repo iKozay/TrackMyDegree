@@ -308,15 +308,15 @@ class TestGinaCodyDegreeScraper:
         assert len(scraper.program_requirements.course_pools) == 2
         assert mock_gen_ed_pool in scraper.program_requirements.course_pools
 
-    @patch('scraper.degree_data_scraper.CourseDataScraper')
-    def test_get_general_education_pool(self, mock_course_scraper_cls):
+    @patch('scraper.degree_data_scraper.get_course_scraper_instance')
+    def test_get_general_education_pool(self, mock_get_course_scraper):
         """Test generating general education pool"""
         # Setup mock instance
         mock_instance = MagicMock()
         mock_instance.get_courses_by_subjects.return_value = [
             "ANTH 200", "HIST 201", "PHIL 214", "ANTH 315", "SOCI 212"
         ]
-        mock_course_scraper_cls.return_value = mock_instance
+        mock_get_course_scraper.return_value = mock_instance
         
         scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
         result = scraper._get_general_education_pool(6.0)
@@ -649,15 +649,15 @@ class TestCompDegreeScraper:
             mock_handle_cs.assert_called_once_with(cs_electives_pool)
             mock_handle_gen.assert_called_once_with(general_electives_pool)
 
-    @patch('scraper.degree_data_scraper.CourseDataScraper')
-    def test_handle_computer_science_electives(self, mock_course_scraper_cls):
+    @patch('scraper.degree_data_scraper.get_course_scraper_instance')
+    def test_handle_computer_science_electives(self, mock_get_course_scraper):
         """Test handling computer science electives with COMP courses filtering"""
         # Setup mock instance
         mock_instance = MagicMock()
         mock_instance.get_courses_by_subjects.return_value = [
             "COMP 248", "COMP 324", "COMP 325", "COMP 445", "COMP 472", "COMP invalid"
         ]
-        mock_course_scraper_cls.return_value = mock_instance
+        mock_get_course_scraper.return_value = mock_instance
         
         # Setup test pool
         cs_electives_pool = CoursePool(
@@ -696,9 +696,10 @@ class TestCompDegreeScraper:
         # Check no duplicates
         assert len(cs_electives_pool.courses) == len(set(cs_electives_pool.courses))
 
-    @patch('scraper.degree_data_scraper.CourseDataScraper')
-    def test_handle_computer_science_electives_exception_handling(self, mock_course_scraper):
+    @patch('scraper.degree_data_scraper.get_course_scraper_instance')
+    def test_handle_computer_science_electives_exception_handling(self, mock_get_course_scraper):
         """Test handling computer science electives with exception handling for invalid course numbers"""
+        mock_course_scraper = mock_get_course_scraper.return_value
         mock_course_scraper.get_courses_by_subjects.return_value = [
             "COMP ABC", "COMP", "INVALID FORMAT"
         ]
@@ -843,8 +844,8 @@ class TestCompEcpDegreeScraper:
     @patch('scraper.degree_data_scraper.get_all_links_from_div')
     @patch('scraper.degree_data_scraper.CompEcpDegreeScraper._get_general_education_pool')
     @patch('scraper.degree_data_scraper.CompEcpDegreeScraper.get_ecp_core')
-    @patch('scraper.degree_data_scraper.CourseDataScraper')
-    def test_get_program_requirements(self, mock_course_scraper_cls, mock_get_ecp_core, mock_get_gen_ed, mock_get_links):
+    @patch('scraper.degree_data_scraper.get_course_scraper_instance')
+    def test_get_program_requirements(self, mock_get_course_scraper, mock_get_ecp_core, mock_get_gen_ed, mock_get_links):
         """Test CompEcpDegreeScraper _get_program_requirements sets all pools correctly"""
         # Mock ECP Core pool
         ecp_core_pool = CoursePool(_id="ECP_Core", name="ECP Core", credits_required=9.0, courses=["MATH 203"])
@@ -871,7 +872,7 @@ class TestCompEcpDegreeScraper:
                 return ["MAST 221", "COMP 324", "COMP 445"]
             return []
         mock_instance.get_courses_by_subjects.side_effect = get_courses_side_effect
-        mock_course_scraper_cls.return_value = mock_instance
+        mock_get_course_scraper.return_value = mock_instance
         
         scraper = CompEcpDegreeScraper("BCompSc in Computer Science", "COMP", "http://test.com")
         scraper._get_program_requirements()
@@ -907,13 +908,13 @@ class TestCompEcpDegreeScraper:
         assert data_science_pool.courses == ["MAST 221", "COMP 324", "COMP 445"]
 
 class TestCoopDegreeScraper:
-    @patch('scraper.degree_data_scraper.CourseDataScraper')
-    def test_get_program_requirements(self, mock_course_scraper_cls):
+    @patch('scraper.degree_data_scraper.get_course_scraper_instance')
+    def test_get_program_requirements(self, mock_get_course_scraper):
         """Test CoopDegreeScraper _get_program_requirements sets co-op pool and removes CWT 400/401"""
         # Setup mock instance
         mock_instance = MagicMock()
         mock_instance.get_courses_by_subjects.return_value = ["CWT 300", "CWT 301", "CWT 400", "CWT 401"]
-        mock_course_scraper_cls.return_value = mock_instance
+        mock_get_course_scraper.return_value = mock_instance
 
         scraper = CoopDegreeScraper("BEng in Computer Engineering Co-op", "COEN", "http://test.com")
         scraper._get_program_requirements()

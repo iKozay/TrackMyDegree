@@ -1,14 +1,13 @@
 import sys
 import os
-import tempfile
 import json
 
 # Add the root folder (parent of scraper) to Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.bs4_utils import get_all_links_from_div, get_soup
-from utils.parsing_utils import clean_text, parse_course_title_and_credits, parse_course_rules, split_sections, parse_course_components
+from utils.parsing_utils import clean_text, parse_course_title_and_credits, parse_course_rules, split_sections, parse_course_components, get_course_sort_key
 from utils.logging_utils import get_logger
-from utils.concordia_api_utils import ConcordiaAPIUtils
+from utils.concordia_api_utils import get_concordia_api_instance
 from models import AnchorLink, Course, CourseRules, serialize
 
 class CourseDataScraper:
@@ -24,15 +23,9 @@ class CourseDataScraper:
 
     all_courses: dict[str, Course] = {}
 
-    def __init__(self, dev_mode: bool = False):
+    def __init__(self, cache_dir: str = None):
         self.logger = get_logger("CourseDataScraper")
-        self.dev_mode = dev_mode
-        self.conu_api_instance = ConcordiaAPIUtils(dev_mode=self.dev_mode)
-        if self.dev_mode:
-            self.logger.info("Running in development mode. Loading course data from local cache file if available...")
-            cache_dir = os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data_cache")
-            os.makedirs(cache_dir, exist_ok=True)
-            self.local_cache_file = os.path.join(cache_dir, "course_data_cache.json")
+        self.local_cache_file = os.path.join(cache_dir, "course_data_cache.json")
 
     def load_cache_from_file(self) -> None:
         if os.path.exists(self.local_cache_file):
@@ -103,8 +96,8 @@ class CourseDataScraper:
     def get_all_courses(self, return_full_object: bool = False) -> list[Course] | list[str]:
         self._scrape_if_needed()
         if not return_full_object:
-            return list(self.all_courses.keys())
-        return list(self.all_courses.values())
+            return sorted(self.all_courses.keys(), key=get_course_sort_key)
+        return sorted(self.all_courses.values(), key=lambda course: get_course_sort_key(course._id))
 
     def _scrape_if_needed(self) -> None:
         if not self.all_courses:
@@ -152,7 +145,7 @@ class CourseDataScraper:
             if "CWT" in course_id:
                 offered_in = self.ALL_SEMESTERS
             else:
-                offered_in = self.conu_api_instance.get_term(course_id)
+                offered_in = get_concordia_api_instance().get_term(course_id)
 
             # Create Course object
             course = Course(
@@ -182,3 +175,14 @@ class CourseDataScraper:
         for course in extra_cwt_courses:
             course.rules = parse_course_rules(course.prereq_coreq_text, course.notes)
             self.all_courses[course._id] = course
+
+course_scraper_instance: CourseDataScraper = None
+def init_course_scraper_instance(cache_dir: str) -> None:
+    global course_scraper_instance
+    course_scraper_instance = CourseDataScraper(cache_dir=cache_dir)
+
+def get_course_scraper_instance() -> CourseDataScraper:
+    global course_scraper_instance
+    if course_scraper_instance is None:
+        raise RuntimeError("CourseDataScraper instance not initialized. Call init_course_scraper_instance() first.")
+    return course_scraper_instance

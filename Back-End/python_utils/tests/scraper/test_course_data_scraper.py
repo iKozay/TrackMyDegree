@@ -10,17 +10,6 @@ from models import Course, AnchorLink
 
 
 class TestCourseDataScraper:
-    
-    def test_init_dev_mode(self):
-        """Test scraper initialization in dev mode"""
-        scraper = CourseDataScraper(dev_mode=True)
-        assert scraper.dev_mode is True
-        assert scraper.local_cache_file is not None
-
-    def test_init_prod_mode(self):
-        """Test scraper initialization in production mode"""
-        scraper = CourseDataScraper(dev_mode=False)
-        assert scraper.dev_mode is False
 
     @patch('scraper.course_data_scraper.os.path.exists')
     @patch('builtins.open', new_callable=mock_open)
@@ -41,7 +30,7 @@ class TestCourseDataScraper:
             }
         })
         
-        scraper = CourseDataScraper(dev_mode=True)
+        scraper = CourseDataScraper(cache_dir="test_cache")
         scraper.load_cache_from_file()
         
         assert "COMP 248" in scraper.all_courses
@@ -54,7 +43,7 @@ class TestCourseDataScraper:
         """Test behavior when cache file doesn't exist"""
         mock_exists.return_value = False
         
-        scraper = CourseDataScraper(dev_mode=True)
+        scraper = CourseDataScraper(cache_dir="test_cache")
         scraper.load_cache_from_file()
         
         mock_scrape.assert_called_once()
@@ -62,7 +51,7 @@ class TestCourseDataScraper:
 
     def test_get_all_courses_empty(self):
         """Test get_all_courses when no courses loaded"""
-        scraper = CourseDataScraper()
+        scraper = CourseDataScraper(cache_dir="test_cache")
         # Clear all_courses to ensure empty state
         scraper.all_courses = {}
         
@@ -71,9 +60,10 @@ class TestCourseDataScraper:
             mock_scrape.assert_called_once()
             assert result == []
 
+    @patch.object(CourseDataScraper, '__init__', lambda self, cache_dir: setattr(self, 'all_courses', {}) or setattr(self, 'cache_dir', cache_dir))
     def test_get_all_courses_with_data(self):
         """Test get_all_courses with existing data"""
-        scraper = CourseDataScraper()
+        scraper = CourseDataScraper(cache_dir="test_cache")
         test_course = Course(
             _id="COMP 248", 
             title="Test Course", 
@@ -96,9 +86,10 @@ class TestCourseDataScraper:
         assert len(result) == 1
         assert result[0]._id == "COMP 248"
 
+    @patch.object(CourseDataScraper, '__init__', lambda self, cache_dir: setattr(self, 'all_courses', {}) or setattr(self, 'cache_dir', cache_dir))
     def test_get_courses_by_subjects(self):
         """Test filtering courses by subject"""
-        scraper = CourseDataScraper()
+        scraper = CourseDataScraper(cache_dir="test_cache")
         comp_course = Course(_id="COMP 248", title="Programming", credits=3.0, description="", offered_in=[], prereq_coreq_text="", rules={"prereq": [], "coreq": [], "not_taken": []}, notes="", components=[])
         math_course = Course(_id="MATH 205", title="Calculus", credits=4.0, description="", offered_in=[], prereq_coreq_text="", rules={"prereq": [], "coreq": [], "not_taken": []}, notes="", components=[]) 
         
@@ -113,9 +104,10 @@ class TestCourseDataScraper:
         result = scraper.get_courses_by_subjects(["COMP"], inclusive=False, return_full_object=False)
         assert result == ["MATH 205"]
 
+    @patch.object(CourseDataScraper, '__init__', lambda self, cache_dir: setattr(self, 'all_courses', {}) or setattr(self, 'cache_dir', cache_dir))
     def test_get_courses_by_ids(self):
         """Test filtering courses by specific IDs"""
-        scraper = CourseDataScraper()
+        scraper = CourseDataScraper(cache_dir="test_cache")
         test_course = Course(_id="COMP 248", title="Test", credits=3.0, description="", offered_in=[], prereq_coreq_text="", rules={"prereq": [], "coreq": [], "not_taken": []}, notes="", components=[])
         scraper.all_courses["COMP 248"] = test_course
         
@@ -136,7 +128,7 @@ class TestCourseDataScraper:
             AnchorLink(text="Gina Cody School of Engineering and Computer Science Courses", url="http://test3.com")
         ]
         
-        scraper = CourseDataScraper()
+        scraper = CourseDataScraper(cache_dir="test_cache")
         result = scraper._scrape_faculty_links()
         
         assert len(result) == 2
@@ -145,7 +137,7 @@ class TestCourseDataScraper:
 
     @patch('builtins.open', new_callable=mock_open, read_data="Subject,Catalog Nbr,Term Code\nCOMP,248,2244\nCOMP,248,2251\n")
     @patch('scraper.course_data_scraper.get_soup')
-    @patch('scraper.course_data_scraper.ConcordiaAPIUtils')
+    @patch('scraper.course_data_scraper.get_concordia_api_instance')
     def test_parse_course_objects(self, mock_get_instance, mock_get_soup, mock_file):
         """Test parsing course objects from HTML"""
         # Mock the HTML structure
@@ -171,7 +163,7 @@ class TestCourseDataScraper:
         mock_api.get_term.return_value = ["Fall", "Winter"]
         mock_get_instance.return_value = mock_api
         
-        scraper = CourseDataScraper()
+        scraper = CourseDataScraper(cache_dir="test_cache")
         result = scraper._parse_course_objects("http://test.com")
         
         assert len(result) == 1
@@ -179,7 +171,7 @@ class TestCourseDataScraper:
 
     def test_add_extra_cwt_courses(self):
         """Test addition of extra CWT courses"""
-        scraper = CourseDataScraper() 
+        scraper = CourseDataScraper(cache_dir="test_cache") 
         scraper._add_extra_cwt_courses()
         
         expected_cwt_courses = ["CWT 100", "CWT 200", "CWT 300", "CWT 400"]
@@ -192,7 +184,7 @@ class TestCourseDataScraper:
     @patch('json.dump')
     def test_save_cache_to_file(self, mock_json_dump, mock_file):
         """Test saving cache to file"""
-        scraper = CourseDataScraper(dev_mode=True)
+        scraper = CourseDataScraper(cache_dir="test_cache")
         test_course = Course(
             _id="COMP 248", title="Test Course", credits=3.5, description="Test",
             offered_in=["Fall"], prereq_coreq_text="", rules={"prereq": [], "coreq": [], "not_taken": []},
@@ -226,7 +218,7 @@ class TestCourseDataScraper:
         with patch('scraper.course_data_scraper.get_all_links_from_div') as mock_get_links:
             mock_get_links.return_value = [AnchorLink(text="COMP", url="http://comp.com")]
             
-            scraper = CourseDataScraper()
+            scraper = CourseDataScraper(cache_dir="test_cache")
             scraper.scrape_all_courses()
             
             mock_scrape_faculty.assert_called_once()
@@ -252,7 +244,7 @@ class TestCourseDataScraper:
             AnchorLink(text="MATH", url="http://math.com")
         ]
         
-        scraper = CourseDataScraper()
+        scraper = CourseDataScraper(cache_dir="test_cache")
         result = scraper._extract_courses_from_subjects(subject_links)
         
         assert len(result) == 4  # 2 courses × 2 subjects

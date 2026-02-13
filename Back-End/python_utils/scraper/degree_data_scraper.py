@@ -7,7 +7,7 @@ from utils.bs4_utils import get_soup, get_all_links_from_div, extract_coursepool
 from utils.parsing_utils import COURSE_REGEX, extract_name_and_credits
 from models import AnchorLink, CoursePool, DegreeScraperConfig, ScraperAPIResponse, DegreeType
 from scraper.abstract_degree_scraper import AbstractDegreeScraper
-from scraper.course_data_scraper import CourseDataScraper
+from scraper.course_data_scraper import get_course_scraper_instance
 
 class DegreeDataScraper():
     GINA_CODY_PROGRAMS_OFFERED_URL = "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-10-gina-cody-school-of-engineering-and-computer-science.html#9919"
@@ -145,7 +145,7 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
         allowed_course_subjects = ["ANTH", "FPST", "HIST", "PHIL", "RELI", "SOCI", "THEO", "WSDB", "ARTE", "ARTH", "JHIS", "MHIS"]
         other_allowed_courses = ["COMS 360", "EDUC 230", "ENCS 483", "ENGL 224", "ENGL 233", "GEOG 220", "INST 250", "LING 222", "LING 300", "URBS 230"]
         excluded_courses = ["ANTH 315", "PHIL 214", "PHIL 316", "PHIL 317", "SOCI 212", "SOCI 213", "SOCI 310"]
-        general_education_courses = CourseDataScraper().get_courses_by_subjects(allowed_course_subjects)
+        general_education_courses = get_course_scraper_instance().get_courses_by_subjects(allowed_course_subjects)
 
         # Remove excluded courses
         general_education_courses = [course for course in general_education_courses if course not in excluded_courses]
@@ -301,7 +301,7 @@ class CompDegreeScraper(GinaCodyDegreeScraper):
         # - COMP and SOEN courses with numbers between 6000 and 6951 (Currently no such courses are scraped)
         # - Additional COMP electives (Already included in the pool)
         # - Computer Science Elective Course Groups
-        additional_comp_electives_courses = CourseDataScraper().get_courses_by_subjects(["COMP"])
+        additional_comp_electives_courses = get_course_scraper_instance().get_courses_by_subjects(["COMP"])
         additional_comp_electives_ids = []
         for course_id in additional_comp_electives_courses:
             try:
@@ -388,7 +388,7 @@ class CompEcpDegreeScraper(EcpDegreeScraper):
         math_and_stat_excluded_subjects = ["ACTU", "MACF", "MATH", "MAST", "STAT"]
 
         # Extract ECP Electives: BCompSc (other than Joint Majors)
-        electives_bcompsc_courses: list[str] = CourseDataScraper().get_courses_by_subjects(gina_cody_exlcuded_subjects, inclusive=False)
+        electives_bcompsc_courses: list[str] = get_course_scraper_instance().get_courses_by_subjects(gina_cody_exlcuded_subjects, inclusive=False)
         electives_bcompsc_courses = [course for course in electives_bcompsc_courses if course not in ecp_electives_exclusion_list]
         electives_bcompsc_pool = CoursePool(
             _id=f"{self.degree_short_name} Electives: BCompSc (other than Joint Majors)",
@@ -398,7 +398,7 @@ class CompEcpDegreeScraper(EcpDegreeScraper):
         )
 
         # Extract ECP Electives: Joint Major in Computation Arts and Computer Science
-        electives_comp_arts_courses: list[str] = CourseDataScraper().get_courses_by_subjects((gina_cody_exlcuded_subjects + design_and_comp_art_excluded_subjects), inclusive=False)
+        electives_comp_arts_courses: list[str] = get_course_scraper_instance().get_courses_by_subjects((gina_cody_exlcuded_subjects + design_and_comp_art_excluded_subjects), inclusive=False)
         electives_comp_arts_courses = [course for course in electives_comp_arts_courses if course not in ecp_electives_exclusion_list]
         electives_comp_arts_pool = CoursePool(
             _id=f"{self.degree_short_name} Electives: Joint Major in Computation Arts and Computer Science",
@@ -408,7 +408,7 @@ class CompEcpDegreeScraper(EcpDegreeScraper):
         )
 
         # Extract ECP Electives: Joint Major in Data Science
-        electives_data_science_courses: list[str] = CourseDataScraper().get_courses_by_subjects((gina_cody_exlcuded_subjects + math_and_stat_excluded_subjects), inclusive=False)
+        electives_data_science_courses: list[str] = get_course_scraper_instance().get_courses_by_subjects((gina_cody_exlcuded_subjects + math_and_stat_excluded_subjects), inclusive=False)
         electives_data_science_courses = [course for course in electives_data_science_courses if course not in ecp_electives_exclusion_list]
         electives_data_science_pool = CoursePool(
             _id=f"{self.degree_short_name} Electives: Joint Major in Data Science",
@@ -429,7 +429,7 @@ class CoopDegreeScraper(GinaCodyDegreeScraper):
     def _get_program_requirements(self) -> None:
         program_name, total_credits = self.degree_name, 0.0
 
-        cwt_courses = CourseDataScraper().get_courses_by_subjects(["CWT"])
+        cwt_courses = get_course_scraper_instance().get_courses_by_subjects(["CWT"])
         cwt_courses.remove("CWT 400")
         cwt_courses.remove("CWT 401")
 
