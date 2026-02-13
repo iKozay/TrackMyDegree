@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.bs4_utils import get_all_links_from_div, get_soup
 from utils.parsing_utils import clean_text, parse_course_title_and_credits, parse_course_rules, split_sections, parse_course_components
 from utils.logging_utils import get_logger
-from scraper.concordia_api_utils import get_instance
+from utils.concordia_api_utils import ConcordiaAPIUtils
 from models import AnchorLink, Course, CourseRules, serialize
 
 class CourseDataScraper:
@@ -23,15 +23,16 @@ class CourseDataScraper:
     ALL_SEMESTERS = ["Fall", "Winter", "Summer"]
 
     all_courses: dict[str, Course] = {}
-    conu_api_instance = get_instance()
 
     def __init__(self, dev_mode: bool = False):
         self.logger = get_logger("CourseDataScraper")
-
         self.dev_mode = dev_mode
+        self.conu_api_instance = ConcordiaAPIUtils(dev_mode=self.dev_mode)
         if self.dev_mode:
             self.logger.info("Running in development mode. Loading course data from local cache file if available...")
-            self.local_cache_file = os.path.join(tempfile.gettempdir(), "course_data_cache.json")
+            cache_dir = os.path.join(os.path.join(os.path.dirname(__file__), ".."), "data_cache")
+            os.makedirs(cache_dir, exist_ok=True)
+            self.local_cache_file = os.path.join(cache_dir, "course_data_cache.json")
 
     def load_cache_from_file(self) -> None:
         if os.path.exists(self.local_cache_file):

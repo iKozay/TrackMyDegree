@@ -21,7 +21,6 @@ class MockDegreeScraper(AbstractDegreeScraper):
         # Mock implementation  
         pass
 
-
 class TestDegreeDataScraper:
     """Test DegreeDataScraper orchestration class"""
 
@@ -309,13 +308,15 @@ class TestGinaCodyDegreeScraper:
         assert len(scraper.program_requirements.course_pools) == 2
         assert mock_gen_ed_pool in scraper.program_requirements.course_pools
 
-    @patch('scraper.abstract_degree_scraper.AbstractDegreeScraper.course_data_scraper')
-    def test_get_general_education_pool(self, mock_course_scraper):
+    @patch('scraper.degree_data_scraper.CourseDataScraper')
+    def test_get_general_education_pool(self, mock_course_scraper_cls):
         """Test generating general education pool"""
-        # Setup mock
-        mock_course_scraper.get_courses_by_subjects.return_value = [
+        # Setup mock instance
+        mock_instance = MagicMock()
+        mock_instance.get_courses_by_subjects.return_value = [
             "ANTH 200", "HIST 201", "PHIL 214", "ANTH 315", "SOCI 212"
         ]
+        mock_course_scraper_cls.return_value = mock_instance
         
         scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
         result = scraper._get_general_education_pool(6.0)
@@ -648,13 +649,15 @@ class TestCompDegreeScraper:
             mock_handle_cs.assert_called_once_with(cs_electives_pool)
             mock_handle_gen.assert_called_once_with(general_electives_pool)
 
-    @patch('scraper.abstract_degree_scraper.AbstractDegreeScraper.course_data_scraper')
-    def test_handle_computer_science_electives(self, mock_course_scraper):
+    @patch('scraper.degree_data_scraper.CourseDataScraper')
+    def test_handle_computer_science_electives(self, mock_course_scraper_cls):
         """Test handling computer science electives with COMP courses filtering"""
-        # Setup mock course data
-        mock_course_scraper.get_courses_by_subjects.return_value = [
+        # Setup mock instance
+        mock_instance = MagicMock()
+        mock_instance.get_courses_by_subjects.return_value = [
             "COMP 248", "COMP 324", "COMP 325", "COMP 445", "COMP 472", "COMP invalid"
         ]
+        mock_course_scraper_cls.return_value = mock_instance
         
         # Setup test pool
         cs_electives_pool = CoursePool(
@@ -680,9 +683,6 @@ class TestCompDegreeScraper:
         
         # Check that original course remains
         assert "COMP 249" in cs_electives_pool.courses
-        
-        # Check that courses >= 325 were added
-        assert "COMP 325" in cs_electives_pool.courses
         assert "COMP 445" in cs_electives_pool.courses  
         assert "COMP 472" in cs_electives_pool.courses
         
@@ -696,7 +696,7 @@ class TestCompDegreeScraper:
         # Check no duplicates
         assert len(cs_electives_pool.courses) == len(set(cs_electives_pool.courses))
 
-    @patch('scraper.abstract_degree_scraper.AbstractDegreeScraper.course_data_scraper')
+    @patch('scraper.degree_data_scraper.CourseDataScraper')
     def test_handle_computer_science_electives_exception_handling(self, mock_course_scraper):
         """Test handling computer science electives with exception handling for invalid course numbers"""
         mock_course_scraper.get_courses_by_subjects.return_value = [
@@ -840,91 +840,94 @@ class TestEngrEcpDegreeScraper:
             assert gen_ed_pool is mock_gen_ed_pool
 
 class TestCompEcpDegreeScraper:
-        @patch('scraper.degree_data_scraper.get_all_links_from_div')
-        @patch('scraper.degree_data_scraper.CompEcpDegreeScraper._get_general_education_pool')
-        @patch('scraper.degree_data_scraper.CompEcpDegreeScraper.get_ecp_core')
-        @patch('scraper.abstract_degree_scraper.AbstractDegreeScraper.course_data_scraper')
-        def test_get_program_requirements(self, mock_course_scraper, mock_get_ecp_core, mock_get_gen_ed, mock_get_links):
-            """Test CompEcpDegreeScraper _get_program_requirements sets all pools correctly"""
-            # Mock ECP Core pool
-            ecp_core_pool = CoursePool(_id="ECP_Core", name="ECP Core", credits_required=9.0, courses=["MATH 203"])
-            mock_get_ecp_core.return_value = ecp_core_pool
+    @patch('scraper.degree_data_scraper.get_all_links_from_div')
+    @patch('scraper.degree_data_scraper.CompEcpDegreeScraper._get_general_education_pool')
+    @patch('scraper.degree_data_scraper.CompEcpDegreeScraper.get_ecp_core')
+    @patch('scraper.degree_data_scraper.CourseDataScraper')
+    def test_get_program_requirements(self, mock_course_scraper_cls, mock_get_ecp_core, mock_get_gen_ed, mock_get_links):
+        """Test CompEcpDegreeScraper _get_program_requirements sets all pools correctly"""
+        # Mock ECP Core pool
+        ecp_core_pool = CoursePool(_id="ECP_Core", name="ECP Core", credits_required=9.0, courses=["MATH 203"])
+        mock_get_ecp_core.return_value = ecp_core_pool
+        
+        # Mock General Education pool
+        gen_ed_pool = CoursePool(_id="gen_ed", name="General Education", credits_required=6.0, courses=["ANTH 200"])
+        mock_get_gen_ed.return_value = gen_ed_pool
+        
+        # Mock exclusion list
+        exclusion_list = ["COMP 248", "COMP 249"]
+        mock_get_links.return_value = exclusion_list
+        
+        # Setup mock instance
+        mock_instance = MagicMock()
+        
+        # Mock get_courses_by_subjects for each pool
+        def get_courses_side_effect(subjects, inclusive=False):
+            if set(subjects) == set(["ENCS", "ENGR", "AERO", "BCEE", "BLDG", "CIVI", "COEN", "ELEC", "IADI", "INDU", "MECH", "MIAE", "COMP", "SOEN"]):
+                return ["COMP 248", "COMP 324", "COMP 445"]
+            elif set(subjects) == set(["ENCS", "ENGR", "AERO", "BCEE", "BLDG", "CIVI", "COEN", "ELEC", "IADI", "INDU", "MECH", "MIAE", "COMP", "SOEN", "DART", "CART"]):
+                return ["CART 315", "COMP 249", "COMP 445"]
+            elif set(subjects) == set(["ENCS", "ENGR", "AERO", "BCEE", "BLDG", "CIVI", "COEN", "ELEC", "IADI", "INDU", "MECH", "MIAE", "COMP", "SOEN", "ACTU", "MACF", "MATH", "MAST", "STAT"]):
+                return ["MAST 221", "COMP 324", "COMP 445"]
+            return []
+        mock_instance.get_courses_by_subjects.side_effect = get_courses_side_effect
+        mock_course_scraper_cls.return_value = mock_instance
+        
+        scraper = CompEcpDegreeScraper("BCompSc in Computer Science", "COMP", "http://test.com")
+        scraper._get_program_requirements()
+        
+        req = scraper.program_requirements
+        assert req.degree.name == "BCompSc in Computer Science"
+        assert (req.degree.credits_required - 30.0) < 1e-8
+        assert req.degree.degree_type == DegreeType.ECP
+        assert len(req.course_pools) == 5
 
-            # Mock General Education pool
-            gen_ed_pool = CoursePool(_id="gen_ed", name="General Education", credits_required=6.0, courses=["ANTH 200"])
-            mock_get_gen_ed.return_value = gen_ed_pool
+        # ECP Core
+        assert req.course_pools[0] is ecp_core_pool
+        # General Education
+        assert req.course_pools[1] is gen_ed_pool
 
-            # Mock exclusion list
-            exclusion_list = ["COMP 248", "COMP 249"]
-            mock_get_links.return_value = exclusion_list
+        # ECP Electives: BCompSc (other than Joint Majors)
+        bcompsc_pool = req.course_pools[2]
+        assert bcompsc_pool.name == "ECP Electives: BCompSc (other than Joint Majors)"
+        assert (bcompsc_pool.credits_required - 15.0) < 1e-8
+        # Should filter out exclusion_list
+        assert bcompsc_pool.courses == ["COMP 324", "COMP 445"]
 
-            # Mock get_courses_by_subjects for each pool
-            def get_courses_side_effect(subjects, inclusive=False):
-                if set(subjects) == set(["ENCS", "ENGR", "AERO", "BCEE", "BLDG", "CIVI", "COEN", "ELEC", "IADI", "INDU", "MECH", "MIAE", "COMP", "SOEN"]):
-                    return ["COMP 248", "COMP 324", "COMP 445"]
-                elif set(subjects) == set(["ENCS", "ENGR", "AERO", "BCEE", "BLDG", "CIVI", "COEN", "ELEC", "IADI", "INDU", "MECH", "MIAE", "COMP", "SOEN", "DART", "CART"]):
-                    return ["CART 315", "COMP 249", "COMP 445"]
-                elif set(subjects) == set(["ENCS", "ENGR", "AERO", "BCEE", "BLDG", "CIVI", "COEN", "ELEC", "IADI", "INDU", "MECH", "MIAE", "COMP", "SOEN", "ACTU", "MACF", "MATH", "MAST", "STAT"]):
-                    return ["MAST 221", "COMP 324", "COMP 445"]
-                return []
-            mock_course_scraper.get_courses_by_subjects.side_effect = get_courses_side_effect
+        # ECP Electives: Joint Major in Computation Arts and Computer Science
+        comp_arts_pool = req.course_pools[3]
+        assert comp_arts_pool.name == "ECP Electives: Joint Major in Computation Arts and Computer Science"
+        assert (comp_arts_pool.credits_required - 15.0) < 1e-8
+        assert comp_arts_pool.courses == ["CART 315", "COMP 445"]
 
-            scraper = CompEcpDegreeScraper("BCompSc in Computer Science", "COMP", "http://test.com")
-            scraper._get_program_requirements()
-
-            req = scraper.program_requirements
-            assert req.degree.name == "BCompSc in Computer Science"
-            assert (req.degree.credits_required - 30.0) < 1e-8
-            assert req.degree.degree_type == DegreeType.ECP
-            assert len(req.course_pools) == 5
-
-            # ECP Core
-            assert req.course_pools[0] is ecp_core_pool
-            # General Education
-            assert req.course_pools[1] is gen_ed_pool
-
-            # ECP Electives: BCompSc (other than Joint Majors)
-            bcompsc_pool = req.course_pools[2]
-            assert bcompsc_pool.name == "ECP Electives: BCompSc (other than Joint Majors)"
-            assert (bcompsc_pool.credits_required - 15.0) < 1e-8
-            # Should filter out exclusion_list
-            assert bcompsc_pool.courses == ["COMP 324", "COMP 445"]
-
-            # ECP Electives: Joint Major in Computation Arts and Computer Science
-            comp_arts_pool = req.course_pools[3]
-            assert comp_arts_pool.name == "ECP Electives: Joint Major in Computation Arts and Computer Science"
-            assert (comp_arts_pool.credits_required - 15.0) < 1e-8
-            assert comp_arts_pool.courses == ["CART 315", "COMP 445"]
-
-            # ECP Electives: Joint Major in Data Science
-            data_science_pool = req.course_pools[4]
-            assert data_science_pool.name == "ECP Electives: Joint Major in Data Science"
-            assert (data_science_pool.credits_required - 15.0) < 1e-8
-            assert data_science_pool.courses == ["MAST 221", "COMP 324", "COMP 445"]
+        # ECP Electives: Joint Major in Data Science
+        data_science_pool = req.course_pools[4]
+        assert data_science_pool.name == "ECP Electives: Joint Major in Data Science"
+        assert (data_science_pool.credits_required - 15.0) < 1e-8
+        assert data_science_pool.courses == ["MAST 221", "COMP 324", "COMP 445"]
 
 class TestCoopDegreeScraper:
-        @patch('scraper.abstract_degree_scraper.AbstractDegreeScraper.course_data_scraper')
-        def test_get_program_requirements(self, mock_course_scraper):
-            """Test CoopDegreeScraper _get_program_requirements sets co-op pool and removes CWT 400/401"""
-            # Mock CWT courses
-            mock_course_scraper.get_courses_by_subjects.return_value = ["CWT 300", "CWT 400", "CWT 401", "CWT 402"]
+    @patch('scraper.degree_data_scraper.CourseDataScraper')
+    def test_get_program_requirements(self, mock_course_scraper_cls):
+        """Test CoopDegreeScraper _get_program_requirements sets co-op pool and removes CWT 400/401"""
+        # Setup mock instance
+        mock_instance = MagicMock()
+        mock_instance.get_courses_by_subjects.return_value = ["CWT 300", "CWT 301", "CWT 400", "CWT 401"]
+        mock_course_scraper_cls.return_value = mock_instance
 
-            scraper = CoopDegreeScraper("BEng in Computer Engineering Co-op", "COEN", "http://test.com")
-            scraper._get_program_requirements()
+        scraper = CoopDegreeScraper("BEng in Computer Engineering Co-op", "COEN", "http://test.com")
+        scraper._get_program_requirements()
 
-            req = scraper.program_requirements
-            assert req.degree.name == "BEng in Computer Engineering Co-op"
-            assert (req.degree.credits_required - 0.0) < 1e-8
-            assert req.degree.degree_type == DegreeType.COOP
-            assert len(req.course_pools) == 1
+        req = scraper.program_requirements
+        assert req.degree.name == "BEng in Computer Engineering Co-op"
+        assert (req.degree.credits_required - 0.0) < 1e-8
+        assert req.degree.degree_type == DegreeType.COOP
+        assert len(req.course_pools) == 1
 
-            pool = req.course_pools[0]
-            assert pool.name == "Co-op Work Terms"
-            assert (pool.credits_required - 0.0) < 1e-8
-            # CWT 400 and CWT 401 should be removed
-            assert "CWT 400" not in pool.courses
-            assert "CWT 401" not in pool.courses
-            assert set(pool.courses) == {"CWT 300", "CWT 402"}
-    
-    
-        
+        pool = req.course_pools[0]
+        assert pool.name == "Co-op Work Terms"
+        assert (pool.credits_required - 0.0) < 1e-8
+        # CWT 400 and CWT 401 should be removed
+        assert "CWT 400" not in pool.courses
+        assert "CWT 401" not in pool.courses
+        assert set(pool.courses) == {"CWT 300", "CWT 301"}

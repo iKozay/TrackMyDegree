@@ -17,6 +17,7 @@ node_modules/
 Back-End/python_utils/**/__pycache__/
 Back-End/python_utils/**/.pytest_cache/
 Back-End/python_utils/venv/
+Back-End/python_utils/data_cache/
 Back-End/python_utils/**/.coverage
 Back-End/python_utils/**/coverage.*
 Back-End/coverage

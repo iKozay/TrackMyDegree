@@ -7,11 +7,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from models import CoursePool, Degree, DegreeType, ProgramRequirements, ScraperAPIResponse
 from utils.logging_utils import get_logger
 from utils.parsing_utils import get_course_sort_key
-from scraper.course_data_scraper import CourseDataScraper
 
 class AbstractDegreeScraper(ABC):
-
-    course_data_scraper = CourseDataScraper()
 
     def __init__(self, degree_name: str, degree_short_name: str, requirements_url: str):
         self.degree_name = degree_name

@@ -333,190 +333,53 @@ class TestCourseEndpoints:
                 assert 'error' in data
                 assert 'Scraping error' in data['error']
 
+class TestInitInstances:
+    def setup_method(self):
+        # Ensure module globals are reset before each test
+        import main as main_module
+        main_module.course_scraper_instance = None
+        main_module.degree_data_scraper_instance = None
+        main_module.concordia_api_instance = None
 
-class TestHealthEndpoint:
-    def test_health_check_all_ready(self):
-        """Test health check when all modules are ready"""
+    def test_init(self):
+        """Test successful initialization"""
+        import main as main_module
         with app.test_client() as client:
-            with patch('main.module_status', {
-                "concordia_api": "ready",
-                "course_scraper": "ready", 
-                "degree_scraper": "ready"
-            }):
-                response = client.get("/health")
-                
-                assert response.status_code == 200
-                data = response.get_json()
-                assert data["status"] == "ready"
-                assert data["modules"]["concordia_api"] == "ready"
-                assert data["modules"]["course_scraper"] == "ready"
-                assert data["modules"]["degree_scraper"] == "ready"
+            with patch('main.ConcordiaAPIUtils') as mock_concordia_cls, \
+                 patch('main.CourseDataScraper') as mock_course_cls, \
+                 patch('main.DegreeDataScraper') as mock_degree_cls:
+                with patch.object(main_module, 'dev_mode', False):
+                    conc_instance = mock_concordia_cls.return_value
+                    course_instance = mock_course_cls.return_value
+                    degree_instance = mock_degree_cls.return_value
 
-    def test_health_check_initializing(self):
-        """Test health check when modules are still initializing"""
+                    response = client.get('/init')
+
+                    assert response.status_code == 200
+                    data = response.get_json()
+                    assert data['message'] == 'All modules initialized successfully'
+                    assert data['module_status']['concordia_api'] == 'ready'
+                    assert data['module_status']['course_scraper'] == 'ready'
+                    assert data['module_status']['degree_scraper'] == 'ready'
+
+                    mock_concordia_cls.assert_called_once_with(dev_mode=False)
+                    conc_instance.download_datasets.assert_called_once()
+                    mock_course_cls.assert_called_once_with(dev_mode=False)
+                    course_instance.scrape_all_courses.assert_called_once()
+                    course_instance.load_cache_from_file.assert_not_called()
+                    mock_degree_cls.assert_called_once()
+
+    def test_init_failure_returns_500(self):
         with app.test_client() as client:
-            with patch('main.module_status', {
-                "concordia_api": "ready",
-                "course_scraper": "init", 
-                "degree_scraper": "ready"
-            }):
-                response = client.get("/health")
-                
-                assert response.status_code == 200
+            with patch('main.ConcordiaAPIUtils') as mock_concordia_cls:
+                # Make download fail
+                conc_instance = mock_concordia_cls.return_value
+                conc_instance.download_datasets.side_effect = Exception("Download failed")
+
+                response = client.get('/init')
+
+                assert response.status_code == 500
                 data = response.get_json()
-                assert data["status"] == "init"
-                assert data["modules"]["course_scraper"] == "init"
-
-
-class TestInitialization:
-    @patch('main.logger')
-    @patch('main.get_instance')
-    @patch('main.CourseDataScraper')
-    @patch('main.DegreeDataScraper')
-    def test_init_instances_success(self, mock_degree_scraper, mock_course_scraper, mock_get_instance, mock_logger):
-        """Test successful initialization of all instances"""
-        # Mock the instances
-        mock_concordia_api = MagicMock()
-        mock_get_instance.return_value = mock_concordia_api
-        
-        mock_course_scraper_inst = MagicMock()
-        mock_course_scraper.return_value = mock_course_scraper_inst
-        
-        mock_degree_scraper_inst = MagicMock()
-        mock_degree_scraper.return_value = mock_degree_scraper_inst
-        
-        # Import and call init_instances
-        from main import init_instances
-        init_instances()
-        
-        # Verify initialization calls
-        mock_get_instance.assert_called_once()
-        mock_concordia_api.download_cache.assert_called_once()
-        mock_course_scraper.assert_called_once()
-        mock_degree_scraper.assert_called_once()
-
-    @patch('main.logger')
-    @patch('main.get_instance')
-    def test_init_instances_concordia_api_error(self, mock_get_instance, mock_logger):
-        """Test initialization with Concordia API error"""
-        mock_get_instance.side_effect = Exception("API connection failed")
-        
-        from main import init_instances
-        init_instances()  # Should not raise exception
-        
-        mock_logger.error.assert_called()
-
-    @patch('main.logger')
-    @patch('main.get_instance')
-    @patch('main.CourseDataScraper')
-    def test_init_instances_course_scraper_error(self, mock_course_scraper, mock_get_instance, mock_logger):
-        """Test initialization with course scraper error"""
-        mock_concordia_api = MagicMock()
-        mock_get_instance.return_value = mock_concordia_api
-        mock_course_scraper.side_effect = Exception("Course scraper failed")
-        
-        from main import init_instances
-        init_instances()  # Should not raise exception
-        
-        mock_logger.error.assert_called()
-
-    @patch('main.logger')
-    @patch('main.get_instance')
-    @patch('main.CourseDataScraper')
-    @patch('main.DegreeDataScraper')
-    def test_init_instances_degree_scraper_error(self, mock_degree_scraper, mock_course_scraper, mock_get_instance, mock_logger):
-        """Test initialization with degree scraper error"""
-        mock_concordia_api = MagicMock()
-        mock_get_instance.return_value = mock_concordia_api
-        
-        mock_course_scraper_inst = MagicMock()
-        mock_course_scraper.return_value = mock_course_scraper_inst
-        
-        mock_degree_scraper.side_effect = Exception("Degree scraper failed")
-        
-        from main import init_instances
-        init_instances()  # Should not raise exception
-        
-        mock_logger.error.assert_called()
-
-    @patch('main.threading.Thread')
-    def test_start_async_initialization(self, mock_thread):
-        """Test starting async initialization"""
-        mock_thread_inst = MagicMock()
-        mock_thread.return_value = mock_thread_inst
-        
-        from main import start_async_initialization
-        start_async_initialization()
-        
-        mock_thread.assert_called_once()
-        mock_thread_inst.start.assert_called_once()
-
-    @patch('main.logger')
-    @patch('main.get_instance')
-    @patch('main.CourseDataScraper')
-    @patch('main.DegreeDataScraper')
-    @patch('main.dev_mode', False)
-    def test_init_instances_production_mode(self, mock_degree_scraper, mock_course_scraper, mock_get_instance, mock_logger):
-        """Test initialization in production mode with course scraping"""
-        # Mock the instances
-        mock_concordia_api = MagicMock()
-        mock_get_instance.return_value = mock_concordia_api
-        
-        mock_course_scraper_inst = MagicMock()
-        mock_course_scraper.return_value = mock_course_scraper_inst
-        
-        mock_degree_scraper_inst = MagicMock()
-        mock_degree_scraper.return_value = mock_degree_scraper_inst
-        
-        # Import and call init_instances
-        from main import init_instances
-        init_instances()
-        
-        # Verify production mode calls scrape_all_courses twice
-        assert mock_course_scraper_inst.scrape_all_courses.call_count == 2
-        mock_degree_scraper.assert_called_once()
-
-class TestMain:
-    @patch('main.app.run')
-    @patch('main.start_async_initialization')
-    @patch('main.dev_mode', True)
-    def test_main_dev_mode(self, mock_start_init, mock_app_run):
-        """Test main function in development mode"""
-        with patch.dict(os.environ, {'WERKZEUG_RUN_MAIN': 'true'}):
-            from main import main
-            main()
-            mock_start_init.assert_called_once()
-            mock_app_run.assert_called_once_with(host="0.0.0.0", port=15001, debug=True)
-
-    @patch('main.app.run')
-    @patch('main.start_async_initialization')
-    @patch('main.dev_mode', True)
-    def test_main_dev_mode_no_werkzeug(self, mock_start_init, mock_app_run):
-        """Test main function in dev mode without WERKZEUG_RUN_MAIN"""
-        with patch.dict(os.environ, {}, clear=True):
-            from main import main
-            main()
-            mock_start_init.assert_not_called()
-            mock_app_run.assert_called_once_with(host="0.0.0.0", port=15001, debug=True)
-
-    @patch('main.app.run')
-    @patch('main.start_async_initialization')
-    @patch('main.load_dotenv')
-    @patch('main.dev_mode', True)
-    def test_main_dev_mode_loads_env(self, mock_load_dotenv, mock_start_init, mock_app_run):
-        """Test main function loads .env in dev mode"""
-        with patch.dict(os.environ, {'WERKZEUG_RUN_MAIN': 'true'}):
-            from main import main
-            main()
-            mock_load_dotenv.assert_called_once_with("../../secrets/.env")
-
-    @patch('main.app.run')
-    @patch('main.start_async_initialization')
-    def test_main_production_mode(self, mock_start_init, mock_app_run):
-        """Test main function in production mode"""
-        test_args = ['main.py']
-        with patch.object(sys, 'argv', test_args):
-            from main import main
-            main()
-            mock_start_init.assert_called_once()
-            mock_app_run.assert_called_once_with(host="0.0.0.0", port=15001, debug=False, threaded=True)
+                assert 'error' in data
+                assert 'Initialization failed' in data['error']
+                assert 'Download failed' in data['error']

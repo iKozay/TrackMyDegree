@@ -1,14 +1,12 @@
 from flask import Flask, request, jsonify
 import sys
-import os
-import threading
 from dotenv import load_dotenv
 from parser.transcript_parser import parse_transcript
 from scraper.degree_data_scraper import DegreeDataScraper
 from scraper.course_data_scraper import CourseDataScraper
-from scraper.concordia_api_utils import get_instance
-from models import serialize
+from utils.concordia_api_utils import ConcordiaAPIUtils
 from utils.logging_utils import get_logger
+from models import serialize
 
 app = Flask(__name__)
 logger = get_logger("MainApp")
@@ -106,79 +104,51 @@ def get_all_courses_api():
     except Exception as e:
         return jsonify({"error": f"Error retrieving course data: {str(e)}"}), 500
 
-@app.route('/health', methods=['GET'])
-def health_check():
-    modules = module_status.copy()
-    overall_status = "ready" if all(status == "ready" for status in modules.values()) else "init"
-    
-    return jsonify({
-        "status": overall_status,
-        "modules": modules
-    })
-
+@app.route('/init', methods=['GET'])
 def init_instances():
     global course_scraper_instance, degree_data_scraper_instance, concordia_api_instance
     
     try:
         # Step 1: Initialize Concordia API
-        logger.info("Initializing Concordia API...")
-        concordia_api_instance = get_instance()
-        logger.info("Downloading Concordia API datasets...")
-        concordia_api_instance.download_cache()
-        logger.info("Concordia API instance created")
-        
-        module_status["concordia_api"] = "ready"
+        if concordia_api_instance is None:
+            logger.info("Initializing Concordia API...")
+            concordia_api_instance = ConcordiaAPIUtils(dev_mode=dev_mode)
+            concordia_api_instance.download_datasets()
+            logger.info("Concordia API instance created")    
+            module_status["concordia_api"] = "ready"
         
         # Step 2: Initialize Course Data Scraper  
-        logger.info("Initializing Course Data Scraper...")
-        course_scraper_instance = CourseDataScraper(dev_mode=dev_mode)
-        if dev_mode:
-            course_scraper_instance.load_cache_from_file()
-        else:
-            course_scraper_instance.scrape_all_courses()
-        logger.info("Course scraper instance created")
-        
-        # Scrape all courses in production mode
-        if not dev_mode:
-            logger.info("Scraping all courses (production mode)...")
-            course_scraper_instance.scrape_all_courses()
-            logger.info("Course data scraped and cached")
-        
-        module_status["course_scraper"] = "ready"
+        if course_scraper_instance is None:
+            logger.info("Initializing Course Data Scraper...")
+            course_scraper_instance = CourseDataScraper(dev_mode=dev_mode)
+            if dev_mode:
+                course_scraper_instance.load_cache_from_file()
+            else:
+                course_scraper_instance.scrape_all_courses()
+            logger.info("Course scraper instance created")
+            module_status["course_scraper"] = "ready"
         
         # Step 3: Initialize Degree Data Scraper
-        logger.info("Initializing Degree Data Scraper...")
-        degree_data_scraper_instance = DegreeDataScraper()
-        logger.info("Degree scraper instance created")
-        
-        module_status["degree_scraper"] = "ready"
+        if degree_data_scraper_instance is None:
+            logger.info("Initializing Degree Data Scraper...")
+            degree_data_scraper_instance = DegreeDataScraper()
+            logger.info("Degree scraper instance created")        
+            module_status["degree_scraper"] = "ready"
         
         logger.info("All modules initialized successfully")
-        
+
+        return jsonify({"message": "All modules initialized successfully", "module_status": module_status})
     except Exception as e:
         logger.error(f"Error during initialization: {e}")
-        # Mark failed modules - here we'd need more granular error handling
-        # For now, just log the error
-
-def start_async_initialization():
-    """Start initialization in a background thread"""
-    logger.info("Background initialization started...")
-    init_thread = threading.Thread(target=init_instances, daemon=True)
-    init_thread.start()
+        return jsonify({"error": f"Initialization failed: {str(e)}"}), 500
 
 def main():
-    # Only start initialization in the main reloader process, not the initial process
-    # In development mode, Flask restarts the app, so we only want to init once
-    if not dev_mode or os.environ.get('WERKZEUG_RUN_MAIN'):
-        start_async_initialization()
-    
     if dev_mode:
         logger.info("Starting development server...")
         load_dotenv("../../secrets/.env")
-        app.run(host="0.0.0.0", port=15001, debug=True)
     else:
         logger.info("Starting production server...")
-        app.run(host="0.0.0.0", port=15001, debug=False, threaded=True)
+    app.run(host="0.0.0.0", port=15001, threaded=True)
 
 if __name__ == "__main__":
     main()

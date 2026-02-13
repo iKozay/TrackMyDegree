@@ -145,7 +145,7 @@ class TestCourseDataScraper:
 
     @patch('builtins.open', new_callable=mock_open, read_data="Subject,Catalog Nbr,Term Code\nCOMP,248,2244\nCOMP,248,2251\n")
     @patch('scraper.course_data_scraper.get_soup')
-    @patch('scraper.course_data_scraper.get_instance')
+    @patch('scraper.course_data_scraper.ConcordiaAPIUtils')
     def test_parse_course_objects(self, mock_get_instance, mock_get_soup, mock_file):
         """Test parsing course objects from HTML"""
         # Mock the HTML structure
