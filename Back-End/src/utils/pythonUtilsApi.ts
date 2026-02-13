@@ -8,26 +8,64 @@ import FormData from 'form-data';
 
 export interface ParseDegreeResponse {
   degree: DegreeData;
-  course_pool: Array<CoursePoolData>;
-  courses: Array<CourseData>;
+  coursePools: Array<CoursePoolData>;
 }
 
 /**
- * Call Python service to scrape degree requirements from a URL
- * @param url - The URL of the degree requirements page to scrape
+ * Call Python service to get names of all supported degrees for scraping
  * @returns Promise resolving to parsed degree data
  */
-export async function parseDegree(url: string): Promise<ParseDegreeResponse> {
+export async function getDegreeNames(): Promise<string[]> {
+  try {
+    const response = await axios.get(`${PYTHON_SERVICE_BASE_URL}/degree-names`);
+    return response.data;
+  } catch (error) {
+    throw new Error(`Failed to get degree names: ${error}`);
+  }
+}
+
+/**
+ * Call Python service to scrape degree requirements based on degree name
+ * @param name - The name of the degree to scrape
+ * @returns Promise resolving to parsed degree data
+ */
+export async function parseDegree(name: string): Promise<ParseDegreeResponse> {
   try {
     const response = await axios.get(
       `${PYTHON_SERVICE_BASE_URL}/scrape-degree`,
       {
-        params: { url },
+        params: { name },
       },
     );
     return response.data;
   } catch (error) {
     throw new Error(`Failed to parse degree: ${error}`);
+  }
+}
+
+/**
+ * Call Python service to scrape all degree defined in python_utils
+ * @returns Promise resolving to parsed degree data
+ */
+export async function parseAllDegrees(): Promise<ParseDegreeResponse[]> {
+  try {
+    const response = await axios.get(`${PYTHON_SERVICE_BASE_URL}/scrape-all-degrees`);
+    return response.data;
+  } catch (error) {
+    throw new Error(`Failed to parse all degrees: ${error}`);
+  }
+}
+
+/**
+ * Call Python service to get all courses scraped from Concordia website
+ * @returns Promise resolving to parsed course data
+ */
+export async function getAllCourses(): Promise<CourseData[]> {
+  try {
+    const response = await axios.get(`${PYTHON_SERVICE_BASE_URL}/get-all-courses`);
+    return response.data;
+  } catch (error) {
+    throw new Error(`Failed to get all courses: ${error}`);
   }
 }
 

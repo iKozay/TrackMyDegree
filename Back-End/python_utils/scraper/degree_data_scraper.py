@@ -5,7 +5,8 @@ import re
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.bs4_utils import get_soup, get_all_links_from_div, extract_coursepool_and_required_credits, extract_coursepool_courses
 from utils.parsing_utils import COURSE_REGEX, extract_name_and_credits
-from models import AnchorLink, CoursePool, DegreeScraperConfig, ScraperAPIResponse, DegreeType
+from utils.logging_utils import get_logger
+from models import AnchorLink, CoursePool, DegreeScraperConfig, DegreeType, ProgramRequirements
 from scraper.abstract_degree_scraper import AbstractDegreeScraper
 from scraper.course_data_scraper import get_course_scraper_instance
 
@@ -13,6 +14,7 @@ class DegreeDataScraper():
     GINA_CODY_PROGRAMS_OFFERED_URL = "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-10-gina-cody-school-of-engineering-and-computer-science.html#9919"
 
     def __init__(self):
+        self.logger = get_logger("DegreeDataScraper")
         self.degree_scraper_config: list[DegreeScraperConfig] = [
             DegreeScraperConfig(long_name="BEng in Aerospace Engineering - Option A", marker="BEng in Aerospace Engineering", short_name="AERO", scraper_class=AeroDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Aerospace Engineering - Option B", marker="BEng in Aerospace Engineering", short_name="AERO", scraper_class=AeroDegreeScraper),
@@ -45,21 +47,21 @@ class DegreeDataScraper():
             if degree_link:
                 self.degree_scrapers[config.long_name] = config.scraper_class(config.long_name, config.short_name, degree_link.url)
             else:
-                print(f"Warning: No link found for degree '{config.long_name}' with marker '{config.marker}' in the Gina Cody programs page")
+                self.logger.warning(f"Warning: No link found for degree '{config.long_name}' with marker '{config.marker}' in the Gina Cody programs page")
 
     def get_degree_names(self) -> list[str]:
         return list(self.degree_scrapers.keys())
     
-    def scrape_degree_by_name(self, degree_name: str) -> ScraperAPIResponse:
+    def scrape_degree_by_name(self, degree_name: str) -> ProgramRequirements:
         scraper = self.degree_scrapers.get(degree_name)
         if not scraper:
             raise ValueError(f"Degree scraper for '{degree_name}' not found.")
         return scraper.scrape_degree()
     
-    def scrape_all_degrees(self) -> list[ScraperAPIResponse]:
+    def scrape_all_degrees(self) -> list[ProgramRequirements]:
         responses = []
         for scraper in self.degree_scrapers.values():
-            print("Scraping degree:", scraper.degree_name)
+            self.logger.info(f"Scraping degree: {scraper.degree_name}")
             response = scraper.scrape_degree()
             responses.append(response)
         return responses
@@ -110,7 +112,7 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
             course_pool_objects.append(CoursePool(
                 _id=pool_id,
                 name=pool_anchor.text,
-                credits_required=pool_credits,
+                creditsRequired=pool_credits,
                 courses=[]
             ))
         
@@ -135,11 +137,11 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
         courses_list = get_all_links_from_div(self.ENGINEERING_CORE_COURSES_URL, ["formatted-course"], include_regex=COURSE_REGEX)
         for course in courses_list:
             pool.courses.append(course.text)
-        pool.credits_required -= 3
+        pool.creditsRequired -= 3
         # Creating General Education Humanities and Social Sciences Electives as separate pool
         gen_education_electives_pool = self._get_general_education_pool()
-        self.program_requirements.course_pools.append(gen_education_electives_pool)
-        self.program_requirements.degree.course_pools.append(gen_education_electives_pool._id)
+        self.program_requirements.coursePools.append(gen_education_electives_pool)
+        self.program_requirements.degree.coursePools.append(gen_education_electives_pool._id)
 
     def _get_general_education_pool(self, credits_required: float = 3.0) -> CoursePool:
         allowed_course_subjects = ["ANTH", "FPST", "HIST", "PHIL", "RELI", "SOCI", "THEO", "WSDB", "ARTE", "ARTH", "JHIS", "MHIS"]
@@ -157,7 +159,7 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
         return CoursePool(
             _id=self.GENERAL_ELECTIVES,
             name=self.GENERAL_ELECTIVES,
-            credits_required=credits_required,
+            creditsRequired=credits_required,
             courses=general_education_courses
         )
 
@@ -208,7 +210,7 @@ class AeroDegreeScraper(GinaCodyDegreeScraper):
             course_pool_objects.append(CoursePool(
                 _id=pool_id,
                 name=pool_anchor.text,
-                credits_required=pool_credits,
+                creditsRequired=pool_credits,
                 courses=[]
             ))
         
@@ -271,7 +273,7 @@ class InduDegreeScraper(GinaCodyDegreeScraper):
         # - Industrial Engineering students are not required to take ELEC 275‌ in their program
         # - Students in the BEng in Industrial Engineering‌ shall take ACCO 220‌ as their General Education elective
         self.remove_courses_from_pool(self.ENGINEERING_CORE, [self.ELEC_275])
-        for pool in self.program_requirements.course_pools:
+        for pool in self.program_requirements.coursePools:
             if pool.name == self.GENERAL_ELECTIVES:
                 pool.courses = ["ACCO 220"]
 
@@ -289,7 +291,7 @@ class SoenDegreeScraper(GinaCodyDegreeScraper):
 
 class CompDegreeScraper(GinaCodyDegreeScraper):
     def _handle_special_cases(self):
-        for pool in self.program_requirements.course_pools:
+        for pool in self.program_requirements.coursePools:
             if "Computer Science Electives" in pool.name:
                 self._handle_computer_science_electives(pool)
             elif "General Electives: BCompSc" in pool.name:
@@ -321,8 +323,8 @@ class CompDegreeScraper(GinaCodyDegreeScraper):
         # 3. General Education Humanities and Social Sciences Electives (will be added using GinaCodyDegreeScraper)
         # 4. Also can't take courses from General Electives Exclusion List (shown below)
         general_electives_exclusion_list = ["BCEE 231", "BIOL 322", "BTM 380", "BTM 382", "CART 315", "COMM 215", "EXCI 322", "GEOG 264", "INTE 296", "MAST 221", "MAST 221", "MAST 333", "MIAE 215", "PHYS 235", "PHYS 236", "SOCI 212"]
-        cs_electives_pool = next((pool for pool in self.program_requirements.course_pools if pool.name.strip() == "Computer Science Electives"), None)
-        math_electives_pool = next((pool for pool in self.program_requirements.course_pools if pool.name.strip() == "Mathematics Electives: BCompSc"), None)
+        cs_electives_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Computer Science Electives"), None)
+        math_electives_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Mathematics Electives: BCompSc"), None)
         gen_education_electives_pool = self._get_general_education_pool()
 
         allowed_courses = set()
@@ -342,7 +344,7 @@ class EcpDegreeScraper(GinaCodyDegreeScraper):
         ecp_core_pool = CoursePool(
             _id=f"{self.degree_short_name}_Core",
             name="ECP Core",
-            credits_required=credits_required,
+            creditsRequired=credits_required,
             courses=[course.text for course in ecp_core_pool_courses]
         )
         return ecp_core_pool
@@ -358,7 +360,7 @@ class EngrEcpDegreeScraper(EcpDegreeScraper):
         natural_science_electives_pool = CoursePool(
             _id=f"{self.degree_short_name}_Natural Science Electives",
             name="Natural Science Electives",
-            credits_required=6.0,
+            creditsRequired=6.0,
             courses=[course.text for course in natural_science_electives_courses]
         )
 
@@ -393,7 +395,7 @@ class CompEcpDegreeScraper(EcpDegreeScraper):
         electives_bcompsc_pool = CoursePool(
             _id=f"{self.degree_short_name} Electives: BCompSc (other than Joint Majors)",
             name="ECP Electives: BCompSc (other than Joint Majors)",
-            credits_required=15.0,
+            creditsRequired=15.0,
             courses=electives_bcompsc_courses
         )
 
@@ -403,7 +405,7 @@ class CompEcpDegreeScraper(EcpDegreeScraper):
         electives_comp_arts_pool = CoursePool(
             _id=f"{self.degree_short_name} Electives: Joint Major in Computation Arts and Computer Science",
             name="ECP Electives: Joint Major in Computation Arts and Computer Science",
-            credits_required=15.0,
+            creditsRequired=15.0,
             courses=electives_comp_arts_courses
         )
 
@@ -413,7 +415,7 @@ class CompEcpDegreeScraper(EcpDegreeScraper):
         electives_data_science_pool = CoursePool(
             _id=f"{self.degree_short_name} Electives: Joint Major in Data Science",
             name="ECP Electives: Joint Major in Data Science",
-            credits_required=15.0,
+            creditsRequired=15.0,
             courses=electives_data_science_courses
         )
 
@@ -436,7 +438,7 @@ class CoopDegreeScraper(GinaCodyDegreeScraper):
         coop_course_pool = CoursePool(
             _id=f"{self.degree_short_name}_Co-op Work Terms",
             name="Co-op Work Terms",
-            credits_required=0.0,
+            creditsRequired=0.0,
             courses=cwt_courses
         )
         self._set_program_requirements(program_name, total_credits, DegreeType.COOP, [coop_course_pool])

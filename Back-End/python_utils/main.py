@@ -39,6 +39,7 @@ def parse_transcript_api():
         parsed_data = parse_transcript(pdf_bytes)
         return jsonify(parsed_data)
     except Exception as e:
+        logger.error(f"Error parsing transcript: {str(e)}")
         return jsonify({"error": f"Error parsing transcript: {str(e)}"}), 500
 
 @app.route('/degree-names', methods=['GET'])
@@ -50,6 +51,7 @@ def get_degree_names():
         degree_data = degree_data_scraper_instance.get_degree_names()
         return jsonify(serialize(degree_data))
     except Exception as e:
+        logger.error(f"Error retrieving degree names: {str(e)}")
         return jsonify({"error": f"Error scraping degree data: {str(e)}"}), 500
 
 @app.route('/scrape-degree', methods=['GET'])
@@ -65,6 +67,7 @@ def scrape_degree_api():
         degree_data = degree_data_scraper_instance.scrape_degree_by_name(name)
         return jsonify(serialize(degree_data))
     except Exception as e:
+        logger.error(f"Error scraping degree data for degree name {name}: {str(e)}")
         return jsonify({"error": f"Error scraping degree data: {str(e)}"}), 500
 
 @app.route('/scrape-all-degrees', methods=['GET'])
@@ -76,6 +79,7 @@ def scrape_all_degrees_api():
         degree_data = degree_data_scraper_instance.scrape_all_degrees()
         return jsonify(serialize(degree_data))
     except Exception as e:
+        logger.error(f"Error scraping all degree data: {str(e)}")
         return jsonify({"error": f"Error scraping degree data: {str(e)}"}), 500
 
 
@@ -92,6 +96,7 @@ def get_course_api():
         course_data = course_scraper_instance.get_courses_by_ids([code], return_full_object=True)[0]
         return jsonify(serialize(course_data))
     except Exception as e:
+        logger.error(f"Error retrieving course data for code {code}: {str(e)}")
         return jsonify({"error": f"Error retrieving course data: {str(e)}"}), 500
 
 @app.route('/get-all-courses', methods=['GET'])
@@ -103,6 +108,7 @@ def get_all_courses_api():
         courses = course_scraper_instance.get_all_courses(return_full_object=True)
         return jsonify(serialize(courses))
     except Exception as e:
+        logger.error(f"Error retrieving all courses: {str(e)}")
         return jsonify({"error": f"Error retrieving course data: {str(e)}"}), 500
 
 def init_instances():
@@ -139,13 +145,12 @@ def init_instances():
 def get_config():
     cache_path = os.getenv("CACHE_PATH", os.path.join(os.path.dirname(__file__), "data_cache"))
     env_file = os.getenv("ENV_FILE", os.path.join(os.path.dirname(__file__), "../../secrets/.env"))
-    dev_mode = os.getenv("DEV_MODE", "false").lower() == "true"
-    return cache_path, env_file, dev_mode
+    return cache_path, env_file
 
-cache_path, env_file, dev_mode = get_config()
+cache_path, env_file = get_config()
 if cache_path:
     os.makedirs(cache_path, exist_ok=True)
-if dev_mode and env_file:
+if env_file:
     load_dotenv(env_file)
 
 # Auto-initialize instances only if not running as main script (local dev)
@@ -154,8 +159,6 @@ if __name__ != "__main__":
 
 def main():
     # If running main.py directly, we assume it's in development mode
-    global dev_mode
-    dev_mode = True
     init_instances()
     app.run(host="0.0.0.0", port=15001)
 

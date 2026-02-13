@@ -23,7 +23,7 @@ class TestCourseDataScraper:
                 "credits": 3.5,
                 "description": "Programming course",
                 "offered_in": ["Fall", "Winter"],
-                "prereq_coreq_text": "",
+                "prereqCoreqText": "",
                 "rules": {"prereq": [], "coreq": [], "not_taken": []},
                 "notes": "",
                 "components": []
@@ -70,7 +70,7 @@ class TestCourseDataScraper:
             credits=3.0, 
             description="Test", 
             offered_in=["Fall"], 
-            prereq_coreq_text="", 
+            prereqCoreqText="", 
             rules={"prereq": [], "coreq": [], "not_taken": []}, 
             notes="", 
             components=[]
@@ -90,8 +90,8 @@ class TestCourseDataScraper:
     def test_get_courses_by_subjects(self):
         """Test filtering courses by subject"""
         scraper = CourseDataScraper(cache_dir="test_cache")
-        comp_course = Course(_id="COMP 248", title="Programming", credits=3.0, description="", offered_in=[], prereq_coreq_text="", rules={"prereq": [], "coreq": [], "not_taken": []}, notes="", components=[])
-        math_course = Course(_id="MATH 205", title="Calculus", credits=4.0, description="", offered_in=[], prereq_coreq_text="", rules={"prereq": [], "coreq": [], "not_taken": []}, notes="", components=[]) 
+        comp_course = Course(_id="COMP 248", title="Programming", credits=3.0, description="", offered_in=[], prereqCoreqText="", rules={"prereq": [], "coreq": [], "not_taken": []}, notes="", components=[])
+        math_course = Course(_id="MATH 205", title="Calculus", credits=4.0, description="", offered_in=[], prereqCoreqText="", rules={"prereq": [], "coreq": [], "not_taken": []}, notes="", components=[]) 
         
         scraper.all_courses["COMP 248"] = comp_course
         scraper.all_courses["MATH 205"] = math_course
@@ -108,7 +108,7 @@ class TestCourseDataScraper:
     def test_get_courses_by_ids(self):
         """Test filtering courses by specific IDs"""
         scraper = CourseDataScraper(cache_dir="test_cache")
-        test_course = Course(_id="COMP 248", title="Test", credits=3.0, description="", offered_in=[], prereq_coreq_text="", rules={"prereq": [], "coreq": [], "not_taken": []}, notes="", components=[])
+        test_course = Course(_id="COMP 248", title="Test", credits=3.0, description="", offered_in=[], prereqCoreqText="", rules={"prereq": [], "coreq": [], "not_taken": []}, notes="", components=[])
         scraper.all_courses["COMP 248"] = test_course
         
         result = scraper.get_courses_by_ids(["COMP 248"], return_full_object=True)
@@ -187,7 +187,7 @@ class TestCourseDataScraper:
         scraper = CourseDataScraper(cache_dir="test_cache")
         test_course = Course(
             _id="COMP 248", title="Test Course", credits=3.5, description="Test",
-            offered_in=["Fall"], prereq_coreq_text="", rules={"prereq": [], "coreq": [], "not_taken": []},
+            offered_in=["Fall"], prereqCoreqText="", rules={"prereq": [], "coreq": [], "not_taken": []},
             notes="", components=[]
         )
         scraper.all_courses["COMP 248"] = test_course
@@ -210,7 +210,7 @@ class TestCourseDataScraper:
         
         mock_courses = [
             Course(_id="COMP 248", title="Programming", credits=3.5, description="Test",
-                  offered_in=["Fall"], prereq_coreq_text="", rules={"prereq": [], "coreq": [], "not_taken": []},
+                  offered_in=["Fall"], prereqCoreqText="", rules={"prereq": [], "coreq": [], "not_taken": []},
                   notes="", components=[])
         ]
         mock_extract_courses.return_value = mock_courses
@@ -231,10 +231,10 @@ class TestCourseDataScraper:
         """Test extracting courses from subject links"""
         mock_courses = [
             Course(_id="COMP 248", title="Programming", credits=3.5, description="Test",
-                  offered_in=["Fall"], prereq_coreq_text="", rules={"prereq": [], "coreq": [], "not_taken": []},
+                  offered_in=["Fall"], prereqCoreqText="", rules={"prereq": [], "coreq": [], "not_taken": []},
                   notes="", components=[]),
             Course(_id="COMP 249", title="Programming II", credits=3.5, description="Test",
-                  offered_in=["Winter"], prereq_coreq_text="", rules={"prereq": [], "coreq": [], "not_taken": []},
+                  offered_in=["Winter"], prereqCoreqText="", rules={"prereq": [], "coreq": [], "not_taken": []},
                   notes="", components=[])
         ]
         mock_parse_objects.return_value = mock_courses

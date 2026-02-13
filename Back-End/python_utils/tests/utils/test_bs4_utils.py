@@ -261,7 +261,7 @@ def test_extract_coursepool_courses_found_directly(mock_get_soup):
     '''
     mock_get_soup.return_value = BeautifulSoup(html, 'lxml')
 
-    course_pool = CoursePool(_id="math_courses", name="Math Courses", courses=[], credits_required=6.0)
+    course_pool = CoursePool(_id="math_courses", name="Math Courses", courses=[], creditsRequired=6.0)
     result = extract_coursepool_courses("http://example.com", course_pool)
 
     assert result
@@ -275,7 +275,7 @@ def test_extract_coursepool_courses_no_div_found(mock_get_soup):
     html = '<div class="other-class" title="Other">Content</div>'
     mock_get_soup.return_value = BeautifulSoup(html, 'lxml')
 
-    course_pool = CoursePool(_id="math_courses", name="Math Courses", courses=[], credits_required=6.0)
+    course_pool = CoursePool(_id="math_courses", name="Math Courses", courses=[], creditsRequired=6.0)
     result = extract_coursepool_courses("http://example.com", course_pool)
 
     assert not result
@@ -294,7 +294,7 @@ def test_extract_coursepool_courses_with_sublinks(mock_get_soup):
     '''
     mock_get_soup.return_value = BeautifulSoup(html, 'lxml')
 
-    course_pool = CoursePool(_id="math_courses", name="Math Courses", courses=[], credits_required=6.0)
+    course_pool = CoursePool(_id="math_courses", name="Math Courses", courses=[], creditsRequired=6.0)
     result = extract_coursepool_courses("http://example.com", course_pool, automatically_parse_sublinks=True)
 
     assert result
@@ -311,7 +311,7 @@ def test_extract_coursepool_courses_no_sublinks(mock_get_soup):
     '''
     mock_get_soup.return_value = BeautifulSoup(html, 'lxml')
 
-    course_pool = CoursePool(_id="math_courses", name="Math Courses", courses=[], credits_required=6.0)
+    course_pool = CoursePool(_id="math_courses", name="Math Courses", courses=[], creditsRequired=6.0)
     result = extract_coursepool_courses("http://example.com", course_pool, automatically_parse_sublinks=False)
 
     assert result
@@ -329,7 +329,7 @@ def test_extract_coursepool_courses_duplicates_removed(mock_get_soup):
     '''
     mock_get_soup.return_value = BeautifulSoup(html, 'lxml')
 
-    course_pool = CoursePool(_id="math_courses", name="Math Courses", courses=[], credits_required=6.0)
+    course_pool = CoursePool(_id="math_courses", name="Math Courses", courses=[], creditsRequired=6.0)
     result = extract_coursepool_courses("http://example.com", course_pool)
 
     assert result

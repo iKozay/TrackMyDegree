@@ -154,7 +154,7 @@ class CourseDataScraper:
                 credits=course_credits,
                 description=sections.get("Description:", ""),
                 offered_in=offered_in,
-                prereq_coreq_text=sections.get("Prerequisite/Corequisite:", ""),
+                prereqCoreqText=sections.get("Prerequisite/Corequisite:", ""),
                 rules=parse_course_rules(sections.get("Prerequisite/Corequisite:", ""), sections.get("Notes:", "")),
                 notes=sections.get("Notes:", ""),
                 components=parse_course_components(sections.get("Component(s):", ""))
@@ -167,13 +167,13 @@ class CourseDataScraper:
     def _add_extra_cwt_courses(self) -> None:
         # Add CWT courses that are not listed in the quick links
         extra_cwt_courses = [
-            Course(_id="CWT 100", title="Co-op Work Term 1", credits=0.0, description="Co-op Work Term 1", offered_in=self.ALL_SEMESTERS, prereq_coreq_text="Must be completed concurrently: CWT 101", rules=CourseRules(), notes="", components=[]),
-            Course(_id="CWT 200", title="Co-op Work Term 2", credits=0.0, description="Co-op Work Term 2", offered_in=self.ALL_SEMESTERS, prereq_coreq_text="Must be completed previously: CWT 100, CWT 101. Must be completed concurrently: CWT 201", rules=CourseRules(), notes="", components=[]),
-            Course(_id="CWT 300", title="Co-op Work Term 3", credits=0.0, description="Co-op Work Term 3", offered_in=self.ALL_SEMESTERS, prereq_coreq_text="Must be completed previously: CWT 200, CWT 201. Must be completed concurrently: CWT 301", rules=CourseRules(), notes="", components=[]),
-            Course(_id="CWT 400", title="Co-op Work Term 4", credits=0.0, description="Co-op Work Term 4", offered_in=self.ALL_SEMESTERS, prereq_coreq_text="Must be completed previously: CWT 300, CWT 301. Must be completed concurrently: CWT 401", rules=CourseRules(), notes="", components=[])
+            Course(_id="CWT 100", title="Co-op Work Term 1", credits=0.0, description="Co-op Work Term 1", offered_in=self.ALL_SEMESTERS, prereqCoreqText="Must be completed concurrently: CWT 101", rules=CourseRules(), notes="", components=[]),
+            Course(_id="CWT 200", title="Co-op Work Term 2", credits=0.0, description="Co-op Work Term 2", offered_in=self.ALL_SEMESTERS, prereqCoreqText="Must be completed previously: CWT 100, CWT 101. Must be completed concurrently: CWT 201", rules=CourseRules(), notes="", components=[]),
+            Course(_id="CWT 300", title="Co-op Work Term 3", credits=0.0, description="Co-op Work Term 3", offered_in=self.ALL_SEMESTERS, prereqCoreqText="Must be completed previously: CWT 200, CWT 201. Must be completed concurrently: CWT 301", rules=CourseRules(), notes="", components=[]),
+            Course(_id="CWT 400", title="Co-op Work Term 4", credits=0.0, description="Co-op Work Term 4", offered_in=self.ALL_SEMESTERS, prereqCoreqText="Must be completed previously: CWT 300, CWT 301. Must be completed concurrently: CWT 401", rules=CourseRules(), notes="", components=[])
         ]
         for course in extra_cwt_courses:
-            course.rules = parse_course_rules(course.prereq_coreq_text, course.notes)
+            course.rules = parse_course_rules(course.prereqCoreqText, course.notes)
             self.all_courses[course._id] = course
 
 course_scraper_instance: CourseDataScraper = None

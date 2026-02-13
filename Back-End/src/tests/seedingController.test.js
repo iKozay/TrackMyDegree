@@ -18,11 +18,6 @@ jest.mock('../utils/constants', () => ({
     FALL: 'FALL',
     FALL_WINTER: 'FALL/WINTER',
   },
-  DEGREES_URL: {
-    'Test Degree': 'https://example.com/test-degree',
-    DegreeA: 'https://example.com/degA',
-    DegreeB: 'https://example.com/degB',
-  },
 }));
 
 describe('seedingController', () => {
@@ -48,25 +43,27 @@ describe('seedingController', () => {
     });
 
     it('returns early for invalid degree name', async () => {
-      await seedDegreeData('InvalidDegree');
+      pythonUtilsApi.getDegreeNames.mockResolvedValue(['BCompSc in Computer Science', 'BEng in Software Engineering']);
+      
+      const result = await seedDegreeData('InvalidDegree');
 
+      expect(result).toBe('Degree name "InvalidDegree" is not valid. Please choose from: BCompSc in Computer Science, BEng in Software Engineering');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Degree name "InvalidDegree" not found in degreesURL map.',
+        'Degree name "InvalidDegree" is not valid. Available degrees: BCompSc in Computer Science, BEng in Software Engineering',
       );
       expect(pythonUtilsApi.parseDegree).not.toHaveBeenCalled();
     });
 
-    it('runs scraper and seeds degree, course pools, and courses successfully', async () => {
+    it('runs scraper and seeds degree and course pools successfully', async () => {
       const fakeData = {
         degree: { _id: 'deg1', name: 'Test Degree' },
-        course_pool: [{ name: 'Pool1', courses: ['C1'] }],
-        courses: [{ code: 'C1', title: 'Course 1' }],
+        coursePools: [{ name: 'Pool1', courses: ['C1'] }],
       };
+      pythonUtilsApi.getDegreeNames.mockResolvedValue(['Test Degree']);
       pythonUtilsApi.parseDegree.mockResolvedValue(fakeData);
 
       const createDegreeMock = jest.fn().mockResolvedValue(true);
       const bulkCreateCoursePoolsMock = jest.fn().mockResolvedValue(true);
-      const bulkCreateCoursesMock = jest.fn().mockResolvedValue(true);
 
       DegreeControllerModule.DegreeController.mockImplementation(() => ({
         createDegree: createDegreeMock,
@@ -76,37 +73,27 @@ describe('seedingController', () => {
           bulkCreateCoursePools: bulkCreateCoursePoolsMock,
         }),
       );
-      CourseControllerModule.CourseController.mockImplementation(() => ({
-        bulkCreateCourses: bulkCreateCoursesMock,
-      }));
 
-      await seedDegreeData('Test Degree');
+      const result = await seedDegreeData('Test Degree');
 
-      expect(pythonUtilsApi.parseDegree).toHaveBeenCalledWith(
-        'https://example.com/test-degree',
-      );
+      expect(result).toBe('Seeding completed for degree: Test Degree');
+      expect(pythonUtilsApi.parseDegree).toHaveBeenCalledWith('Test Degree');
       expect(createDegreeMock).toHaveBeenCalledWith(fakeData.degree);
-      expect(bulkCreateCoursePoolsMock).toHaveBeenCalledWith(
-        fakeData.course_pool,
-      );
-      expect(bulkCreateCoursesMock).toHaveBeenCalledWith(fakeData.courses);
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Degree deg1 created successfully.',
-      );
+      expect(bulkCreateCoursePoolsMock).toHaveBeenCalledWith(fakeData.coursePools);
+      expect(consoleLogSpy).toHaveBeenCalledWith('Degree deg1 created successfully.');
     });
 
     it('updates degree when it already exists', async () => {
       const fakeData = {
         degree: { _id: 'deg2', name: 'Test Degree' },
-        course_pool: [{ name: 'Pool1', courses: ['C1'] }],
-        courses: [{ code: 'C1', title: 'Course 1' }],
+        coursePools: [{ name: 'Pool1', courses: ['C1'] }],
       };
+      pythonUtilsApi.getDegreeNames.mockResolvedValue(['Test Degree']);
       pythonUtilsApi.parseDegree.mockResolvedValue(fakeData);
 
       const createDegreeMock = jest.fn().mockResolvedValue(false);
       const updateDegreeMock = jest.fn().mockResolvedValue(fakeData.degree);
       const bulkCreateCoursePoolsMock = jest.fn().mockResolvedValue(true);
-      const bulkCreateCoursesMock = jest.fn().mockResolvedValue(true);
 
       DegreeControllerModule.DegreeController.mockImplementation(() => ({
         createDegree: createDegreeMock,
@@ -117,12 +104,10 @@ describe('seedingController', () => {
           bulkCreateCoursePools: bulkCreateCoursePoolsMock,
         }),
       );
-      CourseControllerModule.CourseController.mockImplementation(() => ({
-        bulkCreateCourses: bulkCreateCoursesMock,
-      }));
 
-      await seedDegreeData('Test Degree');
+      const result = await seedDegreeData('Test Degree');
 
+      expect(result).toBe('Seeding completed for degree: Test Degree');
       expect(updateDegreeMock).toHaveBeenCalledWith('deg2', fakeData.degree);
       expect(consoleLogSpy).toHaveBeenCalledWith(
         'Degree deg2 already exists. Updated existing degree.',
@@ -132,100 +117,37 @@ describe('seedingController', () => {
     it('handles error when creating/updating degree fails', async () => {
       const fakeData = {
         degree: { _id: 'deg3', name: 'Test Degree' },
-        course_pool: [{ name: 'Pool1', courses: ['C1'] }],
-        courses: [{ code: 'C1', title: 'Course 1' }],
+        coursePools: [{ name: 'Pool1', courses: ['C1'] }],
       };
+      pythonUtilsApi.getDegreeNames.mockResolvedValue(['Test Degree']);
       pythonUtilsApi.parseDegree.mockResolvedValue(fakeData);
 
       const error = new Error('Degree creation failed');
       const createDegreeMock = jest.fn().mockRejectedValue(error);
-      const bulkCreateCoursePoolsMock = jest.fn().mockResolvedValue(true);
-      const bulkCreateCoursesMock = jest.fn().mockResolvedValue(true);
 
       DegreeControllerModule.DegreeController.mockImplementation(() => ({
         createDegree: createDegreeMock,
       }));
-      CoursePoolControllerModule.CoursePoolController.mockImplementation(
-        () => ({
-          bulkCreateCoursePools: bulkCreateCoursePoolsMock,
-        }),
-      );
-      CourseControllerModule.CourseController.mockImplementation(() => ({
-        bulkCreateCourses: bulkCreateCoursesMock,
-      }));
 
-      await seedDegreeData('Test Degree');
+      const result = await seedDegreeData('Test Degree');
 
+      expect(result).toContain('Failed to seed degree data for degree: Test Degree');
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Error creating/updating degree: deg3',
+        'Failed to seed degree data for degree: Test Degree',
         error,
       );
     });
 
-    it('warns when some course pools are not created', async () => {
+    it('handles course pool creation errors', async () => {
       const fakeData = {
         degree: { _id: 'deg4', name: 'Test Degree' },
-        course_pool: [{ name: 'Pool1', courses: ['C1'] }],
-        courses: [{ code: 'C1', title: 'Course 1' }],
+        coursePools: [{ name: 'Pool1', courses: ['C1'] }],
       };
+      pythonUtilsApi.getDegreeNames.mockResolvedValue(['Test Degree']);
       pythonUtilsApi.parseDegree.mockResolvedValue(fakeData);
 
       const createDegreeMock = jest.fn().mockResolvedValue(true);
-      const bulkCreateCoursePoolsMock = jest.fn().mockResolvedValue(false);
-      const bulkCreateCoursesMock = jest.fn().mockResolvedValue(true);
-
-      DegreeControllerModule.DegreeController.mockImplementation(() => ({
-        createDegree: createDegreeMock,
-      }));
-      CoursePoolControllerModule.CoursePoolController.mockImplementation(
-        () => ({
-          bulkCreateCoursePools: bulkCreateCoursePoolsMock,
-        }),
-      );
-      CourseControllerModule.CourseController.mockImplementation(() => ({
-        bulkCreateCourses: bulkCreateCoursesMock,
-      }));
-
-      await seedDegreeData('Test Degree');
-    });
-
-    it('warns when some courses are not created', async () => {
-      const fakeData = {
-        degree: { _id: 'deg5', name: 'Test Degree' },
-        course_pool: [{ name: 'Pool1', courses: ['C1'] }],
-        courses: [{ code: 'C1', title: 'Course 1' }],
-      };
-      pythonUtilsApi.parseDegree.mockResolvedValue(fakeData);
-
-      const createDegreeMock = jest.fn().mockResolvedValue(true);
-      const bulkCreateCoursePoolsMock = jest.fn().mockResolvedValue(true);
-      const bulkCreateCoursesMock = jest.fn().mockResolvedValue(false);
-
-      DegreeControllerModule.DegreeController.mockImplementation(() => ({
-        createDegree: createDegreeMock,
-      }));
-      CoursePoolControllerModule.CoursePoolController.mockImplementation(
-        () => ({
-          bulkCreateCoursePools: bulkCreateCoursePoolsMock,
-        }),
-      );
-      CourseControllerModule.CourseController.mockImplementation(() => ({
-        bulkCreateCourses: bulkCreateCoursesMock,
-      }));
-
-      await seedDegreeData('Test Degree');
-    });
-
-    it('handles error when creating course pools or courses fails', async () => {
-      const fakeData = {
-        degree: { _id: 'deg6', name: 'Test Degree' },
-        course_pool: [{ name: 'Pool1', courses: ['C1'] }],
-        courses: [{ code: 'C1', title: 'Course 1' }],
-      };
-      pythonUtilsApi.parseDegree.mockResolvedValue(fakeData);
-
-      const error = new Error('Bulk creation failed');
-      const createDegreeMock = jest.fn().mockResolvedValue(true);
+      const error = new Error('Course pool creation failed');
       const bulkCreateCoursePoolsMock = jest.fn().mockRejectedValue(error);
 
       DegreeControllerModule.DegreeController.mockImplementation(() => ({
@@ -236,17 +158,12 @@ describe('seedingController', () => {
           bulkCreateCoursePools: bulkCreateCoursePoolsMock,
         }),
       );
-      CourseControllerModule.CourseController.mockImplementation(() => ({
-        bulkCreateCourses: jest.fn(),
-      }));
 
-      await seedDegreeData('Test Degree');
+      const result = await seedDegreeData('Test Degree');
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Error creating course pools or courses for degree: Test Degree',
-        error,
-      );
+      expect(result).toContain('Failed to seed degree data for degree: Test Degree');
     });
+
   });
 
   describe('seedAllDegreeData', () => {
@@ -254,13 +171,24 @@ describe('seedingController', () => {
       jest.clearAllMocks();
     });
 
-    it('runs seedAllDegreeData for all degrees in degreesURL', async () => {
-      const fakeData = {
-        degree: { _id: 'deg1', name: 'Test Degree' },
-        course_pool: [{ _id: 'pool1', name: 'Pool1', courses: ['C1'] }],
-        courses: [{ _id: 'C1', code: 'C1', title: 'Course 1' }],
-      };
-      pythonUtilsApi.parseDegree.mockResolvedValue(fakeData);
+    it('runs seedAllDegreeData for all degrees and courses', async () => {
+      const mockDegreeData = [
+        {
+          degree: { _id: 'deg1', name: 'Computer Science' },
+          coursePools: [{ _id: 'pool1', name: 'Pool1', courses: ['COMP 101'] }],
+        },
+        {
+          degree: { _id: 'deg2', name: 'Software Engineering' },
+          coursePools: [{ _id: 'pool2', name: 'Pool2', courses: ['SOEN 101'] }],
+        },
+      ];
+      const mockCourses = [
+        { _id: 'COMP 101', title: 'Intro to Programming' },
+        { _id: 'SOEN 101', title: 'Intro to Software Engineering' },
+      ];
+      
+      pythonUtilsApi.parseAllDegrees.mockResolvedValue(mockDegreeData);
+      pythonUtilsApi.getAllCourses.mockResolvedValue(mockCourses);
 
       const createDegreeMock = jest.fn().mockResolvedValue(true);
       const bulkCreateCoursePoolsMock = jest.fn().mockResolvedValue(true);
@@ -278,46 +206,38 @@ describe('seedingController', () => {
         bulkCreateCourses: bulkCreateCoursesMock,
       }));
 
-      await seedAllDegreeData();
+      const result = await seedAllDegreeData();
 
-      // parseDegree should be invoked once per degree in degreesURL (in parallel)
-      expect(pythonUtilsApi.parseDegree).toHaveBeenCalledTimes(3);
-      expect(pythonUtilsApi.parseDegree).toHaveBeenCalledWith(
-        'https://example.com/test-degree',
-      );
-      expect(pythonUtilsApi.parseDegree).toHaveBeenCalledWith(
-        'https://example.com/degA',
-      );
-      expect(pythonUtilsApi.parseDegree).toHaveBeenCalledWith(
-        'https://example.com/degB',
-      );
-
-      // Ensure degree and pool/course creation attempted
-      expect(createDegreeMock).toHaveBeenCalledTimes(3);
-      expect(bulkCreateCoursePoolsMock).toHaveBeenCalledTimes(3);
-      expect(bulkCreateCoursesMock).toHaveBeenCalledTimes(3);
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Seeding completed for all degrees. Success: 3, Failed: 0',
-      );
+      expect(pythonUtilsApi.parseAllDegrees).toHaveBeenCalledTimes(1);
+      expect(pythonUtilsApi.getAllCourses).toHaveBeenCalledTimes(1);
+      expect(createDegreeMock).toHaveBeenCalledTimes(2);
+      expect(bulkCreateCoursePoolsMock).toHaveBeenCalledTimes(2);
+      expect(bulkCreateCoursesMock).toHaveBeenCalledWith(mockCourses);
+      expect(result).toBe('Seeding completed for all degrees. Success: 2, Failed: 0. All courses seeded successfully.');
     });
 
-    it('handles errors during seedAllDegreeData and continues with other degrees', async () => {
-      const fakeData = {
-        degree: { _id: 'deg1', name: 'Test Degree' },
-        course_pool: [{ _id: 'pool1', name: 'Pool1', courses: ['C1'] }],
-        courses: [{ _id: 'C1', code: 'C1', title: 'Course 1' }],
-      };
+    it('handles errors during degree seeding and continues with remaining degrees', async () => {
+      const mockDegreeData = [
+        {
+          degree: { _id: 'deg1', name: 'Computer Science' },
+          coursePools: [{ _id: 'pool1', name: 'Pool1', courses: ['COMP 101'] }],
+        },
+        {
+          degree: { _id: 'deg2', name: 'Software Engineering' },
+          coursePools: [{ _id: 'pool2', name: 'Pool2', courses: ['SOEN 101'] }],
+        },
+      ];
+      const mockCourses = [
+        { _id: 'COMP 101', title: 'Intro to Programming' },
+        { _id: 'SOEN 101', title: 'Intro to Software Engineering' },
+      ];
+      
+      pythonUtilsApi.parseAllDegrees.mockResolvedValue(mockDegreeData);
+      pythonUtilsApi.getAllCourses.mockResolvedValue(mockCourses);
 
-      let callCount = 0;
-      pythonUtilsApi.parseDegree.mockImplementation(() => {
-        callCount++;
-        if (callCount === 2) {
-          return Promise.reject(new Error('Parse failed for DegreeA'));
-        }
-        return Promise.resolve(fakeData);
-      });
-
-      const createDegreeMock = jest.fn().mockResolvedValue(true);
+      const createDegreeMock = jest.fn()
+        .mockResolvedValueOnce(true) // First degree succeeds
+        .mockRejectedValueOnce(new Error('Database error')); // Second degree fails
       const bulkCreateCoursePoolsMock = jest.fn().mockResolvedValue(true);
       const bulkCreateCoursesMock = jest.fn().mockResolvedValue(true);
 
@@ -333,23 +253,54 @@ describe('seedingController', () => {
         bulkCreateCourses: bulkCreateCoursesMock,
       }));
 
-      await seedAllDegreeData();
+      const result = await seedAllDegreeData();
 
-      // parseDegree should be invoked once per degree (all in parallel)
-      expect(pythonUtilsApi.parseDegree).toHaveBeenCalledTimes(3);
-
-      // Only 2 degrees should succeed
       expect(createDegreeMock).toHaveBeenCalledTimes(2);
-
-      // Error should be logged for the failed degree during scraping phase
+      expect(bulkCreateCoursePoolsMock).toHaveBeenCalledTimes(1); // Only for successful degree
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Scraping failed for degree'),
+        'Failed to seed data for degree: deg2',
         expect.any(Error),
       );
+      expect(result).toBe('Seeding completed for all degrees. Success: 1, Failed: 1. All courses seeded successfully.');
+    });
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Seeding completed for all degrees. Success: 2, Failed: 1',
+    it('handles course seeding errors', async () => {
+      const mockDegreeData = [
+        {
+          degree: { _id: 'deg1', name: 'Computer Science' },
+          coursePools: [{ _id: 'pool1', name: 'Pool1', courses: ['COMP 101'] }],
+        },
+      ];
+      const mockCourses = [
+        { _id: 'COMP 101', title: 'Intro to Programming' },
+      ];
+      
+      pythonUtilsApi.parseAllDegrees.mockResolvedValue(mockDegreeData);
+      pythonUtilsApi.getAllCourses.mockResolvedValue(mockCourses);
+
+      const createDegreeMock = jest.fn().mockResolvedValue(true);
+      const bulkCreateCoursePoolsMock = jest.fn().mockResolvedValue(true);
+      const bulkCreateCoursesMock = jest.fn().mockRejectedValue(new Error('Course creation failed'));
+
+      DegreeControllerModule.DegreeController.mockImplementation(() => ({
+        createDegree: createDegreeMock,
+      }));
+      CoursePoolControllerModule.CoursePoolController.mockImplementation(
+        () => ({
+          bulkCreateCoursePools: bulkCreateCoursePoolsMock,
+        }),
       );
+      CourseControllerModule.CourseController.mockImplementation(() => ({
+        bulkCreateCourses: bulkCreateCoursesMock,
+      }));
+
+      const result = await seedAllDegreeData();
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to seed courses',
+        expect.any(Error),
+      );
+      expect(result).toBe('Seeding completed for all degrees. Success: 1, Failed: 0. Failed to seed courses.');
     });
   });
 });

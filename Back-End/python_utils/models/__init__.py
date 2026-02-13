@@ -30,7 +30,7 @@ class Course(BaseModel):
     credits: float
     description: str
     offered_in: list[str]
-    prereq_coreq_text: str
+    prereqCoreqText: str
     rules: CourseRules
     notes: str
     components: list[str]
@@ -39,25 +39,21 @@ class Course(BaseModel):
 class CoursePool(BaseModel):
     _id: str
     name: str
-    credits_required: float
+    creditsRequired: float
     courses: list[str] # List of course IDs only
 
 @dataclass
 class Degree(BaseModel):
     _id: str
     name: str
-    degree_type: DegreeType
-    credits_required: float
-    course_pools: list[str] # List of CoursePool IDs only
+    degreeType: DegreeType
+    totalCredits: float
+    coursePools: list[str] # List of CoursePool IDs only
 
 @dataclass
 class ProgramRequirements(BaseModel):
     degree: Degree
-    course_pools: list[CoursePool]
-
-@dataclass
-class ScraperAPIResponse(ProgramRequirements):
-    courses: list[Course]
+    coursePools: list[CoursePool]    
 
 @dataclass
 class DegreeScraperConfig(BaseModel):

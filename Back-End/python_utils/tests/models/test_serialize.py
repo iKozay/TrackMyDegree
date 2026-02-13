@@ -30,7 +30,7 @@ class TestSerialize(unittest.TestCase):
         # Complex dataclass with nested objects
         rules = CourseRules(prereq=[["MATH 205"]], coreq=[], not_taken=["COMP 200"])
         course = Course(_id="COMP 248", title="Programming", credits=3.5, 
-                       description="Test", offered_in=["Fall"], prereq_coreq_text="",
+                       description="Test", offered_in=["Fall"], prereqCoreqText="",
                        rules=rules, notes="", components=[])
         
         result = serialize(course)

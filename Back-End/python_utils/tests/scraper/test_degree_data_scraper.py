@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 from scraper.degree_data_scraper import *
 from scraper.abstract_degree_scraper import AbstractDegreeScraper
-from models import AnchorLink, ScraperAPIResponse, CoursePool, DegreeType
+from models import AnchorLink, CoursePool, DegreeType
 
 
 class MockDegreeScraper(AbstractDegreeScraper):
@@ -56,12 +56,12 @@ class TestDegreeDataScraper:
         degree_name = "BEng in Computer Engineering"
         
         # Mock the scraper's scrape_degree method
-        mock_degree = type('Degree', (), {'name': degree_name, 'credits_required': 120.0})()
-        mock_response = ScraperAPIResponse(degree=mock_degree, course_pools=[], courses=[])
+        mock_degree = type('Degree', (), {'name': degree_name, 'totalCredits': 120.0})()
+        mock_response = ProgramRequirements(degree=mock_degree, coursePools=[])
         
         with patch.object(scraper.degree_scrapers[degree_name], 'scrape_degree', return_value=mock_response):
             result = scraper.scrape_degree_by_name(degree_name)
-            assert isinstance(result, ScraperAPIResponse)
+            assert isinstance(result, ProgramRequirements)
 
     @patch('scraper.degree_data_scraper.get_all_links_from_div')
     def test_scrape_degree_by_name_not_found(self, mock_get_links):
@@ -83,8 +83,8 @@ class TestDegreeDataScraper:
         
         # Mock all scraper instances
         for degree_name, degree_scraper in scraper.degree_scrapers.items():
-            mock_degree = type('Degree', (), {'name': degree_name, 'credits_required': 120.0})()
-            mock_response = ScraperAPIResponse(degree=mock_degree, course_pools=[], courses=[])
+            mock_degree = type('Degree', (), {'name': degree_name, 'totalCredits': 120.0})()
+            mock_response = ProgramRequirements(degree=mock_degree, coursePools=[])
             degree_scraper.scrape_degree = MagicMock(return_value=mock_response)
         
         results = scraper.scrape_all_degrees()
@@ -108,7 +108,7 @@ class TestAbstractDegreeScraper:
         """Test setting program requirements"""
         scraper = MockDegreeScraper("Test Degree", "TEST", "http://test.com")
         
-        test_pool = CoursePool(_id="test", name="Test Pool", credits_required=30, courses=["COMP 248"])
+        test_pool = CoursePool(_id="test", name="Test Pool", creditsRequired=30, courses=["COMP 248"])
         scraper._set_program_requirements("Test Program", 120.0, DegreeType.STANDALONE, [test_pool])
         
         assert scraper.program_requirements is not None
@@ -118,24 +118,24 @@ class TestAbstractDegreeScraper:
         """Test adding courses to a course pool"""
         scraper = MockDegreeScraper("Test Degree", "TEST", "http://test.com")
         
-        test_pool = CoursePool(_id="test", name="Test Pool", credits_required=30, courses=["COMP 248"])
+        test_pool = CoursePool(_id="test", name="Test Pool", creditsRequired=30, courses=["COMP 248"])
         scraper._set_program_requirements("Test Program", 120.0, DegreeType.STANDALONE, [test_pool])
         
         scraper.add_courses_to_pool("Test Pool", ["COMP 249"])
         
-        updated_pool = scraper.program_requirements.course_pools[0]
+        updated_pool = scraper.program_requirements.coursePools[0]
         assert "COMP 249" in updated_pool.courses
 
     def test_remove_courses_from_pool(self):
         """Test removing courses from a course pool"""
         scraper = MockDegreeScraper("Test Degree", "TEST", "http://test.com")
         
-        test_pool = CoursePool(_id="test", name="Test Pool", credits_required=30, courses=["COMP 248", "COMP 249"])
+        test_pool = CoursePool(_id="test", name="Test Pool", creditsRequired=30, courses=["COMP 248", "COMP 249"])
         scraper._set_program_requirements("Test Program", 120.0, DegreeType.STANDALONE, [test_pool])
         
         scraper.remove_courses_from_pool("Test Pool", ["COMP 249"])
         
-        updated_pool = scraper.program_requirements.course_pools[0]
+        updated_pool = scraper.program_requirements.coursePools[0]
         assert "COMP 249" not in updated_pool.courses
 
     def test_scrape_degree_calls_required_methods(self):
@@ -145,14 +145,14 @@ class TestAbstractDegreeScraper:
         with patch.object(scraper, '_get_program_requirements') as mock_get_reqs, \
              patch.object(scraper, '_handle_special_cases') as mock_handle_cases:
             
-            test_pool = CoursePool(_id="test", name="Test Pool", credits_required=30, courses=[])
+            test_pool = CoursePool(_id="test", name="Test Pool", creditsRequired=30, courses=[])
             scraper._set_program_requirements("Test Program", 120.0, DegreeType.STANDALONE, [test_pool])
             
             result = scraper.scrape_degree()
             
             mock_get_reqs.assert_called_once()
             mock_handle_cases.assert_called_once()
-            assert isinstance(result, ScraperAPIResponse)
+            assert isinstance(result, ProgramRequirements)
 
 class TestGinaCodyDegreeScraper:
     """Test Gina Cody School of Engineering and Computer Science scraper"""
@@ -226,15 +226,15 @@ class TestGinaCodyDegreeScraper:
         assert all(isinstance(pool, CoursePool) for pool in result)
         assert result[0].name == "Computer Science Core"
         assert result[0]._id == "COEN_Computer Science Core"
-        assert (result[0].credits_required - 45.0) < 1e-8
+        assert (result[0].creditsRequired - 45.0) < 1e-8
 
     @patch('scraper.degree_data_scraper.extract_coursepool_courses')
     def test_extract_course_pool_courses(self, mock_extract_courses):
         """Test extracting courses for course pools"""
         # Setup test pools
-        pool1 = CoursePool(_id="test1", name="Test Pool 1", credits_required=30, courses=[])
-        pool2 = CoursePool(_id="test2", name="Test Pool 2", credits_required=30, courses=["COMP 248"])
-        pool3 = CoursePool(_id="test3", name="Test Pool 3", credits_required=30, courses=[])
+        pool1 = CoursePool(_id="test1", name="Test Pool 1", creditsRequired=30, courses=[])
+        pool2 = CoursePool(_id="test2", name="Test Pool 2", creditsRequired=30, courses=["COMP 248"])
+        pool3 = CoursePool(_id="test3", name="Test Pool 3", creditsRequired=30, courses=[])
         
         # Mock extract_coursepool_courses to succeed for pool2, fail for pool1 and pool3
         def mock_extract_side_effect(url, pool):
@@ -257,8 +257,8 @@ class TestGinaCodyDegreeScraper:
     @patch('scraper.degree_data_scraper.GinaCodyDegreeScraper._handle_engineering_core')
     def test_handle_failed_course_pools_with_engineering_core(self, mock_handle_engineering):
         """Test handling failed course pools with engineering core"""
-        pool1 = CoursePool(_id="test1", name="Engineering Core", credits_required=30, courses=[])
-        pool2 = CoursePool(_id="test2", name="Other Pool", credits_required=30, courses=[])
+        pool1 = CoursePool(_id="test1", name="Engineering Core", creditsRequired=30, courses=[])
+        pool2 = CoursePool(_id="test2", name="Other Pool", creditsRequired=30, courses=[])
         
         scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [])
@@ -270,7 +270,7 @@ class TestGinaCodyDegreeScraper:
 
     def test_handle_failed_course_pools_without_special_handling(self):
         """Test handling failed course pools without special handling"""
-        pool = CoursePool(_id="test", name="Random Pool", credits_required=30, courses=[])
+        pool = CoursePool(_id="test", name="Random Pool", creditsRequired=30, courses=[])
         
         scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [])
@@ -289,11 +289,11 @@ class TestGinaCodyDegreeScraper:
             AnchorLink(text="ENGR 202", url="http://test2.com")
         ]
         
-        mock_gen_ed_pool = CoursePool(_id="gen_ed", name="General Education", credits_required=3, courses=[])
+        mock_gen_ed_pool = CoursePool(_id="gen_ed", name="General Education", creditsRequired=3, courses=[])
         mock_get_gen_ed.return_value = mock_gen_ed_pool
         
         # Setup scraper with program requirements
-        pool = CoursePool(_id="eng_core", name="Engineering Core", credits_required=33, courses=[])
+        pool = CoursePool(_id="eng_core", name="Engineering Core", creditsRequired=33, courses=[])
         scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [pool])
         
@@ -302,11 +302,11 @@ class TestGinaCodyDegreeScraper:
         # Check that courses were added
         assert "ENGR 201" in pool.courses
         assert "ENGR 202" in pool.courses
-        assert pool.credits_required == 30  # 33 - 3
+        assert pool.creditsRequired == 30  # 33 - 3
         
         # Check that general education pool was added
-        assert len(scraper.program_requirements.course_pools) == 2
-        assert mock_gen_ed_pool in scraper.program_requirements.course_pools
+        assert len(scraper.program_requirements.coursePools) == 2
+        assert mock_gen_ed_pool in scraper.program_requirements.coursePools
 
     @patch('scraper.degree_data_scraper.get_course_scraper_instance')
     def test_get_general_education_pool(self, mock_get_course_scraper):
@@ -324,7 +324,7 @@ class TestGinaCodyDegreeScraper:
         assert isinstance(result, CoursePool)
         assert result._id == "General Education Humanities and Social Sciences Electives"
         assert result.name == "General Education Humanities and Social Sciences Electives"
-        assert (result.credits_required - 6.0) < 1e-8
+        assert (result.creditsRequired - 6.0) < 1e-8
         
         # Check excluded courses were removed
         assert "PHIL 214" not in result.courses
@@ -466,7 +466,7 @@ class TestAeroDegreeScraper:
         engineering_core_pool = CoursePool(
             _id="eng_core", 
             name="Engineering Core", 
-            credits_required=30, 
+            creditsRequired=30, 
             courses=["ENGR 201", "ELEC 275", "MATH 205"]
         )
         
@@ -475,7 +475,7 @@ class TestAeroDegreeScraper:
         
         scraper._handle_special_cases()
         
-        updated_pool = scraper.program_requirements.course_pools[0]
+        updated_pool = scraper.program_requirements.coursePools[0]
         assert "ELEC 275" not in updated_pool.courses
         assert "ENGR 201" in updated_pool.courses
         assert "MATH 205" in updated_pool.courses
@@ -488,7 +488,7 @@ class TestBldgDegreeScraper:
         engineering_core_pool = CoursePool(
             _id="eng_core", 
             name="Engineering Core", 
-            credits_required=30, 
+            creditsRequired=30, 
             courses=["ENGR 201", "ENGR 202", "ENGR 392"]
         )
         
@@ -497,7 +497,7 @@ class TestBldgDegreeScraper:
         
         scraper._handle_special_cases()
         
-        updated_pool = scraper.program_requirements.course_pools[0]
+        updated_pool = scraper.program_requirements.coursePools[0]
         assert "ENGR 201" in updated_pool.courses
         assert "ENGR 202" not in updated_pool.courses
         assert "ENGR 392" not in updated_pool.courses
@@ -510,7 +510,7 @@ class TestCoenDegreeScraper:
         engineering_core_pool = CoursePool(
             _id="eng_core", 
             name="Engineering Core", 
-            credits_required=30, 
+            creditsRequired=30, 
             courses=["ENGR 201", "ENGR 202", "ELEC 275"]
         )
         
@@ -519,7 +519,7 @@ class TestCoenDegreeScraper:
         
         scraper._handle_special_cases()
         
-        updated_pool = scraper.program_requirements.course_pools[0]
+        updated_pool = scraper.program_requirements.coursePools[0]
         assert "ENGR 201" in updated_pool.courses
         assert "ENGR 202" in updated_pool.courses
         assert "ELEC 275" not in updated_pool.courses
@@ -532,7 +532,7 @@ class TestElecDegreeScraper:
         engineering_core_pool = CoursePool(
             _id="eng_core", 
             name="Engineering Core", 
-            credits_required=30, 
+            creditsRequired=30, 
             courses=["ENGR 201", "ENGR 202", "ELEC 275"]
         )
         
@@ -541,7 +541,7 @@ class TestElecDegreeScraper:
         
         scraper._handle_special_cases()
         
-        updated_pool = scraper.program_requirements.course_pools[0]
+        updated_pool = scraper.program_requirements.coursePools[0]
         assert "ENGR 201" in updated_pool.courses
         assert "ENGR 202" in updated_pool.courses
         assert "ELEC 275" not in updated_pool.courses
@@ -553,14 +553,14 @@ class TestInduDegreeScraper:
         engineering_core_pool = CoursePool(
             _id="eng_core", 
             name="Engineering Core", 
-            credits_required=30, 
+            creditsRequired=30, 
             courses=["ENGR 201", "ENGR 202", "ELEC 275"]
         )
         
         general_electives_pool = CoursePool(
             _id="gen_electives",
             name="General Education Humanities and Social Sciences Electives",
-            credits_required=3,
+            creditsRequired=3,
             courses=["ANTH 200", "HIST 201", "PHIL 214"]
         )
         
@@ -570,13 +570,13 @@ class TestInduDegreeScraper:
         scraper._handle_special_cases()
         
         # Check Engineering Core changes
-        updated_engineering_pool = scraper.program_requirements.course_pools[0]
+        updated_engineering_pool = scraper.program_requirements.coursePools[0]
         assert "ENGR 201" in updated_engineering_pool.courses
         assert "ENGR 202" in updated_engineering_pool.courses
         assert "ELEC 275" not in updated_engineering_pool.courses
         
         # Check General Education electives changes
-        updated_general_pool = scraper.program_requirements.course_pools[1]
+        updated_general_pool = scraper.program_requirements.coursePools[1]
         assert updated_general_pool.courses == ["ACCO 220"]
 
 class TestMechDegreeScraper:
@@ -585,7 +585,7 @@ class TestMechDegreeScraper:
         engineering_core_pool = CoursePool(
             _id="eng_core", 
             name="Engineering Core", 
-            credits_required=30, 
+            creditsRequired=30, 
             courses=["ENGR 201", "ENGR 202", "ELEC 275"]
         )
         
@@ -594,7 +594,7 @@ class TestMechDegreeScraper:
         
         scraper._handle_special_cases()
         
-        updated_pool = scraper.program_requirements.course_pools[0]
+        updated_pool = scraper.program_requirements.coursePools[0]
         assert "ENGR 201" in updated_pool.courses
         assert "ENGR 202" in updated_pool.courses
         assert "ELEC 275" not in updated_pool.courses
@@ -605,7 +605,7 @@ class TestSoenDegreeScraper:
         engineering_core_pool = CoursePool(
             _id="eng_core", 
             name="Engineering Core", 
-            credits_required=30, 
+            creditsRequired=30, 
             courses=["ENGR 201", "ENGR 202", "ELEC 275"]
         )
         
@@ -614,7 +614,7 @@ class TestSoenDegreeScraper:
         
         scraper._handle_special_cases()
         
-        updated_pool = scraper.program_requirements.course_pools[0]
+        updated_pool = scraper.program_requirements.coursePools[0]
         assert "ENGR 201" in updated_pool.courses
         assert "ENGR 202" in updated_pool.courses
         assert "ELEC 275" in updated_pool.courses
@@ -628,14 +628,14 @@ class TestCompDegreeScraper:
         cs_electives_pool = CoursePool(
             _id="cs_electives",
             name="Computer Science Electives",
-            credits_required=30,
+            creditsRequired=30,
             courses=["COMP 248"]
         )
         
         general_electives_pool = CoursePool(
             _id="gen_electives",
             name="General Electives: BCompSc",
-            credits_required=15,
+            creditsRequired=15,
             courses=["COMP 249"]
         )
         
@@ -663,7 +663,7 @@ class TestCompDegreeScraper:
         cs_electives_pool = CoursePool(
             _id="cs_electives",
             name="Computer Science Electives",
-            credits_required=30,
+            creditsRequired=30,
             courses=["COMP 249"]
         )
         
@@ -707,7 +707,7 @@ class TestCompDegreeScraper:
         cs_electives_pool = CoursePool(
             _id="cs_electives",
             name="Computer Science Electives",
-            credits_required=30,
+            creditsRequired=30,
             courses=["COMP 249"]
         )
         
@@ -731,7 +731,7 @@ class TestCompDegreeScraper:
         mock_gen_ed_pool = CoursePool(
             _id="gen_ed",
             name="General Education",
-            credits_required=3,
+            creditsRequired=3,
             courses=["ANTH 200", "HIST 201", "SOCI 212"] + exclusion_list[:5]
         )
         mock_get_gen_ed.return_value = mock_gen_ed_pool
@@ -739,21 +739,21 @@ class TestCompDegreeScraper:
         cs_electives_pool = CoursePool(
             _id="cs_electives",
             name="Computer Science Electives",
-            credits_required=30,
+            creditsRequired=30,
             courses=["COMP 325", "COMP 445"] + exclusion_list[5:10]
         )
 
         math_electives_pool = CoursePool(
             _id="math_electives",
             name="Mathematics Electives: BCompSc",
-            credits_required=15,
+            creditsRequired=15,
             courses=["MATH 205", "MAST 221"] + exclusion_list[10:]
         )
 
         general_electives_pool = CoursePool(
             _id="general_electives",
             name="General Electives: BCompSc",
-            credits_required=45,
+            creditsRequired=45,
             courses=[]
         )
 
@@ -794,7 +794,7 @@ class TestEcpDegreeScraper:
         assert isinstance(pool, CoursePool)
         assert pool._id == "ECP_Core"
         assert pool.name == "ECP Core"
-        assert (pool.credits_required - credits_required) < 1e8
+        assert (pool.creditsRequired - credits_required) < 1e8
         assert pool.courses == ["MATH 203", "MATH 204"]
 
 class TestEngrEcpDegreeScraper:
@@ -812,7 +812,7 @@ class TestEngrEcpDegreeScraper:
             mock_get_links.side_effect = get_links_side_effect
 
             # Setup mock for general education pool
-            mock_gen_ed_pool = CoursePool(_id="gen_ed", name="General Education", credits_required=6.0, courses=["ANTH 200", "HIST 201"])
+            mock_gen_ed_pool = CoursePool(_id="gen_ed", name="General Education", creditsRequired=6.0, courses=["ANTH 200", "HIST 201"])
             mock_get_gen_ed.return_value = mock_gen_ed_pool
 
             scraper = EngrEcpDegreeScraper("BEng in Extended Credit Program", "ECP", "http://test.com")
@@ -820,24 +820,24 @@ class TestEngrEcpDegreeScraper:
 
             req = scraper.program_requirements
             assert req.degree.name == "BEng in Extended Credit Program"
-            assert (req.degree.credits_required - 30.0) < 1e-8
-            assert req.degree.degree_type == DegreeType.ECP
-            assert len(req.course_pools) == 3
+            assert (req.degree.totalCredits - 30.0) < 1e-8
+            assert req.degree.degreeType == DegreeType.ECP
+            assert len(req.coursePools) == 3
 
             # Check ECP Core pool
-            ecp_core_pool = req.course_pools[0]
+            ecp_core_pool = req.coursePools[0]
             assert ecp_core_pool.name == "ECP Core"
-            assert (ecp_core_pool.credits_required - 18.0) < 1e-8
+            assert (ecp_core_pool.creditsRequired - 18.0) < 1e-8
             assert ecp_core_pool.courses == ["MATH 203", "MATH 204"]
 
             # Check Natural Science Electives pool
-            nat_sci_pool = req.course_pools[1]
+            nat_sci_pool = req.coursePools[1]
             assert nat_sci_pool.name == "Natural Science Electives"
-            assert (nat_sci_pool.credits_required - 6.0) < 1e-8
+            assert (nat_sci_pool.creditsRequired - 6.0) < 1e-8
             assert nat_sci_pool.courses == ["CHEM 221", "PHYS 204"]
 
             # Check General Education pool
-            gen_ed_pool = req.course_pools[2]
+            gen_ed_pool = req.coursePools[2]
             assert gen_ed_pool is mock_gen_ed_pool
 
 class TestCompEcpDegreeScraper:
@@ -848,11 +848,11 @@ class TestCompEcpDegreeScraper:
     def test_get_program_requirements(self, mock_get_course_scraper, mock_get_ecp_core, mock_get_gen_ed, mock_get_links):
         """Test CompEcpDegreeScraper _get_program_requirements sets all pools correctly"""
         # Mock ECP Core pool
-        ecp_core_pool = CoursePool(_id="ECP_Core", name="ECP Core", credits_required=9.0, courses=["MATH 203"])
+        ecp_core_pool = CoursePool(_id="ECP_Core", name="ECP Core", creditsRequired=9.0, courses=["MATH 203"])
         mock_get_ecp_core.return_value = ecp_core_pool
         
         # Mock General Education pool
-        gen_ed_pool = CoursePool(_id="gen_ed", name="General Education", credits_required=6.0, courses=["ANTH 200"])
+        gen_ed_pool = CoursePool(_id="gen_ed", name="General Education", creditsRequired=6.0, courses=["ANTH 200"])
         mock_get_gen_ed.return_value = gen_ed_pool
         
         # Mock exclusion list
@@ -879,32 +879,32 @@ class TestCompEcpDegreeScraper:
         
         req = scraper.program_requirements
         assert req.degree.name == "BCompSc in Computer Science"
-        assert (req.degree.credits_required - 30.0) < 1e-8
-        assert req.degree.degree_type == DegreeType.ECP
-        assert len(req.course_pools) == 5
+        assert (req.degree.totalCredits - 30.0) < 1e-8
+        assert req.degree.degreeType == DegreeType.ECP
+        assert len(req.coursePools) == 5
 
         # ECP Core
-        assert req.course_pools[0] is ecp_core_pool
+        assert req.coursePools[0] is ecp_core_pool
         # General Education
-        assert req.course_pools[1] is gen_ed_pool
+        assert req.coursePools[1] is gen_ed_pool
 
         # ECP Electives: BCompSc (other than Joint Majors)
-        bcompsc_pool = req.course_pools[2]
+        bcompsc_pool = req.coursePools[2]
         assert bcompsc_pool.name == "ECP Electives: BCompSc (other than Joint Majors)"
-        assert (bcompsc_pool.credits_required - 15.0) < 1e-8
+        assert (bcompsc_pool.creditsRequired - 15.0) < 1e-8
         # Should filter out exclusion_list
         assert bcompsc_pool.courses == ["COMP 324", "COMP 445"]
 
         # ECP Electives: Joint Major in Computation Arts and Computer Science
-        comp_arts_pool = req.course_pools[3]
+        comp_arts_pool = req.coursePools[3]
         assert comp_arts_pool.name == "ECP Electives: Joint Major in Computation Arts and Computer Science"
-        assert (comp_arts_pool.credits_required - 15.0) < 1e-8
+        assert (comp_arts_pool.creditsRequired - 15.0) < 1e-8
         assert comp_arts_pool.courses == ["CART 315", "COMP 445"]
 
         # ECP Electives: Joint Major in Data Science
-        data_science_pool = req.course_pools[4]
+        data_science_pool = req.coursePools[4]
         assert data_science_pool.name == "ECP Electives: Joint Major in Data Science"
-        assert (data_science_pool.credits_required - 15.0) < 1e-8
+        assert (data_science_pool.creditsRequired - 15.0) < 1e-8
         assert data_science_pool.courses == ["MAST 221", "COMP 324", "COMP 445"]
 
 class TestCoopDegreeScraper:
@@ -921,13 +921,13 @@ class TestCoopDegreeScraper:
 
         req = scraper.program_requirements
         assert req.degree.name == "BEng in Computer Engineering Co-op"
-        assert (req.degree.credits_required - 0.0) < 1e-8
-        assert req.degree.degree_type == DegreeType.COOP
-        assert len(req.course_pools) == 1
+        assert (req.degree.totalCredits - 0.0) < 1e-8
+        assert req.degree.degreeType == DegreeType.COOP
+        assert len(req.coursePools) == 1
 
-        pool = req.course_pools[0]
+        pool = req.coursePools[0]
         assert pool.name == "Co-op Work Terms"
-        assert (pool.credits_required - 0.0) < 1e-8
+        assert (pool.creditsRequired - 0.0) < 1e-8
         # CWT 400 and CWT 401 should be removed
         assert "CWT 400" not in pool.courses
         assert "CWT 401" not in pool.courses
