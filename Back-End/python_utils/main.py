@@ -1,7 +1,5 @@
 from flask import Flask, request, jsonify
-import sys
 from dotenv import load_dotenv
-import argparse
 import os
 from parser.transcript_parser import parse_transcript
 from scraper.degree_data_scraper import DegreeDataScraper
@@ -143,9 +141,9 @@ def init_instances():
 
 # Initialize configuration
 def get_config():
-    cache_path = os.getenv("CACHE_PATH", os.path.join(os.path.dirname(__file__), "data_cache"))
+    data_cache = os.getenv("DATA_CACHE", os.path.abspath(os.path.join(os.path.dirname(__file__), "../data_cache")))
     env_file = os.getenv("ENV_FILE", os.path.join(os.path.dirname(__file__), "../../secrets/.env"))
-    return cache_path, env_file
+    return data_cache, env_file
 
 cache_path, env_file = get_config()
 if cache_path:

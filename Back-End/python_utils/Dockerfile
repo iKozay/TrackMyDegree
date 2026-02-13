@@ -17,4 +17,6 @@ RUN groupadd -r appuser && useradd -r -g appuser -m appuser && chown -R appuser:
 
 USER appuser
 
+ENV DATA_CACHE=/app/data_cache
+
 CMD ["gunicorn", "-b", "0.0.0.0:15001", "main:app"]
