@@ -23,6 +23,8 @@ import uploadRouter from '@routes/uploadRoutes';
 import jobRouter from '@routes/jobRoutes';
 import degreeAuditRouter from '@routes/degreeAuditRoutes';
 import coopvalidationRouter from '@routes/coopvalidationRoutes';
+import creditFormRouter from '@routes/creditFormRoutes';
+import { migrateExistingForms } from '@controllers/creditFormController';
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
@@ -122,6 +124,7 @@ app.use('/api/upload', uploadRouter);
 app.use('/api/jobs', jobRouter);
 app.use('/api/audit', degreeAuditRouter);
 app.use('/api/coop', coopvalidationRouter);
+app.use('/api/credit-forms', creditFormRouter);
 
 //Handle 404
 app.use(notFoundHandler);
@@ -138,6 +141,15 @@ const start = async () => {
     // Don’t crash the server if Redis is down (optional)
     console.warn('⚠️ Redis not available, caching disabled:', err);
     Sentry.captureException(err);
+  }
+
+  // Run migration for credit forms (restore missing files)
+  if (process.env.NODE_ENV !== 'test') {
+    try {
+      await migrateExistingForms();
+    } catch (err) {
+      console.error('Error during startup migration:', err);
+    }
   }
 
   app.listen(PORT, () => {
