@@ -10,6 +10,7 @@ from models import serialize
 
 app = Flask(__name__)
 logger = get_logger("MainApp")
+initialized = False
 
 # Global variables
 course_scraper_instance = None
@@ -109,6 +110,22 @@ def get_all_courses_api():
         logger.error(f"Error retrieving all courses: {str(e)}")
         return jsonify({"error": f"Error retrieving course data: {str(e)}"}), 500
 
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "ok"})
+
+@app.before_request
+def run_init():
+    global initialized
+
+    # Skip specific route
+    if request.endpoint == "parse_transcript_api":
+        return
+
+    if not initialized:
+        init_instances()
+        initialized = True
+
 def init_instances():
     global course_scraper_instance, degree_data_scraper_instance, concordia_api_instance
 
@@ -151,13 +168,7 @@ if cache_path:
 if env_file:
     load_dotenv(env_file)
 
-# Auto-initialize instances only if not running as main script (local dev)
-if __name__ != "__main__":
-    init_instances()
-
 def main():
-    # If running main.py directly, we assume it's in development mode
-    init_instances()
     app.run(host="0.0.0.0", port=15001)
 
 if __name__ == "__main__":

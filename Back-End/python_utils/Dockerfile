@@ -13,10 +13,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 15001
 
 # Create non-root user and group
-RUN groupadd -r appuser && useradd -r -g appuser -m appuser && chown -R appuser:appuser /app
+RUN mkdir -p /app/data_cache && chmod -R 777 /app/data_cache && groupadd -r appuser && useradd -r -g appuser -m appuser && chown -R appuser:appuser /app
 
 USER appuser
 
 ENV DATA_CACHE=/app/data_cache
 
-CMD ["gunicorn", "-b", "0.0.0.0:15001", "main:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:15001", "--timeout", "300", "main:app"]

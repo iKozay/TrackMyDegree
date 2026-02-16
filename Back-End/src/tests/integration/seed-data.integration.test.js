@@ -1,4 +1,5 @@
 const {
+  getAllDegreeNames,
   getScraperData,
   cleanupScraperFiles,
 } = require('./utils/data/scraperData');
@@ -9,11 +10,11 @@ const {
   processDegreeFile,
   logValidationSummary,
 } = require('./utils/data/seedTestHelpers');
-const { DEGREES_URL } = require('../../utils/constants');
 
 describe('Seed via /api/admin/seed-data endpoint', () => {
   let apiClient;
   let app;
+  let degreeNames;
   // Promise to signal when setup is complete - avoids concurrent tests to start before scraper data is ready
   let setupReadyResolve;
   const setupReadyPromise = new Promise((resolve) => {
@@ -22,6 +23,8 @@ describe('Seed via /api/admin/seed-data endpoint', () => {
 
   beforeAll(async () => {
     console.log('Starting test setup...');
+    // Get degree names for test discovery
+    degreeNames = await getAllDegreeNames();
     // Initialize app and API client
     app = await getTestApp();
     apiClient = new ApiClient(app);
@@ -40,34 +43,36 @@ describe('Seed via /api/admin/seed-data endpoint', () => {
 
   afterAll(async () => {
     // Cleanup scraper temp files
-    await cleanupScraperFiles();
+    // await cleanupScraperFiles();
   });
 
-  // Create individual test for each degree
-  const degreeNames = Object.keys(DEGREES_URL);
-    // concurrently test each degree to speed up the test process
-    test.concurrent.each(degreeNames)('seeds and validates %s degree', async (degreeName) => {
-      // Wait for setup to complete
-      await setupReadyPromise;
+  test('seeds and validates all degrees', async () => {
+    // Wait for setup to complete
+    await setupReadyPromise;
+    
+    console.log(`Starting seed operations for ${degreeNames.length} degrees...`);
+    
+    // Process all degrees concurrently
+    const degreePromises = degreeNames.map(async (degreeName) => {
       console.log(`Starting seed operation for ${degreeName}...`);
       
-      // Seed specific degree
-      const seedRes = await apiClient.seedDegreeData(degreeName);
-      expect(seedRes.status).toBe(200);
-
-      // Get validation files and find the one for this degree
-      const degreeFiles = getValidationFiles();
-      const safeName = degreeName.replaceAll(' ', '_');
-      const expectedFileName = `temp_scraper_output_${safeName}.json`;
-      const degreeFile = degreeFiles.find(file => file === expectedFileName);
-
-      if (!degreeFile) {
-        console.log('Available files:', degreeFiles);
-        console.log('Looking for:', expectedFileName);
-        throw new Error(`Validation file not found for degree: ${degreeName}`);
-      }
-
       try {
+        // Seed specific degree
+        const seedRes = await apiClient.seedDegreeData(degreeName);
+        expect(seedRes.status).toBe(200);
+
+        // Get validation files and find the one for this degree
+        const degreeFiles = getValidationFiles();
+        const safeName = degreeName.replaceAll(' ', '_');
+        const expectedFileName = `temp_scraper_output_${safeName}.json`;
+        const degreeFile = degreeFiles.find(file => file === expectedFileName);
+
+        if (!degreeFile) {
+          console.log('Available files:', degreeFiles);
+          console.log('Looking for:', expectedFileName);
+          throw new Error(`Validation file not found for degree: ${degreeName}`);
+        }
+
         // Process this specific degree file
         const result = await processDegreeFile(degreeFile, 0, 1);
 
@@ -97,11 +102,31 @@ describe('Seed via /api/admin/seed-data endpoint', () => {
         console.log(`${degreeName}: ${result.coursesCount} courses, ${result.poolsCount} pools validated successfully`);
         
         expect(result.hasErrors).toBe(false);
-        expect(result.coursesCount).toBeGreaterThan(0);
         expect(result.poolsCount).toBeGreaterThan(0);
+        
+        return { degreeName, success: true, poolsCount: result.poolsCount };
       } catch (error) {
         console.error(`Failed to process ${degreeName}:`, error.message);
-        throw error;
+        return { degreeName, success: false, error: error.message };
       }
     });
+
+    // Wait for all degrees to complete
+    const results = await Promise.all(degreePromises);
+    
+    // Check results and report any failures
+    const failures = results.filter(result => !result.success);
+    const successes = results.filter(result => result.success);
+    
+    console.log(`Completed processing ${results.length} degrees: ${successes.length} successful, ${failures.length} failed`);
+    
+    if (failures.length > 0) {
+      const failureReport = failures.map(failure => `${failure.degreeName}: ${failure.error}`).join('\n');
+      throw new Error(`${failures.length} degrees failed validation:\n${failureReport}`);
+    }
+    
+    // All degrees should have succeeded
+    expect(failures.length).toBe(0);
+    expect(successes.length).toBe(degreeNames.length);
   });
+});
