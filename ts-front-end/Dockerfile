@@ -1,5 +1,5 @@
 # ---------- Build stage ----------
-FROM node:22 AS build
+FROM node:22.21 AS build
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ RUN npm run build
 
 
 # ---------- Runtime stage ----------
-FROM node:22
+FROM node:22.21
 
 WORKDIR /app
 
