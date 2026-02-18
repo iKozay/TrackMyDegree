@@ -1,6 +1,6 @@
 const { GenericContainer } = require('testcontainers');
 const path = require('node:path');
-const { max } = require('moment');
+const fetch = require('node-fetch');
 
 // Build a container image from the root-level python_utils/Dockerfile
 // and provide helpers to start/stop it in tests.
