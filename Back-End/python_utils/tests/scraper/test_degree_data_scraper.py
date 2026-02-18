@@ -558,7 +558,7 @@ class TestInduDegreeScraper:
         )
         
         general_electives_pool = CoursePool(
-            _id="gen_electives",
+            _id="General Education Humanities and Social Sciences Electives",
             name="General Education Humanities and Social Sciences Electives",
             creditsRequired=3,
             courses=["ANTH 200", "HIST 201", "PHIL 214"]
@@ -577,6 +577,7 @@ class TestInduDegreeScraper:
         
         # Check General Education electives changes
         updated_general_pool = scraper.program_requirements.coursePools[1]
+        assert updated_general_pool._id == "INDU_General Education Humanities and Social Sciences Electives"
         assert updated_general_pool.courses == ["ACCO 220"]
 
 class TestMechDegreeScraper:
@@ -796,6 +797,25 @@ class TestEcpDegreeScraper:
         assert pool.name == "ECP Core"
         assert (pool.creditsRequired - credits_required) < 1e8
         assert pool.courses == ["MATH 203", "MATH 204"]
+    
+    @patch('scraper.degree_data_scraper.GinaCodyDegreeScraper._get_general_education_pool')
+    def test_get_general_education_pool(self, mock_super_gen_ed):
+        """Test EcpDegreeScraper._get_general_education_pool overrides and prefixes id and name"""
+        # Setup mock pool returned by super
+        base_pool = CoursePool(_id="General Education Humanities and Social Sciences Electives", name="General Education Humanities and Social Sciences Electives", creditsRequired=6.0, courses=["ANTH 200", "HIST 201"])
+        mock_super_gen_ed.return_value = base_pool
+
+        scraper = EcpDegreeScraper("BEng in Extended Credit Program", "ECP", "http://test.com")
+        pool = scraper._get_general_education_pool(6.0)
+
+        # Should call super with correct credits
+        mock_super_gen_ed.assert_called_once_with(6.0)
+        # Should prefix _id and name
+        assert pool._id == "ECP_General Education Humanities and Social Sciences Electives"
+        assert pool.name == "ECP General Education Humanities and Social Sciences Electives"
+        # Should preserve credits and courses
+        assert (pool.creditsRequired - 6.0) < 1e-8
+        assert pool.courses == ["ANTH 200", "HIST 201"]
 
 class TestEngrEcpDegreeScraper:
         @patch('scraper.degree_data_scraper.get_all_links_from_div')
@@ -832,7 +852,7 @@ class TestEngrEcpDegreeScraper:
 
             # Check Natural Science Electives pool
             nat_sci_pool = req.coursePools[1]
-            assert nat_sci_pool.name == "Natural Science Electives"
+            assert nat_sci_pool.name == "ECP Natural Science Electives"
             assert (nat_sci_pool.creditsRequired - 6.0) < 1e-8
             assert nat_sci_pool.courses == ["CHEM 221", "PHYS 204"]
 

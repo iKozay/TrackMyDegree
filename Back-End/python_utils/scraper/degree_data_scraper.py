@@ -274,9 +274,16 @@ class InduDegreeScraper(GinaCodyDegreeScraper):
         # - Industrial Engineering students are not required to take ELEC 275‌ in their program
         # - Students in the BEng in Industrial Engineering‌ shall take ACCO 220‌ as their General Education elective
         self.remove_courses_from_pool(self.ENGINEERING_CORE, [self.ELEC_275])
+        # Rename self.GENERAL_ELECTIVES to 'INDU_'+self.GENERAL_ELECTIVES to avoid conflicts with other degrees' general electives
         for pool in self.program_requirements.coursePools:
-            if pool.name == self.GENERAL_ELECTIVES:
+            if pool._id == self.GENERAL_ELECTIVES:
+                pool._id = f"INDU_{self.GENERAL_ELECTIVES}"
                 pool.courses = ["ACCO 220"]
+        # Update the pool id in the degree's coursePools list as well
+        for i, pool_id in enumerate(self.program_requirements.degree.coursePools):
+            if pool_id == self.GENERAL_ELECTIVES:
+                self.program_requirements.degree.coursePools[i] = f"INDU_{self.GENERAL_ELECTIVES}"
+                break
 
 class MechDegreeScraper(GinaCodyDegreeScraper):
     def _handle_special_cases(self):
@@ -349,6 +356,11 @@ class EcpDegreeScraper(GinaCodyDegreeScraper):
             courses=[course.text for course in ecp_core_pool_courses]
         )
         return ecp_core_pool
+    def _get_general_education_pool(self, credits_required: float = 6.0) -> CoursePool:
+        pool = super()._get_general_education_pool(credits_required)
+        pool._id = f"ECP_{pool._id}"
+        pool.name = f"ECP {pool.name}"
+        return pool
 
 class EngrEcpDegreeScraper(EcpDegreeScraper):
     def _get_program_requirements(self) -> None:
@@ -360,7 +372,7 @@ class EngrEcpDegreeScraper(EcpDegreeScraper):
         natural_science_electives_courses = get_all_links_from_div(self.requirements_url, ["defined-group"], "Natural Science Electives", include_regex=COURSE_REGEX)
         natural_science_electives_pool = CoursePool(
             _id=f"{self.degree_short_name}_Natural Science Electives",
-            name="Natural Science Electives",
+            name="ECP Natural Science Electives",
             creditsRequired=6.0,
             courses=[course.text for course in natural_science_electives_courses]
         )
