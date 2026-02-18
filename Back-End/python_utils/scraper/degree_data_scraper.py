@@ -81,6 +81,7 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
         # Extract program name and total credits
         title_element = program_node.find("h3")
         program_name, total_credits = extract_name_and_credits(title_element)
+        program_name = self.degree_name
 
         # Extract course pools without courses
         course_pool_objects = self._get_course_pools_without_courses(program_node)

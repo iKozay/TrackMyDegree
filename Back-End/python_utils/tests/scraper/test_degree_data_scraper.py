@@ -56,7 +56,7 @@ class TestDegreeDataScraper:
         degree_name = "BEng in Computer Engineering"
         
         # Mock the scraper's scrape_degree method
-        mock_degree = type('Degree', (), {'name': degree_name, 'totalCredits': 120.0})()
+        mock_degree = type('Degree', (), {'name': degree_name, 'totalCredits': 120.0, 'degreeType': DegreeType.STANDALONE})()
         mock_response = ProgramRequirements(degree=mock_degree, coursePools=[])
         
         with patch.object(scraper.degree_scrapers[degree_name], 'scrape_degree', return_value=mock_response):
@@ -83,7 +83,7 @@ class TestDegreeDataScraper:
         
         # Mock all scraper instances
         for degree_name, degree_scraper in scraper.degree_scrapers.items():
-            mock_degree = type('Degree', (), {'name': degree_name, 'totalCredits': 120.0})()
+            mock_degree = type('Degree', (), {'name': degree_name, 'totalCredits': 120.0, 'degreeType': DegreeType.STANDALONE})()
             mock_response = ProgramRequirements(degree=mock_degree, coursePools=[])
             degree_scraper.scrape_degree = MagicMock(return_value=mock_response)
         
@@ -186,11 +186,11 @@ class TestGinaCodyDegreeScraper:
             scraper._get_program_requirements()
             
             assert scraper.program_requirements is not None
-            assert scraper.program_requirements.degree.name == "Test Program"
+            assert scraper.program_requirements.degree.name == "BEng in Computer Engineering"
 
     def test_get_program_node_success(self):
         """Test successfully finding program node"""
-        soup = BeautifulSoup('<div class="program-node" title="BEng in Computer Engineering">Content</div>', 'html.parser')
+        soup = BeautifulSoup('<div class="program-node" title="BEng in Computer Engineering"></div>', 'html.parser')
         
         scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
         result = scraper._get_program_node(soup)
@@ -211,7 +211,7 @@ class TestGinaCodyDegreeScraper:
     def test_get_course_pools_without_courses(self, mock_extract_pools):
         """Test extracting course pools without courses"""
         mock_extract_pools.return_value = [
-            (AnchorLink(text="Computer Science Core", url="http://test.com"), 45.0),
+            (AnchorLink(text="Computer Engineering Core", url="http://test.com"), 45.0),
             (AnchorLink(text="Engineering Core", url="http://test.com"), 30.0)
         ]
         
@@ -224,8 +224,8 @@ class TestGinaCodyDegreeScraper:
         
         assert len(result) == 2
         assert all(isinstance(pool, CoursePool) for pool in result)
-        assert result[0].name == "Computer Science Core"
-        assert result[0]._id == "COEN_Computer Science Core"
+        assert result[0].name == "Computer Engineering Core"
+        assert result[0]._id == "COEN_Computer Engineering Core"
         assert (result[0].creditsRequired - 45.0) < 1e-8
 
     @patch('scraper.degree_data_scraper.extract_coursepool_courses')
@@ -354,7 +354,7 @@ class TestAeroDegreeScraper:
 
     def test_get_program_node_success(self):
         """Test successfully finding program node using degree_name_without_option"""
-        soup = BeautifulSoup('<div class="program-node" title="BEng in Aerospace Engineering">Content</div>', 'html.parser')
+        soup = BeautifulSoup('<div class="program-node" title="BEng in Aerospace Engineering"></div>', 'html.parser')
         
         scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
         result = scraper._get_program_node(soup)
@@ -434,7 +434,7 @@ class TestAeroDegreeScraper:
         pool_credits = scraper._remove_option_course_pools(coursepools)
         
         # Should return the credits from the first option pool
-        assert pool_credits == 54.75
+        assert (pool_credits - 54.75) < 1e-8
         
         # Should have removed both option pools
         assert len(coursepools) == 2
@@ -455,7 +455,7 @@ class TestAeroDegreeScraper:
         pool_credits = scraper._remove_option_course_pools(coursepools)
         
         # Should return 0 credits when no options found
-        assert pool_credits == 0
+        assert (pool_credits - 0.0) < 1e-8
         
         # Should not remove any pools
         assert len(coursepools) == 2

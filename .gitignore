@@ -4,7 +4,7 @@ Back-End/src/yarn.lock
 Back-End/src/dist
 Back-End/src/coverage
 Back-End/coverage
-Back-End/data_cache/
+Back-End/data/
 shared/dist
 front-end/yarn.lock
 package-lock.json

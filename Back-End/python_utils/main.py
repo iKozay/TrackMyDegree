@@ -158,7 +158,7 @@ def init_instances():
 
 # Initialize configuration
 def get_config():
-    data_cache = os.getenv("DATA_CACHE", os.path.abspath(os.path.join(os.path.dirname(__file__), "../data_cache")))
+    data_cache = os.getenv("DATA_CACHE", os.path.abspath(os.path.join(os.path.dirname(__file__), "../data")))
     env_file = os.getenv("ENV_FILE", os.path.join(os.path.dirname(__file__), "../../secrets/.env"))
     return data_cache, env_file
 
