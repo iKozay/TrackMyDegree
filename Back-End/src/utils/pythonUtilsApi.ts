@@ -19,8 +19,13 @@ export async function getDegreeNames(): Promise<string[]> {
   try {
     const response = await axios.get(`${PYTHON_SERVICE_BASE_URL}/degree-names`);
     return response.data;
-  } catch (error) {
-    throw new Error(`Failed to get degree names: ${error}`);
+  } catch (error: any) {
+    if (error.response) {
+      const status = error.response?.status;
+      const data = error.response?.data;
+      throw new Error(`Failed to get degree names: status=${status}, data=${JSON.stringify(data)}, message=${error.message}`);
+    }
+    throw new Error(`Failed to get degree names: ${error.message || error}`);
   }
 }
 
@@ -38,8 +43,13 @@ export async function parseDegree(name: string): Promise<ParseDegreeResponse> {
       },
     );
     return response.data;
-  } catch (error) {
-    throw new Error(`Failed to parse degree: ${error}`);
+  } catch (error: any) {
+    if (error.response) {
+      const status = error.response?.status;
+      const data = error.response?.data;
+      throw new Error(`Failed to parse degree: status=${status}, data=${JSON.stringify(data)}, message=${error.message}`);
+    }
+    throw new Error(`Failed to parse degree: ${error.message || error}`);
   }
 }
 
@@ -51,8 +61,13 @@ export async function parseAllDegrees(): Promise<ParseDegreeResponse[]> {
   try {
     const response = await axios.get(`${PYTHON_SERVICE_BASE_URL}/scrape-all-degrees`);
     return response.data;
-  } catch (error) {
-    throw new Error(`Failed to parse all degrees: ${error}`);
+  } catch (error: any) {
+    if (error.response) {
+      const status = error.response?.status;
+      const data = error.response?.data;
+      throw new Error(`Failed to parse all degrees: status=${status}, data=${JSON.stringify(data)}, message=${error.message}`);
+    }
+    throw new Error(`Failed to parse all degrees: ${error.message || error}`);
   }
 }
 
@@ -64,8 +79,13 @@ export async function getAllCourses(): Promise<CourseData[]> {
   try {
     const response = await axios.get(`${PYTHON_SERVICE_BASE_URL}/get-all-courses`);
     return response.data;
-  } catch (error) {
-    throw new Error(`Failed to get all courses: ${error}`);
+  } catch (error: any) {
+    if (error.response) {
+      const status = error.response?.status;
+      const data = error.response?.data;
+      throw new Error(`Failed to get all courses: status=${status}, data=${JSON.stringify(data)}, message=${error.message}`);
+    }
+    throw new Error(`Failed to get all courses: ${error.message || error}`);
   }
 }
 
@@ -96,7 +116,12 @@ export async function parseTranscript(fileBuffer: Buffer): Promise<ParsedData> {
     );
 
     return response.data;
-  } catch (error) {
-    throw new Error(`Failed to parse transcript: ${error}`);
+  } catch (error: any) {
+    if (error.response) {
+      const status = error.response?.status;
+      const data = error.response?.data;
+      throw new Error(`Failed to parse transcript: status=${status}, data=${JSON.stringify(data)}, message=${error.message}`);
+    }
+    throw new Error(`Failed to parse transcript: ${error.message || error}`);
   }
 }

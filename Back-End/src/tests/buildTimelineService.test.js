@@ -338,7 +338,6 @@ describe('timelineService', () => {
     jest.spyOn(Timeline, 'findById').mockReturnValue(findByIdMock);
 
     const result = await buildTimelineFromDB('timeline1');
-    console.log(result)
     expect(result).toBeDefined();
     expect(result.courses['MATH 204'].status.status).toBe('completed');
     expect(result.courses['CHEM 206'].status.status).toBe('incomplete');
@@ -518,7 +517,6 @@ describe('timelineService', () => {
     };
 
     const result = await buildTimeline(formData);
-    console.log(result)
     // Check that coop course pool was added
     const coopPool = result.pools.find(pool => pool.name === 'Co-op Work Terms');
     expect(coopPool).toBeDefined();

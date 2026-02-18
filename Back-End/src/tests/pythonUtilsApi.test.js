@@ -31,7 +31,7 @@ describe('pythonUtilsApi', () => {
       const mockError = new Error('Network Error');
       axios.get.mockRejectedValue(mockError);
       await expect(pythonUtilsApi.parseDegree('invalid_url')).rejects.toThrow(
-        'Failed to parse degree: Error: Network Error',
+        'Failed to parse degree: Network Error',
       );
     });
   });
@@ -56,7 +56,7 @@ describe('pythonUtilsApi', () => {
       axios.post.mockRejectedValue(mockError);
       const fileBuffer = Buffer.from('dummy pdf data');
       await expect(pythonUtilsApi.parseTranscript(fileBuffer)).rejects.toThrow(
-        'Failed to parse transcript: Error: Network Error',
+        'Failed to parse transcript: Network Error',
       );
     });
   });

@@ -43,7 +43,7 @@ describe('Seed via /api/admin/seed-data endpoint', () => {
 
   afterAll(async () => {
     // Cleanup scraper temp files
-    // await cleanupScraperFiles();
+    await cleanupScraperFiles();
   });
 
   test('seeds and validates all degrees', async () => {
@@ -99,7 +99,7 @@ describe('Seed via /api/admin/seed-data endpoint', () => {
           );
         }
 
-        console.log(`${degreeName}: ${result.coursesCount} courses, ${result.poolsCount} pools validated successfully`);
+        console.log(`${degreeName}: ${result.poolsCount} pools validated successfully`);
         
         expect(result.hasErrors).toBe(false);
         expect(result.poolsCount).toBeGreaterThan(0);

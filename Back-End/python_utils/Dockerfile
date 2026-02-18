@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 15001
 
 # Create non-root user and group
-RUN mkdir -p /app/data && chmod -R 777 /app/data && groupadd -r appuser && useradd -r -g appuser -m appuser && chown -R appuser:appuser /app
+RUN mkdir -p /app/data && chmod -R 755 /app/data && groupadd -r appuser && useradd -r -g appuser -m appuser && chown -R appuser:appuser /app
 
 USER appuser
 

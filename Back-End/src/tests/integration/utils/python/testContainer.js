@@ -1,6 +1,5 @@
 const { GenericContainer } = require('testcontainers');
 const path = require('node:path');
-const fetch = require('node-fetch');
 
 // Build a container image from the root-level python_utils/Dockerfile
 // and provide helpers to start/stop it in tests.
@@ -36,7 +35,7 @@ async function apiReady() {
   for (let tries = 0; tries < maxTries; tries++) {
     try {
       // This will trigger initialization which takes around 3 mins
-      const res = await fetch('http://localhost:15001/health');
+      const res = await globalThis.fetch('http://localhost:15001/health');
       if (res.ok) {
         console.log('Python utils API is ready');
         return;

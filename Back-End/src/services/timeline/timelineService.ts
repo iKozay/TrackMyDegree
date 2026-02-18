@@ -739,7 +739,6 @@ export async function addEcpCoursePools(
   const ecpKey = Object.keys(ecpMapping).find((key) => degreeId.includes(key));
   if (ecpKey) {
     const ecpResult = await getDegreeData(ecpMapping[ecpKey]);
-    console.log(`Adding ECP course pool for degree ${degreeId}:`, ecpResult?.coursePools);
     if (ecpResult) {
       coursePools.push(...(ecpResult.coursePools || []));
       for (const course of Object.values(ecpResult.courses || {})) {
@@ -761,10 +760,8 @@ async function addCoopCoursePool(
   const COOP_POOL_ID = "COOP_Co-op Work Terms";
   if (degree.coursePools && !degree.coursePools.includes(COOP_POOL_ID)) {
     degree.coursePools.push(COOP_POOL_ID);
-    console.log("added coop to degree course pools")
   }
   if (coursePools.find((p) => p._id === COOP_POOL_ID)) {
-    console.log("Coop course pool already exists, skipping addition.");
     return;
   }
   const coopCoursePool = await coursepoolController.getCoursePool(COOP_POOL_ID)
