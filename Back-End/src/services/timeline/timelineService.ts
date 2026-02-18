@@ -1,11 +1,6 @@
 // services/buildTimeline.ts
 import { parseFile } from '@services/parsingService';
-import {
-  ParsedData,
-  ProgramInfo,
-  Semester,
-  CourseStatus,
-} from '../../types/transcript';
+import { ParsedData, ProgramInfo, CourseStatus } from '../../types/transcript';
 import {
   degreeController,
   CoursePoolInfo,
@@ -18,6 +13,7 @@ import { coursepoolController } from '@controllers/coursepoolController';
 
 export interface TimelineResult {
   _id?: string;
+  timelineName?: string;
   degree?: DegreeData;
   pools?: CoursePoolInfo[];
   semesters: TimelineSemester[];
@@ -148,7 +144,7 @@ export const buildTimeline = async (
   const { degreeData: degree, coursePools, courses } = result;
 
   if (programInfo.isExtendedCreditProgram) {
-    await addEcpCoursePools(degreeId, coursePools, deficiencies);
+    await addEcpCoursePools(degreeId, coursePools, deficiencies, degree);
   }
   if (programInfo.isCoop) {
     await addCoopCoursePool(degree, coursePools, courses);
@@ -535,6 +531,7 @@ async function getCourseData(courseCode: string) {
 }
 
 import { PredefinedSequenceTerm } from "../../types/transcript";
+import {getTermRanges} from "@utils/misc";
 
 async function generateSemestersFromPredefinedSequence(
   predefinedSequence: PredefinedSequenceTerm[],
@@ -684,44 +681,6 @@ function generateTerms(startTerm?: string, endTerm?: string) {
   return resultTerms;
 }
 
-function getTermRanges(term: string): { start: Date; end: Date } {
-  // Example: "FALL 2026" or "FALL/WINTER 2025-26"
-  //TODO: change dates to reflect actual calendar
-  let [name, yearStr] = term.split(' ');
-  if (name == SEASONS.FALL_WINTER) {
-    yearStr = yearStr.split('-')[0];
-  }
-  const year = Number(yearStr);
-
-  let start: Date;
-  let end: Date;
-
-  switch (name) {
-    case SEASONS.WINTER:
-      start = new Date(year, 0, 1); // Jan 1
-      end = new Date(year, 3, 30); // Apr 30
-      break;
-
-    case SEASONS.SUMMER:
-      start = new Date(year, 4, 1); // May 1
-      end = new Date(year, 7, 31); // Aug 31
-      break;
-
-    case SEASONS.FALL:
-      start = new Date(year, 8, 1); // Sep 1
-      end = new Date(year, 11, 31); // Dec 31
-      break;
-    case SEASONS.FALL_WINTER:
-      start = new Date(year, 8, 1); // Sep 1
-      end = new Date(year + 1, 3, 30); // Apr 30
-      break;
-    default:
-      throw new Error('Unknown term: ' + name);
-  }
-
-  return { start, end };
-}
-
 export async function buildTimelineFromDB(
   timelineId: string,
 ): Promise<TimelineResult | undefined> {
@@ -733,10 +692,16 @@ export async function buildTimelineFromDB(
     throw new Error('Timeline not found');
   }
 
-  return buildTimeline({
-    type: 'timelineData',
-    data: timeline,
+   const result = await buildTimeline({
+      type: 'timelineData',
+      data: timeline,
   });
+
+  if (result) {
+      result.timelineName = timeline.name;
+  }
+
+  return result;
 }
 
 export function addCourseToUsedUnusedPool(
@@ -766,6 +731,7 @@ export async function addEcpCoursePools(
   degreeId: string,
   coursePools: CoursePoolInfo[],
   deficiencies: string[],
+  degree?: DegreeData, // optional: when provided, increment degree.totalCredits by 30
 ) {
   const ecpMapping: Record<string, string> = {
     BEng: 'ENGR_ECP',
@@ -778,6 +744,11 @@ export async function addEcpCoursePools(
     if (ecpResult) {
       coursePools.push(...ecpResult.coursePools);
       deficiencies.push(...ecpResult.coursePools.map((pool) => pool.name));
+
+      // If a degree object was passed in, increment its totalCredits by 30
+      if (degree) {
+        degree.totalCredits = (degree.totalCredits ?? 0) + 30;
+      }
     }
   }
 }
@@ -786,11 +757,16 @@ async function addCoopCoursePool(
   coursePools: CoursePoolInfo[],
   courses: Record<string, CourseData>,
 ) {
-  if (degree.coursePools) {
-    degree.coursePools.push("Coop Courses");
+  const COOP_POOL_NAME = "Coop Courses";
+  if (degree.coursePools && !degree.coursePools.includes(COOP_POOL_NAME)) {
+    degree.coursePools.push(COOP_POOL_NAME);
     console.log("added coop to degree course pools")
   }
-  const coopCoursePool = await coursepoolController.getCoursePool("Coop Courses")
+  if (coursePools.find((p) => p.name === COOP_POOL_NAME)) {
+    console.log("Coop course pool already exists, skipping addition.");
+    return;
+  }
+  const coopCoursePool = await coursepoolController.getCoursePool(COOP_POOL_NAME)
   if (coopCoursePool) {
     const coopCoursesList = coopCoursePool.courses || [];
     const coopCourses = await Promise.all(coopCoursesList.map(async (code) => await getCourseData(code)));
@@ -801,7 +777,7 @@ async function addCoopCoursePool(
       }
     }
   } else {
-    console.warn("Coop Courses pool not found, skipping.");
+    console.warn(`${COOP_POOL_NAME} pool not found, skipping.`);
   }
 }
 

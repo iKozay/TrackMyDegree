@@ -139,10 +139,10 @@ const UserPage = (prop) => {
                             navigate(`/degree-audit/${obj._id}`);
                           }}
                           className="btn btn-audit d-flex align-items-center gap-2"
-                          title="Degree Audit"
+                          title="Degree Assessment"
                         >
                           <FileText size={14} />
-                          <span className="d-none d-sm-inline">Audit</span>
+                          <span className="d-none d-sm-inline">Assessment</span>
                         </button>
                         <button
                           onClick={(e) => {

@@ -33,15 +33,28 @@ export const MainModal: React.FC<MainModalProps> = ({
   const renderContent = () => {
     switch (type) {
       case "insights":
-        return <InsightsModal open={open} pools={pools} courses={courses} onClose={() => onClose(false, type)} />;
+        return (
+          <InsightsModal
+            open={open}
+            pools={pools}
+            courses={courses}
+            onClose={() => onClose(false, type)}
+          />
+        );
       case "exemption":
-        return <AddModal open={open} type="exemption" onAdd={onAdd} onClose={() => onClose(false, type)} />;
+        return <AddModal type="exemption" onAdd={onAdd} />;
       case "deficiency":
-        return <AddModal open={open} type="deficiency" onAdd={onAdd} onClose={() => onClose(false, type)} />;
+        return <AddModal type="deficiency" onAdd={onAdd} />;
       case "save":
-        return <SaveTimelineModal open={open} timelineName={timelineName} onSave={onSave} onClose={() => onClose(false, type)} />;
+        return (
+          <SaveTimelineModal
+            timelineName={timelineName}
+            onSave={onSave}
+            onClose={() => onClose(false, type)}
+          />
+        );
       case "coop":
-        return <CoopValidationModal isOpen={open} onClose={() => onClose(false, type)}/>
+        return <CoopValidationModal />;
       default:
         return (
           <div>
