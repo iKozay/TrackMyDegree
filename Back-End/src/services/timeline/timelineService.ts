@@ -1,6 +1,6 @@
 // services/buildTimeline.ts
 import { parseFile } from '@services/parsingService';
-import { ParsedData, ProgramInfo, CourseStatus } from '../../types/transcript';
+import { PredefinedSequenceTerm, ParsedData, ProgramInfo, CourseStatus } from '../../types/transcript';
 import {
   degreeController,
   CoursePoolInfo,
@@ -8,6 +8,7 @@ import {
 } from '@controllers/degreeController';
 import { CourseData, courseController } from '@controllers/courseController';
 import { SEASONS } from '@utils/constants';
+import {getTermRanges} from "@utils/misc";
 import { Timeline } from '@models';
 import { coursepoolController } from '@controllers/coursepoolController';
 
@@ -144,7 +145,7 @@ export const buildTimeline = async (
   const { degreeData: degree, coursePools, courses } = result;
 
   if (programInfo.isExtendedCreditProgram) {
-    await addEcpCoursePools(degreeId, coursePools, deficiencies, degree);
+    await addEcpCoursePools(degreeId, coursePools, courses, degree);
   }
   if (programInfo.isCoop) {
     await addCoopCoursePool(degree, coursePools, courses);
@@ -530,9 +531,6 @@ async function getCourseData(courseCode: string) {
   }
 }
 
-import { PredefinedSequenceTerm } from "../../types/transcript";
-import {getTermRanges} from "@utils/misc";
-
 async function generateSemestersFromPredefinedSequence(
   predefinedSequence: PredefinedSequenceTerm[],
   startTerm: string | undefined,
@@ -730,20 +728,23 @@ export function addCourseToUsedUnusedPool(
 export async function addEcpCoursePools(
   degreeId: string,
   coursePools: CoursePoolInfo[],
-  deficiencies: string[],
+  courses: Record<string, CourseData>,
   degree?: DegreeData, // optional: when provided, increment degree.totalCredits by 30
 ) {
   const ecpMapping: Record<string, string> = {
-    BEng: 'ENGR_ECP',
-    BCompSc: 'COMP_ECP',
+    BEng: 'Extended Credit Program - Engineering',
+    BCompSc: 'Extended Credit Program - Computer Science',
   };
 
   const ecpKey = Object.keys(ecpMapping).find((key) => degreeId.includes(key));
   if (ecpKey) {
     const ecpResult = await getDegreeData(ecpMapping[ecpKey]);
+    console.log(`Adding ECP course pool for degree ${degreeId}:`, ecpResult?.coursePools);
     if (ecpResult) {
-      coursePools.push(...ecpResult.coursePools);
-      deficiencies.push(...ecpResult.coursePools.map((pool) => pool.name));
+      coursePools.push(...(ecpResult.coursePools || []));
+      for (const course of Object.values(ecpResult.courses || {})) {
+        courses[course._id] = course;
+      }
 
       // If a degree object was passed in, increment its totalCredits by 30
       if (degree) {
@@ -757,16 +758,16 @@ async function addCoopCoursePool(
   coursePools: CoursePoolInfo[],
   courses: Record<string, CourseData>,
 ) {
-  const COOP_POOL_NAME = "Coop Courses";
-  if (degree.coursePools && !degree.coursePools.includes(COOP_POOL_NAME)) {
-    degree.coursePools.push(COOP_POOL_NAME);
+  const COOP_POOL_ID = "COOP_Co-op Work Terms";
+  if (degree.coursePools && !degree.coursePools.includes(COOP_POOL_ID)) {
+    degree.coursePools.push(COOP_POOL_ID);
     console.log("added coop to degree course pools")
   }
-  if (coursePools.find((p) => p.name === COOP_POOL_NAME)) {
+  if (coursePools.find((p) => p._id === COOP_POOL_ID)) {
     console.log("Coop course pool already exists, skipping addition.");
     return;
   }
-  const coopCoursePool = await coursepoolController.getCoursePool(COOP_POOL_NAME)
+  const coopCoursePool = await coursepoolController.getCoursePool(COOP_POOL_ID)
   if (coopCoursePool) {
     const coopCoursesList = coopCoursePool.courses || [];
     const coopCourses = await Promise.all(coopCoursesList.map(async (code) => await getCourseData(code)));
@@ -777,7 +778,7 @@ async function addCoopCoursePool(
       }
     }
   } else {
-    console.warn(`${COOP_POOL_NAME} pool not found, skipping.`);
+    console.warn(`Co-op course pool with ID ${COOP_POOL_ID} not found, skipping.`);
   }
 }
 

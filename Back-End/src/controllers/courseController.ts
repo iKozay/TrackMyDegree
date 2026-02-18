@@ -13,8 +13,8 @@ export interface CourseData {
     coreq?: string[][];
     not_taken?: string[];
   };
-  notes: string;
-  components: string[];
+  notes?: string;
+  components?: string[];
 }
 
 export class CourseController extends BaseMongoController<any> {

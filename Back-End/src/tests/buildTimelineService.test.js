@@ -38,8 +38,8 @@ describe('timelineService', () => {
 
     // Mock coursepoolController for coop courses
     coursepoolController.getCoursePool.mockResolvedValue({
-      _id: 'Coop Courses',
-      name: 'Coop Courses',
+      _id: 'COOP_Co-op Work Terms',
+      name: 'Co-op Work Terms',
       creditsRequired: 0,
       courses: ['CWT 100', 'CWT 101']
     });
@@ -518,9 +518,9 @@ describe('timelineService', () => {
     };
 
     const result = await buildTimeline(formData);
-
+    console.log(result)
     // Check that coop course pool was added
-    const coopPool = result.pools.find(pool => pool.name === 'Coop Courses');
+    const coopPool = result.pools.find(pool => pool.name === 'Co-op Work Terms');
     expect(coopPool).toBeDefined();
     expect(coopPool.courses).toEqual(['CWT 100', 'CWT 101']);
 
@@ -529,7 +529,7 @@ describe('timelineService', () => {
     expect(result.courses['CWT 101']).toBeDefined();
 
     // Verify that the coursepoolController was called
-    expect(coursepoolController.getCoursePool).toHaveBeenCalledWith('Coop Courses');
+    expect(coursepoolController.getCoursePool).toHaveBeenCalledWith('COOP_Co-op Work Terms');
   });
 
   it('builds timeline from predefined sequence', async () => {
