@@ -485,4 +485,258 @@ describe('DegreeAuditPage', () => {
         // Should not show "remaining" legend in requirement section (using legend-remaining class)
         expect(document.querySelector('.legend-remaining')).toBeNull();
     });
+
+    it('should display 100% for requirements with 0 total credits instead of NaN', async () => {
+        const dataWithZeroCredits = {
+            ...mockAuditData,
+            requirements: [
+                {
+                    id: 'coop',
+                    title: 'Coop Courses',
+                    status: 'Complete',
+                    creditsCompleted: 0,
+                    creditsTotal: 0,
+                    courses: [
+                        { id: 'coop1', code: 'CWT 100', title: 'COOP Work Term 1', credits: 0, status: 'Missing', grade: null },
+                    ],
+                },
+            ],
+        };
+        mockApiGet.mockResolvedValueOnce(dataWithZeroCredits);
+        renderPage();
+
+        await waitFor(() => {
+            expect(screen.getByText('Coop Courses')).toBeTruthy();
+        });
+
+        // Should show 100% instead of NaN%
+        expect(screen.getByText(/0\/0 credits \(100%\)/)).toBeTruthy();
+        expect(screen.queryByText(/NaN/)).toBeNull();
+    });
+
+    it('should expand all requirements when Expand All is clicked', async () => {
+        mockApiGet.mockResolvedValueOnce(mockAuditData);
+        renderPage();
+
+        await waitFor(() => {
+            expect(screen.getByText('Core Computer Science')).toBeTruthy();
+        });
+
+        // Initially all requirements should be collapsed
+        expect(screen.queryByText('COMP 248 - Object-Oriented Programming I')).toBeNull();
+        expect(screen.queryByText('MATH 201 - Calculus I')).toBeNull();
+
+        // Click Expand All
+        const expandAllBtn = screen.getByTitle('Expand all sections');
+        fireEvent.click(expandAllBtn);
+
+        // All requirements should now be expanded
+        expect(screen.getByText('COMP 248 - Object-Oriented Programming I')).toBeTruthy();
+        expect(screen.getByText('MATH 201 - Calculus I')).toBeTruthy();
+    });
+
+    it('should collapse all requirements when Collapse All is clicked', async () => {
+        mockApiGet.mockResolvedValueOnce(mockAuditData);
+        renderPage();
+
+        await waitFor(() => {
+            expect(screen.getByText('Core Computer Science')).toBeTruthy();
+        });
+
+        // Expand all first
+        const expandAllBtn = screen.getByTitle('Expand all sections');
+        fireEvent.click(expandAllBtn);
+
+        await waitFor(() => {
+            expect(screen.getByText('COMP 248 - Object-Oriented Programming I')).toBeTruthy();
+        });
+
+        // Click Collapse All
+        const collapseAllBtn = screen.getByTitle('Collapse all sections');
+        fireEvent.click(collapseAllBtn);
+
+        // All requirements should now be collapsed
+        expect(screen.queryByText('COMP 248 - Object-Oriented Programming I')).toBeNull();
+        expect(screen.queryByText('MATH 201 - Calculus I')).toBeNull();
+    });
+
+    it('should show Collapse All button when any requirement is expanded', async () => {
+        mockApiGet.mockResolvedValueOnce(mockAuditData);
+        renderPage();
+
+        await waitFor(() => {
+            expect(screen.getByText('Core Computer Science')).toBeTruthy();
+        });
+
+        // Initially no Collapse All button should be visible (none expanded)
+        expect(screen.queryByTitle('Collapse all sections')).toBeNull();
+
+        // Expand one requirement
+        fireEvent.click(screen.getByText('Core Computer Science'));
+
+        // Now Collapse All button should appear
+        expect(screen.getByTitle('Collapse all sections')).toBeTruthy();
+    });
+
+    it('should show Expand All button when not all requirements are expanded', async () => {
+        mockApiGet.mockResolvedValueOnce(mockAuditData);
+        renderPage();
+
+        await waitFor(() => {
+            expect(screen.getByText('Core Computer Science')).toBeTruthy();
+        });
+
+        // Initially Expand All should be visible
+        expect(screen.getByTitle('Expand all sections')).toBeTruthy();
+
+        // Expand one requirement (but not all)
+        fireEvent.click(screen.getByText('Core Computer Science'));
+
+        // Expand All should still be visible
+        expect(screen.getByTitle('Expand all sections')).toBeTruthy();
+
+        // Expand all
+        fireEvent.click(screen.getByTitle('Expand all sections'));
+
+        // Now Expand All should be hidden (all are expanded)
+        expect(screen.queryByTitle('Expand all sections')).toBeNull();
+    });
+
+    it('should not show sticky header initially when requirement is expanded', async () => {
+        mockApiGet.mockResolvedValueOnce(mockAuditData);
+        const { container } = renderPage();
+
+        await waitFor(() => {
+            expect(screen.getByText('Core Computer Science')).toBeTruthy();
+        });
+
+        // Expand requirement
+        fireEvent.click(screen.getByText('Core Computer Science'));
+
+        await waitFor(() => {
+            expect(screen.getByText('COMP 248 - Object-Oriented Programming I')).toBeTruthy();
+        });
+
+        // Mock getBoundingClientRect to simulate header being IN view (not scrolled out)
+        const reqHeaderRow = container.querySelector('.req-header-row');
+        if (reqHeaderRow) {
+            const mockGetBoundingClientRect = vi.fn(() => ({
+                bottom: 100, // Positive value means still in view
+                top: 50,
+                left: 0,
+                right: 0,
+                width: 0,
+                height: 0,
+                x: 0,
+                y: 0,
+                toJSON: () => {},
+            }));
+            reqHeaderRow.getBoundingClientRect = mockGetBoundingClientRect;
+
+            // Trigger scroll event to update state
+            fireEvent.scroll(window);
+
+            // Wait a bit for state to update
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
+        // Sticky header should not be rendered when main header is in view
+        const stickyHeaders = document.querySelectorAll('.req-sticky-header');
+        expect(stickyHeaders.length).toBe(0);
+    });
+
+    it('should collapse individual section when sticky header collapse button is clicked', async () => {
+        mockApiGet.mockResolvedValueOnce(mockAuditData);
+        const { container } = renderPage();
+
+        await waitFor(() => {
+            expect(screen.getByText('Core Computer Science')).toBeTruthy();
+        });
+
+        // Expand requirement
+        fireEvent.click(screen.getByText('Core Computer Science'));
+
+        await waitFor(() => {
+            expect(screen.getByText('COMP 248 - Object-Oriented Programming I')).toBeTruthy();
+        });
+
+        // Simulate scroll to make sticky header visible
+        const reqHeaderRow = container.querySelector('.req-header-row');
+        if (reqHeaderRow) {
+            // Mock getBoundingClientRect to simulate header being scrolled out of view
+            const mockGetBoundingClientRect = vi.fn(() => ({
+                bottom: -10,
+                top: -100,
+                left: 0,
+                right: 0,
+                width: 0,
+                height: 0,
+                x: 0,
+                y: 0,
+                toJSON: () => {},
+            }));
+            reqHeaderRow.getBoundingClientRect = mockGetBoundingClientRect;
+
+            // Trigger scroll event
+            fireEvent.scroll(window);
+
+            await waitFor(() => {
+                const stickyHeaders = document.querySelectorAll('.req-sticky-header');
+                expect(stickyHeaders.length).toBeGreaterThan(0);
+            });
+
+            // Find and click the individual collapse button in sticky header
+            const collapseBtn = screen.getByTitle('Collapse Core Computer Science');
+            fireEvent.click(collapseBtn);
+
+            // Requirement should now be collapsed
+            await waitFor(() => {
+                expect(screen.queryByText('COMP 248 - Object-Oriented Programming I')).toBeNull();
+            });
+        }
+    });
+
+    it('should show both Collapse All and individual collapse buttons in sticky header', async () => {
+        mockApiGet.mockResolvedValueOnce(mockAuditData);
+        const { container } = renderPage();
+
+        await waitFor(() => {
+            expect(screen.getByText('Core Computer Science')).toBeTruthy();
+        });
+
+        // Expand requirement
+        fireEvent.click(screen.getByText('Core Computer Science'));
+
+        await waitFor(() => {
+            expect(screen.getByText('COMP 248 - Object-Oriented Programming I')).toBeTruthy();
+        });
+
+        // Simulate scroll to make sticky header visible
+        const reqHeaderRow = container.querySelector('.req-header-row');
+        if (reqHeaderRow) {
+            const mockGetBoundingClientRect = vi.fn(() => ({
+                bottom: -10,
+                top: -100,
+                left: 0,
+                right: 0,
+                width: 0,
+                height: 0,
+                x: 0,
+                y: 0,
+                toJSON: () => {},
+            }));
+            reqHeaderRow.getBoundingClientRect = mockGetBoundingClientRect;
+
+            fireEvent.scroll(window);
+
+            await waitFor(() => {
+                const stickyHeaders = document.querySelectorAll('.req-sticky-header');
+                expect(stickyHeaders.length).toBeGreaterThan(0);
+            });
+
+            // Check both buttons exist in sticky header
+            expect(screen.getByTitle('Collapse All Sections')).toBeTruthy();
+            expect(screen.getByTitle('Collapse Core Computer Science')).toBeTruthy();
+        }
+    });
 });

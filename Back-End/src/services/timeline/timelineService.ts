@@ -705,11 +705,16 @@ async function addCoopCoursePool(
   coursePools: CoursePoolInfo[],
   courses: Record<string, CourseData>,
 ) {
-  if (degree.coursePools) {
-    degree.coursePools.push("Coop Courses");
+  const COOP_POOL_NAME = "Coop Courses";
+  if (degree.coursePools && !degree.coursePools.includes(COOP_POOL_NAME)) {
+    degree.coursePools.push(COOP_POOL_NAME);
     console.log("added coop to degree course pools")
   }
-  const coopCoursePool = await coursepoolController.getCoursePool("Coop Courses")
+  if (coursePools.find((p) => p.name === COOP_POOL_NAME)) {
+    console.log("Coop course pool already exists, skipping addition.");
+    return;
+  }
+  const coopCoursePool = await coursepoolController.getCoursePool(COOP_POOL_NAME)
   if (coopCoursePool) {
     const coopCoursesList = coopCoursePool.courses || [];
     const coopCourses = await Promise.all(coopCoursesList.map(async (code) => await getCourseData(code)));
@@ -720,7 +725,7 @@ async function addCoopCoursePool(
       }
     }
   } else {
-    console.warn("Coop Courses pool not found, skipping.");
+    console.warn(`${COOP_POOL_NAME} pool not found, skipping.`);
   }
 }
 

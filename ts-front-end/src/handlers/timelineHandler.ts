@@ -40,7 +40,7 @@ export function initTimelineState(
     pools: TimelineState["pools"];
     courses: TimelineState["courses"];
     semesters: TimelineState["semesters"];
-  }
+  },
 ): TimelineState {
   return {
     timelineName: payload.timelineName,
@@ -60,7 +60,7 @@ export function initTimelineState(
 
 export function selectCourse(
   state: TimelineState,
-  payload: { courseId: CourseCode | null }
+  payload: { courseId: CourseCode | null },
 ): TimelineState {
   return {
     ...state,
@@ -70,7 +70,7 @@ export function selectCourse(
 
 export function moveFromPoolToSemester(
   state: TimelineState,
-  payload: { courseId: CourseCode; toSemesterId: SemesterId }
+  payload: { courseId: CourseCode; toSemesterId: SemesterId },
 ): TimelineState {
   const s1 = withPushedHistory(state);
   const { courseId, toSemesterId } = payload;
@@ -112,7 +112,7 @@ export function moveBetweenSemesters(
     courseId: CourseCode;
     fromSemesterId: SemesterId;
     toSemesterId: SemesterId;
-  }
+  },
 ): TimelineState {
   const { courseId, fromSemesterId, toSemesterId } = payload;
   if (fromSemesterId === toSemesterId) return state;
@@ -162,7 +162,7 @@ export function moveBetweenSemesters(
 
 export function removeFromSemester(
   state: TimelineState,
-  payload: { courseId: CourseCode; semesterId: SemesterId }
+  payload: { courseId: CourseCode; semesterId: SemesterId },
 ): TimelineState {
   const s1 = withPushedHistory(state);
   const { courseId, semesterId } = payload;
@@ -232,7 +232,7 @@ export function redo(state: TimelineState): TimelineState {
 
 export function openModal(
   state: TimelineState,
-  payload: { open: boolean; type: string }
+  payload: { open: boolean; type: string },
 ): TimelineState {
   return {
     ...state,
@@ -245,7 +245,7 @@ export function changeCourseStatus(
   payload: {
     courseId: CourseCode;
     status: CourseStatusValue;
-  }
+  },
 ): TimelineState {
   const s1 = withPushedHistory(state);
   const { courseId, status } = payload;
@@ -301,7 +301,7 @@ export function changeCourseStatus(
 }
 export function addCourse(
   state: TimelineState,
-  payload: { courseId: CourseCode; type: string }
+  payload: { courseId: CourseCode; type: string },
 ): TimelineState {
   const { courseId, type } = payload;
 
@@ -309,8 +309,8 @@ export function addCourse(
     type === "exemption"
       ? "exemptions"
       : type === "deficiency"
-      ? "deficiencies"
-      : null;
+        ? "deficiencies"
+        : null;
 
   if (!poolName) return state;
 
@@ -352,7 +352,15 @@ export function addCourse(
             semester: null,
           },
         }
-      : course;
+      : type === "deficiency"
+        ? {
+            ...course,
+            status: {
+              status: "incomplete", // <-- make sure this matches your CourseStatusValue union
+              semester: null,
+            },
+          }
+        : course;
 
   const updatedCourses = {
     ...state.courses,
