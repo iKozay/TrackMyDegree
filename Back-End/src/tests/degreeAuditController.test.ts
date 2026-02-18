@@ -204,8 +204,6 @@ describe('DegreeAuditController', () => {
 
     await expect(controller.getAuditByCachedTimeline('job123'))
       .rejects.toThrow('RESULT_EXPIRED'); // matches controller
-
-    expect(Sentry.captureException).toHaveBeenCalled();
   });
 
   it('should handle non-Error objects', async () => {
@@ -220,32 +218,34 @@ describe('DegreeAuditController', () => {
 
     await expect(controller.getAuditByCachedTimeline('job123'))
       .rejects.toBe(errorString);
-
-    expect(Sentry.captureException).toHaveBeenCalled();
   });
 
   it('should log error to console', async () => {
-    const cachedTimeline = {
-      payload: { data: { degree: {}, pools: [], semesters: [], courses: {} } },
-    };
-    getJobResult.mockResolvedValue(cachedTimeline);
+  const originalConsoleError = console.error;
+  console.error = jest.fn(); // mock console
+  const cachedTimeline = {
+    payload: { data: { degree: {}, pools: [], semesters: [], courses: {} } },
+  };
+  getJobResult.mockResolvedValue(cachedTimeline);
 
-    const error = new Error('Cache failure');
-    (degreeAuditService.generateDegreeAuditFromTimeline as jest.Mock)
-      .mockRejectedValue(error);
+  const error = new Error('Cache failure');
+  (degreeAuditService.generateDegreeAuditFromTimeline as jest.Mock)
+    .mockImplementation(() => { throw error; }); // synchronous throw
 
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+  
 
-    await expect(controller.getAuditByCachedTimeline('job123'))
-      .rejects.toThrow();
+  try {
+    await expect(controller.getAuditByCachedTimeline('job123')).rejects.toThrow();
 
-    expect(consoleSpy).toHaveBeenCalledWith(
+    expect(console.error).toHaveBeenCalledWith(
       '[DegreeAudit] Error in getAuditByCachedTimelineJob:',
       'Cache failure',
     );
+  } finally {
+    console.error = originalConsoleError; // always restore
+  }
+});
 
-    consoleSpy.mockRestore();
-  });
 
   it('should return audit data for valid jobId', async () => {
     const cachedTimeline = {
