@@ -10,7 +10,7 @@ SPACE_REPLACEMENT = r'\1 \2'
 REGEX_ALL = r".*"
 REGEX_NONE = r"a^"  # regex to match nothing
 TITLE_REGEX = r"^(.*)\((\d+(?:\.\d+)?) credits\)"
-COURSE_REGEX = r'[A-Z]{3,4}\s+\d{3}'
+COURSE_REGEX = r'[A-Z]{3,4}\s+\d{3,4}'
 CATALOG_COURSE_TITLE_REGEX = rf'^({COURSE_REGEX})\s+(.+?)\s*\(\s*(\d+(?:\.\d+)?)\s*credits\s*\)$'
 EM_DASH_PLACEHOLDER = "EM_DASH"
 
