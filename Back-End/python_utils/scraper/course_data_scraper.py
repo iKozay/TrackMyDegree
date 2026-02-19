@@ -51,6 +51,11 @@ class CourseDataScraper:
         for link in faculty_links:
             self.logger.info(f"Scraping courses for faculty: {link.text}")
             subjects = get_all_links_from_div(link.url, ["content-main"])
+
+            if link.text == "Gina Cody School of Engineering and Computer Science Courses":
+                # Add missing CHME link
+                subjects.append(AnchorLink(text="Chemical and Materials Engineering Courses", url="https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-60-engineering-course-descriptions/chemical-and-materials-engineering-courses.html"))
+
             self.logger.info(f"Found {len(subjects)} subjects for faculty: {link.text}")
 
             # remove duplicate subjects based on url path (ignore hash/fragment)

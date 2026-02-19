@@ -45,8 +45,3 @@ volumes:
   redis-data:
   mongodb-data:
   python-utils-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./Back-End/data
