@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 from scraper.degree_data_scraper import *
 from scraper.abstract_degree_scraper import AbstractDegreeScraper
-from models import AnchorLink, CoursePool, DegreeType
+from models import AnchorLink, CoursePool, Degree, DegreeType
 
 
 class MockDegreeScraper(AbstractDegreeScraper):
@@ -56,7 +56,7 @@ class TestDegreeDataScraper:
         degree_name = "BEng in Computer Engineering"
         
         # Mock the scraper's scrape_degree method
-        mock_degree = type('Degree', (), {'name': degree_name, 'totalCredits': 120.0, 'degreeType': DegreeType.STANDALONE})()
+        mock_degree = Degree(_id=degree_name, name=degree_name, totalCredits=120.0, degreeType=DegreeType.STANDALONE, coursePools=[])
         mock_response = ProgramRequirements(degree=mock_degree, coursePools=[])
         
         with patch.object(scraper.degree_scrapers[degree_name], 'scrape_degree', return_value=mock_response):
@@ -83,7 +83,7 @@ class TestDegreeDataScraper:
         
         # Mock all scraper instances
         for degree_name, degree_scraper in scraper.degree_scrapers.items():
-            mock_degree = type('Degree', (), {'name': degree_name, 'totalCredits': 120.0, 'degreeType': DegreeType.STANDALONE})()
+            mock_degree = Degree(_id=degree_name,name=degree_name, totalCredits=120.0, degreeType=DegreeType.STANDALONE, coursePools=[])
             mock_response = ProgramRequirements(degree=mock_degree, coursePools=[])
             degree_scraper.scrape_degree = MagicMock(return_value=mock_response)
         

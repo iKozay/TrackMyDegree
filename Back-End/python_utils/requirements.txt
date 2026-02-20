@@ -25,6 +25,7 @@ python-dotenv
 pandas==2.3.3
 Unidecode==1.4.0
 pyarrow==23.0.0
+pydantic==2.10.4
 
 # Testing dependencies
 pytest>=8.4.2

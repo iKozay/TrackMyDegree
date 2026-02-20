@@ -5,10 +5,15 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from unittest.mock import patch, MagicMock
 from io import BytesIO
-from main import app
+
+# Mock the entire main module before importing it to prevent initialization
+with patch('main.init_instances', return_value=None), patch('main.run_init', return_value=None):
+    from main import app
 
 class TestParseTranscript:
-    def test_parse_transcript_success(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_parse_transcript_success(self, mock_run_init, mock_init):
         """Test successful transcript parsing returns 200"""
         with app.test_client() as client:
             with patch('main.parse_transcript') as mock_parse:
@@ -35,7 +40,9 @@ class TestParseTranscript:
                 assert data['programInfo']['degree'] == 'Bachelor of Engineering, Software Engineering'
                 mock_parse.assert_called_once()
 
-    def test_parse_transcript_no_file(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_parse_transcript_no_file(self, mock_run_init, mock_init):
         """Test transcript parsing with no file returns 400"""
         with app.test_client() as client:
             response = client.post("/parse-transcript")
@@ -45,7 +52,9 @@ class TestParseTranscript:
             assert 'error' in data
             assert 'No file provided' in data['error']
 
-    def test_parse_transcript_invalid_file_type(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_parse_transcript_invalid_file_type(self, mock_run_init, mock_init):
         """Test transcript parsing with non-PDF file returns 400"""
         with app.test_client() as client:
             text_content = b"This is not a PDF file"
@@ -58,7 +67,9 @@ class TestParseTranscript:
             assert 'error' in data
             assert 'must be a PDF' in data['error']
 
-    def test_parse_transcript_parsing_error(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_parse_transcript_parsing_error(self, mock_run_init, mock_init):
         """Test transcript parsing with parsing exception returns 500"""
         with app.test_client() as client:
             with patch('main.parse_transcript') as mock_parse:
@@ -75,7 +86,9 @@ class TestParseTranscript:
                 assert 'PyMuPDF parsing error' in data['error']
 
 class TestDegreeEndpoints:
-    def test_get_degree_names_success(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_get_degree_names_success(self, mock_run_init, mock_init):
         """Test successful degree names retrieval returns 200"""
         with app.test_client() as client:
             with patch('main.degree_data_scraper_instance') as mock_instance:
@@ -92,7 +105,9 @@ class TestDegreeEndpoints:
                 assert "Computer Engineering" in data[0]
                 mock_instance.get_degree_names.assert_called_once()
 
-    def test_get_degree_names_not_initialized(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_get_degree_names_not_initialized(self, mock_run_init, mock_init):
         """Test degree names with uninitialized scraper returns 503"""
         with app.test_client() as client:
             with patch('main.degree_data_scraper_instance', None):
@@ -103,7 +118,9 @@ class TestDegreeEndpoints:
                 assert 'error' in data
                 assert 'not initialized' in data['error']
 
-    def test_scrape_degree_success(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_scrape_degree_success(self, mock_run_init, mock_init):
         """Test successful degree scraping by name returns 200"""
         with app.test_client() as client:
             with patch('main.degree_data_scraper_instance') as mock_instance:
@@ -120,7 +137,9 @@ class TestDegreeEndpoints:
                 assert data['degree']['name'] == 'BEng in Computer Engineering'
                 mock_instance.scrape_degree_by_name.assert_called_once_with("Computer Engineering")
 
-    def test_scrape_degree_no_name_parameter(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_scrape_degree_no_name_parameter(self, mock_run_init, mock_init):
         """Test degree scraping without name parameter returns 400"""
         with app.test_client() as client:
             with patch('main.degree_data_scraper_instance', MagicMock()):
@@ -131,7 +150,9 @@ class TestDegreeEndpoints:
                 assert 'error' in data
                 assert 'required' in data['error']
 
-    def test_scrape_degree_not_initialized(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_scrape_degree_not_initialized(self, mock_run_init, mock_init):
         """Test degree scraping with uninitialized scraper returns 503"""
         with app.test_client() as client:
             with patch('main.degree_data_scraper_instance', None):
@@ -142,7 +163,9 @@ class TestDegreeEndpoints:
                 assert 'error' in data
                 assert 'not initialized' in data['error']
 
-    def test_scrape_degree_error(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_scrape_degree_error(self, mock_run_init, mock_init):
         """Test degree scraping with exception returns 500"""
         with app.test_client() as client:
             with patch('main.degree_data_scraper_instance') as mock_instance:
@@ -155,7 +178,9 @@ class TestDegreeEndpoints:
                 assert 'error' in data
                 assert 'Scraping failed' in data['error']
 
-    def test_get_degree_names_error(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_get_degree_names_error(self, mock_run_init, mock_init):
         """Test degree names retrieval with exception returns 500"""
         with app.test_client() as client:
             with patch('main.degree_data_scraper_instance') as mock_instance:
@@ -168,7 +193,9 @@ class TestDegreeEndpoints:
                 assert 'error' in data
                 assert 'Network error' in data['error']
 
-    def test_scrape_all_degrees_success(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_scrape_all_degrees_success(self, mock_run_init, mock_init):
         """Test successful scraping of all degrees returns 200"""
         with app.test_client() as client:
             with patch('main.degree_data_scraper_instance') as mock_instance:
@@ -183,7 +210,9 @@ class TestDegreeEndpoints:
                 assert 'degrees' in data
                 mock_instance.scrape_all_degrees.assert_called_once()
 
-    def test_scrape_all_degrees_not_initialized(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_scrape_all_degrees_not_initialized(self, mock_run_init, mock_init):
         """Test scraping all degrees with uninitialized scraper returns 503"""
         with app.test_client() as client:
             with patch('main.degree_data_scraper_instance', None):
@@ -194,7 +223,9 @@ class TestDegreeEndpoints:
                 assert 'error' in data
                 assert 'not initialized' in data['error']
 
-    def test_scrape_all_degrees_error(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_scrape_all_degrees_error(self, mock_run_init, mock_init):
         """Test scraping all degrees with exception returns 500"""
         with app.test_client() as client:
             with patch('main.degree_data_scraper_instance') as mock_instance:
@@ -208,7 +239,9 @@ class TestDegreeEndpoints:
                 assert 'Scraping error' in data['error']
 
 class TestCourseEndpoints:
-    def test_get_course_success(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_get_course_success(self, mock_run_init, mock_init):
         """Test successful course retrieval by code returns 200"""
         with app.test_client() as client:
             with patch('main.course_scraper_instance') as mock_instance:
@@ -235,7 +268,9 @@ class TestCourseEndpoints:
                 assert data["title"] == "Object-Oriented Programming I"
                 mock_instance.get_courses_by_ids.assert_called_once_with(["COMP 248"], return_full_object=True)
 
-    def test_get_course_no_code_parameter(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_get_course_no_code_parameter(self, mock_run_init, mock_init):
         """Test course retrieval without code parameter returns 400"""
         with app.test_client() as client:
             with patch('main.course_scraper_instance', MagicMock()):
@@ -246,7 +281,9 @@ class TestCourseEndpoints:
                 assert 'error' in data
                 assert 'required' in data['error']
 
-    def test_get_course_not_initialized(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_get_course_not_initialized(self, mock_run_init, mock_init):
         """Test course retrieval with uninitialized scraper returns 503"""
         with app.test_client() as client:
             with patch('main.course_scraper_instance', None):
@@ -257,7 +294,9 @@ class TestCourseEndpoints:
                 assert 'error' in data
                 assert 'not initialized' in data['error']
 
-    def test_get_all_courses_success(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_get_all_courses_success(self, mock_run_init, mock_init):
         """Test successful retrieval of all courses returns 200"""
         with app.test_client() as client:
             with patch('main.course_scraper_instance') as mock_instance:
@@ -285,7 +324,9 @@ class TestCourseEndpoints:
                 assert data[1]["code"] == "COMP 249"
                 mock_instance.get_all_courses.assert_called_once_with(return_full_object=True)
 
-    def test_get_all_courses_not_initialized(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_get_all_courses_not_initialized(self, mock_run_init, mock_init):
         """Test all courses retrieval with uninitialized scraper returns 503"""
         with app.test_client() as client:
             with patch('main.course_scraper_instance', None):
@@ -296,7 +337,9 @@ class TestCourseEndpoints:
                 assert 'error' in data
                 assert 'not initialized' in data['error']
 
-    def test_get_course_error(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_get_course_error(self, mock_run_init, mock_init):
         """Test course retrieval with exception returns 500"""
         with app.test_client() as client:
             with patch('main.course_scraper_instance') as mock_instance:
@@ -309,7 +352,9 @@ class TestCourseEndpoints:
                 assert 'error' in data
                 assert 'Database error' in data['error']
 
-    def test_get_course_empty_result(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_get_course_empty_result(self, mock_run_init, mock_init):
         """Test course retrieval when no course found returns 500"""
         with app.test_client() as client:
             with patch('main.course_scraper_instance') as mock_instance:
@@ -321,7 +366,9 @@ class TestCourseEndpoints:
                 data = response.get_json()
                 assert 'error' in data
 
-    def test_get_all_courses_error(self):
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_get_all_courses_error(self, mock_run_init, mock_init):
         """Test all courses retrieval with exception returns 500"""
         with app.test_client() as client:
             with patch('main.course_scraper_instance') as mock_instance:

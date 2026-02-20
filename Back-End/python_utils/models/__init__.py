@@ -1,31 +1,35 @@
-from dataclasses import dataclass, field
-from typing import Optional
+from typing import Literal, Optional, Union
 from enum import Enum
+from pydantic import BaseModel, Field, ConfigDict
 
 class DegreeType(Enum):
     STANDALONE = "Standalone"
     COOP = "Co-op"
     ECP = "ECP"
 
-@dataclass(frozen=True)
-class AnchorLink():
+class AnchorLink(BaseModel):
+    model_config = ConfigDict(frozen=True)
     text: str
     url: str
 
-@dataclass
-class BaseModel:
-    def __str__(self) -> str:
-        return str(serialize(self))
-
-@dataclass
 class CourseRules(BaseModel):
-    prereq: list[list[str]] = field(default_factory=list)
-    coreq: list[list[str]] = field(default_factory=list)
-    not_taken: list[str] = field(default_factory=list)
+    prereq: list[list[str]] = Field(default_factory=list)
+    coreq: list[list[str]] = Field(default_factory=list)
+    not_taken: list[str] = Field(default_factory=list)
 
-@dataclass
-class Course(BaseModel):
-    _id: str
+class MongoDBModel(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, use_enum_values=True)
+    id: str = Field(alias='_id')
+    
+    @property
+    def _id(self) -> str:
+        return self.id
+    
+    @_id.setter
+    def _id(self, value: str) -> None:
+        self.id = value
+
+class Course(MongoDBModel):
     title: str
     credits: float
     description: str
@@ -35,34 +39,29 @@ class Course(BaseModel):
     notes: str
     components: list[str]
 
-@dataclass
-class CoursePool(BaseModel):
-    _id: str
+class CoursePool(MongoDBModel):
     name: str
     creditsRequired: float
     courses: list[str] # List of course IDs only
 
-@dataclass
-class Degree(BaseModel):
-    _id: str
+class Degree(MongoDBModel):
     name: str
     degreeType: DegreeType
     totalCredits: float
     coursePools: list[str] # List of CoursePool IDs only
 
-@dataclass
 class ProgramRequirements(BaseModel):
     degree: Degree
     coursePools: list[CoursePool]    
 
-@dataclass
 class DegreeScraperConfig(BaseModel):
     long_name: str
     short_name: str
     scraper_class: type
     marker: Optional[str] = None
 
-    def __post_init__(self):
+    def __init__(self, **data):
+        super().__init__(**data)
         if self.marker is None:
             self.marker = self.long_name
 
@@ -72,6 +71,12 @@ def serialize(obj):
         return [serialize(item) for item in obj]
     if isinstance(obj, Enum):
         return obj.value
+    if isinstance(obj, BaseModel):
+        # Use Pydantic's model_dump to handle aliases properly
+        d = obj.model_dump(by_alias=True)
+        for k, v in d.items():
+            d[k] = serialize(v)
+        return d
     if hasattr(obj, "__dict__"):
         d = vars(obj).copy()  # Use vars() instead of __dict__ to avoid method conflicts
         for k, v in d.items():
