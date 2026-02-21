@@ -71,6 +71,11 @@ p {
   border-radius: 6px;
 }
 
+.degree-selected {
+  width: min(90vw, 280px);
+  max-width: 300px;
+}
+
 .radio-group {
   margin-top: 20px;
   display: flex;
