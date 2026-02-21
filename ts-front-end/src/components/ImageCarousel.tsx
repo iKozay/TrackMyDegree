@@ -1,5 +1,5 @@
 import { Carousel } from 'react-bootstrap';
-import "../css/LandingPage.css";
+import "../styles/LandingPage.css";
 import pic1 from '../images/courselistpage.png';
 import pic2 from '../images/uploadAcceptanceletter.png';
 import pic4 from '../images/timelinepage.png';
