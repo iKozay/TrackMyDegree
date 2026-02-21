@@ -1,55 +1,39 @@
+/// <reference types="vitest" />
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, test, expect, vi } from 'vitest';
+import TimelineSetupPage from '../../pages/TimelineSetupPage';
 import { MemoryRouter } from 'react-router-dom';
 
-// ✅ Correct import path you requested
-import TimelineSetupPage from '../../pages/TimelineSetupPage';
-
-// Mock child components (so we isolate TimelineSetupPage behavior)
-vi.mock('../../components/InformationForm', () => ({
-  default: () => <div data-testid="information-form" />,
-}));
-
-vi.mock('../../components/UploadBox', () => ({
-  default: () => <div data-testid="upload-box" />,
-}));
-
-vi.mock('../../components/InstructionModal', () => ({
-  default: ({ isOpen }: { isOpen: boolean }) =>
-    isOpen ? <div data-testid="instructions-modal">Modal Open</div> : null,
-}));
-
 describe('TimelineSetupPage Component', () => {
-  const renderWithRouter = (ui: React.ReactNode) =>
-    render(<MemoryRouter>{ui}</MemoryRouter>);
-
-  test('renders layout correctly', () => {
-    renderWithRouter(<TimelineSetupPage />);
-
-    expect(screen.getByTestId('information-form')).toBeInTheDocument();
-    expect(screen.getByTestId('upload-box')).toBeInTheDocument();
-
-    expect(
-      screen.getByRole('button', { name: /how to download your transcript/i })
-    ).toBeInTheDocument();
+  beforeEach(() => {
+    render(
+      <MemoryRouter>
+        <TimelineSetupPage />
+      </MemoryRouter>
+    );
   });
 
-  test('opens and closes the modal when clicking the toggle button', () => {
-    renderWithRouter(<TimelineSetupPage />);
+  it('renders the hero section', () => {
+    expect(screen.getByText(/Create Your Academic Timeline/i)).toBeInTheDocument();
+    expect(screen.getByText(/Plan your journey smarter/i)).toBeInTheDocument();
+  });
 
-    const modalButton = screen.getByRole('button', {
-      name: /how to download your transcript/i,
-    });
+  it('renders the InformationForm and UploadBox cards', () => {
+    expect(screen.getAllByText(/Extended Credit Program/i)[0]).toBeInTheDocument(); // InfoForm checkbox
+    expect(screen.getByText(/Upload your acceptance letter/i)).toBeInTheDocument(); // UploadBox
+  });
 
-    // Modal should initially be closed
-    expect(screen.queryByTestId('instructions-modal')).toBeNull();
+  it('renders the OR divider', () => {
+    expect(screen.getByText(/OR/i)).toBeInTheDocument();
+  });
 
-    // Open modal
-    fireEvent.click(modalButton);
-    expect(screen.getByTestId('instructions-modal')).toBeInTheDocument();
+  it('renders the My Timelines placeholder', () => {
+    expect(screen.getByText(/User has no timeline/i)).toBeInTheDocument();
+  });
 
-    // Close modal
-    fireEvent.click(modalButton);
-    expect(screen.queryByTestId('instructions-modal')).toBeNull();
+  it('toggles the InstructionsModal when UploadBox button clicked', () => {
+    const createButton = screen.getByRole('button', { name: /Create Timeline/i });
+    fireEvent.click(createButton);
+    expect(screen.getByText(/Your Instructions/i)).toBeInTheDocument();
   });
 });
