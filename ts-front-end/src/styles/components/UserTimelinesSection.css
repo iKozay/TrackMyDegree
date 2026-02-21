@@ -1,0 +1,168 @@
+.user-timelines-section {
+  padding: 40px 20px;
+  background: #f9fafc;
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+  max-width: 1000px;
+  margin: 40px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.user-timelines-section h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #8B1538;
+  text-align: center;
+  margin-bottom: 20px;
+  animation: fadeInDown 0.7s ease-out;
+}
+
+.timeline-empty {
+  text-align: center;
+  padding: 40px;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+}
+
+.timeline-create-btn {
+  margin-top: 20px;
+  padding: 10px 25px;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.timeline-create-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(139,21,56,0.2);
+}
+
+.timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.timeline-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 20px 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.timeline-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 40px rgba(139,21,56,0.15);
+}
+
+.timeline-info {
+  flex: 1;
+  cursor: pointer;
+}
+
+.timeline-info h4 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 5px;
+  color: #333;
+}
+
+.timeline-info p {
+  font-size: 0.85rem;
+  color: #777;
+  margin: 0;
+}
+
+.timeline-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-assessment {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  border-radius: 50px;
+  background: #8B1538;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.btn-assessment:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(139,21,56,0.2);
+}
+
+.btn-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: #e0e0e0;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-delete:hover {
+  background: #ff4d4f;
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* Modal buttons */
+.delete-modal-content .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-cancel {
+  background: #e0e0e0;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #cfcfcf;
+}
+
+.btn-delete {
+  background: #8B1538;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-delete:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(139,21,56,0.2);
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px);}
+  to { opacity: 1; transform: translateY(0);}
+}
