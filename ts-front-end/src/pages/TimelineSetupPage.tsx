@@ -3,6 +3,7 @@ import { useState } from 'react';
 import InformationForm from '../components/InformationForm';
 import UploadBox from '../components/UploadBox';
 import InstructionsModal from '../components/InstructionModal';
+import UserTimelinesSection from '../components/UserTimelinesSection';
 
 const TimelineSetupPage = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -34,12 +35,7 @@ const TimelineSetupPage = () => {
       </div>
 
       {/* My Timeline Section */}
-      <div className="my-timelines-section">
-        <h1>My Timelines</h1>
-        <div className="timeline-placeholder">
-          User has no timeline.
-        </div>
-      </div>
+      <UserTimelinesSection />
 
       <InstructionsModal isOpen={isModalOpen} toggleModal={toggleModal} />
     </div>
