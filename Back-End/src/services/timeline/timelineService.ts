@@ -740,7 +740,22 @@ export async function addEcpCoursePools(
   if (ecpKey) {
     const ecpResult = await getDegreeData(ecpMapping[ecpKey]);
     if (ecpResult) {
+
+      // Merge "General Education and Humanities Electives"
+      const ecpPool = ecpResult.coursePools.find((pool) => pool.name.includes('General Education Humanities and Social Sciences Electives'));
+      const gen_ed_pool_id = coursePools.find(pool => pool.name.includes('General Education Humanities and Social Sciences Electives'));
+      if (ecpPool && gen_ed_pool_id) {
+        for (const courseCode of ecpPool.courses) {
+          if (!gen_ed_pool_id.courses.includes(courseCode)) {
+            gen_ed_pool_id.courses.push(courseCode);
+          }
+        }
+        gen_ed_pool_id.creditsRequired += ecpPool.creditsRequired;
+        ecpResult.coursePools = ecpResult.coursePools.filter(pool => pool._id !== ecpPool._id); // Remove the merged pool from ecpResult
+      }
+      // Then add the remaining ECP pools (if any) to the main coursePools array
       coursePools.push(...(ecpResult.coursePools || []));
+
       for (const course of Object.values(ecpResult.courses || {})) {
         courses[course._id] = course;
       }
