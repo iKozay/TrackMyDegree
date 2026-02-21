@@ -81,7 +81,7 @@ class ConcordiaAPIUtils:
                 "room": course.get("Room", ""),
                 "classStartTime": course.get("Class Start Time", ""),
                 "classEndTime": course.get("Class End Time", ""),
-                "modays": course.get("Mon", ""),
+                "mondays": course.get("Mon", ""),
                 "tuesdays": course.get("Tues", ""),
                 "wednesdays": course.get("Wed", ""),
                 "thursdays": course.get("Thurs", ""),

@@ -59,7 +59,7 @@ describe('Sections Routes', () => {
           "room": "937",
           "classStartTime": "17.45.00",
           "classEndTime": "20.15.00",
-          "modays": "Y",
+          "mondays": "Y",
           "tuesdays": "N",
           "wednesdays": "N",
           "thursdays": "N",
