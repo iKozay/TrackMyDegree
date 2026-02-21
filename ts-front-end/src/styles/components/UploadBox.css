@@ -1,78 +1,47 @@
-.upload-container-al {
-  text-align: center;
-  width: 50%;
-}
-.upload-container-al .upload-box-al {
-  height: 150px;
+/* Upload Box */
+.upload-box-wrapper {
   margin-top: 20px;
+}
+
+.upload-box-al {
+  margin-bottom: 10px;
+  height: 160px;
   border: 2px dashed #ccc;
-  border-radius: 6px;
+  border-radius: 14px;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  color: #888;
-  text-align: center;
+  transition: 0.3s;
 }
 
-.form-container-al h2 {
-  text-align: center;
-}
-
-.upload-container-al h2 {
-  text-align: center;
-}
-
-.form-container-al label {
-  font-size: 16px;
-  font-weight: 500;
-  margin-top: 10px;
-  display: block;
-}
-
-
-.upload-container-al .upload-box-al p {
-  font-size: 14px;
-  margin: 0;
-}
-
-.upload-container-al .file-label {
-  color: #fff;
-  background-color: #28a745;
-  border-radius: 5px;
-  padding: 5px 15px;
-  cursor: pointer;
-  margin: 10px 0;
-}
-
-.upload-container-al .file-name {
-  font-size: 14px;
-  color: #888;
-  margin-top: 5px;
-}
-
-.upload-container-al .create-button {
-  margin-top: 20px;
-  width: 150px;
-  height: 40px;
-  font-size: 16px;
-  border: none;
-  border-radius: 5px;
-  background-color: #8b0000;
-  color: #fff;
-  cursor: pointer;
-}
-
-.upload-container-al .create-button:hover,
-.next-button:hover {
-  background-color: #a61c1c;
-}
-
-.upload-container-al .upload-box-al.dragover {
+.upload-box-al:hover {
   border-color: #8b0000;
+  background-color: #fafafa;
+  transform: scale(1.02);
 }
 
-.upload-container-al .create-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.8;
+.file-name {
+  font-family: 'DM Sans', sans-serif;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #777;
+}
+
+/* Modal trigger */
+.modal-trigger {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.modern-link-btn {
+  background: none;
+  border: none;
+  color: #0c6fd9;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modern-link-btn:hover {
+  transform: scale(1.1);
 }
