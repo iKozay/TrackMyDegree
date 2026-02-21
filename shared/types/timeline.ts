@@ -1,8 +1,8 @@
 import {
   CoursePoolInfo,
   DegreeData,
-} from '@controllers/degreeController';
-import {  CourseStatus } from './transcript';
+} from './degree';
+import {  CourseStatus } from '../../Back-End/src/types/transcript';
 
 export interface TimelineResult {
   _id?: string; 

@@ -1,6 +1,6 @@
 import { BaseMongoController } from './baseMongoController';
 import { Timeline } from '@models';
-import { TimelineResult, TimelineDocument,} from '../types/timeline';
+import { TimelineResult, TimelineDocument,} from '@shared/timeline';
 import { CourseStatus } from '../types/transcript';
 
 

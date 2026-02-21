@@ -1,16 +1,14 @@
 // services/buildTimeline.ts
 import { parseFile } from '@services/parsingService';
 import { ParsedData, ProgramInfo, CourseStatus } from '../../types/transcript';
-import {
-  degreeController,
-  CoursePoolInfo,
-  DegreeData,
-} from '@controllers/degreeController';
+import { degreeController } from '@controllers/degreeController';
 import { CourseData, courseController } from '@controllers/courseController';
 import { SEASONS } from '@utils/constants';
 import { Timeline } from '@models';
 import { coursepoolController } from '@controllers/coursepoolController';
-import {TimelineResult, TimelineCourse, TimelineDocument, TimelineSemester} from '../../types/timeline'
+import { TimelineResult, TimelineCourse, TimelineDocument, TimelineSemester } from '@shared/timeline';
+import { DegreeData, CoursePoolInfo } from '@shared/degree';
+
 
 // Timeline builder inputs
 export type BuildTimelineParams =

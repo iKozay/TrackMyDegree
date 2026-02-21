@@ -5,7 +5,7 @@ import { assignJobId, RequestWithJobId } from '@middleware/assignJobId';
 import { queue } from '../workers/queue';
 import mongoose from 'mongoose';
 import { getJobResult } from '../lib/cache';
-import { TimelineResult } from '../types/timeline';
+import { TimelineResult } from '@shared/timeline';
 
 const router = express.Router();
 

@@ -9,7 +9,7 @@ import { GenerateAuditParams } from '@shared/audit';
 import * as misc from '@utils/misc';
 
 import { generateDegreeAuditFromTimeline } from '@services/audit';
-import { TimelineCourse, TimelineResult } from '../types/timeline';
+import { TimelineCourse, TimelineResult } from '@shared/timeline';
 const STATUS_COMPLETED = 'Completed';
 const STATUS_NOT_STARTED = 'Not Started';
 const STATUS_MISSING = 'Missing';
