@@ -4,34 +4,44 @@ import InformationForm from '../components/InformationForm';
 import UploadBox from '../components/UploadBox';
 import InstructionsModal from '../components/InstructionModal';
 
-// This page creates an initial timeline using either manually entered information or by parsing an acceptance letter or a transcript
-const TimelineSetupPage= () => {
+const TimelineSetupPage = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const toggleModal = () => setIsModalOpen((prev) => !prev);
 
   return (
-    <div>
-      <div className="top-down">
-        <div className="g-container">
+    <div className="timeline-page">
+
+      {/* Hero Section */}
+      <div className="hero-section">
+        <h1>Create Your Academic Timeline</h1>
+        <p>Plan your journey smarter. Build it manually or upload your acceptance letter / unofficial transcript.</p>
+      </div>
+
+      {/* Main Cards */}
+      <div className="cards-container">
+
+        <div className="card glass-card">
           <InformationForm />
+        </div>
 
-          <div className="or-divider">OR</div>
+        <div className="divider-vertical">OR</div>
 
-          <div className="upload-container-al">
-          
-            <UploadBox />
+        <div className="card glass-card">
+          <UploadBox toggleModal={toggleModal} />
+        </div>
 
-            <hr className="divider" />
+      </div>
 
-            <p>Click here to see a guide on how to get the unofficial transcript!</p>
-            <button onClick={toggleModal} className="open-modal-btn">
-              How to Download Your Transcript
-            </button>
-          </div>
+      {/* My Timeline Section */}
+      <div className="my-timelines-section">
+        <h1>My Timelines</h1>
+        <div className="timeline-placeholder">
+          User has no timeline.
         </div>
       </div>
-    <InstructionsModal isOpen={isModalOpen} toggleModal={toggleModal} />
+
+      <InstructionsModal isOpen={isModalOpen} toggleModal={toggleModal} />
     </div>
   );
 };
