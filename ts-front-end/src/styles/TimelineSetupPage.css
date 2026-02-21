@@ -72,8 +72,10 @@ p {
 }
 
 .degree-selected {
-  width: min(90vw, 280px);
-  max-width: 300px;
+  width: fit-content;
+  min-width: 20vw; 
+  max-width: 90%;
+  max-width: min(90%, 40rem);
 }
 
 .radio-group {
