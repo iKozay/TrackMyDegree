@@ -20,7 +20,8 @@
   animation: fadeInDown 0.7s ease-out;
 }
 
-.timeline-empty {
+.timeline-empty,
+.timeline-login {
   text-align: center;
   padding: 40px;
   border-radius: 15px;
