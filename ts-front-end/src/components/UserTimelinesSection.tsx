@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { api } from "../api/http-api-client.ts";
 import { useAuth } from "../hooks/useAuth";
+import { api } from "../api/http-api-client";
 import { motion } from "framer-motion";
-import { FileText, Trash2, Plus } from "lucide-react";
-import "../styles/components/UserTimelinesSection.css";
 import { useNavigate } from "react-router-dom";
+import { Trash2, FileText, AlertTriangle } from "lucide-react";
+import DeleteModal from "../legacy/components/DeleteModal";
+import '../styles/components/UserTimelinesSection.css';
+import moment from "moment";
 
 export interface Timeline {
   _id: string;
@@ -15,106 +17,142 @@ export interface Timeline {
   last_modified?: string;
 }
 
+interface TimelineResponse {
+  jobId: string;
+}
+
 const UserTimelinesSection: React.FC = () => {
-  const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
   const [timelines, setTimelines] = useState<Timeline[]>([]);
-  const [error, setError] = useState<string>("");
+  const [showModal, setShowModal] = useState(false);
+  const [timelineToDelete, setTimelineToDelete] = useState<Timeline | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchTimelines = async () => {
-      if (!isAuthenticated || !user?.id) return;
+    if (!isAuthenticated) return;
 
+    const fetchTimelines = async () => {
       try {
-        const data = await api.get<{ timelines: Timeline[] }>(
-          `/users/${user.id}/data`
-        );
+        const data = await api.get<{ timelines: Timeline[] }>(`/users/${user?.id}/data`);
         setTimelines(data.timelines);
       } catch (err) {
         console.error(err);
-        setError("Cannot fetch timelines at this time.");
+        setError("Cannot get timelines.");
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchTimelines();
   }, [isAuthenticated, user]);
 
-  const handleOpen = (timeline: Timeline) => {
-    navigate(`/timeline/${timeline._id}`);
+  const handleTimelineClick = async (obj: Timeline) => {
+    try {
+      const response = await api.get<TimelineResponse>(`/timeline/${obj._id}`);
+      if (response?.jobId) {
+        navigate(`/timeline/${response.jobId}`);
+        return;
+      }
+      alert("Unexpected response from server.");
+    } catch (err) {
+      console.error(err);
+      alert(err instanceof Error ? err.message : "Unknown error.");
+    }
+  };
+
+  const handleDeleteClick = (timeline: Timeline) => {
+    setTimelineToDelete(timeline);
+    setShowModal(true);
+  };
+
+  const handleDelete = async (timeline_id: string) => {
+    try {
+      await api.delete(`/timeline/${timeline_id}`);
+      setTimelines((prev) => prev.filter((t) => t._id !== timeline_id));
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting timeline.");
+    }
   };
 
   return (
-    <section className="my-timelines-section">
-      <h2 className="timelines-header">My Timelines</h2>
+    <motion.div 
+      className="user-timelines-section"
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }} 
+      transition={{ duration: 0.7 }}
+    >
+      <h2>My Timelines</h2>
 
       {!isAuthenticated ? (
-        <p className="timelines-message">Please log in to view your timelines.</p>
-      ) : error ? (
-        <p className="timelines-message">{error}</p>
-      ) : timelines.length === 0 ? (
-        <div className="no-timelines">
-          <p>You haven’t created any timelines yet.</p>
-          <button
-            className="btn-primary"
-            onClick={() => navigate("/timeline")}
-          >
-            Start Your First Timeline
-          </button>
+        <div className="timeline-login">
+        <p className="timeline-error">Please log in to see your timelines.</p>
         </div>
-      ) : (
-        <div className="timelines-container">
-          {timelines.map((timeline, idx) => (
-            <motion.div
-              key={timeline._id}
-              className="timeline-card"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1, type: "spring", stiffness: 100 }}
-              whileHover={{ scale: 1.03, boxShadow: "0 20px 40px rgba(139,21,56,0.2)" }}
-            >
-              <div className="timeline-info" onClick={() => handleOpen(timeline)}>
-                <h3 className="timeline-name">{timeline.name}</h3>
-                <p className="timeline-meta">
-                  {timeline.isCoop ? "Co-op, " : ""}
-                  {timeline.isExtendedCredit ? "Extended Credit" : ""}
-                </p>
-                {timeline.last_modified && (
-                  <p className="timeline-date">
-                    Last Modified: {new Date(timeline.last_modified).toLocaleDateString()}
-                  </p>
-                )}
-              </div>
+        ) : (
+        <>
+            {loading && <p className="timeline-loading">Loading timelines...</p>}
+            {error && <p className="timeline-error">{error}</p>}
 
-              <div className="timeline-actions">
-                <button
-                  className="btn-icon"
-                  onClick={() => navigate(`/degree-audit/${timeline._id}`)}
-                  title="Degree Assessment"
-                >
-                  <FileText size={18} />
-                </button>
-                <button
-                  className="btn-icon btn-delete"
-                  onClick={() => alert("Delete functionality coming soon")}
-                  title="Delete Timeline"
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            </motion.div>
-          ))}
-          <motion.button
-            className="btn-add-timeline"
-            onClick={() => navigate("/timeline")}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: timelines.length * 0.1 }}
-          >
-            <Plus size={20} />
-            <span>Create New Timeline</span>
-          </motion.button>
-        </div>
-      )}
-    </section>
+            {!loading && !error && timelines.length === 0 && (
+                <div className="timeline-empty">
+                <p>You haven't saved any timelines yet.</p>
+                </div>
+            )}
+
+            {!loading && !error && timelines.length > 0 && (
+                <div className="timeline-list">
+                {timelines.map((t) => (
+                    <div key={t._id} className="timeline-card">
+                    <div
+                        className="timeline-info"
+                        onClick={() => handleTimelineClick(t)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => { if(e.key === "Enter" || e.key === " ") handleTimelineClick(t); }}
+                    >
+                        <h4>{t.name}</h4>
+                        {t.last_modified && <p className="timeline-date">Modified {moment(t.last_modified).fromNow()}</p>}
+                    </div>
+                    <div className="timeline-actions">
+                        <button
+                        onClick={(e) => { e.stopPropagation(); navigate(`/degree-audit/${t._id}`); }}
+                        className="btn-assessment"
+                        title="Degree Assessment"
+                        >
+                        <FileText size={16} /> Assessment
+                        </button>
+                        <button
+                        onClick={(e) => { e.stopPropagation(); handleDeleteClick(t); }}
+                        className="btn-delete"
+                        title="Delete Timeline"
+                        >
+                        <Trash2 size={16} />
+                        </button>
+                    </div>
+                    </div>
+                ))}
+                </div>
+            )}
+
+            {showModal && timelineToDelete && (
+                <DeleteModal open={showModal} onClose={() => setShowModal(false)}>
+                <div className="delete-modal-content">
+                    <div className="modal-icon"><AlertTriangle size={32} /></div>
+                    <h3>Delete Timeline?</h3>
+                    <p>This will permanently remove <strong>{timelineToDelete.name}</strong>. This action cannot be undone.</p>
+                    <div className="modal-actions">
+                    <button className="btn-cancel" onClick={() => setShowModal(false)}>Keep it</button>
+                    <button className="btn-delete" onClick={() => { handleDelete(timelineToDelete._id); setShowModal(false); }}>Yes, Delete</button>
+                    </div>
+                </div>
+                </DeleteModal>
+            )}
+        </>
+        )}
+    </motion.div>
   );
 };
 
