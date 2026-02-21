@@ -114,7 +114,7 @@ const UploadBox: React.FC<UploadBoxProps> = ({ toggleModal }) => {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}>
-        <p>Drag and Drop file</p>
+        <p className ="drag-drop">Drag and Drop file</p>
         or
         <label htmlFor="file-upload" className="file-label">
           Browse
