@@ -380,3 +380,27 @@ class TestCourseEndpoints:
                 data = response.get_json()
                 assert 'error' in data
                 assert 'Scraping error' in data['error']
+
+class TestCourseScheduleEndpoint:
+
+    @patch('main.init_instances')
+    @patch('main.run_init')
+    def test_get_course_schedule_success(self, mock_run_init, mock_init):
+        with app.test_client() as client:
+            with patch('main.concordia_api_instance') as mock_instance:
+                mock_instance.get_course_schedule.return_value = [
+                    {
+                        "courseID": "000123",
+                        "subject": "COMP",
+                        "catalog": "248",
+                    }
+                ]
+                response = client.get("/get-course-schedule?subject=COMP&catalog=248")
+                assert response.status_code == 200
+                data = response.get_json()
+                assert isinstance(data, list)
+                assert len(data) == 1
+                assert data[0]["courseID"] == "000123"
+                assert data[0]["subject"] == "COMP"
+                assert data[0]["catalog"] == "248"
+                mock_instance.get_course_schedule.assert_called_once_with("COMP", "248")

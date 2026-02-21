@@ -47,6 +47,64 @@ class ConcordiaAPIUtils:
 
         self.logger.info("All datasets downloaded and cached successfully.")
 
+    def get_course_schedule(self, subject, catalog):
+        response = self._get_from_csv("course_schedule", subject=subject, catalog=catalog)
+        return self.format_course_schedule_response(response)
+
+    def format_course_schedule_response(self, response):
+        if not response:
+            return []
+
+        formatted_courses = []
+        for course in response:
+            formatted_course = {
+                "courseID": course.get("Course ID", "").zfill(6),  # Pad with leading zeros to 6 digits
+                "termCode": course.get("Term Code", ""),
+                "session": course.get("Session", ""),
+                "subject": course.get("Subject", ""),
+                "catalog": course.get("Catalog Nbr", ""),
+                "section": course.get("Section", ""),
+                "componentCode": course.get("Component Code", ""),
+                "componentDescription": course.get("Component Descr", ""),
+                "classNumber": course.get("Class Nbr", ""),
+                "classAssociation": course.get("Class Association", ""),
+                "courseTitle": course.get("Course Title", ""),
+                "topicID": course.get("Topic ID", ""),
+                "topicDescription": course.get("Topic Descr", ""),
+                "classStatus": course.get("Class Status", ""),
+                "locationCode": course.get("Location Code", ""),
+                "instructionModeCode": course.get("Instruction Mode code", ""),
+                "instructionModeDescription": course.get("Instruction Mode Descr", ""),
+                "meetingPatternNumber": course.get("Meeting Pattern Nbr", ""),
+                "roomCode": course.get("Room Code", ""),
+                "buildingCode": course.get("Building Code", ""),
+                "room": course.get("Room", ""),
+                "classStartTime": course.get("Class Start Time", ""),
+                "classEndTime": course.get("Class End Time", ""),
+                "modays": course.get("Mon", ""),
+                "tuesdays": course.get("Tues", ""),
+                "wednesdays": course.get("Wed", ""),
+                "thursdays": course.get("Thurs", ""),
+                "fridays": course.get("Fri", ""),
+                "saturdays": course.get("Sat", ""),
+                "sundays": course.get("Sun", ""),
+                "classStartDate": course.get("Start Date (DD/MM/YYYY)", ""),
+                "classEndDate": course.get("End Date (DD/MM/YYYY)", ""),
+                "career": course.get("Career", ""),
+                "departmentCode": course.get("Dept. Code", ""),
+                "departmentDescription": course.get("Dept. Descr", ""),
+                "facultyCode": course.get("Faculty Code", ""),
+                "facultyDescription": course.get("Faculty Descr", ""),
+                "enrollmentCapacity": course.get("Enrollment Capacity", ""),
+                "currentEnrollment": course.get("Current Enrollment", ""),
+                "waitlistCapacity": course.get("Waitlist Capacity", ""),
+                "currentWaitlistTotal": course.get("Current Waitlist Total", ""),
+                "hasSeatReserved": course.get("Has some/all seats reserved?", "")
+            }
+            formatted_courses.append(formatted_course)
+        
+        return formatted_courses
+
     def get_term(self, course_code):
         subject_and_catalog = course_code.split()
         terms = []

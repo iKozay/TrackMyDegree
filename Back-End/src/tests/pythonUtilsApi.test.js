@@ -60,4 +60,29 @@ describe('pythonUtilsApi', () => {
       );
     });
   });
+
+  describe('getCourseSchedule', () => {
+    test('Get course schedule successfully', async () => {
+      const mockResponse = {
+        data: {
+          courseID: '049701',
+          termCode: '2244',
+          session: '13W',
+          subject: 'COMP',
+          catalog: '432',
+        },
+      };
+      axios.get.mockResolvedValue(mockResponse);
+      const result = await pythonUtilsApi.getCourseSchedule('COMP', '432');
+      expect(result).toEqual(mockResponse.data);
+    });
+
+    test('Fail to get course schedule', async () => {
+      const mockError = new Error('Network Error');
+      axios.get.mockRejectedValue(mockError);
+      await expect(pythonUtilsApi.getCourseSchedule('COMP', '432')).rejects.toThrow(
+        'Failed to get course schedule: Network Error',
+      );
+    });
+  });
 });

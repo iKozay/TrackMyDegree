@@ -132,3 +132,44 @@ class TestConcordiaAPIUtils:
         assert "course_schedule" in self.api.data_cache
         assert "course_section" in self.api.data_cache
         assert mock_download_file.call_count == 2
+    
+    def test_get_course_schedule(self):
+        # Mock CSV data for testing get_course_schedule
+        mock_df = pd.DataFrame([
+            # In-person
+            {"Course ID": "123", "Room Code": "H937", "Instruction Mode code": "INP", "Mon": "Y", "Subject": "COMP", "Catalog Nbr": "248", "Term Code": "202430"},
+            # Online
+            {"Course ID": "10009", "Room Code": "ONLINE", "Instruction Mode code": "OL", "Mon": "N", "Subject": "ENGR", "Catalog Nbr": "391", "Term Code": "2244"},
+            # Missing fields
+            {"Course ID": "", "Room Code": "", "Instruction Mode code": "", "Mon": "", "Subject": "SOEN", "Catalog Nbr": "999", "Term Code": ""}
+        ])
+        
+        with patch.object(self.api, '_get_from_csv', return_value=mock_df.to_dict('records')):
+            result = self.api.get_course_schedule("COMP", "248")
+            assert isinstance(result, list)
+            assert len(result) == 3
+            # In-person
+            assert result[0]["courseID"] == "000123"
+            assert result[0]["roomCode"] == "H937"
+            assert result[0]["modays"] == "Y"
+            assert result[0]["subject"] == "COMP"
+            assert result[0]["catalog"] == "248"
+            assert result[0]["termCode"] == "202430"
+            # Online
+            assert result[1]["courseID"] == "010009"
+            assert result[1]["roomCode"] == "ONLINE"
+            assert result[1]["modays"] == "N"
+            assert result[1]["subject"] == "ENGR"
+            assert result[1]["catalog"] == "391"
+            assert result[1]["termCode"] == "2244"
+            # Missing fields
+            assert result[2]["courseID"] == "000000"
+            assert result[2]["roomCode"] == ""
+            assert result[2]["modays"] == ""
+            assert result[2]["subject"] == "SOEN"
+            assert result[2]["catalog"] == "999"
+            assert result[2]["termCode"] == ""
+            # Empty response
+            with patch.object(self.api, '_get_from_csv', return_value=[]):
+                empty_result = self.api.get_course_schedule("SOEN", "000")
+                assert empty_result == []

@@ -110,6 +110,23 @@ def get_all_courses_api():
         logger.error(f"Error retrieving all courses: {str(e)}")
         return jsonify({"error": f"Error retrieving course data: {str(e)}"}), 500
 
+@app.route('/get-course-schedule', methods=['GET'])
+def get_course_schedule():
+    if concordia_api_instance is None:
+        return jsonify({"error": "Concordia API Util not initialized yet"}), 503
+
+    subject = request.args.get('subject')
+    catalog = request.args.get('catalog')
+    if not subject or not catalog:
+        return jsonify({"error": "Subject and catalog parameters are required"}), 400
+    
+    try:
+        course_data = concordia_api_instance.get_course_schedule(subject, catalog)
+        return jsonify(serialize(course_data))
+    except Exception as e:
+        logger.error(f"Error retrieving course schedule data for subject {subject} catalog {catalog}: {str(e)}")
+        return jsonify({"error": f"Error retrieving course schedule data: {str(e)}"}), 500
+
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify({"status": "ok"})
