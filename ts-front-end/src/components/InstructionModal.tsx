@@ -1,3 +1,4 @@
+import { useState } from "react";
 import PrintImage from '../images/Print_image.png';
 import PdfImage from '../images/Pdf_image.png';
 import TransImage from '../images/Transc_image.png';
@@ -8,44 +9,104 @@ interface InstructionsModalProps {
   toggleModal: () => void;
 }
 
-const InstructionsModal: React.FC<InstructionsModalProps> = ({ isOpen, toggleModal }) => {
+const steps = [
+  {
+    img: TransImage,
+    title: "Go to Student Center",
+    description:
+      'Under the "Academics" section click "View Unofficial Transcript".',
+    number: "01"
+  },
+  {
+    img: PrintImage,
+    title: "Click Print",
+    description:
+      "Scroll to the bottom of the transcript and click the Print button.",
+    number: "02"
+  },
+  {
+    img: PdfImage,
+    title: "Save as PDF",
+    description:
+      'Select "Save as PDF" as destination (Do NOT choose Microsoft Print to PDF).',
+    number: "03"
+  }
+];
+
+const InstructionsModal: React.FC<InstructionsModalProps> = ({
+  isOpen,
+  toggleModal
+}) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
   if (!isOpen) return null;
+
+  const nextSlide = () =>
+    setCurrentIndex((prev) => (prev + 1) % steps.length);
+
+  const prevSlide = () =>
+    setCurrentIndex((prev) =>
+      prev === 0 ? steps.length - 1 : prev - 1
+    );
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content-instructions">
+      <div className="modal-content-carousel">
+
         <button onClick={toggleModal} className="close-modal-btn">
-          X
+          ×
         </button>
-        <div className="instructions">
-          <h2>How to Download Your Transcript</h2>
-          <div className="steps-container">
-            <div className="step">
-              <p>
-                <strong>Step 1:</strong> Go to <strong>Student Center</strong>, and under the{' '}
-                <strong>"Academics"</strong> section, click on <em>"View Unofficial Transcript"</em>.
-              </p>
-              <img src={TransImage} alt="Step 1" />
-            </div>
 
-            <div className="step">
-              <p>
-                <strong>Step 2:</strong> Scroll till the end of the transcript and click on the{' '}
-                <strong>"Print"</strong> button.
-              </p>
-              <br />
-              <img src={PrintImage} alt="Step 2" />
-            </div>
+        <div className="carousel-body">
 
-            <div className="step">
-              <p>
-                <strong>Step 3:</strong> In the <strong>"Print"</strong> prompt, for the <em>"Destination"</em>{' '}
-                field, select <strong>"Save as PDF"</strong> <br /> <strong>(Do Not Choose "Microsoft Print to PDF")</strong>
-              </p>
-              <img src={PdfImage} alt="Step 3" />
+        <div className="carousel-header">
+          <span className="carousel-label">Guide</span>
+          <h2>Download Your Transcript</h2>
+        </div>
+
+        <div className="carousel-container">
+
+          <button className="nav-btn left" onClick={prevSlide}>
+            ‹
+          </button>
+
+          <div className="carousel-slide">
+            <div className="step-number">{steps[currentIndex].number}</div>
+
+            <div className="carousel-card">
+              <div className="img-wrapper">
+                <img
+                  src={steps[currentIndex].img}
+                  alt={steps[currentIndex].title}
+                />
+                <div className="img-glow"></div>
+              </div>
+
+              <div className="carousel-content">
+                <h3>{steps[currentIndex].title}</h3>
+                <p>{steps[currentIndex].description}</p>
+              </div>
             </div>
           </div>
+
+          <button className="nav-btn right" onClick={nextSlide}>
+            ›
+          </button>
+
         </div>
+
+        <div className="dots">
+          {steps.map((_, index) => (
+            <span
+              key={index}
+              className={`dot ${index === currentIndex ? "active" : ""}`}
+              onClick={() => setCurrentIndex(index)}
+            />
+          ))}
+        </div>
+
+        </div>
+
       </div>
     </div>
   );
