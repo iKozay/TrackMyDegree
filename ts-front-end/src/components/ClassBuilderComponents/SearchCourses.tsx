@@ -1,18 +1,7 @@
 import React from "react";
 import { useState, useMemo } from "react";
 import { api } from "../../api/http-api-client.ts";
-import type { CourseSection } from "src/types/classItem";
-
-// termCode format: 2 YY S
-// YY = last 2 digits of the calendar year the term starts in
-// S  = season: 1=Summer, 2=Fall, 3=Fall/Winter, 4=Winter, 5=Spring(CCCE), 6=Summer(CCCE)
-//
-// Winter belongs to the *next* calendar year after the fall:
-//   Summer 2025  → starts May 2025    → YY=25, code=2251
-//   Fall 2025    → starts Sep 2025    → YY=25, code=2252
-//   Winter 2026  → starts Jan 2026    → YY=25, code=2254  (same academic year as Fall 2025)
-//
-// The academic year rolls over on March 15th each calendar year.
+import type { AddedCourse, CourseSection } from "src/types/classItem";
 
 interface Semester {
     value: string;
@@ -50,9 +39,15 @@ const getSemesters = (): Semester[] => {
 type ModalState =
     | { type: "not_found"; course: string }
     | { type: "not_offered"; course: string; semester: string }
+    | { type: "duplicate"; course: string }
     | null;
 
-const SearchCourses: React.FC = () => {
+interface SearchCoursesProps {
+    addedCourses: AddedCourse[];
+    setAddedCourses: (courses: AddedCourse[]) => void;
+}
+
+const SearchCourses: React.FC<SearchCoursesProps> = ({ addedCourses, setAddedCourses }) => {
 
     const semesters = useMemo(() => getSemesters(), []);
 
@@ -82,7 +77,14 @@ const SearchCourses: React.FC = () => {
             setLoading(true);
 
             const { subject, catalog } = parseCourseCode(courseId);
+            const courseCode = `${subject} ${catalog}`;
             const selectedSemester = semesters.find((s) => s.value === semester)!;
+
+            // Guard: don't add a course that's already in the list
+            if (addedCourses.some((c) => c.code === courseCode)) {
+                setModal({ type: "duplicate", course: courseCode });
+                return;
+            }
 
             const data = await api.get<CourseSection[]>(
                 `/section/schedule?subject=${subject}&catalog=${catalog}`,
@@ -91,21 +93,30 @@ const SearchCourses: React.FC = () => {
 
             // No results at all → the course code itself doesn't exist
             if (data.length === 0) {
-                setModal({ type: "not_found", course: `${subject} ${catalog}` });
+                setModal({ type: "not_found", course: courseCode });
                 return;
             }
 
-            // Results exist but none are active in the selected term → offered elsewhere, just not this semester
+            // Results exist but none are active in the selected term
             const filtered = data.filter(
                 (section) => section.termCode === selectedSemester.termCode && section.classStatus === "Active"
             );
 
             if (filtered.length === 0) {
-                setModal({ type: "not_offered", course: `${subject} ${catalog}`, semester: selectedSemester.label });
+                setModal({ type: "not_offered", course: courseCode, semester: selectedSemester.label });
                 return;
             }
 
-            console.log("Course sections:", filtered);
+            // Add the course to the list
+            const newCourse: AddedCourse = {
+                code: courseCode,
+                title: filtered[0].courseTitle,
+                sections: filtered,
+            };
+
+            setAddedCourses([...addedCourses, newCourse]);
+            setCourseId("");
+
         } catch (err: any) {
             if (err.name !== "AbortError") {
                 alert(err.message ?? "Error fetching course from server. Please try again later.");
@@ -409,7 +420,7 @@ const SearchCourses: React.FC = () => {
                 <div className="sc-modal-overlay" onClick={() => setModal(null)}>
                     <div className="sc-modal" onClick={(e) => e.stopPropagation()}>
 
-                        {modal.type === "not_found" ? (
+                        {modal.type === "not_found" && (
                             <>
                                 <div className="sc-modal__icon sc-modal__icon--warning">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -425,7 +436,9 @@ const SearchCourses: React.FC = () => {
                                     <strong>{modal.course}</strong> doesn't match any course in the system. Please double-check the course code and try again.
                                 </p>
                             </>
-                        ) : (
+                        )}
+
+                        {modal.type === "not_offered" && (
                             <>
                                 <div className="sc-modal__icon sc-modal__icon--info">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -439,6 +452,23 @@ const SearchCourses: React.FC = () => {
                                 <p className="sc-modal__title">Course Not Available</p>
                                 <p className="sc-modal__body">
                                     <strong>{modal.course}</strong> is not offered in <strong>{modal.semester}</strong>. Try selecting a different semester.
+                                </p>
+                            </>
+                        )}
+
+                        {modal.type === "duplicate" && (
+                            <>
+                                <div className="sc-modal__icon sc-modal__icon--info">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                        aria-hidden="true">
+                                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                                    </svg>
+                                </div>
+                                <p className="sc-modal__title">Course Already Added</p>
+                                <p className="sc-modal__body">
+                                    <strong>{modal.course}</strong> is already in your course list.
                                 </p>
                             </>
                         )}
