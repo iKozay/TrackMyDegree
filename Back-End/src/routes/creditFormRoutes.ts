@@ -56,6 +56,7 @@ const handleUpload = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const INTERNAL_SERVER_ERROR = 'Internal server error';
+const NOT_FOUND_PREFIX = 'NOT_FOUND:';
 
 /**
  * @openapi
@@ -335,8 +336,8 @@ router.put(
                 form,
             });
         } catch (error) {
-            if (error instanceof Error && error.message.startsWith('NOT_FOUND:')) {
-                res.status(HTTP.NOT_FOUND).json({ error: error.message.replace('NOT_FOUND: ', '') });
+            if (error instanceof Error && error.message.startsWith(NOT_FOUND_PREFIX)) {
+                res.status(HTTP.NOT_FOUND).json({ error: error.message.replace(`${NOT_FOUND_PREFIX} `, '') });
             } else {
                 console.error('Error in PUT /credit-forms/:id', error);
                 res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
@@ -379,8 +380,8 @@ router.delete(
             await creditFormController.deleteForm(id as string);
             res.status(HTTP.OK).json({ message: 'Credit form deleted successfully' });
         } catch (error) {
-            if (error instanceof Error && error.message.startsWith('NOT_FOUND:')) {
-                res.status(HTTP.NOT_FOUND).json({ error: error.message.replace('NOT_FOUND: ', '') });
+            if (error instanceof Error && error.message.startsWith(NOT_FOUND_PREFIX)) {
+                res.status(HTTP.NOT_FOUND).json({ error: error.message.replace(`${NOT_FOUND_PREFIX} `, '') });
             } else {
                 console.error('Error in DELETE /credit-forms/:id', error);
                 res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });

@@ -31,6 +31,8 @@ const MOCK_FILENAME = 'software-engineering.pdf';
 const DB_ERROR = 'Database error';
 const TEST_DB_ERROR = 'should handle database errors';
 const MOCK_USER_ID = '507f1f77bcf86cd799439012';
+const UPDATED_TITLE = 'Updated Title';
+const NOT_FOUND_ERR = 'NOT_FOUND:';
 
 describe('CreditFormController', () => {
     const mockForm = {
@@ -178,15 +180,15 @@ describe('CreditFormController', () => {
             (CreditForm.findOne as jest.Mock).mockResolvedValue(mockUpdatableForm);
 
             const result = await creditFormController.updateForm(MOCK_PROGRAM_ID, {
-                title: 'Updated Title',
+                title: UPDATED_TITLE,
                 uploadedBy: MOCK_USER_ID,
             });
 
             expect(CreditForm.findOne).toHaveBeenCalledWith({ programId: MOCK_PROGRAM_ID });
-            expect(mockUpdatableForm.title).toBe('Updated Title');
+            expect(mockUpdatableForm.title).toBe(UPDATED_TITLE);
             expect(mockUpdatableForm.save).toHaveBeenCalled();
             expect(result).toEqual(
-                expect.objectContaining({ title: 'Updated Title' }),
+                expect.objectContaining({ title: UPDATED_TITLE }),
             );
         });
 
@@ -195,10 +197,10 @@ describe('CreditFormController', () => {
 
             await expect(
                 creditFormController.updateForm('nonexistent', {
-                    title: 'Updated Title',
+                    title: UPDATED_TITLE,
                     uploadedBy: MOCK_USER_ID,
                 }),
-            ).rejects.toThrow('NOT_FOUND:');
+            ).rejects.toThrow(NOT_FOUND_ERR);
         });
 
         it('should update PDF file if new filename provided', async () => {
@@ -229,7 +231,7 @@ describe('CreditFormController', () => {
                     filename: 'uploaded.pdf',
                     uploadedBy: MOCK_USER_ID,
                 }),
-            ).rejects.toThrow('NOT_FOUND:');
+            ).rejects.toThrow(NOT_FOUND_ERR);
 
             expect(fs.unlinkSync).toHaveBeenCalled();
         });
@@ -239,7 +241,7 @@ describe('CreditFormController', () => {
 
             await expect(
                 creditFormController.updateForm(MOCK_PROGRAM_ID, {
-                    title: 'Updated Title',
+                    title: UPDATED_TITLE,
                     uploadedBy: MOCK_USER_ID,
                 }),
             ).rejects.toThrow(DB_ERROR);
@@ -261,7 +263,7 @@ describe('CreditFormController', () => {
         it('should throw NOT_FOUND if form not found', async () => {
             (CreditForm.findOne as jest.Mock).mockResolvedValue(null);
 
-            await expect(creditFormController.deleteForm('nonexistent')).rejects.toThrow('NOT_FOUND:');
+            await expect(creditFormController.deleteForm('nonexistent')).rejects.toThrow(NOT_FOUND_ERR);
         });
 
         it(TEST_DB_ERROR, async () => {
