@@ -58,9 +58,9 @@ export interface CourseSection {
 // Holds the full API response for that course so the configuration
 // system can compute all valid LEC + TUT + LAB combinations.
 export interface AddedCourse {
-    // Human-readable identifier, e.g. "COMP 352"
+    // Course Code, e.g. "COMP 352"
     code: string;
-    // Full title from the API, e.g. "DATA STRUCTURES + ALGORITHMS"
+    // Title, e.g. "DATA STRUCTURES + ALGORITHMS"
     title: string;
     // All active sections for this course in the selected term
     sections: CourseSection[];
