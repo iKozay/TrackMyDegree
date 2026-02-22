@@ -9,7 +9,6 @@ import mongoose from 'mongoose';
 import { notFoundHandler, errorHandler } from '@middleware/errorHandler';
 
 import { connectRedis } from '@lib/redisClient';
-
 //Routes import
 import authRouter from '@routes/authRoutes';
 import coursesRouter from '@routes/courseRoutes';
@@ -40,17 +39,17 @@ Sentry.init({
   profilesSampleRate: 1,
 });
 
-//Express Init
 if (process.env.NODE_ENV === 'development') {
-  const loadEnv = dotenv.config({
+  // Try to load the file, but don't force it
+  const result = dotenv.config({
     path: path.resolve(__dirname, '../../secrets/.env'),
-    debug: true,
   });
-  if (loadEnv.error) {
-    console.error('Error loading .env file:', loadEnv.error);
-    throw loadEnv.error;
+
+  if (result.error) {
+    // If the file is missing, just log it. Docker already injected the vars!
+    console.log('💡 No .env file found, using system environment variables.');
   } else {
-    console.log('Environment variables loaded successfully');
+    console.log('✅ Environment variables loaded from .env file');
   }
 }
 // For production and staging, env vars are injected automatically via Docker

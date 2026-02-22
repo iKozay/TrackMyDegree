@@ -9,7 +9,10 @@ jest.mock('bullmq', () => {
   const mockQueue = jest.fn();
   const mockWorker = jest.fn((name, processor, options) => {
     workerProcessor = processor; // capture the processor fn passed to new Worker()
-    return {};
+    return {
+      on: jest.fn(), // mock the 'on' method for event handling
+      close: jest.fn(), // mock the 'close' method for cleanup
+    };
   });
 
   return {
@@ -26,6 +29,7 @@ jest.mock('node:fs/promises', () => ({
 
 jest.mock('../services/timeline/timelineService', () => ({
   buildTimeline: jest.fn(),
+  buildTimelineFromDB: jest.fn(),
 }));
 
 jest.mock('../lib/cache', () => ({
@@ -97,6 +101,28 @@ describe('courseProcessorWorker', () => {
     expect(unlink).not.toHaveBeenCalled();
   });
 
+  test('processes a timelineData job: builds from DB, caches result', async () => {
+    const { buildTimelineFromDB } = require('../services/timeline/timelineService');
+    buildTimelineFromDB.mockResolvedValueOnce({ timeline: ['db', 'data'] });
+    cacheJobResult.mockResolvedValueOnce(undefined);
+
+    const job = {
+      data: {
+        jobId: 'job-timeline-789',
+        kind: 'timelineData',
+        timelineId: 'timeline-123',
+      },
+    };
+
+    await workerProcessor(job);
+
+    expect(buildTimelineFromDB).toHaveBeenCalledWith('timeline-123');
+    expect(cacheJobResult).toHaveBeenCalledWith('job-timeline-789', {
+      payload: { status: 'done', data: { timeline: ['db', 'data'] } },
+    });
+    expect(unlink).not.toHaveBeenCalled();
+  });
+
   test('still deletes file in finally when processing throws', async () => {
     readFile.mockResolvedValueOnce(Buffer.from('bad-file'));
     buildTimeline.mockRejectedValueOnce(new Error('processing failed'));
@@ -110,7 +136,7 @@ describe('courseProcessorWorker', () => {
       },
     };
 
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
 
     await expect(workerProcessor(job)).rejects.toThrow('processing failed');
 

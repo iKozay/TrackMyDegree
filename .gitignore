@@ -9,7 +9,6 @@ front-end/yarn.lock
 package-lock.json
 **/.env
 myenv/
-secrets
 TrackMyDegree.code-workspace
 .DS_Store
 .scannerwork

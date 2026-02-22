@@ -1,39 +1,122 @@
 version: "3.8"
 
 services:
-
-  python_utils:
-    build:
-      context: ./Back-End/python_utils
-      dockerfile: Dockerfile
-    container_name: python_utils_service
-    ports:
-      - "15001:15001"
-    env_file:
-      - ./secrets/.env
-    networks:
-      - app-network
-
   mongodb:
     image: mongo:latest
+    container_name: mongodb
     ports:
       - "27017:27017"
-    env_file:
-      - ./secrets/.env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:-password}
     volumes:
       - mongodb-data:/data/db
     networks:
       - app-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:latest
-    container_name: my-redis
+    container_name: redis
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  python-utils:
+    build:
+      context: ./Back-End/python_utils
+      dockerfile: Dockerfile
+    container_name: python-utils
+    ports:
+      - "15001:15001"
+    env_file:
+      - ./secrets/.env
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./Back-End/src/Dockerfile
+    container_name: backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./secrets/.env
+    environment:
+      - NODE_ENV=development
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+      - PYTHON_UTILS_URL=http://python-utils:15001
+    networks:
+      - app-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      python-utils:
+        condition: service_started
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./Back-End/src/Dockerfile
+    container_name: worker
+    env_file:
+      - ./secrets/.env
+    environment:
+      - NODE_ENV=development
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+      - PYTHON_UTILS_URL=http://python-utils:15001
+    command: ["npm", "run", "worker"]
+    networks:
+      - app-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      python-utils:
+        condition: service_started
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./ts-front-end
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://backend:8000
+    volumes:
+      - ./ts-front-end:/app
+      - /app/node_modules
+    networks:
+      - app-network
+    depends_on:
+      - backend
+    restart: unless-stopped
 
 networks:
   app-network:

@@ -24,3 +24,5 @@ Dockerfile
 
 # Ignore course-data folder
 scraper/course-data/
+
+api-venv/
