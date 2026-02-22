@@ -26,6 +26,7 @@ import { AuthProvider } from "./providers/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
 
 import "./App.css";
+import ClassBuilderPage from "./pages/ClassBuilderPage.tsx";
 
 const deployment_version = import.meta.env.VITE_DEPLOYMENT_VERSION || '1.0.0';
 const NODE_ENV = ENV.NODE_ENV || 'development';
@@ -68,11 +69,12 @@ const App: React.FC = () => {
           <Route path="/degree-audit/:timelineId?" element={<DegreeAuditPage />} />
           <Route path="/profile/student" element={<StudentPage />} />
         </Route>
+        <Route path="/class-builder" element={<ClassBuilderPage />} />
 
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin/credit-forms" element={<CreditFormsManagementPage />} />
         </Route>
-
+        
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/profile/admin" element={<AdminPage />} />
         </Route>

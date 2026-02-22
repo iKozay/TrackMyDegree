@@ -220,7 +220,7 @@ const InformationForm = () => {
           <label htmlFor="degree-concentration">Degree Concentration:</label>
           <select
             id="degree-concentration"
-            className="input-field"
+            className={`input-field ${selectedDegreeId ? "degree-selected" : ""}`}
             value={selectedDegreeId}
             onChange={(e) => setSelectedDegreeId(e.target.value)}>
             <option value="">-- Select a Degree --</option>

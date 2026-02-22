@@ -71,6 +71,13 @@ p {
   border-radius: 6px;
 }
 
+.degree-selected {
+  width: fit-content;
+  min-width: 20vw; 
+  max-width: 90%;
+  max-width: min(90%, 40rem);
+}
+
 .radio-group {
   margin-top: 20px;
   display: flex;

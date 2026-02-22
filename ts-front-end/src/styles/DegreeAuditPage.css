@@ -342,6 +342,13 @@
     align-items: center;
     cursor: pointer;
     padding: 12px 0;
+    /* Reset button styles */
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    font-family: inherit;
+    font-size: inherit;
 }
 
 .req-title-group {
@@ -539,11 +546,64 @@
     padding: 16px;
     font-size: 16px;
     color: var(--slate-600);
-    margin-top: 24px;
+    margin-bottom: 24px;
 }
 
 .disclaimer-note strong {
     color: var(--badge-blue-text);
+}
+
+/* Sticky header inside requirement courses list */
+.req-sticky-header {
+    position: sticky;
+    top: 0; /* sticks within the courses-list scrolling context */
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(0deg, rgba(255,255,255,0.85), rgba(255,255,255,0.95));
+    backdrop-filter: saturate(180%) blur(2px);
+    border-bottom: 1px solid var(--slate-200);
+    padding: 1rem;
+    margin: -12px -12px 12px; /* align with courses-list padding */
+}
+
+.req-sticky-title {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex: 1; /* Allow title to take available space */
+}
+
+.req-sticky-stats {
+    font-size: 12px;
+    color: var(--slate-500);
+    margin-right: 16px; /* Space between stats and actions */
+}
+
+/* Container for action buttons in sticky header */
+.req-sticky-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px; /* Space between collapse all and individual collapse */
+}
+
+/* Icon-only variant for collapse button in sticky header */
+.btn-collapse-section.icon-only {
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--slate-200);
+    background-color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-collapse-section.icon-only:hover {
+    background-color: var(--slate-50);
+    border-color: var(--slate-400);
 }
 
 /* Responsive */
@@ -599,6 +659,14 @@
     .course-status-badge {
         align-self: stretch;
         text-align: center;
+    }
+
+    .btn-toggle-all {
+        flex: 0 1 auto;
+        font-size: 12px;
+        padding: 6px 10px;
+        gap: 4px;
+        height: 32px; /* Smaller height for mobile */
     }
 }
 
@@ -668,4 +736,54 @@
 
 .btn-retry:hover {
     background-color: #7a152d;
+}
+
+/* Requirements Header Controls */
+.requirements-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.requirements-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-toggle-all {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: transparent;
+    border: 1px solid var(--slate-200);
+    color: var(--slate-600);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    height: 36px; /* Fixed height for consistent alignment */
+}
+
+.btn-toggle-all:hover {
+    background-color: var(--slate-50);
+    border-color: var(--slate-400);
+    color: var(--slate-900);
+}
+
+/* Ensure icon and text are properly aligned on all screens */
+.btn-toggle-all svg {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin: 0;
+}
+
+.btn-toggle-all span {
+    display: flex;
+    align-items: center;
+    line-height: 1;
+    margin: 0;
 }
