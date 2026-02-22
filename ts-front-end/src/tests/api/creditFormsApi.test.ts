@@ -5,7 +5,6 @@ import {
     createCreditForm,
     updateCreditForm,
     deleteCreditForm,
-    migrateCreditForms,
 } from '../../api/creditFormsApi';
 
 // Mock global fetch
@@ -268,26 +267,7 @@ describe('creditFormsApi', () => {
         });
     });
 
-    describe('migrateCreditForms', () => {
-        test('should trigger migration successfully', async () => {
-            const mockResponseBody = {
-                message: 'Migration complete',
-                migratedCount: 5,
-            };
 
-            mockFetch.mockResolvedValueOnce(mockResponse(mockResponseBody));
-
-            const result = await migrateCreditForms();
-
-            expect(mockFetch).toHaveBeenCalledWith(
-                expect.stringContaining('/credit-forms/migrate'),
-                expect.objectContaining({
-                    method: 'POST',
-                })
-            );
-            expect(result).toEqual(mockResponseBody);
-        });
-    });
 
     describe('Authentication', () => {
         test('should work without auth token for public endpoints', async () => {

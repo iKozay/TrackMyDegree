@@ -1,28 +1,23 @@
 import express, { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import path from 'node:path';
-import fs from 'node:fs';
 import { creditFormController } from '@controllers/creditFormController';
-import { advisorOrAdminMiddleware } from '@middleware/advisorMiddleware';
+import {
+    authMiddleware,
+    adminCheckMiddleware,
+} from '@middleware/authMiddleware';
 import HTTP from '@utils/httpCodes';
 
 const router = express.Router();
 
 // Configure multer for PDF uploads
-const UPLOAD_DIR = path.resolve(__dirname, '../../uploads/credit-forms');
-
-// Ensure upload directory exists
-if (!fs.existsSync(UPLOAD_DIR)) {
-    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-    console.log('Created upload directory:', UPLOAD_DIR);
-}
+const UPLOAD_DIR = creditFormController.getUploadDir();
 
 const storage = multer.diskStorage({
     destination: (_req, _file, cb) => {
         cb(null, UPLOAD_DIR);
     },
     filename: (_req, file, cb) => {
-        // Use timestamp + original name to avoid conflicts
         const timestamp = Date.now();
         const safeName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
         cb(null, `${timestamp}-${safeName}`);
@@ -60,6 +55,8 @@ const handleUpload = (req: Request, res: Response, next: NextFunction) => {
     });
 };
 
+const INTERNAL_SERVER_ERROR = 'Internal server error';
+
 /**
  * @openapi
  * tags:
@@ -86,7 +83,7 @@ const handleUpload = (req: Request, res: Response, next: NextFunction) => {
  *                   items:
  *                     type: object
  *                     properties:
- *                       id:
+ *                       programId:
  *                         type: string
  *                       title:
  *                         type: string
@@ -95,7 +92,15 @@ const handleUpload = (req: Request, res: Response, next: NextFunction) => {
  *                       pdf:
  *                         type: string
  */
-router.get('/', creditFormController.getAllForms);
+router.get('/', async (_req: Request, res: Response) => {
+    try {
+        const forms = await creditFormController.getAllForms();
+        res.status(HTTP.OK).json({ forms });
+    } catch (error) {
+        console.error('Error in GET /credit-forms', error);
+        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    }
+});
 
 /**
  * @openapi
@@ -121,7 +126,25 @@ router.get('/', creditFormController.getAllForms);
  *         description: File not found
  */
 // IMPORTANT: This route must be defined BEFORE /:id to prevent 'file' being treated as an id
-router.get('/file/:filename', creditFormController.serveFile);
+router.get('/file/:filename', (req: Request, res: Response) => {
+    try {
+        const { filename } = req.params;
+        const filePath = creditFormController.resolveFilePath(filename as string);
+
+        if (!filePath) {
+            res.status(HTTP.NOT_FOUND).json({ error: 'File not found' });
+            return;
+        }
+
+        const safeFilename = Array.isArray(filename) ? filename[0] : filename;
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="${safeFilename}"`);
+        res.sendFile(filePath);
+    } catch (error) {
+        console.error('Error in GET /credit-forms/file/:filename', error);
+        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    }
+});
 
 /**
  * @openapi
@@ -141,13 +164,28 @@ router.get('/file/:filename', creditFormController.serveFile);
  *       404:
  *         description: Form not found
  */
-router.get('/:id', creditFormController.getFormById);
+router.get('/:id', async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const form = await creditFormController.getFormById(id as string);
+
+        if (!form) {
+            res.status(HTTP.NOT_FOUND).json({ error: 'Form not found' });
+            return;
+        }
+
+        res.status(HTTP.OK).json(form);
+    } catch (error) {
+        console.error('Error in GET /credit-forms/:id', error);
+        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    }
+});
 
 /**
  * @openapi
  * /credit-forms:
  *   post:
- *     summary: Create a new credit form (admin/advisor only)
+ *     summary: Create a new credit form (admin only)
  *     tags: [CreditForms]
  *     security:
  *       - cookieAuth: []
@@ -180,22 +218,67 @@ router.get('/:id', creditFormController.getFormById);
  *       401:
  *         description: Unauthorized
  *       403:
- *         description: Forbidden - admin/advisor only
+ *         description: Forbidden - admin only
  *       409:
  *         description: Form with this program ID already exists
  */
 router.post(
     '/',
-    advisorOrAdminMiddleware,
+    authMiddleware,
+    adminCheckMiddleware,
     handleUpload,
-    creditFormController.createForm
+    async (req: Request, res: Response) => {
+        try {
+            const { programId, title, subtitle } = req.body;
+            const file = req.file;
+
+            if (!programId || !title || !subtitle) {
+                if (file) {
+                    const fs = await import('node:fs');
+                    if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+                }
+                res.status(HTTP.BAD_REQUEST).json({
+                    error: 'programId, title, and subtitle are required',
+                });
+                return;
+            }
+
+            if (!file) {
+                res.status(HTTP.BAD_REQUEST).json({ error: 'PDF file is required' });
+                return;
+            }
+
+            const userId = (req as any).user?.userId ?? null;
+
+            const result = await creditFormController.createForm({
+                programId,
+                title,
+                subtitle,
+                filename: file.filename,
+                uploadedBy: userId,
+            });
+
+            const message = result.reactivated
+                ? 'Credit form reactivated and updated successfully'
+                : 'Credit form created successfully';
+
+            res.status(HTTP.CREATED).json({ message, form: result.form });
+        } catch (error) {
+            if (error instanceof Error && error.message.startsWith('CONFLICT:')) {
+                res.status(HTTP.CONFLICT).json({ error: error.message.replace('CONFLICT: ', '') });
+            } else {
+                console.error('Error in POST /credit-forms', error);
+                res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+            }
+        }
+    },
 );
 
 /**
  * @openapi
  * /credit-forms/{id}:
  *   put:
- *     summary: Update a credit form (admin/advisor only)
+ *     summary: Update a credit form (admin only)
  *     tags: [CreditForms]
  *     security:
  *       - cookieAuth: []
@@ -230,16 +313,43 @@ router.post(
  */
 router.put(
     '/:id',
-    advisorOrAdminMiddleware,
+    authMiddleware,
+    adminCheckMiddleware,
     handleUpload,
-    creditFormController.updateForm
+    async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            const { title, subtitle } = req.body;
+            const file = req.file;
+            const userId = (req as any).user?.userId ?? null;
+
+            const form = await creditFormController.updateForm(id as string, {
+                title,
+                subtitle,
+                filename: file?.filename,
+                uploadedBy: userId,
+            });
+
+            res.status(HTTP.OK).json({
+                message: 'Credit form updated successfully',
+                form,
+            });
+        } catch (error) {
+            if (error instanceof Error && error.message.startsWith('NOT_FOUND:')) {
+                res.status(HTTP.NOT_FOUND).json({ error: error.message.replace('NOT_FOUND: ', '') });
+            } else {
+                console.error('Error in PUT /credit-forms/:id', error);
+                res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+            }
+        }
+    },
 );
 
 /**
  * @openapi
  * /credit-forms/{id}:
  *   delete:
- *     summary: Delete a credit form (admin/advisor only)
+ *     summary: Delete a credit form (admin only)
  *     tags: [CreditForms]
  *     security:
  *       - cookieAuth: []
@@ -259,35 +369,24 @@ router.put(
  *       404:
  *         description: Form not found
  */
-router.delete('/:id', advisorOrAdminMiddleware, creditFormController.deleteForm);
-
-/**
- * @openapi
- * /credit-forms/migrate:
- *   post:
- *     summary: Migrate existing PDF forms to database (admin only, one-time setup)
- *     tags: [CreditForms]
- *     security:
- *       - cookieAuth: []
- *     responses:
- *       200:
- *         description: Migration complete
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden
- */
-router.post('/migrate', advisorOrAdminMiddleware, async (_req: Request, res: Response) => {
-    try {
-        const count = await creditFormController.migrateExistingForms();
-        res.status(HTTP.OK).json({
-            message: 'Migration complete',
-            migratedCount: count
-        });
-    } catch (error) {
-        console.error('Error during migration:', error);
-        res.status(HTTP.SERVER_ERR).json({ error: 'Migration failed' });
-    }
-});
+router.delete(
+    '/:id',
+    authMiddleware,
+    adminCheckMiddleware,
+    async (req: Request, res: Response) => {
+        try {
+            const { id } = req.params;
+            await creditFormController.deleteForm(id as string);
+            res.status(HTTP.OK).json({ message: 'Credit form deleted successfully' });
+        } catch (error) {
+            if (error instanceof Error && error.message.startsWith('NOT_FOUND:')) {
+                res.status(HTTP.NOT_FOUND).json({ error: error.message.replace('NOT_FOUND: ', '') });
+            } else {
+                console.error('Error in DELETE /credit-forms/:id', error);
+                res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+            }
+        }
+    },
+);
 
 export default router;

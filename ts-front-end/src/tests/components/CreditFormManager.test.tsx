@@ -16,7 +16,6 @@ vi.mock('../../api/creditFormsApi', () => ({
     createCreditForm: vi.fn(),
     updateCreditForm: vi.fn(),
     deleteCreditForm: vi.fn(),
-    migrateCreditForms: vi.fn(),
 }));
 
 import { toast } from 'react-toastify';
@@ -25,21 +24,20 @@ import {
     createCreditForm,
     updateCreditForm,
     deleteCreditForm,
-    migrateCreditForms,
 } from '../../api/creditFormsApi';
 
 const mockForms = [
     {
-        id: 'software-engineering',
+        programId: 'software-engineering',
         title: 'Software Engineering',
         subtitle: 'Bachelor of Software Engineering Credit Count Form',
-        filename: 'software-engineering.pdf',
+        pdf: '/api/credit-forms/file/software-engineering.pdf',
     },
     {
-        id: 'computer-science',
+        programId: 'computer-science',
         title: 'Computer Science',
         subtitle: 'Bachelor of Computer Science Credit Count Form',
-        filename: 'computer-science.pdf',
+        pdf: '/api/credit-forms/file/computer-science.pdf',
     },
 ];
 
@@ -290,66 +288,7 @@ describe('CreditFormManager', () => {
         });
     });
 
-    describe('Migrate Forms', () => {
-        it('should migrate forms successfully', async () => {
-            (migrateCreditForms as Mock).mockResolvedValue({ message: 'Success', migratedCount: 5 });
-            render(<CreditFormManager />);
-            await waitFor(() => {
-                expect(screen.getByText('Software Engineering')).toBeInTheDocument();
-            });
 
-            fireEvent.click(screen.getByText('Migrate Existing Forms'));
-
-            await waitFor(() => {
-                expect(migrateCreditForms).toHaveBeenCalled();
-            });
-
-            await waitFor(() => {
-                expect(toast.success).toHaveBeenCalledWith('5 forms migrated successfully');
-            });
-        });
-
-        it('should show button text change while migrating', async () => {
-            let resolvePromise: (value: { message: string; migratedCount: number }) => void;
-            (migrateCreditForms as Mock).mockReturnValue(
-                new Promise((resolve) => { resolvePromise = resolve; })
-            );
-
-            render(<CreditFormManager />);
-            await waitFor(() => {
-                expect(screen.getByText('Software Engineering')).toBeInTheDocument();
-            });
-
-            fireEvent.click(screen.getByText('Migrate Existing Forms'));
-
-            await waitFor(() => {
-                expect(screen.getByText('Migrating...')).toBeInTheDocument();
-            });
-
-            // Resolve the promise
-            await act(async () => {
-                resolvePromise!({ message: 'Success', migratedCount: 3 });
-            });
-
-            await waitFor(() => {
-                expect(screen.getByText('Migrate Existing Forms')).toBeInTheDocument();
-            });
-        });
-
-        it('should show error toast when migration fails', async () => {
-            (migrateCreditForms as Mock).mockRejectedValue(new Error('Migration failed'));
-            render(<CreditFormManager />);
-            await waitFor(() => {
-                expect(screen.getByText('Software Engineering')).toBeInTheDocument();
-            });
-
-            fireEvent.click(screen.getByText('Migrate Existing Forms'));
-
-            await waitFor(() => {
-                expect(toast.error).toHaveBeenCalledWith('Failed to migrate forms');
-            });
-        });
-    });
 
     describe('Generate Program ID', () => {
         it('should generate program ID from title', async () => {

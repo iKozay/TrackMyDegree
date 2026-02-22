@@ -76,13 +76,21 @@ export default function RequirementsFormPage() {
         } else {
           // Fallback to static data
           const staticProgram = staticPrograms.find((p) => p.id === programId);
-          setProgram(staticProgram || null);
+          if (staticProgram) {
+            setProgram({ ...staticProgram, programId: staticProgram.id });
+          } else {
+            setProgram(null);
+          }
         }
       } catch (error) {
         console.error('Error fetching program:', error);
         // Fallback to static data
         const staticProgram = staticPrograms.find((p) => p.id === programId);
-        setProgram(staticProgram || null);
+        if (staticProgram) {
+          setProgram({ ...staticProgram, programId: staticProgram.id });
+        } else {
+          setProgram(null);
+        }
       } finally {
         setLoading(false);
       }

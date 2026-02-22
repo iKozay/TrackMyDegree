@@ -110,17 +110,9 @@ describe('RequirementsSelectPage', () => {
     });
   });
 
-  describe('Admin/Advisor Functionality', () => {
+  describe('Admin Functionality', () => {
     test('renders "Manage Forms" button for admin', async () => {
       renderWithRouter('admin');
-
-      await waitFor(() => {
-        expect(screen.getByText(/Manage Forms/)).toBeInTheDocument();
-      });
-    });
-
-    test('renders "Manage Forms" button for advisor', async () => {
-      renderWithRouter('advisor');
 
       await waitFor(() => {
         expect(screen.getByText(/Manage Forms/)).toBeInTheDocument();

@@ -1,7 +1,5 @@
-import { Request, Response } from 'express';
 import * as creditFormController from '@controllers/creditFormController';
 import { CreditForm } from '@models/creditForm';
-import HTTP from '@utils/httpCodes';
 import fs from 'node:fs';
 
 // Mock the CreditForm model
@@ -24,7 +22,6 @@ jest.mock('node:fs', () => ({
     existsSync: jest.fn(),
     unlinkSync: jest.fn(),
     mkdirSync: jest.fn(),
-    copyFileSync: jest.fn(),
 }));
 
 const MOCK_PROGRAM_ID = 'software-engineering';
@@ -36,13 +33,6 @@ const TEST_DB_ERROR = 'should handle database errors';
 const MOCK_USER_ID = '507f1f77bcf86cd799439012';
 
 describe('CreditFormController', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let mockReq: Partial<Request> & { user?: any };
-    let mockRes: Partial<Response>;
-    let mockJson: jest.Mock;
-    let mockStatus: jest.Mock;
-    let mockSetHeader: jest.Mock;
-
     const mockForm = {
         _id: '507f1f77bcf86cd799439011',
         programId: MOCK_PROGRAM_ID,
@@ -56,21 +46,6 @@ describe('CreditFormController', () => {
     };
 
     beforeEach(() => {
-        mockJson = jest.fn();
-        mockStatus = jest.fn().mockReturnValue({ json: mockJson });
-        mockSetHeader = jest.fn();
-        mockReq = {
-            body: {},
-            params: {},
-            file: undefined,
-            user: { userId: MOCK_USER_ID },
-        };
-        mockRes = {
-            status: mockStatus,
-            json: mockJson,
-            setHeader: mockSetHeader,
-            sendFile: jest.fn(),
-        };
         jest.clearAllMocks();
     });
 
@@ -81,18 +56,17 @@ describe('CreditFormController', () => {
                 sort: jest.fn().mockResolvedValue(mockForms),
             });
 
-            await creditFormController.getAllForms(mockReq as Request, mockRes as Response);
+            const result = await creditFormController.getAllForms();
 
             expect(CreditForm.find).toHaveBeenCalledWith({ isActive: true });
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.OK);
-            expect(mockJson).toHaveBeenCalledWith({
-                forms: expect.arrayContaining([
+            expect(result).toEqual(
+                expect.arrayContaining([
                     expect.objectContaining({
-                        id: MOCK_PROGRAM_ID,
+                        programId: MOCK_PROGRAM_ID,
                         title: MOCK_TITLE,
                     }),
                 ]),
-            });
+            );
         });
 
         it('should handle empty forms array', async () => {
@@ -100,10 +74,9 @@ describe('CreditFormController', () => {
                 sort: jest.fn().mockResolvedValue([]),
             });
 
-            await creditFormController.getAllForms(mockReq as Request, mockRes as Response);
+            const result = await creditFormController.getAllForms();
 
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.OK);
-            expect(mockJson).toHaveBeenCalledWith({ forms: [] });
+            expect(result).toEqual([]);
         });
 
         it(TEST_DB_ERROR, async () => {
@@ -111,89 +84,57 @@ describe('CreditFormController', () => {
                 sort: jest.fn().mockRejectedValue(new Error(DB_ERROR)),
             });
 
-            await creditFormController.getAllForms(mockReq as Request, mockRes as Response);
-
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.SERVER_ERR);
-            expect(mockJson).toHaveBeenCalledWith({ error: 'Failed to fetch credit forms' });
+            await expect(creditFormController.getAllForms()).rejects.toThrow(DB_ERROR);
         });
     });
 
     describe('getFormById', () => {
-        it('should return a form by id', async () => {
-            mockReq.params = { id: MOCK_PROGRAM_ID };
+        it('should return a form by programId', async () => {
             (CreditForm.findOne as jest.Mock).mockResolvedValue(mockForm);
 
-            await creditFormController.getFormById(mockReq as Request, mockRes as Response);
+            const result = await creditFormController.getFormById(MOCK_PROGRAM_ID);
 
             expect(CreditForm.findOne).toHaveBeenCalledWith({
                 programId: MOCK_PROGRAM_ID,
-                isActive: true, // This was already here?
+                isActive: true,
             });
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.OK);
+            expect(result).toEqual(
+                expect.objectContaining({
+                    programId: MOCK_PROGRAM_ID,
+                    title: MOCK_TITLE,
+                }),
+            );
         });
 
-        it('should return 404 for non-existent form', async () => {
-            mockReq.params = { id: 'nonexistent' };
+        it('should return null for non-existent form', async () => {
             (CreditForm.findOne as jest.Mock).mockResolvedValue(null);
 
-            await creditFormController.getFormById(mockReq as Request, mockRes as Response);
+            const result = await creditFormController.getFormById('nonexistent');
 
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.NOT_FOUND);
-            expect(mockJson).toHaveBeenCalledWith({ error: 'Form not found' });
+            expect(result).toBeNull();
         });
 
         it(TEST_DB_ERROR, async () => {
-            mockReq.params = { id: MOCK_PROGRAM_ID };
             (CreditForm.findOne as jest.Mock).mockRejectedValue(new Error(DB_ERROR));
 
-            await creditFormController.getFormById(mockReq as Request, mockRes as Response);
-
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.SERVER_ERR);
+            await expect(creditFormController.getFormById(MOCK_PROGRAM_ID)).rejects.toThrow(DB_ERROR);
         });
     });
 
     describe('createForm', () => {
-        beforeEach(() => {
-            mockReq.body = {
-                programId: 'new-program',
-                title: 'New Program',
-                subtitle: 'New Program Credit Count Form',
-            };
-            mockReq.file = {
-                filename: 'new-program.pdf',
-                path: '/tmp/new-program.pdf',
-                // eslint-disable-next-line no-undef
-            } as Express.Multer.File;
-        });
+        const createInput = {
+            programId: 'new-program',
+            title: 'New Program',
+            subtitle: 'New Program Credit Count Form',
+            filename: 'new-program.pdf',
+            uploadedBy: MOCK_USER_ID,
+        };
 
-        it('should return 400 if programId is missing', async () => {
-            mockReq.body = { title: 'Test', subtitle: 'Test' };
-
-            await creditFormController.createForm(mockReq as Request, mockRes as Response);
-
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.BAD_REQUEST);
-            expect(mockJson).toHaveBeenCalledWith({
-                error: 'programId, title, and subtitle are required',
-            });
-        });
-
-        it('should return 400 if file is missing', async () => {
-            mockReq.file = undefined;
-
-            await creditFormController.createForm(mockReq as Request, mockRes as Response);
-
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.BAD_REQUEST);
-            expect(mockJson).toHaveBeenCalledWith({ error: 'PDF file is required' });
-        });
-
-        it('should return 409 if active form with same programId exists', async () => {
+        it('should throw CONFLICT if active form with same programId exists', async () => {
             (CreditForm.findOne as jest.Mock).mockResolvedValue({ ...mockForm, isActive: true });
-            (fs.unlinkSync as jest.Mock).mockImplementation(() => { });
+            (fs.existsSync as jest.Mock).mockReturnValue(true);
 
-            await creditFormController.createForm(mockReq as Request, mockRes as Response);
-
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.CONFLICT);
-            expect(fs.unlinkSync).toHaveBeenCalledWith('/tmp/new-program.pdf');
+            await expect(creditFormController.createForm(createInput)).rejects.toThrow('CONFLICT:');
         });
 
         it('should reactivate soft-deleted form with same programId', async () => {
@@ -205,29 +146,30 @@ describe('CreditFormController', () => {
             (CreditForm.findOne as jest.Mock).mockResolvedValue(softDeletedForm);
             (fs.existsSync as jest.Mock).mockReturnValue(false);
 
-            await creditFormController.createForm(mockReq as Request, mockRes as Response);
+            const result = await creditFormController.createForm(createInput);
 
             expect(softDeletedForm.isActive).toBe(true);
             expect(softDeletedForm.save).toHaveBeenCalled();
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.CREATED);
+            expect(result.reactivated).toBe(true);
+            expect(result.form).toEqual(
+                expect.objectContaining({ title: 'New Program' }),
+            );
         });
 
         it('should create new form when programId does not exist', async () => {
             (CreditForm.findOne as jest.Mock).mockResolvedValue(null);
 
-            await creditFormController.createForm(mockReq as Request, mockRes as Response);
+            const result = await creditFormController.createForm(createInput);
 
             expect(CreditForm).toHaveBeenCalled();
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.CREATED);
+            expect(result.reactivated).toBe(false);
+            expect(result.form).toEqual(
+                expect.objectContaining({ programId: 'new-program' }),
+            );
         });
     });
 
     describe('updateForm', () => {
-        beforeEach(() => {
-            mockReq.params = { id: MOCK_PROGRAM_ID };
-            mockReq.body = { title: 'Updated Title' };
-        });
-
         it('should update form successfully', async () => {
             const mockUpdatableForm = {
                 ...mockForm,
@@ -235,29 +177,31 @@ describe('CreditFormController', () => {
             };
             (CreditForm.findOne as jest.Mock).mockResolvedValue(mockUpdatableForm);
 
-            await creditFormController.updateForm(mockReq as Request, mockRes as Response);
+            const result = await creditFormController.updateForm(MOCK_PROGRAM_ID, {
+                title: 'Updated Title',
+                uploadedBy: MOCK_USER_ID,
+            });
 
             expect(CreditForm.findOne).toHaveBeenCalledWith({ programId: MOCK_PROGRAM_ID });
             expect(mockUpdatableForm.title).toBe('Updated Title');
             expect(mockUpdatableForm.save).toHaveBeenCalled();
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.OK);
+            expect(result).toEqual(
+                expect.objectContaining({ title: 'Updated Title' }),
+            );
         });
 
-        it('should return 404 if form not found', async () => {
-            mockReq.params = { id: 'nonexistent' };
+        it('should throw NOT_FOUND if form not found', async () => {
             (CreditForm.findOne as jest.Mock).mockResolvedValue(null);
 
-            await creditFormController.updateForm(mockReq as Request, mockRes as Response);
-
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.NOT_FOUND);
+            await expect(
+                creditFormController.updateForm('nonexistent', {
+                    title: 'Updated Title',
+                    uploadedBy: MOCK_USER_ID,
+                }),
+            ).rejects.toThrow('NOT_FOUND:');
         });
 
-        it('should update PDF file if new file provided', async () => {
-            mockReq.file = {
-                filename: 'updated.pdf',
-                path: '/tmp/updated.pdf',
-                // eslint-disable-next-line no-undef
-            } as Express.Multer.File;
+        it('should update PDF file if new filename provided', async () => {
             const mockUpdatableForm = {
                 ...mockForm,
                 save: jest.fn().mockResolvedValue(true),
@@ -266,158 +210,83 @@ describe('CreditFormController', () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
             (fs.unlinkSync as jest.Mock).mockImplementation(() => { });
 
-            await creditFormController.updateForm(mockReq as Request, mockRes as Response);
+            const result = await creditFormController.updateForm(MOCK_PROGRAM_ID, {
+                filename: 'updated.pdf',
+                uploadedBy: MOCK_USER_ID,
+            });
 
             expect(fs.unlinkSync).toHaveBeenCalled();
             expect(mockUpdatableForm.filename).toBe('updated.pdf');
+            expect(result).toBeDefined();
         });
 
         it('should clean up uploaded file if form not found', async () => {
-            mockReq.params = { id: 'nonexistent' };
-            mockReq.file = {
-                filename: 'uploaded.pdf',
-                path: '/tmp/uploaded.pdf',
-                // eslint-disable-next-line no-undef
-            } as Express.Multer.File;
             (CreditForm.findOne as jest.Mock).mockResolvedValue(null);
+            (fs.existsSync as jest.Mock).mockReturnValue(true);
 
-            await creditFormController.updateForm(mockReq as Request, mockRes as Response);
+            await expect(
+                creditFormController.updateForm('nonexistent', {
+                    filename: 'uploaded.pdf',
+                    uploadedBy: MOCK_USER_ID,
+                }),
+            ).rejects.toThrow('NOT_FOUND:');
 
-            expect(fs.unlinkSync).toHaveBeenCalledWith('/tmp/uploaded.pdf');
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.NOT_FOUND);
+            expect(fs.unlinkSync).toHaveBeenCalled();
         });
 
         it(TEST_DB_ERROR, async () => {
             (CreditForm.findOne as jest.Mock).mockRejectedValue(new Error(DB_ERROR));
 
-            await creditFormController.updateForm(mockReq as Request, mockRes as Response);
-
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.SERVER_ERR);
+            await expect(
+                creditFormController.updateForm(MOCK_PROGRAM_ID, {
+                    title: 'Updated Title',
+                    uploadedBy: MOCK_USER_ID,
+                }),
+            ).rejects.toThrow(DB_ERROR);
         });
     });
 
     describe('deleteForm', () => {
-        beforeEach(() => {
-            mockReq.params = { id: MOCK_PROGRAM_ID };
-        });
-
         it('should soft delete form successfully', async () => {
             const mockFormToDelete = { ...mockForm, save: jest.fn().mockResolvedValue(true) };
             (CreditForm.findOne as jest.Mock).mockResolvedValue(mockFormToDelete);
 
-            await creditFormController.deleteForm(mockReq as Request, mockRes as Response);
+            await creditFormController.deleteForm(MOCK_PROGRAM_ID);
 
             expect(CreditForm.findOne).toHaveBeenCalledWith({ programId: MOCK_PROGRAM_ID });
             expect(mockFormToDelete.isActive).toBe(false);
             expect(mockFormToDelete.save).toHaveBeenCalled();
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.OK);
         });
 
-        it('should return 404 if form not found', async () => {
+        it('should throw NOT_FOUND if form not found', async () => {
             (CreditForm.findOne as jest.Mock).mockResolvedValue(null);
 
-            await creditFormController.deleteForm(mockReq as Request, mockRes as Response);
-
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.NOT_FOUND);
+            await expect(creditFormController.deleteForm('nonexistent')).rejects.toThrow('NOT_FOUND:');
         });
 
         it(TEST_DB_ERROR, async () => {
             (CreditForm.findOne as jest.Mock).mockRejectedValue(new Error(DB_ERROR));
 
-            await creditFormController.deleteForm(mockReq as Request, mockRes as Response);
-
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.SERVER_ERR);
+            await expect(creditFormController.deleteForm(MOCK_PROGRAM_ID)).rejects.toThrow(DB_ERROR);
         });
     });
 
-    describe('serveFile', () => {
-        beforeEach(() => {
-            mockReq.params = { filename: 'test.pdf' };
-        });
-
-        it('should serve file when it exists', async () => {
+    describe('resolveFilePath', () => {
+        it('should return file path when file exists', () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
 
-            await creditFormController.serveFile(mockReq as Request, mockRes as Response);
+            const result = creditFormController.resolveFilePath('test.pdf');
 
-            expect(mockSetHeader).toHaveBeenCalledWith('Content-Type', 'application/pdf');
-            expect(mockSetHeader).toHaveBeenCalledWith(
-                'Content-Disposition',
-                'inline; filename="test.pdf"'
-            );
-            expect(mockRes.sendFile).toHaveBeenCalled();
+            expect(result).toBeTruthy();
+            expect(result).toContain('test.pdf');
         });
 
-        it('should return 404 when file does not exist', async () => {
+        it('should return null when file does not exist', () => {
             (fs.existsSync as jest.Mock).mockReturnValue(false);
 
-            await creditFormController.serveFile(mockReq as Request, mockRes as Response);
+            const result = creditFormController.resolveFilePath('nonexistent.pdf');
 
-            expect(mockStatus).toHaveBeenCalledWith(HTTP.NOT_FOUND);
-            expect(mockJson).toHaveBeenCalledWith({ error: 'File not found' });
-        });
-
-        it('should handle array filename param', async () => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            mockReq.params = { filename: ['file1.pdf', 'file2.pdf'] as any };
-            (fs.existsSync as jest.Mock).mockReturnValue(true);
-
-            await creditFormController.serveFile(mockReq as Request, mockRes as Response);
-
-            expect(mockSetHeader).toHaveBeenCalledWith(
-                'Content-Disposition',
-                'inline; filename="file1.pdf"'
-            );
-            expect(mockRes.sendFile).toHaveBeenCalled();
-        });
-    });
-
-    describe('migrateExistingForms', () => {
-        it('should migrate forms that do not exist', async () => {
-            (CreditForm.findOne as jest.Mock).mockResolvedValue(null);
-            (fs.existsSync as jest.Mock).mockReturnValue(false);
-
-            const result = await creditFormController.migrateExistingForms();
-
-            expect(typeof result).toBe('number');
-            expect(result).toBeGreaterThanOrEqual(0);
-        });
-
-        it('should restore missing file for existing form', async () => {
-            (CreditForm.findOne as jest.Mock).mockResolvedValue(mockForm);
-            (fs.existsSync as jest.Mock).mockImplementation((pathStr: string) => {
-                // Return true for source files (in public/credit-forms), false for dest files (in uploads)
-                return pathStr.includes('public') && pathStr.endsWith('.pdf');
-            });
-
-            const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-            await creditFormController.migrateExistingForms();
-
-            // Should copy file and log restoration
-            expect(fs.copyFileSync).toHaveBeenCalled();
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Restored missing file'));
-            consoleSpy.mockRestore();
-        });
-
-        it('should skip forms if both record and file exist', async () => {
-            (CreditForm.findOne as jest.Mock).mockResolvedValue(mockForm);
-            (fs.existsSync as jest.Mock).mockReturnValue(true);
-
-            const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-            await creditFormController.migrateExistingForms();
-
-            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('already exists'));
-            expect(fs.copyFileSync).not.toHaveBeenCalled();
-            consoleSpy.mockRestore();
-        });
-
-        it('should copy PDF files when source exists', async () => {
-            (CreditForm.findOne as jest.Mock).mockResolvedValue(null);
-            (fs.existsSync as jest.Mock).mockReturnValue(true);
-
-            await creditFormController.migrateExistingForms();
-
-            expect(fs.copyFileSync).toHaveBeenCalled();
+            expect(result).toBeNull();
         });
     });
 });

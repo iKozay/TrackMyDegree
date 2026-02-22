@@ -24,7 +24,7 @@ import jobRouter from '@routes/jobRoutes';
 import degreeAuditRouter from '@routes/degreeAuditRoutes';
 import coopvalidationRouter from '@routes/coopvalidationRoutes';
 import creditFormRouter from '@routes/creditFormRoutes';
-import { migrateExistingForms } from '@controllers/creditFormController';
+
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
@@ -143,14 +143,7 @@ const start = async () => {
     Sentry.captureException(err);
   }
 
-  // Run migration for credit forms (restore missing files)
-  if (process.env.NODE_ENV !== 'test') {
-    try {
-      await migrateExistingForms();
-    } catch (err) {
-      console.error('Error during startup migration:', err);
-    }
-  }
+
 
   app.listen(PORT, () => {
     console.log(`Server listening on Port: ${PORT}`);

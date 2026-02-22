@@ -4,19 +4,17 @@ import {
     createCreditForm,
     updateCreditForm,
     deleteCreditForm,
-    migrateCreditForms,
 } from '../api/creditFormsApi';
-import type { CreditForm } from '../api/creditFormsApi';
+import type { ICreditFormData } from '../api/creditFormsApi';
 import { toast } from 'react-toastify';
 
 const BURGUNDY = '#7a0019';
 
 export const CreditFormManager: React.FC = () => {
-    const [forms, setForms] = useState<CreditForm[]>([]);
+    const [forms, setForms] = useState<ICreditFormData[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
-    const [editingForm, setEditingForm] = useState<CreditForm | null>(null);
-    const [migrating, setMigrating] = useState(false);
+    const [editingForm, setEditingForm] = useState<ICreditFormData | null>(null);
 
     // Form fields
     const [programId, setProgramId] = useState('');
@@ -42,19 +40,7 @@ export const CreditFormManager: React.FC = () => {
         loadForms();
     }, []);
 
-    const handleMigrate = async () => {
-        try {
-            setMigrating(true);
-            const result = await migrateCreditForms();
-            toast.success(`${result.migratedCount} forms migrated successfully`);
-            loadForms();
-        } catch (error) {
-            console.error('Error migrating forms:', error);
-            toast.error('Failed to migrate forms');
-        } finally {
-            setMigrating(false);
-        }
-    };
+
 
     const openAddModal = () => {
         setEditingForm(null);
@@ -65,20 +51,20 @@ export const CreditFormManager: React.FC = () => {
         setShowModal(true);
     };
 
-    const openEditModal = (form: CreditForm) => {
+    const openEditModal = (form: ICreditFormData) => {
         setEditingForm(form);
-        setProgramId(form.id);
+        setProgramId(form.programId);
         setTitle(form.title);
         setSubtitle(form.subtitle);
         setPdfFile(null);
         setShowModal(true);
     };
 
-    const handleDelete = async (form: CreditForm) => {
+    const handleDelete = async (form: ICreditFormData) => {
         if (!confirm(`Are you sure you want to delete "${form.title}"?`)) return;
 
         try {
-            await deleteCreditForm(form.id);
+            await deleteCreditForm(form.programId);
             toast.success('Form deleted successfully');
             loadForms();
         } catch (error) {
@@ -94,7 +80,7 @@ export const CreditFormManager: React.FC = () => {
         try {
             if (editingForm) {
                 // Update existing form
-                await updateCreditForm(editingForm.id, title, subtitle, pdfFile || undefined);
+                await updateCreditForm(editingForm.programId, title, subtitle, pdfFile || undefined);
                 toast.success('Form updated successfully');
             } else {
                 // Create new form
@@ -140,22 +126,6 @@ export const CreditFormManager: React.FC = () => {
                 <h2 style={{ margin: 0, color: BURGUNDY }}>Credit Forms Management</h2>
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <button
-                        onClick={handleMigrate}
-                        disabled={migrating}
-                        style={{
-                            padding: '10px 16px',
-                            borderRadius: '8px',
-                            border: `2px solid ${BURGUNDY}`,
-                            background: '#fff',
-                            color: BURGUNDY,
-                            fontWeight: 600,
-                            cursor: migrating ? 'not-allowed' : 'pointer',
-                            opacity: migrating ? 0.6 : 1,
-                        }}
-                    >
-                        {migrating ? 'Migrating...' : 'Migrate Existing Forms'}
-                    </button>
-                    <button
                         onClick={openAddModal}
                         style={{
                             padding: '10px 16px',
@@ -195,10 +165,10 @@ export const CreditFormManager: React.FC = () => {
                         </thead>
                         <tbody>
                             {forms.map((form) => (
-                                <tr key={form.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                                <tr key={form.programId} style={{ borderBottom: '1px solid #e5e7eb' }}>
                                     <td style={{ padding: '12px 16px', fontWeight: 500 }}>{form.title}</td>
                                     <td style={{ padding: '12px 16px', color: '#666', fontSize: '14px' }}>{form.subtitle}</td>
-                                    <td style={{ padding: '12px 16px', fontFamily: 'monospace', fontSize: '13px', color: '#888' }}>{form.id}</td>
+                                    <td style={{ padding: '12px 16px', fontFamily: 'monospace', fontSize: '13px', color: '#888' }}>{form.programId}</td>
                                     <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                                         <button
                                             onClick={() => openEditModal(form)}

@@ -10,7 +10,7 @@ export default function RequirementsSelectPage() {
   const { user } = useAuth();
   const [programs, setPrograms] = useState(staticPrograms);
   const [loading, setLoading] = useState(true);
-  const isAdminOrAdvisor = user?.role === 'admin' || user?.role === 'advisor';
+  const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
     const fetchForms = async () => {
@@ -21,7 +21,12 @@ export default function RequirementsSelectPage() {
         if (response.ok) {
           const data = await response.json();
           if (data.forms && data.forms.length > 0) {
-            setPrograms(data.forms);
+            // Normalize: API returns programId, static data uses id
+            const normalized = data.forms.map((f) => ({
+              ...f,
+              id: f.id || f.programId,
+            }));
+            setPrograms(normalized);
           }
         }
       } catch (error) {
@@ -42,7 +47,7 @@ export default function RequirementsSelectPage() {
           <h2 className="mb-2" style={{ margin: 0 }}>
             Missing Requirements
           </h2>
-          {isAdminOrAdvisor && (
+          {isAdmin && (
             <Link
               to="/admin/credit-forms"
               style={{

@@ -1,21 +1,12 @@
-import { Request, Response } from 'express';
 import { Types } from 'mongoose';
-import { CreditForm, ICreditForm } from '@models/creditForm';
-import HTTP from '@utils/httpCodes';
+import { CreditForm } from '@models/creditForm';
+import { ICreditFormData, CreateCreditFormInput, UpdateCreditFormInput } from '@shared/creditForm';
 import path from 'node:path';
 import fs from 'node:fs';
 
-interface AuthenticatedRequest extends Request {
-    user?: {
-        userId: string;
-        type?: string;
-    };
-}
-
-const UPLOAD_DIR = path.resolve(__dirname, '../../uploads/credit-forms');
-const SOURCE_DIR = path.resolve(__dirname, '../../../ts-front-end/public/credit-forms');
+const DATA_DIR = process.env.DATA_DIR || path.resolve(__dirname, '../../data');
+const UPLOAD_DIR = path.join(DATA_DIR, 'credit-forms');
 const API_FILE_PREFIX = '/api/credit-forms/file/';
-const FORM_NOT_FOUND = 'Form not found';
 
 // Ensure upload directory exists
 if (!fs.existsSync(UPLOAD_DIR)) {
@@ -23,335 +14,188 @@ if (!fs.existsSync(UPLOAD_DIR)) {
 }
 
 /**
+ * Get the upload directory path
+ */
+export function getUploadDir(): string {
+    return UPLOAD_DIR;
+}
+
+/**
  * Get all active credit forms
  */
-export async function getAllForms(req: Request, res: Response) {
-    try {
-        const forms = await CreditForm.find({ isActive: true }).sort({ title: 1 });
+export async function getAllForms(): Promise<ICreditFormData[]> {
+    const forms = await CreditForm.find({ isActive: true }).sort({ title: 1 });
 
-        // Map to frontend-compatible format
-        const formattedForms = forms.map(form => ({
-            id: form.programId,
-            title: form.title,
-            subtitle: form.subtitle,
-            pdf: `${API_FILE_PREFIX}${form.filename}`,
-            uploadedAt: form.uploadedAt,
-        }));
-
-        res.status(HTTP.OK).json({ forms: formattedForms });
-    } catch (error) {
-        console.error('Error fetching credit forms:', error);
-        res.status(HTTP.SERVER_ERR).json({ error: 'Failed to fetch credit forms' });
-    }
+    return forms.map(form => ({
+        programId: form.programId,
+        title: form.title,
+        subtitle: form.subtitle,
+        pdf: `${API_FILE_PREFIX}${form.filename}`,
+        uploadedAt: form.uploadedAt?.toISOString(),
+    }));
 }
 
 /**
  * Get a single credit form by programId
  */
-export async function getFormById(req: Request, res: Response) {
-    try {
-        const { id } = req.params;
-        const form = await CreditForm.findOne({ programId: id, isActive: true });
+export async function getFormById(programId: string): Promise<ICreditFormData | null> {
+    const form = await CreditForm.findOne({ programId, isActive: true });
 
-        if (!form) {
-            return res.status(HTTP.NOT_FOUND).json({ error: FORM_NOT_FOUND });
-        }
-
-        res.status(HTTP.OK).json({
-            id: form.programId,
-            title: form.title,
-            subtitle: form.subtitle,
-            pdf: `${API_FILE_PREFIX}${form.filename}`,
-            uploadedAt: form.uploadedAt,
-        });
-    } catch (error) {
-        console.error('Error fetching credit form:', error);
-        res.status(HTTP.SERVER_ERR).json({ error: 'Failed to fetch credit form' });
+    if (!form) {
+        return null;
     }
+
+    return {
+        programId: form.programId,
+        title: form.title,
+        subtitle: form.subtitle,
+        pdf: `${API_FILE_PREFIX}${form.filename}`,
+        uploadedAt: form.uploadedAt?.toISOString(),
+    };
 }
 
 /**
- * Create a new credit form (admin/advisor only)
+ * Create a new credit form (admin only)
  * If a soft-deleted form with the same programId exists, it will be reactivated and updated
+ * Returns { form, reactivated } on success
+ * Throws an error if an active form with the same programId exists
  */
-export async function createForm(req: Request, res: Response) {
-    try {
-        const { programId, title, subtitle } = req.body;
-        const file = req.file;
+export async function createForm(
+    input: CreateCreditFormInput,
+): Promise<{ form: ICreditFormData; reactivated: boolean }> {
+    const { programId, title, subtitle, filename, uploadedBy } = input;
+    const uploadedByOid = uploadedBy ? new Types.ObjectId(uploadedBy) : null;
 
-        if (!programId || !title || !subtitle) {
-            return res.status(HTTP.BAD_REQUEST).json({
-                error: 'programId, title, and subtitle are required'
-            });
-        }
+    // Check for existing form with same programId
+    const existing = await CreditForm.findOne({ programId });
 
-        if (!file) {
-            return res.status(HTTP.BAD_REQUEST).json({ error: 'PDF file is required' });
-        }
-
-        const userId = (req as AuthenticatedRequest).user?.userId;
-        const uploadedBy = userId ? new Types.ObjectId(userId) : null;
-
-        // Check for existing form with same programId
-        const existing = await CreditForm.findOne({ programId });
-
-        if (existing) {
-            if (existing.isActive) {
-                // Active form exists - reject the creation
-                fs.unlinkSync(file.path);
-                return res.status(HTTP.CONFLICT).json({
-                    error: 'A form with this program ID already exists. Use the edit function instead.'
-                });
+    if (existing) {
+        if (existing.isActive) {
+            // Clean up the uploaded file since we're rejecting
+            const filePath = path.join(UPLOAD_DIR, filename);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
             }
-
-            // Form exists but was soft-deleted - reactivate it with new data
-            const oldFilePath = path.join(UPLOAD_DIR, existing.filename);
-            if (fs.existsSync(oldFilePath)) {
-                fs.unlinkSync(oldFilePath);
-            }
-
-            existing.title = title;
-            existing.subtitle = subtitle;
-            existing.filename = file.filename;
-            existing.uploadedBy = uploadedBy;
-            existing.uploadedAt = new Date();
-            existing.isActive = true;
-
-            await existing.save();
-
-            return res.status(HTTP.CREATED).json({
-                message: 'Credit form reactivated and updated successfully',
-                form: {
-                    id: existing.programId,
-                    title: existing.title,
-                    subtitle: existing.subtitle,
-                    pdf: `${API_FILE_PREFIX}${existing.filename}`,
-                },
-            });
+            throw new Error('CONFLICT: A form with this program ID already exists. Use the edit function instead.');
         }
 
-        // No existing form - create new
-        const newForm = new CreditForm({
-            programId,
-            title,
-            subtitle,
-            filename: file.filename,
-            uploadedBy,
-            uploadedAt: new Date(),
-            isActive: true,
-        });
+        // Form exists but was soft-deleted — reactivate it with new data
+        const oldFilePath = path.join(UPLOAD_DIR, existing.filename);
+        if (fs.existsSync(oldFilePath)) {
+            fs.unlinkSync(oldFilePath);
+        }
 
-        await newForm.save();
+        existing.title = title;
+        existing.subtitle = subtitle;
+        existing.filename = filename;
+        existing.uploadedBy = uploadedByOid;
+        existing.uploadedAt = new Date();
+        existing.isActive = true;
 
-        res.status(HTTP.CREATED).json({
-            message: 'Credit form created successfully',
+        await existing.save();
+
+        return {
             form: {
-                id: newForm.programId,
-                title: newForm.title,
-                subtitle: newForm.subtitle,
-                pdf: `${API_FILE_PREFIX}${newForm.filename}`,
+                programId: existing.programId,
+                title: existing.title,
+                subtitle: existing.subtitle,
+                pdf: `${API_FILE_PREFIX}${existing.filename}`,
             },
-        });
-    } catch (error) {
-        console.error('Error creating credit form:', error);
-        res.status(HTTP.SERVER_ERR).json({ error: 'Failed to create credit form' });
+            reactivated: true,
+        };
     }
+
+    // No existing form — create new
+    const newForm = new CreditForm({
+        programId,
+        title,
+        subtitle,
+        filename,
+        uploadedBy: uploadedByOid,
+        uploadedAt: new Date(),
+        isActive: true,
+    });
+
+    await newForm.save();
+
+    return {
+        form: {
+            programId: newForm.programId,
+            title: newForm.title,
+            subtitle: newForm.subtitle,
+            pdf: `${API_FILE_PREFIX}${newForm.filename}`,
+        },
+        reactivated: false,
+    };
 }
 
 /**
- * Update an existing credit form (admin/advisor only)
+ * Update an existing credit form (admin only)
+ * Throws if the form is not found
  */
-export async function updateForm(req: Request, res: Response) {
-    try {
-        const { id } = req.params;
-        const { title, subtitle } = req.body;
-        const file = req.file;
-
-        const form = await CreditForm.findOne({ programId: id });
-        if (!form) {
-            if (file) fs.unlinkSync(file.path);
-            return res.status(HTTP.NOT_FOUND).json({ error: FORM_NOT_FOUND });
-        }
-
-        // Update fields
-        if (title) form.title = title;
-        if (subtitle) form.subtitle = subtitle;
-
-        // If new file uploaded, delete old file and update
-        if (file) {
-            const oldFilePath = path.join(UPLOAD_DIR, form.filename);
-            if (fs.existsSync(oldFilePath)) {
-                fs.unlinkSync(oldFilePath);
+export async function updateForm(
+    programId: string,
+    input: UpdateCreditFormInput,
+): Promise<ICreditFormData> {
+    const form = await CreditForm.findOne({ programId });
+    if (!form) {
+        // Clean up the uploaded file if one was provided
+        if (input.filename) {
+            const filePath = path.join(UPLOAD_DIR, input.filename);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
             }
-            form.filename = file.filename;
         }
-
-        const userId = (req as AuthenticatedRequest).user?.userId;
-        form.uploadedBy = userId ? new Types.ObjectId(userId) : null;
-        form.uploadedAt = new Date();
-
-        await form.save();
-
-        res.status(HTTP.OK).json({
-            message: 'Credit form updated successfully',
-            form: {
-                id: form.programId,
-                title: form.title,
-                subtitle: form.subtitle,
-                pdf: `${API_FILE_PREFIX}${form.filename}`,
-            },
-        });
-    } catch (error) {
-        console.error('Error updating credit form:', error);
-        res.status(HTTP.SERVER_ERR).json({ error: 'Failed to update credit form' });
+        throw new Error('NOT_FOUND: Form not found');
     }
+
+    if (input.title) form.title = input.title;
+    if (input.subtitle) form.subtitle = input.subtitle;
+
+    // If new file uploaded, delete old file and update
+    if (input.filename) {
+        const oldFilePath = path.join(UPLOAD_DIR, form.filename);
+        if (fs.existsSync(oldFilePath)) {
+            fs.unlinkSync(oldFilePath);
+        }
+        form.filename = input.filename;
+    }
+
+    form.uploadedBy = input.uploadedBy ? new Types.ObjectId(input.uploadedBy) : null;
+    form.uploadedAt = new Date();
+
+    await form.save();
+
+    return {
+        programId: form.programId,
+        title: form.title,
+        subtitle: form.subtitle,
+        pdf: `${API_FILE_PREFIX}${form.filename}`,
+    };
 }
 
 /**
- * Delete a credit form (soft delete - admin/advisor only)
+ * Delete a credit form (soft delete — admin only)
+ * Throws if the form is not found
  */
-export async function deleteForm(req: Request, res: Response) {
-    try {
-        const { id } = req.params;
-
-        const form = await CreditForm.findOne({ programId: id });
-        if (!form) {
-            return res.status(HTTP.NOT_FOUND).json({ error: FORM_NOT_FOUND });
-        }
-
-        // Soft delete
-        form.isActive = false;
-        await form.save();
-
-        res.status(HTTP.OK).json({ message: 'Credit form deleted successfully' });
-    } catch (error) {
-        console.error('Error deleting credit form:', error);
-        res.status(HTTP.SERVER_ERR).json({ error: 'Failed to delete credit form' });
+export async function deleteForm(programId: string): Promise<void> {
+    const form = await CreditForm.findOne({ programId });
+    if (!form) {
+        throw new Error('NOT_FOUND: Form not found');
     }
+
+    form.isActive = false;
+    await form.save();
 }
 
 /**
- * Serve a PDF file
+ * Resolve the absolute path for a given PDF filename.
+ * Returns null if the file does not exist on disk.
  */
-export async function serveFile(req: Request, res: Response) {
-    try {
-        const { filename } = req.params;
-        const safeFilename = Array.isArray(filename) ? filename[0] : filename;
-        const filePath = path.join(UPLOAD_DIR, safeFilename);
-
-        if (!fs.existsSync(filePath)) {
-            return res.status(HTTP.NOT_FOUND).json({ error: 'File not found' });
-        }
-
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `inline; filename="${safeFilename}"`);
-        res.sendFile(filePath);
-    } catch (error) {
-        console.error('Error serving file:', error);
-        res.status(HTTP.SERVER_ERR).json({ error: 'Failed to serve file' });
-    }
-}
-
-/**
- * Migrate existing PDF files from public folder to database (one-time setup)
- * Also copies PDF files from frontend public folder to backend uploads folder
- */
-async function processFormMigration(formData: { programId: string; title: string; subtitle: string; filename: string }) {
-    try {
-        // Check if already exists
-        const existing = await CreditForm.findOne({ programId: formData.programId });
-        if (existing) {
-            // Check if file physically exists. If not, try to restore it from source
-            const destPath = path.join(UPLOAD_DIR, existing.filename);
-            if (!fs.existsSync(destPath) && existing.filename === formData.filename) {
-                const sourcePath = path.join(SOURCE_DIR, formData.filename);
-                if (fs.existsSync(sourcePath)) {
-                    fs.copyFileSync(sourcePath, destPath);
-                    // eslint-disable-next-line no-console
-                    console.log(`Restored missing file for existing form: ${existing.filename}`);
-                }
-            } else {
-                // eslint-disable-next-line no-console
-                console.log(`Form ${formData.programId} already exists, skipping migration.`);
-            }
-            return false;
-        }
-
-        // Try to copy the PDF file from the source location
-        const sourceFile = path.join(SOURCE_DIR, formData.filename);
-        const destFile = path.join(UPLOAD_DIR, formData.filename);
-
-        if (fs.existsSync(sourceFile)) {
-            fs.copyFileSync(sourceFile, destFile);
-            // eslint-disable-next-line no-console
-            console.log(`Copied PDF: ${formData.filename}`);
-        } else {
-            console.warn(`Source PDF not found: ${sourceFile}, creating database record anyway`);
-        }
-
-        // Create the form record
-        const newForm = new CreditForm({
-            ...formData,
-            uploadedBy: null,
-            uploadedAt: new Date(),
-            isActive: true,
-        });
-
-        await newForm.save();
-        // eslint-disable-next-line no-console
-        console.log(`Migrated form: ${formData.title}`);
-        return true;
-    } catch (error) {
-        console.error(`Error migrating form ${formData.programId}:`, error);
-        return false;
-    }
-}
-
-export async function migrateExistingForms() {
-    const existingForms = [
-        {
-            programId: 'software-engineering',
-            title: 'Software Engineering',
-            subtitle: 'Bachelor of Software Engineering Credit Count Form',
-            filename: 'software-engineering.pdf',
-        },
-        {
-            programId: 'computer-science',
-            title: 'Computer Science',
-            subtitle: 'Bachelor of Computer Science Credit Count Form',
-            filename: 'computer-science.pdf',
-        },
-        {
-            programId: 'comp-health-life-science',
-            title: 'Computer Science and Health & Life Science',
-            subtitle: 'COMP + HLS Double Major Credit Count Form',
-            filename: 'cshls-double-major.pdf',
-        },
-        {
-            programId: 'comp-data-science',
-            title: 'Computer Science and Data Science',
-            subtitle: 'COMP + Data Science Double Major Credit Count Form',
-            filename: 'comp-data-science-double-major.pdf',
-        },
-        {
-            programId: 'comp-arts',
-            title: 'Computer Science and Computer Arts',
-            subtitle: 'COMP + Computer Arts Double Major Credit Count Form',
-            filename: 'comp-arts-double-major.pdf',
-        },
-    ];
-
-    let migratedCount = 0;
-
-    for (const formData of existingForms) {
-        if (await processFormMigration(formData)) {
-            migratedCount++;
-        }
-    }
-
-    // eslint-disable-next-line no-console
-    console.log(`Migration complete. ${migratedCount} forms migrated.`);
-    return migratedCount;
+export function resolveFilePath(filename: string): string | null {
+    const safeFilename = Array.isArray(filename) ? filename[0] : filename;
+    const filePath = path.join(UPLOAD_DIR, safeFilename);
+    return fs.existsSync(filePath) ? filePath : null;
 }
 
 export const creditFormController = {
@@ -360,6 +204,6 @@ export const creditFormController = {
     createForm,
     updateForm,
     deleteForm,
-    serveFile,
-    migrateExistingForms,
+    resolveFilePath,
+    getUploadDir,
 };

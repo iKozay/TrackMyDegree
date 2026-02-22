@@ -1,26 +1,21 @@
 import { api } from './http-api-client';
+import type { ICreditFormData } from '@shared/creditForm';
 
-export interface CreditForm {
-    id: string;
-    title: string;
-    subtitle: string;
-    pdf: string;
-    uploadedAt?: string;
-}
+export type { ICreditFormData };
 
 interface CreditFormsResponse {
-    forms: CreditForm[];
+    forms: ICreditFormData[];
 }
 
 interface CreditFormResponse {
     message: string;
-    form: CreditForm;
+    form: ICreditFormData;
 }
 
 /**
  * Fetch all active credit forms
  */
-export async function fetchCreditForms(): Promise<CreditForm[]> {
+export async function fetchCreditForms(): Promise<ICreditFormData[]> {
     const response = await api.get<CreditFormsResponse>('/credit-forms');
     return response.forms;
 }
@@ -28,12 +23,12 @@ export async function fetchCreditForms(): Promise<CreditForm[]> {
 /**
  * Fetch a single credit form by ID
  */
-export async function fetchCreditFormById(id: string): Promise<CreditForm> {
-    return api.get<CreditForm>(`/credit-forms/${id}`);
+export async function fetchCreditFormById(id: string): Promise<ICreditFormData> {
+    return api.get<ICreditFormData>(`/credit-forms/${id}`);
 }
 
 /**
- * Create a new credit form (admin/advisor only)
+ * Create a new credit form (admin only)
  */
 export async function createCreditForm(
     programId: string,
@@ -51,7 +46,7 @@ export async function createCreditForm(
 }
 
 /**
- * Update an existing credit form (admin/advisor only)
+ * Update an existing credit form (admin only)
  */
 export async function updateCreditForm(
     id: string,
@@ -68,15 +63,8 @@ export async function updateCreditForm(
 }
 
 /**
- * Delete a credit form (admin/advisor only)
+ * Delete a credit form (admin only)
  */
 export async function deleteCreditForm(id: string): Promise<{ message: string }> {
     return api.delete<{ message: string }>(`/credit-forms/${id}`);
-}
-
-/**
- * Trigger migration of existing forms (admin/advisor only)
- */
-export async function migrateCreditForms(): Promise<{ message: string; migratedCount: number }> {
-    return api.post<{ message: string; migratedCount: number }>('/credit-forms/migrate');
 }
