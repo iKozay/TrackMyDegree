@@ -16,8 +16,8 @@ export interface CourseSection {
     subject: string;
     catalog: string;
     section: string;
-    componentCode: string;          // e.g. "LEC", "TUT"
-    componentDescription: string;   // e.g. "Lecture", "Tutorial"
+    componentCode: string;          // e.g. "LEC", "TUT", "LAB"
+    componentDescription: string;   // e.g. "Lecture", "Tutorial", "Laboratory"
     classNumber: string;
     classAssociation: string;
     courseTitle: string;
@@ -25,7 +25,7 @@ export interface CourseSection {
     topicDescription: string;
     classStatus: string;            // e.g. "Active", "Cancelled Section"
     locationCode: string;
-    instructionModeCode: string;
+    instructionModeCode: string;    // e.g. "P" (in-person), "OL" (online)
     instructionModeDescription: string;
     meetingPatternNumber: string;
     roomCode: string;
@@ -52,4 +52,16 @@ export interface CourseSection {
     waitlistCapacity: string;
     currentWaitlistTotal: string;
     hasSeatReserved: string;        // "Y" | ""
+}
+
+// One entry per course the student has added to their builder.
+// Holds the full API response for that course so the configuration
+// system can compute all valid LEC + TUT + LAB combinations.
+export interface AddedCourse {
+    // Human-readable identifier, e.g. "COMP 352"
+    code: string;
+    // Full title from the API, e.g. "DATA STRUCTURES + ALGORITHMS"
+    title: string;
+    // All active sections for this course in the selected term
+    sections: CourseSection[];
 }
