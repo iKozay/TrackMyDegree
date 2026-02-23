@@ -211,5 +211,88 @@ describe('InformationForm', () => {
     expect(await screen.findByLabelText('Select Aerospace Option:')).toBeInTheDocument();
   });
 
-  
+  it('alerts when Next is clicked with aerospace co-op but no option selected', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    renderComponent();
+    await screen.findByText('Aerospace Engineering');
+
+    selectDegree('Aerospace Engineering');
+    selectTermAndYear('Fall', '2023');
+    fireEvent.click(screen.getByLabelText('Co-op Program?'));
+
+    const predefinedCheckbox = await screen.findByLabelText('Load predefined co-op sequence?');
+    fireEvent.click(predefinedCheckbox);
+
+    fireEvent.click(screen.getByText('Next'));
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith('Please select an Aerospace option.');
+    });
+  });
+
+  //  Successful form submission 
+
+  it('navigates to timeline page on successful standard form submission', async () => {
+    (api.post as Mock).mockResolvedValue({ jobId: 'abc123' });
+    renderComponent();
+    await screen.findByText('Software Engineering');
+
+    selectDegree('Software Engineering');
+    selectTermAndYear('Fall', '2023');
+
+    fireEvent.click(screen.getByText('Next'));
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith('/upload/form', expect.objectContaining({
+        degree: '1',
+        firstTerm: 'Fall 2023',
+        isCoop: false,
+        isExtendedCreditProgram: false,
+      }));
+      expect(mockNavigate).toHaveBeenCalledWith('/timeline/abc123');
+    });
+  });
+
+  it('alerts when API returns no jobId', async () => {
+    (api.post as Mock).mockResolvedValue({});
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    renderComponent();
+    await screen.findByText('Software Engineering');
+
+    selectDegree('Software Engineering');
+    selectTermAndYear('Fall', '2023');
+    fireEvent.click(screen.getByText('Next'));
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith('Unexpected response from server.');
+    });
+  });
+
+  it('alerts when API post throws an error', async () => {
+    (api.post as Mock).mockRejectedValue(new Error('Server down'));
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    renderComponent();
+    await screen.findByText('Software Engineering');
+
+    selectDegree('Software Engineering');
+    selectTermAndYear('Fall', '2023');
+    fireEvent.click(screen.getByText('Next'));
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith('Server down');
+    });
+  });
+
+  //  Chemical Engineering term handling 
+
+  it('shows predefined sequence checkbox for Chemical Engineering in Winter term', async () => {
+    renderComponent();
+    await screen.findByText('Chemical Engineering');
+
+    selectDegree('Chemical Engineering');
+    selectTermAndYear('Winter', '2023');
+    fireEvent.click(screen.getByLabelText('Co-op Program?'));
+
+    expect(await screen.findByLabelText('Load predefined co-op sequence?')).toBeInTheDocument();
+  });
 });
