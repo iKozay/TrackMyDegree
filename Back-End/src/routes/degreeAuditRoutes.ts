@@ -142,6 +142,28 @@ router.get('/timeline/:timelineId', async (req: Request, res: Response) => {
   }
 });
 
+
+router.get('/timeline/job/:jobId', async (req, res) => {
+  try {
+    const { jobId } = req.params;
+
+    if (!jobId) {
+      return res.status(HTTP.BAD_REQUEST).json({ error: 'jobId is required' });
+    }
+
+    const audit =
+      await degreeAuditController.getAuditByCachedTimeline(jobId);
+
+    return res.status(HTTP.OK).json(audit);
+  } catch (error) {
+    console.error('Error in GET /audit/timeline/job/:jobId', error);
+    return res
+      .status(HTTP.SERVER_ERR)
+      .json({ error: INTERNAL_SERVER_ERROR });
+  }
+});
+
+
 /**
  * @openapi
  * /audit/user/{userId}:

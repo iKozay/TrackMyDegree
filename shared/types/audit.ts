@@ -1,5 +1,5 @@
 export interface StudentInfo {
-  name: string;
+  name?: string;
   program: string;
   advisor?: string;
   gpa?: string;
