@@ -87,11 +87,7 @@ const UserTimelinesSection: React.FC = () => {
     >
       <h2>My Timelines</h2>
 
-      {!isAuthenticated ? (
-        <div className="timeline-login">
-        <p className="timeline-error">Please log in to see your timelines.</p>
-        </div>
-        ) : (
+      {isAuthenticated ? (
         <>
             {loading && <p className="timeline-loading">Loading timelines...</p>}
             {error && <p className="timeline-error">{error}</p>}
@@ -106,16 +102,19 @@ const UserTimelinesSection: React.FC = () => {
                 <div className="timeline-list">
                 {timelines.map((t) => (
                     <div key={t._id} className="timeline-card">
-                    <div
-                        className="timeline-info"
-                        onClick={() => handleTimelineClick(t)}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => { if(e.key === "Enter" || e.key === " ") handleTimelineClick(t); }}
+                    <button
+                      type="button"
+                      className="timeline-info"
+                      onClick={() => handleTimelineClick(t)}
                     >
-                        <h4>{t.name}</h4>
-                        {t.last_modified && <p className="timeline-date">Modified {moment(t.last_modified).fromNow()}</p>}
-                    </div>
+                      <h4>{t.name}</h4>
+                      {t.last_modified && (
+                        <p className="timeline-date">
+                          Modified {moment(t.last_modified).fromNow()}
+                        </p>
+                      )}
+                    </button>
+
                     <div className="timeline-actions">
                         <button
                         onClick={(e) => { e.stopPropagation(); navigate(`/degree-audit/${t._id}`); }}
@@ -150,7 +149,11 @@ const UserTimelinesSection: React.FC = () => {
                 </div>
                 </DeleteModal>
             )}
-        </>
+        </>        
+        ) : (
+        <div className="timeline-login">
+        <p className="timeline-error">Please log in to see your timelines.</p>
+        </div>
         )}
     </motion.div>
   );
