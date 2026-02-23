@@ -132,7 +132,7 @@
   margin-top: 20px;
 }
 
-.btn-cancel {
+.btn-cancel-modal {
   background: #e0e0e0;
   border-radius: 8px;
   padding: 8px 20px;
@@ -142,13 +142,13 @@
   transition: all 0.2s;
 }
 
-.btn-cancel:hover {
+.btn-cancel-modal:hover {
   background: #cfcfcf;
 }
 
-.btn-delete {
+.btn-delete-modal {
   background: #8B1538;
-  color: #fff;
+  color: #cfcfcf;
   border-radius: 8px;
   padding: 8px 20px;
   font-weight: 600;
@@ -157,7 +157,7 @@
   transition: all 0.3s;
 }
 
-.btn-delete:hover {
+.btn-delete-modal:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 16px rgba(139,21,56,0.2);
 }

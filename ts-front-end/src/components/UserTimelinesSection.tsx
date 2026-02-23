@@ -144,8 +144,8 @@ const UserTimelinesSection: React.FC = () => {
                     <h3>Delete Timeline?</h3>
                     <p>This will permanently remove <strong>{timelineToDelete.name}</strong>. This action cannot be undone.</p>
                     <div className="modal-actions">
-                    <button className="btn-cancel" onClick={() => setShowModal(false)}>Keep it</button>
-                    <button className="btn-delete" onClick={() => { handleDelete(timelineToDelete._id); setShowModal(false); }}>Yes, Delete</button>
+                    <button className="btn-cancel-modal" onClick={() => setShowModal(false)}>Keep it</button>
+                    <button className="btn-delete-modal" onClick={() => { handleDelete(timelineToDelete._id); setShowModal(false); }}>Yes, Delete</button>
                     </div>
                 </div>
                 </DeleteModal>
