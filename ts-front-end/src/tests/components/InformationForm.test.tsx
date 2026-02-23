@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import InformationForm from '../../components/InformationForm';
 import { api } from '../../api/http-api-client';
 
-// ─── Mocks ───────────────────────────────────────────────────────────────────
+//  Mocks 
 
 vi.mock('../../styles/components/InformationForm.css', () => ({}));
 
@@ -21,7 +21,7 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => mockNavigate };
 });
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+//  Helpers 
 
 const mockDegrees = [
   { _id: '1', name: 'Software Engineering', totalCredits: 120 },
@@ -49,7 +49,7 @@ const selectTermAndYear = (term: string, year: string) => {
   fireEvent.change(screen.getByLabelText('Starting Year'), { target: { value: year } });
 };
 
-// ─── Tests ───────────────────────────────────────────────────────────────────
+//  Tests 
 
 describe('InformationForm', () => {
   beforeEach(() => {
@@ -57,7 +57,7 @@ describe('InformationForm', () => {
     (api.get as Mock).mockResolvedValue(mockDegrees);
   });
 
-  // ── Rendering ──────────────────────────────────────────────────────────────
+  //  Rendering 
 
   it('renders the Manual Setup heading', async () => {
     renderComponent();
@@ -77,7 +77,7 @@ describe('InformationForm', () => {
     expect(screen.getByText('Next')).toBeInTheDocument();
   });
 
-  // ── Degree fetching ────────────────────────────────────────────────────────
+  //  Degree fetching 
 
   it('fetches and renders degrees on mount', async () => {
     renderComponent();
@@ -99,7 +99,7 @@ describe('InformationForm', () => {
     });
   });
 
-  // ── Validation ─────────────────────────────────────────────────────────────
+  //  Validation 
 
   it('alerts when Next is clicked without selecting a degree', async () => {
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
@@ -120,7 +120,7 @@ describe('InformationForm', () => {
     );
   });
 
-  // ── Cancel button ──────────────────────────────────────────────────────────
+  //  Cancel button 
 
   it('resets all fields when Cancel is clicked', async () => {
     renderComponent();
@@ -144,7 +144,7 @@ describe('InformationForm', () => {
     expect(yearSelect.value).toBe('');
   });
 
-  // ── Checkboxes ─────────────────────────────────────────────────────────────
+  //  Checkboxes 
 
   it('toggles Extended Credit Program checkbox', async () => {
     renderComponent();
@@ -171,7 +171,7 @@ describe('InformationForm', () => {
     expect(checkbox.checked).toBe(true);
   });
 
-  // ── Predefined sequence visibility ────────────────────────────────────────
+  //  Predefined sequence visibility 
 
   it('shows predefined co-op sequence checkbox when co-op is checked and term is Fall', async () => {
     renderComponent();
@@ -193,6 +193,22 @@ describe('InformationForm', () => {
     fireEvent.click(screen.getByLabelText('Co-op Program?'));
 
     expect(screen.queryByLabelText('Load predefined co-op sequence?')).not.toBeInTheDocument();
+  });
+
+  //  Aerospace option 
+
+  it('shows Aerospace option dropdown when aerospace degree is selected with co-op + predefined sequence', async () => {
+    renderComponent();
+    await screen.findByText('Aerospace Engineering');
+
+    selectDegree('Aerospace Engineering');
+    selectTermAndYear('Fall', '2023');
+    fireEvent.click(screen.getByLabelText('Co-op Program?'));
+
+    const predefinedCheckbox = await screen.findByLabelText('Load predefined co-op sequence?');
+    fireEvent.click(predefinedCheckbox);
+
+    expect(await screen.findByLabelText('Select Aerospace Option:')).toBeInTheDocument();
   });
 
   
