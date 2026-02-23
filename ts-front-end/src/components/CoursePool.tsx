@@ -29,6 +29,25 @@ const CoursePool: React.FC<CoursePoolProps> = ({
   const togglePool = (name: string) =>
     setExpandedPools((prev) => ({ ...prev, [name]: !prev[name] }));
 
+  const sortCourseIdsByCompletion = (courseIds: CourseCode[]): CourseCode[] =>
+    courseIds
+      .map((courseId, index) => ({ courseId, index }))
+      .sort((a, b) => {
+        const aStatus = courses[a.courseId]?.status?.status;
+        const bStatus = courses[b.courseId]?.status?.status;
+        const statusRank: Record<string, number> = {
+          completed: 0,
+          planned: 1,
+          incomplete: 2,
+        };
+        const aRank = statusRank[aStatus ?? ""] ?? 3;
+        const bRank = statusRank[bStatus ?? ""] ?? 3;
+
+        if (aRank !== bRank) return aRank - bRank;
+        return a.index - b.index; // keep existing order within same status
+      })
+      .map(({ courseId }) => courseId);
+
   const formatPoolName = (name: string) => {
     // Modify ECP course pools to retain 'ECP' and format the rest of the name
     if (name.startsWith("ECP_")) {
@@ -61,9 +80,10 @@ const CoursePool: React.FC<CoursePoolProps> = ({
               return code.includes(search) || title.includes(search);
             })
           : pool.courses;
+        const sortedVisibleCourseIds = sortCourseIdsByCompletion(visibleCourseIds);
 
         const isExpanded = hasActiveSearch
-          ? visibleCourseIds.length > 0 // when searching, auto-expand pools with matches
+          ? sortedVisibleCourseIds.length > 0 // when searching, auto-expand pools with matches
           : !!expandedPools[pool.name];
 
         return (
@@ -72,14 +92,14 @@ const CoursePool: React.FC<CoursePoolProps> = ({
               pool={{ ...pool, name: formatPoolName(pool.name) }}
               isExpanded={isExpanded}
               onToggle={() => togglePool(pool.name)}
-              visibleCourseIds={visibleCourseIds}
+              visibleCourseIds={sortedVisibleCourseIds}
               hasActiveSearch={hasActiveSearch}
             />
 
             {isExpanded && (
               <PoolCoursesList
                 pool={{ ...pool, name: formatPoolName(pool.name) }}
-                visibleCourseIds={visibleCourseIds}
+                visibleCourseIds={sortedVisibleCourseIds}
                 courses={courses}
                 selectedCourse={selectedCourse}
                 onCourseSelect={onCourseSelect}
