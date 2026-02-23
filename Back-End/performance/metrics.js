@@ -13,7 +13,10 @@ export const job_time_to_done_ms = new Trend("job_time_to_done_ms", true);
 export const polls_per_job       = new Trend("polls_per_job", true);
 
 // Rates (used in thresholds)
-export const job_timeout_rate            = new Rate("job_timeout_rate");
-export const timeline_save_failed_rate   = new Rate("timeline_save_failed_rate");
-export const timeline_update_failed_rate = new Rate("timeline_update_failed_rate");
-export const iteration_success_rate      = new Rate("iteration_success_rate");
+export const job_timeout_rate             = new Rate("job_timeout_rate");
+export const poll_network_error_rate      = new Rate("poll_network_error_rate");
+export const upload_failed_rate           = new Rate("upload_failed_rate");
+export const delete_failed_rate           = new Rate("delete_failed_rate");
+export const timeline_save_failed_rate    = new Rate("timeline_save_failed_rate");
+export const timeline_update_failed_rate  = new Rate("timeline_update_failed_rate");
+export const iteration_success_rate       = new Rate("iteration_success_rate");

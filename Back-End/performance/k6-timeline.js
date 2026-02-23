@@ -25,7 +25,10 @@ import {
     deleteTimeline,
 } from "./timeline.js";
 import { iteration_success_rate } from "./metrics.js";
-import { debugLog } from "./config.js";
+import { getPdfForVU, debugLog } from "./config.js";
+
+// Resolved once per VU at init time — never changes across iterations
+const { docType, file: pdfFile } = getPdfForVU(__VU);
 
 export const options = {
     vus: Number(__ENV.VUS || "1"),
@@ -33,6 +36,9 @@ export const options = {
     thresholds: {
         iteration_success_rate:          ["rate>0.95"],
         job_timeout_rate:                ["rate<0.05"],
+        poll_network_error_rate:         ["rate<0.05"],
+        upload_failed_rate:              ["rate<0.01"],
+        delete_failed_rate:              ["rate<0.01"],
         timeline_save_failed_rate:       ["rate<0.01"],
         timeline_update_failed_rate:     ["rate<0.01"],
 
@@ -46,7 +52,17 @@ export const options = {
     },
 };
 
-/** Runs once before VUs start. Creates one shared test user. */
+/**
+ * Runs once before the test starts and creates a single test user.
+ * That same userId is shared by all VUs.
+ *
+ * This is intentional — the userId is only stored on the timeline as a reference.
+ * Each VU creates its own timeline with a unique name
+ * (TIMELINE_NAME_PREFIX-{VU}-{ITER}), so they don’t conflict with each other.
+ *
+ * Using one user keeps setup/cleanup simple and avoids filling the database
+ * with lots of temporary test accounts.
+ */
 export function setup() {
     return createTestUser();
 }
@@ -67,12 +83,17 @@ export default function timelineFlow(data) {
 
     group("timeline flow", () => {
         try {
-            const up = uploadPdf();
+            // Step 1: Upload PDF
+            const up = uploadPdf(pdfFile);
             if (!up.ok) { flowError = up.error; return; }
 
             const uploadPolled = pollJobUntilDone(up.jobId);
             if (!uploadPolled.done) {
-                flowError = `Upload job timed out jobId=${up.jobId} attempts=${uploadPolled.attempts}`;
+                flowError = `Upload job did not complete jobId=${up.jobId} attempts=${uploadPolled.attempts} networkErrors=${uploadPolled.networkErrors}`;
+                return;
+            }
+            if (uploadPolled.networkErrors > 0) {
+                flowError = `Upload job completed but had ${uploadPolled.networkErrors} network error(s) jobId=${up.jobId}`;
                 return;
             }
 
@@ -88,7 +109,11 @@ export default function timelineFlow(data) {
 
             const retrievePolled = pollJobUntilDone(retrieved.jobId);
             if (!retrievePolled.done) {
-                flowError = `Retrieve job timed out jobId=${retrieved.jobId} attempts=${retrievePolled.attempts}`;
+                flowError = `Retrieve job did not complete jobId=${retrieved.jobId} attempts=${retrievePolled.attempts} networkErrors=${retrievePolled.networkErrors}`;
+                return;
+            }
+            if (retrievePolled.networkErrors > 0) {
+                flowError = `Retrieve job completed but had ${retrievePolled.networkErrors} network error(s) jobId=${retrieved.jobId}`;
                 return;
             }
 
@@ -98,7 +123,7 @@ export default function timelineFlow(data) {
 
             if (flowError) {
                 iteration_success_rate.add(0);
-                debugLog(`Flow: failed error=${flowError}`);
+                debugLog(`Flow [${docType}:${pdfFile.filename}]: failed error=${flowError}`);
             } else {
                 iteration_success_rate.add(1);
             }

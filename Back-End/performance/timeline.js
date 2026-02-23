@@ -6,7 +6,6 @@ import {
     POLL_MAX_SECONDS,
     POLL_INTERVAL_SECONDS,
     POLL_REQUEST_TIMEOUT,
-    PDF_BYTES,
     debugLog,
 } from "./config.js";
 import {
@@ -14,6 +13,9 @@ import {
     poll_network_error, poll_other,
     job_time_to_done_ms, polls_per_job,
     job_timeout_rate,
+    poll_network_error_rate,
+    upload_failed_rate,
+    delete_failed_rate,
     timeline_save_failed_rate,
     timeline_update_failed_rate,
 } from "./metrics.js";
@@ -27,6 +29,7 @@ export function pollJobUntilDone(jobId) {
     const started = Date.now();
     const deadline = started + POLL_MAX_SECONDS * 1000;
     let attempts = 0;
+    let networkErrors = 0;
 
     while (Date.now() < deadline) {
         attempts++;
@@ -38,11 +41,20 @@ export function pollJobUntilDone(jobId) {
         });
 
         if (r.status === 0) {
+            networkErrors++;
             poll_network_error.add(1);
-            debugLog(`Poll attempt ${attempts}: GET /api/jobs/${jobId} status=0 error=${r.error || "unknown"}`);
+            poll_network_error_rate.add(1);
+            // status=0 means no HTTP response was received — this is a network-level
+            // failure (timeout, connection refused, DNS error), not an HTTP error code.
+            // r.error contains the reason (e.g. "request timeout", "connection refused").
+            const errorType = (r.error || "unknown").includes("timeout") ? "request_timeout" : "network_error";
+            console.warn(`[poll status=0] attempt=${attempts} jobId=${jobId} reason=${errorType} detail="${r.error || "unknown"}"`);
             sleep(POLL_INTERVAL_SECONDS);
             continue;
         }
+
+        // request got a response — record as non-error for the rate
+        poll_network_error_rate.add(0);
 
         if (r.status === 200) {
             poll_200.add(1);
@@ -55,8 +67,9 @@ export function pollJobUntilDone(jobId) {
                 job_time_to_done_ms.add(elapsed);
                 polls_per_job.add(attempts);
                 job_timeout_rate.add(0);
-                return { done: true, result: body.result, attempts, elapsed };
-            }} else if (r.status === 410) {
+                return { done: true, result: body.result, attempts, networkErrors, elapsed };
+            }
+        } else if (r.status === 410) {
             poll_410.add(1);
             debugLog(`Poll attempt ${attempts}: GET /api/jobs/${jobId} status=410`);
         } else if (r.status === 404) {
@@ -73,23 +86,26 @@ export function pollJobUntilDone(jobId) {
     polls_per_job.add(attempts);
     poll_timeout.add(1);
     job_timeout_rate.add(1);
-    debugLog(`Poll timeout: GET /api/jobs/${jobId} attempts=${attempts} elapsedMs=${Date.now() - started}`);
-    return { done: false, result: null, attempts, elapsed: Date.now() - started };
+    debugLog(`Poll timeout: GET /api/jobs/${jobId} attempts=${attempts} networkErrors=${networkErrors} elapsedMs=${Date.now() - started}`);
+    return { done: false, result: null, attempts, networkErrors, elapsed: Date.now() - started };
 }
 
 /**
- * Uploads the PDF and returns the jobId for processing.
+ * Uploads the given PDF and returns the jobId for processing.
+ * @param {{ bytes: ArrayBuffer, filename: string }} pdfFile
  * @returns {{ ok: boolean, jobId?: string, error?: string }}
  */
-export function uploadPdf() {
+export function uploadPdf(pdfFile) {
     const res = http.post(
         `${BASE_URL}/api/upload/file`,
-        { file: http.file(PDF_BYTES, "test-transcript.pdf", "application/pdf") },
+        { file: http.file(pdfFile.bytes, pdfFile.filename, "application/pdf") },
         { tags: { name: "POST /api/upload/file" }, expected_response: false }
     );
 
     const jobId = res.status === 200 ? res.json("jobId") : null;
-    debugLog(`Upload: POST /api/upload/file status=${res.status} jobId=${jobId || "-"}`);
+    debugLog(`Upload: POST /api/upload/file file=${pdfFile.filename} status=${res.status} jobId=${jobId || "-"}`);
+
+    upload_failed_rate.add(res.status === 200 ? 0 : 1);
 
     const ok = check(res, {
         "upload accepted (200)": (r) => r.status === 200,
@@ -195,5 +211,6 @@ export function deleteTimeline(timelineId) {
     });
 
     debugLog(`Delete: DELETE /api/timeline/${timelineId} status=${res.status}`);
+    delete_failed_rate.add(res.status === 200 ? 0 : 1);
     check(res, { "timeline deleted (200)": (r) => r.status === 200 });
 }
