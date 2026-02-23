@@ -65,8 +65,8 @@ const App: React.FC = () => {
         <Route path="/courses" element={<CoursePage />} />
         <Route path="/requirements" element={<RequirementsFormPage />} />
         <Route path="/requirements/:programId" element={<RequirementSelectPage />} />
+        <Route path="/degree-audit/:timelineId?" element={<DegreeAuditPage />} />
         <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
-          <Route path="/degree-audit/:timelineId?" element={<DegreeAuditPage />} />
           <Route path="/profile/student" element={<StudentPage />} />
         </Route>
         <Route path="/class-builder" element={<ClassBuilderPage />} />
