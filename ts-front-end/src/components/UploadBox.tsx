@@ -128,16 +128,21 @@ const UploadBox = () => {
         <p className="file-name">{fileName}</p>
       </div>
 
-      <button className="cancel-button" onClick={handleCancel} disabled={isUploading}>
-        Cancel
-      </button>
+      <div className="setup-action-row">
+        <button
+          className="btn btn-secondary setup-action-btn cancel-button"
+          onClick={handleCancel}
+          disabled={isUploading}>
+          Cancel
+        </button>
 
-      <button
-        className="create-button"
-        onClick={handleSubmit}
-        disabled={isUploading}>
-        {isUploading ? "Uploading…" : "Create Timeline"}
-      </button>
+        <button
+          className="btn btn-success setup-action-btn create-button"
+          onClick={handleSubmit}
+          disabled={isUploading}>
+          {isUploading ? "Uploading…" : "Create Timeline"}
+        </button>
+      </div>
     </>
   );
 };
