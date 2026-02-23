@@ -59,58 +59,53 @@ const InstructionsModal: React.FC<InstructionsModalProps> = ({
 
         <div className="carousel-body">
 
-        <div className="carousel-header">
-          <span className="carousel-label">Guide</span>
-          <h2>Download Your Transcript</h2>
-        </div>
-
-        <div className="carousel-container">
-
-          <button className="nav-btn left" onClick={prevSlide}>
-            ‹
-          </button>
-
-          <div className="carousel-slide">
-            <div className="step-number">{steps[currentIndex].number}</div>
-
-            <div className="carousel-card">
-              <div className="img-wrapper">
-                <img
-                  src={steps[currentIndex].img}
-                  alt={steps[currentIndex].title}
-                />
-                <div className="img-glow"></div>
-              </div>
-
-              <div className="carousel-content">
-                <h3>{steps[currentIndex].title}</h3>
-                <p>{steps[currentIndex].description}</p>
-              </div>
-            </div>
+          <div className="carousel-header">
+            <span className="carousel-label">Guide</span>
+            <h2>Download Your Transcript</h2>
           </div>
 
-          <button className="nav-btn right" onClick={nextSlide}>
-            ›
-          </button>
+          <div className="carousel-container">
 
-        </div>
+            <button className="nav-btn left" onClick={prevSlide}>
+              ‹
+            </button>
 
-        <div className="dots">
-          {steps.map((_, index) => (
-            <span
-              key={`dot-${index}`}
-              role="button"
-              tabIndex={0}
-              className={`dot ${index === currentIndex ? "active" : ""}`}
-              aria-label={`Go to slide ${index + 1}`}
-              onClick={() => setCurrentIndex(index)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") setCurrentIndex(index);
-              }}
-            />
-          ))}
-        </div>
+            <div className="carousel-slide">
+              <div className="step-number">{steps[currentIndex].number}</div>
 
+              <div className="carousel-card">
+                <div className="img-wrapper">
+                  <img
+                    src={steps[currentIndex].img}
+                    alt={steps[currentIndex].title}
+                  />
+                  <div className="img-glow"></div>
+                </div>
+
+                <div className="carousel-content">
+                  <h3>{steps[currentIndex].title}</h3>
+                  <p>{steps[currentIndex].description}</p>
+                </div>
+              </div>
+            </div>
+
+            <button className="nav-btn right" onClick={nextSlide}>
+              ›
+            </button>
+
+          </div>
+
+          <div className="dots">
+            {steps.map((_, index) => (
+              <button
+                key={`dot-${index}`}
+                type="button"
+                className={`dot ${index === currentIndex ? "active" : ""}`}
+                aria-label={`Go to slide ${index + 1}`}
+                onClick={() => setCurrentIndex(index)}
+              />
+            ))}
+          </div>
 
         </div>
 
