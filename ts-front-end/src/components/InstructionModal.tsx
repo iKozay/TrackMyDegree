@@ -98,12 +98,19 @@ const InstructionsModal: React.FC<InstructionsModalProps> = ({
         <div className="dots">
           {steps.map((_, index) => (
             <span
-              key={index}
+              key={`dot-${index}`}
+              role="button"
+              tabIndex={0}
               className={`dot ${index === currentIndex ? "active" : ""}`}
+              aria-label={`Go to slide ${index + 1}`}
               onClick={() => setCurrentIndex(index)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") setCurrentIndex(index);
+              }}
             />
           ))}
         </div>
+
 
         </div>
 
