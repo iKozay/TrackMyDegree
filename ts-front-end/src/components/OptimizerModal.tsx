@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { Zap, Calendar, BookOpen, AlertCircle, CheckCircle } from "lucide-react";
 import { optimizePath } from "../utils/graduationOptimizer";
 import type { TimelineState } from "../types/timeline.types";
+import "../styles/components/OptimizerModal.css";
 
 interface OptimizerModalProps {
   state: TimelineState;
