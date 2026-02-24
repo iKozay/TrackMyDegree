@@ -36,3 +36,36 @@ function isOfferedIn(course: Course, term: SemesterId): boolean {
     (offered) => offered.split(" ")[0].toUpperCase() === season
   );
 }
+
+/**
+ * Returns true if all prerequisite groups are satisfied.
+ * A group is satisfied if at least one course in it is:
+ *   - completed, OR
+ *   - planned in a semester that comes BEFORE semesterIndex
+ */
+function arePrereqsSatisfied(
+  course: Course,
+  semesterIndex: number,
+  semesters: Semester[],
+  courseMap: CourseMap
+): boolean {
+  const prereqs = course.prerequisites;
+  if (!prereqs || typeof prereqs === "string" || prereqs.length === 0)
+    return true;
+
+  return prereqs.every((group) => {
+    if (group.anyOf.length === 0) return true;
+    return group.anyOf.some((prereqCode) => {
+      const prereq = courseMap[prereqCode];
+      if (!prereq) return true;
+      if (prereq.status.status === "completed") return true;
+      if (prereq.status.status === "planned" && prereq.status.semester) {
+        const prereqSemIdx = semesters.findIndex(
+          (s) => s.term === prereq.status.semester
+        );
+        return prereqSemIdx !== -1 && prereqSemIdx < semesterIndex;
+      }
+      return false;
+    });
+  });
+}
