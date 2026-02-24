@@ -13,6 +13,7 @@ import {
   changeCourseStatus,
   addCourse,
   addSemester,
+  optimizeTimeline,
   validateTimeline,
 } from "../handlers/timelineHandler";
 
