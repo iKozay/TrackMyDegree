@@ -172,3 +172,18 @@ export function optimizePath(state: TimelineState): OptimizerResult {
 
     currentTerm = nextTerm(currentTerm);
   }
+
+  // Last non-empty semester = estimated graduation
+  const lastNonEmpty = [...workingSemesters]
+    .reverse()
+    .find((s) => s.courses.length > 0);
+
+  return {
+    semesters: workingSemesters,
+    courses: workingCourses,
+    placedCount: placed,
+    unplacedCount: remaining.size,
+    newSemesterCount: iterations,
+    estimatedGraduation: (lastNonEmpty?.term ?? existingLastTerm) as SemesterId,
+  };
+}
