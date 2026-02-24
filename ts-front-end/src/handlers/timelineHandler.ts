@@ -7,6 +7,7 @@ import type {
   SemesterId,
 } from "../types/timeline.types";
 import { getCourseValidationMessage } from "../utils/timelineUtils";
+import { optimizePath } from "../utils/graduationOptimizer";
 
 type Snapshot = {
   courses: TimelineState["courses"];
