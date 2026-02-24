@@ -20,3 +20,7 @@ export interface OptimizerResult {
   newSemesterCount: number;
   estimatedGraduation: SemesterId | null;
 }
+
+function getSeasonFromTerm(term: string): string {
+  return term.split(" ")[0].toUpperCase();
+}
