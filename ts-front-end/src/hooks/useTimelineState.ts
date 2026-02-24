@@ -146,6 +146,9 @@ function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
     setTimelineName(timelineName: string) {
         dispatch({ type: TimelineActionConstants.SetTimelineName, payload: { timelineName } });
     },
+    optimizeTimeline() {
+      dispatch({ type: TimelineActionConstants.OptimizeTimeline });
+    },
   };
 }
 
