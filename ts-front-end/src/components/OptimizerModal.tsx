@@ -27,6 +27,32 @@ export const OptimizerModal: React.FC<OptimizerModalProps> = ({
         Automatically fills your remaining semesters with incomplete courses,
         respecting prerequisites and course availability.
       </p>
+
+      {hasAnythingToPlace && (
+        <div className="optimizer-modal__stats">
+          <div className="optimizer-stat">
+            <BookOpen size={18} />
+            <span className="optimizer-stat__value">{result.placedCount}</span>
+            <span className="optimizer-stat__label">
+              course{result.placedCount !== 1 ? "s" : ""} will be placed
+            </span>
+          </div>
+          <div className="optimizer-stat">
+            <Calendar size={18} />
+            <span className="optimizer-stat__value">{result.newSemesterCount}</span>
+            <span className="optimizer-stat__label">
+              new semester{result.newSemesterCount !== 1 ? "s" : ""} added
+            </span>
+          </div>
+          {result.estimatedGraduation && (
+            <div className="optimizer-stat optimizer-stat--highlight">
+              <CheckCircle size={18} />
+              <span className="optimizer-stat__value">{result.estimatedGraduation}</span>
+              <span className="optimizer-stat__label">estimated graduation</span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
