@@ -24,3 +24,46 @@
   margin-bottom: 1.5rem;
   line-height: 1.5;
 }
+
+.optimizer-modal__stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.optimizer-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  background: #f5f7ff;
+  border-radius: 8px;
+  border: 1px solid #e0e7ff;
+}
+
+.optimizer-stat--highlight {
+  background: #eefbf4;
+  border-color: #a7f3d0;
+}
+
+.optimizer-stat svg {
+  color: #6366f1;
+  flex-shrink: 0;
+}
+
+.optimizer-stat--highlight svg {
+  color: #10b981;
+}
+
+.optimizer-stat__value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  min-width: 2.5rem;
+}
+
+.optimizer-stat__label {
+  font-size: 0.875rem;
+  color: #555;
+}
