@@ -1,5 +1,6 @@
-// UI model used by the schedule grid and sidebar components
+// UI model used by the weekly schedule
 export interface ClassItem {
+    classNumber: string; // unique section identifier from the API, used for pinning
     name: string;
     section: string;
     room: string;
@@ -54,14 +55,9 @@ export interface CourseSection {
     hasSeatReserved: string;        // "Y" | ""
 }
 
-// One entry per course the student has added to their builder.
-// Holds the full API response for that course so the configuration
-// system can compute all valid LEC + TUT + LAB combinations.
+
 export interface AddedCourse {
-    // Course Code, e.g. "COMP 352"
     code: string;
-    // Title, e.g. "DATA STRUCTURES + ALGORITHMS"
     title: string;
-    // All active sections for this course in the selected term
     sections: CourseSection[];
 }

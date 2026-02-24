@@ -7,7 +7,7 @@ import ScheduledCourses from "../components/ClassBuilderComponents/ScheduledCour
 import SearchCourses from "../components/ClassBuilderComponents/SearchCourses";
 import type { AddedCourse, ClassItem, CourseSection } from "src/types/classItem";
 
-// ─── Configuration engine ────────────────────────────────────────────────────
+//Configuration system
 
 const DAY_FLAGS: Array<keyof CourseSection> = [
     "sundays", "modays", "tuesdays", "wednesdays", "thursdays", "fridays", "saturdays",
@@ -24,6 +24,7 @@ const sectionToClassItems = (course: AddedCourse, section: CourseSection): Class
     DAY_FLAGS.forEach((flag, dayIndex) => {
         if (section[flag] === "Y") {
             items.push({
+                classNumber: section.classNumber,
                 name: course.code,
                 section: section.section,
                 room: section.room || section.roomCode,
@@ -36,61 +37,61 @@ const sectionToClassItems = (course: AddedCourse, section: CourseSection): Class
     return items;
 };
 
-// Returns all valid ClassItem[] configurations for a single AddedCourse.
-// Sections are grouped by classAssociation first, then by componentCode within
-// each association. A valid pick is one section per componentCode per association,
-// giving the cartesian product across component types.
+// Returns all valid ClassItem[][] configurations for a single AddedCourse
 const configurationsForCourse = (course: AddedCourse): ClassItem[][] => {
-    // Group by association
     const byAssociation = new Map<string, CourseSection[]>();
     for (const section of course.sections) {
-        const key = section.classAssociation;
-        if (!byAssociation.has(key)) byAssociation.set(key, []);
-        byAssociation.get(key)!.push(section);
+        if (!byAssociation.has(section.classAssociation)) byAssociation.set(section.classAssociation, []);
+        byAssociation.get(section.classAssociation)!.push(section);
     }
 
     const allConfigs: ClassItem[][] = [];
 
     for (const assocSections of byAssociation.values()) {
-        // Group by componentCode within this association
         const byComponent = new Map<string, CourseSection[]>();
         for (const section of assocSections) {
             if (!byComponent.has(section.componentCode)) byComponent.set(section.componentCode, []);
             byComponent.get(section.componentCode)!.push(section);
         }
 
-        // Cartesian product across component types
         const componentGroups = Array.from(byComponent.values());
-        const product = (groups: CourseSection[][]): CourseSection[][] => {
-            return groups.reduce<CourseSection[][]>(
-                (acc, group) => acc.flatMap(combo => group.map(section => [...combo, section])),
+        const product = (groups: CourseSection[][]): CourseSection[][] =>
+            groups.reduce<CourseSection[][]>(
+                (acc, group) => acc.flatMap(combo => group.map(s => [...combo, s])),
                 [[]]
             );
-        };
 
         for (const combo of product(componentGroups)) {
-            const items = combo.flatMap(section => sectionToClassItems(course, section));
-            allConfigs.push(items);
+            allConfigs.push(combo.flatMap(s => sectionToClassItems(course, s)));
         }
     }
 
     return allConfigs;
 };
 
-// Combines per-course configurations into all global configurations via
-// cartesian product across courses.
-const generateAllConfigurations = (addedCourses: AddedCourse[]): ClassItem[][] => {
+// Cartesian product across all courses, then filters to keep only configurations that include every pinned classNumber
+const generateAllConfigurations = (
+    addedCourses: AddedCourse[],
+    pinnedClassNumbers: Set<string>
+): ClassItem[][] => {
     if (addedCourses.length === 0) return [[]];
 
     const perCourse = addedCourses.map(configurationsForCourse);
 
-    return perCourse.reduce<ClassItem[][]>(
+    const allCombos = perCourse.reduce<ClassItem[][]>(
         (acc, courseConfigs) =>
             acc.flatMap(globalCombo =>
                 courseConfigs.map(courseConfig => [...globalCombo, ...courseConfig])
             ),
         [[]]
     );
+
+    if (pinnedClassNumbers.size === 0) return allCombos;
+
+    return allCombos.filter(config => {
+        const classNumbersInConfig = new Set(config.map(item => item.classNumber));
+        return [...pinnedClassNumbers].every(cn => classNumbersInConfig.has(cn));
+    });
 };
 
 // ─── Page component ──────────────────────────────────────────────────────────
@@ -98,22 +99,45 @@ const generateAllConfigurations = (addedCourses: AddedCourse[]): ClassItem[][] =
 const ClassBuilderPage: React.FC = () => {
     const [addedCourses, setAddedCourses] = useState<AddedCourse[]>([]);
     const [configIndex, setConfigIndex] = useState(0);
+    const [pinnedClassNumbers, setPinnedClassNumbers] = useState<Set<string>>(new Set());
 
     const allConfigurations = useMemo(
-        () => generateAllConfigurations(addedCourses),
-        [addedCourses]
+        () => generateAllConfigurations(addedCourses, pinnedClassNumbers),
+        [addedCourses, pinnedClassNumbers]
     );
 
-    // Reset to first configuration whenever the course list changes
     useEffect(() => {
         setConfigIndex(0);
-    }, [addedCourses]);
+    }, [addedCourses, pinnedClassNumbers]);
 
     const currentConfig = allConfigurations[configIndex] ?? [];
     const totalConfigs = allConfigurations.length;
 
     const goToPrev = () => setConfigIndex(i => Math.max(0, i - 1));
     const goToNext = () => setConfigIndex(i => Math.min(totalConfigs - 1, i + 1));
+
+    const togglePin = (classNumber: string) => {
+        setPinnedClassNumbers(prev => {
+            const next = new Set(prev);
+            if (next.has(classNumber)) {
+                next.delete(classNumber);
+            } else {
+                next.add(classNumber);
+            }
+            return next;
+        });
+    };
+
+    const handleSetAddedCourses = (courses: AddedCourse[]) => {
+        const remainingClassNumbers = new Set(
+            courses.flatMap(c => c.sections.map(s => s.classNumber))
+        );
+        setPinnedClassNumbers(prev => {
+            const next = new Set([...prev].filter(cn => remainingClassNumbers.has(cn)));
+            return next;
+        });
+        setAddedCourses(courses);
+    };
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
@@ -137,10 +161,12 @@ const ClassBuilderPage: React.FC = () => {
                             <div className="lg:col-span-3">
                                 <WeeklySchedule
                                     classes={currentConfig}
+                                    pinnedClassNumbers={pinnedClassNumbers}
                                     configIndex={configIndex}
                                     totalConfigs={totalConfigs}
                                     onPrev={goToPrev}
                                     onNext={goToNext}
+                                    onTogglePin={togglePin}
                                 />
                             </div>
                             <div className="space-y-6">
@@ -150,7 +176,7 @@ const ClassBuilderPage: React.FC = () => {
                                 />
                                 <ScheduledCourses
                                     addedCourses={addedCourses}
-                                    setAddedCourses={setAddedCourses}
+                                    setAddedCourses={handleSetAddedCourses}
                                 />
                             </div>
                         </div>

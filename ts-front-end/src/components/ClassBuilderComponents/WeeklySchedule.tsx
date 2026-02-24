@@ -3,18 +3,22 @@ import type { ClassItem } from "src/types/classItem";
 
 interface WeeklyScheduleProps {
   classes: ClassItem[];
+  pinnedClassNumbers: Set<string>;
   configIndex: number;
   totalConfigs: number;
   onPrev: () => void;
   onNext: () => void;
+  onTogglePin: (classNumber: string) => void;
 }
 
 const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
   classes,
+  pinnedClassNumbers,
   configIndex,
   totalConfigs,
   onPrev,
   onNext,
+  onTogglePin,
 }) => {
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const hours = Array.from({ length: 15 }, (_, i) => i + 8); // 8 to 22
@@ -83,7 +87,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                     background: white;
                     color: #374151;
                     cursor: pointer;
-                    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+                    transition: background-color 0.15s ease, border-color 0.15s ease;
                     flex-shrink: 0;
                 }
 
@@ -156,15 +160,29 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                     background: white;
                 }
 
+                /* Default (unpinned) class cell — rose */
                 .class-cell {
                     background: #ffe4e6;
                     position: relative;
+                    cursor: pointer;
+                    transition: background-color 0.15s ease, filter 0.15s ease;
+                }
+
+                .class-cell:hover {
+                    filter: brightness(0.95);
+                }
+
+                /* Pinned class cell — green, matching rose's saturation/contrast */
+                .class-cell--pinned {
+                    background: #dcfce7;
                 }
 
                 .class-info {
                     font-size: 0.75rem;
+                    pointer-events: none;
                 }
 
+                /* Unpinned text colours */
                 .class-name {
                     color: #881337;
                     font-weight: 500;
@@ -176,6 +194,19 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
 
                 .class-room {
                     color: #e11d48;
+                }
+
+                /* Pinned text colours — green equivalents */
+                .class-cell--pinned .class-name {
+                    color: #14532d;
+                }
+
+                .class-cell--pinned .class-section {
+                    color: #166534;
+                }
+
+                .class-cell--pinned .class-room {
+                    color: #16a34a;
                 }
             `}</style>
 
@@ -233,10 +264,20 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                 <td className="time-column">{hour}:00</td>
                 {days.map((day, dayIndex) => {
                   const classItem = getClassForCell(dayIndex, hour);
+                  const isPinned = classItem
+                    ? pinnedClassNumbers.has(classItem.classNumber)
+                    : false;
+
                   return (
                     <td
                       key={`${day}-${hour}`}
-                      className={classItem ? "class-cell" : "empty-cell"}
+                      className={
+                        classItem
+                          ? `class-cell${isPinned ? " class-cell--pinned" : ""}`
+                          : "empty-cell"
+                      }
+                      onClick={() => classItem && onTogglePin(classItem.classNumber)}
+                      title={classItem ? (isPinned ? "Click to unpin" : "Click to pin") : undefined}
                     >
                       {classItem && isFirstHourOfClass(classItem, hour) && (
                         <div className="class-info">
