@@ -11,3 +11,12 @@ const MAX_EXTRA_SEMESTERS = 24;
 
 // Pool keywords that are NOT degree requirements
 const SPECIAL_POOL_KEYWORDS = ["exemption", "deficien", "used-unused", "coop"];
+
+export interface OptimizerResult {
+  semesters: Semester[];
+  courses: CourseMap;
+  placedCount: number;
+  unplacedCount: number;
+  newSemesterCount: number;
+  estimatedGraduation: SemesterId | null;
+}
