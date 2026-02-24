@@ -1,0 +1,26 @@
+.optimizer-modal {
+  padding: 0.5rem;
+  max-width: 480px;
+  width: 100%;
+}
+
+.optimizer-modal__header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+  color: #1a1a2e;
+}
+
+.optimizer-modal__header h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.optimizer-modal__description {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
