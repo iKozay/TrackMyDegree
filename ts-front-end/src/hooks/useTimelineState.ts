@@ -47,6 +47,7 @@ export interface TimelineActions {
   addCourse: (courseId: CourseCode, type: string) => void;
   addSemester: () => void;
   setTimelineName: (timelineName: string) => void;
+  optimizeTimeline: () => void;
 }
 
 export interface UseTimelineStateResult {
