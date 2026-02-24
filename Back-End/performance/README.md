@@ -40,8 +40,9 @@ Back-End/performance/
 |-------------------------|-------------------------|----------------------------------------------------------|
 | `BASE_URL`              | `http://localhost:8000` | Backend base URL                                         |
 | `TIMELINE_NAME_PREFIX`  | `k6-poc`                | Prefix for generated timeline names                      |
-| `VUS`                   | `1`                     | Number of virtual users                                  |
-| `DURATION`              | `10s`                   | Test duration                                            |
+| `PEAK_VUS`              | `6`                     | Number of VUs at peak load (use a multiple of 6 for even PDF coverage) |
+| `RAMP_DURATION`         | `1m`                    | Duration of each ramp-up and ramp-down stage             |
+| `STEADY_DURATION`       | `3m`                    | Duration of the steady peak load stage                   |
 | `POLL_MAX_SECONDS`      | `60`                    | Max seconds to poll a job before timeout                 |
 | `POLL_INTERVAL_SECONDS` | `1`                     | Seconds between poll attempts                            |
 | `POLL_REQUEST_TIMEOUT`  | `5s`                    | Per-request timeout for poll calls                       |
@@ -96,14 +97,46 @@ k6 run -e DOC_TYPE=acceptance_letter -e FILE_NAME=acceptance-letter-general k6-t
 
 ---
 
+## Load scenario
+
+The test uses a **ramping-vus** scenario — no flat constant load. Every run follows the same three-stage shape:
+
+```
+VUs
+^
+|        ___________
+|       /           \
+|      /             \
+|_____/               \____
+|
++---+---+---+---+---+----> time
+  ramp-up  steady  ramp-down
+  (1m)     (3m)    (1m)
+```
+
+| Stage | Default duration | VUs |
+|---|---|---|
+| Ramp-up | `RAMP_DURATION` = `1m` | 0 → `PEAK_VUS` |
+| Steady load | `STEADY_DURATION` = `3m` | `PEAK_VUS` |
+| Ramp-down | `RAMP_DURATION` = `1m` | `PEAK_VUS` → 0 |
+
+- **Ramp-up** mirrors real traffic building gradually as users start their session — avoids a thundering herd and lets you see at what VU count the system starts degrading
+- **Steady load** is the measurement window — thresholds are evaluated over the full run including this phase
+- **Ramp-down** catches delayed failures (e.g., jobs still processing, cleanup errors) and lets in-flight iterations finish gracefully
+
+> The default `PEAK_VUS=6` gives exactly one VU per PDF file via the deterministic rotation. Use a multiple of 6 (12, 18, ...) for higher load while keeping PDF coverage even.
+
+---
+
 ## Running the tests
 
 ### 1. Start the backend and dependencies
 
 ```bash
-# From repo root — start all containers
+# From repo root — start MongoDB, Redis, InfluxDB, Grafana
 docker compose up -d
-# start the backend
+
+# Start backend with BullMQ worker
 cd Back-End/src
 npm run dev
 ```
@@ -116,19 +149,35 @@ npm run dev
 cd Back-End/performance
 ```
 
-**Minimal — 1 VU, 10s (all defaults):**
+**Default — ramp up to 6 VUs, hold 3 min, ramp down (total ~5 min):**
 ```bash
-k6 run k6-timeline.js
+k6 run  k6-timeline.js
 ```
 
-**Full rotation — all 6 PDFs covered evenly:**
+**Quick smoke test — small peak, short stages:**
 ```bash
-k6 run -e VUS=6 -e DURATION=30s k6-timeline.js
+k6 run  \
+  -e PEAK_VUS=6 -e RAMP_DURATION=10s -e STEADY_DURATION=30s \
+  k6-timeline.js
 ```
 
-**With overrides:**
+**Higher load — 12 VUs (2 VUs per PDF):**
 ```bash
-k6 run -e VUS=20 -e DURATION=1m -e BASE_URL=http://localhost:8000 -e DEBUG=1 k6-timeline.js
+k6 run  \
+  -e PEAK_VUS=12 -e RAMP_DURATION=2m -e STEADY_DURATION=5m \
+  k6-timeline.js
+```
+
+**Pin to a specific file:**
+```bash
+k6 run  \
+  -e DOC_TYPE=transcript -e FILE_NAME=transcript-coop \
+  k6-timeline.js
+```
+
+**With verbose logging:**
+```bash
+k6 run -e DEBUG=1 k6-timeline.js
 ```
 
 ---

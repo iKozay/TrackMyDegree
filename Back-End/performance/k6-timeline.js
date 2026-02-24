@@ -14,8 +14,7 @@
  */
 /// <reference path="./k6-globals.d.js" />
 import { group, sleep } from "k6";
-import { createTestUser } from "./users.js";
-import { deleteTestUser } from "./users.js";
+import { createTestUser, deleteTestUser } from "./users.js";
 import {
     uploadPdf,
     pollJobUntilDone,
@@ -30,9 +29,44 @@ import { getPdfForVU, debugLog } from "./config.js";
 // Resolved once per VU at init time — never changes across iterations
 const { docType, file: pdfFile } = getPdfForVU(__VU);
 
+/**
+ * Load scenario — ramping-vus executor.
+ *
+ * Models usage patterns with gradual ramp-up and ramp-down:
+ *   - Ramp-up:     0 → peak VUs over 1 min  (traffic builds as students start their day)
+ *   - Steady load: peak VUs held for 3 min  (sustained peak, measures stable-state performance)
+ *   - Ramp-down:   peak → 0 over 1 min      (graceful wind-down, catches delayed failures)
+ *
+ * Defaults are sized for local development. Override via env vars for CI/staging:
+ *   PEAK_VUS      — number of VUs at peak (default: 6, one per PDF file)
+ *   RAMP_DURATION — how long each ramp stage takes (default: 1m)
+ *   STEADY_DURATION — how long to hold peak load (default: 3m)
+ *
+ * Using 6 VUs by default ensures all 6 PDF files are exercised evenly
+ * (one VU per file via the deterministic getPdfForVU rotation).
+ * Use a multiple of 6 to keep coverage even at higher loads.
+ */
+const PEAK_VUS       = Number(__ENV.PEAK_VUS       || "6");
+const RAMP_DURATION  = __ENV.RAMP_DURATION          || "1m";
+const STEADY_DURATION = __ENV.STEADY_DURATION       || "3m";
+
 export const options = {
-    vus: Number(__ENV.VUS || "1"),
-    duration: __ENV.DURATION || "10s",
+    scenarios: {
+        timeline_load: {
+            executor:        "ramping-vus",
+            startVUs:        0,
+            gracefulStop:    "30s",
+            gracefulRampDown: "30s",
+            stages: [
+                // Ramp up — mirrors traffic building as users start their session
+                { duration: RAMP_DURATION,   target: PEAK_VUS },
+                // Steady load — sustained peak, this is what we measure
+                { duration: STEADY_DURATION, target: PEAK_VUS },
+                // Ramp down — catch any delayed failures or cleanup issues
+                { duration: RAMP_DURATION,   target: 0        },
+            ],
+        },
+    },
     thresholds: {
         iteration_success_rate:          ["rate>0.95"],
         job_timeout_rate:                ["rate<0.05"],
@@ -42,12 +76,12 @@ export const options = {
         timeline_save_failed_rate:       ["rate<0.01"],
         timeline_update_failed_rate:     ["rate<0.01"],
 
-        job_time_to_done_ms:                              ["p(95)<3000"],
-        "http_req_duration{name:POST /api/upload/file}": ["p(95)<500"],
-        "http_req_duration{name:GET /api/jobs/:jobId}":  ["p(95)<2000"],
-        "http_req_duration{name:POST /api/timeline}":    ["p(95)<200"],
-        "http_req_duration{name:PUT /api/timeline/:id}": ["p(95)<200"],
-        "http_req_duration{name:GET /api/timeline/:id}": ["p(95)<200"],
+        job_time_to_done_ms:                                ["p(95)<3000"],
+        "http_req_duration{name:POST /api/upload/file}":    ["p(95)<500"],
+        "http_req_duration{name:GET /api/jobs/:jobId}":     ["p(95)<2000"],
+        "http_req_duration{name:POST /api/timeline}":       ["p(95)<200"],
+        "http_req_duration{name:PUT /api/timeline/:id}":    ["p(95)<200"],
+        "http_req_duration{name:GET /api/timeline/:id}":    ["p(95)<200"],
         "http_req_duration{name:DELETE /api/timeline/:id}": ["p(95)<200"],
     },
 };
@@ -74,6 +108,9 @@ export function teardown(data) {
 
 /**
  * Main VU loop. Executes the full timeline CRUD flow each iteration.
+ * Each step must succeed for the flow to be considered successful.
+ * Steps are: upload PDF, poll upload job, save timeline, update timeline, retrieve timeline, poll retrieval job, delete timeline.
+ * Failures are tracked via the iteration_success_rate metric and logged for debugging.
  * @param {{ userId: string }} data - passed from setup()
  */
 export default function timelineFlow(data) {
