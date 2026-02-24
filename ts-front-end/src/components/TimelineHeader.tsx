@@ -10,7 +10,8 @@ import {
   AlertTriangle,
   Plus,
   Save,
-  FileText
+  FileText,
+  Zap,
 } from "lucide-react";
 import { downloadTimelinePdf } from "../utils/timelineUtils";
 
