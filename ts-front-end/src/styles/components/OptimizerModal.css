@@ -67,3 +67,46 @@
   font-size: 0.875rem;
   color: #555;
 }
+
+.optimizer-modal__warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #92400e;
+  margin-bottom: 1.25rem;
+}
+
+.optimizer-modal__warning svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #d97706;
+}
+
+.optimizer-modal__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  color: #10b981;
+  text-align: center;
+}
+
+.optimizer-modal__empty p {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0;
+}
+
+.optimizer-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #eee;
+}
