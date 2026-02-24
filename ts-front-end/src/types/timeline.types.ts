@@ -161,4 +161,5 @@ export type TimelineActionType =
       payload: { courseId: CourseCode; type: string };
     }
   | { type: typeof TimelineActionConstants.AddSemester }
-  | { type: typeof TimelineActionConstants.SetTimelineName; payload: { timelineName: string } };
+  | { type: typeof TimelineActionConstants.SetTimelineName; payload: { timelineName: string } }
+  | { type: typeof TimelineActionConstants.OptimizeTimeline };
