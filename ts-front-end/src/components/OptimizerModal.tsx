@@ -69,6 +69,20 @@ export const OptimizerModal: React.FC<OptimizerModalProps> = ({
           <p>All courses are already placed or completed. Nothing to optimize!</p>
         </div>
       )}
+
+      <div className="optimizer-modal__actions">
+        <button className="btn btn-secondary" onClick={onClose}>
+          Cancel
+        </button>
+        <button
+          className="btn btn-success"
+          onClick={() => { onApply(); onClose(); }}
+          disabled={!hasAnythingToPlace}
+        >
+          <Zap size={16} />
+          Apply Optimization
+        </button>
+      </div>
     </div>
   );
 };
