@@ -77,3 +77,27 @@ function nextTerm(current: SemesterId): SemesterId {
   if (season === "WINTER") return `SUMMER ${year}` as SemesterId;
   return `FALL ${year}` as SemesterId; // SUMMER -> FALL same year
 }
+
+/**
+ * Greedy graduation path optimizer.
+ *
+ * Fills new semesters with incomplete degree-required courses, respecting:
+ *   1. Prerequisites (must be completed or planned in an earlier semester)
+ *   2. Course offering seasons (offeredIN field)
+ *   3. Max credits per semester (19)
+ *
+ * Returns a plain OptimizerResult (no side effects — caller decides whether to apply).
+ */
+export function optimizePath(state: TimelineState): OptimizerResult {
+  // 1. Identify special (non-degree) pools
+  const specialPoolIds = new Set(
+    state.pools
+      .filter((p) =>
+        SPECIAL_POOL_KEYWORDS.some(
+          (kw) =>
+            p._id.toLowerCase().includes(kw) ||
+            p.name.toLowerCase().includes(kw)
+        )
+      )
+      .map((p) => p._id)
+  );
