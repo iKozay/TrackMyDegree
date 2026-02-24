@@ -96,6 +96,9 @@ interface PrimaryActionsProps {
 
 const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
   // TODO: merge all as one method handleModal(type: string)
+  const handleOptimize = () => {
+    if (onOpenModal) onOpenModal(true, "optimize");
+  };
   const handleInsights = () => {
     if (onOpenModal) onOpenModal(true, "insights");
   };
@@ -116,6 +119,10 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
   };
   return (
     <div className="header-actions">
+      <button className="btn btn-success" onClick={handleOptimize}>
+        <Zap size={16} />
+        Optimize Path
+      </button>
       <button className="btn btn-success" onClick={handleInsights}>
         <BarChart3 size={16} />
         Show Insights
