@@ -8,3 +8,6 @@ import type {
 
 const MAX_CREDITS_PER_SEMESTER = 19;
 const MAX_EXTRA_SEMESTERS = 24;
+
+// Pool keywords that are NOT degree requirements
+const SPECIAL_POOL_KEYWORDS = ["exemption", "deficien", "used-unused", "coop"];
