@@ -101,3 +101,31 @@ export function optimizePath(state: TimelineState): OptimizerResult {
       )
       .map((p) => p._id)
   );
+
+  // 2. Collect all course codes that belong to actual degree pools
+  const degreeCourseCodes = new Set(
+    state.pools
+      .filter((p) => !specialPoolIds.has(p._id))
+      .flatMap((p) => p.courses)
+  );
+
+  // 3. Find incomplete courses within degree pools
+  const toPlace = Object.keys(state.courses).filter((code) => {
+    const course = state.courses[code];
+    return (
+      course.status.status === "incomplete" && degreeCourseCodes.has(code)
+    );
+  });
+
+  const existingLastTerm = state.semesters.at(-1)?.term as SemesterId | undefined;
+
+  if (toPlace.length === 0 || !existingLastTerm) {
+    return {
+      semesters: state.semesters,
+      courses: state.courses,
+      placedCount: 0,
+      unplacedCount: toPlace.length,
+      newSemesterCount: 0,
+      estimatedGraduation: existingLastTerm ?? null,
+    };
+  }
