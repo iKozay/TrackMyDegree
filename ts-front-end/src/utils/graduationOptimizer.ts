@@ -69,3 +69,11 @@ function arePrereqsSatisfied(
     });
   });
 }
+
+function nextTerm(current: SemesterId): SemesterId {
+  const [season, yearStr] = current.split(" ");
+  const year = parseInt(yearStr, 10);
+  if (season === "FALL") return `WINTER ${year + 1}` as SemesterId;
+  if (season === "WINTER") return `SUMMER ${year}` as SemesterId;
+  return `FALL ${year}` as SemesterId; // SUMMER -> FALL same year
+}
