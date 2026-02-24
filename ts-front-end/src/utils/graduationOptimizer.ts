@@ -129,3 +129,46 @@ export function optimizePath(state: TimelineState): OptimizerResult {
       estimatedGraduation: existingLastTerm ?? null,
     };
   }
+
+  // 4. Greedy placement — shallow-copy existing semesters, add new ones
+  const workingSemesters: Semester[] = state.semesters.map((s) => ({ ...s }));
+  const workingCourses: CourseMap = { ...state.courses };
+
+  const remaining = new Set(toPlace);
+  let currentTerm = nextTerm(existingLastTerm);
+  let iterations = 0;
+  let placed = 0;
+
+  while (remaining.size > 0 && iterations < MAX_EXTRA_SEMESTERS) {
+    iterations++;
+
+    const newSem: Semester = { term: currentTerm, courses: [] };
+    workingSemesters.push(newSem);
+    const semIdx = workingSemesters.length - 1;
+    let creditsUsed = 0;
+
+    for (const code of [...remaining]) {
+      const course = workingCourses[code];
+      if (!course) {
+        remaining.delete(code);
+        continue;
+      }
+
+      const credits = course.credits ?? 3;
+      if (creditsUsed + credits > MAX_CREDITS_PER_SEMESTER) continue;
+      if (!isOfferedIn(course, currentTerm)) continue;
+      if (!arePrereqsSatisfied(course, semIdx, workingSemesters, workingCourses))
+        continue;
+
+      workingSemesters[semIdx].courses.push({ code, message: "" });
+      workingCourses[code] = {
+        ...course,
+        status: { status: "planned", semester: currentTerm },
+      };
+      creditsUsed += credits;
+      remaining.delete(code);
+      placed++;
+    }
+
+    currentTerm = nextTerm(currentTerm);
+  }
