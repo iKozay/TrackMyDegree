@@ -409,6 +409,18 @@ export function addSemester(state: TimelineState): TimelineState {
   };
 }
 
+export function optimizeTimeline(state: TimelineState): TimelineState {
+  const result = optimizePath(state);
+  const snapshot = createSnapshot(state);
+  return {
+    ...state,
+    semesters: result.semesters,
+    courses: result.courses,
+    history: [...state.history, snapshot],
+    future: [],
+  };
+}
+
 export function validateTimeline(state: TimelineState): TimelineState {
   const updatedSemesters = state.semesters.map((semester) => ({
     ...semester,
