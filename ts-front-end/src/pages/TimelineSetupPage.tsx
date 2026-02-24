@@ -22,13 +22,13 @@ const TimelineSetupPage = () => {
       {/* Main Cards */}
       <div className="cards-container">
 
-        <div className="card glass-card">
+        <div className="timeline-setup-card glass-card">
           <InformationForm />
         </div>
 
         <div className="divider-vertical">OR</div>
 
-        <div className="card glass-card">
+        <div className="timeline-setup-card glass-card">
           <UploadBox toggleModal={toggleModal} />
         </div>
 
