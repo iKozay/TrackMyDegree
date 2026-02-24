@@ -24,3 +24,15 @@ export interface OptimizerResult {
 function getSeasonFromTerm(term: string): string {
   return term.split(" ")[0].toUpperCase();
 }
+
+/**
+ * Returns true if the course is offered during the given semester's season.
+ * Handles both 'fall' and 'FALL 2025' formats in offeredIN.
+ */
+function isOfferedIn(course: Course, term: SemesterId): boolean {
+  if (!course.offeredIN || course.offeredIN.length === 0) return true;
+  const season = getSeasonFromTerm(term);
+  return course.offeredIN.some(
+    (offered) => offered.split(" ")[0].toUpperCase() === season
+  );
+}
