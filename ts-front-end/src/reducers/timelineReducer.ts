@@ -70,6 +70,10 @@ export function timelineReducer(
       nextState = addSemester(state);
       break;
 
+    case TimelineActionConstants.OptimizeTimeline:
+      nextState = optimizeTimeline(state);
+      break;
+
     default:
       return state;
   }
