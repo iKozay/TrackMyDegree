@@ -27,7 +27,7 @@ def test_get_success(mock_session):
     mock_session.get.return_value = mock_response
     result = get("http://example.com")
     assert result == mock_response
-    mock_session.get.assert_called_once_with("http://example.com")
+    mock_session.get.assert_called_once_with("http://example.com", timeout=60)
     mock_response.raise_for_status.assert_called_once()
 
 @patch('utils.web_utils.time.sleep')

@@ -22,7 +22,7 @@ logger = get_logger("WebUtils")
 def get(url: str) -> requests.Response:
     for attempt in range(max_retries + 1):
         try:
-            response = session.get(url)
+            response = session.get(url, timeout=60)
             response.raise_for_status()
             return response
             
