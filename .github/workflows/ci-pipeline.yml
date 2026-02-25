@@ -9,6 +9,11 @@ on:
       - main
   workflow_dispatch:
 
+# Cancel previous workflow runs if a new push is made to the same branch/PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
 
