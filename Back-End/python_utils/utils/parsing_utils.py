@@ -151,7 +151,13 @@ def make_prereq_coreq_into_array(s):
     if not s or not s.strip():
         return []
 
-    s = re.sub(rf'({COURSE_REGEX})\s+or\s+(\d{3})', expand_course_shorthand, s)
+    # Expand course shorthands iteratively to handle multiple consecutive cases
+    pattern = r'(' + COURSE_REGEX + r')\s+or\s+(\d{3})'
+    while True:
+        new_s = re.sub(pattern, expand_course_shorthand, s)
+        if new_s == s:  # No changes made
+            break
+        s = new_s
     
     # Split by semicolons first (main separators between different requirements)
     main_groups = [group.strip() for group in s.split(';') if group.strip()]

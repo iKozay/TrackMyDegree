@@ -162,6 +162,15 @@ def test_make_prereq_coreq_into_array_semicolon_groups():
     expected = [["COMP 248"], ["MATH 204", "MATH 205"]]
     assert result == expected
 
+def test_make_prereq_coreq_into_array_multiple_shorthand_expansion():
+    result = make_prereq_coreq_into_array("COEN 366 or 445 or ELEC 366 or 463")
+    expected = [["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"]]
+    assert result == expected
+    
+    result = make_prereq_coreq_into_array("MATH 205 or 206 or 209")
+    expected = [["MATH 205", "MATH 206", "MATH 209"]]
+    assert result == expected
+
 def test_get_not_taken_multiple_courses():
     text = "Students who have taken COMP 218 or SOEN 287 may not take this course for credit"
     result = get_not_taken(text)
