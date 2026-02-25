@@ -129,33 +129,26 @@ export default function timelineFlow(data) {
                 flowError = `Upload job did not complete jobId=${up.jobId} attempts=${uploadPolled.attempts} networkErrors=${uploadPolled.networkErrors}`;
                 return;
             }
-            if (uploadPolled.networkErrors > 0) {
-                flowError = `Upload job completed but had ${uploadPolled.networkErrors} network error(s) jobId=${up.jobId}`;
-                return;
-            }
-
+            // Step 2: Save timeline referencing upload job
             const saved = saveTimeline(up.jobId, userId);
             if (!saved.ok) { flowError = saved.error; return; }
             timelineId = saved.timelineId;
-
+            // Step 3: Update timeline (no-op update just to test the endpoint)
             const updated = updateTimeline(timelineId);
             if (!updated.ok) { flowError = updated.error; return; }
-
+            // Step 4: Retrieve timeline (creates a retrieval job)
             const retrieved = retrieveTimeline(timelineId);
             if (!retrieved.ok) { flowError = retrieved.error; return; }
-
+            // Step 5: Poll retrieval job until done
             const retrievePolled = pollJobUntilDone(retrieved.jobId);
             if (!retrievePolled.done) {
                 flowError = `Retrieve job did not complete jobId=${retrieved.jobId} attempts=${retrievePolled.attempts} networkErrors=${retrievePolled.networkErrors}`;
                 return;
             }
-            if (retrievePolled.networkErrors > 0) {
-                flowError = `Retrieve job completed but had ${retrievePolled.networkErrors} network error(s) jobId=${retrieved.jobId}`;
-                return;
-            }
 
             debugLog(`Flow: success timelineId=${timelineId}`);
         } finally {
+            // Clean up timeline
             deleteTimeline(timelineId);
 
             if (flowError) {

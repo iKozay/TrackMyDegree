@@ -1,11 +1,11 @@
 /// <reference path="./k6-globals.d.js" />
 
-export const BASE_URL = __ENV.BASE_URL || "http://localhost:8000";
+export const BASE_URL = __ENV.BASE_URL || "http://localhost:8000"; // backend URL
 export const TIMELINE_NAME_PREFIX = __ENV.TIMELINE_NAME_PREFIX || "k6-poc";
 
-export const POLL_MAX_SECONDS = Number(__ENV.POLL_MAX_SECONDS || "60");
-export const POLL_INTERVAL_SECONDS = Number(__ENV.POLL_INTERVAL_SECONDS || "1");
-export const POLL_REQUEST_TIMEOUT = __ENV.POLL_REQUEST_TIMEOUT || "5s";
+export const POLL_MAX_SECONDS = Number(__ENV.POLL_MAX_SECONDS || "15"); // how long to keep polling for a job before giving up
+export const POLL_INTERVAL_SECONDS = Number(__ENV.POLL_INTERVAL_SECONDS || "1"); // how long to wait between poll attempts (if job not done yet)
+export const POLL_REQUEST_TIMEOUT = __ENV.POLL_REQUEST_TIMEOUT || "5s"; // how long to wait for each individual poll request before treating as network error
 
 export const DEBUG = __ENV.DEBUG === "1";
 export function debugLog(msg) { if (DEBUG) console.log(msg); }
@@ -15,12 +15,12 @@ export const PDF_FILES = {
     transcript: [
         { bytes: open("./test-pdfs/transcripts/transcript-coop.pdf",    "b"), filename: "transcript-coop.pdf"    },
         { bytes: open("./test-pdfs/transcripts/transcript-ecp.pdf",     "b"), filename: "transcript-ecp.pdf"     },
-        { bytes: open("./test-pdfs/transcripts/transcript-general.pdf", "b"), filename: "transcript-general.pdf" },
+        { bytes: open("./test-pdfs/transcripts/transcript-regular.pdf", "b"), filename: "transcript-regular.pdf" },
     ],
     acceptance_letter: [
         { bytes: open("./test-pdfs/acceptance-letters/acceptance-letter-coop.pdf",    "b"), filename: "acceptance-letter-coop.pdf"    },
         { bytes: open("./test-pdfs/acceptance-letters/acceptance-letter-ecp.pdf",     "b"), filename: "acceptance-letter-ecp.pdf"     },
-        { bytes: open("./test-pdfs/acceptance-letters/acceptance-letter-general.pdf", "b"), filename: "acceptance-letter-general.pdf" },
+        { bytes: open("./test-pdfs/acceptance-letters/acceptance-letter-regular.pdf", "b"), filename: "acceptance-letter-regular.pdf" },
     ],
 };
 
@@ -56,7 +56,7 @@ export function getPdfForVU(vu) {
     }
 
     // __VU is 0 during init stage — fall back to index 0
-    const safeVu  = vu < 1 ? 1 : vu;
+    const safeVu  = Math.max(1, vu);
     const idx     = (safeVu - 1) % TOTAL;
     const typeIdx = Math.floor(idx / FILES_PER_TYPE);
     const fileIdx = idx % FILES_PER_TYPE;

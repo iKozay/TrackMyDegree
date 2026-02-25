@@ -20,21 +20,25 @@ Back-End/performance/
 ├── users.js               # createTestUser / deleteTestUser (setup/teardown)
 ├── timeline.js            # uploadPdf, pollJobUntilDone, saveTimeline, updateTimeline,
 │                          #   retrieveTimeline, deleteTimeline
-├── k6-globals.d.js        # IDE shim for __ENV, __VU, __ITER
 └── test-pdfs/
     ├── transcripts/
     │   ├── transcript-coop.pdf
     │   ├── transcript-ecp.pdf
-    │   └── transcript-general.pdf
+    │   └── transcript-regular.pdf
     └── acceptance-letters/
         ├── acceptance-letter-coop.pdf
         ├── acceptance-letter-ecp.pdf
-        └── acceptance-letter-general.pdf
+        └── acceptance-letter-regular.pdf
 ```
 
 ---
 
 ## Environment variables
+
+> **Note:** k6 does not read `.env` files. Variables must be passed explicitly via `-e KEY=VALUE`
+> on the CLI, or exported in your shell before running k6. The defaults in `config.js` are
+> sized for local development (`BASE_URL=http://localhost:8000`, `BACKEND_PORT=8000`) and
+> match the values in `secrets/.env`, so no extra flags are needed for a standard local run.
 
 | Variable                | Default                 | Description                                              |
 |-------------------------|-------------------------|----------------------------------------------------------|
@@ -62,10 +66,10 @@ All 6 files are covered across VUs. The VU-to-file assignment is fixed and never
 |----|---------------------|----------------------------------|
 | 1  | `transcript`        | `transcript-coop.pdf`            |
 | 2  | `transcript`        | `transcript-ecp.pdf`             |
-| 3  | `transcript`        | `transcript-general.pdf`         |
+| 3  | `transcript`        | `transcript-regular.pdf`         |
 | 4  | `acceptance_letter` | `acceptance-letter-coop.pdf`     |
 | 5  | `acceptance_letter` | `acceptance-letter-ecp.pdf`      |
-| 6  | `acceptance_letter` | `acceptance-letter-general.pdf`  |
+| 6  | `acceptance_letter` | `acceptance-letter-regular.pdf`  |
 
 With more than 6 VUs the pattern repeats (VU 7 = same as VU 1, etc.).
 
@@ -82,8 +86,8 @@ k6 run -e DOC_TYPE=transcript -e FILE_NAME=transcript-coop k6-timeline.js
 # transcript-ecp.pdf
 k6 run -e DOC_TYPE=transcript -e FILE_NAME=transcript-ecp k6-timeline.js
 
-# transcript-general.pdf
-k6 run -e DOC_TYPE=transcript -e FILE_NAME=transcript-general k6-timeline.js
+# transcript-regular.pdf
+k6 run -e DOC_TYPE=transcript -e FILE_NAME=transcript-regular k6-timeline.js
 
 # acceptance-letter-coop.pdf
 k6 run -e DOC_TYPE=acceptance_letter -e FILE_NAME=acceptance-letter-coop k6-timeline.js
@@ -91,8 +95,8 @@ k6 run -e DOC_TYPE=acceptance_letter -e FILE_NAME=acceptance-letter-coop k6-time
 # acceptance-letter-ecp.pdf
 k6 run -e DOC_TYPE=acceptance_letter -e FILE_NAME=acceptance-letter-ecp k6-timeline.js
 
-# acceptance-letter-general.pdf
-k6 run -e DOC_TYPE=acceptance_letter -e FILE_NAME=acceptance-letter-general k6-timeline.js
+# acceptance-letter-regular.pdf
+k6 run -e DOC_TYPE=acceptance_letter -e FILE_NAME=acceptance-letter-regular k6-timeline.js
 ```
 
 ---
@@ -156,21 +160,21 @@ k6 run  k6-timeline.js
 
 **Quick smoke test — small peak, short stages:**
 ```bash
-k6 run  \
+k6 run --out \
   -e PEAK_VUS=6 -e RAMP_DURATION=10s -e STEADY_DURATION=30s \
   k6-timeline.js
 ```
 
 **Higher load — 12 VUs (2 VUs per PDF):**
 ```bash
-k6 run  \
+k6 run \
   -e PEAK_VUS=12 -e RAMP_DURATION=2m -e STEADY_DURATION=5m \
   k6-timeline.js
 ```
 
 **Pin to a specific file:**
 ```bash
-k6 run  \
+k6 run \
   -e DOC_TYPE=transcript -e FILE_NAME=transcript-coop \
   k6-timeline.js
 ```
