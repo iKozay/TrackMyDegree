@@ -56,19 +56,6 @@ async function getScraperData() {
     }),
   );
 
-  // Save all courses data to a separate file for course-related tests
-  try {
-    const allCoursesData = await getAllCourses();
-    const coursesFile = path.join(
-      DEFAULT_TEMP_DIR,
-      `temp_scraper_output_all_courses.json`,
-    );
-    await writeFile(coursesFile, JSON.stringify(allCoursesData, null, 2));
-    written.push(coursesFile);
-  } catch (e) {
-    console.error(`Error getting all courses data: ${e.message}`);
-  }
-
   if (written.length > 0) {
     console.log(`Written ${written.length}/${degreeNames.length} files`);
   }

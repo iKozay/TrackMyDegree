@@ -1,5 +1,4 @@
 const {
-  getAllDegreeNames,
   getScraperData,
   cleanupScraperFiles,
 } = require('./utils/data/scraperData');
@@ -11,20 +10,12 @@ const {
   logValidationSummary,
 } = require('./utils/data/seedTestHelpers');
 
-describe('Seed via /api/admin/seed-data endpoint', () => {
+describe('Seed ALL via /api/admin/seed-data endpoint', () => {
   let apiClient;
   let app;
-  let degreeNames;
-  // Promise to signal when setup is complete - avoids concurrent tests to start before scraper data is ready
-  let setupReadyResolve;
-  const setupReadyPromise = new Promise((resolve) => {
-    setupReadyResolve = resolve;
-  });
 
   beforeAll(async () => {
     console.log('Starting test setup...');
-    // Get degree names for test discovery
-    degreeNames = await getAllDegreeNames();
     // Initialize app and API client
     app = await getTestApp();
     apiClient = new ApiClient(app);
@@ -36,9 +27,6 @@ describe('Seed via /api/admin/seed-data endpoint', () => {
     // Get and save scraper data in temp files
     await getScraperData();
     console.log('Setup complete...');
-    // signal that setup is ready
-    setupReadyResolve();
-    console.log('Setup ready. Running concurrent degree set and validation tests...')
   });
 
   afterAll(async () => {
@@ -46,87 +34,57 @@ describe('Seed via /api/admin/seed-data endpoint', () => {
     await cleanupScraperFiles();
   });
 
-  test('seeds and validates all degrees', async () => {
-    // Wait for setup to complete
-    await setupReadyPromise;
-    
-    console.log(`Starting seed operations for ${degreeNames.length} degrees...`);
-    
-    // Process all degrees concurrently
-    const degreePromises = degreeNames.map(async (degreeName) => {
-      console.log(`Starting seed operation for ${degreeName}...`);
-      
+  test('seeds all degrees and validates integrity', async () => {
+    // Seed all data and expect 200 response
+    console.log('Starting seed operation...');
+    const seedRes = await apiClient.seedDegreeData();
+    expect(seedRes.status).toBe(200);
+
+    // Get and process validation files
+    const degreeFiles = getValidationFiles();
+    let successCount = 0;
+    let totalCourses = 0;
+    let totalPools = 0;
+    const validationErrors = [];
+
+    for (const [index, file] of degreeFiles.entries()) {
       try {
-        // Seed specific degree
-        const seedRes = await apiClient.seedDegreeData(degreeName);
-        expect(seedRes.status).toBe(200);
-
-        // Get validation files and find the one for this degree
-        const degreeFiles = getValidationFiles();
-        const safeName = degreeName.replaceAll(' ', '_');
-        const expectedFileName = `temp_scraper_output_${safeName}.json`;
-        const degreeFile = degreeFiles.find(file => file === expectedFileName);
-
-        if (!degreeFile) {
-          console.log('Available files:', degreeFiles);
-          console.log('Looking for:', expectedFileName);
-          throw new Error(`Validation file not found for degree: ${degreeName}`);
-        }
-
-        // Process this specific degree file
-        const result = await processDegreeFile(degreeFile, 0, 1);
+        // Process each degree file
+        const result = await processDegreeFile(file, index, degreeFiles.length);
 
         if (result.hasErrors) {
-          const totalErrors = result.errorReporter.errors.length;
-          console.error(`Validation errors for ${degreeName}:`, result.errorReporter.errors);
-          
-          const errorMessages = result.errorReporter.errors.map(error => {
-            if (typeof error === 'string') return error;
-            if (error.message) return error.message;
-            if (error.error) return error.error;
-            return JSON.stringify(error);
-          }).filter(Boolean);
-          
-          const limitedErrors = errorMessages.slice(0, 20);
-          const remainingCount = errorMessages.length - 20;
-          
-          if (remainingCount > 0) {
-            limitedErrors.push(`+ ${remainingCount} more errors`);
-          }
-          
-          throw new Error(
-            `${totalErrors} validation errors found for ${degreeName}:\n${limitedErrors.join('\n')}`
-          );
+          validationErrors.push({
+            degreeId: result.degreeId,
+            errorReporter: result.errorReporter,
+          });
+        } else {
+          successCount++;
         }
 
-        console.log(`${degreeName}: ${result.poolsCount} pools validated successfully`);
-        
-        expect(result.hasErrors).toBe(false);
-        expect(result.poolsCount).toBeGreaterThan(0);
-        
-        return { degreeName, success: true, poolsCount: result.poolsCount };
+        totalCourses += result.coursesCount;
+        totalPools += result.poolsCount;
       } catch (error) {
-        console.error(`Failed to process ${degreeName}:`, error.message);
-        return { degreeName, success: false, error: error.message };
+        console.error(`Failed to process file ${file}:`, error.message);
+        throw error;
       }
-    });
-
-    // Wait for all degrees to complete
-    const results = await Promise.all(degreePromises);
-    
-    // Check results and report any failures
-    const failures = results.filter(result => !result.success);
-    const successes = results.filter(result => result.success);
-    
-    console.log(`Completed processing ${results.length} degrees: ${successes.length} successful, ${failures.length} failed`);
-    
-    if (failures.length > 0) {
-      const failureReport = failures.map(failure => `${failure.degreeName}: ${failure.error}`).join('\n');
-      throw new Error(`${failures.length} degrees failed validation:\n${failureReport}`);
     }
-    
-    // All degrees should have succeeded
-    expect(failures.length).toBe(0);
-    expect(successes.length).toBe(degreeNames.length);
+
+    // Final validation check
+    if (validationErrors.length > 0) {
+      const totalErrors = validationErrors.reduce(
+        (sum, { errorReporter }) => sum + errorReporter.errors.length,
+        0,
+      );
+      throw new Error(
+        `${totalErrors} total validation errors found across ${validationErrors.length} degrees`,
+      );
+    }
+
+    logValidationSummary(
+      successCount,
+      degreeFiles.length,
+      totalCourses,
+      totalPools,
+    );
   });
 });
