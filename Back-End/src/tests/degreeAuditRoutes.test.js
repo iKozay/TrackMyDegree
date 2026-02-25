@@ -13,6 +13,7 @@ jest.mock('../controllers/degreeAuditController', () => ({
   degreeAuditController: {
     getAuditByTimeline: jest.fn(),
     getAuditForUser: jest.fn(),
+    getAuditByCachedTimeline: jest.fn(),
   },
 }));
 
@@ -243,6 +244,55 @@ describe('Degree Audit Routes', () => {
       const response = await request(app).get('/audit/user/').expect(404);
     });
   });
+
+  describe('GET /audit/timeline/job/:jobId', () => {
+  const validJobId = 'job-123';
+
+  it('should return audit data for valid jobId', async () => {
+    degreeAuditController.getAuditByCachedTimeline.mockResolvedValue(
+      mockAuditData,
+    );
+
+    const response = await request(app)
+      .get(`/audit/timeline/job/${validJobId}`)
+      .expect(200);
+
+    expect(response.body).toEqual(mockAuditData);
+    expect(
+      degreeAuditController.getAuditByCachedTimeline,
+    ).toHaveBeenCalledWith(validJobId);
+  });
+
+  it('should return 400 when jobId is missing', async () => {
+    // route won't match if completely missing
+    await request(app).get('/audit/timeline/job/').expect(400);
+  });
+
+  it('should return 500 on internal server error', async () => {
+    degreeAuditController.getAuditByCachedTimeline.mockRejectedValue(
+      new Error('Cache failed'),
+    );
+
+    const response = await request(app)
+      .get(`/audit/timeline/job/${validJobId}`)
+      .expect(500);
+
+    expect(response.body.error).toBe('Internal server error');
+  });
+
+  it('should return 500 for non-Error exceptions', async () => {
+    degreeAuditController.getAuditByCachedTimeline.mockRejectedValue(
+      'Unknown error',
+    );
+
+    const response = await request(app)
+      .get(`/audit/timeline/job/${validJobId}`)
+      .expect(500);
+
+    expect(response.body.error).toBe('Internal server error');
+  });
+});
+
 
   describe('edge cases', () => {
     it('should handle concurrent requests', async () => {

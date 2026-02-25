@@ -2,29 +2,13 @@ import { BaseMongoController } from './baseMongoController';
 import { Degree, CoursePool, Course } from '@models';
 import { DEGREE_WITH_ID_DOES_NOT_EXIST } from '@utils/constants';
 import { CourseData } from './courseController';
-
-export interface DegreeData {
-  _id: string;
-  name: string;
-  totalCredits: number;
-  degreeType: string;
-  coursePools?: string[];
-}
+import {DegreeData, CoursePoolInfo} from '@shared/degree'
 
 export interface DegreeXCPData {
   degree_id: string;
   coursepool_id: string;
   credits: number;
 }
-
-export interface CoursePoolInfo {
-  _id: string;
-  name: string;
-  creditsRequired: number;
-  courses: string[];
-}
-
-
 
 export class DegreeController extends BaseMongoController<any> {
   constructor() {
