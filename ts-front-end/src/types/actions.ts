@@ -15,4 +15,5 @@ export const TimelineActionConstants = {
   AddCourse: "ADD-COURSE",
   AddSemester: "ADD-SEMESTER",
   SetTimelineName: "SET-TIMELINE-NAME",
+  OptimizeTimeline: "OPTIMIZE-TIMELINE",
 } as const;

@@ -47,6 +47,7 @@ export interface TimelineActions {
   addCourse: (courseId: CourseCode, type: string) => void;
   addSemester: () => void;
   setTimelineName: (timelineName: string) => void;
+  optimizeTimeline: () => void;
 }
 
 export interface UseTimelineStateResult {
@@ -144,6 +145,9 @@ function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
     },
     setTimelineName(timelineName: string) {
         dispatch({ type: TimelineActionConstants.SetTimelineName, payload: { timelineName } });
+    },
+    optimizeTimeline() {
+      dispatch({ type: TimelineActionConstants.OptimizeTimeline });
     },
   };
 }

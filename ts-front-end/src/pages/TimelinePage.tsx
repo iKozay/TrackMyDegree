@@ -72,10 +72,11 @@ const TimeLinePage: React.FC = () => {
         {state.modal.open && (
           <MainModal
             open={state.modal.open}
-            type={state.modal.type} // "insights" | "exemption"
+            type={state.modal.type} // "insights" | "exemption" | "optimize"
             pools={state.pools}
             courses={state.courses}
             timelineName={state.timelineName}
+            state={state}
             onSave={async (timelineName: string) => {
                 if (!user) return;
                 try {
@@ -87,6 +88,7 @@ const TimeLinePage: React.FC = () => {
             }}
             onAdd={actions.addCourse}
             onClose={actions.openModal}
+            onOptimize={actions.optimizeTimeline}
           />
         )}
         <TimelineHeader

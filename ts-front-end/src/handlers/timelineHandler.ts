@@ -7,6 +7,7 @@ import type {
   SemesterId,
 } from "../types/timeline.types";
 import { getCourseValidationMessage } from "../utils/timelineUtils";
+import { optimizePath } from "../utils/graduationOptimizer";
 
 type Snapshot = {
   courses: TimelineState["courses"];
@@ -405,6 +406,18 @@ export function addSemester(state: TimelineState): TimelineState {
   return {
     ...s1,
     semesters: [...s1.semesters, newSemester],
+  };
+}
+
+export function optimizeTimeline(state: TimelineState): TimelineState {
+  const result = optimizePath(state);
+  const snapshot = createSnapshot(state);
+  return {
+    ...state,
+    semesters: result.semesters,
+    courses: result.courses,
+    history: [...state.history, snapshot],
+    future: [],
   };
 }
 

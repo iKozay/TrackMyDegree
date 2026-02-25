@@ -4,7 +4,8 @@ import { BaseModal } from "./BaseModal";
 import { AddModal } from "./AddModal";
 import { InsightsModal } from "./InsightsModal";
 import { SaveTimelineModal } from "./SaveTimelineModal";
-import type { CourseCode, CourseMap, Pool } from "../types/timeline.types";
+import { OptimizerModal } from "./OptimizerModal";
+import type { CourseCode, CourseMap, Pool, TimelineState } from "../types/timeline.types";
 import { CoopValidationModal } from "./CoopValidationModal";
 
 type MainModalProps = {
@@ -13,9 +14,11 @@ type MainModalProps = {
   pools: Pool[];
   courses: CourseMap;
   timelineName: string;
+  state: TimelineState;
   onSave: (timelineName: string) => void;
   onAdd: (courseId: CourseCode, type: string) => void;
   onClose: (open: boolean, type: string) => void;
+  onOptimize: () => void;
 };
 
 export const MainModal: React.FC<MainModalProps> = ({
@@ -24,9 +27,11 @@ export const MainModal: React.FC<MainModalProps> = ({
   pools,
   courses,
   timelineName,
+  state,
   onSave,
   onAdd,
   onClose,
+  onOptimize,
 }) => {
   if (!open) return null;
 
@@ -55,6 +60,14 @@ export const MainModal: React.FC<MainModalProps> = ({
         );
       case "coop":
         return <CoopValidationModal />;
+      case "optimize":
+        return (
+          <OptimizerModal
+            state={state}
+            onApply={onOptimize}
+            onClose={() => onClose(false, type)}
+          />
+        );
       default:
         return (
           <div>
