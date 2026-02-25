@@ -48,9 +48,6 @@ describe('seedingController', () => {
       const result = await seedDegreeData('InvalidDegree');
 
       expect(result).toBe('Degree name "InvalidDegree" is not valid. Please choose from: BCompSc in Computer Science, BEng in Software Engineering');
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Degree name "InvalidDegree" is not valid. Available degrees: BCompSc in Computer Science, BEng in Software Engineering',
-      );
       expect(pythonUtilsApi.parseDegree).not.toHaveBeenCalled();
     });
 

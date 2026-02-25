@@ -304,7 +304,7 @@ router.get('/seed-data/:degreeName', async (req: Request, res: Response) => {
       return;
     }
 
-    const result = await seedDegreeData(degreeName as unknown as string);
+    const result = await seedDegreeData(degreeName as string);
     res.status(HTTP.OK).json({
       message: result,
     });

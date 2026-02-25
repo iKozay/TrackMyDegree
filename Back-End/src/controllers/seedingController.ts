@@ -8,20 +8,17 @@ export async function seedDegreeData(degreeName: string): Promise<string> {
   // Validate degree name
   const allDegreeNames = await getDegreeNames();
   if (!allDegreeNames.includes(degreeName)) {
-    console.error(`Degree name "${degreeName}" is not valid. Available degrees: ${allDegreeNames.join(', ')}`);
     return `Degree name "${degreeName}" is not valid. Please choose from: ${allDegreeNames.join(', ')}`;
   }
 
-  console.log('Seeding data for degree: ' + degreeName);
   let degreeRequirements: ParseDegreeResponse = await parseDegree(degreeName);
-  console.log('Scraped data for degree: ' + degreeName);
   try {
-    await saveDegreeRequirementsToDB(degreeName, degreeRequirements);
-    console.log('Seeding completed for degree: ' + degreeName);
-    return `Seeding completed for degree: ${degreeName}`;
+    await saveDegreeRequirementsToDB(degreeRequirements);
+    console.log('Seeding completed for degree: ' + degreeRequirements.degree.name);
+    return `Seeding completed for degree: ${degreeRequirements.degree.name}`;
   } catch (err) {
-    console.error(`Failed to seed degree data for degree: ${degreeName}`, err);
-    return `Failed to seed degree data for degree: ${degreeName}. Error: ${err}`;
+    console.error(`Failed to seed degree data for degree: ${degreeRequirements.degree.name}`, err);
+    return `Failed to seed degree data for degree: ${degreeRequirements.degree.name}. Error: ${err}`;
   }
 }
 
@@ -39,7 +36,7 @@ export async function seedAllDegreeData(): Promise<string> {
     console.log(`Processing degree: ${degreeName}`);
     
     try {
-      await saveDegreeRequirementsToDB(degreeName, degreeData);
+      await saveDegreeRequirementsToDB(degreeData);
       successCount++;
       console.log(`Successfully seeded data for degree: ${degreeName}`);
     } catch (err) {
@@ -61,7 +58,6 @@ export async function seedAllDegreeData(): Promise<string> {
 }
 
 async function saveDegreeRequirementsToDB(
-  degreeName: string,
   data: ParseDegreeResponse,
 ): Promise<void> {
   const degreeController = new DegreeController();
@@ -76,7 +72,7 @@ async function saveDegreeRequirementsToDB(
   }
 
   await coursepoolController.bulkCreateCoursePools(data.coursePools);
-  console.log(`Course pools for degree ${degreeName} created/updated successfully.`);
+  console.log(`Course pools for degree ${data.degree.name} created/updated successfully.`);
 }
 
 async function saveCoursesToDB(courses: CourseData[]): Promise<void> {
