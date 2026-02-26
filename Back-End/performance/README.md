@@ -1,10 +1,47 @@
 # k6 Timeline Performance Tests
 
 ## Prerequisites
+
+### 1. Install k6
+
+k6 is a standalone binary — it is **not** an npm package and cannot be installed via `npm install`.
+
+**Windows (winget):**
+```cmd
+winget install k6 --source winget
+```
+
+**Windows (Chocolatey):**
+```cmd
+choco install k6
+```
+
+**macOS (Homebrew):**
+```bash
+brew install k6
+```
+
+**Linux (Debian/Ubuntu):**
+```bash
+sudo gpg -k
+sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+sudo apt-get update && sudo apt-get install k6
+```
+
+Verify the installation:
+```bash
+k6 version
+```
+
+> Full install docs: https://grafana.com/docs/k6/latest/set-up/install-k6/
+
+### 2. Backend and infrastructure
 - Backend running on `http://localhost:8000` (or set `BASE_URL`)
 - MongoDB running
 - Redis running (used for `/api/jobs/:jobId` cache)
 - **BullMQ worker running** (started by your backend)
+- InfluxDB + Grafana running via `docker compose up -d` (for metrics visualisation)
 
 > **Note:** A test user is created automatically by `setup()` before the run and deleted by `teardown()` after. No manual user setup needed.
 
@@ -75,32 +112,6 @@ With more than 6 VUs the pattern repeats (VU 7 = same as VU 1, etc.).
 
 > To exercise all 6 files evenly, run with `-e VUS=6` (or a multiple of 6).
 
-### Pin to a specific file
-
-Set both `DOC_TYPE` and `FILE_NAME` — all VUs will use that exact file:
-
-```bash
-# transcript-coop.pdf
-k6 run -e DOC_TYPE=transcript -e FILE_NAME=transcript-coop k6-timeline.js
-
-# transcript-ecp.pdf
-k6 run -e DOC_TYPE=transcript -e FILE_NAME=transcript-ecp k6-timeline.js
-
-# transcript-regular.pdf
-k6 run -e DOC_TYPE=transcript -e FILE_NAME=transcript-regular k6-timeline.js
-
-# acceptance-letter-coop.pdf
-k6 run -e DOC_TYPE=acceptance_letter -e FILE_NAME=acceptance-letter-coop k6-timeline.js
-
-# acceptance-letter-ecp.pdf
-k6 run -e DOC_TYPE=acceptance_letter -e FILE_NAME=acceptance-letter-ecp k6-timeline.js
-
-# acceptance-letter-regular.pdf
-k6 run -e DOC_TYPE=acceptance_letter -e FILE_NAME=acceptance-letter-regular k6-timeline.js
-```
-
----
-
 ## Load scenario
 
 The test uses a **ramping-vus** scenario — no flat constant load. Every run follows the same three-stage shape:
@@ -155,26 +166,26 @@ cd Back-End/performance
 
 **Default — ramp up to 6 VUs, hold 3 min, ramp down (total ~5 min):**
 ```bash
-k6 run  k6-timeline.js
+k6 run --out influxdb=http://localhost:8086/k6 k6-timeline.js
 ```
 
 **Quick smoke test — small peak, short stages:**
 ```bash
-k6 run --out \
+k6 run --out influxdb=http://localhost:8086/k6 \
   -e PEAK_VUS=6 -e RAMP_DURATION=10s -e STEADY_DURATION=30s \
   k6-timeline.js
 ```
 
 **Higher load — 12 VUs (2 VUs per PDF):**
 ```bash
-k6 run \
+k6 run --out influxdb=http://localhost:8086/k6 \
   -e PEAK_VUS=12 -e RAMP_DURATION=2m -e STEADY_DURATION=5m \
   k6-timeline.js
 ```
 
 **Pin to a specific file:**
 ```bash
-k6 run \
+k6 run --out influxdb=http://localhost:8086/k6 \
   -e DOC_TYPE=transcript -e FILE_NAME=transcript-coop \
   k6-timeline.js
 ```

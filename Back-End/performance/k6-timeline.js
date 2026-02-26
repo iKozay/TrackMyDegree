@@ -51,6 +51,16 @@ const RAMP_DURATION  = __ENV.RAMP_DURATION          || "1m";
 const STEADY_DURATION = __ENV.STEADY_DURATION       || "3m";
 
 export const options = {
+    // ── InfluxDB ingestion tuning ────────────────────────────────────────────────
+    // systemTags: keep only the tags we actually query/group by in Grafana.
+    //   - "name"   — the tagged request name (e.g. "POST /api/upload/file")
+    //   - "status" — HTTP status code, useful for filtering errors
+    //   - "check"  — check name (pass/fail breakdown in Grafana)
+    //   - "group"  — k6 group name ("timeline flow")
+    //   - "error"  — short error string on failed requests
+    systemTags: ["name", "status", "check", "group", "error"],
+    // ────────────────────────────────────────────────────────────────────────────
+
     scenarios: {
         timeline_load: {
             executor:        "ramping-vus",
