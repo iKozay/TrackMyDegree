@@ -112,9 +112,16 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
         pass
 
 class AeroDegreeScraper(GinaCodyDegreeScraper):
+    OPTIONS={
+        "Aerodynamics and Propulsion": "Option A",
+        "Aerospace Structures and Materials": "Option B",
+        "Avionics and Aerospace Systems": "Option C"
+    }
+
     def __init__(self, degree_name, degree_short_name, requirements_url):
         super().__init__(degree_name, degree_short_name, requirements_url)
-        self.degree_name_without_option, self.option_name = degree_name.split(" - ")
+        self.degree_name_without_option, option = degree_name.split(" Option: ")
+        self.option_name = self.OPTIONS.get(option.strip())
 
     def _get_program_node(self, soup):
         program_node = soup.find("div", class_="program-node", attrs={"title": self.degree_name_without_option})

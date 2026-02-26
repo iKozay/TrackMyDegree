@@ -18,9 +18,9 @@ class DegreeDataScraper():
     def __init__(self):
         self.logger = get_logger("DegreeDataScraper")
         self.degree_scraper_config: list[DegreeScraperConfig] = [
-            DegreeScraperConfig(long_name="BEng in Aerospace Engineering - Option A", marker="BEng in Aerospace Engineering", short_name="AERO", scraper_class=AeroDegreeScraper),
-            DegreeScraperConfig(long_name="BEng in Aerospace Engineering - Option B", marker="BEng in Aerospace Engineering", short_name="AERO", scraper_class=AeroDegreeScraper),
-            DegreeScraperConfig(long_name="BEng in Aerospace Engineering - Option C", marker="BEng in Aerospace Engineering", short_name="AERO", scraper_class=AeroDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", marker="BEng in Aerospace Engineering", short_name="AERO", scraper_class=AeroDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Aerospace Engineering Option: Aerospace Structures and Materials", marker="BEng in Aerospace Engineering", short_name="AERO", scraper_class=AeroDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Aerospace Engineering Option: Avionics and Aerospace Systems", marker="BEng in Aerospace Engineering", short_name="AERO", scraper_class=AeroDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Building Engineering", short_name="BLDG", scraper_class=BldgDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Chemical Engineering", short_name="CHEM", scraper_class=ChemDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Civil Engineering", short_name="CIVL", scraper_class=CiviDegreeScraper),

@@ -152,9 +152,9 @@ class TestAeroDegreeScraper:
 
     def test_init(self):
         """Test AeroDegreeScraper initialization and degree name splitting"""
-        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", "AERO", "http://test.com")
         
-        assert scraper.degree_name == "BEng in Aerospace Engineering - Option A"
+        assert scraper.degree_name == "BEng in Aerospace Engineering Option: Aerodynamics and Propulsion"
         assert scraper.degree_short_name == "AERO"
         assert scraper.requirements_url == "http://test.com"
         assert scraper.degree_name_without_option == "BEng in Aerospace Engineering"
@@ -164,7 +164,7 @@ class TestAeroDegreeScraper:
         """Test successfully finding program node using degree_name_without_option"""
         soup = BeautifulSoup('<div class="program-node" title="BEng in Aerospace Engineering"></div>', 'html.parser')
         
-        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", "AERO", "http://test.com")
         result = scraper._get_program_node(soup)
         
         assert result is not None
@@ -174,9 +174,9 @@ class TestAeroDegreeScraper:
         """Test when program node is not found"""
         soup = BeautifulSoup('<div>No matching content</div>', 'html.parser')
         
-        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", "AERO", "http://test.com")
         
-        with pytest.raises(ValueError, match="Program node for 'BEng in Aerospace Engineering - Option A' not found"):
+        with pytest.raises(ValueError, match="Program node for 'BEng in Aerospace Engineering Option: Aerodynamics and Propulsion' not found"):
             scraper._get_program_node(soup)
 
     @patch('scraper.gina_cody_degree_scraper.get_soup')
@@ -199,7 +199,7 @@ class TestAeroDegreeScraper:
         mock_get_soup.return_value = option_soup
         
         program_node = BeautifulSoup('<table></table>', 'html.parser')
-        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", "AERO", "http://test.com")
         
         result = scraper._get_course_pools_without_courses(program_node)
         
@@ -217,7 +217,7 @@ class TestAeroDegreeScraper:
             (AnchorLink(text="Electives", url="http://test.com"), 15.0)
         ]
         
-        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", "AERO", "http://test.com")
         pool_credits = scraper._remove_option_course_pools(coursepools)
         
         # Should return the credits from the first option pool
@@ -238,7 +238,7 @@ class TestAeroDegreeScraper:
             (AnchorLink(text="Electives", url="http://test.com"), 15.0)
         ]
         
-        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", "AERO", "http://test.com")
         pool_credits = scraper._remove_option_course_pools(coursepools)
         
         # Should return 0 credits when no options found
@@ -257,7 +257,7 @@ class TestAeroDegreeScraper:
             courses=["ENGR 201", "ELEC 275", "MATH 205"]
         )
         
-        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", "AERO", "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
         
         scraper._handle_special_cases()
