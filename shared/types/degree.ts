@@ -4,6 +4,7 @@ export interface DegreeData {
   name: string;
   totalCredits: number;
   coursePools?: string[];
+  degreeType?: string;
 }
 export interface CoursePoolInfo {
   _id: string;

@@ -7,6 +7,8 @@ services:
       context: ./Back-End/python_utils
       dockerfile: Dockerfile
     container_name: python_utils_service
+    volumes:
+      - python-utils-data:/app/data
     ports:
       - "15001:15001"
     env_file:
@@ -99,5 +101,6 @@ networks:
 volumes:
   redis-data:
   mongodb-data:
+  python-utils-data:
   influxdb-data:
   grafana-data:
