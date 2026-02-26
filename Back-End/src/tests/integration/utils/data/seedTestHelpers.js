@@ -58,9 +58,8 @@ function validateFileStructure(degreeData, fileName) {
 // Extract key metrics from degree data for logging
 function extractDegreeMetrics(degreeData) {
   const degreeId = degreeData.degree._id;
-  const coursesCount = degreeData.courses?.length || 0;
-  const poolsCount = degreeData.course_pool?.length || 0;
-  return { degreeId, coursesCount, poolsCount };
+  const poolsCount = degreeData.coursePools.length || 0;
+  return { degreeId, poolsCount };
 }
 
 // Log progress for each processed file
@@ -69,11 +68,10 @@ function logFileProgress(
   totalFiles,
   file,
   degreeId,
-  coursesCount,
   poolsCount,
 ) {
   console.log(
-    `[${index + 1}/${totalFiles}] Processing file: ${file} (ID: ${degreeId}, ${coursesCount} courses, ${poolsCount} pools)`,
+    `[${index + 1}/${totalFiles}] Processing file: ${file} (ID: ${degreeId}, ${poolsCount} pools)`,
   );
 }
 
@@ -83,11 +81,10 @@ async function processDegreeFile(file, index, totalFiles) {
 
   // Parse and validate file structure
   const degreeData = parseAndValidateDegreeFile(filePath, file);
-  const { degreeId, coursesCount, poolsCount } =
-    extractDegreeMetrics(degreeData);
+  const { degreeId, poolsCount } = extractDegreeMetrics(degreeData);
 
   // Log progress
-  logFileProgress(index, totalFiles, file, degreeId, coursesCount, poolsCount);
+  logFileProgress(index, totalFiles, file, degreeId, poolsCount);
 
   // Validate degree integrity
   const errorReporter = await validateDegreeIntegrity(degreeData);
@@ -97,13 +94,12 @@ async function processDegreeFile(file, index, totalFiles) {
     return {
       degreeId,
       errorReporter,
-      coursesCount,
       poolsCount,
       hasErrors: true,
     };
   } else {
     console.log(`Successfully validated: ${degreeId}`);
-    return { degreeId, coursesCount, poolsCount, hasErrors: false };
+    return { degreeId, poolsCount, hasErrors: false };
   }
 }
 

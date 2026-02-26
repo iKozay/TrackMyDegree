@@ -7,9 +7,9 @@ jest.mock('@sentry/node', () => ({
   captureException: jest.fn(),
 }));
 
-// Mock the sectionController module
+// Mock the pythonUtilsApi module
 const mockGetCourseSchedule = jest.fn();
-jest.mock('../controllers/sectionController', () => ({
+jest.mock('@utils/pythonUtilsApi', () => ({
   getCourseSchedule: mockGetCourseSchedule,
 }));
 
@@ -34,13 +34,58 @@ describe('Sections Routes', () => {
 
   describe('GET /section/schedule', () => {
     it('should return 200 and course schedule for valid input', async () => {
-      const mockResponse = { data: { schedule: 'mock schedule' } };
+      const mockResponse = [
+        {
+          "courseID": "049701",
+          "termCode": "2244",
+          "session": "13W",
+          "subject": "COMP",
+          "catalog": "432",
+          "section": "W",
+          "componentCode": "LEC",
+          "componentDescription": "Lecture",
+          "classNumber": "6154",
+          "classAssociation": "1",
+          "courseTitle": "MACHINE LEARNING",
+          "topicID": "",
+          "topicDescription": "",
+          "classStatus": "Active",
+          "locationCode": "SGW",
+          "instructionModeCode": "P",
+          "instructionModeDescription": "In Person",
+          "meetingPatternNumber": "1",
+          "roomCode": "H937",
+          "buildingCode": "H",
+          "room": "937",
+          "classStartTime": "17.45.00",
+          "classEndTime": "20.15.00",
+          "mondays": "Y",
+          "tuesdays": "N",
+          "wednesdays": "N",
+          "thursdays": "N",
+          "fridays": "N",
+          "saturdays": "N",
+          "sundays": "N",
+          "classStartDate": "13/01/2025",
+          "classEndDate": "12/04/2025",
+          "career": "Undergraduate",
+          "departmentCode": "COMPSOEN",
+          "departmentDescription": "Computer Science & Software Engineering",
+          "facultyCode": "ENCS",
+          "facultyDescription": "Gina Cody School of Engineering & Computer Science",
+          "enrollmentCapacity": "110",
+          "currentEnrollment": "86",
+          "waitlistCapacity": "12",
+          "currentWaitlistTotal": "0",
+          "hasSeatReserved": ""
+        }
+      ];
       mockGetCourseSchedule.mockResolvedValueOnce(mockResponse);
       const response = await request(app)
         .get('/section/schedule')
         .query({ subject: 'SOEN', catalog: '490' });
       expect(response.status).toBe(HTTP.OK);
-      expect(response.body).toEqual(mockResponse.data);
+      expect(response.body).toEqual(mockResponse);
       expect(mockGetCourseSchedule).toHaveBeenCalledWith('SOEN', '490');
     });
 
