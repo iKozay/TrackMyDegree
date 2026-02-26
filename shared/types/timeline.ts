@@ -2,7 +2,8 @@ import {
   CoursePoolInfo,
   DegreeData,
 } from './degree';
-import {  CourseStatus } from '../../Back-End/src/types/transcript';
+
+export type CourseStatus = "completed" | "incomplete" | "inprogress" | "planned";
 
 export interface TimelineResult {
   _id?: string; 
