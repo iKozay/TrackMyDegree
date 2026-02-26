@@ -20,13 +20,20 @@ export default function RequirementsSelectPage() {
         });
         if (response.ok) {
           const data = await response.json();
-          if (data.forms && data.forms.length > 0) {
-            // Normalize: API returns programId, static data uses id
+          if (data.forms) {
+            // Normalize API forms
             const normalized = data.forms.map((f) => ({
               ...f,
               id: f.id || f.programId,
             }));
-            setPrograms(normalized);
+
+            // Merge static forms with API forms
+            // Forms from the API will override static forms with the same ID
+            const mergedMap = new Map();
+            staticPrograms.forEach(p => mergedMap.set(p.id, p));
+            normalized.forEach(p => mergedMap.set(p.id, p));
+
+            setPrograms(Array.from(mergedMap.values()));
           }
         }
       } catch (error) {
