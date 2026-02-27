@@ -333,14 +333,12 @@ const InformationForm = () => {
         )}
       </form>
 
-      <div className="setup-action-row">
-        <button className="btn btn-secondary setup-action-btn cancel-button" onClick={handleCancel}>
-          Cancel
-        </button>
-        <button onClick={handleNextButtonClick} className="btn btn-primary setup-action-btn next-button">
-          Next
-        </button>
-      </div>
+      <button className="cancel-button" onClick={handleCancel}>
+        Cancel
+      </button>
+      <button className="next-button" onClick={handleNextButtonClick} >
+        Next
+      </button>
     </div>
   );
 };
