@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/node';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'node:path';
@@ -32,10 +31,12 @@ import {
   resetPasswordLimiter,
   signupLimiter,
 } from '@middleware/rateLimiter';
+import { getSentryProfilingIntegrations } from '@utils/misc';
+
 // sentry init
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
-  integrations: [nodeProfilingIntegration()],
+  integrations: getSentryProfilingIntegrations(),
   tracesSampleRate: 1,
   profilesSampleRate: 1,
 });

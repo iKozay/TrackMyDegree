@@ -29,6 +29,11 @@ const CoursePool: React.FC<CoursePoolProps> = ({
   const togglePool = (name: string) =>
     setExpandedPools((prev) => ({ ...prev, [name]: !prev[name] }));
 
+  const isInTimeline = (courseId: CourseCode): boolean => {
+    const status = courses[courseId]?.status?.status;
+    return status === "completed" || status === "planned";
+  };
+
   const formatPoolName = (name: string) => {
     // Modify ECP course pools to retain 'ECP' and format the rest of the name
     if (name.startsWith("ECP_")) {
@@ -51,17 +56,21 @@ const CoursePool: React.FC<CoursePoolProps> = ({
       </div>
 
       {pools.map((pool, index) => {
-        // Filter courses for this pool based on search
+        // Hide completed/planned courses because they are already shown on the timeline.
+        const incompleteCourseIds = pool.courses.filter(
+          (courseId) => !isInTimeline(courseId)
+        );
+
+        // Filter incomplete courses for this pool based on search
         const visibleCourseIds: CourseCode[] = hasActiveSearch
-          ? pool.courses.filter((courseId) => {
+          ? incompleteCourseIds.filter((courseId) => {
               const course = courses[courseId];
               if (!course) return false;
               const code = course.id.toLowerCase();
               const title = course.title.toLowerCase();
               return code.includes(search) || title.includes(search);
             })
-          : pool.courses;
-
+          : incompleteCourseIds;
         const isExpanded = hasActiveSearch
           ? visibleCourseIds.length > 0 // when searching, auto-expand pools with matches
           : !!expandedPools[pool.name];

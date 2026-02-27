@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { TimelineHeader } from "../../components/TimelineHeader";
 import * as authHook from "../../hooks/useAuth";
 import type { AuthContextValue } from "../../types/auth.types";
+import { toast } from "react-toastify";
 
 vi.mock("../../utils/timelineUtils", async () => {
   const actual = await vi.importActual<
@@ -18,6 +19,13 @@ import { downloadTimelinePdf } from "../../utils/timelineUtils";
 
 vi.mock("../../hooks/useAuth", () => ({
   useAuth: vi.fn(),
+}));
+
+vi.mock("react-toastify", () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+  },
 }));
 
 describe("TimelineHeader", () => {
@@ -53,6 +61,8 @@ describe("TimelineHeader", () => {
         writeText: vi.fn().mockResolvedValue(undefined),
       },
     });
+    vi.mocked(toast.success).mockReset();
+    vi.mocked(toast.error).mockReset();
   });
 
   it("renders credits summary correctly", () => {
@@ -102,7 +112,7 @@ describe("TimelineHeader", () => {
     expect(onRedo).toHaveBeenCalledTimes(1);
   });
 
-  it("renders Share and Download buttons", () => {
+  it("renders sharing and download buttons", () => {
     render(<TimelineHeader {...baseProps} />);
 
     expect(screen.getByRole("button", { name: /share/i })).toBeInTheDocument();
@@ -125,12 +135,15 @@ describe("TimelineHeader", () => {
     expect(onOpenModal).toHaveBeenCalledWith(true, "insights");
   });
 
-  it("copies URL when Share is clicked", async () => {
+  it("copies URL and shows confirmation when Share is clicked", async () => {
     render(<TimelineHeader {...baseProps} />);
 
     fireEvent.click(screen.getByRole("button", { name: /share/i }));
 
     expect(globalThis.navigator.clipboard.writeText).toHaveBeenCalled();
+    await vi.waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith("Timeline link copied to clipboard");
+    });
   });
 
   it("calls downloadTimelinePdf when Download is clicked", () => {
@@ -154,6 +167,7 @@ describe("TimelineHeader", () => {
     // Wait for the promise rejection to propagate
     await vi.waitFor(() => {
       expect(errorSpy).toHaveBeenCalled();
+      expect(toast.error).toHaveBeenCalledWith("Could not copy link.");
     });
   });
 

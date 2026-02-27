@@ -44,3 +44,18 @@ export function isTermInProgress(term: string | undefined): boolean {
 
   return today >= start && today <= end;
 }
+
+export function getSentryProfilingIntegrations() {
+  try {
+    // Optional native dependency; keep backend bootable if binary is unavailable.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { nodeProfilingIntegration } = require('@sentry/profiling-node');
+    return [nodeProfilingIntegration()];
+  } catch (error) {
+    console.warn(
+      'Sentry profiling disabled: native profiler binary is unavailable.',
+      error,
+    );
+    return [];
+  }
+}

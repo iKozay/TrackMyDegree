@@ -13,6 +13,7 @@ import {
   FileText
 } from "lucide-react";
 import { downloadTimelinePdf } from "../utils/timelineUtils";
+import { toast } from "react-toastify";
 
 interface HistoryControlsProps {
   canUndo: boolean;
@@ -21,20 +22,19 @@ interface HistoryControlsProps {
   onRedo: () => void;
 }
 
-function shareTimeline(
+async function shareTimeline(
   setShow: React.Dispatch<React.SetStateAction<boolean>>
-): void {
+): Promise<void> {
   // copy current url in browser to clipboard
-  navigator.clipboard
-    .writeText(globalThis.location.href)
-    .then(() => {
-      console.log("Timeline URL copied to clipboard");
-    })
-    .catch((err) => {
-      console.error("Failed to copy timeline URL: ", err);
-    });
-  setShow(true);
-  setTimeout(() => setShow(false), 2000);
+  try {
+    await navigator.clipboard.writeText(globalThis.location.href);
+    toast.success("Timeline link copied to clipboard");
+    setShow(true);
+    setTimeout(() => setShow(false), 2000);
+  } catch (err) {
+    console.error("Failed to copy timeline URL: ", err);
+    toast.error("Could not copy link.");
+  }
 }
 
 const HistoryControls: React.FC<HistoryControlsProps> = ({
