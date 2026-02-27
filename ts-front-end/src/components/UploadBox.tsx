@@ -7,7 +7,11 @@ import { api } from "../api/http-api-client.ts";
 
 const REDIRECT_DELAY_MS = 1000;
 
-const UploadBox = () => {
+interface UploadBoxProps {
+  toggleModal: () => void;
+}
+
+const UploadBox: React.FC<UploadBoxProps> = ({ toggleModal }) => {
   const navigate = useNavigate();
 
   const [fileName, setFileName] = useState<string>("No file chosen");
@@ -100,10 +104,9 @@ const UploadBox = () => {
 
   return (
     <>
-      <h2>Upload Acceptance Letter or Unofficial Transcript</h2>
+      <h2>Acceptance Letter or Unofficial Transcript</h2>
       <p>
-        Upload your acceptance letter or your unofficial transcript to
-        automatically fill out the required information
+        Upload your acceptance letter or unofficial transcript to auto-generate your timeline.
       </p>
 
       <div
@@ -111,7 +114,7 @@ const UploadBox = () => {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}>
-        <p>Drag and Drop file</p>
+        <p className ="drag-drop">Drag and Drop file</p>
         or
         <label htmlFor="file-upload" className="file-label">
           Browse
@@ -128,19 +131,21 @@ const UploadBox = () => {
         <p className="file-name">{fileName}</p>
       </div>
 
-      <div className="setup-action-row">
-        <button
-          className="btn btn-secondary setup-action-btn cancel-button"
-          onClick={handleCancel}
-          disabled={isUploading}>
-          Cancel
-        </button>
+      <button className="cancel-button" onClick={handleCancel} disabled={isUploading}>
+        Cancel
+      </button>
 
-        <button
-          className="btn btn-success setup-action-btn create-button"
-          onClick={handleSubmit}
-          disabled={isUploading}>
-          {isUploading ? "Uploading…" : "Create Timeline"}
+      <button
+        className="create-button"
+        onClick={handleSubmit}
+        disabled={isUploading}>
+        {isUploading ? "Uploading…" : "Create Timeline"}
+      </button>
+
+      <div className="modal-trigger">
+        <p>Need help downloading your transcript?</p>
+        <button onClick={toggleModal} className="modern-link-btn">
+          View Guide
         </button>
       </div>
     </>

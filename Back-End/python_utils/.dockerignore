@@ -17,10 +17,8 @@ tests/
 coverage/
 coverage.*
 .coveragerc
+htmlcov/
 
 # Docker files not needed in context
 Dockerfile
 .dockerignore
-
-# Ignore course-data folder
-scraper/course-data/

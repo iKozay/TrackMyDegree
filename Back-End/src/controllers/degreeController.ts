@@ -97,6 +97,7 @@ export class DegreeController extends BaseMongoController<any> {
         _id: result.data._id,
         name: result.data.name,
         totalCredits: result.data.totalCredits,
+        degreeType: result.data.degreeType,
         coursePools: result.data.coursePools || [],
       };
     } catch (error) {
@@ -119,6 +120,7 @@ export class DegreeController extends BaseMongoController<any> {
         _id: result.data._id,
         name: result.data.name,
         totalCredits: result.data.totalCredits,
+        degreeType: result.data.degreeType,
         coursePools: result.data.coursePools || [],
       };
     } catch (error) {
@@ -132,8 +134,8 @@ export class DegreeController extends BaseMongoController<any> {
   async readAllDegrees(): Promise<DegreeData[]> {
     try {
       const result = await this.findAll(
-        { _id: { $not: /ECP/ } },
-        { select: 'name totalCredits', sort: { name: 1 } },
+        { degreeType: { $nin: ['ECP', 'Co-op'] } },
+        { select: 'name totalCredits degreeType', sort: { name: 1 } },
       );
 
       if (!result.success) {
@@ -144,6 +146,7 @@ export class DegreeController extends BaseMongoController<any> {
         _id: degree._id,
         name: degree.name,
         totalCredits: degree.totalCredits,
+        degreeType: degree.degreeType,
         coursePools: degree.coursePools,
       }));
     } catch (error) {

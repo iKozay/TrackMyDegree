@@ -21,12 +21,12 @@ const {
 
 // Main function to validate degree integrity takes degree data from the scraper
 async function validateDegreeIntegrity(degreeData) {
-  const { degree, course_pool } = degreeData;
+  const { degree, coursePools } = degreeData;
   const errorReporter = new ValidationErrorReporter();
 
   // Batch collect all IDs first
-  const poolIds = course_pool?.map((pool) => pool._id) || [];
-  const allCourseIds = course_pool?.flatMap((pool) => pool.courses || []) || [];
+  const poolIds = degree.coursePools || [];
+  const allCourseIds = coursePools?.flatMap((pool) => pool.courses || []) || [];
 
   // Single batch queries, parallel execution. Reduces number of DB calls for faster test execution time.
   const [dbDegree, dbPools, dbCourses] = await Promise.all([
@@ -50,6 +50,7 @@ async function validateDegreeIntegrity(degreeData) {
     validateFields(degree, dbDegree, {
       name: 'name',
       totalCredits: 'totalCredits',
+      degreeType: 'degreeType',
     });
   } catch (error) {
     errorReporter.addValidationFailure(
@@ -61,7 +62,7 @@ async function validateDegreeIntegrity(degreeData) {
   }
 
   // Validate course pools
-  validateCoursePoolIntegrity(course_pool, {
+  validateCoursePoolIntegrity(coursePools, {
     poolMap,
     courseSet,
     dbDegree,
@@ -96,13 +97,13 @@ function validateCoursePoolFields(scraperPool, dbPool, errorReporter) {
 }
 // validate integrity of course pools within a degree using pre-fetched data from batch queries
 function validateCoursePoolIntegrity(
-  course_pool,
+  coursePool,
   { poolMap, courseSet, dbDegree, errorReporter, degreeId },
 ) {
   // Validate course pools existence
-  if (!course_pool || !Array.isArray(course_pool)) return;
+  if (!coursePool || !Array.isArray(coursePool)) return;
   // Iterate through each course pool in the degree data
-  for (const scraperPool of course_pool) {
+  for (const scraperPool of coursePool) {
     // Get pool ID string from scraper data
     const scraperPoolId = scraperPool._id.toString();
         // look up corresponding DB pool
@@ -157,7 +158,7 @@ function validateCoursePrereqCoreqIntegrity(
       errorReporter.addValidationFailure(
         'course_rules_missing',
         `${fieldName} requirements`,
-        `Missing ${fieldName} requirements: ${JSON.stringify(comparison.missing)}`,
+        `Missing ${fieldName} requirements in ${courseId}: ${JSON.stringify(comparison.missing)}`,
         { degreeId: degreeId, courseId, fieldName }
       );
       console.log(`Missing ${fieldName} requirements for course ${courseId}:`, comparison.missing);

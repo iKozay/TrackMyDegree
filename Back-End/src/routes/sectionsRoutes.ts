@@ -1,7 +1,7 @@
 import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import * as Sentry from '@sentry/node';
-import sectionController from '@controllers/sectionController';
+import {getCourseSchedule} from '@utils/pythonUtilsApi';
 
 const router = express.Router();
 
@@ -26,12 +26,9 @@ router.get('/schedule', async (req: Request, res: Response) => {
     }
 
     // Call external API through proxy
-    const response = await sectionController.getCourseSchedule(
-      subject,
-      catalog,
-    );
+    const response = await getCourseSchedule(subject, catalog);
 
-    res.status(HTTP.OK).json(response.data);
+    res.status(HTTP.OK).json(response);
   } catch (error) {
     const errMsg = 'Error fetching course schedule';
     console.error(errMsg, error);

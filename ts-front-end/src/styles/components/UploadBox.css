@@ -1,54 +1,87 @@
-.upload-container-al {
-  width: 100%;
+/* Upload Box */
+.upload-box-wrapper {
+  margin-top: 20px;
 }
 
-.upload-container-al .upload-box-al {
-  height: 165px;
-  margin-top: 0.3rem;
-  border: 1px dashed #d1d5db;
-  border-radius: 8px;
+.upload-box-al {
+  margin-bottom: 10px;
+  height: 160px;
+  border: 2px dashed #ccc;
+  border-radius: 14px;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  gap: 0.3rem;
-  color: #6b7280;
-  text-align: center;
-  background: #ffffff;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: 0.3s;
 }
 
-.upload-container-al .upload-box-al p {
-  margin: 0;
-  font-size: 0.9rem;
+.upload-box-al:hover {
+  border-color: #8b0000;
+  background-color: #fafafa;
+  transform: scale(1.02);
 }
 
-.upload-container-al .file-label {
+.drag-drop {
+  margin-top: 15px;
+}
+
+/* File Box */
+.file-name {
+  font-family: 'DM Sans', sans-serif;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #777;
+}
+
+.file-label {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 0.5rem 1rem;
+  background-color: #2563eb;    
   color: #ffffff;
-  background: #374151;
-  border-radius: 6px;
-  padding: 0.35rem 0.8rem;
+  border-radius: 0.375rem;  
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
-  margin: 0.15rem 0;
-  font-size: 0.86rem;
+  border: 1px solid #1d4ed8;
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+
+.file-label:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+.file-label:active {
+  background-color: #1e40af;
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.file-label:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+/* Modal trigger */
+.modal-trigger {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.modern-link-btn {
+  background: none;
+  border: none;
+  color: #0c6fd9;
   font-weight: 600;
+  cursor: pointer;
 }
 
-.upload-container-al .file-name {
-  font-size: 0.82rem;
-  color: #6b7280;
-  max-width: 95%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.upload-container-al .upload-box-al.dragover {
-  border-color: #9ca3af;
-  background: #f9fafb;
-}
-
-.upload-container-al .create-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
+.modern-link-btn:hover {
+  transform: scale(1.1);
 }

@@ -1,4 +1,4 @@
-import "../styles/TimelineSetupPage.css";
+import "../styles/components/InformationForm.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/http-api-client.ts";
@@ -209,21 +209,20 @@ const InformationForm = () => {
   };
 
   return (
-    <div className="form-container-al">
-      <h2>Required Information</h2>
+    <div className="form-wrapper">
+      <h2>Manual Setup</h2>
       <p>
-        Manually fill out the following information so we can help you create
-        the perfect timeline
+        Fill in your details to generate a personalized academic timeline.
       </p>
       <form>
         <div>
-          <label htmlFor="degree-concentration">Degree Concentration:</label>
+          <label htmlFor="degree-concentration">Degree Concentration</label>
           <select
             id="degree-concentration"
             className={`input-field ${selectedDegreeId ? "degree-selected" : ""}`}
             value={selectedDegreeId}
             onChange={(e) => setSelectedDegreeId(e.target.value)}>
-            <option value="">-- Select a Degree --</option>
+            <option value="" disabled hidden>Select Degree</option>
             {degrees.length > 0 ? (
               degrees
                 .sort((a, b) => a.name.localeCompare(b.name))
@@ -241,13 +240,13 @@ const InformationForm = () => {
         </div>
 
         <div>
-          <label htmlFor="starting-term">Starting Term:</label>
+          <label htmlFor="starting-term">Starting Term</label>
           <select
             id="starting-term"
             className="input-field"
             value={selectedTerm}
             onChange={(e) => setSelectedTerm(e.target.value)}>
-            <option value="">-- Select Term --</option>
+            <option value="" disabled hidden>Select Term</option>
             <option value="Winter">Winter</option>
             <option value="Summer">Summer</option>
             <option value="Fall">Fall</option>
@@ -255,13 +254,13 @@ const InformationForm = () => {
         </div>
 
         <div>
-          <label htmlFor="starting-year">Starting Year:</label>
+          <label htmlFor="starting-year">Starting Year</label>
           <select
             id="starting-year"
             className="input-field"
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}>
-            <option value="">-- Select Year --</option>
+            <option value="" disabled hidden>Select Year</option>
             {Array.from({ length: 2031 - 2017 + 1 }).map((_, index) => {
               const year = 2017 + index;
               return (
@@ -274,7 +273,7 @@ const InformationForm = () => {
         </div>
 
         <div className="radio-group">
-          <span className="cooo">Extended Credit Program? </span>
+          <span className="cooo">Extended Credit Program </span>
           <label>
             <input
               type="checkbox"
@@ -288,7 +287,7 @@ const InformationForm = () => {
         </div>
 
         <div className="radio-group">
-          <span className="cooo">Co-op Program? </span>
+          <span className="cooo">Co-op Program </span>
           <label>
             <input
               type="checkbox"

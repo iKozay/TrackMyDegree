@@ -3,51 +3,40 @@ import { useState } from 'react';
 import InformationForm from '../components/InformationForm';
 import UploadBox from '../components/UploadBox';
 import InstructionsModal from '../components/InstructionModal';
+import UserTimelinesSection from '../components/UserTimelinesSection';
 
-// This page creates an initial timeline using either manually entered information or by parsing an acceptance letter or a transcript
 const TimelineSetupPage = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const toggleModal = () => setIsModalOpen((prev) => !prev);
 
   return (
-    <div className="timeline-setup-page">
-      <section className="timeline-setup-shell">
-        <header className="timeline-setup-header">
-          <p className="timeline-setup-eyebrow">Plan Your Degree Path</p>
-          <h1>Build Your Timeline</h1>
-          <p className="timeline-setup-subtitle">
-            Start manually or upload a document. Both paths generate the same editable timeline.
-          </p>
-        </header>
+    <div className="timeline-page">
 
-        <div className="top-down">
-          <div className="g-container">
-            <div className="setup-card manual-card">
-              <InformationForm />
-            </div>
+      {/* Hero Section */}
+      <div className="hero-section">
+        <h1>Create Your Academic Timeline</h1>
+        <p>Plan your journey smarter. Build it manually or upload your acceptance letter / unofficial transcript.</p>
+      </div>
 
-            <div className="or-divider" aria-hidden="true">
-              <span>OR</span>
-            </div>
+      {/* Main Cards */}
+      <div className="cards-container">
 
-            <div className="setup-card upload-card">
-              <div className="upload-container-al">
-                <UploadBox />
-
-                <hr className="divider" />
-
-                <p className="transcript-help-copy">
-                  Need help finding your transcript file first?
-                </p>
-                <button onClick={toggleModal} className="open-modal-btn">
-                  How to Download Your Transcript
-                </button>
-              </div>
-            </div>
-          </div>
+        <div className="timeline-setup-card glass-card">
+          <InformationForm />
         </div>
-      </section>
+
+        <div className="divider-vertical">OR</div>
+
+        <div className="timeline-setup-card glass-card">
+          <UploadBox toggleModal={toggleModal} />
+        </div>
+
+      </div>
+
+      {/* My Timeline Section */}
+      <UserTimelinesSection />
+
       <InstructionsModal isOpen={isModalOpen} toggleModal={toggleModal} />
     </div>
   );
