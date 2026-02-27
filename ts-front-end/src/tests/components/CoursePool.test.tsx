@@ -259,6 +259,35 @@ describe("CoursePool", () => {
 
   });
 
+  it("hides completed and planned courses from the pool list", () => {
+    const onCourseSelect = vi.fn();
+
+    const coursesWithStatuses: CourseMap = {
+      ...courses,
+      "ENGR 201": {
+        ...courses["ENGR 201"],
+        status: { status: "completed", semester: "FALL 2025" as SemesterId },
+      },
+      "ENGR 233": {
+        ...courses["ENGR 233"],
+        status: { status: "planned", semester: "WINTER 2026" as SemesterId },
+      },
+    };
+
+    render(
+      <CoursePool
+        pools={pools}
+        courses={coursesWithStatuses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+      />
+    );
+
+    const input = screen.getByPlaceholderText(/search courses by code or title/i);
+    fireEvent.change(input, { target: { value: "engr" } });
+
+    expect(screen.queryByTestId("pool-courses-list")).toBeNull();
+  });
+
   
 });
-
