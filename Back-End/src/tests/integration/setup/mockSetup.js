@@ -15,18 +15,6 @@ jest.mock('redis', () => {
   };
 });
 
-jest.mock('ioredis', () =>
-  jest.fn().mockImplementation(() => ({
-    get: jest.fn().mockResolvedValue(null),
-    setex: jest.fn().mockResolvedValue('OK'),
-    del: jest.fn().mockResolvedValue(1),
-    incr: jest.fn().mockResolvedValue(1),
-    expire: jest.fn().mockResolvedValue(1),
-    quit: jest.fn().mockResolvedValue('OK'),
-    on: jest.fn(),
-  })),
-);
-
 jest.mock('@sentry/node', () => ({
   init: jest.fn(),
   captureException: jest.fn(),

@@ -1,7 +1,6 @@
 import { BaseMongoController } from './baseMongoController';
 import { Timeline } from '@models';
-import { TimelineResult, TimelineDocument,} from '@services/timeline/timelineService';
-import { CourseStatus } from '../types/transcript';
+import { TimelineResult, TimelineDocument, CourseStatus} from '@shared/timeline';
 
 
 export class TimelineController extends BaseMongoController<any> {

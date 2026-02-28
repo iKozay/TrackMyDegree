@@ -7,6 +7,8 @@ services:
       context: ./Back-End/python_utils
       dockerfile: Dockerfile
     container_name: python_utils_service
+    volumes:
+      - python-utils-data:/app/data
     ports:
       - "15001:15001"
     env_file:
@@ -35,6 +37,63 @@ services:
     networks:
       - app-network
 
+  # InfluxDB - Time-series database for k6 metrics
+  influxdb:
+    image: influxdb:1.8
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=k6
+      - INFLUXDB_HTTP_AUTH_ENABLED=false
+      # Write-path tuning — prevents "flush took higher than push interval" warnings
+      # when k6 sends a high volume of metric points (e.g., 6+ VUs, long runs).
+      # INFLUXDB_DATA_CACHE_MAX_MEMORY_SIZE: write cache before flushing to disk (default 25MB)
+      - INFLUXDB_DATA_CACHE_MAX_MEMORY_SIZE=75m
+      # INFLUXDB_DATA_CACHE_SNAPSHOT_MEMORY_SIZE: threshold to trigger mid-cycle snapshot flush
+      - INFLUXDB_DATA_CACHE_SNAPSHOT_MEMORY_SIZE=25m
+      # INFLUXDB_DATA_MAX_CONCURRENT_COMPACTIONS: limit background I/O during writes
+      - INFLUXDB_DATA_MAX_CONCURRENT_COMPACTIONS=2
+      # Disable write-ahead log fsync on every write — safe for metrics (not financial data)
+      - INFLUXDB_DATA_WAL_FSYNC_DELAY=100ms
+    volumes:
+      - influxdb-data:/var/lib/influxdb
+    networks:
+      - app-network
+
+  # Grafana - Visualization dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3001:3000"  # Grafana UI at localhost:3001
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_RENDERING_SERVER_URL=http://renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=http://grafana:3000/
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./Back-End/performance/grafana/provisioning:/etc/grafana/provisioning
+      - ./Back-End/performance/grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - influxdb
+      - renderer
+    networks:
+      - app-network
+
+  # Grafana Image Renderer - enables panel/dashboard PNG export and alerting screenshots
+  renderer:
+    image: grafana/grafana-image-renderer:latest
+    container_name: grafana-renderer
+    ports:
+      - "8081:8081"
+    environment:
+      - ENABLE_METRICS=true
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
@@ -42,3 +101,6 @@ networks:
 volumes:
   redis-data:
   mongodb-data:
+  python-utils-data:
+  influxdb-data:
+  grafana-data:

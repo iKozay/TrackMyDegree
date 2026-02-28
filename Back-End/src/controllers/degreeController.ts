@@ -2,28 +2,13 @@ import { BaseMongoController } from './baseMongoController';
 import { Degree, CoursePool, Course } from '@models';
 import { DEGREE_WITH_ID_DOES_NOT_EXIST } from '@utils/constants';
 import { CourseData } from './courseController';
-
-export interface DegreeData {
-  _id: string;
-  name: string;
-  totalCredits: number;
-  coursePools?: string[];
-}
+import {DegreeData, CoursePoolInfo} from '@shared/degree'
 
 export interface DegreeXCPData {
   degree_id: string;
   coursepool_id: string;
   credits: number;
 }
-
-export interface CoursePoolInfo {
-  _id: string;
-  name: string;
-  creditsRequired: number;
-  courses: string[];
-}
-
-
 
 export class DegreeController extends BaseMongoController<any> {
   constructor() {
@@ -112,6 +97,7 @@ export class DegreeController extends BaseMongoController<any> {
         _id: result.data._id,
         name: result.data.name,
         totalCredits: result.data.totalCredits,
+        degreeType: result.data.degreeType,
         coursePools: result.data.coursePools || [],
       };
     } catch (error) {
@@ -134,6 +120,7 @@ export class DegreeController extends BaseMongoController<any> {
         _id: result.data._id,
         name: result.data.name,
         totalCredits: result.data.totalCredits,
+        degreeType: result.data.degreeType,
         coursePools: result.data.coursePools || [],
       };
     } catch (error) {
@@ -147,8 +134,8 @@ export class DegreeController extends BaseMongoController<any> {
   async readAllDegrees(): Promise<DegreeData[]> {
     try {
       const result = await this.findAll(
-        { _id: { $not: /ECP/ } },
-        { select: 'name totalCredits', sort: { name: 1 } },
+        { degreeType: { $nin: ['ECP', 'Co-op'] } },
+        { select: 'name totalCredits degreeType', sort: { name: 1 } },
       );
 
       if (!result.success) {
@@ -159,6 +146,7 @@ export class DegreeController extends BaseMongoController<any> {
         _id: degree._id,
         name: degree.name,
         totalCredits: degree.totalCredits,
+        degreeType: degree.degreeType,
         coursePools: degree.coursePools,
       }));
     } catch (error) {

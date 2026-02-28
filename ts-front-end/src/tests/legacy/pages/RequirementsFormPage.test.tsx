@@ -25,7 +25,7 @@ describe('RequirementsFormPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Mock globalThis.alert
-    vi.spyOn(globalThis, 'alert').mockImplementation(() => {});
+    vi.spyOn(globalThis, 'alert').mockImplementation(() => { });
   });
 
   afterEach(() => {
@@ -33,140 +33,140 @@ describe('RequirementsFormPage', () => {
   });
 
   describe('Component Rendering', () => {
-    test('renders the page with software engineering program', () => {
+    test('renders the page with software engineering program', async () => {
       renderWithRouter('software-engineering');
-      
-      expect(screen.getByText('Credit Count Form')).toBeInTheDocument();
+
+      expect(await screen.findByText('Credit Count Form')).toBeInTheDocument();
       expect(screen.getByText(/Software Engineering/)).toBeInTheDocument();
       expect(screen.getByText(/Manually track your degree progress/)).toBeInTheDocument();
     });
 
-    test('renders the page with computer science program', () => {
+    test('renders the page with computer science program', async () => {
       renderWithRouter('computer-science');
-      
-      expect(screen.getByText('Credit Count Form')).toBeInTheDocument();
-      
+
+      expect(await screen.findByText('Credit Count Form')).toBeInTheDocument();
+
       // Check for the exact program title in the paragraph
       expect(screen.getByText(/Computer Science — Manually track/)).toBeInTheDocument();
-      
+
       // Check iframe title which should be unique
       const iframe = screen.getByTitle('Computer Science credit count form');
       expect(iframe).toBeInTheDocument();
     });
 
-    test('renders the page with double major programs', () => {
+    test('renders the page with double major programs', async () => {
       renderWithRouter('comp-health-life-science');
-      
-      expect(screen.getByText(/Computer Science and Health & Life Science/)).toBeInTheDocument();
+
+      expect(await screen.findByText(/Computer Science and Health & Life Science/)).toBeInTheDocument();
     });
 
-    test('renders error message for unknown program', () => {
+    test('renders error message for unknown program', async () => {
       renderWithRouter('non-existent-program');
-      
-      expect(screen.getByText('Credit Count Form')).toBeInTheDocument();
+
+      expect(await screen.findByText('Credit Count Form')).toBeInTheDocument();
       expect(screen.getByText(/Unknown program:/)).toBeInTheDocument();
       expect(screen.getByText('non-existent-program')).toBeInTheDocument();
     });
 
-    test('renders all action buttons', () => {
+    test('renders all action buttons', async () => {
       renderWithRouter('software-engineering');
-      
-      expect(screen.getByText(/Back to Form Selection/)).toBeInTheDocument();
+
+      expect(await screen.findByText(/Back to Form Selection/)).toBeInTheDocument();
       expect(screen.getByText(/Save Form/)).toBeInTheDocument();
       expect(screen.getByText(/Clear Form/)).toBeInTheDocument();
       expect(screen.getByText(/Download\/Print/)).toBeInTheDocument();
     });
 
-    test('renders iframe with correct PDF path', () => {
+    test('renders iframe with correct PDF path', async () => {
       renderWithRouter('software-engineering');
-      
-      const iframe = screen.getByTitle('Software Engineering credit count form');
+
+      const iframe = await screen.findByTitle('Software Engineering credit count form');
       expect(iframe).toBeInTheDocument();
       expect(iframe).toHaveAttribute('src', expect.stringContaining('/credit-forms/software-engineering.pdf'));
     });
 
-    test('renders iframe for all program types', () => {
+    test('renders iframe for all program types', async () => {
       const testCases = [
         { id: 'software-engineering', title: 'Software Engineering', pdf: 'software-engineering.pdf' },
         { id: 'computer-science', title: 'Computer Science', pdf: 'computer-science.pdf' },
         { id: 'comp-arts', title: 'Computer Science and Computer Arts', pdf: 'comp-arts-double-major.pdf' },
       ];
 
-      testCases.forEach(({ id, title, pdf }) => {
+      for (const { id, title, pdf } of testCases) {
         const { unmount } = renderWithRouter(id);
-        const iframe = screen.getByTitle(`${title} credit count form`);
+        const iframe = await screen.findByTitle(`${title} credit count form`);
         expect(iframe).toHaveAttribute('src', expect.stringContaining(pdf));
         unmount();
-      });
+      }
     });
   });
 
   describe('Button Interactions', () => {
-    test('Back button navigates to /requirements', () => {
+    test('Back button navigates to /requirements', async () => {
       renderWithRouter('software-engineering');
-      
-      const backButton = screen.getAllByText(/Back to Form Selection/)[0];
+
+      const backButton = (await screen.findAllByText(/Back to Form Selection/))[0];
       fireEvent.click(backButton);
-      
+
       expect(mockNavigate).toHaveBeenCalledWith('/requirements');
     });
 
-    test('Back button works on error page', () => {
+    test('Back button works on error page', async () => {
       renderWithRouter('non-existent-program');
-      
-      const backButton = screen.getByText(/Back to Form Selection/);
+
+      const backButton = await screen.findByText(/Back to Form Selection/);
       fireEvent.click(backButton);
-      
+
       expect(mockNavigate).toHaveBeenCalledWith('/requirements');
     });
 
-    test('Save button shows placeholder alert message', () => {
+    test('Save button shows placeholder alert message', async () => {
       renderWithRouter('computer-science');
-      
-      const saveButton = screen.getByText(/Save Form/);
+
+      const saveButton = await screen.findByText(/Save Form/);
       fireEvent.click(saveButton);
-      
+
       expect(globalThis.alert).toHaveBeenCalledWith('Saving will require login—placeholder for now.');
     });
 
-    test('Clear button updates iframe src with cache buster', () => {
+    test('Clear button updates iframe src with cache buster', async () => {
       renderWithRouter('software-engineering');
-      
-      const iframe: HTMLIFrameElement  = screen.getByTitle('Software Engineering credit count form');
+
+      const iframe: HTMLIFrameElement = await screen.findByTitle('Software Engineering credit count form');
       const initialSrc = iframe.src;
-      
+
       const clearButton = screen.getByText(/Clear Form/);
       fireEvent.click(clearButton);
-      
+
       // Check that src has changed (cache buster added)
       expect(iframe.src).not.toBe(initialSrc);
       expect(iframe.src).toContain('?v=1');
     });
 
-    test('Multiple clear clicks increment cache buster', () => {
+    test('Multiple clear clicks increment cache buster', async () => {
       renderWithRouter('comp-data-science');
-      
-      const clearButton = screen.getByText(/Clear Form/);
-      const iframe: HTMLIFrameElement  = screen.getByTitle('Computer Science and Data Science credit count form');
-      
+
+      const clearButton = await screen.findByText(/Clear Form/);
+      const iframe: HTMLIFrameElement = screen.getByTitle('Computer Science and Data Science credit count form');
+
       fireEvent.click(clearButton);
       expect(iframe.src).toContain('?v=1');
-      
+
       fireEvent.click(clearButton);
       expect(iframe.src).toContain('?v=2');
-      
+
       fireEvent.click(clearButton);
       expect(iframe.src).toContain('?v=3');
     });
 
-    test('Download/Print button attempts to print iframe', () => {
+    test('Download/Print button attempts to print iframe', async () => {
       renderWithRouter('software-engineering');
-      
+
       // Mock iframe ref methods
       const mockPrint = vi.fn();
       const mockFocus = vi.fn();
-      
-      const iframe = screen.getByTitle('Software Engineering credit count form');
+
+      const iframe = await screen.findByTitle('Software Engineering credit count form');
       Object.defineProperty(iframe, 'contentWindow', {
         value: {
           print: mockPrint,
@@ -175,19 +175,19 @@ describe('RequirementsFormPage', () => {
         writable: true,
         configurable: true,
       });
-      
+
       const printButton = screen.getByText(/Download\/Print/);
       fireEvent.click(printButton);
-      
+
       expect(mockFocus).toHaveBeenCalled();
       expect(mockPrint).toHaveBeenCalled();
     });
 
-    test('Download/Print handles missing contentWindow gracefully', () => {
+    test('Download/Print handles missing contentWindow gracefully', async () => {
       renderWithRouter('computer-science');
-      
-      const iframe = screen.getByTitle('Computer Science credit count form');
-      
+
+      const iframe = await screen.findByTitle('Computer Science credit count form');
+
       // Mock contentWindow to throw error when accessing print
       Object.defineProperty(iframe, 'contentWindow', {
         get: () => {
@@ -195,10 +195,10 @@ describe('RequirementsFormPage', () => {
         },
         configurable: true,
       });
-      
+
       const printButton = screen.getByText(/Download\/Print/);
       fireEvent.click(printButton);
-      
+
       expect(globalThis.alert).toHaveBeenCalledWith(
         expect.stringContaining('Unable to trigger print automatically')
       );
@@ -206,48 +206,51 @@ describe('RequirementsFormPage', () => {
   });
 
   describe('ActionButton Component', () => {
-    test('applies hover effects on mouse enter and leave', () => {
+    test('applies hover effects on mouse enter and leave', async () => {
       renderWithRouter('software-engineering');
-      
-      const button = screen.getByText(/Back to Form Selection/);
-      
+
+      const button = await screen.findByText(/Back to Form Selection/);
+
       // Initial state
       expect(button.style.transform).toBe('');
-      
+
       // Hover
       fireEvent.mouseEnter(button);
       expect(button.style.transform).toBe('translateY(-1px)');
-      
+
       // Leave
       fireEvent.mouseLeave(button);
       expect(button.style.transform).toBe('none');
     });
 
-    test('solid variant button (Save) has correct styles', () => {
+    test('solid variant button (Save) has correct styles', async () => {
       renderWithRouter('software-engineering');
-      
-      const saveButton = screen.getByText(/Save Form/);
-      
+
+      const saveButton = await screen.findByText(/Save Form/);
+
       expect(saveButton.style.background).toBe('rgb(122, 0, 25)');
       expect(saveButton.style.color).toBe('rgb(255, 255, 255)');
       // Border can be in hex or rgb format
       expect(saveButton.style.border).toMatch(/2px solid (#7a0019|rgb\(122, 0, 25\))/);
     });
 
-    test('outline variant buttons have correct styles', () => {
+    test('outline variant buttons have correct styles', async () => {
       renderWithRouter('software-engineering');
-      
-      const backButton = screen.getByText(/Back to Form Selection/);
-      
+
+      const backButton = await screen.findByText(/Back to Form Selection/);
+
       expect(backButton.style.background).toBe('rgb(255, 255, 255)');
       expect(backButton.style.color).toBe('rgb(17, 17, 17)');
       // Border can be in hex or rgb format
       expect(backButton.style.border).toMatch(/2px solid (#7a0019|rgb\(122, 0, 25\))/);
     });
 
-    test('all buttons have consistent base styles', () => {
+    test('all buttons have consistent base styles', async () => {
       renderWithRouter('software-engineering');
-      
+
+      // Wait for at least one button to be present
+      await screen.findByText(/Back to Form Selection/);
+
       const buttons = [
         screen.getByText(/Back to Form Selection/),
         screen.getByText(/Save Form/),
@@ -264,11 +267,11 @@ describe('RequirementsFormPage', () => {
   });
 
   describe('useMemo Optimization', () => {
-    test('program is memoized and correctly retrieved', () => {
+    test('program is memoized and correctly retrieved', async () => {
       const { rerender } = renderWithRouter('software-engineering');
-      
-      expect(screen.getByText(/Software Engineering/)).toBeInTheDocument();
-      
+
+      expect(await screen.findByText(/Software Engineering/)).toBeInTheDocument();
+
       // Rerender with same programId shouldn't cause issues
       rerender(
         <MemoryRouter initialEntries={['/requirements/software-engineering']}>
@@ -277,23 +280,23 @@ describe('RequirementsFormPage', () => {
           </Routes>
         </MemoryRouter>
       );
-      
-      expect(screen.getByText(/Software Engineering/)).toBeInTheDocument();
+
+      expect(await screen.findByText(/Software Engineering/)).toBeInTheDocument();
     });
 
-    test('program changes when programId changes', () => {
-        const { unmount } = renderWithRouter('software-engineering');
-      expect(screen.getByTitle('Software Engineering credit count form')).toBeInTheDocument();
+    test('program changes when programId changes', async () => {
+      const { unmount } = renderWithRouter('software-engineering');
+      expect(await screen.findByTitle('Software Engineering credit count form')).toBeInTheDocument();
       unmount();
-            
+
       renderWithRouter('computer-science');
-        expect(screen.getByTitle('Computer Science credit count form')).toBeInTheDocument();
-        expect(screen.queryByTitle('Software Engineering credit count form')).not.toBeInTheDocument();
-        });
+      expect(await screen.findByTitle('Computer Science credit count form')).toBeInTheDocument();
+      expect(screen.queryByTitle('Software Engineering credit count form')).not.toBeInTheDocument();
+    });
   });
 
   describe('Edge Cases', () => {
-    test('handles undefined programId', () => {
+    test('handles undefined programId', async () => {
       render(
         <MemoryRouter initialEntries={['/requirements/']}>
           <Routes>
@@ -301,11 +304,11 @@ describe('RequirementsFormPage', () => {
           </Routes>
         </MemoryRouter>
       );
-      
-      expect(screen.getByText(/Unknown program:/)).toBeInTheDocument();
+
+      expect(await screen.findByText(/Unknown program:/)).toBeInTheDocument();
     });
 
-    test('handles empty string programId', () => {
+    test('handles empty string programId', async () => {
       render(
         <MemoryRouter initialEntries={['/requirements/']}>
           <Routes>
@@ -314,9 +317,12 @@ describe('RequirementsFormPage', () => {
           </Routes>
         </MemoryRouter>
       );
-      
+
       // Empty programId should show unknown program or render nothing
       // Check if either error message appears or page renders empty
+      // We must wait for loading to finish first
+      await screen.findByText(/Credit Count Form/); // This exists in success and error states
+
       const unknownText = screen.queryByText(/Unknown program:/);
       if (unknownText) {
         expect(unknownText).toBeInTheDocument();
@@ -326,28 +332,28 @@ describe('RequirementsFormPage', () => {
       }
     });
 
-    test('handles programId with special characters', () => {
+    test('handles programId with special characters', async () => {
       renderWithRouter('test-program-@#$%');
-      
-      expect(screen.getByText(/Unknown program:/)).toBeInTheDocument();
+
+      expect(await screen.findByText(/Unknown program:/)).toBeInTheDocument();
     });
 
-    test('iframe has correct attributes and PDF viewer parameters', () => {
+    test('iframe has correct attributes and PDF viewer parameters', async () => {
       renderWithRouter('software-engineering');
-      
-      const iframe = screen.getByTitle('Software Engineering credit count form');
-      
+
+      const iframe = await screen.findByTitle('Software Engineering credit count form');
+
       expect(iframe).toHaveAttribute('src', expect.stringContaining('#toolbar=1&navpanes=0&scrollbar=1'));
       expect(iframe.style.width).toBe('100%');
       expect(iframe.style.height).toBe('80vh');
       expect(iframe.style.border).toBe('0px');
     });
 
-    test('cache buster is initially not present in src', () => {
+    test('cache buster is initially not present in src', async () => {
       renderWithRouter('software-engineering');
-      
-      const iframe: HTMLIFrameElement  = screen.getByTitle('Software Engineering credit count form');
-      
+
+      const iframe: HTMLIFrameElement = await screen.findByTitle('Software Engineering credit count form');
+
       // Initial load should not have cache buster
       expect(iframe.src).toContain('/credit-forms/software-engineering.pdf');
       expect(iframe.src).not.toContain('?v=');
@@ -355,9 +361,12 @@ describe('RequirementsFormPage', () => {
   });
 
   describe('Accessibility', () => {
-    test('buttons are keyboard accessible', () => {
+    test('buttons are keyboard accessible', async () => {
       renderWithRouter('software-engineering');
-      
+
+      // Wait for rendering
+      await screen.findByText(/Back to Form Selection/);
+
       const buttons = [
         screen.getByText(/Back to Form Selection/),
         screen.getByText(/Save Form/),
@@ -371,44 +380,44 @@ describe('RequirementsFormPage', () => {
       });
     });
 
-    test('iframe has descriptive title for each program', () => {
+    test('iframe has descriptive title for each program', async () => {
       const testCases = [
         { id: 'software-engineering', title: 'Software Engineering credit count form' },
         { id: 'computer-science', title: 'Computer Science credit count form' },
         { id: 'comp-arts', title: 'Computer Science and Computer Arts credit count form' },
       ];
 
-      testCases.forEach(({ id, title }) => {
+      for (const { id, title } of testCases) {
         const { unmount } = renderWithRouter(id);
-        const iframe = screen.getByTitle(title);
+        const iframe = await screen.findByTitle(title);
         expect(iframe).toHaveAttribute('title', title);
         unmount();
-      });
+      }
     });
 
-    test('page has clear heading structure', () => {
+    test('page has clear heading structure', async () => {
       renderWithRouter('software-engineering');
-      
-      const heading = screen.getByText('Credit Count Form');
+
+      const heading = await screen.findByText('Credit Count Form');
       expect(heading).toBeInTheDocument();
       expect(heading.tagName).toBe('H2');
     });
   });
 
   describe('Integration Tests', () => {
-    test('complete user flow: navigate, clear, and attempt print', () => {
+    test('complete user flow: navigate, clear, and attempt print', async () => {
       renderWithRouter('computer-science');
-      
+
       // Verify initial state
-      expect(screen.getByText(/Computer Science/)).toBeInTheDocument();
-      
+      expect(await screen.findByText(/Computer Science/)).toBeInTheDocument();
+
       // Clear form
       const clearButton = screen.getByText(/Clear Form/);
       fireEvent.click(clearButton);
-      
+
       const iframe: HTMLIFrameElement = screen.getByTitle('Computer Science credit count form');
       expect(iframe.src).toContain('?v=1');
-      
+
       // Mock contentWindow for print test
       const mockPrint = vi.fn();
       const mockFocus = vi.fn();
@@ -420,32 +429,32 @@ describe('RequirementsFormPage', () => {
         writable: true,
         configurable: true,
       });
-      
+
       // Attempt print
       const printButton = screen.getByText(/Download\/Print/);
       fireEvent.click(printButton);
       expect(mockPrint).toHaveBeenCalled();
-      
+
       // Navigate back
       const backButton = screen.getAllByText(/Back to Form Selection/)[0];
       fireEvent.click(backButton);
       expect(mockNavigate).toHaveBeenCalledWith('/requirements');
     });
 
-    test('switching between different programs works correctly', () => {
+    test('switching between different programs works correctly', async () => {
       // Render first program
       const { unmount: unmount1 } = renderWithRouter('software-engineering');
-      expect(screen.getByText(/Software Engineering/)).toBeInTheDocument();
+      expect(await screen.findByText(/Software Engineering/)).toBeInTheDocument();
       unmount1();
-      
+
       // Render second program
       const { unmount: unmount2 } = renderWithRouter('comp-data-science');
-      expect(screen.getByText(/Computer Science and Data Science/)).toBeInTheDocument();
+      expect(await screen.findByText(/Computer Science and Data Science/)).toBeInTheDocument();
       unmount2();
-      
+
       // Render third program
       renderWithRouter('comp-health-life-science');
-      expect(screen.getByText(/Computer Science and Health & Life Science/)).toBeInTheDocument();
+      expect(await screen.findByText(/Computer Science and Health & Life Science/)).toBeInTheDocument();
     });
   });
 });

@@ -1,7 +1,6 @@
 # API server
-fastapi==0.115.5
-uvicorn==0.32.0
-python-multipart==0.0.9
+Flask==3.1.2
+gunicorn==20.1.0
 
 # PyMuPDF for PDF parsing
 pymupdf>=1.23.0
@@ -24,7 +23,9 @@ typing_extensions==4.15.0
 urllib3==2.5.0
 python-dotenv
 pandas==2.3.3
-
+Unidecode==1.4.0
+pyarrow==23.0.0
+pydantic==2.10.4
 
 # Testing dependencies
 pytest>=8.4.2

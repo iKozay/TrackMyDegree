@@ -9,6 +9,11 @@ on:
       - main
   workflow_dispatch:
 
+# Cancel previous workflow runs if a new push is made to the same branch/PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
 
@@ -34,7 +39,7 @@ jobs:
       - name: Run ESLint for frontend
         working-directory: ./ts-front-end
         run: |
-          npm run lint
+          npm run lint -- --quiet
 
       - name: Run frontend tests with coverage
         working-directory: ./ts-front-end
@@ -43,7 +48,7 @@ jobs:
           CI: false
         run: |
           npm run build
-          npm test -- --coverage
+          npm test -- --coverage --silent
 
       - name: Upload frontend coverage artifact
         uses: actions/upload-artifact@v4
@@ -72,13 +77,13 @@ jobs:
       - name: Run ESLint for backend
         working-directory: ./Back-End/src
         run: |
-          npm run lint
+          npm run lint -- --quiet
 
       - name: Run backend tests with coverage
         working-directory: ./Back-End/src
         run: |
           npm run build
-          npm test -- --coverage
+          npm test -- --coverage --silent
       
       - name: Upload backend coverage artifact
         uses: actions/upload-artifact@v4
