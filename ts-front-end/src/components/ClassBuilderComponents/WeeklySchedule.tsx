@@ -120,9 +120,11 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                 .schedule-table th,
                 .schedule-table td {
                     border: 1px solid #e2e8f0;
-                    padding: 8px;
+                    padding: 0;
                     height: 60px;
                     min-width: 100px;
+                    max-height: 60px;
+                    overflow: hidden;
                 }
 
                 .schedule-table th {
@@ -131,6 +133,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                     position: sticky;
                     top: 0;
                     z-index: 10;
+                    padding: 8px;
                 }
 
                 .time-column {
@@ -178,22 +181,29 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                 }
 
                 .class-info {
+                    position: absolute;
+                    inset: 0;
+                    padding: 6px 8px;
                     font-size: 0.75rem;
                     pointer-events: none;
+                    overflow: hidden;
                 }
 
                 /* Unpinned text colours */
                 .class-name {
                     color: #881337;
                     font-weight: 500;
+                    margin: 0;
                 }
 
                 .class-section {
                     color: #be123c;
+                    margin: 0;
                 }
 
                 .class-room {
                     color: #e11d48;
+                    margin: 0;
                 }
 
                 /* Pinned text colours — green equivalents */
