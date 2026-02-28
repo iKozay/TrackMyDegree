@@ -16,6 +16,7 @@ class CourseRules(BaseModel):
     prereq: list[list[str]] = Field(default_factory=list)
     coreq: list[list[str]] = Field(default_factory=list)
     not_taken: list[str] = Field(default_factory=list)
+    min_credits: float = 0.0
 
 class MongoDBModel(BaseModel):
     model_config = ConfigDict(populate_by_name=True, use_enum_values=True)
