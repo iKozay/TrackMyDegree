@@ -14,9 +14,9 @@ describe('ClassBuilderPage', () => {
         expect(screen.getByText('Create and visualize student schedules to identify conflicts')).toBeInTheDocument();
     });
 
-    it('renders the Export Schedule button', () => {
+    it('does not render the Export Schedule button (currently commented out)', () => {
         render(<ClassBuilderPage />);
-        expect(screen.getByText('Export Schedule')).toBeInTheDocument();
+        expect(screen.queryByText('Export Schedule')).not.toBeInTheDocument();
     });
 
     it('renders WeeklySchedule component', () => {
@@ -41,80 +41,69 @@ describe('ClassBuilderPage', () => {
         expect(screen.getByText('Search & Add Courses')).toBeInTheDocument();
     });
 
-    it('initializes with default classes state', () => {
+    it('initializes with empty course list', () => {
         render(<ClassBuilderPage />);
-        // Default classes should be rendered (multiple instances across schedule and sidebar)
-        expect(screen.getAllByText('COMP 352').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('COMP 346').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('SOEN 341').length).toBeGreaterThan(0);
+        expect(screen.queryByText('COMP 352')).not.toBeInTheDocument();
+        expect(screen.queryByText('COMP 346')).not.toBeInTheDocument();
+        expect(screen.queryByText('SOEN 341')).not.toBeInTheDocument();
+    });
+
+    it('displays initial stat values for empty schedule', () => {
+        render(<ClassBuilderPage />);
+        expect(screen.getByText('0 hours/week')).toBeInTheDocument();
+        expect(screen.getByText('0 courses')).toBeInTheDocument();
+    });
+
+    it('shows empty state message in scheduled courses sidebar', () => {
+        render(<ClassBuilderPage />);
+        expect(screen.getByText('No courses added yet.')).toBeInTheDocument();
     });
 
     it('has correct layout structure', () => {
         const { container } = render(<ClassBuilderPage />);
-        const main = container.querySelector('main');
-        expect(main).toHaveClass('flex-1', 'overflow-auto');
+        expect(container.querySelector('main')).toHaveClass('flex-1', 'overflow-auto');
     });
 
     it('has responsive padding classes', () => {
         const { container } = render(<ClassBuilderPage />);
-        const paddingDiv = container.querySelector('.p-4.sm\\:p-8');
-        expect(paddingDiv).toBeInTheDocument();
+        expect(container.querySelector('.p-4.sm\\:p-8')).toBeInTheDocument();
     });
 
     it('has max-width container', () => {
         const { container } = render(<ClassBuilderPage />);
-        const maxWidthDiv = container.querySelector('.max-w-7xl');
-        expect(maxWidthDiv).toBeInTheDocument();
+        expect(container.querySelector('.max-w-7xl')).toBeInTheDocument();
     });
 
     it('has correct grid layout for schedule and sidebar', () => {
         const { container } = render(<ClassBuilderPage />);
-        const grid = container.querySelector('.grid.grid-cols-1.lg\\:grid-cols-4');
-        expect(grid).toBeInTheDocument();
+        expect(container.querySelector('.grid.grid-cols-1.lg\\:grid-cols-4')).toBeInTheDocument();
     });
 
     it('schedule takes 3 columns on large screens', () => {
         const { container } = render(<ClassBuilderPage />);
-        const scheduleColumn = container.querySelector('.lg\\:col-span-3');
-        expect(scheduleColumn).toBeInTheDocument();
+        expect(container.querySelector('.lg\\:col-span-3')).toBeInTheDocument();
     });
 
     it('sidebar has space-y-6 class', () => {
         const { container } = render(<ClassBuilderPage />);
-        const sidebar = container.querySelector('.space-y-6');
-        expect(sidebar).toBeInTheDocument();
+        expect(container.querySelector('.space-y-6')).toBeInTheDocument();
     });
 
     it('header has responsive layout classes', () => {
         const { container } = render(<ClassBuilderPage />);
-        const header = container.querySelector('.flex.flex-col.sm\\:flex-row');
-        expect(header).toBeInTheDocument();
-    });
-
-    it('export button has responsive width', () => {
-        render(<ClassBuilderPage />);
-        const button = screen.getByText('Export Schedule');
-        expect(button).toHaveClass('w-full', 'sm:w-auto');
-    });
-
-    it('displays initial stat values correctly', () => {
-        render(<ClassBuilderPage />);
-        // With 6 classes (3 courses × 2 days each), each 2 hours = 12 hours total
-        expect(screen.getByText('12 hours/week')).toBeInTheDocument();
-        expect(screen.getByText('3 courses')).toBeInTheDocument();
+        expect(container.querySelector('.flex.flex-col.sm\\:flex-row')).toBeInTheDocument();
     });
 
     it('renders all days of the week in schedule', () => {
         render(<ClassBuilderPage />);
-        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        days.forEach(day => {
+        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
             expect(screen.getByText(day)).toBeInTheDocument();
         });
     });
 
-    it('renders semester selector', () => {
+    it('renders semester selector with Summer 2025 as default', () => {
         render(<ClassBuilderPage />);
-        expect(screen.getByDisplayValue('Winter 2025')).toBeInTheDocument();
+        expect(screen.getByDisplayValue('Summer 2025')).toBeInTheDocument();
     });
 
     it('renders search input', () => {
@@ -122,15 +111,8 @@ describe('ClassBuilderPage', () => {
         expect(screen.getByPlaceholderText('Search by course code or name...')).toBeInTheDocument();
     });
 
-    it('renders all scheduled courses in sidebar', () => {
+    it('renders no delete buttons in empty sidebar', () => {
         render(<ClassBuilderPage />);
-        // All three courses should appear in the sidebar
-        const comp352 = screen.getAllByText('COMP 352');
-        const comp346 = screen.getAllByText('COMP 346');
-        const soen341 = screen.getAllByText('SOEN 341');
-
-        expect(comp352.length).toBeGreaterThan(0);
-        expect(comp346.length).toBeGreaterThan(0);
-        expect(soen341.length).toBeGreaterThan(0);
+        expect(screen.queryByLabelText(/Remove/)).not.toBeInTheDocument();
     });
 });
