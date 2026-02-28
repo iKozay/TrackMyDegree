@@ -117,8 +117,8 @@ const SearchCourses: React.FC<SearchCoursesProps> = ({ addedCourses, setAddedCou
             setAddedCourses([...addedCourses, newCourse]);
             setCourseId("");
 
-        } catch (err: any) {
-            if (err.name !== "AbortError") {
+        } catch (err: unknown) {
+            if (err instanceof Error && err.name !== "AbortError") {
                 alert(err.message ?? "Error fetching course from server. Please try again later.");
                 console.error(err);
             }

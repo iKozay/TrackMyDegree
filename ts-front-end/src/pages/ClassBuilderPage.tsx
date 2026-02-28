@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import "../styles/ClassBuilder.css";
 import WeeklySchedule from "../components/ClassBuilderComponents/WeeklySchedule";
@@ -106,12 +106,11 @@ const ClassBuilderPage: React.FC = () => {
         [addedCourses, pinnedClassNumbers]
     );
 
-    useEffect(() => {
-        setConfigIndex(0);
-    }, [addedCourses, pinnedClassNumbers]);
-
-    const currentConfig = allConfigurations[configIndex] ?? [];
     const totalConfigs = allConfigurations.length;
+
+    const safeConfigIndex = Math.min(configIndex, Math.max(0, totalConfigs - 1));
+
+    const currentConfig = allConfigurations[safeConfigIndex] ?? [];
 
     const goToPrev = () => setConfigIndex(i => Math.max(0, i - 1));
     const goToNext = () => setConfigIndex(i => Math.min(totalConfigs - 1, i + 1));
@@ -162,7 +161,7 @@ const ClassBuilderPage: React.FC = () => {
                                 <WeeklySchedule
                                     classes={currentConfig}
                                     pinnedClassNumbers={pinnedClassNumbers}
-                                    configIndex={configIndex}
+                                    configIndex={safeConfigIndex}
                                     totalConfigs={totalConfigs}
                                     onPrev={goToPrev}
                                     onNext={goToNext}
