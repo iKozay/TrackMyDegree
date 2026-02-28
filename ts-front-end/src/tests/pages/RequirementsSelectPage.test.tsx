@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import RequirementsSelectPage from '../../../src/pages/RequirementsSelectPage';
+import RequirementsSelectPage from '../../pages/RequirementsSelectPage';
 
-vi.mock('../../../src/legacy/pages/RequirementsSelectPage.jsx', () => ({
+vi.mock('../../legacy/pages/RequirementsSelectPage.jsx', () => ({
   __esModule: true,
   default: () => <div data-testid="legacy-requirements-select-page">Legacy Requirements Select Page</div>,
 }));
