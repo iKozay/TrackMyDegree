@@ -102,7 +102,22 @@
   transition: 0.3s;
 }
 
-/* My Timelines */
+/* My Timelines card */
+.timelines-card {
+  width: 380px;
+  padding: 24px;
+  max-height: 560px;
+  overflow-y: auto;
+}
+
+.timelines-card .user-timelines-section {
+  background: transparent;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+}
+
 .my-timelines-section {
   font-family: 'DM Sans', sans-serif;
   text-align: center;
