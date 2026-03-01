@@ -10,7 +10,7 @@ import type { AddedCourse, ClassItem, CourseSection } from "src/types/classItem"
 //Configuration system
 
 const DAY_FLAGS: Array<keyof CourseSection> = [
-    "sundays", "modays", "tuesdays", "wednesdays", "thursdays", "fridays", "saturdays",
+    "sundays", "mondays", "tuesdays", "wednesdays", "thursdays", "fridays", "saturdays",
 ];
 
 const parseTime = (raw: string): number => {
