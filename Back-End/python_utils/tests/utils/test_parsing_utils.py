@@ -20,6 +20,7 @@ from utils.parsing_utils import (
     parse_course_rules,
     parse_course_components,
     get_course_sort_key,
+    parse_minimum_credits,
     COURSE_REGEX,
     TITLE_REGEX,
     CATALOG_COURSE_TITLE_REGEX
@@ -228,3 +229,49 @@ def test_catalog_course_title_regex_matches():
     assert match.group(1) == "COMP 248"
     assert match.group(2) == "Introduction to Programming"
     assert match.group(3) == "3"
+
+def test_parse_minimum_credits():
+    # Test cases with "prior to enrolling"
+    text = "Students must have completed a minimum of 12 credits prior to enrolling in this course."
+    result = parse_minimum_credits(text)
+    assert (result - 12.0) < 1e-8
+
+    # Test "Students must have completed" (past tense) - AERO 490, SOEN 490
+    text = "Students must have completed 75 credits in the program prior to enrolling."
+    result = parse_minimum_credits(text)
+    assert (result - 75.0) < 1e-8
+
+    # Test "Students must complete" (present tense) - CIVI 440, COMP 490
+    text = "Students must complete 60 credits prior to enrolling."
+    result = parse_minimum_credits(text)
+    assert (result - 60.0) < 1e-8
+
+    # Test "Students must complete a minimum of" - BLDG 490, COEN 390
+    text = "Students must complete a minimum of 45 credits in the BEng (Computer) prior to enrolling."
+    result = parse_minimum_credits(text)
+    assert (result - 45.0) < 1e-8
+
+    # Test "Students must complete a minimum" (missing "of") - ENGR 412
+    text = "Students must complete a minimum 75 credits in the BEng program with a cumulative GPA of 3.00 or better prior to enrolling."
+    result = parse_minimum_credits(text)
+    assert (result - 75.0) < 1e-8
+
+    # Test cases without "prior to enrolling" - CIVI 490, ENCS 483
+    text = "Students must complete a minimum of 54 credits in the BCompSc in Health and Life Sciences program."
+    result = parse_minimum_credits(text)
+    assert (result - 54.0) < 1e-8
+
+    # Test complex case with additional text - ENCS 485
+    text = "Students must complete a minimum of 24 credits towards an undergraduate program offered by the Gina Cody School of Engineering and Computer Science, with a minimum GPA of 2.50."
+    result = parse_minimum_credits(text)
+    assert (result - 24.0) < 1e-8
+
+    # Test case with multiple credit requirements - should pick the first one
+    text = "Students must complete a minimum of 60 credits in an engineering program or minimum of 45 credits in a non-engineering program prior to enrolling."
+    result = parse_minimum_credits(text)
+    assert (result - 60.0) < 1e-8
+
+    # Test no credit requirement
+    text = "No minimum credit requirement."
+    result = parse_minimum_credits(text)
+    assert (result - 0.0) < 1e-8

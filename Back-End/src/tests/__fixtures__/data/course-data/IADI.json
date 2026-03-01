@@ -10,7 +10,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 24.0
     }
   },
   {
@@ -24,7 +25,8 @@
     "rules": {
       "prereq": [["IADI 301"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -38,7 +40,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   }
 ]

@@ -12,6 +12,7 @@ export interface CourseData {
     prereq?: string[][];
     coreq?: string[][];
     not_taken?: string[];
+    min_credits?: number;
   };
   notes?: string;
   components?: string[];

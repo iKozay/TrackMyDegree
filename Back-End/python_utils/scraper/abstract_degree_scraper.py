@@ -10,9 +10,10 @@ from utils.parsing_utils import get_course_sort_key
 
 class AbstractDegreeScraper(ABC):
 
-    def __init__(self, degree_name: str, degree_short_name: str, requirements_url: str):
+    def __init__(self, degree_name: str, degree_short_name: str, ecp_degree_id: str,requirements_url: str):
         self.degree_name = degree_name
         self.degree_short_name = degree_short_name
+        self.ecp_degree_id = ecp_degree_id
         self.requirements_url = requirements_url
         self.program_requirements: Optional[ProgramRequirements] = None
         self.logger = get_logger(f"{self.degree_short_name}DegreeScraper")
@@ -25,7 +26,7 @@ class AbstractDegreeScraper(ABC):
 
     def _set_program_requirements(self, program_name: str, total_credits: float, degree_type: DegreeType, coursepools_list: list[CoursePool]) -> None:
         course_pool_ids = [pool._id for pool in coursepools_list]
-        degree = Degree(_id=program_name, name=program_name, degreeType=degree_type, totalCredits=total_credits, coursePools=course_pool_ids)
+        degree = Degree(_id=program_name, name=program_name, degreeType=degree_type, totalCredits=total_credits, coursePools=course_pool_ids, ecpDegreeId=self.ecp_degree_id)
         self.program_requirements = ProgramRequirements(degree=degree, coursePools=coursepools_list)
 
     @abstractmethod
