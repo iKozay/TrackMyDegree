@@ -61,7 +61,7 @@ describe('addEcpCoursePools', () => {
       { _id: 'base_pool', name: 'Base Pool', creditsRequired: 0, courses: [] },
     ];
     const courses: Record<string, CourseData> = {'SOEN 000': {_id: 'SOEN 000', title: 'Intro Course', credits: 3}};
-    const mockDegree = { _id: BENG_SOFTWARE, name: 'Software Engineering', totalCredits: 120, degreeType: 'Standalone', coursePools: [], ecpDegreeId: 'Extended Credit Program - Engineering' };
+    const mockDegree = { _id: BENG_SOFTWARE, name: 'Software Engineering', totalCredits: 120, degreeType: 'Standalone', coursePools: [], ecpDegreeId: ENGR_ECP };
 
     await addEcpCoursePools(BENG_SOFTWARE, coursePools, courses, mockDegree);
 
@@ -99,7 +99,7 @@ describe('addEcpCoursePools', () => {
 
     const coursePools: any[] = [];
     const courses: Record<string, CourseData> = {};
-    const mockDegree = { _id: 'BCompSc_GENERAL', name: 'Computer Science', totalCredits: 120, degreeType: 'Standalone', coursePools: [], ecpDegreeId: 'Extended Credit Program - Computer Science' };
+    const mockDegree = { _id: 'BCompSc_GENERAL', name: 'Computer Science', totalCredits: 120, degreeType: 'Standalone', coursePools: [], ecpDegreeId: COMP_ECP };
 
     await addEcpCoursePools('BCompSc_GENERAL', coursePools, courses, mockDegree);
 
@@ -141,7 +141,7 @@ describe('addEcpCoursePools', () => {
       name: DEGREE_OBJ_NAME,
       totalCredits: 120,
       coursePools: [],
-      ecpDegreeId: 'Extended Credit Program - Engineering',
+      ecpDegreeId: ENGR_ECP,
     };
 
     await addEcpCoursePools(BENG_SOFTWARE, coursePools, courses, degreeObj);
@@ -162,7 +162,7 @@ describe('addEcpCoursePools', () => {
 
     const coursePools: any[] = [];
     const courses: Record<string, CourseData> = {};
-    const degreeObj: any = { _id: 'ENGR_SOFTWARE', name: DEGREE_OBJ_NAME, ecpDegreeId: 'Extended Credit Program - Engineering' };
+    const degreeObj: any = { _id: 'ENGR_SOFTWARE', name: DEGREE_OBJ_NAME, ecpDegreeId: ENGR_ECP };
 
     await addEcpCoursePools(BENG_SOFTWARE, coursePools, courses, degreeObj);
 
@@ -178,7 +178,7 @@ describe('addEcpCoursePools', () => {
 
     const coursePools: any[] = [];
     const courses: Record<string, CourseData> = {};
-    const mockDegree = { _id: BENG_SOFTWARE, name: 'Software Engineering', totalCredits: 120, degreeType: 'Standalone', coursePools: [], ecpDegreeId: 'Extended Credit Program - Engineering' };
+    const mockDegree = { _id: BENG_SOFTWARE, name: 'Software Engineering', totalCredits: 120, degreeType: 'Standalone', coursePools: [], ecpDegreeId: ENGR_ECP };
 
     await expect(addEcpCoursePools(BENG_SOFTWARE, coursePools, courses, mockDegree)).rejects.toThrow('DB fail');
 

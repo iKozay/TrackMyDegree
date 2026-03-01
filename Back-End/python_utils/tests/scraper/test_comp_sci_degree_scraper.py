@@ -343,6 +343,6 @@ class TestCompDsDegreeScraper:
             scraper._handle_special_cases()
         
         # Should remove COMP 233
-        mock_remove.assert_called_once_with(cs_core_pool, ["COMP 233"])
+        mock_remove.assert_called_once_with(cs_core_pool.name, ["COMP 233"])
         # Should add MAST 221
         assert "MAST 221" in cs_core_pool.courses
