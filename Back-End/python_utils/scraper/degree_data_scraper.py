@@ -23,7 +23,7 @@ class DegreeDataScraper():
             DegreeScraperConfig(long_name="BEng in Aerospace Engineering Option: Avionics and Aerospace Systems", marker="BEng in Aerospace Engineering", short_name="AERO", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=AeroDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Building Engineering", short_name="BLDG", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=BldgDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Chemical Engineering", short_name="CHEM", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=ChemDegreeScraper),
-            DegreeScraperConfig(long_name="BEng in Civil Engineering", short_name="CIVL", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=CiviDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Civil Engineering", short_name="CIVI", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=CiviDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Computer Engineering", short_name="COEN", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=CoenDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Electrical Engineering", short_name="ELEC", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=ElecDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Industrial Engineering", short_name="INDU", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=InduDegreeScraper),
