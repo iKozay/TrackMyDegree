@@ -32,10 +32,13 @@ const TimelineSetupPage = () => {
           <UploadBox toggleModal={toggleModal} />
         </div>
 
-      </div>
+        <div className="divider-section" />
 
-      {/* My Timeline Section */}
-      <UserTimelinesSection />
+        <div className="timeline-setup-card glass-card timelines-card">
+          <UserTimelinesSection />
+        </div>
+
+      </div>
 
       <InstructionsModal isOpen={isModalOpen} toggleModal={toggleModal} />
     </div>
