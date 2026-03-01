@@ -45,9 +45,10 @@ type ModalState =
 interface SearchCoursesProps {
     addedCourses: AddedCourse[];
     setAddedCourses: (courses: AddedCourse[]) => void;
+    onSemesterChange?: () => void;
 }
 
-const SearchCourses: React.FC<SearchCoursesProps> = ({ addedCourses, setAddedCourses }) => {
+const SearchCourses: React.FC<SearchCoursesProps> = ({ addedCourses, setAddedCourses, onSemesterChange }) => {
 
     const semesters = useMemo(() => getSemesters(), []);
 
@@ -134,6 +135,11 @@ const SearchCourses: React.FC<SearchCoursesProps> = ({ addedCourses, setAddedCou
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") getCourse();
+    };
+
+    const handleSemesterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSemester(e.target.value);
+        onSemesterChange?.();
     };
 
     return (
@@ -374,7 +380,7 @@ const SearchCourses: React.FC<SearchCoursesProps> = ({ addedCourses, setAddedCou
                     <select
                         className="search-courses-card__select"
                         value={semester}
-                        onChange={(e) => setSemester(e.target.value)}
+                        onChange={handleSemesterChange}
                     >
                         {semesters.map((s) => (
                             <option key={s.value} value={s.value}>{s.label}</option>

@@ -172,6 +172,7 @@ const ClassBuilderPage: React.FC = () => {
                                 <SearchCourses
                                     addedCourses={addedCourses}
                                     setAddedCourses={setAddedCourses}
+                                    onSemesterChange={() => handleSetAddedCourses([])}
                                 />
                                 <ScheduledCourses
                                     addedCourses={addedCourses}
