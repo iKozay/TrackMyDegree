@@ -30,13 +30,13 @@
   display: flex;
   justify-content: center;
   align-items: stretch;
-  gap: 40px;
+  gap: 24px;
   margin-bottom: 80px;
   flex-wrap: wrap;
 }
 
 .timeline-setup-card {
-  width: 420px;
+  width: 360px;
   padding: 40px;
   border-radius: 20px;
   transition: all 0.3s ease;
@@ -55,12 +55,19 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
 }
 
-/* Divider */
+/* Dividers */
 .divider-vertical {
   display: flex;
   align-items: center;
   font-weight: bold;
   color: #aaa;
+}
+
+.divider-section {
+  width: 1px;
+  align-self: stretch;
+  background: linear-gradient(to bottom, transparent, #ddd 20%, #ddd 80%, transparent);
+  margin: 0 8px;
 }
 
 /* Buttons */
@@ -95,7 +102,22 @@
   transition: 0.3s;
 }
 
-/* My Timelines */
+/* My Timelines card */
+.timelines-card {
+  width: 380px;
+  padding: 24px;
+  max-height: 560px;
+  overflow-y: auto;
+}
+
+.timelines-card .user-timelines-section {
+  background: transparent;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+}
+
 .my-timelines-section {
   font-family: 'DM Sans', sans-serif;
   text-align: center;
@@ -117,7 +139,23 @@
 }
 
 /* Responsive */
-@media (max-width: 1000px) {
+@media (max-width: 1280px) {
+  .cards-container {
+    flex-wrap: wrap;
+  }
+
+  .timelines-card {
+    width: 100%;
+    max-width: 760px;
+    max-height: 400px;
+  }
+
+  .divider-section {
+    display: none;
+  }
+}
+
+@media (max-width: 800px) {
   .cards-container {
     flex-direction: column;
     align-items: center;
@@ -125,5 +163,11 @@
 
   .divider-vertical {
     display: none;
+  }
+
+  .timeline-setup-card,
+  .timelines-card {
+    width: 100%;
+    max-width: 480px;
   }
 }

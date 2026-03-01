@@ -7,6 +7,8 @@ import { api } from "../api/http-api-client.ts";
 
 const REDIRECT_DELAY_MS = 1000;
 
+type UploadState = 'idle' | 'selected' | 'uploading' | 'success' | 'error';
+
 interface UploadBoxProps {
   toggleModal: () => void;
 }
@@ -16,7 +18,8 @@ const UploadBox: React.FC<UploadBoxProps> = ({ toggleModal }) => {
 
   const [fileName, setFileName] = useState<string>("No file chosen");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadState, setUploadState] = useState<UploadState>('idle');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -48,12 +51,15 @@ const UploadBox: React.FC<UploadBoxProps> = ({ toggleModal }) => {
 
   const validateAndSetFile = (file: File | null) => {
     if (file && file.type === "application/pdf") {
-      setFileName(`File Selected: ${file.name}`);
+      setFileName(file.name);
       setSelectedFile(file);
+      setUploadState('selected');
+      setErrorMessage('');
     } else {
       alert("Please select a valid PDF file.");
       setFileName("No file chosen");
       setSelectedFile(null);
+      setUploadState('idle');
     }
   };
 
@@ -67,12 +73,13 @@ const UploadBox: React.FC<UploadBoxProps> = ({ toggleModal }) => {
 
     const formData = new FormData();
     formData.append("file", selectedFile);
-    setIsUploading(true);
+    setUploadState('uploading');
 
     try {
       const response = await api.post<UploadResponse>("/upload/file", formData);
 
       if (response.jobId) {
+        setUploadState('success');
         toast.success("Upload complete. Redirecting…");
         setTimeout(() => {
           navigate(`/timeline/${response.jobId}`);
@@ -80,22 +87,24 @@ const UploadBox: React.FC<UploadBoxProps> = ({ toggleModal }) => {
         return;
       }
 
-      setIsUploading(false);
-      alert("Unexpected response from server.");
+      setUploadState('error');
+      setErrorMessage("Unexpected response from server.");
     } catch (error: unknown) {
-      setIsUploading(false);
-      console.error("Error processing file:", error);
-      alert(
+      setUploadState('error');
+      setErrorMessage(
         error instanceof Error
           ? error.message
           : "An unknown error occurred while processing file."
       );
+      console.error("Error processing file:", error);
     }
   };
 
   const handleCancel = () => {
     setSelectedFile(null);
     setFileName("No file chosen");
+    setUploadState('idle');
+    setErrorMessage('');
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -110,15 +119,33 @@ const UploadBox: React.FC<UploadBoxProps> = ({ toggleModal }) => {
       </p>
 
       <div
-        className="upload-box-al"
+        className={`upload-box-al upload-box-al--${uploadState}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}>
-        <p className ="drag-drop">Drag and Drop file</p>
-        or
-        <label htmlFor="file-upload" className="file-label">
-          Browse
-        </label>
+
+        {uploadState === 'uploading' && (
+          <div className="upload-spinner" aria-label="Uploading" />
+        )}
+
+        {uploadState === 'success' && (
+          <div className="upload-success-icon">✓</div>
+        )}
+
+        {uploadState === 'error' && (
+          <p className="upload-error-msg">{errorMessage}</p>
+        )}
+
+        {(uploadState === 'idle' || uploadState === 'selected') && (
+          <>
+            <p className="drag-drop">Drag and Drop file</p>
+            or
+            <label htmlFor="file-upload" className="file-label">
+              Browse
+            </label>
+          </>
+        )}
+
         <input
           type="file"
           id="file-upload"
@@ -126,20 +153,20 @@ const UploadBox: React.FC<UploadBoxProps> = ({ toggleModal }) => {
           onChange={handleFileChange}
           ref={fileInputRef}
           style={{ display: "none" }}
-          disabled={isUploading}
+          disabled={uploadState === 'uploading'}
         />
         <p className="file-name">{fileName}</p>
       </div>
 
-      <button className="cancel-button" onClick={handleCancel} disabled={isUploading}>
+      <button className="cancel-button" onClick={handleCancel} disabled={uploadState === 'uploading'}>
         Cancel
       </button>
 
       <button
         className="create-button"
         onClick={handleSubmit}
-        disabled={isUploading}>
-        {isUploading ? "Uploading…" : "Create Timeline"}
+        disabled={uploadState === 'uploading'}>
+        {uploadState === 'uploading' ? "Uploading…" : "Create Timeline"}
       </button>
 
       <div className="modal-trigger">
