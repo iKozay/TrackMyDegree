@@ -30,13 +30,13 @@
   display: flex;
   justify-content: center;
   align-items: stretch;
-  gap: 40px;
+  gap: 24px;
   margin-bottom: 80px;
   flex-wrap: wrap;
 }
 
 .timeline-setup-card {
-  width: 420px;
+  width: 360px;
   padding: 40px;
   border-radius: 20px;
   transition: all 0.3s ease;
