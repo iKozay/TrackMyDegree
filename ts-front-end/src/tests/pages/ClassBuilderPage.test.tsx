@@ -65,7 +65,7 @@ describe('ClassBuilderPage initial render', () => {
     });
 });
 
-describe('ClassBuilderPage – configuration system', () => {
+describe('ClassBuilderPage configuration system', () => {
     beforeEach(() => vi.clearAllMocks());
 
     const twoAssocCourse = () => ({
@@ -194,6 +194,6 @@ describe('ClassBuilderPage – configuration system', () => {
         expect(screen.getByText('2 / 2')).toBeInTheDocument();
 
         act(() => { fireEvent.click(screen.getAllByTitle(/Click to pin/)[0]); });
-        expect(screen.getByText('1 / 1')).toBeInTheDocument();
+        expect(screen.getByText((_, el) => el?.textContent?.replace(/\s+/g, ' ').trim() === '1 / 1')).toBeInTheDocument();
     });
 });

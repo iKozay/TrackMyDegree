@@ -37,7 +37,7 @@ const searchFor = (query: string) => {
 };
 
 
-describe('SearchCourses – rendering', () => {
+describe('SearchCourses rendering', () => {
     it('renders title, labels, semester select, search input, and Search button', () => {
         render(<SearchCourses {...defaultProps} />);
         expect(screen.getByText('Search & Add Courses')).toBeInTheDocument();
@@ -62,7 +62,7 @@ describe('SearchCourses – rendering', () => {
 });
 
 
-describe('SearchCourses – input interaction', () => {
+describe('SearchCourses input interaction', () => {
     it('Search button enables on non-whitespace input and disables again on clear', () => {
         render(<SearchCourses {...defaultProps} />);
         const input = screen.getByPlaceholderText('Search by course code or name...');
@@ -102,7 +102,7 @@ describe('SearchCourses – input interaction', () => {
     });
 });
 
-describe('SearchCourses – API and modals', () => {
+describe('SearchCourses API and modals', () => {
     beforeEach(() => vi.clearAllMocks());
     afterEach(() => vi.restoreAllMocks());
 
@@ -121,7 +121,7 @@ describe('SearchCourses – API and modals', () => {
         searchFor('COMP 352');
 
         await waitFor(() => expect(screen.getByText('Course Not Available')).toBeInTheDocument());
-        expect(screen.getByText(/Summer 2025/)).toBeInTheDocument();
+        expect(document.querySelector('.sc-modal__body')?.textContent).toMatch(/Summer 2025/);
     });
 
     it('shows "Course Already Added" modal without calling API for duplicate courses', async () => {
