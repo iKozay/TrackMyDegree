@@ -36,6 +36,22 @@
   font-weight: 600;
 }
 
+.upload-box-al--uploading {
+  border-color: #8b0000;
+  border-style: dashed;
+  animation: pulse-border 1.2s ease-in-out infinite;
+}
+
+.upload-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #f3c4c4;
+  border-top-color: #8b0000;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 8px;
+}
+
 /* File Box */
 .file-name {
   font-family: 'DM Sans', sans-serif;
