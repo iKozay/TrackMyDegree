@@ -55,12 +55,19 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
 }
 
-/* Divider */
+/* Dividers */
 .divider-vertical {
   display: flex;
   align-items: center;
   font-weight: bold;
   color: #aaa;
+}
+
+.divider-section {
+  width: 1px;
+  align-self: stretch;
+  background: linear-gradient(to bottom, transparent, #ddd 20%, #ddd 80%, transparent);
+  margin: 0 8px;
 }
 
 /* Buttons */
