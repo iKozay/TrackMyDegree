@@ -423,8 +423,8 @@ const SearchCourses: React.FC<SearchCoursesProps> = ({ addedCourses, setAddedCou
             </div>
 
             {modal && (
-                <div className="sc-modal-overlay" onClick={() => setModal(null)}>
-                    <div className="sc-modal" onClick={(e) => e.stopPropagation()}>
+                <button className="sc-modal-overlay" onClick={() => setModal(null)}>
+                    <button className="sc-modal" onClick={(e) => e.stopPropagation()}>
 
                         {modal.type === "not_found" && (
                             <>
@@ -482,8 +482,8 @@ const SearchCourses: React.FC<SearchCoursesProps> = ({ addedCourses, setAddedCou
                         <button className="sc-modal__close" onClick={() => setModal(null)}>
                             Got it
                         </button>
-                    </div>
-                </div>
+                    </button>
+                </button>
             )}
         </div>
     );
