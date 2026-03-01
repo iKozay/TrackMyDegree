@@ -1,136 +1,176 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ClassBuilderPage from '../../pages/ClassBuilderPage';
+import type { CourseSection } from '../../types/classItem';
 
-describe('ClassBuilderPage', () => {
-    it('renders the page title', () => {
+const makeSection = (overrides: Partial<CourseSection> = {}): CourseSection => ({
+    courseID: "1", termCode: "2251", session: "1", subject: "COMP", catalog: "352",
+    section: "AA", componentCode: "LEC", componentDescription: "Lecture",
+    classNumber: "1001", classAssociation: "1", courseTitle: "DATA STRUCTURES",
+    topicID: "", topicDescription: "", classStatus: "Active",
+    locationCode: "SGW", instructionModeCode: "P", instructionModeDescription: "In Person",
+    meetingPatternNumber: "1", roomCode: "H637", buildingCode: "H", room: "H-637",
+    classStartTime: "08.45.00", classEndTime: "10.00.00",
+    mondays: "Y", tuesdays: "N", wednesdays: "Y", thursdays: "N",
+    fridays: "N", saturdays: "N", sundays: "N",
+    classStartDate: "06/01/2025", classEndDate: "15/04/2025",
+    career: "UGRD", departmentCode: "COMP", departmentDescription: "Computer Science",
+    facultyCode: "ECS", facultyDescription: "Engineering",
+    enrollmentCapacity: "100", currentEnrollment: "50",
+    waitlistCapacity: "0", currentWaitlistTotal: "0", hasSeatReserved: "",
+    ...overrides,
+});
+
+vi.mock('../../components/ClassBuilderComponents/SearchCourses', () => ({
+    default: ({ setAddedCourses }: { addedCourses: unknown[]; setAddedCourses: (c: unknown[]) => void }) => (
+        <div data-testid="search-courses">
+            <button
+                data-testid="inject-courses"
+                onClick={() => setAddedCourses((window as unknown as { __injectCourses: unknown[] }).__injectCourses ?? [])}
+            >
+                inject
+            </button>
+        </div>
+    ),
+}));
+
+const injectCourses = (courses: unknown[]) => {
+    (window as unknown as { __injectCourses: unknown[] }).__injectCourses = courses;
+    fireEvent.click(screen.getByTestId('inject-courses'));
+};
+
+describe('ClassBuilderPage initial render', () => {
+    it('renders page title, description, all child components, and empty-state values', () => {
         render(<ClassBuilderPage />);
+
         expect(screen.getByText('Class Builder')).toBeInTheDocument();
-    });
-
-    it('renders the page description', () => {
-        render(<ClassBuilderPage />);
         expect(screen.getByText('Create and visualize student schedules to identify conflicts')).toBeInTheDocument();
-    });
+        expect(screen.queryByText('Export Schedule')).not.toBeInTheDocument();
 
-    it('renders the Export Schedule button', () => {
-        render(<ClassBuilderPage />);
-        expect(screen.getByText('Export Schedule')).toBeInTheDocument();
-    });
-
-    it('renders WeeklySchedule component', () => {
-        render(<ClassBuilderPage />);
         expect(screen.getByText('Weekly Schedule')).toBeInTheDocument();
-    });
-
-    it('renders ScheduleStats component', () => {
-        render(<ClassBuilderPage />);
-        expect(screen.getByText('Total Hours')).toBeInTheDocument();
-        expect(screen.getByText('Enrolled Courses')).toBeInTheDocument();
-        expect(screen.getByText('Conflicts')).toBeInTheDocument();
-    });
-
-    it('renders ScheduledCourses component', () => {
-        render(<ClassBuilderPage />);
         expect(screen.getByText('Scheduled Courses')).toBeInTheDocument();
+        ['Total Hours', 'Enrolled Courses', 'Conflicts'].forEach(label =>
+            expect(screen.getByText(label)).toBeInTheDocument()
+        );
+
+        expect(screen.getByText('0 hours/week')).toBeInTheDocument();
+        expect(screen.getByText('0 courses')).toBeInTheDocument();
+        expect(screen.getByText('No courses added yet.')).toBeInTheDocument();
+        expect(screen.queryByLabelText(/Remove/)).not.toBeInTheDocument();
+
+        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day =>
+            expect(screen.getByText(day)).toBeInTheDocument()
+        );
+    });
+});
+
+describe('ClassBuilderPage configuration system', () => {
+    beforeEach(() => vi.clearAllMocks());
+
+    const twoAssocCourse = () => ({
+        code: "COMP 352", title: "DATA STRUCTURES",
+        sections: [
+            makeSection({ classNumber: "1001", classAssociation: "1", componentCode: "LEC" }),
+            makeSection({ classNumber: "1002", classAssociation: "2", componentCode: "LEC" }),
+        ],
     });
 
-    it('renders SearchCourses component', () => {
+    it('stats update when a course with sections is added', () => {
         render(<ClassBuilderPage />);
-        expect(screen.getByText('Search & Add Courses')).toBeInTheDocument();
-    });
-
-    it('initializes with default classes state', () => {
-        render(<ClassBuilderPage />);
-        // Default classes should be rendered (multiple instances across schedule and sidebar)
-        expect(screen.getAllByText('COMP 352').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('COMP 346').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('SOEN 341').length).toBeGreaterThan(0);
-    });
-
-    it('has correct layout structure', () => {
-        const { container } = render(<ClassBuilderPage />);
-        const main = container.querySelector('main');
-        expect(main).toHaveClass('flex-1', 'overflow-auto');
-    });
-
-    it('has responsive padding classes', () => {
-        const { container } = render(<ClassBuilderPage />);
-        const paddingDiv = container.querySelector('.p-4.sm\\:p-8');
-        expect(paddingDiv).toBeInTheDocument();
-    });
-
-    it('has max-width container', () => {
-        const { container } = render(<ClassBuilderPage />);
-        const maxWidthDiv = container.querySelector('.max-w-7xl');
-        expect(maxWidthDiv).toBeInTheDocument();
-    });
-
-    it('has correct grid layout for schedule and sidebar', () => {
-        const { container } = render(<ClassBuilderPage />);
-        const grid = container.querySelector('.grid.grid-cols-1.lg\\:grid-cols-4');
-        expect(grid).toBeInTheDocument();
-    });
-
-    it('schedule takes 3 columns on large screens', () => {
-        const { container } = render(<ClassBuilderPage />);
-        const scheduleColumn = container.querySelector('.lg\\:col-span-3');
-        expect(scheduleColumn).toBeInTheDocument();
-    });
-
-    it('sidebar has space-y-6 class', () => {
-        const { container } = render(<ClassBuilderPage />);
-        const sidebar = container.querySelector('.space-y-6');
-        expect(sidebar).toBeInTheDocument();
-    });
-
-    it('header has responsive layout classes', () => {
-        const { container } = render(<ClassBuilderPage />);
-        const header = container.querySelector('.flex.flex-col.sm\\:flex-row');
-        expect(header).toBeInTheDocument();
-    });
-
-    it('export button has responsive width', () => {
-        render(<ClassBuilderPage />);
-        const button = screen.getByText('Export Schedule');
-        expect(button).toHaveClass('w-full', 'sm:w-auto');
-    });
-
-    it('displays initial stat values correctly', () => {
-        render(<ClassBuilderPage />);
-        // With 6 classes (3 courses × 2 days each), each 2 hours = 12 hours total
-        expect(screen.getByText('12 hours/week')).toBeInTheDocument();
-        expect(screen.getByText('3 courses')).toBeInTheDocument();
-    });
-
-    it('renders all days of the week in schedule', () => {
-        render(<ClassBuilderPage />);
-        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        days.forEach(day => {
-            expect(screen.getByText(day)).toBeInTheDocument();
+        act(() => {
+            injectCourses([{
+                code: "COMP 352", title: "DATA STRUCTURES",
+                sections: [makeSection({ mondays: "Y", wednesdays: "N", classStartTime: "09.00.00", classEndTime: "11.00.00" })],
+            }]);
         });
+
+        expect(screen.getByText('2 hours/week')).toBeInTheDocument();
+        expect(screen.getByText('1 course')).toBeInTheDocument();
     });
 
-    it('renders semester selector', () => {
+    it('navigation arrows and counter appear when course has multiple configurations', () => {
         render(<ClassBuilderPage />);
-        expect(screen.getByDisplayValue('Winter 2025')).toBeInTheDocument();
+        act(() => { injectCourses([twoAssocCourse()]); });
+
+        expect(screen.getByLabelText('Previous configuration')).toBeInTheDocument();
+        expect(screen.getByLabelText('Next configuration')).toBeInTheDocument();
     });
 
-    it('renders search input', () => {
+    it('prev is disabled at first config; next is disabled at last config', () => {
         render(<ClassBuilderPage />);
-        expect(screen.getByPlaceholderText('Search by course code or name...')).toBeInTheDocument();
+        act(() => { injectCourses([twoAssocCourse()]); });
+
+        expect(screen.getByLabelText('Previous configuration')).toBeDisabled();
+
+        act(() => { fireEvent.click(screen.getByLabelText('Next configuration')); });
+        expect(screen.getByLabelText('Next configuration')).toBeDisabled();
     });
 
-    it('renders all scheduled courses in sidebar', () => {
-        render(<ClassBuilderPage />);
-        // All three courses should appear in the sidebar
-        const comp352 = screen.getAllByText('COMP 352');
-        const comp346 = screen.getAllByText('COMP 346');
-        const soen341 = screen.getAllByText('SOEN 341');
+    it('togglePin pins and unpins a cell when clicked', () => {
+        const { container } = render(<ClassBuilderPage />);
+        act(() => {
+            injectCourses([{
+                code: "COMP 352", title: "DATA STRUCTURES",
+                sections: [makeSection({ classNumber: "1001", mondays: "Y", wednesdays: "N" })],
+            }]);
+        });
 
-        expect(comp352.length).toBeGreaterThan(0);
-        expect(comp346.length).toBeGreaterThan(0);
-        expect(soen341.length).toBeGreaterThan(0);
+        const cell = container.querySelector('.class-cell') as HTMLElement;
+        act(() => { fireEvent.click(cell); });
+        expect(container.querySelectorAll('.class-cell--pinned').length).toBeGreaterThan(0);
+
+        act(() => { fireEvent.click(cell); });
+        expect(container.querySelectorAll('.class-cell--pinned').length).toBe(0);
+    });
+
+    it('handleSetAddedCourses prunes pins for courses that are removed', () => {
+        const { container } = render(<ClassBuilderPage />);
+        act(() => {
+            injectCourses([{
+                code: "COMP 352", title: "DATA STRUCTURES",
+                sections: [makeSection({ classNumber: "1001", mondays: "Y", wednesdays: "N" })],
+            }]);
+        });
+
+        act(() => { fireEvent.click(container.querySelector('.class-cell') as HTMLElement); });
+        expect(container.querySelectorAll('.class-cell--pinned').length).toBeGreaterThan(0);
+
+        act(() => { injectCourses([]); });
+        expect(container.querySelectorAll('.class-cell--pinned').length).toBe(0);
+        expect(screen.getByText('0 hours/week')).toBeInTheDocument();
+    });
+
+    it('online sections (classStartTime 00.00.00) are not rendered on the grid', () => {
+        const { container } = render(<ClassBuilderPage />);
+        act(() => {
+            injectCourses([{
+                code: "COMP 352", title: "DATA STRUCTURES",
+                sections: [makeSection({
+                    classNumber: "9001", classStartTime: "00.00.00", classEndTime: "00.00.00",
+                    mondays: "N", tuesdays: "N", wednesdays: "N", thursdays: "N",
+                    fridays: "N", saturdays: "N", sundays: "N",
+                })],
+            }]);
+        });
+
+        expect(container.querySelectorAll('.class-cell').length).toBe(0);
+        expect(screen.getByText('0 hours/week')).toBeInTheDocument();
+    });
+
+    it('LEC + 2 TUT sections within same association produces 2 configurations', () => {
+        render(<ClassBuilderPage />);
+        act(() => {
+            injectCourses([{
+                code: "COMP 352", title: "DATA STRUCTURES",
+                sections: [
+                    makeSection({ classNumber: "1001", classAssociation: "1", componentCode: "LEC", section: "AA" }),
+                    makeSection({ classNumber: "1002", classAssociation: "1", componentCode: "TUT", section: "TA" }),
+                    makeSection({ classNumber: "1003", classAssociation: "1", componentCode: "TUT", section: "TB" }),
+                ],
+            }]);
+        });
+
+        expect(screen.getByText('1 / 2')).toBeInTheDocument();
     });
 });
