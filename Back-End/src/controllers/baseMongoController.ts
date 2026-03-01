@@ -66,7 +66,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
 
       return {
         success: true,
-        data: document.toObject<T>(),
+        data: document.toObject() as T,
         message: `${this.modelName} created successfully`,
       };
     } catch (error) {
