@@ -25,6 +25,17 @@
   margin-top: 15px;
 }
 
+/* State variants */
+.upload-box-al--selected {
+  border-color: #16a34a;
+  background-color: #f0fdf4;
+}
+
+.upload-box-al--selected .file-name {
+  color: #16a34a;
+  font-weight: 600;
+}
+
 /* File Box */
 .file-name {
   font-family: 'DM Sans', sans-serif;
