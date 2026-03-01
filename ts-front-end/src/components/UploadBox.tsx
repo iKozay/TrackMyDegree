@@ -119,15 +119,33 @@ const UploadBox: React.FC<UploadBoxProps> = ({ toggleModal }) => {
       </p>
 
       <div
-        className="upload-box-al"
+        className={`upload-box-al upload-box-al--${uploadState}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}>
-        <p className ="drag-drop">Drag and Drop file</p>
-        or
-        <label htmlFor="file-upload" className="file-label">
-          Browse
-        </label>
+
+        {uploadState === 'uploading' && (
+          <div className="upload-spinner" aria-label="Uploading" />
+        )}
+
+        {uploadState === 'success' && (
+          <div className="upload-success-icon">✓</div>
+        )}
+
+        {uploadState === 'error' && (
+          <p className="upload-error-msg">{errorMessage}</p>
+        )}
+
+        {(uploadState === 'idle' || uploadState === 'selected') && (
+          <>
+            <p className="drag-drop">Drag and Drop file</p>
+            or
+            <label htmlFor="file-upload" className="file-label">
+              Browse
+            </label>
+          </>
+        )}
+
         <input
           type="file"
           id="file-upload"
