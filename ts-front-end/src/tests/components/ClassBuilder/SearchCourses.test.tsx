@@ -21,7 +21,7 @@ const makeSection = (overrides: Partial<CourseSection> = {}): CourseSection => (
     locationCode: "SGW", instructionModeCode: "P", instructionModeDescription: "In Person",
     meetingPatternNumber: "1", roomCode: "H637", buildingCode: "H", room: "H-637",
     classStartTime: "08.45.00", classEndTime: "10.00.00",
-    modays: "Y", tuesdays: "N", wednesdays: "N", thursdays: "N",
+    mondays: "Y", tuesdays: "N", wednesdays: "N", thursdays: "N",
     fridays: "N", saturdays: "N", sundays: "N",
     classStartDate: "06/01/2025", classEndDate: "15/04/2025",
     career: "UGRD", departmentCode: "COMP", departmentDescription: "Computer Science",
