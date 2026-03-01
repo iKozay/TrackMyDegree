@@ -34,7 +34,7 @@ export interface CourseSection {
     room: string;
     classStartTime: string;         // e.g. "13.15.00"
     classEndTime: string;           // e.g. "14.30.00"
-    modays: string;                 // "Y" | "N" | ""
+    mondays: string;                 // "Y" | "N" | ""
     tuesdays: string;               // "Y" | "N" | ""
     wednesdays: string;             // "Y" | "N" | ""
     thursdays: string;              // "Y" | "N" | ""
