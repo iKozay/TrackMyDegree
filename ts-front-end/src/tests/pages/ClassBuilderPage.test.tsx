@@ -12,7 +12,7 @@ const makeSection = (overrides: Partial<CourseSection> = {}): CourseSection => (
     locationCode: "SGW", instructionModeCode: "P", instructionModeDescription: "In Person",
     meetingPatternNumber: "1", roomCode: "H637", buildingCode: "H", room: "H-637",
     classStartTime: "08.45.00", classEndTime: "10.00.00",
-    modays: "Y", tuesdays: "N", wednesdays: "Y", thursdays: "N",
+    mondays: "Y", tuesdays: "N", wednesdays: "Y", thursdays: "N",
     fridays: "N", saturdays: "N", sundays: "N",
     classStartDate: "06/01/2025", classEndDate: "15/04/2025",
     career: "UGRD", departmentCode: "COMP", departmentDescription: "Computer Science",
@@ -81,7 +81,7 @@ describe('ClassBuilderPage configuration system', () => {
         act(() => {
             injectCourses([{
                 code: "COMP 352", title: "DATA STRUCTURES",
-                sections: [makeSection({ modays: "Y", wednesdays: "N", classStartTime: "09.00.00", classEndTime: "11.00.00" })],
+                sections: [makeSection({ mondays: "Y", wednesdays: "N", classStartTime: "09.00.00", classEndTime: "11.00.00" })],
             }]);
         });
 
@@ -121,7 +121,7 @@ describe('ClassBuilderPage configuration system', () => {
         act(() => {
             injectCourses([{
                 code: "COMP 352", title: "DATA STRUCTURES",
-                sections: [makeSection({ classNumber: "1001", modays: "Y", wednesdays: "N" })],
+                sections: [makeSection({ classNumber: "1001", mondays: "Y", wednesdays: "N" })],
             }]);
         });
 
@@ -138,7 +138,7 @@ describe('ClassBuilderPage configuration system', () => {
         act(() => {
             injectCourses([{
                 code: "COMP 352", title: "DATA STRUCTURES",
-                sections: [makeSection({ classNumber: "1001", modays: "Y", wednesdays: "N" })],
+                sections: [makeSection({ classNumber: "1001", mondays: "Y", wednesdays: "N" })],
             }]);
         });
 
@@ -157,7 +157,7 @@ describe('ClassBuilderPage configuration system', () => {
                 code: "COMP 352", title: "DATA STRUCTURES",
                 sections: [makeSection({
                     classNumber: "9001", classStartTime: "00.00.00", classEndTime: "00.00.00",
-                    modays: "N", tuesdays: "N", wednesdays: "N", thursdays: "N",
+                    mondays: "N", tuesdays: "N", wednesdays: "N", thursdays: "N",
                     fridays: "N", saturdays: "N", sundays: "N",
                 })],
             }]);
