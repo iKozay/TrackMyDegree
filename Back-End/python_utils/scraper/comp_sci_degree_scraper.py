@@ -104,14 +104,14 @@ class CompCaDegreeScraper(CompVariantDegreeScraper):
         course_ids = [link.text for link in courses]
         other_courses_pool = CoursePool(_id=f"{self.degree_short_name}_Other Required Courses",name="Other Required Courses", courses=course_ids, creditsRequired=12.0)
         self.program_requirements.coursePools.append(other_courses_pool)
-        self.program_requirements.degree.coursePools.append(other_courses_pool.id)
+        self.program_requirements.degree.coursePools.append(other_courses_pool._id)
 
 class CompDsDegreeScraper(CompVariantDegreeScraper):
     def _handle_special_cases(self):
         # COMP 233 must be replaced by MAST 221.
         computer_science_core_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Computer Science Core"), None)
         if computer_science_core_pool:
-            self.remove_courses_from_pool(computer_science_core_pool, ["COMP 233"])
+            self.remove_courses_from_pool(computer_science_core_pool.name, ["COMP 233"])
             if "MAST 221" not in computer_science_core_pool.courses:
                 computer_science_core_pool.courses.append("MAST 221")
 
