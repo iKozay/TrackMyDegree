@@ -1,4 +1,4 @@
-from typing import Literal, Optional, Union
+from typing import Optional
 from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -50,15 +50,23 @@ class Degree(MongoDBModel):
     degreeType: DegreeType
     totalCredits: float
     coursePools: list[str] # List of CoursePool IDs only
+    ecpDegreeId: Optional[str] = None
 
 class ProgramRequirements(BaseModel):
     degree: Degree
     coursePools: list[CoursePool]    
 
+# ECP degree ID constants
+class ECPDegreeIDs:
+    ENGR_ECP_ID = "Extended Credit Program - Engineering"
+    COMP_ECP_ID = "Extended Credit Program - Computer Science"
+    COMP_HLS_ECP_ID = "Extended Credit Program - Health and Life Sciences"
+
 class DegreeScraperConfig(BaseModel):
     long_name: str
     short_name: str
     scraper_class: type
+    ecp_degree_id: Optional[str] = None
     marker: Optional[str] = None
 
     def __init__(self, **data):

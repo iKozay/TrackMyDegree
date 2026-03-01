@@ -10,7 +10,7 @@ from scraper.comp_sci_degree_scraper import (
     CompCaDegreeScraper,
     CompDsDegreeScraper
 )
-from models import CoursePool, DegreeType
+from models import CoursePool, DegreeType, ECPDegreeIDs
 
 
 class TestCompDegreeScraper:
@@ -38,7 +38,7 @@ class TestCompDegreeScraper:
             courses=["MATH 363", "MATH 364"]
         )
         
-        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", "http://test.com")
+        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [cs_electives_pool, general_electives_pool, math_electives_pool])
         
         with patch.object(scraper, '_handle_computer_science_electives') as mock_handle_cs, \
@@ -63,7 +63,7 @@ class TestCompDegreeScraper:
             courses=["COMP 352", "COMP 353"]
         )
         
-        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", "http://test.com")
+        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
         scraper._handle_computer_science_electives(cs_electives_pool)
         
         # Should include COMP courses 325 and higher
@@ -103,7 +103,7 @@ class TestCompDegreeScraper:
         )
         
         # Setup scraper with all required pools
-        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", "http://test.com")
+        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [cs_electives_pool, math_electives_pool, general_electives_pool])
         
         # Mock the _get_general_education_pool method
@@ -160,7 +160,7 @@ class TestCompDegreeScraper:
             courses=[]
         )
         
-        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", "http://test.com")
+        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [cs_electives_pool, math_electives_pool, general_electives_pool])
         
         scraper._handle_computer_general_electives(general_electives_pool)
@@ -194,7 +194,7 @@ class TestCompVariantDegreeScraper:
         # Setup to return node on first try (exact match)
         mock_soup.find.return_value = mock_program_node
         
-        scraper = CompVariantDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", "http://test.com")
+        scraper = CompVariantDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
         
         result = scraper._get_program_node(mock_soup)
         
@@ -216,7 +216,7 @@ class TestCompVariantDegreeScraper:
         # Setup to return None on first try, node on second try
         mock_soup.find.side_effect = [None, mock_program_node]
         
-        scraper = CompVariantDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", "http://test.com")
+        scraper = CompVariantDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
         
         result = scraper._get_program_node(mock_soup)
         
@@ -239,7 +239,7 @@ class TestCompVariantDegreeScraper:
         mock_instance.scrape_degree.return_value = cs_requirements
         mock_comp_scraper.return_value = mock_instance
         
-        scraper = CompVariantDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", "http://test.com")
+        scraper = CompVariantDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
         
         # Setup failed pools
         failed_pool_1 = CoursePool(_id="failed1", name="Computer Science Core", creditsRequired=33, courses=[])
@@ -289,7 +289,7 @@ class TestCompCaDegreeScraper:
             courses=["CART 210", "CART 311"]
         )
         
-        scraper = CompCaDegreeScraper("BCompSc Joint Major in Computation Arts and Computer Science", "COMP_CA", "http://test.com")
+        scraper = CompCaDegreeScraper("BCompSc Joint Major in Computation Arts and Computer Science", "COMP_CA", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
         
         # Mock the program requirements directly instead of using ProgramRequirements constructor
         scraper.program_requirements = MagicMock()
@@ -333,7 +333,7 @@ class TestCompDsDegreeScraper:
             courses=["COMP 248", "COMP 233", "COMP 249"]
         )
         
-        scraper = CompDsDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", "http://test.com")
+        scraper = CompDsDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
         
         # Mock the program requirements directly
         scraper.program_requirements = MagicMock()

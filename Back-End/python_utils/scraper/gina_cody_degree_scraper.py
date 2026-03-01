@@ -118,8 +118,8 @@ class AeroDegreeScraper(GinaCodyDegreeScraper):
         "Avionics and Aerospace Systems": "Option C"
     }
 
-    def __init__(self, degree_name, degree_short_name, requirements_url):
-        super().__init__(degree_name, degree_short_name, requirements_url)
+    def __init__(self, degree_name, degree_short_name, ecp_degree_id, requirements_url):
+        super().__init__(degree_name, degree_short_name, ecp_degree_id, requirements_url)
         self.degree_name_without_option, option = degree_name.split(" Option: ")
         self.option_name = self.OPTIONS.get(option.strip())
 

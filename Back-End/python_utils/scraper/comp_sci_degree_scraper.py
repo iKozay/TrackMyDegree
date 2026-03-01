@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.bs4_utils import get_all_links_from_div
 from scraper.gina_cody_degree_scraper import GinaCodyDegreeScraper
 from scraper.course_data_scraper import get_course_scraper_instance
-from models import CoursePool
+from models import CoursePool, ECPDegreeIDs
 from utils.parsing_utils import COURSE_REGEX
 
 class CompDegreeScraper(GinaCodyDegreeScraper):
@@ -74,7 +74,7 @@ class CompVariantDegreeScraper(GinaCodyDegreeScraper):
         raise ValueError(f"Program node for '{self.degree_name}' not found in the degree requirements page.")
 
     def _handle_failed_course_pools(self, failed_pools):
-        self.computer_science_requirements = CompDegreeScraper("BCompSc in Computer Science", "COMP", "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-70-department-of-computer-science-and-software-engineering/section-71-70-2-degree-requirements-bcompsc-.html").scrape_degree()
+        self.computer_science_requirements = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-70-department-of-computer-science-and-software-engineering/section-71-70-2-degree-requirements-bcompsc-.html").scrape_degree()
         comp_science_pool_names = [p.name for p in self.computer_science_requirements.coursePools]
         for pool in failed_pools:
             if pool.name in comp_science_pool_names:
