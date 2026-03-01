@@ -35,6 +35,9 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
 
   const hasMultipleConfigs = totalConfigs > 1;
 
+
+
+
   return (
     <div className="schedule-container">
       <style>{`
@@ -278,16 +281,25 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                     ? pinnedClassNumbers.has(classItem.classNumber)
                     : false;
 
+                  let cellClassName = "empty-cell";
+                  let cellTitle;
+
+                  if (classItem) {
+                    cellClassName = "class-cell";
+
+                    if (isPinned) {
+                      cellClassName += " class-cell--pinned";
+                      cellTitle = "Click to unpin";
+                    } else {
+                      cellTitle = "Click to pin";
+                    }
+                  }
                   return (
                     <td
                       key={`${day}-${hour}`}
-                      className={
-                        classItem
-                          ? `class-cell${isPinned ? " class-cell--pinned" : ""}`
-                          : "empty-cell"
-                      }
+                      className={cellClassName}
                       onClick={() => classItem && onTogglePin(classItem.classNumber)}
-                      title={classItem ? (isPinned ? "Click to unpin" : "Click to pin") : undefined}
+                      title={cellTitle}
                     >
                       {classItem && isFirstHourOfClass(classItem, hour) && (
                         <div className="class-info">

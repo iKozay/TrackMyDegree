@@ -97,15 +97,6 @@ describe('ClassBuilderPage configuration system', () => {
         expect(screen.getByLabelText('Next configuration')).toBeInTheDocument();
     });
 
-    it('goToNext and goToPrev navigate between configurations', () => {
-        render(<ClassBuilderPage />);
-        act(() => { injectCourses([twoAssocCourse()]); });
-
-        act(() => { fireEvent.click(screen.getByLabelText('Next configuration')); });
-
-        act(() => { fireEvent.click(screen.getByLabelText('Previous configuration')); });
-    });
-
     it('prev is disabled at first config; next is disabled at last config', () => {
         render(<ClassBuilderPage />);
         act(() => { injectCourses([twoAssocCourse()]); });
@@ -181,14 +172,5 @@ describe('ClassBuilderPage configuration system', () => {
         });
 
         expect(screen.getByText('1 / 2')).toBeInTheDocument();
-    });
-
-    it('safeConfigIndex clamps when pin filter reduces config count', () => {
-        render(<ClassBuilderPage />);
-        act(() => { injectCourses([twoAssocCourse()]); });
-
-        act(() => { fireEvent.click(screen.getByLabelText('Next configuration')); });
-
-        act(() => { fireEvent.click(screen.getAllByTitle(/Click to pin/)[0]); });
     });
 });

@@ -1,4 +1,4 @@
-import React from "react";
+//import React from "react";
 import { useState, useMemo } from "react";
 import { api } from "../../api/http-api-client.ts";
 import type { AddedCourse, CourseSection } from "src/types/classItem";
@@ -58,7 +58,8 @@ const SearchCourses: React.FC<SearchCoursesProps> = ({ addedCourses, setAddedCou
     const [modal, setModal] = useState<ModalState>(null);
 
     const parseCourseCode = (input: string) => {
-        const match = input.trim().match(/^([A-Z]+)\s+(\d+)/i);
+        const regex = /^([A-Z]+)\s+(\d+)/i;
+        const match = regex.exec(input.trim())
         if (!match) {
             throw new Error("Invalid course format. Please use a format like \"COMP 352\".");
         }

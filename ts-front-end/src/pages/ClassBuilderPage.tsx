@@ -15,7 +15,7 @@ const DAY_FLAGS: Array<keyof CourseSection> = [
 
 const parseTime = (raw: string): number => {
     const [h] = raw.split(".");
-    return parseInt(h, 10);
+    return Number.parseInt(h, 10);
 };
 
 const sectionToClassItems = (course: AddedCourse, section: CourseSection): ClassItem[] => {
@@ -38,10 +38,31 @@ const sectionToClassItems = (course: AddedCourse, section: CourseSection): Class
 };
 
 // Returns all valid ClassItem[][] configurations for a single AddedCourse
+const cartesianProduct = (groups: CourseSection[][]): CourseSection[][] => {
+    const result: CourseSection[][] = [[]];
+
+    for (const group of groups) {
+        const next: CourseSection[][] = [];
+
+        for (const combo of result) {
+            for (const section of group) {
+                next.push([...combo, section]);
+            }
+        }
+
+        result.splice(0, result.length, ...next);
+    }
+
+    return result;
+};
+
 const configurationsForCourse = (course: AddedCourse): ClassItem[][] => {
     const byAssociation = new Map<string, CourseSection[]>();
+
     for (const section of course.sections) {
-        if (!byAssociation.has(section.classAssociation)) byAssociation.set(section.classAssociation, []);
+        if (!byAssociation.has(section.classAssociation)) {
+            byAssociation.set(section.classAssociation, []);
+        }
         byAssociation.get(section.classAssociation)!.push(section);
     }
 
@@ -49,20 +70,26 @@ const configurationsForCourse = (course: AddedCourse): ClassItem[][] => {
 
     for (const assocSections of byAssociation.values()) {
         const byComponent = new Map<string, CourseSection[]>();
+
         for (const section of assocSections) {
-            if (!byComponent.has(section.componentCode)) byComponent.set(section.componentCode, []);
+            if (!byComponent.has(section.componentCode)) {
+                byComponent.set(section.componentCode, []);
+            }
             byComponent.get(section.componentCode)!.push(section);
         }
 
         const componentGroups = Array.from(byComponent.values());
-        const product = (groups: CourseSection[][]): CourseSection[][] =>
-            groups.reduce<CourseSection[][]>(
-                (acc, group) => acc.flatMap(combo => group.map(s => [...combo, s])),
-                [[]]
-            );
+        const combos = cartesianProduct(componentGroups);
 
-        for (const combo of product(componentGroups)) {
-            allConfigs.push(combo.flatMap(s => sectionToClassItems(course, s)));
+        for (const combo of combos) {
+            const classItems: ClassItem[] = [];
+
+            for (const section of combo) {
+                const items = sectionToClassItems(course, section);
+                classItems.push(...items);
+            }
+
+            allConfigs.push(classItems);
         }
     }
 
