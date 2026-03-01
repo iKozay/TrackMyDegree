@@ -9,8 +9,8 @@ from utils.logging_utils import get_logger
 from models import AnchorLink, DegreeScraperConfig, ProgramRequirements
 from scraper.abstract_degree_scraper import AbstractDegreeScraper
 from scraper.gina_cody_degree_scraper import AeroDegreeScraper, BldgDegreeScraper, ChemDegreeScraper, CiviDegreeScraper, CoenDegreeScraper, ElecDegreeScraper, InduDegreeScraper, MechDegreeScraper, SoenDegreeScraper
-from scraper.comp_sci_degree_scraper import CompDegreeScraper
-from scraper.ecp_coop_degree_scraper import EngrEcpDegreeScraper, CompEcpDegreeScraper, CoopDegreeScraper
+from scraper.comp_sci_degree_scraper import CompDegreeScraper, CompCaDegreeScraper, CompDsDegreeScraper, CompHlsDegreeScraper
+from scraper.ecp_coop_degree_scraper import EngrEcpDegreeScraper, CompEcpDegreeScraper, CompHlsEcpDegreeScraper,CoopDegreeScraper
 
 class DegreeDataScraper():
     GINA_CODY_PROGRAMS_OFFERED_URL = "https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-10-gina-cody-school-of-engineering-and-computer-science.html#9919"
@@ -30,12 +30,13 @@ class DegreeDataScraper():
             DegreeScraperConfig(long_name="BEng in Mechanical Engineering", short_name="MECH", scraper_class=MechDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Software Engineering", short_name="SOEN", scraper_class=SoenDegreeScraper),
             DegreeScraperConfig(long_name="BCompSc in Computer Science", short_name="COMP", scraper_class=CompDegreeScraper),
+            DegreeScraperConfig(long_name="BCompSc Joint Major in Computation Arts and Computer Science", short_name="COMP_CA", scraper_class=CompCaDegreeScraper),
+            DegreeScraperConfig(long_name="BCompSc Joint Major in Data Science", short_name="COMP_DS", scraper_class=CompDsDegreeScraper),
+            DegreeScraperConfig(long_name="BCompSc in Health and Life Sciences", short_name="COMP_HLS", scraper_class=CompHlsDegreeScraper),
             DegreeScraperConfig(long_name="Extended Credit Program - Engineering", marker="Extended Credit Program", short_name="ENGR_ECP", scraper_class=EngrEcpDegreeScraper),
             DegreeScraperConfig(long_name="Extended Credit Program - Computer Science", marker="Section 71.70.3 Extended Credit Program", short_name="COMP_ECP", scraper_class=CompEcpDegreeScraper),
+            DegreeScraperConfig(long_name="Extended Credit Program - Health and Life Sciences", short_name="COMP_HLS_ECP", scraper_class=CompHlsEcpDegreeScraper),
             DegreeScraperConfig(long_name="Co-op Program", short_name="COOP", scraper_class=CoopDegreeScraper),
-            #TODO: add Computer Science and Health & Life Science
-            #TODO: add Computer Science and Data Science
-            #TODO: add Computer Science and Computer Arts
         ]
         self._init_scrapers()
 
@@ -43,6 +44,8 @@ class DegreeDataScraper():
         # Get degree programs
         degree_links = get_all_links_from_div(self.GINA_CODY_PROGRAMS_OFFERED_URL, ["content-main"], exclude_regex=COURSE_REGEX)
         degree_links.append(AnchorLink(text="Co-op Program", url=""))
+        degree_links.append(AnchorLink(text="BCompSc in Health and Life Sciences", url="https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-75-computer-science-in-health-and-life-sciences/section-71-75-1-curriculum-for-the-degree-of-bcompsc-in-health-and-life-sciences.html"))
+        degree_links.append(AnchorLink(text="Extended Credit Program - Health and Life Sciences", url="https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-75-computer-science-in-health-and-life-sciences/section-71-75-1-curriculum-for-the-degree-of-bcompsc-in-health-and-life-sciences.html"))
         self.degree_scrapers = {}
         for config in self.degree_scraper_config:
             degree_link = next((link for link in degree_links if config.marker in link.text), None)
