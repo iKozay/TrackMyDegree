@@ -1,5 +1,5 @@
 import React from "react";
-import "../css/Journey.css";
+import "../styles/Journey.css";
 import courseImg from "../images/courselistpage.png";
 import acceptanceImg from "../images/uploadAcceptanceletter.png";
 import timelineImg from "../images/timelinepage.png";

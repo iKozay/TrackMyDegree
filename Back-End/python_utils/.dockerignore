@@ -17,6 +17,7 @@ tests/
 coverage/
 coverage.*
 .coveragerc
+htmlcov/
 
 # Docker files not needed in context
 Dockerfile

@@ -1,47 +1,10 @@
 /* Coop Validation Button Style */
-.coop-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.4);
-}
-
 .coop-modal-container {
   width: 100%;
   max-width: 36rem;
   border-radius: 0.75rem;
   background: #fff;
   padding: 1.5rem;
-}
-.coop-modal-content {
-    background: white;
-    border-radius: 8px;
-    padding: 2rem;
-    max-width: 1200px;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
-.coop-modal-close {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: none;
-    border: none;
-    font-size: 2rem;
-    cursor: pointer;
-    color: #666;
-    padding: 0;
-    width: 2rem;
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .coop-modal-header {

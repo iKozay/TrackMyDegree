@@ -1,55 +1,110 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, test, expect, vi } from 'vitest';
-import { MemoryRouter } from 'react-router-dom';
-
-// ✅ Correct import path you requested
+import { vi } from 'vitest';
 import TimelineSetupPage from '../../pages/TimelineSetupPage';
 
-// Mock child components (so we isolate TimelineSetupPage behavior)
+// Mock child components
 vi.mock('../../components/InformationForm', () => ({
-  default: () => <div data-testid="information-form" />,
+  default: () => <div data-testid="information-form">InformationForm</div>,
 }));
 
 vi.mock('../../components/UploadBox', () => ({
-  default: () => <div data-testid="upload-box" />,
+  default: ({ toggleModal }: { toggleModal: () => void }) => (
+    <div data-testid="upload-box">
+      <button onClick={toggleModal}>Open Modal</button>
+    </div>
+  ),
 }));
 
 vi.mock('../../components/InstructionModal', () => ({
-  default: ({ isOpen }: { isOpen: boolean }) =>
-    isOpen ? <div data-testid="instructions-modal">Modal Open</div> : null,
+  default: ({ isOpen, toggleModal }: { isOpen: boolean; toggleModal: () => void }) => (
+    <div data-testid="instructions-modal" data-open={isOpen}>
+      {isOpen && <button onClick={toggleModal}>Close Modal</button>}
+    </div>
+  ),
 }));
 
-describe('TimelineSetupPage Component', () => {
-  const renderWithRouter = (ui: React.ReactNode) =>
-    render(<MemoryRouter>{ui}</MemoryRouter>);
+vi.mock('../../components/UserTimelinesSection', () => ({
+  default: () => <div data-testid="user-timelines-section">UserTimelinesSection</div>,
+}));
 
-  test('renders layout correctly', () => {
-    renderWithRouter(<TimelineSetupPage />);
+vi.mock('../../styles/TimelineSetupPage.css', () => ({}));
 
-    expect(screen.getByTestId('information-form')).toBeInTheDocument();
-    expect(screen.getByTestId('upload-box')).toBeInTheDocument();
+describe('TimelineSetupPage', () => {
+  it('renders the hero section with correct heading and description', () => {
+    render(<TimelineSetupPage />);
 
+    expect(screen.getByText('Create Your Academic Timeline')).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /how to download your transcript/i })
+      screen.getByText(
+        'Plan your journey smarter. Build it manually or upload your acceptance letter / unofficial transcript.'
+      )
     ).toBeInTheDocument();
   });
 
-  test('opens and closes the modal when clicking the toggle button', () => {
-    renderWithRouter(<TimelineSetupPage />);
+  it('renders the InformationForm component', () => {
+    render(<TimelineSetupPage />);
+    expect(screen.getByTestId('information-form')).toBeInTheDocument();
+  });
 
-    const modalButton = screen.getByRole('button', {
-      name: /how to download your transcript/i,
-    });
+  it('renders the UploadBox component', () => {
+    render(<TimelineSetupPage />);
+    expect(screen.getByTestId('upload-box')).toBeInTheDocument();
+  });
 
-    // Modal should initially be closed
-    expect(screen.queryByTestId('instructions-modal')).toBeNull();
+  it('renders the UserTimelinesSection component', () => {
+    render(<TimelineSetupPage />);
+    expect(screen.getByTestId('user-timelines-section')).toBeInTheDocument();
+  });
 
-    // Open modal
-    fireEvent.click(modalButton);
+  it('renders the InstructionsModal component', () => {
+    render(<TimelineSetupPage />);
     expect(screen.getByTestId('instructions-modal')).toBeInTheDocument();
+  });
+
+  it('renders the OR divider between the two cards', () => {
+    render(<TimelineSetupPage />);
+    expect(screen.getByText('OR')).toBeInTheDocument();
+  });
+
+  it('modal is closed by default', () => {
+    render(<TimelineSetupPage />);
+    const modal = screen.getByTestId('instructions-modal');
+    expect(modal).toHaveAttribute('data-open', 'false');
+  });
+
+  it('opens the modal when toggleModal is called from UploadBox', () => {
+    render(<TimelineSetupPage />);
+
+    const openButton = screen.getByText('Open Modal');
+    fireEvent.click(openButton);
+
+    const modal = screen.getByTestId('instructions-modal');
+    expect(modal).toHaveAttribute('data-open', 'true');
+  });
+
+  it('closes the modal when toggleModal is called from InstructionsModal', () => {
+    render(<TimelineSetupPage />);
+
+    // Open modal first
+    fireEvent.click(screen.getByText('Open Modal'));
+    expect(screen.getByTestId('instructions-modal')).toHaveAttribute('data-open', 'true');
 
     // Close modal
-    fireEvent.click(modalButton);
-    expect(screen.queryByTestId('instructions-modal')).toBeNull();
+    fireEvent.click(screen.getByText('Close Modal'));
+    expect(screen.getByTestId('instructions-modal')).toHaveAttribute('data-open', 'false');
+  });
+
+  it('toggles modal state correctly on multiple clicks', () => {
+    render(<TimelineSetupPage />);
+    const modal = screen.getByTestId('instructions-modal');
+    const openButton = screen.getByText('Open Modal');
+
+    expect(modal).toHaveAttribute('data-open', 'false');
+
+    fireEvent.click(openButton);
+    expect(modal).toHaveAttribute('data-open', 'true');
+
+    fireEvent.click(screen.getByText('Close Modal'));
+    expect(modal).toHaveAttribute('data-open', 'false');
   });
 });

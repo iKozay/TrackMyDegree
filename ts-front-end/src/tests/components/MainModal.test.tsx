@@ -9,7 +9,12 @@ vi.mock("../../components/BaseModal", () => ({
 }));
 
 vi.mock("../../components/InsightsModal", () => ({
-  InsightsModal: () => <div data-testid="insights-modal">Insights Modal</div>,
+  InsightsModal: ({ onClose }: { onClose: () => void }) => (
+    <>
+      <div data-testid="insights-modal">Insights Modal</div>
+      <button data-testid="insights-close-btn" onClick={onClose}>Close Insights</button>
+    </>
+  ),
 }));
 
 vi.mock("../../components/AddModal", () => ({
@@ -19,7 +24,16 @@ vi.mock("../../components/AddModal", () => ({
 }));
 
 vi.mock("../../components/SaveTimelineModal", () => ({
-  SaveTimelineModal: () => <div data-testid="save-timeline-modal">Save Timeline Modal</div>,
+  SaveTimelineModal: ({ onClose }: { onClose: () => void }) => (
+    <>
+      <div data-testid="save-timeline-modal">Save Timeline Modal</div>
+      <button data-testid="save-close-btn" onClick={onClose}>Close Save Timeline</button>
+    </>
+  ),
+}));
+
+vi.mock("../../components/CoopValidationModal", () => ({
+  CoopValidationModal: () => <div data-testid="coop-validation-modal">Co-op Validation</div>,
 }));
 
 describe("MainModal", () => {
@@ -83,6 +97,15 @@ describe("MainModal", () => {
     expect(screen.getByText("Insights Modal")).toBeInTheDocument();
   });
 
+  it("should call onClose when InsightsModal's onClose is triggered", () => {
+    render(<MainModal {...defaultProps} type="insights" />);
+
+    const closeBtn = screen.getByTestId("insights-close-btn");
+    closeBtn.click();
+
+    expect(mockOnClose).toHaveBeenCalled();
+  });
+
   it("should render AddModal with exemption type when type is exemption", () => {
     render(<MainModal {...defaultProps} type="exemption" />);
 
@@ -104,6 +127,22 @@ describe("MainModal", () => {
     expect(screen.getByText("Save Timeline Modal")).toBeInTheDocument();
   });
 
+  it("should call onClose when SaveTimelineModal's onClose is triggered", () => {
+    render(<MainModal {...defaultProps} type="save" />);
+
+    const closeBtn = screen.getByTestId("save-close-btn");
+    closeBtn.click();
+
+    expect(mockOnClose).toHaveBeenCalled();
+  });
+
+  it("should render CoopValidationModal when type is coopValidation", () => {
+    render(<MainModal {...defaultProps} type="coop" />);
+
+    expect(screen.getByTestId("coop-validation-modal")).toBeInTheDocument();
+    expect(screen.getByText("Co-op Validation")).toBeInTheDocument();
+  });
+
   it("should render unknown modal message for unrecognized type", () => {
     render(<MainModal {...defaultProps} type="unknown" />);
 
@@ -122,5 +161,9 @@ describe("MainModal", () => {
 
     rerender(<MainModal {...defaultProps} type="save" />);
     expect(screen.getByTestId("save-timeline-modal")).toBeInTheDocument();
+
+    rerender(<MainModal {...defaultProps} type="coop" />);
+    expect(screen.getByText("Co-op Validation")).toBeInTheDocument();
   });
+
 });

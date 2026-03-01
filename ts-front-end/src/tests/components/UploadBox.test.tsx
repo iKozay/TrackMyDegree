@@ -1,154 +1,283 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, vi, expect, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { vi, type Mock } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import UploadBox from '../../components/UploadBox';
 import { api } from '../../api/http-api-client';
-import { MemoryRouter } from 'react-router-dom';
-import type { Mock } from 'vitest';
+
+// Mocks 
+
+vi.mock('../../styles/components/UploadBox.css', () => ({}));
+
+vi.mock('../../api/http-api-client', () => ({
+  api: { post: vi.fn() },
+}));
 
 vi.mock('react-toastify', () => ({
-  toast: {
-    success: vi.fn(),
-    info: vi.fn(),
-    error: vi.fn(),
-  },
+  toast: { success: vi.fn() },
 }));
 
-// --- Mock API ---
-vi.mock('../../api/http-api-client', () => ({
-  api: {
-    post: vi.fn(),
-  },
-}));
-
-// --- Mock useNavigate ---
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual<any>('react-router-dom');
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  };
+  const actual = await vi.importActual('react-router-dom');
+  return { ...actual, useNavigate: () => mockNavigate };
 });
 
-describe('UploadBox', () => {
+// Helpers 
 
+const toggleModal = vi.fn();
+
+const renderComponent = () =>
+  render(
+    <MemoryRouter>
+      <UploadBox toggleModal={toggleModal} />
+    </MemoryRouter>
+  );
+
+const makePdfFile = (name = 'transcript.pdf') =>
+  new File(['content'], name, { type: 'application/pdf' });
+
+const makeNonPdfFile = (name = 'document.docx') =>
+  new File(['content'], name, {
+    type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  });
+
+const uploadFile = (file: File) => {
+  const input = document.querySelector<HTMLInputElement>('#file-upload')!;
+  fireEvent.change(input, { target: { files: [file] } });
+};
+
+// Tests 
+
+describe('UploadBox', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('renders correctly', () => {
-    render(
-      <MemoryRouter>
-        <UploadBox />
-      </MemoryRouter>
-    );
+  // Rendering 
 
-    expect(screen.getByText(/Upload Acceptance Letter/i)).toBeInTheDocument();
-    expect(screen.getByText(/Drag and Drop file/i)).toBeInTheDocument();
-    expect(screen.getByText(/Create Timeline/i)).toBeInTheDocument();
+  it('renders the heading and description', () => {
+    renderComponent();
+    expect(screen.getByText('Acceptance Letter or Unofficial Transcript')).toBeInTheDocument();
+    expect(screen.getByText(/Upload your acceptance letter/)).toBeInTheDocument();
   });
 
-  it('alerts when non-PDF file is selected', () => {
-    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+  it('renders Drag and Drop text', () => {
+    renderComponent();
+    expect(screen.getByText('Drag and Drop file')).toBeInTheDocument();
+  });
 
-    render(
-      <MemoryRouter>
-        <UploadBox />
-      </MemoryRouter>
-    );
+  it('renders Browse label', () => {
+    renderComponent();
+    expect(screen.getByText('Browse')).toBeInTheDocument();
+  });
 
-    const fileInput = screen.getByLabelText(/Browse/i) as HTMLInputElement;
-    const file = new File(['test'], 'test.txt', { type: 'text/plain' });
-    fireEvent.change(fileInput, { target: { files: [file] } });
+  it('renders Cancel and Create Timeline buttons', () => {
+    renderComponent();
+    expect(screen.getByText('Cancel')).toBeInTheDocument();
+    expect(screen.getByText('Create Timeline')).toBeInTheDocument();
+  });
 
-    expect(alertMock).toHaveBeenCalledWith('Please select a valid PDF file.');
+  it('shows "No file chosen" initially', () => {
+    renderComponent();
     expect(screen.getByText('No file chosen')).toBeInTheDocument();
-
-    alertMock.mockRestore();
   });
 
-  it('updates file name when PDF is selected', () => {
-    render(
-      <MemoryRouter>
-        <UploadBox />
-      </MemoryRouter>
-    );
-
-    const fileInput = screen.getByLabelText(/Browse/i) as HTMLInputElement;
-    const file = new File(['pdfcontent'], 'document.pdf', { type: 'application/pdf' });
-    fireEvent.change(fileInput, { target: { files: [file] } });
-
-    expect(screen.getByText(/File Selected: document.pdf/i)).toBeInTheDocument();
+  it('renders the View Guide button', () => {
+    renderComponent();
+    expect(screen.getByText('View Guide')).toBeInTheDocument();
   });
 
-  it('clears selected file on cancel', () => {
-    render(
-      <MemoryRouter>
-        <UploadBox />
-      </MemoryRouter>
-    );
+  // File selection 
 
-    const fileInput = screen.getByLabelText(/Browse/i) as HTMLInputElement;
-    const file = new File(['pdfcontent'], 'document.pdf', { type: 'application/pdf' });
-    fireEvent.change(fileInput, { target: { files: [file] } });
+  it('shows selected file name when a valid PDF is chosen', () => {
+    renderComponent();
+    uploadFile(makePdfFile('my-transcript.pdf'));
+    expect(screen.getByText('File Selected: my-transcript.pdf')).toBeInTheDocument();
+  });
 
-    const cancelBtn = screen.getByText(/Cancel/i);
-    fireEvent.click(cancelBtn);
-
+  it('alerts and resets when a non-PDF file is selected', () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    renderComponent();
+    uploadFile(makeNonPdfFile());
+    expect(alertSpy).toHaveBeenCalledWith('Please select a valid PDF file.');
     expect(screen.getByText('No file chosen')).toBeInTheDocument();
-    expect(fileInput.value).toBe('');
   });
 
-  it('submits selected PDF and navigates on success', async () => {
-    const mockedPost = api.post as Mock;
-    mockedPost.mockResolvedValue({ jobId: '123' });
+  // Cancel button 
 
-    render(
-      <MemoryRouter>
-        <UploadBox />
-      </MemoryRouter>
-    );
+  it('resets file state when Cancel is clicked', () => {
+    renderComponent();
+    uploadFile(makePdfFile());
+    expect(screen.getByText(/File Selected/)).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Cancel'));
+    expect(screen.getByText('No file chosen')).toBeInTheDocument();
+  });
 
-    const fileInput = screen.getByLabelText(/Browse/i) as HTMLInputElement;
-    const file = new File(['pdfcontent'], 'document.pdf', { type: 'application/pdf' });
-    fireEvent.change(fileInput, { target: { files: [file] } });
+  // View Guide button 
 
-    const createBtn = screen.getByText(/Create Timeline/i);
-    fireEvent.click(createBtn);
+  it('calls toggleModal when View Guide is clicked', () => {
+    renderComponent();
+    fireEvent.click(screen.getByText('View Guide'));
+    expect(toggleModal).toHaveBeenCalledTimes(1);
+  });
 
-    await waitFor(
-      () => {
-        expect(mockedPost).toHaveBeenCalledWith('/upload/file', expect.any(FormData));
-      },
-      { timeout: 1000 }
-    );
+  // Submit: no file 
 
-    await waitFor(
-      () => {
-        expect(mockNavigate).toHaveBeenCalledWith('/timeline/123');
-      },
-      { timeout: 2500 }
-    );
-  }, 5000);
+  it('alerts when Create Timeline is clicked with no file selected', () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    renderComponent();
+    fireEvent.click(screen.getByText('Create Timeline'));
+    expect(alertSpy).toHaveBeenCalledWith('Please choose a file to upload!');
+    expect(api.post).not.toHaveBeenCalled();
+  });
 
-  it('shows uploading state and disables button while submitting', async () => {
-    const mockedPost = api.post as Mock;
-    mockedPost.mockResolvedValue({ jobId: '456' });
+  // Submit: loading state 
 
-    render(
-      <MemoryRouter>
-        <UploadBox />
-      </MemoryRouter>
-    );
+  it('shows Uploading… while request is in flight', async () => {
+    (api.post as Mock).mockReturnValue(new Promise(() => {})); // never resolves
+    renderComponent();
+    uploadFile(makePdfFile());
+    fireEvent.click(screen.getByText('Create Timeline'));
+    expect(await screen.findByText('Uploading…')).toBeInTheDocument();
+  });
 
-    const fileInput = screen.getByLabelText(/Browse/i) as HTMLInputElement;
-    const file = new File(['pdfcontent'], 'doc.pdf', { type: 'application/pdf' });
-    fireEvent.change(fileInput, { target: { files: [file] } });
+  it('disables Cancel, Create Timeline, and file input while uploading', async () => {
+    (api.post as Mock).mockReturnValue(new Promise(() => {})); // never resolves
+    renderComponent();
+    uploadFile(makePdfFile());
+    fireEvent.click(screen.getByText('Create Timeline'));
+    await screen.findByText('Uploading…');
+    expect(screen.getByText('Cancel')).toBeDisabled();
+    expect(screen.getByText('Uploading…')).toBeDisabled();
+    expect(document.querySelector<HTMLInputElement>('#file-upload')).toBeDisabled();
+  });
 
-    const createBtn = screen.getByText(/Create Timeline/i);
-    fireEvent.click(createBtn);
+  // Submit: success
 
-    expect(screen.getByText(/Uploading…/i)).toBeInTheDocument();
-    expect(createBtn).toBeDisabled();
+  it('navigates to timeline page after successful upload (after redirect delay)', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    (api.post as Mock).mockResolvedValue({ jobId: 'job-xyz' });
+    renderComponent();
+    uploadFile(makePdfFile());
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Create Timeline'));
+      await vi.runAllTimersAsync();
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith('/timeline/job-xyz');
+    vi.useRealTimers();
+  });
+
+  it('appends the file to FormData when submitting', async () => {
+    (api.post as Mock).mockResolvedValue({ jobId: 'job-xyz' });
+    renderComponent();
+    const file = makePdfFile('test.pdf');
+    uploadFile(file);
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Create Timeline'));
+    });
+
+    await waitFor(() => {
+      const formData: FormData = (api.post as Mock).mock.calls[0][1];
+      expect(formData.get('file')).toBe(file);
+    });
+  });
+
+  it('shows toast on successful upload', async () => {
+    const { toast } = await import('react-toastify');
+    (api.post as Mock).mockResolvedValue({ jobId: 'job-xyz' });
+    renderComponent();
+    uploadFile(makePdfFile());
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Create Timeline'));
+    });
+
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith('Upload complete. Redirecting…');
+    });
+  });
+
+  // Submit: unexpected response 
+
+  it('alerts on unexpected response (no jobId)', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    (api.post as Mock).mockResolvedValue({});
+    renderComponent();
+    uploadFile(makePdfFile());
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Create Timeline'));
+    });
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith('Unexpected response from server.');
+    });
+    expect(screen.getByText('Create Timeline')).toBeInTheDocument();
+  });
+
+  // Submit: API errors 
+
+  it('alerts with error message when API throws an Error', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    (api.post as Mock).mockRejectedValue(new Error('Server unavailable'));
+    renderComponent();
+    uploadFile(makePdfFile());
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Create Timeline'));
+    });
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith('Server unavailable');
+    });
+    expect(screen.getByText('Create Timeline')).toBeInTheDocument();
+  });
+
+  it('alerts with fallback message when API throws a non-Error', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    (api.post as Mock).mockRejectedValue('something bad');
+    renderComponent();
+    uploadFile(makePdfFile());
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Create Timeline'));
+    });
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith(
+        'An unknown error occurred while processing file.'
+      );
+    });
+  });
+
+  // Drag and Drop 
+
+  it('accepts a valid PDF dropped onto the upload box', () => {
+    renderComponent();
+    const dropZone = screen.getByText('Drag and Drop file').closest('.upload-box-al')!;
+    fireEvent.drop(dropZone, { dataTransfer: { files: [makePdfFile('dropped.pdf')] } });
+    expect(screen.getByText('File Selected: dropped.pdf')).toBeInTheDocument();
+  });
+
+  it('alerts when a non-PDF is dropped', () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    renderComponent();
+    const dropZone = screen.getByText('Drag and Drop file').closest('.upload-box-al')!;
+    fireEvent.drop(dropZone, { dataTransfer: { files: [makeNonPdfFile()] } });
+    expect(alertSpy).toHaveBeenCalledWith('Please select a valid PDF file.');
+    expect(screen.getByText('No file chosen')).toBeInTheDocument();
+  });
+
+  it('adds dragover class on dragOver and removes it on dragLeave', () => {
+    renderComponent();
+    const dropZone = screen.getByText('Drag and Drop file').closest('.upload-box-al')!;
+    fireEvent.dragOver(dropZone);
+    expect(dropZone).toHaveClass('dragover');
+    fireEvent.dragLeave(dropZone);
+    expect(dropZone).not.toHaveClass('dragover');
   });
 });

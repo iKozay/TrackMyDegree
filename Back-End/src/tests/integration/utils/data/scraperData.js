@@ -1,8 +1,7 @@
 const { mkdir, writeFile, rm } = require('node:fs/promises');
 const path = require('node:path');
 const os = require('node:os');
-const { DEGREES_URL } = require('../../../../utils/constants');
-const { parseDegree } = require('../../../../utils/pythonUtilsApi');
+const { getDegreeNames, parseDegree, getAllCourses } = require('../../../../utils/pythonUtilsApi');
 /*
  * Utility to scrape degree data and write to temp json files for integration tests to use.
  * Also provides cleanup function to remove temp files after tests complete.
@@ -11,10 +10,20 @@ const { parseDegree } = require('../../../../utils/pythonUtilsApi');
 // Default to system temp directory for cross-platform compatibility
 const DEFAULT_TEMP_DIR = path.join(os.tmpdir(), 'scraper-test-data');
 
+async function getAllDegreeNames() {
+  try {
+    const degreeNames = await getDegreeNames();
+    return degreeNames;
+  } catch (e) {
+    console.error(`Error fetching degree names: ${e.message}`);
+    throw e;
+  }
+}
+
 // scrape all degrees and write each JSON to a temp file
 async function getScraperData() {
   console.log('Getting scraper data...');
-  const degreeNames = Object.keys(DEGREES_URL);
+  const degreeNames = await getAllDegreeNames();
   const written = [];
 
   try {
@@ -26,11 +35,12 @@ async function getScraperData() {
     throw e;
   }
 
+  // Process each degree and write to a separate file
   await Promise.all(
     // save each degree's scraped data to a separate file
     degreeNames.map(async (degreeName) => {
       try {
-        const data = await parseDegree(DEGREES_URL[degreeName]);
+        const data = await parseDegree(degreeName);
         const safeName = degreeName.replaceAll(/\s+/g, '_');
         const file = path.join(
           DEFAULT_TEMP_DIR,
@@ -64,4 +74,4 @@ async function cleanupScraperFiles() {
   }
 }
 
-module.exports = { getScraperData, cleanupScraperFiles, DEFAULT_TEMP_DIR };
+module.exports = { getAllDegreeNames, getScraperData, cleanupScraperFiles, DEFAULT_TEMP_DIR };

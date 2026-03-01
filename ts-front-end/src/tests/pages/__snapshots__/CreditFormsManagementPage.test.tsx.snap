@@ -1,0 +1,24 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`CreditFormsManagementPage > matches snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="container py-4"
+  >
+    <div
+      style="margin-bottom: 16px;"
+    >
+      <button
+        style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 12px; font-weight: 600; border: 2px solid rgb(122, 0, 25); background: rgb(255, 255, 255); color: rgb(17, 17, 17); cursor: pointer;"
+      >
+        ← Back
+      </button>
+    </div>
+    <div
+      data-testid="credit-form-manager"
+    >
+      Mock Credit Form Manager
+    </div>
+  </div>
+</DocumentFragment>
+`;

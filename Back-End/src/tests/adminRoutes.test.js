@@ -290,21 +290,27 @@ describe('Admin Routes', () => {
 
   describe('GET /admin/seed-data', () => {
     it('should seed data for all degrees', async () => {
-      const response = await request(app).get('/admin/seed-data').expect(200);
+      // Mock the controller to return a custom message
+      const expectedMessage = 'Data seeded for all degrees';
+      const seedingController = require('../controllers/seedingController');
+      seedingController.seedAllDegreeData.mockResolvedValueOnce(expectedMessage);
 
-      expect(response.body.message).toBe('Data seeded for all degrees');
+      const response = await request(app).get('/admin/seed-data').expect(200);
+      expect(response.body).toEqual({ message: expectedMessage });
     });
   });
 
   describe('GET /admin/seed-data/:degree-name', () => {
     it('should seed data for a specific degree', async () => {
+      // Mock the controller to return a custom message
+      const expectedMessage = 'Data seeded for degree Computer Science';
+      const seedingController = require('../controllers/seedingController');
+      seedingController.seedDegreeData.mockResolvedValueOnce(expectedMessage);
+
       const response = await request(app)
         .get('/admin/seed-data/Computer Science')
         .expect(200);
-
-      expect(response.body.message).toBe(
-        'Data seeded for degree Computer Science',
-      );
+      expect(response.body).toEqual({ message: expectedMessage });
     });
   });
 

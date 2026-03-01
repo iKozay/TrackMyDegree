@@ -9,6 +9,7 @@ import mongoose from 'mongoose';
 import { notFoundHandler, errorHandler } from '@middleware/errorHandler';
 
 import { connectRedis } from '@lib/redisClient';
+
 //Routes import
 import authRouter from '@routes/authRoutes';
 import coursesRouter from '@routes/courseRoutes';
@@ -22,6 +23,7 @@ import uploadRouter from '@routes/uploadRoutes';
 import jobRouter from '@routes/jobRoutes';
 import degreeAuditRouter from '@routes/degreeAuditRoutes';
 import coopvalidationRouter from '@routes/coopvalidationRoutes';
+import creditFormRouter from '@routes/creditFormRoutes';
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
@@ -39,17 +41,17 @@ Sentry.init({
   profilesSampleRate: 1,
 });
 
+//Express Init
 if (process.env.NODE_ENV === 'development') {
-  // Try to load the file, but don't force it
-  const result = dotenv.config({
+  const loadEnv = dotenv.config({
     path: path.resolve(__dirname, '../../secrets/.env'),
+    debug: true,
   });
-
-  if (result.error) {
-    // If the file is missing, just log it. Docker already injected the vars!
-    console.log('💡 No .env file found, using system environment variables.');
+  if (loadEnv.error) {
+    console.error('Error loading .env file:', loadEnv.error);
+    throw loadEnv.error;
   } else {
-    console.log('✅ Environment variables loaded from .env file');
+    console.log('Environment variables loaded successfully');
   }
 }
 // For production and staging, env vars are injected automatically via Docker
@@ -121,6 +123,7 @@ app.use('/api/upload', uploadRouter);
 app.use('/api/jobs', jobRouter);
 app.use('/api/audit', degreeAuditRouter);
 app.use('/api/coop', coopvalidationRouter);
+app.use('/api/credit-forms', creditFormRouter);
 
 //Handle 404
 app.use(notFoundHandler);

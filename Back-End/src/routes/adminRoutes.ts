@@ -283,9 +283,9 @@ router.get('/connection-status', (req: Request, res: Response) => {
 
 router.get('/seed-data', async (req: Request, res: Response) => {
   try {
-    await seedAllDegreeData();
+    const result = await seedAllDegreeData();
     res.status(HTTP.OK).json({
-      message: 'Data seeded for all degrees',
+      message: result,
     });
   } catch (error) {
     console.error('Error in GET /admin/seed-data', error);
@@ -304,9 +304,9 @@ router.get('/seed-data/:degreeName', async (req: Request, res: Response) => {
       return;
     }
 
-    await seedDegreeData(degreeName as unknown as string);
+    const result = await seedDegreeData(degreeName as string);
     res.status(HTTP.OK).json({
-      message: 'Data seeded for degree ' + degreeName,
+      message: result,
     });
   } catch (error) {
     console.error('Error in GET /admin/seed-data', error);

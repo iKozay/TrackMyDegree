@@ -193,16 +193,19 @@ describe('DegreeController', () => {
       await Degree.create([
         {
           _id: 'COMP',
+          degreeType: 'Standalone',
           name: 'Computer Science',
           totalCredits: 120,
         },
         {
           _id: 'SOEN',
+          degreeType: 'Standalone',
           name: 'Software Engineering',
           totalCredits: 120,
         },
         {
           _id: 'ECP',
+          degreeType: 'ECP',
           name: 'Engineering Common Program',
           totalCredits: 30,
         },

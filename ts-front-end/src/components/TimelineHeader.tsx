@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   Plus,
   Save,
+  FileText
 } from "lucide-react";
 import { downloadTimelinePdf } from "../utils/timelineUtils";
 
@@ -109,6 +110,9 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
   const handleCoopValidation = () => {
     if (onOpenModal) onOpenModal(true, "coop");
   };
+  const handleDegreeAssesment = () => {
+    if (onOpenModal) onOpenModal(false, "degree-audit");
+  };
   return (
     <div className="header-actions">
       <button className="btn btn-success" onClick={handleInsights}>
@@ -119,7 +123,10 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
         <Briefcase size={16} />
         Coop Validation
       </button>
-
+      <button className="btn btn-secondary" onClick={handleDegreeAssesment}>
+        <FileText size={16} />
+        Degree Assesment
+      </button>
       <button className="btn btn-tertiary" onClick={handleDeficiency}>
         <AlertTriangle size={16} />
         Add Deficiency
