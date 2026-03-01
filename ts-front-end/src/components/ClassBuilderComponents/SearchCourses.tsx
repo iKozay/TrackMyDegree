@@ -1,4 +1,3 @@
-//import React from "react";
 import { useState, useMemo } from "react";
 import { api } from "../../api/http-api-client.ts";
 import type { AddedCourse, CourseSection } from "src/types/classItem";
