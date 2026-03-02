@@ -27,13 +27,10 @@
 
 /* State variants */
 .upload-box-al--selected {
-  border-color: #16a34a;
-  background-color: #f0fdf4;
-}
-
-.upload-box-al--selected .file-name {
-  color: #16a34a;
-  font-weight: 600;
+  border: 3px solid #16a34a;
+  border-style: solid;
+  background-color: #dcfce7;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
 }
 
 .upload-box-al--uploading {
