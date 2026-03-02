@@ -25,22 +25,42 @@
   color: #555;
 }
 
+/* Card typography */
+.timeline-setup-card h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.timeline-setup-card > p,
+.timeline-setup-card > div > p:first-of-type {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
 /* Cards */
 .cards-container {
   display: flex;
   justify-content: center;
   align-items: stretch;
-  gap: 40px;
+  gap: 24px;
   margin-bottom: 80px;
   flex-wrap: wrap;
 }
 
 .timeline-setup-card {
-  width: 420px;
+  width: 360px;
   padding: 40px;
   border-radius: 20px;
   transition: all 0.3s ease;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .glass-card {
@@ -55,12 +75,21 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
 }
 
-/* Divider */
+/* Dividers */
 .divider-vertical {
   display: flex;
   align-items: center;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 13px;
   color: #aaa;
+  letter-spacing: 0.1em;
+}
+
+.divider-section {
+  width: 2px;
+  align-self: stretch;
+  background: linear-gradient(to bottom, transparent, #bbb 15%, #bbb 85%, transparent);
+  margin: 0 16px;
 }
 
 /* Buttons */
@@ -95,7 +124,22 @@
   transition: 0.3s;
 }
 
-/* My Timelines */
+/* My Timelines card */
+.timelines-card {
+  width: 380px;
+  padding: 24px;
+  max-height: 560px;
+  overflow-y: auto;
+}
+
+.timelines-card .user-timelines-section {
+  background: transparent;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+}
+
 .my-timelines-section {
   font-family: 'DM Sans', sans-serif;
   text-align: center;
@@ -117,7 +161,23 @@
 }
 
 /* Responsive */
-@media (max-width: 1000px) {
+@media (max-width: 1280px) {
+  .cards-container {
+    flex-wrap: wrap;
+  }
+
+  .timelines-card {
+    width: 100%;
+    max-width: 760px;
+    max-height: 400px;
+  }
+
+  .divider-section {
+    display: none;
+  }
+}
+
+@media (max-width: 800px) {
   .cards-container {
     flex-direction: column;
     align-items: center;
@@ -125,5 +185,11 @@
 
   .divider-vertical {
     display: none;
+  }
+
+  .timeline-setup-card,
+  .timelines-card {
+    width: 100%;
+    max-width: 480px;
   }
 }

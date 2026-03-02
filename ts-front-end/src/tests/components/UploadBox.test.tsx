@@ -71,9 +71,8 @@ describe('UploadBox', () => {
     expect(screen.getByText('Browse')).toBeInTheDocument();
   });
 
-  it('renders Cancel and Create Timeline buttons', () => {
+  it('renders Create Timeline button', () => {
     renderComponent();
-    expect(screen.getByText('Cancel')).toBeInTheDocument();
     expect(screen.getByText('Create Timeline')).toBeInTheDocument();
   });
 
@@ -103,13 +102,13 @@ describe('UploadBox', () => {
     expect(screen.getByText('No file chosen')).toBeInTheDocument();
   });
 
-  // Cancel button 
+  // X button on file chip
 
-  it('resets file state when Cancel is clicked', () => {
+  it('resets file state when the X button is clicked', () => {
     renderComponent();
     uploadFile(makePdfFile());
     expect(screen.getByText(/File Selected/)).toBeInTheDocument();
-    fireEvent.click(screen.getByText('Cancel'));
+    fireEvent.click(screen.getByLabelText('Remove selected file'));
     expect(screen.getByText('No file chosen')).toBeInTheDocument();
   });
 
@@ -141,13 +140,12 @@ describe('UploadBox', () => {
     expect(await screen.findByText('Uploading…')).toBeInTheDocument();
   });
 
-  it('disables Cancel, Create Timeline, and file input while uploading', async () => {
+  it('disables Create Timeline and file input while uploading', async () => {
     (api.post as Mock).mockReturnValue(new Promise(() => {})); // never resolves
     renderComponent();
     uploadFile(makePdfFile());
     fireEvent.click(screen.getByText('Create Timeline'));
     await screen.findByText('Uploading…');
-    expect(screen.getByText('Cancel')).toBeDisabled();
     expect(screen.getByText('Uploading…')).toBeDisabled();
     expect(document.querySelector<HTMLInputElement>('#file-upload')).toBeDisabled();
   });
@@ -258,7 +256,7 @@ describe('UploadBox', () => {
 
   it('accepts a valid PDF dropped onto the upload box', () => {
     renderComponent();
-    const dropZone = screen.getByText('Drag and Drop file').closest('.upload-box-al')!;
+    const dropZone = document.querySelector('.upload-box-al')!;
     fireEvent.drop(dropZone, { dataTransfer: { files: [makePdfFile('dropped.pdf')] } });
     expect(screen.getByText('File Selected: dropped.pdf')).toBeInTheDocument();
   });
@@ -266,7 +264,7 @@ describe('UploadBox', () => {
   it('alerts when a non-PDF is dropped', () => {
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     renderComponent();
-    const dropZone = screen.getByText('Drag and Drop file').closest('.upload-box-al')!;
+    const dropZone = document.querySelector('.upload-box-al')!;
     fireEvent.drop(dropZone, { dataTransfer: { files: [makeNonPdfFile()] } });
     expect(alertSpy).toHaveBeenCalledWith('Please select a valid PDF file.');
     expect(screen.getByText('No file chosen')).toBeInTheDocument();
@@ -274,7 +272,7 @@ describe('UploadBox', () => {
 
   it('adds dragover class on dragOver and removes it on dragLeave', () => {
     renderComponent();
-    const dropZone = screen.getByText('Drag and Drop file').closest('.upload-box-al')!;
+    const dropZone = document.querySelector('.upload-box-al')!;
     fireEvent.dragOver(dropZone);
     expect(dropZone).toHaveClass('dragover');
     fireEvent.dragLeave(dropZone);
