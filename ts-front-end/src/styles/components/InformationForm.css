@@ -30,9 +30,17 @@
 }
 
 .radio-group .cooo {
-  font-weight: 250;
-  font-size: 18px;
+  font-weight: 400;
+  font-size: 15px;
   color: #333;
+}
+
+.form-wrapper label {
+  display: block;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
 }
 
 .radio-group input[type="checkbox"] {
