@@ -17,6 +17,7 @@ import ForbiddenPage from "./pages/ForbiddenPage";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import DegreeAuditPage from "./pages/DegreeAuditPage.tsx";
+import CreditFormsManagementPage from "./pages/CreditFormsManagementPage";
 
 import { Navbar } from "./components/NavBar";
 import { Footer } from "./components/Footer";
@@ -70,6 +71,10 @@ const App: React.FC = () => {
         </Route>
         <Route path="/class-builder" element={<ClassBuilderPage />} />
 
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/admin/credit-forms" element={<CreditFormsManagementPage />} />
+        </Route>
+        
         <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
           <Route path="/profile/admin" element={<AdminPage />} />
         </Route>

@@ -11,6 +11,7 @@ const CourseSchema = new Schema({
     prereq: [[{ type: String, ref: 'Course' }]],
     coreq: [[{ type: String, ref: 'Course' }]],
     not_taken: [{ type: String, ref: 'Course' }],
+    min_credits: { type: Number, default: 0.0 },
   },
   notes: { type: String },
   components: [{ type: String }],

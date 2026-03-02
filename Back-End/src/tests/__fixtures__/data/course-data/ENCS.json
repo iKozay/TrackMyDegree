@@ -10,7 +10,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -24,7 +25,8 @@
     "rules": {
       "prereq": [["ENCS 272"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -38,7 +40,8 @@
     "rules": {
       "prereq": [["ENCS 282"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 27.0
     }
   },
   {
@@ -52,7 +55,8 @@
     "rules": {
       "prereq": [["ENCS 282"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 30.0
     }
   },
   {
@@ -66,7 +70,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": ["ENCS 283"]
+      "not_taken": ["ENCS 283"],
+      "min_credits": 60.0
     }
   },
   {
@@ -80,7 +85,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 60.0
     }
   },
   {
@@ -94,7 +100,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 24.0
     }
   },
   {
@@ -108,7 +115,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   }
 ]

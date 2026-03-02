@@ -6,8 +6,8 @@ from bs4 import BeautifulSoup
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from scraper.gina_cody_degree_scraper import *
-from models import AnchorLink, CoursePool, DegreeType
+from scraper.gina_cody_degree_scraper import GinaCodyDegreeScraper, AeroDegreeScraper, BldgDegreeScraper, CoenDegreeScraper, ElecDegreeScraper, InduDegreeScraper, MechDegreeScraper, SoenDegreeScraper
+from models import AnchorLink, CoursePool, DegreeType, ECPDegreeIDs
 
 
 class TestGinaCodyDegreeScraper:
@@ -27,7 +27,7 @@ class TestGinaCodyDegreeScraper:
         with patch('scraper.gina_cody_degree_scraper.extract_coursepool_and_required_credits') as mock_extract_pools:
             mock_extract_pools.return_value = [(AnchorLink(text="Core Courses", url="http://test.com"), 60.0)]
             
-            scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+            scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
             scraper._get_program_requirements()
             
             assert scraper.program_requirements is not None
@@ -37,7 +37,7 @@ class TestGinaCodyDegreeScraper:
         """Test successfully finding program node"""
         soup = BeautifulSoup('<div class="program-node" title="BEng in Computer Engineering"></div>', 'html.parser')
         
-        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         result = scraper._get_program_node(soup)
         
         assert result is not None
@@ -47,7 +47,7 @@ class TestGinaCodyDegreeScraper:
         """Test when program node is not found"""
         soup = BeautifulSoup('<div>No matching content</div>', 'html.parser')
         
-        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         
         with pytest.raises(ValueError, match="Program node for 'BEng in Computer Engineering' not found"):
             scraper._get_program_node(soup)
@@ -58,7 +58,7 @@ class TestGinaCodyDegreeScraper:
         mock_extract_pools.return_value = [(AnchorLink(text="Core Courses", url="http://test.com"), 60.0)]
         
         program_node = BeautifulSoup('<table></table>', 'html.parser')
-        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         
         result = scraper._get_course_pools_without_courses(program_node)
         
@@ -84,7 +84,7 @@ class TestGinaCodyDegreeScraper:
             CoursePool(_id="pool2", name="Pool 2", creditsRequired=30, courses=[])
         ]
         
-        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         failed_pools = scraper._extract_course_pool_courses(pools)
         
         assert len(failed_pools) == 1
@@ -95,7 +95,7 @@ class TestGinaCodyDegreeScraper:
         """Test handling failed course pools with engineering core"""
         pool = CoursePool(_id="test", name="Engineering Core", creditsRequired=30, courses=[])
         
-        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         scraper._handle_failed_course_pools([pool])
         
         mock_handle_engineering.assert_called_once_with(pool)
@@ -104,7 +104,7 @@ class TestGinaCodyDegreeScraper:
         """Test handling failed course pools without special handling"""
         pool = CoursePool(_id="test", name="Random Pool", creditsRequired=30, courses=[])
         
-        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [])
         
         with patch.object(scraper, 'logger') as mock_logger:
@@ -121,7 +121,7 @@ class TestGinaCodyDegreeScraper:
         
         pool = CoursePool(_id="eng_core", name="Engineering Core", creditsRequired=33, courses=[])
         
-        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [pool])
         
         scraper._handle_engineering_core(pool)
@@ -137,7 +137,7 @@ class TestGinaCodyDegreeScraper:
         mock_course_scraper.get_courses_by_subjects.return_value = ["ANTH 101", "PHIL 212", "SOCI 212"]
         mock_get_course_scraper.return_value = mock_course_scraper
         
-        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         result = scraper._get_general_education_pool()
         
         assert result.name == "General Education Humanities and Social Sciences Electives"
@@ -152,9 +152,9 @@ class TestAeroDegreeScraper:
 
     def test_init(self):
         """Test AeroDegreeScraper initialization and degree name splitting"""
-        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", "AERO", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         
-        assert scraper.degree_name == "BEng in Aerospace Engineering - Option A"
+        assert scraper.degree_name == "BEng in Aerospace Engineering Option: Aerodynamics and Propulsion"
         assert scraper.degree_short_name == "AERO"
         assert scraper.requirements_url == "http://test.com"
         assert scraper.degree_name_without_option == "BEng in Aerospace Engineering"
@@ -164,7 +164,7 @@ class TestAeroDegreeScraper:
         """Test successfully finding program node using degree_name_without_option"""
         soup = BeautifulSoup('<div class="program-node" title="BEng in Aerospace Engineering"></div>', 'html.parser')
         
-        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", "AERO", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         result = scraper._get_program_node(soup)
         
         assert result is not None
@@ -174,9 +174,9 @@ class TestAeroDegreeScraper:
         """Test when program node is not found"""
         soup = BeautifulSoup('<div>No matching content</div>', 'html.parser')
         
-        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", "AERO", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         
-        with pytest.raises(ValueError, match="Program node for 'BEng in Aerospace Engineering - Option A' not found"):
+        with pytest.raises(ValueError, match="Program node for 'BEng in Aerospace Engineering Option: Aerodynamics and Propulsion' not found"):
             scraper._get_program_node(soup)
 
     @patch('scraper.gina_cody_degree_scraper.get_soup')
@@ -199,7 +199,7 @@ class TestAeroDegreeScraper:
         mock_get_soup.return_value = option_soup
         
         program_node = BeautifulSoup('<table></table>', 'html.parser')
-        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", "AERO", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         
         result = scraper._get_course_pools_without_courses(program_node)
         
@@ -217,7 +217,7 @@ class TestAeroDegreeScraper:
             (AnchorLink(text="Electives", url="http://test.com"), 15.0)
         ]
         
-        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", "AERO", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         pool_credits = scraper._remove_option_course_pools(coursepools)
         
         # Should return the credits from the first option pool
@@ -238,7 +238,7 @@ class TestAeroDegreeScraper:
             (AnchorLink(text="Electives", url="http://test.com"), 15.0)
         ]
         
-        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", "AERO", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         pool_credits = scraper._remove_option_course_pools(coursepools)
         
         # Should return 0 credits when no options found
@@ -257,7 +257,7 @@ class TestAeroDegreeScraper:
             courses=["ENGR 201", "ELEC 275", "MATH 205"]
         )
         
-        scraper = AeroDegreeScraper("BEng in Aerospace Engineering - Option A", "AERO", "http://test.com")
+        scraper = AeroDegreeScraper("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", "AERO", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
         
         scraper._handle_special_cases()
@@ -278,7 +278,7 @@ class TestBldgDegreeScraper:
             courses=["ENGR 201", "ENGR 202", "ENGR 392", "MATH 205"]
         )
         
-        scraper = BldgDegreeScraper("BEng in Building Engineering", "BLDG", "http://test.com")
+        scraper = BldgDegreeScraper("BEng in Building Engineering", "BLDG", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
         
         scraper._handle_special_cases()
@@ -300,7 +300,7 @@ class TestCoenDegreeScraper:
             courses=["ENGR 201", "ELEC 275", "MATH 205"]
         )
         
-        scraper = CoenDegreeScraper("BEng in Computer Engineering", "COEN", "http://test.com")
+        scraper = CoenDegreeScraper("BEng in Computer Engineering", "COEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
         
         scraper._handle_special_cases()
@@ -321,7 +321,7 @@ class TestElecDegreeScraper:
             courses=["ENGR 201", "ELEC 275", "MATH 205"]
         )
         
-        scraper = ElecDegreeScraper("BEng in Electrical Engineering", "ELEC", "http://test.com")
+        scraper = ElecDegreeScraper("BEng in Electrical Engineering", "ELEC", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
         
         scraper._handle_special_cases()
@@ -348,7 +348,7 @@ class TestInduDegreeScraper:
             courses=["ANTH 101", "PHIL 212"]
         )
         
-        scraper = InduDegreeScraper("BEng in Industrial Engineering", "INDU", "http://test.com")
+        scraper = InduDegreeScraper("BEng in Industrial Engineering", "INDU", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool, general_electives_pool])
         
         scraper._handle_special_cases()
@@ -374,7 +374,7 @@ class TestMechDegreeScraper:
             courses=["ENGR 201", "ELEC 275", "MATH 205"]
         )
         
-        scraper = MechDegreeScraper("BEng in Mechanical Engineering", "MECH", "http://test.com")
+        scraper = MechDegreeScraper("BEng in Mechanical Engineering", "MECH", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
         
         scraper._handle_special_cases()
@@ -394,7 +394,7 @@ class TestSoenDegreeScraper:
             courses=["ENGR 201", "ENGR 391", "MATH 205"]
         )
         
-        scraper = SoenDegreeScraper("BEng in Software Engineering", "SOEN", "http://test.com")
+        scraper = SoenDegreeScraper("BEng in Software Engineering", "SOEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
         
         scraper._handle_special_cases()

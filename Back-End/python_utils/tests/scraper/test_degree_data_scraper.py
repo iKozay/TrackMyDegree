@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 from scraper.degree_data_scraper import DegreeDataScraper
 from scraper.abstract_degree_scraper import AbstractDegreeScraper
-from models import AnchorLink, CoursePool, Degree, DegreeType, ProgramRequirements
+from models import AnchorLink, CoursePool, Degree, DegreeType, ProgramRequirements, ECPDegreeIDs
 
 
 class MockDegreeScraper(AbstractDegreeScraper):
@@ -55,7 +55,7 @@ class TestDegreeDataScraper:
         degree_name = "BEng in Computer Engineering"
         
         # Mock the scraper's scrape_degree method
-        mock_degree = Degree(_id=degree_name, name=degree_name, totalCredits=120.0, degreeType=DegreeType.STANDALONE, coursePools=[])
+        mock_degree = Degree(_id=degree_name, name=degree_name, totalCredits=120.0, degreeType=DegreeType.STANDALONE, ecpDegreeId=ECPDegreeIDs.ENGR_ECP_ID, coursePools=[])
         mock_response = ProgramRequirements(degree=mock_degree, coursePools=[])
         
         with patch.object(scraper.degree_scrapers[degree_name], 'scrape_degree', return_value=mock_response):
@@ -82,7 +82,7 @@ class TestDegreeDataScraper:
         
         # Mock all scraper instances
         for degree_name, degree_scraper in scraper.degree_scrapers.items():
-            mock_degree = Degree(_id=degree_name,name=degree_name, totalCredits=120.0, degreeType=DegreeType.STANDALONE, coursePools=[])
+            mock_degree = Degree(_id=degree_name,name=degree_name, totalCredits=120.0, degreeType=DegreeType.STANDALONE, ecpDegreeId=ECPDegreeIDs.ENGR_ECP_ID, coursePools=[])
             mock_response = ProgramRequirements(degree=mock_degree, coursePools=[])
             degree_scraper.scrape_degree = MagicMock(return_value=mock_response)
         
@@ -96,16 +96,17 @@ class TestAbstractDegreeScraper:
 
     def test_scraper_initialization(self):
         """Test abstract scraper initialization"""
-        scraper = MockDegreeScraper("Test Degree", "TEST", "http://test.com")
+        scraper = MockDegreeScraper("Test Degree", "TEST", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         
         assert scraper.degree_name == "Test Degree"
         assert scraper.degree_short_name == "TEST"
+        assert scraper.ecp_degree_id == ECPDegreeIDs.ENGR_ECP_ID
         assert scraper.requirements_url == "http://test.com"
         assert scraper.program_requirements is None
 
     def test_set_program_requirements(self):
         """Test setting program requirements"""
-        scraper = MockDegreeScraper("Test Degree", "TEST", "http://test.com")
+        scraper = MockDegreeScraper("Test Degree", "TEST", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         
         test_pool = CoursePool(_id="test", name="Test Pool", creditsRequired=30, courses=["COMP 248"])
         scraper._set_program_requirements("Test Program", 120.0, DegreeType.STANDALONE, [test_pool])
@@ -115,7 +116,7 @@ class TestAbstractDegreeScraper:
 
     def test_add_courses_to_pool(self):
         """Test adding courses to a course pool"""
-        scraper = MockDegreeScraper("Test Degree", "TEST", "http://test.com")
+        scraper = MockDegreeScraper("Test Degree", "TEST", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         
         test_pool = CoursePool(_id="test", name="Test Pool", creditsRequired=30, courses=["COMP 248"])
         scraper._set_program_requirements("Test Program", 120.0, DegreeType.STANDALONE, [test_pool])
@@ -127,7 +128,7 @@ class TestAbstractDegreeScraper:
 
     def test_remove_courses_from_pool(self):
         """Test removing courses from a course pool"""
-        scraper = MockDegreeScraper("Test Degree", "TEST", "http://test.com")
+        scraper = MockDegreeScraper("Test Degree", "TEST", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         
         test_pool = CoursePool(_id="test", name="Test Pool", creditsRequired=30, courses=["COMP 248", "COMP 249"])
         scraper._set_program_requirements("Test Program", 120.0, DegreeType.STANDALONE, [test_pool])
@@ -139,7 +140,7 @@ class TestAbstractDegreeScraper:
 
     def test_scrape_degree_calls_required_methods(self):
         """Test that scrape_degree calls required abstract methods"""
-        scraper = MockDegreeScraper("Test Degree", "TEST", "http://test.com")
+        scraper = MockDegreeScraper("Test Degree", "TEST", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
         
         with patch.object(scraper, '_get_program_requirements') as mock_get_reqs, \
              patch.object(scraper, '_handle_special_cases') as mock_handle_cases:

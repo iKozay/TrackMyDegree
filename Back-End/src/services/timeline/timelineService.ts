@@ -675,16 +675,11 @@ export async function addEcpCoursePools(
   degreeId: string,
   coursePools: CoursePoolInfo[],
   courses: Record<string, CourseData>,
-  degree?: DegreeData, // optional: when provided, increment degree.totalCredits by 30
+  degree: DegreeData,
 ) {
-  const ecpMapping: Record<string, string> = {
-    BEng: 'Extended Credit Program - Engineering',
-    BCompSc: 'Extended Credit Program - Computer Science',
-  };
 
-  const ecpKey = Object.keys(ecpMapping).find((key) => degreeId.includes(key));
-  if (ecpKey) {
-    const ecpResult = await getDegreeData(ecpMapping[ecpKey]);
+  if (degree.ecpDegreeId) {
+    const ecpResult = await getDegreeData(degree.ecpDegreeId);
     if (ecpResult) {
 
       // Merge "General Education and Humanities Electives"

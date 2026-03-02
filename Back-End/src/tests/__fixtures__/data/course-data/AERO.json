@@ -10,7 +10,8 @@
     "rules": {
       "prereq": [["ENGR 213"]],
       "coreq": [["ENGR 213"]],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -24,7 +25,8 @@
     "rules": {
       "prereq": [["AERO 201"], ["ENCS 282"]],
       "coreq": [["ENCS 282"]],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -38,7 +40,8 @@
     "rules": {
       "prereq": [["PHYS 205"], ["ENGR 213"], ["ENGR 243"], ["ENGR 311", "ELEC 342", "ELEC 364"]],
       "coreq": [["ENGR 311", "ELEC 342", "ELEC 364"]],
-      "not_taken": ["ELEC 372", "MECH 371"]
+      "not_taken": ["ELEC 372", "MECH 371"],
+      "min_credits": 0.0
     }
   },
   {
@@ -52,7 +55,8 @@
     "rules": {
       "prereq": [["AERO 290"], ["AERO 371"], ["ENCS 282"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -66,7 +70,8 @@
     "rules": {
       "prereq": [["ENGR 201"]],
       "coreq": [],
-      "not_taken": ["ENGR 417", "ENGR 498"]
+      "not_taken": ["ENGR 417", "ENGR 498"],
+      "min_credits": 0.0
     }
   },
   {
@@ -80,7 +85,8 @@
     "rules": {
       "prereq": [["MECH 375"], ["ENGR 361"]],
       "coreq": [],
-      "not_taken": ["MECH 431"]
+      "not_taken": ["MECH 431"],
+      "min_credits": 0.0
     }
   },
   {
@@ -94,7 +100,8 @@
     "rules": {
       "prereq": [["MECH 361"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -108,7 +115,8 @@
     "rules": {
       "prereq": [["MECH 361"], ["ENGR 311"], ["ENGR 391"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -122,7 +130,8 @@
     "rules": {
       "prereq": [["MECH 361"], ["MECH 351"]],
       "coreq": [],
-      "not_taken": ["MECH 462","MECH 468"]
+      "not_taken": ["MECH 462","MECH 468"],
+      "min_credits": 0.0
     }
   },
   {
@@ -136,7 +145,8 @@
     "rules": {
       "prereq": [["MECH 361"]],
       "coreq": [],
-      "not_taken": ["MECH 464"]
+      "not_taken": ["MECH 464"],
+      "min_credits": 0.0
     }
   },
   {
@@ -150,7 +160,8 @@
     "rules": {
       "prereq": [["AERO 462"]],
       "coreq": [],
-      "not_taken": ["MECH 465"]
+      "not_taken": ["MECH 465"],
+      "min_credits": 0.0
     }
   },
   {
@@ -164,7 +175,8 @@
     "rules": {
       "prereq": [["AERO 201"]],
       "coreq":[],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -178,7 +190,8 @@
     "rules": {
       "prereq": [["AERO 201"], ["ENGR 361"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -192,7 +205,8 @@
     "rules": {
       "prereq": [["AERO 371", "ELEC 372", "MECH 371", "SOEN 385"]],
       "coreq": [],
-      "not_taken": ["MECH 480","ELEC 415"]
+      "not_taken": ["MECH 480","ELEC 415"],
+      "min_credits": 0.0
     }
   },
   {
@@ -206,7 +220,8 @@
     "rules": {
       "prereq": [["MECH 221", "MIAE 221"]],
       "coreq": [],
-      "not_taken": ["MECH 481","MECH 321"]
+      "not_taken": ["MECH 481","MECH 321"],
+      "min_credits": 0.0
     }
   },
   {
@@ -220,7 +235,8 @@
     "rules": {
       "prereq": [["ENGR 371", "COMP 233"], ["AERO 371", "ELEC 372", "MECH 370", "SOEN 385"]],
       "coreq": [],
-      "not_taken": ["MECH 482","ELEC 416"]
+      "not_taken": ["MECH 482","ELEC 416"],
+      "min_credits": 0.0
     }
   },
   {
@@ -234,7 +250,8 @@
     "rules": {
       "prereq": [["AERO 482"], ["ELEC 481"]],
       "coreq": [],
-      "not_taken": ["ENGR 418"]
+      "not_taken": ["ENGR 418"],
+      "min_credits": 0.0
     }
   },
   {
@@ -248,7 +265,8 @@
     "rules": {
       "prereq": [["MECH 361"], ["MECH 351"]],
       "coreq": [],
-      "not_taken": ["MECH 485", "MECH 498"]
+      "not_taken": ["MECH 485", "MECH 498"],
+      "min_credits": 0.0
     }
   },
   {
@@ -262,7 +280,8 @@
     "rules": {
       "prereq": [["ENGR 244"], ["ENGR 243"]],
       "coreq": [],
-      "not_taken": ["MECH 486"]
+      "not_taken": ["MECH 486"],
+      "min_credits": 0.0
     }
   },
   {
@@ -276,7 +295,8 @@
     "rules": {
       "prereq": [["AERO 486"]],
       "coreq": [],
-      "not_taken": ["MECH 487"]
+      "not_taken": ["MECH 487"],
+      "min_credits": 0.0
     }
   },
   {
@@ -290,7 +310,8 @@
     "rules": {
       "prereq": [["ENGR 301"], ["AERO 390"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 75.0
     }
   }
 ]

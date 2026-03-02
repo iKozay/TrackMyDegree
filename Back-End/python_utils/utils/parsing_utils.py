@@ -211,12 +211,19 @@ def get_not_taken(s):
     tokens = re.findall(COURSE_REGEX, s)
     return tokens
 
+def parse_minimum_credits(s):
+    match = re.search(r'Students must (?:have )?complet(?:e|ed) (?:(?:a )?minimum (?:of )?)?(\d+(?:\.\d+)?) credits', s, re.I)
+    if match:
+        return float(match.group(1))
+    return 0.0
+
 def parse_course_rules(prereq_coreq_text: str, notes_text: str) -> CourseRules:
     prereq, coreq = parse_prereq_coreq(prereq_coreq_text)
     return CourseRules(
         prereq=make_prereq_coreq_into_array(prereq),
         coreq=make_prereq_coreq_into_array(coreq),
-        not_taken=get_not_taken(notes_text)
+        not_taken=get_not_taken(notes_text),
+        min_credits=parse_minimum_credits(prereq_coreq_text)
     )
 
 def parse_course_components(component_text: str) -> list[str]:

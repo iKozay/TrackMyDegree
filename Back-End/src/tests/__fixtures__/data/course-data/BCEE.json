@@ -10,7 +10,8 @@
     "rules": {
       "prereq": [["MATH 204"], ["ENGR 242"]],
       "coreq": [["ENGR 242"]],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -24,7 +25,8 @@
     "rules": {
       "prereq": [["ENGR 244"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -38,7 +40,8 @@
     "rules": {
       "prereq": [["BCEE 342"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -52,7 +55,8 @@
     "rules": {
       "prereq": [["BCEE 342"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -66,7 +70,8 @@
     "rules": {
       "prereq": [["BCEE 342"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -80,7 +85,8 @@
     "rules": {
       "prereq": [["BLDG 212", "CIVI 212"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -94,7 +100,8 @@
     "rules": {
       "prereq": [["ENGR 244"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -108,7 +115,8 @@
     "rules": {
       "prereq": [["BLDG 341", "CIVI 341"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -122,7 +130,8 @@
     "rules": {
       "prereq": [["ENGR 213"], ["BCEE 231"], ["ENGR 233"], ["BCEE 343"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -136,7 +145,8 @@
     "rules": {
       "prereq": [["ENGR 243"], ["BCEE 342"], ["ENGR 391"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -150,7 +160,8 @@
     "rules": {
       "prereq": [["ENGR 301"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -164,7 +175,8 @@
     "rules": {
       "prereq": [["BCEE 478"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -178,7 +190,8 @@
     "rules": {
       "prereq": [["BCEE 451"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -192,7 +205,8 @@
     "rules": {
       "prereq": [["BLDG 341", "CIVI 341"]],
       "coreq": [],
-      "not_taken": ["BLDG 478"]
+      "not_taken": ["BLDG 478"],
+      "min_credits": 0.0
     }
   },
   {
@@ -206,7 +220,8 @@
     "rules": {
       "prereq": [["ENGR 301"]],
       "coreq": [],
-      "not_taken": ["BLDG 491"]
+      "not_taken": ["BLDG 491"],
+      "min_credits": 0.0
     }
   },
   {
@@ -220,7 +235,8 @@
     "rules": {
       "prereq": [["BCEE 451", "ENGR 451"]],
       "coreq": [],
-      "not_taken": ["BLDG 492"]
+      "not_taken": ["BLDG 492"],
+      "min_credits": 0.0
     }
   },
   {
@@ -234,7 +250,8 @@
     "rules": {
       "prereq": [["ENGR 301"]],
       "coreq": [],
-      "not_taken": ["BLDG 493"]
+      "not_taken": ["BLDG 493"],
+      "min_credits": 0.0
     }
   }
 ]
