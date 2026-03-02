@@ -66,9 +66,9 @@
     "credits": 3.5,
     "description": "",
     "offeredIn": [],
-    "prereqCoreqText": "The following course must be completed previously: ENGR 213, ENGR 233; INDU 211.",
+    "prereqCoreqText": "The following course must be completed previously: ENGR 213, ENGR 233; INDU 211; MIAE 215",
     "rules": {
-      "prereq": [["ENGR 213"], ["ENGR 233"], ["INDU 211"]],
+      "prereq": [["ENGR 213"], ["ENGR 233"], ["INDU 211"], ["MIAE 215"]],
       "coreq": [],
       "not_taken": [],
       "min_credits": 0.0
@@ -246,9 +246,9 @@
     "credits": 3.0,
     "description": "",
     "offeredIn": [],
-    "prereqCoreqText": "",
+    "prereqCoreqText": "The following course must be completed previously:INDU 324.",
     "rules": {
-      "prereq": [],
+      "prereq": [["INDU 324"]],
       "coreq": [],
       "not_taken": [],
       "min_credits": 0.0

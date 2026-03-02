@@ -336,10 +336,10 @@
     "credits": 1.0,
     "description": "",
     "offeredIn": [],
-    "prereqCoreqText": "Permission of the undergraduate program director is required.",
+    "prereqCoreqText": "The following course must be completed previously or concurrently: SOEN 490.",
     "rules": {
-      "prereq": [],
-      "coreq": [],
+      "prereq": [["SOEN 490"]],
+      "coreq": [["SOEN 490"]],
       "not_taken": [],
       "min_credits": 0.0
     }

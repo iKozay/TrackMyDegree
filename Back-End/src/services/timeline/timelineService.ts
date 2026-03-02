@@ -415,10 +415,15 @@ function getCoursesThatNeedCMinus(
 // inserting a space between the letter prefix and numeric part, and converting it to uppercase.
 // Example: " engr   201 " → "ENGR 201" or "ENGR201" -> "ENGR 201"
 export function normalizeCourseCode(code: string): string {
-  return code
-    .replaceAll(/\s+/g, '') //Removes all whitespace
-    .replace(/([a-zA-Z]+)(\d+)/, '$1 $2') //Inserts a space between letters and numbers
-    .toUpperCase();
+  const compactCode = code.replaceAll(/\s+/g, ''); // Removes all whitespace
+  const firstDigitIndex = compactCode.search(/\d/);
+
+  if (firstDigitIndex <= 0) {
+    return compactCode.toUpperCase();
+  }
+
+  // Inserts a space between the letter prefix and first numeric character.
+  return `${compactCode.slice(0, firstDigitIndex)} ${compactCode.slice(firstDigitIndex)}`.toUpperCase();
 }
 
 function validateGrade(minGrade: string, courseGrade?: string): boolean {
