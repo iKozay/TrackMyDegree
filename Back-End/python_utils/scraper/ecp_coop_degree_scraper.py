@@ -4,7 +4,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from scraper.gina_cody_degree_scraper import GinaCodyDegreeScraper
 from scraper.course_data_scraper import get_course_scraper_instance
-from models import CoursePool, DegreeType
+from models import Constraint, ConstraintType, CoursePool, DegreeType, LimitedToDegreesParams
 from utils.bs4_utils import get_all_links_from_div
 from utils.parsing_utils import COURSE_REGEX
 
@@ -97,6 +97,44 @@ class CompEcpDegreeScraper(EcpDegreeScraper):
         course_pool_objects = [ecp_core_pool, gen_education_electives_pool, electives_bcompsc_pool, electives_comp_arts_pool, electives_data_science_pool]
 
         self._set_program_requirements(program_name, total_credits, DegreeType.ECP, course_pool_objects)
+        self._add_coursepool_rules()
+    
+    def _add_coursepool_rules(self):        
+        # ECP Electives: BCompSc (other than Joint Majors) - limited to BCompSc in Computer Science
+        electives_bcompsc_pool = next((pool for pool in self.program_requirements.coursePools 
+                                     if "BCompSc (other than Joint Majors)" in pool.name), None)
+        electives_bcompsc_pool.rules.append(Constraint(
+            type=ConstraintType.LIMITED_TO_DEGREE,
+            params=LimitedToDegreesParams(
+                allowedDegrees=["BCompSc in Computer Science"],
+                applyAtBuildtime=True
+            ),
+            message=""
+        ))
+        
+        # ECP Electives: Joint Major in Computation Arts and Computer Science - limited to Computational Arts
+        electives_comp_arts_pool = next((pool for pool in self.program_requirements.coursePools 
+                                       if "Computation Arts and Computer Science" in pool.name), None)
+        electives_comp_arts_pool.rules.append(Constraint(
+            type=ConstraintType.LIMITED_TO_DEGREE,
+            params=LimitedToDegreesParams(
+                allowedDegrees=["BCompSc Joint Major in Computation Arts and Computer Science"],
+                applyAtBuildtime=True
+            ),
+            message=""
+        ))
+    
+        # ECP Electives: Joint Major in Data Science - limited to Data Science
+        electives_data_science_pool = next((pool for pool in self.program_requirements.coursePools 
+                                          if "Data Science" in pool.name), None)
+        electives_data_science_pool.rules.append(Constraint(
+            type=ConstraintType.LIMITED_TO_DEGREE,
+            params=LimitedToDegreesParams(
+                allowedDegrees=["BCompSc Joint Major in Data Science"],
+                applyAtBuildtime=True
+            ),
+            message=""
+        ))
 
     def _handle_special_cases(self):
         # No special cases for Engr ECP

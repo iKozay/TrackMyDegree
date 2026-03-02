@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -12,7 +12,73 @@ class AnchorLink(BaseModel):
     text: str
     url: str
 
+class ConstraintType(str, Enum):
+    # General constraints
+    MIN_CREDITS_FROM_SET = "min_credits_from_set"               # Minimum credits must be taken from a set of courses
+    MAX_CREDITS_FROM_SET = "max_credits_from_set"               # Maximum credits can be taken from a set of courses
+    MIN_COURSES_FROM_SET = "min_courses_from_set"               # Minimum courses must be taken from a set of courses
+    MAX_COURSES_FROM_SET = "max_courses_from_set"               # Maximum courses can be taken from a set of courses
+    LIMITED_TO_DEGREE = "limited_to_degree"                     # Pool/course is limited to students in specific degree(s)
+
+    # Course-specific constraints
+    # Prerequisite/corequisite constraints can be represented as a MIN_COURSES_FROM_SET constraint
+    # Not taken constraints can be represented as a MAX_COURSES_FROM_SET constraint with max_courses=0
+    PREREQUISITE = "prerequisite"                               # Course A must be taken before B
+    COREQUISITE = "corequisite"                                 # Course A must be taken in the same term as B
+    PREREQUISITE_OR_COREQUISITE = "prerequisite_or_corequisite" # Course A must be taken before or in the same term as B
+    NOT_TAKEN = "not_taken"                                     # Course A cannot be taken if B is taken 
+    MIN_CREDITS = "min_credits"                                 # Minimum credits completed required to take the course
+
+    # Course pool specific constraints
+    EXCESS_CREDITS_OVERFLOW = "excess_credits_overflow"         # Excess credits beyond required amount flow to target pool
+
+class MinCreditsFromSetParams(BaseModel):
+    courseList: list[str]
+    minCredits: float
+
+class MaxCreditsFromSetParams(BaseModel):
+    courseList: list[str]
+    maxCredits: float
+
+class MinCoursesFromSetParams(BaseModel):
+    courseList: list[str]
+    minCourses: int
+
+class MaxCoursesFromSetParams(BaseModel):
+    courseList: list[str]
+    maxCourses: int
+
+class LimitedToDegreesParams(BaseModel):
+    allowedDegrees: list[str]
+    applyAtBuildtime: bool = False
+    # If True, this constraint is enforced during timeline construction (build time):
+    #   - The course or course pool will be excluded from the timeline if the student's degree is not in allowedDegrees.
+    # If False, the object remains visible, but a validation error will be flagged if the rule is violated.
+
+class MinCreditsCompletedParams(BaseModel):
+    minCredits: float
+
+class ExcessCreditsOverflowParams(BaseModel):
+    targetPoolId: str  # ID of the pool where excess credits should flow to
+    # When this pool's credit requirement is exceeded, excess credits count toward targetPoolId
+
+ConstraintParams = Union[
+    MinCreditsFromSetParams,
+    MaxCreditsFromSetParams,
+    MinCoursesFromSetParams,
+    MaxCoursesFromSetParams,
+    MinCreditsCompletedParams,
+    LimitedToDegreesParams,
+    ExcessCreditsOverflowParams
+]
+
+class Constraint(BaseModel):
+    type: ConstraintType
+    params: ConstraintParams
+    message: str = ""
+
 class CourseRules(BaseModel):
+    #TODO: swap CourseRules with list of constraints to have the same system for both courses and course pools
     prereq: list[list[str]] = Field(default_factory=list)
     coreq: list[list[str]] = Field(default_factory=list)
     not_taken: list[str] = Field(default_factory=list)
@@ -44,6 +110,7 @@ class CoursePool(MongoDBModel):
     name: str
     creditsRequired: float
     courses: list[str] # List of course IDs only
+    rules: list[Constraint] = Field(default_factory=list)
 
 class Degree(MongoDBModel):
     name: str

@@ -10,7 +10,7 @@ from scraper.comp_sci_degree_scraper import (
     CompCaDegreeScraper,
     CompDsDegreeScraper
 )
-from models import CoursePool, DegreeType, ECPDegreeIDs
+from models import ConstraintType, CoursePool, DegreeType, ECPDegreeIDs
 
 
 class TestCompDegreeScraper:
@@ -176,6 +176,44 @@ class TestCompDegreeScraper:
         assert "CART 315" not in general_electives_pool.courses
         assert "COMM 215" not in general_electives_pool.courses
 
+    def test_add_coursepool_rules_adds_overflow_constraints(self):
+        """Test that EXCESS_CREDITS_OVERFLOW constraints are added to CS and Math elective pools"""
+        cs_electives_pool = CoursePool(
+            _id="cs_electives",
+            name="Computer Science Electives",
+            creditsRequired=30,
+            courses=["COMP 352"]
+        )
+        math_electives_pool = CoursePool(
+            _id="math_electives",
+            name="Mathematics Electives: BCompSc",
+            creditsRequired=9,
+            courses=["MATH 363"]
+        )
+        gen_electives_pool = CoursePool(
+            _id="gen_electives",
+            name="General Electives: BCompSc",
+            creditsRequired=18,
+            courses=[]
+        )
+
+        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [cs_electives_pool, math_electives_pool, gen_electives_pool])
+
+        scraper._add_coursepool_rules()
+
+        # CS Electives should have EXCESS_CREDITS_OVERFLOW flowing to general electives
+        assert len(cs_electives_pool.rules) == 1
+        cs_rule = cs_electives_pool.rules[0]
+        assert cs_rule.type == ConstraintType.EXCESS_CREDITS_OVERFLOW
+        assert cs_rule.params.targetPoolId == gen_electives_pool._id
+
+        # Math Electives should have EXCESS_CREDITS_OVERFLOW flowing to general electives
+        assert len(math_electives_pool.rules) == 1
+        math_rule = math_electives_pool.rules[0]
+        assert math_rule.type == ConstraintType.EXCESS_CREDITS_OVERFLOW
+        assert math_rule.params.targetPoolId == gen_electives_pool._id
+
 
 class TestCompVariantDegreeScraper:
     """Test Computer Science variant degree scraper"""
@@ -313,6 +351,48 @@ class TestCompCaDegreeScraper:
         assert other_pool.name == "Other Required Courses"
         assert other_pool.courses == ["COMP 345", "COMP 371"]
 
+    def test_add_coursepool_rules_adds_max_credits_constraints(self):
+        """Test that MAX_CREDITS_FROM_SET constraints are added to Computation Arts Core pool"""
+        cart_300_course = "CART 315"
+        cart_400_course = "CART 415"
+        dart_course = "DART 211"
+        comp_arts_pool = CoursePool(
+            _id="COMP_CA_Computation Arts Core",
+            name="Computation Arts Core",
+            creditsRequired=24,
+            courses=["CART 310", cart_300_course, "CART 470", cart_400_course, dart_course]
+        )
+
+        scraper = CompCaDegreeScraper(
+            "BCompSc Joint Major in Computation Arts and Computer Science",
+            "COMP_CA", ECPDegreeIDs.COMP_ECP_ID, "http://test.com"
+        )
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [comp_arts_pool])
+
+        scraper._add_coursepool_rules()
+
+        assert len(comp_arts_pool.rules) == 3
+
+        cart_300_rule = next((r for r in comp_arts_pool.rules
+                              if r.type == ConstraintType.MAX_CREDITS_FROM_SET
+                              and cart_300_course in r.params.courseList), None)
+        assert cart_300_rule is not None
+        assert "CART 310" not in cart_300_rule.params.courseList  # CART 310 excluded
+        assert (cart_300_rule.params.maxCredits - 6.0) < 1e8
+
+        cart_400_rule = next((r for r in comp_arts_pool.rules
+                              if r.type == ConstraintType.MAX_CREDITS_FROM_SET
+                              and cart_400_course in r.params.courseList), None)
+        assert cart_400_rule is not None
+        assert "CART 470" not in cart_400_rule.params.courseList  # CART 470 excluded
+        assert (cart_400_rule.params.maxCredits - 6.0) < 1e8
+
+        dart_rule = next((r for r in comp_arts_pool.rules
+                          if r.type == ConstraintType.MAX_CREDITS_FROM_SET
+                          and dart_course in r.params.courseList), None)
+        assert dart_rule is not None
+        assert dart_rule.params.maxCredits == 6.0
+
 
 class TestCompDsDegreeScraper:
     """Test Data Science Computer Science scraper"""
@@ -332,17 +412,49 @@ class TestCompDsDegreeScraper:
             creditsRequired=33, 
             courses=["COMP 248", "COMP 233", "COMP 249"]
         )
+        math_pool = CoursePool(
+            _id="math_core", 
+            name="Mathematics and Statistics Core", 
+            creditsRequired=18, 
+            courses=["MAST 334", "STAT 360"]
+        )
         
         scraper = CompDsDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
         
         # Mock the program requirements directly
         scraper.program_requirements = MagicMock()
-        scraper.program_requirements.coursePools = [cs_core_pool]
+        scraper.program_requirements.coursePools = [cs_core_pool, math_pool]
         
         with patch.object(scraper, 'remove_courses_from_pool') as mock_remove:
             scraper._handle_special_cases()
         
-        # Should remove COMP 233
+        # Should remove COMP 233 from Computer Science Core
         mock_remove.assert_called_once_with(cs_core_pool.name, ["COMP 233"])
-        # Should add MAST 221
+        # Should add MAST 221 to Computer Science Core
         assert "MAST 221" in cs_core_pool.courses
+        # Should add MAST 334 and COMP 361 to Mathematics and Statistics Core
+        assert "MAST 334" in math_pool.courses
+        assert "COMP 361" in math_pool.courses
+
+    def test_add_coursepool_rules_adds_max_courses_constraint(self):
+        """Test that MAX_COURSES_FROM_SET rule is added to Mathematics and Statistics Core pool"""
+        math_stats_pool = CoursePool(
+            _id="math_stats_core",
+            name="Mathematics and Statistics Core",
+            creditsRequired=18,
+            courses=["MAST 334", "COMP 361", "STAT 360"]
+        )
+
+        scraper = CompDsDegreeScraper(
+            "BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com"
+        )
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [math_stats_pool])
+
+        scraper._add_coursepool_rules()
+
+        assert len(math_stats_pool.rules) == 1
+        rule = math_stats_pool.rules[0]
+        assert rule.type == ConstraintType.MAX_COURSES_FROM_SET
+        assert "MAST 334" in rule.params.courseList
+        assert "COMP 361" in rule.params.courseList
+        assert rule.params.maxCourses == 1

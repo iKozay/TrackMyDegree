@@ -5,7 +5,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from scraper.ecp_coop_degree_scraper import EcpDegreeScraper, EngrEcpDegreeScraper, CompEcpDegreeScraper, CompHlsEcpDegreeScraper, CoopDegreeScraper
-from models import CoursePool, AnchorLink
+from models import ConstraintType, CoursePool, AnchorLink, DegreeType
 
 
 class TestEcpDegreeScraper:
@@ -165,6 +165,50 @@ class TestCompEcpDegreeScraper:
         scraper = CompEcpDegreeScraper("Extended Credit Program - Computer Science", "COMP_ECP", None, "http://test.com")
         # Should not raise any exceptions
         scraper._handle_special_cases()
+
+    def test_add_coursepool_rules_adds_limited_to_degree_constraints(self):
+        """Test that LIMITED_TO_DEGREE constraints are added to each ECP elective pool"""
+        bcompsc_pool = CoursePool(
+            _id="COMP_ECP_BCompSc",
+            name="ECP Electives: BCompSc (other than Joint Majors)",
+            creditsRequired=15,
+            courses=["ANTH 101"]
+        )
+        comp_arts_pool = CoursePool(
+            _id="COMP_ECP_CompArts",
+            name="ECP Electives: Joint Major in Computation Arts and Computer Science",
+            creditsRequired=15,
+            courses=["ANTH 101"]
+        )
+        data_science_pool = CoursePool(
+            _id="COMP_ECP_DataScience",
+            name="ECP Electives: Joint Major in Data Science",
+            creditsRequired=15,
+            courses=["ANTH 101"]
+        )
+
+        scraper = CompEcpDegreeScraper("Extended Credit Program - Computer Science", "COMP_ECP", None, "http://test.com")
+        scraper._set_program_requirements("Test", 30.0, DegreeType.ECP, [bcompsc_pool, comp_arts_pool, data_science_pool])
+
+        scraper._add_coursepool_rules()
+
+        # BCompSc pool limited to BCompSc in Computer Science
+        assert len(bcompsc_pool.rules) == 1
+        assert bcompsc_pool.rules[0].type == ConstraintType.LIMITED_TO_DEGREE
+        assert "BCompSc in Computer Science" in bcompsc_pool.rules[0].params.allowedDegrees
+        assert bcompsc_pool.rules[0].params.applyAtBuildtime is True
+
+        # Comp Arts pool limited to Computation Arts joint major
+        assert len(comp_arts_pool.rules) == 1
+        assert comp_arts_pool.rules[0].type == ConstraintType.LIMITED_TO_DEGREE
+        assert "BCompSc Joint Major in Computation Arts and Computer Science" in comp_arts_pool.rules[0].params.allowedDegrees
+        assert comp_arts_pool.rules[0].params.applyAtBuildtime is True
+
+        # Data Science pool limited to Data Science joint major
+        assert len(data_science_pool.rules) == 1
+        assert data_science_pool.rules[0].type == ConstraintType.LIMITED_TO_DEGREE
+        assert "BCompSc Joint Major in Data Science" in data_science_pool.rules[0].params.allowedDegrees
+        assert data_science_pool.rules[0].params.applyAtBuildtime is True
 
 
 class TestCompHlsEcpDegreeScraper:
