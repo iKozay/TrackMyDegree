@@ -118,15 +118,22 @@ function renderPage(options?: {
     courseList = defaultCourseList,
   } = options || {};
 
-  mockUseDegrees.mockReturnValue({ degrees, loading: false, error: null });
+  mockUseDegrees.mockReturnValue({
+    degrees,
+    loading: false,
+    error: null,
+  } as unknown as ReturnType<typeof useDegrees>);
   mockUseCourses.mockReturnValue({
     courseList,
     loading,
     error: null,
     fetchCoursesByDegree,
     fetchAllCourses,
-  });
-  mockUseResponsive.mockReturnValue({ isDesktop, isMobile: !isDesktop });
+  } as unknown as ReturnType<typeof useCourses>);
+  mockUseResponsive.mockReturnValue({
+    isDesktop,
+    isMobile: !isDesktop,
+  } as unknown as ReturnType<typeof useResponsive>);
 
   return render(<CoursePage />);
 }
