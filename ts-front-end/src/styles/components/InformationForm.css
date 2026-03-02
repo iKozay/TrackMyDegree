@@ -1,3 +1,14 @@
+/* Form wrapper */
+.form-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.degree-selected {
+  border-color: #8b0000;
+}
+
 /* Inputs */
 .input-field {
   width: 100%;
