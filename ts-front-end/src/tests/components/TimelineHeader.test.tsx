@@ -112,12 +112,12 @@ describe("TimelineHeader", () => {
     ).toBeInTheDocument();
   });
 
-  it("calls onShowInsights when Show Insights is clicked", () => {
+  it("opens insights modal when Insights is clicked", () => {
     const onOpenModal = vi.fn();
 
     render(<TimelineHeader {...baseProps} onOpenModal={onOpenModal} />);
 
-    const insightsBtn = screen.getByRole("button", { name: /show insights/i });
+    const insightsBtn = screen.getByRole("button", { name: /^insights$/i });
 
     fireEvent.click(insightsBtn);
 

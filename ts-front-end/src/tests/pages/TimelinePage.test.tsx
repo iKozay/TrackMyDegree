@@ -216,7 +216,7 @@ describe("TimeLinePage", () => {
     expect(mockTimelineState.actions.addCourse).toHaveBeenCalledWith("course-1", "elective");
 
     onClose(false);
-    expect(mockTimelineState.actions.openModal).toHaveBeenCalledWith(false);
+    expect(mockTimelineState.actions.openModal).toHaveBeenCalledWith(false, undefined);
   });
 
   it("calls header actions correctly", () => {
