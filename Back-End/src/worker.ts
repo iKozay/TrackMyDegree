@@ -7,17 +7,17 @@ import { courseProcessorWorker } from './workers/queue';
 
 Sentry.init({ dsn: process.env.SENTRY_DSN, tracesSampleRate: 1 });
 
+//Express Init
 if (process.env.NODE_ENV === 'development') {
-  // Try to load the file, but don't force it
-  const result = dotenv.config({
+  const loadEnv = dotenv.config({
     path: path.resolve(__dirname, '../../secrets/.env'),
+    debug: true,
   });
-
-  if (result.error) {
-    // If the file is missing, just log it. Docker already injected the vars!
-    console.log('💡 No .env file found, using system environment variables.');
+  if (loadEnv.error) {
+    console.error('Error loading .env file:', loadEnv.error);
+    throw loadEnv.error;
   } else {
-    console.log('✅ Environment variables loaded from .env file');
+    console.log('Environment variables loaded successfully');
   }
 }
 
