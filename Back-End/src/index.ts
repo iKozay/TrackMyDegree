@@ -24,7 +24,6 @@ import degreeAuditRouter from '@routes/degreeAuditRoutes';
 import coopvalidationRouter from '@routes/coopvalidationRoutes';
 import creditFormRouter from '@routes/creditFormRoutes';
 
-
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
 import {
@@ -143,8 +142,6 @@ const start = async () => {
     console.warn('⚠️ Redis not available, caching disabled:', err);
     Sentry.captureException(err);
   }
-
-
 
   app.listen(PORT, () => {
     console.log(`Server listening on Port: ${PORT}`);
