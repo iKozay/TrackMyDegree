@@ -231,9 +231,9 @@
     "credits": 3.0,
     "description": "",
     "offeredIn": [],
-    "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233, ENGR 251.",
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233, ENGR 251 or AERO 253.",
     "rules": {
-      "prereq": [["ENGR 213"],["ENGR 233"],["ENGR 251"]],
+      "prereq": [["ENGR 213"],["ENGR 233"],["ENGR 251", "AERO 253"]],
       "coreq": [],
       "not_taken": [],
       "min_credits": 0.0
