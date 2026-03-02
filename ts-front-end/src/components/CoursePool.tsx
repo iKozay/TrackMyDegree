@@ -30,11 +30,16 @@ const CoursePool: React.FC<CoursePoolProps> = ({
   const togglePool = (name: string) =>
     setExpandedPools((prev) => ({ ...prev, [name]: !prev[name] }));
 
-  const normalizeCourseCode = (code: string): string =>
-    code
-      .replace(/\s+/g, "")
-      .replace(/([a-zA-Z]+)(\d+)/, "$1 $2")
-      .toUpperCase();
+  const normalizeCourseCode = (code: string): string => {
+    const compactCode = code.replace(/\s+/g, "");
+    const firstDigitIndex = compactCode.search(/\d/);
+
+    if (firstDigitIndex <= 0) {
+      return compactCode.toUpperCase();
+    }
+
+    return `${compactCode.slice(0, firstDigitIndex)} ${compactCode.slice(firstDigitIndex)}`.toUpperCase();
+  };
 
   const normalizedCourseKeyMap = useMemo(() => {
     const map = new Map<string, CourseCode>();
