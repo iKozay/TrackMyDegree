@@ -79,15 +79,17 @@
 .divider-vertical {
   display: flex;
   align-items: center;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 13px;
   color: #aaa;
+  letter-spacing: 0.1em;
 }
 
 .divider-section {
-  width: 1px;
+  width: 2px;
   align-self: stretch;
-  background: linear-gradient(to bottom, transparent, #ddd 20%, #ddd 80%, transparent);
-  margin: 0 8px;
+  background: linear-gradient(to bottom, transparent, #bbb 15%, #bbb 85%, transparent);
+  margin: 0 16px;
 }
 
 /* Buttons */
