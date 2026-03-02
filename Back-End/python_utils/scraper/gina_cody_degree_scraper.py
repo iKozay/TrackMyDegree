@@ -208,8 +208,10 @@ class CoenDegreeScraper(GinaCodyDegreeScraper):
     def _handle_special_cases(self):
         # Engineering Core:
         # - Students in the BEng in Computer Engineering‌ and the BEng in Computer Engineering shall replace ELEC 275‌ with ELEC 273‌.
+        # - Computer Engineering students are not required to take ​ENGR 391‌​​​ in their program.
         self.remove_courses_from_pool(self.ENGINEERING_CORE, [self.ELEC_275])
         self.add_courses_to_pool(self.ENGINEERING_CORE, [self.ELEC_273])
+        self.remove_courses_from_pool(self.ENGINEERING_CORE, ["ENGR 391"])
 
 class ElecDegreeScraper(GinaCodyDegreeScraper):
     def _handle_special_cases(self):
@@ -244,5 +246,5 @@ class MechDegreeScraper(GinaCodyDegreeScraper):
 class SoenDegreeScraper(GinaCodyDegreeScraper):
     def _handle_special_cases(self):
         # Engineering Core:
-        # - Students in the BEng in Software Engineering‌ may replace ENGR 391‌ with COMP 361‌.
-        self.add_courses_to_pool(self.ENGINEERING_CORE, ["COMP 361"])
+        # - Software Engineering students are not required to take ​ENGR 391‌​​​ in their program.
+        self.remove_courses_from_pool(self.ENGINEERING_CORE, ["ENGR 391"])
