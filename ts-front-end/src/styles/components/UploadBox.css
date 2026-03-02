@@ -152,3 +152,48 @@
 .modern-link-btn:hover {
   transform: scale(1.1);
 }
+
+/* File chip (selected state) */
+.file-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #16a34a;
+  border-radius: 10px;
+  padding: 10px 14px;
+  max-width: 90%;
+}
+
+.file-chip-icon {
+  flex-shrink: 0;
+}
+
+.file-chip-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #15803d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.file-chip-remove {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: color 0.2s, background-color 0.2s;
+  line-height: 1;
+}
+
+.file-chip-remove:hover {
+  color: #dc2626;
+  background-color: #fef2f2;
+}
