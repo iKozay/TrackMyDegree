@@ -1,5 +1,7 @@
 # k6 Performance Tests
 
+Go to [running the tests](#running-the-tests) to set up your environment and run the tests.
+
 ## How k6 works (general overview)
 
 k6 is a load-testing tool that runs a JavaScript test file and executes a user flow **repeatedly** under a chosen load model. Each VU (virtual user) runs the same flow in parallel, looping through the `default` function without pause until the test duration ends.
@@ -132,54 +134,6 @@ This means k6 is generating metrics faster than InfluxDB can ingest them. Under 
 
 ---
 
-
-## Prerequisites
-
-### 1. Install k6
-
-k6 is a standalone binary — it is **not** an npm package and cannot be installed via `npm install`.
-
-**Windows (winget):**
-```cmd
-winget install k6 --source winget
-```
-
-**Windows (Chocolatey):**
-```cmd
-choco install k6
-```
-
-**macOS (Homebrew):**
-```bash
-brew install k6
-```
-
-**Linux (Debian/Ubuntu):**
-```bash
-sudo gpg -k
-sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
-echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
-sudo apt-get update && sudo apt-get install k6
-```
-
-Verify the installation:
-```bash
-k6 version
-```
-
-> Full install docs: https://grafana.com/docs/k6/latest/set-up/install-k6/
-
-### 2. Backend and infrastructure
-- Backend running on `http://localhost:8000` (or set `BASE_URL`)
-- MongoDB running
-- Redis running (used for `/api/jobs/:jobId` cache)
-- **BullMQ worker running** (started by your backend)
-- InfluxDB + Grafana running via `docker compose up -d` (for metrics visualisation)
-
-> **Note:** A test user is created automatically by `setup()` before the run and deleted by `teardown()` after. No manual user setup needed.
-
----
-
 ## File structure
 
 ```
@@ -262,10 +216,52 @@ VUs
 
 ## Running the tests
 
-### Prerequisites are running and healthy:
-- Backend on `http://localhost:8000`
-- MongoDB, Redis, InfluxDB, Grafana (via `docker compose up -d`)
-- BullMQ worker running (started by your backend)
+## Prerequisites
+
+### 1. Install k6
+
+k6 is a standalone binary — it is **not** an npm package and cannot be installed via `npm install`.
+
+**Windows (winget):**
+```cmd
+winget install k6 --source winget
+```
+
+**Windows (Chocolatey):**
+```cmd
+choco install k6
+```
+
+**macOS (Homebrew):**
+```bash
+brew install k6
+```
+
+**Linux (Debian/Ubuntu):**
+```bash
+sudo gpg -k
+sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+sudo apt-get update && sudo apt-get install k6
+```
+
+Verify the installation:
+```bash
+k6 version
+```
+
+> Full install docs: https://grafana.com/docs/k6/latest/set-up/install-k6/
+
+### 2. Backend and infrastructure
+- Backend running on `http://localhost:8000` (or set `BASE_URL`)
+- MongoDB running
+- Redis running (used for `/api/jobs/:jobId` cache)
+- **BullMQ worker running** (started by your backend)
+- InfluxDB + Grafana running via `docker compose up -d` (for metrics visualisation)
+
+> **Note:** A test user is created automatically by `setup()` before the run and deleted by `teardown()` after. No manual user setup needed.
+
+---
 
 ```bash
 # From repo root — start MongoDB, Redis, InfluxDB, Grafana
