@@ -414,7 +414,7 @@ class TestCompDsDegreeScraper:
         )
         math_pool = CoursePool(
             _id="math_core", 
-            name="Mathematics and Statistics Core", 
+            name="Mathematics and Statistics Core: Joint Major in Data Science", 
             creditsRequired=18, 
             courses=["MAST 334", "STAT 360"]
         )
@@ -440,7 +440,7 @@ class TestCompDsDegreeScraper:
         """Test that MAX_COURSES_FROM_SET rule is added to Mathematics and Statistics Core pool"""
         math_stats_pool = CoursePool(
             _id="math_stats_core",
-            name="Mathematics and Statistics Core",
+            name="Mathematics and Statistics Core: Joint Major in Data Science",
             creditsRequired=18,
             courses=["MAST 334", "COMP 361", "STAT 360"]
         )

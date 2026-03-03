@@ -18,7 +18,6 @@ class ConstraintType(str, Enum):
     MAX_CREDITS_FROM_SET = "max_credits_from_set"               # Maximum credits can be taken from a set of courses
     MIN_COURSES_FROM_SET = "min_courses_from_set"               # Minimum courses must be taken from a set of courses
     MAX_COURSES_FROM_SET = "max_courses_from_set"               # Maximum courses can be taken from a set of courses
-    LIMITED_TO_DEGREE = "limited_to_degree"                     # Pool/course is limited to students in specific degree(s)
 
     # Course-specific constraints
     # Prerequisite/corequisite constraints can be represented as a MIN_COURSES_FROM_SET constraint
@@ -48,13 +47,6 @@ class MaxCoursesFromSetParams(BaseModel):
     courseList: list[str]
     maxCourses: int
 
-class LimitedToDegreesParams(BaseModel):
-    allowedDegrees: list[str]
-    applyAtBuildtime: bool = False
-    # If True, this constraint is enforced during timeline construction (build time):
-    #   - The course or course pool will be excluded from the timeline if the student's degree is not in allowedDegrees.
-    # If False, the object remains visible, but a validation error will be flagged if the rule is violated.
-
 class MinCreditsCompletedParams(BaseModel):
     minCredits: float
 
@@ -68,7 +60,6 @@ ConstraintParams = Union[
     MinCoursesFromSetParams,
     MaxCoursesFromSetParams,
     MinCreditsCompletedParams,
-    LimitedToDegreesParams,
     ExcessCreditsOverflowParams
 ]
 
@@ -126,7 +117,9 @@ class ProgramRequirements(BaseModel):
 # ECP degree ID constants
 class ECPDegreeIDs:
     ENGR_ECP_ID = "Extended Credit Program - Engineering"
-    COMP_ECP_ID = "Extended Credit Program - Computer Science"
+    COMP_ECP_ID = "Extended Credit Program - BCompSc"
+    COMP_CA_ECP_ID = "Extended Credit Program - Computation Arts and Computer Science"
+    COMP_DS_ECP_ID = "Extended Credit Program - Data Science"
     COMP_HLS_ECP_ID = "Extended Credit Program - Health and Life Sciences"
 
 class DegreeScraperConfig(BaseModel):

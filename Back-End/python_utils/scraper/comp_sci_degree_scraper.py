@@ -167,7 +167,7 @@ class CompDsDegreeScraper(CompVariantDegreeScraper):
     def _add_coursepool_rules(self):
         # Mathematics and Statistics Core: Joint Major in Data Science
         # MAST 334 may be replaced by COMP 361.
-        math_stats_core_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Mathematics and Statistics Core"), None)
+        math_stats_core_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Mathematics and Statistics Core: Joint Major in Data Science"), None)
         math_stats_core_pool.rules.append(Constraint(
             type=ConstraintType.MAX_COURSES_FROM_SET,
             params=MaxCoursesFromSetParams(
@@ -184,7 +184,7 @@ class CompDsDegreeScraper(CompVariantDegreeScraper):
         self.add_courses_to_pool(computer_science_core_pool.name, ["MAST 221"])
         # Mathematics and Statistics Core: Joint Major in Data Science
         # MAST 334 may be replaced by COMP 361.
-        math_stats_core_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Mathematics and Statistics Core"), None)
+        math_stats_core_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Mathematics and Statistics Core: Joint Major in Data Science"), None)
         self.add_courses_to_pool(math_stats_core_pool.name, ["MAST 334", "COMP 361"])
 
 class CompHlsDegreeScraper(CompVariantDegreeScraper):
