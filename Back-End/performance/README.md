@@ -1,5 +1,138 @@
 # k6 Performance Tests
 
+## How k6 works (general overview)
+
+k6 is a load-testing tool that runs a JavaScript test file and executes a user flow **repeatedly** under a chosen load model. Each VU (virtual user) runs the same flow in parallel, looping through the `default` function without pause until the test duration ends.
+A single VU can generate a very high request rate; it will execute the requests as fast as the CPU and network allows without latency. 
+
+### Core concepts
+- **VUs (Virtual Users)**: parallel script runners that loop the `default` function as fast as possible unless you add `sleep()`; they are **not** equal to real people. Real users concurrently interact with the server whereas VUs are synchronized to hammer the server/endpoints constantly; each looping through the same iteration simultaneously for a set duration.
+  -  **If a test fails at X VUs, this does not mean the system can only support X real users** — a single VU with no sleep time can generate the same traffic as many real users browsing at human speed. Look at the HTTP request rate (RPS), not the VU count, to understand real-world capacity.
+- **Iteration**: one full execution of the script's `default` function by a single VU.
+- **Duration**: how long k6 keeps running the test. During that time, each VU loops the `default` function.
+- **Checks**: assertions you define (pass/fail counters), without automatically failing the run unless you call `fail()`.
+- **Thresholds**: pass/fail criteria for metrics (e.g., p(95) latency, error rate).
+
+### How load is defined
+You can define load either:
+- **From the CLI** (quick overrides): `k6 run --vus 20 --duration 1m script.js`
+- **In the script** via `export const options = { ... }` (repeatable defaults)
+
+When both are present, **CLI flags override script `options`**.
+
+### Why request counts can vary
+k6 reports total requests across all VUs and iterations. If your flow has retries, polling, conditional branches, or variable work per iteration, the total `http_reqs` and per-iteration request counts will vary.
+
+---
+
+## k6 internal concepts — what Grafana shows and why
+
+This section explains k6 internals that directly affect what you see on the Grafana dashboard. Use it as a reference when a panel looks unexpected.
+
+### Iterations: complete vs. interrupted
+
+An iteration is one full execution of the `default` function. k6 distinguishes three outcomes:
+
+| Outcome | What happened | Counted in `iteration_success_rate`? |
+|---|---|---|
+| **Complete + success** | All steps passed | ✅ as 1 |
+| **Complete + failure** | A step failed, `fail()` or an error was returned | ✅ as 0 |
+| **Interrupted** | k6 killed the VU mid-flow (test ended, `gracefulStop` expired) | ❌ not counted at all |
+
+> **Why `iteration_success_rate` can read 100% even when you saw errors in the logs:**
+> Interrupted iterations are excluded from every rate metric. If the test time ran out while VUs were still polling, those runs are silently dropped. Only fully-completed iterations are counted.
+
+### `gracefulStop` and `gracefulRampDown`
+
+When the test duration ends, k6 does not kill VUs instantly. It gives each VU time to finish its current iteration:
+
+- **`gracefulStop`** (`30s` in this test): time the entire test waits after the scenario ends for any VU still mid-iteration to finish.
+- **`gracefulRampDown`** (`30s` in this test): same, but applied when ramping VUs down to 0 mid-scenario.
+
+If an iteration takes longer than these windows (e.g., polling for up to `POLL_MAX_SECONDS=60s` while the grace window is only `30s`), k6 forcibly terminates it. You will see:
+
+```
+N complete and M interrupted iterations
+```
+
+in the summary. Those `M` interrupted iterations do **not** appear in `iteration_success_rate` or any other rate metric — they are counted only in the raw `iterations` counter. This is why the dashboard may show all rates as healthy while the summary reports interruptions.
+
+**To reduce interruptions:** increase `gracefulStop`/`gracefulRampDown` to be at least as long as `POLL_MAX_SECONDS`, or lower `POLL_MAX_SECONDS` so iterations finish faster.
+
+### `http_req_failed` vs. custom failure rates
+
+k6 has a built-in metric `http_req_failed` which counts requests that k6 considers failed. By default this means any non-2xx response **unless** you set `expected_response: false` on the request.
+
+In this test, **all requests set `expected_response: false`** so that non-2xx responses can be handled explicitly (e.g., a `410` from the jobs endpoint is normal during polling). As a result:
+
+- `http_req_failed` will show a high percentage (often 20–70%+) — this is **expected and misleading on its own**. It counts every poll response that was not 2xx, including normal `410` returns.
+- The **custom rate metrics** (`upload_failed_rate`, `timeline_save_failed_rate`, etc.) are what actually measure real failures. Use those panels in Grafana, not `http_req_failed`.
+
+### `status=0` — what it means and why it appears
+
+When k6 logs a request with `status=0`, it means **no HTTP response was received at all**. This is a network-level failure, not an HTTP error code:
+
+| Cause | Typical error string |
+|---|---|
+| Request timeout (exceeded `POLL_REQUEST_TIMEOUT`) | `request timeout` |
+| Connection refused (backend not running) | `connection refused` |
+| DNS failure | `no such host` |
+
+In this test, `status=0` on poll requests is tracked via `poll_network_error_rate` and `poll_network_error_count`. A high `poll_network_error_rate` under load typically means the backend is overwhelmed and connections are timing out — it signals system stress, not a k6 configuration problem.
+
+### `p(95)` — what percentiles mean
+
+k6 thresholds and Grafana latency panels report values as percentiles:
+
+- **`p(95)<500ms`** means "95% of requests completed in under 500ms". The slowest 5% are excluded.
+- **`p(99)`** is stricter and captures more tail latency.
+- **`avg`** is less useful for latency analysis because a few very slow requests inflate it; prefer `p(95)` or `p(99)` for thresholds.
+
+> In Grafana, if a panel shows `p(95)=5s` for `GET /api/jobs/:jobId`, it means at least 5% of poll requests hit the `POLL_REQUEST_TIMEOUT` ceiling (5s) — the backend was not responding in time.
+
+### Job-deadline exceeded
+
+If k6 prints `job-deadline exceeded` in the terminal, it means a **k6-level** deadline was hit (the `gracefulStop` or scenario wall clock), **not** a BullMQ or backend job timeout. It is distinct from:
+
+| Event | Tracked by | Means |
+|---|---|---|
+| `job_timeout_rate` fires | k6 custom metric | `pollJobUntilDone` exhausted `POLL_MAX_SECONDS` without the backend job completing — a backend problem |
+| `poll_network_error_rate` fires | k6 custom metric | Individual poll requests received no HTTP response — a connectivity or overload problem |
+| `job-deadline exceeded` logged | k6 internal | k6 forcibly killed a VU because the test's wall clock ran out — a test configuration problem (increase `gracefulStop`) |
+
+### `410` during polling — expected or a problem?
+
+`410 Gone` on `GET /api/jobs/:jobId` has two meanings depending on timing:
+
+- **Early `410` (first poll attempt):** The job result already expired in Redis before polling started. This is a backend Redis TTL issue — the job completed too fast and the result was evicted before the client polled.
+- **Repeated `410`:** The job result expired while the client was still polling. Under high load, this can surface if Redis TTL is shorter than the queue processing time.
+
+Both are tracked in `poll_410_count` (counter on Grafana). They do **not** count as a job timeout — `job_timeout_rate` only fires when polling exhausted the full `POLL_MAX_SECONDS` without ever seeing `200 status=done`.
+
+### Why Grafana panels may show "No Data"
+
+| Cause | Fix |
+|---|---|
+| Test was run **without** `--out influxdb=...` | Always pass `--out influxdb=http://localhost:8086/k6` |
+| InfluxDB container is not running | `docker compose up -d` |
+| Time range in Grafana does not cover the test run | Set the Grafana time picker to the last 15 min or the exact window of the run |
+| The metric was never triggered (e.g., no deletes happened) | Expected — "No Data" is correct if the code path was never reached |
+
+### The InfluxDB flush warning
+
+```
+WARN: The flush operation took higher than the expected set push interval.
+```
+
+This means k6 is generating metrics faster than InfluxDB can ingest them. Under high VU counts (12+) or long runs, this can cause delayed or missing data points in Grafana. It does **not** affect the k6 terminal summary — only the Grafana visualisation. To reduce it:
+
+- Lower `PEAK_VUS` for local testing
+- Use a longer push interval: `--out "influxdb=http://localhost:8086/k6?pushInterval=5s&concurrentWrites=4"`
+- Keep InfluxDB and the backend on the same machine to reduce network overhead
+
+---
+
+
 ## Prerequisites
 
 ### 1. Install k6
@@ -125,8 +258,6 @@ VUs
 - **Steady load** is the measurement window — thresholds are evaluated over the full run including this phase
 - **Ramp-down** catches delayed failures (e.g., jobs still processing, cleanup errors) and lets in-flight iterations finish gracefully
 
-> The default `PEAK_VUS=6` gives exactly one VU per PDF file via the deterministic rotation. Use a multiple of 6 (12, 18, ...) for higher load while keeping PDF coverage even.
-
 ---
 
 ## Running the tests
@@ -157,6 +288,8 @@ cd Back-End/performance
 ```bash
 k6 run --out influxdb=http://localhost:8086/k6 k6-timeline.js
 ```
+
+> The default `PEAK_VUS=6` gives exactly one VU per PDF file via the deterministic rotation. Use a multiple of 6 (12, 18, ...) for higher load while keeping PDF coverage even.
 
 **Quick smoke test — small peak, short stages:**
 ```bash
@@ -381,132 +514,3 @@ Open the **"k6 Coop Validation Performance Test"** dashboard (`uid: k6-coop-vali
 | Endpoint Latency | p95 for `GET /api/timeline/:id`, `GET /api/jobs/:jobId`, `GET /api/coop/validate/:id` |
 | Poll Status Breakdown | Cumulative poll status counts, per-second stacked poll rate |
 
-## How k6 works (general overview)
-
-k6 is a load-testing tool that runs a JavaScript test file and executes a user flow repeatedly under a chosen load model.
-
-### Core concepts
-- **VUs (Virtual Users)**: concurrent "users" running your script in parallel.
-- **Iteration**: one full execution of the script's `default` function by a single VU.
-- **Duration**: how long k6 keeps running the test. During that time, each VU loops the `default` function.
-- **Checks**: assertions you define (pass/fail counters), without automatically failing the run unless you call `fail()`.
-- **Thresholds** (optional): pass/fail criteria for metrics (e.g., p(95) latency, error rate).
-
-### How load is defined
-You can define load either:
-- **From the CLI** (quick overrides): `k6 run --vus 20 --duration 1m script.js`
-- **In the script** via `export const options = { ... }` (repeatable defaults)
-
-When both are present, **CLI flags override script `options`**.
-
-### Why request counts can vary
-k6 reports total requests across all VUs and iterations. If your flow has retries, polling, conditional branches, or variable work per iteration, the total `http_reqs` and per-iteration request counts will vary.
-
----
-
-## k6 internal concepts — what Grafana shows and why
-
-This section explains k6 internals that directly affect what you see on the Grafana dashboard. Use it as a reference when a panel looks unexpected.
-
-### Iterations: complete vs. interrupted
-
-An iteration is one full execution of the `default` function. k6 distinguishes three outcomes:
-
-| Outcome | What happened | Counted in `iteration_success_rate`? |
-|---|---|---|
-| **Complete + success** | All steps passed | ✅ as 1 |
-| **Complete + failure** | A step failed, `fail()` or an error was returned | ✅ as 0 |
-| **Interrupted** | k6 killed the VU mid-flow (test ended, `gracefulStop` expired) | ❌ not counted at all |
-
-> **Why `iteration_success_rate` can read 100% even when you saw errors in the logs:**
-> Interrupted iterations are excluded from every rate metric. If the test time ran out while VUs were still polling, those runs are silently dropped. Only fully-completed iterations are counted.
-
-### `gracefulStop` and `gracefulRampDown`
-
-When the test duration ends, k6 does not kill VUs instantly. It gives each VU time to finish its current iteration:
-
-- **`gracefulStop`** (`30s` in this test): time the entire test waits after the scenario ends for any VU still mid-iteration to finish.
-- **`gracefulRampDown`** (`30s` in this test): same, but applied when ramping VUs down to 0 mid-scenario.
-
-If an iteration takes longer than these windows (e.g., polling for up to `POLL_MAX_SECONDS=60s` while the grace window is only `30s`), k6 forcibly terminates it. You will see:
-
-```
-N complete and M interrupted iterations
-```
-
-in the summary. Those `M` interrupted iterations do **not** appear in `iteration_success_rate` or any other rate metric — they are counted only in the raw `iterations` counter. This is why the dashboard may show all rates as healthy while the summary reports interruptions.
-
-**To reduce interruptions:** increase `gracefulStop`/`gracefulRampDown` to be at least as long as `POLL_MAX_SECONDS`, or lower `POLL_MAX_SECONDS` so iterations finish faster.
-
-### `http_req_failed` vs. custom failure rates
-
-k6 has a built-in metric `http_req_failed` which counts requests that k6 considers failed. By default this means any non-2xx response **unless** you set `expected_response: false` on the request.
-
-In this test, **all requests set `expected_response: false`** so that non-2xx responses can be handled explicitly (e.g., a `410` from the jobs endpoint is normal during polling). As a result:
-
-- `http_req_failed` will show a high percentage (often 20–70%+) — this is **expected and misleading on its own**. It counts every poll response that was not 2xx, including normal `410` returns.
-- The **custom rate metrics** (`upload_failed_rate`, `timeline_save_failed_rate`, etc.) are what actually measure real failures. Use those panels in Grafana, not `http_req_failed`.
-
-### `status=0` — what it means and why it appears
-
-When k6 logs a request with `status=0`, it means **no HTTP response was received at all**. This is a network-level failure, not an HTTP error code:
-
-| Cause | Typical error string |
-|---|---|
-| Request timeout (exceeded `POLL_REQUEST_TIMEOUT`) | `request timeout` |
-| Connection refused (backend not running) | `connection refused` |
-| DNS failure | `no such host` |
-
-In this test, `status=0` on poll requests is tracked via `poll_network_error_rate` and `poll_network_error_count`. A high `poll_network_error_rate` under load typically means the backend is overwhelmed and connections are timing out — it signals system stress, not a k6 configuration problem.
-
-### `p(95)` — what percentiles mean
-
-k6 thresholds and Grafana latency panels report values as percentiles:
-
-- **`p(95)<500ms`** means "95% of requests completed in under 500ms". The slowest 5% are excluded.
-- **`p(99)`** is stricter and captures more tail latency.
-- **`avg`** is less useful for latency analysis because a few very slow requests inflate it; prefer `p(95)` or `p(99)` for thresholds.
-
-> In Grafana, if a panel shows `p(95)=5s` for `GET /api/jobs/:jobId`, it means at least 5% of poll requests hit the `POLL_REQUEST_TIMEOUT` ceiling (5s) — the backend was not responding in time.
-
-### Job-deadline exceeded
-
-If k6 prints `job-deadline exceeded` in the terminal, it means a **k6-level** deadline was hit (the `gracefulStop` or scenario wall clock), **not** a BullMQ or backend job timeout. It is distinct from:
-
-| Event | Tracked by | Means |
-|---|---|---|
-| `job_timeout_rate` fires | k6 custom metric | `pollJobUntilDone` exhausted `POLL_MAX_SECONDS` without the backend job completing — a backend problem |
-| `poll_network_error_rate` fires | k6 custom metric | Individual poll requests received no HTTP response — a connectivity or overload problem |
-| `job-deadline exceeded` logged | k6 internal | k6 forcibly killed a VU because the test's wall clock ran out — a test configuration problem (increase `gracefulStop`) |
-
-### `410` during polling — expected or a problem?
-
-`410 Gone` on `GET /api/jobs/:jobId` has two meanings depending on timing:
-
-- **Early `410` (first poll attempt):** The job result already expired in Redis before polling started. This is a backend Redis TTL issue — the job completed too fast and the result was evicted before the client polled.
-- **Repeated `410`:** The job result expired while the client was still polling. Under high load, this can surface if Redis TTL is shorter than the queue processing time.
-
-Both are tracked in `poll_410_count` (counter on Grafana). They do **not** count as a job timeout — `job_timeout_rate` only fires when polling exhausted the full `POLL_MAX_SECONDS` without ever seeing `200 status=done`.
-
-### Why Grafana panels may show "No Data"
-
-| Cause | Fix |
-|---|---|
-| Test was run **without** `--out influxdb=...` | Always pass `--out influxdb=http://localhost:8086/k6` |
-| InfluxDB container is not running | `docker compose up -d` |
-| Time range in Grafana does not cover the test run | Set the Grafana time picker to the last 15 min or the exact window of the run |
-| The metric was never triggered (e.g., no deletes happened) | Expected — "No Data" is correct if the code path was never reached |
-
-### The InfluxDB flush warning
-
-```
-WARN: The flush operation took higher than the expected set push interval.
-```
-
-This means k6 is generating metrics faster than InfluxDB can ingest them. Under high VU counts (12+) or long runs, this can cause delayed or missing data points in Grafana. It does **not** affect the k6 terminal summary — only the Grafana visualisation. To reduce it:
-
-- Lower `PEAK_VUS` for local testing
-- Use a longer push interval: `--out "influxdb=http://localhost:8086/k6?pushInterval=5s&concurrentWrites=4"`
-- Keep InfluxDB and the backend on the same machine to reduce network overhead
-
----
