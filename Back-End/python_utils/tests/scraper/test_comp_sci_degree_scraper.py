@@ -81,20 +81,6 @@ class TestCompDegreeScraper:
         """Test handling computer general electives pool"""
         mock_course_scraper = MagicMock()
         mock_get_course_scraper.return_value = mock_course_scraper
-        
-        # Setup pools
-        cs_electives_pool = CoursePool(
-            _id="cs_electives", 
-            name="Computer Science Electives", 
-            creditsRequired=30, 
-            courses=["COMP 352", "COMP 353"]
-        )
-        math_electives_pool = CoursePool(
-            _id="math_electives", 
-            name="Mathematics Electives: BCompSc", 
-            creditsRequired=9, 
-            courses=["MATH 363", "MATH 364"]
-        )
         general_electives_pool = CoursePool(
             _id="gen_electives", 
             name="General Electives: BCompSc", 
@@ -104,7 +90,7 @@ class TestCompDegreeScraper:
         
         # Setup scraper with all required pools
         scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
-        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [cs_electives_pool, math_electives_pool, general_electives_pool])
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [general_electives_pool])
         
         # Mock the _get_general_education_pool method
         mock_gen_ed_pool = CoursePool(
@@ -116,12 +102,6 @@ class TestCompDegreeScraper:
         with patch.object(scraper, '_get_general_education_pool', return_value=mock_gen_ed_pool):
             scraper._handle_computer_general_electives(general_electives_pool)
         
-        # Should include courses from CS electives
-        assert "COMP 352" in general_electives_pool.courses
-        assert "COMP 353" in general_electives_pool.courses
-        # Should include courses from Math electives
-        assert "MATH 363" in general_electives_pool.courses
-        assert "MATH 364" in general_electives_pool.courses
         # Should include courses from General Education (excluding exclusion list)
         assert "ANTH 101" in general_electives_pool.courses
         assert "PHIL 212" in general_electives_pool.courses
@@ -141,18 +121,6 @@ class TestCompDegreeScraper:
         mock_get_gen_ed.return_value = mock_gen_ed_pool
         
         # Setup pools
-        cs_electives_pool = CoursePool(
-            _id="cs_electives", 
-            name="Computer Science Electives", 
-            creditsRequired=30, 
-            courses=["COMP 352"]
-        )
-        math_electives_pool = CoursePool(
-            _id="math_electives", 
-            name="Mathematics Electives: BCompSc", 
-            creditsRequired=9, 
-            courses=["MATH 363"]
-        )
         general_electives_pool = CoursePool(
             _id="gen_electives", 
             name="General Electives: BCompSc", 
@@ -161,14 +129,9 @@ class TestCompDegreeScraper:
         )
         
         scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
-        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [cs_electives_pool, math_electives_pool, general_electives_pool])
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [general_electives_pool])
         
         scraper._handle_computer_general_electives(general_electives_pool)
-        
-        # Should include allowed courses
-        assert "ANTH 101" in general_electives_pool.courses
-        assert "COMP 352" in general_electives_pool.courses
-        assert "MATH 363" in general_electives_pool.courses
         
         # Should exclude courses from exclusion list
         assert "BCEE 231" not in general_electives_pool.courses

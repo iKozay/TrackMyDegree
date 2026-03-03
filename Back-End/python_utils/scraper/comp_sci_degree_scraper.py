@@ -65,13 +65,9 @@ class CompDegreeScraper(GinaCodyDegreeScraper):
         # 3. General Education Humanities and Social Sciences Electives (will be added using GinaCodyDegreeScraper)
         # 4. Also can't take courses from General Electives Exclusion List (shown below)
         general_electives_exclusion_list = ["BCEE 231", "BIOL 322", "BTM 380", "BTM 382", "CART 315", "COMM 215", "EXCI 322", "GEOG 264", "INTE 296", "MAST 221", "MAST 221", "MAST 333", "MIAE 215", "PHYS 235", "PHYS 236", "SOCI 212"]
-        cs_electives_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Computer Science Electives"), None)
-        math_electives_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Mathematics Electives: BCompSc"), None)
         gen_education_electives_pool = self._get_general_education_pool()
 
         allowed_courses = set()
-        allowed_courses.update(cs_electives_pool.courses)
-        allowed_courses.update(math_electives_pool.courses)
         allowed_courses.update(gen_education_electives_pool.courses)
         # Remove excluded courses
         for course in general_electives_exclusion_list:
