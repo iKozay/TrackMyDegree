@@ -3,7 +3,7 @@ import sys
 import re
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from utils.bs4_utils import get_soup, get_all_links_from_div, extract_coursepool_and_required_credits, extract_coursepool_courses
+from utils.bs4_utils import extract_coursepool_rules, get_soup, get_all_links_from_div, extract_coursepool_and_required_credits, extract_coursepool_courses
 from utils.parsing_utils import COURSE_REGEX, extract_name_and_credits
 from models import AnchorLink, Constraint, CoursePool, DegreeType, ConstraintType, MinCoursesFromSetParams, MaxCoursesFromSetParams
 from scraper.abstract_degree_scraper import AbstractDegreeScraper
@@ -32,9 +32,8 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
         self._set_program_requirements(program_name, total_credits, DegreeType.STANDALONE, course_pool_objects)
 
         # Extract courses for each course pool
-        failed_course_pools = self._extract_course_pool_courses(course_pool_objects)
+        failed_course_pools = self._extract_course_pool_data(course_pool_objects)
         self._handle_failed_course_pools(failed_course_pools)
-        self._add_coursepool_rules()
     
     def _get_program_node(self, soup):
         program_node = soup.find("div", class_="program-node", attrs={"title": self.degree_name})
@@ -63,11 +62,12 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
         
         return course_pool_objects
     
-    def _extract_course_pool_courses(self, course_pools: list[CoursePool]) -> list[CoursePool]:
+    def _extract_course_pool_data(self, course_pools: list[CoursePool]) -> list[CoursePool]:
         failed_course_pools = []
         for pool in course_pools:
-            success = extract_coursepool_courses(self.requirements_url, pool)
-            if not success or not pool.courses:
+            parse_courses_success = extract_coursepool_courses(self.requirements_url, pool)
+            extract_coursepool_rules(self.requirements_url, pool)
+            if not parse_courses_success or not pool.courses:
                 failed_course_pools.append(pool)
         return failed_course_pools
 
@@ -107,24 +107,6 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
             creditsRequired=credits_required,
             courses=general_education_courses
         )
-    
-    def _add_capstone_substitution_rule(self):
-        # Students in BEng can replace their Capstone Course {AERO,BLDG,CIVI,COEN,ELEC,INDU,MECH,SOEN} 490 with ENGR 490.
-        capstone_course = f"{self.degree_short_name} 490"
-        for pool in self.program_requirements.coursePools:
-            if capstone_course in pool.courses:
-                pool.rules.append(Constraint(
-                    type=ConstraintType.MAX_COURSES_FROM_SET,
-                    params=MaxCoursesFromSetParams(
-                        courseList=[capstone_course, "ENGR 490"],
-                        maxCourses=1
-                    ),
-                    message=f"Students may replace {capstone_course} with ENGR 490."
-                ))
-                break
-
-    def _add_coursepool_rules(self):
-        self._add_capstone_substitution_rule()
 
     def _handle_special_cases(self):
         # To be implemented by child classes for degree-specific special case handling
@@ -198,21 +180,6 @@ class AeroDegreeScraper(GinaCodyDegreeScraper):
             coursepools.remove(pool)
         return pool_credits
 
-    def _add_coursepool_rules(self):
-        super()._add_coursepool_rules()
-        # Option A - Aerodynamics and Propulsion Electives
-        # Students may take no more than one of the following courses: AERO 486‌, MECH 375,‌ MECH 426‌, MECH 460‌.
-        if self.option_name == "Option A":
-            aero_propulsion_electives_pool = next((pool for pool in self.program_requirements.coursePools if "Aerodynamics and Propulsion Electives" in pool.name), None)
-            aero_propulsion_electives_pool.rules = Constraint(
-                type=ConstraintType.MAX_COURSES_FROM_SET,
-                params=MaxCoursesFromSetParams(
-                    courseList=["AERO 486", "MECH 375", "MECH 426", "MECH 460"],
-                    maxCourses=1
-                ),
-                message="Students may take no more than one of the following courses: AERO 486, MECH 375, MECH 426, MECH 460."
-            )
-
     def _handle_special_cases(self):
         # Engineering Core:
         # - Aerospace Engineering students are not required to take ELEC 275‌ in their program
@@ -228,10 +195,6 @@ class BldgDegreeScraper(GinaCodyDegreeScraper):
         self.add_courses_to_pool(self.ENGINEERING_CORE, ["BLDG 482"])
 
 class ChemDegreeScraper(GinaCodyDegreeScraper):
-    def _add_coursepool_rules(self):
-        # Chem does not have the capstone substitution rule
-        pass
-
     def _handle_special_cases(self):
         # Engineering Core:
         # - Students in the BEng in Chemical Engineering are not required to take ELEC 275‌ in their program
@@ -259,31 +222,6 @@ class ElecDegreeScraper(GinaCodyDegreeScraper):
         self.add_courses_to_pool(self.ENGINEERING_CORE, [self.ELEC_273])
 
 class InduDegreeScraper(GinaCodyDegreeScraper):
-    def _add_coursepool_rules(self):
-        super()._add_coursepool_rules()
-        # Industrial Engineering Electives
-        # Students must take at least three courses from the following list: INDU 410, INDU 424, INDU 431, INDU 441, INDU 466, INDU 475, INDU 480, INDU 498
-        # Students may take no more than one course from the following list: BSTA 478, BTM 480, ENGR 411, ENGR 412, MANA 300
-        indu_electives_pool = next((pool for pool in self.program_requirements.coursePools if "Industrial Engineering Electives" in pool.name), None)
-        indu_electives_pool.rules = [
-            Constraint(
-                type=ConstraintType.MIN_COURSES_FROM_SET,
-                params=MinCoursesFromSetParams(
-                    courseList=["INDU 410", "INDU 424", "INDU 431", "INDU 441", "INDU 466", "INDU 475", "INDU 480", "INDU 498"],
-                    minCourses=3
-                ),
-                message="Students must take at least three courses from the following list: INDU 410, INDU 424, INDU 431, INDU 441, INDU 466, INDU 475, INDU 480, INDU 498."
-            ),
-            Constraint(
-                type=ConstraintType.MAX_COURSES_FROM_SET,
-                params=MaxCoursesFromSetParams(
-                    courseList=["BSTA 478", "BTM 480", "ENGR 411", "ENGR 412", "MANA 300"],
-                    maxCourses=1
-                ),
-                message="Students may take no more than one course from the following list: BSTA 478, BTM 480, ENGR 411, ENGR 412, MANA 300."
-            )
-        ]
-
     def _handle_special_cases(self):
         # Engineering Core:
         # - Industrial Engineering students are not required to take ELEC 275‌ in their program

@@ -4,7 +4,7 @@ import re
 from unidecode import unidecode
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from models import CourseRules
+from models import CourseRules, Constraint, ConstraintType, MinCoursesFromSetParams, MaxCoursesFromSetParams
 
 SPACE_REPLACEMENT = r'\1 \2'
 REGEX_ALL = r".*"
@@ -240,3 +240,152 @@ def get_course_sort_key(course_id: str):
         num = int(match.group(2))
         return (dept, num)
     return ("", float('inf'))
+
+_WORD_TO_NUM: dict[str, int] = {
+    'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4,
+    'five': 5, 'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10
+}
+
+
+def _word_or_num_to_int(s: str) -> int:
+    """Convert a word (e.g. 'three') or digit string to an integer."""
+    s = s.strip().lower()
+    if s in _WORD_TO_NUM:
+        return _WORD_TO_NUM[s]
+    try:
+        return int(s)
+    except ValueError:
+        return 1
+
+
+def parse_coursepool_rules(coursepool_notes: str) -> list[Constraint]:
+    """
+    Parses rule/note text extracted from a course pool page into a list of Constraint objects.
+
+    Supported patterns
+    ------------------
+    1. Replace pattern
+       "Students may replace DEPT NNN with DEPT NNN"
+       → MAX_COURSES_FROM_SET(courseList=[A, B], maxCourses=1)
+
+    2. No more than one of the following courses (inline list)
+       "Students may take no more than one of the following courses: A, B, ..."
+       → MAX_COURSES_FROM_SET(courseList=[...], maxCourses=1)
+
+    3. Cannot receive credit for both
+       "Students cannot receive credit for both A and B; C and D; ..."
+       → one MAX_COURSES_FROM_SET per semicolon-separated pair
+
+    4a. Must take at least N courses from the following list (with bullets or inline)
+        "Students must take at least <N|word> courses from the following list: ..."
+        → MIN_COURSES_FROM_SET(courseList=[...], minCourses=N)
+
+    4b. May take no more than N course(s) from the following list
+        "Students may take no more than <N|word> course(s) from the following list: ..."
+        → MAX_COURSES_FROM_SET(courseList=[...], maxCourses=N)
+
+    Args:
+        coursepool_notes (str): Text extracted from the course pool div.
+
+    Returns:
+        list[Constraint]: Parsed constraints.
+    """
+    if not coursepool_notes or not coursepool_notes.strip():
+        return []
+
+    constraints: list[Constraint] = []
+
+    # ------------------------------------------------------------------ #
+    # Pattern 1 – "Students may replace X with Y"                         #
+    # ------------------------------------------------------------------ #
+    replace_re = re.compile(
+        r'Students may replace\s+(' + COURSE_REGEX + r')\s+with\s+(' + COURSE_REGEX + r')',
+        re.I
+    )
+    for m in replace_re.finditer(coursepool_notes):
+        a, b = m.group(1).strip(), m.group(2).strip()
+        constraints.append(Constraint(
+            type=ConstraintType.MAX_COURSES_FROM_SET,
+            params=MaxCoursesFromSetParams(courseList=[a, b], maxCourses=1),
+            message=f"Students may replace {a} with {b}."
+        ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 2 – "no more than one of the following courses: A, B, ..." #
+    # ------------------------------------------------------------------ #
+    no_more_one_of_re = re.compile(
+        r'Students may take no more than one of the following courses?\s*:\s*([^.]+)',
+        re.I
+    )
+    for m in no_more_one_of_re.finditer(coursepool_notes):
+        courses = re.findall(COURSE_REGEX, m.group(1))
+        if courses:
+            msg = "Students may take no more than one of the following courses: " + ", ".join(courses) + "."
+            constraints.append(Constraint(
+                type=ConstraintType.MAX_COURSES_FROM_SET,
+                params=MaxCoursesFromSetParams(courseList=courses, maxCourses=1),
+                message=msg
+            ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 3 – "cannot receive credit for both A and B; C and D"      #
+    # ------------------------------------------------------------------ #
+    cannot_credit_re = re.compile(
+        r'Students cannot receive credit for both\s+(.+?)(?=\.\s|$)',
+        re.I | re.DOTALL
+    )
+    for m in cannot_credit_re.finditer(coursepool_notes):
+        for pair_text in m.group(1).split(';'):
+            pair_text = pair_text.strip()
+            courses = re.findall(COURSE_REGEX, pair_text)
+            if len(courses) >= 2:
+                msg = "Students may take no more than one of the following courses: " + ", ".join(courses) + "."
+                constraints.append(Constraint(
+                    type=ConstraintType.MAX_COURSES_FROM_SET,
+                    params=MaxCoursesFromSetParams(courseList=courses, maxCourses=1),
+                    message=msg
+                ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 4a – "must take at least N courses from the following list" #
+    # ------------------------------------------------------------------ #
+    min_courses_re = re.compile(
+        r'Students must take at least\s+([a-z]+|\d+)\s+courses?\s+from the following list\s*:\s*'
+        r'(.+?)(?=Students (?:must|may) take|\Z)',
+        re.I | re.DOTALL
+    )
+    for m in min_courses_re.finditer(coursepool_notes):
+        count_str = m.group(1)
+        courses = sorted(re.findall(COURSE_REGEX, m.group(2)), key=get_course_sort_key)
+        if courses:
+            min_count = _word_or_num_to_int(count_str)
+            msg = (f"Students must take at least {count_str} courses from the following list: "
+                   + ", ".join(courses) + ".")
+            constraints.append(Constraint(
+                type=ConstraintType.MIN_COURSES_FROM_SET,
+                params=MinCoursesFromSetParams(courseList=courses, minCourses=min_count),
+                message=msg
+            ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 4b – "may take no more than N course(s) from the following" #
+    # ------------------------------------------------------------------ #
+    max_courses_list_re = re.compile(
+        r'Students may take no more than\s+([a-z]+|\d+)\s+courses?\s+from the following list\s*:\s*'
+        r'(.+?)(?=Students (?:must|may) take|\Z)',
+        re.I | re.DOTALL
+    )
+    for m in max_courses_list_re.finditer(coursepool_notes):
+        count_str = m.group(1)
+        courses = sorted(re.findall(COURSE_REGEX, m.group(2)), key=get_course_sort_key)
+        if courses:
+            max_count = _word_or_num_to_int(count_str)
+            msg = (f"Students may take no more than {count_str} course from the following list: "
+                   + ", ".join(courses) + ".")
+            constraints.append(Constraint(
+                type=ConstraintType.MAX_COURSES_FROM_SET,
+                params=MaxCoursesFromSetParams(courseList=courses, maxCourses=max_count),
+                message=msg
+            ))
+
+    return constraints
