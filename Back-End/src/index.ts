@@ -96,16 +96,6 @@ if (process.env.NODE_ENV === 'development') {
   app.use(cors(corsOptions));
 }
 
-if (process.env.NODE_ENV === 'production') {
-  const corsOptions = {
-    origin: ['http://localhost:4173'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  };
-  app.use(cors(corsOptions));
-}
-
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
