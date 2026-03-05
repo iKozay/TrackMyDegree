@@ -16,8 +16,6 @@
 import { group, sleep } from "k6";
 import { createTestUser, deleteTestUser } from "./users.js";
 import {
-    uploadPdf,
-    pollJobUntilDone,
     saveTimeline,
     updateTimeline,
     retrieveTimeline,
@@ -25,6 +23,7 @@ import {
 } from "./timeline.js";
 import { iteration_success_rate } from "./metrics.js";
 import { getPdfForVU, debugLog } from "./config.js";
+import {pollJobUntilDone, uploadPdf} from "./common.js";
 
 // Resolved once per VU at init time — never changes across iterations
 const { docType, file: pdfFile } = getPdfForVU(__VU);
