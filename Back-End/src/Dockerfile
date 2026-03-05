@@ -12,7 +12,7 @@ COPY Back-End/src ./Back-End/src
 
 WORKDIR /app/Back-End/src
 
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 RUN npm run build
 
