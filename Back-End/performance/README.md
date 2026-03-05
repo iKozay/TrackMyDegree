@@ -140,6 +140,7 @@ This means k6 is generating metrics faster than InfluxDB can ingest them. Under 
 Back-End/performance/
 ├── k6-timeline.js              # Entry point: timeline CRUD flow (options, setup, teardown, default)
 ├── k6-coop-validation.js       # Entry point: coop validation flow (options, setup, teardown, default)
+├── k6-degree-audit.js          # Entry point: degree audit flow (options, setup, teardown, default)
 ├── config.js                   # Env vars, shared constants, PDF file map, getPdfForVU, pollJobUntilDone
 ├── metrics.js                  # All custom k6 metric declarations
 ├── users.js                    # createTestUser / deleteTestUser (setup/teardown)
@@ -257,15 +258,18 @@ k6 version
 - MongoDB running
 - Redis running (used for `/api/jobs/:jobId` cache)
 - **BullMQ worker running** (started by your backend)
-- InfluxDB + Grafana running via `docker compose up -d` (for metrics visualisation)
+- InfluxDB + Grafana running via `docker compose -f docker-compose.test.yml up -d` (for metrics visualisation)
 
 > **Note:** A test user is created automatically by `setup()` before the run and deleted by `teardown()` after. No manual user setup needed.
 
 ---
 
 ```bash
-# From repo root — start MongoDB, Redis, InfluxDB, Grafana
+# From repo root — start MongoDB, Redis (dev stack)
 docker compose up -d
+
+# From repo root — start InfluxDB, Grafana
+docker compose -f docker-compose.test.yml up -d
 
 # Start backend with BullMQ worker
 cd Back-End/src
