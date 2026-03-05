@@ -1,33 +1,35 @@
 # ---------- Build stage ----------
-FROM node:22.21 AS build
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY shared/ ./shared/
-COPY tsconfig.json ./tsconfig.json
-COPY ts-front-end/package.json ./ts-front-end/
-COPY ts-front-end/*lock* ./ts-front-end/
-WORKDIR /app/ts-front-end
-RUN npm install
+COPY tsconfig.base.json ./
+COPY shared ./shared
 
-COPY ts-front-end/ ./
+COPY ts-front-end/package*.json ./ts-front-end/
+COPY ts-front-end/tsconfig*.json ./ts-front-end/
+COPY ts-front-end ./ts-front-end
+
+WORKDIR /app/ts-front-end
+
+RUN npm ci
 
 ARG VITE_DEPLOYMENT_VERSION
 ENV VITE_DEPLOYMENT_VERSION=$VITE_DEPLOYMENT_VERSION
 
 RUN npm run build
 
-
 # ---------- Runtime stage ----------
-FROM node:22.21
+FROM node:22-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+RUN npm install -g serve
 
-COPY . .
+COPY --from=builder /app/ts-front-end/dist ./dist
 
-EXPOSE 5173
+EXPOSE 4173
 
-CMD ["npm", "run", "dev"]
+USER node
+
+CMD ["serve", "-s", "dist", "-l", "4173"]
