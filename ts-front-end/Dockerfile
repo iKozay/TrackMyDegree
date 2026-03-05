@@ -24,12 +24,15 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-RUN npm install -g serve
+RUN npm install -g serve && apk add --no-cache gettext
 
 COPY --from=builder /app/ts-front-end/dist ./dist
+COPY ts-front-end/entrypoint.sh ./entrypoint.sh
+
+RUN chmod +x ./entrypoint.sh && chown -R node:node /app/dist
 
 EXPOSE 4173
 
 USER node
 
-CMD ["serve", "-s", "dist", "-l", "4173"]
+ENTRYPOINT ["./entrypoint.sh"]
