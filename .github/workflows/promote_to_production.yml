@@ -71,7 +71,6 @@ jobs:
             fi
           done
           echo "Validation succeeded: tag exists for selected image(s)"
-          set -eo pipefailage(s)"
 
       - name: Promote selected images to production (in-registry tag)
         shell: bash
