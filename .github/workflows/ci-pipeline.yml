@@ -183,7 +183,7 @@ jobs:
       matrix:
         include:
           - name: python-utils
-            context: .
+            context: ./Back-End/python_utils
             dockerfile: ./Back-End/python_utils/Dockerfile
             image: trackmydegree-python-utils
           - name: backend
