@@ -11,6 +11,7 @@ const DegreeSchema = new Schema({
     },
   totalCredits: { type: Number, required: true },
   coursePools: [{ type: String, ref: 'CoursePool' }],
+  ecpDegreeId: { type: String },
 });
 
 export const Degree = model('Degree', DegreeSchema);

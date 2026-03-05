@@ -765,7 +765,7 @@
   "refresh": "5s",
   "schemaVersion": 27,
   "style": "dark",
-  "tags": ["k6", "performance"],
+  "tags": ["k6", "performance", "timeline"],
   "templating": { "list": [] },
   "time": { "from": "now-5m", "to": "now" },
   "timepicker": {},

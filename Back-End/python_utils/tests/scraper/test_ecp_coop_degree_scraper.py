@@ -4,7 +4,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from scraper.ecp_coop_degree_scraper import *
+from scraper.ecp_coop_degree_scraper import EcpDegreeScraper, EngrEcpDegreeScraper, CompEcpDegreeScraper, CompHlsEcpDegreeScraper, CoopDegreeScraper
 from models import CoursePool, AnchorLink
 
 
@@ -19,7 +19,7 @@ class TestEcpDegreeScraper:
             AnchorLink(text="ENGL 212", url="http://test.com")
         ]
         
-        scraper = EcpDegreeScraper("Extended Credit Program - Engineering", "ENGR_ECP", "http://test.com")
+        scraper = EcpDegreeScraper("Extended Credit Program - Engineering", "ENGR_ECP", None, "http://test.com")
         result = scraper.get_ecp_core(credits_required=18.0)
         
         assert result.name == "ECP Core"
@@ -40,7 +40,7 @@ class TestEcpDegreeScraper:
         )
         mock_super_get_gen_ed.return_value = mock_base_pool
         
-        scraper = EcpDegreeScraper("Extended Credit Program - Engineering", "ENGR_ECP", "http://test.com")
+        scraper = EcpDegreeScraper("Extended Credit Program - Engineering", "ENGR_ECP", None, "http://test.com")
         result = scraper._get_general_education_pool(credits_required=6.0)
         
         assert result.name == "ECP General Education Humanities and Social Sciences Electives"
@@ -73,7 +73,7 @@ class TestEngrEcpDegreeScraper:
         )
         mock_get_gen_ed.return_value = mock_gen_ed_pool
         
-        scraper = EngrEcpDegreeScraper("Extended Credit Program - Engineering", "ENGR_ECP", "http://test.com")
+        scraper = EngrEcpDegreeScraper("Extended Credit Program - Engineering", "ENGR_ECP", None, "http://test.com")
         scraper._get_program_requirements()
         
         assert scraper.program_requirements is not None
@@ -91,7 +91,7 @@ class TestEngrEcpDegreeScraper:
 
     def test_handle_special_cases(self):
         """Test that engineering ECP has no special cases"""
-        scraper = EngrEcpDegreeScraper("Extended Credit Program - Engineering", "ENGR_ECP", "http://test.com")
+        scraper = EngrEcpDegreeScraper("Extended Credit Program - Engineering", "ENGR_ECP", None, "http://test.com")
         # Should not raise any exceptions
         scraper._handle_special_cases()
 
@@ -135,7 +135,7 @@ class TestCompEcpDegreeScraper:
         ]
         mock_get_course_scraper.return_value = mock_course_scraper
         
-        scraper = CompEcpDegreeScraper("Extended Credit Program - Computer Science", "COMP_ECP", "http://test.com")
+        scraper = CompEcpDegreeScraper("Extended Credit Program - Computer Science", "COMP_ECP", None, "http://test.com")
         scraper._get_program_requirements()
         
         assert scraper.program_requirements is not None
@@ -162,10 +162,71 @@ class TestCompEcpDegreeScraper:
 
     def test_handle_special_cases(self):
         """Test that computer science ECP has no special cases"""
-        scraper = CompEcpDegreeScraper("Extended Credit Program - Computer Science", "COMP_ECP", "http://test.com")
+        scraper = CompEcpDegreeScraper("Extended Credit Program - Computer Science", "COMP_ECP", None, "http://test.com")
         # Should not raise any exceptions
         scraper._handle_special_cases()
 
+
+class TestCompHlsEcpDegreeScraper:
+    @patch('scraper.ecp_coop_degree_scraper.get_all_links_from_div')
+    def test_get_ecp_core(self, mock_get_links):
+        """Test getting ECP core for Health and Life Sciences"""
+        mock_get_links.return_value = [
+            AnchorLink(text="BIOL 201", url="http://test.com"),
+            AnchorLink(text="CHEM 205", url="http://test.com"),
+            AnchorLink(text="MATH 203", url="http://test.com")
+        ]
+        
+        scraper = CompHlsEcpDegreeScraper("Extended Credit Program - Health and Life Sciences", "HLS_ECP", None, "http://test.com")
+        result = scraper.get_ecp_core(credits_required=30.0)
+        
+        assert result.name == "ECP Core"
+        assert abs(result.creditsRequired - 30.0) < 1e-8
+        assert "BIOL 201" in result.courses
+        assert "CHEM 205" in result.courses
+        assert "MATH 203" in result.courses
+        assert result._id == "HLS_ECP_Core"
+        
+        # Verify the correct search text was used
+        mock_get_links.assert_called_once_with(
+            "http://test.com", 
+            ["defined-group"], 
+            "Extended Credit Program: Health and Life Sciences",
+            include_regex=mock_get_links.call_args[1]['include_regex']
+        )
+
+    @patch('scraper.ecp_coop_degree_scraper.CompHlsEcpDegreeScraper.get_ecp_core')
+    def test_get_program_requirements(self, mock_get_ecp_core):
+        """Test getting program requirements for Health and Life Sciences ECP"""
+        # Mock ECP Core
+        mock_ecp_core_pool = CoursePool(
+            _id="HLS_ECP_Core",
+            name="ECP Core",
+            creditsRequired=30.0,
+            courses=["BIOL 201", "CHEM 205", "MATH 203"]
+        )
+        mock_get_ecp_core.return_value = mock_ecp_core_pool
+        
+        scraper = CompHlsEcpDegreeScraper("Extended Credit Program - Health and Life Sciences", "HLS_ECP", None, "http://test.com")
+        scraper._get_program_requirements()
+        
+        assert scraper.program_requirements is not None
+        assert scraper.program_requirements.degree.name == "Extended Credit Program - Health and Life Sciences"
+        assert abs(scraper.program_requirements.degree.totalCredits - 30.0) < 1e-8
+        assert scraper.program_requirements.degree.degreeType == "ECP"
+        
+        # Should have 1 course pool: ECP Core
+        assert len(scraper.program_requirements.coursePools) == 1
+        
+        ecp_core_pool = scraper.program_requirements.coursePools[0]
+        assert ecp_core_pool.name == "ECP Core"
+        assert abs(ecp_core_pool.creditsRequired - 30.0) < 1e-8
+        assert "BIOL 201" in ecp_core_pool.courses
+        assert "CHEM 205" in ecp_core_pool.courses
+        assert "MATH 203" in ecp_core_pool.courses
+        
+        # Verify get_ecp_core was called with correct credits
+        mock_get_ecp_core.assert_called_once_with(credits_required=30.0)
 
 class TestCoopDegreeScraper:
     @patch('scraper.ecp_coop_degree_scraper.get_course_scraper_instance')
@@ -177,7 +238,7 @@ class TestCoopDegreeScraper:
         ]
         mock_get_course_scraper.return_value = mock_course_scraper
         
-        scraper = CoopDegreeScraper("Co-op Program", "COOP", "http://test.com")
+        scraper = CoopDegreeScraper("Co-op Program", "COOP", None, "http://test.com")
         scraper._get_program_requirements()
         
         assert scraper.program_requirements is not None
@@ -204,6 +265,6 @@ class TestCoopDegreeScraper:
 
     def test_handle_special_cases(self):
         """Test that co-op program has no special cases"""
-        scraper = CoopDegreeScraper("Co-op Program", "COOP", "http://test.com")
+        scraper = CoopDegreeScraper("Co-op Program", "COOP", None, "http://test.com")
         # Should not raise any exceptions
         scraper._handle_special_cases()

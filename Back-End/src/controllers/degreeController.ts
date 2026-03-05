@@ -99,6 +99,7 @@ export class DegreeController extends BaseMongoController<any> {
         totalCredits: result.data.totalCredits,
         degreeType: result.data.degreeType,
         coursePools: result.data.coursePools || [],
+        ecpDegreeId: result.data.ecpDegreeId,
       };
     } catch (error) {
       this.handleError(error, 'updateDegree');
@@ -122,6 +123,7 @@ export class DegreeController extends BaseMongoController<any> {
         totalCredits: result.data.totalCredits,
         degreeType: result.data.degreeType,
         coursePools: result.data.coursePools || [],
+        ecpDegreeId: result.data.ecpDegreeId,
       };
     } catch (error) {
       this.handleError(error, 'readDegree');
@@ -148,6 +150,7 @@ export class DegreeController extends BaseMongoController<any> {
         totalCredits: degree.totalCredits,
         degreeType: degree.degreeType,
         coursePools: degree.coursePools,
+        ecpDegreeId: degree.ecpDegreeId,
       }));
     } catch (error) {
       this.handleError(error, 'readAllDegrees');

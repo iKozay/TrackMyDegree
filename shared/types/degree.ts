@@ -5,6 +5,7 @@ export interface DegreeData {
   totalCredits: number;
   coursePools?: string[];
   degreeType?: string;
+  ecpDegreeId: string;
 }
 export interface CoursePoolInfo {
   _id: string;
