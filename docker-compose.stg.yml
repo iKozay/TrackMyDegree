@@ -96,7 +96,7 @@ services:
 
   python-utils:
     container_name: python-utils
-    image: trackmydegree-python-utils:latest
+    image: ghcr.io/ikozay/trackmydegree-python-utils:latest
     restart: always
     ports:
       - "15001"
