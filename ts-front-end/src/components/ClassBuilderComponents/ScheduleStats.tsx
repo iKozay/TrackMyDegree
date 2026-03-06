@@ -40,12 +40,6 @@ const ScheduleStats: React.FC<ScheduleStatsProps> = ({ classes }) => {
                     margin-bottom: 1.5rem;
                 }
 
-                @media (width >= 64rem) {
-                    .stats-grid {
-                        grid-template-columns: repeat(3, minmax(0, 1fr));
-                    }
-                }
-
                 .stat-card {
                     background-color: var(--card);
                     color: var(--card-foreground);
