@@ -58,6 +58,51 @@
     margin-bottom: 1.5rem;
 }
 
+.insights-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.insights-side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-right: 0.75rem;
+    border-right: 1px solid #e2e8f0;
+}
+
+.insights-panel-btn {
+    border: 1px solid #d1d5db;
+    background: #f8fafc;
+    color: #1e293b;
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.875rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.insights-panel-btn.active {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+.insights-main-content {
+    min-width: 0;
+}
+
+.insights-degree-audit {
+    padding: 0.5rem 0;
+}
+
+.insights-degree-audit p {
+    margin-bottom: 1rem;
+    color: #334155;
+}
+
 .insights-pools-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -70,6 +115,17 @@
 }
 
 @media (max-width: 768px) {
+    .insights-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .insights-side-panel {
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+        padding-right: 0;
+        padding-bottom: 0.75rem;
+    }
+
     .insights-pools-grid {
         grid-template-columns: 1fr;
         gap: 2rem;
