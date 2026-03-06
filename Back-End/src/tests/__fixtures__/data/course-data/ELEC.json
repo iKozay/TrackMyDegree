@@ -231,11 +231,11 @@
     "credits": 4.0,
     "description": "",
     "offeredIn": [],
-    "prereqCoreqText": "The following courses must be completed previously: ELEC 312, ELEC 372.",
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 312.",
     "rules": {
-      "prereq": [["ELEC 372"], ["ELEC 312"]],
+      "prereq": [["ELEC 312"]],
       "coreq": [],
-      "not_taken": ["ELEC 498"],
+      "not_taken": [],
       "min_credits": 0.0
     }
   },

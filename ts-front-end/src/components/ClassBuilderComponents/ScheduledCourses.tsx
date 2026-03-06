@@ -1,55 +1,15 @@
 import React from "react";
-import type { ClassItem } from "src/types/classItem";
+import type { AddedCourse } from "src/types/classItem";
 
 interface ScheduledCoursesProps {
-    classes: ClassItem[];
-    setClasses: (classes: ClassItem[]) => void;
+    addedCourses: AddedCourse[];
+    setAddedCourses: (courses: AddedCourse[]) => void;
 }
 
-interface CourseGroup {
-    name: string;
-    section: string;
-    room: string;
-    days: number[];
-    startTime: number;
-    endTime: number;
-}
+const ScheduledCourses: React.FC<ScheduledCoursesProps> = ({ addedCourses, setAddedCourses }) => {
 
-const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-const formatTime = (hour: number): string => {
-    return `${hour.toString().padStart(2, "0")}:00`;
-};
-
-const groupCourses = (classes: ClassItem[]): CourseGroup[] => {
-    const map = new Map<string, CourseGroup>();
-    classes.forEach(c => {
-        const key = `${c.name}|${c.section}|${c.room}|${c.startTime}|${c.endTime}`;
-        const existing = map.get(key);
-        if (existing) {
-            existing.days.push(c.day);
-        } else {
-            map.set(key, {
-                name: c.name,
-                section: c.section,
-                room: c.room,
-                days: [c.day],
-                startTime: c.startTime,
-                endTime: c.endTime,
-            });
-        }
-    });
-    return Array.from(map.values());
-};
-
-const ScheduledCourses: React.FC<ScheduledCoursesProps> = ({ classes, setClasses }) => {
-    const courses = groupCourses(classes);
-
-    const removeCourse = (course: CourseGroup) => {
-        setClasses(classes.filter(c =>
-            !(c.name === course.name && c.section === course.section && c.room === course.room
-                && c.startTime === course.startTime && c.endTime === course.endTime)
-        ));
+    const removeCourse = (code: string) => {
+        setAddedCourses(addedCourses.filter((c) => c.code !== code));
     };
 
     return (
@@ -96,6 +56,13 @@ const ScheduledCourses: React.FC<ScheduledCoursesProps> = ({ classes, setClasses
                     background-color: var(--color-slate-300);
                 }
 
+                .scheduled-courses-card__empty {
+                    font-size: 0.875rem;
+                    color: var(--color-slate-400);
+                    text-align: center;
+                    padding: 1.5rem 0;
+                }
+
                 .course-item {
                     position: relative;
                     padding: 0.75rem;
@@ -111,19 +78,21 @@ const ScheduledCourses: React.FC<ScheduledCoursesProps> = ({ classes, setClasses
                     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
                 }
 
-                .course-item__header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: flex-start;
-                    margin-bottom: 0.5rem;
-                    gap: 0.5rem;
-                }
-
                 .course-item__name {
                     color: var(--color-slate-900);
                     font-weight: var(--font-weight-medium);
                     font-size: 1rem;
+                    margin: 0 0 0.2rem 0;
+                }
+
+                .course-item__title {
+                    font-size: 0.75rem;
+                    color: var(--color-slate-500);
+                    margin: 0;
                     white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    max-width: calc(100% - 1rem);
                 }
 
                 .course-item__delete {
@@ -158,79 +127,36 @@ const ScheduledCourses: React.FC<ScheduledCoursesProps> = ({ classes, setClasses
                     height: 1.125rem;
                     color: var(--color-red-600);
                 }
-
-                .course-item__details {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 0.3rem;
-                }
-
-                .course-item__row {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    font-size: 0.75rem;
-                    color: var(--color-slate-500);
-                }
-
-                .course-item__row svg {
-                    width: 0.75rem;
-                    height: 0.75rem;
-                    flex-shrink: 0;
-                    color: var(--color-slate-400);
-                }
             `}</style>
 
             <h2 className="scheduled-courses-card__title">Scheduled Courses</h2>
+
             <div className="scheduled-courses-card__list">
-                {courses.map((course) => (
-                    <div className="course-item" key={course.name}>
-                        <button className="course-item__delete" onClick={() => removeCourse(course)} aria-label={`Remove ${course.name}`}>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                                aria-hidden="true">
-                                <path d="M10 11v6"></path>
-                                <path d="M14 11v6"></path>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
-                                <path d="M3 6h18"></path>
-                                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
-                        </button>
-
-                        <div className="course-item__details">
-                            <p className="course-item__name">{course.name}</p>
-
-                            <div className="course-item__row">
+                {addedCourses.length === 0 ? (
+                    <p className="scheduled-courses-card__empty">No courses added yet.</p>
+                ) : (
+                    addedCourses.map((course) => (
+                        <div className="course-item" key={course.code}>
+                            <button
+                                className="course-item__delete"
+                                onClick={() => removeCourse(course.code)}
+                                aria-label={`Remove ${course.code}`}
+                            >
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                                     aria-hidden="true">
-                                    <path d="M12 6v6l4 2"></path>
-                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M10 11v6"></path>
+                                    <path d="M14 11v6"></path>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                                    <path d="M3 6h18"></path>
+                                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                                 </svg>
-                                <span>{course.section}</span>
-                            </div>
-                            <div className="course-item__row">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                                    aria-hidden="true">
-                                    <path d="M12 6v6l4 2"></path>
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                </svg>
-                                <span>{course.days.map(d => DAY_NAMES[d]).join(", ")} {formatTime(course.startTime)}-{formatTime(course.endTime)}</span>
-                            </div>
-
-                            <div className="course-item__row">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                                    aria-hidden="true">
-                                    <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
-                                    <circle cx="12" cy="10" r="3"></circle>
-                                </svg>
-                                <span>{course.room}</span>
-                            </div>
+                            </button>
+                            <p className="course-item__name">{course.code}</p>
+                            <p className="course-item__title">{course.title}</p>
                         </div>
-                    </div>
-                ))}
+                    ))
+                )}
             </div>
         </div>
     );

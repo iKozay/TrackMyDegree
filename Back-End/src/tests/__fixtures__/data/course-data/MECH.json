@@ -126,9 +126,9 @@
     "credits": 3.75,
     "description": "",
     "offeredIn": [],
-    "prereqCoreqText": "The following courses must be completed previously: ENGR 311; MECH 370.",
+    "prereqCoreqText": "The following courses must be completed previously: PHYS 205; ENGR 243, ENGR 311.",
     "rules": {
-      "prereq": [["MECH 370"], ["ENGR 311"]],
+      "prereq": [["PHYS 205"], ["ENGR 243"], ["ENGR 311"]],
       "coreq": [],
       "not_taken": ["ELEC 372"],
       "min_credits": 0.0
@@ -141,9 +141,9 @@
     "credits": 3.5,
     "description": "",
     "offeredIn": [],
-    "prereqCoreqText": "The following courses must be completed previously: ENGR 311; AERO 371 or MECH 370.",
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 311; AERO 371 or MECH 370 or MECH 371.",
     "rules": {
-      "prereq": [["ENGR 311"], ["AERO 371", "MECH 370"]],
+      "prereq": [["ENGR 311"], ["AERO 371", "MECH 370", "MECH 371"]],
       "coreq": [],
       "not_taken": ["MECH 411"],
       "min_credits": 0.0
@@ -156,9 +156,9 @@
     "credits": 3.5,
     "description": "",
     "offeredIn": [],
-    "prereqCoreqText": "The following course must be completed previously: AERO 371 or MECH 370.",
+    "prereqCoreqText": "The following course must be completed previously: AERO 371 or MECH 370 or MECH 371.",
     "rules": {
-      "prereq": [["AERO 371", "MECH 370"]],
+      "prereq": [["AERO 371", "MECH 370", "MECH 371"]],
       "coreq": [],
       "not_taken": ["MECH 443"],
       "min_credits": 0.0
