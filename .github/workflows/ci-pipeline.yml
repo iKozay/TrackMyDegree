@@ -182,9 +182,13 @@ jobs:
     strategy: #Images of both front-end and back-end are built and pushed to GHCR
       matrix:
         include:
+          - name: python-utils
+            context: ./Back-End/python_utils
+            dockerfile: ./Back-End/python_utils/Dockerfile
+            image: trackmydegree-python-utils
           - name: backend
             context: .
-            dockerfile: ./Back-End/Dockerfile
+            dockerfile: ./Back-End/src/Dockerfile
             image: trackmydegree-backend
           - name: frontend
             context: .

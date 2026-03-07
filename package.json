@@ -37,8 +37,9 @@
   "scripts": {
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "dev": "concurrently --names \"BACKEND,FRONTEND\" --prefix-colors \"blue,green\" \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "cd Back-End/src && npm run dev",
+    "dev": "concurrently --names \"BACKEND-API,BACKEND-WORKER,FRONTEND\" --prefix-colors \"blue,magenta,green\" \"npm run dev:backend\" \"npm run dev:worker\" \"npm run dev:frontend\"",
+    "dev:backend": "cd Back-End/src && npm run dev:api",
+    "dev:worker": "cd Back-End/src && npm run dev:worker",
     "dev:frontend": "cd ts-front-end && npm run dev"
   }
 }

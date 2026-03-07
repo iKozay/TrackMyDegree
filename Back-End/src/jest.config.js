@@ -15,6 +15,7 @@ module.exports = {
     'utils/**/*.ts',
     'workers/**/*.ts',
     'index.ts',
+    'worker.ts',
     '!**/node_modules/**',
     '!**/dist/**',
     '!**/*.d.ts',

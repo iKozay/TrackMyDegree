@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "module": "commonjs",
     "outDir": "./dist",
@@ -17,7 +17,7 @@
       "@models": ["./models/index"],
       "@routes/*": ["./routes/*"],
       "@services/*": ["./services/*"],
-      "@types/*"        : ["./types/*"],
+      "@types/*": ["./types/*"],
       "@utils/*": ["./utils/*"],
       "@shared/*": ["../../shared/types/*"]
     },
@@ -26,6 +26,7 @@
       { "transform": "typescript-transform-paths", "afterDeclarations": true }
     ]
   },
-  "include": ["./**/*.ts"],
+  "include": ["**/*"],
+
   "exclude": ["dist", "coverage"]
 }

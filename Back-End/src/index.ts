@@ -58,6 +58,12 @@ if (process.env.NODE_ENV === 'development') {
 // For production and staging, env vars are injected automatically via Docker
 
 const app = express();
+
+// Trust proxy in production and staging
+if (process.env.NODE_ENV === 'staging' || process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 const PORT = process.env.BACKEND_PORT || 8000;
 
 // MongoDB connection
