@@ -1,0 +1,123 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: k6-timeline.js
+        output: InfluxDBv1 (http://localhost:8086)
+
+     scenarios: (100.00%) 1 scenario, 96 max VUs, 9m30s max duration (incl. graceful stop):
+              * timeline_load: Up to 96 looping VUs for 9m0s over 3 stages (gracefulRampDown: 30s, gracefulStop: 30s)
+
+INFO[0000] setup: test user created userId=69a49302d401fba1f9f8897d  source=console
+INFO[0546] teardown: user deleted userId=69a49302d401fba1f9f8897d status=200  source=console
+
+
+  █ THRESHOLDS 
+
+    delete_failed_rate
+    ✓ 'rate<0.01' rate=0.00%
+
+    http_req_duration{name:DELETE /api/timeline/:id}
+    ✓ 'p(95)<200' p(95)=129.02ms
+
+    http_req_duration{name:GET /api/jobs/:jobId}
+    ✓ 'p(95)<2000' p(95)=124.27ms
+
+    http_req_duration{name:GET /api/timeline/:id}
+    ✓ 'p(95)<200' p(95)=133.53ms
+
+    http_req_duration{name:POST /api/timeline}
+    ✗ 'p(95)<200' p(95)=213.48ms
+
+    http_req_duration{name:POST /api/upload/file}
+    ✓ 'p(95)<500' p(95)=270.91ms
+
+    http_req_duration{name:PUT /api/timeline/:id}
+    ✓ 'p(95)<200' p(95)=136.55ms
+
+    iteration_success_rate
+    ✗ 'rate>0.95' rate=6.68%
+
+    job_time_to_done_ms
+    ✗ 'p(95)<3000' p(95)=14.81s
+
+    job_timeout_rate
+    ✗ 'rate<0.05' rate=86.49%
+
+    poll_network_error_rate
+    ✓ 'rate<0.05' rate=0.00%
+
+    timeline_save_failed_rate
+    ✓ 'rate<0.01' rate=0.00%
+
+    timeline_update_failed_rate
+    ✓ 'rate<0.01' rate=0.00%
+
+    upload_failed_rate
+    ✓ 'rate<0.01' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 6113    11.187273/s
+    checks_succeeded...: 100.00% 6113 out of 6113
+    checks_failed......: 0.00%   0 out of 6113
+
+    ✓ setup: user created (201)
+    ✓ setup: response has user object
+    ✓ upload accepted (200)
+    ✓ upload returned jobId
+    ✓ timeline saved (201)
+    ✓ save returned _id
+    ✓ timeline updated (200)
+    ✓ timeline retrieve accepted (202)
+    ✓ retrieve returned jobId
+    ✓ timeline deleted (200)
+    ✓ teardown: user deleted (200)
+
+    CUSTOM
+    delete_failed_rate....................: 0.00%  0 out of 195
+    iteration_success_rate................: 6.68%  165 out of 2470
+    job_time_to_done_ms...................: avg=5.6s     min=1.03s   med=4.3s     max=15.09s   p(90)=12.87s   p(95)=14.81s  
+    job_timeout_rate......................: 86.49% 2305 out of 2665
+    poll_200_count........................: 360    0.658828/s
+    poll_410_count........................: 36000  65.882842/s
+    poll_network_error_rate...............: 0.00%  0 out of 36360
+    poll_timeout_count....................: 2305   4.218332/s
+    polls_per_job.........................: avg=13.64ms  min=2ms     med=15ms     max=15ms     p(90)=15ms     p(95)=15ms    
+    timeline_save_failed_rate.............: 0.00%  0 out of 195
+    timeline_update_failed_rate...........: 0.00%  0 out of 195
+    upload_failed_rate....................: 0.00%  0 out of 2470
+
+    HTTP
+    http_req_duration.....................: avg=66.11ms  min=1.81ms  med=57.35ms  max=398.45ms p(90)=117.85ms p(95)=143.28ms
+      { name:DELETE /api/timeline/:id }...: avg=60.79ms  min=6.93ms  med=55.07ms  max=167.7ms  p(90)=110.48ms p(95)=129.02ms
+      { name:GET /api/jobs/:jobId }.......: avg=61.11ms  min=1.81ms  med=55.02ms  max=266.24ms p(90)=106.62ms p(95)=124.27ms
+      { name:GET /api/timeline/:id }......: avg=63.33ms  min=8.21ms  med=58ms     max=180.32ms p(90)=118.12ms p(95)=133.53ms
+      { name:POST /api/timeline }.........: avg=111.6ms  min=15.07ms med=105.03ms max=254.55ms p(90)=183.4ms  p(95)=213.48ms
+      { name:POST /api/upload/file }......: avg=136.95ms min=5.79ms  med=124.86ms max=398.45ms p(90)=235.46ms p(95)=270.91ms
+      { name:PUT /api/timeline/:id }......: avg=64.85ms  min=10.37ms med=57.45ms  max=226.91ms p(90)=110.41ms p(95)=136.55ms
+    http_req_failed.......................: 90.88% 36000 out of 39612
+    http_reqs.............................: 39612  72.493087/s
+
+    EXECUTION
+    iteration_duration....................: avg=16.64s   min=3.17s   med=16.99s   max=32.57s   p(90)=17.2s    p(95)=17.28s  
+    iterations............................: 2470   4.520295/s
+    vus...................................: 1      min=0              max=96
+    vus_max...............................: 96     min=96             max=96
+
+    NETWORK
+    data_received.........................: 175 MB 320 kB/s
+    data_sent.............................: 208 MB 380 kB/s
+
+
+
+
+running (9m06.4s), 00/96 VUs, 2470 complete and 0 interrupted iterations
+timeline_load ✓ [======================================] 00/96 VUs  9m0s
+ERRO[0546] thresholds on metrics 'http_req_duration{name:POST /api/timeline}, iteration_success_rate, job_time_to_done_ms, job_timeout_rate' have been crossed 
