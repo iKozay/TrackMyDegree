@@ -10,7 +10,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -24,7 +25,8 @@
     "rules": {
       "prereq": [["COMP 108"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -38,7 +40,8 @@
     "rules": {
       "prereq": [["MATH 201"]],
       "coreq": [],
-      "not_taken": ["COEN 243","COMP 248"]
+      "not_taken": ["COEN 243","COMP 248"],
+      "min_credits": 0.0
     }
   },
   {
@@ -52,7 +55,8 @@
     "rules": {
       "prereq": [["COMP 248"], ["MATH 203"], ["MATH 204"]],
       "coreq": [["MATH 203"], ["MATH 204"]],
-      "not_taken": ["SOEN 228"]
+      "not_taken": ["SOEN 228"],
+      "min_credits": 0.0
     }
   },
   {
@@ -66,7 +70,8 @@
     "rules": {
       "prereq": [["MATH 203"], ["MATH 204"]],
       "coreq": [],
-      "not_taken": ["COMP 238","COEN 231"]
+      "not_taken": ["COMP 238","COEN 231"],
+      "min_credits": 0.0
     }
   },
   {
@@ -80,7 +85,8 @@
     "rules": {
       "prereq": [["MATH 205"]],
       "coreq": [],
-      "not_taken": ["BIOL 322", "ENGR 371", "STAT 249", "STAT 250", "COMM 215", "MAST 221", "MAST 333"]
+      "not_taken": ["BIOL 322", "ENGR 371", "STAT 249", "STAT 250", "COMM 215", "MAST 221", "MAST 333"],
+      "min_credits": 0.0
     }
   },
   {
@@ -94,7 +100,8 @@
     "rules": {
       "prereq": [["MATH 204"]],
       "coreq": [["MATH 204"]],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -108,7 +115,8 @@
     "rules": {
       "prereq": [["COMP 248"], ["MATH 203"], ["MATH 205"]],
       "coreq": [["MATH 205"]],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -122,7 +130,8 @@
     "rules": {
       "prereq": [["COMP 346"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -136,7 +145,8 @@
     "rules": {
       "prereq": [["COMP 233", "ENGR 371"], ["COMP 352"], ["ENCS 282"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -150,7 +160,8 @@
     "rules": {
       "prereq": [["COMP 232", "COEN 231"], ["COMP 249", "COEN 244"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -164,7 +175,8 @@
     "rules": {
       "prereq": [["COMP 232"]],
       "coreq": [],
-      "not_taken": ["MATH 339"]
+      "not_taken": ["MATH 339"],
+      "min_credits": 0.0
     }
   },
   {
@@ -178,7 +190,8 @@
     "rules": {
       "prereq": [["COMP 352"]],
       "coreq": [["COMP 352"]],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -192,7 +205,8 @@
     "rules": {
       "prereq": [["COMP 228", "SOEN 228"], ["COMP 352"]],
       "coreq": [],
-      "not_taken": ["COEN 346"]
+      "not_taken": ["COEN 346"],
+      "min_credits": 0.0
     }
   },
   {
@@ -206,7 +220,8 @@
     "rules": {
       "prereq": [["COMP 249"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -220,7 +235,8 @@
     "rules": {
       "prereq": [["COMP 232"], ["COMP 249"]],
       "coreq": [["COMP 232"]],
-      "not_taken": ["COEN 352"]
+      "not_taken": ["COEN 352"],
+      "min_credits": 0.0
     }
   },
   {
@@ -234,7 +250,8 @@
     "rules": {
       "prereq": [["COMP 232", "COEN 231"], ["COMP 352", "COEN 352"]],
       "coreq": [],
-      "not_taken": ["SOEN 363"]
+      "not_taken": ["SOEN 363"],
+      "min_credits": 0.0
     }
   },
   {
@@ -248,7 +265,8 @@
     "rules": {
       "prereq": [["COMP 352"], ["ENCS 282"]],
       "coreq": [],
-      "not_taken": ["SOEN 341"]
+      "not_taken": ["SOEN 341"],
+      "min_credits": 0.0
     }
   },
   {
@@ -262,7 +280,8 @@
     "rules": {
       "prereq": [["COMP 232"], ["COMP 249"]],
       "coreq": [],
-      "not_taken": ["ENGR 391","MAST 334"]
+      "not_taken": ["ENGR 391","MAST 334"],
+      "min_credits": 0.0
     }
   },
   {
@@ -276,7 +295,8 @@
     "rules": {
       "prereq": [["MATH 222", "COMP 232"], ["COMP 248"]],
       "coreq": [],
-      "not_taken": ["MAST 332"]
+      "not_taken": ["MAST 332"],
+      "min_credits": 0.0
     }
   },
   {
@@ -290,7 +310,8 @@
     "rules": {
       "prereq": [["COMP 232", "COEN 231"], ["COMP 352", "COEN 352"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -304,7 +325,8 @@
     "rules": {
       "prereq": [["COMP 371"]],
       "coreq": [],
-      "not_taken": ["CART 315"]
+      "not_taken": ["CART 315"],
+      "min_credits": 0.0
     }
   },
   {
@@ -318,7 +340,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -332,7 +355,8 @@
     "rules": {
       "prereq": [["COMP 346", "COEN 346"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -346,7 +370,8 @@
     "rules": {
       "prereq": [["COMP 346", "COEN 346"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -360,7 +385,8 @@
     "rules": {
       "prereq": [["COMP 352"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -374,7 +400,8 @@
     "rules": {
       "prereq": [["COMP 352"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -388,7 +415,8 @@
     "rules": {
       "prereq": [["COMP 352"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -402,7 +430,8 @@
     "rules": {
       "prereq": [["COMP 228", "SOEN 228", "COEN 311"], ["COMP 335"], ["COMP 352", "COEN 352"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -416,7 +445,8 @@
     "rules": {
       "prereq": [["COMP 346"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -430,7 +460,8 @@
     "rules": {
       "prereq": [["COMP 346"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -444,7 +475,8 @@
     "rules": {
       "prereq": [["COMP 353"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -458,7 +490,8 @@
     "rules": {
       "prereq": [["COMP 232", "COEN 231"], ["COMP 339"], ["COMP 352", "COEN 352"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -472,7 +505,8 @@
     "rules": {
       "prereq": [["COMP 352", "COEN 352"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -486,7 +520,8 @@
     "rules": {
       "prereq": [["COMP 352"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -500,7 +535,8 @@
     "rules": {
       "prereq": [["COMP 352", "COEN 352"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -514,7 +550,8 @@
     "rules": {
       "prereq": [["COMP 371"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -528,7 +565,8 @@
     "rules": {
       "prereq": [["COMP 361", "ENGR 391"], ["COMP 376"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -542,7 +580,8 @@
     "rules": {
       "prereq": [["COMP 361", "ENGR 391"], ["COMP 371"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -556,7 +595,8 @@
     "rules": {
       "prereq": [["COMP 352"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -570,7 +610,8 @@
     "rules": {
       "prereq": [["COMP 233", "ENGR 371"], ["COMP 352"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -584,7 +625,8 @@
     "rules": {
       "prereq": [["ENCS 282"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 60.0
     }
   },
   {
@@ -598,7 +640,8 @@
     "rules": {
       "prereq": [["COMP 490"]],
       "coreq": [["COMP 490"]],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -612,7 +655,8 @@
     "rules": {
       "prereq": [["BIOL 367"], ["COMP 352"]],
       "coreq": [],
-      "not_taken": ["BIOL 493"]
+      "not_taken": ["BIOL 493"],
+      "min_credits": 54.0
     }
   },
   {
@@ -626,7 +670,8 @@
     "rules": {
       "prereq": [["ENCS 282"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -640,7 +685,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -654,7 +700,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   }
 ]

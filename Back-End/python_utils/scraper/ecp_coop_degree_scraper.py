@@ -102,6 +102,29 @@ class CompEcpDegreeScraper(EcpDegreeScraper):
         # No special cases for Engr ECP
         pass
 
+class CompHlsEcpDegreeScraper(EcpDegreeScraper):
+    def get_ecp_core(self, credits_required: float) -> CoursePool:
+        ecp_core_pool_courses = get_all_links_from_div(self.requirements_url, ["defined-group"], "Extended Credit Program: Health and Life Sciences", include_regex=COURSE_REGEX)
+        ecp_core_pool = CoursePool(
+            _id=f"{self.degree_short_name}_Core",
+            name="ECP Core",
+            creditsRequired=credits_required,
+            courses=[course.text for course in ecp_core_pool_courses]
+        )
+        return ecp_core_pool
+
+    def _get_program_requirements(self) -> None:
+        program_name, total_credits = self.degree_name, 30.0
+
+        # Extract ECP Core
+        ecp_core_pool = self.get_ecp_core(credits_required=30.0)
+
+        self._set_program_requirements(program_name, total_credits, DegreeType.ECP, [ecp_core_pool])
+
+    def _handle_special_cases(self):
+        # No special cases for Comp HLS ECP
+        pass
+
 class CoopDegreeScraper(GinaCodyDegreeScraper):
     def _get_program_requirements(self) -> None:
         program_name, total_credits = self.degree_name, 0.0

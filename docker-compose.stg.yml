@@ -53,15 +53,22 @@ services:
     restart: always
     expose:
       - "8000"
+    environment:
+      - DATA_DIR=/app/data
     volumes:
-      - ./backups:/var/backups
+      - pdf-uploads:/app/tmp/pdf-uploads
+      - ./data:/app/data
     env_file:
       - ./secrets/backend.env
     networks:
       - app-network
     depends_on:
-      - redis
-      - mongodb
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      python-utils:
+        condition: service_started
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`stg.${DOMAIN}`) && (PathPrefix(`/api`))"
@@ -69,6 +76,36 @@ services:
       - "traefik.http.routers.backend.tls=true"
       - "traefik.http.routers.backend.middlewares=basic-auth@file"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
+
+  backend-worker:
+    container_name: backend-worker
+    image: ghcr.io/ikozay/trackmydegree-backend:latest
+    restart: always
+    command: ["npm", "run", "worker"]
+    env_file:
+      - ./secrets/backend.env
+    networks:
+      - app-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      python-utils:
+        condition: service_started
+
+  python-utils:
+    container_name: python-utils
+    image: ghcr.io/ikozay/trackmydegree-python-utils:latest
+    restart: always
+    ports:
+      - "15001"
+    env_file:
+      - ./secrets/backend.env
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=false"
 
   mongodb:
     container_name: mongodb
@@ -83,6 +120,11 @@ services:
       - ./secrets/mongo.env
     networks:
       - app-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
     labels:
       - "traefik.enable=false"
 
@@ -96,6 +138,11 @@ services:
       - redis-data:/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     labels:
       - "traefik.enable=false"
   
@@ -122,3 +169,4 @@ networks:
 volumes:
   redis-data:
   mongodb-data:
+  pdf-uploads:

@@ -71,7 +71,7 @@ async function validateDegreeIntegrity(degreeData) {
   });
 
   // Validate courses prerequisites and corequisites
-  validateCoursePrereqCoreqIntegrity(dbCourses, { degreeId: degree._id, errorReporter });
+  validateCourseRules(dbCourses, { degreeId: degree._id, errorReporter });
   
   return errorReporter;
 }
@@ -148,10 +148,25 @@ function validateCoursePoolIntegrity(
   }
 }
 
-function validateCoursePrereqCoreqIntegrity(
+function validateCourseRules(
   dbCourses,
   { degreeId, errorReporter },
 ) {
+  // Helper function to compare simple numeric values
+  function compareNumericValues(dbValue, expectedValue) {
+    const missing = [];
+    const extra = [];
+    
+    if (expectedValue !== undefined && dbValue !== expectedValue) {
+      missing.push(expectedValue);
+    }
+    if (dbValue !== undefined && dbValue !== expectedValue) {
+      extra.push(dbValue);
+    }
+    
+    return { missing, extra };
+  }
+
   // Helper function to report validation failures
   function reportValidationFailure(comparison, fieldName, courseId) {
     if (comparison.missing.length > 0) {
@@ -185,8 +200,8 @@ function validateCoursePrereqCoreqIntegrity(
     }
     
     // Compare rules objects
-    const dbRules = dbCourse.rules || { prereq: [], coreq: [], not_taken: [] };
-    const expectedRules = expectedCourse.rules || { prereq: [], coreq: [], not_taken: [] };
+    const dbRules = dbCourse.rules || { prereq: [], coreq: [], not_taken: [], min_credits: undefined };
+    const expectedRules = expectedCourse.rules || { prereq: [], coreq: [], not_taken: [], min_credits: undefined };
     
     // Compare prereq (array of arrays)
     const prereqComparison = compareArraysOfArrays(
@@ -208,6 +223,15 @@ function validateCoursePrereqCoreqIntegrity(
       expectedRules.not_taken || []
     );
     reportValidationFailure(notTakenComparison, 'not_taken', courseId);
+
+    // Compare min_credits (float value)
+    const minCreditsComparison = compareNumericValues(
+      dbRules.min_credits,
+      expectedRules.min_credits
+    );
+    reportValidationFailure(minCreditsComparison, 'min_credits', courseId);
+
+    
 
   }
 }

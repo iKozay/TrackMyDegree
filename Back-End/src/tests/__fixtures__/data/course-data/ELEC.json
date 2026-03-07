@@ -10,7 +10,8 @@
     "rules": {
       "prereq": [["ENGR 213"], ["ELEC 273"]],
       "coreq": [],
-      "not_taken": ["ELEC 264"]
+      "not_taken": ["ELEC 264"],
+      "min_credits": 0.0
     }
   },
   {
@@ -24,7 +25,8 @@
     "rules": {
       "prereq": [["ENGR 233"], ["ELEC 273"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -38,7 +40,8 @@
     "rules": {
       "prereq": [["PHYS 205"], ["ENGR 213"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -52,7 +55,8 @@
     "rules": {
       "prereq": [["PHYS 205"], ["ENGR 213"]],
       "coreq": [["ENGR 213"]],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -66,7 +70,8 @@
     "rules": {
       "prereq": [["ELEC 273"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -80,7 +85,8 @@
     "rules": {
       "prereq": [["ELEC 311"], ["ELEC 242", "ELEC 364"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -94,7 +100,8 @@
     "rules": {
       "prereq": [["CHEM 205"], ["ENGR 213"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -108,7 +115,8 @@
     "rules": {
       "prereq": [["ELEC 273"], ["ELEC 251"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -122,7 +130,8 @@
     "rules": {
       "prereq": [["ELEC 242", "ELEC 264"]],
       "coreq": [],
-      "not_taken": ["ELEC 364"]
+      "not_taken": ["ELEC 364"],
+      "min_credits": 0.0
     }
   },
   {
@@ -136,7 +145,8 @@
     "rules": {
       "prereq": [["ELEC 242"], ["ELEC 251"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -150,7 +160,8 @@
     "rules": {
       "prereq": [["ENGR 213"], ["ENGR 233"]],
       "coreq": [],
-      "not_taken": ["ELEC 261", "ELEC 262"]
+      "not_taken": ["ELEC 261", "ELEC 262"],
+      "min_credits": 0.0
     }
   },
   {
@@ -164,7 +175,8 @@
     "rules": {
       "prereq": [["COEN 352"], ["ELEC 342", "ELEC 364"], ["ENGR 371"]],
       "coreq": [],
-      "not_taken": ["COEN 366", "COEN 445", "ELEC 463"]
+      "not_taken": ["COEN 366", "COEN 445", "ELEC 463"],
+      "min_credits": 0.0
     }
   },
   {
@@ -178,7 +190,8 @@
     "rules": {
       "prereq": [["ELEC 342", "ELEC 364"], ["ENGR 371"]],
       "coreq": [],
-      "not_taken": ["ELEC 462"]
+      "not_taken": ["ELEC 462"],
+      "min_credits": 0.0
     }
   },
   {
@@ -192,7 +205,8 @@
     "rules": {
       "prereq": [["ELEC 242", "ELEC 364"]],
       "coreq": [],
-      "not_taken": ["AERO 371", "ENGR 372", "MECH 371"]
+      "not_taken": ["AERO 371", "ENGR 372", "MECH 371"],
+      "min_credits": 0.0
     }
   },
   {
@@ -206,7 +220,8 @@
     "rules": {
       "prereq": [["COEN 352"], ["ELEC 311"], ["ENGR 290"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 45.0
     }
   },
   {
@@ -216,11 +231,12 @@
     "credits": 4.0,
     "description": "",
     "offeredIn": [],
-    "prereqCoreqText": "The following courses must be completed previously: ELEC 312, ELEC 372.",
+    "prereqCoreqText": "The following courses must be completed previously: ELEC 312.",
     "rules": {
-      "prereq": [["ELEC 372"], ["ELEC 312"]],
+      "prereq": [["ELEC 312"]],
       "coreq": [],
-      "not_taken": ["ELEC 498"]
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -234,7 +250,8 @@
     "rules": {
       "prereq": [["ELEC 321"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -248,7 +265,8 @@
     "rules": {
       "prereq": [["ELEC 421"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -262,7 +280,8 @@
     "rules": {
       "prereq": [["ELEC 312"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -276,7 +295,8 @@
     "rules": {
       "prereq": [["ELEC 321"], ["ELEC 311"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -290,7 +310,8 @@
     "rules": {
       "prereq": [["ELEC 351"], ["ELEC 321"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -304,7 +325,8 @@
     "rules": {
       "prereq": [["ELEC 331"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -318,7 +340,8 @@
     "rules": {
       "prereq": [["ELEC 331"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -332,7 +355,8 @@
     "rules": {
       "prereq": [["ELEC 372"], ["ELEC 331"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -346,7 +370,8 @@
     "rules": {
       "prereq": [["ELEC 331"], ["ELEC 311"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -360,7 +385,8 @@
     "rules": {
       "prereq": [["ELEC 331"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -374,7 +400,8 @@
     "rules": {
       "prereq": [["ELEC 331"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -388,7 +415,8 @@
     "rules": {
       "prereq": [["ELEC 331"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -402,7 +430,8 @@
     "rules": {
       "prereq": [["ELEC 331"]],
       "coreq": [],
-      "not_taken": ["ELEC 498"]
+      "not_taken": ["ELEC 498"],
+      "min_credits": 0.0
     }
   },
   {
@@ -416,7 +445,8 @@
     "rules": {
       "prereq": [["ELEC 331"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -430,7 +460,8 @@
     "rules": {
       "prereq": [["ELEC 331"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -444,7 +475,8 @@
     "rules": {
       "prereq": [["ELEC 331"], ["ELEC 372"]],
       "coreq": [],
-      "not_taken": ["ELEC 498"]
+      "not_taken": ["ELEC 498"],
+      "min_credits": 0.0
     }
   },
   {
@@ -458,7 +490,8 @@
     "rules": {
       "prereq": [["ELEC 342", "ELEC 364"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -472,7 +505,8 @@
     "rules": {
       "prereq": [["ELEC 342", "ELEC 364"], ["ENGR 371"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -486,7 +520,8 @@
     "rules": {
       "prereq": [["ELEC 331"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -500,7 +535,8 @@
     "rules": {
       "prereq": [["ELEC 342", "ELEC 364"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -514,7 +550,8 @@
     "rules": {
       "prereq": [["ELEC 342"]],
       "coreq": [],
-      "not_taken": ["ELEC 498"]
+      "not_taken": ["ELEC 498"],
+      "min_credits": 0.0
     }
   },
   {
@@ -528,7 +565,8 @@
     "rules": {
       "prereq": [["ELEC 431"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -542,7 +580,8 @@
     "rules": {
       "prereq": [["ELEC 342"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -556,7 +595,8 @@
     "rules": {
       "prereq": [["ELEC 351"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -570,7 +610,8 @@
     "rules": {
       "prereq": [["ELEC 351"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -584,7 +625,8 @@
     "rules": {
       "prereq": [["ELEC 351"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -598,7 +640,8 @@
     "rules": {
       "prereq": [["ELEC 453"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -612,7 +655,8 @@
     "rules": {
       "prereq": [["ELEC 351"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -626,7 +670,8 @@
     "rules": {
       "prereq": [["ELEC 367"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -640,7 +685,8 @@
     "rules": {
       "prereq": [["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"]],
       "coreq": [],
-      "not_taken": ["SOEN 321"]
+      "not_taken": ["SOEN 321"],
+      "min_credits": 0.0
     }
   },
   {
@@ -654,7 +700,8 @@
     "rules": {
       "prereq": [["ELEC 351"], ["ELEC 367"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -668,7 +715,8 @@
     "rules": {
       "prereq": [["ELEC 363", "ELEC 367"]],
       "coreq": [],
-      "not_taken": ["ELEC 498"]
+      "not_taken": ["ELEC 498"],
+      "min_credits": 0.0
     }
   },
   {
@@ -682,7 +730,8 @@
     "rules": {
       "prereq": [["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -696,7 +745,8 @@
     "rules": {
       "prereq": [["ELEC 372"], ["ENGR 371"]],
       "coreq": [],
-      "not_taken": ["ELEC 498"]
+      "not_taken": ["ELEC 498"],
+      "min_credits": 0.0
     }
   },
   {
@@ -710,7 +760,8 @@
     "rules": {
       "prereq": [["AERO 371", "ELEC 372", "MECH 371"]],
       "coreq": [],
-      "not_taken": ["ENGR 471"]
+      "not_taken": ["ENGR 471"],
+      "min_credits": 0.0
     }
   },
   {
@@ -724,7 +775,8 @@
     "rules": {
       "prereq": [["ENGR 391", "EMAT 391"]],
       "coreq": [],
-      "not_taken": ["ENGR 472"]
+      "not_taken": ["ENGR 472"],
+      "min_credits": 0.0
     }
   },
   {
@@ -738,7 +790,8 @@
     "rules": {
       "prereq": [["AERO 371", "ELEC 372"], ["ELEC 342", "ELEC 364"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -752,7 +805,8 @@
     "rules": {
       "prereq": [["ENGR 301"], ["ENGR 371"], ["COEN 311"], ["ELEC 342", "ELEC 364"], ["ELEC 390"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 75.0
     }
   },
   {
@@ -766,7 +820,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   }
 ]

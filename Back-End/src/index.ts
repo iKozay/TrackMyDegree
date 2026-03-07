@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/node';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'node:path';
@@ -33,10 +32,12 @@ import {
   resetPasswordLimiter,
   signupLimiter,
 } from '@middleware/rateLimiter';
+import { getSentryProfilingIntegrations } from '@utils/misc';
+
 // sentry init
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
-  integrations: [nodeProfilingIntegration()],
+  integrations: getSentryProfilingIntegrations(),
   tracesSampleRate: 1,
   profilesSampleRate: 1,
 });
@@ -57,6 +58,12 @@ if (process.env.NODE_ENV === 'development') {
 // For production and staging, env vars are injected automatically via Docker
 
 const app = express();
+
+// Trust proxy in production and staging
+if (process.env.NODE_ENV === 'staging' || process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 const PORT = process.env.BACKEND_PORT || 8000;
 
 // MongoDB connection
@@ -89,16 +96,6 @@ Sentry.setupExpressErrorHandler(app);
 if (process.env.NODE_ENV === 'development') {
   const corsOptions = {
     origin: ['http://localhost:3000', 'http://localhost:5173'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  };
-  app.use(cors(corsOptions));
-}
-
-if (process.env.NODE_ENV === 'production') {
-  const corsOptions = {
-    origin: ['http://localhost:4173'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
