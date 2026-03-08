@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ClassBuilderPage from '../../pages/ClassBuilderPage';
@@ -363,8 +363,6 @@ describe('ClassBuilderPage no-valid-configs modal', () => {
         render(<ClassBuilderPage />);
         act(() => { injectConflict(); });
 
-        act(() => { fireEvent.click(screen.getByRole('button', { name: /Previous|Next|Got it|inject|change/i, hidden: true })); });
-        // click the overlay (first button wrapping the modal)
         const overlay = document.querySelector('.cb-conflict-overlay') as HTMLElement;
         act(() => { fireEvent.click(overlay); });
         expect(screen.queryByText('No Valid Schedules')).not.toBeInTheDocument();
@@ -377,8 +375,9 @@ describe('ClassBuilderPage no-valid-configs modal', () => {
         act(() => { fireEvent.click(screen.getByText('Got it')); });
         expect(screen.queryByText('No Valid Schedules')).not.toBeInTheDocument();
 
-        // Remove all courses then re-inject a conflict — modal should reappear
-        act(() => { injectCourses([]); });
+        // Remove a course via the sidebar (goes through handleSetAddedCourses, which resets the dismissed flag)
+        act(() => { fireEvent.click(screen.getByLabelText('Remove COMP 474')); });
+        // Re-add the conflicting course — modal should reappear
         act(() => { injectConflict(); });
         expect(screen.getByText('No Valid Schedules')).toBeInTheDocument();
     });
@@ -404,8 +403,9 @@ describe('ClassBuilderPage ScheduledCourses panel', () => {
         render(<ClassBuilderPage />);
         act(() => { injectCourses([singleLecCourse()]); });
 
-        expect(screen.getByText('COMP 352')).toBeInTheDocument();
-        expect(screen.getByText('DATA STRUCTURES')).toBeInTheDocument();
+        const sidebar = document.querySelector('.scheduled-courses-card') as HTMLElement;
+        expect(within(sidebar).getByText('COMP 352')).toBeInTheDocument();
+        expect(within(sidebar).getByText('DATA STRUCTURES')).toBeInTheDocument();
     });
 
     it('shows a remove button for each added course', () => {
@@ -424,11 +424,12 @@ describe('ClassBuilderPage ScheduledCourses panel', () => {
         render(<ClassBuilderPage />);
         act(() => { injectCourses([singleLecCourse()]); });
 
-        expect(screen.getByText('COMP 352')).toBeInTheDocument();
+        const sidebar = document.querySelector('.scheduled-courses-card') as HTMLElement;
+        expect(within(sidebar).getByText('COMP 352')).toBeInTheDocument();
 
         act(() => { fireEvent.click(screen.getByLabelText('Remove COMP 352')); });
 
-        expect(screen.queryByText('COMP 352')).not.toBeInTheDocument();
+        expect(within(sidebar).queryByText('COMP 352')).not.toBeInTheDocument();
         expect(screen.getByText('No courses added yet.')).toBeInTheDocument();
         expect(screen.getByText('0 hours/week')).toBeInTheDocument();
     });
@@ -447,7 +448,8 @@ describe('ClassBuilderPage ScheduledCourses panel', () => {
         act(() => { fireEvent.click(screen.getByLabelText('Remove COMP 474')); });
 
         expect(screen.queryByText('No Valid Schedules')).not.toBeInTheDocument();
-        expect(screen.getByText('COMP 352')).toBeInTheDocument();
+        const sidebar = document.querySelector('.scheduled-courses-card') as HTMLElement;
+        expect(within(sidebar).getByText('COMP 352')).toBeInTheDocument();
     });
 });
 
@@ -458,11 +460,12 @@ describe('ClassBuilderPage semester change', () => {
         render(<ClassBuilderPage />);
         act(() => { injectCourses([singleLecCourse()]); });
 
-        expect(screen.getByText('COMP 352')).toBeInTheDocument();
+        const sidebar = document.querySelector('.scheduled-courses-card') as HTMLElement;
+        expect(within(sidebar).getByText('COMP 352')).toBeInTheDocument();
 
         act(() => { fireEvent.click(screen.getByTestId('change-semester')); });
 
-        expect(screen.queryByText('COMP 352')).not.toBeInTheDocument();
+        expect(within(sidebar).queryByText('COMP 352')).not.toBeInTheDocument();
         expect(screen.getByText('No courses added yet.')).toBeInTheDocument();
     });
 });
