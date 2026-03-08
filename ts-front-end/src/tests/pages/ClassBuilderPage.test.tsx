@@ -60,7 +60,6 @@ const singleLecCourse = (overrides: Partial<CourseSection> = {}) => ({
     sections: [makeSection({ classNumber: "1001", mondays: "Y", wednesdays: "N", ...overrides })],
 });
 
-// Two independent associations → two configurations
 const twoAssocCourse = () => ({
     code: "COMP 352", title: "DATA STRUCTURES",
     sections: [
@@ -69,7 +68,6 @@ const twoAssocCourse = () => ({
     ],
 });
 
-// Course whose only section conflicts with the provided time range
 const conflictingCourse = (classNumber: string, startTime: string, endTime: string) => ({
     code: "COMP 474", title: "AI",
     sections: [makeSection({ classNumber, mondays: "Y", wednesdays: "N", classStartTime: startTime, classEndTime: endTime })],
@@ -216,9 +214,7 @@ describe('ClassBuilderPage conflict filtering', () => {
         const { container } = render(<ClassBuilderPage />);
         act(() => {
             injectCourses([
-                // Monday 08:00–10:00
                 { code: "COMP 352", title: "DATA STRUCTURES", sections: [makeSection({ classNumber: "1001", mondays: "Y", wednesdays: "N", classStartTime: "08.00.00", classEndTime: "10.00.00" })] },
-                // Monday 11:00–13:00 — no overlap
                 { code: "COMP 474", title: "AI", sections: [makeSection({ classNumber: "2001", mondays: "Y", wednesdays: "N", classStartTime: "11.00.00", classEndTime: "13.00.00" })] },
             ]);
         });
@@ -231,9 +227,7 @@ describe('ClassBuilderPage conflict filtering', () => {
         render(<ClassBuilderPage />);
         act(() => {
             injectCourses([
-                // Monday 09:00–11:00
                 { code: "COMP 352", title: "DATA STRUCTURES", sections: [makeSection({ classNumber: "1001", mondays: "Y", wednesdays: "N", classStartTime: "09.00.00", classEndTime: "11.00.00" })] },
-                // Monday 09:00–11:00 — exact same slot
                 conflictingCourse("2001", "09.00.00", "11.00.00"),
             ]);
         });
@@ -245,9 +239,7 @@ describe('ClassBuilderPage conflict filtering', () => {
         render(<ClassBuilderPage />);
         act(() => {
             injectCourses([
-                // Monday 09:00–11:00
                 { code: "COMP 352", title: "DATA STRUCTURES", sections: [makeSection({ classNumber: "1001", mondays: "Y", wednesdays: "N", classStartTime: "09.00.00", classEndTime: "11.00.00" })] },
-                // Monday 10:00–12:00 — one hour overlap
                 conflictingCourse("2001", "10.00.00", "12.00.00"),
             ]);
         });
@@ -297,9 +289,7 @@ describe('ClassBuilderPage conflict filtering', () => {
         const { container } = render(<ClassBuilderPage />);
         act(() => {
             injectCourses([
-                // Monday only 09:00–11:00
                 { code: "COMP 352", title: "DATA STRUCTURES", sections: [makeSection({ classNumber: "1001", mondays: "Y", tuesdays: "N", wednesdays: "N", thursdays: "N", fridays: "N", classStartTime: "09.00.00", classEndTime: "11.00.00" })] },
-                // Tuesday only 09:00–11:00
                 { code: "COMP 474", title: "AI", sections: [makeSection({ classNumber: "2001", mondays: "N", tuesdays: "Y", wednesdays: "N", thursdays: "N", fridays: "N", classStartTime: "09.00.00", classEndTime: "11.00.00" })] },
             ]);
         });
@@ -312,7 +302,6 @@ describe('ClassBuilderPage conflict filtering', () => {
         const { container } = render(<ClassBuilderPage />);
         act(() => {
             injectCourses([
-                // Course A: two associations — assoc 1 conflicts with Course B, assoc 2 does not
                 {
                     code: "COMP 352", title: "DATA STRUCTURES",
                     sections: [
@@ -320,7 +309,6 @@ describe('ClassBuilderPage conflict filtering', () => {
                         makeSection({ classNumber: "1002", classAssociation: "2", mondays: "Y", wednesdays: "N", classStartTime: "14.00.00", classEndTime: "16.00.00" }),
                     ],
                 },
-                // Course B: Monday 09:00–11:00 — conflicts with assoc 1 only
                 conflictingCourse("2001", "09.00.00", "11.00.00"),
             ]);
         });
@@ -375,9 +363,7 @@ describe('ClassBuilderPage no-valid-configs modal', () => {
         act(() => { fireEvent.click(screen.getByText('Got it')); });
         expect(screen.queryByText('No Valid Schedules')).not.toBeInTheDocument();
 
-        // Remove a course via the sidebar (goes through handleSetAddedCourses, which resets the dismissed flag)
-        act(() => { fireEvent.click(screen.getByLabelText('Remove COMP 474')); });
-        // Re-add the conflicting course — modal should reappear
+        act(() => { fireEvent.click(screen.getByTestId('change-semester')); });
         act(() => { injectConflict(); });
         expect(screen.getByText('No Valid Schedules')).toBeInTheDocument();
     });
@@ -388,7 +374,6 @@ describe('ClassBuilderPage no-valid-configs modal', () => {
 
         expect(screen.getByText('No Valid Schedules')).toBeInTheDocument();
 
-        // Remove the conflicting courses entirely
         act(() => { injectCourses([]); });
         expect(screen.queryByText('No Valid Schedules')).not.toBeInTheDocument();
     });
