@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import "../styles/ClassBuilder.css";
 import WeeklySchedule from "../components/ClassBuilderComponents/WeeklySchedule";
@@ -156,12 +156,6 @@ const ClassBuilderPage: React.FC = () => {
     );
 
     const noValidConfigs = addedCourses.length > 0 && allConfigurations.length === 0;
-
-    useEffect(() => {
-        if (noValidConfigs) {
-            setConflictModalDismissed(false);
-        }
-    }, [noValidConfigs]);
 
     const showConflictModal = noValidConfigs && !conflictModalDismissed;
 
