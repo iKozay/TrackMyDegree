@@ -178,6 +178,7 @@ const ClassBuilderPage: React.FC = () => {
             }
             return next;
         });
+        setConfigIndex(0);
     };
 
     const handleSetAddedCourses = (courses: AddedCourse[]) => {
@@ -320,11 +321,11 @@ const ClassBuilderPage: React.FC = () => {
                         }
                     `}</style>
 
-                    <div
+                    <button
                         className="cb-conflict-overlay"
                         onClick={() => setConflictModalDismissed(true)}
                     >
-                        <div
+                        <button
                             className="cb-conflict-modal"
                             onClick={(e) => e.stopPropagation()}
                         >
@@ -350,8 +351,8 @@ const ClassBuilderPage: React.FC = () => {
                             >
                                 Got it
                             </button>
-                        </div>
-                    </div>
+                        </button>
+                    </button>
                 </>
             )}
         </motion.div>
