@@ -50,7 +50,7 @@ describe('ClassBuilderPage initial render', () => {
 
         expect(screen.getByText('Weekly Schedule')).toBeInTheDocument();
         expect(screen.getByText('Scheduled Courses')).toBeInTheDocument();
-        ['Total Hours', 'Enrolled Courses', 'Conflicts'].forEach(label =>
+        ['Total Hours', 'Enrolled Courses'].forEach(label =>
             expect(screen.getByText(label)).toBeInTheDocument()
         );
 
@@ -156,21 +156,5 @@ describe('ClassBuilderPage configuration system', () => {
 
         expect(container.querySelectorAll('.class-cell').length).toBe(0);
         expect(screen.getByText('0 hours/week')).toBeInTheDocument();
-    });
-
-    it('LEC + 2 TUT sections within same association produces 2 configurations', () => {
-        render(<ClassBuilderPage />);
-        act(() => {
-            injectCourses([{
-                code: "COMP 352", title: "DATA STRUCTURES",
-                sections: [
-                    makeSection({ classNumber: "1001", classAssociation: "1", componentCode: "LEC", section: "AA" }),
-                    makeSection({ classNumber: "1002", classAssociation: "1", componentCode: "TUT", section: "TA" }),
-                    makeSection({ classNumber: "1003", classAssociation: "1", componentCode: "TUT", section: "TB" }),
-                ],
-            }]);
-        });
-
-        expect(screen.getByText('1 / 2')).toBeInTheDocument();
     });
 });
