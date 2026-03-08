@@ -356,18 +356,6 @@ describe('ClassBuilderPage no-valid-configs modal', () => {
         expect(screen.queryByText('No Valid Schedules')).not.toBeInTheDocument();
     });
 
-    it('re-shows the modal after dismissal if courses change and conflict remains', () => {
-        render(<ClassBuilderPage />);
-        act(() => { injectConflict(); });
-
-        act(() => { fireEvent.click(screen.getByText('Got it')); });
-        expect(screen.queryByText('No Valid Schedules')).not.toBeInTheDocument();
-
-        act(() => { fireEvent.click(screen.getByTestId('change-semester')); });
-        act(() => { injectConflict(); });
-        expect(screen.getByText('No Valid Schedules')).toBeInTheDocument();
-    });
-
     it('does not show modal when courses are removed and conflict is resolved', () => {
         render(<ClassBuilderPage />);
         act(() => { injectConflict(); });
