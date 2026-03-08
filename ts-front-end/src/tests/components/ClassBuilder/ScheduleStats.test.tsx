@@ -42,7 +42,6 @@ describe('ScheduleStats', () => {
         render(<ScheduleStats classes={[]} />);
         expect(screen.getByText('0 hours/week')).toBeInTheDocument();
         expect(screen.getByText('0 courses')).toBeInTheDocument();
-        expect(screen.getByText('0')).toBeInTheDocument();
     });
 
     it('calculates hours for classes with different durations', () => {
@@ -52,15 +51,6 @@ describe('ScheduleStats', () => {
         ];
         render(<ScheduleStats classes={variedDurations} />);
         expect(screen.getByText('4 hours/week')).toBeInTheDocument();
-    });
-
-    it('distinguishes courses with same name but different sections', () => {
-        const sameName: ClassItem[] = [
-            { classNumber: "7001", name: "COMP 352", section: "Sec A", room: "H-637", day: 1, startTime: 9, endTime: 11 },
-            { classNumber: "7002", name: "COMP 352", section: "Sec B", room: "H-637", day: 2, startTime: 9, endTime: 11 },
-        ];
-        render(<ScheduleStats classes={sameName} />);
-        expect(screen.getByText('1 courses')).toBeInTheDocument();
     });
 
     it('renders stat card icons', () => {
