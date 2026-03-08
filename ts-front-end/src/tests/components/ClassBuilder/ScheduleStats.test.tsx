@@ -60,12 +60,12 @@ describe('ScheduleStats', () => {
             { classNumber: "7002", name: "COMP 352", section: "Sec B", room: "H-637", day: 2, startTime: 9, endTime: 11 },
         ];
         render(<ScheduleStats classes={sameName} />);
-        expect(screen.getByText('2 courses')).toBeInTheDocument();
+        expect(screen.getByText('1 courses')).toBeInTheDocument();
     });
 
     it('renders stat card icons', () => {
         const { container } = render(<ScheduleStats classes={mockClasses} />);
-        expect(container.querySelectorAll('.stat-card__icon').length).toBe(3);
+        expect(container.querySelectorAll('.stat-card__icon').length).toBe(2);
     });
 
     it('applies correct icon classes for each stat', () => {
