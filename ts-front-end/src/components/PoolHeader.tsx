@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type { Pool, CourseMap } from "../types/timeline.types";
-import { calculateEarnedCredits } from "../utils/timelineUtils";
+import { calculateCoursePoolEarnedCredits } from "../utils/timelineUtils";
 
 interface PoolHeaderProps {
   pool: Pool;
@@ -29,6 +29,6 @@ export const PoolHeader: React.FC<PoolHeaderProps> = ({
 
     <span className="pool-name">{pool.name}</span>
 
-    <span className="course-count">{`(${calculateEarnedCredits(courses, pool)}/${pool.creditsRequired})`}</span>
+    <span className="course-count">{`(${calculateCoursePoolEarnedCredits(courses, pool)}/${pool.creditsRequired})`}</span>
   </button>
 );
