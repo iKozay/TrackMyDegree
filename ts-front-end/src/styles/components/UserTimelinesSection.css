@@ -94,24 +94,6 @@
   align-items: center;
 }
 
-.btn-assessment {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 12px;
-  border-radius: 50px;
-  background: #8B1538;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s;
-}
-
-.btn-assessment:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(139,21,56,0.2);
-}
 
 .btn-delete {
   display: flex;
