@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { api } from "../api/http-api-client";
-import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Trash2, AlertTriangle } from "lucide-react";
 import DeleteModal from "../legacy/components/DeleteModal";
@@ -78,13 +77,7 @@ const UserTimelinesSection: React.FC = () => {
   };
 
   return (
-    <motion.div 
-      className="user-timelines-section"
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      exit={{ opacity: 0 }} 
-      transition={{ duration: 0.7 }}
-    >
+    <div className="user-timelines-section">
       <h2>My Timelines</h2>
 
       {!isAuthenticated ? (
@@ -145,7 +138,7 @@ const UserTimelinesSection: React.FC = () => {
             )}
         </>
         )}
-    </motion.div>
+    </div>
   );
 };
 
