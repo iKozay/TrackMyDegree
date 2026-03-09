@@ -38,7 +38,6 @@ vi.mock('moment', () => ({
 
 vi.mock('lucide-react', () => ({
   Trash2: () => <span data-testid="trash-icon" />,
-  FileText: () => <span data-testid="file-text-icon" />,
   AlertTriangle: () => <span data-testid="alert-triangle-icon" />,
 }));
 
@@ -139,12 +138,11 @@ describe('UserTimelinesSection', () => {
     expect(dateTexts).toHaveLength(2);
   });
 
-  it('renders Assessment and Delete buttons for each timeline', async () => {
+  it('renders Delete buttons for each timeline', async () => {
     setAuthenticatedUser();
     (api.get as Mock).mockResolvedValue({ timelines: mockTimelines });
     renderComponent();
     await screen.findByText('Timeline Alpha');
-    expect(screen.getAllByText('Assessment')).toHaveLength(2);
     expect(screen.getAllByTestId('trash-icon')).toHaveLength(2);
   });
 
@@ -204,19 +202,7 @@ describe('UserTimelinesSection', () => {
     });
   });
 
-  //  Assessment button 
-
-  it('navigates to degree-audit page when Assessment button is clicked', async () => {
-    setAuthenticatedUser();
-    (api.get as Mock).mockResolvedValue({ timelines: mockTimelines });
-    renderComponent();
-    await screen.findByText('Timeline Alpha');
-    const assessmentButtons = screen.getAllByText('Assessment');
-    fireEvent.click(assessmentButtons[0]);
-    expect(mockNavigate).toHaveBeenCalledWith('/degree-audit/t1');
-  });
-
-  //  Delete flow 
+  //  Delete flow
 
   it('opens delete modal when delete button is clicked', async () => {
     setAuthenticatedUser();
