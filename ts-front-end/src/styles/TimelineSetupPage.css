@@ -122,8 +122,6 @@
 .timelines-card {
   width: 380px;
   padding: 24px;
-  max-height: 560px;
-  overflow-y: auto;
 }
 
 .timelines-card .user-timelines-section {
@@ -163,7 +161,6 @@
   .timelines-card {
     width: 100%;
     max-width: 760px;
-    max-height: 400px;
   }
 
   .divider-vertical {
