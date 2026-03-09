@@ -70,7 +70,7 @@ describe("PoolHeader", () => {
     expect(screen.getByText("Software Engineering Core")).toBeInTheDocument();
 
     // Course count should reflect visible courses.
-    expect(screen.getByText("(3)")).toBeInTheDocument();
+    expect(screen.getByText("(3/47.5)")).toBeInTheDocument();
   });
 
   it("shows visible course count when there is an active search", () => {
@@ -85,7 +85,7 @@ describe("PoolHeader", () => {
       />
     );
 
-    expect(screen.getByText("(2)")).toBeInTheDocument();
+    expect(screen.getByText("(3/47.5)")).toBeInTheDocument();
   });
 
   it("calls onToggle when clicked", () => {
