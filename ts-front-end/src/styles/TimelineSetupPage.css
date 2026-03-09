@@ -85,12 +85,6 @@
   letter-spacing: 0.1em;
 }
 
-.divider-section {
-  width: 2px;
-  align-self: stretch;
-  background: linear-gradient(to bottom, transparent, #bbb 15%, #bbb 85%, transparent);
-  margin: 0 16px;
-}
 
 /* Buttons */
 .next-button,
@@ -172,7 +166,7 @@
     max-height: 400px;
   }
 
-  .divider-section {
+  .divider-vertical {
     display: none;
   }
 }

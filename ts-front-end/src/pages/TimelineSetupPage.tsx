@@ -32,7 +32,7 @@ const TimelineSetupPage = () => {
           <UploadBox toggleModal={toggleModal} />
         </div>
 
-        <div className="divider-section" />
+        <div className="divider-vertical">OR</div>
 
         <div className="timeline-setup-card glass-card timelines-card">
           <UserTimelinesSection />
