@@ -57,19 +57,31 @@ export function canDropCourse(
   };
 }
 
-export function calculateEarnedCredits(courses: CourseMap, exemptionCoursePool: Pool): number {
+export function calculateEarnedCredits(courses: CourseMap, pool: Pool,
+): number {
   return Object.values(courses).reduce((total, course) => {
     // Exclude exempted courses from the calculation
-    if (exemptionCoursePool.courses.includes(course.id)) {
+    if (pool.courses.includes(course.id)) {
       return total;
     }
-    
+
     if (course.status.status === "completed") {
       return total + (course.credits || 0);
     }
     return total;
   }, 0);
 }
+
+export function calculateCoursePoolEarnedCredits(courses: CourseMap, pool: Pool,
+): number {
+  return Object.values(courses).reduce((total, course) => {
+    if (pool.courses.includes(course.id) && course.status.status === "completed") {
+      return total + (course.credits || 0);;
+    }
+    return total;
+  }, 0);
+}
+
 
 import { toast } from "react-toastify";
 import { api } from "../api/http-api-client";
