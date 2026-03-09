@@ -174,6 +174,15 @@ const UploadBox: React.FC<UploadBoxProps> = ({ toggleModal }) => {
         />
       </div>
 
+      {uploadState === 'selected' && (
+        <button
+          className="cancel-button"
+          onClick={handleCancel}
+          type="button">
+          Cancel
+        </button>
+      )}
+
       <button
         className="create-button"
         onClick={handleSubmit}
