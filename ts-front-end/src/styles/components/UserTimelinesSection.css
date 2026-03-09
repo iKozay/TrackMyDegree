@@ -66,14 +66,19 @@
 
 .timeline-info {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
   cursor: pointer;
 }
 
 .timeline-info h4 {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 700;
   margin: 0 0 5px;
   color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .timeline-info p {
@@ -85,6 +90,8 @@
 .timeline-actions {
   display: flex;
   gap: 12px;
+  flex-shrink: 0;
+  align-items: center;
 }
 
 .btn-assessment {
