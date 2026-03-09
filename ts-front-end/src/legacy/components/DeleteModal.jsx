@@ -1,10 +1,11 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import { X } from "react-feather";
 
 export default function DeleteModal({ open, onClose, children }) {
     if (!open) return null;
 
-    return (
+    return ReactDOM.createPortal(
         <div
             onClick={onClose}
             style={{
@@ -46,6 +47,7 @@ export default function DeleteModal({ open, onClose, children }) {
 
                 {children}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
