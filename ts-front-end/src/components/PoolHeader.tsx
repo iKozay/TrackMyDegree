@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type { Pool, CourseMap } from "../types/timeline.types";
-import { calculateEarnedCredits } from "src/utils/timelineUtils";
+import { calculateEarnedCredits } from "../utils/timelineUtils";
 
 interface PoolHeaderProps {
   pool: Pool;
