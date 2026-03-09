@@ -3,7 +3,7 @@ import { useAuth } from "../hooks/useAuth";
 import { api } from "../api/http-api-client";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Trash2, FileText, AlertTriangle } from "lucide-react";
+import { Trash2, AlertTriangle } from "lucide-react";
 import DeleteModal from "../legacy/components/DeleteModal";
 import '../styles/components/UserTimelinesSection.css';
 import moment from "moment";
@@ -117,13 +117,6 @@ const UserTimelinesSection: React.FC = () => {
                         {t.last_modified && <p className="timeline-date">Modified {moment(t.last_modified).fromNow()}</p>}
                     </div>
                     <div className="timeline-actions">
-                        <button
-                        onClick={(e) => { e.stopPropagation(); navigate(`/degree-audit/${t._id}`); }}
-                        className="btn-assessment"
-                        title="Degree Assessment"
-                        >
-                        <FileText size={16} /> Assessment
-                        </button>
                         <button
                         onClick={(e) => { e.stopPropagation(); handleDeleteClick(t); }}
                         className="btn-delete"
