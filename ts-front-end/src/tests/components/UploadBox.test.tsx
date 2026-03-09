@@ -201,8 +201,7 @@ describe('UploadBox', () => {
 
   // Submit: unexpected response 
 
-  it('alerts on unexpected response (no jobId)', async () => {
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+  it('shows error message in UI on unexpected response (no jobId)', async () => {
     (api.post as Mock).mockResolvedValue({});
     renderComponent();
     uploadFile(makePdfFile());
@@ -212,15 +211,14 @@ describe('UploadBox', () => {
     });
 
     await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalledWith('Unexpected response from server.');
+      expect(screen.getByText('Unexpected response from server.')).toBeInTheDocument();
     });
     expect(screen.getByText('Create Timeline')).toBeInTheDocument();
   });
 
   // Submit: API errors 
 
-  it('alerts with error message when API throws an Error', async () => {
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+  it('shows error message in UI when API throws an Error', async () => {
     (api.post as Mock).mockRejectedValue(new Error('Server unavailable'));
     renderComponent();
     uploadFile(makePdfFile());
@@ -230,13 +228,12 @@ describe('UploadBox', () => {
     });
 
     await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalledWith('Server unavailable');
+      expect(screen.getByText('Server unavailable')).toBeInTheDocument();
     });
     expect(screen.getByText('Create Timeline')).toBeInTheDocument();
   });
 
-  it('alerts with fallback message when API throws a non-Error', async () => {
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+  it('shows fallback error message in UI when API throws a non-Error', async () => {
     (api.post as Mock).mockRejectedValue('something bad');
     renderComponent();
     uploadFile(makePdfFile());
@@ -246,9 +243,7 @@ describe('UploadBox', () => {
     });
 
     await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalledWith(
-        'An unknown error occurred while processing file.'
-      );
+      expect(screen.getByText('An unknown error occurred while processing file.')).toBeInTheDocument();
     });
   });
 
