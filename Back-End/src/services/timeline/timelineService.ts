@@ -1,72 +1,15 @@
 // services/buildTimeline.ts
 import { parseFile } from '@services/parsingService';
-import {
-  ParsedData,
-  ProgramInfo,
-  Semester,
-  CourseStatus,
-} from '../../types/transcript';
-import {
-  degreeController,
-  CoursePoolInfo,
-  DegreeData,
-} from '@controllers/degreeController';
+import { PredefinedSequenceTerm, ParsedData, ProgramInfo } from '../../types/transcript';
+import { degreeController } from '@controllers/degreeController';
 import { CourseData, courseController } from '@controllers/courseController';
 import { SEASONS } from '@utils/constants';
+import {getTermRanges} from "@utils/misc";
 import { Timeline } from '@models';
 import { coursepoolController } from '@controllers/coursepoolController';
+import { TimelineResult, TimelineCourse, TimelineDocument, TimelineSemester, CourseStatus } from '@shared/timeline';
+import { DegreeData, CoursePoolInfo } from '@shared/degree';
 
-export interface TimelineResult {
-  _id?: string;
-  degree?: DegreeData;
-  pools?: CoursePoolInfo[];
-  semesters: TimelineSemester[];
-  isExtendedCredit?: boolean;
-  isCoop?: boolean;
-  courses: Record<string, TimelineCourse>;
-}
-
-export interface TimelineCourse {
-  id: string;
-  title: string;
-  credits: number;
-  description?: string;
-  offeredIN: string[];
-  prerequisites: { anyOf: string[] }[];
-  corequisites: { anyOf: string[] }[];
-  status: {
-    status: CourseStatus;
-    semester: string | null;
-  };
-}
-
-export interface TimelineSemester {
-  term: string;
-  courses: {
-    code: string;
-    message?: string;
-  }[];
-}
-// Timeline as stored in DB
-export interface TimelineDocument {
-  _id?: string;
-  userId: string;
-  name: string;
-  degreeId: string;
-  semesters: TimelineSemester[];
-  isExtendedCredit?: boolean;
-  isCoop?: boolean;
-  last_modified?: Date;
-  courseStatusMap: Record<
-    string,
-    {
-      status: CourseStatus;
-      semester: string | null;
-    }
-  >; // only the minimal course status info
-  exemptions: string[];
-  deficiencies: string[];
-}
 
 // Timeline builder inputs
 export type BuildTimelineParams =
@@ -148,7 +91,7 @@ export const buildTimeline = async (
   const { degreeData: degree, coursePools, courses } = result;
 
   if (programInfo.isExtendedCreditProgram) {
-    await addEcpCoursePools(degreeId, coursePools, deficiencies);
+    await addEcpCoursePools(degreeId, coursePools, courses, degree);
   }
   if (programInfo.isCoop) {
     await addCoopCoursePool(degree, coursePools, courses);
@@ -472,10 +415,15 @@ function getCoursesThatNeedCMinus(
 // inserting a space between the letter prefix and numeric part, and converting it to uppercase.
 // Example: " engr   201 " → "ENGR 201" or "ENGR201" -> "ENGR 201"
 export function normalizeCourseCode(code: string): string {
-  return code
-    .replaceAll(/\s+/g, '') //Removes all whitespace
-    .replace(/([a-zA-Z]+)(\d+)/, '$1 $2') //Inserts a space between letters and numbers
-    .toUpperCase();
+  const compactCode = code.replaceAll(/\s+/g, ''); // Removes all whitespace
+  const firstDigitIndex = compactCode.search(/\d/);
+
+  if (firstDigitIndex <= 0) {
+    return compactCode.toUpperCase();
+  }
+
+  // Inserts a space between the letter prefix and first numeric character.
+  return `${compactCode.slice(0, firstDigitIndex)} ${compactCode.slice(firstDigitIndex)}`.toUpperCase();
 }
 
 function validateGrade(minGrade: string, courseGrade?: string): boolean {
@@ -533,8 +481,6 @@ async function getCourseData(courseCode: string) {
     return null;
   }
 }
-
-import { PredefinedSequenceTerm } from "../../types/transcript";
 
 async function generateSemestersFromPredefinedSequence(
   predefinedSequence: PredefinedSequenceTerm[],
@@ -684,44 +630,6 @@ function generateTerms(startTerm?: string, endTerm?: string) {
   return resultTerms;
 }
 
-function getTermRanges(term: string): { start: Date; end: Date } {
-  // Example: "FALL 2026" or "FALL/WINTER 2025-26"
-  //TODO: change dates to reflect actual calendar
-  let [name, yearStr] = term.split(' ');
-  if (name == SEASONS.FALL_WINTER) {
-    yearStr = yearStr.split('-')[0];
-  }
-  const year = Number(yearStr);
-
-  let start: Date;
-  let end: Date;
-
-  switch (name) {
-    case SEASONS.WINTER:
-      start = new Date(year, 0, 1); // Jan 1
-      end = new Date(year, 3, 30); // Apr 30
-      break;
-
-    case SEASONS.SUMMER:
-      start = new Date(year, 4, 1); // May 1
-      end = new Date(year, 7, 31); // Aug 31
-      break;
-
-    case SEASONS.FALL:
-      start = new Date(year, 8, 1); // Sep 1
-      end = new Date(year, 11, 31); // Dec 31
-      break;
-    case SEASONS.FALL_WINTER:
-      start = new Date(year, 8, 1); // Sep 1
-      end = new Date(year + 1, 3, 30); // Apr 30
-      break;
-    default:
-      throw new Error('Unknown term: ' + name);
-  }
-
-  return { start, end };
-}
-
 export async function buildTimelineFromDB(
   timelineId: string,
 ): Promise<TimelineResult | undefined> {
@@ -733,10 +641,16 @@ export async function buildTimelineFromDB(
     throw new Error('Timeline not found');
   }
 
-  return buildTimeline({
-    type: 'timelineData',
-    data: timeline,
+   const result = await buildTimeline({
+      type: 'timelineData',
+      data: timeline,
   });
+
+  if (result) {
+      result.timelineName = timeline.name;
+  }
+
+  return result;
 }
 
 export function addCourseToUsedUnusedPool(
@@ -765,32 +679,57 @@ export function addCourseToUsedUnusedPool(
 export async function addEcpCoursePools(
   degreeId: string,
   coursePools: CoursePoolInfo[],
-  deficiencies: string[],
+  courses: Record<string, CourseData>,
+  degree: DegreeData,
 ) {
-  const ecpMapping: Record<string, string> = {
-    BEng: 'ENGR_ECP',
-    BCompSc: 'COMP_ECP',
-  };
 
-  const ecpKey = Object.keys(ecpMapping).find((key) => degreeId.includes(key));
-  if (ecpKey) {
-    const ecpResult = await getDegreeData(ecpMapping[ecpKey]);
+  if (degree.ecpDegreeId) {
+    const ecpResult = await getDegreeData(degree.ecpDegreeId);
     if (ecpResult) {
-      coursePools.push(...ecpResult.coursePools);
-      deficiencies.push(...ecpResult.coursePools.map((pool) => pool.name));
+
+      // Merge "General Education and Humanities Electives"
+      handle_general_education_electives(ecpResult, coursePools);
+      // Then add the remaining ECP pools (if any) to the main coursePools array
+      coursePools.push(...(ecpResult.coursePools || []));
+
+      for (const course of Object.values(ecpResult.courses || {})) {
+        courses[course._id] = course;
+      }
+
+      // If a degree object was passed in, increment its totalCredits by 30
+      if (degree) {
+        degree.totalCredits = (degree.totalCredits ?? 0) + 30;
+      }
     }
   }
 }
+async function handle_general_education_electives(ecpResult: { coursePools: CoursePoolInfo[] }, coursePools: CoursePoolInfo[]) {
+  const ecpPool = ecpResult.coursePools.find((pool) => pool.name.includes('General Education Humanities and Social Sciences Electives'));
+  const gen_ed_pool_id = coursePools.find(pool => pool.name.includes('General Education Humanities and Social Sciences Electives'));
+  if (ecpPool && gen_ed_pool_id) {
+    for (const courseCode of ecpPool.courses) {
+      if (!gen_ed_pool_id.courses.includes(courseCode)) {
+        gen_ed_pool_id.courses.push(courseCode);
+      }
+    }
+    gen_ed_pool_id.creditsRequired += ecpPool.creditsRequired;
+    ecpResult.coursePools = ecpResult.coursePools.filter(pool => pool._id !== ecpPool._id); // Remove the merged pool from ecpResult
+  }
+}
+
 async function addCoopCoursePool(
   degree: DegreeData,
   coursePools: CoursePoolInfo[],
   courses: Record<string, CourseData>,
 ) {
-  if (degree.coursePools) {
-    degree.coursePools.push("Coop Courses");
-    console.log("added coop to degree course pools")
+  const COOP_POOL_ID = "COOP_Co-op Work Terms";
+  if (degree.coursePools && !degree.coursePools.includes(COOP_POOL_ID)) {
+    degree.coursePools.push(COOP_POOL_ID);
   }
-  const coopCoursePool = await coursepoolController.getCoursePool("Coop Courses")
+  if (coursePools.find((p) => p._id === COOP_POOL_ID)) {
+    return;
+  }
+  const coopCoursePool = await coursepoolController.getCoursePool(COOP_POOL_ID)
   if (coopCoursePool) {
     const coopCoursesList = coopCoursePool.courses || [];
     const coopCourses = await Promise.all(coopCoursesList.map(async (code) => await getCourseData(code)));
@@ -801,7 +740,7 @@ async function addCoopCoursePool(
       }
     }
   } else {
-    console.warn("Coop Courses pool not found, skipping.");
+    console.warn(`Co-op course pool with ID ${COOP_POOL_ID} not found, skipping.`);
   }
 }
 

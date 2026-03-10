@@ -42,15 +42,21 @@ const TimeLinePage: React.FC = () => {
   const exemptionCoursePool = state.pools.find(pool => 
     pool._id.toLowerCase().includes("exemption")
   ) || { _id: "exemption", name: "Exemption", creditsRequired: 0, courses: [] };
+
   const deficiencyCoursePool = state.pools.find(pool => 
     pool._id.toLowerCase().includes("deficiency")
   ) || { _id: "deficiency", name: "Deficiency", creditsRequired: 0, courses: [] };
+
   const handleOpenModal = (open: boolean, type: string) => {
     if (type === "save" && !user) {
       toast.info("Please sign in or sign up to save your timeline");
       const returnUrl = globalThis.location.pathname;
       localStorage.setItem("redirectAfterLogin", returnUrl);
       navigate(`/signin`);
+      return;
+    }
+    if(type === 'degree-audit'){
+      navigate(`/degree-audit/${jobId}?fromPage=timelinePage`);
       return;
     }
     actions.openModal(open, type);
@@ -70,8 +76,14 @@ const TimeLinePage: React.FC = () => {
             pools={state.pools}
             courses={state.courses}
             timelineName={state.timelineName}
-            onSave={(timelineName: string) => {
-              if (user) saveTimeline(user.id, timelineName, jobId);
+            onSave={async (timelineName: string) => {
+                if (!user) return;
+                try {
+                    await saveTimeline(user.id, timelineName, jobId);
+                    actions.setTimelineName(timelineName);
+                } catch {
+                    toast.error("Failed to save timeline. Please try again.");
+                }
             }}
             onAdd={actions.addCourse}
             onClose={actions.openModal}
@@ -104,6 +116,7 @@ const TimeLinePage: React.FC = () => {
               onCourseSelect={actions.selectCourse}
               selectedCourse={state.selectedCourse}
               onAddSemester={actions.addSemester}
+              timelineName={state.timelineName}
             />
           </section>
 

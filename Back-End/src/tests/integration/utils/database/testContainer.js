@@ -70,10 +70,9 @@ async function initializeDatabaseSchema() {
     const { CoursePool } = require('../../../../models/coursepool');
     const { Course } = require('../../../../models/course');
     const { User } = require('../../../../models/user');
-    const { Feedback } = require('../../../../models/feedback');
     const { Timeline } = require('../../../../models/timeline');
 
-    const models = [CoursePool, Course, Degree, User, Feedback, Timeline];
+    const models = [CoursePool, Course, Degree, User, Timeline];
 
     for (const Model of models) {
       await Model.createIndexes();

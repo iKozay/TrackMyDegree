@@ -10,7 +10,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": ["MECH 211"]
+      "not_taken": ["MECH 211"],
+      "min_credits": 0.0
     }
   },
   {
@@ -24,7 +25,8 @@
     "rules": {
       "prereq": [["MATH 204"]],
       "coreq": [],
-      "not_taken": ["COEN 243","MECH 215"]
+      "not_taken": ["COEN 243","MECH 215"],
+      "min_credits": 0.0
     }
   },
   {
@@ -38,7 +40,8 @@
     "rules": {
       "prereq": [["CHEM 205"]],
       "coreq": [],
-      "not_taken": ["MECH 221"]
+      "not_taken": ["MECH 221"],
+      "min_credits": 0.0
     }
   },
   {
@@ -52,7 +55,8 @@
     "rules": {
       "prereq": [["MECH 313", "MIAE 313"]],
       "coreq": [],
-      "not_taken": ["MECH 311"]
+      "not_taken": ["MECH 311"],
+      "min_credits": 0.0
     }
   },
   {
@@ -66,7 +70,8 @@
     "rules": {
       "prereq": [["MIAE 311"]],
       "coreq": [["MIAE 311"]],
-      "not_taken": ["MECH 311", "MIAE 311"]
+      "not_taken": ["MECH 311", "MIAE 311"],
+      "min_credits": 0.0
     }
   },
   {
@@ -80,7 +85,8 @@
     "rules": {
       "prereq": [["MECH 211", "MIAE 211"]],
       "coreq": [],
-      "not_taken": ["MECH 313"]
+      "not_taken": ["MECH 313"],
+      "min_credits": 0.0
     }
   },
   {
@@ -94,7 +100,8 @@
     "rules": {
       "prereq": [["ENCS 282"], ["MECH 211", "MIAE 211"]],
       "coreq": [],
-      "not_taken": ["INDU 440","AERO 444"]
+      "not_taken": ["INDU 440","AERO 444"],
+      "min_credits": 0.0
     }
   }
 ]

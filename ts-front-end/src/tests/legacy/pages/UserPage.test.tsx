@@ -273,11 +273,11 @@ describe('UserPage', () => {
     expect(screen.getByText('Plan A')).toBeInTheDocument();
   });
 
-  test('clicking audit button navigates to degree audit page', async () => {
+  test('clicking assessment button navigates to degree assessment page', async () => {
     const timelines = [{ _id: 't1', name: 'Plan A', last_modified: '2025-10-02T10:00:00Z' }];
     renderWithRouter({ student: baseUser, timelines });
 
-    const auditBtn = screen.getByTitle('Degree Audit');
+    const auditBtn = screen.getByTitle('Degree Assessment');
     fireEvent.click(auditBtn);
 
     expect(mockNavigate).toHaveBeenCalledWith('/degree-audit/t1');

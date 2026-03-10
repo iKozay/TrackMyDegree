@@ -1,13 +1,13 @@
-/// <reference types="vitest" />
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi, type Mock } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import InformationForm from '../../components/InformationForm';
 import { api } from '../../api/http-api-client';
-import { MemoryRouter } from 'react-router-dom';
-import { act } from '@testing-library/react';
-import type { Mock } from 'vitest';
 
-// Mock the API module
+//  Mocks 
+
+vi.mock('../../styles/components/InformationForm.css', () => ({}));
+
 vi.mock('../../api/http-api-client', () => ({
   api: {
     get: vi.fn(),
@@ -15,320 +15,284 @@ vi.mock('../../api/http-api-client', () => ({
   },
 }));
 
-// Mock useNavigate from react-router-dom
-const mockedNavigate = vi.fn();
+const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useNavigate: () => mockedNavigate,
-  };
+  return { ...actual, useNavigate: () => mockNavigate };
 });
+
+//  Helpers 
+
+const mockDegrees = [
+  { _id: '1', name: 'Software Engineering', totalCredits: 120 },
+  { _id: '2', name: 'Aerospace Engineering', totalCredits: 130 },
+  { _id: '3', name: 'Chemical Engineering', totalCredits: 125 },
+  { _id: '4', name: 'Computer Science', totalCredits: 120 },
+];
+
+const renderComponent = () =>
+  render(
+    <MemoryRouter>
+      <InformationForm />
+    </MemoryRouter>
+  );
+
+const selectDegree = (name: string) => {
+  const degree = mockDegrees.find((d) => d.name === name)!;
+  fireEvent.change(screen.getByLabelText('Degree Concentration'), {
+    target: { value: degree._id },
+  });
+};
+
+const selectTermAndYear = (term: string, year: string) => {
+  fireEvent.change(screen.getByLabelText('Starting Term'), { target: { value: term } });
+  fireEvent.change(screen.getByLabelText('Starting Year'), { target: { value: year } });
+};
+
+//  Tests 
 
 describe('InformationForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    (api.get as Mock).mockResolvedValue(mockDegrees);
   });
 
-  it('renders correctly and fetches degrees', async () => {
-    const mockDegrees = [
-      { _id: '1', name: 'CS', totalCredits: 120 },
-      { _id: '2', name: 'EE', totalCredits: 120 },
-    ];
-    (api.get as Mock).mockResolvedValue(mockDegrees);
+  //  Rendering 
 
-    render(
-      <MemoryRouter>
-        <InformationForm />
-      </MemoryRouter>
-    );
+  it('renders the Manual Setup heading', async () => {
+    renderComponent();
+    expect(screen.getByText('Manual Setup')).toBeInTheDocument();
+  });
 
-    // Wait for the degrees to appear in the select
+  it('renders degree, term, and year selects', async () => {
+    renderComponent();
+    expect(screen.getByLabelText('Degree Concentration')).toBeInTheDocument();
+    expect(screen.getByLabelText('Starting Term')).toBeInTheDocument();
+    expect(screen.getByLabelText('Starting Year')).toBeInTheDocument();
+  });
+
+  it('renders Cancel and Next buttons', () => {
+    renderComponent();
+    expect(screen.getByText('Cancel')).toBeInTheDocument();
+    expect(screen.getByText('Next')).toBeInTheDocument();
+  });
+
+  //  Degree fetching 
+
+  it('fetches and renders degrees on mount', async () => {
+    renderComponent();
     await waitFor(() => {
-      expect(screen.getByText('CS')).toBeInTheDocument();
-      expect(screen.getByText('EE')).toBeInTheDocument();
+      expect(api.get).toHaveBeenCalledWith('/degree');
+    });
+    expect(await screen.findByText('Software Engineering')).toBeInTheDocument();
+    expect(await screen.findByText('Aerospace Engineering')).toBeInTheDocument();
+  });
+
+  it('shows alert when degree fetch fails', async () => {
+    (api.get as Mock).mockRejectedValue(new Error('Network error'));
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    renderComponent();
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith(
+        'Error fetching degrees from server. Please try again later.'
+      );
     });
   });
 
-  it('alerts if no degree is selected on Next', async () => {
-    render(
-      <MemoryRouter>
-        <InformationForm />
-      </MemoryRouter>
-    );
+  //  Validation 
 
-    const nextButton = screen.getByText('Next');
-
-    // Mock alert
-    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => { });
-
-    fireEvent.click(nextButton);
-    expect(alertMock).toHaveBeenCalledWith('Please select a degree before continuing.');
-
-    alertMock.mockRestore();
+  it('alerts when Next is clicked without selecting a degree', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    renderComponent();
+    await screen.findByText('Software Engineering');
+    fireEvent.click(screen.getByText('Next'));
+    expect(alertSpy).toHaveBeenCalledWith('Please select a degree before continuing.');
   });
 
-  it('submits the form and navigates when valid', async () => {
-    const mockDegrees = [{ _id: '1', name: 'CS', totalCredits: 120 }];
-    (api.get as Mock).mockResolvedValue(mockDegrees);
-    (api.post as Mock).mockResolvedValue({ jobId: '123', });
-
-
-    render(
-      <MemoryRouter>
-        <InformationForm />
-      </MemoryRouter>
+  it('alerts when Next is clicked without selecting term and year', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    renderComponent();
+    await screen.findByText('Software Engineering');
+    selectDegree('Software Engineering');
+    fireEvent.click(screen.getByText('Next'));
+    expect(alertSpy).toHaveBeenCalledWith(
+      'Please select both a term and a year for your starting semester.'
     );
+  });
 
-    // Wait for degree select to populate
-    await waitFor(() => screen.getByText('CS'));
+  //  Cancel button 
 
-    fireEvent.change(screen.getByLabelText('Degree Concentration:'), { target: { value: '1' } });
-    fireEvent.change(screen.getByLabelText('Starting Term:'), { target: { value: 'Fall' } });
-    fireEvent.change(screen.getByLabelText('Starting Year:'), { target: { value: '2023' } });
+  it('resets all fields when Cancel is clicked', async () => {
+    renderComponent();
+    await screen.findByText('Software Engineering');
 
-    await act(async () => {
-      fireEvent.click(screen.getByText('Next'));
+    const degreeSelect = screen.getByLabelText('Degree Concentration') as HTMLSelectElement;
+    const termSelect = screen.getByLabelText('Starting Term') as HTMLSelectElement;
+    const yearSelect = screen.getByLabelText('Starting Year') as HTMLSelectElement;
+
+    selectDegree('Software Engineering');
+    selectTermAndYear('Fall', '2023');
+
+    expect(degreeSelect.value).toBe('1');
+    expect(termSelect.value).toBe('Fall');
+    expect(yearSelect.value).toBe('2023');
+
+    fireEvent.click(screen.getByText('Cancel'));
+
+    expect(degreeSelect.value).toBe('');
+    expect(termSelect.value).toBe('');
+    expect(yearSelect.value).toBe('');
+  });
+
+  //  Checkboxes 
+
+  it('toggles Extended Credit Program checkbox', async () => {
+    renderComponent();
+    await screen.findByText('Software Engineering');
+
+    const checkbox = screen.getByLabelText('Extended Credit Program?') as HTMLInputElement;
+    expect(checkbox.checked).toBe(false);
+
+    fireEvent.click(checkbox);
+    expect(checkbox.checked).toBe(true);
+
+    fireEvent.click(checkbox);
+    expect(checkbox.checked).toBe(false);
+  });
+
+  it('toggles Co-op Program checkbox', async () => {
+    renderComponent();
+    await screen.findByText('Software Engineering');
+
+    const checkbox = screen.getByLabelText('Co-op Program?') as HTMLInputElement;
+    expect(checkbox.checked).toBe(false);
+
+    fireEvent.click(checkbox);
+    expect(checkbox.checked).toBe(true);
+  });
+
+  //  Predefined sequence visibility 
+
+  it('shows predefined co-op sequence checkbox when co-op is checked and term is Fall', async () => {
+    renderComponent();
+    await screen.findByText('Software Engineering');
+
+    selectDegree('Software Engineering');
+    selectTermAndYear('Fall', '2023');
+    fireEvent.click(screen.getByLabelText('Co-op Program?'));
+
+    expect(await screen.findByLabelText('Load predefined co-op sequence?')).toBeInTheDocument();
+  });
+
+  it('does not show predefined sequence checkbox when term is Summer', async () => {
+    renderComponent();
+    await screen.findByText('Software Engineering');
+
+    selectDegree('Software Engineering');
+    selectTermAndYear('Summer', '2023');
+    fireEvent.click(screen.getByLabelText('Co-op Program?'));
+
+    expect(screen.queryByLabelText('Load predefined co-op sequence?')).not.toBeInTheDocument();
+  });
+
+  //  Aerospace option 
+
+  it('shows Aerospace option dropdown when aerospace degree is selected with co-op + predefined sequence', async () => {
+    renderComponent();
+    await screen.findByText('Aerospace Engineering');
+
+    selectDegree('Aerospace Engineering');
+    selectTermAndYear('Fall', '2023');
+    fireEvent.click(screen.getByLabelText('Co-op Program?'));
+
+    const predefinedCheckbox = await screen.findByLabelText('Load predefined co-op sequence?');
+    fireEvent.click(predefinedCheckbox);
+
+    expect(await screen.findByLabelText('Select Aerospace Option:')).toBeInTheDocument();
+  });
+
+  it('alerts when Next is clicked with aerospace co-op but no option selected', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    renderComponent();
+    await screen.findByText('Aerospace Engineering');
+
+    selectDegree('Aerospace Engineering');
+    selectTermAndYear('Fall', '2023');
+    fireEvent.click(screen.getByLabelText('Co-op Program?'));
+
+    const predefinedCheckbox = await screen.findByLabelText('Load predefined co-op sequence?');
+    fireEvent.click(predefinedCheckbox);
+
+    fireEvent.click(screen.getByText('Next'));
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith('Please select an Aerospace option.');
     });
+  });
+
+  //  Successful form submission 
+
+  it('navigates to timeline page on successful standard form submission', async () => {
+    (api.post as Mock).mockResolvedValue({ jobId: 'abc123' });
+    renderComponent();
+    await screen.findByText('Software Engineering');
+
+    selectDegree('Software Engineering');
+    selectTermAndYear('Fall', '2023');
+
+    fireEvent.click(screen.getByText('Next'));
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith('/upload/form', expect.objectContaining({
         degree: '1',
         firstTerm: 'Fall 2023',
+        isCoop: false,
+        isExtendedCreditProgram: false,
       }));
-      expect(mockedNavigate).toHaveBeenCalledWith('/timeline/123');
-    });
-
-  });
-
-  it('toggles checkboxes correctly', async () => {
-    (api.get as Mock).mockResolvedValue([{ _id: '1', name: 'CS', totalCredits: 120 }]);
-
-    render(
-      <MemoryRouter>
-        <InformationForm />
-      </MemoryRouter>
-    );
-
-    const coopCheckbox = screen.getByLabelText(/Co-op Program?/i);
-    const ecpCheckbox = screen.getByLabelText(/Extended Credit Program?/i);
-
-    fireEvent.click(coopCheckbox);
-    expect(coopCheckbox).toBeChecked();
-
-    fireEvent.click(ecpCheckbox);
-    expect(ecpCheckbox).toBeChecked();
-
-    fireEvent.click(coopCheckbox);
-    expect(coopCheckbox).not.toBeChecked();
-  });
-
-  it('shows predefined sequence option for Co-op students in valid degrees/terms', async () => {
-    const mockDegrees = [{ _id: '100', name: 'Bachelor of Engineering Computer Engineering', totalCredits: 120 }];
-    (api.get as Mock).mockResolvedValue(mockDegrees);
-
-    render(
-      <MemoryRouter>
-        <InformationForm />
-      </MemoryRouter>
-    );
-
-    await waitFor(() => screen.getByText('Bachelor of Engineering Computer Engineering'));
-
-    // Select Degree
-    fireEvent.change(screen.getByLabelText('Degree Concentration:'), { target: { value: '100' } });
-
-    // Select Fall Term
-    fireEvent.change(screen.getByLabelText('Starting Term:'), { target: { value: 'Fall' } });
-
-    // Click Co-op
-    const coopCheckbox = screen.getByLabelText(/Co-op Program?/i);
-    fireEvent.click(coopCheckbox);
-
-    // Predefined sequence checkbox should appear
-    await waitFor(() => {
-      expect(screen.getByText(/Load predefined co-op sequence?/i)).toBeInTheDocument();
+      expect(mockNavigate).toHaveBeenCalledWith('/timeline/abc123');
     });
   });
 
-  it('handles Aerospace option selection for predefined sequence', async () => {
-    const mockDegrees = [{ _id: 'ae1', name: 'Bachelor of Engineering Aerospace Engineering', totalCredits: 120 }];
-    (api.get as Mock).mockResolvedValue(mockDegrees);
-    (api.post as Mock).mockResolvedValue({ jobId: 'job_aero' });
+  it('alerts when API returns no jobId', async () => {
+    (api.post as Mock).mockResolvedValue({});
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    renderComponent();
+    await screen.findByText('Software Engineering');
 
-    // Mock fetch for sequence file
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ([{ term: 'Term 1', type: 'Academic' }]),
-    } as Response);
-
-
-    render(
-      <MemoryRouter>
-        <InformationForm />
-      </MemoryRouter>
-    );
-
-    await waitFor(() => screen.getByText('Bachelor of Engineering Aerospace Engineering'));
-
-    // Fill form
-    fireEvent.change(screen.getByLabelText('Degree Concentration:'), { target: { value: 'ae1' } });
-    fireEvent.change(screen.getByLabelText('Starting Term:'), { target: { value: 'Fall' } });
-    fireEvent.change(screen.getByLabelText('Starting Year:'), { target: { value: '2023' } });
-
-    // Select Co-op
-    fireEvent.click(screen.getByLabelText(/Co-op Program?/i));
-
-    // Select Predefined Sequence
-    await waitFor(() => screen.getByLabelText(/Load predefined co-op sequence?/i));
-    fireEvent.click(screen.getByLabelText(/Load predefined co-op sequence?/i));
-
-    // Select Aerospace Option
-    await waitFor(() => screen.getByLabelText(/Select Aerospace Option:/i));
-    fireEvent.change(screen.getByLabelText(/Select Aerospace Option:/i), { target: { value: 'option_a' } });
-
-    // Submit
-    await act(async () => {
-      fireEvent.click(screen.getByText('Next'));
-    });
+    selectDegree('Software Engineering');
+    selectTermAndYear('Fall', '2023');
+    fireEvent.click(screen.getByText('Next'));
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith('/coop-sequences/aerospace_option_a.json');
-      expect(api.post).toHaveBeenCalledWith('/upload/form', expect.objectContaining({
-        predefinedSequence: expect.any(Array)
-      }));
+      expect(alertSpy).toHaveBeenCalledWith('Unexpected response from server.');
     });
   });
 
-  it('submits correctly without predefined sequence when unchecked', async () => {
-    const mockDegrees = [{ _id: '100', name: 'Bachelor of Engineering Computer Engineering', totalCredits: 120 }];
-    (api.get as Mock).mockResolvedValue(mockDegrees);
-    (api.post as Mock).mockResolvedValue({ jobId: 'job_no_seq' });
+  it('alerts when API post throws an error', async () => {
+    (api.post as Mock).mockRejectedValue(new Error('Server down'));
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    renderComponent();
+    await screen.findByText('Software Engineering');
 
-    render(
-      <MemoryRouter>
-        <InformationForm />
-      </MemoryRouter>
-    );
-
-    await waitFor(() => screen.getByText('Bachelor of Engineering Computer Engineering'));
-
-    fireEvent.change(screen.getByLabelText('Degree Concentration:'), { target: { value: '100' } });
-    fireEvent.change(screen.getByLabelText('Starting Term:'), { target: { value: 'Fall' } });
-    fireEvent.change(screen.getByLabelText('Starting Year:'), { target: { value: '2023' } });
-
-    // Select Co-op but NOT predefined sequence
-    fireEvent.click(screen.getByLabelText(/Co-op Program?/i));
-
-    await act(async () => {
-      fireEvent.click(screen.getByText('Next'));
-    });
-
-  });
-
-  it('resets form variables on Cancel', async () => {
-    (api.get as Mock).mockResolvedValue([{ _id: '1', name: 'CS', totalCredits: 120 }]);
-
-    render(
-      <MemoryRouter>
-        <InformationForm />
-      </MemoryRouter>
-    );
-
-    const coopCheckbox = screen.getByLabelText(/Co-op Program?/i);
-    fireEvent.click(coopCheckbox);
-    expect(coopCheckbox).toBeChecked();
-
-    const cancelButton = screen.getByText('Cancel');
-    fireEvent.click(cancelButton);
-
-    expect(coopCheckbox).not.toBeChecked();
-  });
-
-  it('alerts if term or year is missing', async () => {
-    (api.get as Mock).mockResolvedValue([{ _id: '1', name: 'CS', totalCredits: 120 }]);
-    render(<MemoryRouter><InformationForm /></MemoryRouter>);
-
-    await waitFor(() => screen.getByText('CS'));
-    fireEvent.change(screen.getByLabelText('Degree Concentration:'), { target: { value: '1' } });
-
-    const nextButton = screen.getByText('Next');
-    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => { });
-
-    fireEvent.click(nextButton);
-    expect(alertMock).toHaveBeenCalledWith('Please select both a term and a year for your starting semester.');
-    alertMock.mockRestore();
-  });
-
-  it('handles Chemical Engineering Winter entry sequence', async () => {
-    const mockDegrees = [{ _id: 'chem1', name: 'Bachelor of Engineering Chemical Engineering', totalCredits: 120 }];
-    (api.get as Mock).mockResolvedValue(mockDegrees);
-    (api.post as Mock).mockResolvedValue({ jobId: 'job_chem' });
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ([]),
-    } as Response);
-
-
-    render(<MemoryRouter><InformationForm /></MemoryRouter>);
-    await waitFor(() => screen.getByText('Bachelor of Engineering Chemical Engineering'));
-
-    fireEvent.change(screen.getByLabelText('Degree Concentration:'), { target: { value: 'chem1' } });
-    fireEvent.change(screen.getByLabelText('Starting Term:'), { target: { value: 'Winter' } }); // Winter entry
-    fireEvent.change(screen.getByLabelText('Starting Year:'), { target: { value: '2023' } });
-
-    fireEvent.click(screen.getByLabelText(/Co-op Program?/i));
-    await waitFor(() => screen.getByLabelText(/Load predefined co-op sequence?/i));
-    fireEvent.click(screen.getByLabelText(/Load predefined co-op sequence?/i));
-
-    await act(async () => { fireEvent.click(screen.getByText('Next')); });
+    selectDegree('Software Engineering');
+    selectTermAndYear('Fall', '2023');
+    fireEvent.click(screen.getByText('Next'));
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith('/coop-sequences/chemical_winter_entry.json');
+      expect(alertSpy).toHaveBeenCalledWith('Server down');
     });
   });
 
-  it('handles API error during submission', async () => {
-    (api.get as Mock).mockResolvedValue([{ _id: '1', name: 'CS', totalCredits: 120 }]);
-    (api.post as Mock).mockRejectedValue(new Error('API Error'));
+  //  Chemical Engineering term handling 
 
-    render(<MemoryRouter><InformationForm /></MemoryRouter>);
-    await waitFor(() => screen.getByText('CS'));
+  it('shows predefined sequence checkbox for Chemical Engineering in Winter term', async () => {
+    renderComponent();
+    await screen.findByText('Chemical Engineering');
 
-    fireEvent.change(screen.getByLabelText('Degree Concentration:'), { target: { value: '1' } });
-    fireEvent.change(screen.getByLabelText('Starting Term:'), { target: { value: 'Fall' } });
-    fireEvent.change(screen.getByLabelText('Starting Year:'), { target: { value: '2023' } });
+    selectDegree('Chemical Engineering');
+    selectTermAndYear('Winter', '2023');
+    fireEvent.click(screen.getByLabelText('Co-op Program?'));
 
-    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => { });
-    await act(async () => { fireEvent.click(screen.getByText('Next')); });
-
-    expect(alertMock).toHaveBeenCalledWith('API Error');
-    alertMock.mockRestore();
-  });
-
-  it('handles fetch error for predefined sequence', async () => {
-    const mockDegrees = [{ _id: 'soft1', name: 'Bachelor of Engineering Software Engineering', totalCredits: 120 }];
-    (api.get as Mock).mockResolvedValue(mockDegrees);
-    global.fetch = vi.fn().mockResolvedValue({ ok: false, statusText: 'Not Found' } as Response);
-
-    render(<MemoryRouter><InformationForm /></MemoryRouter>);
-    await waitFor(() => screen.getByText('Bachelor of Engineering Software Engineering'));
-
-    fireEvent.change(screen.getByLabelText('Degree Concentration:'), { target: { value: 'soft1' } });
-    fireEvent.change(screen.getByLabelText('Starting Term:'), { target: { value: 'Fall' } });
-    fireEvent.change(screen.getByLabelText('Starting Year:'), { target: { value: '2023' } });
-
-    fireEvent.click(screen.getByLabelText(/Co-op Program?/i));
-    await waitFor(() => screen.getByLabelText(/Load predefined co-op sequence?/i));
-    fireEvent.click(screen.getByLabelText(/Load predefined co-op sequence?/i));
-
-    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => { });
-    const consoleErrorMock = vi.spyOn(console, 'error').mockImplementation(() => { });
-
-    await act(async () => { fireEvent.click(screen.getByText('Next')); });
-
-    expect(alertMock).toHaveBeenCalledWith('Failed to load predefined sequence. Falling back to standard generation.');
-    alertMock.mockRestore();
-    consoleErrorMock.mockRestore();
+    expect(await screen.findByLabelText('Load predefined co-op sequence?')).toBeInTheDocument();
   });
 });

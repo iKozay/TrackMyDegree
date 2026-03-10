@@ -31,7 +31,7 @@ describe('pythonUtilsApi', () => {
       const mockError = new Error('Network Error');
       axios.get.mockRejectedValue(mockError);
       await expect(pythonUtilsApi.parseDegree('invalid_url')).rejects.toThrow(
-        'Failed to parse degree: Error: Network Error',
+        'Failed to parse degree: Network Error',
       );
     });
   });
@@ -56,7 +56,32 @@ describe('pythonUtilsApi', () => {
       axios.post.mockRejectedValue(mockError);
       const fileBuffer = Buffer.from('dummy pdf data');
       await expect(pythonUtilsApi.parseTranscript(fileBuffer)).rejects.toThrow(
-        'Failed to parse transcript: Error: Network Error',
+        'Failed to parse transcript: Network Error',
+      );
+    });
+  });
+
+  describe('getCourseSchedule', () => {
+    test('Get course schedule successfully', async () => {
+      const mockResponse = {
+        data: {
+          courseID: '049701',
+          termCode: '2244',
+          session: '13W',
+          subject: 'COMP',
+          catalog: '432',
+        },
+      };
+      axios.get.mockResolvedValue(mockResponse);
+      const result = await pythonUtilsApi.getCourseSchedule('COMP', '432');
+      expect(result).toEqual(mockResponse.data);
+    });
+
+    test('Fail to get course schedule', async () => {
+      const mockError = new Error('Network Error');
+      axios.get.mockRejectedValue(mockError);
+      await expect(pythonUtilsApi.getCourseSchedule('COMP', '432')).rejects.toThrow(
+        'Failed to get course schedule: Network Error',
       );
     });
   });

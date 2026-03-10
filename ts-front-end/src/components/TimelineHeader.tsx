@@ -10,8 +10,10 @@ import {
   AlertTriangle,
   Plus,
   Save,
+  FileText
 } from "lucide-react";
 import { downloadTimelinePdf } from "../utils/timelineUtils";
+import { toast } from "react-toastify";
 
 interface HistoryControlsProps {
   canUndo: boolean;
@@ -20,20 +22,19 @@ interface HistoryControlsProps {
   onRedo: () => void;
 }
 
-function shareTimeline(
+async function shareTimeline(
   setShow: React.Dispatch<React.SetStateAction<boolean>>
-): void {
+): Promise<void> {
   // copy current url in browser to clipboard
-  navigator.clipboard
-    .writeText(globalThis.location.href)
-    .then(() => {
-      console.log("Timeline URL copied to clipboard");
-    })
-    .catch((err) => {
-      console.error("Failed to copy timeline URL: ", err);
-    });
-  setShow(true);
-  setTimeout(() => setShow(false), 2000);
+  try {
+    await navigator.clipboard.writeText(globalThis.location.href);
+    toast.success("Timeline link copied to clipboard");
+    setShow(true);
+    setTimeout(() => setShow(false), 2000);
+  } catch (err) {
+    console.error("Failed to copy timeline URL: ", err);
+    toast.error("Could not copy link.");
+  }
 }
 
 const HistoryControls: React.FC<HistoryControlsProps> = ({
@@ -109,6 +110,9 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
   const handleCoopValidation = () => {
     if (onOpenModal) onOpenModal(true, "coop");
   };
+  const handleDegreeAssesment = () => {
+    if (onOpenModal) onOpenModal(false, "degree-audit");
+  };
   return (
     <div className="header-actions">
       <button className="btn btn-success" onClick={handleInsights}>
@@ -119,7 +123,10 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
         <Briefcase size={16} />
         Coop Validation
       </button>
-
+      <button className="btn btn-secondary" onClick={handleDegreeAssesment}>
+        <FileText size={16} />
+        Degree Assesment
+      </button>
       <button className="btn btn-tertiary" onClick={handleDeficiency}>
         <AlertTriangle size={16} />
         Add Deficiency

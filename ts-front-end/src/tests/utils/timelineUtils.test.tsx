@@ -433,6 +433,16 @@ describe("timelineUtils", () => {
       const update = computeTimelinePartialUpdate(baseState, updated);
       expect(update?.semesters).toHaveLength(2);
     });
+    it("detects timeline name changes", () => {
+        const updated: TimelineState = {
+            ...baseState,
+            timelineName: "Updated Timeline Name",
+        };
+
+        const update = computeTimelinePartialUpdate(baseState, updated);
+
+        expect(update?.timelineName).toBe("Updated Timeline Name");
+    });
   });
 
   describe("downloadTimelinePdf", () => {

@@ -3,7 +3,6 @@ import { Course } from '@models';
 
 export interface CourseData {
   _id: string;
-  code?: string;
   title: string;
   description?: string;
   credits: number;
@@ -13,7 +12,10 @@ export interface CourseData {
     prereq?: string[][];
     coreq?: string[][];
     not_taken?: string[];
+    min_credits?: number;
   };
+  notes?: string;
+  components?: string[];
 }
 
 export class CourseController extends BaseMongoController<any> {

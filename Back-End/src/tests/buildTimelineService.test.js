@@ -38,8 +38,8 @@ describe('timelineService', () => {
 
     // Mock coursepoolController for coop courses
     coursepoolController.getCoursePool.mockResolvedValue({
-      _id: 'Coop Courses',
-      name: 'Coop Courses',
+      _id: 'COOP_Co-op Work Terms',
+      name: 'Co-op Work Terms',
       creditsRequired: 0,
       courses: ['CWT 100', 'CWT 101']
     });
@@ -338,7 +338,6 @@ describe('timelineService', () => {
     jest.spyOn(Timeline, 'findById').mockReturnValue(findByIdMock);
 
     const result = await buildTimelineFromDB('timeline1');
-    console.log(result)
     expect(result).toBeDefined();
     expect(result.courses['MATH 204'].status.status).toBe('completed');
     expect(result.courses['CHEM 206'].status.status).toBe('incomplete');
@@ -348,6 +347,17 @@ describe('timelineService', () => {
 
     const deficiencyPool = result.pools.find(p => p._id === 'deficiencies');
     expect(deficiencyPool.courses).toContain('CHEM 206');
+
+    expect(result.timelineName).toBe('My Timeline');
+  });
+
+  it('buildTimelineFromDB throws when timeline is not found', async () => {
+      const findByIdMock = {
+          lean: jest.fn().mockReturnThis(),
+          exec: jest.fn().mockResolvedValue(null)
+      };
+      jest.spyOn(Timeline, 'findById').mockReturnValue(findByIdMock);
+     await expect(buildTimelineFromDB('missing-id')).rejects.toThrow('Timeline not found');
   });
 
   it('adds missing course data for non-degree courses', async () => {
@@ -507,9 +517,8 @@ describe('timelineService', () => {
     };
 
     const result = await buildTimeline(formData);
-
     // Check that coop course pool was added
-    const coopPool = result.pools.find(pool => pool.name === 'Coop Courses');
+    const coopPool = result.pools.find(pool => pool.name === 'Co-op Work Terms');
     expect(coopPool).toBeDefined();
     expect(coopPool.courses).toEqual(['CWT 100', 'CWT 101']);
 
@@ -518,7 +527,7 @@ describe('timelineService', () => {
     expect(result.courses['CWT 101']).toBeDefined();
 
     // Verify that the coursepoolController was called
-    expect(coursepoolController.getCoursePool).toHaveBeenCalledWith('Coop Courses');
+    expect(coursepoolController.getCoursePool).toHaveBeenCalledWith('COOP_Co-op Work Terms');
   });
 
   it('builds timeline from predefined sequence', async () => {

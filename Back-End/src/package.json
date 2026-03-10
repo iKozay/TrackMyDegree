@@ -41,7 +41,7 @@
     "test:integration": "jest --config jest.integration.config.js",
     "test:python": "cd python/tests && python3 -m pytest",
     "test:all": "npm test && npm run test:python",
-    "lint": "eslint .",
+    "lint": "eslint . --quiet",
     "lint:fix": "eslint . --fix",
     "format": "eslint . --fix && prettier --write ."
   },

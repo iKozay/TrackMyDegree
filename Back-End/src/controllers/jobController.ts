@@ -45,12 +45,14 @@ type CachedTimeline = {
   courses: Record<string, Record<string, unknown>>;
 
   semesters: unknown[];
+  timelineName?: string;
 };
 type TimelinePartialUpdate = {
   exemptions?: string[];
   deficiencies?: string[];
   courses?: Record<string, Record<string, unknown>>;
   semesters?: unknown[];
+  timelineName?: string;
 };
 function updatePool(
   timeline: CachedTimeline,
@@ -103,12 +105,17 @@ export const cacheTimelineByJobId: RequestHandler<GetResultParams> = async (
     const timeline = cached.payload.data;
 
     // ---- Apply partial updates (low complexity) ----
-    updatePool(timeline, 'Exemptions', partialUpdate.exemptions);
-    updatePool(timeline, 'Deficiencies', partialUpdate.deficiencies);
+    updatePool(timeline, 'exemptions', partialUpdate.exemptions);
+    updatePool(timeline, 'deficiencies', partialUpdate.deficiencies);
     updateCourses(timeline, partialUpdate.courses);
 
     if (partialUpdate.semesters) {
       timeline.semesters = partialUpdate.semesters;
+    }
+
+    // handle timelineName update
+    if (partialUpdate.timelineName !== undefined) {
+        timeline.timelineName = partialUpdate.timelineName;
     }
 
     await cacheJobResult(jobId, {

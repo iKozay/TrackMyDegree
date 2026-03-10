@@ -1,10 +1,6 @@
 import { Timeline, User } from '@models';
-import {
-  degreeController,
-  CoursePoolInfo,
-} from '@controllers/degreeController';
+import { degreeController } from '@controllers/degreeController';
 import { CourseData } from '@controllers/courseController';
-import { CourseStatus } from '../../types/transcript';
 import {
   DegreeAuditData,
   StudentInfo,
@@ -16,7 +12,9 @@ import {
   RequirementStatus,
   GenerateAuditParams,
 } from '@shared/audit';
-import { TimelineDocument } from '@services/timeline/timelineService';
+import { TimelineCourse, TimelineDocument, TimelineResult, TimelineSemester, CourseStatus } from '@shared/timeline';
+import {DegreeData, CoursePoolInfo} from '@shared/degree';
+import { isTermInProgress } from '@utils/misc';
 
 interface TimelineWithUser extends TimelineDocument {
   userId: string;
@@ -24,8 +22,13 @@ interface TimelineWithUser extends TimelineDocument {
 
 /**
  * Maps internal course status to audit display status
+ * If a course is marked as 'planned' but is in the current term,
+ * it should be treated as 'In Progress' for graduation calculation purposes.
  */
-function mapCourseStatus(status: CourseStatus): CourseAuditStatus {
+function mapCourseStatus(
+  status: CourseStatus,
+  term?: string | null,
+): CourseAuditStatus {
   switch (status) {
     case 'completed':
       return 'Completed';
@@ -33,6 +36,9 @@ function mapCourseStatus(status: CourseStatus): CourseAuditStatus {
       // eslint-disable-next-line sonarjs/no-duplicate-string
       return 'In Progress';
     case 'planned':
+      if (term && isTermInProgress(term)) {
+        return 'In Progress';
+      }
       // eslint-disable-next-line sonarjs/no-duplicate-string
       return 'Not Started';
     case 'incomplete':
@@ -163,7 +169,9 @@ function processPoolToRequirement(
     if (!courseData) continue;
 
     const statusInfo = courseStatusMap[courseCode];
-    const status = statusInfo ? mapCourseStatus(statusInfo.status) : 'Missing';
+    const status = statusInfo
+      ? mapCourseStatus(statusInfo.status, statusInfo.semester)
+      : 'Missing';
     const credits = courseData.credits || 0;
 
     if (status === 'Completed') {
@@ -278,12 +286,20 @@ function calculateFutureGraduation(
  * Extracts courseStatusMap from timeline, returning empty object if not present
  */
 function buildCourseStatusMap(
-  timeline: TimelineWithUser,
+  courses: Record<string, TimelineCourse>,
 ): Record<string, { status: CourseStatus; semester: string | null }> {
-  if (!timeline.courseStatusMap) {
-    return {};
-  }
-  return { ...timeline.courseStatusMap };
+  
+  return Object.fromEntries(
+        Object.entries( courses || {})
+          .filter(([, course]) => course.status.status !== 'incomplete')
+          .map(([courseId, course]) => [
+            courseId,
+            {
+              status: course.status.status,
+              semester: course.status.semester,
+            },
+          ])
+      );
 }
 
 /**
@@ -299,6 +315,7 @@ function processDeficiencies(
 ): RequirementCategory {
   let deficiencyCredits = 0;
   let deficiencyCompleted = 0;
+  let deficiencyInProgress = 0;
   const deficiencyCourses: AuditCourse[] = [];
 
   for (const courseCode of deficiencies) {
@@ -307,10 +324,14 @@ function processDeficiencies(
     deficiencyCredits += credits;
 
     const statusInfo = courseStatusMap[courseCode];
-    const status = statusInfo ? mapCourseStatus(statusInfo.status) : 'Missing';
+    const status = statusInfo
+      ? mapCourseStatus(statusInfo.status, statusInfo.semester)
+      : 'Missing';
 
     if (status === 'Completed') {
       deficiencyCompleted += credits;
+    } else if (status === 'In Progress') {
+      deficiencyInProgress += credits;
     }
 
     deficiencyCourses.push({
@@ -323,11 +344,17 @@ function processDeficiencies(
     });
   }
 
+  // Use the same status determination logic as regular requirements
+  const defStatus = determineRequirementStatus(
+    deficiencyCompleted,
+    deficiencyInProgress,
+    deficiencyCredits,
+  );
+
   return {
     id: 'deficiencies',
     title: 'Deficiency Courses',
-    status:
-      deficiencyCompleted >= deficiencyCredits ? 'Complete' : 'Incomplete',
+    status: defStatus,
     creditsCompleted: deficiencyCompleted,
     creditsTotal: deficiencyCredits,
     courses: deficiencyCourses,
@@ -408,13 +435,13 @@ function calculateProgressStats(
  * Builds student info from user and degree data
  */
 function buildStudentInfo(
-  user: { _id: string; fullname: string; email: string },
   degreeData: { name: string },
   firstSemester: string | undefined,
   remainingCredits: number,
+  user?: { _id: string; fullname: string; email: string },
 ): StudentInfo {
   return {
-    name: user.fullname,
+    name: user?.fullname,
     program: degreeData.name,
     admissionTerm: firstSemester,
     expectedGraduation: estimateGraduation(remainingCredits),
@@ -523,33 +550,62 @@ export async function generateDegreeAudit(
   ]);
 
   const allCourses = buildCoursesDictionary(courseArr);
-  const courseStatusMap = buildCourseStatusMap(timeline);
+  const courseStatusMap = timeline.courseStatusMap ?? {};
 
+  return buildDegreeAudit(
+    degreeData,
+    coursePools,
+    allCourses,
+    courseStatusMap,
+    timeline.deficiencies,
+    timeline.exemptions,
+    timeline.semesters,
+    user
+  )
+}
+
+function buildDegreeAudit(
+  degreeData: DegreeData,
+  coursePools: CoursePoolInfo[],
+  allCourses: Record<string, CourseData>,
+  courseStatusMap: Record<string, {
+    status: CourseStatus;
+    semester: string | null;
+  }>,
+  deficiencies: string[],
+  exemptions: string[],
+  semesters: TimelineSemester[],
+  user?:{
+    _id: string;
+    fullname: string;
+    email: string;
+  },
+) {
   const requirements = processCoursePools(
     coursePools,
     allCourses,
     courseStatusMap,
   );
 
-  if (timeline.deficiencies && timeline.deficiencies.length > 0) {
+  if (deficiencies && deficiencies.length > 0) {
     requirements.push(
-      processDeficiencies(timeline.deficiencies, allCourses, courseStatusMap),
+      processDeficiencies(deficiencies, allCourses, courseStatusMap),
     );
   }
 
-  if (timeline.exemptions && timeline.exemptions.length > 0) {
-    requirements.push(processExemptions(timeline.exemptions, allCourses));
+  if (exemptions && exemptions.length > 0) {
+    requirements.push(processExemptions(exemptions, allCourses));
   }
 
   const totalCredits = degreeData.totalCredits || 120;
   const progress = calculateProgressStats(requirements, totalCredits);
 
-  const firstSemester = timeline.semesters?.[0]?.term;
+  const firstSemester = semesters?.[0]?.term;
   const student = buildStudentInfo(
-    user,
     degreeData,
     firstSemester,
     progress.remaining,
+    user,
   );
 
   const notices = generateNotices(requirements, progress);
@@ -580,4 +636,43 @@ export async function generateDegreeAuditForUser(
     timelineId: timeline._id.toString(),
     userId,
   });
+}
+
+export function generateDegreeAuditFromTimeline(timeline:TimelineResult){
+  if(!timeline.degree || !timeline.pools || !timeline.semesters)
+    throw new Error('degree, coursePools and semesters are required to generate the degree audit');
+
+  const allCourses: Record<string, CourseData> = Object.fromEntries(
+    Object.entries(timeline.courses).map(([code, course]) => {
+      return [code, {
+      _id: course.id,
+      code: course.id,
+      title: course.title,
+      description: course.description,
+      credits: course.credits,
+      offeredIn: course.offeredIN,
+    }];
+    }),
+  );
+  const courseStatusMap = buildCourseStatusMap(timeline.courses)
+  const coursePools = timeline.pools || []
+  const exemptionPool = coursePools.find(p => p._id === 'exemptions');
+  const deficiencyPool = coursePools.find(p => p._id === 'deficiencies');
+  const exemptions  = exemptionPool?.courses ?? [];
+  const deficiencies = deficiencyPool?.courses ?? [];
+  // REMOVE exemptions & deficiencies from pools
+  const filteredPools = coursePools.filter(
+    p => p._id !== 'exemptions' && p._id !== 'deficiencies'
+  );
+
+
+return buildDegreeAudit(
+    timeline.degree,
+    filteredPools,
+    allCourses,
+    courseStatusMap,
+    deficiencies,
+    exemptions,
+    timeline.semesters
+  )
 }

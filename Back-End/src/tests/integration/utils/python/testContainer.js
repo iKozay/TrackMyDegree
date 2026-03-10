@@ -24,6 +24,27 @@ async function startPythonUtilsContainer() {
     .start();
 
   console.log('Python utils container started');
+
+  // wait until api is responsive before proceeding with tests
+  await apiReady();
+}
+
+async function apiReady() {
+  console.log('Checking Python Utils API health...');
+  const maxTries = 3;
+  for (let tries = 0; tries < maxTries; tries++) {
+    try {
+      // This will trigger initialization which takes around 3 mins
+      const res = await globalThis.fetch('http://localhost:15001/health');
+      if (res.ok) {
+        console.log('Python utils API is ready');
+        return;
+      }
+    } catch (e) {
+      console.error(`Error connecting to Python utils API: ${e.message}`);
+    }
+    console.log(`Python utils API not ready yet. Retrying... (${tries + 1}/${maxTries})`);
+  }
 }
 
 /**

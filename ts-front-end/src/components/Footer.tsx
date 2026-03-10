@@ -28,7 +28,7 @@ export const Footer: React.FC<FooterProps> = ({deployment_version}) => {
                 <p className="footer-tagline">
                   Your academic journey, simplified and organized.
                 </p>
-                <div className="version-badge">{deployment_version}</div>
+                <div className="version-badge">Version: {deployment_version}</div>
               </div>
             </div>
 

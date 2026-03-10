@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Download, FileText, AlertTriangle, CheckCircle, Circle, XCircle, ChevronDown, ChevronUp, RefreshCw, Inbox, ArrowLeft } from 'lucide-react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { Download, FileText, AlertTriangle, CheckCircle, Circle, XCircle, ChevronDown, ChevronUp, RefreshCw, Inbox, ArrowLeft, Minimize2, Maximize2 } from 'lucide-react';
 import DegreeAuditSkeleton from '../components/DegreeAuditSkeleton.tsx';
 import { api } from '../api/http-api-client';
 import { useAuth } from '../hooks/useAuth';
@@ -8,8 +8,21 @@ import '../styles/DegreeAuditPage.css';
 import type {DegreeAuditData, RequirementCategory, Notice, AuditCourse} from "@shared/audit"
 import { downloadPdf } from '../utils/downloadUtils.ts';
 
+// Helper function to get the appropriate icon for a notice type
+const getNoticeIcon = (type: string): React.ReactNode => {
+    if (type === 'warning') {
+        return <AlertTriangle size={18} />;
+    }
+    if (type === 'info') {
+        return <Circle size={18} />;
+    }
+    return <CheckCircle size={18} />;
+};
+
 const DegreeAuditPage: React.FC = () => {
     const { timelineId } = useParams();
+    const query = new URLSearchParams(useLocation().search);
+    const fromPage = query.get('fromPage');
     const navigate = useNavigate();
     const { user } = useAuth();
     const [data, setData] = useState<DegreeAuditData | null>(null);
@@ -23,17 +36,20 @@ const DegreeAuditPage: React.FC = () => {
 
         try {
             let auditData: DegreeAuditData;
-
-            if (timelineId && user?.id) {
+            if (fromPage === 'timelinePage'){ //if coming from timeline page use the cached timeline to generate the degree audit
+                 auditData = await api.get<DegreeAuditData>(
+                    `/audit/timeline/job/${timelineId}`
+                );
+            } else if (timelineId && user?.id) { //if users chose a saved timeline from user profile
                 auditData = await api.get<DegreeAuditData>(
                     `/audit/timeline/${timelineId}?userId=${user.id}`
                 );
-            } else if (user?.id) {
+            } else if (user?.id) { //generates degree audit from the first timeline for this user found in the db
                 auditData = await api.get<DegreeAuditData>(
                     `/audit/user/${user.id}`
                 );
             } else {
-                throw new Error("User not authenticated");
+                throw new Error("Login or Create a timeline to access the degree audit");
             }
 
             setData(auditData);
@@ -44,6 +60,19 @@ const DegreeAuditPage: React.FC = () => {
             setIsLoading(false);
         }
     }, [timelineId, user?.id]);
+
+    const expandAll = useCallback(() => {
+        if (data?.requirements) {
+            setExpandedReqs(new Set(data.requirements.map(req => req.id)));
+        }
+    }, [data?.requirements]);
+
+    const collapseAll = useCallback(() => {
+        setExpandedReqs(new Set());
+    }, []);
+
+    const hasAnyExpanded = expandedReqs.size > 0;
+    const hasAllExpanded = data?.requirements ? expandedReqs.size === data.requirements.length : false;
 
     useEffect(() => {
         fetchData();
@@ -92,10 +121,10 @@ const DegreeAuditPage: React.FC = () => {
                     <div className="state-icon empty">
                         <Inbox size={32} />
                     </div>
-                    <h3>No Audit Data Found</h3>
-                    <p>We couldn't find any degree audit information for your account. If you just enrolled, it might take a few hours to process.</p>
+                    <h3>No Assessment Data Found</h3>
+                    <p>We couldn't find any degree assessment information for your account. If you just enrolled, it might take a few hours to process.</p>
                     <button className="btn-primary" onClick={fetchData}>
-                        <FileText size={18} /> Generate Audit
+                        <FileText size={18} /> Generate Assessment
                     </button>
                 </div>
             </div>
@@ -105,7 +134,7 @@ const DegreeAuditPage: React.FC = () => {
     return (
         <div className="degree-audit-page">
             {/* Back Button */}
-            {timelineId && (
+            {user && (
                 <button className="back-btn" onClick={handleBackClick}>
                     <ArrowLeft size={18} />
                     <span>Back to Profile</span>
@@ -115,18 +144,23 @@ const DegreeAuditPage: React.FC = () => {
             {/* Header */}
             <div className="da-header">
                 <div className="da-title">
-                    <h2>Unofficial Degree Audit</h2>
+                    <h2>Unofficial Degree Assessment</h2>
                     <p>Comprehensive analysis of your degree progress</p>
                 </div>
                 <div className="da-actions">
-                    <button className="btn btn-outline" onClick={() => downloadPdf(".audit-container","degree-audit")}>
+                    <button className="btn btn-outline" onClick={() => downloadPdf(".audit-container","degree-assessment")}>
                         <Download size={18} /> Export PDF
                     </button>
                     <button className="btn btn-primary" onClick={fetchData}>
-                        <FileText size={18} /> Refresh Audit
+                        <FileText size={18} /> Refresh Assessment
                     </button>
                 </div>
             </div>
+
+            <div className="disclaimer-note">
+                <strong>Note:</strong> This is an unofficial assessment for planning purposes only. Please consult with your academic advisor for official degree evaluation.
+            </div>
+
             <div className="audit-container">
                 {/* Student Info Card */}
                 <div className="card">
@@ -134,35 +168,50 @@ const DegreeAuditPage: React.FC = () => {
                         <div>
                             <h3 className="section-title">Student Information</h3>
                             <div className="info-rows">
-                                <div className="info-row">
-                                    <span className="label">Name:</span>
-                                    <span className="value">{data.student.name}</span>
-                                </div>
-                                <div className="info-row">
-                                    <span className="label">Program:</span>
-                                    <span className="value">{data.student.program}</span>
-                                </div>
-                                <div className="info-row">
-                                    <span className="label">Academic Advisor:</span>
-                                    <span className="value">{data.student.advisor}</span>
-                                </div>
+                                {/* Name with fallback */}
+                                {(data.student.name || user?.name) && (
+                                    <div className="info-row">
+                                        <span className="label">Name:</span>
+                                        <span className="value">{data.student.name ?? user?.name}</span>
+                                    </div>
+                                )}
+                                {/* Program */}
+                                {data.student.program && (
+                                    <div className="info-row">
+                                        <span className="label">Program:</span>
+                                        <span className="value">{data.student.program}</span>
+                                    </div>
+                                )}
+                                {/* Academic Advisor */}
+                                {data.student.advisor && (
+                                    <div className="info-row">
+                                        <span className="label">Academic Advisor:</span>
+                                        <span className="value">{data.student.advisor}</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div>
-                            <h3 className="section-title">Audit Summary</h3>
+                            <h3 className="section-title">Assessment Summary</h3>
                             <div className="info-rows">
-                                <div className="info-row">
-                                    <span className="label">GPA:</span>
-                                    <span className="value">{data.student.gpa}</span>
-                                </div>
-                                <div className="info-row">
-                                    <span className="label">Admission Term:</span>
-                                    <span className="value">{data.student.admissionTerm}</span>
-                                </div>
-                                <div className="info-row">
-                                    <span className="label">Expected Graduation:</span>
-                                    <span className="value">{data.student.expectedGraduation}</span>
-                                </div>
+                                {data.student.gpa !== undefined && (
+                                    <div className="info-row">
+                                        <span className="label">GPA:</span>
+                                        <span className="value">{data.student.gpa}</span>
+                                    </div>
+                                )}
+                                {data.student.admissionTerm && (
+                                    <div className="info-row">
+                                        <span className="label">Admission Term:</span>
+                                        <span className="value">{data.student.admissionTerm}</span>
+                                    </div>
+                                )}
+                                {data.student.expectedGraduation && (
+                                    <div className="info-row">
+                                        <span className="label">Expected Graduation:</span>
+                                        <span className="value">{data.student.expectedGraduation}</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -198,8 +247,7 @@ const DegreeAuditPage: React.FC = () => {
                     <div className="notices-list">
                         {data.notices.map((notice: Notice) => (
                             <div key={notice.id} className={`notice-item notice-${notice.type}`}>
-                                {notice.type === 'warning' ? <AlertTriangle size={18} /> :
-                                    notice.type === 'info' ? <Circle size={18} /> : <CheckCircle size={18} />}
+                                {getNoticeIcon(notice.type)}
                                 {notice.message}
                             </div>
                         ))}
@@ -208,7 +256,31 @@ const DegreeAuditPage: React.FC = () => {
 
                 {/* Requirements Breakdown */}
                 <div className="card">
-                    <h3 className="section-title">Requirements Breakdown</h3>
+                    <div className="requirements-header">
+                        <h3 className="section-title">Requirements Breakdown</h3>
+                        <div className="requirements-controls">
+                            {hasAnyExpanded && (
+                                <button
+                                    className="btn-toggle-all"
+                                    onClick={collapseAll}
+                                    title="Collapse all sections"
+                                >
+                                    <Minimize2 size={16} />
+                                    Collapse All
+                                </button>
+                            )}
+                            {!hasAllExpanded && (
+                                <button
+                                    className="btn-toggle-all"
+                                    onClick={expandAll}
+                                    title="Expand all sections"
+                                >
+                                    <Maximize2 size={16} />
+                                    Expand All
+                                </button>
+                            )}
+                        </div>
+                    </div>
                     <div className="requirements-list">
                         {data.requirements.map((req: RequirementCategory) => (
                             <RequirementItem
@@ -216,15 +288,12 @@ const DegreeAuditPage: React.FC = () => {
                                 req={req}
                                 isExpanded={expandedReqs.has(req.id)}
                                 toggle={() => toggleReq(req.id)}
+                                collapseAll={collapseAll}
                             />
                         ))}
                     </div>
                 </div>
 
-                {/* Disclaimer Note */}
-                <div className="disclaimer-note">
-                    <strong>Note:</strong> This is an unofficial audit for planning purposes only. Please consult with your academic advisor for official degree evaluation.
-                </div>
             </div>
         </div>
     );
@@ -233,10 +302,15 @@ const DegreeAuditPage: React.FC = () => {
 const RequirementItem: React.FC<{
     req: RequirementCategory,
     isExpanded: boolean,
-    toggle: () => void
-}> = ({ req, isExpanded, toggle }) => {
+    toggle: () => void,
+    collapseAll: () => void
+}> = ({ req, isExpanded, toggle, collapseAll }) => {
+    const [showStickyHeader, setShowStickyHeader] = useState(false);
+    const headerRef = React.useRef<HTMLButtonElement>(null);
 
-    const percentage = Math.round((req.creditsCompleted / req.creditsTotal) * 100);
+    const percentage = req.creditsTotal === 0
+        ? 100 // No credits required = 100% complete (avoid NaN from divide by zero)
+        : Math.round((req.creditsCompleted / req.creditsTotal) * 100);
 
     const renderBadges = () => {
         const badges: React.ReactNode[] = [];
@@ -263,9 +337,37 @@ const RequirementItem: React.FC<{
 
     const creditsRemaining = Math.max(0, req.creditsTotal - req.creditsCompleted - creditsInProgress);
 
+    // Monitor scroll position to show/hide sticky header
+    useEffect(() => {
+        const handleScroll = () => {
+            if (!isExpanded) {
+                // Don't show sticky header when section is collapsed
+                setShowStickyHeader(false);
+                return;
+            }
+
+            if (headerRef.current) {
+                const rect = headerRef.current.getBoundingClientRect();
+                // Show sticky header only when this requirement's header is out of view
+                setShowStickyHeader(rect.bottom <= 0);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        handleScroll(); // Check initial position
+
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [isExpanded]);
+
     return (
         <div className="requirement-group">
-            <div className="req-header-row" onClick={toggle} role="presentation">
+            <button
+                ref={headerRef}
+                className="req-header-row"
+                onClick={toggle}
+                aria-expanded={isExpanded}
+                type="button"
+            >
                 <div className="req-title-group">
                     <span className="req-name">{req.title}</span>
                     <div style={{ display: 'flex' }}>
@@ -276,16 +378,42 @@ const RequirementItem: React.FC<{
                     <span>{req.creditsCompleted}/{req.creditsTotal} credits ({percentage}%)</span>
                     {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                 </div>
-            </div>
+            </button>
 
             {isExpanded && (
                 <div className="courses-list">
-                        <div className="req-progress-bar">
-                            <div
-                                className="req-progress-fill completed"
-                                style={{ width: `${percentage}%` }}
-                            ></div>
+                    {/* Sticky header inside the expanded section - only show when main header is hidden */}
+                    {showStickyHeader && (
+                        <div className="req-sticky-header">
+                            <div className="req-sticky-title">
+                                <span className="req-name">{req.title}</span>
+                            </div>
+                            <span className="req-sticky-stats">{req.creditsCompleted}/{req.creditsTotal} credits ({percentage}%)</span>
+                            <div className="req-sticky-actions">
+                                <button
+                                    className="btn-collapse-section icon-only"
+                                    onClick={collapseAll}
+                                    title="Collapse All Sections"
+                                >
+                                    <Minimize2 size={16} />
+                                </button>
+                                <button
+                                    className="btn-collapse-section icon-only"
+                                    onClick={toggle}
+                                    title={`Collapse ${req.title}`}
+                                >
+                                    <ChevronUp size={16} />
+                                </button>
+                            </div>
                         </div>
+                    )}
+
+                    <div className="req-progress-bar">
+                        <div
+                            className="req-progress-fill completed"
+                            style={{ width: `${percentage}%` }}
+                        ></div>
+                    </div>
 
                     {/* Credit summary legend */}
                     <div className="req-credit-legend">
@@ -309,7 +437,7 @@ const RequirementItem: React.FC<{
 
                     {req.courses.map((course : AuditCourse) => (
                         <div key={course.id} className="course-item">
-                            <div className="course-info">
+                            <div className="degree-course-info">
                                 <span className="course-icon">
                                     {course.status === 'Completed' && <CheckCircle className="text-success" size={20} />}
                                     {course.status === 'In Progress' && <Circle className="text-primary" size={20} />}

@@ -115,6 +115,7 @@ describe("CoursePool", () => {
       /search courses by code or title/i
     );
     expect(input).toBeInTheDocument();
+    expect(screen.getByLabelText(/hide empty pools/i)).toBeInTheDocument();
   });
 
   it("does not render any PoolCoursesList by default (all collapsed)", () => {
@@ -259,6 +260,114 @@ describe("CoursePool", () => {
 
   });
 
+  it("hides completed and planned courses from the pool list", () => {
+    const onCourseSelect = vi.fn();
+
+    const coursesWithStatuses: CourseMap = {
+      ...courses,
+      "ENGR 201": {
+        ...courses["ENGR 201"],
+        status: { status: "completed", semester: "FALL 2025" as SemesterId },
+      },
+      "ENGR 233": {
+        ...courses["ENGR 233"],
+        status: { status: "planned", semester: "WINTER 2026" as SemesterId },
+      },
+    };
+
+    render(
+      <CoursePool
+        pools={pools}
+        courses={coursesWithStatuses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+      />
+    );
+
+    const input = screen.getByPlaceholderText(/search courses by code or title/i);
+    fireEvent.change(input, { target: { value: "engr" } });
+
+    expect(screen.queryByTestId("pool-courses-list")).toBeNull();
+  });
+
+  it("shows an empty-pool message when hide empty pools is turned off", () => {
+    const onCourseSelect = vi.fn();
+
+    const coursesWithStatuses: CourseMap = {
+      ...courses,
+      "ENGR 201": {
+        ...courses["ENGR 201"],
+        status: { status: "completed", semester: "FALL 2025" as SemesterId },
+      },
+      "ENGR 233": {
+        ...courses["ENGR 233"],
+        status: { status: "planned", semester: "WINTER 2026" as SemesterId },
+      },
+    };
+
+    render(
+      <CoursePool
+        pools={pools}
+        courses={coursesWithStatuses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+      />
+    );
+
+    fireEvent.click(screen.getByLabelText(/hide empty pools/i));
+
+    expect(
+      screen.getAllByText(/all courses are already planned or completed/i).length
+    ).toBeGreaterThan(0);
+    expect(screen.queryByTestId("pool-courses-list")).toBeNull();
+  });
+
+  it("hides pools when course ids are formatted differently but planned/completed", () => {
+    const onCourseSelect = vi.fn();
+
+    const mismatchedPools: Pool[] = [
+      {
+        _id: "pool-mismatch",
+        name: "Engineering Core",
+        creditsRequired: 12,
+        courses: ["ENGR391", "ENGR392"] as CourseCode[],
+      },
+    ];
+
+    const mismatchedCourses: CourseMap = {
+      "ENGR 391": {
+        id: "ENGR 391" as CourseCode,
+        title: "Numerical Methods in Engineering",
+        credits: 3,
+        description: "",
+        offeredIN: [] as SemesterId[],
+        prerequisites: [],
+        corequisites: [],
+        status: { status: "planned", semester: "FALL 2026" as SemesterId },
+      },
+      "ENGR 392": {
+        id: "ENGR 392" as CourseCode,
+        title: "Impact of Technology on Society",
+        credits: 3,
+        description: "",
+        offeredIN: [] as SemesterId[],
+        prerequisites: [],
+        corequisites: [],
+        status: { status: "completed", semester: "WINTER 2026" as SemesterId },
+      },
+    };
+
+    render(
+      <CoursePool
+        pools={mismatchedPools}
+        courses={mismatchedCourses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+      />
+    );
+
+    expect(screen.queryByText("Engineering Core")).toBeNull();
+  });
+
   
 });
-

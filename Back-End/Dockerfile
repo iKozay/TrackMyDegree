@@ -1,4 +1,4 @@
-FROM node:22
+FROM node:22.21
 
 # Install Python and pip
 RUN apt-get update && apt-get --no-install-recommends install -y \
@@ -37,11 +37,13 @@ EXPOSE 8000
 WORKDIR /app
 
 # Create non-root user and group
-RUN groupadd -r appuser && useradd -r -g appuser -m appuser && chown -R appuser:appuser /app
+RUN mkdir -p /app/data && chmod -R 755 /app/data && groupadd -r appuser && useradd -r -g appuser -m appuser && chown -R appuser:appuser /app
 
 COPY Back-End/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 USER appuser
+
+ENV DATA_CACHE=/app/data
 
 ENTRYPOINT ["/app/entrypoint.sh"]

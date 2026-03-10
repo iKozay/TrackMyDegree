@@ -8,3 +8,9 @@ jest.mock('swagger-ui-express', () => ({
   serve: [], // swaggerUi.serve is an array of middlewares
   setup: () => (_req, _res, next) => next(), // no-op middleware
 }));
+
+if (process.env.CI) {
+  console.error = jest.fn();
+  console.warn = jest.fn();
+  console.log = jest.fn();
+}

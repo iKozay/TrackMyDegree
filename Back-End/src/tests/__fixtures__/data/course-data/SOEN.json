@@ -10,7 +10,8 @@
     "rules": {
       "prereq": [["MATH 203"], ["MATH 204"]],
       "coreq": [],
-      "not_taken": ["COMP 228"]
+      "not_taken": ["COMP 228"],
+      "min_credits": 0.0
     }
   },
   {
@@ -24,7 +25,8 @@
     "rules": {
       "prereq": [["COMP 248"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -38,7 +40,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -52,7 +55,8 @@
     "rules": {
       "prereq": [["COMP 346", "COEN 346"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -66,7 +70,8 @@
     "rules": {
       "prereq": [["COMP 232"], ["COMP 249"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -80,7 +85,8 @@
     "rules": {
       "prereq": [["COMP 352", "COEN 352"], ["ENCS 282"]],
       "coreq": [["COMP 352", "COEN 352"], ["ENCS 282"]],
-      "not_taken": ["COMP 354"]
+      "not_taken": ["COMP 354"],
+      "min_credits": 0.0
     }
   },
   {
@@ -94,7 +100,8 @@
     "rules": {
       "prereq": [["SOEN 341"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -108,7 +115,8 @@
     "rules": {
       "prereq": [["SOEN 341"], ["SOEN 342"]],
       "coreq": [["SOEN 341"], ["SOEN 342"]],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -122,7 +130,8 @@
     "rules": {
       "prereq": [["SOEN 343"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -136,7 +145,8 @@
     "rules": {
       "prereq": [["SOEN 343"]],
       "coreq": [["SOEN 343"]],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -150,7 +160,8 @@
     "rules": {
       "prereq": [["SOEN 341", "COMP 354"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -164,7 +175,8 @@
     "rules": {
       "prereq": [["COMP 352"]],
       "coreq": [],
-      "not_taken": ["COMP 353"]
+      "not_taken": ["COMP 353"],
+      "min_credits": 0.0
     }
   },
   {
@@ -178,7 +190,8 @@
     "rules": {
       "prereq": [["ENCS 282"], ["SOEN 341"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -192,7 +205,8 @@
     "rules": {
       "prereq": [["ENGR 213"], ["ENGR 233"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -206,7 +220,8 @@
     "rules": {
       "prereq": [["COMP 353", "SOEN 363"], ["COMP 354", "SOEN 341"], ["SOEN 287"]],
       "coreq": [["COMP 353", "SOEN 363"]],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -220,7 +235,8 @@
     "rules": {
       "prereq": [["SOEN 345"], ["SOEN 357"]],
       "coreq": [["SOEN 345"], ["SOEN 357"]],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -234,7 +250,8 @@
     "rules": {
       "prereq": [["COMP 346"]],
       "coreq": [],
-      "not_taken": ["COEN 421"]
+      "not_taken": ["COEN 421"],
+      "min_credits": 0.0
     }
   },
   {
@@ -248,7 +265,8 @@
     "rules": {
       "prereq": [["COMP 346"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -262,7 +280,8 @@
     "rules": {
       "prereq": [["SOEN 342"], ["SOEN 343"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -276,7 +295,8 @@
     "rules": {
       "prereq": [["COMP 352"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -290,7 +310,8 @@
     "rules": {
       "prereq": [["SOEN 387"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -304,7 +325,8 @@
     "rules": {
       "prereq": [["SOEN 390"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 75.0
     }
   },
   {
@@ -314,11 +336,12 @@
     "credits": 1.0,
     "description": "",
     "offeredIn": [],
-    "prereqCoreqText": "Permission of the undergraduate program director is required.",
+    "prereqCoreqText": "The following course must be completed previously or concurrently: SOEN 490.",
     "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": []
+      "prereq": [["SOEN 490"]],
+      "coreq": [["SOEN 490"]],
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -332,7 +355,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -346,7 +370,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   }
 ]

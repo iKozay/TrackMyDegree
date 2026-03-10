@@ -1,16 +1,22 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect} from 'vitest';
 import { render, screen } from '@testing-library/react';
-import LandingPage from '../../../src/pages/LandingPage';
+import JourneySection from '../../../src/pages/LandingPage';
 
-vi.mock('../../../src/legacy/pages/LandingPage.jsx', () => ({
-  __esModule: true,
-  default: () => <div data-testid="legacy-landing-page">Legacy Landing Page</div>,
-}));
+describe('JourneySection', () => {
+  it('renders the section with header and steps', () => {
+    render(<JourneySection />);
 
-describe('LandingPage', () => {
-  it('renders the legacy landing page', () => {
-    render(<LandingPage />);
-    expect(screen.getByTestId('legacy-landing-page')).toBeInTheDocument();
-    expect(screen.getByText('Legacy Landing Page')).toBeInTheDocument();
+    expect(screen.getByText('Your Degree Journey')).toBeInTheDocument();
+    expect(
+      screen.getByText('From exploration to graduation, we guide you every step of the way')
+    ).toBeInTheDocument();
+
+    expect(screen.getByText('Explore Courses')).toBeInTheDocument();
+    expect(screen.getByText('Upload Transcript')).toBeInTheDocument();
+    expect(screen.getByText('Build Timeline')).toBeInTheDocument();
+    expect(screen.getByText('Graduate!')).toBeInTheDocument();
+
+    expect(screen.getByText('01')).toBeInTheDocument();
+    expect(screen.getByText('04')).toBeInTheDocument();
   });
 });

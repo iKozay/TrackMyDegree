@@ -71,7 +71,6 @@ jest.mock('@routes/timelineRoutes', () => createMockRouter());
 jest.mock('@routes/coursepoolRoutes', () => createMockRouter());
 jest.mock('@routes/userRoutes', () => createMockRouter());
 jest.mock('@routes/adminRoutes', () => createMockRouter());
-jest.mock('@routes/feedbackRoutes', () => createMockRouter());
 jest.mock('@routes/sectionsRoutes', () => createMockRouter());
 jest.mock('@routes/uploadRoutes', () => createMockRouter());
 
@@ -156,7 +155,6 @@ jest.mock(
     const coursepoolRouter = require('@routes/coursepoolRoutes');
     const userRouter = require('@routes/userRoutes');
     const adminRouter = require('@routes/adminRoutes');
-    const feedbackRouter = require('@routes/feedbackRoutes');
     const sectionsRoutes = require('@routes/sectionsRoutes');
     const uploadRouter = require('@routes/uploadRoutes');
 
@@ -167,7 +165,6 @@ jest.mock(
     app.use('/coursepool', coursepoolRouter);
     app.use('/users', userRouter);
     app.use('/admin', adminRouter);
-    app.use('/feedback', feedbackRouter);
     app.use('/section', sectionsRoutes);
     app.use('/upload', uploadRouter);
 
@@ -273,7 +270,6 @@ describe('index.ts', () => {
     expect(mockApp.use).toHaveBeenCalledWith('/coursepool', expect.anything());
     expect(mockApp.use).toHaveBeenCalledWith('/users', expect.anything());
     expect(mockApp.use).toHaveBeenCalledWith('/admin', expect.anything());
-    expect(mockApp.use).toHaveBeenCalledWith('/feedback', expect.anything());
     expect(mockApp.use).toHaveBeenCalledWith('/section', expect.anything());
     expect(mockApp.use).toHaveBeenCalledWith('/upload', expect.anything());
   });

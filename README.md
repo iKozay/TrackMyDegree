@@ -4,6 +4,11 @@
 
 ### [Try Now](https://trackmydegree.ca)
 
+### Release 2 Deliverable
+- [Presentation Slides](https://docs.google.com/presentation/d/1YGoJKagpKiebbCi47jKwq2qyC9TbxotrK7w4VTmFQsU/edit?usp=sharing)
+- [Release 2 Recording (Presentation + Demo)](https://drive.google.com/file/d/19ylB9ZZIMmrI4sd36d-DjjzLEN3Bubdc/view?usp=sharing)
+- [Demo Video](https://drive.google.com/file/d/1jNrtcPZeC0VgmYaNNtpfRPS5U4PaYqEv/view?usp=sharing)
+
 ### Release 1 Deliverable
 - [Presentation](https://docs.google.com/presentation/d/1CXDA9PgEQqeyCek9WGNIhLl0sTdgGOUpxeh2253D3KQ/edit?usp=sharing)
 - [Release 1 Recording](https://drive.google.com/file/d/1fO3a01xsnKcHV5yNjyjl9w3tKsCbWC45/view?usp=sharing)

@@ -51,10 +51,10 @@ describe('DegreeAuditPage - Empty State', () => {
 
         // Wait for the API call to complete and component to render
         await waitFor(() => {
-            expect(screen.getByText('No Audit Data Found')).toBeTruthy();
+            expect(screen.getByText('No Assessment Data Found')).toBeTruthy();
         });
 
-        expect(screen.getByText(/We couldn't find any degree audit information/)).toBeTruthy();
-        expect(screen.getByText('Generate Audit')).toBeTruthy();
+        expect(screen.getByText(/We couldn't find any degree assessment information/)).toBeTruthy();
+        expect(screen.getByText('Generate Assessment')).toBeTruthy();
     });
 });

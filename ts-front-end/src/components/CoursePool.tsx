@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { PoolHeader } from "./PoolHeader";
 import { PoolCoursesList } from "./PoolCoursesList";
 import type { Pool, CourseMap, CourseCode } from "../types/timeline.types";
@@ -23,11 +23,44 @@ const CoursePool: React.FC<CoursePoolProps> = ({
   );
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [hideEmptyPools, setHideEmptyPools] = useState(true);
   const hasActiveSearch = searchTerm.trim().length > 0;
   const search = searchTerm.trim().toLowerCase();
 
   const togglePool = (name: string) =>
     setExpandedPools((prev) => ({ ...prev, [name]: !prev[name] }));
+
+  const normalizeCourseCode = (code: string): string => {
+    const compactCode = code.replace(/\s+/g, "");
+    const firstDigitIndex = compactCode.search(/\d/);
+
+    if (firstDigitIndex <= 0) {
+      return compactCode.toUpperCase();
+    }
+
+    return `${compactCode.slice(0, firstDigitIndex)} ${compactCode.slice(firstDigitIndex)}`.toUpperCase();
+  };
+
+  const normalizedCourseKeyMap = useMemo(() => {
+    const map = new Map<string, CourseCode>();
+    for (const [key, course] of Object.entries(courses)) {
+      map.set(normalizeCourseCode(key), key);
+      map.set(normalizeCourseCode(course.id), key);
+    }
+    return map;
+  }, [courses]);
+
+  const resolveCourseKey = (courseId: CourseCode): CourseCode | null => {
+    if (courses[courseId]) return courseId;
+    return normalizedCourseKeyMap.get(normalizeCourseCode(courseId)) ?? null;
+  };
+
+  const isInTimeline = (courseId: CourseCode): boolean => {
+    const resolvedKey = resolveCourseKey(courseId);
+    if (!resolvedKey) return false;
+    const status = courses[resolvedKey]?.status?.status;
+    return status === "completed" || status === "planned";
+  };
 
   const formatPoolName = (name: string) => {
     // Modify ECP course pools to retain 'ECP' and format the rest of the name
@@ -50,17 +83,38 @@ const CoursePool: React.FC<CoursePoolProps> = ({
         />
       </div>
 
+      <label className="course-pool-toggle">
+        <input
+          type="checkbox"
+          checked={hideEmptyPools}
+          onChange={(e) => setHideEmptyPools(e.target.checked)}
+        />
+        Hide empty pools
+      </label>
+
       {pools.map((pool, index) => {
-        // Filter courses for this pool based on search
+        const resolvedPoolCourseIds = pool.courses
+          .map((courseId) => resolveCourseKey(courseId))
+          .filter((courseId): courseId is CourseCode => !!courseId);
+
+        // Hide completed/planned courses because they are already shown on the timeline.
+        const incompleteCourseIds = resolvedPoolCourseIds.filter(
+          (courseId) => !isInTimeline(courseId)
+        );
+
+        // Filter incomplete courses for this pool based on search
         const visibleCourseIds: CourseCode[] = hasActiveSearch
-          ? pool.courses.filter((courseId) => {
+          ? incompleteCourseIds.filter((courseId) => {
               const course = courses[courseId];
               if (!course) return false;
               const code = course.id.toLowerCase();
               const title = course.title.toLowerCase();
               return code.includes(search) || title.includes(search);
             })
-          : pool.courses;
+          : incompleteCourseIds;
+        const isEmptyPool = visibleCourseIds.length === 0;
+
+        if (hideEmptyPools && isEmptyPool) return null;
 
         const isExpanded = hasActiveSearch
           ? visibleCourseIds.length > 0 // when searching, auto-expand pools with matches
@@ -71,9 +125,11 @@ const CoursePool: React.FC<CoursePoolProps> = ({
             <PoolHeader
               pool={{ ...pool, name: formatPoolName(pool.name) }}
               isExpanded={isExpanded}
-              onToggle={() => togglePool(pool.name)}
-              visibleCourseIds={visibleCourseIds}
-              hasActiveSearch={hasActiveSearch}
+              onToggle={() => {
+                if (!isEmptyPool) togglePool(pool.name);
+              }}
+              courses={courses}
+              disabled={!hasActiveSearch && isEmptyPool}
             />
 
             {isExpanded && (
@@ -84,6 +140,12 @@ const CoursePool: React.FC<CoursePoolProps> = ({
                 selectedCourse={selectedCourse}
                 onCourseSelect={onCourseSelect}
               />
+            )}
+
+            {!hasActiveSearch && isEmptyPool && (
+              <div className="pool-empty-message">
+                All courses are already planned or completed.
+              </div>
             )}
           </div>
         );

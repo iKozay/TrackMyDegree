@@ -7,6 +7,7 @@ const navItems = [
   { label: "Timeline", href: "/timeline" },
   { label: "Courses", href: "/courses" },
   { label: "Requirements", href: "/requirements" },
+  { label: "Class Builder", href: "/class-builder" },
 ];
 
 export const Navbar: React.FC = () => {

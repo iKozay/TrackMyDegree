@@ -27,9 +27,10 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({
 }) => {
   const poolProgress = useMemo((): PoolProgress[] => {
     // Filter out exemptions pool
-    const nonExemptionPools = pools.filter(
-      (pool) => !pool._id.toLowerCase().includes("exemption"),
-    );
+    const nonExemptionPools = pools.filter((pool) => {
+      const id = pool._id.toLowerCase();
+      return !id.includes("exemption") && id !== "used-unused-credits";
+    });
 
     // Get exemption courses to exclude from progress
     const exemptionPool = pools.find((pool) =>

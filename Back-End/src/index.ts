@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/node';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'node:path';
@@ -17,13 +16,13 @@ import degreeRouter from '@routes/degreeRoutes';
 import timelineRouter from '@routes/timelineRoutes';
 import coursepoolRouter from '@routes/coursepoolRoutes';
 import adminRouter from '@routes/adminRoutes';
-import feedbackRouter from '@routes/feedbackRoutes';
 import userRouter from '@routes/userRoutes';
 import sectionsRoutes from '@routes/sectionsRoutes';
 import uploadRouter from '@routes/uploadRoutes';
 import jobRouter from '@routes/jobRoutes';
 import degreeAuditRouter from '@routes/degreeAuditRoutes';
 import coopvalidationRouter from '@routes/coopvalidationRoutes';
+import creditFormRouter from '@routes/creditFormRoutes';
 
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
@@ -33,10 +32,12 @@ import {
   resetPasswordLimiter,
   signupLimiter,
 } from '@middleware/rateLimiter';
+import { getSentryProfilingIntegrations } from '@utils/misc';
+
 // sentry init
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
-  integrations: [nodeProfilingIntegration()],
+  integrations: getSentryProfilingIntegrations(),
   tracesSampleRate: 1,
   profilesSampleRate: 1,
 });
@@ -118,12 +119,12 @@ app.use('/api/timeline', timelineRouter);
 app.use('/api/coursepool', coursepoolRouter);
 app.use('/api/users', userRouter);
 app.use('/api/admin', adminRouter);
-app.use('/api/feedback', feedbackRouter);
 app.use('/api/section', sectionsRoutes);
 app.use('/api/upload', uploadRouter);
 app.use('/api/jobs', jobRouter);
 app.use('/api/audit', degreeAuditRouter);
-app.use('/api/coop', coopvalidationRouter)
+app.use('/api/coop', coopvalidationRouter);
+app.use('/api/credit-forms', creditFormRouter);
 
 //Handle 404
 app.use(notFoundHandler);

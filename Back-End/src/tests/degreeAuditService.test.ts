@@ -6,6 +6,27 @@ import {
 } from '@services/audit';
 import { Course, CoursePool, Degree, Timeline, User } from '@models';
 import { GenerateAuditParams } from '@shared/audit';
+import * as misc from '@utils/misc';
+
+import { generateDegreeAuditFromTimeline } from '@services/audit';
+import { TimelineCourse, TimelineResult } from '@shared/timeline';
+const STATUS_COMPLETED = 'Completed';
+const STATUS_NOT_STARTED = 'Not Started';
+const STATUS_MISSING = 'Missing';
+const STATUS_IN_PROGRESS = 'In Progress';
+const DEGREE_NAME = 'Bachelor of Computer Science';
+
+// eslint-disable-next-line sonarjs/no-duplicate-string
+jest.mock('@utils/misc', () => {
+  const actual =
+    jest.requireActual<typeof import('@utils/misc')>('@utils/misc');
+  return {
+    ...actual,
+    isTermInProgress: jest.fn((term: string | undefined) =>
+      actual.isTermInProgress(term),
+    ),
+  };
+});
 
 describe('DegreeAuditService', () => {
   let mongoServer: MongoMemoryServer;
@@ -143,7 +164,7 @@ describe('DegreeAuditService', () => {
     // Create degree
     await Degree.create({
       _id: 'COMP',
-      name: 'Bachelor of Computer Science',
+      name: DEGREE_NAME,
       totalCredits: 120,
       coursePools: ['CORE_CS', 'MATH_REQ', 'CAPSTONE', 'GEN_ED'],
     });
@@ -179,6 +200,152 @@ describe('DegreeAuditService', () => {
     });
     testTimelineId = (timeline._id as mongoose.Types.ObjectId).toString();
   });
+  let realNow: typeof Date.now;
+   beforeAll(() => {
+    realNow = Date.now;
+
+    // Always return the fixed timestamp
+    Date.now = () => new Date('2025-01-15').getTime();
+  });
+
+  afterAll(() => {
+    // Restore original
+    Date.now = realNow;
+  });
+  describe('generateDegreeAuditFromTimeline', () => {
+    const mockDegree = {
+    _id: 'COMP',
+    name: DEGREE_NAME,
+    totalCredits: 120,
+    coursePools: [],
+    degreeType: 'Standalone',
+    ecpDegreeId: 'Extended Credit Program - Computer Science',
+  };
+
+  const mockPools = [
+    {
+      _id: 'CORE_CS',
+      name: 'core_computer_science',
+      creditsRequired: 6,
+      courses: ['COMP 248', 'COMP 249'],
+    },
+    {
+      _id: 'exemptions',
+      name: 'exemptions',
+      creditsRequired: 3,
+      courses: ['ENGL 101'],
+    },
+    {
+      _id: 'deficiencies',
+      name: 'deficiencies',
+      creditsRequired: 3,
+      courses: ['MATH 203'],
+    },
+  ];
+      const mockSemesters = [
+      {
+        term: 'Fall 2022',
+        courses: [{ code: 'COMP 248' }],
+      },
+    ];
+     const mockCourses : Record<string, TimelineCourse> = {
+      'COMP 248': {
+        id: 'COMP 248',
+        title: 'OOP I',
+        credits: 3,
+        description: '',
+        offeredIN: [],
+        prerequisites: [],
+        corequisites: [],
+        status: { status: 'completed', semester: 'Fall 2022' },
+      },
+      'COMP 249': {
+        id: 'COMP 249',
+        title: 'OOP II',
+        credits: 3,
+        description: '',
+        offeredIN: [],
+        prerequisites: [],
+        corequisites: [],
+        status: { status: 'planned', semester: 'Fall 2027' },
+      },
+      'ENGL 101': {
+        id: 'ENGL 101',
+        title: 'English',
+        credits: 3,
+        description: '',
+        offeredIN: [],
+        prerequisites: [],
+        corequisites: [],
+        status: { status: 'incomplete', semester: null },
+      },
+      'MATH 203': {
+        id: 'MATH 203',
+        title: 'Calculus I',
+        credits: 3,
+        description: '',
+        offeredIN: [],
+        prerequisites: [],
+        corequisites: [],
+        status: { status: 'planned', semester: 'Fall 2027' },
+      },
+    };
+    it('should generate degree audit correctly from timeline', () => {
+      const timeline: TimelineResult = {
+        degree: mockDegree,
+        pools: mockPools,
+        semesters: mockSemesters,
+        courses: mockCourses,
+      };
+
+      const audit = generateDegreeAuditFromTimeline(timeline);
+
+      expect(audit.student.program).toBe(DEGREE_NAME);
+      expect(audit.requirements.length).toBeGreaterThan(0);
+
+      const coreReq = audit.requirements.find(r =>
+        r.title.includes('Core Computer Science'),
+      );
+
+      expect(coreReq).toBeDefined();
+      expect(coreReq?.creditsCompleted).toBe(3);
+
+      const completedCourse = coreReq?.courses.find(
+        c => c.code === 'COMP 248',
+      );
+      expect(completedCourse?.status).toBe('Completed');
+
+      const plannedCourse = coreReq?.courses.find(
+        c => c.code === 'COMP 249',
+      );
+      expect(plannedCourse?.status).toBe('Not Started');
+
+      // Check exemption category exists and is complete
+      const exemptionReq = audit.requirements.find(
+        r => r.id === 'exemptions',
+      );
+      expect(exemptionReq).toBeDefined();
+      expect(exemptionReq?.status).toBe('Complete');
+
+      // Check deficiency category exists
+      const deficiencyReq = audit.requirements.find(
+        r => r.id === 'deficiencies',
+      );
+      expect(deficiencyReq).toBeDefined();
+      expect(deficiencyReq?.creditsTotal).toBe(3);
+    });
+
+  it('should throw error if required fields are missing', () => {
+    expect(() =>
+      generateDegreeAuditFromTimeline({
+        semesters: [],
+        courses: {},
+      } as TimelineResult),
+    ).toThrow(
+      'degree, coursePools and semesters are required to generate the degree audit',
+    );
+  });
+});
 
   describe('generateDegreeAudit', () => {
     it('should generate a complete degree audit', async () => {
@@ -192,7 +359,7 @@ describe('DegreeAuditService', () => {
       expect(audit).toBeDefined();
       expect(audit.student).toBeDefined();
       expect(audit.student.name).toBe('Test Student');
-      expect(audit.student.program).toBe('Bachelor of Computer Science');
+      expect(audit.student.program).toBe(DEGREE_NAME);
       expect(audit.progress).toBeDefined();
       expect(audit.notices).toBeDefined();
       expect(audit.requirements).toBeDefined();
@@ -233,9 +400,9 @@ describe('DegreeAuditService', () => {
         const comp352 = coreReq.courses.find((c) => c.code === 'COMP 352');
         const comp445 = coreReq.courses.find((c) => c.code === 'COMP 445');
 
-        expect(comp248?.status).toBe('Completed');
-        expect(comp352?.status).toBe('Not Started');
-        expect(comp445?.status).toBe('Missing');
+        expect(comp248?.status).toBe(STATUS_COMPLETED);
+        expect(comp352?.status).toBe(STATUS_NOT_STARTED);
+        expect(comp445?.status).toBe(STATUS_MISSING);
       }
     });
 
@@ -369,7 +536,7 @@ describe('DegreeAuditService', () => {
       // All courses should be 'Missing' status
       for (const req of audit.requirements) {
         for (const course of req.courses) {
-          expect(course.status).toBe('Missing');
+          expect(course.status).toBe(STATUS_MISSING);
         }
       }
     });
@@ -392,7 +559,119 @@ describe('DegreeAuditService', () => {
         r.title.toLowerCase().includes('core'),
       );
       const comp248 = coreReq?.courses.find((c) => c.code === 'COMP 248');
-      expect(comp248?.status).toBe('Missing'); // Incomplete maps to Missing
+      expect(comp248?.status).toBe(STATUS_MISSING); // Incomplete maps to Missing
+    });
+
+    it('should treat incomplete courses as Missing', async () => {
+      // Get the current term based on today's date
+      const today = new Date();
+      const month = today.getMonth();
+      const year = today.getFullYear();
+      let currentTerm: string;
+      if (month >= 0 && month <= 3) {
+        currentTerm = `Winter ${year}`;
+      } else if (month >= 4 && month <= 7) {
+        currentTerm = `Summer ${year}`;
+      } else {
+        currentTerm = `Fall ${year}`;
+      }
+
+      // Set a course as 'incomplete' in the current term (maps to Missing in audit)
+      await Timeline.findByIdAndUpdate(testTimelineId, {
+        courseStatusMap: new Map([
+          ['COMP 248', { status: 'incomplete', semester: currentTerm }],
+          ['COMP 249', { status: 'completed', semester: 'Fall 2022' }],
+        ]),
+      });
+
+      const params: GenerateAuditParams = {
+        timelineId: testTimelineId,
+        userId: testUserId,
+      };
+
+      const audit = await generateDegreeAudit(params);
+
+      const coreReq = audit.requirements.find((r) =>
+        r.title.toLowerCase().includes('core'),
+      );
+
+      // COMP 248 is in current term with 'incomplete' status - maps to 'Missing'
+      const comp248 = coreReq?.courses.find((c) => c.code === 'COMP 248');
+      expect(comp248?.status).toBe(STATUS_MISSING);
+    });
+
+    it('should treat planned courses in current term as In Progress', async () => {
+      (misc.isTermInProgress as jest.Mock).mockReturnValue(true);
+
+      await Timeline.findByIdAndUpdate(testTimelineId, {
+        courseStatusMap: new Map([
+          ['COMP 248', { status: 'planned', semester: 'Winter 2024' }],
+          ['COMP 249', { status: 'completed', semester: 'Fall 2022' }],
+        ]),
+      });
+
+      const params: GenerateAuditParams = {
+        timelineId: testTimelineId,
+        userId: testUserId,
+      };
+
+      const audit = await generateDegreeAudit(params);
+
+      const coreReq = audit.requirements.find((r) =>
+        r.title.toLowerCase().includes('core'),
+      );
+      const comp248 = coreReq?.courses.find((c) => c.code === 'COMP 248');
+      expect(comp248?.status).toBe(STATUS_IN_PROGRESS);
+
+      const actual =
+        jest.requireActual<typeof import('@utils/misc')>('@utils/misc');
+      (misc.isTermInProgress as jest.Mock).mockImplementation(
+        actual.isTermInProgress,
+      );
+    });
+
+    it('should treat planned courses outside current term as Not Started', async () => {
+      await Timeline.findByIdAndUpdate(testTimelineId, {
+        courseStatusMap: new Map([
+          ['COMP 248', { status: 'planned', semester: 'Fall 2022' }],
+          ['COMP 249', { status: 'completed', semester: 'Fall 2022' }],
+        ]),
+      });
+
+      const params: GenerateAuditParams = {
+        timelineId: testTimelineId,
+        userId: testUserId,
+      };
+
+      const audit = await generateDegreeAudit(params);
+
+      const coreReq = audit.requirements.find((r) =>
+        r.title.toLowerCase().includes('core'),
+      );
+      const comp248 = coreReq?.courses.find((c) => c.code === 'COMP 248');
+      expect(comp248?.status).toBe(STATUS_NOT_STARTED);
+    });
+
+    it('should treat planned courses with no semester as Not Started', async () => {
+      await Timeline.findByIdAndUpdate(testTimelineId, {
+        courseStatusMap: new Map([
+          ['COMP 248', { status: 'planned', semester: null }],
+          ['COMP 249', { status: 'completed', semester: 'Fall 2022' }],
+        ]),
+      });
+
+      const params: GenerateAuditParams = {
+        timelineId: testTimelineId,
+        userId: testUserId,
+      };
+
+      const audit = await generateDegreeAudit(params);
+
+      const coreReq = audit.requirements.find((r) =>
+        r.title.toLowerCase().includes('core'),
+      );
+      const comp248 = coreReq?.courses.find((c) => c.code === 'COMP 248');
+      expect(comp248?.status).toBe(STATUS_NOT_STARTED);
     });
 
     it('should set first semester in student info', async () => {
@@ -437,9 +716,9 @@ describe('DegreeAuditService', () => {
       // Verify ordering (Missing < Not Started < Incomplete < In Progress < Complete)
       const statusOrder: Record<string, number> = {
         Missing: 0,
-        'Not Started': 1,
+        [STATUS_NOT_STARTED]: 1,
         Incomplete: 2,
-        'In Progress': 3,
+        [STATUS_IN_PROGRESS]: 3,
         Complete: 4,
       };
 
@@ -565,7 +844,7 @@ describe('DegreeAuditService', () => {
 
       // All requirements should be Not Started
       for (const req of audit.requirements) {
-        expect(req.status).toBe('Not Started');
+        expect(req.status).toBe(STATUS_NOT_STARTED);
       }
     });
   });

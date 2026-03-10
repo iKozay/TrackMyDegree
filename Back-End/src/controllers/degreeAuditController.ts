@@ -2,8 +2,11 @@ import * as Sentry from '@sentry/node';
 import {
   generateDegreeAudit,
   generateDegreeAuditForUser,
+  generateDegreeAuditFromTimeline,
 } from '@services/audit/degreeAuditService';
 import { DegreeAuditData, GenerateAuditParams } from '@shared/audit';
+import { getJobResult } from '../lib/cache';
+import { TimelineResult } from '@shared/timeline';
 
 export class DegreeAuditController {
   private handleError(error: unknown, operation: string): never {
@@ -35,6 +38,25 @@ export class DegreeAuditController {
       this.handleError(error, 'getAuditByTimeline');
     }
   }
+
+  async getAuditByCachedTimeline(
+  jobId: string,
+): Promise<DegreeAuditData> {
+  try {
+    const cached = await getJobResult<TimelineResult>(jobId);
+
+    if (!cached) {
+      throw new Error('RESULT_EXPIRED');
+    }
+
+    return generateDegreeAuditFromTimeline(
+      cached.payload.data,
+    );
+  } catch (error) {
+    this.handleError(error, 'getAuditByCachedTimelineJob');
+  }
+}
+
 
   /**
    * Generate a degree audit for the user's most recent timeline

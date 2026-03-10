@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 
 const CourseSchema = new Schema({
-  _id: { type: String }, // course code ex: 'SOEN490'
+  _id: { type: String }, // course code ex: 'SOEN 490'
   title: { type: String, required: true },
   credits: { type: Number, required: true },
   description: { type: String, required: true },
@@ -11,7 +11,10 @@ const CourseSchema = new Schema({
     prereq: [[{ type: String, ref: 'Course' }]],
     coreq: [[{ type: String, ref: 'Course' }]],
     not_taken: [{ type: String, ref: 'Course' }],
+    min_credits: { type: Number, default: 0.0 },
   },
+  notes: { type: String },
+  components: [{ type: String }],
 });
 
 export const Course = model('Course', CourseSchema);
