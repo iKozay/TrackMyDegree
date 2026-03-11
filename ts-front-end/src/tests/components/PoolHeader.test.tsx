@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { PoolHeader } from "../../components/PoolHeader";
-import type { Pool, CourseCode } from "../../types/timeline.types";
+import type { Pool, CourseCode, CourseMap, SemesterId } from "../../types/timeline.types";
 
 describe("PoolHeader", () => {
   const pool: Pool = {
@@ -9,6 +9,49 @@ describe("PoolHeader", () => {
     name: "Software Engineering Core",
     creditsRequired: 47.5,
     courses: ["SOEN 228", "SOEN 287", "SOEN 321"] as CourseCode[],
+  };
+
+  const courses: CourseMap = {
+    "ENGR 201": {
+      id: "ENGR 201" as CourseCode,
+      title: "Engineering Mechanics",
+      credits: 3,
+      description: "",
+      offeredIN: [] as SemesterId[],
+      prerequisites: [],
+      corequisites: [],
+      status: { status: "completed", semester: null },
+    },
+    "ENGR 233": {
+      id: "ENGR 233" as CourseCode,
+      title: "Applied Advanced Calculus",
+      credits: 3,
+      description: "",
+      offeredIN: [] as SemesterId[],
+      prerequisites: [],
+      corequisites: [],
+      status: { status: "incomplete", semester: null },
+    },
+    "SOEN 228": {
+      id: "SOEN 228" as CourseCode,
+      title: "System Hardware",
+      credits: 4,
+      description: "",
+      offeredIN: [] as SemesterId[],
+      prerequisites: [],
+      corequisites: [],
+      status: { status: "completed", semester: null },
+    },
+    "SOEN 287": {
+      id: "SOEN 287" as CourseCode,
+      title: "Web Programming",
+      credits: 3,
+      description: "",
+      offeredIN: [] as SemesterId[],
+      prerequisites: [],
+      corequisites: [],
+      status: { status: "incomplete", semester: null },
+    },
   };
 
   it("renders pool name and total course count when no active search", () => {
@@ -19,7 +62,7 @@ describe("PoolHeader", () => {
         pool={pool}
         isExpanded={false}
         onToggle={onToggle}
-        visibleCourseIds={pool.courses}
+        courses={courses}
       />
     );
 
@@ -27,7 +70,7 @@ describe("PoolHeader", () => {
     expect(screen.getByText("Software Engineering Core")).toBeInTheDocument();
 
     // Course count should reflect visible courses.
-    expect(screen.getByText("(3)")).toBeInTheDocument();
+    expect(screen.getByText("(4/47.5)")).toBeInTheDocument();
   });
 
   it("shows visible course count when there is an active search", () => {
@@ -38,11 +81,11 @@ describe("PoolHeader", () => {
         pool={pool}
         isExpanded={false}
         onToggle={onToggle}
-        visibleCourseIds={["SOEN 228" as CourseCode, "SOEN 287" as CourseCode]}
+        courses={courses}
       />
     );
 
-    expect(screen.getByText("(2)")).toBeInTheDocument();
+    expect(screen.getByText("(4/47.5)")).toBeInTheDocument();
   });
 
   it("calls onToggle when clicked", () => {
@@ -53,7 +96,7 @@ describe("PoolHeader", () => {
         pool={pool}
         isExpanded={false}
         onToggle={onToggle}
-        visibleCourseIds={pool.courses}
+        courses={courses}
       />
     );
 
@@ -74,7 +117,7 @@ describe("PoolHeader", () => {
         pool={pool}
         isExpanded={false}
         onToggle={onToggle}
-        visibleCourseIds={pool.courses}
+        courses={courses}
       />
     );
 
@@ -88,7 +131,7 @@ describe("PoolHeader", () => {
         pool={pool}
         isExpanded={true}
         onToggle={onToggle}
-        visibleCourseIds={pool.courses}
+        courses={courses}
       />
     );
 
@@ -105,7 +148,7 @@ describe("PoolHeader", () => {
         pool={pool}
         isExpanded={false}
         onToggle={onToggle}
-        visibleCourseIds={[]}
+        courses= {{}}
         disabled={true}
       />
     );

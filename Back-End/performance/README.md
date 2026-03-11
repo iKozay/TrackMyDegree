@@ -149,7 +149,8 @@ Back-End/performance/
 ├── grafana/
 │   └── dashboards/
 │       ├── k6-timeline-dashboard.json        # Grafana dashboard for k6-timeline.js
-│       └── k6-coop-validation-dashboard.json # Grafana dashboard for k6-coop-validation.js
+│       ├── k6-coop-validation-dashboard.json # Grafana dashboard for k6-coop-validation.js
+│       └── k6-degree-audit-dashboard.json    # Grafana dashboard for k6-degree-audit.js
 └── test-pdfs/
     ├── transcripts/
     │   ├── transcript-coop.pdf
@@ -278,75 +279,49 @@ npm run dev
 
 > **Critical:** The BullMQ worker must be running for jobs to complete.
 
-### Running the timeline test
+### Running the tests
+
+All tests follow the same command pattern from the `Back-End/performance` directory:
 
 ```bash
 cd Back-End/performance
+# Default load test - refer to notes below for default VU counts per script
+k6 run --out influxdb=http://localhost:8086/k6 <script>
 ```
 
-**Default — ramp up to 6 VUs, hold 3 min, ramp down (total ~5 min):**
-```bash
-k6 run --out influxdb=http://localhost:8086/k6 k6-timeline.js
-```
+| Test | Script | Default `PEAK_VUS` | Notes |
+|---|---|--------------------|---|
+| Timeline CRUD | `k6-timeline.js` | `6`                | Use multiples of 6 for even PDF coverage across all 6 files |
+| Coop Validation | `k6-coop-validation.js` | `10`               | Single shared timeline; stresses retrieval job + validation logic |
+| Degree Audit | `k6-degree-audit.js` | `6`                | Use multiples of 3 for even coverage across all transcript types (coop, ecp, regular) |
 
-> The default `PEAK_VUS=6` gives exactly one VU per PDF file via the deterministic rotation. Use a multiple of 6 (12, 18, ...) for higher load while keeping PDF coverage even.
-
-**Quick smoke test — small peak, short stages:**
+**Smoke test** — quick sanity check with a short run (works for any script):
 ```bash
 k6 run --out influxdb=http://localhost:8086/k6 \
   -e PEAK_VUS=6 -e RAMP_DURATION=10s -e STEADY_DURATION=30s \
-  k6-timeline.js
+  <script>
 ```
 
-**Higher load — 12 VUs (2 VUs per PDF):**
+**Higher load (example for 12 VUs)**
 ```bash
 k6 run --out influxdb=http://localhost:8086/k6 \
   -e PEAK_VUS=12 -e RAMP_DURATION=2m -e STEADY_DURATION=5m \
-  k6-timeline.js
+  <script>
 ```
 
-**Pin to a specific file:**
+**Verbose logging** (no InfluxDB output needed for debugging):
+```bash
+k6 run -e DEBUG=1 <script>
+```
+
+#### Timeline-specific: pin to a single PDF
 ```bash
 k6 run --out influxdb=http://localhost:8086/k6 \
   -e DOC_TYPE=transcript -e FILE_NAME=transcript-coop \
   k6-timeline.js
 ```
 
-**With verbose logging:**
-```bash
-k6 run -e DEBUG=1 k6-timeline.js
-```
----
-
-### Running the coop validation test
-
-```bash
-cd Back-End/performance
-```
-
-**Default — ramp up to 10 VUs, hold 3 min, ramp down (total ~5 min):**
-```bash
-k6 run --out influxdb=http://localhost:8086/k6 k6-coop-validation.js
-```
-
-**Quick smoke test:**
-```bash
-k6 run --out influxdb=http://localhost:8086/k6 \
-  -e PEAK_VUS=10 -e RAMP_DURATION=10s -e STEADY_DURATION=30s \
-  k6-coop-validation.js
-```
-
-**Higher load — 20 VUs:**
-```bash
-k6 run --out influxdb=http://localhost:8086/k6 \
-  -e PEAK_VUS=20 -e RAMP_DURATION=2m -e STEADY_DURATION=5m \
-  k6-coop-validation.js
-```
-
-**With verbose logging:**
-```bash
-k6 run -e DEBUG=1 k6-coop-validation.js
-```
+> The default `PEAK_VUS=6` for `k6-timeline.js` gives exactly one VU per PDF file. Use a multiple of 6 (12, 18, …) for higher load while keeping PDF coverage even.
 
 ---
 
@@ -514,3 +489,98 @@ Open the **"k6 Coop Validation Performance Test"** dashboard (`uid: k6-coop-vali
 | Endpoint Latency | p95 for `GET /api/timeline/:id`, `GET /api/jobs/:jobId`, `GET /api/coop/validate/:id` |
 | Poll Status Breakdown | Cumulative poll status counts, per-second stacked poll rate |
 
+---
+
+## `k6-degree-audit.js` test flow
+
+This script stress-tests all three degree audit endpoints in a single iteration. Unlike the coop validation flow which targets one endpoint, each iteration exercises three different audit routes back-to-back so their performance can be compared under the same load.
+
+Three timelines are created in `setup()` — one per transcript type (coop, ecp, regular) — and shared across all VUs. Each VU is **pinned to one transcript type for the full test duration**. This means all three transcript types are stressed **simultaneously** under load, not cycled through per iteration by a single VU.
+
+> **Note on `auditByUser` (step 5):** this route always resolves the most recently updated timeline for the shared `userId`, regardless of which timeline the VU was assigned. Under concurrent load, that will be whichever of the three timelines was last touched.
+
+### Why three audit routes?
+
+| Route | Input | What it does |
+|---|---|---|
+| `GET /api/audit/timeline/job/:jobId` | Redis cache `jobId` | Reads the cached timeline result from Redis and runs the audit inline — no DB reads |
+| `GET /api/audit/timeline/:timelineId` | MongoDB `_id` + `?userId=` | Fetches timeline + user + degree data from MongoDB, then runs the audit |
+| `GET /api/audit/user/:userId` | userId | Resolves the user's most recently updated timeline from MongoDB first, then follows the same path as above |
+
+Testing all three in the same iteration isolates what each route costs under the same conditions: Redis-only vs. MongoDB-backed, and whether the extra "find latest timeline" step in the user route adds meaningful latency.
+
+### Setup (runs once before all VUs)
+
+1. **Create test user** — `POST /api/users` → `userId`
+2. For each transcript type (coop, ecp, regular):
+   - **Upload PDF** — `POST /api/upload/file` → `jobId`
+   - **Poll upload job** — `GET /api/jobs/:jobId` until `status=done`
+   - **Save timeline** — `POST /api/timeline` with `userId` + `jobId` → `timelineId`
+
+All three `timelineIds` and the shared `userId` are passed to every VU via `data`.
+
+### Flow per iteration
+
+Each VU runs the following five steps against its pinned timeline:
+
+1. **Retrieve the assigned timeline**
+    - `GET /api/timeline/:id`
+    - Expected: triggers an async retrieval job, returns `202` with a `jobId`.
+
+2. **Poll for retrieval job completion**
+    - `GET /api/jobs/:jobId` (repeats until done or timeout)
+    - Expected: `200 status=done` once the timeline is in Redis cache.
+
+3. **Audit via jobId** — `GET /api/audit/timeline/job/:jobId`
+    - Reads the cached result from Redis and runs the audit inline.
+    - Fastest path — no DB reads.
+
+4. **Audit via timelineId** — `GET /api/audit/timeline/:timelineId?userId=`
+    - Fetches from MongoDB (timeline + user + degree data), then runs the audit.
+
+5. **Audit via userId** — `GET /api/audit/user/:userId`
+    - Resolves the most recently updated timeline for the user from MongoDB, then same path as step 4.
+
+Steps 3–5 always run regardless of each other's outcome — a failure in one does not skip the others, so latency samples are always collected for all three routes.
+
+### Teardown (runs once after all VUs)
+
+- **Delete all three timelines** — `DELETE /api/timeline/:id` (× 3)
+- **Delete test user** — `DELETE /api/users/:id`
+
+### What this stresses under load
+
+- **Redis cache read latency** (`audit/job` reads from the same cache slot the retrieval job wrote)
+- **MongoDB query performance** under concurrent audit requests (`audit/timeline` and `audit/user`)
+- **Audit computation throughput** (`generateDegreeAuditFromTimeline` and `generateDegreeAudit` run synchronously on each request)
+- **Varied input complexity** — all three transcript types (coop, ecp, regular) are audited simultaneously, exercising different course/semester configurations through the audit logic
+- **Poll infrastructure** (same BullMQ + Redis polling path as the other flows)
+
+### Custom metrics tracked
+
+**Trends (timing)**
+- `job_time_to_done_ms` — time from retrieval job accepted to `status=done` (p95 < 3s target)
+- `polls_per_job` — number of `GET /api/jobs/:jobId` poll attempts before the retrieval job completed
+
+**Rates (pass/fail thresholds)**
+- `iteration_success_rate` — rate of iterations where all five steps passed (> 95% target)
+- `audit_by_job_failed_rate` — rate of `GET /api/audit/timeline/job/:jobId` failures (< 1% target)
+- `audit_by_timeline_failed_rate` — rate of `GET /api/audit/timeline/:timelineId` failures (< 1% target)
+- `audit_by_user_failed_rate` — rate of `GET /api/audit/user/:userId` failures (< 1% target)
+- `poll_network_error_rate` — rate of poll attempts with no HTTP response (`status=0`) (< 5% target)
+- `job_timeout_rate` — rate of poll loops that exhausted `POLL_MAX_SECONDS` (< 5% target)
+
+**Counters (raw event counts, shared with other flows)**
+- `poll_200_count`, `poll_410_count`, `poll_404_count`, `poll_network_error_count`, `poll_timeout_count`, `poll_other_count`
+
+### Grafana dashboard
+
+Open the **"k6 Degree Audit Performance Test"** dashboard (`uid: k6-degree-audit`) in Grafana:
+
+| Section | Panels |
+|---|---|
+| Overview | Virtual Users, HTTP Requests Rate |
+| Health Rates | Iteration Success Rate, Audit by Job Failed Rate, Audit by Timeline Failed Rate, Audit by User Failed Rate, Poll Network Error Rate, Job Deadline Exceeded Rate |
+| Job Processing | Retrieval Job Time p95/avg, Poll Attempts Per Retrieval Job p95/avg |
+| Endpoint Latency | All routes overview (p95), then one panel each for Audit by Job / Timeline / User (p95 + avg) |
+| Poll Status Breakdown | Cumulative poll status counts, per-second stacked poll rate |

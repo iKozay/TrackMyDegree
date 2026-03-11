@@ -131,7 +131,7 @@
           "noValue": "N/A"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 10 },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 10 },
       "id": 2,
       "options": {
         "colorMode": "background",
@@ -152,7 +152,7 @@
         }
       ],
       "title": "Iteration Success Rate",
-      "description": "Rate of iterations that completed retrieve + poll + coop validate without any error. Target: >95%",
+      "description": "Rate of iterations where retrieve + poll + all three audit routes all passed. Target: >95%",
       "type": "stat"
     },
 
@@ -176,7 +176,7 @@
           "noValue": "N/A"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 10 },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 10 },
       "id": 16,
       "options": {
         "colorMode": "background",
@@ -190,14 +190,104 @@
       "targets": [
         {
           "groupBy": [{ "params": ["$__interval"], "type": "time" }, { "params": ["null"], "type": "fill" }],
-          "measurement": "coop_validation_failed_rate", "orderByTime": "ASC", "policy": "default",
+          "measurement": "audit_by_job_failed_rate", "orderByTime": "ASC", "policy": "default",
           "refId": "A", "resultFormat": "time_series",
           "select": [[{ "params": ["value"], "type": "field" }, { "params": [], "type": "mean" }]],
           "tags": []
         }
       ],
-      "title": "Coop Validation Failed Rate",
-      "description": "Rate of GET /api/coop/validate/:id responses that were not 200 or returned no result. Target: <1%",
+      "title": "Audit by Job Failed Rate",
+      "description": "GET /api/audit/timeline/job/:jobId — Redis-only path. Fails if cache expired (RESULT_EXPIRED). Target: <1%",
+      "type": "stat"
+    },
+
+    {
+      "datasource": "InfluxDB-k6",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "type": "special", "options": { "match": "null", "result": { "text": "N/A", "color": "green" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.005 },
+              { "color": "red", "value": 0.01 }
+            ]
+          },
+          "unit": "percentunit",
+          "noValue": "N/A"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 10 },
+      "id": 17,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false },
+        "text": { "titleSize": 14, "valueSize": 28 },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }, { "params": ["null"], "type": "fill" }],
+          "measurement": "audit_by_timeline_failed_rate", "orderByTime": "ASC", "policy": "default",
+          "refId": "A", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [], "type": "mean" }]],
+          "tags": []
+        }
+      ],
+      "title": "Audit by Timeline Failed Rate",
+      "description": "GET /api/audit/timeline/:timelineId?userId= — hits MongoDB (timeline + user + degree data); ownership check is in-memory. Target: <1%",
+      "type": "stat"
+    },
+
+    {
+      "datasource": "InfluxDB-k6",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "type": "special", "options": { "match": "null", "result": { "text": "N/A", "color": "green" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.005 },
+              { "color": "red", "value": 0.01 }
+            ]
+          },
+          "unit": "percentunit",
+          "noValue": "N/A"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 10 },
+      "id": 18,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false },
+        "text": { "titleSize": 14, "valueSize": 28 },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }, { "params": ["null"], "type": "fill" }],
+          "measurement": "audit_by_user_failed_rate", "orderByTime": "ASC", "policy": "default",
+          "refId": "A", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [], "type": "mean" }]],
+          "tags": []
+        }
+      ],
+      "title": "Audit by User Failed Rate",
+      "description": "GET /api/audit/user/:userId — hits MongoDB to resolve the latest timeline first, then same path as audit by timeline. Target: <1%",
       "type": "stat"
     },
 
@@ -221,7 +311,7 @@
           "noValue": "N/A"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 10 },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 10 },
       "id": 12,
       "options": {
         "colorMode": "background",
@@ -266,7 +356,7 @@
           "noValue": "N/A"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 10 },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 10 },
       "id": 3,
       "options": {
         "colorMode": "background",
@@ -446,22 +536,179 @@
           "tags": [{ "key": "name", "operator": "=", "value": "GET /api/jobs/:jobId" }]
         },
         {
-          "alias": "Coop Validate (p95)",
+          "alias": "Audit by Job (p95)",
           "groupBy": [{ "params": ["$__interval"], "type": "time" }],
           "measurement": "http_req_duration", "orderByTime": "ASC", "policy": "default",
           "refId": "C", "resultFormat": "time_series",
           "select": [[{ "params": ["value"], "type": "field" }, { "params": [95], "type": "percentile" }]],
-          "tags": [{ "key": "name", "operator": "=", "value": "GET /api/coop/validate/:id" }]
+          "tags": [{ "key": "name", "operator": "=", "value": "GET /api/audit/timeline/job/:jobId" }]
+        },
+        {
+          "alias": "Audit by Timeline (p95)",
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }],
+          "measurement": "http_req_duration", "orderByTime": "ASC", "policy": "default",
+          "refId": "D", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [95], "type": "percentile" }]],
+          "tags": [{ "key": "name", "operator": "=", "value": "GET /api/audit/timeline/:timelineId" }]
+        },
+        {
+          "alias": "Audit by User (p95)",
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }],
+          "measurement": "http_req_duration", "orderByTime": "ASC", "policy": "default",
+          "refId": "E", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [95], "type": "percentile" }]],
+          "tags": [{ "key": "name", "operator": "=", "value": "GET /api/audit/user/:userId" }]
         }
       ],
-      "title": "Endpoint Latency p95 — all routes",
-      "description": "p95 response time per endpoint in the coop validation flow. Retrieve Timeline kicks off the retrieval job; Poll Job waits for done; Coop Validate runs synchronous validation against the cached result.",
+      "title": "All Routes Latency p95 — overview",
+      "description": "p95 latency for all five routes plotted together for easy comparison.",
+      "type": "timeseries"
+    },
+
+    {
+      "datasource": "InfluxDB-k6",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisLabel": "Duration (ms)", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
+            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
+            "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never", "spanNulls": true
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 500 }] },
+          "unit": "ms"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 32 },
+      "id": 20,
+      "options": {
+        "legend": { "calcs": ["mean", "max", "last"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "alias": "p95",
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }],
+          "measurement": "http_req_duration", "orderByTime": "ASC", "policy": "default",
+          "refId": "A", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [95], "type": "percentile" }]],
+          "tags": [{ "key": "name", "operator": "=", "value": "GET /api/audit/timeline/job/:jobId" }]
+        },
+        {
+          "alias": "avg",
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }],
+          "measurement": "http_req_duration", "orderByTime": "ASC", "policy": "default",
+          "refId": "B", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [], "type": "mean" }]],
+          "tags": [{ "key": "name", "operator": "=", "value": "GET /api/audit/timeline/job/:jobId" }]
+        }
+      ],
+      "title": "Audit by Job — GET /api/audit/timeline/job/:jobId",
+      "description": "Target p95 < 500ms.",
+      "type": "timeseries"
+    },
+
+    {
+      "datasource": "InfluxDB-k6",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisLabel": "Duration (ms)", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
+            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
+            "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never", "spanNulls": true
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1000 }] },
+          "unit": "ms"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 32 },
+      "id": 21,
+      "options": {
+        "legend": { "calcs": ["mean", "max", "last"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "alias": "p95",
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }],
+          "measurement": "http_req_duration", "orderByTime": "ASC", "policy": "default",
+          "refId": "A", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [95], "type": "percentile" }]],
+          "tags": [{ "key": "name", "operator": "=", "value": "GET /api/audit/timeline/:timelineId" }]
+        },
+        {
+          "alias": "avg",
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }],
+          "measurement": "http_req_duration", "orderByTime": "ASC", "policy": "default",
+          "refId": "B", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [], "type": "mean" }]],
+          "tags": [{ "key": "name", "operator": "=", "value": "GET /api/audit/timeline/:timelineId" }]
+        }
+      ],
+      "title": "Audit by Timeline — GET /api/audit/timeline/:timelineId",
+      "description": "Target p95 < 1000ms.",
+      "type": "timeseries"
+    },
+
+    {
+      "datasource": "InfluxDB-k6",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisLabel": "Duration (ms)", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
+            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
+            "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never", "spanNulls": true
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1500 }] },
+          "unit": "ms"
+        }
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 32 },
+      "id": 22,
+      "options": {
+        "legend": { "calcs": ["mean", "max", "last"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "alias": "p95",
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }],
+          "measurement": "http_req_duration", "orderByTime": "ASC", "policy": "default",
+          "refId": "A", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [95], "type": "percentile" }]],
+          "tags": [{ "key": "name", "operator": "=", "value": "GET /api/audit/user/:userId" }]
+        },
+        {
+          "alias": "avg",
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }],
+          "measurement": "http_req_duration", "orderByTime": "ASC", "policy": "default",
+          "refId": "B", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [], "type": "mean" }]],
+          "tags": [{ "key": "name", "operator": "=", "value": "GET /api/audit/user/:userId" }]
+        }
+      ],
+      "title": "Audit by User — GET /api/audit/user/:userId",
+      "description": "Target p95 < 1500ms.",
       "type": "timeseries"
     },
 
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 40 },
       "id": 104,
       "title": "Poll Status Breakdown",
       "type": "row"
@@ -485,7 +732,7 @@
           "unit": "short"
         }
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 33 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 41 },
       "id": 7,
       "options": {
         "legend": { "calcs": ["sum", "last"], "displayMode": "table", "placement": "bottom" },
@@ -542,7 +789,7 @@
         }
       ],
       "title": "Poll Status Breakdown — cumulative counts",
-      "description": "Cumulative count of each poll response type over the run. Polling here is for the retrieval job that loads the timeline into cache before coop validation runs.",
+      "description": "Cumulative count of each poll response type over the run. Polling here is for the retrieval job that loads the timeline into cache before the audit routes run.",
       "type": "timeseries"
     },
 
@@ -565,7 +812,7 @@
           "unit": "short"
         }
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 33 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 41 },
       "id": 13,
       "options": {
         "legend": { "calcs": ["sum", "mean"], "displayMode": "table", "placement": "bottom" },
@@ -598,7 +845,7 @@
         }
       ],
       "title": "Poll Status Rate — per second (stacked)",
-      "description": "Per-second rate of poll responses by type (stacked bars). Useful for seeing when errors spike relative to successful polls during the coop validation run.",
+      "description": "Per-second rate of poll responses by type (stacked bars). Useful for seeing when errors spike relative to successful polls during the degree audit run.",
       "type": "timeseries"
     }
 
@@ -606,12 +853,12 @@
   "refresh": "5s",
   "schemaVersion": 27,
   "style": "dark",
-  "tags": ["k6", "performance", "coop validation"],
+  "tags": ["k6", "performance", "degree audit"],
   "templating": { "list": [] },
   "time": { "from": "now-5m", "to": "now" },
   "timepicker": {},
   "timezone": "",
-  "title": "k6 Coop Validation Performance Test",
-  "uid": "k6-coop-validation",
+  "title": "k6 Degree Audit Performance Test",
+  "uid": "k6-degree-audit",
   "version": 0
 }

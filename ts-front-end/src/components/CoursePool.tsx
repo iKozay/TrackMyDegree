@@ -128,7 +128,7 @@ const CoursePool: React.FC<CoursePoolProps> = ({
               onToggle={() => {
                 if (!isEmptyPool) togglePool(pool.name);
               }}
-              visibleCourseIds={visibleCourseIds}
+              courses={courses}
               disabled={!hasActiveSearch && isEmptyPool}
             />
 
