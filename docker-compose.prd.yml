@@ -100,16 +100,21 @@ services:
   # Add Watchtower for automatic updates
   watchtower:
     container_name: watchtower
-    image: containrrr/watchtower
+    image: nickfedor/watchtower:1.14.3
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --schedule "0 0 4 * * *" # daily at 4:00 AM
+      - ./watchtower-notification.tmpl:/notification-template.tmpl
+    command: >
+      --schedule "0 0 4 * * *"
+      --cleanup
+      --notification-report
+      --notifications-level info
+      --notification-template-file=/notification-template.tmpl
     environment:
-      - WATCHTOWER_CLEANUP=true  # remove old images
-      - WATCHTOWER_NOTIFICATIONS_LEVEL=info
-      - WATCHTOWER_DEBUG=false
-      - WATCHTOWER_REGISTRY_AUTH=true
+      - TZ=${TZ}
+      - WATCHTOWER_NOTIFICATIONS=${WATCHTOWER_NOTIFICATIONS}
+      - WATCHTOWER_NOTIFICATION_URL=${WATCHTOWER_NOTIFICATION_URL}
     networks:
       - app-network
 
