@@ -1,36 +1,38 @@
 # ---------- Build stage ----------
-FROM node:22.21 AS build
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY shared/ ./shared/
-COPY tsconfig.json ./tsconfig.json
-COPY ts-front-end/package.json ./ts-front-end/
-COPY ts-front-end/*lock* ./ts-front-end/
-WORKDIR /app/ts-front-end
-RUN npm install
+COPY tsconfig.base.json ./
+COPY shared ./shared
 
-COPY ts-front-end/ ./
+COPY ts-front-end/package*.json ./ts-front-end/
+COPY ts-front-end/tsconfig*.json ./ts-front-end/
+COPY ts-front-end ./ts-front-end
+
+WORKDIR /app/ts-front-end
+
+RUN npm ci
 
 ARG VITE_DEPLOYMENT_VERSION
 ENV VITE_DEPLOYMENT_VERSION=$VITE_DEPLOYMENT_VERSION
 
 RUN npm run build
 
-
 # ---------- Runtime stage ----------
-FROM node:22.21
+FROM node:22-alpine
 
 WORKDIR /app
 
-# Install envsubst
-RUN apt-get update && apt-get install -y gettext-base && rm -rf /var/lib/apt/lists/*
+RUN npm install -g serve && apk add --no-cache gettext
 
-COPY --from=build /app/ts-front-end/dist ./dist
-COPY --from=build /app/ts-front-end/node_modules ./node_modules
-COPY --from=build /app/ts-front-end/package.json ./package.json
-COPY --from=build /app/ts-front-end/vite.config.ts ./vite.config.ts
+COPY --from=builder /app/ts-front-end/dist ./dist
+COPY ts-front-end/entrypoint.sh ./entrypoint.sh
 
-EXPOSE 5173
+RUN chmod +x ./entrypoint.sh && chown -R node:node /app/dist
 
-CMD ["sh", "-c", "envsubst < ./dist/env.js > ./dist/env.runtime.js && mv ./dist/env.runtime.js ./dist/env.js && npm run start"]
+EXPOSE 4173
+
+USER node
+
+ENTRYPOINT ["./entrypoint.sh"]
