@@ -106,7 +106,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./watchtower-notification.tmpl:/notification-template.tmpl
     command: >
-      --schedule "0 4 * * *"
+      --schedule "0 0 4 * * *"
       --cleanup
       --notification-report
       --notifications-level info
