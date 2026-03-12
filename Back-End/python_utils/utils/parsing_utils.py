@@ -4,7 +4,10 @@ import re
 from unidecode import unidecode
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from models import CourseRules, Constraint, ConstraintType, MinCoursesFromSetParams, MaxCoursesFromSetParams
+from models import (CourseRules, Constraint, ConstraintType,
+                    MinCoursesFromSetParams, MaxCoursesFromSetParams,
+                    CourseAdditionParams, CourseRemovalParams, CourseSubstitutionParams,
+                    OverrideCoursePoolCoursesParams)
 
 SPACE_REPLACEMENT = r'\1 \2'
 REGEX_ALL = r".*"
@@ -246,6 +249,14 @@ _WORD_TO_NUM: dict[str, int] = {
     'five': 5, 'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10
 }
 
+# Helpers for BEng degree matching used in parse_coursepool_rules
+_BENG_SINGLE_RE = r'(?:(?:the\s+)?BEng in \w+ Engineering)'
+_BENG_LIST_RE = (
+    r'((?:the\s+)?BEng in \w+ Engineering'
+    r'(?:\s*,\s*' + _BENG_SINGLE_RE + r')*'
+    r'(?:\s+and\s+' + _BENG_SINGLE_RE + r')?)'
+)
+
 
 def _word_or_num_to_int(s: str) -> int:
     """Convert a word (e.g. 'three') or digit string to an integer."""
@@ -283,6 +294,22 @@ def parse_coursepool_rules(coursepool_notes: str) -> list[Constraint]:
     4b. May take no more than N course(s) from the following list
         "Students may take no more than <N|word> course(s) from the following list: ..."
         → MAX_COURSES_FROM_SET(courseList=[...], maxCourses=N)
+
+    5. Degree-specific course removal
+       "students in the BEng in X Engineering[, BEng in Y Engineering ...] ... are not required to take DEPT NNN"
+       → one COURSE_REMOVAL per degree in the list
+
+    6a. Degree-specific course substitution (mandatory)
+        "Students in [the] BEng in X Engineering [and ...] shall replace DEPT NNN with DEPT MMM"
+        → one COURSE_SUBSTITUTION per degree in the list
+
+    6b. Degree-specific optional course substitution
+        "Students in [the] BEng in X Engineering may replace DEPT NNN with DEPT MMM"
+        → COURSE_ADDITION(new course, degreeId) + MAX_COURSES_FROM_SET([old, new], 1) per degree
+
+    7. Degree-specific course pool override (elective)
+       "Students in [the] BEng in X Engineering shall take DEPT NNN as their ... elective"
+       → OVERRIDE_COURSEPOOL_COURSES(coursePoolId=GENERAL_ELECTIVES, newCourseList=[DEPT NNN], degreeId=degree)
 
     Args:
         coursepool_notes (str): Text extracted from the course pool div.
@@ -387,5 +414,93 @@ def parse_coursepool_rules(coursepool_notes: str) -> list[Constraint]:
                 params=MaxCoursesFromSetParams(courseList=courses, maxCourses=max_count),
                 message=msg
             ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 5 – degree-specific course removal                          #
+    # "students in [BEng in X, ...] ... are not required to take COURSE" #
+    # ------------------------------------------------------------------ #
+    not_required_re = re.compile(
+        r'students in (?:the\s+)?' + _BENG_LIST_RE +
+        r'(?:[^.]|\.\d)*?are not required to take\s+(' + COURSE_REGEX + r')',
+        re.I
+    )
+    for m in not_required_re.finditer(coursepool_notes):
+        degrees_text = m.group(1)
+        course = re.sub(r'\s+', ' ', m.group(2).strip())
+        for degree_id in re.findall(r'BEng in \w+ Engineering', degrees_text, re.I):
+            constraints.append(Constraint(
+                type=ConstraintType.COURSE_REMOVAL,
+                params=CourseRemovalParams(courseId=course, degreeId=degree_id),
+                message=f"Students in {degree_id} are not required to take {course}."
+            ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 6a – degree-specific course substitution (mandatory)        #
+    # "Students in [BEng in X ...] shall replace COURSE_A with COURSE_B" #
+    # ------------------------------------------------------------------ #
+    shall_replace_re = re.compile(
+        r'Students in (?:the\s+)?' + _BENG_LIST_RE +
+        r'\s+shall\s+replace\s+(' + COURSE_REGEX + r')\s+with\s+(' + COURSE_REGEX + r')',
+        re.I
+    )
+    for m in shall_replace_re.finditer(coursepool_notes):
+        degrees_text = m.group(1)
+        old_course = re.sub(r'\s+', ' ', m.group(2).strip())
+        new_course = re.sub(r'\s+', ' ', m.group(3).strip())
+        for degree_id in re.findall(r'BEng in \w+ Engineering', degrees_text, re.I):
+            constraints.append(Constraint(
+                type=ConstraintType.COURSE_SUBSTITUTION,
+                params=CourseSubstitutionParams(oldCourseId=old_course, newCourseId=new_course, degreeId=degree_id),
+                message=f"Students in {degree_id} shall replace {old_course} with {new_course}."
+            ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 6b – degree-specific optional substitution                  #
+    # "Students in [BEng in X] may replace COURSE_A with COURSE_B"       #
+    # → COURSE_ADDITION(new, degreeId) + MAX_COURSES_FROM_SET([old,new]) #
+    # ------------------------------------------------------------------ #
+    may_replace_re = re.compile(
+        r'Students in (?:the\s+)?' + _BENG_LIST_RE +
+        r'\s+may\s+replace\s+(' + COURSE_REGEX + r')\s+with\s+(' + COURSE_REGEX + r')',
+        re.I
+    )
+    for m in may_replace_re.finditer(coursepool_notes):
+        degrees_text = m.group(1)
+        old_course = re.sub(r'\s+', ' ', m.group(2).strip())
+        new_course = re.sub(r'\s+', ' ', m.group(3).strip())
+        for degree_id in re.findall(r'BEng in \w+ Engineering', degrees_text, re.I):
+            constraints.append(Constraint(
+                type=ConstraintType.COURSE_ADDITION,
+                params=CourseAdditionParams(courseId=new_course, degreeId=degree_id),
+                message=f"Students in {degree_id} may replace {old_course} with {new_course}."
+            ))
+            constraints.append(Constraint(
+                type=ConstraintType.MAX_COURSES_FROM_SET,
+                params=MaxCoursesFromSetParams(courseList=[old_course, new_course], maxCourses=1),
+                message=f"Students may take no more than one of the following courses: {old_course}, {new_course}."
+            ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 7 – degree-specific course pool override (elective)        #
+    # "Students in [BEng in X] shall take COURSE as their ... elective"  #
+    # ------------------------------------------------------------------ #
+    _GENERAL_ELECTIVES_POOL_ID = "General Education Humanities and Social Sciences Electives"
+    shall_take_elective_re = re.compile(
+        r'Students in (?:the\s+)?(BEng in \w+ Engineering)'
+        r'\s+shall\s+take\s+(' + COURSE_REGEX + r')\s+as\s+their General Education elective',
+        re.I
+    )
+    for m in shall_take_elective_re.finditer(coursepool_notes):
+        degree_id = m.group(1).strip()
+        course = re.sub(r'\s+', ' ', m.group(2).strip())
+        constraints.append(Constraint(
+            type=ConstraintType.OVERRIDE_COURSEPOOL_COURSES,
+            params=OverrideCoursePoolCoursesParams(
+                coursePoolId=_GENERAL_ELECTIVES_POOL_ID,
+                newCourseList=[course],
+                degreeId=degree_id
+            ),
+            message=f"Students in {degree_id} shall take {course} as their General Education elective."
+        ))
 
     return constraints

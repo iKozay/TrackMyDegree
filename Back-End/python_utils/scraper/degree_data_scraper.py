@@ -8,7 +8,7 @@ from utils.parsing_utils import COURSE_REGEX
 from utils.logging_utils import get_logger
 from models import AnchorLink, DegreeScraperConfig, ECPDegreeIDs, ProgramRequirements
 from scraper.abstract_degree_scraper import AbstractDegreeScraper
-from scraper.gina_cody_degree_scraper import AeroDegreeScraper, BldgDegreeScraper, ChemDegreeScraper, CiviDegreeScraper, CoenDegreeScraper, ElecDegreeScraper, InduDegreeScraper, MechDegreeScraper, SoenDegreeScraper
+from scraper.gina_cody_degree_scraper import GinaCodyDegreeScraper, AeroDegreeScraper
 from scraper.comp_sci_degree_scraper import CompDegreeScraper, CompCaDegreeScraper, CompDsDegreeScraper, CompHlsDegreeScraper
 from scraper.ecp_coop_degree_scraper import EngrEcpDegreeScraper, CompEcpDegreeScraper, CompHlsEcpDegreeScraper,CoopDegreeScraper
 
@@ -21,14 +21,14 @@ class DegreeDataScraper():
             DegreeScraperConfig(long_name="BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", marker="BEng in Aerospace Engineering", short_name="AERO", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=AeroDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Aerospace Engineering Option: Aerospace Structures and Materials", marker="BEng in Aerospace Engineering", short_name="AERO", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=AeroDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Aerospace Engineering Option: Avionics and Aerospace Systems", marker="BEng in Aerospace Engineering", short_name="AERO", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=AeroDegreeScraper),
-            DegreeScraperConfig(long_name="BEng in Building Engineering", short_name="BLDG", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=BldgDegreeScraper),
-            DegreeScraperConfig(long_name="BEng in Chemical Engineering", short_name="CHEM", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=ChemDegreeScraper),
-            DegreeScraperConfig(long_name="BEng in Civil Engineering", short_name="CIVI", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=CiviDegreeScraper),
-            DegreeScraperConfig(long_name="BEng in Computer Engineering", short_name="COEN", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=CoenDegreeScraper),
-            DegreeScraperConfig(long_name="BEng in Electrical Engineering", short_name="ELEC", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=ElecDegreeScraper),
-            DegreeScraperConfig(long_name="BEng in Industrial Engineering", short_name="INDU", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=InduDegreeScraper),
-            DegreeScraperConfig(long_name="BEng in Mechanical Engineering", short_name="MECH", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=MechDegreeScraper),
-            DegreeScraperConfig(long_name="BEng in Software Engineering", short_name="SOEN", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=SoenDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Building Engineering", short_name="BLDG", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Chemical Engineering", short_name="CHEM", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Civil Engineering", short_name="CIVI", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Computer Engineering", short_name="COEN", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Electrical Engineering", short_name="ELEC", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Industrial Engineering", short_name="INDU", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Mechanical Engineering", short_name="MECH", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Software Engineering", short_name="SOEN", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
             DegreeScraperConfig(long_name="BCompSc in Computer Science", short_name="COMP", ecp_degree_id=ECPDegreeIDs.COMP_ECP_ID, scraper_class=CompDegreeScraper),
             DegreeScraperConfig(long_name="BCompSc Joint Major in Computation Arts and Computer Science", short_name="COMP_CA", ecp_degree_id=ECPDegreeIDs.COMP_CA_ECP_ID, scraper_class=CompCaDegreeScraper),
             DegreeScraperConfig(long_name="BCompSc Joint Major in Data Science", short_name="COMP_DS", ecp_degree_id=ECPDegreeIDs.COMP_DS_ECP_ID, scraper_class=CompDsDegreeScraper),

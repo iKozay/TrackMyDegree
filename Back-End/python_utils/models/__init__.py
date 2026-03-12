@@ -31,6 +31,14 @@ class ConstraintType(str, Enum):
     # Course pool specific constraints
     EXCESS_CREDITS_OVERFLOW = "excess_credits_overflow"         # Excess credits beyond required amount flow to target pool
 
+
+    # Intermediate constraints for handling special cases (used for internal logic)
+    COURSE_ADDITION = "course_addition"                                 # Course A is added to pool if degree name matches
+    COURSE_REMOVAL = "course_removal"                                   # Course A is removed from pool if degree name matches
+    COURSE_SUBSTITUTION = "course_substitution"                         # Course A is substituted with Course B if degree name matches
+
+    OVERRIDE_COURSEPOOL_COURSES = "override_coursepool_courses"         # Override the list of courses in a course pool based on degree name
+
 class MinCreditsFromSetParams(BaseModel):
     courseList: list[str]
     minCredits: float
@@ -54,13 +62,35 @@ class ExcessCreditsOverflowParams(BaseModel):
     targetPoolId: str  # ID of the pool where excess credits should flow to
     # When this pool's credit requirement is exceeded, excess credits count toward targetPoolId
 
+class CourseAdditionParams(BaseModel):
+    courseId: str
+    degreeId: Optional[str] = None  # If specified, addition only applies to this degree
+
+class CourseRemovalParams(BaseModel):
+    courseId: str
+    degreeId: Optional[str] = None  # If specified, removal only applies to this degree
+
+class CourseSubstitutionParams(BaseModel):
+    oldCourseId: str
+    newCourseId: str
+    degreeId: Optional[str] = None  # If specified, substitution only applies to this degree
+
+class OverrideCoursePoolCoursesParams(BaseModel):
+    coursePoolId: str
+    newCourseList: list[str]
+    degreeId: Optional[str] = None  # If specified, override only applies to this degree
+
 ConstraintParams = Union[
     MinCreditsFromSetParams,
     MaxCreditsFromSetParams,
     MinCoursesFromSetParams,
     MaxCoursesFromSetParams,
     MinCreditsCompletedParams,
-    ExcessCreditsOverflowParams
+    ExcessCreditsOverflowParams,
+    CourseAdditionParams,
+    CourseRemovalParams,
+    CourseSubstitutionParams,
+    OverrideCoursePoolCoursesParams
 ]
 
 class Constraint(BaseModel):

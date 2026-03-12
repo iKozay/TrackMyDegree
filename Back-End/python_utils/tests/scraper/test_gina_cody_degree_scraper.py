@@ -6,8 +6,8 @@ from bs4 import BeautifulSoup
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from scraper.gina_cody_degree_scraper import GinaCodyDegreeScraper, AeroDegreeScraper, BldgDegreeScraper, CoenDegreeScraper, ElecDegreeScraper, InduDegreeScraper, MechDegreeScraper, SoenDegreeScraper
-from models import AnchorLink, Constraint, ConstraintType, CoursePool, DegreeType, ECPDegreeIDs
+from scraper.gina_cody_degree_scraper import GinaCodyDegreeScraper, AeroDegreeScraper
+from models import AnchorLink, CoursePool, DegreeType, ECPDegreeIDs
 
 
 class TestGinaCodyDegreeScraper:
@@ -15,8 +15,9 @@ class TestGinaCodyDegreeScraper:
 
     @patch('scraper.gina_cody_degree_scraper.get_soup')
     @patch('scraper.gina_cody_degree_scraper.extract_name_and_credits')
+    @patch('scraper.gina_cody_degree_scraper.extract_coursepool_rules')
     @patch('scraper.gina_cody_degree_scraper.extract_coursepool_courses')
-    def test_get_program_requirements(self, mock_extract_courses, mock_extract_name, mock_get_soup):
+    def test_get_program_requirements(self, mock_extract_courses, mock_extract_rules, mock_extract_name, mock_get_soup):
         # Mock the soup and extraction functions
         mock_soup = BeautifulSoup('<div class="program-node" title="BEng in Computer Engineering"><h3>BEng in Computer Engineering (120 credits)</h3><table></table></div>', 'html.parser')
         mock_get_soup.return_value = mock_soup
@@ -66,8 +67,9 @@ class TestGinaCodyDegreeScraper:
         assert result[0].name == "Core Courses"
         assert abs(result[0].creditsRequired - 60.0) < 1e-8
 
+    @patch('scraper.gina_cody_degree_scraper.extract_coursepool_rules')
     @patch('scraper.gina_cody_degree_scraper.extract_coursepool_courses')
-    def test_extract_course_pool_courses(self, mock_extract_courses):
+    def test_extract_course_pool_data(self, mock_extract_courses, mock_extract_rules):
         """Test extracting courses for course pools"""
         # Mock that first pool succeeds, second pool fails
         def mock_extraction(url, pool):
@@ -85,7 +87,7 @@ class TestGinaCodyDegreeScraper:
         ]
         
         scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
-        failed_pools = scraper._extract_course_pool_courses(pools)
+        failed_pools = scraper._extract_course_pool_data(pools)
         
         assert len(failed_pools) == 1
         assert failed_pools[0].name == "Pool 2"
@@ -129,27 +131,6 @@ class TestGinaCodyDegreeScraper:
         assert "ENGR 201" in pool.courses
         assert abs(pool.creditsRequired - 30.0) < 1e-8
         assert len(scraper.program_requirements.coursePools) == 2
-
-    def test_add_capstone_substitution_rule(self):
-        """Test that a MAX_COURSES_FROM_SET constraint is added to the pool containing the capstone course"""
-        capstone_pool = CoursePool(
-            _id="COEN_Capstone",
-            name="Capstone Project",
-            creditsRequired=3,
-            courses=["COEN 490", "ENGR 490"]
-        )
-
-        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
-        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [capstone_pool])
-
-        scraper._add_capstone_substitution_rule()
-
-        assert len(capstone_pool.rules) == 1
-        rule = capstone_pool.rules[0]
-        assert rule.type == ConstraintType.MAX_COURSES_FROM_SET
-        assert "COEN 490" in rule.params.courseList
-        assert "ENGR 490" in rule.params.courseList
-        assert rule.params.maxCourses == 1
 
     @patch('scraper.gina_cody_degree_scraper.get_course_scraper_instance')
     def test_get_general_education_pool(self, mock_get_course_scraper):
@@ -267,248 +248,3 @@ class TestAeroDegreeScraper:
         
         # Should not remove any pools
         assert len(coursepools) == 2
-
-    def test_handle_special_cases(self):
-        """Test handling special cases for Aerospace Engineering"""
-        # Setup scraper with program requirements including Engineering Core
-        engineering_core_pool = CoursePool(
-            _id="eng_core", 
-            name="Engineering Core", 
-            creditsRequired=30, 
-            courses=["ENGR 201", "ELEC 275", "MATH 205"]
-        )
-        
-        scraper = AeroDegreeScraper("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion", "AERO", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
-        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
-        
-        scraper._handle_special_cases()
-        
-        updated_pool = scraper.program_requirements.coursePools[0]
-        assert "ELEC 275" not in updated_pool.courses
-
-
-    def test_add_coursepool_rules_option_a_adds_max_courses_constraint(self):
-        """Test that Option A adds a MAX_COURSES_FROM_SET rule to Aerodynamics and Propulsion Electives"""
-        aero_propulsion_pool = CoursePool(
-            _id="AERO_Aerodynamics and Propulsion Electives",
-            name="Aerodynamics and Propulsion Electives",
-            creditsRequired=15,
-            courses=["AERO 486", "MECH 375", "MECH 426", "MECH 460", "AERO 414"]
-        )
-        capstone_pool = CoursePool(
-            _id="AERO_Capstone",
-            name="Capstone",
-            creditsRequired=3,
-            courses=["AERO 490"]
-        )
-
-        scraper = AeroDegreeScraper(
-            "BEng in Aerospace Engineering Option: Aerodynamics and Propulsion",
-            "AERO", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com"
-        )
-        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [aero_propulsion_pool, capstone_pool])
-
-        scraper._add_coursepool_rules()
-
-        rule = aero_propulsion_pool.rules
-        assert isinstance(rule, Constraint)
-        assert rule.type == ConstraintType.MAX_COURSES_FROM_SET
-        assert "AERO 486" in rule.params.courseList
-        assert "MECH 375" in rule.params.courseList
-        assert "MECH 426" in rule.params.courseList
-        assert "MECH 460" in rule.params.courseList
-        assert rule.params.maxCourses == 1
-
-    def test_add_coursepool_rules_non_option_a_skips_propulsion_rule(self):
-        """Test that Option B does not add a rule to Aerodynamics and Propulsion Electives"""
-        capstone_pool = CoursePool(
-            _id="AERO_Capstone",
-            name="Capstone",
-            creditsRequired=3,
-            courses=["AERO 490"]
-        )
-
-        scraper = AeroDegreeScraper(
-            "BEng in Aerospace Engineering Option: Aerospace Structures and Materials",
-            "AERO", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com"
-        )
-        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [capstone_pool])
-
-        scraper._add_coursepool_rules()
-
-        # No Aerodynamics and Propulsion Electives pool exists — only capstone rule added
-        assert len(capstone_pool.rules) == 1
-        assert capstone_pool.rules[0].type == ConstraintType.MAX_COURSES_FROM_SET
-        assert "AERO 490" in capstone_pool.rules[0].params.courseList
-
-
-class TestBldgDegreeScraper:
-
-    def test_handle_special_cases(self):
-        """Test handling special cases for Building Engineering"""
-        # Setup scraper with program requirements including Engineering Core
-        engineering_core_pool = CoursePool(
-            _id="eng_core", 
-            name="Engineering Core", 
-            creditsRequired=30, 
-            courses=["ENGR 201", "ENGR 202", "ENGR 392", "MATH 205"]
-        )
-        
-        scraper = BldgDegreeScraper("BEng in Building Engineering", "BLDG", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
-        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
-        
-        scraper._handle_special_cases()
-        
-        updated_pool = scraper.program_requirements.coursePools[0]
-        assert "ENGR 202" not in updated_pool.courses
-        assert "ENGR 392" not in updated_pool.courses
-        assert "BLDG 482" in updated_pool.courses
-
-
-class TestCoenDegreeScraper:
-    def test_handle_special_cases(self):
-        """Test handling special cases for Computer Engineering"""
-        # Setup scraper with program requirements including Engineering Core
-        engineering_core_pool = CoursePool(
-            _id="eng_core", 
-            name="Engineering Core", 
-            creditsRequired=30, 
-            courses=["ENGR 201", "ELEC 275", "MATH 205"]
-        )
-        
-        scraper = CoenDegreeScraper("BEng in Computer Engineering", "COEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
-        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
-        
-        scraper._handle_special_cases()
-        
-        updated_pool = scraper.program_requirements.coursePools[0]
-        assert "ELEC 275" not in updated_pool.courses
-        assert "ELEC 273" in updated_pool.courses
-
-
-class TestElecDegreeScraper:
-    def test_handle_special_cases(self):
-        """Test handling special cases for Electrical Engineering"""
-        # Setup scraper with program requirements including Engineering Core
-        engineering_core_pool = CoursePool(
-            _id="eng_core", 
-            name="Engineering Core", 
-            creditsRequired=30, 
-            courses=["ENGR 201", "ELEC 275", "MATH 205"]
-        )
-        
-        scraper = ElecDegreeScraper("BEng in Electrical Engineering", "ELEC", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
-        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
-        
-        scraper._handle_special_cases()
-        
-        updated_pool = scraper.program_requirements.coursePools[0]
-        assert "ELEC 275" not in updated_pool.courses
-        assert "ELEC 273" in updated_pool.courses
-
-
-class TestInduDegreeScraper:
-    def test_handle_special_cases(self):
-        """Test handling special cases for Industrial Engineering"""
-        # Setup scraper with program requirements including Engineering Core and General Electives
-        engineering_core_pool = CoursePool(
-            _id="eng_core", 
-            name="Engineering Core", 
-            creditsRequired=30, 
-            courses=["ENGR 201", "ELEC 275", "MATH 205"]
-        )
-        general_electives_pool = CoursePool(
-            _id="General Education Humanities and Social Sciences Electives",
-            name="General Education Humanities and Social Sciences Electives",
-            creditsRequired=3,
-            courses=["ANTH 101", "PHIL 212"]
-        )
-        
-        scraper = InduDegreeScraper("BEng in Industrial Engineering", "INDU", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
-        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool, general_electives_pool])
-        
-        scraper._handle_special_cases()
-        
-        # Check engineering core changes
-        updated_core_pool = scraper.program_requirements.coursePools[0]
-        assert "ELEC 275" not in updated_core_pool.courses
-        
-        # Check general electives changes
-        updated_gen_pool = scraper.program_requirements.coursePools[1]
-        assert updated_gen_pool._id == "INDU_General Education Humanities and Social Sciences Electives"
-        assert updated_gen_pool.courses == ["ACCO 220"]
-
-
-    def test_add_coursepool_rules_adds_min_and_max_constraints(self):
-        """Test that InduDegreeScraper adds MIN and MAX constraints to Industrial Engineering Electives"""
-        indu_electives_pool = CoursePool(
-            _id="INDU_Industrial Engineering Electives",
-            name="Industrial Engineering Electives",
-            creditsRequired=12,
-            courses=["INDU 410", "INDU 424", "INDU 431", "BSTA 478", "MANA 300"]
-        )
-        capstone_pool = CoursePool(
-            _id="INDU_Capstone",
-            name="Capstone",
-            creditsRequired=3,
-            courses=["INDU 490"]
-        )
-
-        scraper = InduDegreeScraper("BEng in Industrial Engineering", "INDU", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
-        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [indu_electives_pool, capstone_pool])
-
-        scraper._add_coursepool_rules()
-
-        assert len(indu_electives_pool.rules) == 2
-
-        min_rule = next((r for r in indu_electives_pool.rules if r.type == ConstraintType.MIN_COURSES_FROM_SET), None)
-        assert min_rule is not None
-        assert "INDU 410" in min_rule.params.courseList
-        assert "INDU 424" in min_rule.params.courseList
-        assert min_rule.params.minCourses == 3
-
-        max_rule = next((r for r in indu_electives_pool.rules if r.type == ConstraintType.MAX_COURSES_FROM_SET), None)
-        assert max_rule is not None
-        assert "BSTA 478" in max_rule.params.courseList
-        assert "MANA 300" in max_rule.params.courseList
-        assert max_rule.params.maxCourses == 1
-
-
-class TestMechDegreeScraper:
-    def test_handle_special_cases(self):
-        """Test handling special cases for Mechanical Engineering"""
-        # Setup scraper with program requirements including Engineering Core
-        engineering_core_pool = CoursePool(
-            _id="eng_core", 
-            name="Engineering Core", 
-            creditsRequired=30, 
-            courses=["ENGR 201", "ELEC 275", "MATH 205"]
-        )
-        
-        scraper = MechDegreeScraper("BEng in Mechanical Engineering", "MECH", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
-        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
-        
-        scraper._handle_special_cases()
-        
-        updated_pool = scraper.program_requirements.coursePools[0]
-        assert "ELEC 275" not in updated_pool.courses
-
-
-class TestSoenDegreeScraper:
-    def test_handle_special_cases(self):
-        """Test handling special cases for Software Engineering"""
-        # Setup scraper with program requirements including Engineering Core
-        engineering_core_pool = CoursePool(
-            _id="eng_core", 
-            name="Engineering Core", 
-            creditsRequired=30, 
-            courses=["ENGR 201", "ENGR 391", "MATH 205"]
-        )
-        
-        scraper = SoenDegreeScraper("BEng in Software Engineering", "SOEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
-        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [engineering_core_pool])
-        
-        scraper._handle_special_cases()
-        
-        updated_pool = scraper.program_requirements.coursePools[0]
-        assert "ENGR 391" not in updated_pool.courses

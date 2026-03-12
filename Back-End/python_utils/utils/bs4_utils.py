@@ -181,7 +181,11 @@ def extract_coursepool_rules(url: str, course_pool: CoursePool):
         return
 
     combined_pattern = re.compile(
-        r'\bNote\s*:|\bStudents (?:must|may) take\b|\bStudents cannot receive credit\b',
+        r'\bNote\s*:'
+        r'|\bStudents (?:must|may) take\b'
+        r'|\bStudents cannot receive credit\b'
+        r'|\bStudents may replace\b'
+        r'|\bStudents in\b',
         re.I
     )
 
