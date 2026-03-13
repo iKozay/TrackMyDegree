@@ -98,7 +98,7 @@ services:
     container_name: python-utils
     image: ghcr.io/ikozay/trackmydegree-python-utils:latest
     restart: always
-    ports:
+    expose:
       - "15001"
     env_file:
       - ./secrets/backend.env

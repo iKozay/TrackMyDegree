@@ -14,6 +14,8 @@ WORKDIR /app/Back-End/src
 
 RUN npm ci --ignore-scripts
 
+RUN npx ts-patch install -s
+
 RUN npm run build
 
 # ---------- Runtime stage ----------
