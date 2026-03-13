@@ -84,6 +84,8 @@ services:
     command: ["npm", "run", "worker"]
     env_file:
       - ./secrets/backend.env
+    volumes:
+      - pdf-uploads-stg:/app/tmp/pdf-uploads
     networks:
       - app-network
     depends_on:
