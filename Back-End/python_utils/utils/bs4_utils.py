@@ -9,7 +9,7 @@ from typing import Any
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from models import AnchorLink, CoursePool
-from .parsing_utils import REGEX_ALL, REGEX_NONE, COURSE_REGEX, clean_text, get_course_sort_key
+from .parsing_utils import REGEX_ALL, REGEX_NONE, COURSE_REGEX, clean_text, get_course_sort_key, parse_coursepool_rules
 
 def get_soup(url: str) -> BeautifulSoup:
     """
@@ -163,3 +163,64 @@ def extract_coursepool_courses(url: str, course_pool: CoursePool, automatically_
         course_pool.courses = course_ids
         return True
     return False
+
+def extract_coursepool_rules(url: str, course_pool: CoursePool):
+    """
+    Extracts the rules text for the given CoursePool from the corresponding div on the page.
+    Rule text is found in elements containing 'Note:' or 'Students must/may take' patterns.
+    The extracted text is then parsed into a list of Constraint objects.
+
+    Args:
+        url (str): The URL of the page containing the course pool.
+        course_pool (CoursePool): The CoursePool object to populate with rules.
+    """
+    soup = get_soup(url)
+    course_pool_div = soup.find("div", class_="defined-group", attrs={"title": lambda t: t and clean_text(t).strip() == course_pool.name})
+
+    if not course_pool_div:
+        return
+
+    combined_pattern = re.compile(
+        r'\bNote\s*:'
+        r'|\bStudents (?:must|may) take\b'
+        r'|\bStudents cannot receive credit\b'
+        r'|\bStudents may replace\b'
+        r'|\bStudents in\b',
+        re.I
+    )
+
+    # Also include the sibling defined-group-children div (present when a pool has
+    # sub-pools whose rule text is rendered outside the main defined-group element).
+    # The div's class follows the pattern: "defined-group-children {pool-name-in-kebab-case}"
+    pool_kebab = re.sub(r'[^a-z0-9]+', '-', course_pool.name.lower()).strip('-')
+    search_roots = [course_pool_div]
+    parent = course_pool_div.parent
+    if parent:
+        children_div = parent.find(
+            "div",
+            class_=lambda c: c and "defined-group-children" in c.split() and pool_kebab in c.split()
+        )
+        if children_div:
+            search_roots.append(children_div)
+
+    rule_blocks = []
+    # Iterate candidate tag types from largest to smallest so we capture the most
+    # complete text first, then skip any sub-elements whose text is already covered.
+    for tag_name in ('table', 'td', 'p', 'li', 'div', 'span'):
+        for root in search_roots:
+            for elem in root.find_all(tag_name):
+                raw_text = " ".join(elem.stripped_strings)
+                if not combined_pattern.search(raw_text):
+                    continue
+                cleaned = clean_text(raw_text)
+                if not cleaned:
+                    continue
+                # Skip if this text is already fully covered by an existing block
+                if any(cleaned in existing for existing in rule_blocks):
+                    continue
+                # Remove any previously collected blocks that are subsumed by this larger block
+                rule_blocks = [b for b in rule_blocks if b not in cleaned]
+                rule_blocks.append(cleaned)
+
+    coursepool_notes = "\n\n".join(rule_blocks)
+    course_pool.rules = parse_coursepool_rules(coursepool_notes)
