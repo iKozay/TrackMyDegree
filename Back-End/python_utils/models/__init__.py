@@ -97,6 +97,9 @@ class Constraint(BaseModel):
     type: ConstraintType
     params: ConstraintParams
     message: str = ""
+    level: str = "warning"  # Can be "warning" or "info"
+    # warning: Constraint is not strictly required but recommended for a well-structured program
+    # info: informational constraint that provides additional details but does not impact requirement satisfaction
 
 class CourseRules(BaseModel):
     #TODO: swap CourseRules with list of constraints to have the same system for both courses and course pools

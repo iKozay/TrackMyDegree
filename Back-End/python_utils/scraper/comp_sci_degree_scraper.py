@@ -21,7 +21,8 @@ class CompDegreeScraper(GinaCodyDegreeScraper):
             params=ExcessCreditsOverflowParams(
                 targetPoolId=gen_electives_pool._id
             ),
-            message="Any credits exceeding the required number of Computer Science Elective credits will accrue towards the General Elective credits."
+            message="Any credits exceeding the required number of Computer Science Elective credits will accrue towards the General Elective credits.",
+            level="info"
         ))
 
         math_electives_pool.rules.append(Constraint(
@@ -29,7 +30,8 @@ class CompDegreeScraper(GinaCodyDegreeScraper):
             params=ExcessCreditsOverflowParams(
                 targetPoolId=gen_electives_pool._id
             ),
-            message="Credits exceeding the required number of Mathematics Elective credits will accrue towards the General Elective credits."
+            message="Credits exceeding the required number of Mathematics Elective credits will accrue towards the General Elective credits.",
+            level="info"
         ))
 
     def _handle_special_cases(self):
