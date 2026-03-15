@@ -15,12 +15,13 @@
     background: white;
     border-radius: 8px;
     padding: 2rem;
-    max-width: 1200px;
-    width: 95%;
-    max-height: 90vh;
-    overflow-y: auto;
+    width: min(95vw, 1100px);
+    height: min(90vh, 760px);
+    overflow: hidden;
     position: relative;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
 }
 
 .insights-modal-close {
@@ -63,6 +64,8 @@
     grid-template-columns: 220px 1fr;
     gap: 1rem;
     margin-top: 1rem;
+    min-height: 0;
+    flex: 1;
 }
 
 .insights-side-panel {
@@ -92,6 +95,9 @@
 
 .insights-main-content {
     min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 0.5rem;
 }
 
 .insights-degree-audit {
@@ -135,5 +141,6 @@
     .insights-modal-content {
         padding: 1rem;
         width: 98%;
+        height: min(92vh, 760px);
     }
 }
