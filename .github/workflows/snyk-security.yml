@@ -1,0 +1,164 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# A sample workflow which sets up Snyk to analyze the full Snyk platform (Snyk Open Source, Snyk Code,
+# Snyk Container and Snyk Infrastructure as Code)
+# The setup installs the Snyk CLI - for more details on the possible commands
+# check https://docs.snyk.io/snyk-cli/cli-reference
+# The results of Snyk Code are then uploaded to GitHub Security Code Scanning
+#
+# In order to use the Snyk Action you will need to have a Snyk API token.
+# More details in https://github.com/snyk/actions#getting-your-snyk-token
+# or you can signup for free at https://snyk.io/login
+#
+# For more examples, including how to limit scans to only high-severity issues
+# and fail PR checks, see https://github.com/snyk/actions/
+
+name: Snyk Security
+
+on:
+  push:
+    branches: ["main" ]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: '00 00 * * 0'
+
+permissions:
+  contents: read
+
+jobs:
+  snyk-components:
+    name: Snyk security (${{ matrix.name }})
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+    runs-on: ubuntu-latest
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: python-utils
+            working-directory: Back-End/python_utils
+            manifest: requirements.txt
+            dockerfile: ./Back-End/python_utils/Dockerfile
+            context: ./Back-End/python_utils
+            image: trackmydegree-python-utils
+            runtime: python
+            python-version: '3.11'
+          - name: backend
+            working-directory: Back-End/src
+            manifest: package-lock.json
+            dockerfile: ./Back-End/src/Dockerfile
+            context: .
+            image: trackmydegree-backend
+            runtime: node
+            node-version: '22'
+          - name: frontend
+            working-directory: ts-front-end
+            manifest: package-lock.json
+            dockerfile: ./ts-front-end/Dockerfile
+            context: .
+            image: trackmydegree-frontend
+            runtime: node
+            node-version: '22'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        if: matrix.runtime == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Set up Python
+        if: matrix.runtime == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set up Snyk CLI to check for security issues
+        # Snyk can be used to break the build when it detects security issues.
+        # In this case we want to upload the SAST issues to GitHub Code Scanning
+        uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb
+
+      - name: Install component dependencies
+        working-directory: ${{ matrix.working-directory }}
+        run: |
+          if [ "${{ matrix.runtime }}" = "node" ]; then
+            npm ci
+          else
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+          fi
+
+      - name: Snyk Code test
+        working-directory: ${{ matrix.working-directory }}
+        continue-on-error: true
+        run: snyk code test --sarif-file-output=snyk-code.sarif
+
+      - name: Upload result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: ${{ matrix.working-directory }}/snyk-code.sarif
+          category: snyk-code-${{ matrix.name }}
+
+      - name: Snyk Open Source monitor
+        working-directory: ${{ matrix.working-directory }}
+        continue-on-error: true
+        run: snyk monitor --file=${{ matrix.manifest }} --project-name=${{ github.repository }}-${{ matrix.name }}
+
+      - name: Build ${{ matrix.name }} Docker image
+        run: docker build -f "${{ matrix.dockerfile }}" -t "${{ matrix.image }}:${{ github.sha }}" "${{ matrix.context }}"
+
+      - name: Snyk Container test (SARIF)
+        continue-on-error: true
+        uses: snyk/actions/docker@14818c4695ecc4045f33c9cee9e795a788711ca4
+        with:
+          image: ${{ matrix.image }}:${{ github.sha }}
+          args: --file=${{ matrix.dockerfile }}
+
+      - name: Normalize container SARIF for GitHub Code Scanning
+        run: |
+          python3 <<'PY'
+          import json
+          from pathlib import Path
+
+          sarif_path = Path("snyk.sarif")
+          if not sarif_path.exists():
+              raise SystemExit(0)
+
+          data = json.loads(sarif_path.read_text())
+
+          def normalize_rules(rules):
+              for rule in rules or []:
+                  properties = rule.setdefault("properties", {})
+                  value = properties.get("security-severity")
+                  try:
+                      if value is None:
+                          raise ValueError
+                      float(str(value))
+                  except (TypeError, ValueError):
+                      properties["security-severity"] = "0.0"
+
+          for run in data.get("runs", []):
+              tool = run.get("tool", {})
+              driver = tool.get("driver", {})
+              normalize_rules(driver.get("rules", []))
+              for extension in tool.get("extensions", []):
+                  normalize_rules(extension.get("rules", []))
+
+          sarif_path.write_text(json.dumps(data))
+          PY
+
+      - name: Upload container result to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: snyk.sarif
+          category: snyk-container-${{ matrix.name }}
+
+      - name: Snyk Container monitor
+        continue-on-error: true
+        run: snyk container monitor "${{ matrix.image }}:${{ github.sha }}" --file=${{ matrix.dockerfile }} --project-name=${{ github.repository }}-${{ matrix.name }}
