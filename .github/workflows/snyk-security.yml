@@ -121,6 +121,7 @@ jobs:
           args: --file=${{ matrix.dockerfile }}
 
       - name: Normalize container SARIF for GitHub Code Scanning
+        if: ${{ hashFiles('snyk.sarif') != '' }}
         run: |
           python3 <<'PY'
           import json
@@ -129,6 +130,8 @@ jobs:
           sarif_path = Path("snyk.sarif")
           if not sarif_path.exists():
               raise SystemExit(0)
+
+          out_path = Path("/tmp/snyk-normalized.sarif")
 
           data = json.loads(sarif_path.read_text())
 
@@ -150,13 +153,14 @@ jobs:
               for extension in tool.get("extensions", []):
                   normalize_rules(extension.get("rules", []))
 
-          sarif_path.write_text(json.dumps(data))
+          out_path.write_text(json.dumps(data))
           PY
 
       - name: Upload container result to GitHub Code Scanning
+        if: ${{ hashFiles('snyk.sarif') != '' }}
         uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: snyk.sarif
+          sarif_file: /tmp/snyk-normalized.sarif
           category: snyk-container-${{ matrix.name }}
 
       - name: Snyk Container monitor
