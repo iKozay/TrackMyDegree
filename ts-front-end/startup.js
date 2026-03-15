@@ -3,11 +3,14 @@ const fs = require('node:fs');
 const { spawn } = require('node:child_process');
 const path = require('node:path');
 
-// 1. envsubst: replace ${VAR_NAME} placeholders with runtime environment variables
+// 1. envsubst: replace $VAR_NAME and ${VAR_NAME} placeholders with runtime environment variables
 const envFile = '/app/dist/env.js';
-const content = fs.readFileSync(envFile, 'utf8').replace(
-  /\$\{([A-Z_][A-Z0-9_]*)\}/g,
-  (_, name) => process.env[name] ?? ''
+const content = fs.readFileSync(envFile, 'utf8').replaceAll(
+  /\$\{([A-Z_][A-Z0-9_]*)\}|\$([A-Z_][A-Z0-9_]*)/g,
+  (match, bracedName, unbracedName) => {
+    const name = bracedName ?? unbracedName;
+    return process.env[name] ?? '';
+  }
 );
 fs.writeFileSync(envFile, content, 'utf8');
 

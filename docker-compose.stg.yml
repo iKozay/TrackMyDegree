@@ -57,7 +57,7 @@ services:
       - DATA_DIR=/app/data
     volumes:
       - pdf-uploads:/app/tmp/pdf-uploads
-      - ./data:/app/data
+      - credit-forms:/app/data/credit-forms
     env_file:
       - ./secrets/backend.env
     networks:
@@ -81,11 +81,11 @@ services:
     container_name: backend-worker
     image: ghcr.io/ikozay/trackmydegree-backend:latest
     restart: always
-    command: ["npm", "run", "worker"]
+    command: ["dist/Back-End/src/worker.js"]
+    volumes:
+      - pdf-uploads:/app/tmp/pdf-uploads
     env_file:
       - ./secrets/backend.env
-    volumes:
-      - pdf-uploads-stg:/app/tmp/pdf-uploads
     networks:
       - app-network
     depends_on:
@@ -104,6 +104,8 @@ services:
       - "15001"
     env_file:
       - ./secrets/backend.env
+    volumes:
+      - python-utils-data:/app/data
     networks:
       - app-network
     labels:
@@ -177,3 +179,5 @@ volumes:
   redis-data:
   mongodb-data:
   pdf-uploads:
+  credit-forms:
+  python-utils-data:

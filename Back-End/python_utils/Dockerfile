@@ -13,8 +13,8 @@ FROM gcr.io/distroless/python3-debian12:nonroot
 
 WORKDIR /app
 
-COPY --from=builder /app/packages /app/packages
-COPY --from=builder /app/data /app/data
+COPY --from=builder                    /app/packages /app/packages
+COPY --from=builder --chown=65532:65532 /app/data     /app/data
 COPY . /app
 
 ENV PYTHONPATH=/app/packages
