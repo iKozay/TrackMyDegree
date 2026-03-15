@@ -19,8 +19,6 @@ RUN npx ts-patch install -s
 RUN npm run build
 
 # ---------- Deps stage ----------
-# Runs npm ci and creates writable data dirs; distroless has no shell so this
-# must happen here before the final COPY.
 FROM node:22-alpine AS deps
 
 WORKDIR /app

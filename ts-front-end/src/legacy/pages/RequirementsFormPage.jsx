@@ -131,6 +131,10 @@ export default function RequirementsFormPage() {
     if (srcCacheBuster) {
       effectiveSrc += `?v=${srcCacheBuster}`;
     }
+    // Reject non-http(s) URLs to prevent javascript:/data: injection in iframe src (CWE-79)
+    if (!/^https?:\/\//.test(effectiveSrc)) {
+      effectiveSrc = null;
+    }
   }
 
   const onBack = () => navigate('/requirements');
