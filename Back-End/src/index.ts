@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/node';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'node:path';
@@ -25,7 +24,6 @@ import degreeAuditRouter from '@routes/degreeAuditRoutes';
 import coopvalidationRouter from '@routes/coopvalidationRoutes';
 import creditFormRouter from '@routes/creditFormRoutes';
 
-
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
 import {
@@ -34,10 +32,12 @@ import {
   resetPasswordLimiter,
   signupLimiter,
 } from '@middleware/rateLimiter';
+import { getSentryProfilingIntegrations } from '@utils/misc';
+
 // sentry init
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
-  integrations: [nodeProfilingIntegration()],
+  integrations: getSentryProfilingIntegrations(),
   tracesSampleRate: 1,
   profilesSampleRate: 1,
 });
@@ -142,8 +142,6 @@ const start = async () => {
     console.warn('⚠️ Redis not available, caching disabled:', err);
     Sentry.captureException(err);
   }
-
-
 
   app.listen(PORT, () => {
     console.log(`Server listening on Port: ${PORT}`);

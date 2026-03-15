@@ -1,4 +1,7 @@
-import { getTermRanges, isTermInProgress } from '@utils/misc';
+import {
+  getTermRanges,
+  isTermInProgress,
+} from '@utils/misc';
 import { SEASONS } from '@utils/constants';
 
 const WINTER_2024 = 'Winter 2024';
@@ -83,6 +86,59 @@ describe('misc', () => {
     it('returns true when today equals term end', () => {
       jest.setSystemTime(new Date(2024, 4, 4));
       expect(isTermInProgress(WINTER_2024)).toBe(true);
+    });
+  });
+
+  describe('getSentryProfilingIntegrations', () => {
+    beforeEach(() => {
+      jest.resetModules();
+      jest.clearAllMocks();
+    });
+
+    it('returns node profiling integration when profiler module is available', () => {
+      jest.doMock('@sentry/profiling-node', () => ({
+        nodeProfilingIntegration: jest.fn(() => ({ name: 'mock-profiler' })),
+      }));
+
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      let localGetSentryProfilingIntegrations: () => unknown[];
+
+      jest.isolateModules(() => {
+        ({
+          getSentryProfilingIntegrations: localGetSentryProfilingIntegrations,
+        } = require('@utils/misc'));
+      });
+
+      const integrations = localGetSentryProfilingIntegrations!();
+
+      expect(integrations).toHaveLength(1);
+      expect(warnSpy).not.toHaveBeenCalled();
+      warnSpy.mockRestore();
+    });
+
+    it('returns empty integrations and warns when profiler module is unavailable', () => {
+      const missingBinaryError = new Error('native binary unavailable');
+      jest.doMock('@sentry/profiling-node', () => {
+        throw missingBinaryError;
+      });
+
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      let localGetSentryProfilingIntegrations: () => unknown[];
+
+      jest.isolateModules(() => {
+        ({
+          getSentryProfilingIntegrations: localGetSentryProfilingIntegrations,
+        } = require('@utils/misc'));
+      });
+
+      const integrations = localGetSentryProfilingIntegrations!();
+
+      expect(integrations).toEqual([]);
+      expect(warnSpy).toHaveBeenCalledWith(
+        'Sentry profiling disabled: native profiler binary is unavailable.',
+        missingBinaryError,
+      );
+      warnSpy.mockRestore();
     });
   });
 });

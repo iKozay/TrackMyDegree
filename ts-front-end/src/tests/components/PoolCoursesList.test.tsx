@@ -72,7 +72,7 @@ describe("PoolCoursesList", () => {
     },
   };
 
-  it("renders all pool courses when visibleCourseIds is empty", () => {
+  it("renders no courses when visibleCourseIds is an empty filtered list", () => {
     const onCourseSelect = vi.fn();
 
     render(
@@ -80,6 +80,21 @@ describe("PoolCoursesList", () => {
         pool={pool}
         courses={courses}
         visibleCourseIds={[]}
+        selectedCourse={null}
+        onCourseSelect={onCourseSelect}
+      />
+    );
+
+    expect(screen.queryAllByTestId("draggable-course")).toHaveLength(0);
+  });
+
+  it("renders all pool courses when visibleCourseIds is not provided", () => {
+    const onCourseSelect = vi.fn();
+
+    render(
+      <PoolCoursesList
+        pool={pool}
+        courses={courses}
         selectedCourse={null}
         onCourseSelect={onCourseSelect}
       />
@@ -121,7 +136,7 @@ describe("PoolCoursesList", () => {
       <PoolCoursesList
         pool={pool}
         courses={courses}
-        visibleCourseIds={[]}
+        visibleCourseIds={pool.courses}
         selectedCourse={"SOEN 287" as CourseCode}
         onCourseSelect={onCourseSelect}
       />
@@ -147,7 +162,7 @@ describe("PoolCoursesList", () => {
       <PoolCoursesList
         pool={pool}
         courses={courses}
-        visibleCourseIds={[]}
+        visibleCourseIds={pool.courses}
         selectedCourse={null}
         onCourseSelect={onCourseSelect}
       />

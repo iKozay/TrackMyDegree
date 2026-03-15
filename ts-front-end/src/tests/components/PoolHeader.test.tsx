@@ -20,18 +20,17 @@ describe("PoolHeader", () => {
         isExpanded={false}
         onToggle={onToggle}
         visibleCourseIds={pool.courses}
-        hasActiveSearch={false}
       />
     );
 
     // Pool name
     expect(screen.getByText("Software Engineering Core")).toBeInTheDocument();
 
-    // Course count: just total, since hasActiveSearch = false
+    // Course count should reflect visible courses.
     expect(screen.getByText("(3)")).toBeInTheDocument();
   });
 
-  it("shows filtered/total course count when there is an active search", () => {
+  it("shows visible course count when there is an active search", () => {
     const onToggle = vi.fn();
 
     render(
@@ -40,12 +39,10 @@ describe("PoolHeader", () => {
         isExpanded={false}
         onToggle={onToggle}
         visibleCourseIds={["SOEN 228" as CourseCode, "SOEN 287" as CourseCode]}
-        hasActiveSearch={true}
       />
     );
 
-    // Should show "(2/3)" when 2 out of 3 match the search
-    expect(screen.getByText("(2/3)")).toBeInTheDocument();
+    expect(screen.getByText("(2)")).toBeInTheDocument();
   });
 
   it("calls onToggle when clicked", () => {
@@ -57,7 +54,6 @@ describe("PoolHeader", () => {
         isExpanded={false}
         onToggle={onToggle}
         visibleCourseIds={pool.courses}
-        hasActiveSearch={false}
       />
     );
 
@@ -79,7 +75,6 @@ describe("PoolHeader", () => {
         isExpanded={false}
         onToggle={onToggle}
         visibleCourseIds={pool.courses}
-        hasActiveSearch={false}
       />
     );
 
@@ -94,12 +89,33 @@ describe("PoolHeader", () => {
         isExpanded={true}
         onToggle={onToggle}
         visibleCourseIds={pool.courses}
-        hasActiveSearch={false}
       />
     );
 
     // Still an SVG, but we mainly care that it re-renders without error.
     const expandedSvg = document.querySelector("svg");
     expect(expandedSvg).toBeInTheDocument();
+  });
+
+  it("does not call onToggle when disabled", () => {
+    const onToggle = vi.fn();
+
+    render(
+      <PoolHeader
+        pool={pool}
+        isExpanded={false}
+        onToggle={onToggle}
+        visibleCourseIds={[]}
+        disabled={true}
+      />
+    );
+
+    const button = screen.getByRole("button", {
+      name: /software engineering core/i,
+    });
+
+    fireEvent.click(button);
+    expect(button).toBeDisabled();
+    expect(onToggle).not.toHaveBeenCalled();
   });
 });

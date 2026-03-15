@@ -4,7 +4,7 @@ import type { Pool, CourseMap, CourseCode } from "../types/timeline.types";
 interface PoolCoursesListProps {
   pool: Pool;
   courses: CourseMap;
-  visibleCourseIds: CourseCode[];
+  visibleCourseIds?: CourseCode[];
   selectedCourse?: CourseCode | null;
 
   onCourseSelect: (courseId: CourseCode) => void;
@@ -17,8 +17,7 @@ export const PoolCoursesList: React.FC<PoolCoursesListProps> = ({
   visibleCourseIds,
   onCourseSelect,
 }) => {
-  const idsToRender =
-    visibleCourseIds.length > 0 ? visibleCourseIds : pool.courses;
+  const idsToRender = visibleCourseIds ?? pool.courses;
 
   return (
     <div className="pool-courses">
