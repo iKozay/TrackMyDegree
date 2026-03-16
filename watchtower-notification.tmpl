@@ -1,0 +1,16 @@
+{{ if .Report }}{{ if or .Report.Updated .Report.Failed .Report.Restarted }}Watchtower Update Report
+Scanned: {{ len .Report.Scanned }}
+
+{{ if .Report.Updated }}Updated Containers ({{ len .Report.Updated }}):
+{{ range .Report.Updated }}
+- {{ .Name }}: {{ .ImageName }} → {{ .LatestImageID.ShortID }}{{ end }}{{ end }}
+
+{{ if .Report.Restarted }}Restarted Containers ({{ len .Report.Restarted }}):
+{{ range .Report.Restarted }}
+- {{ .Name }}: {{ .ImageName }}{{ end }}{{ end }}
+
+{{ if .Report.Failed }}Errors ({{ len .Report.Failed }}):
+{{ range .Report.Failed }}
+- {{ .Name }}: {{ .Error }}{{ end }}{{ end }}
+{{ end }}
+{{ end }}

@@ -122,7 +122,7 @@ For production deployment with SSL/HTTPS support, follow these additional steps:
 
 ### Production Setup Instructions
 
-1. **Download `docker-compose.prd.yml`, `frontend.env.example`, `backend.env.example`, `mongo.env.example` and `traefik/dynamic.yml`**
+1. **Download `docker-compose.prd.yml`, `frontend.env.example`, `backend.env.example`, `mongo.env.example`, `watchtower-notification.tmpl` and `traefik/dynamic.yml`**
 
 2. **Configure Environment Variables**:
    - **Rename `docker.env.example` to `.env` and replace yourdomain.com with your actual domain name:**
@@ -159,7 +159,8 @@ For production deployment with SSL/HTTPS support, follow these additional steps:
      │   ├── frontend.env
      │   └── mongo.env
      ├── .env
-     └── docker-compose.prd.yml
+     ├── docker-compose.prd.yml
+     └── watchtower-notification.tmpl
      ```
 
 3. **Deploy the application**:

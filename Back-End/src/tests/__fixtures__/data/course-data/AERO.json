@@ -231,9 +231,9 @@
     "credits": 3.0,
     "description": "",
     "offeredIn": [],
-    "prereqCoreqText": "The following courses must be completed previously: ENGR 371 or COMP 233; AERO 371 or ELEC 372 or MECH 370 or SOEN 385.",
+    "prereqCoreqText": "The following courses must be completed previously: ENGR 371 or COMP 233; AERO 371 or ELEC 372 or MECH 370 or MECH 371 or SOEN 385.",
     "rules": {
-      "prereq": [["ENGR 371", "COMP 233"], ["AERO 371", "ELEC 372", "MECH 370", "SOEN 385"]],
+      "prereq": [["ENGR 371", "COMP 233"], ["AERO 371", "ELEC 372", "MECH 370", "MECH 371", "SOEN 385"]],
       "coreq": [],
       "not_taken": ["MECH 482","ELEC 416"],
       "min_credits": 0.0

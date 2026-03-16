@@ -12,12 +12,11 @@
 }
 
 .user-timelines-section h2 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #8B1538;
+  font-size: 30px;
+  font-weight: 400;
+  color: #1a1a1a;
   text-align: center;
   margin-bottom: 20px;
-  animation: fadeInDown 0.7s ease-out;
 }
 
 .timeline-empty,
@@ -66,14 +65,19 @@
 
 .timeline-info {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
   cursor: pointer;
 }
 
 .timeline-info h4 {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 700;
   margin: 0 0 5px;
   color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .timeline-info p {
@@ -85,26 +89,10 @@
 .timeline-actions {
   display: flex;
   gap: 12px;
-}
-
-.btn-assessment {
-  display: flex;
+  flex-shrink: 0;
   align-items: center;
-  gap: 5px;
-  padding: 8px 12px;
-  border-radius: 50px;
-  background: #8B1538;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s;
 }
 
-.btn-assessment:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(139,21,56,0.2);
-}
 
 .btn-delete {
   display: flex;

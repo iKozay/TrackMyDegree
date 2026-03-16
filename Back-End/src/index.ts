@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/node';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import express from 'express';
 import dotenv from 'dotenv';
 import path from 'node:path';
@@ -25,7 +24,6 @@ import degreeAuditRouter from '@routes/degreeAuditRoutes';
 import coopvalidationRouter from '@routes/coopvalidationRoutes';
 import creditFormRouter from '@routes/creditFormRoutes';
 
-
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
 import {
@@ -34,10 +32,12 @@ import {
   resetPasswordLimiter,
   signupLimiter,
 } from '@middleware/rateLimiter';
+import { getSentryProfilingIntegrations } from '@utils/misc';
+
 // sentry init
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
-  integrations: [nodeProfilingIntegration()],
+  integrations: getSentryProfilingIntegrations(),
   tracesSampleRate: 1,
   profilesSampleRate: 1,
 });
@@ -58,6 +58,12 @@ if (process.env.NODE_ENV === 'development') {
 // For production and staging, env vars are injected automatically via Docker
 
 const app = express();
+
+// Trust proxy in production and staging
+if (process.env.NODE_ENV === 'staging' || process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 const PORT = process.env.BACKEND_PORT || 8000;
 
 // MongoDB connection
@@ -142,8 +148,6 @@ const start = async () => {
     console.warn('⚠️ Redis not available, caching disabled:', err);
     Sentry.captureException(err);
   }
-
-
 
   app.listen(PORT, () => {
     console.log(`Server listening on Port: ${PORT}`);

@@ -52,21 +52,60 @@ services:
     restart: always
     expose:
       - "8000"
+    environment:
+      - DATA_DIR=/app/data
     volumes:
-      - ./backups:/var/backups
+      - pdf-uploads:/app/tmp/pdf-uploads
+      - ./data:/app/data
     env_file:
       - ./secrets/backend.env
     networks:
       - app-network
     depends_on:
-      - redis
-      - mongodb
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      python-utils:
+        condition: service_started
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`${DOMAIN}`) && (PathPrefix(`/api`))"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls=true"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
+
+  backend-worker:
+    container_name: backend-worker
+    image: ghcr.io/ikozay/trackmydegree-backend:production
+    restart: always
+    command: ["npm", "run", "worker"]
+    env_file:
+      - ./secrets/backend.env
+    networks:
+      - app-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      python-utils:
+        condition: service_started
+
+  python-utils:
+    container_name: python-utils
+    image: ghcr.io/ikozay/trackmydegree-python-utils:production
+    restart: always
+    expose:
+      - "15001"
+    env_file:
+      - ./secrets/backend.env
+    volumes:
+      - pdf-uploads-stg:/app/tmp/pdf-uploads
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=false"
 
   mongodb:
     container_name: mongodb
@@ -81,6 +120,11 @@ services:
       - ./secrets/mongo.env
     networks:
       - app-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
     labels:
       - "traefik.enable=false"
 
@@ -94,22 +138,32 @@ services:
       - redis-data:/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     labels:
       - "traefik.enable=false"
 
   # Add Watchtower for automatic updates
   watchtower:
     container_name: watchtower
-    image: containrrr/watchtower
+    image: nickfedor/watchtower:1.14.3
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --schedule "0 0 4 * * *" # daily at 4:00 AM
+      - ./watchtower-notification.tmpl:/notification-template.tmpl
+    command: >
+      --schedule "0 0 4 * * *"
+      --cleanup
+      --notification-report
+      --notifications-level info
+      --notification-template-file=/notification-template.tmpl
     environment:
-      - WATCHTOWER_CLEANUP=true  # remove old images
-      - WATCHTOWER_NOTIFICATIONS_LEVEL=info
-      - WATCHTOWER_DEBUG=false
-      - WATCHTOWER_REGISTRY_AUTH=true
+      - TZ=${TZ}
+      - WATCHTOWER_NOTIFICATIONS=${WATCHTOWER_NOTIFICATIONS}
+      - WATCHTOWER_NOTIFICATION_URL=${WATCHTOWER_NOTIFICATION_URL}
     networks:
       - app-network
 
@@ -120,3 +174,4 @@ networks:
 volumes:
   redis-data:
   mongodb-data:
+  pdf-uploads:
