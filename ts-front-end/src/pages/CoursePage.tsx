@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useDegrees from "../legacy/hooks/useDegree.jsx";
 import useCourses from "../legacy/hooks/useCourses.jsx";
@@ -92,6 +92,8 @@ const CourseCard: React.FC<{
   );
 };
 
+const COURSES_PAGE_SIZE = 100;
+
 // Pool Accordion Component
 const PoolAccordion: React.FC<{
   group: CourseGroup;
@@ -100,6 +102,15 @@ const PoolAccordion: React.FC<{
   defaultExpanded?: boolean;
 }> = ({ group, selectedCourse, onCourseSelect, defaultExpanded = false }) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  const [visibleCount, setVisibleCount] = useState(COURSES_PAGE_SIZE);
+
+  // Reset pagination when the course list changes (new degree or search term)
+  useEffect(() => {
+    setVisibleCount(COURSES_PAGE_SIZE);
+  }, [group.courses]);
+
+  const visibleCourses = group.courses.slice(0, visibleCount);
+  const hiddenCount = group.courses.length - visibleCount;
 
   return (
     <div className="pool-section">
@@ -125,7 +136,7 @@ const PoolAccordion: React.FC<{
           >
             <div className="pool-courses-container">
               <div className="course-grid">
-                {group.courses.map((course) => (
+                {visibleCourses.map((course) => (
                   <CourseCard
                     key={course._id}
                     course={course}
@@ -134,6 +145,16 @@ const PoolAccordion: React.FC<{
                   />
                 ))}
               </div>
+
+              {hiddenCount > 0 && (
+                <button
+                  className="show-more-courses-btn"
+                  onClick={() => setVisibleCount((c) => c + COURSES_PAGE_SIZE)}
+                >
+                  Show {Math.min(hiddenCount, COURSES_PAGE_SIZE)} more courses
+                  <span className="show-more-remaining">({hiddenCount} remaining)</span>
+                </button>
+              )}
 
               {/* Subcourses */}
               {group.subcourses && group.subcourses.length > 0 && (

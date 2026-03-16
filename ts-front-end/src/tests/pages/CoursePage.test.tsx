@@ -253,3 +253,92 @@ describe("CoursePage", () => {
     expect(container.querySelector(".course-modal-overlay")).not.toBeInTheDocument();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Show-more pagination
+// ---------------------------------------------------------------------------
+
+function makeLargeCourseList(count: number): CourseGroup[] {
+  const courses: CourseData[] = Array.from({ length: count }, (_, i) => ({
+    _id: `COMP${String(i).padStart(3, "0")}`,
+    title: `Course ${i}`,
+    credits: 3,
+  }));
+  return [{ name: "Large Pool", courses }];
+}
+
+describe("CoursePage – show-more pagination", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  function openPool(courseList: CourseGroup[]) {
+    renderPage({ courseList });
+    fireEvent.click(screen.getByRole("button", { name: /select degree/i }));
+    fireEvent.click(screen.getByText("Software Engineering"));
+    fireEvent.click(screen.getByRole("button", { name: /large pool/i }));
+  }
+
+  it("does not show the button when the pool has 100 or fewer courses", () => {
+    openPool(makeLargeCourseList(100));
+    expect(
+      screen.queryByRole("button", { name: /show.*more courses/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it("caps the initial render at 100 and shows the button for a 101-course pool", () => {
+    const { container } = renderPage({ courseList: makeLargeCourseList(101) });
+    fireEvent.click(screen.getByRole("button", { name: /select degree/i }));
+    fireEvent.click(screen.getByText("Software Engineering"));
+    fireEvent.click(screen.getByRole("button", { name: /large pool/i }));
+
+    expect(container.querySelectorAll(".course-card-item")).toHaveLength(100);
+    expect(
+      screen.getByRole("button", { name: /show 1 more courses/i })
+    ).toBeInTheDocument();
+    expect(screen.getByText("(1 remaining)")).toBeInTheDocument();
+  });
+
+  it("reveals all courses after one click and hides the button when nothing remains", () => {
+    const { container } = renderPage({ courseList: makeLargeCourseList(101) });
+    fireEvent.click(screen.getByRole("button", { name: /select degree/i }));
+    fireEvent.click(screen.getByText("Software Engineering"));
+    fireEvent.click(screen.getByRole("button", { name: /large pool/i }));
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /show 1 more courses/i })
+    );
+
+    expect(container.querySelectorAll(".course-card-item")).toHaveLength(101);
+    expect(
+      screen.queryByRole("button", { name: /show.*more courses/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it("pages through in increments of 100 for a 250-course pool", () => {
+    const { container } = renderPage({ courseList: makeLargeCourseList(250) });
+    fireEvent.click(screen.getByRole("button", { name: /select degree/i }));
+    fireEvent.click(screen.getByText("Software Engineering"));
+    fireEvent.click(screen.getByRole("button", { name: /large pool/i }));
+
+    // Initial: 100 visible, 150 hidden
+    expect(container.querySelectorAll(".course-card-item")).toHaveLength(100);
+    expect(screen.getByText("(150 remaining)")).toBeInTheDocument();
+
+    // First click: 200 visible, 50 hidden
+    fireEvent.click(
+      screen.getByRole("button", { name: /show 100 more courses/i })
+    );
+    expect(container.querySelectorAll(".course-card-item")).toHaveLength(200);
+    expect(screen.getByText("(50 remaining)")).toBeInTheDocument();
+
+    // Second click: all 250 visible, button gone
+    fireEvent.click(
+      screen.getByRole("button", { name: /show 50 more courses/i })
+    );
+    expect(container.querySelectorAll(".course-card-item")).toHaveLength(250);
+    expect(
+      screen.queryByRole("button", { name: /show.*more courses/i })
+    ).not.toBeInTheDocument();
+  });
+});
