@@ -34,6 +34,13 @@ describe('CourseSectionButton (SectionModal)', () => {
     const year = futureDate.getFullYear();
     const futureDateString = `${day}/${month}/${year}`;
 
+    const futureEndDate = new Date();
+    futureEndDate.setMonth(futureEndDate.getMonth() + 2);
+    const endDay = String(futureEndDate.getDate()).padStart(2, '0');
+    const endMonth = String(futureEndDate.getMonth() + 1).padStart(2, '0');
+    const endYear = futureEndDate.getFullYear();
+    const futureEndDateString = `${endDay}/${endMonth}/${endYear}`;
+
     const mockSections = [
       {
         classNumber: '12345',
@@ -44,7 +51,7 @@ describe('CourseSectionButton (SectionModal)', () => {
         classStatus: 'Open',
         instructionModeDescription: 'In Person',
         classStartDate: futureDateString,
-        classEndDate: '12/20/2024',
+        classEndDate: futureEndDateString,
         currentEnrollment: 10,
         enrollmentCapacity: 30,
         waitlistCapacity: 5,
@@ -173,6 +180,13 @@ describe('CourseSectionButton (SectionModal)', () => {
     const year = futureDate.getFullYear();
     const futureDateString = `${day}/${month}/${year}`;
 
+    const futureEndDate = new Date();
+    futureEndDate.setMonth(futureEndDate.getMonth() + 2);
+    const endDay = String(futureEndDate.getDate()).padStart(2, '0');
+    const endMonth = String(futureEndDate.getMonth() + 1).padStart(2, '0');
+    const endYear = futureEndDate.getFullYear();
+    const futureEndDateString = `${endDay}/${endMonth}/${endYear}`;
+
     const mockSections = [
       {
         classNumber: '12345',
@@ -183,7 +197,7 @@ describe('CourseSectionButton (SectionModal)', () => {
         classStatus: 'Open',
         instructionModeDescription: 'In Person',
         classStartDate: futureDateString,
-        classEndDate: '12/20/2024',
+        classEndDate: futureEndDateString,
         currentEnrollment: 10,
         enrollmentCapacity: 30,
         waitlistCapacity: 5,

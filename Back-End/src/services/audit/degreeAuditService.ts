@@ -1,6 +1,5 @@
 import { Timeline, User } from '@models';
 import { degreeController } from '@controllers/degreeController';
-import { CourseData } from '@controllers/courseController';
 import {
   DegreeAuditData,
   StudentInfo,
@@ -13,7 +12,7 @@ import {
   GenerateAuditParams,
 } from '@shared/audit';
 import { TimelineCourse, TimelineDocument, TimelineResult, TimelineSemester, CourseStatus } from '@shared/timeline';
-import {DegreeData, CoursePoolInfo} from '@shared/degree';
+import { CourseData, DegreeData, CoursePoolInfo } from '@shared/degree';
 import { isTermInProgress } from '@utils/misc';
 
 interface TimelineWithUser extends TimelineDocument {
