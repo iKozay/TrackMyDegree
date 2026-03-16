@@ -103,7 +103,6 @@ services:
     env_file:
       - ./secrets/backend.env
     volumes:
-      - pdf-uploads:/app/tmp/pdf-uploads
       - python-utils-data:/app/data
     networks:
       - app-network
