@@ -6,10 +6,12 @@ export interface DegreeData {
   coursePools?: string[];
   degreeType?: string;
   ecpDegreeId: string;
+  baseAcademicYear?: string;
 }
 export interface CoursePoolInfo {
   _id: string;
   name: string;
   creditsRequired: number;
   courses: string[];
+  baseAcademicYear?: string;
 }
