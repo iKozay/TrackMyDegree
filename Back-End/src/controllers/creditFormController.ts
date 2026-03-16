@@ -193,8 +193,14 @@ export async function deleteForm(programId: string): Promise<void> {
  * Returns null if the file does not exist on disk.
  */
 export function resolveFilePath(filename: string): string | null {
-    const safeFilename = Array.isArray(filename) ? filename[0] : filename;
-    const filePath = path.join(UPLOAD_DIR, safeFilename);
+    const rawFilename = Array.isArray(filename) ? filename[0] : filename;
+    // Strip directory components to prevent path traversal (CWE-22)
+    const safeFilename = path.basename(rawFilename);
+    const filePath = path.resolve(UPLOAD_DIR, safeFilename);
+    // Verify the resolved path is strictly within UPLOAD_DIR
+    if (!filePath.startsWith(UPLOAD_DIR + path.sep)) {
+        return null;
+    }
     return fs.existsSync(filePath) ? filePath : null;
 }
 

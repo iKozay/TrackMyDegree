@@ -32,17 +32,17 @@ function parseExpiryToMs(exp: string): number {
 }
 
 export function getCookieOptions(isRefresh: boolean = false): CookieOptions {
-  const isProd = process.env.NODE_ENV === 'production';
+  const isSecure = process.env.NODE_ENV !== 'development';
 
   return {
     httpOnly: true,
-    secure: isProd,
+    secure: isSecure,
     sameSite: 'strict',
     path: isRefresh ? '/auth/refresh' : '/',
     maxAge: isRefresh
       ? parseExpiryToMs(REFRESH_EXPIRY)
       : parseExpiryToMs(ACCESS_EXPIRY),
-    domain: isProd ? process.env.COOKIE_DOMAIN : undefined,
+    domain: isSecure ? process.env.COOKIE_DOMAIN : undefined,
   };
 }
 

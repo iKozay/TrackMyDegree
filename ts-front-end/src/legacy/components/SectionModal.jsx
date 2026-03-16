@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { api } from '../../api/http-api-client';
 
 const CourseSectionButton = ({ code, title, hidden }) => {
@@ -93,8 +94,9 @@ const CourseSectionButton = ({ code, title, hidden }) => {
                 }
             );
             const filtered = data.filter(section => {
-                const startDate = parseDate(section.classStartDate);
-                return startDate >= getTwoMonthsAgo();
+                if (!section.classEndDate) return false;
+                const endDate = parseDate(section.classEndDate);
+                return endDate >= new Date();
             });
 
             if (isMounted) setSections(filtered);
@@ -113,7 +115,7 @@ const CourseSectionButton = ({ code, title, hidden }) => {
                 {loading ? 'Loading...' : 'Show Course Schedule'}
             </button>
 
-            {isOpen && (
+            {isOpen && ReactDOM.createPortal(
                 <div className="modal-overlay">
                     <div className="modal-card">
                         <div className="modal-header">
@@ -164,7 +166,8 @@ const CourseSectionButton = ({ code, title, hidden }) => {
                             </>
                         )}
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             <style>{`

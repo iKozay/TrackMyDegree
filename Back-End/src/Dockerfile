@@ -18,22 +18,27 @@ RUN npx ts-patch install -s
 
 RUN npm run build
 
-# ---------- Runtime stage ----------
-FROM node:22-alpine
+# ---------- Deps stage ----------
+FROM node:22-alpine AS deps
 
 WORKDIR /app
 
 COPY Back-End/src/package*.json ./
 
-RUN npm ci --omit=dev --ignore-scripts
+RUN npm ci --omit=dev --ignore-scripts \
+    && mkdir -p /app/data /app/tmp/pdf-uploads \
+    && chown -R 65532:65532 /app/data /app/tmp
 
-COPY --from=builder /app/Back-End/src/dist ./dist
+# ---------- Runtime stage ----------
+FROM gcr.io/distroless/nodejs22-debian12:nonroot
 
-RUN mkdir -p /app/data /app/tmp/pdf-uploads \
-    && chown -R node:node /app/data /app/tmp/pdf-uploads
+WORKDIR /app
+
+COPY --from=deps    --chown=65532:65532 /app/node_modules ./node_modules
+COPY --from=deps    --chown=65532:65532 /app/data         ./data
+COPY --from=deps    --chown=65532:65532 /app/tmp          ./tmp
+COPY --from=builder --chown=65532:65532 /app/Back-End/src/dist ./dist
 
 EXPOSE 8000
 
-USER node
-
-CMD ["node", "dist/Back-End/src/index.js"]
+CMD ["dist/Back-End/src/index.js"]

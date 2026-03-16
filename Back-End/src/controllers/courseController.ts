@@ -1,24 +1,7 @@
 import { BaseMongoController } from './baseMongoController';
 import { Course } from '@models';
+import { CourseData } from '@shared/degree';
 import { resolveEntityVersion } from '@services/catalogVersionService';
-
-export interface CourseData {
-  _id: string;
-  title: string;
-  description?: string;
-  credits: number;
-  offeredIn?: string[];
-  prereqCoreqText?: string;
-  rules?: {
-    prereq?: string[][];
-    coreq?: string[][];
-    not_taken?: string[];
-    min_credits?: number;
-  };
-  notes?: string;
-  components?: string[];
-  baseAcademicYear?: string;
-}
 
 export class CourseController extends BaseMongoController<any> {
   constructor() {

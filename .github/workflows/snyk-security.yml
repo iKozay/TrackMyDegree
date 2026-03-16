@@ -19,12 +19,8 @@
 name: Snyk Security
 
 on:
-  push:
-    branches: ["main" ]
-  pull_request:
-    branches: ["main"]
   schedule:
-    - cron: '00 00 * * 0'
+    - cron: '0 0 * * *'
 
 permissions:
   contents: read
@@ -108,7 +104,7 @@ jobs:
       - name: Snyk Open Source monitor
         working-directory: ${{ matrix.working-directory }}
         continue-on-error: true
-        run: snyk monitor --file=${{ matrix.manifest }} --project-name=${{ github.repository }}-${{ matrix.name }}
+        run: snyk monitor --file=${{ matrix.manifest }} --project-name=${{ github.repository }}-${{ matrix.name }} --remote-repo-url=${{ github.server_url }}/${{ github.repository }}
 
       - name: Build ${{ matrix.name }} Docker image
         run: docker build -f "${{ matrix.dockerfile }}" -t "${{ matrix.image }}:${{ github.sha }}" "${{ matrix.context }}"
@@ -165,4 +161,4 @@ jobs:
 
       - name: Snyk Container monitor
         continue-on-error: true
-        run: snyk container monitor "${{ matrix.image }}:${{ github.sha }}" --file=${{ matrix.dockerfile }} --project-name=${{ github.repository }}-${{ matrix.name }}
+        run: snyk container monitor "${{ matrix.image }}:${{ github.sha }}" --file=${{ matrix.dockerfile }} --project-name=${{ github.repository }}-${{ matrix.name }} --remote-repo-url=${{ github.server_url }}/${{ github.repository }}

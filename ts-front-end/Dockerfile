@@ -19,20 +19,24 @@ ENV VITE_DEPLOYMENT_VERSION=$VITE_DEPLOYMENT_VERSION
 
 RUN npm run build
 
-# ---------- Runtime stage ----------
-FROM node:22-alpine
+# ---------- serve deps stage ----------
+FROM node:22-alpine AS serve-deps
 
 WORKDIR /app
 
-RUN npm install -g serve && apk add --no-cache gettext
+RUN npm init -y && npm install serve \
+    && mkdir -p /app/dist \
+    && chown -R 65532:65532 /app/node_modules /app/dist
 
-COPY --from=builder /app/ts-front-end/dist ./dist
-COPY ts-front-end/entrypoint.sh ./entrypoint.sh
+# ---------- Runtime stage ----------
+FROM gcr.io/distroless/nodejs22-debian12:nonroot
 
-RUN chmod +x ./entrypoint.sh && chown -R node:node /app/dist
+WORKDIR /app
+
+COPY --from=serve-deps  --chown=65532:65532 /app/node_modules ./node_modules
+COPY --from=builder     --chown=65532:65532 /app/ts-front-end/dist ./dist
+COPY --chown=65532:65532 ts-front-end/startup.js ./startup.js
 
 EXPOSE 4173
 
-USER node
-
-ENTRYPOINT ["./entrypoint.sh"]
+CMD ["startup.js"]
