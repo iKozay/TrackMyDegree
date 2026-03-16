@@ -1,11 +1,16 @@
 import express, { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
+import path from 'node:path';
 import { creditFormController } from '@controllers/creditFormController';
 import {
     authMiddleware,
     adminCheckMiddleware,
 } from '@middleware/authMiddleware';
 import HTTP from '@utils/httpCodes';
+import {
+    creditFormDownloadLimiter,
+    creditFormUploadLimiter,
+} from '@middleware/rateLimiter';
 
 const router = express.Router();
 
@@ -18,7 +23,7 @@ const storage = multer.diskStorage({
     },
     filename: (_req, file, cb) => {
         const timestamp = Date.now();
-        const safeName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const safeName = file.originalname.replaceAll(/[^a-zA-Z0-9.-]/g, '_');
         cb(null, `${timestamp}-${safeName}`);
     },
 });
@@ -126,19 +131,22 @@ router.get('/', async (_req: Request, res: Response) => {
  *         description: File not found
  */
 // IMPORTANT: This route must be defined BEFORE /:id to prevent 'file' being treated as an id
-router.get('/file/:filename', (req: Request, res: Response) => {
+router.get('/file/:filename', creditFormDownloadLimiter, (req: Request, res: Response) => {
     try {
         const { filename } = req.params;
-        const filePath = creditFormController.resolveFilePath(filename as string);
+        // Strip directory components before resolving (defense-in-depth against path traversal, CWE-22)
+        const safeFilename = path.basename(filename as string);
+        const filePath = creditFormController.resolveFilePath(safeFilename);
 
         if (!filePath) {
             res.status(HTTP.NOT_FOUND).json({ error: 'File not found' });
             return;
         }
 
-        const safeFilename = Array.isArray(filename) ? filename[0] : filename;
+        // Sanitize the filename for the Content-Disposition header to prevent header injection
+        const headerSafeFilename = safeFilename.replaceAll(/["\\\r\n]/g, '');
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `inline; filename="${safeFilename}"`);
+        res.setHeader('Content-Disposition', `inline; filename="${headerSafeFilename}"`);
         res.sendFile(filePath);
     } catch (error) {
         console.error('Error in GET /credit-forms/file/:filename', error);
@@ -224,6 +232,7 @@ router.get('/:id', async (req: Request, res: Response) => {
  */
 router.post(
     '/',
+    creditFormUploadLimiter,
     authMiddleware,
     adminCheckMiddleware,
     handleUpload,
