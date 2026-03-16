@@ -65,6 +65,74 @@ interface Degree {
   name: string;
 }
 
+const CourseTitleBlock: React.FC<{
+  course: CourseData;
+}> = ({ course }) => (
+  <>
+    <h2 className="details-header-code">{course._id}</h2>
+    <p className="details-header-title">{course.title}</p>
+  </>
+);
+
+const CourseDetailsContent: React.FC<{
+  course: CourseData;
+}> = ({ course }) => (
+  <>
+    <div className="details-section">
+      <h4 className="details-section-title">
+        <CreditIcon /> Credits
+      </h4>
+      <div className="details-section-content">
+        <span className="credits-badge">{course.credits} Credits</span>
+      </div>
+    </div>
+
+    <div className="details-section">
+      <h4 className="details-section-title">Prerequisites & Corequisites</h4>
+      <div className="details-section-content">
+        {course.prereqCoreqText ? (
+          <div className="requisites-list">
+            <span className="requisite-codes">{course.prereqCoreqText}</span>
+          </div>
+        ) : (
+          <p style={{ color: "#64748b", fontStyle: "italic" }}>
+            No prerequisites or corequisites required
+          </p>
+        )}
+      </div>
+    </div>
+
+    <div className="details-section">
+      <h4 className="details-section-title">Description</h4>
+      <div className="details-section-content">
+        {course.description || "No description available."}
+      </div>
+    </div>
+
+    {course.components && course.components.length > 0 && (
+      <div className="details-section">
+        <h4 className="details-section-title">Components</h4>
+        <div className="details-section-content">
+          <div className="components-list">
+            {course.components.map((component) => (
+              <span key={component} className="component-badge">{component}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+
+    {course.notes && (
+      <div className="details-section">
+        <h4 className="details-section-title">Notes</h4>
+        <div className="details-section-content">{course.notes}</div>
+      </div>
+    )}
+
+    <CourseSectionButton code={course._id} title={course.title} hidden={true} />
+  </>
+);
+
 // Course Card Component
 const CourseCard: React.FC<{
   course: CourseData;
@@ -212,65 +280,11 @@ const CourseDetailsPanel: React.FC<{
       key={course._id}
     >
       <div className="course-details-header">
-        <h2 className="details-header-code">{course._id}</h2>
-        <p className="details-header-title">{course.title}</p>
+        <CourseTitleBlock course={course} />
       </div>
 
       <div className="course-details-body">
-        <div className="details-section">
-          <h4 className="details-section-title">
-            <CreditIcon /> Credits
-          </h4>
-          <div className="details-section-content">
-            <span className="credits-badge">
-              {course.credits} Credits
-            </span>
-          </div>
-        </div>
-
-        <div className="details-section">
-          <h4 className="details-section-title">Prerequisites & Corequisites</h4>
-          <div className="details-section-content">
-            {course.prereqCoreqText ? (
-              <div className="requisites-list">
-                <span className="requisite-codes">{course.prereqCoreqText}</span>
-              </div>
-            ) : (
-              <p style={{ color: "#64748b", fontStyle: "italic" }}>
-                No prerequisites or corequisites required
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="details-section">
-          <h4 className="details-section-title">Description</h4>
-          <div className="details-section-content">
-            {course.description || "No description available."}
-          </div>
-        </div>
-
-        {course.components && course.components.length > 0 && (
-          <div className="details-section">
-            <h4 className="details-section-title">Components</h4>
-            <div className="details-section-content">
-              <div className="components-list">
-                {course.components.map((c) => (
-                  <span key={c} className="component-badge">{c}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {course.notes && (
-          <div className="details-section">
-            <h4 className="details-section-title">Notes</h4>
-            <div className="details-section-content">{course.notes}</div>
-          </div>
-        )}
-
-        <CourseSectionButton code={course._id} title={course.title} hidden={true} />
+        <CourseDetailsContent course={course} />
       </div>
     </motion.div>
   );
@@ -301,8 +315,7 @@ const CourseModal: React.FC<{
       >
         <div className="course-modal-header">
           <div>
-            <h2 className="details-header-code">{course._id}</h2>
-            <p className="details-header-title">{course.title}</p>
+            <CourseTitleBlock course={course} />
           </div>
           <button className="modal-close-btn" onClick={onClose}>
             <CloseIcon />
@@ -310,58 +323,7 @@ const CourseModal: React.FC<{
         </div>
 
         <div className="course-modal-body">
-          <div className="details-section">
-            <h4 className="details-section-title">
-              <CreditIcon /> Credits
-            </h4>
-            <div className="details-section-content">
-              <span className="credits-badge">{course.credits} Credits</span>
-            </div>
-          </div>
-
-          <div className="details-section">
-            <h4 className="details-section-title">Prerequisites & Corequisites</h4>
-            <div className="details-section-content">
-              {course.prereqCoreqText ? (
-                <div className="requisites-list">
-                  <span className="requisite-codes">{course.prereqCoreqText}</span>
-                </div>
-              ) : (
-                <p style={{ color: "#64748b", fontStyle: "italic" }}>
-                  No prerequisites or corequisites required
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="details-section">
-            <h4 className="details-section-title">Description</h4>
-            <div className="details-section-content">
-              {course.description || "No description available."}
-            </div>
-          </div>
-
-          {course.components && course.components.length > 0 && (
-            <div className="details-section">
-              <h4 className="details-section-title">Components</h4>
-              <div className="details-section-content">
-                <div className="components-list">
-                  {course.components.map((c) => (
-                    <span key={c} className="component-badge">{c}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {course.notes && (
-            <div className="details-section">
-              <h4 className="details-section-title">Notes</h4>
-              <div className="details-section-content">{course.notes}</div>
-            </div>
-          )}
-
-          <CourseSectionButton code={course._id} title={course.title} hidden={true} />
+          <CourseDetailsContent course={course} />
         </div>
       </motion.div>
     </motion.div>
