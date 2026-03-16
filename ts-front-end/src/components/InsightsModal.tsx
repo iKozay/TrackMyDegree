@@ -1,7 +1,8 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import type { CourseMap, Pool } from "../types/timeline.types";
 import { OverallProgressBar } from "./OverallProgressBar";
 import { PoolProgressChart } from "./PoolProgressChart";
+import { CoopValidationModal } from "./CoopValidationModal";
 import "../styles/components/InsightsModal.css";
 
 type InsightsModalProps = {
@@ -9,6 +10,7 @@ type InsightsModalProps = {
   pools: Pool[];
   courses: CourseMap;
   onClose: () => void;
+  onOpenDegreeAudit?: () => void;
 };
 
 type PoolProgress = {
@@ -24,7 +26,12 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({
   pools,
   courses,
   onClose,
+  onOpenDegreeAudit,
 }) => {
+  const [activeTab, setActiveTab] = useState<"quick" | "coop" | "degree">(
+    "quick",
+  );
+
   const poolProgress = useMemo((): PoolProgress[] => {
     // Filter out exemptions pool
     const nonExemptionPools = pools.filter((pool) => {
@@ -102,24 +109,65 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({
           aria-label="Close insights modal">
           ×
         </button>
-        <h2 className="insights-modal-title">Progress Insights</h2>
+        <h2 className="insights-modal-title">Insights</h2>
 
-        <OverallProgressBar
-          totalTaken={totalTaken}
-          totalRequired={totalRequired}
-        />
+        <div className="insights-layout">
+          <aside className="insights-side-panel">
+            <button
+              className={`insights-panel-btn ${activeTab === "quick" ? "active" : ""}`}
+              onClick={() => setActiveTab("quick")}>
+              Quick Assessment
+            </button>
+            <button
+              className={`insights-panel-btn ${activeTab === "degree" ? "active" : ""}`}
+              onClick={() => setActiveTab("degree")}>
+              Degree Audit
+            </button>
+            <button
+              className={`insights-panel-btn ${activeTab === "coop" ? "active" : ""}`}
+              onClick={() => setActiveTab("coop")}>
+              Co-op Validation
+            </button>
+          </aside>
 
-        <div className="insights-pools-grid">
-          {poolProgress.map((progress) => (
-            <PoolProgressChart
-              key={progress.poolName}
-              poolName={progress.poolName}
-              creditsRequired={progress.creditsRequired}
-              creditsTaken={progress.creditsTaken}
-              takenCourses={progress.takenCourses}
-              remainingCourses={progress.remainingCourses}
-            />
-          ))}
+          <section className="insights-main-content">
+            {activeTab === "quick" && (
+              <>
+                <OverallProgressBar
+                  totalTaken={totalTaken}
+                  totalRequired={totalRequired}
+                />
+
+                <div className="insights-pools-grid">
+                  {poolProgress.map((progress) => (
+                    <PoolProgressChart
+                      key={progress.poolName}
+                      poolName={progress.poolName}
+                      creditsRequired={progress.creditsRequired}
+                      creditsTaken={progress.creditsTaken}
+                      takenCourses={progress.takenCourses}
+                      remainingCourses={progress.remainingCourses}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {activeTab === "degree" && (
+              <div className="insights-degree-audit">
+                <p>Run a full degree audit on your current timeline.</p>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    onOpenDegreeAudit?.();
+                  }}>
+                  Open Degree Audit
+                </button>
+              </div>
+            )}
+
+            {activeTab === "coop" && <CoopValidationModal />}
+          </section>
         </div>
       </div>
     </div>

@@ -33,6 +33,12 @@ vi.mock("../../components/PoolProgressChart", () => ({
   ),
 }));
 
+vi.mock("../../components/CoopValidationModal", () => ({
+  CoopValidationModal: () => (
+    <div data-testid="coop-validation-modal">Co-op Validation</div>
+  ),
+}));
+
 describe("InsightsModal", () => {
   const mockOnClose = vi.fn();
 
@@ -108,13 +114,13 @@ describe("InsightsModal", () => {
   it("should not render when open is false", () => {
     render(<InsightsModal {...defaultProps} open={false} />);
 
-    expect(screen.queryByText("Progress Insights")).not.toBeInTheDocument();
+    expect(screen.queryByText("Insights")).not.toBeInTheDocument();
   });
 
   it("should render modal when open is true", () => {
     render(<InsightsModal {...defaultProps} />);
 
-    expect(screen.getByText("Progress Insights")).toBeInTheDocument();
+    expect(screen.getByText("Insights")).toBeInTheDocument();
   });
 
   it("should render OverallProgressBar with correct totals", () => {
@@ -182,5 +188,13 @@ describe("InsightsModal", () => {
 
     // Now COMP 248 is not counted, so 3 + 3 = 6 total taken
     expect(screen.getByText("Overall: 6/42")).toBeInTheDocument();
+  });
+
+  it("shows coop validation inside insights when coop tab is selected", () => {
+    render(<InsightsModal {...defaultProps} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /co-op validation/i }));
+
+    expect(screen.getByTestId("coop-validation-modal")).toBeInTheDocument();
   });
 });
