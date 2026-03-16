@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useDegrees from "../legacy/hooks/useDegree.jsx";
 import useCourses from "../legacy/hooks/useCourses.jsx";
@@ -103,11 +103,13 @@ const PoolAccordion: React.FC<{
 }> = ({ group, selectedCourse, onCourseSelect, defaultExpanded = false }) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [visibleCount, setVisibleCount] = useState(COURSES_PAGE_SIZE);
+  const [prevCourses, setPrevCourses] = useState(group.courses);
 
   // Reset pagination when the course list changes (new degree or search term)
-  useEffect(() => {
+  if (group.courses !== prevCourses) {
+    setPrevCourses(group.courses);
     setVisibleCount(COURSES_PAGE_SIZE);
-  }, [group.courses]);
+  }
 
   const visibleCourses = group.courses.slice(0, visibleCount);
   const hiddenCount = group.courses.length - visibleCount;
