@@ -17,7 +17,7 @@ export const cacheGET =
       }
       console.log(`CACHE MISS → ${safeKey}`);
     } catch (err) {
-      console.warn(`CACHE ERROR → ${safeKey}`, err);
+      console.warn('CACHE ERROR → %s', safeKey, err);
     }
 
     const originalJson = res.json.bind(res);
