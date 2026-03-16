@@ -599,8 +599,8 @@
 }
 
 /* Section Button - Style override for CourseSectionButton */
-.course-details-body button,
-.course-modal-body button {
+.course-details-body .show-course-button,
+.course-modal-body .show-course-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -619,8 +619,8 @@
   margin-top: 16px;
 }
 
-.course-details-body button:hover,
-.course-modal-body button:hover {
+.course-details-body .show-course-button:hover,
+.course-modal-body .show-course-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(139, 21, 56, 0.25);
   background: var(--course-primary-hover);
