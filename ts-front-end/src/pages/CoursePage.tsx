@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import useDegrees from "../legacy/hooks/useDegree.jsx";
 import useCourses from "../legacy/hooks/useCourses.jsx";
 import useResponsive from "../legacy/hooks/useResponsive.jsx";
-import { groupPrerequisites } from "../legacy/utils/groupPrerequisites.jsx";
 import CourseSectionButton from "../legacy/components/SectionModal.jsx";
+import type { CourseData } from "@shared/degree";
 import "../styles/CoursePage.css";
 
 // Icons as inline SVG components for consistency
@@ -49,28 +49,12 @@ const CreditIcon = () => (
   </svg>
 );
 
-// Types
-interface Course {
-  _id: string;
-  title: string;
-  credits: number;
-  description?: string;
-  components?: string;
-  notes?: string;
-  requisites?: Array<{
-    type: string;
-    code1?: string;
-    code2: string;
-    group_id?: string;
-  }>;
-}
-
-interface CourseGroup {
+export interface CourseGroup {
   name: string;
   poolId?: string;
   poolName?: string;
   creditsRequired?: number;
-  courses: Course[];
+  courses: CourseData[];
   subcourses?: CourseGroup[];
   subcourseTitle?: string;
   subcourseCredits?: number;
@@ -83,7 +67,7 @@ interface Degree {
 
 // Course Card Component
 const CourseCard: React.FC<{
-  course: Course;
+  course: CourseData;
   isSelected: boolean;
   onClick: () => void;
 }> = ({ course, isSelected, onClick }) => {
@@ -111,8 +95,8 @@ const CourseCard: React.FC<{
 // Pool Accordion Component
 const PoolAccordion: React.FC<{
   group: CourseGroup;
-  selectedCourse: Course | null;
-  onCourseSelect: (course: Course) => void;
+  selectedCourse: CourseData | null;
+  onCourseSelect: (course: CourseData) => void;
   defaultExpanded?: boolean;
 }> = ({ group, selectedCourse, onCourseSelect, defaultExpanded = false }) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
@@ -179,7 +163,7 @@ const PoolAccordion: React.FC<{
 
 // Course Details Panel Component
 const CourseDetailsPanel: React.FC<{
-  course: Course | null;
+  course: CourseData | null;
 }> = ({ course }) => {
   if (!course) {
     return (
@@ -197,9 +181,6 @@ const CourseDetailsPanel: React.FC<{
     );
   }
 
-  const groupedRequisites = groupPrerequisites(course.requisites || []);
-  const formatCode = (id: string) => `${id.slice(0, 4)} ${id.slice(4)}`;
-
   return (
     <motion.div
       className="course-details-panel"
@@ -208,7 +189,7 @@ const CourseDetailsPanel: React.FC<{
       key={course._id}
     >
       <div className="course-details-header">
-        <h2 className="details-header-code">{formatCode(course._id)}</h2>
+        <h2 className="details-header-code">{course._id}</h2>
         <p className="details-header-title">{course.title}</p>
       </div>
 
@@ -227,16 +208,9 @@ const CourseDetailsPanel: React.FC<{
         <div className="details-section">
           <h4 className="details-section-title">Prerequisites & Corequisites</h4>
           <div className="details-section-content">
-            {groupedRequisites.length > 0 ? (
+            {course.prereqCoreqText ? (
               <div className="requisites-list">
-                {groupedRequisites.map((group: { type: string; codes: string[] }, idx: number) => (
-                  <div key={idx} className="requisite-item">
-                    <span className="requisite-type">
-                      {group.type.toLowerCase() === "pre" ? "Prereq" : "Coreq"}
-                    </span>
-                    <span className="requisite-codes">{group.codes.join(" or ")}</span>
-                  </div>
-                ))}
+                <span className="requisite-codes">{course.prereqCoreqText}</span>
               </div>
             ) : (
               <p style={{ color: "#64748b", fontStyle: "italic" }}>
@@ -253,10 +227,16 @@ const CourseDetailsPanel: React.FC<{
           </div>
         </div>
 
-        {course.components && (
+        {course.components && course.components.length > 0 && (
           <div className="details-section">
             <h4 className="details-section-title">Components</h4>
-            <div className="details-section-content">{course.components}</div>
+            <div className="details-section-content">
+              <div className="components-list">
+                {course.components.map((c) => (
+                  <span key={c} className="component-badge">{c}</span>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
@@ -275,13 +255,10 @@ const CourseDetailsPanel: React.FC<{
 
 // Mobile Course Modal Component
 const CourseModal: React.FC<{
-  course: Course | null;
+  course: CourseData | null;
   onClose: () => void;
 }> = ({ course, onClose }) => {
   if (!course) return null;
-
-  const groupedRequisites = groupPrerequisites(course.requisites || []);
-  const formatCode = (id: string) => `${id.slice(0, 4)} ${id.slice(4)}`;
 
   return (
     <motion.div
@@ -301,7 +278,7 @@ const CourseModal: React.FC<{
       >
         <div className="course-modal-header">
           <div>
-            <h2 className="details-header-code">{formatCode(course._id)}</h2>
+            <h2 className="details-header-code">{course._id}</h2>
             <p className="details-header-title">{course.title}</p>
           </div>
           <button className="modal-close-btn" onClick={onClose}>
@@ -322,16 +299,9 @@ const CourseModal: React.FC<{
           <div className="details-section">
             <h4 className="details-section-title">Prerequisites & Corequisites</h4>
             <div className="details-section-content">
-              {groupedRequisites.length > 0 ? (
+              {course.prereqCoreqText ? (
                 <div className="requisites-list">
-                  {groupedRequisites.map((group: { type: string; codes: string[] }, idx: number) => (
-                    <div key={idx} className="requisite-item">
-                      <span className="requisite-type">
-                        {group.type.toLowerCase() === "pre" ? "Prereq" : "Coreq"}
-                      </span>
-                      <span className="requisite-codes">{group.codes.join(" or ")}</span>
-                    </div>
-                  ))}
+                  <span className="requisite-codes">{course.prereqCoreqText}</span>
                 </div>
               ) : (
                 <p style={{ color: "#64748b", fontStyle: "italic" }}>
@@ -348,10 +318,16 @@ const CourseModal: React.FC<{
             </div>
           </div>
 
-          {course.components && (
+          {course.components && course.components.length > 0 && (
             <div className="details-section">
               <h4 className="details-section-title">Components</h4>
-              <div className="details-section-content">{course.components}</div>
+              <div className="details-section-content">
+                <div className="components-list">
+                  {course.components.map((c) => (
+                    <span key={c} className="component-badge">{c}</span>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
@@ -372,7 +348,7 @@ const CourseModal: React.FC<{
 // Main CoursePage Component
 const CoursePage: React.FC = () => {
   const [selectedDegree, setSelectedDegree] = useState<string>("Select Degree");
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<CourseData | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
 
@@ -404,13 +380,13 @@ const CoursePage: React.FC = () => {
 
   // Filter courses based on search term
   const normalize = (value: string = "") =>
-    String(value).toLowerCase().replace(/\s+/g, "");
+    String(value).toLowerCase().replaceAll(/\s+/g, "");
   
   const filteredCourseList = useMemo(() => {
     return courseList
       .map((group: CourseGroup) => ({
         ...group,
-        courses: group.courses.filter((course: Course) =>
+        courses: group.courses.filter((course: CourseData) =>
           normalize(course._id).includes(normalize(searchTerm))
         ),
       }))

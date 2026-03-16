@@ -1,7 +1,7 @@
 // tests/addEcpCoursePools.test.ts
 import { addEcpCoursePools } from '@services/timeline/timelineService';
 import { degreeController } from '@controllers/degreeController';
-import { CourseData } from '@controllers/courseController';
+import { CourseData } from '@shared/degree';
 
 jest.mock('@controllers/degreeController', () => ({
   degreeController: {

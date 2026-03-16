@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import type { HTMLAttributes, ReactNode } from "react";
-import CoursePage from "../../pages/CoursePage";
+import CoursePage, { type CourseGroup } from "../../pages/CoursePage";
+import type { CourseData } from "@shared/degree";
 import useDegrees from "../../legacy/hooks/useDegree.jsx";
 import useCourses from "../../legacy/hooks/useCourses.jsx";
 import useResponsive from "../../legacy/hooks/useResponsive.jsx";
@@ -37,24 +38,6 @@ vi.mock("framer-motion", () => ({
   AnimatePresence: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
-type Course = {
-  _id: string;
-  title: string;
-  credits: number;
-  description?: string;
-  components?: string;
-  notes?: string;
-  requisites?: Array<{ type: string; code1?: string; code2: string; group_id?: string }>;
-};
-
-type CourseGroup = {
-  name: string;
-  courses: Course[];
-  subcourses?: CourseGroup[];
-  subcourseTitle?: string;
-  subcourseCredits?: number;
-};
-
 const mockUseDegrees = vi.mocked(useDegrees);
 const mockUseCourses = vi.mocked(useCourses);
 const mockUseResponsive = vi.mocked(useResponsive);
@@ -76,15 +59,16 @@ const defaultCourseList: CourseGroup[] = [
         title: "Capstone Project",
         credits: 4,
         description: "Final year capstone project.",
-        components: "Lecture",
+        components: ["Lecture"],
         notes: "Department approval may be required.",
-        requisites: [{ type: "PRE", code2: "SOEN341", group_id: "g1" }],
+        prereqCoreqText: "SOEN 287 or COMP 348",
       },
       {
         _id: "SOEN341",
         title: "Software Process",
         credits: 3,
         description: "Intro to software process.",
+        prereqCoreqText: "",
       },
     ],
   },
@@ -216,7 +200,7 @@ describe("CoursePage", () => {
     expect(screen.getByText("Description")).toBeInTheDocument();
     expect(screen.getByText("Final year capstone project.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /show course schedule/i })).toBeInTheDocument();
-    expect(screen.getByText("Prereq")).toBeInTheDocument();
+    expect(screen.getByText("Prerequisites & Corequisites")).toBeInTheDocument();
   });
 
   it("renders fallback requisites message when course has no requisites", () => {

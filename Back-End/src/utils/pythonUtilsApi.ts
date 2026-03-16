@@ -1,6 +1,5 @@
-import { CourseData } from '@controllers/courseController';
+import { CourseData, DegreeData } from '@shared/degree';
 import { CoursePoolData } from '@controllers/coursepoolController';
-import { DegreeData } from '@shared/degree';
 import { ParsedData } from '../types/transcript';
 import { PYTHON_SERVICE_BASE_URL } from '@utils/constants';
 import axios from 'axios';

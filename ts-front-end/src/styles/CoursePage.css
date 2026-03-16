@@ -20,7 +20,7 @@
   background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
   padding: 40px 20px;
   position: relative;
-  overflow: hidden;
+  overflow: clip;
 }
 
 /* Header Section */
@@ -447,6 +447,22 @@
   padding: 8px 16px;
   border-radius: 10px;
   font-weight: 600;
+}
+
+/* Component Badges */
+.components-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.component-badge {
+  background: var(--course-primary-light);
+  color: var(--course-primary);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
 /* Requisites List */
