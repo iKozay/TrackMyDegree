@@ -137,7 +137,7 @@ export const buildTimeline = async (
   // If semesters are provided (either from parsed data or timeline data), we add any unused credits to the timeline.
   // This ensures that all courses taken by the student are accounted for, even if they are not part of the degree requirements.
   const semesters = semestersResults ?? parsedData?.semesters;
-  if (semesters) addUnusedCredits(semesters, courses, courseStatusMap, coursePools);
+  if (semesters) addUnusedCredits(semesters, courses, coursePools);
 
   // If timeline is not loaded from database (semester data is provided), 
   // we need to build semestersResults by processing parsedData.semesters, 
@@ -304,8 +304,7 @@ async function handleCoop(
 }
 
 async function addUnusedCredits(semestersResults: Array<{ courses: Array<{ code: string }> }>,
-  courses: Record<string, any>, // your DB course map (keyed by course code OR _id depending on your existing structure)
-  courseStatusMap: Record<string, { status?: any; semester?: any }>,
+  courses: Record<string, any>,
   coursePools: CoursePoolInfo[],
 ): Promise<void> {
   const unusedCreditCourses = []
@@ -319,7 +318,6 @@ async function addUnusedCredits(semestersResults: Array<{ courses: Array<{ code:
       // Course not part of degree → fetch its info
       courseD = await getCourseData(code);
       if (courseD) {
-        // Keep the same insertion pattern you already use in your codebase
         courses[courseD._id] = courseD;
         unusedCreditCourses.push(code);
       }
