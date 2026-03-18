@@ -202,6 +202,13 @@ def test_get_course_sort_key_sorting_comparison():
     expected = ["COMP 201", "COMP 248", "ENGR 101", "MATH 205"]
     assert sorted_courses == expected
 
+
+def test_get_course_sort_key_prefers_three_digit_before_four_digit():
+    courses = ["HIST 307", "HIST 3081", "HIST 308", "HIST 309", "HIST 313"]
+    sorted_courses = sorted(courses, key=get_course_sort_key)
+    expected = ["HIST 307", "HIST 308", "HIST 3081", "HIST 309", "HIST 313"]
+    assert sorted_courses == expected
+
 def test_course_regex_matches():
     valid_courses = ["COMP 248", "ENGR 101", "MATH 204", "SOEN 287"]
     for course in valid_courses:

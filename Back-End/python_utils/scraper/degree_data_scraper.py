@@ -45,9 +45,7 @@ class DegreeDataScraper():
     def _init_scrapers(self) -> dict[str, AbstractDegreeScraper]:
         # Get degree programs
         degree_links = get_all_links_from_div(self.GINA_CODY_PROGRAMS_OFFERED_URL, ["content-main"], exclude_regex=COURSE_REGEX)
-        degree_links.append(AnchorLink(text="Co-op Program", url=""))
-        degree_links.append(AnchorLink(text="BCompSc in Health and Life Sciences", url="https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-75-computer-science-in-health-and-life-sciences/section-71-75-1-curriculum-for-the-degree-of-bcompsc-in-health-and-life-sciences.html"))
-        degree_links.append(AnchorLink(text=ECPDegreeIDs.COMP_HLS_ECP_ID, url="https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-75-computer-science-in-health-and-life-sciences/section-71-75-1-curriculum-for-the-degree-of-bcompsc-in-health-and-life-sciences.html"))
+        self._add_missing_links(degree_links)
         self.degree_scrapers = {}
         for config in self.degree_scraper_config:
             degree_link = next((link for link in degree_links if config.marker in link.text), None)
@@ -59,6 +57,14 @@ class DegreeDataScraper():
                                                             requirements_url=degree_link.url)
             else:
                 self.logger.warning(f"Warning: No link found for degree '{config.long_name}' with marker '{config.marker}' in the Gina Cody programs page")
+
+    def _add_missing_links(self, degree_links: list[AnchorLink]) -> None:
+        if not any("Co-op Program" in link.text for link in degree_links):
+            degree_links.append(AnchorLink(text="Co-op Program", url=""))
+        if not any("BCompSc in Health and Life Sciences" in link.text for link in degree_links):
+            degree_links.append(AnchorLink(text="BCompSc in Health and Life Sciences", url="https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-75-computer-science-in-health-and-life-sciences/section-71-75-1-curriculum-for-the-degree-of-bcompsc-in-health-and-life-sciences.html"))
+        if not any(ECPDegreeIDs.COMP_HLS_ECP_ID in link.text for link in degree_links):
+            degree_links.append(AnchorLink(text=ECPDegreeIDs.COMP_HLS_ECP_ID, url="https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-75-computer-science-in-health-and-life-sciences/section-71-75-1-curriculum-for-the-degree-of-bcompsc-in-health-and-life-sciences.html"))
 
     def get_degree_names(self) -> list[str]:
         return list(self.degree_scrapers.keys())

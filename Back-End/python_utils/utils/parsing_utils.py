@@ -237,12 +237,15 @@ def parse_course_components(component_text: str) -> list[str]:
     return components
 
 def get_course_sort_key(course_id: str):
-    match = re.match(r'([A-Z]{3,4})\s+(\d{3})', course_id)
+    match = re.fullmatch(r'([A-Z]{3,4})\s+(\d{3,4})', course_id.strip())
     if match:
         dept = match.group(1)
-        num = int(match.group(2))
-        return (dept, num)
-    return ("", float('inf'))
+        course_num = match.group(2)
+        num = int(course_num)
+        # Group by the first 3 digits so 4-digit variants sort between base and next base (e.g. 308 < 3081 < 309).
+        base_num = int(course_num[:3])
+        return (dept, base_num, len(course_num), num)
+    return ("", float('inf'), float('inf'), float('inf'))
 
 _WORD_TO_NUM: dict[str, int] = {
     'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4,

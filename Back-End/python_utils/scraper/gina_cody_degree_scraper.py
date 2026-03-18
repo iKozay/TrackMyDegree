@@ -88,6 +88,9 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
         self.program_requirements.coursePools.append(gen_education_electives_pool)
         self.program_requirements.degree.coursePools.append(gen_education_electives_pool._id)
 
+        self._parse_engineering_core_rules(pool)
+
+    def _parse_engineering_core_rules(self, pool: CoursePool):
         # Parse rules for engineering core (additions, removes and substitutions) and apply them
         extract_coursepool_rules(self.ENGINEERING_CORE_COURSES_URL, pool)
         _INTERMEDIATE_TYPES = {
@@ -113,8 +116,10 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
                 self.add_courses_to_pool(pool.name, [rule.params.newCourseId])
             elif rule.type == ConstraintType.OVERRIDE_COURSEPOOL_COURSES:
                 for cp in self.program_requirements.coursePools:
-                    if cp.name == rule.params.coursePoolId:
+                    if cp._id == rule.params.coursePoolId:
                         cp._id = f"{self.degree_short_name}_{rule.params.coursePoolId}"
+                        self.program_requirements.degree.coursePools.remove(rule.params.coursePoolId)
+                        self.program_requirements.degree.coursePools.append(cp._id)
                         cp.courses = rule.params.newCourseList
                         break
 
