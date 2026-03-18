@@ -33,6 +33,7 @@ import {
   signupLimiter,
 } from '@middleware/rateLimiter';
 import { getSentryProfilingIntegrations } from '@utils/misc';
+import helmet from 'helmet';
 
 // sentry init
 Sentry.init({
@@ -58,12 +59,24 @@ if (process.env.NODE_ENV === 'development') {
 // For production and staging, env vars are injected automatically via Docker
 
 const app = express();
+// Disable X-Powered-By header
+app.disable('x-powered-by');
+
+// Use Helmet for additional security headers
+app.use(helmet());
+
+// Trust proxy in production and staging
+if (process.env.NODE_ENV === 'staging' || process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
 const PORT = process.env.BACKEND_PORT || 8000;
 
 // MongoDB connection
-const MONGODB_URI =
-  process.env.MONGODB_URI ||
-  'mongodb://admin:changeme123@localhost:27017/trackmydegree';
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  throw new Error('MONGODB_URI environment variable is required');
+}
 
 // Connect to MongoDB using async/await
 mongoose

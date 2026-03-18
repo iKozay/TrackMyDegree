@@ -48,10 +48,10 @@ const TimeLinePage: React.FC = () => {
   ) || { _id: "deficiency", name: "Deficiency", creditsRequired: 0, courses: [] };
 
   const handleOpenModal = (open: boolean, type: string) => {
-    if (type === "save" && !user) {
+    if (open && type === "save" && !user) {
       toast.info("Please sign in or sign up to save your timeline");
       const returnUrl = globalThis.location.pathname;
-      localStorage.setItem("redirectAfterLogin", returnUrl);
+      globalThis.localStorage?.setItem?.("redirectAfterLogin", returnUrl);
       navigate(`/signin`);
       return;
     }
@@ -86,7 +86,7 @@ const TimeLinePage: React.FC = () => {
                 }
             }}
             onAdd={actions.addCourse}
-            onClose={actions.openModal}
+            onClose={handleOpenModal}
           />
         )}
         <TimelineHeader

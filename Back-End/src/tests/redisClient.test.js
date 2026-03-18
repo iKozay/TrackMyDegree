@@ -1,12 +1,25 @@
 const mockConnect = jest.fn();
 const mockOn = jest.fn();
-const mockRedisClient = {
+const mockIsOpen = false;
+
+const mockCacheClient = {
   connect: mockConnect,
   on: mockOn,
-  isReady: false,
+  isOpen: mockIsOpen,
 };
 
-const mockCreateClient = jest.fn(() => mockRedisClient);
+const mockJobClient = {
+  connect: mockConnect,
+  on: mockOn,
+  isOpen: mockIsOpen,
+};
+
+const mockCreateClient = jest.fn((config) => {
+  if (config.url.includes('/0')) return mockCacheClient;
+  if (config.url.includes('/1')) return mockJobClient;
+  return mockCacheClient;
+});
+
 const mockSentryCapture = jest.fn();
 
 jest.mock('redis', () => ({
@@ -14,7 +27,10 @@ jest.mock('redis', () => ({
 }));
 
 jest.mock('@sentry/node', () => ({
-  captureException: mockSentryCapture,
+  __esModule: true,
+  default: {
+    captureException: mockSentryCapture,
+  },
 }));
 
 describe('Redis Client', () => {
@@ -27,55 +43,67 @@ describe('Redis Client', () => {
     jest.resetModules();
   });
 
-  it('creates Redis client with correct URL from environment', () => {
-    const originalEnv = process.env.REDIS_URL;
-    process.env.REDIS_URL = 'redis://custom-redis:6380';
+  it('creates cache Redis client with correct URL', () => {
+    const originalEnv = process.env.REDIS_CACHE_URL;
+    process.env.REDIS_CACHE_URL = 'redis://custom:6380/0';
 
     jest.isolateModules(() => {
       require('@lib/redisClient');
     });
 
     expect(mockCreateClient).toHaveBeenCalledWith({
-      url: 'redis://custom-redis:6380',
+      url: 'redis://custom:6380/0',
     });
 
-    process.env.REDIS_URL = originalEnv;
+    process.env.REDIS_CACHE_URL = originalEnv;
   });
 
-  it('uses default Redis URL when REDIS_URL is not set', () => {
-    const originalEnv = process.env.REDIS_URL;
-    delete process.env.REDIS_URL;
+  it('creates job Redis client with correct URL', () => {
+    const originalEnv = process.env.REDIS_JOB_URL;
+    process.env.REDIS_JOB_URL = 'redis://custom:6380/1';
 
     jest.isolateModules(() => {
       require('@lib/redisClient');
     });
 
     expect(mockCreateClient).toHaveBeenCalledWith({
-      url: 'redis://localhost:6379',
+      url: 'redis://custom:6380/1',
     });
 
-    if (originalEnv !== undefined) {
-      process.env.REDIS_URL = originalEnv;
-    }
+    process.env.REDIS_JOB_URL = originalEnv;
   });
 
-  it('sets up error event handler', () => {
+  it('uses default URLs when env vars not set', () => {
+    const origCache = process.env.REDIS_CACHE_URL;
+    const origJob = process.env.REDIS_JOB_URL;
+    delete process.env.REDIS_CACHE_URL;
+    delete process.env.REDIS_JOB_URL;
+
+    jest.isolateModules(() => {
+      require('@lib/redisClient');
+    });
+
+    expect(mockCreateClient).toHaveBeenCalledWith({
+      url: 'redis://localhost:6379/0',
+    });
+    expect(mockCreateClient).toHaveBeenCalledWith({
+      url: 'redis://localhost:6379/1',
+    });
+
+    if (origCache) process.env.REDIS_CACHE_URL = origCache;
+    if (origJob) process.env.REDIS_JOB_URL = origJob;
+  });
+
+  it('sets up error handlers for both clients', () => {
     jest.isolateModules(() => {
       require('@lib/redisClient');
     });
 
     expect(mockOn).toHaveBeenCalledWith('error', expect.any(Function));
+    expect(mockOn).toHaveBeenCalledTimes(4); // 2 clients × 2 events
   });
 
-  it('sets up connect event handler', () => {
-    jest.isolateModules(() => {
-      require('@lib/redisClient');
-    });
-
-    expect(mockOn).toHaveBeenCalledWith('connect', expect.any(Function));
-  });
-
-  it('handles Redis errors correctly', () => {
+  it('handles cache Redis errors', () => {
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
     jest.isolateModules(() => {
@@ -85,30 +113,47 @@ describe('Redis Client', () => {
     const errorHandler = mockOn.mock.calls.find(
       (call) => call[0] === 'error',
     )[1];
-    const testError = new Error('Redis connection failed');
+    const testError = new Error('Cache Redis failed');
 
     errorHandler(testError);
 
     expect(mockSentryCapture).toHaveBeenCalledWith(testError, {
-      extra: { error: 'Redis Client Error' },
+      extra: { error: 'Cache Redis Error' },
     });
-    expect(consoleSpy).toHaveBeenCalledWith('Redis Client Error:', testError);
+    expect(consoleSpy).toHaveBeenCalledWith('Cache Redis Error:', testError);
     consoleSpy.mockRestore();
   });
 
-  it('logs successful connection', () => {
+  it('logs successful connections', () => {
     const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
     jest.isolateModules(() => {
       require('@lib/redisClient');
     });
 
-    const connectHandler = mockOn.mock.calls.find(
+    const connectHandlers = mockOn.mock.calls.filter(
       (call) => call[0] === 'connect',
-    )[1];
-    connectHandler();
+    );
+    connectHandlers.forEach((handler) => handler[1]());
 
-    expect(consoleSpy).toHaveBeenCalledWith('Connected to Redis server');
+    expect(consoleSpy).toHaveBeenCalledWith('Connected to Cache Redis (db 0)');
+    expect(consoleSpy).toHaveBeenCalledWith('Connected to Job Redis (db 1)');
     consoleSpy.mockRestore();
+  });
+
+  it('connectRedis connects both clients when not open', async () => {
+    jest.isolateModules(async () => {
+      const { connectRedis } = require('@lib/redisClient');
+      await connectRedis();
+      expect(mockConnect).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it('connectJobRedis connects only job client', async () => {
+    jest.isolateModules(async () => {
+      const { connectJobRedis } = require('@lib/redisClient');
+      await connectJobRedis();
+      expect(mockConnect).toHaveBeenCalledTimes(1);
+    });
   });
 });

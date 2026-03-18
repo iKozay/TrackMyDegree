@@ -13,3 +13,20 @@ export interface CoursePoolInfo {
   creditsRequired: number;
   courses: string[];
 }
+
+export interface CourseData {
+  _id: string;
+  title: string;
+  description?: string;
+  credits: number;
+  offeredIn?: string[];
+  prereqCoreqText?: string;
+  rules?: {
+    prereq?: string[][];
+    coreq?: string[][];
+    not_taken?: string[];
+    min_credits?: number;
+  };
+  notes?: string;
+  components?: string[];
+}

@@ -1,4 +1,3 @@
-// workers/queue.ts
 import { Queue, Worker, Job } from 'bullmq';
 import { readFile, unlink } from 'node:fs/promises';
 import { buildTimeline, buildTimelineFromDB } from '../services/timeline/timelineBuilder';
@@ -12,10 +11,18 @@ export type CourseProcessorJobData =
 const redisOptions = {
   host: process.env.REDIS_HOST || '127.0.0.1',
   port: Number(process.env.REDIS_PORT || '6379'),
+  db: 1, // Use database 1 for queue
 };
 
 export const queue = new Queue<CourseProcessorJobData>('courseProcessor', {
   connection: redisOptions,
+  defaultJobOptions: {
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 2000,
+    },
+  },
 });
 
 const CONCURRENCY = 2;
@@ -53,8 +60,6 @@ export const courseProcessorWorker = new Worker<CourseProcessorJobData>(
         default:
           throw new Error(`the job data type provided is not supported`);
       }
-
-
       await cacheJobResult(jobId, {
         payload: { status: 'done', data: result },
       });
@@ -84,3 +89,11 @@ export const courseProcessorWorker = new Worker<CourseProcessorJobData>(
     concurrency: CONCURRENCY,
   },
 );
+
+courseProcessorWorker.on('completed', (job) => {
+  console.log(`Job ${job.id} completed`);
+});
+
+courseProcessorWorker.on('failed', (job, err) => {
+  console.error(`Job ${job?.id} failed:`, err);
+});

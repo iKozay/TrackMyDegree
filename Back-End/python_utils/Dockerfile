@@ -1,22 +1,25 @@
-# Dockerfile for python_utils
-FROM python:3.11-slim
+# ---------- Build stage ----------
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-# Copy project files
+COPY requirements.txt .
+RUN pip install --no-cache-dir --target=/app/packages -r requirements.txt
+
+RUN mkdir -p /app/data
+
+# ---------- Runtime stage ----------
+FROM gcr.io/distroless/python3-debian12:nonroot
+
+WORKDIR /app
+
+COPY --from=builder                    /app/packages /app/packages
+COPY --from=builder --chown=65532:65532 /app/data     /app/data
 COPY . /app
 
-# Install python deps if requirements.txt exists
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Expose application port
-EXPOSE 15001
-
-# Create non-root user and group
-RUN mkdir -p /app/data && chmod -R 755 /app/data && groupadd -r appuser && useradd -r -g appuser -m appuser && chown -R appuser:appuser /app
-
-USER appuser
-
+ENV PYTHONPATH=/app/packages
 ENV DATA_CACHE=/app/data
 
-CMD ["gunicorn", "-b", "0.0.0.0:15001", "--timeout", "300", "main:app"]
+EXPOSE 15001
+
+CMD ["-m", "gunicorn", "-b", "0.0.0.0:15001", "--timeout", "300", "main:app"]
