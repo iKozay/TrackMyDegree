@@ -51,9 +51,25 @@ const signupLimiter = createLimiter({
   message: { error: 'Too many signup attempts. Try again later.' },
 });
 
+// Rate limiter for credit form file downloads (public endpoint)
+const creditFormDownloadLimiter = createLimiter({
+  windowMs: 1 * 60 * 1000, // 1 minute window
+  max: 60, // 60 file requests per minute per IP
+  message: { error: 'Too many file requests. Try again later.' },
+});
+
+// Rate limiter for credit form uploads (admin-only endpoint)
+const creditFormUploadLimiter = createLimiter({
+  windowMs: 15 * 60 * 1000, // 15 minute window
+  max: 10, // 10 uploads per 15 minutes per IP
+  message: { error: 'Too many upload attempts. Try again later.' },
+});
+
 export {
   forgotPasswordLimiter,
   resetPasswordLimiter,
   loginLimiter,
   signupLimiter,
+  creditFormDownloadLimiter,
+  creditFormUploadLimiter,
 };

@@ -2,13 +2,13 @@
 import { parseFile } from '@services/parsingService';
 import { PredefinedSequenceTerm, ParsedData, ProgramInfo } from '../../types/transcript';
 import { degreeController } from '@controllers/degreeController';
-import { CourseData, courseController } from '@controllers/courseController';
+import { courseController } from '@controllers/courseController';
 import { SEASONS } from '@utils/constants';
 import {getTermRanges} from "@utils/misc";
 import { Timeline } from '@models';
 import { coursepoolController } from '@controllers/coursepoolController';
 import { TimelineResult, TimelineCourse, TimelineDocument, TimelineSemester, CourseStatus } from '@shared/timeline';
-import { DegreeData, CoursePoolInfo } from '@shared/degree';
+import { CourseData, DegreeData, CoursePoolInfo } from '@shared/degree';
 
 
 // Timeline builder inputs

@@ -13,6 +13,22 @@ const defaultProps = {
     setAddedCourses: vi.fn(),
 };
 
+const getCurrentAcademicYearStart = () => {
+    const today = new Date();
+    const cutover = new Date(today.getFullYear(), 2, 15); // March 15
+    return today >= cutover ? today.getFullYear() : today.getFullYear() - 1;
+};
+
+const academicYearStart = getCurrentAcademicYearStart();
+const yy = String(academicYearStart).slice(-2);
+const summerValue = `summer-${academicYearStart}`;
+const summerLabel = `Summer ${academicYearStart}`;
+const fallValue = `fall-${academicYearStart}`;
+const fallLabel = `Fall ${academicYearStart}`;
+const winterValue = `winter-${academicYearStart + 1}`;
+const winterLabel = `Winter ${academicYearStart + 1}`;
+const summerTermCode = `2${yy}1`;
+
 const makeSection = (overrides: Partial<CourseSection> = {}): CourseSection => ({
     courseID: "1", termCode: "2251", session: "1", subject: "COMP", catalog: "352",
     section: "AA", componentCode: "LEC", componentDescription: "Lecture",
@@ -43,16 +59,16 @@ describe('SearchCourses rendering', () => {
         expect(screen.getByText('Search & Add Courses')).toBeInTheDocument();
         expect(screen.getByText('Select Semester')).toBeInstanceOf(HTMLLabelElement);
         expect(screen.getByText('Search for Courses')).toBeInstanceOf(HTMLLabelElement);
-        expect(screen.getByDisplayValue('Summer 2025')).toBeInstanceOf(HTMLSelectElement);
+        expect(screen.getByDisplayValue(summerLabel)).toBeInstanceOf(HTMLSelectElement);
         expect(screen.getByPlaceholderText('Search by course code or name...')).toBeInstanceOf(HTMLInputElement);
         expect(screen.getByText('Search')).toBeDisabled();
     });
 
     it('renders all semester options for the current academic year', () => {
         const { container } = render(<SearchCourses {...defaultProps} />);
-        expect(container.querySelector('option[value="summer-2025"]')?.textContent).toBe('Summer 2025');
-        expect(container.querySelector('option[value="fall-2025"]')?.textContent).toBe('Fall 2025');
-        expect(container.querySelector('option[value="winter-2026"]')?.textContent).toBe('Winter 2026');
+        expect(container.querySelector(`option[value="${summerValue}"]`)?.textContent).toBe(summerLabel);
+        expect(container.querySelector(`option[value="${fallValue}"]`)?.textContent).toBe(fallLabel);
+        expect(container.querySelector(`option[value="${winterValue}"]`)?.textContent).toBe(winterLabel);
     });
 
     it('renders two aria-hidden icons inside the card', () => {
@@ -83,9 +99,9 @@ describe('SearchCourses input interaction', () => {
 
     it('changing semester updates the select value', () => {
         render(<SearchCourses {...defaultProps} />);
-        const select = screen.getByDisplayValue('Summer 2025') as HTMLSelectElement;
-        fireEvent.change(select, { target: { value: 'fall-2025' } });
-        expect(select.value).toBe('fall-2025');
+        const select = screen.getByDisplayValue(summerLabel) as HTMLSelectElement;
+        fireEvent.change(select, { target: { value: fallValue } });
+        expect(select.value).toBe(fallValue);
     });
 
     it('pressing Enter triggers a search; non-Enter key does not', async () => {
@@ -121,7 +137,7 @@ describe('SearchCourses API and modals', () => {
         searchFor('COMP 352');
 
         await waitFor(() => expect(screen.getByText('Course Not Available')).toBeInTheDocument());
-        expect(document.querySelector('.sc-modal__body')?.textContent).toMatch(/Summer 2025/);
+        expect(document.querySelector('.sc-modal__body')?.textContent).toContain(summerLabel);
     });
 
     it('shows "Course Already Added" modal without calling API for duplicate courses', async () => {
@@ -164,8 +180,8 @@ describe('SearchCourses API and modals', () => {
     it('calls API with correct subject/catalog, adds course, clears input, and filters inactive sections', async () => {
         const setAddedCourses = vi.fn();
         mockApiGet.mockResolvedValueOnce([
-            makeSection({ termCode: "2251", classStatus: "Active", courseTitle: "DATA STRUCTURES" }),
-            makeSection({ classNumber: "1002", termCode: "2251", classStatus: "Cancelled Section" }),
+            makeSection({ termCode: summerTermCode, classStatus: "Active", courseTitle: "DATA STRUCTURES" }),
+            makeSection({ classNumber: "1002", termCode: summerTermCode, classStatus: "Cancelled Section" }),
         ]);
 
         render(<SearchCourses addedCourses={[]} setAddedCourses={setAddedCourses} />);
@@ -192,7 +208,7 @@ describe('SearchCourses API and modals', () => {
         const existing: AddedCourse[] = [{ code: "SOEN 341", title: "SOFTWARE PROCESS", sections: [] }];
         const setAddedCourses = vi.fn();
         mockApiGet.mockResolvedValueOnce([
-            makeSection({ termCode: "2251", classStatus: "Active", subject: "COMP", catalog: "352", courseTitle: "DATA STRUCTURES" }),
+            makeSection({ termCode: summerTermCode, classStatus: "Active", subject: "COMP", catalog: "352", courseTitle: "DATA STRUCTURES" }),
         ]);
 
         render(<SearchCourses addedCourses={existing} setAddedCourses={setAddedCourses} />);

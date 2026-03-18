@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TrackMyDegree — System Design</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: #ffffff;
+        display: flex;
+        justify-content: center;
+        padding: 40px 20px;
+      }
+
+      .page {
+        width: 840px;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 32px;
+      }
+
+      .center-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .user-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 4px;
+      }
+      .user-box span {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #444;
+      }
+
+      .v-arrow {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 4px 0;
+      }
+      .v-arrow .line {
+        width: 2px;
+        height: 18px;
+        background: #aaa;
+      }
+      .v-arrow .head-down {
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 7px solid #aaa;
+      }
+      .v-arrow .label {
+        font-size: 0.56rem;
+        color: #999;
+        font-weight: 500;
+        margin-bottom: 1px;
+      }
+
+      .docker {
+        border: 2.5px dashed #b0b0b0;
+        border-radius: 16px;
+        padding: 32px 28px 28px;
+        position: relative;
+        background: #fafbfc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .docker-label {
+        position: absolute;
+        top: -12px;
+        left: 24px;
+        background: #fafbfc;
+        padding: 0 10px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #777;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .docker-label i {
+        font-size: 1rem;
+        color: #2496ed;
+      }
+
+      /* ── Box ── */
+      .box {
+        background: #fff;
+        border: 1.5px solid #ddd;
+        border-radius: 10px;
+        padding: 14px 14px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        text-align: center;
+        position: relative;
+      }
+      .box .logo {
+        font-size: 2rem;
+        margin-bottom: 4px;
+      }
+      .box .name {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #1a1a2e;
+      }
+      .box .desc {
+        font-size: 0.58rem;
+        color: #888;
+        line-height: 1.4;
+      }
+
+      /* Docker container badge */
+      .box .container-badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        font-size: 0.8rem;
+        color: #2496ed;
+        opacity: 0.5;
+      }
+
+      .wide-row {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+      }
+      .wide-row .box {
+        width: 340px;
+      }
+
+      .service-row {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        gap: 0;
+      }
+      .service-row .box {
+        flex: 1;
+      }
+
+      .h-arrow {
+        display: flex;
+        align-items: center;
+        padding: 0 2px;
+        gap: 0;
+      }
+      .h-arrow .h-line {
+        width: 20px;
+        height: 2px;
+        background: #aaa;
+      }
+      .h-arrow .h-tip-r {
+        width: 0;
+        height: 0;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        border-left: 6px solid #aaa;
+      }
+      .h-arrow-wrap {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .h-arrow-label {
+        font-size: 0.5rem;
+        color: #999;
+        font-weight: 500;
+        white-space: nowrap;
+        margin-bottom: 2px;
+      }
+
+      .redis-outer {
+        background: #fff;
+        border: 1.5px solid #ddd;
+        border-radius: 10px;
+        padding: 10px 12px 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+        position: relative;
+      }
+      .redis-outer .container-badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        font-size: 0.8rem;
+        color: #2496ed;
+        opacity: 0.5;
+      }
+      .redis-outer .redis-title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .redis-outer .logo {
+        font-size: 1.6rem;
+      }
+      .redis-outer .name {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #1a1a2e;
+      }
+      .redis-inner-row {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+      }
+      .redis-inner {
+        flex: 1;
+        background: #fef2f2;
+        border: 1.5px solid #fca5a5;
+        border-radius: 8px;
+        padding: 8px 6px;
+        text-align: center;
+      }
+      .redis-inner .db-name {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #b91c1c;
+      }
+      .redis-inner .db-desc {
+        font-size: 0.55rem;
+        color: #999;
+        line-height: 1.3;
+        margin-top: 2px;
+      }
+
+      .row {
+        display: flex;
+        justify-content: center;
+        gap: 18px;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1>TrackMyDegree — System Design</h1>
+
+      <!-- User -->
+      <div class="center-col">
+        <div class="user-box">
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#555"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          <span>User</span>
+        </div>
+        <div class="v-arrow">
+          <div class="label">HTTPS</div>
+          <div class="line"></div>
+          <div class="head-down"></div>
+        </div>
+      </div>
+
+      <!-- Docker -->
+      <div class="docker">
+        <div class="docker-label">
+          <i class="devicon-docker-plain"></i> Docker Network
+        </div>
+
+        <!-- Reverse Proxy -->
+        <div class="wide-row">
+          <div class="box">
+            <i class="container-badge devicon-docker-plain"></i>
+            <img
+              src="https://doc.traefik.io/traefik/assets/img/traefik.logo.png"
+              width="36"
+              height="36"
+              alt="Traefik"
+              style="object-fit: contain" />
+            <div class="name">Reverse Proxy</div>
+            <div class="desc">
+              Traefik v3 · TLS termination<br />Routes /api → API Server ·
+              Routes /* → Frontend
+            </div>
+          </div>
+        </div>
+
+        <div class="v-arrow">
+          <div class="line"></div>
+          <div class="head-down"></div>
+        </div>
+
+        <!-- Frontend -->
+        <div class="wide-row">
+          <div class="box">
+            <i class="container-badge devicon-docker-plain"></i>
+            <i class="devicon-react-original colored logo"></i>
+            <div class="name">Frontend</div>
+            <div class="desc">
+              React · TypeScript · Vite<br />User interface · Timeline builder ·
+              Degree audit · Course browser
+            </div>
+          </div>
+        </div>
+
+        <div class="v-arrow">
+          <div class="label">API calls via /api</div>
+          <div class="line"></div>
+          <div class="head-down"></div>
+        </div>
+
+        <!-- Worker — API — Python -->
+        <div class="service-row">
+          <div class="box">
+            <i class="container-badge devicon-docker-plain"></i>
+            <i class="devicon-nodejs-plain colored logo"></i>
+            <div class="name">Worker</div>
+            <div class="desc">
+              BullMQ · Node.js<br />Consumes jobs<br />Builds timelines
+            </div>
+          </div>
+
+          <div class="h-arrow-wrap">
+            <div class="h-arrow-label">uses services</div>
+            <div class="h-arrow">
+              <div class="h-line"></div>
+              <div class="h-tip-r"></div>
+            </div>
+          </div>
+
+          <div class="box">
+            <i class="container-badge devicon-docker-plain"></i>
+            <i
+              class="devicon-express-original logo"
+              style="font-size: 2rem"></i>
+            <div class="name">API Server</div>
+            <div class="desc">
+              Express · Node.js<br />REST API · Auth<br />Enqueues jobs · Reads
+              results
+            </div>
+          </div>
+
+          <div class="h-arrow-wrap">
+            <div class="h-arrow-label">API calls</div>
+            <div class="h-arrow">
+              <div class="h-line"></div>
+              <div class="h-tip-r"></div>
+            </div>
+          </div>
+
+          <div class="box">
+            <i class="container-badge devicon-docker-plain"></i>
+            <i class="devicon-python-plain colored logo"></i>
+            <div class="name">Python Utils</div>
+            <div class="desc">
+              Flask · Python<br />Transcript PDF parsing<br />Degree &amp;
+              course scraping
+            </div>
+          </div>
+        </div>
+
+        <!-- Arrows down to data -->
+        <div style="display: flex; width: 100%; padding: 2px 0">
+          <div style="flex: 1; display: flex; justify-content: center">
+            <div class="v-arrow">
+              <div class="label">listens + caches results</div>
+              <div class="line" style="height: 24px"></div>
+              <div class="head-down"></div>
+            </div>
+          </div>
+          <div
+            style="flex: 1; display: flex; justify-content: center; gap: 60px">
+            <div class="v-arrow">
+              <div class="label">cache + queue</div>
+              <div class="line" style="height: 24px"></div>
+              <div class="head-down"></div>
+            </div>
+            <div class="v-arrow">
+              <div class="label">read / write</div>
+              <div class="line" style="height: 24px"></div>
+              <div class="head-down"></div>
+            </div>
+          </div>
+          <div style="flex: 1"></div>
+        </div>
+
+        <!-- Data Layer -->
+        <div class="row">
+          <div class="redis-outer">
+            <i class="container-badge devicon-docker-plain"></i>
+            <div class="redis-title">
+              <i
+                class="devicon-redis-plain colored logo"
+                style="font-size: 1.6rem"></i>
+              <div class="name">Redis</div>
+            </div>
+            <div class="redis-inner-row">
+              <div class="redis-inner">
+                <div class="db-name">db 0</div>
+                <div class="db-desc">API Response Cache</div>
+              </div>
+              <div class="redis-inner">
+                <div class="db-name">db 1</div>
+                <div class="db-desc">Job Queue + Results</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="box" style="flex: 1">
+            <i class="container-badge devicon-docker-plain"></i>
+            <i class="devicon-mongodb-plain colored logo"></i>
+            <div class="name">MongoDB</div>
+            <div class="desc">
+              Users · Courses · Degrees<br />Timelines · Credit Forms
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

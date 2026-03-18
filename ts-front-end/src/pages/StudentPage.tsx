@@ -27,10 +27,12 @@ const StudentPage: React.FC = () => {
   const [timelines, setTimelines] = React.useState<Timeline[]>([]);
   useEffect(() => {
     if (!isAuthenticated) return;
-    // Check for redirect path
+    // Check for redirect path — only allow same-origin relative paths to prevent open redirect (CWE-601)
     const redirect = localStorage.getItem("redirectAfterLogin");
     localStorage.removeItem("redirectAfterLogin");
-    if (redirect) navigate(redirect, { replace: true });
+    if (redirect && redirect.startsWith('/') && !redirect.startsWith('//')) {
+      navigate(redirect, { replace: true });
+    }
 
     const fetchUserTimelines = async () => {
       try {

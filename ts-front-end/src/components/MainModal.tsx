@@ -39,6 +39,7 @@ export const MainModal: React.FC<MainModalProps> = ({
             pools={pools}
             courses={courses}
             onClose={() => onClose(false, type)}
+            onOpenDegreeAudit={() => onClose(false, "degree-audit")}
           />
         );
       case "exemption":

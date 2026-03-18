@@ -37,3 +37,5 @@ Thumbs.db
 
 # Docker
 docker-compose*
+
+.snyk
