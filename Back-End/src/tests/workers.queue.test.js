@@ -102,7 +102,7 @@ describe('courseProcessorWorker', () => {
   });
 
   test('processes a timelineData job: builds from DB, caches result', async () => {
-    const { buildTimelineFromDB } = require('../services/timeline/timelineService');
+    const { buildTimelineFromDB } = require('../services/timeline/timelineBuilder');
     buildTimelineFromDB.mockResolvedValueOnce({ timeline: ['db', 'data'] });
     cacheJobResult.mockResolvedValueOnce(undefined);
 
