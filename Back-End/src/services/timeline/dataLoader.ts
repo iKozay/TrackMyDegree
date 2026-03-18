@@ -1,7 +1,6 @@
 import { CourseData } from "@shared/degree";
 import { normalizeCourseCode } from './courseHelper';
 import { degreeController } from '@controllers/degreeController';
-import { courseController } from "@controllers/courseController";
 import { Course } from '@models';
 
 export async function getDegreeData(degreeId: string) {
@@ -14,7 +13,7 @@ export async function getDegreeData(degreeId: string) {
   // Build dictionary
   const courses: Record<string, CourseData> = {};
   for (const c of courseArr) {
-    courses[c._id] = c;
+    courses[normalizeCourseCode(c._id)] = c;
   }
 
   return { degreeData, coursePools, courses };

@@ -1,11 +1,10 @@
 // services/buildTimeline.ts
 import { parseFile } from '@services/parsingService';
 import { ParsedData, ProgramInfo } from '../../types/transcript';
-import { CourseData } from '@shared/degree';
 import { Timeline } from '@models';
 import { coursepoolController } from '@controllers/coursepoolController';
 import { TimelineResult, TimelineCourse, TimelineDocument, TimelineSemester, CourseStatus } from '@shared/timeline';
-import { DegreeData, CoursePoolInfo } from '@shared/degree';
+import { DegreeData, CoursePoolInfo, CourseData } from '@shared/degree';
 import {  normalizeCourseCode } from './courseHelper';
 import { processSemestersFromParsedData, generateEmptySemesters, generateSemestersFromPredefinedSequence } from './semesterBuilder';
 import { mapCoursesToTimelineFormat } from './courseMapper';
@@ -285,7 +284,7 @@ async function handleCoop(
   if (degree.coursePools && !degree.coursePools.includes(COOP_POOL_ID)) {
     degree.coursePools.push(COOP_POOL_ID);
   }
-  if (coursePools.find((p) => p._id === COOP_POOL_ID)) {
+  if (coursePools.some((p) => p._id === COOP_POOL_ID)) {
     return;
   }
   const coopCoursePool = await coursepoolController.getCoursePool(COOP_POOL_ID)

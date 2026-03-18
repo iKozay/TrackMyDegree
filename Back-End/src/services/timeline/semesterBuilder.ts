@@ -1,3 +1,4 @@
+import { unlink } from 'node:fs/promises';
 import { PredefinedSequenceTerm, ParsedData } from '../../types/transcript';
 import { CourseData } from '@shared/degree';
 import { SEASONS } from '@utils/constants';
@@ -34,32 +35,22 @@ export async function processSemestersFromParsedData(
     for (const course of semester.courses) {
       //get course status
       let normalizedCode = normalizeCourseCode(course.code);
-
+      let courseNotPartOfDegree = unusedCourses.includes(normalizedCode);
       let { status, message } = getCourseStatus(
         term,
         parsedData?.programInfo?.isCoop,
         normalizedCode,
         coursesThatNeedCMinus,
         course.grade,
+        courseNotPartOfDegree,
       );
-      if( unusedCourses.includes(normalizedCode)) {
-        message = "Course not part of degree requirements";
-        status = "completed";
-        coursesInfo.push({
-          code: normalizedCode,
-          message: 'Course not part of degree requirements',
-        });
-        courseStatusMap[normalizedCode] = { status: status, semester: term };
-        continue;
-      }
+     
+      coursesInfo.push({ code: normalizedCode, message: message });
 
-      let courseData = allCourses[normalizedCode];
-      let courseCode = courseData._id;
-      coursesInfo.push({ code: courseCode, message: message });
-      const existing = courseStatusMap[courseCode];
+      // Update course status in the map, but only if it's not already marked as completed (to handle retaken courses)
+      const existing = courseStatusMap[normalizedCode];
       if (existing?.status !== 'completed') {
-        //course can be taken two times
-        courseStatusMap[courseCode] = { status: status, semester: term };
+        courseStatusMap[normalizedCode] = { status: status, semester: term };
       }
     }
     semesters_results.push({ term: term, courses: coursesInfo });
@@ -73,14 +64,21 @@ function getCourseStatus(
   courseCode: string,
   coursesThatNeedCMinus: Set<string>,
   courseGrade?: string,
+  courseNotPartOfDegree: boolean = false,
 ) {
   let status: CourseStatus = 'incomplete';
   let message;
-  if (courseGrade?.toUpperCase() === 'DISC') message = 'DISC';
+
+  if (courseNotPartOfDegree) {
+    status = 'completed'; // We mark it as completed to avoid showing it as an incomplete course, but we add a message to indicate that it's not part of degree requirements
+    message = 'Course not used towards degree requirements';
+  }
+  else if (courseGrade?.toUpperCase() === 'DISC') message = 'DISC';
   else if (isPlanned(term)) status = 'planned';
   else if (isCoop && courseCode.toUpperCase().includes('CWT')) {
     if (courseGrade?.toUpperCase() == 'PASS') status = 'completed';
-  } else {
+  } 
+  else {
     let minGrade = 'D-';
     if (coursesThatNeedCMinus.has(courseCode)) minGrade = 'C-';
     let satisfactoryGrade = validateGrade(minGrade, courseGrade);
