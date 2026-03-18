@@ -1,4 +1,4 @@
-import { CourseData } from "@controllers/courseController";
+import { CourseData } from "@shared/degree";
 import { normalizeCourseCode } from './courseHelper';
 import { degreeController } from '@controllers/degreeController';
 import { courseController } from "@controllers/courseController";

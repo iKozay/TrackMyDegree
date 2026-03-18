@@ -1,6 +1,6 @@
 
 
-import { CourseData } from "@controllers/courseController";
+import { CourseData } from "@shared/degree";
 
 // Normalizes a course code by removing all whitespace,
 // inserting a space between the letter prefix and numeric part, and converting it to uppercase.

@@ -1,5 +1,5 @@
 import { PredefinedSequenceTerm, ParsedData } from '../../types/transcript';
-import { CourseData } from '@controllers/courseController';
+import { CourseData } from '@shared/degree';
 import { SEASONS } from '@utils/constants';
 import {getTermRanges} from "@utils/misc";
 import { TimelineSemester, CourseStatus } from '@shared/timeline';

@@ -1,7 +1,7 @@
 // services/buildTimeline.ts
 import { parseFile } from '@services/parsingService';
 import { ParsedData, ProgramInfo } from '../../types/transcript';
-import { CourseData } from '@controllers/courseController';
+import { CourseData } from '@shared/degree';
 import { Timeline } from '@models';
 import { coursepoolController } from '@controllers/coursepoolController';
 import { TimelineResult, TimelineCourse, TimelineDocument, TimelineSemester, CourseStatus } from '@shared/timeline';
