@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
-import { CreditForm } from '@models/creditForm';
-import { ICreditFormData, CreateCreditFormInput, UpdateCreditFormInput } from '@shared/creditForm';
+import { CreditForm } from '@models';
+import { ICreditFormData, CreateCreditFormInput, UpdateCreditFormInput } from '@shared';
 import path from 'node:path';
 import fs from 'node:fs';
 

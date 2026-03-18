@@ -1,6 +1,6 @@
 import { BaseMongoController } from './baseMongoController';
 import { Course } from '@models';
-import { CourseData } from '@shared/degree';
+import { CourseData } from '@shared';
 
 export class CourseController extends BaseMongoController<any> {
   constructor() {

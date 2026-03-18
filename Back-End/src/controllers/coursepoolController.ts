@@ -1,13 +1,7 @@
 import { BaseMongoController } from './baseMongoController';
 import { CoursePool } from '@models';
 import * as Sentry from '@sentry/node';
-
-export interface CoursePoolData {
-  _id: string;
-  name: string;
-  creditsRequired: number;
-  courses?: string[];
-}
+import { CoursePoolData } from '@shared';
 
 export class CoursePoolController extends BaseMongoController<any> {
   constructor() {

@@ -1,7 +1,5 @@
 import { api } from './http-api-client';
-import type { ICreditFormData } from '@shared/creditForm';
-
-export type { ICreditFormData };
+import type { ICreditFormData } from '@shared';
 
 interface CreditFormsResponse {
     forms: ICreditFormData[];

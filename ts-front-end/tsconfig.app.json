@@ -20,7 +20,7 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "@shared/*": ["../shared/types/*"]
+      "@shared": ["../shared/index.ts"]
     }
   },
   "include": ["src", "vitest.config.ts"]

@@ -5,7 +5,7 @@ import {
     updateCreditForm,
     deleteCreditForm,
 } from '../api/creditFormsApi';
-import type { ICreditFormData } from '../api/creditFormsApi';
+import type { ICreditFormData } from '@shared';
 import { toast } from 'react-toastify';
 
 const BURGUNDY = '#7a0019';

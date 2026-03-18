@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import type { HTMLAttributes, ReactNode } from "react";
 import CoursePage, { type CourseGroup } from "../../pages/CoursePage";
-import type { CourseData } from "@shared/degree";
+import type { CourseData } from "@shared";
 import useDegrees from "../../legacy/hooks/useDegree.jsx";
 import useCourses from "../../legacy/hooks/useCourses.jsx";
 import useResponsive from "../../legacy/hooks/useResponsive.jsx";

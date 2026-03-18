@@ -1,7 +1,7 @@
 import { BaseMongoController } from './baseMongoController';
 import { Degree, CoursePool, Course } from '@models';
 import { DEGREE_WITH_ID_DOES_NOT_EXIST } from '@utils/constants';
-import { CourseData, DegreeData, CoursePoolInfo } from '@shared/degree';
+import { CourseData, DegreeData, CoursePoolData } from '@shared';
 
 export interface DegreeXCPData {
   degree_id: string;
@@ -34,7 +34,7 @@ export class DegreeController extends BaseMongoController<any> {
     // 2. Fetch pools
     const pools = await CoursePool
       .find({ _id: { $in: degree.coursePools ?? [] } })
-      .lean<CoursePoolInfo[]>()
+      .lean<CoursePoolData[]>()
       .exec();
 
     // 3. Gather all course IDs
@@ -176,12 +176,12 @@ export class DegreeController extends BaseMongoController<any> {
   /**
    * Get course pools for a degree (optimized - only fetches coursePools field)
    */
- async getCoursePoolsForDegree(_id: string): Promise<CoursePoolInfo[]> {
+ async getCoursePoolsForDegree(_id: string): Promise<CoursePoolData[]> {
     try {
       // Using populate to get full course pool details
       const result = await this.model
       .findById(_id)
-      .lean<{ coursePools?: CoursePoolInfo[] }>()
+      .lean<{ coursePools?: CoursePoolData[] }>()
       .populate({
         path: 'coursePools',
         model: CoursePool,

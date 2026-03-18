@@ -3,10 +3,9 @@ import {
   generateDegreeAudit,
   generateDegreeAuditForUser,
   generateDegreeAuditFromTimeline,
-} from '@services/audit/degreeAuditService';
-import { DegreeAuditData, GenerateAuditParams } from '@shared/audit';
+} from '@services/audit';
+import { TimelineResult, DegreeAuditData, GenerateAuditParams } from '@shared';
 import { getJobResult } from '../lib/cache';
-import { TimelineResult } from '@shared/timeline';
 
 export class DegreeAuditController {
   private handleError(error: unknown, operation: string): never {

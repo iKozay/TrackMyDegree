@@ -19,7 +19,7 @@
       "@services/*": ["./services/*"],
       "@types/*": ["./types/*"],
       "@utils/*": ["./utils/*"],
-      "@shared/*": ["../../shared/types/*"]
+      "@shared": ["../../shared/index.ts"]
     },
     "plugins": [
       { "transform": "typescript-transform-paths" },

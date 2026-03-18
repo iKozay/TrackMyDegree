@@ -7,9 +7,7 @@ import { SEASONS } from '@utils/constants';
 import {getTermRanges} from "@utils/misc";
 import { Timeline } from '@models';
 import { coursepoolController } from '@controllers/coursepoolController';
-import { TimelineResult, TimelineCourse, TimelineDocument, TimelineSemester, CourseStatus } from '@shared/timeline';
-import { CourseData, DegreeData, CoursePoolInfo } from '@shared/degree';
-
+import { TimelineResult, TimelineCourse, TimelineDocument, TimelineSemester, CourseStatus, CourseData, DegreeData, CoursePoolData } from '@shared';
 
 // Timeline builder inputs
 export type BuildTimelineParams =
@@ -199,7 +197,7 @@ function mapRequisites(reqs?: string[][]) {
 async function processSemestersFromParsedData(
   parsedData: ParsedData,
   degree: DegreeData,
-  coursePools: CoursePoolInfo[],
+  coursePools: CoursePoolData[],
   allCourses: Record<string, CourseData>,
   courseStatusMap: Record<
     string,
@@ -290,7 +288,7 @@ function addToCoursePools(
   coursePoolName: string,
   coursesToAdd: string[],
   allCourses: Record<string, CourseData>,
-  coursePools: CoursePoolInfo[],
+  coursePools: CoursePoolData[],
   calculateCredits: boolean = true,
 ) {
   const normalizedCourses = coursesToAdd.map(normalizeCourseCode);
@@ -366,7 +364,7 @@ async function getDegreeData(degreeId: string) {
   return { degreeData, coursePools, courses };
 }
 
-function getRequiredCourses(coursePools: CoursePoolInfo[]) {
+function getRequiredCourses(coursePools: CoursePoolData[]) {
   const requiredCourses: Set<string> = new Set<string>();
   for (const pool of coursePools) {
     if (!pool.name.toLowerCase().includes('elective')) {
@@ -654,7 +652,7 @@ export async function buildTimelineFromDB(
 }
 
 export function addCourseToUsedUnusedPool(
-  pools: CoursePoolInfo[],
+  pools: CoursePoolData[],
   courseCode: string,
 ): void {
   const USED_UNUSED_POOL_ID = 'used-unused-credits';
@@ -678,7 +676,7 @@ export function addCourseToUsedUnusedPool(
 // Moved addEcpCoursePools outside buildTimeline for better testability
 export async function addEcpCoursePools(
   degreeId: string,
-  coursePools: CoursePoolInfo[],
+  coursePools: CoursePoolData[],
   courses: Record<string, CourseData>,
   degree: DegreeData,
 ) {
@@ -703,7 +701,7 @@ export async function addEcpCoursePools(
     }
   }
 }
-async function handle_general_education_electives(ecpResult: { coursePools: CoursePoolInfo[] }, coursePools: CoursePoolInfo[]) {
+async function handle_general_education_electives(ecpResult: { coursePools: CoursePoolData[] }, coursePools: CoursePoolData[]) {
   const ecpPool = ecpResult.coursePools.find((pool) => pool.name.includes('General Education Humanities and Social Sciences Electives'));
   const gen_ed_pool_id = coursePools.find(pool => pool.name.includes('General Education Humanities and Social Sciences Electives'));
   if (ecpPool && gen_ed_pool_id) {
@@ -719,7 +717,7 @@ async function handle_general_education_electives(ecpResult: { coursePools: Cour
 
 async function addCoopCoursePool(
   degree: DegreeData,
-  coursePools: CoursePoolInfo[],
+  coursePools: CoursePoolData[],
   courses: Record<string, CourseData>,
 ) {
   const COOP_POOL_ID = "COOP_Co-op Work Terms";
@@ -733,7 +731,7 @@ async function addCoopCoursePool(
   if (coopCoursePool) {
     const coopCoursesList = coopCoursePool.courses || [];
     const coopCourses = await Promise.all(coopCoursesList.map(async (code) => await getCourseData(code)));
-    coursePools.push(coopCoursePool as CoursePoolInfo);
+    coursePools.push(coopCoursePool as CoursePoolData);
     for (const c of coopCourses) {
       if (c) {
         courses[c._id] = c;
@@ -756,7 +754,7 @@ export async function mapNonDegreeSemesterCoursesToUsedUnusedPool(
   semestersResults: Array<{ courses: Array<{ code: string }> }>,
   courses: Record<string, any>, // your DB course map (keyed by course code OR _id depending on your existing structure)
   courseStatusMap: Record<string, { status?: any; semester?: any }>,
-  coursePools: CoursePoolInfo[],
+  coursePools: CoursePoolData[],
 ): Promise<void> {
   for (const semester of semestersResults) {
     for (const course of semester.courses) {

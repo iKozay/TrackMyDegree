@@ -4,7 +4,7 @@ import useDegrees from "../legacy/hooks/useDegree.jsx";
 import useCourses from "../legacy/hooks/useCourses.jsx";
 import useResponsive from "../legacy/hooks/useResponsive.jsx";
 import CourseSectionButton from "../legacy/components/SectionModal.jsx";
-import type { CourseData } from "@shared/degree";
+import type { CourseData } from "@shared";
 import "../styles/CoursePage.css";
 
 // Icons as inline SVG components for consistency
