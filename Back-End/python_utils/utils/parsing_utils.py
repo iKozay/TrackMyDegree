@@ -4,9 +4,9 @@ import re
 from unidecode import unidecode
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from models import (CourseRules, Constraint, ConstraintType,
+from models import (Constraint, ConstraintType,
                     MinCoursesFromSetParams, MaxCoursesFromSetParams,
-                    CourseAdditionParams, CourseRemovalParams, CourseSubstitutionParams,
+                    CourseAdditionParams, CourseRemovalParams, CourseSubstitutionParams, MinCreditsCompletedParams,
                     OverrideCoursePoolCoursesParams)
 
 SPACE_REPLACEMENT = r'\1 \2'
@@ -207,6 +207,23 @@ def make_prereq_coreq_into_array(s):
     
     return result
 
+def make_requisite_arrays(prereq_text, coreq_text) -> tuple[list[str], list[str], list[str]]:
+    prereq = make_prereq_coreq_into_array(prereq_text)
+    coreq = make_prereq_coreq_into_array(coreq_text)
+    pre_coreq = []
+    # Find courses that appear in both prereq and coreq lists
+    for p in prereq:
+        for c in coreq:
+            if set(p) & set(c):  # If there's any overlap in courses
+                pre_coreq.append(list(set(p) & set(c)))  # Add the overlapping courses to pre_coreq
+                # Remove the overlapping courses from prereq and coreq
+                p[:] = [course for course in p if course not in pre_coreq[-1]]
+                c[:] = [course for course in c if course not in pre_coreq[-1]]
+    # Remove empty lists from prereq and coreq
+    prereq = [p for p in prereq if p]
+    coreq = [c for c in coreq if c]
+    return prereq, coreq, pre_coreq
+
 def get_not_taken(s):
     if "not take this course for credit" not in s:
         return []
@@ -220,14 +237,53 @@ def parse_minimum_credits(s):
         return float(match.group(1))
     return 0.0
 
-def parse_course_rules(prereq_coreq_text: str, notes_text: str) -> CourseRules:
-    prereq, coreq = parse_prereq_coreq(prereq_coreq_text)
-    return CourseRules(
-        prereq=make_prereq_coreq_into_array(prereq),
-        coreq=make_prereq_coreq_into_array(coreq),
-        not_taken=get_not_taken(notes_text),
-        min_credits=parse_minimum_credits(prereq_coreq_text)
-    )
+def parse_course_rules(prereq_coreq_text: str, notes_text: str) -> list[Constraint]:
+    prereq_text, coreq_text = parse_prereq_coreq(prereq_coreq_text)
+
+    prereq, coreq, pre_coreq = make_requisite_arrays(prereq_text, coreq_text)
+    not_taken_list=get_not_taken(notes_text)
+    min_credits=parse_minimum_credits(prereq_coreq_text)
+
+    constraints = []
+    if prereq:
+        for group in prereq:
+            constraints.append(Constraint(
+                type=ConstraintType.PREREQUISITE,
+                params=MinCoursesFromSetParams(courseList=group, minCourses=1),
+                message="At least 1 of the following courses must be completed previously: " + ", ".join([", ".join(group)]) + "."
+            ))
+    
+    if coreq:
+        for group in coreq:
+            constraints.append(Constraint(
+                type=ConstraintType.COREQUISITE,
+                params=MinCoursesFromSetParams(courseList=group, minCourses=1),
+                message="At least 1 of the following courses must be taken concurrently: " + ", ".join([", ".join(group)]) + "."
+            ))
+    
+    if pre_coreq:
+        for group in pre_coreq:
+            constraints.append(Constraint(
+                type=ConstraintType.PREREQUISITE_OR_COREQUISITE,
+                params=MinCoursesFromSetParams(courseList=group, minCourses=1),
+                message="At least 1 of the following courses must be completed previously or taken concurrently: " + ", ".join([", ".join(group)]) + "."
+            ))
+    
+    if not_taken_list:
+        constraints.append(Constraint(
+            type=ConstraintType.NOT_TAKEN,
+            params=MaxCoursesFromSetParams(courseList=not_taken_list, maxCourses=0),
+            message="Students cannot take this course if they have taken any of the following courses: " + ", ".join(not_taken_list) + "."
+        ))
+    
+    if min_credits > 0:
+        constraints.append(Constraint(
+            type=ConstraintType.MIN_CREDITS,
+            params=MinCreditsCompletedParams(minCredits=min_credits),
+            message=f"Students must complete at least {min_credits} credits before taking this course."
+        ))
+    
+    return constraints
 
 def parse_course_components(component_text: str) -> list[str]:
     if not component_text:

@@ -101,13 +101,6 @@ class Constraint(BaseModel):
     # warning: Constraint is not strictly required but recommended for a well-structured program
     # info: informational constraint that provides additional details but does not impact requirement satisfaction
 
-class CourseRules(BaseModel):
-    #TODO: swap CourseRules with list of constraints to have the same system for both courses and course pools
-    prereq: list[list[str]] = Field(default_factory=list)
-    coreq: list[list[str]] = Field(default_factory=list)
-    not_taken: list[str] = Field(default_factory=list)
-    min_credits: float = 0.0
-
 class MongoDBModel(BaseModel):
     model_config = ConfigDict(populate_by_name=True, use_enum_values=True)
     id: str = Field(alias='_id')
@@ -126,9 +119,9 @@ class Course(MongoDBModel):
     description: str
     offered_in: list[str]
     prereqCoreqText: str
-    rules: CourseRules
     notes: str
     components: list[str]
+    rules: list[Constraint] = Field(default_factory=list)
 
 class CoursePool(MongoDBModel):
     name: str

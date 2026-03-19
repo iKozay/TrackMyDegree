@@ -25,7 +25,7 @@ from utils.parsing_utils import (
     TITLE_REGEX,
     CATALOG_COURSE_TITLE_REGEX
 )
-from models import CourseRules, ConstraintType
+from models import Constraint, ConstraintType
 
 
 
@@ -181,10 +181,19 @@ def test_parse_course_rules():
     prereq_text = "COMP 248"
     notes_text = "Students who have taken COMP 218 may not take this course for credit"
     result = parse_course_rules(prereq_text, notes_text)
-    assert isinstance(result, CourseRules)
-    assert result.prereq == [["COMP 248"]]
-    assert result.coreq == []
-    assert result.not_taken == ["COMP 218"]
+
+    assert isinstance(result, list)
+    assert all(isinstance(constraint, Constraint) for constraint in result)
+
+    prereq_constraints = [c for c in result if c.type == ConstraintType.PREREQUISITE]
+    not_taken_constraints = [c for c in result if c.type == ConstraintType.NOT_TAKEN]
+
+    assert len(prereq_constraints) == 1
+    assert prereq_constraints[0].params.courseList == ["COMP 248"]
+    assert prereq_constraints[0].params.minCourses == 1
+
+    assert len(not_taken_constraints) == 1
+    assert not_taken_constraints[0].params.courseList == ["COMP 218"]
 
 def test_parse_course_components_multiple():
     text = "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week"
