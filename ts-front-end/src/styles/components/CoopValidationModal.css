@@ -71,3 +71,58 @@
   font-size: 0.875rem;
   color: #1e293b;
 }
+
+.coop-modal-actions {
+  margin-top: 1.5rem;
+}
+
+.coop-modal-download-button {
+  width: 100%;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: #0f766e;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.coop-modal-download-button:hover:not(:disabled) {
+  background: #115e59;
+}
+
+.coop-modal-download-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.coop-modal-download-error {
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+  font-size: 0.875rem;
+  color: #b91c1c;
+}
+
+.coop-modal-download-notes {
+  margin-top: 0.75rem;
+  border: 1px solid #f1d3a3;
+  border-radius: 0.5rem;
+  background: #fff8e8;
+  padding: 0.75rem;
+}
+
+.coop-modal-download-notes-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #8a3b12;
+}
+
+.coop-modal-download-notes-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #7c2d12;
+  font-size: 0.825rem;
+}
