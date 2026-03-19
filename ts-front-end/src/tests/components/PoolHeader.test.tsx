@@ -1,14 +1,16 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { PoolHeader } from "../../components/PoolHeader";
-import type { Pool, CourseCode, CourseMap, SemesterId } from "../../types/timeline.types";
+import type { CoursePoolData } from "@shared";
+import type { CourseCode, CourseMap, SemesterId } from "../../types/timeline.types";
 
 describe("PoolHeader", () => {
-  const pool: Pool = {
+  const pool: CoursePoolData = {
     _id: "pool-soen-header",
     name: "Software Engineering Core",
     creditsRequired: 47.5,
     courses: ["SOEN 228", "SOEN 287", "SOEN 321"] as CourseCode[],
+    rules: [],
   };
 
   const courses: CourseMap = {

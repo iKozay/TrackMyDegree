@@ -57,6 +57,7 @@ export class CoursePoolController extends BaseMongoController<any> {
         name: result.data.name,
         creditsRequired: result.data.creditsRequired,
         courses: result.data.courses || [],
+        rules: result.data.rules || [],
       };
     } catch (error) {
       this.handleError(error, 'updateCoursePool');
@@ -80,6 +81,7 @@ export class CoursePoolController extends BaseMongoController<any> {
         name: cp.name,
         creditsRequired: cp.creditsRequired,
         courses: cp.courses || [],
+        rules: cp.rules || [],
       }));
     } catch (error) {
       Sentry.captureException(error);
@@ -107,6 +109,7 @@ export class CoursePoolController extends BaseMongoController<any> {
         name: result.data.name,
         creditsRequired: result.data.creditsRequired,
         courses: result.data.courses || [],
+        rules: result.data.rules || [],
       };
     } catch (error) {
       Sentry.captureException(error);

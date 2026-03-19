@@ -381,12 +381,14 @@ describe('Degree Routes', () => {
         name: 'COMP_CORE',
         creditsRequired: 60,
         courses: ['course 1'],
+        rules: []
       },
       {
         _id: 'POOL2',
         name: 'COMP_ELECTIVES',
         creditsRequired: 60,
         courses: ['course 2'],
+        rules: []
       }]);
       
     });

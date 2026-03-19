@@ -7,9 +7,9 @@ import {
   getCourseValidationMessage,
   saveTimeline,
 } from "../../utils/timelineUtils";
+import type { CoursePoolData } from "@shared";
 import type {
   Course,
-  Pool,
   CourseMap,
   Semester,
   SemesterId,
@@ -154,11 +154,12 @@ describe("timelineUtils", () => {
   describe("calculateEarnedCredits", () => {
     it("returns 0 for empty course map", () => {
       const courses: CourseMap = {};
-      const exemptionPool: Pool = {
+      const exemptionPool: CoursePoolData = {
         _id: "exemptions",
         name: "exemptions",
         creditsRequired: 0,
         courses: [],
+        rules: [],
       };
       const result = calculateEarnedCredits(courses, exemptionPool);
       expect(result).toBe(0);
@@ -207,11 +208,12 @@ describe("timelineUtils", () => {
         },
       };
 
-      const exemptionPool: Pool = {
+      const exemptionPool: CoursePoolData = {
         _id: "exemptions",
         name: "exemptions",
         creditsRequired: 0,
         courses: [],
+        rules: [],
       };
       const result = calculateEarnedCredits(courses, exemptionPool);
       expect(result).toBe(3);
@@ -369,8 +371,8 @@ describe("timelineUtils", () => {
       timelineName: "Test",
       degree: { name: "CS", totalCredits: 90, coursePools: [] },
       pools: [
-        { _id: "exemptions", name: "exemptions", creditsRequired: 0, courses: [] },
-        { _id: "deficiencies", name: "deficiencies", creditsRequired: 0, courses: [] },
+        { _id: "exemptions", name: "exemptions", creditsRequired: 0, courses: [], rules: [] },
+        { _id: "deficiencies", name: "deficiencies", creditsRequired: 0, courses: [], rules: [] },
       ],
       courses: {
         "COMP 248": {

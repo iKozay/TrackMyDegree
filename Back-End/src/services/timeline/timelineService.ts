@@ -308,6 +308,7 @@ function addToCoursePools(
     name: coursePoolName,
     creditsRequired: creditsRequired,
     courses: normalizedCourses,
+    rules: [],
   });
 }
 
@@ -665,6 +666,7 @@ export function addCourseToUsedUnusedPool(
       name: USED_UNUSED_POOL_NAME,
       creditsRequired: 0,
       courses: [],
+      rules: [],
     };
     pools.push(pool);
   }

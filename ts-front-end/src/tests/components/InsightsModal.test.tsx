@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { InsightsModal } from "../../components/InsightsModal";
-import type { Pool, CourseMap } from "../../types/timeline.types";
+import type { CoursePoolData } from "@shared";
+import type { CourseMap } from "../../types/timeline.types";
 
 vi.mock("../../components/OverallProgressBar", () => ({
   OverallProgressBar: ({
@@ -85,18 +86,20 @@ describe("InsightsModal", () => {
     },
   };
 
-  const mockPools: Pool[] = [
+  const mockPools: CoursePoolData[] = [
     {
       _id: "pool-cs",
       name: "Computer Science Core",
       courses: ["COMP 248", "COMP 249", "SOEN 228"],
       creditsRequired: 30,
+      rules: [],
     },
     {
       _id: "pool-math",
       name: "Mathematics",
       courses: ["MATH 203"],
       creditsRequired: 12,
+      rules: [],
     },
   ];
 

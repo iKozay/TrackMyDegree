@@ -4,13 +4,15 @@ import type {
   Course,
   CourseCode,
   CourseMap,
-  Pool,
   RequisiteGroup,
   SemesterId,
   SemesterList,
   TimelinePartialUpdate,
   TimelineState,
 } from "../types/timeline.types";
+import type { CoursePoolData, Rule, MinCoursesFromSetParams, MaxCoursesFromSetParams, MinCreditsFromSetParams, MaxCreditsFromSetParams } from "@shared";
+import { toast } from "react-toastify";
+import { api } from "../api/http-api-client";
 
 // Function that checks if a course already exists in a semester
 export function canDropCourse(
@@ -57,7 +59,7 @@ export function canDropCourse(
   };
 }
 
-export function calculateEarnedCredits(courses: CourseMap, pool: Pool,
+export function calculateEarnedCredits(courses: CourseMap, pool: CoursePoolData,
 ): number {
   return Object.values(courses).reduce((total, course) => {
     // Exclude exempted courses from the calculation
@@ -72,7 +74,7 @@ export function calculateEarnedCredits(courses: CourseMap, pool: Pool,
   }, 0);
 }
 
-export function calculateCoursePoolEarnedCredits(courses: CourseMap, pool: Pool,
+export function calculateCoursePoolEarnedCredits(courses: CourseMap, pool: CoursePoolData,
 ): number {
   return Object.values(courses).reduce((total, course) => {
     if (pool.courses.includes(course.id) && course.status.status === "completed") {
@@ -81,10 +83,6 @@ export function calculateCoursePoolEarnedCredits(courses: CourseMap, pool: Pool,
     return total;
   }, 0);
 }
-
-
-import { toast } from "react-toastify";
-import { api } from "../api/http-api-client";
 
 export async function saveTimeline(
   userId: string,
@@ -187,11 +185,115 @@ export function getCourseValidationMessage(
     }
   }
 
+  /* ---------------- MINIMUM CREDITS ---------------- */
+  // TODO: add minimum credits validation
+
+  /* ---------------- COURSEPOOL RULES ---------------- */
+  const pool = state.pools.find((p) =>
+    p.courses.includes(course.id)
+  );
+
+  if (pool?.rules && Array.isArray(pool.rules) && pool.rules.length > 0) {
+    const poolViolations = processRules(course, pool.rules, state);
+    
+    if (poolViolations.length > 0) {
+      return `${poolViolations.join("; ")}`;
+    }
+  }
+
   return "";
 }
 
+function processRules(targetCourse: Course, rules: Rule[], state: TimelineState): string[] {
+  const violations: string[] = [];
+
+  for (const rule of rules) {
+    switch (rule.type) {
+      case "min_credits_from_set": {
+        processMinCreditsFromSetRule(rule, targetCourse, state, violations);
+        break;
+      }
+      case "max_credits_from_set": {
+        processMaxCreditsFromSetRule(rule, targetCourse, state, violations);
+        break;
+      }
+      case "min_courses_from_set": {
+        processMinCoursesFromSetRule(rule, targetCourse, state, violations);
+        break;
+      }
+      case "max_courses_from_set": {
+        processMaxCoursesFromSetRule(rule, targetCourse, state, violations);
+        break;
+      }
+      default:
+        break;
+    }
+  }
+  return violations;
+}
+
+function processMinCreditsFromSetRule(rule: Rule, targetCourse: Course, state: TimelineState, violations: string[]) {
+  const { courseList, minCredits } = rule.params as MinCreditsFromSetParams;
+  if (!courseList.includes(targetCourse.id)) return;
+
+  const earnedCredits = calculateCoursePoolEarnedCredits(state.courses, {
+    _id: "",
+    name: "",
+    courses: courseList,
+    creditsRequired: 0,
+    rules: [],
+  });
+
+  if (earnedCredits < minCredits) {
+    violations.push(rule.message);
+  }
+}
+
+function processMaxCreditsFromSetRule(rule: Rule, targetCourse: Course, state: TimelineState, violations: string[]) {
+  const { courseList, maxCredits } = rule.params as MaxCreditsFromSetParams;
+  if (!courseList.includes(targetCourse.id)) return;
+
+  const earnedCredits = calculateCoursePoolEarnedCredits(state.courses, {
+    _id: "",
+    name: "",
+    courses: courseList,
+    creditsRequired: 0,
+    rules: [],
+  });
+
+  if (earnedCredits > maxCredits) {
+    violations.push(rule.message);
+  }
+}
+
+function processMinCoursesFromSetRule(rule: Rule, targetCourse: Course, state: TimelineState, violations: string[]) {
+  const { courseList, minCourses } = rule.params as MinCoursesFromSetParams;
+  if (!courseList.includes(targetCourse.id)) return;
+
+  const earnedCourses = courseList.filter((code) => 
+    isCourseSatisfied(state.courses[code], Number.MAX_SAFE_INTEGER, state.semesters)
+  ).length;
+
+  if (earnedCourses < minCourses) {
+    violations.push(rule.message);
+  }
+}
+
+function processMaxCoursesFromSetRule(rule: Rule, targetCourse: Course, state: TimelineState, violations: string[]) {
+  const { courseList, maxCourses } = rule.params as MaxCoursesFromSetParams;
+  if (!courseList.includes(targetCourse.id)) return;
+
+  const earnedCourses = courseList.filter((code) => 
+    isCourseSatisfied(state.courses[code], Number.MAX_SAFE_INTEGER, state.semesters)
+  ).length;
+
+  if (earnedCourses > maxCourses) {
+    violations.push(rule.message);
+  }
+}
+
 function getPoolCourses(
-  pools: Pool[],
+  pools: CoursePoolData[],
   id: "exemptions" | "deficiencies"
 ): CourseCode[] {
   return pools.find((p) => p._id.toLowerCase() === id)?.courses ?? [];

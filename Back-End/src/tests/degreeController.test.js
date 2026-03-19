@@ -311,6 +311,7 @@ describe('DegreeController', () => {
         name: 'COMP_CORE',
         creditsRequired: 60,
         courses: ['course 1'],
+        rules: [],
       })
 
       await CoursePool.create({
@@ -318,6 +319,7 @@ describe('DegreeController', () => {
         name: 'COMP_ELECTIVES',
         creditsRequired: 60,
         courses: ['course 2'],
+        rules: [],
       })
 
 
@@ -329,12 +331,14 @@ describe('DegreeController', () => {
         name: 'COMP_CORE',
         creditsRequired: 60,
         courses: ['course 1'],
+        rules: []
       },
       {
         _id: 'COMP_ELECTIVES',
         name: 'COMP_ELECTIVES',
         creditsRequired: 60,
         courses: ['course 2'],
+        rules: []
       }]);
     });
 
@@ -426,12 +430,14 @@ describe('DegreeController', () => {
         name: 'Core Pool',
         creditsRequired: 60,
         courses: ['COMP232', 'COMP248'],
+        rules: []
       },
       {
         _id: 'ELEC_POOL',
         name: 'Electives',
         creditsRequired: 30,
         courses: ['COMP249'],
+        rules: []
       },
     ]);
 

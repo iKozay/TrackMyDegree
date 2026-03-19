@@ -58,7 +58,7 @@ describe("DroppableSemester", () => {
       title: "Object-Oriented Programming I",
       credits: 3,
       description: "OOP I",
-      offeredIN: [] as SemesterId[],
+      offeredIn: [] as SemesterId[],
       prerequisites: [],
       corequisites: [],
       status: { status: "incomplete", semester: null },

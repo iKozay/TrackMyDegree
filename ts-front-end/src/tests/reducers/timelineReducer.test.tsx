@@ -9,7 +9,7 @@ const mockCourses: CourseMap = {
     title: "Object-Oriented Programming I",
     credits: 3,
     description: "Introduction to programming",
-    offeredIN: ["FALL 2025", "WINTER 2026"],
+    offeredIn: ["FALL 2025", "WINTER 2026"],
     prerequisites: [],
     corequisites: [],
     status: {
@@ -56,6 +56,7 @@ const initialState: TimelineState = {
       name: "Engineering Core",
       creditsRequired: 30,
       courses: ["COMP 248", "COMP 249"],
+      rules: [],
     },
   ],
   courses: mockCourses,

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { PoolCoursesList } from "../../components/PoolCoursesList"; // ⬅️ adjust if needed
+import type { CoursePoolData } from "@shared";
 import type {
-  Pool,
   CourseMap,
   CourseCode,
   SemesterId,
@@ -32,11 +32,12 @@ vi.mock("../../components/DraggableCourse", () => {
 });
 
 describe("PoolCoursesList", () => {
-  const pool: Pool = {
+  const pool: CoursePoolData = {
     _id: "pool-soen-core",
     name: "Software Engineering Core",
     creditsRequired: 47.5,
     courses: ["SOEN 228", "SOEN 287", "SOEN 321"] as CourseCode[],
+    rules: [],
   };
 
   const courses: CourseMap = {

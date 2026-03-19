@@ -227,18 +227,21 @@ describe('DegreeAuditService', () => {
       name: 'core_computer_science',
       creditsRequired: 6,
       courses: ['COMP 248', 'COMP 249'],
+      rules:[]
     },
     {
       _id: 'exemptions',
       name: 'exemptions',
       creditsRequired: 3,
       courses: ['ENGL 101'],
+      rules: []
     },
     {
       _id: 'deficiencies',
       name: 'deficiencies',
       creditsRequired: 3,
       courses: ['MATH 203'],
+      rules: []
     },
   ];
       const mockSemesters = [

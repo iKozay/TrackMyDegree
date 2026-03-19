@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import CoursePool from "../../components/CoursePool";
+import type { CoursePoolData } from "@shared";
 import type {
-  Pool,
   CourseMap,
   CourseCode,
   SemesterId,
@@ -28,24 +28,27 @@ vi.mock("../../components/PoolCoursesList", () => ({
 // We use the real PoolHeader (no need to mock it)
 // import { PoolHeader } from "../../components/PoolHeader"; // used indirectly
 
-const pools: Pool[] = [
+const pools: CoursePoolData[] = [
   {
     _id: "pool-ecp",
     name: "ECP_ENGR_CORE",
     creditsRequired: 0,
     courses: ["ENGR 201"] as CourseCode[],
+    rules: [],
   },
   {
     _id: "pool-engr",
     name: "Engineering Core",
     creditsRequired: 30.5,
     courses: ["ENGR 201", "ENGR 233"] as CourseCode[],
+    rules: [],
   },
   {
     _id: "pool-soen",
     name: "Software Engineering Core",
     creditsRequired: 47.5,
     courses: ["SOEN 228", "SOEN 287"] as CourseCode[],
+    rules: [],
   },
 ];
 

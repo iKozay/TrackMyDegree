@@ -98,6 +98,7 @@ export interface CoursePoolData {
   name: string;
   creditsRequired: number;
   courses: string[];
+  rules: Rule[];
 }
 
 export interface CourseData {
@@ -121,7 +122,27 @@ export interface Rule {
   type: string;
   level: 'warning' | 'info';
   message: string;
-  params: Record<string, any>;
+  params: MinCoursesFromSetParams | MaxCoursesFromSetParams | MinCreditsFromSetParams | MaxCreditsFromSetParams;
+}
+
+export interface MinCoursesFromSetParams {
+  courseList: string[];
+  minCourses: number;
+}
+
+export interface MaxCoursesFromSetParams {
+  courseList: string[];
+  maxCourses: number;
+}
+
+export interface MinCreditsFromSetParams {
+  courseList: string[];
+  minCredits: number;
+}
+
+export interface MaxCreditsFromSetParams {
+  courseList: string[];
+  maxCredits: number;
 }
 
 // timeline.ts
