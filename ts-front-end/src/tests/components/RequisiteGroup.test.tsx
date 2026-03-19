@@ -57,7 +57,7 @@ describe("RequisiteGroup", () => {
         title: "Object-Oriented Programming I",
         credits: 3,
         description: "",
-        offeredIN: [] as SemesterId[],
+        offeredIn: [] as SemesterId[],
         prerequisites: [],
         corequisites: [],
         status: {

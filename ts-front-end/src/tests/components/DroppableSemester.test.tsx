@@ -68,7 +68,7 @@ describe("DroppableSemester", () => {
       title: "System Hardware",
       credits: 4,
       description: "Hardware",
-      offeredIN: [] as SemesterId[],
+      offeredIn: [] as SemesterId[],
       prerequisites: [],
       corequisites: [],
       status: { status: "incomplete", semester: null },

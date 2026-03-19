@@ -22,7 +22,7 @@ const mockCourses: CourseMap = {
     title: "Object-Oriented Programming II",
     credits: 3,
     description: "Advanced OOP concepts",
-    offeredIN: ["WINTER 2026", "SUMMER 2026"],
+    offeredIn: ["WINTER 2026", "SUMMER 2026"],
     prerequisites: [],
     corequisites: [],
     status: {

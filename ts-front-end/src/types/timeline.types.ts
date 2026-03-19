@@ -55,7 +55,7 @@ export interface Course {
   description: string;
 
   // keeping the backend field name as-is; in UI you might rename to `offeredIn`
-  offeredIN: SemesterId[];
+  offeredIn: SemesterId[];
 
   prerequisites: RequisiteGroup[] | string;
   corequisites: RequisiteGroup[] | string;

@@ -143,7 +143,7 @@ export interface TimelineCourse {
   title: string;
   credits: number;
   description?: string;
-  offeredIN: string[];
+  offeredIn: string[];
   prerequisites: { anyOf: string[] }[];
   corequisites: { anyOf: string[] }[];
   status: {

@@ -173,7 +173,7 @@ function toTimelineCourse(
     title: course.title,
     credits: course.credits,
     description: course.description,
-    offeredIN: course.offeredIn ?? [],
+    offeredIn: course.offeredIn ?? [],
     prerequisites: mapRequisites(course.rules?.prereq),
     corequisites: mapRequisites(course.rules?.coreq),
     status: {

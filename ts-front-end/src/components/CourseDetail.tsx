@@ -98,7 +98,7 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
           <Calendar size={16} />
           <span>
             Offered in:{" "}
-            {course.offeredIN.length > 0 ? course.offeredIN.join(", ") : "N/A"}
+            {course.offeredIn.length > 0 ? course.offeredIn.join(", ") : "N/A"}
           </span>
         </div>
 

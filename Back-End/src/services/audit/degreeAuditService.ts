@@ -648,7 +648,7 @@ export function generateDegreeAuditFromTimeline(timeline:TimelineResult){
       title: course.title,
       description: course.description,
       credits: course.credits,
-      offeredIn: course.offeredIN,
+      offeredIn: course.offeredIn,
     }];
     }),
   );

@@ -59,7 +59,7 @@ describe("timelineUtils", () => {
       title: "Object-Oriented Programming I",
       credits: 3,
       description: "Introduction to programming",
-      offeredIN: ["FALL 2025" as SemesterId],
+      offeredIn: ["FALL 2025" as SemesterId],
       prerequisites: [],
       corequisites: [],
       status: {
@@ -171,7 +171,7 @@ describe("timelineUtils", () => {
           title: "OOP I",
           credits: 3,
           description: "",
-          offeredIN: ["FALL 2025" as SemesterId],
+          offeredIn: ["FALL 2025" as SemesterId],
           prerequisites: [],
           corequisites: [],
           status: {
@@ -184,7 +184,7 @@ describe("timelineUtils", () => {
           title: "OOP II",
           credits: 3,
           description: "",
-          offeredIN: ["WINTER 2026" as SemesterId],
+          offeredIn: ["WINTER 2026" as SemesterId],
           prerequisites: [],
           corequisites: [],
           status: {
@@ -197,7 +197,7 @@ describe("timelineUtils", () => {
           title: "Advanced Programming",
           credits: 4,
           description: "",
-          offeredIN: ["FALL 2026" as SemesterId],
+          offeredIn: ["FALL 2026" as SemesterId],
           prerequisites: [],
           corequisites: [],
           status: {
@@ -264,7 +264,7 @@ describe("timelineUtils", () => {
       title: "OOP I",
       credits: 3,
       description: "",
-      offeredIN: ["FALL 2025" as SemesterId],
+      offeredIn: ["FALL 2025" as SemesterId],
       prerequisites: [],
       corequisites: [],
       status: { status: "planned", semester: "FALL 2025" as SemesterId },
@@ -378,7 +378,7 @@ describe("timelineUtils", () => {
           title: "OOP",
           credits: 3,
           description: "",
-          offeredIN: [] as SemesterId[],
+          offeredIn: [] as SemesterId[],
           prerequisites: [],
           corequisites: [],
           status: { status: "completed", semester: "FALL 2025" as SemesterId },

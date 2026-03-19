@@ -56,7 +56,7 @@ describe("MainModal", () => {
       title: "OOP I",
       description: "Test",
       credits: 3,
-      offeredIN: [],
+      offeredIn: [],
       prerequisites: [],
       corequisites: [],
       status: { status: "completed", semester: null },

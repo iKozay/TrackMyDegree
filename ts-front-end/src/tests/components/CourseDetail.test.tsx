@@ -31,7 +31,7 @@ const makeCourse = (status: CourseStatusValue): Course => ({
   title: "Object-Oriented Programming I",
   credits: 3,
   description: "Intro to OOP",
-  offeredIN: ["FALL 2025", "WINTER 2026"] as SemesterId[],
+  offeredIn: ["FALL 2025", "WINTER 2026"] as SemesterId[],
   prerequisites: [{ anyOf: ["MATH 203", "MATH 204"] }],
   corequisites: [{ anyOf: ["ENCS 282"] }],
   status: {
@@ -77,10 +77,10 @@ describe("CourseDetail", () => {
     expect(screen.getByText(/Scheduled: FALL 2025/i)).toBeInTheDocument();
   });
 
-  it("shows N/A when offeredIN is empty", () => {
+  it("shows N/A when offeredIn is empty", () => {
     const course: Course = {
       ...makeCourse("incomplete"),
-      offeredIN: [],
+      offeredIn: [],
     };
 
     render(<CourseDetail course={course} courses={{}} />);
