@@ -40,10 +40,6 @@ const ALL_RULES = [
     displayMessage: "At least two study terms required before first work term",
   },
   {
-    ruleId: "NO_CONSECUTIVE_WORK_TERMS",
-    displayMessage: "Consecutive work terms are not allowed",
-  },
-  {
     ruleId: "LONG_SEQUENCE_WARNING",
     displayMessage: "Course sequence length is within typical co-op duration",
   },
