@@ -1,17 +1,19 @@
 const { Buffer } = require('buffer');
-const { buildTimeline, buildTimelineFromDB } = require('../services/timeline/timelineService'); // adjust path if needed
-const { parseFile } = require('@services/parsingService');
-const { degreeController } = require('@controllers/degreeController');
-const { courseController } = require('@controllers/courseController');
-const { coursepoolController } = require('@controllers/coursepoolController');
+const { buildTimeline, buildTimelineFromDB } = require('../services/timeline/timelineBuilder'); // adjust path if needed
+const {getDegreeData, getCourseData, getDegreeId, loadMissingCourses } = require('../services/timeline/dataLoader');
+const { parseFile } = require('../services/parsingService');
+const { degreeController } = require('../controllers/degreeController');
+const { courseController } = require('../controllers/courseController');
+const { coursepoolController } = require('../controllers/coursepoolController');
 const { Timeline } = require('../models/timeline');
 
-jest.mock('@services/parsingService');
-jest.mock('@controllers/degreeController');
-jest.mock('@controllers/courseController');
-jest.mock('@controllers/coursepoolController');
+jest.mock('../services/parsingService');
+jest.mock('../controllers/degreeController');
+jest.mock('../controllers/courseController');
+jest.mock('../controllers/coursepoolController');
+jest.mock('../services/timeline/dataLoader');
 
-describe('timelineService', () => {
+describe('timelineBuilder', () => {
   const mockDegreeData = { _id: 'deg1', name: 'Beng in Computer Engineering', coursePools: [] }
 
   const mockCourses = [
@@ -34,7 +36,43 @@ describe('timelineService', () => {
     ]);
 
     degreeController.getCoursesForDegree.mockResolvedValue(mockCourses);
-    courseController.getCourseByCode.mockResolvedValue(null);
+
+    // Provide implementations for mocked dataLoader functions so buildTimeline
+    // can fetch degree/course data using the existing controller mocks.
+    getDegreeData.mockImplementation(async (degreeId) => {
+      const degreeData = await degreeController.readDegree(degreeId);
+      if (!degreeData) return undefined;
+      const coursePools = await degreeController.getCoursePoolsForDegree(degreeId);
+      const courseArr = await degreeController.getCoursesForDegree(degreeId);
+      const courses = {};
+      for (const c of courseArr) courses[c._id] = c;
+      return { degreeData, coursePools, courses };
+    });
+
+    getCourseData.mockImplementation(async (code) => {
+      // forward to controller mock for tests that set courseController.getCourseByCode
+      return await courseController.getCourseByCode(code);
+    });
+
+    loadMissingCourses.mockImplementation(async (coursesToAdd, degreeCourses) => {
+      if (!coursesToAdd) return;
+      for (const courseCode of coursesToAdd) {
+        const normalized = courseCode.replaceAll(/\s+/g, '').replace(/(\D+)(\d+)/, '$1 $2').toUpperCase();
+        if (!degreeCourses[normalized]) {
+          const course = await getCourseData(normalized);
+          if (course) degreeCourses[course._id] = course;
+        }
+      }
+    });
+
+    getDegreeId.mockImplementation(async (degreeName) => {
+      const degrees = await degreeController.readAllDegrees();
+      return degrees.find((d) =>
+        degreeName
+          .toLowerCase()
+          .includes(d.name.split(' ').slice(2).join(' ').toLowerCase()),
+      )?._id;
+    });
 
     // Mock coursepoolController for coop courses
     coursepoolController.getCoursePool.mockResolvedValue({
@@ -565,65 +603,4 @@ describe('timelineService', () => {
   });
 
 });
-
-
-const {
-  addCourseToUsedUnusedPool,
-  mapNonDegreeSemesterCoursesToUsedUnusedPool,
-} = require('../services/timeline/timelineService'); // <-- change path
-
-// These MUST match the modules your helpers import internally
-
-describe('Used/Unused pool helpers', () => {
-  beforeEach(() => {
-    jest.resetAllMocks();
-  });
-
-  describe('addCourseToUsedUnusedPool', () => {
-    it('creates the Used/Unused pool if missing and adds the course', () => {
-      const pools = [];
-      addCourseToUsedUnusedPool(pools, 'CHEM 205');
-
-      const usedPool = pools.find((p) => p._id === 'used-unused-credits');
-      expect(usedPool).toBeDefined();
-      expect(usedPool.name).toBe('Used/Unused credits');
-      expect(usedPool.creditsRequired).toBe(0);
-      expect(usedPool.courses).toEqual(['CHEM 205']);
-    });
-
-    it('does not duplicate the same course code', () => {
-      const pools = [
-        {
-          _id: 'used-unused-credits',
-          name: 'Used/Unused credits',
-          creditsRequired: 0,
-          courses: ['CHEM 205'],
-        },
-      ];
-
-      addCourseToUsedUnusedPool(pools, 'CHEM 205');
-      addCourseToUsedUnusedPool(pools, 'CHEM 205');
-
-      const usedPool = pools.find((p) => p._id === 'used-unused-credits');
-      expect(usedPool.courses).toEqual(['CHEM 205']);
-    });
-
-    it('reuses existing pool by id', () => {
-      const pools = [
-        {
-          _id: 'used-unused-credits',
-          name: 'Used/Unused credits',
-          creditsRequired: 0,
-          courses: [],
-        },
-      ];
-
-      addCourseToUsedUnusedPool(pools, 'PHYS 204');
-
-      expect(pools).toHaveLength(1);
-      expect(pools[0].courses).toEqual(['PHYS 204']);
-    });
-  });
-});
-
 

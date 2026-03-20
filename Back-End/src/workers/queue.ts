@@ -1,9 +1,6 @@
 import { Queue, Worker, Job } from 'bullmq';
 import { readFile, unlink } from 'node:fs/promises';
-import {
-  buildTimeline,
-  buildTimelineFromDB,
-} from '../services/timeline/timelineService';
+import { buildTimeline, buildTimelineFromDB } from '../services/timeline/timelineBuilder';
 import { cacheJobResult } from '../lib/cache';
 
 export type CourseProcessorJobData =

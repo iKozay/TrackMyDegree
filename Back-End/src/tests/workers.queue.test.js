@@ -27,7 +27,7 @@ jest.mock('node:fs/promises', () => ({
   unlink: jest.fn(),
 }));
 
-jest.mock('../services/timeline/timelineService', () => ({
+jest.mock('../services/timeline/timelineBuilder', () => ({
   buildTimeline: jest.fn(),
   buildTimelineFromDB: jest.fn(),
 }));
@@ -40,7 +40,7 @@ jest.mock('../lib/cache', () => ({
 require('../workers/queue'); // adjust path if test file is elsewhere
 
 const { readFile, unlink } = require('node:fs/promises');
-const { buildTimeline } = require('../services/timeline/timelineService');
+const { buildTimeline } = require('../services/timeline/timelineBuilder');
 const { cacheJobResult } = require('../lib/cache');
 
 describe('courseProcessorWorker', () => {
@@ -102,7 +102,7 @@ describe('courseProcessorWorker', () => {
   });
 
   test('processes a timelineData job: builds from DB, caches result', async () => {
-    const { buildTimelineFromDB } = require('../services/timeline/timelineService');
+    const { buildTimelineFromDB } = require('../services/timeline/timelineBuilder');
     buildTimelineFromDB.mockResolvedValueOnce({ timeline: ['db', 'data'] });
     cacheJobResult.mockResolvedValueOnce(undefined);
 
