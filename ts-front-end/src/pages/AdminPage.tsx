@@ -18,7 +18,10 @@ const AdminPage: React.FC = () => {
 
   return (
     <Container fluid className="py-4">
-      <h2 className="mb-4">Admin Dashboard</h2>
+      <div className="mb-4">
+        <h2 className="mb-0">Admin Dashboard</h2>
+        <small className="text-muted">Manage users, degrees, courses and database</small>
+      </div>
       <Tabs
         activeKey={activeTab}
         onSelect={(k) => setActiveTab((k ?? "metrics") as AdminTab)}
