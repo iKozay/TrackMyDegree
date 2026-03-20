@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Badge, Button, Col, Form, Modal, Row, Spinner, Tab, Table, Tabs } from 'react-bootstrap';
 import { api } from '../../api/http-api-client';
 import type { DegreeData, CoursePoolInfo, CreateDegreeInput, UpdateDegreeInput, CreateCoursePoolInput } from '@shared/degree';
+import type { CourseDocument, CreateCourseInput } from '@shared/course';
 
 // ─── Degrees sub-tab ────────────────────────────────────────────────────────
 
@@ -255,6 +256,143 @@ const CoursePoolsPanel: React.FC = () => {
   );
 };
 
+// ─── Courses sub-tab ─────────────────────────────────────────────────────────
+
+const CoursesPanel: React.FC = () => {
+  const [courses, setCourses] = useState<CourseDocument[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const limit = 20;
+  const [showModal, setShowModal] = useState(false);
+  const [editing, setEditing] = useState<CourseDocument | null>(null);
+  const [form, setForm] = useState<CreateCourseInput>({ code: '', title: '', credits: 3, offeredIN: [], prerequisites: [], corequisites: [] });
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams({ page: String(page), limit: String(limit), ...(search && { search }) });
+      const data = await api.get<{ courses: CourseDocument[]; total: number }>(`/courses?${params.toString()}`);
+      setCourses(data.courses ?? []);
+      setTotal(data.total ?? 0);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load courses');
+    } finally {
+      setLoading(false);
+    }
+  }, [page, search]);
+
+  useEffect(() => { void load(); }, [load]);
+
+  const openCreate = () => { setEditing(null); setForm({ code: '', title: '', credits: 3, offeredIN: [], prerequisites: [], corequisites: [] }); setShowModal(true); };
+  const openEdit = (c: CourseDocument) => { setEditing(c); setForm({ code: c.code, title: c.title, credits: c.credits, description: c.description, offeredIN: c.offeredIN, prerequisites: c.prerequisites, corequisites: c.corequisites }); setShowModal(true); };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      if (editing) { await api.put(`/courses/${editing.code}`, form); }
+      else { await api.post('/courses', form); }
+      setShowModal(false);
+      await load();
+    } catch (err) { alert(err instanceof Error ? err.message : 'Save failed'); }
+    finally { setSaving(false); }
+  };
+
+  const handleDelete = async (code: string) => {
+    if (!window.confirm(`Delete course ${code}?`)) return;
+    try { await api.delete(`/courses/${code}`); await load(); }
+    catch (err) { alert(err instanceof Error ? err.message : 'Delete failed'); }
+  };
+
+  const totalPages = Math.ceil(total / limit);
+
+  return (
+    <>
+      <Row className="mb-3 align-items-center">
+        <Col>
+          <Form.Control placeholder="Search courses…" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+        </Col>
+        <Col xs="auto"><Button size="sm" onClick={openCreate}>+ Add Course</Button></Col>
+      </Row>
+      {error && <Alert variant="danger">{error}</Alert>}
+      {loading ? <div className="py-4 text-center"><Spinner animation="border" /></div> : (
+        <>
+          <Table striped hover responsive>
+            <thead><tr><th>Code</th><th>Title</th><th>Credits</th><th>Offered In</th><th></th></tr></thead>
+            <tbody>
+              {courses.map((c) => (
+                <tr key={c.code}>
+                  <td><code>{c.code}</code></td>
+                  <td>{c.title}</td>
+                  <td>{c.credits}</td>
+                  <td>{c.offeredIN.join(', ')}</td>
+                  <td className="text-end">
+                    <Button size="sm" variant="outline-secondary" className="me-1" onClick={() => openEdit(c)}>Edit</Button>
+                    <Button size="sm" variant="outline-danger" onClick={() => void handleDelete(c.code)}>Delete</Button>
+                  </td>
+                </tr>
+              ))}
+              {courses.length === 0 && <tr><td colSpan={5} className="text-center text-muted py-4">No courses found</td></tr>}
+            </tbody>
+          </Table>
+          {totalPages > 1 && (
+            <div className="d-flex justify-content-between align-items-center">
+              <span className="text-muted small">Page {page} of {totalPages} ({total} total)</span>
+              <div>
+                <Button size="sm" variant="outline-secondary" className="me-1" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>‹ Prev</Button>
+                <Button size="sm" variant="outline-secondary" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>Next ›</Button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+        <Modal.Header closeButton><Modal.Title>{editing ? `Edit ${editing.code}` : 'Add Course'}</Modal.Title></Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Row>
+              <Col md={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Code</Form.Label>
+                  <Form.Control value={form.code} onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))} disabled={!!editing} />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Title</Form.Label>
+                  <Form.Control value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} />
+                </Form.Group>
+              </Col>
+              <Col md={2}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Credits</Form.Label>
+                  <Form.Control type="number" value={form.credits} onChange={(e) => setForm((f) => ({ ...f, credits: Number(e.target.value) }))} />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Form.Group className="mb-3">
+              <Form.Label>Description</Form.Label>
+              <Form.Control as="textarea" rows={2} value={form.description ?? ''} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Offered In <span className="text-muted small">(comma-separated, e.g. F, W, S)</span></Form.Label>
+              <Form.Control value={form.offeredIN.join(', ')} onChange={(e) => setForm((f) => ({ ...f, offeredIN: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) }))} />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
+          <Button onClick={() => void handleSave()} disabled={saving}>{saving ? 'Saving…' : 'Save'}</Button>
+        </Modal.Footer>
+      </Modal>
+    </>
+  );
+};
+
 // ─── Main export ─────────────────────────────────────────────────────────────
 
 const DegreeManagementTab: React.FC = () => (
@@ -267,7 +405,7 @@ const DegreeManagementTab: React.FC = () => (
         <CoursePoolsPanel />
       </Tab>
       <Tab eventKey="courses" title="Courses">
-        <p className="text-muted py-3">Courses panel coming soon.</p>
+        <CoursesPanel />
       </Tab>
     </Tabs>
   </div>
