@@ -199,43 +199,68 @@ export async function readPatchFile(filePath: string): Promise<CatalogPatchFile>
   return parsed;
 }
 
-export async function validateReferences(payload: {
+type ExistingEntityIds = {
+  knownDegrees: Set<string>;
+  knownCoursePools: Set<string>;
+  knownCourses: Set<string>;
+};
+
+function toStringId(value: unknown): string {
+  return String(value);
+}
+
+function collectReferencedIds(payload: {
+  degrees: DegreeSeedData[];
+  coursePools: CoursePoolSeedData[];
+  diffs: Array<{
+    entityType: VersionedEntityType;
+    entityId: string;
+  }>;
+}): {
+  referencedDegreeIds: Set<string>;
+  referencedCoursePoolIds: Set<string>;
+  referencedCourseIds: Set<string>;
+} {
+  return {
+    referencedDegreeIds: new Set(
+      payload.diffs
+        .filter((diff) => diff.entityType === 'Degree')
+        .map((diff) => diff.entityId),
+    ),
+    referencedCoursePoolIds: new Set([
+      ...payload.degrees.flatMap((degree) => degree.coursePools || []),
+      ...payload.diffs
+        .filter((diff) => diff.entityType === 'CoursePool')
+        .map((diff) => diff.entityId),
+    ]),
+    referencedCourseIds: new Set([
+      ...payload.coursePools.flatMap((coursePool) => coursePool.courses || []),
+      ...payload.diffs
+        .filter((diff) => diff.entityType === 'Course')
+        .map((diff) => diff.entityId),
+    ]),
+  };
+}
+
+async function loadKnownEntityIds(payload: {
   degrees: DegreeSeedData[];
   coursePools: CoursePoolSeedData[];
   courses: CourseSeedData[];
   diffs: Array<{
-    _id: string;
     entityType: VersionedEntityType;
     entityId: string;
-    academicYear: string;
-    patch: VersionPatch;
   }>;
-}): Promise<void> {
+}): Promise<ExistingEntityIds> {
   const newDegreeIds = new Set(payload.degrees.map((degree) => degree._id));
   const newCoursePoolIds = new Set(
     payload.coursePools.map((coursePool) => coursePool._id),
   );
   const newCourseIds = new Set(payload.courses.map((course) => course._id));
-
-  const referencedDegreeIds = new Set<string>(
-    payload.diffs
-      .filter((diff) => diff.entityType === 'Degree')
-      .map((diff) => diff.entityId),
-  );
-
-  const referencedCoursePoolIds = new Set<string>([
-    ...payload.degrees.flatMap((degree) => degree.coursePools || []),
-    ...payload.diffs
-      .filter((diff) => diff.entityType === 'CoursePool')
-      .map((diff) => diff.entityId),
-  ]);
-
-  const referencedCourseIds = new Set<string>([
-    ...payload.coursePools.flatMap((coursePool) => coursePool.courses || []),
-    ...payload.diffs
-      .filter((diff) => diff.entityType === 'Course')
-      .map((diff) => diff.entityId),
-  ]);
+  const {
+    referencedDegreeIds,
+    referencedCoursePoolIds,
+    referencedCourseIds,
+  } = collectReferencedIds(payload);
 
   const [existingDegrees, existingCoursePools, existingCourses] =
     await Promise.all([
@@ -271,22 +296,32 @@ export async function validateReferences(payload: {
         .exec(),
     ]);
 
-  const knownDegrees = new Set([
-    ...newDegreeIds,
-    ...existingDegrees.map((degree) => degree._id),
-  ]);
-  const knownCoursePools = new Set([
-    ...newCoursePoolIds,
-    ...existingCoursePools.map((coursePool) => coursePool._id),
-  ]);
-  const knownCourses = new Set([
-    ...newCourseIds,
-    ...existingCourses.map((course) => course._id),
-  ]);
+  return {
+    knownDegrees: new Set([
+      ...newDegreeIds,
+      ...existingDegrees.map((degree) => toStringId(degree._id)),
+    ]),
+    knownCoursePools: new Set([
+      ...newCoursePoolIds,
+      ...existingCoursePools.map((coursePool) => toStringId(coursePool._id)),
+    ]),
+    knownCourses: new Set([
+      ...newCourseIds,
+      ...existingCourses.map((course) => toStringId(course._id)),
+    ]),
+  };
+}
 
+function validateBaseEntityReferences(
+  payload: {
+    degrees: DegreeSeedData[];
+    coursePools: CoursePoolSeedData[];
+  },
+  knownIds: ExistingEntityIds,
+): void {
   for (const degree of payload.degrees) {
     for (const coursePoolId of degree.coursePools || []) {
-      if (!knownCoursePools.has(coursePoolId)) {
+      if (!knownIds.knownCoursePools.has(coursePoolId)) {
         throw new Error(
           `Degree ${degree._id} references unknown course pool ${coursePoolId}.`,
         );
@@ -296,31 +331,60 @@ export async function validateReferences(payload: {
 
   for (const coursePool of payload.coursePools) {
     for (const courseId of coursePool.courses || []) {
-      if (!knownCourses.has(courseId)) {
+      if (!knownIds.knownCourses.has(courseId)) {
         throw new Error(
           `Course pool ${coursePool._id} references unknown course ${courseId}.`,
         );
       }
     }
   }
+}
+
+function validateDiffTarget(
+  diff: {
+    _id: string;
+    entityType: VersionedEntityType;
+    entityId: string;
+  },
+  knownIds: ExistingEntityIds,
+): void {
+  const entitySets: Record<VersionedEntityType, Set<string>> = {
+    Degree: knownIds.knownDegrees,
+    CoursePool: knownIds.knownCoursePools,
+    Course: knownIds.knownCourses,
+  };
+
+  const entityLabels: Record<VersionedEntityType, string> = {
+    Degree: 'degree',
+    CoursePool: 'course pool',
+    Course: 'course',
+  };
+
+  if (!entitySets[diff.entityType].has(diff.entityId)) {
+    throw new Error(
+      `Diff ${diff._id} targets unknown ${entityLabels[diff.entityType]} ${diff.entityId}.`,
+    );
+  }
+}
+
+export async function validateReferences(payload: {
+  degrees: DegreeSeedData[];
+  coursePools: CoursePoolSeedData[];
+  courses: CourseSeedData[];
+  diffs: Array<{
+    _id: string;
+    entityType: VersionedEntityType;
+    entityId: string;
+    academicYear: string;
+    patch: VersionPatch;
+  }>;
+}): Promise<void> {
+  const knownIds = await loadKnownEntityIds(payload);
+
+  validateBaseEntityReferences(payload, knownIds);
 
   for (const diff of payload.diffs) {
-    if (diff.entityType === 'Degree' && !knownDegrees.has(diff.entityId)) {
-      throw new Error(`Diff ${diff._id} targets unknown degree ${diff.entityId}.`);
-    }
-
-    if (
-      diff.entityType === 'CoursePool' &&
-      !knownCoursePools.has(diff.entityId)
-    ) {
-      throw new Error(
-        `Diff ${diff._id} targets unknown course pool ${diff.entityId}.`,
-      );
-    }
-
-    if (diff.entityType === 'Course' && !knownCourses.has(diff.entityId)) {
-      throw new Error(`Diff ${diff._id} targets unknown course ${diff.entityId}.`);
-    }
+    validateDiffTarget(diff, knownIds);
   }
 }
 

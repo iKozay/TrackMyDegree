@@ -73,12 +73,31 @@ function compareAcademicYears(a: string, b: string): number {
   return parseAcademicYearStart(a) - parseAcademicYearStart(b);
 }
 
+const PROTOTYPE_POLLUTION_KEYS = new Set([
+  '__proto__',
+  'constructor',
+  'prototype',
+]);
+
+function getSafePathParts(path: string): string[] {
+  const parts = path.split('.');
+
+  if (
+    parts.length === 0 ||
+    parts.some((part) => !part || PROTOTYPE_POLLUTION_KEYS.has(part))
+  ) {
+    throw new Error(`Invalid patch path "${path}".`);
+  }
+
+  return parts;
+}
+
 function setValueAtPath(
   target: Record<string, unknown>,
   path: string,
   value: unknown,
 ): void {
-  const parts = path.split('.');
+  const parts = getSafePathParts(path);
   let current: Record<string, unknown> = target;
 
   for (let index = 0; index < parts.length - 1; index += 1) {
@@ -96,14 +115,14 @@ function setValueAtPath(
 }
 
 function getValueAtPath(target: Record<string, unknown>, path: string): unknown {
-  return path.split('.').reduce<unknown>((current, key) => {
+  return getSafePathParts(path).reduce<unknown>((current, key) => {
     if (!current || typeof current !== 'object') return undefined;
     return (current as Record<string, unknown>)[key];
   }, target);
 }
 
 function deleteValueAtPath(target: Record<string, unknown>, path: string): void {
-  const parts = path.split('.');
+  const parts = getSafePathParts(path);
   let current: Record<string, unknown> = target;
 
   for (let index = 0; index < parts.length - 1; index += 1) {

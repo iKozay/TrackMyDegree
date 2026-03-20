@@ -306,6 +306,92 @@ function normalizeSnapshot(snapshot: CatalogSnapshot): CatalogSnapshot {
   };
 }
 
+function buildCurrentEntityMaps(
+  dbDegrees: DegreeType[],
+  dbCoursePools: CoursePoolType[],
+  dbCourses: CourseType[],
+  academicYear: string,
+): {
+  currentDegrees: Map<string, DegreeType>;
+  currentCoursePools: Map<string, CoursePoolType>;
+  currentCourses: Map<string, CourseType>;
+} {
+  return {
+    currentDegrees: new Map(
+      dbDegrees.map((degree) => [
+        degree._id,
+        normalizeDegree(degree, degree.baseAcademicYear || academicYear),
+      ]),
+    ),
+    currentCoursePools: new Map(
+      dbCoursePools.map((coursePool) => [
+        coursePool._id,
+        normalizeCoursePool(
+          coursePool,
+          coursePool.baseAcademicYear || academicYear,
+        ),
+      ]),
+    ),
+    currentCourses: new Map(
+      dbCourses.map((course) => [
+        course._id,
+        normalizeCourse(course, course.baseAcademicYear || academicYear),
+      ]),
+    ),
+  };
+}
+
+function addBaseEntity<T extends { baseAcademicYear?: string }>(
+  entities: T[],
+  entity: T,
+  academicYear: string,
+): void {
+  entities.push({
+    ...entity,
+    baseAcademicYear: academicYear,
+  });
+}
+
+function appendEntityChanges<T extends { _id: string; baseAcademicYear?: string }>(
+  entities: Iterable<T>,
+  currentEntities: Map<string, T>,
+  academicYear: string,
+  baseEntities: T[],
+  diffs: DiffPayload[],
+  buildDiff: (current: T, next: T) => VersionPatch | null,
+): void {
+  for (const entity of entities) {
+    const current = currentEntities.get(entity._id);
+
+    if (!current) {
+      addBaseEntity(baseEntities, entity, academicYear);
+      continue;
+    }
+
+    const diff = buildDiff(current, entity);
+    if (diff) {
+      diffs.push({
+        entityId: entity._id,
+        academicYear,
+        patch: diff,
+      });
+    }
+  }
+}
+
+function sortPatchCollections(patch: CatalogPatch): void {
+  patch.baseEntities.degrees.sort((left, right) => left._id.localeCompare(right._id));
+  patch.baseEntities.coursePools.sort((left, right) =>
+    left._id.localeCompare(right._id),
+  );
+  patch.baseEntities.courses.sort((left, right) => left._id.localeCompare(right._id));
+  patch.diffs.degrees.sort((left, right) => left.entityId.localeCompare(right.entityId));
+  patch.diffs.coursePools.sort((left, right) =>
+    left.entityId.localeCompare(right.entityId),
+  );
+  patch.diffs.courses.sort((left, right) => left.entityId.localeCompare(right.entityId));
+}
+
 export async function generatePatchFromSnapshotData(
   rawSnapshot: CatalogSnapshot,
 ): Promise<CatalogPatch> {
@@ -318,27 +404,8 @@ export async function generatePatchFromSnapshotData(
     Course.find({}).lean<CourseType[]>().exec(),
   ]);
 
-  const currentDegrees = new Map(
-    dbDegrees.map((degree) => [
-      degree._id,
-      normalizeDegree(degree, degree.baseAcademicYear || academicYear),
-    ]),
-  );
-  const currentCoursePools = new Map(
-    dbCoursePools.map((coursePool) => [
-      coursePool._id,
-      normalizeCoursePool(
-        coursePool,
-        coursePool.baseAcademicYear || academicYear,
-      ),
-    ]),
-  );
-  const currentCourses = new Map(
-    dbCourses.map((course) => [
-      course._id,
-      normalizeCourse(course, course.baseAcademicYear || academicYear),
-    ]),
-  );
+  const { currentDegrees, currentCoursePools, currentCourses } =
+    buildCurrentEntityMaps(dbDegrees, dbCoursePools, dbCourses, academicYear);
 
   const scrapedCoursePools = new Map<string, CoursePoolType>();
   for (const entry of snapshot.degrees) {
@@ -368,79 +435,32 @@ export async function generatePatchFromSnapshotData(
     },
   };
 
-  for (const course of scrapedCourses.values()) {
-    const current = currentCourses.get(course._id);
-
-    if (!current) {
-      patch.baseEntities.courses.push({
-        ...course,
-        baseAcademicYear: academicYear,
-      });
-      continue;
-    }
-
-    const courseDiff = buildCourseDiff(current, course);
-    if (courseDiff) {
-      patch.diffs.courses.push({
-        entityId: course._id,
-        academicYear,
-        patch: courseDiff,
-      });
-    }
-  }
-
-  for (const coursePool of scrapedCoursePools.values()) {
-    const current = currentCoursePools.get(coursePool._id);
-
-    if (!current) {
-      patch.baseEntities.coursePools.push({
-        ...coursePool,
-        baseAcademicYear: academicYear,
-      });
-      continue;
-    }
-
-    const coursePoolDiff = buildCoursePoolDiff(current, coursePool);
-    if (coursePoolDiff) {
-      patch.diffs.coursePools.push({
-        entityId: coursePool._id,
-        academicYear,
-        patch: coursePoolDiff,
-      });
-    }
-  }
-
-  for (const degree of scrapedDegrees.values()) {
-    const current = currentDegrees.get(degree._id);
-
-    if (!current) {
-      patch.baseEntities.degrees.push({
-        ...degree,
-        baseAcademicYear: academicYear,
-      });
-      continue;
-    }
-
-    const degreeDiff = buildDegreeDiff(current, degree);
-    if (degreeDiff) {
-      patch.diffs.degrees.push({
-        entityId: degree._id,
-        academicYear,
-        patch: degreeDiff,
-      });
-    }
-  }
-
-  patch.baseEntities.degrees.sort((left, right) => left._id.localeCompare(right._id));
-  patch.baseEntities.coursePools.sort((left, right) =>
-    left._id.localeCompare(right._id),
+  appendEntityChanges(
+    scrapedCourses.values(),
+    currentCourses,
+    academicYear,
+    patch.baseEntities.courses,
+    patch.diffs.courses,
+    buildCourseDiff,
   );
-  patch.baseEntities.courses.sort((left, right) => left._id.localeCompare(right._id));
-  patch.diffs.degrees.sort((left, right) => left.entityId.localeCompare(right.entityId));
-  patch.diffs.coursePools.sort((left, right) =>
-    left.entityId.localeCompare(right.entityId),
+  appendEntityChanges(
+    scrapedCoursePools.values(),
+    currentCoursePools,
+    academicYear,
+    patch.baseEntities.coursePools,
+    patch.diffs.coursePools,
+    buildCoursePoolDiff,
   );
-  patch.diffs.courses.sort((left, right) => left.entityId.localeCompare(right.entityId));
+  appendEntityChanges(
+    scrapedDegrees.values(),
+    currentDegrees,
+    academicYear,
+    patch.baseEntities.degrees,
+    patch.diffs.degrees,
+    buildDegreeDiff,
+  );
+
+  sortPatchCollections(patch);
 
   return patch;
 }
