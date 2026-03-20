@@ -5,6 +5,61 @@ import type { UserDocument, UserRole, CreateUserInput, UpdateUserInput } from '@
 
 const ROLES: UserRole[] = ['student', 'advisor', 'admin'];
 
+// ─── Invite Admin modal ──────────────────────────────────────────────────────
+
+interface InviteAdminModalProps {
+  show: boolean;
+  onHide: () => void;
+  onSaved: () => void;
+}
+
+const InviteAdminModal: React.FC<InviteAdminModalProps> = ({ show, onHide, onSaved }) => {
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => { if (show) { setEmail(''); setName(''); setError(null); } }, [show]);
+
+  const handleInvite = async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      await api.post('/users/invite-admin', { email, name });
+      onSaved();
+      onHide();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Invite failed');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal show={show} onHide={onHide}>
+      <Modal.Header closeButton><Modal.Title>Invite Admin User</Modal.Title></Modal.Header>
+      <Modal.Body>
+        {error && <Alert variant="danger">{error}</Alert>}
+        <p className="text-muted small">An invitation email will be sent to the address below.</p>
+        <Form>
+          <Form.Group className="mb-3">
+            <Form.Label>Name</Form.Label>
+            <Form.Control value={name} onChange={(e) => setName(e.target.value)} />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Email</Form.Label>
+            <Form.Control type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onHide}>Cancel</Button>
+        <Button variant="warning" onClick={() => void handleInvite()} disabled={saving}>{saving ? 'Sending…' : 'Send Invite'}</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+};
+
 // ─── Create / Edit modal ─────────────────────────────────────────────────────
 
 interface UserModalProps {
@@ -95,6 +150,7 @@ const UserManagementTab: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState<UserRole | 'all'>('all');
   const [showUserModal, setShowUserModal] = useState(false);
   const [editingUser, setEditingUser] = useState<UserDocument | null>(null);
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -139,6 +195,7 @@ const UserManagementTab: React.FC = () => {
           </Form.Select>
         </Col>
         <Col xs="auto">
+          <Button size="sm" variant="warning" className="me-2" onClick={() => setShowInviteModal(true)}>Invite Admin</Button>
           <Button size="sm" onClick={() => { setEditingUser(null); setShowUserModal(true); }}>+ Create User</Button>
         </Col>
       </Row>
@@ -163,6 +220,7 @@ const UserManagementTab: React.FC = () => {
         </tbody>
       </Table>
       <UserModal show={showUserModal} onHide={() => setShowUserModal(false)} onSaved={() => void load()} editing={editingUser} />
+      <InviteAdminModal show={showInviteModal} onHide={() => setShowInviteModal(false)} onSaved={() => void load()} />
     </div>
   );
 };
