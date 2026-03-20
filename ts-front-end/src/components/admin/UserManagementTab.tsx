@@ -93,6 +93,8 @@ const UserManagementTab: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<UserRole | 'all'>('all');
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserDocument | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -108,6 +110,12 @@ const UserManagementTab: React.FC = () => {
   }, []);
 
   useEffect(() => { void load(); }, [load]);
+
+  const handleDelete = async (user: UserDocument) => {
+    if (!window.confirm(`Delete user "${user.name}" (${user.email})?`)) return;
+    try { await api.delete(`/users/${user._id}`); await load(); }
+    catch (err) { alert(err instanceof Error ? err.message : 'Delete failed'); }
+  };
 
   const filtered = users.filter((u) => {
     const matchesRole = roleFilter === 'all' || u.role === roleFilter;
@@ -131,7 +139,7 @@ const UserManagementTab: React.FC = () => {
           </Form.Select>
         </Col>
         <Col xs="auto">
-          <Button size="sm">+ Create User</Button>
+          <Button size="sm" onClick={() => { setEditingUser(null); setShowUserModal(true); }}>+ Create User</Button>
         </Col>
       </Row>
       <Table striped hover responsive>
@@ -145,12 +153,16 @@ const UserManagementTab: React.FC = () => {
               <td>{u.email}</td>
               <td><Badge bg={roleBadgeVariant(u.role)}>{u.role}</Badge></td>
               <td className="text-muted small">{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
-              <td></td>
+              <td className="text-end">
+                <Button size="sm" variant="outline-secondary" className="me-1" onClick={() => { setEditingUser(u); setShowUserModal(true); }}>Edit</Button>
+                <Button size="sm" variant="outline-danger" onClick={() => void handleDelete(u)}>Delete</Button>
+              </td>
             </tr>
           ))}
           {filtered.length === 0 && <tr><td colSpan={5} className="text-center text-muted py-4">No users found</td></tr>}
         </tbody>
       </Table>
+      <UserModal show={showUserModal} onHide={() => setShowUserModal(false)} onSaved={() => void load()} editing={editingUser} />
     </div>
   );
 };
