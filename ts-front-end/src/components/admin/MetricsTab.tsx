@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Spinner, Alert } from 'react-bootstrap';
+import { Spinner, Alert, Card, Col, Row } from 'react-bootstrap';
 import { api } from '../../api/http-api-client';
 import type { AdminStats, DbConnectionStatus } from '@shared/admin';
 import type { UserDocument } from '@shared/user';
@@ -79,7 +79,40 @@ const MetricsTab: React.FC = () => {
           {dbStatus.message && ` — ${dbStatus.message}`}
         </Alert>
       )}
-      <p className="text-muted">Stats loading...</p>
+      <Row className="g-3 mb-4">
+        <Col xs={12} sm={6} md={3}>
+          <Card className="h-100 text-center border-primary">
+            <Card.Body>
+              <div className="display-4 fw-bold text-primary">{stats?.totalUsers ?? 0}</div>
+              <Card.Text className="text-muted">Total Users</Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col xs={12} sm={6} md={3}>
+          <Card className="h-100 text-center border-success">
+            <Card.Body>
+              <div className="display-4 fw-bold text-success">{stats?.totalTimelines ?? 0}</div>
+              <Card.Text className="text-muted">Total Timelines</Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col xs={12} sm={6} md={3}>
+          <Card className="h-100 text-center border-info">
+            <Card.Body>
+              <div className="display-4 fw-bold text-info">{stats?.totalDegrees ?? 0}</div>
+              <Card.Text className="text-muted">Degrees</Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col xs={12} sm={6} md={3}>
+          <Card className="h-100 text-center border-warning">
+            <Card.Body>
+              <div className="display-4 fw-bold text-warning">{stats?.totalCourses ?? 0}</div>
+              <Card.Text className="text-muted">Courses</Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
     </div>
   );
 };
