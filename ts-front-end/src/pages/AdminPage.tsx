@@ -1,29 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
+import { Container, Tab, Tabs } from "react-bootstrap";
 import { useAuth } from "../hooks/useAuth";
-import LegacyAdminPage from "../legacy/pages/AdminPage.jsx";
+
+type AdminTab = "metrics" | "degrees" | "users" | "seeding";
 
 const AdminPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
-  // useEffect(() => {
-  //   if (!isAuthenticated) return;
-
-  //   const fetchWhatever = async () => {
-  //     try {
-  //       // backend will read the JWT from the cookie
-  //     } catch (err) {
-  //       console.error(err);
-  //     } finally {
-  //       //
-  //     }
-  //   };
-
-  //   fetchWhatever();
-  // }, [isAuthenticated]);
+  const [activeTab, setActiveTab] = useState<AdminTab>("metrics");
 
   if (!isAuthenticated) {
     return <p>Please log in to see your data.</p>;
   }
-  return <LegacyAdminPage />;
+
+  return (
+    <Container fluid className="py-4">
+      <h2 className="mb-4">Admin Dashboard</h2>
+      <Tabs
+        activeKey={activeTab}
+        onSelect={(k) => setActiveTab((k ?? "metrics") as AdminTab)}
+        className="mb-3"
+      >
+        <Tab eventKey="metrics" title="Metrics & Stats" />
+        <Tab eventKey="degrees" title="Degrees & Courses" />
+        <Tab eventKey="users" title="Manage Users" />
+        <Tab eventKey="seeding" title="Seed Database" />
+      </Tabs>
+    </Container>
+  );
 };
 
 export default AdminPage;
