@@ -111,7 +111,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
 
                 .schedule-scroll {
                     overflow: auto;
-                    max-height: 600px;
+                    max-height: 1000px;
                 }
 
                 .schedule-table {
