@@ -71,7 +71,7 @@ function getCourseStatus(
 
   if (courseNotPartOfDegree) {
     status = 'completed'; // We mark it as completed to avoid showing it as an incomplete course, but we add a message to indicate that it's not part of degree requirements
-    message = 'Course not used towards degree requirements';
+    message = 'Course not part of degree requirements';
   }
   else if (courseGrade?.toUpperCase() === 'DISC') message = 'DISC';
   else if (isPlanned(term)) status = 'planned';
