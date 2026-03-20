@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Spinner, Alert, Badge, Card, Col, Row } from 'react-bootstrap';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Spinner, Alert, Badge, Button, Card, Col, Row } from 'react-bootstrap';
 import { api } from '../../api/http-api-client';
 import type { AdminStats, DbConnectionStatus } from '@shared/admin';
 import type { UserDocument } from '@shared/user';
@@ -9,9 +9,9 @@ const MetricsTab: React.FC = () => {
   const [dbStatus, setDbStatus] = useState<DbConnectionStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
 
-  useEffect(() => {
-    const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async () => {
       setLoading(true);
       setError(null);
       try {
@@ -48,13 +48,15 @@ const MetricsTab: React.FC = () => {
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load metrics');
+        setLastRefreshed(new Date());
       } finally {
         setLoading(false);
       }
     };
 
-    void fetchMetrics();
   }, []);
+
+  useEffect(() => { void fetchMetrics(); }, [fetchMetrics]);
 
   if (loading) {
     return (
@@ -72,6 +74,10 @@ const MetricsTab: React.FC = () => {
 
   return (
     <div className="py-4">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        {lastRefreshed && <small className="text-muted">Last refreshed: {lastRefreshed.toLocaleTimeString()}</small>}
+        <Button size="sm" variant="outline-secondary" onClick={() => void fetchMetrics()} disabled={loading}>Refresh</Button>
+      </div>
       {dbStatus && (
         <Alert variant={dbStatus.connected ? 'success' : 'danger'} className="mb-4">
           <strong>Database:</strong>{' '}
