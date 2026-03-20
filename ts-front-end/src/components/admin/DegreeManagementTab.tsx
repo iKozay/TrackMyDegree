@@ -89,6 +89,9 @@ const DegreesPanel: React.FC = () => {
           </tr>
         </thead>
         <tbody>
+          {degrees.length === 0 && (
+            <tr><td colSpan={5} className="text-center text-muted py-4">No degrees found. Use the Seed Database tab to import data.</td></tr>
+          )}
           {degrees.map((d) => (
             <tr key={d._id}>
               <td>{d.name}</td>
@@ -397,7 +400,7 @@ const CoursesPanel: React.FC = () => {
 
 const DegreeManagementTab: React.FC = () => (
   <div className="py-3">
-    <Tabs defaultActiveKey="degrees" className="mb-3">
+    <Tabs defaultActiveKey="degrees" id="degree-management-tabs" className="mb-3">
       <Tab eventKey="degrees" title="Degrees">
         <DegreesPanel />
       </Tab>
