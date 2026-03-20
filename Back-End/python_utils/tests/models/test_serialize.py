@@ -6,7 +6,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from models import (
-    serialize, Course, CourseRules, DegreeType, AnchorLink
+    serialize, Course, CourseRules, DegreeType, AnchorLink, ConstraintType
 )
 
 
@@ -44,6 +44,17 @@ class TestSerialize(unittest.TestCase):
         # Empty collections
         assert serialize([]) == []
         assert serialize(CourseRules())["prereq"] == []
+
+    def test_serialize_nested_dict_with_enum(self):
+        payload = {
+            "type": ConstraintType.MAX_COURSES_FROM_SET,
+            "params": {
+                "courseList": ["COMP 367", "MAST 332"],
+                "maxCourses": 1,
+            },
+        }
+
+        assert serialize(payload)["type"] == "max_courses_from_set"
 
 
 if __name__ == '__main__':

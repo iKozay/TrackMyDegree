@@ -4,7 +4,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from scraper.gina_cody_degree_scraper import GinaCodyDegreeScraper
 from scraper.course_data_scraper import get_course_scraper_instance
-from models import CoursePool, DegreeType
+from models import ECPDegreeIDs, CoursePool, DegreeType
 from utils.bs4_utils import get_all_links_from_div
 from utils.parsing_utils import COURSE_REGEX
 
@@ -64,37 +64,42 @@ class CompEcpDegreeScraper(EcpDegreeScraper):
         design_and_comp_art_excluded_subjects = ["DART", "CART"]
         math_and_stat_excluded_subjects = ["ACTU", "MACF", "MATH", "MAST", "STAT"]
 
+        electives_pool = None
+
         # Extract ECP Electives: BCompSc (other than Joint Majors)
-        electives_bcompsc_courses: list[str] = get_course_scraper_instance().get_courses_by_subjects(gina_cody_exlcuded_subjects, inclusive=False)
-        electives_bcompsc_courses = [course for course in electives_bcompsc_courses if course not in ecp_electives_exclusion_list]
-        electives_bcompsc_pool = CoursePool(
-            _id=f"{self.degree_short_name} Electives: BCompSc (other than Joint Majors)",
-            name="ECP Electives: BCompSc (other than Joint Majors)",
-            creditsRequired=15.0,
-            courses=electives_bcompsc_courses
-        )
+        if self.degree_name == ECPDegreeIDs.COMP_ECP_ID:
+            electives_bcompsc_courses: list[str] = get_course_scraper_instance().get_courses_by_subjects(gina_cody_exlcuded_subjects, inclusive=False)
+            electives_bcompsc_courses = [course for course in electives_bcompsc_courses if course not in ecp_electives_exclusion_list]
+            electives_pool = CoursePool(
+                _id=f"{self.degree_short_name} Electives: BCompSc (other than Joint Majors)",
+                name="ECP Electives: BCompSc (other than Joint Majors)",
+                creditsRequired=15.0,
+                courses=electives_bcompsc_courses
+            )
 
         # Extract ECP Electives: Joint Major in Computation Arts and Computer Science
-        electives_comp_arts_courses: list[str] = get_course_scraper_instance().get_courses_by_subjects((gina_cody_exlcuded_subjects + design_and_comp_art_excluded_subjects), inclusive=False)
-        electives_comp_arts_courses = [course for course in electives_comp_arts_courses if course not in ecp_electives_exclusion_list]
-        electives_comp_arts_pool = CoursePool(
-            _id=f"{self.degree_short_name} Electives: Joint Major in Computation Arts and Computer Science",
-            name="ECP Electives: Joint Major in Computation Arts and Computer Science",
-            creditsRequired=15.0,
-            courses=electives_comp_arts_courses
-        )
+        if self.degree_name == ECPDegreeIDs.COMP_CA_ECP_ID:
+            electives_comp_arts_courses: list[str] = get_course_scraper_instance().get_courses_by_subjects((gina_cody_exlcuded_subjects + design_and_comp_art_excluded_subjects), inclusive=False)
+            electives_comp_arts_courses = [course for course in electives_comp_arts_courses if course not in ecp_electives_exclusion_list]
+            electives_pool = CoursePool(
+                _id=f"{self.degree_short_name} Electives: Joint Major in Computation Arts and Computer Science",
+                name="ECP Electives: Joint Major in Computation Arts and Computer Science",
+                creditsRequired=15.0,
+                courses=electives_comp_arts_courses
+            )
 
         # Extract ECP Electives: Joint Major in Data Science
-        electives_data_science_courses: list[str] = get_course_scraper_instance().get_courses_by_subjects((gina_cody_exlcuded_subjects + math_and_stat_excluded_subjects), inclusive=False)
-        electives_data_science_courses = [course for course in electives_data_science_courses if course not in ecp_electives_exclusion_list]
-        electives_data_science_pool = CoursePool(
-            _id=f"{self.degree_short_name} Electives: Joint Major in Data Science",
-            name="ECP Electives: Joint Major in Data Science",
-            creditsRequired=15.0,
-            courses=electives_data_science_courses
-        )
+        if self.degree_name == ECPDegreeIDs.COMP_DS_ECP_ID:
+            electives_data_science_courses: list[str] = get_course_scraper_instance().get_courses_by_subjects((gina_cody_exlcuded_subjects + math_and_stat_excluded_subjects), inclusive=False)
+            electives_data_science_courses = [course for course in electives_data_science_courses if course not in ecp_electives_exclusion_list]
+            electives_pool = CoursePool(
+                _id=f"{self.degree_short_name} Electives: Joint Major in Data Science",
+                name="ECP Electives: Joint Major in Data Science",
+                creditsRequired=15.0,
+                courses=electives_data_science_courses
+            )
 
-        course_pool_objects = [ecp_core_pool, gen_education_electives_pool, electives_bcompsc_pool, electives_comp_arts_pool, electives_data_science_pool]
+        course_pool_objects = [ecp_core_pool, gen_education_electives_pool, electives_pool]
 
         self._set_program_requirements(program_name, total_credits, DegreeType.ECP, course_pool_objects)
 

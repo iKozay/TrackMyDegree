@@ -1,0 +1,34 @@
+{
+  "coursePools": [
+    {
+      "_id": "COMP_HLS_ECP_Core",
+      "courses": [
+        "BIOL 201",
+        "CHEM 205",
+        "CHEM 206",
+        "MATH 203",
+        "MATH 204",
+        "MATH 205",
+        "PHYS 204",
+        "PHYS 205",
+        "PHYS 206",
+        "PHYS 224",
+        "PHYS 225",
+        "PHYS 226"
+      ],
+      "creditsRequired": 30.0,
+      "name": "ECP Core",
+      "rules": []
+    }
+  ],
+  "degree": {
+    "_id": "Extended Credit Program - Health and Life Sciences",
+    "coursePools": [
+      "COMP_HLS_ECP_Core"
+    ],
+    "degreeType": "ECP",
+    "ecpDegreeId": "",
+    "name": "Extended Credit Program - Health and Life Sciences",
+    "totalCredits": 30.0
+  }
+}

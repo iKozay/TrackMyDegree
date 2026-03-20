@@ -53,6 +53,8 @@ class CourseDataScraper:
             subjects = get_all_links_from_div(link.url, ["content-main"])
 
             if link.text == "Gina Cody School of Engineering and Computer Science Courses":
+                # Add missing INSE link
+                subjects.append(AnchorLink(text="Information Systems Engineering Courses", url="https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-100-concordia-institute-for-information-systems-engineering/section-71-100-3-information-systems-engineering-courses.html"))
                 # Add missing CIVI link
                 subjects.append(AnchorLink(text="Civil Engineering Courses", url="https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-60-engineering-course-descriptions/civil-engineering-courses.html"))
 

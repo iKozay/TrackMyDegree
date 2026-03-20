@@ -5,10 +5,35 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.bs4_utils import get_all_links_from_div
 from scraper.gina_cody_degree_scraper import GinaCodyDegreeScraper
 from scraper.course_data_scraper import get_course_scraper_instance
-from models import CoursePool, ECPDegreeIDs
+from models import Constraint, ConstraintType, CoursePool, ECPDegreeIDs, ExcessCreditsOverflowParams, MaxCoursesFromSetParams, MaxCreditsFromSetParams
 from utils.parsing_utils import COURSE_REGEX
 
 class CompDegreeScraper(GinaCodyDegreeScraper):
+    def _add_coursepool_rules(self):
+        # Any credits exceeding the required number of Computer Science Elective credits will accrue towards the General Elective credits.
+        # Credits exceeding the required number of Mathematics Elective credits will accrue towards the General Elective credits.
+        computer_science_electives_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Computer Science Electives"), None)
+        math_electives_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Mathematics Electives: BCompSc"), None)
+        gen_electives_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "General Electives: BCompSc"), None)
+
+        computer_science_electives_pool.rules.append(Constraint(
+            type=ConstraintType.EXCESS_CREDITS_OVERFLOW,
+            params=ExcessCreditsOverflowParams(
+                targetPoolId=gen_electives_pool._id
+            ),
+            message="Any credits exceeding the required number of Computer Science Elective credits will accrue towards the General Elective credits.",
+            level="info"
+        ))
+
+        math_electives_pool.rules.append(Constraint(
+            type=ConstraintType.EXCESS_CREDITS_OVERFLOW,
+            params=ExcessCreditsOverflowParams(
+                targetPoolId=gen_electives_pool._id
+            ),
+            message="Credits exceeding the required number of Mathematics Elective credits will accrue towards the General Elective credits.",
+            level="info"
+        ))
+
     def _handle_special_cases(self):
         for pool in self.program_requirements.coursePools:
             if "Computer Science Electives" in pool.name:
@@ -42,13 +67,9 @@ class CompDegreeScraper(GinaCodyDegreeScraper):
         # 3. General Education Humanities and Social Sciences Electives (will be added using GinaCodyDegreeScraper)
         # 4. Also can't take courses from General Electives Exclusion List (shown below)
         general_electives_exclusion_list = ["BCEE 231", "BIOL 322", "BTM 380", "BTM 382", "CART 315", "COMM 215", "EXCI 322", "GEOG 264", "INTE 296", "MAST 221", "MAST 221", "MAST 333", "MIAE 215", "PHYS 235", "PHYS 236", "SOCI 212"]
-        cs_electives_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Computer Science Electives"), None)
-        math_electives_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Mathematics Electives: BCompSc"), None)
         gen_education_electives_pool = self._get_general_education_pool()
 
         allowed_courses = set()
-        allowed_courses.update(cs_electives_pool.courses)
-        allowed_courses.update(math_electives_pool.courses)
         allowed_courses.update(gen_education_electives_pool.courses)
         # Remove excluded courses
         for course in general_electives_exclusion_list:
@@ -83,6 +104,40 @@ class CompVariantDegreeScraper(GinaCodyDegreeScraper):
                 self.logger.error(f"Failed to extract courses for course pool: {pool.name} in {self.degree_name}")
 
 class CompCaDegreeScraper(CompVariantDegreeScraper):
+    def _add_coursepool_rules(self):
+        # Computation Arts Core
+        # Max 6 credits from 300 CART courses, max 6 credits from 400 CART courses, max 6 credits from DART courses
+        comp_arts_core_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Computation Arts Core"), None)
+
+        cart_300_courses = [course for course in comp_arts_core_pool.courses if course.startswith("CART 3") and course != "CART 310"]
+        cart_400_courses = [course for course in comp_arts_core_pool.courses if course.startswith("CART 4") and course != "CART 470"]
+        dart_courses = [course for course in comp_arts_core_pool.courses if course.startswith("DART")]
+
+        comp_arts_core_pool.rules.append(Constraint(
+            type=ConstraintType.MAX_CREDITS_FROM_SET,
+            params=MaxCreditsFromSetParams(
+                courseList=cart_300_courses,
+                maxCredits=6.0
+            ),
+            message="Students may take a maximum of 6 credits from 300-level CART courses (excluding CART 310) to satisfy the Computation Arts Core requirement."
+        ))
+        comp_arts_core_pool.rules.append(Constraint(
+            type=ConstraintType.MAX_CREDITS_FROM_SET,
+            params=MaxCreditsFromSetParams(
+                courseList=cart_400_courses,
+                maxCredits=9.0
+            ),
+            message="Students may take a maximum of 9 credits from 400-level CART courses (excluding CART 470) to satisfy the Computation Arts Core requirement."
+        ))
+        comp_arts_core_pool.rules.append(Constraint(
+            type=ConstraintType.MAX_CREDITS_FROM_SET,
+            params=MaxCreditsFromSetParams(
+                courseList=dart_courses,
+                maxCredits=6.0
+            ),
+            message="Students may take a maximum of 6 credits from DART courses to satisfy the Computation Arts Core requirement."
+        ))
+
     def _handle_special_cases(self):
         # Get 300-level and 400-level CART courses as well as DART courses
         comp_arts_core_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Computation Arts Core"), None)
@@ -107,13 +162,28 @@ class CompCaDegreeScraper(CompVariantDegreeScraper):
         self.program_requirements.degree.coursePools.append(other_courses_pool._id)
 
 class CompDsDegreeScraper(CompVariantDegreeScraper):
+    def _add_coursepool_rules(self):
+        # Mathematics and Statistics Core: Joint Major in Data Science
+        # MAST 334 may be replaced by COMP 361.
+        math_stats_core_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Mathematics and Statistics Core: Joint Major in Data Science"), None)
+        math_stats_core_pool.rules.append(Constraint(
+            type=ConstraintType.MAX_COURSES_FROM_SET,
+            params=MaxCoursesFromSetParams(
+                courseList=["MAST 334", "COMP 361"],
+                maxCourses=1
+            ),
+            message="Students may replace MAST 334 with COMP 361."
+        ))
+
     def _handle_special_cases(self):
         # COMP 233 must be replaced by MAST 221.
         computer_science_core_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Computer Science Core"), None)
-        if computer_science_core_pool:
-            self.remove_courses_from_pool(computer_science_core_pool.name, ["COMP 233"])
-            if "MAST 221" not in computer_science_core_pool.courses:
-                computer_science_core_pool.courses.append("MAST 221")
+        self.remove_courses_from_pool(computer_science_core_pool.name, ["COMP 233"])
+        self.add_courses_to_pool(computer_science_core_pool.name, ["MAST 221"])
+        # Mathematics and Statistics Core: Joint Major in Data Science
+        # MAST 334 may be replaced by COMP 361.
+        math_stats_core_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Mathematics and Statistics Core: Joint Major in Data Science"), None)
+        self.add_courses_to_pool(math_stats_core_pool.name, ["MAST 334", "COMP 361"])
 
 class CompHlsDegreeScraper(CompVariantDegreeScraper):
     def _handle_failed_course_pools(self, failed_pools):

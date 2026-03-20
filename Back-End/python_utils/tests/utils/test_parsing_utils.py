@@ -1,4 +1,3 @@
-import unittest
 from unittest.mock import patch, MagicMock
 import sys
 import os
@@ -21,11 +20,12 @@ from utils.parsing_utils import (
     parse_course_components,
     get_course_sort_key,
     parse_minimum_credits,
+    parse_coursepool_rules,
     COURSE_REGEX,
     TITLE_REGEX,
     CATALOG_COURSE_TITLE_REGEX
 )
-from models import CourseRules
+from models import CourseRules, ConstraintType
 
 
 
@@ -202,6 +202,13 @@ def test_get_course_sort_key_sorting_comparison():
     expected = ["COMP 201", "COMP 248", "ENGR 101", "MATH 205"]
     assert sorted_courses == expected
 
+
+def test_get_course_sort_key_prefers_three_digit_before_four_digit():
+    courses = ["HIST 307", "HIST 3081", "HIST 308", "HIST 309", "HIST 313"]
+    sorted_courses = sorted(courses, key=get_course_sort_key)
+    expected = ["HIST 307", "HIST 308", "HIST 3081", "HIST 309", "HIST 313"]
+    assert sorted_courses == expected
+
 def test_course_regex_matches():
     valid_courses = ["COMP 248", "ENGR 101", "MATH 204", "SOEN 287"]
     for course in valid_courses:
@@ -275,3 +282,153 @@ def test_parse_minimum_credits():
     text = "No minimum credit requirement."
     result = parse_minimum_credits(text)
     assert (result - 0.0) < 1e-8
+
+
+# ---------------------------------------------------------------------------
+# parse_coursepool_rules – patterns 5, 6, 7
+# ---------------------------------------------------------------------------
+
+def test_parse_coursepool_rules_course_removal_single_degree():
+    text = (
+        "The Engineering Core credits for students in the BEng in Building Engineering "
+        "are reduced from 30.5 credits to 29 credits since Building Engineering students "
+        "are not required to take ENGR 202 in their program."
+    )
+    constraints = parse_coursepool_rules(text)
+    removal = [c for c in constraints if c.type == ConstraintType.COURSE_REMOVAL]
+    assert len(removal) == 1
+    assert removal[0].params.courseId == "ENGR 202"
+    assert removal[0].params.degreeId == "BEng in Building Engineering"
+
+
+def test_parse_coursepool_rules_course_removal_multiple_degrees():
+    text = (
+        "The Engineering Core credits for students in the BEng in Chemical Engineering, "
+        "BEng in Mechanical Engineering, BEng in Industrial Engineering and "
+        "BEng in Aerospace Engineering programs are reduced from 30.5 credits to 27 credits "
+        "since Chemical, Mechanical, Industrial and Aerospace Engineering students are not "
+        "required to take ELEC 275 in their program."
+    )
+    constraints = parse_coursepool_rules(text)
+    removals = [c for c in constraints if c.type == ConstraintType.COURSE_REMOVAL]
+    removed_degrees = {c.params.degreeId for c in removals}
+    assert all(c.params.courseId == "ELEC 275" for c in removals)
+    assert "BEng in Chemical Engineering" in removed_degrees
+    assert "BEng in Mechanical Engineering" in removed_degrees
+    assert "BEng in Industrial Engineering" in removed_degrees
+    assert "BEng in Aerospace Engineering" in removed_degrees
+
+
+def test_parse_coursepool_rules_course_removal_two_degrees():
+    text = (
+        "The Engineering Core credits for students in the BEng in Computer Engineering "
+        "and the BEng in Software Engineering are reduced from 30.5 credits to 27.5 credits "
+        "since Computer Engineering and Software Engineering students are not required to "
+        "take ENGR 391 in their program."
+    )
+    constraints = parse_coursepool_rules(text)
+    removals = [c for c in constraints if c.type == ConstraintType.COURSE_REMOVAL]
+    removed_degrees = {c.params.degreeId for c in removals}
+    assert all(c.params.courseId == "ENGR 391" for c in removals)
+    assert "BEng in Computer Engineering" in removed_degrees
+    assert "BEng in Software Engineering" in removed_degrees
+
+
+def test_parse_coursepool_rules_course_substitution_multiple_degrees():
+    text = (
+        "Students in the BEng in Electrical Engineering and the BEng in Computer Engineering "
+        "shall replace ELEC 275 with ELEC 273."
+    )
+    constraints = parse_coursepool_rules(text)
+    subs = [c for c in constraints if c.type == ConstraintType.COURSE_SUBSTITUTION]
+    sub_degrees = {c.params.degreeId for c in subs}
+    assert all(c.params.oldCourseId == "ELEC 275" for c in subs)
+    assert all(c.params.newCourseId == "ELEC 273" for c in subs)
+    assert "BEng in Electrical Engineering" in sub_degrees
+    assert "BEng in Computer Engineering" in sub_degrees
+
+
+def test_parse_coursepool_rules_course_substitution_single_degree():
+    text = "Students in BEng in Building Engineering shall replace ENGR 392 with BLDG 482."
+    constraints = parse_coursepool_rules(text)
+    subs = [c for c in constraints if c.type == ConstraintType.COURSE_SUBSTITUTION]
+    assert len(subs) == 1
+    assert subs[0].params.oldCourseId == "ENGR 392"
+    assert subs[0].params.newCourseId == "BLDG 482"
+    assert subs[0].params.degreeId == "BEng in Building Engineering"
+
+
+def test_parse_coursepool_rules_course_substitution_may_replace():
+    text = "Students in the BEng in Software Engineering may replace ENGR 391 with COMP 361."
+    constraints = parse_coursepool_rules(text)
+    additions = [c for c in constraints if c.type == ConstraintType.COURSE_ADDITION]
+    max_sets = [c for c in constraints if c.type == ConstraintType.MAX_COURSES_FROM_SET]
+    assert len(additions) == 1
+    assert additions[0].params.courseId == "COMP 361"
+    assert additions[0].params.degreeId == "BEng in Software Engineering"
+    assert len(max_sets) == 1
+    assert set(max_sets[0].params.courseList) == {"ENGR 391", "COMP 361"}
+    assert max_sets[0].params.maxCourses == 1
+
+
+def test_parse_coursepool_rules_course_pool_override_elective():
+    text = (
+        "Students must select three credits of General Education Humanities and Social Sciences "
+        "Electives from one of the lists in Section 71.110. "
+        "Students in the BEng in Industrial Engineering shall take ACCO 220 as their "
+        "General Education elective."
+    )
+    constraints = parse_coursepool_rules(text)
+    overrides = [c for c in constraints if c.type == ConstraintType.OVERRIDE_COURSEPOOL_COURSES]
+    assert len(overrides) == 1
+    assert overrides[0].params.coursePoolId == "General Education Humanities and Social Sciences Electives"
+    assert overrides[0].params.newCourseList == ["ACCO 220"]
+    assert overrides[0].params.degreeId == "BEng in Industrial Engineering"
+
+
+def test_parse_coursepool_rules_combined_engineering_core_block():
+    """Full block reproducing the five Engineering Core notes (post-clean_text)."""
+    text = (
+        "(1) The Engineering Core credits for students in the BEng in Building Engineering "
+        "are reduced from 30.5 credits to 29 credits since Building Engineering students "
+        "are not required to take ENGR 202 in their program. "
+        "(2) The Engineering Core credits for students in the BEng in Chemical Engineering, "
+        "BEng in Mechanical Engineering, BEng in Industrial Engineering and BEng in Aerospace Engineering "
+        "programs are reduced from 30.5 credits to 27 credits since Chemical, Mechanical, Industrial "
+        "and Aerospace Engineering students are not required to take ELEC 275 in their program. "
+        "Students in the BEng in Electrical Engineering and the BEng in Computer Engineering "
+        "shall replace ELEC 275 with ELEC 273. "
+        "(3) The Engineering Core credits for students in the BEng in Computer Engineering "
+        "and the BEng in Software Engineering are reduced from 30.5 credits to 27.5 credits "
+        "since Computer Engineering and Software Engineering students are not required to "
+        "take ENGR 391 in their program. "
+        "(4) Students in BEng in Building Engineering shall replace ENGR 392 with BLDG 482. "
+        "(5) Students must select three credits of General Education Humanities and Social Sciences "
+        "Electives. Students in the BEng in Industrial Engineering shall take ACCO 220 as their "
+        "General Education elective."
+    )
+    constraints = parse_coursepool_rules(text)
+
+    removals = {(c.params.degreeId, c.params.courseId)
+                for c in constraints if c.type == ConstraintType.COURSE_REMOVAL}
+    subs = {(c.params.degreeId, c.params.oldCourseId, c.params.newCourseId)
+            for c in constraints if c.type == ConstraintType.COURSE_SUBSTITUTION}
+    overrides = {(c.params.degreeId, c.params.coursePoolId, tuple(c.params.newCourseList))
+                 for c in constraints if c.type == ConstraintType.OVERRIDE_COURSEPOOL_COURSES}
+
+    # Removals
+    assert ("BEng in Building Engineering", "ENGR 202") in removals
+    assert ("BEng in Chemical Engineering", "ELEC 275") in removals
+    assert ("BEng in Mechanical Engineering", "ELEC 275") in removals
+    assert ("BEng in Industrial Engineering", "ELEC 275") in removals
+    assert ("BEng in Aerospace Engineering", "ELEC 275") in removals
+    assert ("BEng in Computer Engineering", "ENGR 391") in removals
+    assert ("BEng in Software Engineering", "ENGR 391") in removals
+
+    # Substitutions
+    assert ("BEng in Electrical Engineering", "ELEC 275", "ELEC 273") in subs
+    assert ("BEng in Computer Engineering", "ELEC 275", "ELEC 273") in subs
+    assert ("BEng in Building Engineering", "ENGR 392", "BLDG 482") in subs
+
+    # Overrides
+    assert ("BEng in Industrial Engineering", "General Education Humanities and Social Sciences Electives", ("ACCO 220",)) in overrides
