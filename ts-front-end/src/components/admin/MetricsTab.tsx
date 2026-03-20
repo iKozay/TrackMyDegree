@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Spinner, Alert, Card, Col, Row } from 'react-bootstrap';
+import { Spinner, Alert, Badge, Card, Col, Row } from 'react-bootstrap';
 import { api } from '../../api/http-api-client';
 import type { AdminStats, DbConnectionStatus } from '@shared/admin';
 import type { UserDocument } from '@shared/user';
@@ -113,6 +113,32 @@ const MetricsTab: React.FC = () => {
           </Card>
         </Col>
       </Row>
+
+      <Card>
+        <Card.Header><strong>Users by Role</strong></Card.Header>
+        <Card.Body>
+          <Row className="g-3">
+            <Col xs={12} sm={4}>
+              <div className="d-flex align-items-center gap-2">
+                <Badge bg="secondary" className="fs-6 px-3 py-2">{stats?.usersByRole.student ?? 0}</Badge>
+                <span>Students</span>
+              </div>
+            </Col>
+            <Col xs={12} sm={4}>
+              <div className="d-flex align-items-center gap-2">
+                <Badge bg="danger" className="fs-6 px-3 py-2">{stats?.usersByRole.admin ?? 0}</Badge>
+                <span>Admins</span>
+              </div>
+            </Col>
+            <Col xs={12} sm={4}>
+              <div className="d-flex align-items-center gap-2">
+                <Badge bg="info" className="fs-6 px-3 py-2">{stats?.usersByRole.advisor ?? 0}</Badge>
+                <span>Advisors</span>
+              </div>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
     </div>
   );
 };
