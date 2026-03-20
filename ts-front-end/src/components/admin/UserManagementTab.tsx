@@ -1,9 +1,85 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Badge, Button, Col, Form, Row, Spinner, Table } from 'react-bootstrap';
+import { Alert, Badge, Button, Col, Form, Modal, Row, Spinner, Table } from 'react-bootstrap';
 import { api } from '../../api/http-api-client';
-import type { UserDocument, UserRole } from '@shared/user';
+import type { UserDocument, UserRole, CreateUserInput, UpdateUserInput } from '@shared/user';
 
 const ROLES: UserRole[] = ['student', 'advisor', 'admin'];
+
+// ─── Create / Edit modal ─────────────────────────────────────────────────────
+
+interface UserModalProps {
+  show: boolean;
+  onHide: () => void;
+  onSaved: () => void;
+  editing: UserDocument | null;
+}
+
+const UserModal: React.FC<UserModalProps> = ({ show, onHide, onSaved, editing }) => {
+  const isEdit = editing !== null;
+  const [form, setForm] = useState<CreateUserInput>({ email: '', name: '', password: '', role: 'student' });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (editing) { setForm({ email: editing.email, name: editing.name, password: '', role: editing.role }); }
+    else { setForm({ email: '', name: '', password: '', role: 'student' }); }
+    setError(null);
+  }, [editing, show]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      if (isEdit) {
+        const payload: UpdateUserInput = { email: form.email, name: form.name, role: form.role };
+        await api.put(`/users/${editing!._id}`, payload);
+      } else {
+        await api.post<UserDocument>('/users', form);
+      }
+      onSaved();
+      onHide();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Save failed');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal show={show} onHide={onHide}>
+      <Modal.Header closeButton><Modal.Title>{isEdit ? 'Edit User' : 'Create User'}</Modal.Title></Modal.Header>
+      <Modal.Body>
+        {error && <Alert variant="danger">{error}</Alert>}
+        <Form>
+          <Form.Group className="mb-3">
+            <Form.Label>Name</Form.Label>
+            <Form.Control value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Email</Form.Label>
+            <Form.Control type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+          </Form.Group>
+          {!isEdit && (
+            <Form.Group className="mb-3">
+              <Form.Label>Password</Form.Label>
+              <Form.Control type="password" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
+            </Form.Group>
+          )}
+          <Form.Group className="mb-3">
+            <Form.Label>Role</Form.Label>
+            <Form.Select value={form.role} onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as UserRole }))}>
+              {ROLES.map((r) => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
+            </Form.Select>
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onHide}>Cancel</Button>
+        <Button onClick={() => void handleSave()} disabled={saving}>{saving ? 'Saving…' : 'Save'}</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+};
 
 const roleBadgeVariant = (role: UserRole) => {
   if (role === 'admin') return 'danger';
