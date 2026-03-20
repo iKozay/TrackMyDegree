@@ -136,7 +136,7 @@ export const buildTimeline = async (
   // If semesters are provided (either from parsed data or timeline data), we add any unused credits to the timeline.
   // This ensures that all courses taken by the student are accounted for, even if they are not part of the degree requirements.
   const semesters = semestersResults ?? parsedData?.semesters;
-  if (semesters) addUnusedCredits(semesters, courses, coursePools);
+  if (semesters) await addUnusedCredits(semesters, courses, coursePools);
 
   // If timeline is not loaded from database (semester data is provided), 
   // we need to build semestersResults by processing parsedData.semesters, 
