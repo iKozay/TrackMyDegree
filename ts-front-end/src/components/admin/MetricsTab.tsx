@@ -72,7 +72,14 @@ const MetricsTab: React.FC = () => {
 
   return (
     <div className="py-4">
-      <p className="text-muted">Loading complete.</p>
+      {dbStatus && (
+        <Alert variant={dbStatus.connected ? 'success' : 'danger'} className="mb-4">
+          <strong>Database:</strong>{' '}
+          {dbStatus.connected ? 'Connected' : 'Disconnected'}
+          {dbStatus.message && ` — ${dbStatus.message}`}
+        </Alert>
+      )}
+      <p className="text-muted">Stats loading...</p>
     </div>
   );
 };
