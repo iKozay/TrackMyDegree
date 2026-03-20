@@ -1,25 +1,47 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Badge, Button, Card, Spinner } from 'react-bootstrap';
+import { Alert, Badge, Button, Card, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { api } from '../../api/http-api-client';
 import type { DbConnectionStatus, SeedResult } from '@shared/admin';
+import type { DegreeData } from '@shared/degree';
 
 const SeedingTab: React.FC = () => {
+  const [degrees, setDegrees] = useState<DegreeData[]>([]);
+  const [selectedDegree, setSelectedDegree] = useState('');
   const [dbStatus, setDbStatus] = useState<DbConnectionStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [seedingAll, setSeedingAll] = useState(false);
+  const [seedingOne, setSeedingOne] = useState(false);
   const [result, setResult] = useState<SeedResult | null>(null);
 
   const loadInitial = useCallback(async () => {
     setLoading(true);
     try {
-      const statusData = await api.get<DbConnectionStatus>('/admin/connection-status').catch(() => null);
-      if (statusData) setDbStatus(statusData as DbConnectionStatus);
+      const [degreesData, statusData] = await Promise.allSettled([
+        api.get<DegreeData[]>('/degree'),
+        api.get<DbConnectionStatus>('/admin/connection-status'),
+      ]);
+      if (degreesData.status === 'fulfilled') setDegrees(degreesData.value as DegreeData[]);
+      if (statusData.status === 'fulfilled') setDbStatus(statusData.value as DbConnectionStatus);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => { void loadInitial(); }, [loadInitial]);
+
+  const handleSeedOne = async () => {
+    if (!selectedDegree) return;
+    setSeedingOne(true);
+    setResult(null);
+    try {
+      const data = await api.get<SeedResult>(`/admin/seed-data/${encodeURIComponent(selectedDegree)}`);
+      setResult(data as SeedResult);
+    } catch (err) {
+      setResult({ success: false, message: err instanceof Error ? err.message : 'Seeding failed' });
+    } finally {
+      setSeedingOne(false);
+    }
+  };
 
   const handleSeedAll = async () => {
     setSeedingAll(true);
@@ -59,15 +81,37 @@ const SeedingTab: React.FC = () => {
         </Alert>
       )}
 
-      <Card className="mb-4">
-        <Card.Header><strong>Seed All Degrees</strong></Card.Header>
-        <Card.Body>
-          <p className="text-muted small">Parses all degree JSON files and upserts degrees, course pools, and courses into the database.</p>
-          <Button variant="primary" onClick={() => void handleSeedAll()} disabled={seedingAll}>
-            {seedingAll ? <><Spinner animation="border" size="sm" className="me-2" />Seeding…</> : 'Seed All Degrees'}
-          </Button>
-        </Card.Body>
-      </Card>
+      <Row className="g-4 mb-4">
+        <Col md={6}>
+          <Card className="h-100">
+            <Card.Header><strong>Seed All Degrees</strong></Card.Header>
+            <Card.Body>
+              <p className="text-muted small">Parses all degree JSON files and upserts degrees, course pools, and courses into the database.</p>
+              <Button variant="primary" onClick={() => void handleSeedAll()} disabled={seedingAll}>
+                {seedingAll ? <><Spinner animation="border" size="sm" className="me-2" />Seeding…</> : 'Seed All Degrees'}
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={6}>
+          <Card className="h-100">
+            <Card.Header><strong>Seed Specific Degree</strong></Card.Header>
+            <Card.Body>
+              <Form.Group className="mb-3">
+                <Form.Label>Select Degree</Form.Label>
+                <Form.Select value={selectedDegree} onChange={(e) => setSelectedDegree(e.target.value)}>
+                  <option value="">— Choose a degree —</option>
+                  {degrees.map((d) => <option key={d._id} value={d.name}>{d.name}</option>)}
+                </Form.Select>
+              </Form.Group>
+              <Button variant="outline-primary" onClick={() => void handleSeedOne()} disabled={!selectedDegree || seedingOne}>
+                {seedingOne ? <><Spinner animation="border" size="sm" className="me-2" />Seeding…</> : 'Seed Selected Degree'}
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
     </div>
   );
 };
