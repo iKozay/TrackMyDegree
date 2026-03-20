@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { Container, Tab, Tabs } from "react-bootstrap";
 import { useAuth } from "../hooks/useAuth";
+import MetricsTab from "../components/admin/MetricsTab";
+import DegreeManagementTab from "../components/admin/DegreeManagementTab";
+import UserManagementTab from "../components/admin/UserManagementTab";
+import SeedingTab from "../components/admin/SeedingTab";
 
 type AdminTab = "metrics" | "degrees" | "users" | "seeding";
 
@@ -20,10 +24,18 @@ const AdminPage: React.FC = () => {
         onSelect={(k) => setActiveTab((k ?? "metrics") as AdminTab)}
         className="mb-3"
       >
-        <Tab eventKey="metrics" title="Metrics & Stats" />
-        <Tab eventKey="degrees" title="Degrees & Courses" />
-        <Tab eventKey="users" title="Manage Users" />
-        <Tab eventKey="seeding" title="Seed Database" />
+        <Tab eventKey="metrics" title="Metrics & Stats">
+          <MetricsTab />
+        </Tab>
+        <Tab eventKey="degrees" title="Degrees & Courses">
+          <DegreeManagementTab />
+        </Tab>
+        <Tab eventKey="users" title="Manage Users">
+          <UserManagementTab />
+        </Tab>
+        <Tab eventKey="seeding" title="Seed Database">
+          <SeedingTab />
+        </Tab>
       </Tabs>
     </Container>
   );
