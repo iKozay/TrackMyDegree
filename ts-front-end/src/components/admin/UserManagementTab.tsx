@@ -1,7 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Spinner, Table } from 'react-bootstrap';
+import { Alert, Badge, Spinner, Table } from 'react-bootstrap';
 import { api } from '../../api/http-api-client';
-import type { UserDocument } from '@shared/user';
+import type { UserDocument, UserRole } from '@shared/user';
+
+const roleBadgeVariant = (role: UserRole) => {
+  if (role === 'admin') return 'danger';
+  if (role === 'advisor') return 'info';
+  return 'secondary';
+};
 
 const UserManagementTab: React.FC = () => {
   const [users, setUsers] = useState<UserDocument[]>([]);
@@ -37,7 +43,7 @@ const UserManagementTab: React.FC = () => {
             <tr key={u._id}>
               <td>{u.name}</td>
               <td>{u.email}</td>
-              <td>{u.role}</td>
+              <td><Badge bg={roleBadgeVariant(u.role)}>{u.role}</Badge></td>
               <td className="text-muted small">{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
               <td></td>
             </tr>
