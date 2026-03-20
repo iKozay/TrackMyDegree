@@ -133,7 +133,7 @@ const SeedingTab: React.FC = () => {
         <Card.Header><strong>Collection Management</strong></Card.Header>
         <Card.Body>
           {collections.length === 0 ? (
-            <p className="text-muted">No collections found.</p>
+            <p className="text-muted">No collections available. Check DB connection.</p>
           ) : (
             <ListGroup>
               {collections.map((col) => (
