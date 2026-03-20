@@ -64,6 +64,7 @@ const DEGREE_CACHE_TTL = 1800; // 30 minutes
 router.get('/:id', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const academicYear = req.query.academicYear as string | undefined;
 
     if (!id) {
       res.status(HTTP.BAD_REQUEST).json({
@@ -72,7 +73,7 @@ router.get('/:id', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Respons
       return;
     }
 
-    const degree = await degreeController.readDegree(id as string);
+    const degree = await degreeController.readDegree(id as string, academicYear);
     res.status(HTTP.OK).json(degree);
   } catch (error) {
     console.error('Error in GET /degree/:id', error);
@@ -114,7 +115,8 @@ router.get('/:id', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Respons
  */
 router.get('/', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
   try {
-    const degrees = await degreeController.readAllDegrees();
+    const academicYear = req.query.academicYear as string | undefined;
+    const degrees = await degreeController.readAllDegrees(academicYear);
     res.status(HTTP.OK).json(degrees);
   } catch (error) {
     console.error('Error in GET /degree', error);
@@ -161,6 +163,7 @@ router.get('/', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) 
 router.get('/:id/credits', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const academicYear = req.query.academicYear as string | undefined;
 
     if (!id) {
       res.status(HTTP.BAD_REQUEST).json({
@@ -169,7 +172,10 @@ router.get('/:id/credits', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res:
       return;
     }
 
-    const credits = await degreeController.getCreditsForDegree(id as string);
+    const credits = await degreeController.getCreditsForDegree(
+      id as string,
+      academicYear,
+    );
     res.status(HTTP.OK).json({
       totalCredits: credits,
     });
@@ -225,6 +231,7 @@ router.get('/:id/credits', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res:
 router.get('/:id/coursepools', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const academicYear = req.query.academicYear as string | undefined;
     if (!id) {
       res.status(HTTP.BAD_REQUEST).json({
         error: DEGREE_ID_REQUIRED,
@@ -232,7 +239,10 @@ router.get('/:id/coursepools', cacheGET(DEGREE_CACHE_TTL), async (req: Request, 
       return;
     }
 
-    const coursePools = await degreeController.getCoursePoolsForDegree(id as string);
+    const coursePools = await degreeController.getCoursePoolsForDegree(
+      id as string,
+      academicYear,
+    );
     res.status(HTTP.OK).json(coursePools);
   } catch (error) {
     console.error('Error in GET /degree/:id/coursepools', error);

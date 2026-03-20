@@ -1,12 +1,14 @@
 import { BaseMongoController } from './baseMongoController';
 import { CoursePool } from '@models';
 import * as Sentry from '@sentry/node';
+import { resolveEntityVersion } from '@services/catalogVersionService';
 
 export interface CoursePoolData {
   _id: string;
   name: string;
   creditsRequired: number;
   courses?: string[];
+  baseAcademicYear?: string;
 }
 
 export class CoursePoolController extends BaseMongoController<any> {
@@ -73,7 +75,7 @@ export class CoursePoolController extends BaseMongoController<any> {
   /**
    * Get all course pools
    */
-  async getAllCoursePools(): Promise<CoursePoolData[]> {
+  async getAllCoursePools(academicYear?: string): Promise<CoursePoolData[]> {
     try {
       const result = await this.findAll();
 
@@ -81,12 +83,24 @@ export class CoursePoolController extends BaseMongoController<any> {
         throw new Error('Failed to fetch course pools');
       }
 
-      return (result.data || []).map((cp: any) => ({
-        _id: cp._id,
-        name: cp.name,
-        creditsRequired: cp.creditsRequired,
-        courses: cp.courses || [],
-      }));
+      return Promise.all(
+        (result.data || []).map(async (cp: any) => {
+          const resolved = await resolveEntityVersion({
+            entityType: 'CoursePool',
+            entityId: cp._id,
+            baseEntity: {
+              _id: cp._id,
+              name: cp.name,
+              creditsRequired: cp.creditsRequired,
+              courses: cp.courses || [],
+              baseAcademicYear: cp.baseAcademicYear,
+            },
+            academicYear,
+          });
+
+          return resolved.entity;
+        }),
+      );
     } catch (error) {
       Sentry.captureException(error);
       console.error(
@@ -100,7 +114,10 @@ export class CoursePoolController extends BaseMongoController<any> {
   /**
    * Get a specific course pool by ID
    */
-  async getCoursePool(pool_id: string): Promise<CoursePoolData | undefined> {
+  async getCoursePool(
+    pool_id: string,
+    academicYear?: string,
+  ): Promise<CoursePoolData | undefined> {
     try {
       const result = await this.findById(pool_id);
 
@@ -108,11 +125,25 @@ export class CoursePoolController extends BaseMongoController<any> {
         throw new Error(result.error || 'Course pool not found');
       }
 
+      const resolved = await resolveEntityVersion({
+        entityType: 'CoursePool',
+        entityId: pool_id,
+        baseEntity: {
+          _id: result.data._id,
+          name: result.data.name,
+          creditsRequired: result.data.creditsRequired,
+          courses: result.data.courses || [],
+          baseAcademicYear: result.data.baseAcademicYear,
+        },
+        academicYear,
+      });
+
       return {
-        _id: result.data._id,
-        name: result.data.name,
-        creditsRequired: result.data.creditsRequired,
-        courses: result.data.courses || [],
+        _id: resolved.entity._id,
+        name: resolved.entity.name,
+        creditsRequired: resolved.entity.creditsRequired,
+        courses: resolved.entity.courses || [],
+        baseAcademicYear: resolved.entity.baseAcademicYear,
       };
     } catch (error) {
       Sentry.captureException(error);

@@ -1,6 +1,7 @@
 import { BaseMongoController } from './baseMongoController';
 import { Course } from '@models';
 import { CourseData } from '@shared/degree';
+import { resolveEntityVersion } from '@services/catalogVersionService';
 
 export class CourseController extends BaseMongoController<any> {
   constructor() {
@@ -57,10 +58,11 @@ export class CourseController extends BaseMongoController<any> {
       page?: number;
       limit?: number;
       sort?: string;
+      academicYear?: string;
     } = {},
   ) {
     try {
-      const { pool, search, page, limit, sort } = params;
+      const { pool, search, page, limit, sort, academicYear } = params;
 
       const filter: Record<string, unknown> = {};
       if (pool) {
@@ -76,7 +78,19 @@ export class CourseController extends BaseMongoController<any> {
       };
 
       const result = await this.findAll(filter, options);
-      return result.data || [];
+      const courses = result.data || [];
+
+      return Promise.all(
+        courses.map(async (course) => {
+          const resolved = await resolveEntityVersion({
+            entityType: 'Course',
+            entityId: course._id,
+            baseEntity: course,
+            academicYear,
+          });
+          return resolved.entity;
+        }),
+      );
     } catch (error) {
       this.handleError(error, 'getAllCourses');
     }
@@ -100,7 +114,7 @@ export class CourseController extends BaseMongoController<any> {
   /**
    * Get course by code
    */
-  async getCourseByCode(code: string) {
+  async getCourseByCode(code: string, academicYear?: string) {
     try {
       const result = await this.findById(code);
 
@@ -108,7 +122,14 @@ export class CourseController extends BaseMongoController<any> {
         throw new Error(result.error || 'Course not found');
       }
 
-      return result.data;
+      const resolved = await resolveEntityVersion({
+        entityType: 'Course',
+        entityId: code,
+        baseEntity: result.data,
+        academicYear,
+      });
+
+      return resolved.entity;
     } catch (error) {
       this.handleError(error, 'getCourseByCode');
     }
@@ -117,7 +138,7 @@ export class CourseController extends BaseMongoController<any> {
   /**
    * Get courses by pool
    */
-  async getCoursesByPool(poolName: string) {
+  async getCoursesByPool(poolName: string, academicYear?: string) {
     try {
       const result = await this.findAll({ offeredIn: poolName });
 
@@ -125,7 +146,17 @@ export class CourseController extends BaseMongoController<any> {
         throw new Error(result.error || 'Failed to fetch courses');
       }
 
-      return result.data || [];
+      return Promise.all(
+        (result.data || []).map(async (course) => {
+          const resolved = await resolveEntityVersion({
+            entityType: 'Course',
+            entityId: course._id,
+            baseEntity: course,
+            academicYear,
+          });
+          return resolved.entity;
+        }),
+      );
     } catch (error) {
       this.handleError(error, 'getCoursesByPool');
     }
