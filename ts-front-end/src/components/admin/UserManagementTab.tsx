@@ -184,6 +184,7 @@ const UserManagementTab: React.FC = () => {
 
   return (
     <div className="py-3">
+      <p className="text-muted mb-3">{filtered.length} of {users.length} user{users.length !== 1 ? 's' : ''}</p>
       <Row className="mb-3 align-items-center g-2">
         <Col>
           <Form.Control placeholder="Search by name or email…" value={search} onChange={(e) => setSearch(e.target.value)} />
