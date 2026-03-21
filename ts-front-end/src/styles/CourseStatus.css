@@ -1,0 +1,71 @@
+.course-status-container {
+  padding: 1rem;
+  background-color: #f4c4c4;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  max-width: 320px;
+}
+
+.status-actions-label {
+  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-actions-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* The Base Button - Adding "Affordance" */
+.status-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1.5px solid transparent; /* Visible border helps recognition */
+}
+
+/* Hover & Active States make it feel "Pressable" */
+.status-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.status-action-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.9);
+}
+
+/* Variants */
+.btn-incomplete {
+  background-color: #fffbeb;
+  color: #92400e;
+  border-color: #fef3c7;
+}
+.btn-incomplete:hover { border-color: #fcd34d; }
+
+.btn-completed {
+  background-color: #f0fdf4;
+  color: #166534;
+  border-color: #dcfce7;
+}
+.btn-completed:hover { border-color: #86efac; }
+
+.btn-danger {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border-color: #fee2e2;
+}
+.btn-danger:hover { border-color: #fca5a5; }
