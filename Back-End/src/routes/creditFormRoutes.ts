@@ -244,7 +244,10 @@ router.post(
             if (!programId || !title || !subtitle) {
                 if (file) {
                     const fs = await import('node:fs');
-                    if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+                    const safeFilename = path.basename(file.path);
+                    const filePath = path.join(UPLOAD_DIR, safeFilename);
+                    if (fs.existsSync(filePath)) 
+                        fs.unlinkSync(filePath);
                 }
                 res.status(HTTP.BAD_REQUEST).json({
                     error: 'programId, title, and subtitle are required',
