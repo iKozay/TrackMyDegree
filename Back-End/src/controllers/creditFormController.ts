@@ -142,7 +142,8 @@ export async function updateForm(
     if (!form) {
         // Clean up the uploaded file if one was provided
         if (input.filename) {
-            const filePath = path.join(UPLOAD_DIR, input.filename);
+            const safeFilename = path.basename(input.filename);
+            const filePath = path.join(UPLOAD_DIR, safeFilename);
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
             }
