@@ -169,40 +169,40 @@ def make_prereq_coreq_into_array(s):
     
     for main_group in main_groups:
         all_courses = re.findall(COURSE_REGEX, main_group)
-        
+
         if not all_courses:
             continue
-        
-        # Check if this group contains 'or' keywords (alternatives)
-        if re.search(r'\bor\b', main_group, re.I):
-            # Split by 'or' to find alternatives
-            or_parts = re.split(r'\s+or\s+', main_group, flags=re.I)
-            alternatives = []
-            
-            for part in or_parts:
-                # Find courses in this part
-                part_courses = re.findall(COURSE_REGEX, part)
-                alternatives.extend(part_courses)
-            
-            if alternatives:
-                # Remove duplicates while preserving order
-                unique_alternatives = []
-                for alt in alternatives:
-                    if alt not in unique_alternatives:
-                        unique_alternatives.append(alt)
-                result.append(unique_alternatives)
-        else:
-            # No 'or' in this group - check if comma-separated individual requirements
-            if ',' in main_group:
-                # Split by commas for individual requirements
-                comma_parts = [part.strip() for part in main_group.split(',') if part.strip()]
-                for part in comma_parts:
-                    part_courses = re.findall(COURSE_REGEX, part)
-                    for course in part_courses:
-                        result.append([course])
+
+        # Split by commas first to separate distinct requirements
+        comma_parts = [part.strip() for part in main_group.split(',') if part.strip()]
+
+        for comma_part in comma_parts:
+            part_courses = re.findall(COURSE_REGEX, comma_part)
+
+            if not part_courses:
+                continue
+
+            # Check if this part contains 'or' keywords (alternatives within this requirement)
+            if re.search(r'\bor\b', comma_part, re.I):
+                # Split by 'or' to find alternatives
+                or_parts = re.split(r'\s+or\s+', comma_part, flags=re.I)
+                alternatives = []
+
+                for or_part in or_parts:
+                    # Find courses in this part
+                    or_part_courses = re.findall(COURSE_REGEX, or_part)
+                    alternatives.extend(or_part_courses)
+
+                if alternatives:
+                    # Remove duplicates while preserving order
+                    unique_alternatives = []
+                    for alt in alternatives:
+                        if alt not in unique_alternatives:
+                            unique_alternatives.append(alt)
+                    result.append(unique_alternatives)
             else:
-                # Single requirement or multiple courses in same requirement
-                for course in all_courses:
+                # No 'or' in this part - each course is a separate requirement
+                for course in part_courses:
                     result.append([course])
     
     return result
@@ -229,6 +229,9 @@ def get_not_taken(s):
         return []
     
     tokens = re.findall(COURSE_REGEX, s)
+    # remove duplicates while preserving order
+    seen = set()
+    tokens = [x for x in tokens if not (x in seen or seen.add(x))]
     return tokens
 
 def parse_minimum_credits(s):

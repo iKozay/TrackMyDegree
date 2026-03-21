@@ -108,21 +108,28 @@ export interface CourseData {
   credits: number;
   offeredIn?: string[];
   prereqCoreqText?: string;
-  rules?: {
-    prereq?: string[][];
-    coreq?: string[][];
-    not_taken?: string[];
-    min_credits?: number;
-  };
+  rules: Rule[];
   notes?: string;
   components?: string[];
 }
 
 export interface Rule {
-  type: string;
+  type: RuleType;
   level: 'warning' | 'info';
   message: string;
   params: MinCoursesFromSetParams | MaxCoursesFromSetParams | MinCreditsFromSetParams | MaxCreditsFromSetParams;
+}
+
+export enum RuleType {
+  MinCoursesFromSet = 'min_courses_from_set',
+  MaxCoursesFromSet = 'max_courses_from_set',
+  MinCreditsFromSet = 'min_credits_from_set',
+  MaxCreditsFromSet = 'max_credits_from_set',
+  Prerequisite = 'prerequisite',
+  Corequisite = 'corequisite',
+  PrerequisiteOrCorequisite = 'prerequisite_or_corequisite',
+  NotTaken = 'not_taken',
+  MinimumCredits = 'min_credits',
 }
 
 export interface MinCoursesFromSetParams {

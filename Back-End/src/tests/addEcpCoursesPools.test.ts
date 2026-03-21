@@ -60,7 +60,7 @@ describe('addEcpCoursePools', () => {
     const coursePools: any[] = [
       { _id: 'base_pool', name: 'Base Pool', creditsRequired: 0, courses: [] },
     ];
-    const courses: Record<string, CourseData> = {'SOEN 000': {_id: 'SOEN 000', title: 'Intro Course', credits: 3}};
+    const courses: Record<string, CourseData> = {'SOEN 000': {_id: 'SOEN 000', title: 'Intro Course', credits: 3, rules: []}};
     const mockDegree = { _id: BENG_SOFTWARE, name: 'Software Engineering', totalCredits: 120, degreeType: 'Standalone', coursePools: [], ecpDegreeId: ENGR_ECP };
 
     await addEcpCoursePools(BENG_SOFTWARE, coursePools, courses, mockDegree);

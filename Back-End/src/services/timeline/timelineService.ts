@@ -7,7 +7,7 @@ import { SEASONS } from '@utils/constants';
 import {getTermRanges} from "@utils/misc";
 import { Timeline } from '@models';
 import { coursepoolController } from '@controllers/coursepoolController';
-import { TimelineResult, TimelineCourse, TimelineDocument, TimelineSemester, CourseStatus, CourseData, DegreeData, CoursePoolData } from '@shared';
+import { TimelineResult, TimelineCourse, TimelineDocument, TimelineSemester, CourseStatus, CourseData, DegreeData, CoursePoolData, Rule, RuleType } from '@shared';
 
 // Timeline builder inputs
 export type BuildTimelineParams =
@@ -174,8 +174,8 @@ function toTimelineCourse(
     credits: course.credits,
     description: course.description,
     offeredIn: course.offeredIn ?? [],
-    prerequisites: mapRequisites(course.rules?.prereq),
-    corequisites: mapRequisites(course.rules?.coreq),
+    prerequisites: mapRequisites(RuleType.Prerequisite, course.rules),
+    corequisites: mapRequisites(RuleType.Corequisite, course.rules),
     status: {
       status: override?.status ?? 'incomplete',
       semester: override?.semester ?? null,
@@ -186,12 +186,11 @@ function toTimelineCourse(
 // Converts prerequisite/corequisite rules from the DB format
 // (string[][] where each inner array represents an OR group)
 // into the timeline format: [{ anyOf: string[] }]
-function mapRequisites(reqs?: string[][]) {
-  return (
-    reqs?.map((group) => ({
-      anyOf: group.map(normalizeCourseCode),
-    })) ?? []
-  );
+function mapRequisites(type: RuleType, rules: Rule[]): { anyOf: string[] }[] {
+  const reqRules = rules.filter((r) => r.type === type);
+  return reqRules.map((r) => ({
+    anyOf: r.params.courseList.map(normalizeCourseCode),
+  }));
 }
 
 async function processSemestersFromParsedData(
@@ -395,7 +394,7 @@ function getCoursesThatNeedCMinus(
   };
 
   for (const requiredCourse of requiredCourses) {
-    const prereqList = allCourses[requiredCourse]?.rules?.prereq;
+    const prereqList = allCourses[requiredCourse]?.rules?.filter(r => r.type === RuleType.Prerequisite).map(r => r.params.courseList);
     if (!prereqList) continue;
     for (const prereqs of prereqList) {
       //if course is a prereq for core courses

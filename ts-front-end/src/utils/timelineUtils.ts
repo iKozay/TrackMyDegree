@@ -10,7 +10,7 @@ import type {
   TimelinePartialUpdate,
   TimelineState,
 } from "../types/timeline.types";
-import type { CoursePoolData, Rule, MinCoursesFromSetParams, MaxCoursesFromSetParams, MinCreditsFromSetParams, MaxCreditsFromSetParams } from "@shared";
+import { type CoursePoolData, type Rule, type MinCoursesFromSetParams, type MaxCoursesFromSetParams, type MinCreditsFromSetParams, type MaxCreditsFromSetParams, RuleType } from "@shared";
 import { toast } from "react-toastify";
 import { api } from "../api/http-api-client";
 
@@ -209,19 +209,19 @@ function processRules(targetCourse: Course, rules: Rule[], state: TimelineState)
 
   for (const rule of rules) {
     switch (rule.type) {
-      case "min_credits_from_set": {
+      case RuleType.MinCreditsFromSet: {
         processMinCreditsFromSetRule(rule, targetCourse, state, violations);
         break;
       }
-      case "max_credits_from_set": {
+      case RuleType.MaxCreditsFromSet: {
         processMaxCreditsFromSetRule(rule, targetCourse, state, violations);
         break;
       }
-      case "min_courses_from_set": {
+      case RuleType.MinCoursesFromSet: {
         processMinCoursesFromSetRule(rule, targetCourse, state, violations);
         break;
       }
-      case "max_courses_from_set": {
+      case RuleType.MaxCoursesFromSet: {
         processMaxCoursesFromSetRule(rule, targetCourse, state, violations);
         break;
       }
