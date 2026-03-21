@@ -43,7 +43,7 @@ export const CourseStatusActions: React.FC<CourseStatusActionsProps> = ({
 
   return (
     <div className="course-status-container">
-      <div className="status-actions-label">Change course status</div>
+      <div className="status-actions-label">set course status</div>
 
       <div className="status-actions-buttons">
         {/* Only render buttons if they are valid actions */}
