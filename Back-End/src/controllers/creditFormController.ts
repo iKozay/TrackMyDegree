@@ -72,7 +72,8 @@ export async function createForm(
     if (existing) {
         if (existing.isActive) {
             // Clean up the uploaded file since we're rejecting
-            const filePath = path.join(UPLOAD_DIR, filename);
+            const safeFilename = path.basename(filename);
+            const filePath = path.join(UPLOAD_DIR, safeFilename);
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
             }
