@@ -59,6 +59,42 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   }
 
   /**
+   * Sanitize an update object by removing MongoDB operator keys.
+   * This helps prevent NoSQL injection via crafted update documents.
+   */
+  protected sanitizeUpdate(update: UpdateQuery<T>): UpdateQuery<T> {
+    if (update === null || update === undefined) {
+      return update;
+    }
+
+    if (Array.isArray(update)) {
+      // Recursively sanitize each element in the array
+      return update.map((item) => this.sanitizeUpdate(item as UpdateQuery<T>)) as unknown as UpdateQuery<T>;
+    }
+
+    if (typeof update !== 'object') {
+      return update;
+    }
+
+    const sanitized: Record<string, unknown> = {};
+
+    for (const [key, value] of Object.entries(update as Record<string, unknown>)) {
+      // Drop any keys that look like MongoDB operators (start with '$')
+      if (key.startsWith('$')) {
+        continue;
+      }
+
+      if (value && typeof value === 'object') {
+        sanitized[key] = this.sanitizeUpdate(value as UpdateQuery<T>);
+      } else {
+        sanitized[key] = value;
+      }
+    }
+
+    return sanitized as UpdateQuery<T>;
+  }
+
+  /**
    * Create a new document
    */
   async create(data: Partial<T>): Promise<ControllerResponse<T>> {
@@ -192,8 +228,9 @@ export abstract class BaseMongoController<T extends BaseDocument> {
     update: UpdateQuery<T>,
   ): Promise<ControllerResponse<T>> {
     try {
+      const sanitizedUpdate = this.sanitizeUpdate(update);
       const document = await this.model
-        .findByIdAndUpdate(id, update, {
+        .findByIdAndUpdate(id, sanitizedUpdate, {
           new: true,
           runValidators: true,
         })
@@ -225,8 +262,9 @@ export abstract class BaseMongoController<T extends BaseDocument> {
     update: UpdateQuery<T>,
   ): Promise<ControllerResponse<T>> {
     try {
+      const sanitizedUpdate = this.sanitizeUpdate(update);
       const document = await this.model
-        .findOneAndUpdate(filter, update, {
+        .findOneAndUpdate(filter, sanitizedUpdate, {
           new: true,
           runValidators: true,
           upsert: false,
@@ -259,8 +297,9 @@ export abstract class BaseMongoController<T extends BaseDocument> {
     update: UpdateQuery<T>,
   ): Promise<ControllerResponse<T>> {
     try {
+      const sanitizedUpdate = this.sanitizeUpdate(update);
       const document = await this.model
-        .findOneAndUpdate(filter, update, {
+        .findOneAndUpdate(filter, sanitizedUpdate, {
           new: true,
           upsert: true,
           runValidators: true,
