@@ -57,6 +57,30 @@ const cartesianProduct = (groups: CourseSection[][]): CourseSection[][] => {
     return result;
 };
 
+const deduplicateClassItems = (items: ClassItem[]): ClassItem[] => {
+    const seen = new Set<string>();
+    return items.filter(item => {
+        const key = `${item.name}|${item.day}|${item.startTime}|${item.endTime}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+};
+
+const uniqueConfigs = (items: ClassItem[]): string => {
+    return items.map(item => `${item.name}|${item.day}|${item.startTime}|${item.endTime}`).sort().join(";");
+}
+
+const deduplicateConfigurations = (configs: ClassItem[][]): ClassItem[][] => {
+    const seen = new Set<string>();
+    return configs.filter(config => {
+        const uc = uniqueConfigs(config);
+        if (seen.has(uc)) return false;
+        seen.add(uc);
+        return true;
+    });
+};
+
 const configurationsForCourse = (course: AddedCourse): ClassItem[][] => {
     const byAssociation = new Map<string, CourseSection[]>();
 
@@ -90,11 +114,11 @@ const configurationsForCourse = (course: AddedCourse): ClassItem[][] => {
                 classItems.push(...items);
             }
 
-            allConfigs.push(classItems);
+            allConfigs.push(deduplicateClassItems(classItems));
         }
     }
 
-    return allConfigs;
+    return deduplicateConfigurations(allConfigs);
 };
 
 // Returns true if any two ClassItems in the config overlap on the same day.
@@ -133,7 +157,9 @@ const generateAllConfigurations = (
         [[]]
     );
 
-    const conflictFree = allCombos.filter(config => !hasConflict(config));
+    const dedupedCombos = deduplicateConfigurations(allCombos);
+
+    const conflictFree = dedupedCombos.filter(config => !hasConflict(config));
 
     if (pinnedClassNumbers.size === 0) return conflictFree;
 
