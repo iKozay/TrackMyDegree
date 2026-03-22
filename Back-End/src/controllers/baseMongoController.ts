@@ -59,39 +59,61 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   }
 
   /**
-   * Sanitize an update object by removing MongoDB operator keys.
-   * This helps prevent NoSQL injection via crafted update documents.
+   * Sanitize an update object by removing MongoDB operator keys and
+   * dangerous prototype-pollution keys at any depth.
+   * This helps ensure that user-controlled data is interpreted purely
+   * as literal field values and not as a query/update object.
    */
   protected sanitizeUpdate(update: UpdateQuery<T>): UpdateQuery<T> {
-    if (update === null || update === undefined) {
-      return update;
-    }
+    const unsafeKeys = new Set(['__proto__', 'constructor', 'prototype']);
 
-    if (Array.isArray(update)) {
-      // Recursively sanitize each element in the array
-      return update.map((item) => this.sanitizeUpdate(item as UpdateQuery<T>)) as unknown as UpdateQuery<T>;
-    }
+    const isPlainObject = (value: unknown): value is Record<string, unknown> => {
+      if (value === null || typeof value !== 'object') {
+        return false;
+      }
+      const proto = Object.getPrototypeOf(value);
+      return proto === Object.prototype || proto === null;
+    };
 
-    if (typeof update !== 'object') {
-      return update;
-    }
-
-    const sanitized: Record<string, unknown> = {};
-
-    for (const [key, value] of Object.entries(update as Record<string, unknown>)) {
-      // Drop any keys that look like MongoDB operators (start with '$')
-      if (key.startsWith('$')) {
-        continue;
+    const sanitize = (value: unknown): unknown => {
+      if (value === null || value === undefined) {
+        return value;
       }
 
-      if (value && typeof value === 'object') {
-        sanitized[key] = this.sanitizeUpdate(value as UpdateQuery<T>);
-      } else {
-        sanitized[key] = value;
+      // Primitives are safe
+      if (typeof value !== 'object') {
+        return value;
       }
-    }
 
-    return sanitized as UpdateQuery<T>;
+      // Arrays: sanitize each element
+      if (Array.isArray(value)) {
+        return value.map((item) => sanitize(item));
+      }
+
+      // Only process plain objects; anything else is treated as-is
+      if (!isPlainObject(value)) {
+        return value;
+      }
+
+      const result: Record<string, unknown> = {};
+
+      for (const [key, v] of Object.entries(value)) {
+        // Drop MongoDB operator keys (start with '$')
+        if (key.startsWith('$')) {
+          continue;
+        }
+        // Drop prototype-pollution related keys
+        if (unsafeKeys.has(key)) {
+          continue;
+        }
+
+        result[key] = sanitize(v);
+      }
+
+      return result;
+    };
+
+    return sanitize(update) as UpdateQuery<T>;
   }
 
   /**
