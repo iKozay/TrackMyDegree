@@ -269,40 +269,40 @@ const ClassBuilderPage: React.FC = () => {
             </main>
 
             {showConflictModal && (
-                <>
+
+                <button
+                    className="cb-conflict-overlay"
+                    onClick={() => setConflictModalDismissed(true)}
+                >
                     <button
-                        className="cb-conflict-overlay"
-                        onClick={() => setConflictModalDismissed(true)}
+                        className="cb-conflict-modal"
+                        onClick={(e) => e.stopPropagation()}
                     >
+                        <div className="cb-conflict-modal__icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                aria-hidden="true">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M12 8v4"></path>
+                                <path d="M12 16h.01"></path>
+                            </svg>
+                        </div>
+
+                        <p className="cb-conflict-modal__title">No Valid Schedules</p>
+
+                        <p className="cb-conflict-modal__body">
+                            Every possible combination of your selected courses results in a <strong>time conflict</strong>. Try removing a course to open up more options.
+                        </p>
+
                         <button
-                            className="cb-conflict-modal"
-                            onClick={(e) => e.stopPropagation()}
+                            className="cb-conflict-modal__close"
+                            onClick={() => setConflictModalDismissed(true)}
                         >
-                            <div className="cb-conflict-modal__icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                                    aria-hidden="true">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M12 8v4"></path>
-                                    <path d="M12 16h.01"></path>
-                                </svg>
-                            </div>
-
-                            <p className="cb-conflict-modal__title">No Valid Schedules</p>
-
-                            <p className="cb-conflict-modal__body">
-                                Every possible combination of your selected courses results in a <strong>time conflict</strong>. Try removing a course to open up more options.
-                            </p>
-
-                            <button
-                                className="cb-conflict-modal__close"
-                                onClick={() => setConflictModalDismissed(true)}
-                            >
-                                Got it
-                            </button>
+                            Got it
                         </button>
                     </button>
-                </>
+                </button>
+
             )}
         </motion.div>
     );
