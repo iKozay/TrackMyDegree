@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import "../styles/ClassBuilder.css";
+import "../styles/components/classbuilder/ClassBuilderPageStyle.css"
 import WeeklySchedule from "../components/ClassBuilderComponents/WeeklySchedule";
 import ScheduleStats from "../components/ClassBuilderComponents/ScheduleStats";
 import ScheduledCourses from "../components/ClassBuilderComponents/ScheduledCourses";
@@ -242,85 +243,6 @@ const ClassBuilderPage: React.FC = () => {
 
             {showConflictModal && (
                 <>
-                    <style>{`
-                        .cb-conflict-overlay {
-                            position: fixed;
-                            inset: 0;
-                            background: rgba(0, 0, 0, 0.4);
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            z-index: 50;
-                        }
-
-                        .cb-conflict-modal {
-                            background-color: var(--card);
-                            color: var(--card-foreground);
-                            border-radius: calc(var(--radius) + 4px);
-                            border: 1px solid var(--border);
-                            padding: 1.75rem;
-                            max-width: 22rem;
-                            width: calc(100% - 2rem);
-                            display: flex;
-                            flex-direction: column;
-                            gap: 1rem;
-                            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-                        }
-
-                        .cb-conflict-modal__icon {
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            width: 2.75rem;
-                            height: 2.75rem;
-                            border-radius: 50%;
-                            flex-shrink: 0;
-                            background-color: var(--color-rose-50, #fff1f2);
-                        }
-
-                        .cb-conflict-modal__icon svg {
-                            width: 1.375rem;
-                            height: 1.375rem;
-                            color: var(--color-rose-600, #e11d48);
-                        }
-
-                        .cb-conflict-modal__title {
-                            font-size: 1rem;
-                            font-weight: 600;
-                            color: var(--color-slate-900);
-                            margin: 0;
-                        }
-
-                        .cb-conflict-modal__body {
-                            font-size: 0.875rem;
-                            color: var(--color-slate-600);
-                            margin: 0;
-                            line-height: 1.5;
-                        }
-
-                        .cb-conflict-modal__body strong {
-                            color: var(--color-slate-900);
-                        }
-
-                        .cb-conflict-modal__close {
-                            align-self: flex-end;
-                            height: 2.25rem;
-                            padding: 0 1rem;
-                            font-size: 0.875rem;
-                            font-weight: 500;
-                            border-radius: calc(var(--radius) - 2px);
-                            border: 1px solid var(--border);
-                            background: transparent;
-                            color: var(--color-slate-700);
-                            cursor: pointer;
-                            transition: background-color 0.15s ease;
-                        }
-
-                        .cb-conflict-modal__close:hover {
-                            background-color: var(--color-slate-100, #f1f5f9);
-                        }
-                    `}</style>
-
                     <button
                         className="cb-conflict-overlay"
                         onClick={() => setConflictModalDismissed(true)}
