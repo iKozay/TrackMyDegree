@@ -8,6 +8,7 @@ import {
 } from '@middleware/authMiddleware';
 import HTTP from '@utils/httpCodes';
 import {
+    creditFormDeleteLimiter,
     creditFormDownloadLimiter,
     creditFormUploadLimiter,
 } from '@middleware/rateLimiter';
@@ -325,6 +326,7 @@ router.post(
  */
 router.put(
     '/:id',
+    creditFormUploadLimiter,
     authMiddleware,
     adminCheckMiddleware,
     handleUpload,
@@ -383,6 +385,7 @@ router.put(
  */
 router.delete(
     '/:id',
+    creditFormDeleteLimiter,
     authMiddleware,
     adminCheckMiddleware,
     async (req: Request, res: Response) => {
