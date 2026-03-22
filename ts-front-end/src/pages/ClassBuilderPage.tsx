@@ -69,7 +69,7 @@ const deduplicateClassItems = (items: ClassItem[]): ClassItem[] => {
 };
 
 const uniqueConfigs = (items: ClassItem[]): string => {
-    return items.map(item => `${item.name}|${item.day}|${item.startTime}|${item.endTime}`).sort().join(";");
+    return items.map(item => `${item.name}|${item.day}|${item.startTime}|${item.endTime}`).sort((a, b) => a.localeCompare(b)).join(";");
 }
 
 const deduplicateConfigurations = (configs: ClassItem[][]): ClassItem[][] => {
