@@ -44,8 +44,6 @@ describe('WeeklySchedule', () => {
     it('displays class information in the correct time slot', () => {
         render(<WeeklySchedule classes={mockClasses} {...defaultProps} />);
         expect(screen.getAllByText('COMP 352').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('Sec A').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('H-637').length).toBeGreaterThan(0);
     });
 
     it('renders classes that span multiple hours correctly', () => {

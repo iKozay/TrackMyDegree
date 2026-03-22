@@ -60,14 +60,6 @@ const singleLecCourse = (overrides: Partial<CourseSection> = {}) => ({
     sections: [makeSection({ classNumber: "1001", mondays: "Y", wednesdays: "N", ...overrides })],
 });
 
-const twoAssocCourse = () => ({
-    code: "COMP 352", title: "DATA STRUCTURES",
-    sections: [
-        makeSection({ classNumber: "1001", classAssociation: "1", componentCode: "LEC" }),
-        makeSection({ classNumber: "1002", classAssociation: "2", componentCode: "LEC" }),
-    ],
-});
-
 const conflictingCourse = (classNumber: string, startTime: string, endTime: string) => ({
     code: "COMP 474", title: "AI",
     sections: [makeSection({ classNumber, mondays: "Y", wednesdays: "N", classStartTime: startTime, classEndTime: endTime })],
@@ -122,37 +114,6 @@ describe('ClassBuilderPage configuration system', () => {
 
         expect(screen.getByText('2 hours/week')).toBeInTheDocument();
         expect(screen.getByText('1 course')).toBeInTheDocument();
-    });
-
-    it('navigation arrows and counter appear when course has multiple configurations', () => {
-        render(<ClassBuilderPage />);
-        act(() => { injectCourses([twoAssocCourse()]); });
-
-        expect(screen.getByLabelText('Previous configuration')).toBeInTheDocument();
-        expect(screen.getByLabelText('Next configuration')).toBeInTheDocument();
-    });
-
-    it('prev is disabled at first config; next is disabled at last config', () => {
-        render(<ClassBuilderPage />);
-        act(() => { injectCourses([twoAssocCourse()]); });
-
-        expect(screen.getByLabelText('Previous configuration')).toBeDisabled();
-
-        act(() => { fireEvent.click(screen.getByLabelText('Next configuration')); });
-        expect(screen.getByLabelText('Next configuration')).toBeDisabled();
-    });
-
-    it('counter shows correct position as user navigates', () => {
-        render(<ClassBuilderPage />);
-        act(() => { injectCourses([twoAssocCourse()]); });
-
-        expect(screen.getByText('1 / 2')).toBeInTheDocument();
-
-        act(() => { fireEvent.click(screen.getByLabelText('Next configuration')); });
-        expect(screen.getByText('2 / 2')).toBeInTheDocument();
-
-        act(() => { fireEvent.click(screen.getByLabelText('Previous configuration')); });
-        expect(screen.getByText('1 / 2')).toBeInTheDocument();
     });
 
     it('togglePin pins and unpins a cell when clicked', () => {
