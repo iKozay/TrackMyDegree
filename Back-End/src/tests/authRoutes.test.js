@@ -21,6 +21,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const csrf = require('lusca').csrf;
 const authRoutes = require('../routes/authRoutes').default;
 const { User } = require('../models/user');
 const bcrypt = require('bcryptjs');
@@ -53,6 +54,7 @@ const { jwtService } = require('../services/jwtService');
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+app.use(csrf({ ignore: () => true }));
 app.use('/auth', authRoutes);
 
 describe('Auth Routes (MongoDB)', () => {
