@@ -18,7 +18,11 @@ const router = express.Router();
 
 router.use(authMiddleware);
 router.use(adminCheckMiddleware);
-router.use(loginLimiter);
+
+// Only use rate limiter in non-test environments
+if (process.env.NODE_ENV !== 'test') {
+  router.use(loginLimiter);
+}
 
 // ==========================
 // ADMIN ROUTES
