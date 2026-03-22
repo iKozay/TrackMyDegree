@@ -3,10 +3,12 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { PoolProgressChart } from "../../components/PoolProgressChart";
 
 vi.mock("../../components/CourseTooltip", () => ({
-  CourseTooltip: ({ section, onClose }: { section: string; onClose: () => void }) => (
+  CourseTooltip: ({ onClose }: { onClose: () => void }) => (
     <div data-testid="course-tooltip">
-      <span>Tooltip for {section}</span>
-      <button onClick={onClose}>Close Tooltip</button>
+      <span>Pool detail tooltip</span>
+      <button type="button" onClick={onClose}>
+        Close Tooltip
+      </button>
     </div>
   ),
 }));
@@ -21,56 +23,59 @@ describe("PoolProgressChart", () => {
   };
 
   it("should render pool name, percentage, credits, and SVG chart correctly", () => {
-    const { container } = render(<PoolProgressChart {...defaultProps} creditsTaken={10} creditsRequired={30} />);
+    const { container } = render(
+      <PoolProgressChart {...defaultProps} creditsTaken={10} creditsRequired={30} />,
+    );
 
-    // Pool name, percentage (10/30 = 33.33% -> rounds to 33%), credits
     expect(screen.getByText("Computer Science Core")).toBeInTheDocument();
     expect(screen.getByText("33%")).toBeInTheDocument();
     expect(screen.getByText("10 / 30 credits")).toBeInTheDocument();
 
-    // SVG elements
     const svg = container.querySelector("svg");
     expect(svg).toBeInTheDocument();
     const circles = container.querySelectorAll("circle");
-    expect(circles).toHaveLength(2);
+    expect(circles).toHaveLength(3);
 
-    // No tooltip initially
     expect(screen.queryByTestId("course-tooltip")).not.toBeInTheDocument();
   });
 
-  it("should handle tooltip interactions for completed and remaining sections", () => {
-    render(<PoolProgressChart {...defaultProps} />);
+  it("should show tooltip when hovering the chart and hide on close or mouse leave", () => {
+    const { container } = render(<PoolProgressChart {...defaultProps} />);
 
-    // Show tooltip on completed section hover
-    const progressCircle = document.querySelector(".insights-pool-progress-circle");
-    if (progressCircle) {
-      fireEvent.mouseEnter(progressCircle);
-      expect(screen.getByTestId("course-tooltip")).toBeInTheDocument();
-      expect(screen.getByText("Tooltip for completed")).toBeInTheDocument();
+    const svg = container.querySelector("svg");
+    expect(svg).toBeTruthy();
+    fireEvent.mouseEnter(svg!);
 
-      // Close tooltip
-      const closeButton = screen.getByText("Close Tooltip");
-      fireEvent.click(closeButton);
-      expect(screen.queryByTestId("course-tooltip")).not.toBeInTheDocument();
-    }
+    expect(screen.getByTestId("course-tooltip")).toBeInTheDocument();
+    expect(screen.getByText("Pool detail tooltip")).toBeInTheDocument();
 
-    // Show tooltip on remaining section hover
-    const backgroundCircle = document.querySelector(".insights-pool-background-circle");
-    if (backgroundCircle) {
-      fireEvent.mouseEnter(backgroundCircle);
-      expect(screen.getByTestId("course-tooltip")).toBeInTheDocument();
-      expect(screen.getByText("Tooltip for remaining")).toBeInTheDocument();
-    }
+    fireEvent.click(screen.getByText("Close Tooltip"));
+    expect(screen.queryByTestId("course-tooltip")).not.toBeInTheDocument();
+
+    fireEvent.mouseEnter(svg!);
+    expect(screen.getByTestId("course-tooltip")).toBeInTheDocument();
+
+    const chartContainer = container.querySelector(
+      ".insights-pool-chart-container",
+    );
+    fireEvent.mouseLeave(chartContainer!);
+    expect(screen.queryByTestId("course-tooltip")).not.toBeInTheDocument();
   });
 
   it("should handle edge cases: 0%, 100%, and division by zero", () => {
-    const { rerender } = render(<PoolProgressChart {...defaultProps} creditsTaken={0} />);
+    const { rerender } = render(
+      <PoolProgressChart {...defaultProps} creditsTaken={0} />,
+    );
     expect(screen.getByText("0%")).toBeInTheDocument();
 
-    rerender(<PoolProgressChart {...defaultProps} creditsTaken={30} creditsRequired={30} />);
+    rerender(
+      <PoolProgressChart {...defaultProps} creditsTaken={30} creditsRequired={30} />,
+    );
     expect(screen.getByText("100%")).toBeInTheDocument();
 
-    rerender(<PoolProgressChart {...defaultProps} creditsTaken={0} creditsRequired={0} />);
+    rerender(
+      <PoolProgressChart {...defaultProps} creditsTaken={0} creditsRequired={0} />,
+    );
     expect(screen.getByText("0%")).toBeInTheDocument();
   });
 });

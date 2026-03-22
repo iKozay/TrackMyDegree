@@ -68,7 +68,7 @@ describe('worker.ts', () => {
       connectJobRedis: mockConnectJobRedis,
     }));
 
-    jest.doMock('../workers/queue', () => ({
+    jest.doMock('../workers/courseProcessor', () => ({
       __esModule: true,
       courseProcessorWorker: {
         close: mockCourseProcessorWorkerClose,
