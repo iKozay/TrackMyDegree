@@ -16,7 +16,12 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
+    if (
+      !email ||
+      !password ||
+      typeof email !== 'string' ||
+      typeof password !== 'string'
+    ) {
       res.status(HTTP.BAD_REQUEST).json({
         error: 'Email and password are required',
       });
