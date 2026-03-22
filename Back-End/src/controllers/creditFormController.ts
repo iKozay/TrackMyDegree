@@ -66,8 +66,11 @@ export async function createForm(
     const { programId, title, subtitle, filename, uploadedBy } = input;
     const uploadedByOid = uploadedBy ? new Types.ObjectId(uploadedBy) : null;
 
+    // Normalize programId to a primitive value to avoid query injection
+    const safeProgramId = String(programId);
+
     // Check for existing form with same programId
-    const existing = await CreditForm.findOne({ programId });
+    const existing = await CreditForm.findOne({ programId: { $eq: safeProgramId } });
 
     if (existing) {
         if (existing.isActive) {
