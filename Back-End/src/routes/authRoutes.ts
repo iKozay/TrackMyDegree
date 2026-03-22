@@ -2,6 +2,7 @@ import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { authController, UserType } from '@controllers/authController';
 import { jwtService } from '@services/jwtService';
+import { loginLimiter, signupLimiter, forgotPasswordLimiter, resetPasswordLimiter } from '@middleware/rateLimiter';
 
 const router = express.Router();
 
@@ -11,7 +12,7 @@ const EMPTY_REQUEST_BODY = 'Request body cannot be empty';
 /**
  * POST /auth/login - User login
  */
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', loginLimiter, async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -69,7 +70,7 @@ router.post('/login', async (req: Request, res: Response) => {
 /**
  * POST /auth/refresh - User login automatically via refresh token
  */
-router.post('/refresh', async (req: Request, res: Response) => {
+router.post('/refresh', loginLimiter, async (req: Request, res: Response) => {
   const token = req.cookies?.refresh_token;
   if (!token)
     return res
@@ -139,7 +140,7 @@ router.post('/logout', (req: Request, res: Response) => {
 /**
  * POST /auth/me - Authenticate user via access token
  */
-router.get('/me', async (req: Request, res: Response) => {
+router.get('/me', loginLimiter, async (req: Request, res: Response) => {
   const token = req.cookies?.access_token;
   if (!token)
     return res.status(HTTP.UNAUTHORIZED).json({ error: 'Missing access token' });
@@ -176,7 +177,7 @@ router.get('/me', async (req: Request, res: Response) => {
 /**
  * POST /auth/signup - User registration
  */
-router.post('/signup', async (req: Request, res: Response) => {
+router.post('/signup', signupLimiter, async (req: Request, res: Response) => {
   try {
     if (!req.body || Object.keys(req.body).length === 0) {
       res.status(HTTP.BAD_REQUEST).json({
@@ -258,7 +259,7 @@ router.post('/signup', async (req: Request, res: Response) => {
 /**
  * POST /auth/forgot-password - Initiate password reset
  */
-router.post('/forgot-password', async (req: Request, res: Response) => {
+router.post('/forgot-password', forgotPasswordLimiter, async (req: Request, res: Response) => {
   try {
     if (!req.body?.email) {
       res.status(HTTP.BAD_REQUEST).json({
@@ -280,7 +281,7 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
 /**
  * POST /auth/reset-password - Reset password with URL token
  */
-router.post('/reset-password', async (req: Request, res: Response) => {
+router.post('/reset-password', resetPasswordLimiter, async (req: Request, res: Response) => {
   try {
     if (!req.body) {
       res.status(HTTP.BAD_REQUEST).json({
