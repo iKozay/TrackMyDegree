@@ -32,6 +32,7 @@ const sectionToClassItems = (course: AddedCourse, section: CourseSection): Class
                 day: dayIndex,
                 startTime: parseTime(section.classStartTime),
                 endTime: parseTime(section.classEndTime),
+                type: section.componentCode
             });
         }
     });
@@ -290,7 +291,7 @@ const ClassBuilderPage: React.FC = () => {
                             <p className="cb-conflict-modal__title">No Valid Schedules</p>
 
                             <p className="cb-conflict-modal__body">
-                                Every possible combination of your selected courses results in a <strong>time conflict</strong>. Try removing a course or unpinning a section to open up more options.
+                                Every possible combination of your selected courses results in a <strong>time conflict</strong>. Try removing a course to open up more options.
                             </p>
 
                             <button

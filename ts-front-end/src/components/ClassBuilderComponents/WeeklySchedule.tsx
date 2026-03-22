@@ -123,8 +123,7 @@ const WeeklySchedule: React.FC<WeeklyScheduleProps> = ({
                       {classItem && isFirstHourOfClass(classItem, hour) && (
                         <div className="class-info">
                           <p className="class-name">{classItem.name}</p>
-                          <p className="class-section">{classItem.section}</p>
-                          <p className="class-room">{classItem.room}</p>
+                          <p className="class-section">{classItem.type}</p>
                         </div>
                       )}
                     </td>
