@@ -6,12 +6,12 @@ import type { ClassItem } from '../../../types/classItem';
 
 describe('ScheduleStats', () => {
     const mockClasses: ClassItem[] = [
-        { classNumber: "1001", name: "COMP 352", section: "Sec A", room: "H-637", day: 1, startTime: 9, endTime: 11 },
-        { classNumber: "1001", name: "COMP 352", section: "Sec A", room: "H-637", day: 3, startTime: 9, endTime: 11 },
-        { classNumber: "1002", name: "COMP 346", section: "Sec B", room: "MB-2.210", day: 2, startTime: 10, endTime: 12 },
-        { classNumber: "1002", name: "COMP 346", section: "Sec B", room: "MB-2.210", day: 4, startTime: 10, endTime: 12 },
-        { classNumber: "1003", name: "SOEN 341", section: "Sec C", room: "H-537", day: 1, startTime: 13, endTime: 15 },
-        { classNumber: "1003", name: "SOEN 341", section: "Sec C", room: "H-537", day: 3, startTime: 13, endTime: 15 },
+        { classNumber: "1001", name: "COMP 352", section: "Sec A", room: "H-637", day: 1, startTime: 9, endTime: 11, type: "LEC" },
+        { classNumber: "1001", name: "COMP 352", section: "Sec A", room: "H-637", day: 3, startTime: 9, endTime: 11, type: "LEC" },
+        { classNumber: "1002", name: "COMP 346", section: "Sec B", room: "MB-2.210", day: 2, startTime: 10, endTime: 12, type: "LEC" },
+        { classNumber: "1002", name: "COMP 346", section: "Sec B", room: "MB-2.210", day: 4, startTime: 10, endTime: 12, type: "LEC" },
+        { classNumber: "1003", name: "SOEN 341", section: "Sec C", room: "H-537", day: 1, startTime: 13, endTime: 15, type: "LEC" },
+        { classNumber: "1003", name: "SOEN 341", section: "Sec C", room: "H-537", day: 3, startTime: 13, endTime: 15, type: "LEC" },
     ];
 
     it('renders all three stat cards', () => {
@@ -32,7 +32,7 @@ describe('ScheduleStats', () => {
 
     it('displays singular "course" for one course', () => {
         const singleCourse: ClassItem[] = [
-            { classNumber: "2001", name: "COMP 352", section: "Sec A", room: "H-637", day: 1, startTime: 9, endTime: 11 }
+            { classNumber: "2001", name: "COMP 352", section: "Sec A", room: "H-637", day: 1, startTime: 9, endTime: 11, type: "LEC" }
         ];
         render(<ScheduleStats classes={singleCourse} />);
         expect(screen.getByText('1 course')).toBeInTheDocument();
@@ -46,8 +46,8 @@ describe('ScheduleStats', () => {
 
     it('calculates hours for classes with different durations', () => {
         const variedDurations: ClassItem[] = [
-            { classNumber: "6001", name: "SHORT", section: "A", room: "R1", day: 1, startTime: 9, endTime: 10 },
-            { classNumber: "6002", name: "LONG", section: "B", room: "R2", day: 2, startTime: 10, endTime: 13 },
+            { classNumber: "6001", name: "SHORT", section: "A", room: "R1", day: 1, startTime: 9, endTime: 10, type: "LEC" },
+            { classNumber: "6002", name: "LONG", section: "B", room: "R2", day: 2, startTime: 10, endTime: 13, type: "LEC" },
         ];
         render(<ScheduleStats classes={variedDurations} />);
         expect(screen.getByText('4 hours/week')).toBeInTheDocument();
