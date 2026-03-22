@@ -11,7 +11,7 @@ interface Semester {
 
 const getSemesters = (): Semester[] => {
     const today = new Date();
-    const cutover = new Date(today.getFullYear(), 4, 15); // March 15th of current year
+    const cutover = new Date(today.getFullYear(), 2, 15); // March 15th of current year
 
     const academicYearStart = today >= cutover ? today.getFullYear() : today.getFullYear() - 1;
 
