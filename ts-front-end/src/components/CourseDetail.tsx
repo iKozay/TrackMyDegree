@@ -7,19 +7,21 @@ import {
   LucideAlarmMinus,
   CheckCircle,
 } from "lucide-react";
-import { RequisiteGroup } from "./RequisiteGroup";
+import CourseRules from "./CourseRules";
 import type {
   Course,
   CourseCode,
   CourseMap,
   CourseStatusValue,
   SemesterId,
+  SemesterList
 } from "../types/timeline.types"; // adjust path
 import { CourseStatusActions } from "./CourseStatusToggle";
 import { CourseScheduleModal } from "../legacy/components/CourseScheduleModal";
 interface CourseDetailsProps {
   course?: Course | null;
-  courses?: CourseMap;
+  semesters: SemesterList;
+  courses: CourseMap;
   onRemoveCourse?: (courseId: CourseCode, semesterId: SemesterId) => void;
   onChangeCourseStatus?: (
     courseId: CourseCode,
@@ -29,7 +31,8 @@ interface CourseDetailsProps {
 
 const CourseDetail: React.FC<CourseDetailsProps> = ({
   course,
-  courses = {},
+  courses,
+  semesters,
   onRemoveCourse,
   onChangeCourseStatus,
 }) => {
@@ -113,17 +116,12 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
         </div>
       </div>
 
-      <RequisiteGroup
-        title="Prerequisites"
-        groups={course.prerequisites}
+      <CourseRules
+        course={course}
         courses={courses}
+        semesters={semesters}
       />
 
-      <RequisiteGroup
-        title="Corequisites"
-        groups={course.corequisites}
-        courses={courses}
-      />
       <CourseStatusActions
         currentStatus={course.status.status}
         onRemoveCourse={onRemoveCourse}

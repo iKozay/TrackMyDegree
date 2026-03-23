@@ -1,5 +1,5 @@
 import { PredefinedSequenceTerm, ParsedData } from '../../types/transcript';
-import { CourseData, TimelineSemester, CourseStatus, DegreeData, CoursePoolData } from '@shared';
+import { CourseData, TimelineSemester, CourseStatus, DegreeData, CoursePoolData } from '@trackmydegree/shared';
 import { SEASONS } from '@utils/constants';
 import {getTermRanges} from "@utils/misc";
 import { getCoursesThatNeedCMinus, isPlaceholderCourse, normalizeCourseCode, validateGrade } from './courseHelper';

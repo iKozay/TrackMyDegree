@@ -117,7 +117,7 @@ export interface Rule {
   type: RuleType;
   level: 'warning' | 'info';
   message: string;
-  params: MinCoursesFromSetParams | MaxCoursesFromSetParams | MinCreditsFromSetParams | MaxCreditsFromSetParams;
+  params: MinCoursesFromSetParams | MaxCoursesFromSetParams | MinCreditsFromSetParams | MaxCreditsFromSetParams | MinCreditsCompletedParams;
 }
 
 export enum RuleType {
@@ -152,6 +152,10 @@ export interface MaxCreditsFromSetParams {
   maxCredits: number;
 }
 
+export interface MinCreditsCompletedParams {
+  minCredits: number;
+}
+
 // timeline.ts
 export type CourseStatus = "completed" | "incomplete" | "inprogress" | "planned";
 
@@ -172,8 +176,7 @@ export interface TimelineCourse {
   credits: number;
   description?: string;
   offeredIn: string[];
-  prerequisites: { anyOf: string[] }[];
-  corequisites: { anyOf: string[] }[];
+  rules: Rule[];
   status: {
     status: CourseStatus;
     semester: string | null;

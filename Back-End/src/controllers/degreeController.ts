@@ -1,7 +1,7 @@
 import { BaseMongoController } from './baseMongoController';
 import { Degree, CoursePool, Course } from '@models';
 import { DEGREE_WITH_ID_DOES_NOT_EXIST } from '@utils/constants';
-import { CourseData, DegreeData, CoursePoolData } from '@shared';
+import { CourseData, DegreeData, CoursePoolData } from '@trackmydegree/shared';
 
 export interface DegreeXCPData {
   degree_id: string;

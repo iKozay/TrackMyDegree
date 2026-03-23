@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import CoursePool from "../../components/CoursePool";
-import type { CoursePoolData } from "@shared";
+import type { CoursePoolData } from "@trackmydegree/shared";
 import type {
   CourseMap,
   CourseCode,

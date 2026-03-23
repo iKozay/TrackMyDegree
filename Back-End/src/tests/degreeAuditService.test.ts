@@ -6,7 +6,7 @@ import {
   generateDegreeAuditFromTimeline
 } from '@services/audit';
 import { Course, CoursePool, Degree, Timeline, User } from '@models';
-import { GenerateAuditParams, TimelineCourse, TimelineResult} from '@shared';
+import { GenerateAuditParams, TimelineCourse, TimelineResult} from '@trackmydegree/shared';
 import * as misc from '@utils/misc';
 
 const STATUS_COMPLETED = 'Completed';
@@ -257,8 +257,7 @@ describe('DegreeAuditService', () => {
         credits: 3,
         description: '',
         offeredIn: [],
-        prerequisites: [],
-        corequisites: [],
+        rules: [],
         status: { status: 'completed', semester: 'Fall 2022' },
       },
       'COMP 249': {
@@ -267,8 +266,7 @@ describe('DegreeAuditService', () => {
         credits: 3,
         description: '',
         offeredIn: [],
-        prerequisites: [],
-        corequisites: [],
+        rules: [],
         status: { status: 'planned', semester: 'Fall 2027' },
       },
       'ENGL 101': {
@@ -277,8 +275,7 @@ describe('DegreeAuditService', () => {
         credits: 3,
         description: '',
         offeredIn: [],
-        prerequisites: [],
-        corequisites: [],
+        rules: [],
         status: { status: 'incomplete', semester: null },
       },
       'MATH 203': {
@@ -287,8 +284,7 @@ describe('DegreeAuditService', () => {
         credits: 3,
         description: '',
         offeredIn: [],
-        prerequisites: [],
-        corequisites: [],
+        rules: [],
         status: { status: 'planned', semester: 'Fall 2027' },
       },
     };

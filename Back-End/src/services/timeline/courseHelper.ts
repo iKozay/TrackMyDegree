@@ -1,6 +1,6 @@
 
 
-import { CourseData, RuleType } from "@shared";
+import { CourseData, RuleType } from "@trackmydegree/shared";
 
 // Normalizes a course code by removing all whitespace,
 // inserting a space between the letter prefix and numeric part, and converting it to uppercase.

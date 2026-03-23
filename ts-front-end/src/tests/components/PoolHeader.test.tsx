@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { PoolHeader } from "../../components/PoolHeader";
-import type { CoursePoolData } from "@shared";
+import type { CoursePoolData } from "@trackmydegree/shared";
 import type { CourseCode, CourseMap, SemesterId } from "../../types/timeline.types";
 
 describe("PoolHeader", () => {

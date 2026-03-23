@@ -11,7 +11,7 @@ import {
   RequirementStatus,
   GenerateAuditParams,
   TimelineCourse, TimelineDocument, TimelineResult, TimelineSemester, CourseStatus,
-  CourseData, DegreeData, CoursePoolData } from '@shared';
+  CourseData, DegreeData, CoursePoolData } from '@trackmydegree/shared';
 import { isTermInProgress } from '@utils/misc';
 
 interface TimelineWithUser extends TimelineDocument {

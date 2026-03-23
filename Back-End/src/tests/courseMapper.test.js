@@ -22,6 +22,6 @@ describe('courseMapper', () => {
     expect(mapped['COMP 101'].id).toBe('COMP 101');
     expect(mapped['COMP 101'].title).toBe('Intro');
     expect(mapped['COMP 101'].status.status).toBe('completed');
-    expect(mapped['COMP 101'].prerequisites[0].anyOf).toContain('MATH 100');
+    expect(mapped['COMP 101'].rules[0].params.courseList[0]).toBe('MATH 100');
   });
 });

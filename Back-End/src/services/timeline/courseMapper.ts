@@ -1,5 +1,4 @@
-import { normalizeCourseCode } from './courseHelper';
-import { TimelineCourse, CourseStatus, CourseData, Rule, RuleType } from '@shared';
+import { TimelineCourse, CourseStatus, CourseData } from '@trackmydegree/shared';
 
 export function mapCoursesToTimelineFormat(
   courses: Record<string, CourseData>,
@@ -22,21 +21,10 @@ function toTimelineCourse(
     credits: course.credits,
     description: course.description,
     offeredIn: course.offeredIn ?? [],
-    prerequisites: mapRequisites(RuleType.Prerequisite, course.rules),
-    corequisites: mapRequisites(RuleType.Corequisite, course.rules),
+    rules: course.rules,
     status: {
       status: override?.status ?? 'incomplete',
       semester: override?.semester ?? null,
     },
   };
-}
-
-// Converts prerequisite/corequisite rules from the DB format
-// (string[][] where each inner array represents an OR group)
-// into the timeline format: [{ anyOf: string[] }]
-function mapRequisites(type: RuleType, rules: Rule[]): { anyOf: string[] }[] {
-  const reqRules = rules.filter((r) => r.type === type);
-  return reqRules.map((r) => ({
-    anyOf: r.params.courseList.map(normalizeCourseCode),
-  }));
 }

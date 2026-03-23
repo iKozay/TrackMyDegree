@@ -5,7 +5,7 @@ import DegreeAuditSkeleton from '../components/DegreeAuditSkeleton.tsx';
 import { api } from '../api/http-api-client';
 import { useAuth } from '../hooks/useAuth';
 import '../styles/DegreeAuditPage.css';
-import type {DegreeAuditData, RequirementCategory, Notice, AuditCourse} from "@shared"
+import type {DegreeAuditData, RequirementCategory, Notice, AuditCourse} from "@trackmydegree/shared"
 import { downloadPdf } from '../utils/downloadUtils.ts';
 
 // Helper function to get the appropriate icon for a notice type

@@ -41,11 +41,11 @@ const TimeLinePage: React.FC = () => {
   // Find the exemption pool, with fallback to empty pool
   const exemptionCoursePool = state.pools.find(pool => 
     pool._id.toLowerCase().includes("exemption")
-  ) || { _id: "exemption", name: "Exemption", creditsRequired: 0, courses: [] };
+  ) || { _id: "exemption", name: "Exemption", creditsRequired: 0, courses: [], rules: [] };
 
   const deficiencyCoursePool = state.pools.find(pool => 
     pool._id.toLowerCase().includes("deficiency")
-  ) || { _id: "deficiency", name: "Deficiency", creditsRequired: 0, courses: [] };
+  ) || { _id: "deficiency", name: "Deficiency", creditsRequired: 0, courses: [], rules: [] };
 
   const handleOpenModal = (open: boolean, type: string) => {
     if (open && type === "save" && !user) {
@@ -128,6 +128,7 @@ const TimeLinePage: React.FC = () => {
                   : null
               }
               courses={state.courses}
+              semesters={state.semesters}
               onRemoveCourse={actions.removeFromSemester}
               onChangeCourseStatus={actions.changeCourseStatus}
             />

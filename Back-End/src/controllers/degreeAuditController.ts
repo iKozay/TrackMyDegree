@@ -4,7 +4,7 @@ import {
   generateDegreeAuditForUser,
   generateDegreeAuditFromTimeline,
 } from '@services/audit';
-import { TimelineResult, DegreeAuditData, GenerateAuditParams } from '@shared';
+import { TimelineResult, DegreeAuditData, GenerateAuditParams } from '@trackmydegree/shared';
 import { getJobResult } from '../lib/cache';
 
 export class DegreeAuditController {

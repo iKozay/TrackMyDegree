@@ -10,8 +10,7 @@ const mockCourses: CourseMap = {
     credits: 3,
     description: "Introduction to programming",
     offeredIn: ["FALL 2025", "WINTER 2026"],
-    prerequisites: [],
-    corequisites: [],
+    rules: [],
     status: {
       status: "incomplete",
       semester: null,
@@ -23,8 +22,7 @@ const mockCourses: CourseMap = {
     credits: 3,
     description: "Advanced OOP concepts",
     offeredIn: ["WINTER 2026", "SUMMER 2026"],
-    prerequisites: [],
-    corequisites: [],
+    rules: [],
     status: {
       status: "incomplete",
       semester: null,

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { InsightsModal } from "../../components/InsightsModal";
-import type { CoursePoolData } from "@shared";
+import type { CoursePoolData } from "@trackmydegree/shared";
 import type { CourseMap } from "../../types/timeline.types";
 
 vi.mock("../../components/OverallProgressBar", () => ({

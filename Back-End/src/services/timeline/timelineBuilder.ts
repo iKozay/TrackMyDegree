@@ -3,7 +3,7 @@ import { parseFile } from '@services/parsingService';
 import { ParsedData, ProgramInfo } from '../../types/transcript';
 import { Timeline } from '@models';
 import { coursepoolController } from '@controllers/coursepoolController';
-import { TimelineResult, TimelineCourse, TimelineDocument, TimelineSemester, CourseStatus, DegreeData, CoursePoolData, CourseData } from '@shared';
+import { TimelineResult, TimelineCourse, TimelineDocument, TimelineSemester, CourseStatus, DegreeData, CoursePoolData, CourseData } from '@trackmydegree/shared';
 import { normalizeCourseCode } from './courseHelper';
 import { processSemestersFromParsedData, generateEmptySemesters, generateSemestersFromPredefinedSequence } from './semesterBuilder';
 import { mapCoursesToTimelineFormat } from './courseMapper';

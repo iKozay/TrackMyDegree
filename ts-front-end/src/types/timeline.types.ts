@@ -1,4 +1,4 @@
-import type { CoursePoolData } from "@shared";
+import type { CoursePoolData, Rule } from "@trackmydegree/shared";
 import { TimelineActionConstants } from "./actions";
 
 export type JobStatus = "done" | "processing" | "error";
@@ -30,11 +30,6 @@ export type Semester = {
 
 export type SemesterList = Semester[];
 
-// One “group” of requisites like { anyOf: ["COMP 248", "COMP 249"] }
-export interface RequisiteGroup {
-  anyOf: string[]; // can be course codes or special strings like "Cegep Mathematics 103"
-}
-
 // Course status
 export type CourseStatusValue = "incomplete" | "completed" | "planned";
 
@@ -52,8 +47,7 @@ export interface Course {
 
   offeredIn: SemesterId[];
 
-  prerequisites: RequisiteGroup[] | string;
-  corequisites: RequisiteGroup[] | string;
+  rules: Rule[];
 
   status: CourseStatus;
 }

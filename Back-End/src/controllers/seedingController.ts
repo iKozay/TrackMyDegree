@@ -1,7 +1,7 @@
 import { DegreeController } from './degreeController';
 import { CoursePoolController } from './coursepoolController';
 import { CourseController } from './courseController';
-import { CourseData } from '@shared';
+import { CourseData } from '@trackmydegree/shared';
 import { getDegreeNames, parseDegree, parseAllDegrees, getAllCourses, ParseDegreeResponse } from '@utils/pythonUtilsApi';
 
 /* Seed degree data (without courses) in the database */

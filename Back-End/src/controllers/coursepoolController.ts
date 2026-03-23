@@ -1,7 +1,7 @@
 import { BaseMongoController } from './baseMongoController';
 import { CoursePool } from '@models';
 import * as Sentry from '@sentry/node';
-import { CoursePoolData } from '@shared';
+import { CoursePoolData } from '@trackmydegree/shared';
 
 export class CoursePoolController extends BaseMongoController<any> {
   constructor() {

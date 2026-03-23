@@ -1,5 +1,5 @@
 import { api } from './http-api-client';
-import type { ICreditFormData } from '@shared';
+import type { ICreditFormData } from '@trackmydegree/shared';
 
 interface CreditFormsResponse {
     forms: ICreditFormData[];
