@@ -168,7 +168,7 @@ def extract_coursepool_rules(url: str, course_pool: CoursePool):
     """
     Extracts the rules text for the given CoursePool from the corresponding div on the page.
     Rule text is found in elements containing 'Note:' or 'Students must/may take' patterns.
-    The extracted text is then parsed into a list of Constraint objects.
+    The extracted text is then parsed into a list of Rule objects.
 
     Args:
         url (str): The URL of the page containing the course pool.

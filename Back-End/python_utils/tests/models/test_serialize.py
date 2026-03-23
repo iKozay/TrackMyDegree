@@ -6,7 +6,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from models import (
-    serialize, DegreeType, AnchorLink, ConstraintType, Constraint, MaxCoursesFromSetParams
+    serialize, DegreeType, AnchorLink, RuleType, Rule, MaxCoursesFromSetParams
 )
 
 
@@ -28,14 +28,14 @@ class TestSerialize(unittest.TestCase):
         assert serialize(link) == {"text": "Test", "url": "http://test.com"}
 
         # Nested dataclass
-        constraint = Constraint(
-            type=ConstraintType.MAX_COURSES_FROM_SET,
+        rule = Rule(
+            type=RuleType.MAX_COURSES_FROM_SET,
             params=MaxCoursesFromSetParams(courseList=["COMP 367", "MAST 332"], maxCourses=1),
             message="Students can take at most 1 of the following courses: COMP 367, MAST 332."
         )
 
-        assert serialize(constraint)["type"] == "max_courses_from_set"
-        assert serialize(constraint)["params"] == {
+        assert serialize(rule)["type"] == "max_courses_from_set"
+        assert serialize(rule)["params"] == {
             "courseList": ["COMP 367", "MAST 332"],
             "maxCourses": 1,
         }

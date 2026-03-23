@@ -25,7 +25,7 @@ from utils.parsing_utils import (
     TITLE_REGEX,
     CATALOG_COURSE_TITLE_REGEX
 )
-from models import Constraint, ConstraintType
+from models import Rule, RuleType
 
 
 
@@ -183,17 +183,17 @@ def test_parse_course_rules():
     result = parse_course_rules(prereq_text, notes_text)
 
     assert isinstance(result, list)
-    assert all(isinstance(constraint, Constraint) for constraint in result)
+    assert all(isinstance(rule, Rule) for rule in result)
 
-    prereq_constraints = [c for c in result if c.type == ConstraintType.PREREQUISITE]
-    not_taken_constraints = [c for c in result if c.type == ConstraintType.NOT_TAKEN]
+    prereq_rules = [c for c in result if c.type == RuleType.PREREQUISITE]
+    not_taken_rules = [c for c in result if c.type == RuleType.NOT_TAKEN]
 
-    assert len(prereq_constraints) == 1
-    assert prereq_constraints[0].params.courseList == ["COMP 248"]
-    assert prereq_constraints[0].params.minCourses == 1
+    assert len(prereq_rules) == 1
+    assert prereq_rules[0].params.courseList == ["COMP 248"]
+    assert prereq_rules[0].params.minCourses == 1
 
-    assert len(not_taken_constraints) == 1
-    assert not_taken_constraints[0].params.courseList == ["COMP 218"]
+    assert len(not_taken_rules) == 1
+    assert not_taken_rules[0].params.courseList == ["COMP 218"]
 
 def test_parse_course_components_multiple():
     text = "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week"
@@ -303,8 +303,8 @@ def test_parse_coursepool_rules_course_removal_single_degree():
         "are reduced from 30.5 credits to 29 credits since Building Engineering students "
         "are not required to take ENGR 202 in their program."
     )
-    constraints = parse_coursepool_rules(text)
-    removal = [c for c in constraints if c.type == ConstraintType.COURSE_REMOVAL]
+    rules = parse_coursepool_rules(text)
+    removal = [c for c in rules if c.type == RuleType.COURSE_REMOVAL]
     assert len(removal) == 1
     assert removal[0].params.courseId == "ENGR 202"
     assert removal[0].params.degreeId == "BEng in Building Engineering"
@@ -318,8 +318,8 @@ def test_parse_coursepool_rules_course_removal_multiple_degrees():
         "since Chemical, Mechanical, Industrial and Aerospace Engineering students are not "
         "required to take ELEC 275 in their program."
     )
-    constraints = parse_coursepool_rules(text)
-    removals = [c for c in constraints if c.type == ConstraintType.COURSE_REMOVAL]
+    rules = parse_coursepool_rules(text)
+    removals = [c for c in rules if c.type == RuleType.COURSE_REMOVAL]
     removed_degrees = {c.params.degreeId for c in removals}
     assert all(c.params.courseId == "ELEC 275" for c in removals)
     assert "BEng in Chemical Engineering" in removed_degrees
@@ -335,8 +335,8 @@ def test_parse_coursepool_rules_course_removal_two_degrees():
         "since Computer Engineering and Software Engineering students are not required to "
         "take ENGR 391 in their program."
     )
-    constraints = parse_coursepool_rules(text)
-    removals = [c for c in constraints if c.type == ConstraintType.COURSE_REMOVAL]
+    rules = parse_coursepool_rules(text)
+    removals = [c for c in rules if c.type == RuleType.COURSE_REMOVAL]
     removed_degrees = {c.params.degreeId for c in removals}
     assert all(c.params.courseId == "ENGR 391" for c in removals)
     assert "BEng in Computer Engineering" in removed_degrees
@@ -348,8 +348,8 @@ def test_parse_coursepool_rules_course_substitution_multiple_degrees():
         "Students in the BEng in Electrical Engineering and the BEng in Computer Engineering "
         "shall replace ELEC 275 with ELEC 273."
     )
-    constraints = parse_coursepool_rules(text)
-    subs = [c for c in constraints if c.type == ConstraintType.COURSE_SUBSTITUTION]
+    rules = parse_coursepool_rules(text)
+    subs = [c for c in rules if c.type == RuleType.COURSE_SUBSTITUTION]
     sub_degrees = {c.params.degreeId for c in subs}
     assert all(c.params.oldCourseId == "ELEC 275" for c in subs)
     assert all(c.params.newCourseId == "ELEC 273" for c in subs)
@@ -359,8 +359,8 @@ def test_parse_coursepool_rules_course_substitution_multiple_degrees():
 
 def test_parse_coursepool_rules_course_substitution_single_degree():
     text = "Students in BEng in Building Engineering shall replace ENGR 392 with BLDG 482."
-    constraints = parse_coursepool_rules(text)
-    subs = [c for c in constraints if c.type == ConstraintType.COURSE_SUBSTITUTION]
+    rules = parse_coursepool_rules(text)
+    subs = [c for c in rules if c.type == RuleType.COURSE_SUBSTITUTION]
     assert len(subs) == 1
     assert subs[0].params.oldCourseId == "ENGR 392"
     assert subs[0].params.newCourseId == "BLDG 482"
@@ -369,9 +369,9 @@ def test_parse_coursepool_rules_course_substitution_single_degree():
 
 def test_parse_coursepool_rules_course_substitution_may_replace():
     text = "Students in the BEng in Software Engineering may replace ENGR 391 with COMP 361."
-    constraints = parse_coursepool_rules(text)
-    additions = [c for c in constraints if c.type == ConstraintType.COURSE_ADDITION]
-    max_sets = [c for c in constraints if c.type == ConstraintType.MAX_COURSES_FROM_SET]
+    rules = parse_coursepool_rules(text)
+    additions = [c for c in rules if c.type == RuleType.COURSE_ADDITION]
+    max_sets = [c for c in rules if c.type == RuleType.MAX_COURSES_FROM_SET]
     assert len(additions) == 1
     assert additions[0].params.courseId == "COMP 361"
     assert additions[0].params.degreeId == "BEng in Software Engineering"
@@ -387,8 +387,8 @@ def test_parse_coursepool_rules_course_pool_override_elective():
         "Students in the BEng in Industrial Engineering shall take ACCO 220 as their "
         "General Education elective."
     )
-    constraints = parse_coursepool_rules(text)
-    overrides = [c for c in constraints if c.type == ConstraintType.OVERRIDE_COURSEPOOL_COURSES]
+    rules = parse_coursepool_rules(text)
+    overrides = [c for c in rules if c.type == RuleType.OVERRIDE_COURSEPOOL_COURSES]
     assert len(overrides) == 1
     assert overrides[0].params.coursePoolId == "General Education Humanities and Social Sciences Electives"
     assert overrides[0].params.newCourseList == ["ACCO 220"]
@@ -416,14 +416,14 @@ def test_parse_coursepool_rules_combined_engineering_core_block():
         "Electives. Students in the BEng in Industrial Engineering shall take ACCO 220 as their "
         "General Education elective."
     )
-    constraints = parse_coursepool_rules(text)
+    rules = parse_coursepool_rules(text)
 
     removals = {(c.params.degreeId, c.params.courseId)
-                for c in constraints if c.type == ConstraintType.COURSE_REMOVAL}
+                for c in rules if c.type == RuleType.COURSE_REMOVAL}
     subs = {(c.params.degreeId, c.params.oldCourseId, c.params.newCourseId)
-            for c in constraints if c.type == ConstraintType.COURSE_SUBSTITUTION}
+            for c in rules if c.type == RuleType.COURSE_SUBSTITUTION}
     overrides = {(c.params.degreeId, c.params.coursePoolId, tuple(c.params.newCourseList))
-                 for c in constraints if c.type == ConstraintType.OVERRIDE_COURSEPOOL_COURSES}
+                 for c in rules if c.type == RuleType.OVERRIDE_COURSEPOOL_COURSES}
 
     # Removals
     assert ("BEng in Building Engineering", "ENGR 202") in removals

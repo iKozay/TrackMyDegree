@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.bs4_utils import get_all_links_from_div
 from scraper.gina_cody_degree_scraper import GinaCodyDegreeScraper
 from scraper.course_data_scraper import get_course_scraper_instance
-from models import Constraint, ConstraintType, CoursePool, ECPDegreeIDs, ExcessCreditsOverflowParams, MaxCoursesFromSetParams, MaxCreditsFromSetParams
+from models import Rule, RuleType, CoursePool, ECPDegreeIDs, ExcessCreditsOverflowParams, MaxCoursesFromSetParams, MaxCreditsFromSetParams
 from utils.parsing_utils import COURSE_REGEX
 
 class CompDegreeScraper(GinaCodyDegreeScraper):
@@ -16,8 +16,8 @@ class CompDegreeScraper(GinaCodyDegreeScraper):
         math_electives_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Mathematics Electives: BCompSc"), None)
         gen_electives_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "General Electives: BCompSc"), None)
 
-        computer_science_electives_pool.rules.append(Constraint(
-            type=ConstraintType.EXCESS_CREDITS_OVERFLOW,
+        computer_science_electives_pool.rules.append(Rule(
+            type=RuleType.EXCESS_CREDITS_OVERFLOW,
             params=ExcessCreditsOverflowParams(
                 targetPoolId=gen_electives_pool._id
             ),
@@ -25,8 +25,8 @@ class CompDegreeScraper(GinaCodyDegreeScraper):
             level="info"
         ))
 
-        math_electives_pool.rules.append(Constraint(
-            type=ConstraintType.EXCESS_CREDITS_OVERFLOW,
+        math_electives_pool.rules.append(Rule(
+            type=RuleType.EXCESS_CREDITS_OVERFLOW,
             params=ExcessCreditsOverflowParams(
                 targetPoolId=gen_electives_pool._id
             ),
@@ -113,24 +113,24 @@ class CompCaDegreeScraper(CompVariantDegreeScraper):
         cart_400_courses = [course for course in comp_arts_core_pool.courses if course.startswith("CART 4") and course != "CART 470"]
         dart_courses = [course for course in comp_arts_core_pool.courses if course.startswith("DART")]
 
-        comp_arts_core_pool.rules.append(Constraint(
-            type=ConstraintType.MAX_CREDITS_FROM_SET,
+        comp_arts_core_pool.rules.append(Rule(
+            type=RuleType.MAX_CREDITS_FROM_SET,
             params=MaxCreditsFromSetParams(
                 courseList=cart_300_courses,
                 maxCredits=6.0
             ),
             message="Students may take a maximum of 6 credits from 300-level CART courses (excluding CART 310) to satisfy the Computation Arts Core requirement."
         ))
-        comp_arts_core_pool.rules.append(Constraint(
-            type=ConstraintType.MAX_CREDITS_FROM_SET,
+        comp_arts_core_pool.rules.append(Rule(
+            type=RuleType.MAX_CREDITS_FROM_SET,
             params=MaxCreditsFromSetParams(
                 courseList=cart_400_courses,
                 maxCredits=9.0
             ),
             message="Students may take a maximum of 9 credits from 400-level CART courses (excluding CART 470) to satisfy the Computation Arts Core requirement."
         ))
-        comp_arts_core_pool.rules.append(Constraint(
-            type=ConstraintType.MAX_CREDITS_FROM_SET,
+        comp_arts_core_pool.rules.append(Rule(
+            type=RuleType.MAX_CREDITS_FROM_SET,
             params=MaxCreditsFromSetParams(
                 courseList=dart_courses,
                 maxCredits=6.0
@@ -166,8 +166,8 @@ class CompDsDegreeScraper(CompVariantDegreeScraper):
         # Mathematics and Statistics Core: Joint Major in Data Science
         # MAST 334 may be replaced by COMP 361.
         math_stats_core_pool = next((pool for pool in self.program_requirements.coursePools if pool.name.strip() == "Mathematics and Statistics Core: Joint Major in Data Science"), None)
-        math_stats_core_pool.rules.append(Constraint(
-            type=ConstraintType.MAX_COURSES_FROM_SET,
+        math_stats_core_pool.rules.append(Rule(
+            type=RuleType.MAX_COURSES_FROM_SET,
             params=MaxCoursesFromSetParams(
                 courseList=["MAST 334", "COMP 361"],
                 maxCourses=1

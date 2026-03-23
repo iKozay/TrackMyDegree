@@ -4,7 +4,7 @@ import re
 from unidecode import unidecode
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from models import (Constraint, ConstraintType,
+from models import (Rule, RuleType,
                     MinCoursesFromSetParams, MaxCoursesFromSetParams,
                     CourseAdditionParams, CourseRemovalParams, CourseSubstitutionParams, MinCreditsCompletedParams,
                     OverrideCoursePoolCoursesParams)
@@ -240,53 +240,53 @@ def parse_minimum_credits(s):
         return float(match.group(1))
     return 0.0
 
-def parse_course_rules(prereq_coreq_text: str, notes_text: str) -> list[Constraint]:
+def parse_course_rules(prereq_coreq_text: str, notes_text: str) -> list[Rule]:
     prereq_text, coreq_text = parse_prereq_coreq(prereq_coreq_text)
 
     prereq, coreq, pre_coreq = make_requisite_arrays(prereq_text, coreq_text)
     not_taken_list=get_not_taken(notes_text)
     min_credits=parse_minimum_credits(prereq_coreq_text)
 
-    constraints = []
+    rules = []
     if prereq:
         for group in prereq:
-            constraints.append(Constraint(
-                type=ConstraintType.PREREQUISITE,
+            rules.append(Rule(
+                type=RuleType.PREREQUISITE,
                 params=MinCoursesFromSetParams(courseList=group, minCourses=1),
                 message="At least 1 of the following courses must be completed previously: " + ", ".join([", ".join(group)]) + "."
             ))
     
     if coreq:
         for group in coreq:
-            constraints.append(Constraint(
-                type=ConstraintType.COREQUISITE,
+            rules.append(Rule(
+                type=RuleType.COREQUISITE,
                 params=MinCoursesFromSetParams(courseList=group, minCourses=1),
                 message="At least 1 of the following courses must be taken concurrently: " + ", ".join([", ".join(group)]) + "."
             ))
     
     if pre_coreq:
         for group in pre_coreq:
-            constraints.append(Constraint(
-                type=ConstraintType.PREREQUISITE_OR_COREQUISITE,
+            rules.append(Rule(
+                type=RuleType.PREREQUISITE_OR_COREQUISITE,
                 params=MinCoursesFromSetParams(courseList=group, minCourses=1),
                 message="At least 1 of the following courses must be completed previously or taken concurrently: " + ", ".join([", ".join(group)]) + "."
             ))
     
     if not_taken_list:
-        constraints.append(Constraint(
-            type=ConstraintType.NOT_TAKEN,
+        rules.append(Rule(
+            type=RuleType.NOT_TAKEN,
             params=MaxCoursesFromSetParams(courseList=not_taken_list, maxCourses=0),
             message="Students cannot take this course if they have taken any of the following courses: " + ", ".join(not_taken_list) + "."
         ))
     
     if min_credits > 0:
-        constraints.append(Constraint(
-            type=ConstraintType.MIN_CREDITS,
+        rules.append(Rule(
+            type=RuleType.MIN_CREDITS,
             params=MinCreditsCompletedParams(minCredits=min_credits),
             message=f"Students must complete at least {min_credits} credits before taking this course."
         ))
     
-    return constraints
+    return rules
 
 def parse_course_components(component_text: str) -> list[str]:
     if not component_text:
@@ -331,9 +331,9 @@ def _word_or_num_to_int(s: str) -> int:
         return 1
 
 
-def parse_coursepool_rules(coursepool_notes: str) -> list[Constraint]:
+def parse_coursepool_rules(coursepool_notes: str) -> list[Rule]:
     """
-    Parses rule/note text extracted from a course pool page into a list of Constraint objects.
+    Parses rule/note text extracted from a course pool page into a list of Rule objects.
 
     Supported patterns
     ------------------
@@ -377,12 +377,12 @@ def parse_coursepool_rules(coursepool_notes: str) -> list[Constraint]:
         coursepool_notes (str): Text extracted from the course pool div.
 
     Returns:
-        list[Constraint]: Parsed constraints.
+        list[Rule]: Parsed rules.
     """
     if not coursepool_notes or not coursepool_notes.strip():
         return []
 
-    constraints: list[Constraint] = []
+    rules: list[Rule] = []
 
     # ------------------------------------------------------------------ #
     # Pattern 1 – "Students may replace X with Y"                         #
@@ -393,8 +393,8 @@ def parse_coursepool_rules(coursepool_notes: str) -> list[Constraint]:
     )
     for m in replace_re.finditer(coursepool_notes):
         a, b = m.group(1).strip(), m.group(2).strip()
-        constraints.append(Constraint(
-            type=ConstraintType.MAX_COURSES_FROM_SET,
+        rules.append(Rule(
+            type=RuleType.MAX_COURSES_FROM_SET,
             params=MaxCoursesFromSetParams(courseList=[a, b], maxCourses=1),
             message=f"Students may replace {a} with {b}."
         ))
@@ -410,8 +410,8 @@ def parse_coursepool_rules(coursepool_notes: str) -> list[Constraint]:
         courses = re.findall(COURSE_REGEX, m.group(1))
         if courses:
             msg = "Students may take no more than one of the following courses: " + ", ".join(courses) + "."
-            constraints.append(Constraint(
-                type=ConstraintType.MAX_COURSES_FROM_SET,
+            rules.append(Rule(
+                type=RuleType.MAX_COURSES_FROM_SET,
                 params=MaxCoursesFromSetParams(courseList=courses, maxCourses=1),
                 message=msg
             ))
@@ -429,8 +429,8 @@ def parse_coursepool_rules(coursepool_notes: str) -> list[Constraint]:
             courses = re.findall(COURSE_REGEX, pair_text)
             if len(courses) >= 2:
                 msg = "Students may take no more than one of the following courses: " + ", ".join(courses) + "."
-                constraints.append(Constraint(
-                    type=ConstraintType.MAX_COURSES_FROM_SET,
+                rules.append(Rule(
+                    type=RuleType.MAX_COURSES_FROM_SET,
                     params=MaxCoursesFromSetParams(courseList=courses, maxCourses=1),
                     message=msg
                 ))
@@ -450,8 +450,8 @@ def parse_coursepool_rules(coursepool_notes: str) -> list[Constraint]:
             min_count = _word_or_num_to_int(count_str)
             msg = (f"Students must take at least {count_str} courses from the following list: "
                    + ", ".join(courses) + ".")
-            constraints.append(Constraint(
-                type=ConstraintType.MIN_COURSES_FROM_SET,
+            rules.append(Rule(
+                type=RuleType.MIN_COURSES_FROM_SET,
                 params=MinCoursesFromSetParams(courseList=courses, minCourses=min_count),
                 message=msg
             ))
@@ -471,8 +471,8 @@ def parse_coursepool_rules(coursepool_notes: str) -> list[Constraint]:
             max_count = _word_or_num_to_int(count_str)
             msg = (f"Students may take no more than {count_str} course from the following list: "
                    + ", ".join(courses) + ".")
-            constraints.append(Constraint(
-                type=ConstraintType.MAX_COURSES_FROM_SET,
+            rules.append(Rule(
+                type=RuleType.MAX_COURSES_FROM_SET,
                 params=MaxCoursesFromSetParams(courseList=courses, maxCourses=max_count),
                 message=msg
             ))
@@ -490,8 +490,8 @@ def parse_coursepool_rules(coursepool_notes: str) -> list[Constraint]:
         degrees_text = m.group(1)
         course = re.sub(r'\s+', ' ', m.group(2).strip())
         for degree_id in re.findall(r'BEng in \w+ Engineering', degrees_text, re.I):
-            constraints.append(Constraint(
-                type=ConstraintType.COURSE_REMOVAL,
+            rules.append(Rule(
+                type=RuleType.COURSE_REMOVAL,
                 params=CourseRemovalParams(courseId=course, degreeId=degree_id),
                 message=f"Students in {degree_id} are not required to take {course}."
             ))
@@ -510,8 +510,8 @@ def parse_coursepool_rules(coursepool_notes: str) -> list[Constraint]:
         old_course = re.sub(r'\s+', ' ', m.group(2).strip())
         new_course = re.sub(r'\s+', ' ', m.group(3).strip())
         for degree_id in re.findall(r'BEng in \w+ Engineering', degrees_text, re.I):
-            constraints.append(Constraint(
-                type=ConstraintType.COURSE_SUBSTITUTION,
+            rules.append(Rule(
+                type=RuleType.COURSE_SUBSTITUTION,
                 params=CourseSubstitutionParams(oldCourseId=old_course, newCourseId=new_course, degreeId=degree_id),
                 message=f"Students in {degree_id} shall replace {old_course} with {new_course}."
             ))
@@ -531,13 +531,13 @@ def parse_coursepool_rules(coursepool_notes: str) -> list[Constraint]:
         old_course = re.sub(r'\s+', ' ', m.group(2).strip())
         new_course = re.sub(r'\s+', ' ', m.group(3).strip())
         for degree_id in re.findall(r'BEng in \w+ Engineering', degrees_text, re.I):
-            constraints.append(Constraint(
-                type=ConstraintType.COURSE_ADDITION,
+            rules.append(Rule(
+                type=RuleType.COURSE_ADDITION,
                 params=CourseAdditionParams(courseId=new_course, degreeId=degree_id),
                 message=f"Students in {degree_id} may replace {old_course} with {new_course}."
             ))
-            constraints.append(Constraint(
-                type=ConstraintType.MAX_COURSES_FROM_SET,
+            rules.append(Rule(
+                type=RuleType.MAX_COURSES_FROM_SET,
                 params=MaxCoursesFromSetParams(courseList=[old_course, new_course], maxCourses=1),
                 message=f"Students may take no more than one of the following courses: {old_course}, {new_course}."
             ))
@@ -555,8 +555,8 @@ def parse_coursepool_rules(coursepool_notes: str) -> list[Constraint]:
     for m in shall_take_elective_re.finditer(coursepool_notes):
         degree_id = m.group(1).strip()
         course = re.sub(r'\s+', ' ', m.group(2).strip())
-        constraints.append(Constraint(
-            type=ConstraintType.OVERRIDE_COURSEPOOL_COURSES,
+        rules.append(Rule(
+            type=RuleType.OVERRIDE_COURSEPOOL_COURSES,
             params=OverrideCoursePoolCoursesParams(
                 coursePoolId=_GENERAL_ELECTIVES_POOL_ID,
                 newCourseList=[course],
@@ -565,4 +565,4 @@ def parse_coursepool_rules(coursepool_notes: str) -> list[Constraint]:
             message=f"Students in {degree_id} shall take {course} as their General Education elective."
         ))
 
-    return constraints
+    return rules

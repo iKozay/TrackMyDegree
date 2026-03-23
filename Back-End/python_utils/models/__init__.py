@@ -12,27 +12,27 @@ class AnchorLink(BaseModel):
     text: str
     url: str
 
-class ConstraintType(str, Enum):
-    # General constraints
+class RuleType(str, Enum):
+    # General ruless
     MIN_CREDITS_FROM_SET = "min_credits_from_set"               # Minimum credits must be taken from a set of courses
     MAX_CREDITS_FROM_SET = "max_credits_from_set"               # Maximum credits can be taken from a set of courses
     MIN_COURSES_FROM_SET = "min_courses_from_set"               # Minimum courses must be taken from a set of courses
     MAX_COURSES_FROM_SET = "max_courses_from_set"               # Maximum courses can be taken from a set of courses
 
-    # Course-specific constraints
-    # Prerequisite/corequisite constraints can be represented as a MIN_COURSES_FROM_SET constraint
-    # Not taken constraints can be represented as a MAX_COURSES_FROM_SET constraint with max_courses=0
+    # Course-specific ruless
+    # Prerequisite/corequisite ruless can be represented as a MIN_COURSES_FROM_SET rule
+    # Not taken rules can be represented as a MAX_COURSES_FROM_SET rule with max_courses=0
     PREREQUISITE = "prerequisite"                               # Course A must be taken before B
     COREQUISITE = "corequisite"                                 # Course A must be taken in the same term as B
     PREREQUISITE_OR_COREQUISITE = "prerequisite_or_corequisite" # Course A must be taken before or in the same term as B
     NOT_TAKEN = "not_taken"                                     # Course A cannot be taken if B is taken 
     MIN_CREDITS = "min_credits"                                 # Minimum credits completed required to take the course
 
-    # Course pool specific constraints
+    # Course pool specific rules
     EXCESS_CREDITS_OVERFLOW = "excess_credits_overflow"         # Excess credits beyond required amount flow to target pool
 
 
-    # Intermediate constraints for handling special cases (used for internal logic)
+    # Intermediate rules for handling special cases (used for internal logic)
     COURSE_ADDITION = "course_addition"                                 # Course A is added to pool if degree name matches
     COURSE_REMOVAL = "course_removal"                                   # Course A is removed from pool if degree name matches
     COURSE_SUBSTITUTION = "course_substitution"                         # Course A is substituted with Course B if degree name matches
@@ -80,7 +80,7 @@ class OverrideCoursePoolCoursesParams(BaseModel):
     newCourseList: list[str]
     degreeId: Optional[str] = None  # If specified, override only applies to this degree
 
-ConstraintParams = Union[
+RuleParams = Union[
     MinCreditsFromSetParams,
     MaxCreditsFromSetParams,
     MinCoursesFromSetParams,
@@ -93,13 +93,13 @@ ConstraintParams = Union[
     OverrideCoursePoolCoursesParams
 ]
 
-class Constraint(BaseModel):
-    type: ConstraintType
-    params: ConstraintParams
+class Rule(BaseModel):
+    type: RuleType
+    params: RuleParams
     message: str = ""
     level: str = "warning"  # Can be "warning" or "info"
-    # warning: Constraint is not strictly required but recommended for a well-structured program
-    # info: informational constraint that provides additional details but does not impact requirement satisfaction
+    # warning: Rule is not strictly required but recommended for a well-structured program
+    # info: informational Rule that provides additional details but does not impact requirement satisfaction
 
 class MongoDBModel(BaseModel):
     model_config = ConfigDict(populate_by_name=True, use_enum_values=True)
@@ -121,13 +121,13 @@ class Course(MongoDBModel):
     prereqCoreqText: str
     notes: str
     components: list[str]
-    rules: list[Constraint] = Field(default_factory=list)
+    rules: list[Rule] = Field(default_factory=list)
 
 class CoursePool(MongoDBModel):
     name: str
     creditsRequired: float
     courses: list[str] # List of course IDs only
-    rules: list[Constraint] = Field(default_factory=list)
+    rules: list[Rule] = Field(default_factory=list)
 
 class Degree(MongoDBModel):
     name: str

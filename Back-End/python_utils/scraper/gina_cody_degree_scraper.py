@@ -5,7 +5,7 @@ import re
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.bs4_utils import extract_coursepool_rules, get_soup, get_all_links_from_div, extract_coursepool_and_required_credits, extract_coursepool_courses
 from utils.parsing_utils import COURSE_REGEX, extract_name_and_credits
-from models import AnchorLink, CoursePool, DegreeType, ConstraintType
+from models import AnchorLink, CoursePool, DegreeType, RuleType
 from scraper.abstract_degree_scraper import AbstractDegreeScraper
 from scraper.course_data_scraper import get_course_scraper_instance
 
@@ -94,27 +94,27 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
         # Parse rules for engineering core (additions, removes and substitutions) and apply them
         extract_coursepool_rules(self.ENGINEERING_CORE_COURSES_URL, pool)
         _INTERMEDIATE_TYPES = {
-            ConstraintType.COURSE_ADDITION,
-            ConstraintType.COURSE_REMOVAL,
-            ConstraintType.COURSE_SUBSTITUTION,
-            ConstraintType.OVERRIDE_COURSEPOOL_COURSES,
+            RuleType.COURSE_ADDITION,
+            RuleType.COURSE_REMOVAL,
+            RuleType.COURSE_SUBSTITUTION,
+            RuleType.OVERRIDE_COURSEPOOL_COURSES,
         }
         # Split: remove intermediate rules from the pool (they are applied directly here),
-        # keep general constraints (MAX_COURSES_FROM_SET etc.) on the pool for later use.
+        # keep general rules (MAX_COURSES_FROM_SET etc.) on the pool for later use.
         rules_to_apply = [r for r in pool.rules if r.type in _INTERMEDIATE_TYPES]
         pool.rules = [r for r in pool.rules if r.type not in _INTERMEDIATE_TYPES]
 
         for rule in rules_to_apply:
             if rule.params.degreeId and rule.params.degreeId not in self.degree_name:
                 continue
-            if rule.type == ConstraintType.COURSE_ADDITION:
+            if rule.type == RuleType.COURSE_ADDITION:
                 self.add_courses_to_pool(pool.name, [rule.params.courseId])
-            elif rule.type == ConstraintType.COURSE_REMOVAL:
+            elif rule.type == RuleType.COURSE_REMOVAL:
                 self.remove_courses_from_pool(pool.name, [rule.params.courseId])
-            elif rule.type == ConstraintType.COURSE_SUBSTITUTION:
+            elif rule.type == RuleType.COURSE_SUBSTITUTION:
                 self.remove_courses_from_pool(pool.name, [rule.params.oldCourseId])
                 self.add_courses_to_pool(pool.name, [rule.params.newCourseId])
-            elif rule.type == ConstraintType.OVERRIDE_COURSEPOOL_COURSES:
+            elif rule.type == RuleType.OVERRIDE_COURSEPOOL_COURSES:
                 for cp in self.program_requirements.coursePools:
                     if cp._id == rule.params.coursePoolId:
                         cp._id = f"{self.degree_short_name}_{rule.params.coursePoolId}"
