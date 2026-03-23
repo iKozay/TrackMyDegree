@@ -9,6 +9,7 @@ import type {
   SemesterId,
   SemesterList,
 } from "../../types/timeline.types";
+import { RuleType } from "@trackmydegree/shared";
 
 const courseRulesMock = vi.fn();
 
@@ -31,7 +32,7 @@ const makeCourse = (status: CourseStatusValue): Course => ({
   offeredIn: ["FALL 2025", "WINTER 2026"] as SemesterId[],
   rules: [
     {
-      type: "prerequisite",
+      type: RuleType.Prerequisite,
       level: "warning",
       message: "At least 1 of the following courses must be completed previously: MATH 203.",
       params: {
@@ -40,7 +41,7 @@ const makeCourse = (status: CourseStatusValue): Course => ({
       }
     },
     {
-      type: "corequisite",
+      type: RuleType.Corequisite,
       level: "warning",
       message: "At least 1 of the following courses must be completed previously or taken concurrently: ENCS 282.",
       params: {

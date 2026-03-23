@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { Rule } from "@trackmydegree/shared";
+import { RuleType, type Rule } from "@trackmydegree/shared";
 import type { Course, CourseMap, CourseStatusValue, SemesterList } from "../types/timeline.types";
 import { History, ClockArrowDown, CalendarClock, Calculator, CalendarX, ChevronDown, ChevronUp } from "lucide-react";
 import "../styles/components/CourseRules.css";
@@ -39,11 +39,6 @@ const ruleTypeDisplayMap: Record<string, RuleDisplayInfo> = {
 };
 
 const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters }) => {
-
-  if (!Array.isArray(course.rules) || course.rules.length === 0) {
-    return null;
-  }
-
   // Check if a specific rule is satisfied (not in violations)
   const isRuleSatisfied = (rule: Rule): boolean => {
     // Find the course in semesters and check if message contains the rule message
@@ -59,8 +54,8 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
     return true; // Rule is satisfied
   };
 
-  // Group rules by type
-  const groupedRules = course.rules.reduce((acc, rule) => {
+  // Group rules by type (safely handle non-array input)
+  const groupedRules = (Array.isArray(course.rules) ? course.rules : []).reduce((acc, rule) => {
     const ruleType = rule.type;
     if (!acc[ruleType]) {
       acc[ruleType] = [];
@@ -99,6 +94,10 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
 
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(getInitialCollapsedSections());
 
+  if (!Array.isArray(course.rules) || course.rules.length === 0) {
+    return null;
+  }
+
   const toggleSection = (ruleType: string) => {
     const newCollapsed = new Set(collapsedSections);
     if (newCollapsed.has(ruleType)) {
@@ -136,35 +135,36 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
   };
 
   const renderRuleContent = (rule: Rule) => {
-    const params = rule.params as any;
+    const courseList = (rule.params as { courseList?: string[] }).courseList;
+    const minCredits = (rule.params as { minCredits?: number }).minCredits;
 
     // If the rule has a message, use it
     if (rule.message) {
       return (
         <div className="rule-content">
           <p className="rule-message">{rule.message.split(":")[0]}:</p>
-          {params.courseList && renderCourseList(params.courseList)}
+          {courseList && renderCourseList(courseList)}
         </div>
       );
     }
 
     // Fallback rendering for rules without messages
-    if (params.courseList) {
+    if (courseList) {
       let messageText = "";
       switch (rule.type) {
-        case "prerequisite":
+        case RuleType.Prerequisite:
           messageText = "Needs to be completed before taking this course";
           break;
-        case "corequisite":
+        case RuleType.Corequisite:
           messageText = "Needs to be taken in the same semester as this course";
           break;
-        case "prerequisite_or_corequisite":
+        case RuleType.PrerequisiteOrCorequisite:
           messageText = "Needs to be taken either before or in the same semester as this course";
           break;
-        case "not_taken":
+        case RuleType.NotTaken:
           messageText = "Cannot be taken with this course";
           break;
-        case "min_credits":
+        case RuleType.MinimumCredits:
           messageText = "Minimum credits required";
           break;
       }
@@ -172,16 +172,16 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
       return (
         <div className="rule-content">
           <p className="rule-message">{messageText}</p>
-          {renderCourseList(params.courseList)}
+          {renderCourseList(courseList)}
         </div>
       );
     }
 
-    if (params.minCredits) {
+    if (minCredits) {
       return (
         <div className="rule-content">
           <p className="rule-message">
-            Minimum {params.minCredits} credits required
+            Minimum {minCredits} credits required
           </p>
         </div>
       );

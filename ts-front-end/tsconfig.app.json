@@ -20,5 +20,8 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": "."
   },
-  "include": ["src", "vitest.config.ts"]
+  "include": ["src", "vitest.config.ts"],
+  "exclude": [
+    "src/tests/**",
+  ]
 }

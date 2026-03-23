@@ -30,8 +30,7 @@ const baseCourse = (status: CourseStatusValue): Course => ({
   credits: 3,
   description: "Intro OOP",
   offeredIn: [] as SemesterId[],
-  prerequisites: [],
-  corequisites: [],
+  rules: [],
   status: {
     status,
     semester: null,

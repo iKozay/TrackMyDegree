@@ -25,8 +25,7 @@ describe("SemesterPlanner", () => {
       credits: 3,
       description: "Intro OOP",
       offeredIn: [],
-      prerequisites: [],
-      corequisites: [],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
     "SOEN 228": {
@@ -35,8 +34,7 @@ describe("SemesterPlanner", () => {
       credits: 4,
       description: "Hardware course",
       offeredIn: [],
-      prerequisites: [],
-      corequisites: [],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
   };

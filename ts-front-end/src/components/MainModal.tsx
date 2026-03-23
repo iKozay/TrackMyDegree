@@ -4,13 +4,14 @@ import { BaseModal } from "./BaseModal";
 import { AddModal } from "./AddModal";
 import { InsightsModal } from "./InsightsModal";
 import { SaveTimelineModal } from "./SaveTimelineModal";
-import type { CourseCode, CourseMap, Pool } from "../types/timeline.types";
+import type { CourseCode, CourseMap } from "../types/timeline.types";
 import { CoopValidationModal } from "./CoopValidationModal";
+import { type CoursePoolData } from "@trackmydegree/shared";
 
 type MainModalProps = {
   open: boolean;
   type: string;
-  pools: Pool[];
+  pools: CoursePoolData[];
   courses: CourseMap;
   timelineName: string;
   onSave: (timelineName: string) => void;

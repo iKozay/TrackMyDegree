@@ -150,7 +150,7 @@ export function getCourseValidationMessage(
   course: Course,
   state: TimelineState
 ): string {
-  const { semesters, courses } = state;
+  const { semesters } = state;
 
   const courseSemesterId = course.status.semester;
   if (!courseSemesterId) return "";
@@ -266,7 +266,12 @@ export function processRules(targetCourse: Course, rules: Rule[], state: Timelin
   }
 }
 
-function processRequisiteRule(rule: Rule, validationFunction: Function, state: TimelineState, violations: string[]) {
+function processRequisiteRule(
+  rule: Rule,
+  validationFunction: (course: Course | undefined, courseSemesterIndex: number, semesters: SemesterList) => boolean,
+  state: TimelineState,
+  violations: string[]
+) {
   const { courseList } = rule.params as MinCoursesFromSetParams;
 
   const satisfied = courseList.some((code) => {

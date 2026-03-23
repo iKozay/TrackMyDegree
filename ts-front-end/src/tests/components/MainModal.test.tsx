@@ -59,8 +59,7 @@ describe("MainModal", () => {
       description: "Test",
       credits: 3,
       offeredIn: [],
-      prerequisites: [],
-      corequisites: [],
+      rules: [],
       status: { status: "completed", semester: null },
     },
   };

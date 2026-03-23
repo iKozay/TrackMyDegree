@@ -59,8 +59,7 @@ const courses: CourseMap = {
     credits: 3,
     description: "",
     offeredIn: [] as SemesterId[],
-    prerequisites: [],
-    corequisites: [],
+    rules: [],
     status: { status: "incomplete", semester: null },
   },
   "ENGR 233": {
@@ -69,8 +68,7 @@ const courses: CourseMap = {
     credits: 3,
     description: "",
     offeredIn: [] as SemesterId[],
-    prerequisites: [],
-    corequisites: [],
+    rules: [],
     status: { status: "incomplete", semester: null },
   },
   "SOEN 228": {
@@ -79,8 +77,7 @@ const courses: CourseMap = {
     credits: 4,
     description: "",
     offeredIn: [] as SemesterId[],
-    prerequisites: [],
-    corequisites: [],
+    rules: [],
     status: { status: "incomplete", semester: null },
   },
   "SOEN 287": {
@@ -89,8 +86,7 @@ const courses: CourseMap = {
     credits: 3,
     description: "",
     offeredIn: [] as SemesterId[],
-    prerequisites: [],
-    corequisites: [],
+    rules: [],
     status: { status: "incomplete", semester: null },
   },
 };
@@ -328,12 +324,13 @@ describe("CoursePool", () => {
   it("hides pools when course ids are formatted differently but planned/completed", () => {
     const onCourseSelect = vi.fn();
 
-    const mismatchedPools: Pool[] = [
+    const mismatchedPools: CoursePoolData[] = [
       {
         _id: "pool-mismatch",
         name: "Engineering Core",
         creditsRequired: 12,
         courses: ["ENGR391", "ENGR392"] as CourseCode[],
+        rules: [],
       },
     ];
 
@@ -344,8 +341,7 @@ describe("CoursePool", () => {
         credits: 3,
         description: "",
         offeredIn: [] as SemesterId[],
-        prerequisites: [],
-        corequisites: [],
+        rules: [],
         status: { status: "planned", semester: "FALL 2026" as SemesterId },
       },
       "ENGR 392": {
@@ -354,8 +350,7 @@ describe("CoursePool", () => {
         credits: 3,
         description: "",
         offeredIn: [] as SemesterId[],
-        prerequisites: [],
-        corequisites: [],
+        rules: [],
         status: { status: "completed", semester: "WINTER 2026" as SemesterId },
       },
     };

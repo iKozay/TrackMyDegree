@@ -1,8 +1,9 @@
 import { DraggableCourse } from "./DraggableCourse";
-import type { Pool, CourseMap, CourseCode } from "../types/timeline.types";
+import type { CourseMap, CourseCode } from "../types/timeline.types";
+import { type CoursePoolData } from "@trackmydegree/shared";
 
 interface PoolCoursesListProps {
-  pool: Pool;
+  pool: CoursePoolData;
   courses: CourseMap;
   visibleCourseIds?: CourseCode[];
   selectedCourse?: CourseCode | null;

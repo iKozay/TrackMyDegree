@@ -47,8 +47,7 @@ describe("PoolCoursesList", () => {
       credits: 4,
       description: "Test course",
       offeredIn: [] as SemesterId[],
-      prerequisites: [],
-      corequisites: [],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
     "SOEN 287": {
@@ -57,8 +56,7 @@ describe("PoolCoursesList", () => {
       credits: 3,
       description: "Test course 2",
       offeredIn: [] as SemesterId[],
-      prerequisites: [],
-      corequisites: [],
+      rules: [],
       status: { status: "completed", semester: "FALL 2025" as SemesterId },
     },
     "SOEN 321": {
@@ -67,8 +65,7 @@ describe("PoolCoursesList", () => {
       credits: 3,
       description: "Test course 3",
       offeredIn: [] as SemesterId[],
-      prerequisites: [],
-      corequisites: [],
+      rules: [],
       status: { status: "planned", semester: "WINTER 2026" as SemesterId },
     },
   };

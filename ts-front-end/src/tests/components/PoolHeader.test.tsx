@@ -20,8 +20,7 @@ describe("PoolHeader", () => {
       credits: 3,
       description: "",
       offeredIn: [] as SemesterId[],
-      prerequisites: [],
-      corequisites: [],
+      rules: [],
       status: { status: "completed", semester: null },
     },
     "ENGR 233": {
@@ -30,8 +29,7 @@ describe("PoolHeader", () => {
       credits: 3,
       description: "",
       offeredIn: [] as SemesterId[],
-      prerequisites: [],
-      corequisites: [],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
     "SOEN 228": {
@@ -40,8 +38,7 @@ describe("PoolHeader", () => {
       credits: 4,
       description: "",
       offeredIn: [] as SemesterId[],
-      prerequisites: [],
-      corequisites: [],
+      rules: [],
       status: { status: "completed", semester: null },
     },
     "SOEN 287": {
@@ -50,8 +47,7 @@ describe("PoolHeader", () => {
       credits: 3,
       description: "",
       offeredIn: [] as SemesterId[],
-      prerequisites: [],
-      corequisites: [],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
   };

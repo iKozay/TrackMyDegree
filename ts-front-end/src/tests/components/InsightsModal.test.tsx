@@ -50,8 +50,7 @@ describe("InsightsModal", () => {
       description: "Test",
       credits: 3,
       offeredIn: [],
-      prerequisites: [],
-      corequisites: [],
+      rules: [],
       status: { status: "completed", semester: null },
     },
     "COMP 249": {
@@ -60,8 +59,7 @@ describe("InsightsModal", () => {
       description: "Test",
       credits: 3,
       offeredIn: [],
-      prerequisites: [],
-      corequisites: [],
+      rules: [],
       status: { status: "planned", semester: null },
     },
     "SOEN 228": {
@@ -70,8 +68,7 @@ describe("InsightsModal", () => {
       description: "Test",
       credits: 4,
       offeredIn: [],
-      prerequisites: [],
-      corequisites: [],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
     "MATH 203": {
@@ -80,8 +77,7 @@ describe("InsightsModal", () => {
       description: "Test",
       credits: 3,
       offeredIn: [],
-      prerequisites: [],
-      corequisites: [],
+      rules: [],
       status: { status: "planned", semester: null },
     },
   };
