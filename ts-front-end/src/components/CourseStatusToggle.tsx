@@ -1,7 +1,5 @@
 import React from "react";
 import { CheckCircle, AlertTriangle, Trash2 } from "lucide-react";
-import "../styles/CourseStatus.css"; 
-
 import type {
   CourseCode,
   CourseStatusValue,
@@ -35,47 +33,48 @@ export const CourseStatusActions: React.FC<CourseStatusActionsProps> = ({
     if (!semesterId || !onRemoveCourse) return;
     onRemoveCourse(course.id, semesterId);
   };
-
   const onChangeStatus = (newStatus: CourseStatusValue) => {
     if (!onChangeCourseStatus) return;
     onChangeCourseStatus(course.id, newStatus);
   };
 
   return (
-    <div className="course-status-container">
-      <div className="status-actions-label">set course status</div>
+    <div className="course-status-actions">
+      <div className="status-actions-label">Change course status</div>
 
       <div className="status-actions-buttons">
-        {/* Only render buttons if they are valid actions */}
-        {canMarkIncomplete && (
-          <button
-            className="status-action-btn btn-incomplete"
-            onClick={() => onChangeStatus("incomplete")}
-          >
-            <AlertTriangle size={18} />
-            Mark as Incomplete
-          </button>
-        )}
+        {/* Mark as Incomplete */}
+        <button
+          className={`status-action-btn incomplete ${
+            canMarkIncomplete ? "active" : ""
+          }`}
+          onClick={() => onChangeStatus("incomplete")}
+          disabled={!canMarkIncomplete}>
+          <AlertTriangle size={16} />
+          Mark as Incomplete
+        </button>
 
-        {canMarkCompleted && (
-          <button
-            className="status-action-btn btn-completed"
-            onClick={() => onChangeStatus("completed")}
-          >
-            <CheckCircle size={18} />
-            Mark as Completed
-          </button>
-        )}
+        {/* Mark as Completed */}
+        <button
+          className={`status-action-btn completed ${
+            canMarkCompleted ? "active" : ""
+          }`}
+          onClick={() => onChangeStatus("completed")}
+          disabled={!canMarkCompleted}>
+          <CheckCircle size={16} />
+          Mark as Completed
+        </button>
 
-        {canRemoveFromTimeline && (
-          <button
-            className="status-action-btn btn-danger"
-            onClick={handleRemoveFromTimeline}
-          >
-            <Trash2 size={18} />
-            Remove from Timeline
-          </button>
-        )}
+        {/* Remove from Timeline */}
+        <button
+          className={`status-action-btn danger ${
+            canRemoveFromTimeline ? "active" : ""
+          }`}
+          onClick={handleRemoveFromTimeline}
+          disabled={!canRemoveFromTimeline}>
+          <Trash2 size={16} />
+          Remove from Timeline
+        </button>
       </div>
     </div>
   );
