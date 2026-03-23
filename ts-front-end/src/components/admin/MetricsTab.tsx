@@ -52,8 +52,6 @@ const MetricsTab: React.FC = () => {
       } finally {
         setLoading(false);
       }
-    };
-
   }, []);
 
   useEffect(() => { void fetchMetrics(); }, [fetchMetrics]);
