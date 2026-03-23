@@ -482,7 +482,7 @@ export function canAddCourse(
   courseId: CourseCode,
   type: string,
   courses: CourseMap,
-  pools: Pool[],
+  pools: CoursePoolData[],
 ): AddCourseValidationResult {
   const poolName =
     type === "exemption"
