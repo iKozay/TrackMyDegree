@@ -67,7 +67,7 @@ def scrape_degree_api():
         return jsonify(serialize(degree_data))
     except Exception as e:
         logger.error(f"Error scraping degree data for degree name {name}: {str(e)}")
-        return jsonify({"error": f"Error scraping degree data. Please try again later."}), 500
+        return jsonify({"error": "Error scraping degree data. Please try again later."}), 500
 
 @app.route('/scrape-all-degrees', methods=['GET'])
 def scrape_all_degrees_api():
