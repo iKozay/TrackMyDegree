@@ -162,40 +162,6 @@ export function getCourseValidationMessage(
 
   const violations: string[] = [];
 
-  // /* ---------------- PREREQUISITES ---------------- */
-
-  // for (const prereqGroup of course.prerequisites ?? []) {
-  //   if (isRequisiteGroup(prereqGroup)) {
-  //     const satisfied = prereqGroup.anyOf.some((code) =>
-  //       isCourseSatisfied(courses[code], courseSemesterIndex, semesters)
-  //     );
-
-  //     if (!satisfied) {
-  //       return `Prerequisite (${prereqGroup.anyOf.join(" or ")}) not met`;
-  //     }
-  //   }
-  // }
-
-  // /* ---------------- COREQUISITES ---------------- */
-  // for (const coreqGroup of course.corequisites ?? []) {
-  //   if (isRequisiteGroup(coreqGroup)) {
-  //     const satisfied = coreqGroup.anyOf.some((code) =>
-  //       isCourseSatisfiedSameOrBefore(
-  //         courses[code],
-  //         courseSemesterIndex,
-  //         semesters
-  //       )
-  //     );
-
-  //     if (!satisfied) {
-  //       return `Corequisite (${coreqGroup.anyOf.join(" or ")}) not met`;
-  //     }
-  //   }
-  // }
-
-  // /* ---------------- MINIMUM CREDITS ---------------- */
-  // // TODO: add minimum credits validation
-
   /* ---------------- COURSE RULES ---------------- */
   processRules(course, course.rules, state, violations);
 

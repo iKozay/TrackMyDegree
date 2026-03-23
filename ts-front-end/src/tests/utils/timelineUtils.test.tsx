@@ -7,7 +7,7 @@ import {
   getCourseValidationMessage,
   saveTimeline,
 } from "../../utils/timelineUtils";
-import type { CoursePoolData } from "@trackmydegree/shared";
+import { RuleType, type CoursePoolData, type Rule } from "@trackmydegree/shared";
 import type {
   Course,
   CourseMap,
@@ -380,6 +380,171 @@ describe("timelineUtils", () => {
         ...baseCourse,
         rules: [],
       };
+      expect(getCourseValidationMessage(course, baseState)).toBe("");
+    });
+
+    it("flags min credits from set when credits are below minimum", () => {
+      const course: Course = {
+        ...baseCourse,
+        id: "COMP 352",
+        rules: [
+          {
+            type: RuleType.MinCreditsFromSet,
+            level: "warning",
+            message: "Need at least 6 credits from COMP 248/COMP 249.",
+            params: { courseList: ["COMP 352", "COMP 248", "COMP 249"], minCredits: 6 },
+          } as Rule,
+        ],
+      };
+
+      const state: TimelineState = {
+        ...baseState,
+        courses: {
+          ...baseState.courses,
+          "COMP 352": {
+            ...baseCourse,
+            id: "COMP 352",
+            status: { status: "planned", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 248": {
+            ...baseState.courses["COMP 248"],
+            status: { status: "completed", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 249": {
+            ...baseState.courses["COMP 249"],
+            status: { status: "incomplete", semester: null },
+          },
+        },
+      };
+
+      expect(getCourseValidationMessage(course, state)).toContain("Need at least 6 credits from COMP 248/COMP 249.");
+    });
+
+    it("flags max credits from set when credits exceed maximum", () => {
+      const course: Course = {
+        ...baseCourse,
+        id: "COMP 352",
+        rules: [
+          {
+            type: RuleType.MaxCreditsFromSet,
+            level: "warning",
+            message: "No more than 3 credits allowed from COMP 248/COMP 249.",
+            params: { courseList: ["COMP 352", "COMP 248", "COMP 249"], maxCredits: 3 },
+          } as Rule,
+        ],
+      };
+
+      const state: TimelineState = {
+        ...baseState,
+        courses: {
+          ...baseState.courses,
+          "COMP 352": {
+            ...baseCourse,
+            id: "COMP 352",
+            status: { status: "planned", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 248": {
+            ...baseState.courses["COMP 248"],
+            status: { status: "completed", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 249": {
+            ...baseState.courses["COMP 249"],
+            status: { status: "completed", semester: "FALL 2025" as SemesterId },
+          },
+        },
+      };
+
+      expect(getCourseValidationMessage(course, state)).toContain("No more than 3 credits allowed from COMP 248/COMP 249.");
+    });
+
+    it("flags min courses from set when course count is below minimum", () => {
+      const course: Course = {
+        ...baseCourse,
+        id: "COMP 352",
+        rules: [
+          {
+            type: RuleType.MinCoursesFromSet,
+            level: "warning",
+            message: "Need at least 3 courses from COMP 248/COMP 249.",
+            params: { courseList: ["COMP 352", "COMP 248", "COMP 249"], minCourses: 3 },
+          } as Rule,
+        ],
+      };
+
+      const state: TimelineState = {
+        ...baseState,
+        courses: {
+          ...baseState.courses,
+          "COMP 352": {
+            ...baseCourse,
+            id: "COMP 352",
+            status: { status: "planned", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 248": {
+            ...baseState.courses["COMP 248"],
+            status: { status: "completed", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 249": {
+            ...baseState.courses["COMP 249"],
+            status: { status: "incomplete", semester: null },
+          },
+        },
+      };
+
+      expect(getCourseValidationMessage(course, state)).toContain("Need at least 3 courses from COMP 248/COMP 249.");
+    });
+
+    it("flags max courses from set when course count exceeds maximum", () => {
+      const course: Course = {
+        ...baseCourse,
+        id: "COMP 352",
+        rules: [
+          {
+            type: RuleType.MaxCoursesFromSet,
+            level: "warning",
+            message: "No more than 1 course allowed from COMP 248/COMP 249.",
+            params: { courseList: ["COMP 352", "COMP 248", "COMP 249"], maxCourses: 1 },
+          } as Rule,
+        ],
+      };
+
+      const state: TimelineState = {
+        ...baseState,
+        courses: {
+          ...baseState.courses,
+          "COMP 352": {
+            ...baseCourse,
+            id: "COMP 352",
+            status: { status: "planned", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 248": {
+            ...baseState.courses["COMP 248"],
+            status: { status: "completed", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 249": {
+            ...baseState.courses["COMP 249"],
+            status: { status: "planned", semester: "WINTER 2026" as SemesterId },
+          },
+        },
+      };
+
+      expect(getCourseValidationMessage(course, state)).toContain("No more than 1 course allowed from COMP 248/COMP 249.");
+    });
+
+    it("skips set-based rules when target course is not in courseList", () => {
+      const course: Course = {
+        ...baseCourse,
+        id: "COMP 352",
+        rules: [
+          {
+            type: RuleType.MinCoursesFromSet,
+            level: "warning",
+            message: "This should be skipped.",
+            params: { courseList: ["COMP 248", "COMP 249"], minCourses: 2 },
+          } as Rule,
+        ],
+      };
+
       expect(getCourseValidationMessage(course, baseState)).toBe("");
     });
   });
