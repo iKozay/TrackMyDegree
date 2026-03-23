@@ -19,14 +19,14 @@ export function canDropCourse(
   courses: CourseMap,
   semesters: SemesterList,
   fromSemesterId?: SemesterId,
-  toSemesterId?: SemesterId
+  toSemesterId?: SemesterId,
 ): { allowed: boolean; reason?: string } {
   const targetSemester = semesters.find((s) => s.term === toSemesterId);
 
   if (targetSemester) {
     const totalCredits = targetSemester.courses.reduce(
       (sum, c) => sum + (courses[c.code]?.credits ?? 0),
-      0
+      0,
     );
 
     const projectedCredits = totalCredits + (course.credits ?? 0);
@@ -76,8 +76,11 @@ export function calculateEarnedCredits(courses: CourseMap, pool: CoursePoolData,
 export function calculateCoursePoolEarnedCredits(courses: CourseMap, pool: CoursePoolData,
 ): number {
   return Object.values(courses).reduce((total, course) => {
-    if (pool.courses.includes(course.id) && course.status.status === "completed") {
-      return total + (course.credits || 0);;
+    if (
+      pool.courses.includes(course.id) &&
+      course.status.status === "completed"
+    ) {
+      return total + (course.credits || 0);
     }
     return total;
   }, 0);
@@ -86,7 +89,7 @@ export function calculateCoursePoolEarnedCredits(courses: CourseMap, pool: Cours
 export async function saveTimeline(
   userId: string,
   timelineName: string,
-  jobId?: string
+  jobId?: string,
 ) {
   const savePromise = api.post("/timeline", {
     userId,
@@ -104,7 +107,7 @@ export async function saveTimeline(
 function isCourseSatisfied(
   course: Course | undefined,
   courseSemesterIndex: number,
-  semesters: SemesterList
+  semesters: SemesterList,
 ): boolean {
   // This function checks if a course is satisfied (completed or planned in a previous semesters)
   if (!course) return false;
@@ -114,7 +117,7 @@ function isCourseSatisfied(
   if (course.status.status !== "planned") return false;
 
   const prereqSemesterIndex = semesters.findIndex(
-    (s) => s.term === course.status.semester
+    (s) => s.term === course.status.semester,
   );
 
   return (
@@ -124,7 +127,7 @@ function isCourseSatisfied(
 function isCourseSatisfiedSameSemester(
   course: Course | undefined,
   courseSemesterIndex: number,
-  semesters: SemesterList
+  semesters: SemesterList,
 ): boolean {
   // This function checks if a course is satisfied (completed or planned in same semester)
   if (!course) return false;
@@ -148,7 +151,7 @@ function isCourseSatisfiedSameOrBefore(
 
 export function getCourseValidationMessage(
   course: Course,
-  state: TimelineState
+  state: TimelineState,
 ): string {
   const { semesters } = state;
 
@@ -156,7 +159,7 @@ export function getCourseValidationMessage(
   if (!courseSemesterId) return "";
 
   const courseSemesterIndex = semesters.findIndex(
-    (s) => s.term === courseSemesterId
+    (s) => s.term === courseSemesterId,
   );
   if (courseSemesterIndex === -1) return "";
 
@@ -232,6 +235,7 @@ export function processRules(targetCourse: Course, rules: Rule[], state: Timelin
   }
 }
 
+<<<<<<< python_utils_refactor
 function processRequisiteRule(
   rule: Rule,
   validationFunction: (course: Course | undefined, courseSemesterIndex: number, semesters: SemesterList) => boolean,
@@ -269,6 +273,22 @@ function processMinCreditsRule(rule: Rule, targetCourse: Course | null, state: T
 
     if (semesterIndex !== -1 && semesterIndex < targetSemesterIndex) {
       coursesBeforeTarget[code] = course;
+=======
+  /* ---------------- COREQUISITES ---------------- */
+  for (const coreqGroup of course.corequisites ?? []) {
+    if (isRequisiteGroup(coreqGroup)) {
+      const satisfied = coreqGroup.anyOf.some((code) =>
+        isCourseSatisfiedSameOrBefore(
+          courses[code],
+          courseSemesterIndex,
+          semesters,
+        ),
+      );
+
+      if (!satisfied) {
+        return `Corequisite (${coreqGroup.anyOf.join(" or ")}) not met`;
+      }
+>>>>>>> main
     }
   }
   
@@ -346,20 +366,25 @@ function processMaxCoursesFromSetRule(rule: Rule, targetCourse: Course | null, s
 }
 
 function getPoolCourses(
+<<<<<<< python_utils_refactor
   pools: CoursePoolData[],
   id: "exemptions" | "deficiencies"
+=======
+  pools: Pool[],
+  id: "exemptions" | "deficiencies",
+>>>>>>> main
 ): CourseCode[] {
   return pools.find((p) => p._id.toLowerCase() === id)?.courses ?? [];
 }
 
 export function computeTimelinePartialUpdate(
   prev: TimelineState,
-  curr: TimelineState
+  curr: TimelineState,
 ): TimelinePartialUpdate | null {
   const update: TimelinePartialUpdate = {};
 
   if (prev.timelineName !== curr.timelineName) {
-      update.timelineName = curr.timelineName;
+    update.timelineName = curr.timelineName;
   }
 
   /* ---------- EXEMPTIONS ---------- */
@@ -410,7 +435,7 @@ export function computeTimelinePartialUpdate(
 export async function downloadTimelinePdf(): Promise<void> {
   // TODO: refactor this to use downloadUtils.ts
   const semestersGrid = document.querySelector(
-    ".semesters-grid"
+    ".semesters-grid",
   ) as HTMLElement | null;
   if (!semestersGrid) {
     console.error("Semesters grid not found");
@@ -467,4 +492,38 @@ export async function downloadTimelinePdf(): Promise<void> {
     wrapper.remove();
     console.error("Failed to generate PDF:", err);
   }
+}
+
+export type AddCourseValidationResult =
+  | "ok"
+  | "already_exists"
+  | "course_not_found"
+  | "invalid_type";
+
+export function canAddCourse(
+  courseId: CourseCode,
+  type: string,
+  courses: CourseMap,
+  pools: Pool[],
+): AddCourseValidationResult {
+  const poolName =
+    type === "exemption"
+      ? "exemptions"
+      : type === "deficiency"
+        ? "deficiencies"
+        : null;
+
+  if (!poolName) return "invalid_type";
+
+  const course = courses[courseId];
+  if (!course) return "course_not_found";
+
+  const pool = pools.find((p) => p.name === poolName);
+  if (!pool) return "invalid_type";
+
+  if (pool.courses.includes(courseId)) {
+    return "already_exists";
+  }
+
+  return "ok";
 }

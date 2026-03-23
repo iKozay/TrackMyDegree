@@ -8,12 +8,12 @@ describe("TimelineError", () => {
 
     // Title
     expect(
-      screen.getByRole("heading", { name: /something went wrong/i })
+      screen.getByRole("heading", { name: /something went wrong/i }),
     ).toBeInTheDocument();
 
     // Default message
     expect(
-      screen.getByText(/could not load timeline data\./i)
+      screen.getByText(/could not load timeline data\./i),
     ).toBeInTheDocument();
 
     // No retry button by default (since onRetry not provided)

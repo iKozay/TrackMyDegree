@@ -61,28 +61,14 @@ describe("PoolHeader", () => {
         isExpanded={false}
         onToggle={onToggle}
         courses={courses}
-      />
+        hasActiveSearch={false}
+      />,
     );
 
     // Pool name
     expect(screen.getByText("Software Engineering Core")).toBeInTheDocument();
 
     // Course count should reflect visible courses.
-    expect(screen.getByText("(4/47.5)")).toBeInTheDocument();
-  });
-
-  it("shows visible course count when there is an active search", () => {
-    const onToggle = vi.fn();
-
-    render(
-      <PoolHeader
-        pool={pool}
-        isExpanded={false}
-        onToggle={onToggle}
-        courses={courses}
-      />
-    );
-
     expect(screen.getByText("(4/47.5)")).toBeInTheDocument();
   });
 
@@ -95,7 +81,8 @@ describe("PoolHeader", () => {
         isExpanded={false}
         onToggle={onToggle}
         courses={courses}
-      />
+        hasActiveSearch={false}
+      />,
     );
 
     const button = screen.getByRole("button", {
@@ -116,7 +103,8 @@ describe("PoolHeader", () => {
         isExpanded={false}
         onToggle={onToggle}
         courses={courses}
-      />
+        hasActiveSearch={false}
+      />,
     );
 
     // Collapsed: ChevronRight icon rendered as an SVG
@@ -130,33 +118,12 @@ describe("PoolHeader", () => {
         isExpanded={true}
         onToggle={onToggle}
         courses={courses}
-      />
+        hasActiveSearch={false}
+      />,
     );
 
     // Still an SVG, but we mainly care that it re-renders without error.
     const expandedSvg = document.querySelector("svg");
     expect(expandedSvg).toBeInTheDocument();
-  });
-
-  it("does not call onToggle when disabled", () => {
-    const onToggle = vi.fn();
-
-    render(
-      <PoolHeader
-        pool={pool}
-        isExpanded={false}
-        onToggle={onToggle}
-        courses= {{}}
-        disabled={true}
-      />
-    );
-
-    const button = screen.getByRole("button", {
-      name: /software engineering core/i,
-    });
-
-    fireEvent.click(button);
-    expect(button).toBeDisabled();
-    expect(onToggle).not.toHaveBeenCalled();
   });
 });

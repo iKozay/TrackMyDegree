@@ -20,11 +20,19 @@
     width: 200px;
     height: 200px;
     margin: 0 auto;
+    overflow: visible;
+    isolation: isolate;
 }
 
 .insights-pool-chart {
     width: 100%;
     height: 100%;
+    position: relative;
+    z-index: 0;
+}
+
+.insights-pool-center-hit {
+    cursor: pointer;
 }
 
 .insights-pool-background-circle,
@@ -45,6 +53,9 @@
     font-size: 2rem;
     font-weight: bold;
     color: #333;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
 }
 
 .insights-pool-credits {

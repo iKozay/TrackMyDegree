@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { Dispatch } from "react";
 
 import { timelineReducer } from "../reducers/timelineReducer";
@@ -155,72 +155,70 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
 
   const [state, dispatch] = useReducer(timelineReducer, EMPTY_TIMELINE_STATE);
 
-  const actions = createTimelineActions(dispatch);
+  const actions = useMemo(() => createTimelineActions(dispatch), [dispatch]);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mountedRef = useRef(true);
 
   useEffect(() => {
     mountedRef.current = true;
 
-    // guard
     if (!jobId) return;
-    if (initialized) return; // ✅ don't start polling if already initialized
+    if (initialized) return;
 
-    const fetchResult = async () => {
-      try {
-        const data = await api.get<TimelineJobResponse>(`/jobs/${jobId}`);
+    const POLL_INTERVAL_MS = 1_500;
+    const MAX_ERRORS = 3;
+    let consecutiveErrors = 0;
 
-        if (!mountedRef.current) return;
-
-        setStatus(data.status);
-
-        if (data.status === "done" && data.result) {
-          const { degree, pools, courses, semesters } = data.result;
-          const timelineName =
-            data.result.timelineName ?? "";
-
-          actions.initTimelineState(
-            timelineName,
-            degree,
-            pools,
-            courses,
-            semesters
-          );
-          setInitialized(true);
-
-          // ✅ STOP polling immediately
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching timeline result:", err);
-        if (!mountedRef.current) return;
-        setStatus("error");
-        if (err instanceof Error && err.message.includes("HTTP 410")) {
-          setErrorMessage("Timeline generation expired. Please try again.");
-        } else {
-          setErrorMessage(null);
-        }
-
-        // optional: stop on error
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
-        }
-      }
-    };
-
-    intervalRef.current = setInterval(fetchResult, 1000);
-
-    return () => {
-      mountedRef.current = false;
-
+    const stopPolling = () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+    };
+
+    const fetchResult = async () => {
+      try {
+        const data = await api.get<TimelineJobResponse>(`/jobs/${jobId}`);
+        if (!mountedRef.current) return;
+
+        consecutiveErrors = 0;
+
+        if (data.status === "done" && data.result) {
+          const { degree, pools, courses, semesters } = data.result;
+          actions.initTimelineState(
+            data.result.timelineName ?? "",
+            degree,
+            pools,
+            courses,
+            semesters,
+          );
+          setInitialized(true);
+          setStatus("done");
+          stopPolling();
+        }
+      } catch (err) {
+        if (!mountedRef.current) return;
+        consecutiveErrors++;
+
+        if (consecutiveErrors < MAX_ERRORS) return;
+
+        console.error("Error fetching timeline result:", err);
+        setStatus("error");
+        setErrorMessage(
+          err instanceof Error && err.message.includes("HTTP 410")
+            ? "Timeline generation expired. Please try again."
+            : null,
+        );
+        stopPolling();
+      }
+    };
+
+    fetchResult();
+    intervalRef.current = setInterval(fetchResult, POLL_INTERVAL_MS);
+
+    return () => {
+      mountedRef.current = false;
+      stopPolling();
     };
   }, [jobId, initialized, actions]);
 

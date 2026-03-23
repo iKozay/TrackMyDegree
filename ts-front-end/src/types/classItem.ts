@@ -7,6 +7,7 @@ export interface ClassItem {
     day: number; // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
     startTime: number; // hour in 24h format (8-22)
     endTime: number; // hour in 24h format (8-22)
+    type: string; // e.g. "LEC", "TUT", LAB
 }
 
 // Raw API response shape from /section/schedule

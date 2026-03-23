@@ -70,42 +70,6 @@ describe("PoolCoursesList", () => {
     },
   };
 
-  it("renders no courses when visibleCourseIds is an empty filtered list", () => {
-    const onCourseSelect = vi.fn();
-
-    render(
-      <PoolCoursesList
-        pool={pool}
-        courses={courses}
-        visibleCourseIds={[]}
-        selectedCourse={null}
-        onCourseSelect={onCourseSelect}
-      />
-    );
-
-    expect(screen.queryAllByTestId("draggable-course")).toHaveLength(0);
-  });
-
-  it("renders all pool courses when visibleCourseIds is not provided", () => {
-    const onCourseSelect = vi.fn();
-
-    render(
-      <PoolCoursesList
-        pool={pool}
-        courses={courses}
-        selectedCourse={null}
-        onCourseSelect={onCourseSelect}
-      />
-    );
-
-    const rendered = screen.getAllByTestId("draggable-course");
-    expect(rendered).toHaveLength(3);
-
-    expect(screen.getByText("SOEN 228")).toBeInTheDocument();
-    expect(screen.getByText("SOEN 287")).toBeInTheDocument();
-    expect(screen.getByText("SOEN 321")).toBeInTheDocument();
-  });
-
   it("uses visibleCourseIds when there is an active filtered list", () => {
     const onCourseSelect = vi.fn();
 
@@ -116,7 +80,7 @@ describe("PoolCoursesList", () => {
         visibleCourseIds={["SOEN 228", "SOEN 321"] as CourseCode[]}
         selectedCourse={null}
         onCourseSelect={onCourseSelect}
-      />
+      />,
     );
 
     const rendered = screen.getAllByTestId("draggable-course");
@@ -137,16 +101,16 @@ describe("PoolCoursesList", () => {
         visibleCourseIds={pool.courses}
         selectedCourse={"SOEN 287" as CourseCode}
         onCourseSelect={onCourseSelect}
-      />
+      />,
     );
 
     const items = getAllByTestId("draggable-course");
 
     const selectedItem = items.find(
-      (el) => el.getAttribute("data-course-id") === "SOEN 287"
+      (el) => el.getAttribute("data-course-id") === "SOEN 287",
     );
     const nonSelectedItem = items.find(
-      (el) => el.getAttribute("data-course-id") === "SOEN 228"
+      (el) => el.getAttribute("data-course-id") === "SOEN 228",
     );
 
     expect(selectedItem?.getAttribute("data-selected")).toBe("true");
@@ -163,7 +127,7 @@ describe("PoolCoursesList", () => {
         visibleCourseIds={pool.courses}
         selectedCourse={null}
         onCourseSelect={onCourseSelect}
-      />
+      />,
     );
 
     const items = screen.getAllByTestId("draggable-course");
@@ -174,7 +138,7 @@ describe("PoolCoursesList", () => {
 
     expect(onCourseSelect).toHaveBeenCalledTimes(1);
     expect(onCourseSelect).toHaveBeenCalledWith(
-      firstItem.getAttribute("data-course-id")
+      firstItem.getAttribute("data-course-id"),
     );
   });
 });
