@@ -79,7 +79,7 @@ def scrape_all_degrees_api():
         return jsonify(serialize(degree_data))
     except Exception as e:
         logger.error(f"Error scraping all degree data: {str(e)}")
-        return jsonify({"error": f"Error scraping degree data: {str(e)}"}), 500
+        return jsonify({"error": "Error scraping degree data. Please try again later."}), 500
 
 
 @app.route('/get-course', methods=['GET'])
@@ -96,7 +96,7 @@ def get_course_api():
         return jsonify(serialize(course_data))
     except Exception as e:
         logger.error(f"Error retrieving course data for code {code}: {str(e)}")
-        return jsonify({"error": f"Error retrieving course data: {str(e)}"}), 500
+        return jsonify({"error": "Error retrieving course data. Please try again later."}), 500
 
 @app.route('/get-all-courses', methods=['GET'])
 def get_all_courses_api():
@@ -108,7 +108,7 @@ def get_all_courses_api():
         return jsonify(serialize(courses))
     except Exception as e:
         logger.error(f"Error retrieving all courses: {str(e)}")
-        return jsonify({"error": f"Error retrieving course data: {str(e)}"}), 500
+        return jsonify({"error": "Error retrieving course data. Please try again later."}), 500
 
 @app.route('/get-course-schedule', methods=['GET'])
 def get_course_schedule():
@@ -125,7 +125,7 @@ def get_course_schedule():
         return jsonify(serialize(course_data))
     except Exception as e:
         logger.error(f"Error retrieving course schedule data for subject {subject} catalog {catalog}: {str(e)}")
-        return jsonify({"error": f"Error retrieving course schedule data: {str(e)}"}), 500
+        return jsonify({"error": "Error retrieving course schedule data. Please try again later."}), 500
 
 @app.route('/health', methods=['GET'])
 def health_check():
