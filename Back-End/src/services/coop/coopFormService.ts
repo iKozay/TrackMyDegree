@@ -3,6 +3,11 @@ import path from 'node:path';
 import { PDFDocument, PDFForm } from 'pdf-lib';
 
 const FORM_TEMPLATE_FILENAME = 'SEQUENCE CHANGE REQUEST FORM (1).pdf';
+const FORM_TEMPLATE_PATH = path.resolve(
+  __dirname,
+  '../../public',
+  FORM_TEMPLATE_FILENAME,
+);
 const SEASONS: Array<'fall' | 'winter' | 'summer'> = ['fall', 'winter', 'summer'];
 const MAX_FORM_SEMESTERS = 15;
 const MAX_COURSES_PER_SEMESTER = 5;
@@ -65,24 +70,7 @@ function getTermOffset(term?: string): number {
 }
 
 function resolveFormTemplatePath(): string | null {
-  const candidates = [
-    process.env.DATA_DIR
-      ? path.join(process.env.DATA_DIR, FORM_TEMPLATE_FILENAME)
-      : null,
-    path.resolve(process.cwd(), 'Back-End/data', FORM_TEMPLATE_FILENAME),
-    path.resolve(process.cwd(), 'data', FORM_TEMPLATE_FILENAME),
-    path.resolve(__dirname, '../../../data', FORM_TEMPLATE_FILENAME),
-    path.resolve(__dirname, '../../../../data', FORM_TEMPLATE_FILENAME),
-    path.resolve(__dirname, '../../../../../data', FORM_TEMPLATE_FILENAME),
-  ].filter((candidate): candidate is string => Boolean(candidate));
-
-  for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) {
-      return candidate;
-    }
-  }
-
-  return null;
+  return fs.existsSync(FORM_TEMPLATE_PATH) ? FORM_TEMPLATE_PATH : null;
 }
 
 function setTextFieldIfExists(form: PDFForm, fieldName: string, value: string): void {
@@ -176,7 +164,7 @@ export async function buildFilledCoopSequenceForm(
 ): Promise<CoopFormBuildResult> {
   const templatePath = resolveFormTemplatePath();
   if (!templatePath) {
-    throw new Error('Co-op sequence form template not found in data directory.');
+    throw new Error('Co-op sequence form template not found in Back-End/src/public.');
   }
 
   const templateBytes = await fs.promises.readFile(templatePath);

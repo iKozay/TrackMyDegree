@@ -50,9 +50,11 @@ async function createTemplateBytes(): Promise<Uint8Array> {
 }
 
 describe('buildFilledCoopSequenceForm', () => {
-  const originalDataDir = process.env.DATA_DIR;
-  const templateDir = '/mock/data';
-  const templatePath = path.join(templateDir, FORM_FILENAME);
+  const templatePath = path.resolve(
+    __dirname,
+    '../public',
+    FORM_FILENAME,
+  );
 
   let templateBytes: Uint8Array;
 
@@ -60,21 +62,11 @@ describe('buildFilledCoopSequenceForm', () => {
     templateBytes = await createTemplateBytes();
   });
 
-  afterAll(() => {
-    if (originalDataDir === undefined) {
-      delete process.env.DATA_DIR;
-    } else {
-      process.env.DATA_DIR = originalDataDir;
-    }
-  });
-
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   it('fills years/courses/credits with winter start and records >5 courses note', async () => {
-    process.env.DATA_DIR = templateDir;
-
     jest.spyOn(fs, 'existsSync').mockImplementation((candidate: fs.PathLike) => {
       return String(candidate) === templatePath;
     });
@@ -134,8 +126,6 @@ describe('buildFilledCoopSequenceForm', () => {
   });
 
   it('adds overflow note and skips semesters that exceed 15-slot capacity', async () => {
-    process.env.DATA_DIR = templateDir;
-
     jest.spyOn(fs, 'existsSync').mockImplementation((candidate: fs.PathLike) => {
       return String(candidate) === templatePath;
     });
@@ -168,18 +158,14 @@ describe('buildFilledCoopSequenceForm', () => {
   });
 
   it('throws when the template PDF cannot be found', async () => {
-    process.env.DATA_DIR = templateDir;
-
     jest.spyOn(fs, 'existsSync').mockReturnValue(false);
 
     await expect(buildFilledCoopSequenceForm({ semesters: [] })).rejects.toThrow(
-      'Co-op sequence form template not found in data directory.',
+      'Co-op sequence form template not found in Back-End/src/public.',
     );
   });
 
   it('supports summer start and leaves credit blank when course credits are missing', async () => {
-    process.env.DATA_DIR = templateDir;
-
     jest.spyOn(fs, 'existsSync').mockImplementation((candidate: fs.PathLike) => {
       return String(candidate) === templatePath;
     });
@@ -210,8 +196,6 @@ describe('buildFilledCoopSequenceForm', () => {
   });
 
   it('handles unknown term labels and courses map miss without failing', async () => {
-    process.env.DATA_DIR = templateDir;
-
     jest.spyOn(fs, 'existsSync').mockImplementation((candidate: fs.PathLike) => {
       return String(candidate) === templatePath;
     });
