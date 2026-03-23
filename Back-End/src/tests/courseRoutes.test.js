@@ -6,6 +6,12 @@ const courseRoutes = require('../routes/courseRoutes').default;
 const { Course } = require('../models/course');
 const { courseController } = require('../controllers/courseController');
 
+
+jest.mock('../lib/cache', () => ({
+  cacheGet: jest.fn().mockResolvedValue(null),
+  cacheSet: jest.fn().mockResolvedValue(true),
+}));
+
 describe('Course Routes', () => {
   let mongoServer, mongoUri, app;
 
@@ -336,8 +342,8 @@ describe('Course Routes', () => {
       // This test is for the route parameter validation
       // Since Express handles route params, we test with empty string or invalid format
       const response = await request(app)
-        .get('/courses/by-degree/')
-        .expect(404); // Express will return 404 for malformed route
+        .get('/courses/by-degree/%20') // Simulate empty/whitespace degreeId
+        .expect(400);
 
       // The route expects a degreeId parameter, so we test error handling
       // by checking what happens when degreeId is not found
@@ -465,18 +471,10 @@ describe('Course Routes', () => {
       expect(response.body.error).toContain('not found');
     });
 
-    it('should return 400 if code is missing', async () => {
-      const testApp = express();
-      testApp.use(express.json());
-      testApp.get('/test', (req, res) => {
-        if (!req.params.code) {
-          res.status(400).json({ error: 'Course code is required' });
-        }
-      });
-
-      const response = await request(testApp).get('/test');
-      expect(response.status).toBe(400);
-    });
+    it('should return 400 if code is empty or whitespace', async () => {
+     const response = await request(app).get('/courses/%20');
+     expect(response.status).toBe(400);
+   });
 
     it('should handle server errors', async () => {
       const spy = jest

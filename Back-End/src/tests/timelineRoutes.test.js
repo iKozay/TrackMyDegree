@@ -309,20 +309,12 @@ it('should return 410 if cached result expired', async () => {
       expect(response.body).toHaveProperty('error');
     });
 
-    it('should return 400 if id is missing', async () => {
-      const testApp = express();
-      testApp.use(express.json());
-      testApp.put('/test', (req, res) => {
-        if (!req.params.id) {
-          res.status(400).json({ error: 'Timeline ID is required' });
-        }
-      });
-
-      const response = await request(testApp)
-        .put('/test')
-        .send({ name: 'Test' });
+    it('should return 400 if id is empty or whitespace', async () => {
+      const response = await request(app).put('/timeline/%20');
       expect(response.status).toBe(400);
     });
+
+    
 
     it('should handle server errors', async () => {
       // Mock timelineController.updateTimeline to throw an error
@@ -429,18 +421,10 @@ it('should return 410 if cached result expired', async () => {
       expect(response.body.error).toContain('does not exist');
     });
 
-    it('should return 400 if id is missing', async () => {
-      const testApp = express();
-      testApp.use(express.json());
-      testApp.delete('/test', (req, res) => {
-        if (!req.params.id) {
-          res.status(400).json({ error: 'Timeline ID is required' });
-        }
-      });
-
-      const response = await request(testApp).delete('/test');
-      expect(response.status).toBe(400);
-    });
+     it('should return 400 if id is empty or whitespace', async () => {
+         const response = await request(app).get('/timeline/%20');
+         expect(response.status).toBe(400);
+       });
 
     it('should handle server errors', async () => {
       // Mock timelineController.deleteTimeline to throw an error
@@ -592,17 +576,9 @@ it('should return 410 if cached result expired', async () => {
     });
 
     it('should return 400 if userId is missing', async () => {
-      const testApp = express();
-      testApp.use(express.json());
-      testApp.delete('/test', (req, res) => {
-        if (!req.params.userId) {
-          res.status(400).json({ error: 'User ID is required' });
-        }
-      });
-
-      const response = await request(testApp).delete('/test');
-      expect(response.status).toBe(400);
-    });
+         const response = await request(app).delete('/timeline/user/%20');
+         expect(response.status).toBe(400);
+       });
 
     it('should handle server errors', async () => {
       // Mock timelineController.deleteAllUserTimelines to throw an error
