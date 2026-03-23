@@ -193,8 +193,7 @@ describe("useTimelineState", () => {
         },
         semesters: [{ term: "FALL 2025", courses: [] }],
         timelineName: "Saved Timeline",
-      },
-    } as any);
+      }));
 
     vi.mocked(api.post).mockResolvedValue({} as any);
 

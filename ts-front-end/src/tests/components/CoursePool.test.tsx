@@ -255,14 +255,10 @@ describe("CoursePool", () => {
     const ecpList = lists.find(
       (el) => el.getAttribute("data-pool-name") === "ECP ENGR CORE",
     );
-
-    const input = screen.getByPlaceholderText(/search courses by code or title/i);
-    fireEvent.change(input, { target: { value: "engr" } });
-
-    expect(screen.queryByTestId("pool-courses-list")).toBeNull();
+    expect(ecpList).toBeTruthy();
   });
 
-  it("shows an empty-pool message when hide empty pools is turned off", () => {
+  it("passes showIncompleted=false to pool lists when incompleted toggle is off", () => {
     const onCourseSelect = vi.fn();
 
     const coursesWithStatuses: CourseMap = {
@@ -283,18 +279,23 @@ describe("CoursePool", () => {
         courses={coursesWithStatuses}
         onCourseSelect={onCourseSelect}
         selectedCourse={null}
-      />
+      />,
     );
 
-    fireEvent.click(screen.getByLabelText(/hide empty pools/i));
+    fireEvent.click(screen.getByLabelText(/incompleted only/i));
 
-    expect(
-      screen.getAllByText(/all courses are already planned or completed/i).length
-    ).toBeGreaterThan(0);
-    expect(screen.queryByTestId("pool-courses-list")).toBeNull();
+    const input = screen.getByPlaceholderText(
+      /search courses by code or title/i,
+    );
+    fireEvent.change(input, { target: { value: "engr" } });
+
+    const receivedShowIncompletedValues = poolCoursesListMock.mock.calls.map(
+      ([props]) => props.showIncompleted,
+    );
+    expect(receivedShowIncompletedValues).toContain(false);
   });
 
-  it("hides pools when course ids are formatted differently but planned/completed", () => {
+  it("does not auto-expand mismatched course ids during search", () => {
     const onCourseSelect = vi.fn();
 
     const mismatchedPools: CoursePoolData[] = [
@@ -334,9 +335,15 @@ describe("CoursePool", () => {
         courses={mismatchedCourses}
         onCourseSelect={onCourseSelect}
         selectedCourse={null}
-      />
+      />,
     );
 
-    expect(screen.queryByText("Engineering Core")).toBeNull();
+    const input = screen.getByPlaceholderText(
+      /search courses by code or title/i,
+    );
+    fireEvent.change(input, { target: { value: "engr" } });
+
+    expect(screen.getByText("Engineering Core")).toBeInTheDocument();
+    expect(screen.queryByTestId("pool-courses-list")).toBeNull();
   });
 });

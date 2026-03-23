@@ -235,7 +235,6 @@ export function processRules(targetCourse: Course, rules: Rule[], state: Timelin
   }
 }
 
-<<<<<<< python_utils_refactor
 function processRequisiteRule(
   rule: Rule,
   validationFunction: (course: Course | undefined, courseSemesterIndex: number, semesters: SemesterList) => boolean,
@@ -273,22 +272,6 @@ function processMinCreditsRule(rule: Rule, targetCourse: Course | null, state: T
 
     if (semesterIndex !== -1 && semesterIndex < targetSemesterIndex) {
       coursesBeforeTarget[code] = course;
-=======
-  /* ---------------- COREQUISITES ---------------- */
-  for (const coreqGroup of course.corequisites ?? []) {
-    if (isRequisiteGroup(coreqGroup)) {
-      const satisfied = coreqGroup.anyOf.some((code) =>
-        isCourseSatisfiedSameOrBefore(
-          courses[code],
-          courseSemesterIndex,
-          semesters,
-        ),
-      );
-
-      if (!satisfied) {
-        return `Corequisite (${coreqGroup.anyOf.join(" or ")}) not met`;
-      }
->>>>>>> main
     }
   }
   
@@ -366,13 +349,8 @@ function processMaxCoursesFromSetRule(rule: Rule, targetCourse: Course | null, s
 }
 
 function getPoolCourses(
-<<<<<<< python_utils_refactor
   pools: CoursePoolData[],
   id: "exemptions" | "deficiencies"
-=======
-  pools: Pool[],
-  id: "exemptions" | "deficiencies",
->>>>>>> main
 ): CourseCode[] {
   return pools.find((p) => p._id.toLowerCase() === id)?.courses ?? [];
 }
