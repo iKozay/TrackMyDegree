@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { PDFDocument, PDFForm } from 'pdf-lib';
 
-const FORM_TEMPLATE_FILENAME = 'SEQUENCE CHANGE REQUEST FORM (1).pdf';
+const FORM_TEMPLATE_FILENAME = 'SEQUENCE CHANGE REQUEST FORM.pdf';
 const FORM_TEMPLATE_PATH = path.resolve(
   __dirname,
   '../../public',

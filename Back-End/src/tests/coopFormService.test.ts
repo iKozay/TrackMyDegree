@@ -3,7 +3,7 @@ import path from 'node:path';
 import { PDFDocument } from 'pdf-lib';
 import { buildFilledCoopSequenceForm } from '../services/coop/coopFormService';
 
-const FORM_FILENAME = 'SEQUENCE CHANGE REQUEST FORM (1).pdf';
+const FORM_FILENAME = 'SEQUENCE CHANGE REQUEST FORM.pdf';
 
 function getFieldText(form: ReturnType<PDFDocument['getForm']>, fieldName: string): string {
   return form.getTextField(fieldName).getText() ?? '';
