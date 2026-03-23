@@ -73,6 +73,44 @@ function resolveFormTemplatePath(): string | null {
   return fs.existsSync(FORM_TEMPLATE_PATH) ? FORM_TEMPLATE_PATH : null;
 }
 
+/**
+ * The timeline may contain a synthetic "FALL/WINTER YYYY-YYYY+1" semester
+ * created when a capstone (XXX 490) appears in both a Fall and the following
+ * Winter term.  The PDF form has no such column — it only has discrete Fall,
+ * Winter, and Summer slots filled sequentially.  Leaving the extra
+ * FALL/WINTER entry in the list offsets every subsequent column by one.
+ *
+ * This function folds any FALL/WINTER semester's courses back into both the
+ * immediately preceding semester (the Fall slot) and the immediately following
+ * semester (the Winter slot), then removes the FALL/WINTER entry so the form
+ * slot count stays correct.
+ */
+function normalizeSemestersForForm(semesters: CachedSemester[]): CachedSemester[] {
+  const result: CachedSemester[] = [];
+  const pendingMerge: CachedCourse[] = [];
+
+  for (const semester of semesters) {
+    if ((semester.term ?? '').toUpperCase().startsWith('FALL/WINTER')) {
+      // Fold into preceding semester (already appended to result)
+      const extra = semester.courses ?? [];
+      if (extra.length > 0 && result.length > 0) {
+        const prev = result[result.length - 1];
+        result[result.length - 1] = { ...prev, courses: [...(prev.courses ?? []), ...extra] };
+      }
+      // Remember courses so we can also merge them into the next semester
+      pendingMerge.push(...(semester.courses ?? []));
+    } else if (pendingMerge.length > 0) {
+      // First non-FALL/WINTER semester after a fold — add pending courses here too
+      result.push({ ...semester, courses: [...(semester.courses ?? []), ...pendingMerge] });
+      pendingMerge.length = 0;
+    } else {
+      result.push(semester);
+    }
+  }
+
+  return result;
+}
+
 function setTextFieldIfExists(form: PDFForm, fieldName: string, value: string): void {
   if (!value) return;
 
@@ -173,9 +211,11 @@ export async function buildFilledCoopSequenceForm(
 
   const notes: string[] = [];
   const safeTimeline = (timeline ?? {}) as TimelineForCoopForm;
-  const semesters = Array.isArray(safeTimeline.semesters)
-    ? safeTimeline.semesters
-    : [];
+  // Fold any synthetic FALL/WINTER semesters back into adjacent Fall/Winter
+  // slots before sequential slot-filling so the form columns stay aligned.
+  const semesters = normalizeSemestersForForm(
+    Array.isArray(safeTimeline.semesters) ? safeTimeline.semesters : [],
+  );
 
   if (semesters.length > 0) {
     const startOffset = getTermOffset(semesters[0]?.term);

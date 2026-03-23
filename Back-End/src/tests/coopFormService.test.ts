@@ -19,6 +19,9 @@ async function createTemplateBytes(): Promise<Uint8Array> {
     'year_1_winter',
     'year_1_summer',
     'year_2_fall',
+    // Fall slot (slot index 0, formSemesterIndex 1 → no suffix)
+    '1', '2', '3', '4', '5',
+    '1_cred', '2_cred', '3_cred', '4_cred', '5_cred',
     '1_2',
     '2_2',
     '3_2',
@@ -193,6 +196,65 @@ describe('buildFilledCoopSequenceForm', () => {
     expect(getFieldText(form, 'year_1_summer')).toBe('2026');
     expect(getFieldText(form, '1_3')).toBe('COMP 249');
     expect(getFieldText(form, '1_3_cred')).toBe('');
+  });
+
+  it('folds FALL/WINTER capstone semester into adjacent Fall and Winter form slots', async () => {
+    jest.spyOn(fs, 'existsSync').mockImplementation((candidate: fs.PathLike) => {
+      return String(candidate) === templatePath;
+    });
+
+    jest
+      .spyOn(fs.promises, 'readFile')
+      .mockResolvedValue(Buffer.from(templateBytes));
+
+    // Simulate what semesterBuilder emits after the capstone merge:
+    // FALL and WINTER each lose their 490 entry; a new FALL/WINTER semester
+    // is inserted between them.
+    const timeline = {
+      semesters: [
+        {
+          term: 'FALL 2024',
+          courses: [{ code: 'ENGR301' }, { code: 'SOEN321' }],
+        },
+        {
+          term: 'FALL/WINTER 2024-2025',
+          courses: [{ code: 'SOEN490' }],
+        },
+        {
+          term: 'WINTER 2025',
+          courses: [{ code: 'ENGR392' }, { code: 'ENGR391' }],
+        },
+      ],
+      courses: {
+        'SOEN 490': { id: 'SOEN 490', credits: 6 },
+        'ENGR 301': { id: 'ENGR 301', credits: 3 },
+        'SOEN 321': { id: 'SOEN 321', credits: 3 },
+        'ENGR 392': { id: 'ENGR 392', credits: 3 },
+        'ENGR 391': { id: 'ENGR 391', credits: 3 },
+      },
+    };
+
+    const result = await buildFilledCoopSequenceForm(timeline);
+    expect(result.notes).toHaveLength(0);
+
+    const filledDoc = await PDFDocument.load(result.pdfBytes);
+    const form = filledDoc.getForm();
+
+    // Year labels
+    expect(getFieldText(form, 'year_1_fall')).toBe('2024');
+    expect(getFieldText(form, 'year_1_winter')).toBe('2025');
+
+    // Fall slot (no suffix): ENGR 301, SOEN 321, then SOEN 490 folded in
+    expect(getFieldText(form, '1')).toBe('ENGR 301');
+    expect(getFieldText(form, '2')).toBe('SOEN 321');
+    expect(getFieldText(form, '3')).toBe('SOEN 490');
+    expect(getFieldText(form, '3_cred')).toBe('6');
+
+    // Winter slot (_2): ENGR 392, ENGR 391, then SOEN 490 folded in
+    expect(getFieldText(form, '1_2')).toBe('ENGR 392');
+    expect(getFieldText(form, '2_2')).toBe('ENGR 391');
+    expect(getFieldText(form, '3_2')).toBe('SOEN 490');
+    expect(getFieldText(form, '3_2_cred')).toBe('6');
   });
 
   it('handles unknown term labels and courses map miss without failing', async () => {
