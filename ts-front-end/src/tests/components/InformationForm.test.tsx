@@ -30,6 +30,7 @@ const mockDegrees = [
   { _id: '6', name: 'Aerospace Engineering Option C - Avionics and Aerospace Systems', totalCredits: 130 },
   { _id: '3', name: 'Chemical Engineering', totalCredits: 125 },
   { _id: '4', name: 'Computer Science', totalCredits: 120 },
+  { _id: '7', name: 'Random Engineering', totalCredits: 120 },
 ];
 
 const renderComponent = () =>
@@ -311,5 +312,77 @@ describe('InformationForm', () => {
     fireEvent.click(screen.getByLabelText('Co-op Program?'));
 
     expect(await screen.findByLabelText('Load predefined co-op sequence?')).toBeInTheDocument();
+  });
+
+  it('alerts when predefined sequence is enabled but no file mapping exists', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+    renderComponent();
+    await screen.findByText('Random Engineering');
+
+    selectDegree('Random Engineering');
+    selectTermAndYear('Fall', '2023');
+    fireEvent.click(screen.getByLabelText('Co-op Program?'));
+    fireEvent.click(await screen.findByLabelText('Load predefined co-op sequence?'));
+    fireEvent.click(screen.getByText('Next'));
+
+    expect(alertSpy).toHaveBeenCalledWith('No predefined sequence available for this degree.');
+    expect(api.post).not.toHaveBeenCalled();
+  });
+
+  it('loads chemical winter predefined sequence when selected', async () => {
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ semesters: [] }),
+    });
+    vi.stubGlobal('fetch', fetchSpy);
+    (api.post as Mock).mockResolvedValue({ jobId: 'chem123' });
+
+    renderComponent();
+    await screen.findByText('Chemical Engineering');
+
+    selectDegree('Chemical Engineering');
+    selectTermAndYear('Winter', '2023');
+    fireEvent.click(screen.getByLabelText('Co-op Program?'));
+    fireEvent.click(await screen.findByLabelText('Load predefined co-op sequence?'));
+    fireEvent.click(screen.getByText('Next'));
+
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith('/coop-sequences/chemical_winter_entry.json');
+      expect(mockNavigate).toHaveBeenCalledWith('/timeline/chem123');
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it('falls back to standard generation if predefined sequence fetch fails', async () => {
+    const fetchSpy = vi.fn().mockRejectedValue(new Error('fetch failed'));
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    vi.stubGlobal('fetch', fetchSpy);
+    (api.post as Mock).mockResolvedValue({ jobId: 'fallback123' });
+
+    renderComponent();
+    await screen.findByText('Software Engineering');
+
+    selectDegree('Software Engineering');
+    selectTermAndYear('Fall', '2023');
+    fireEvent.click(screen.getByLabelText('Co-op Program?'));
+    fireEvent.click(await screen.findByLabelText('Load predefined co-op sequence?'));
+    fireEvent.click(screen.getByText('Next'));
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith(
+        'Failed to load predefined sequence. Falling back to standard generation.',
+      );
+      expect(api.post).toHaveBeenCalledWith('/upload/form', expect.objectContaining({
+        degree: '1',
+        firstTerm: 'Fall 2023',
+        isCoop: true,
+        isExtendedCreditProgram: false,
+      }));
+      expect(mockNavigate).toHaveBeenCalledWith('/timeline/fallback123');
+    });
+
+    vi.unstubAllGlobals();
   });
 });
