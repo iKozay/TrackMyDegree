@@ -9,7 +9,6 @@ import {
   seedAllDegreeData,
   seedDegreeData,
 } from '../controllers/seedingController';
-import { loginLimiter } from '@middleware/rateLimiter';
 const router = express.Router();
 
 // ==========================
@@ -18,11 +17,6 @@ const router = express.Router();
 
 router.use(authMiddleware);
 router.use(adminCheckMiddleware);
-
-// Only use rate limiter in non-test environments
-if (process.env.NODE_ENV !== 'test') {
-  router.use(loginLimiter);
-}
 
 // ==========================
 // ADMIN ROUTES
