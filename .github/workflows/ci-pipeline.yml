@@ -31,6 +31,16 @@ jobs:
         with:
           node-version: '22.21'
 
+      - name: Install dependencies for shared
+        working-directory: ./shared
+        run: |
+          npm ci
+
+      - name: Build shared module
+        working-directory: ./shared
+        run: |
+          npm run build
+
       - name: Install dependencies for frontend
         working-directory: ./ts-front-end
         run: |
@@ -68,6 +78,16 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '22.21'
+
+      - name: Install dependencies for shared
+        working-directory: ./shared
+        run: |
+          npm ci
+
+      - name: Build shared module
+        working-directory: ./shared
+        run: |
+          npm run build
 
       - name: Install dependencies for backend
         working-directory: ./Back-End/src

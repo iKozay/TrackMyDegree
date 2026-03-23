@@ -76,23 +76,7 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
   // Sort rule types according to the specified order
   const sortedRuleTypes = ruleTypeOrder.filter(ruleType => groupedRules[ruleType]);
 
-  // Initialize collapsed sections - collapse satisfied sections by default
-  const getInitialCollapsedSections = (): Set<string> => {
-    const collapsed = new Set<string>();
-
-    sortedRuleTypes.forEach(ruleType => {
-      const rulesOfType = groupedRules[ruleType];
-      const allRulesSatisfied = rulesOfType.every(rule => isRuleSatisfied(rule));
-
-      if (allRulesSatisfied) {
-        collapsed.add(ruleType);
-      }
-    });
-
-    return collapsed;
-  };
-
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(getInitialCollapsedSections());
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(() => new Set<string>());
 
   if (!Array.isArray(course.rules) || course.rules.length === 0) {
     return null;
