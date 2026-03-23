@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { api } from "../api/http-api-client.ts";
+import { ENV } from "../config";
 import { Check, X, AlertTriangle } from "lucide-react";
 import "../styles/components/CoopValidationModal.css";
 
@@ -40,10 +41,6 @@ const ALL_RULES = [
     displayMessage: "At least two study terms required before first work term",
   },
   {
-    ruleId: "NO_CONSECUTIVE_WORK_TERMS",
-    displayMessage: "Consecutive work terms are not allowed",
-  },
-  {
     ruleId: "LONG_SEQUENCE_WARNING",
     displayMessage: "Course sequence length is within typical co-op duration",
   },
@@ -53,6 +50,9 @@ export const CoopValidationModal: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const [result, setResult] = useState<CoopValidationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [downloadNotes, setDownloadNotes] = useState<string[]>([]);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     if (!jobId) return;
@@ -83,6 +83,51 @@ export const CoopValidationModal: React.FC = () => {
     if (warning) return "warning";
 
     return "success";
+  };
+
+  const downloadFilledForm = async () => {
+    if (!jobId) return;
+
+    setDownloadError(null);
+    setDownloadNotes([]);
+    setIsDownloading(true);
+
+    try {
+      const response = await fetch(`${ENV.API_SERVER}/coop/form/${jobId}`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate PDF");
+      }
+
+      const notesHeader = response.headers.get("X-Coop-Form-Notes");
+      if (notesHeader) {
+        try {
+          const parsedNotes = JSON.parse(
+            decodeURIComponent(notesHeader),
+          ) as string[];
+          setDownloadNotes(Array.isArray(parsedNotes) ? parsedNotes : []);
+        } catch {
+          setDownloadNotes([]);
+        }
+      }
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = objectUrl;
+      anchor.download = "sequence-change-request-form.pdf";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      setDownloadError("Failed to generate and download the co-op PDF form.");
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -139,6 +184,33 @@ export const CoopValidationModal: React.FC = () => {
               );
             })}
           </ul>
+
+          <div className="coop-modal-actions">
+            <button
+              type="button"
+              className="coop-modal-download-button"
+              onClick={downloadFilledForm}
+              disabled={isDownloading}>
+              {isDownloading
+                ? "Generating PDF..."
+                : "Download Auto-Filled Sequence Change Form"}
+            </button>
+
+            {downloadError && (
+              <p className="coop-modal-download-error">{downloadError}</p>
+            )}
+
+            {downloadNotes.length > 0 && (
+              <div className="coop-modal-download-notes">
+                <p className="coop-modal-download-notes-title">Form notes</p>
+                <ul className="coop-modal-download-notes-list">
+                  {downloadNotes.map((note, index) => (
+                    <li key={`${note}-${index}`}>{note}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>
