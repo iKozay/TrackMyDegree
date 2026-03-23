@@ -6,7 +6,7 @@ interface PoolHeaderProps {
   pool: Pool;
   isExpanded: boolean;
   courses: CourseMap;
-  disabled?: boolean;
+  hasActiveSearch: boolean;
   onToggle: () => void;
 }
 
@@ -15,20 +15,18 @@ export const PoolHeader: React.FC<PoolHeaderProps> = ({
   isExpanded,
   onToggle,
   courses,
-  disabled = false,
+  hasActiveSearch,
 }) => (
-  <button
-    className={`pool-header${disabled ? " pool-header-disabled" : ""}`}
-    onClick={onToggle}
-    disabled={disabled}
-    aria-disabled={disabled}
-  >
+  <button className="pool-header" onClick={onToggle}>
     <span className="pool-chevron">
       {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
     </span>
 
     <span className="pool-name">{pool.name}</span>
-
-    <span className="course-count">{`(${calculateCoursePoolEarnedCredits(courses, pool)}/${pool.creditsRequired})`}</span>
+    <span className="course-count">
+      {!hasActiveSearch
+        ? `(${calculateCoursePoolEarnedCredits(courses, pool)}/${pool.creditsRequired})`
+        : `(${pool.courses.length})`}
+    </span>
   </button>
 );

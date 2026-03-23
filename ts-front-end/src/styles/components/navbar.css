@@ -16,7 +16,7 @@
 .navbar {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 1000;
   height: var(--nav-height);
   background: var(--nav-bg);
   color: var(--color-text);
@@ -106,7 +106,9 @@
   font-weight: 500;
   color: var(--color-muted);
   padding: 0.25rem 0;
-  transition: color 0.15s ease, transform 0.15s ease;
+  transition:
+    color 0.15s ease,
+    transform 0.15s ease;
 }
 
 .navbar__link--button,
@@ -144,8 +146,11 @@
   padding: 0.45rem 1.1rem;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease,
-    box-shadow 0.15s ease, transform 0.1s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
 }
 
 .navbar__btn--ghost {
@@ -260,7 +265,12 @@
   border-radius: 999px;
   padding: 0.25rem 0.75rem;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s, box-shadow 0.15s, transform 0.1s, border-color 0.15s;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    box-shadow 0.15s,
+    transform 0.1s,
+    border-color 0.15s;
 }
 
 .navbar__profile-btn:hover,
@@ -337,7 +347,9 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .navbar__profile-menu-item:hover,

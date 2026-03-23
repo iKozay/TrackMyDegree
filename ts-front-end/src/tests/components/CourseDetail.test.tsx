@@ -61,12 +61,10 @@ describe("CourseDetail", () => {
     const course = makeCourse("incomplete");
     render(<CourseDetail course={course} courses={{}} />);
 
-    // Header id
-    expect(screen.getByText("COMP 248")).toBeInTheDocument();
-    // Title
-    expect(
-      screen.getByText("Object-Oriented Programming I"),
-    ).toBeInTheDocument();
+    // Code + title share one <h3> ("COMP 248 : …"), so match substring with regex
+    const heading = screen.getByRole("heading", { level: 3 });
+    expect(heading).toHaveTextContent(/COMP 248/);
+    expect(heading).toHaveTextContent(/Object-Oriented Programming I/);
     // Credits
     expect(screen.getByText(/3 Credits/i)).toBeInTheDocument();
     // Offered in
