@@ -6,7 +6,6 @@ import {
   Share2,
   Download,
   BarChart3,
-  AlertTriangle,
   Plus,
   Save,
 } from "lucide-react";
@@ -21,7 +20,7 @@ interface HistoryControlsProps {
 }
 
 async function shareTimeline(
-  setShow: React.Dispatch<React.SetStateAction<boolean>>
+  setShow: React.Dispatch<React.SetStateAction<boolean>>,
 ): Promise<void> {
   // copy current url in browser to clipboard
   try {
@@ -112,7 +111,7 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
         Insights
       </button>
       <button className="btn btn-tertiary" onClick={handleDeficiency}>
-        <AlertTriangle size={16} />
+        <Plus size={16} />
         Add Deficiency
       </button>
 
@@ -121,17 +120,16 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
         Add Exemption
       </button>
 
-        <button className="btn btn-secondary" onClick={handleSave}>
-          <Save size={16} />
-          Save Data
-        </button>
+      <button className="btn btn-secondary" onClick={handleSave}>
+        <Save size={16} />
+        Save Data
+      </button>
     </div>
   );
 };
 
 interface TimelineHeaderProps
-  extends HistoryControlsProps,
-    PrimaryActionsProps {
+  extends HistoryControlsProps, PrimaryActionsProps {
   earnedCredits: number;
   totalCredits: number;
 }

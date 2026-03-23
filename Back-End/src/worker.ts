@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import path from 'node:path';
 import mongoose from 'mongoose';
 import { connectJobRedis } from '@lib/redisClient';
-import { courseProcessorWorker } from './workers/queue';
+import { courseProcessorWorker } from './workers/courseProcessor';
 
 Sentry.init({ dsn: process.env.SENTRY_DSN, tracesSampleRate: 1 });
 

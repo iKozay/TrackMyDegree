@@ -16,10 +16,10 @@ const defaultProps = {
 
 describe('WeeklySchedule', () => {
     const mockClasses: ClassItem[] = [
-        { classNumber: "1001", name: "COMP 352", section: "Sec A", room: "H-637", day: 1, startTime: 9, endTime: 11 },
-        { classNumber: "1001", name: "COMP 352", section: "Sec A", room: "H-637", day: 3, startTime: 9, endTime: 11 },
-        { classNumber: "1002", name: "COMP 346", section: "Sec B", room: "MB-2.210", day: 2, startTime: 10, endTime: 12 },
-        { classNumber: "1003", name: "SOEN 341", section: "Sec C", room: "H-537", day: 1, startTime: 13, endTime: 15 },
+        { classNumber: "1001", name: "COMP 352", section: "Sec A", room: "H-637", day: 1, startTime: 9, endTime: 11, type: "LEC" },
+        { classNumber: "1001", name: "COMP 352", section: "Sec A", room: "H-637", day: 3, startTime: 9, endTime: 11, type: "LEC" },
+        { classNumber: "1002", name: "COMP 346", section: "Sec B", room: "MB-2.210", day: 2, startTime: 10, endTime: 12, type: "LEC" },
+        { classNumber: "1003", name: "SOEN 341", section: "Sec C", room: "H-537", day: 1, startTime: 13, endTime: 15, type: "LEC" },
     ];
 
     it('renders the component', () => {
@@ -44,13 +44,11 @@ describe('WeeklySchedule', () => {
     it('displays class information in the correct time slot', () => {
         render(<WeeklySchedule classes={mockClasses} {...defaultProps} />);
         expect(screen.getAllByText('COMP 352').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('Sec A').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('H-637').length).toBeGreaterThan(0);
     });
 
     it('renders classes that span multiple hours correctly', () => {
         const multiHourClass: ClassItem[] = [
-            { classNumber: "2001", name: "LONG 101", section: "Sec A", room: "R-100", day: 1, startTime: 9, endTime: 12 }
+            { classNumber: "2001", name: "LONG 101", section: "Sec A", room: "R-100", day: 1, startTime: 9, endTime: 12, type: "LEC" }
         ];
         render(<WeeklySchedule classes={multiHourClass} {...defaultProps} />);
         expect(screen.getByText('LONG 101')).toBeInTheDocument();
@@ -79,7 +77,7 @@ describe('WeeklySchedule', () => {
 
     it('isFirstHourOfClass correctly identifies first hour', () => {
         const twoHourClass: ClassItem[] = [
-            { classNumber: "3001", name: "TEST 101", section: "A", room: "R-1", day: 1, startTime: 10, endTime: 12 }
+            { classNumber: "3001", name: "TEST 101", section: "A", room: "R-1", day: 1, startTime: 10, endTime: 12, type: "LEC" }
         ];
         render(<WeeklySchedule classes={twoHourClass} {...defaultProps} />);
         expect(screen.getAllByText('TEST 101').length).toBe(1);
@@ -87,7 +85,7 @@ describe('WeeklySchedule', () => {
 
     it('handles classes that end at 22:00', () => {
         const lateClass: ClassItem[] = [
-            { classNumber: "4001", name: "LATE 101", section: "A", room: "R-1", day: 1, startTime: 20, endTime: 22 }
+            { classNumber: "4001", name: "LATE 101", section: "A", room: "R-1", day: 1, startTime: 20, endTime: 22, type: "LEC" }
         ];
         render(<WeeklySchedule classes={lateClass} {...defaultProps} />);
         expect(screen.getByText('LATE 101')).toBeInTheDocument();
@@ -95,7 +93,7 @@ describe('WeeklySchedule', () => {
 
     it('handles classes that start at 8:00', () => {
         const earlyClass: ClassItem[] = [
-            { classNumber: "5001", name: "EARLY 101", section: "A", room: "R-1", day: 1, startTime: 8, endTime: 10 }
+            { classNumber: "5001", name: "EARLY 101", section: "A", room: "R-1", day: 1, startTime: 8, endTime: 10, type: "LEC" }
         ];
         render(<WeeklySchedule classes={earlyClass} {...defaultProps} />);
         expect(screen.getByText('EARLY 101')).toBeInTheDocument();

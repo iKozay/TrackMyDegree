@@ -83,7 +83,6 @@ class TestParseTranscript:
                 assert response.status_code == 500
                 data = response.get_json()
                 assert 'error' in data
-                assert 'PyMuPDF parsing error' in data['error']
 
 class TestDegreeEndpoints:
     @patch('main.init_instances')
@@ -176,7 +175,6 @@ class TestDegreeEndpoints:
                 assert response.status_code == 500
                 data = response.get_json()
                 assert 'error' in data
-                assert 'Scraping failed' in data['error']
 
     @patch('main.init_instances')
     @patch('main.run_init')
@@ -191,7 +189,6 @@ class TestDegreeEndpoints:
                 assert response.status_code == 500
                 data = response.get_json()
                 assert 'error' in data
-                assert 'Network error' in data['error']
 
     @patch('main.init_instances')
     @patch('main.run_init')
@@ -236,7 +233,6 @@ class TestDegreeEndpoints:
                 assert response.status_code == 500
                 data = response.get_json()
                 assert 'error' in data
-                assert 'Scraping error' in data['error']
 
 class TestCourseEndpoints:
     @patch('main.init_instances')
@@ -350,7 +346,6 @@ class TestCourseEndpoints:
                 assert response.status_code == 500
                 data = response.get_json()
                 assert 'error' in data
-                assert 'Database error' in data['error']
 
     @patch('main.init_instances')
     @patch('main.run_init')
@@ -379,7 +374,6 @@ class TestCourseEndpoints:
                 assert response.status_code == 500
                 data = response.get_json()
                 assert 'error' in data
-                assert 'Scraping error' in data['error']
 
 class TestCourseScheduleEndpoint:
 

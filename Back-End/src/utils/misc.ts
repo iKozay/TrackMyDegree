@@ -2,7 +2,7 @@ import { SEASONS } from '@utils/constants';
 
 export function getTermRanges(term: string): { start: Date; end: Date } {
   let [name, yearStr] = term.split(' ');
-  if (name == SEASONS.FALL_WINTER) {
+  if (name.toUpperCase() == SEASONS.FALL_WINTER) {
     yearStr = yearStr.split('-')[0];
   }
   const year = Number(yearStr);
