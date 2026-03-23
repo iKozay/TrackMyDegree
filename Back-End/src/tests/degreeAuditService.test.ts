@@ -217,6 +217,9 @@ describe('DegreeAuditService', () => {
     _id: 'COMP',
     name: DEGREE_NAME,
     totalCredits: 120,
+    coursePools: [],
+    degreeType: 'Standalone',
+    ecpDegreeId: 'Extended Credit Program - Computer Science',
   };
 
   const mockPools = [

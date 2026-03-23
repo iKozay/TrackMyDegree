@@ -1,8 +1,7 @@
 import { BaseMongoController } from './baseMongoController';
 import { Degree, CoursePool, Course } from '@models';
 import { DEGREE_WITH_ID_DOES_NOT_EXIST } from '@utils/constants';
-import { CourseData } from './courseController';
-import {DegreeData, CoursePoolInfo} from '@shared/degree'
+import { CourseData, DegreeData, CoursePoolInfo } from '@shared/degree';
 
 export interface DegreeXCPData {
   degree_id: string;
@@ -99,6 +98,7 @@ export class DegreeController extends BaseMongoController<any> {
         totalCredits: result.data.totalCredits,
         degreeType: result.data.degreeType,
         coursePools: result.data.coursePools || [],
+        ecpDegreeId: result.data.ecpDegreeId,
       };
     } catch (error) {
       this.handleError(error, 'updateDegree');
@@ -122,6 +122,7 @@ export class DegreeController extends BaseMongoController<any> {
         totalCredits: result.data.totalCredits,
         degreeType: result.data.degreeType,
         coursePools: result.data.coursePools || [],
+        ecpDegreeId: result.data.ecpDegreeId,
       };
     } catch (error) {
       this.handleError(error, 'readDegree');
@@ -148,6 +149,7 @@ export class DegreeController extends BaseMongoController<any> {
         totalCredits: degree.totalCredits,
         degreeType: degree.degreeType,
         coursePools: degree.coursePools,
+        ecpDegreeId: degree.ecpDegreeId,
       }));
     } catch (error) {
       this.handleError(error, 'readAllDegrees');

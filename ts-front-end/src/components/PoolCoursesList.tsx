@@ -4,9 +4,9 @@ import type { Pool, CourseMap, CourseCode } from "../types/timeline.types";
 interface PoolCoursesListProps {
   pool: Pool;
   courses: CourseMap;
-  visibleCourseIds: CourseCode[];
+  visibleCourseIds?: CourseCode[];
   selectedCourse?: CourseCode | null;
-
+  showIncompleted?: boolean;
   onCourseSelect: (courseId: CourseCode) => void;
 }
 
@@ -15,16 +15,22 @@ export const PoolCoursesList: React.FC<PoolCoursesListProps> = ({
   courses,
   selectedCourse,
   visibleCourseIds,
+  showIncompleted,
   onCourseSelect,
 }) => {
   const idsToRender =
-    visibleCourseIds.length > 0 ? visibleCourseIds : pool.courses;
+    visibleCourseIds && visibleCourseIds.length > 0
+      ? visibleCourseIds
+      : pool.courses;
 
   return (
     <div className="pool-courses">
       {idsToRender.map((courseId, index) => {
         const course = courses[courseId];
+        const isCompleted = course.status.status === "completed";
+        const isPlanned = course.status.status === "planned";
         if (!course) return null;
+        if (showIncompleted && (isCompleted || isPlanned)) return null;
 
         return (
           <DraggableCourse

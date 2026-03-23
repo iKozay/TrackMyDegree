@@ -8,37 +8,42 @@
  *  - Logs errors to Sentry and console.
  *  - Connects automatically on import and exports the client for use in other modules.
  */
-
 import { createClient } from 'redis';
 import Sentry from '@sentry/node';
 
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+// API cache (db 0)
+const cacheRedisUrl = process.env.REDIS_CACHE_URL || 'redis://localhost:6379/0';
+export const cacheRedisClient = createClient({ url: cacheRedisUrl });
 
-// Create a Redis client instance using the provided URL
-const redisClient = createClient({
-  url: redisUrl,
-});
-// runtime error handling
-redisClient.on('error', (err) => {
-  // Listen for Redis errors, log them to the console, and report to Sentry
-  Sentry.captureException(err, {
-    extra: { error: 'Redis Client Error' }, // log context and actual error
-  });
-  console.error('Redis Client Error:', err);
+cacheRedisClient.on('error', (err) => {
+  Sentry.captureException(err, { extra: { error: 'Cache Redis Error' } });
+  console.error('Cache Redis Error:', err);
 });
 
-// log successful connection
-redisClient.on('connect', () => {
-  console.log('Connected to Redis server');
+cacheRedisClient.on('connect', () => {
+  console.log('Connected to Cache Redis (db 0)');
 });
-// Connect to Redis
-// Establish a connection to the Redis server
-// Explicit connect function (called once at app startup)
+
+// Job queue + results (db 1)
+const jobRedisUrl = process.env.REDIS_JOB_URL || 'redis://localhost:6379/1';
+export const jobRedisClient = createClient({ url: jobRedisUrl });
+
+jobRedisClient.on('error', (err) => {
+  Sentry.captureException(err, { extra: { error: 'Job Redis Error' } });
+  console.error('Job Redis Error:', err);
+});
+
+jobRedisClient.on('connect', () => {
+  console.log('Connected to Job Redis (db 1)');
+});
+
 export const connectRedis = async () => {
-  if (!redisClient.isOpen) {
-    await redisClient.connect();
-  }
+  if (!cacheRedisClient.isOpen) await cacheRedisClient.connect();
+  if (!jobRedisClient.isOpen) await jobRedisClient.connect();
 };
 
-// Export the Redis client for use in other parts of the application
-export default redisClient;
+export const connectJobRedis = async () => {
+  if (!jobRedisClient.isOpen) await jobRedisClient.connect();
+};
+
+export default cacheRedisClient; // For general API cache

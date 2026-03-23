@@ -31,11 +31,38 @@
   flex-direction: column;
 }
 
+/* 🔥 Sticky header */
+.course-pool-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  background: white; /* VERY IMPORTANT */
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Scrollable area */
+.course-pool-list {
+  overflow-y: auto;
+  flex: 1;
+}
+
 .course-pool h2 {
   padding: 1rem;
   font-size: 1.125rem;
   font-weight: 600;
   border-bottom: 1px solid #e2e8f0;
+}
+
+.course-pool-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: #334155;
+  /* border-bottom: 1px solid #f1f5f9; */
 }
 
 .pool-section {
@@ -57,6 +84,15 @@
 
 .pool-header:hover {
   background: #f8fafc;
+}
+
+.pool-header-disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.pool-header-disabled:hover {
+  background: none;
 }
 
 .pool-chevron {
@@ -83,6 +119,12 @@
   display: flex;
   flex-direction: column;
   gap: 0.375rem;
+}
+
+.pool-empty-message {
+  padding: 0 1rem 0.75rem;
+  font-size: 0.8rem;
+  color: #64748b;
 }
 
 /* Course Cards */
@@ -329,7 +371,8 @@
 .course-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  gap: 0.75rem;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #e2e8f0;
@@ -345,6 +388,9 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
+  font-weight: 500;
+  color: #334155;
+  min-width: 0;
 }
 
 .status-icon.completed {
@@ -362,8 +408,8 @@
 }
 
 .course-info {
-  display: flex!important;
-  flex-direction: column!important;
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 .course-info h3 {
@@ -445,9 +491,7 @@
 .course-pool-search {
   padding: 0.5rem 0.75rem;
   margin-bottom: 0.5rem;
-  position: sticky; /* Search stays visible when scrolling the pool */
-  top: 0;
-  z-index: 5;
+  border-bottom: 1px solid #ddd;
 }
 
 .course-pool-search-input {
@@ -460,7 +504,9 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
     background-color 0.15s ease;
 }
 
@@ -624,7 +670,9 @@
   font-size: 0.9rem;
   color: #334155;
 
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .status-option:hover {
@@ -645,9 +693,61 @@
   flex-shrink: 0;
 }
 .course-status-actions {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #e5e7eb;
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.status-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: #f8fafc;
+  color: #64748b;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.status-menu-btn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.status-menu-btn.is-open {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.status-menu-btn:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.status-actions-dropdown {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 50;
+  min-width: min(13.5rem, calc(100vw - 2rem));
+  max-width: 16rem;
+  padding: 0.35rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow:
+    0 4px 6px -1px rgb(15 23 42 / 0.08),
+    0 2px 4px -2px rgb(15 23 42 / 0.06);
 }
 
 .status-actions-label {
@@ -659,22 +759,35 @@
 
 .status-actions-buttons {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: stretch;
 }
 
 .status-action-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
+  width: 100%;
+  margin: 0;
+  text-align: left;
 
-  padding: 8px 14px;
-  border-radius: 8px;
+  padding: 0.45rem 0.5rem;
+  border-radius: 0.375rem;
   border: 1px solid transparent;
-  font-size: 0.9rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.25;
 
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.status-action-btn span {
+  flex: 1;
+  min-width: 0;
 }
 
 .status-action-btn:disabled {
@@ -770,7 +883,9 @@
   color: #facc15; /* dark amber / danger */
   display: flex;
   align-items: center;
-  transition: color 0.15s ease, transform 0.15s ease;
+  transition:
+    color 0.15s ease,
+    transform 0.15s ease;
 }
 
 .course-warning:hover {

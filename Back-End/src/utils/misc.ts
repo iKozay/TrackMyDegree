@@ -2,7 +2,7 @@ import { SEASONS } from '@utils/constants';
 
 export function getTermRanges(term: string): { start: Date; end: Date } {
   let [name, yearStr] = term.split(' ');
-  if (name == SEASONS.FALL_WINTER) {
+  if (name.toUpperCase() == SEASONS.FALL_WINTER) {
     yearStr = yearStr.split('-')[0];
   }
   const year = Number(yearStr);
@@ -43,4 +43,19 @@ export function isTermInProgress(term: string | undefined): boolean {
   const { start, end } = getTermRanges(term);
 
   return today >= start && today <= end;
+}
+
+export function getSentryProfilingIntegrations() {
+  try {
+    // Optional native dependency; keep backend bootable if binary is unavailable.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { nodeProfilingIntegration } = require('@sentry/profiling-node');
+    return [nodeProfilingIntegration()];
+  } catch (error) {
+    console.warn(
+      'Sentry profiling disabled: native profiler binary is unavailable.',
+      error,
+    );
+    return [];
+  }
 }

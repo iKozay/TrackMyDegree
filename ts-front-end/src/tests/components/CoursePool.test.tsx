@@ -106,13 +106,13 @@ describe("CoursePool", () => {
         courses={courses}
         onCourseSelect={onCourseSelect}
         selectedCourse={null}
-      />
+      />,
     );
 
     expect(screen.getByText("Course Pool")).toBeInTheDocument();
 
     const input = screen.getByPlaceholderText(
-      /search courses by code or title/i
+      /search courses by code or title/i,
     );
     expect(input).toBeInTheDocument();
   });
@@ -126,57 +126,57 @@ describe("CoursePool", () => {
         courses={courses}
         onCourseSelect={onCourseSelect}
         selectedCourse={null}
-      />
+      />,
     );
 
     expect(screen.queryByTestId("pool-courses-list")).toBeNull();
   });
 
   it("toggles a pool open/closed when clicking the header (no search)", () => {
-  const onCourseSelect = vi.fn();
+    const onCourseSelect = vi.fn();
 
-  const { container, queryByTestId } = render(
-    <CoursePool
-      pools={pools}
-      courses={courses}
-      onCourseSelect={onCourseSelect}
-      selectedCourse={null}
-    />
-  );
+    const { container, queryByTestId } = render(
+      <CoursePool
+        pools={pools}
+        courses={courses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+      />,
+    );
 
-  // Find the header button that contains the text "Engineering Core"
-  const headerButtons = Array.from(
-    container.querySelectorAll(".pool-section .pool-header")
-  ) as HTMLButtonElement[];
+    // Find the header button that contains the text "Engineering Core"
+    const headerButtons = Array.from(
+      container.querySelectorAll(".pool-section .pool-header"),
+    ) as HTMLButtonElement[];
 
-  const engineeringHeader = headerButtons.find((btn) =>
-    btn.textContent?.includes("Engineering Core")
-  );
+    const engineeringHeader = headerButtons.find((btn) =>
+      btn.textContent?.includes("Engineering Core"),
+    );
 
-  expect(engineeringHeader).toBeTruthy();
+    expect(engineeringHeader).toBeTruthy();
 
-  // Initially collapsed
-  expect(queryByTestId("pool-courses-list")).toBeNull();
+    // Initially collapsed
+    expect(queryByTestId("pool-courses-list")).toBeNull();
 
-  // Click to expand Engineering Core
-  fireEvent.click(engineeringHeader!);
+    // Click to expand Engineering Core
+    fireEvent.click(engineeringHeader!);
 
-  // Now at least one list exists and one of them is Engineering Core
-  const listsAfterExpand = screen.getAllByTestId("pool-courses-list");
-  const engineeringList = listsAfterExpand.find(
-    (el: HTMLElement) => el.getAttribute("data-pool-name") === "Engineering Core"
-  );
+    // Now at least one list exists and one of them is Engineering Core
+    const listsAfterExpand = screen.getAllByTestId("pool-courses-list");
+    const engineeringList = listsAfterExpand.find(
+      (el: HTMLElement) =>
+        el.getAttribute("data-pool-name") === "Engineering Core",
+    );
 
-  expect(engineeringList).toBeTruthy();
+    expect(engineeringList).toBeTruthy();
 
-  // Click again to collapse Engineering Core
-  fireEvent.click(engineeringHeader!);
+    // Click again to collapse Engineering Core
+    fireEvent.click(engineeringHeader!);
 
-  // If another pool is still collapsed, this should be null again
-  // (since only Engineering Core was expanded by click)
-  expect(queryByTestId("pool-courses-list")).toBeNull();
-});
-
+    // If another pool is still collapsed, this should be null again
+    // (since only Engineering Core was expanded by click)
+    expect(queryByTestId("pool-courses-list")).toBeNull();
+  });
 
   it("filters courses per pool when searching and auto-expands pools with matches", () => {
     const onCourseSelect = vi.fn();
@@ -187,11 +187,11 @@ describe("CoursePool", () => {
         courses={courses}
         onCourseSelect={onCourseSelect}
         selectedCourse={null}
-      />
+      />,
     );
 
     const input = screen.getByPlaceholderText(
-      /search courses by code or title/i
+      /search courses by code or title/i,
     );
 
     // search for "web", should match SOEN 287 only in "Software Engineering Core"
@@ -202,7 +202,7 @@ describe("CoursePool", () => {
     expect(lists.length).toBe(1);
     expect(lists[0]).toHaveAttribute(
       "data-pool-name",
-      "Software Engineering Core"
+      "Software Engineering Core",
     );
 
     // visibleCourseIds joined in data-visible-ids
@@ -218,11 +218,11 @@ describe("CoursePool", () => {
         courses={courses}
         onCourseSelect={onCourseSelect}
         selectedCourse={null}
-      />
+      />,
     );
 
     const input = screen.getByPlaceholderText(
-      /search courses by code or title/i
+      /search courses by code or title/i,
     );
 
     // search for something that doesn't exist
@@ -241,10 +241,12 @@ describe("CoursePool", () => {
         courses={courses}
         onCourseSelect={onCourseSelect}
         selectedCourse={null}
-      />
+      />,
     );
 
-    const input = screen.getByPlaceholderText(/search courses by code or title/i);
+    const input = screen.getByPlaceholderText(
+      /search courses by code or title/i,
+    );
 
     // "engr" matches ENGR 201 title/code -> ECP pool has ENGR 201 so it should auto-expand
     fireEvent.change(input, { target: { value: "engr" } });
@@ -252,13 +254,9 @@ describe("CoursePool", () => {
     const lists: HTMLElement[] = screen.getAllByTestId("pool-courses-list");
 
     const ecpList = lists.find(
-    (el) => el.getAttribute("data-pool-name") === "ECP ENGR CORE"
-      );
+      (el) => el.getAttribute("data-pool-name") === "ECP ENGR CORE",
+    );
 
     expect(ecpList).toBeDefined();
-
   });
-
-  
 });
-

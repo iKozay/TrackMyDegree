@@ -1,10 +1,11 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
-import type { Pool, CourseCode } from "../types/timeline.types";
+import type { Pool, CourseMap } from "../types/timeline.types";
+import { calculateCoursePoolEarnedCredits } from "../utils/timelineUtils";
 
 interface PoolHeaderProps {
   pool: Pool;
   isExpanded: boolean;
-  visibleCourseIds: CourseCode[];
+  courses: CourseMap;
   hasActiveSearch: boolean;
   onToggle: () => void;
 }
@@ -13,7 +14,7 @@ export const PoolHeader: React.FC<PoolHeaderProps> = ({
   pool,
   isExpanded,
   onToggle,
-  visibleCourseIds,
+  courses,
   hasActiveSearch,
 }) => (
   <button className="pool-header" onClick={onToggle}>
@@ -22,10 +23,9 @@ export const PoolHeader: React.FC<PoolHeaderProps> = ({
     </span>
 
     <span className="pool-name">{pool.name}</span>
-
     <span className="course-count">
-      {hasActiveSearch
-        ? `(${visibleCourseIds.length}/${pool.courses.length})`
+      {!hasActiveSearch
+        ? `(${calculateCoursePoolEarnedCredits(courses, pool)}/${pool.creditsRequired})`
         : `(${pool.courses.length})`}
     </span>
   </button>

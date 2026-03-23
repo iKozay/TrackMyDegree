@@ -25,6 +25,70 @@
   margin-top: 15px;
 }
 
+/* State variants */
+.upload-box-al--selected {
+  border: 3px solid #16a34a;
+  border-style: solid;
+  background-color: #dcfce7;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
+}
+
+.upload-box-al--uploading {
+  border-color: #8b0000;
+  border-style: dashed;
+  animation: pulse-border 1.2s ease-in-out infinite;
+}
+
+.upload-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #f3c4c4;
+  border-top-color: #8b0000;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 8px;
+}
+
+.upload-box-al--success {
+  border-color: #16a34a;
+  background-color: #f0fdf4;
+}
+
+.upload-success-icon {
+  font-size: 36px;
+  color: #16a34a;
+  animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  margin-bottom: 4px;
+}
+
+.upload-box-al--error {
+  border-color: #dc2626;
+  background-color: #fef2f2;
+}
+
+.upload-error-msg {
+  font-size: 13px;
+  color: #dc2626;
+  text-align: center;
+  padding: 0 12px;
+  margin-bottom: 4px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-border {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+@keyframes pop-in {
+  0%   { transform: scale(0); opacity: 0; }
+  80%  { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 /* File Box */
 .file-name {
   font-family: 'DM Sans', sans-serif;
@@ -84,4 +148,49 @@
 
 .modern-link-btn:hover {
   transform: scale(1.1);
+}
+
+/* File chip (selected state) */
+.file-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #16a34a;
+  border-radius: 10px;
+  padding: 10px 14px;
+  max-width: 90%;
+}
+
+.file-chip-icon {
+  flex-shrink: 0;
+}
+
+.file-chip-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #15803d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.file-chip-remove {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: color 0.2s, background-color 0.2s;
+  line-height: 1;
+}
+
+.file-chip-remove:hover {
+  color: #dc2626;
+  background-color: #fef2f2;
 }

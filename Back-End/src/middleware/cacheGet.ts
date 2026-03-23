@@ -6,15 +6,18 @@ export const cacheGET =
   async (req: Request, res: Response, next: NextFunction) => {
     const key = `GET:${req.originalUrl}`;
 
+    // Sanitize key before logging to prevent log injection (CWE-117)
+    const safeKey = key.replaceAll(/[\r\n]/g, '_');
+
     try {
       const cached = await cacheGet<unknown>(key);
       if (cached) {
-        console.log(`CACHE HIT  → ${key}`);
+        console.log(`CACHE HIT  → ${safeKey}`);
         return res.status(200).json(cached);
       }
-      console.log(`CACHE MISS → ${key}`);
+      console.log(`CACHE MISS → ${safeKey}`);
     } catch (err) {
-      console.warn(`CACHE ERROR → ${key}`, err);
+      console.warn('CACHE ERROR → %s', safeKey, err);
     }
 
     const originalJson = res.json.bind(res);

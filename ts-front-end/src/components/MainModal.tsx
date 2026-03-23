@@ -6,6 +6,8 @@ import { InsightsModal } from "./InsightsModal";
 import { SaveTimelineModal } from "./SaveTimelineModal";
 import type { CourseCode, CourseMap, Pool } from "../types/timeline.types";
 import { CoopValidationModal } from "./CoopValidationModal";
+import { canAddCourse } from "../utils/timelineUtils";
+import { toast } from "react-toastify";
 
 type MainModalProps = {
   open: boolean;
@@ -30,6 +32,25 @@ export const MainModal: React.FC<MainModalProps> = ({
 }) => {
   if (!open) return null;
 
+  const handleAdd = (courseId: CourseCode, type: string) => {
+    const result = canAddCourse(courseId, type, courses, pools);
+
+    switch (result) {
+      case "already_exists":
+        toast.info(`${courseId} is already in the pool`);
+        return;
+      case "course_not_found":
+        toast.error(`${courseId} not part of degree requirements`);
+        return;
+      case "invalid_type":
+        toast.error("Invalid type");
+        return;
+    }
+
+    onAdd(courseId, type);
+    toast.success(`${courseId} added to the pool!`);
+  };
+
   const renderContent = () => {
     switch (type) {
       case "insights":
@@ -39,12 +60,13 @@ export const MainModal: React.FC<MainModalProps> = ({
             pools={pools}
             courses={courses}
             onClose={() => onClose(false, type)}
+            onOpenDegreeAudit={() => onClose(false, "degree-audit")}
           />
         );
       case "exemption":
-        return <AddModal type="exemption" onAdd={onAdd} />;
+        return <AddModal type="exemption" onAdd={handleAdd} />;
       case "deficiency":
-        return <AddModal type="deficiency" onAdd={onAdd} />;
+        return <AddModal type="deficiency" onAdd={handleAdd} />;
       case "save":
         return (
           <SaveTimelineModal

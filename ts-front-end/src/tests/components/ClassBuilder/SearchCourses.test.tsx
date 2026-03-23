@@ -1,122 +1,233 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import SearchCourses from '../../../components/ClassBuilderComponents/SearchCourses';
+import type { AddedCourse, CourseSection } from '../../../types/classItem';
 
-describe('SearchCourses', () => {
-    it('renders the component title', () => {
-        render(<SearchCourses />);
+vi.mock('../../../api/http-api-client', () => ({ api: { get: vi.fn() } }));
+import { api } from '../../../api/http-api-client';
+const mockApiGet = api.get as ReturnType<typeof vi.fn>;
+
+const defaultProps = {
+    addedCourses: [] as AddedCourse[],
+    setAddedCourses: vi.fn(),
+};
+
+const getCurrentAcademicYearStart = () => {
+    const today = new Date();
+    const cutover = new Date(today.getFullYear(), 2, 15); // March 15
+    return today >= cutover ? today.getFullYear() : today.getFullYear() - 1;
+};
+
+const academicYearStart = getCurrentAcademicYearStart();
+const yy = String(academicYearStart).slice(-2);
+const summerValue = `summer-${academicYearStart}`;
+const summerLabel = `Summer ${academicYearStart}`;
+const fallValue = `fall-${academicYearStart}`;
+const fallLabel = `Fall ${academicYearStart}`;
+const winterValue = `winter-${academicYearStart + 1}`;
+const winterLabel = `Winter ${academicYearStart + 1}`;
+const summerTermCode = `2${yy}1`;
+
+const makeSection = (overrides: Partial<CourseSection> = {}): CourseSection => ({
+    courseID: "1", termCode: "2251", session: "1", subject: "COMP", catalog: "352",
+    section: "AA", componentCode: "LEC", componentDescription: "Lecture",
+    classNumber: "1001", classAssociation: "1", courseTitle: "DATA STRUCTURES",
+    topicID: "", topicDescription: "", classStatus: "Active",
+    locationCode: "SGW", instructionModeCode: "P", instructionModeDescription: "In Person",
+    meetingPatternNumber: "1", roomCode: "H637", buildingCode: "H", room: "H-637",
+    classStartTime: "08.45.00", classEndTime: "10.00.00",
+    mondays: "Y", tuesdays: "N", wednesdays: "N", thursdays: "N",
+    fridays: "N", saturdays: "N", sundays: "N",
+    classStartDate: "06/01/2025", classEndDate: "15/04/2025",
+    career: "UGRD", departmentCode: "COMP", departmentDescription: "Computer Science",
+    facultyCode: "ECS", facultyDescription: "Engineering",
+    enrollmentCapacity: "100", currentEnrollment: "50",
+    waitlistCapacity: "0", currentWaitlistTotal: "0", hasSeatReserved: "",
+    ...overrides,
+});
+
+const searchFor = (query: string) => {
+    fireEvent.change(screen.getByPlaceholderText('Search by course code or name...'), { target: { value: query } });
+    fireEvent.click(screen.getByText('Search'));
+};
+
+
+describe('SearchCourses rendering', () => {
+    it('renders title, labels, semester select, search input, and Search button', () => {
+        render(<SearchCourses {...defaultProps} />);
         expect(screen.getByText('Search & Add Courses')).toBeInTheDocument();
+        expect(screen.getByText('Select Semester')).toBeInstanceOf(HTMLLabelElement);
+        expect(screen.getByText('Search for Courses')).toBeInstanceOf(HTMLLabelElement);
+        expect(screen.getByDisplayValue(summerLabel)).toBeInstanceOf(HTMLSelectElement);
+        expect(screen.getByPlaceholderText('Search by course code or name...')).toBeInstanceOf(HTMLInputElement);
+        expect(screen.getByText('Search')).toBeDisabled();
     });
 
-    it('renders semester selection label', () => {
-        render(<SearchCourses />);
-        expect(screen.getByText('Select Semester')).toBeInTheDocument();
+    it('renders all semester options for the current academic year', () => {
+        const { container } = render(<SearchCourses {...defaultProps} />);
+        expect(container.querySelector(`option[value="${summerValue}"]`)?.textContent).toBe(summerLabel);
+        expect(container.querySelector(`option[value="${fallValue}"]`)?.textContent).toBe(fallLabel);
+        expect(container.querySelector(`option[value="${winterValue}"]`)?.textContent).toBe(winterLabel);
     });
 
-    it('renders search input label', () => {
-        render(<SearchCourses />);
-        expect(screen.getByText('Search for Courses')).toBeInTheDocument();
+    it('renders two aria-hidden icons inside the card', () => {
+        const { container } = render(<SearchCourses {...defaultProps} />);
+        expect(container.querySelectorAll('svg[aria-hidden="true"]').length).toBe(2);
     });
+});
 
-    it('renders semester select dropdown', () => {
-        render(<SearchCourses />);
-        const select = screen.getByDisplayValue('Winter 2025');
-        expect(select).toBeInTheDocument();
-        expect(select).toBeInstanceOf(HTMLSelectElement);
-    });
 
-    it('renders search input field', () => {
-        render(<SearchCourses />);
+describe('SearchCourses input interaction', () => {
+    it('Search button enables on non-whitespace input and disables again on clear', () => {
+        render(<SearchCourses {...defaultProps} />);
         const input = screen.getByPlaceholderText('Search by course code or name...');
-        expect(input).toBeInTheDocument();
-        expect(input).toBeInstanceOf(HTMLInputElement);
+
+        fireEvent.change(input, { target: { value: 'COMP 352' } });
+        expect(screen.getByText('Search')).not.toBeDisabled();
+
+        fireEvent.change(input, { target: { value: '   ' } });
+        expect(screen.getByText('Search')).toBeDisabled();
     });
 
-    it('has correct default semester value', () => {
-        render(<SearchCourses />);
-        const select = screen.getByDisplayValue('Winter 2025') as HTMLSelectElement;
-        expect(select.value).toBe('winter-2025');
+    it('typing updates the input value', () => {
+        render(<SearchCourses {...defaultProps} />);
+        const input = screen.getByPlaceholderText('Search by course code or name...') as HTMLInputElement;
+        fireEvent.change(input, { target: { value: 'SOEN 341' } });
+        expect(input.value).toBe('SOEN 341');
     });
 
-    it('renders dropdown chevron icon', () => {
-        const { container } = render(<SearchCourses />);
-        const chevronIcon = container.querySelector('.search-courses-card__select-icon');
-        expect(chevronIcon).toBeInTheDocument();
+    it('changing semester updates the select value', () => {
+        render(<SearchCourses {...defaultProps} />);
+        const select = screen.getByDisplayValue(summerLabel) as HTMLSelectElement;
+        fireEvent.change(select, { target: { value: fallValue } });
+        expect(select.value).toBe(fallValue);
     });
 
-    it('renders search icon', () => {
-        const { container } = render(<SearchCourses />);
-        const searchIcon = container.querySelector('.search-courses-card__search-icon');
-        expect(searchIcon).toBeInTheDocument();
-    });
-
-    it('has correct CSS classes on card container', () => {
-        const { container } = render(<SearchCourses />);
-        const card = container.querySelector('.search-courses-card');
-        expect(card).toBeInTheDocument();
-    });
-
-    it('has correct CSS classes on select wrapper', () => {
-        const { container } = render(<SearchCourses />);
-        const wrapper = container.querySelector('.search-courses-card__select-wrapper');
-        expect(wrapper).toBeInTheDocument();
-    });
-
-    it('has correct CSS classes on search wrapper', () => {
-        const { container } = render(<SearchCourses />);
-        const wrapper = container.querySelector('.search-courses-card__search-wrapper');
-        expect(wrapper).toBeInTheDocument();
-    });
-
-    it('renders both input groups', () => {
-        const { container } = render(<SearchCourses />);
-        const groups = container.querySelectorAll('.search-courses-card__group');
-        expect(groups.length).toBe(2);
-    });
-
-    it('search input has correct placeholder', () => {
-        render(<SearchCourses />);
+    it('pressing Enter triggers a search; non-Enter key does not', async () => {
+        mockApiGet.mockResolvedValueOnce([]);
+        render(<SearchCourses {...defaultProps} />);
         const input = screen.getByPlaceholderText('Search by course code or name...');
-        expect(input.getAttribute('placeholder')).toBe('Search by course code or name...');
+        fireEvent.change(input, { target: { value: 'COMP 352' } });
+
+        fireEvent.keyDown(input, { key: 'a' });
+        expect(mockApiGet).not.toHaveBeenCalled();
+
+        fireEvent.keyDown(input, { key: 'Enter' });
+        await waitFor(() => expect(mockApiGet).toHaveBeenCalledTimes(1));
+    });
+});
+
+describe('SearchCourses API and modals', () => {
+    beforeEach(() => vi.clearAllMocks());
+    afterEach(() => vi.restoreAllMocks());
+
+    it('shows "Course Not Found" when API returns empty array, naming the queried course', async () => {
+        mockApiGet.mockResolvedValueOnce([]);
+        render(<SearchCourses {...defaultProps} />);
+        searchFor('COMP 999');
+
+        await waitFor(() => expect(screen.getByText('Course Not Found')).toBeInTheDocument());
+        expect(screen.getByText(/COMP 999/)).toBeInTheDocument();
     });
 
-    it('labels are properly associated with inputs', () => {
-        render(<SearchCourses />);
-        const semesterLabel = screen.getByText('Select Semester');
-        const searchLabel = screen.getByText('Search for Courses');
-        expect(semesterLabel).toBeInstanceOf(HTMLLabelElement);
-        expect(searchLabel).toBeInstanceOf(HTMLLabelElement);
+    it('shows "Course Not Available" when no sections match active term, mentioning the semester', async () => {
+        mockApiGet.mockResolvedValueOnce([makeSection({ termCode: "9999" })]);
+        render(<SearchCourses {...defaultProps} />);
+        searchFor('COMP 352');
+
+        await waitFor(() => expect(screen.getByText('Course Not Available')).toBeInTheDocument());
+        expect(document.querySelector('.sc-modal__body')?.textContent).toContain(summerLabel);
     });
 
-    it('renders style tag', () => {
-        const { container } = render(<SearchCourses />);
-        const style = container.querySelector('style');
-        expect(style).toBeInTheDocument();
+    it('shows "Course Already Added" modal without calling API for duplicate courses', async () => {
+        const existing: AddedCourse[] = [{ code: "COMP 352", title: "DATA STRUCTURES", sections: [] }];
+        render(<SearchCourses addedCourses={existing} setAddedCourses={vi.fn()} />);
+        searchFor('COMP 352');
+
+        await waitFor(() => expect(screen.getByText('Course Already Added')).toBeInTheDocument());
+        expect(mockApiGet).not.toHaveBeenCalled();
     });
 
-    it('select has correct CSS class', () => {
-        const { container } = render(<SearchCourses />);
-        const select = container.querySelector('.search-courses-card__select');
-        expect(select).toBeInTheDocument();
+    it('dismisses modal via "Got it" button or overlay click', async () => {
+        mockApiGet.mockResolvedValueOnce([]);
+        render(<SearchCourses {...defaultProps} />);
+        searchFor('COMP 999');
+
+        await waitFor(() => expect(screen.getByText('Course Not Found')).toBeInTheDocument());
+        fireEvent.click(screen.getByText('Got it'));
+        expect(screen.queryByText('Course Not Found')).not.toBeInTheDocument();
+
+        mockApiGet.mockResolvedValueOnce([]);
+        searchFor('COMP 999');
+        await waitFor(() => expect(screen.getByText('Course Not Found')).toBeInTheDocument());
+        fireEvent.click(document.querySelector('.sc-modal-overlay') as HTMLElement);
+        expect(screen.queryByText('Course Not Found')).not.toBeInTheDocument();
     });
 
-    it('input has correct CSS class', () => {
-        const { container } = render(<SearchCourses />);
-        const input = container.querySelector('.search-courses-card__input');
-        expect(input).toBeInTheDocument();
+    it('shows "Searching…" and disables button while loading', async () => {
+        mockApiGet.mockReturnValueOnce(new Promise(() => { }));
+        render(<SearchCourses {...defaultProps} />);
+        fireEvent.change(screen.getByPlaceholderText('Search by course code or name...'), { target: { value: 'COMP 352' } });
+
+        act(() => { fireEvent.click(screen.getByText('Search')); });
+
+        const btn = screen.getByText('Searching...');
+        expect(btn).toBeInTheDocument();
+        expect(btn).toBeDisabled();
     });
 
-    it('icons are marked as aria-hidden', () => {
-        const { container } = render(<SearchCourses />);
-        const icons = container.querySelectorAll('svg[aria-hidden="true"]');
-        expect(icons.length).toBe(2); // chevron and search icons
+    it('calls API with correct subject/catalog, adds course, clears input, and filters inactive sections', async () => {
+        const setAddedCourses = vi.fn();
+        mockApiGet.mockResolvedValueOnce([
+            makeSection({ termCode: summerTermCode, classStatus: "Active", courseTitle: "DATA STRUCTURES" }),
+            makeSection({ classNumber: "1002", termCode: summerTermCode, classStatus: "Cancelled Section" }),
+        ]);
+
+        render(<SearchCourses addedCourses={[]} setAddedCourses={setAddedCourses} />);
+        const input = screen.getByPlaceholderText('Search by course code or name...') as HTMLInputElement;
+        fireEvent.change(input, { target: { value: 'comp 352' } });
+        fireEvent.click(screen.getByText('Search'));
+
+        await waitFor(() => expect(setAddedCourses).toHaveBeenCalledTimes(1));
+
+        expect(mockApiGet).toHaveBeenCalledWith(
+            expect.stringMatching(/subject=COMP.*catalog=352|catalog=352.*subject=COMP/),
+            expect.anything()
+        );
+
+        const [newList] = setAddedCourses.mock.calls[0];
+        expect(newList).toHaveLength(1);
+        expect(newList[0].code).toBe('COMP 352');
+        expect(newList[0].title).toBe('DATA STRUCTURES');
+        expect(newList[0].sections).toHaveLength(1);
+        expect(input.value).toBe('');
     });
 
-    it('semester option has correct value', () => {
-        const { container } = render(<SearchCourses />);
-        const option = container.querySelector('option[value="winter-2025"]');
-        expect(option).toBeInTheDocument();
-        expect(option?.textContent).toBe('Winter 2025');
+    it('appends new course to existing list', async () => {
+        const existing: AddedCourse[] = [{ code: "SOEN 341", title: "SOFTWARE PROCESS", sections: [] }];
+        const setAddedCourses = vi.fn();
+        mockApiGet.mockResolvedValueOnce([
+            makeSection({ termCode: summerTermCode, classStatus: "Active", subject: "COMP", catalog: "352", courseTitle: "DATA STRUCTURES" }),
+        ]);
+
+        render(<SearchCourses addedCourses={existing} setAddedCourses={setAddedCourses} />);
+        searchFor('COMP 352');
+
+        await waitFor(() => expect(setAddedCourses).toHaveBeenCalledTimes(1));
+        const [newList] = setAddedCourses.mock.calls[0];
+        expect(newList).toHaveLength(2);
+        expect(newList[0].code).toBe('SOEN 341');
+        expect(newList[1].code).toBe('COMP 352');
+    });
+
+    it('shows "Course Not Available" when all sections are inactive for the matching term', async () => {
+        mockApiGet.mockResolvedValueOnce([makeSection({ termCode: "2251", classStatus: "Cancelled Section" })]);
+        const setAddedCourses = vi.fn();
+        render(<SearchCourses addedCourses={[]} setAddedCourses={setAddedCourses} />);
+        searchFor('COMP 352');
+
+        await waitFor(() => expect(screen.getByText('Course Not Available')).toBeInTheDocument());
+        expect(setAddedCourses).not.toHaveBeenCalled();
     });
 });

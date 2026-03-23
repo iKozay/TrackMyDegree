@@ -26,7 +26,11 @@ async function globalSetup() {
 
     // Start python utils container
     console.log('Setting up Python utils container...');
-    await startPythonUtilsContainer();
+    const pythonContainerInfo = await startPythonUtilsContainer();
+
+    // Set the test Python utils URL for the entire test process
+    process.env.PYTHON_UTILS_URL = pythonContainerInfo.url;
+    console.log('Test Python utils URL set to:', pythonContainerInfo.url);
 
     console.log('Global test container ready');
   } catch (error) {

@@ -10,7 +10,8 @@
     "rules": {
       "prereq": [["MATH 204"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -24,7 +25,8 @@
     "rules": {
       "prereq": [["MATH 204"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -38,7 +40,8 @@
     "rules": {
       "prereq": [["MATH 204"]],
       "coreq": [],
-      "not_taken": ["COMP 248", "MIAE 215", "MECH 215"]
+      "not_taken": ["COMP 248", "MIAE 215", "MECH 215"],
+      "min_credits": 0.0
     }
   },
   {
@@ -52,7 +55,8 @@
     "rules": {
       "prereq": [["COEN 243", "MECH 215", "MIAE 215"]],
       "coreq": [],
-      "not_taken": ["COMP 249"]
+      "not_taken": ["COMP 249"],
+      "min_credits": 0.0
     }
   },
   {
@@ -66,7 +70,8 @@
     "rules": {
       "prereq": [["COEN 243", "COEN 212"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -80,7 +85,8 @@
     "rules": {
       "prereq": [["COEN 231"], ["COEN 212"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -94,7 +100,8 @@
     "rules": {
       "prereq": [["COEN 212"], ["ELEC 273"]],
       "coreq": [],
-      "not_taken": ["COEN 315","COEN 415"]
+      "not_taken": ["COEN 315","COEN 415"],
+      "min_credits": 0.0
     }
   },
   {
@@ -108,7 +115,8 @@
     "rules": {
       "prereq": [["COEN 311"], ["COEN 313"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -122,7 +130,8 @@
     "rules": {
       "prereq": [["COEN 313", "COMP 228", "SOEN 228"], ["COEN 311"]],
       "coreq": [],
-      "not_taken": ["COEN 417"]
+      "not_taken": ["COEN 417"],
+      "min_credits": 0.0
     }
   },
   {
@@ -136,7 +145,8 @@
     "rules": {
       "prereq": [["COEN 346", "COMP 346"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -150,7 +160,8 @@
     "rules": {
       "prereq": [["COEN 311"], ["COMP 352", "COEN 352"]],
       "coreq": [],
-      "not_taken": ["COMP 346"]
+      "not_taken": ["COMP 346"],
+      "min_credits": 0.0
     }
   },
   {
@@ -164,7 +175,8 @@
     "rules": {
       "prereq": [["COEN 244"], ["COEN 231"]],
       "coreq": [],
-      "not_taken": ["COMP 352"]
+      "not_taken": ["COMP 352"],
+      "min_credits": 0.0
     }
   },
   {
@@ -178,7 +190,8 @@
     "rules": {
       "prereq": [["COEN 346"]],
       "coreq": [],
-      "not_taken": ["ELEC 366","ELEC 463","COEN 445"]
+      "not_taken": ["ELEC 366","ELEC 463","COEN 445"],
+      "min_credits": 0.0
     }
   },
   {
@@ -192,7 +205,8 @@
     "rules": {
       "prereq": [["ENGR 290"], ["COEN 311"], ["COEN 352"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 45.0
     }
   },
   {
@@ -206,7 +220,8 @@
     "rules": {
       "prereq": [["COEN 313"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -220,7 +235,8 @@
     "rules": {
       "prereq": [["COEN 314"]],
       "coreq": [],
-      "not_taken": ["COEN 315", "COEN 415"]
+      "not_taken": ["COEN 315", "COEN 415"],
+      "min_credits": 0.0
     }
   },
   {
@@ -234,7 +250,8 @@
     "rules": {
       "prereq": [["COEN 317"], ["COEN 320"], ["SOEN 341"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -248,7 +265,8 @@
     "rules": {
       "prereq": [["COEN 346"], ["ELEC 372"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -262,7 +280,8 @@
     "rules": {
       "prereq": [["COEN 346"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -276,7 +295,8 @@
     "rules": {
       "prereq": [["COEN 352"], ["COMP 352"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -290,7 +310,8 @@
     "rules": {
       "prereq": [["COEN 244"], ["COEN 212"]],
       "coreq": [],
-      "not_taken": ["BIOL 475", "BIOL 498"]
+      "not_taken": ["BIOL 475", "BIOL 498"],
+      "min_credits": 0.0
     }
   },
   {
@@ -304,7 +325,8 @@
     "rules": {
       "prereq": [["COEN 244", "BIOL 261"], ["ENGR 290", "COMP 249"]],
       "coreq": [],
-      "not_taken": ["BIOL 476", "BIOL 498"]
+      "not_taken": ["BIOL 476", "BIOL 498"],
+      "min_credits": 0.0
     }
   },
   {
@@ -318,7 +340,8 @@
     "rules": {
       "prereq": [["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -332,7 +355,8 @@
     "rules": {
       "prereq": [["COEN 317"], ["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -346,7 +370,8 @@
     "rules": {
       "prereq": [["SOEN 341"]],
       "coreq": [],
-      "not_taken": ["COEN 345"]
+      "not_taken": ["COEN 345"],
+      "min_credits": 0.0
     }
   },
   {
@@ -360,7 +385,8 @@
     "rules": {
       "prereq": [["COEN 212"], ["ELEC 311", "COEN 314"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   },
   {
@@ -374,7 +400,8 @@
     "rules": {
       "prereq": [["ENGR 301"], ["ENGR 371"], ["COEN 390"], ["SOEN 341"]],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 75.0
     }
   },
   {
@@ -388,7 +415,8 @@
     "rules": {
       "prereq": [],
       "coreq": [],
-      "not_taken": []
+      "not_taken": [],
+      "min_credits": 0.0
     }
   }
 ]
