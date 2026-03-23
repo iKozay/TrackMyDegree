@@ -97,7 +97,7 @@ jobs:
       - name: Run ESLint for backend
         working-directory: ./Back-End/src
         run: |
-          npm run lint -- --quiet
+          npm run lint
 
       - name: Run backend tests with coverage
         working-directory: ./Back-End/src
