@@ -39,7 +39,7 @@ def parse_transcript_api():
         return jsonify(parsed_data)
     except Exception as e:
         logger.error(f"Error parsing transcript: {str(e)}")
-        return jsonify({"error": f"Error parsing transcript: {str(e)}"}), 500
+        return jsonify({"error": "Error parsing transcript. Please try again later."}), 500
 
 @app.route('/degree-names', methods=['GET'])
 def get_degree_names():
@@ -51,7 +51,7 @@ def get_degree_names():
         return jsonify(serialize(degree_data))
     except Exception as e:
         logger.error(f"Error retrieving degree names: {str(e)}")
-        return jsonify({"error": f"Error scraping degree data: {str(e)}"}), 500
+        return jsonify({"error": "Error scraping degree data. Please try again later."}), 500
 
 @app.route('/scrape-degree', methods=['GET'])
 def scrape_degree_api():
@@ -67,7 +67,7 @@ def scrape_degree_api():
         return jsonify(serialize(degree_data))
     except Exception as e:
         logger.error(f"Error scraping degree data for degree name {name}: {str(e)}")
-        return jsonify({"error": f"Error scraping degree data: {str(e)}"}), 500
+        return jsonify({"error": f"Error scraping degree data. Please try again later."}), 500
 
 @app.route('/scrape-all-degrees', methods=['GET'])
 def scrape_all_degrees_api():
