@@ -1,4 +1,13 @@
 {
-  "extends": "../tsconfig.json",
-  "include": ["index.ts"]
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noEmit": false,
+    "target": "ES2020",
+    "rootDir": "./"
+  },
+  "include": ["index.ts"],
+  "exclude": ["dist", "node_modules"]
 }

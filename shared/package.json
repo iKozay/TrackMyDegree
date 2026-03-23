@@ -3,7 +3,28 @@
   "version": "1.0.0",
   "private": true,
   "description": "Shared types and utilities for TrackMyDegree",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/cjs/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/cjs/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "npm run build:cjs && npm run build:esm",
+    "build:cjs": "tsc --project tsconfig.cjs.json",
+    "build:esm": "tsc --project tsconfig.esm.json",
+    "build:watch": "concurrently \"npm run build:cjs -- --watch\" \"npm run build:esm -- --watch\"",
+    "clean": "rm -rf dist"
+  },
   "devDependencies": {
+    "concurrently": "^9.1.2",
     "typescript": "^5.9.3"
   }
 }

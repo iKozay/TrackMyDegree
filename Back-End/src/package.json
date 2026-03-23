@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@trackmydegree/shared": "*",
     "@sentry/node": "^9.10.1",
     "@sentry/profiling-node": "^9.10.1",
     "@types/cors": "^2.8.19",
