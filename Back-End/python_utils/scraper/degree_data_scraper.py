@@ -60,6 +60,7 @@ class DegreeDataScraper():
 
     def _add_missing_links(self, degree_links: list[AnchorLink]) -> None:
         if not any("Co-op Program" in link.text for link in degree_links):
+            # intentionally left with an empty URL since the Coop scraper does not rely on a specific page
             degree_links.append(AnchorLink(text="Co-op Program", url=""))
         if not any("BCompSc in Health and Life Sciences" in link.text for link in degree_links):
             degree_links.append(AnchorLink(text="BCompSc in Health and Life Sciences", url="https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-75-computer-science-in-health-and-life-sciences/section-71-75-1-curriculum-for-the-degree-of-bcompsc-in-health-and-life-sciences.html"))

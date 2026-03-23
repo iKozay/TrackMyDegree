@@ -11,7 +11,6 @@ try:
     import fitz  # PyMuPDF
 except ImportError:
     print("ERROR: PyMuPDF not installed. Run: pip install pymupdf", file=sys.stderr)
-    sys.exit(1)
 
 # Constants
 BIRTHDATE = 'Birthdate:'

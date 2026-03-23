@@ -1,3 +1,4 @@
+import math
 import sys
 import pandas as pd
 import os
@@ -128,7 +129,7 @@ class ConcordiaAPIUtils:
         elif isinstance(data, dict):
             sanitized = {}
             for key, value in data.items():
-                if pd.isna(value) or value is None:
+                if isinstance(value, float) and math.isnan(value) or value is None:
                     sanitized[key] = ""
                 elif isinstance(value, (int, float)) and not pd.isna(value):
                     sanitized[key] = str(value)
