@@ -4,6 +4,9 @@ import { api } from "../api/http-api-client";
 import LegacyStudentPage from "../legacy/pages/UserPage.jsx";
 import { useNavigate } from "react-router-dom";
 
+// TODO: extract fetch logic into a custom hook (e.g. useStudentData)
+// to keep this component focused on rendering only
+
 export interface Timeline {
   _id: string;
   name: string;
