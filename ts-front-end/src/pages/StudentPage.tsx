@@ -33,7 +33,8 @@ const StudentPage: React.FC = () => {
     if (redirect && redirect.startsWith('/') && !redirect.startsWith('//')) {
       navigate(redirect, { replace: true });
     }
-
+// TODO: extract fetch logic into a custom hook (e.g. useStudentData)
+// to keep this component focused on rendering only
     const fetchUserTimelines = async () => {
       try {
         if (user?.id) {
