@@ -2,7 +2,6 @@ import { Document, Model, FilterQuery, UpdateQuery } from 'mongoose';
 import * as Sentry from '@sentry/node';
 import { ObjectId } from 'bson';
 import { QUERY_FAILED, DELETE_FAILED } from '@utils/constants';
-import _ from 'lodash';
 
 export interface BaseDocument extends Document {
   _id: ObjectId;
@@ -207,8 +206,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
 
       // Apply search if provided
       if (options.search && options.fields && options.fields.length > 0) {
-        const safeSearch = _.escapeRegExp(options.search);
-        const searchRegex = new RegExp(safeSearch, 'i');
+        const searchRegex = new RegExp(options.search, 'i');
         const searchConditions = options.fields.map((field) => ({
           [field]: searchRegex,
         }));
