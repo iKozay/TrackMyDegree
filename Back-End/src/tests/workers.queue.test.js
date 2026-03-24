@@ -1,4 +1,4 @@
-// workers/queue.test.js
+// workers/courseProcessor.test.js
 
 const { Buffer } = require('node:buffer');
 
@@ -27,7 +27,7 @@ jest.mock('node:fs/promises', () => ({
   unlink: jest.fn(),
 }));
 
-jest.mock('../services/timeline/timelineService', () => ({
+jest.mock('../services/timeline/timelineBuilder', () => ({
   buildTimeline: jest.fn(),
   buildTimelineFromDB: jest.fn(),
 }));
@@ -37,10 +37,10 @@ jest.mock('../lib/cache', () => ({
 }));
 
 // Import AFTER mocks so they take effect
-require('../workers/queue'); // adjust path if test file is elsewhere
+require('../workers/courseProcessor');
 
 const { readFile, unlink } = require('node:fs/promises');
-const { buildTimeline } = require('../services/timeline/timelineService');
+const { buildTimeline } = require('../services/timeline/timelineBuilder');
 const { cacheJobResult } = require('../lib/cache');
 
 describe('courseProcessorWorker', () => {
@@ -61,6 +61,8 @@ describe('courseProcessorWorker', () => {
         kind: 'file',
         filePath: '/tmp/job-file-123.pdf',
       },
+      attemptsMade: 0,
+      opts: { attempts: 3 },
     };
 
     await workerProcessor(job);
@@ -86,6 +88,8 @@ describe('courseProcessorWorker', () => {
         kind: 'body',
         body: { foo: 'bar' },
       },
+      attemptsMade: 0,
+      opts: { attempts: 3 },
     };
 
     await workerProcessor(job);
@@ -102,7 +106,7 @@ describe('courseProcessorWorker', () => {
   });
 
   test('processes a timelineData job: builds from DB, caches result', async () => {
-    const { buildTimelineFromDB } = require('../services/timeline/timelineService');
+    const { buildTimelineFromDB } = require('../services/timeline/timelineBuilder');
     buildTimelineFromDB.mockResolvedValueOnce({ timeline: ['db', 'data'] });
     cacheJobResult.mockResolvedValueOnce(undefined);
 
@@ -112,6 +116,8 @@ describe('courseProcessorWorker', () => {
         kind: 'timelineData',
         timelineId: 'timeline-123',
       },
+      attemptsMade: 0,
+      opts: { attempts: 3 },
     };
 
     await workerProcessor(job);
@@ -123,27 +129,50 @@ describe('courseProcessorWorker', () => {
     expect(unlink).not.toHaveBeenCalled();
   });
 
-  test('still deletes file in finally when processing throws', async () => {
+  test('does NOT delete file on non-last failed attempt so retries can read it', async () => {
+    readFile.mockResolvedValueOnce(Buffer.from('bad-file'));
+    buildTimeline.mockRejectedValueOnce(new Error('processing failed'));
+
+    const job = {
+      data: {
+        jobId: 'job-retry-1',
+        kind: 'file',
+        filePath: '/tmp/job-retry-1.pdf',
+      },
+      attemptsMade: 0,
+      opts: { attempts: 3 },
+    };
+
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    await expect(workerProcessor(job)).rejects.toThrow('processing failed');
+
+    expect(unlink).not.toHaveBeenCalled();
+    expect(cacheJobResult).not.toHaveBeenCalled();
+
+    errorSpy.mockRestore();
+  });
+
+  test('deletes file on the last failed attempt to clean up', async () => {
     readFile.mockResolvedValueOnce(Buffer.from('bad-file'));
     buildTimeline.mockRejectedValueOnce(new Error('processing failed'));
     unlink.mockResolvedValueOnce(undefined);
 
     const job = {
       data: {
-        jobId: 'job-error-999',
+        jobId: 'job-last-attempt',
         kind: 'file',
-        filePath: '/tmp/job-error-999.pdf',
+        filePath: '/tmp/job-last-attempt.pdf',
       },
+      attemptsMade: 2,
+      opts: { attempts: 3 },
     };
 
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     await expect(workerProcessor(job)).rejects.toThrow('processing failed');
 
-    // unlink should still be called from finally
-    expect(unlink).toHaveBeenCalledWith('/tmp/job-error-999.pdf');
-
-    // cacheJobResult shouldn't be called because processing failed
+    expect(unlink).toHaveBeenCalledWith('/tmp/job-last-attempt.pdf');
     expect(cacheJobResult).not.toHaveBeenCalled();
 
     errorSpy.mockRestore();

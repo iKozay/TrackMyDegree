@@ -79,16 +79,23 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
     <div className="course-details">
       <div className="course-header">
         {/* using id here because your Course type/data has `id`, not `code` */}
-        <h2>{course.id}</h2>
+
         <div className="course-status">
           {getStatusIcon(course.status.status)}
           <span>{getStatusText(course.status.status)}</span>
         </div>
+        <CourseStatusActions
+          currentStatus={course.status.status}
+          onRemoveCourse={onRemoveCourse}
+          onChangeCourseStatus={onChangeCourseStatus}
+          course={course}
+        />
       </div>
 
       <div className="course-info">
-        <h3>{course.title}</h3>
-
+        <h3>
+          {course.id} : {course.title}
+        </h3>
         <div className="info-item">
           <Clock size={16} />
           <span>{course.credits} Credits</span>
@@ -123,12 +130,6 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
         title="Corequisites"
         groups={course.corequisites}
         courses={courses}
-      />
-      <CourseStatusActions
-        currentStatus={course.status.status}
-        onRemoveCourse={onRemoveCourse}
-        onChangeCourseStatus={onChangeCourseStatus}
-        course={course}
       />
     </div>
   );

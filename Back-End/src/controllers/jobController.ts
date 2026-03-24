@@ -13,6 +13,8 @@ export interface CachedJobResult<T = unknown> {
 }
 
 export const getByJobId: RequestHandler<GetResultParams> = async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+
   try {
     const { jobId } = req.params;
 

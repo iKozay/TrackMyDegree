@@ -114,17 +114,6 @@ export function validateCoopTimeline(timeline: any): CoopValidationResult {
     }
   }
 
-  // No consecutive work terms
-  for (let i = 1; i < termTypes.length; i++) {
-    if (termTypes[i] === 'WORK' && termTypes[i - 1] === 'WORK') {
-      errors.push({
-        ruleId: 'NO_CONSECUTIVE_WORK_TERMS',
-        message: 'Consecutive work terms are not allowed.',
-        severity: 'ERROR',
-      });
-    }
-  }
-
   // Warning if timeline is long
   const degreeId = timeline?.degree?._id || '';
   const maxTerms = degreeId.includes('BEng') ? 12 : 9;

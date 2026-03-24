@@ -71,7 +71,7 @@ export class AuthController {
     password: string,
   ): Promise<UserInfo | undefined> {
     try {
-      const user = await User.findOne({ email })
+      const user = await User.findOne({ email: { $eq: email } })
         .select('+password')
         .lean()
         .exec();
@@ -112,7 +112,7 @@ export class AuthController {
     const { email, fullname, type } = userInfo;
 
     try {
-      const existingUser = await User.exists({ email }).exec();
+      const existingUser = await User.exists({ email: { $eq: email } }).exec();
       if (existingUser) return undefined;
 
       // Hash the password before storing
@@ -150,7 +150,7 @@ export class AuthController {
     email: string,
   ): Promise<{ message: string; resetLink?: string }> {
     try {
-      const user = await User.findOne({ email }).exec();
+      const user = await User.findOne({ email: { $eq: email } }).exec();
       if (!user) {
         // Mocro : Always return generic message to prevent user enumeration
         return { message: 'If the email exists, a reset link has been sent.' };

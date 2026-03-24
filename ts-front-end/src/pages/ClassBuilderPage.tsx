@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import "../styles/ClassBuilder.css";
+import "../styles/components/classbuilder/ClassBuilderPageStyle.css"
 import WeeklySchedule from "../components/ClassBuilderComponents/WeeklySchedule";
 import ScheduleStats from "../components/ClassBuilderComponents/ScheduleStats";
 import ScheduledCourses from "../components/ClassBuilderComponents/ScheduledCourses";
@@ -31,6 +32,7 @@ const sectionToClassItems = (course: AddedCourse, section: CourseSection): Class
                 day: dayIndex,
                 startTime: parseTime(section.classStartTime),
                 endTime: parseTime(section.classEndTime),
+                type: section.componentCode
             });
         }
     });
@@ -54,6 +56,30 @@ const cartesianProduct = (groups: CourseSection[][]): CourseSection[][] => {
     }
 
     return result;
+};
+
+const deduplicateClassItems = (items: ClassItem[]): ClassItem[] => {
+    const seen = new Set<string>();
+    return items.filter(item => {
+        const key = `${item.name}|${item.day}|${item.startTime}|${item.endTime}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+};
+
+const uniqueConfigs = (items: ClassItem[]): string => {
+    return items.map(item => `${item.name}|${item.day}|${item.startTime}|${item.endTime}`).sort((a, b) => a.localeCompare(b)).join(";");
+}
+
+const deduplicateConfigurations = (configs: ClassItem[][]): ClassItem[][] => {
+    const seen = new Set<string>();
+    return configs.filter(config => {
+        const uc = uniqueConfigs(config);
+        if (seen.has(uc)) return false;
+        seen.add(uc);
+        return true;
+    });
 };
 
 const configurationsForCourse = (course: AddedCourse): ClassItem[][] => {
@@ -89,14 +115,33 @@ const configurationsForCourse = (course: AddedCourse): ClassItem[][] => {
                 classItems.push(...items);
             }
 
-            allConfigs.push(classItems);
+            allConfigs.push(deduplicateClassItems(classItems));
         }
     }
 
-    return allConfigs;
+    return deduplicateConfigurations(allConfigs);
 };
 
-// Cartesian product across all courses, then filters to keep only configurations that include every pinned classNumber
+// Returns true if any two ClassItems in the config overlap on the same day.
+const hasConflict = (config: ClassItem[]): boolean => {
+    for (let i = 0; i < config.length; i++) {
+        for (let j = i + 1; j < config.length; j++) {
+            const a = config[i];
+            const b = config[j];
+            if (
+                a.day === b.day &&
+                a.startTime < b.endTime &&
+                b.startTime < a.endTime
+            ) {
+                return true;
+            }
+        }
+    }
+    return false;
+};
+
+// Cartesian product across all courses, filters out conflicting configs,
+// then filters to keep only configurations that include every pinned classNumber.
 const generateAllConfigurations = (
     addedCourses: AddedCourse[],
     pinnedClassNumbers: Set<string>
@@ -113,9 +158,13 @@ const generateAllConfigurations = (
         [[]]
     );
 
-    if (pinnedClassNumbers.size === 0) return allCombos;
+    const dedupedCombos = deduplicateConfigurations(allCombos);
 
-    return allCombos.filter(config => {
+    const conflictFree = dedupedCombos.filter(config => !hasConflict(config));
+
+    if (pinnedClassNumbers.size === 0) return conflictFree;
+
+    return conflictFree.filter(config => {
         const classNumbersInConfig = new Set(config.map(item => item.classNumber));
         return [...pinnedClassNumbers].every(cn => classNumbersInConfig.has(cn));
     });
@@ -127,17 +176,22 @@ const ClassBuilderPage: React.FC = () => {
     const [addedCourses, setAddedCourses] = useState<AddedCourse[]>([]);
     const [configIndex, setConfigIndex] = useState(0);
     const [pinnedClassNumbers, setPinnedClassNumbers] = useState<Set<string>>(new Set());
+    const [conflictModalDismissed, setConflictModalDismissed] = useState(false);
 
     const allConfigurations = useMemo(
         () => generateAllConfigurations(addedCourses, pinnedClassNumbers),
         [addedCourses, pinnedClassNumbers]
     );
 
+    const noValidConfigs = addedCourses.length > 0 && allConfigurations.length === 0;
+
+    const showConflictModal = noValidConfigs && !conflictModalDismissed;
+
     const totalConfigs = allConfigurations.length;
 
     const safeConfigIndex = Math.min(configIndex, Math.max(0, totalConfigs - 1));
 
-    const currentConfig = allConfigurations[safeConfigIndex] ?? [];
+    const currentConfig = noValidConfigs ? [] : (allConfigurations[safeConfigIndex] ?? []);
 
     const goToPrev = () => setConfigIndex(i => Math.max(0, i - 1));
     const goToNext = () => setConfigIndex(i => Math.min(totalConfigs - 1, i + 1));
@@ -152,6 +206,7 @@ const ClassBuilderPage: React.FC = () => {
             }
             return next;
         });
+        setConfigIndex(0);
     };
 
     const handleSetAddedCourses = (courses: AddedCourse[]) => {
@@ -182,20 +237,22 @@ const ClassBuilderPage: React.FC = () => {
                                 </button>
                             </div>*/}
                         </div>
-                        <ScheduleStats classes={currentConfig} />
+
                         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                             <div className="lg:col-span-3">
                                 <WeeklySchedule
                                     classes={currentConfig}
                                     pinnedClassNumbers={pinnedClassNumbers}
                                     configIndex={safeConfigIndex}
-                                    totalConfigs={totalConfigs}
+                                    totalConfigs={noValidConfigs ? 0 : totalConfigs}
                                     onPrev={goToPrev}
                                     onNext={goToNext}
                                     onTogglePin={togglePin}
                                 />
                             </div>
+
                             <div className="space-y-6">
+                                <ScheduleStats classes={currentConfig} />
                                 <SearchCourses
                                     addedCourses={addedCourses}
                                     setAddedCourses={setAddedCourses}
@@ -210,6 +267,43 @@ const ClassBuilderPage: React.FC = () => {
                     </div>
                 </div>
             </main>
+
+            {showConflictModal && (
+
+                <button
+                    className="cb-conflict-overlay"
+                    onClick={() => setConflictModalDismissed(true)}
+                >
+                    <button
+                        className="cb-conflict-modal"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="cb-conflict-modal__icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                aria-hidden="true">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M12 8v4"></path>
+                                <path d="M12 16h.01"></path>
+                            </svg>
+                        </div>
+
+                        <p className="cb-conflict-modal__title">No Valid Schedules</p>
+
+                        <p className="cb-conflict-modal__body">
+                            Every possible combination of your selected courses results in a <strong>time conflict</strong>. Try removing a course to open up more options.
+                        </p>
+
+                        <button
+                            className="cb-conflict-modal__close"
+                            onClick={() => setConflictModalDismissed(true)}
+                        >
+                            Got it
+                        </button>
+                    </button>
+                </button>
+
+            )}
         </motion.div>
     );
 };

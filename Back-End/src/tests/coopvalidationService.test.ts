@@ -72,18 +72,21 @@ describe('validateCoopTimeline', () => {
     expect(result.errors.some(e => e.ruleId === 'MIN_TWO_STUDY_BEFORE_WORK')).toBe(true);
   });
 
-  it('detects consecutive work terms', () => {
+  it('allows consecutive work terms when all other rules are satisfied', () => {
     const timeline = {
       semesters: [
         { courses: [{ code: 'MATH 101' }] },
+        { courses: [{ code: 'COMP 248' }] },
         { courses: [{ code: 'CWT 100' }] },
         { courses: [{ code: 'CWT 200' }] },
-        ...Array(9).fill({ courses: [{ code: 'MATH 101' }] }),
+        ...Array(2).fill({ courses: [{ code: 'SOEN 287' }] }),
+        { courses: [{ code: 'CWT 300' }] },
+        ...Array(2).fill({ courses: [{ code: 'ELEC 275' }] }),
       ],
     };
     const result = validateCoopTimeline(timeline);
-    expect(result.valid).toBe(false);
-    expect(result.errors.some(e => e.ruleId === 'NO_CONSECUTIVE_WORK_TERMS')).toBe(true);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
   });
 
   it('warns if timeline is longer than max terms (BEng)', () => {

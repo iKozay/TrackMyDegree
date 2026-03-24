@@ -6,6 +6,7 @@ import {
   downloadTimelinePdf,
   getCourseValidationMessage,
   saveTimeline,
+  canAddCourse,
 } from "../../utils/timelineUtils";
 import type {
   Course,
@@ -14,6 +15,7 @@ import type {
   Semester,
   SemesterId,
   TimelineState,
+  RequisiteGroup,
 } from "../../types/timeline.types";
 
 vi.mock("../../api/http-api-client", () => ({
@@ -83,7 +85,13 @@ describe("timelineUtils", () => {
         },
       };
 
-      const result = canDropCourse(courseInSemester, {}, [], "FALL 2025", "FALL 2025");
+      const result = canDropCourse(
+        courseInSemester,
+        {},
+        [],
+        "FALL 2025",
+        "FALL 2025",
+      );
       expect(result.allowed).toBe(true);
       expect(result.reason).toBeUndefined();
     });
@@ -144,7 +152,7 @@ describe("timelineUtils", () => {
         courses,
         [heavySemester],
         undefined,
-        "FALL 2025" as SemesterId
+        "FALL 2025" as SemesterId,
       );
       expect(result.allowed).toBe(false);
       expect(result.reason).toMatch(/credit limit/i);
@@ -235,7 +243,7 @@ describe("timelineUtils", () => {
           pending: expect.any(String),
           success: expect.any(String),
           error: expect.any(String),
-        })
+        }),
       );
     });
 
@@ -298,7 +306,7 @@ describe("timelineUtils", () => {
     it("returns empty message when course has no semester", () => {
       const result = getCourseValidationMessage(
         { ...baseCourse, status: { status: "planned", semester: null } },
-        baseState
+        baseState,
       );
       expect(result).toBe("");
     });
@@ -309,7 +317,7 @@ describe("timelineUtils", () => {
           ...baseCourse,
           status: { status: "planned", semester: "SUMMER 2030" as SemesterId },
         },
-        baseState
+        baseState,
       );
       expect(result).toBe("");
     });
@@ -341,7 +349,10 @@ describe("timelineUtils", () => {
           ...baseState.courses,
           "COMP 249": {
             ...baseState.courses["COMP 249"],
-            status: { status: "completed", semester: "FALL 2025" as SemesterId },
+            status: {
+              status: "completed",
+              semester: "FALL 2025" as SemesterId,
+            },
           },
         },
       };
@@ -369,8 +380,18 @@ describe("timelineUtils", () => {
       timelineName: "Test",
       degree: { name: "CS", totalCredits: 90, coursePools: [] },
       pools: [
-        { _id: "exemptions", name: "exemptions", creditsRequired: 0, courses: [] },
-        { _id: "deficiencies", name: "deficiencies", creditsRequired: 0, courses: [] },
+        {
+          _id: "exemptions",
+          name: "exemptions",
+          creditsRequired: 0,
+          courses: [],
+        },
+        {
+          _id: "deficiencies",
+          name: "deficiencies",
+          creditsRequired: 0,
+          courses: [],
+        },
       ],
       courses: {
         "COMP 248": {
@@ -411,7 +432,10 @@ describe("timelineUtils", () => {
           ...baseState.courses,
           "COMP 248": {
             ...baseState.courses["COMP 248"],
-            status: { status: "planned", semester: "WINTER 2026" as SemesterId },
+            status: {
+              status: "planned",
+              semester: "WINTER 2026" as SemesterId,
+            },
           },
         },
       };
@@ -434,20 +458,22 @@ describe("timelineUtils", () => {
       expect(update?.semesters).toHaveLength(2);
     });
     it("detects timeline name changes", () => {
-        const updated: TimelineState = {
-            ...baseState,
-            timelineName: "Updated Timeline Name",
-        };
+      const updated: TimelineState = {
+        ...baseState,
+        timelineName: "Updated Timeline Name",
+      };
 
-        const update = computeTimelinePartialUpdate(baseState, updated);
+      const update = computeTimelinePartialUpdate(baseState, updated);
 
-        expect(update?.timelineName).toBe("Updated Timeline Name");
+      expect(update?.timelineName).toBe("Updated Timeline Name");
     });
   });
 
   describe("downloadTimelinePdf", () => {
     it("logs an error if semesters grid is missing", async () => {
-      const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+      const errorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => undefined);
       await downloadTimelinePdf();
       expect(errorSpy).toHaveBeenCalledWith("Semesters grid not found");
     });
@@ -481,6 +507,83 @@ describe("timelineUtils", () => {
 
       expect(addImage).toHaveBeenCalled();
       expect(save).toHaveBeenCalledWith("timeline.pdf");
+    });
+  });
+  describe("canAddCourse", () => {
+    let courses: CourseMap;
+    let pools: Pool[];
+
+    beforeEach(() => {
+      courses = {
+        "COMP 248": {
+          id: "COMP 248",
+          title: "Object-Oriented Programming I",
+          credits: 3,
+          description: "Intro to programming",
+          offeredIN: ["FALL 2025" as SemesterId],
+          prerequisites: [] as RequisiteGroup[],
+          corequisites: [] as RequisiteGroup[],
+          status: { status: "incomplete", semester: null },
+        },
+        "COMP 249": {
+          id: "COMP 249",
+          title: "Object-Oriented Programming II",
+          credits: 3,
+          description: "Advanced programming",
+          offeredIN: ["WINTER 2026"],
+          prerequisites: [] as RequisiteGroup[],
+          corequisites: [] as RequisiteGroup[],
+          status: { status: "incomplete", semester: null },
+        },
+      };
+
+      pools = [
+        {
+          _id: "pool1",
+          name: "exemptions",
+          courses: ["COMP 248"], // course already in this pool
+          creditsRequired: 3,
+        },
+        {
+          _id: "pool2",
+          name: "deficiencies",
+          courses: [], // can be empty
+          creditsRequired: 3,
+        },
+      ];
+    });
+
+    it("returns 'invalid_type' for unknown type", () => {
+      const result = canAddCourse("COMP 248", "unknown", courses, pools);
+      expect(result).toBe("invalid_type");
+    });
+
+    it("returns 'course_not_found' if course does not exist", () => {
+      const result = canAddCourse("COMP 999", "exemption", courses, pools);
+      expect(result).toBe("course_not_found");
+    });
+
+    it("returns 'already_exists' if course already exists in pool", () => {
+      const result = canAddCourse("COMP 248", "exemption", courses, pools);
+      expect(result).toBe("already_exists");
+    });
+
+    it("returns 'ok' if course can be added to pool", () => {
+      const result = canAddCourse("COMP 249", "deficiency", courses, pools);
+      expect(result).toBe("ok");
+    });
+
+    it("returns 'invalid_type' if pool is missing", () => {
+      const brokenPools: Pool[] = [
+        { _id: "pool1", name: "exemptions", courses: [], creditsRequired: 3 },
+      ];
+      const result = canAddCourse(
+        "COMP 249",
+        "deficiency",
+        courses,
+        brokenPools,
+      );
+      expect(result).toBe("invalid_type");
     });
   });
 });

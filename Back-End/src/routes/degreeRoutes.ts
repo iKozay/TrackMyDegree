@@ -61,29 +61,37 @@ const DEGREE_CACHE_TTL = 1800; // 30 minutes
  *       500:
  *         description: Internal server error.
  */
-router.get('/:id', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const academicYear = req.query.academicYear as string | undefined;
+router.get(
+  '/:id',
+  cacheGET(DEGREE_CACHE_TTL),
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const academicYear = req.query.academicYear as string | undefined;
 
-    if (!id) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: DEGREE_ID_REQUIRED,
-      });
-      return;
-    }
+      const cleanId = (id as string)?.trim();
+      if (!cleanId) {
+        res.status(HTTP.BAD_REQUEST).json({
+          error: DEGREE_ID_REQUIRED,
+        });
+        return;
+      }
 
-    const degree = await degreeController.readDegree(id as string, academicYear);
-    res.status(HTTP.OK).json(degree);
-  } catch (error) {
-    console.error('Error in GET /degree/:id', error);
-    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
-      res.status(HTTP.NOT_FOUND).json({ error: error.message });
-    } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+      const degree = await degreeController.readDegree(
+        id as string,
+        academicYear,
+      );
+      res.status(HTTP.OK).json(degree);
+    } catch (error) {
+      console.error('Error in GET /degree/:id', error);
+      if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
+        res.status(HTTP.NOT_FOUND).json({ error: error.message });
+      } else {
+        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+      }
     }
-  }
-});
+  },
+);
 
 /**
  * GET /degree - Get all degrees
@@ -113,16 +121,20 @@ router.get('/:id', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Respons
  *       500:
  *         description: Internal server error.
  */
-router.get('/', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
-  try {
-    const academicYear = req.query.academicYear as string | undefined;
-    const degrees = await degreeController.readAllDegrees(academicYear);
-    res.status(HTTP.OK).json(degrees);
-  } catch (error) {
-    console.error('Error in GET /degree', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
-});
+router.get(
+  '/',
+  cacheGET(DEGREE_CACHE_TTL),
+  async (req: Request, res: Response) => {
+    try {
+      const academicYear = req.query.academicYear as string | undefined;
+      const degrees = await degreeController.readAllDegrees(academicYear);
+      res.status(HTTP.OK).json(degrees);
+    } catch (error) {
+      console.error('Error in GET /degree', error);
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    }
+  },
+);
 
 /**
  * GET /degree/:id/credits - Get credits for degree
@@ -160,34 +172,39 @@ router.get('/', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) 
  *       500:
  *         description: Internal server error.
  */
-router.get('/:id/credits', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const academicYear = req.query.academicYear as string | undefined;
+router.get(
+  '/:id/credits',
+  cacheGET(DEGREE_CACHE_TTL),
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const academicYear = req.query.academicYear as string | undefined;
 
-    if (!id) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: DEGREE_ID_REQUIRED,
+      const cleanId = (id as string)?.trim();
+      if (!cleanId) {
+        res.status(HTTP.BAD_REQUEST).json({
+          error: DEGREE_ID_REQUIRED,
+        });
+        return;
+      }
+
+      const credits = await degreeController.getCreditsForDegree(
+        id as string,
+        academicYear,
+      );
+      res.status(HTTP.OK).json({
+        totalCredits: credits,
       });
-      return;
+    } catch (error) {
+      console.error('Error in GET /degree/:id/credits', error);
+      if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
+        res.status(HTTP.NOT_FOUND).json({ error: error.message });
+      } else {
+        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+      }
     }
-
-    const credits = await degreeController.getCreditsForDegree(
-      id as string,
-      academicYear,
-    );
-    res.status(HTTP.OK).json({
-      totalCredits: credits,
-    });
-  } catch (error) {
-    console.error('Error in GET /degree/:id/credits', error);
-    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
-      res.status(HTTP.NOT_FOUND).json({ error: error.message });
-    } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
-  }
-});
+  },
+);
 
 /**
  * GET /degree/:id/coursepools - Get course pools for degree
@@ -228,30 +245,35 @@ router.get('/:id/credits', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res:
  *       500:
  *         description: Internal server error.
  */
-router.get('/:id/coursepools', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const academicYear = req.query.academicYear as string | undefined;
-    if (!id) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: DEGREE_ID_REQUIRED,
-      });
-      return;
-    }
+router.get(
+  '/:id/coursepools',
+  cacheGET(DEGREE_CACHE_TTL),
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const academicYear = req.query.academicYear as string | undefined;
+      const cleanId = (id as string)?.trim();
+      if (!cleanId) {
+        res.status(HTTP.BAD_REQUEST).json({
+          error: DEGREE_ID_REQUIRED,
+        });
+        return;
+      }
 
-    const coursePools = await degreeController.getCoursePoolsForDegree(
-      id as string,
-      academicYear,
-    );
-    res.status(HTTP.OK).json(coursePools);
-  } catch (error) {
-    console.error('Error in GET /degree/:id/coursepools', error);
-    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
-      res.status(HTTP.NOT_FOUND).json({ error: error.message });
-    } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+      const coursePools = await degreeController.getCoursePoolsForDegree(
+        id as string,
+        academicYear,
+      );
+      res.status(HTTP.OK).json(coursePools);
+    } catch (error) {
+      console.error('Error in GET /degree/:id/coursepools', error);
+      if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
+        res.status(HTTP.NOT_FOUND).json({ error: error.message });
+      } else {
+        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+      }
     }
-  }
-});
+  },
+);
 
 export default router;
