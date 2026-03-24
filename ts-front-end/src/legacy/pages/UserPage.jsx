@@ -11,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 import DeleteModal from '../components/DeleteModal.jsx';
 import { Trash2, FileText, Plus, AlertTriangle } from 'lucide-react';
 
+// TODO: migrate to TypeScript — props are currently untyped (student, timelines)
+// TODO: replace alert() in handleTimelineClick with inline error state
 const UserPage = (prop) => {
   const navigate = useNavigate();
   const user = prop.student || {};
@@ -79,7 +81,9 @@ const UserPage = (prop) => {
                     {user.name || 'Full Name'}
                   </h3>
                   <p className="text-muted small mb-4">{user.role || 'Student'}</p>
-                  
+
+{/* // TODO: profile fields are read-only — name and email should be editable
+// planned: toggle between view mode and edit mode with save/cancel */}
                   <div className="text-start">
                     <div className="d-flex justify-content-between py-2 border-bottom">
                       <span className="text-muted small fw-bold">Full Name</span>
