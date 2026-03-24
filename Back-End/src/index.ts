@@ -34,7 +34,7 @@ import {
 } from '@middleware/rateLimiter';
 import { getSentryProfilingIntegrations } from '@utils/misc';
 import helmet from 'helmet';
-import { csrf as luscaCsrf } from 'lusca';
+
 // sentry init
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -113,7 +113,6 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(luscaCsrf());
 
 // Swagger (docs)
 app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
