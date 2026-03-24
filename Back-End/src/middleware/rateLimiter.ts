@@ -65,6 +65,13 @@ const creditFormUploadLimiter = createLimiter({
   message: { error: 'Too many upload attempts. Try again later.' },
 });
 
+// Rate limiter for credit form deletes (admin-only endpoint)
+const creditFormDeleteLimiter = createLimiter({
+  windowMs: 15 * 60 * 1000, // 15 minute window
+  max: 60, // 60 deletes per 15 minutes per IP
+  message: { error: 'Too many delete attempts. Try again later.' },
+});
+
 export {
   forgotPasswordLimiter,
   resetPasswordLimiter,
@@ -72,4 +79,5 @@ export {
   signupLimiter,
   creditFormDownloadLimiter,
   creditFormUploadLimiter,
+  creditFormDeleteLimiter
 };
