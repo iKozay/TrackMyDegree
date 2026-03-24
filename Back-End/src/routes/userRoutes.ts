@@ -213,6 +213,9 @@ router.get('/', async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error
  */
+
+// TODO: sanitize req.body — currently accepts any field, including sensitive ones
+// planned: allowlist fields (fullname, email, type) before passing to updateUser
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -339,5 +342,9 @@ router.get('/:id/data', async (req: Request, res: Response) => {
     }
   }
 });
+
+// TODO: add PATCH /:id route for partial updates (name, email, password)
+// password changes must verify current password and hash the new one with bcrypt
+// before persisting — never store or return plaintext passwords
 
 export default router;
