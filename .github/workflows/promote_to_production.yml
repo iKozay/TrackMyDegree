@@ -6,12 +6,13 @@ on:
       image:
         description: 'Select image to promote'
         required: true
-        default: Both
+        default: All
         type: choice
         options:
+          - Python Utils
           - Backend
           - Frontend
-          - Both
+          - All
       version_tag:
         description: 'Version tag to promote (e.g. 20251114-5dab50b)'
         required: true
@@ -50,9 +51,12 @@ jobs:
           elif [ "$CHOICE" = "Frontend" ]; then
             IMAGES_TO_CHECK=("trackmydegree-frontend")
             echo "IMAGES=trackmydegree-frontend" >> $GITHUB_ENV
+          elif [ "$CHOICE" = "Python Utils" ]; then
+            IMAGES_TO_CHECK=("trackmydegree-python-utils")
+            echo "IMAGES=trackmydegree-python-utils" >> $GITHUB_ENV
           else
-            IMAGES_TO_CHECK=("trackmydegree-backend" "trackmydegree-frontend")
-            echo "IMAGES=trackmydegree-backend,trackmydegree-frontend" >> $GITHUB_ENV
+            IMAGES_TO_CHECK=("trackmydegree-backend" "trackmydegree-frontend" "trackmydegree-python-utils")
+            echo "IMAGES=trackmydegree-backend,trackmydegree-frontend,trackmydegree-python-utils" >> $GITHUB_ENV
           fi
 
           echo "VERSION_TAG=$VERSION" >> $GITHUB_ENV
@@ -66,8 +70,7 @@ jobs:
               exit 1
             fi
           done
-          echo "Validation succeeded: tag exists for selected im
-          set -eo pipefailage(s)"
+          echo "Validation succeeded: tag exists for selected image(s)"
 
       - name: Promote selected images to production (in-registry tag)
         shell: bash

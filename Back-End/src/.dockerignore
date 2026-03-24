@@ -1,0 +1,15 @@
+# Python Utils Folder
+Back-End/python_utils/__pycache__
+Back-End/python_utils/.pytest_cache
+Back-End/python_utils/venv
+Back-End/python_utils/.coverage
+Back-End/python_utils/coverage.*
+Back-End/python_utils/tests
+Back-End/python_utils/Dockerfile
+
+# Node Back-End
+Back-End/src/course-data
+Back-End/src/coverage
+Back-End/dist
+Back-End/node_modules
+Back-End/tests

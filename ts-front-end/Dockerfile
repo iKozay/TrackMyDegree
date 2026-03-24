@@ -1,36 +1,42 @@
 # ---------- Build stage ----------
-FROM node:22.21 AS build
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY shared/ ./shared/
-COPY tsconfig.json ./tsconfig.json
-COPY ts-front-end/package.json ./ts-front-end/
-COPY ts-front-end/*lock* ./ts-front-end/
-WORKDIR /app/ts-front-end
-RUN npm install
+COPY tsconfig.base.json ./
+COPY shared ./shared
 
-COPY ts-front-end/ ./
+COPY ts-front-end/package*.json ./ts-front-end/
+COPY ts-front-end/tsconfig*.json ./ts-front-end/
+COPY ts-front-end ./ts-front-end
+
+WORKDIR /app/ts-front-end
+
+RUN npm ci
 
 ARG VITE_DEPLOYMENT_VERSION
 ENV VITE_DEPLOYMENT_VERSION=$VITE_DEPLOYMENT_VERSION
 
 RUN npm run build
 
-
-# ---------- Runtime stage ----------
-FROM node:22.21
+# ---------- serve deps stage ----------
+FROM node:22-alpine AS serve-deps
 
 WORKDIR /app
 
-# Install envsubst
-RUN apt-get update && apt-get install -y gettext-base && rm -rf /var/lib/apt/lists/*
+RUN npm init -y && npm install serve \
+    && mkdir -p /app/dist \
+    && chown -R 65532:65532 /app/node_modules /app/dist
 
-COPY --from=build /app/ts-front-end/dist ./dist
-COPY --from=build /app/ts-front-end/node_modules ./node_modules
-COPY --from=build /app/ts-front-end/package.json ./package.json
-COPY --from=build /app/ts-front-end/vite.config.ts ./vite.config.ts
+# ---------- Runtime stage ----------
+FROM gcr.io/distroless/nodejs22-debian12:nonroot
 
-EXPOSE 5173
+WORKDIR /app
 
-CMD ["sh", "-c", "envsubst < ./dist/env.js > ./dist/env.runtime.js && mv ./dist/env.runtime.js ./dist/env.js && npm run start"]
+COPY --from=serve-deps  --chown=65532:65532 /app/node_modules ./node_modules
+COPY --from=builder     --chown=65532:65532 /app/ts-front-end/dist ./dist
+COPY --chown=65532:65532 ts-front-end/startup.js ./startup.js
+
+EXPOSE 4173
+
+CMD ["startup.js"]

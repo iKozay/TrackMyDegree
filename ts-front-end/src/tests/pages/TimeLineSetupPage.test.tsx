@@ -61,9 +61,9 @@ describe('TimelineSetupPage', () => {
     expect(screen.getByTestId('instructions-modal')).toBeInTheDocument();
   });
 
-  it('renders the OR divider between the two cards', () => {
+  it('renders OR dividers between the cards', () => {
     render(<TimelineSetupPage />);
-    expect(screen.getByText('OR')).toBeInTheDocument();
+    expect(screen.getAllByText('OR')).toHaveLength(2);
   });
 
   it('modal is closed by default', () => {

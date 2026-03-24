@@ -17,6 +17,9 @@ concurrency:
 env:
   REGISTRY: ghcr.io
 
+permissions:
+  contents: read
+
 jobs:
   frontend:
     runs-on: ubuntu-latest
@@ -34,7 +37,7 @@ jobs:
       - name: Install dependencies for frontend
         working-directory: ./ts-front-end
         run: |
-          npm install
+          npm ci
 
       - name: Run ESLint for frontend
         working-directory: ./ts-front-end
@@ -72,7 +75,7 @@ jobs:
       - name: Install dependencies for backend
         working-directory: ./Back-End/src
         run: |
-          npm install
+          npm ci
 
       - name: Run ESLint for backend
         working-directory: ./Back-End/src
@@ -131,7 +134,7 @@ jobs:
       - name: Install dependencies for backend
         working-directory: ./Back-End/src
         run: |
-          npm install
+          npm ci
 
       - name: Run integration tests
         working-directory: ./Back-End/src
@@ -182,9 +185,13 @@ jobs:
     strategy: #Images of both front-end and back-end are built and pushed to GHCR
       matrix:
         include:
+          - name: python-utils
+            context: ./Back-End/python_utils
+            dockerfile: ./Back-End/python_utils/Dockerfile
+            image: trackmydegree-python-utils
           - name: backend
             context: .
-            dockerfile: ./Back-End/Dockerfile
+            dockerfile: ./Back-End/src/Dockerfile
             image: trackmydegree-backend
           - name: frontend
             context: .

@@ -37,7 +37,6 @@ const InformationForm = () => {
     extendedCredit: false,
   });
   const [loadPredefinedSequence, setLoadPredefinedSequence] = useState<boolean>(false);
-  const [aerospaceOption, setAerospaceOption] = useState<string>("");
 
   // Fetch degrees on mount
   useEffect(() => {
@@ -70,19 +69,33 @@ const InformationForm = () => {
       extendedCredit: false,
     });
     setLoadPredefinedSequence(false);
-    setAerospaceOption("");
   };
 
   const selectedDegree = degrees.find((d) => d._id === selectedDegreeId);
-  const isAerospace = selectedDegree?.name?.toLowerCase().includes("aerospace") ?? false;
 
   const getDegreeSequenceFile = (degreeName: string, entryTerm: string): string | null => {
     const name = degreeName.toLowerCase();
 
-    // Handle Aerospace with options
+    // Aerospace is now selected as distinct concentrations.
     if (name.includes("aerospace")) {
-      if (!aerospaceOption) return null;
-      return `aerospace_${aerospaceOption}.json`;
+      const optionMatch = /option\s*([abc])/i.exec(name);
+      if (optionMatch?.[1]) {
+        return `aerospace_option_${optionMatch[1].toLowerCase()}.json`;
+      }
+
+      if (name.includes("aerodynamics") || name.includes("propulsion")) {
+        return "aerospace_option_a.json";
+      }
+
+      if (name.includes("structures") || name.includes("materials")) {
+        return "aerospace_option_b.json";
+      }
+
+      if (name.includes("avionics") || name.includes("systems")) {
+        return "aerospace_option_c.json";
+      }
+
+      return null;
     }
 
     // Handle Chemical with entry term
@@ -130,11 +143,6 @@ const InformationForm = () => {
     const matched_degree = degrees.find((d) => d._id === selectedDegreeId);
 
     if (selectedRadio.coOp && loadPredefinedSequence && matched_degree) {
-      if (isAerospace && !aerospaceOption) {
-        alert("Please select an Aerospace option.");
-        return;
-      }
-
       const sequenceFile = getDegreeSequenceFile(matched_degree.name, selectedTerm);
 
       if (!sequenceFile) {
@@ -313,22 +321,6 @@ const InformationForm = () => {
                 aria-label="Load predefined co-op sequence?"
               />
             </label>
-          </div>
-        )}
-
-        {selectedRadio.coOp && loadPredefinedSequence && isAerospace && (
-          <div>
-            <label htmlFor="aerospace-option">Select Aerospace Option:</label>
-            <select
-              id="aerospace-option"
-              className="input-field"
-              value={aerospaceOption}
-              onChange={(e) => setAerospaceOption(e.target.value)}>
-              <option value="">-- Select Option --</option>
-              <option value="option_a">Option A - Aerodynamics and Propulsion</option>
-              <option value="option_b">Option B - Structures and Materials</option>
-              <option value="option_c">Option C - Avionics & Aerospace Systems</option>
-            </select>
           </div>
         )}
       </form>

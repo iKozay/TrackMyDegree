@@ -16,7 +16,7 @@ const DEGREE_WITH_ID_DOES_NOT_EXIST = 'Degree with this id does not exist.';
 const RESULT_TTL_SECONDS = 60 * 60; // 1 hour
 
 // utils/pythonUtilsApi.ts
-const PYTHON_SERVICE_BASE_URL = 'http://localhost:15001';
+const PYTHON_SERVICE_BASE_URL  = process.env.PYTHON_UTILS_URL || 'http://localhost:15001';
 
 const SEASONS = {
   WINTER: "WINTER",

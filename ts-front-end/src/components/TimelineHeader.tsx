@@ -6,11 +6,8 @@ import {
   Share2,
   Download,
   BarChart3,
-  Briefcase,
-  AlertTriangle,
   Plus,
   Save,
-  FileText
 } from "lucide-react";
 import { downloadTimelinePdf } from "../utils/timelineUtils";
 import { toast } from "react-toastify";
@@ -23,7 +20,7 @@ interface HistoryControlsProps {
 }
 
 async function shareTimeline(
-  setShow: React.Dispatch<React.SetStateAction<boolean>>
+  setShow: React.Dispatch<React.SetStateAction<boolean>>,
 ): Promise<void> {
   // copy current url in browser to clipboard
   try {
@@ -94,7 +91,6 @@ interface PrimaryActionsProps {
 }
 
 const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
-  // TODO: merge all as one method handleModal(type: string)
   const handleInsights = () => {
     if (onOpenModal) onOpenModal(true, "insights");
   };
@@ -107,28 +103,15 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
   const handleSave = () => {
     if (onOpenModal) onOpenModal(true, "save");
   };
-  const handleCoopValidation = () => {
-    if (onOpenModal) onOpenModal(true, "coop");
-  };
-  const handleDegreeAssesment = () => {
-    if (onOpenModal) onOpenModal(false, "degree-audit");
-  };
+
   return (
     <div className="header-actions">
       <button className="btn btn-success" onClick={handleInsights}>
         <BarChart3 size={16} />
-        Show Insights
-      </button>
-      <button className="btn btn-secondary" onClick={handleCoopValidation}>
-        <Briefcase size={16} />
-        Coop Validation
-      </button>
-      <button className="btn btn-secondary" onClick={handleDegreeAssesment}>
-        <FileText size={16} />
-        Degree Assesment
+        Insights
       </button>
       <button className="btn btn-tertiary" onClick={handleDeficiency}>
-        <AlertTriangle size={16} />
+        <Plus size={16} />
         Add Deficiency
       </button>
 
@@ -137,17 +120,16 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
         Add Exemption
       </button>
 
-        <button className="btn btn-secondary" onClick={handleSave}>
-          <Save size={16} />
-          Save Data
-        </button>
+      <button className="btn btn-secondary" onClick={handleSave}>
+        <Save size={16} />
+        Save Data
+      </button>
     </div>
   );
 };
 
 interface TimelineHeaderProps
-  extends HistoryControlsProps,
-    PrimaryActionsProps {
+  extends HistoryControlsProps, PrimaryActionsProps {
   earnedCredits: number;
   totalCredits: number;
 }

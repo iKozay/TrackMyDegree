@@ -1,7 +1,7 @@
 // tests/addEcpCoursePools.test.ts
-import { addEcpCoursePools } from '@services/timeline/timelineService';
+import { handleEcp } from '@services/timeline/timelineBuilder';
 import { degreeController } from '@controllers/degreeController';
-import { CourseData } from '@controllers/courseController';
+import { CourseData } from '@shared/degree';
 
 jest.mock('@controllers/degreeController', () => ({
   degreeController: {
@@ -63,7 +63,7 @@ describe('addEcpCoursePools', () => {
     const courses: Record<string, CourseData> = {'SOEN 000': {_id: 'SOEN 000', title: 'Intro Course', credits: 3}};
     const mockDegree = { _id: BENG_SOFTWARE, name: 'Software Engineering', totalCredits: 120, degreeType: 'Standalone', coursePools: [], ecpDegreeId: ENGR_ECP };
 
-    await addEcpCoursePools(BENG_SOFTWARE, coursePools, courses, mockDegree);
+    await handleEcp(BENG_SOFTWARE, coursePools, courses, mockDegree);
 
     expect(coursePools.map((p) => p._id)).toEqual([
       'base_pool',
@@ -101,7 +101,7 @@ describe('addEcpCoursePools', () => {
     const courses: Record<string, CourseData> = {};
     const mockDegree = { _id: 'BCompSc_GENERAL', name: 'Computer Science', totalCredits: 120, degreeType: 'Standalone', coursePools: [], ecpDegreeId: COMP_ECP };
 
-    await addEcpCoursePools('BCompSc_GENERAL', coursePools, courses, mockDegree);
+    await handleEcp('BCompSc_GENERAL', coursePools, courses, mockDegree);
 
     expect(coursePools.map((p) => p._id)).toEqual([COMP_ECP_POOL_ID]);
     expect(Object.keys(courses)).toEqual([]);
@@ -144,7 +144,7 @@ describe('addEcpCoursePools', () => {
       ecpDegreeId: ENGR_ECP,
     };
 
-    await addEcpCoursePools(BENG_SOFTWARE, coursePools, courses, degreeObj);
+    await handleEcp(BENG_SOFTWARE, coursePools, courses, degreeObj);
 
     expect(degreeObj.totalCredits).toBe(150);
 
@@ -164,7 +164,7 @@ describe('addEcpCoursePools', () => {
     const courses: Record<string, CourseData> = {};
     const degreeObj: any = { _id: 'ENGR_SOFTWARE', name: DEGREE_OBJ_NAME, ecpDegreeId: ENGR_ECP };
 
-    await addEcpCoursePools(BENG_SOFTWARE, coursePools, courses, degreeObj);
+    await handleEcp(BENG_SOFTWARE, coursePools, courses, degreeObj);
 
     expect(degreeObj.totalCredits).toBe(30);
     expect(coursePools).toEqual([]);
@@ -180,7 +180,7 @@ describe('addEcpCoursePools', () => {
     const courses: Record<string, CourseData> = {};
     const mockDegree = { _id: BENG_SOFTWARE, name: 'Software Engineering', totalCredits: 120, degreeType: 'Standalone', coursePools: [], ecpDegreeId: ENGR_ECP };
 
-    await expect(addEcpCoursePools(BENG_SOFTWARE, coursePools, courses, mockDegree)).rejects.toThrow('DB fail');
+    await expect(handleEcp(BENG_SOFTWARE, coursePools, courses, mockDegree)).rejects.toThrow('DB fail');
 
     // Ensure nothing was mutated on failure
     expect(coursePools).toEqual([]);
@@ -192,7 +192,7 @@ describe('addEcpCoursePools', () => {
     const courses: Record<string, CourseData> = {};
     const mockDegree = { _id: 'BA_ARTS', name: 'Bachelor of Arts', totalCredits: 120, degreeType: 'Standalone', coursePools: [], ecpDegreeId: '' };
 
-    await addEcpCoursePools('BA_ARTS', coursePools, courses, mockDegree);
+    await handleEcp('BA_ARTS', coursePools, courses, mockDegree);
 
     expect(coursePools).toEqual([{ _id: 'base_pool' }]);
     expect(Object.keys(courses)).toEqual([]);

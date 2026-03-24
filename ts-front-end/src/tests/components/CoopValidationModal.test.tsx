@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup, waitFor } from "@testing-library/react";
+import { render, screen, cleanup, waitFor, fireEvent } from "@testing-library/react";
 import { CoopValidationModal } from "../../components/CoopValidationModal";
 import { api } from "../../api/http-api-client.ts";
 
@@ -47,6 +47,7 @@ describe("CoopValidationModal (content)", () => {
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it("fetches validation using jobId and renders rules/issues", async () => {
@@ -83,6 +84,94 @@ describe("CoopValidationModal (content)", () => {
     // Wait until the error state has been set
     expect(
       await screen.findByText(/Failed to fetch validation results\./i),
+    ).toBeInTheDocument();
+  });
+
+  it("downloads auto-filled form and renders returned notes", async () => {
+    vi.mocked(api.get).mockResolvedValueOnce(mockResult as any);
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: {
+        get: (name: string) => {
+          if (name === "X-Coop-Form-Notes") {
+            return encodeURIComponent(
+              JSON.stringify(["Skipped extra courses for Winter 2025"]),
+            );
+          }
+          return null;
+        },
+      },
+      blob: () => Promise.resolve(new Blob(["pdf-bytes"], { type: "application/pdf" })),
+    });
+
+    const createObjectURLMock = vi.fn(() => "blob:test-url");
+    const revokeObjectURLMock = vi.fn();
+    const clickMock = vi
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(() => undefined);
+
+    vi.stubGlobal("fetch", fetchMock);
+    vi.stubGlobal("URL", {
+      createObjectURL: createObjectURLMock,
+      revokeObjectURL: revokeObjectURLMock,
+    } as unknown as typeof URL);
+
+    render(<CoopValidationModal />);
+
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith("/coop/validate/123");
+    });
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: /Download Auto-Filled Sequence Change Form/i,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining("/coop/form/123"),
+        {
+          method: "GET",
+          credentials: "include",
+        },
+      );
+    });
+
+    expect(await screen.findByText(/Form notes/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Skipped extra courses for Winter 2025/i),
+    ).toBeInTheDocument();
+    expect(createObjectURLMock).toHaveBeenCalled();
+    expect(revokeObjectURLMock).toHaveBeenCalledWith("blob:test-url");
+
+    clickMock.mockRestore();
+  });
+
+  it("shows download error when form generation fails", async () => {
+    vi.mocked(api.get).mockResolvedValueOnce(mockResult as any);
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      headers: {
+        get: () => null,
+      },
+      blob: () => Promise.resolve(new Blob([""], { type: "application/pdf" })),
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<CoopValidationModal />);
+
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: /Download Auto-Filled Sequence Change Form/i,
+      }),
+    );
+
+    expect(
+      await screen.findByText(/Failed to generate and download the co-op PDF form\./i),
     ).toBeInTheDocument();
   });
 });

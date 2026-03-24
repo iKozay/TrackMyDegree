@@ -127,11 +127,12 @@ router.post('/refresh', async (req: Request, res: Response) => {
 });
 
 /**
- * POST /auth/refresh - User logout and clear all cookies
+ * POST /auth/logout - User logout and clear all cookies
  */
 router.post('/logout', (req: Request, res: Response) => {
-  res.clearCookie('access_token', { path: '/' });
-  res.clearCookie('refresh_token', { path: '/auth/refresh' });
+  const secure = process.env.NODE_ENV !== 'development';
+  res.clearCookie('access_token', { path: '/', httpOnly: true, secure, sameSite: 'strict', domain: secure ? process.env.COOKIE_DOMAIN : undefined });
+  res.clearCookie('refresh_token', { path: '/auth/refresh', httpOnly: true, secure, sameSite: 'strict', domain: secure ? process.env.COOKIE_DOMAIN : undefined });
   res.status(200).json({ message: 'Logged out' });
 });
 

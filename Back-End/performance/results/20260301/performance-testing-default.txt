@@ -1,0 +1,121 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: k6-timeline.js
+        output: InfluxDBv1 (http://localhost:8086)
+
+     scenarios: (100.00%) 1 scenario, 6 max VUs, 5m30s max duration (incl. graceful stop):
+              * timeline_load: Up to 6 looping VUs for 5m0s over 3 stages (gracefulRampDown: 30s, gracefulStop: 30s)
+
+INFO[0000] setup: test user created userId=69a488e7d401fba1f9f56341  source=console
+INFO[0302] teardown: user deleted userId=69a488e7d401fba1f9f56341 status=200  source=console
+
+
+  █ THRESHOLDS 
+
+    delete_failed_rate
+    ✓ 'rate<0.01' rate=0.00%
+
+    http_req_duration{name:DELETE /api/timeline/:id}
+    ✓ 'p(95)<200' p(95)=20.97ms
+
+    http_req_duration{name:GET /api/jobs/:jobId}
+    ✓ 'p(95)<2000' p(95)=45.23ms
+
+    http_req_duration{name:GET /api/timeline/:id}
+    ✓ 'p(95)<200' p(95)=32.7ms
+
+    http_req_duration{name:POST /api/timeline}
+    ✓ 'p(95)<200' p(95)=77.36ms
+
+    http_req_duration{name:POST /api/upload/file}
+    ✓ 'p(95)<500' p(95)=60.79ms
+
+    http_req_duration{name:PUT /api/timeline/:id}
+    ✓ 'p(95)<200' p(95)=40.84ms
+
+    iteration_success_rate
+    ✓ 'rate>0.95' rate=100.00%
+
+    job_time_to_done_ms
+    ✓ 'p(95)<3000' p(95)=1.08s
+
+    job_timeout_rate
+    ✓ 'rate<0.05' rate=0.00%
+
+    poll_network_error_rate
+    ✓ 'rate<0.05' rate=0.00%
+
+    timeline_save_failed_rate
+    ✓ 'rate<0.01' rate=0.00%
+
+    timeline_update_failed_rate
+    ✓ 'rate<0.01' rate=0.00%
+
+    upload_failed_rate
+    ✓ 'rate<0.01' rate=0.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 3619    11.980084/s
+    checks_succeeded...: 100.00% 3619 out of 3619
+    checks_failed......: 0.00%   0 out of 3619
+
+    ✓ setup: user created (201)
+    ✓ setup: response has user object
+    ✓ upload accepted (200)
+    ✓ upload returned jobId
+    ✓ timeline saved (201)
+    ✓ save returned _id
+    ✓ timeline updated (200)
+    ✓ timeline retrieve accepted (202)
+    ✓ retrieve returned jobId
+    ✓ timeline deleted (200)
+    ✓ teardown: user deleted (200)
+
+    CUSTOM
+    delete_failed_rate....................: 0.00%   0 out of 452
+    iteration_success_rate................: 100.00% 452 out of 452
+    job_time_to_done_ms...................: avg=1.05s   min=1.03s   med=1.05s   max=1.17s    p(90)=1.07s   p(95)=1.08s  
+    job_timeout_rate......................: 0.00%   0 out of 904
+    poll_200_count........................: 904     2.992538/s
+    poll_410_count........................: 904     2.992538/s
+    poll_network_error_rate...............: 0.00%   0 out of 1808
+    polls_per_job.........................: avg=2ms     min=2ms     med=2ms     max=2ms      p(90)=2ms     p(95)=2ms    
+    timeline_save_failed_rate.............: 0.00%   0 out of 452
+    timeline_update_failed_rate...........: 0.00%   0 out of 452
+    upload_failed_rate....................: 0.00%   0 out of 452
+
+    HTTP
+    http_req_duration.....................: avg=20.24ms min=4.04ms  med=16.07ms max=161.15ms p(90)=38.93ms p(95)=50.72ms
+      { name:DELETE /api/timeline/:id }...: avg=9.27ms  min=4.04ms  med=7.4ms   max=55.59ms  p(90)=14.57ms p(95)=20.97ms
+      { name:GET /api/jobs/:jobId }.......: avg=20.97ms min=5.87ms  med=17.83ms max=161.15ms p(90)=34.91ms p(95)=45.23ms
+      { name:GET /api/timeline/:id }......: avg=14.34ms min=6.14ms  med=11.79ms max=48.8ms   p(90)=24.19ms p(95)=32.7ms 
+      { name:POST /api/timeline }.........: avg=37.72ms min=13.12ms med=33.48ms max=126.23ms p(90)=63.25ms p(95)=77.36ms
+      { name:POST /api/upload/file }......: avg=18.13ms min=5.74ms  med=9.17ms  max=116.13ms p(90)=46.45ms p(95)=60.79ms
+      { name:PUT /api/timeline/:id }......: avg=18.66ms min=8.87ms  med=15.01ms max=88.29ms  p(90)=30.95ms p(95)=40.84ms
+    http_req_failed.......................: 22.21%  904 out of 4070
+    http_reqs.............................: 4070    13.473043/s
+
+    EXECUTION
+    iteration_duration....................: avg=3.2s    min=3.12s   med=3.2s    max=3.44s    p(90)=3.27s   p(95)=3.29s  
+    iterations............................: 452     1.496269/s
+    vus...................................: 1       min=0           max=6
+    vus_max...............................: 6       min=6           max=6
+
+    NETWORK
+    data_received.........................: 414 MB  1.4 MB/s
+    data_sent.............................: 37 MB   123 kB/s
+
+
+
+
+running (5m02.1s), 0/6 VUs, 452 complete and 0 interrupted iterations
+timeline_load ✓ [======================================] 0/6 VUs  5m0s
