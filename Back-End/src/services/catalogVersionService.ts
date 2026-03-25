@@ -150,9 +150,6 @@ async function loadEntityDiffs(
   entityIds: string[],
 ): Promise<Map<string, EntityVersionDiffData[]>> {
   const uniqueIds = [...new Set(entityIds)];
-  if (uniqueIds.length === 0) {
-    return new Map();
-  }
 
   const diffs = await EntityVersionDiff.find({
     entityType,

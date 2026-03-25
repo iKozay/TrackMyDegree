@@ -398,7 +398,7 @@ export async function validateReferences(payload: {
   );
 
   for (const academicYear of academicYears) {
-    applyDiffsForAcademicYear(state, diffsByYear.get(academicYear) || []);
+    applyDiffsForAcademicYear(state, diffsByYear.get(academicYear)!);
     assertResolvedReferences(state, academicYear);
   }
 }

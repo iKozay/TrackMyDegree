@@ -116,7 +116,7 @@ export function sortUnique(values: string[] = []): string[] {
 }
 
 export function normalizeRules(rules?: CourseRules): Required<CourseRules> {
-  const normalizeGroups = (groups: string[][] = []) => {
+  const normalizeGroups = (groups: string[][]) => {
     return groups
       .map((group) => sortUnique(group))
       .sort((left, right) =>
