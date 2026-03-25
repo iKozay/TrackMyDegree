@@ -6,14 +6,13 @@ export const DEFAULT_BASE_ACADEMIC_YEAR = '2025-2026';
 export type VersionedEntityType = 'Degree' | 'CoursePool' | 'Course';
 
 export type JsonPatch = Operation[];
-export type VersionPatch = JsonPatch;
 
 export interface EntityVersionDiffData {
   entityType: VersionedEntityType;
   entityId: string;
   academicYear: string;
   academicYearStart?: number;
-  patch?: VersionPatch;
+  patch?: JsonPatch;
 }
 
 interface ResolveEntityOptions<T> {
@@ -25,7 +24,7 @@ interface ResolveEntityOptions<T> {
 }
 
 function deepClone<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T;
+  return structuredClone(value);
 }
 
 function parseAcademicYearStart(value: string): number {
@@ -72,7 +71,7 @@ export function compareAcademicYears(a: string, b: string): number {
   return parseAcademicYearStart(a) - parseAcademicYearStart(b);
 }
 
-export function applyVersionPatch<T>(baseEntity: T, patch?: VersionPatch): T {
+export function applyVersionPatch<T>(baseEntity: T, patch?: JsonPatch): T {
   if (!patch) return deepClone(baseEntity);
   const result = applyPatch(deepClone(baseEntity), patch, true, false);
   return result.newDocument as T;

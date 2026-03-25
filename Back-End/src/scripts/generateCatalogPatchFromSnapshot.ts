@@ -6,7 +6,7 @@ import { Operation } from 'fast-json-patch';
 import { Course, CoursePool, Degree } from '@models';
 import {
   normalizeAcademicYear,
-  VersionPatch,
+  JsonPatch,
 } from '@services/catalogVersionService';
 
 dotenv.config();
@@ -64,11 +64,11 @@ type CatalogSnapshot = {
 type DiffPayload = {
   entityId: string;
   academicYear: string;
-  patch: VersionPatch;
+  patch: JsonPatch;
 };
 
 // eslint-disable-next-line no-unused-vars
-type BuildDiff<T> = (current: T, next: T) => VersionPatch | null;
+type BuildDiff<T> = (current: T, next: T) => JsonPatch | null;
 
 type CatalogPatch = {
   academicYear: string;
@@ -181,15 +181,14 @@ export function normalizeDegree(
   };
 }
 
-export function compactPatch(patch: VersionPatch): VersionPatch | null {
+export function compactPatch(patch: JsonPatch): JsonPatch | null {
   return patch.length > 0 ? patch : null;
 }
 
 export function stripVersionMetadata<T extends { baseAcademicYear?: string }>(
   entity: T,
 ): Omit<T, 'baseAcademicYear'> {
-  const { baseAcademicYear, ...rest } = entity;
-  void baseAcademicYear;
+  const { baseAcademicYear: _baseAcademicYear, ...rest } = entity;
   return rest;
 }
 
@@ -198,13 +197,13 @@ export function sameValue(left: unknown, right: unknown): boolean {
 }
 
 export function escapeJsonPointerSegment(segment: string): string {
-  return segment.replace(/~/g, '~0').replace(/\//g, '~1');
+  return segment.replaceAll('~', '~0').replaceAll('/', '~1');
 }
 
 export function buildJsonPatch<T extends { baseAcademicYear?: string }>(
   current: T,
   next: T,
-): VersionPatch | null {
+): JsonPatch | null {
   const currentEntity = stripVersionMetadata(current) as Record<
     string,
     unknown
@@ -220,8 +219,8 @@ export function buildJsonPatch<T extends { baseAcademicYear?: string }>(
     const path = `/${escapeJsonPointerSegment(key)}`;
     const currentValue = currentEntity[key];
     const nextValue = nextEntity[key];
-    const hasCurrent = Object.prototype.hasOwnProperty.call(currentEntity, key);
-    const hasNext = Object.prototype.hasOwnProperty.call(nextEntity, key);
+    const hasCurrent = Object.hasOwn(currentEntity, key);
+    const hasNext = Object.hasOwn(nextEntity, key);
 
     if (!hasNext) {
       patch.push({ op: 'remove', path });
@@ -502,16 +501,20 @@ export async function main(): Promise<void> {
 
 /* istanbul ignore next */
 if (require.main === module) {
-  void main().catch((error) => {
-    console.error(
-      JSON.stringify(
-        {
-          error: error instanceof Error ? error.message : String(error),
-        },
-        null,
-        2,
-      ),
-    );
-    process.exit(1);
-  });
+  (async () => {
+    try {
+      await main();
+    } catch (error) {
+      console.error(
+        JSON.stringify(
+          {
+            error: error instanceof Error ? error.message : String(error),
+          },
+          null,
+          2,
+        ),
+      );
+      process.exit(1);
+    }
+  })();
 }

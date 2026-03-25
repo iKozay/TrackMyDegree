@@ -8,7 +8,7 @@ import {
   compareAcademicYears,
   applyVersionPatch,
   normalizeAcademicYear,
-  VersionPatch,
+  JsonPatch,
   VersionedEntityType,
 } from '@services/catalogVersionService';
 
@@ -53,7 +53,7 @@ interface CourseSeedData {
 interface DiffPayload {
   entityId: string;
   academicYear?: string;
-  patch: VersionPatch;
+  patch: JsonPatch;
 }
 
 interface CatalogPatchFile {
@@ -117,7 +117,7 @@ export function getDiffId(
   return `${entityType}:${entityId}:${academicYear}`;
 }
 
-export function ensurePatchShape(patch: VersionPatch, label: string): void {
+export function ensurePatchShape(patch: JsonPatch, label: string): void {
   if (!Array.isArray(patch) || patch.length === 0) {
     throw new Error(
       `${label} patch must contain at least one JSON Patch operation.`,
@@ -126,8 +126,8 @@ export function ensurePatchShape(patch: VersionPatch, label: string): void {
 }
 
 export function normalizeBaseDegrees(
-  degrees: DegreeSeedData[] = [],
   academicYear: string,
+  degrees: DegreeSeedData[] = [],
 ): DegreeSeedData[] {
   return degrees.map((degree) => ({
     ...degree,
@@ -139,8 +139,8 @@ export function normalizeBaseDegrees(
 }
 
 export function normalizeBaseCoursePools(
-  coursePools: CoursePoolSeedData[] = [],
   academicYear: string,
+  coursePools: CoursePoolSeedData[] = [],
 ): CoursePoolSeedData[] {
   return coursePools.map((coursePool) => ({
     ...coursePool,
@@ -151,8 +151,8 @@ export function normalizeBaseCoursePools(
 }
 
 export function normalizeBaseCourses(
-  courses: CourseSeedData[] = [],
   academicYear: string,
+  courses: CourseSeedData[] = [],
 ): CourseSeedData[] {
   return courses.map((course) => ({
     ...course,
@@ -163,8 +163,8 @@ export function normalizeBaseCourses(
 
 export function normalizeDiffs(
   entityType: VersionedEntityType,
-  diffs: DiffPayload[] = [],
   academicYear: string,
+  diffs: DiffPayload[] = [],
 ) {
   return diffs.map((diff) => {
     const resolvedAcademicYear =
@@ -209,7 +209,7 @@ type NormalizedDiff = {
   entityId: string;
   academicYear: string;
   academicYearStart: number;
-  patch: VersionPatch;
+  patch: JsonPatch;
 };
 
 type CatalogState = {
@@ -217,10 +217,6 @@ type CatalogState = {
   coursePoolState: Map<string, CoursePoolSeedData>;
   courseState: Map<string, CourseSeedData>;
 };
-
-export function toStringId(value: unknown): string {
-  return String(value);
-}
 
 export function collectReferencedIds(payload: {
   degrees: DegreeSeedData[];
@@ -309,15 +305,15 @@ export async function loadKnownEntityIds(payload: {
   return {
     knownDegrees: new Set([
       ...newDegreeIds,
-      ...existingDegrees.map((degree) => toStringId(degree._id)),
+      ...existingDegrees.map((degree) => String(degree._id)),
     ]),
     knownCoursePools: new Set([
       ...newCoursePoolIds,
-      ...existingCoursePools.map((coursePool) => toStringId(coursePool._id)),
+      ...existingCoursePools.map((coursePool) => String(coursePool._id)),
     ]),
     knownCourses: new Set([
       ...newCourseIds,
-      ...existingCourses.map((course) => toStringId(course._id)),
+      ...existingCourses.map((course) => String(course._id)),
     ]),
   };
 }
@@ -566,22 +562,22 @@ export async function applyPatchFile(
     normalizeAcademicYear(patchFile.academicYear) || DEFAULT_BASE_ACADEMIC_YEAR;
 
   const degrees = normalizeBaseDegrees(
-    patchFile.baseEntities?.degrees,
     academicYear,
+    patchFile.baseEntities?.degrees,
   );
   const coursePools = normalizeBaseCoursePools(
-    patchFile.baseEntities?.coursePools,
     academicYear,
+    patchFile.baseEntities?.coursePools,
   );
   const courses = normalizeBaseCourses(
-    patchFile.baseEntities?.courses,
     academicYear,
+    patchFile.baseEntities?.courses,
   );
 
   const diffs = [
-    ...normalizeDiffs('Degree', patchFile.diffs?.degrees, academicYear),
-    ...normalizeDiffs('CoursePool', patchFile.diffs?.coursePools, academicYear),
-    ...normalizeDiffs('Course', patchFile.diffs?.courses, academicYear),
+    ...normalizeDiffs('Degree', academicYear, patchFile.diffs?.degrees),
+    ...normalizeDiffs('CoursePool', academicYear, patchFile.diffs?.coursePools),
+    ...normalizeDiffs('Course', academicYear, patchFile.diffs?.courses),
   ];
 
   await validateReferences({ degrees, coursePools, courses, diffs });
@@ -684,16 +680,20 @@ export async function main() {
 
 /* istanbul ignore next */
 if (require.main === module) {
-  void main().catch((error) => {
-    console.error(
-      JSON.stringify(
-        {
-          error: error instanceof Error ? error.message : String(error),
-        },
-        null,
-        2,
-      ),
-    );
-    process.exit(1);
-  });
+  (async () => {
+    try {
+      await main();
+    } catch (error) {
+      console.error(
+        JSON.stringify(
+          {
+            error: error instanceof Error ? error.message : String(error),
+          },
+          null,
+          2,
+        ),
+      );
+      process.exit(1);
+    }
+  })();
 }

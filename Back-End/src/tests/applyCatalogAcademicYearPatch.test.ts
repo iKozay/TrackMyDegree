@@ -19,7 +19,6 @@ import {
   normalizeDiffs,
   parseArgs,
   readPatchFile,
-  toStringId,
   validateBaseEntityReferences,
   validateDiffTarget,
   validateReferences,
@@ -85,14 +84,28 @@ describe('applyCatalogAcademicYearPatch script', () => {
       'Course:COMP 248:2026-2027',
     );
     expect(() => ensurePatchShape([], 'x')).toThrow('at least one JSON Patch');
-    expect(normalizeBaseDegrees([{ _id: 'D', name: 'D', totalCredits: 1 }], '2026-2027')[0].baseAcademicYear).toBe('2026-2027');
-    expect(normalizeBaseCoursePools([{ _id: 'P', name: 'P', creditsRequired: 1 }], '2026-2027')[0].courses).toEqual([]);
-    expect(normalizeBaseCourses([{ _id: 'C', title: 'C', description: '', credits: 3 }], '2026-2027')[0].baseAcademicYear).toBe('2026-2027');
-    expect(toStringId(123)).toBe('123');
+    expect(
+      normalizeBaseDegrees('2026-2027', [
+        { _id: 'D', name: 'D', totalCredits: 1 },
+      ])[0].baseAcademicYear,
+    ).toBe('2026-2027');
+    expect(
+      normalizeBaseCoursePools('2026-2027', [
+        { _id: 'P', name: 'P', creditsRequired: 1 },
+      ])[0].courses,
+    ).toEqual([]);
+    expect(
+      normalizeBaseCourses('2026-2027', [
+        { _id: 'C', title: 'C', description: '', credits: 3 },
+      ])[0].baseAcademicYear,
+    ).toBe('2026-2027');
+    expect(String(123)).toBe('123');
   });
 
   it('reads patch files and validates academicYear presence', async () => {
-    mockFs.readFile.mockResolvedValue(JSON.stringify({ academicYear: '2026-2027' }));
+    mockFs.readFile.mockResolvedValue(
+      JSON.stringify({ academicYear: '2026-2027' }),
+    );
     await expect(readPatchFile('x.json')).resolves.toEqual({
       academicYear: '2026-2027',
     });
@@ -189,8 +202,8 @@ describe('applyCatalogAcademicYearPatch script', () => {
   it('normalizes diffs and groups by academic year', () => {
     const diffs = normalizeDiffs(
       'Course',
-      [{ entityId: 'C', patch: [{ op: 'add', path: '/x', value: 1 }] }],
       academicYear,
+      [{ entityId: 'C', patch: [{ op: 'add', path: '/x', value: 1 }] }],
     );
 
     expect(diffs[0]._id).toContain(courseDiffId);

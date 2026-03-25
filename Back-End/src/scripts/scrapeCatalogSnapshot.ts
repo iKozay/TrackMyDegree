@@ -57,7 +57,7 @@ export function resolveOutputPath(
 ): string {
   if (out) return path.resolve(out);
 
-  const safeYear = academicYear.replace(/[^0-9-]/g, '_');
+  const safeYear = academicYear.replaceAll(/[^0-9-]/g, '_');
   return path.resolve(
     process.cwd(),
     'tmp',
@@ -152,16 +152,20 @@ export async function main(): Promise<void> {
 
 /* istanbul ignore next */
 if (require.main === module) {
-  void main().catch((error) => {
-    console.error(
-      JSON.stringify(
-        {
-          error: error instanceof Error ? error.message : String(error),
-        },
-        null,
-        2,
-      ),
-    );
-    process.exit(1);
-  });
+  (async () => {
+    try {
+      await main();
+    } catch (error) {
+      console.error(
+        JSON.stringify(
+          {
+            error: error instanceof Error ? error.message : String(error),
+          },
+          null,
+          2,
+        ),
+      );
+      process.exit(1);
+    }
+  })();
 }
