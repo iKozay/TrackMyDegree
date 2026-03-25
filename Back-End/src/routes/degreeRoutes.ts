@@ -65,7 +65,8 @@ router.get('/:id', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Respons
   try {
     const { id } = req.params;
 
-    if (!id) {
+    const cleanId = (id as string)?.trim();
+    if (!cleanId) {
       res.status(HTTP.BAD_REQUEST).json({
         error: DEGREE_ID_REQUIRED,
       });
@@ -162,7 +163,8 @@ router.get('/:id/credits', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res:
   try {
     const { id } = req.params;
 
-    if (!id) {
+    const cleanId = (id as string)?.trim();
+    if (!cleanId) {
       res.status(HTTP.BAD_REQUEST).json({
         error: DEGREE_ID_REQUIRED,
       });
@@ -225,7 +227,8 @@ router.get('/:id/credits', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res:
 router.get('/:id/coursepools', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    if (!id) {
+    const cleanId = (id as string)?.trim();
+    if (!cleanId) {
       res.status(HTTP.BAD_REQUEST).json({
         error: DEGREE_ID_REQUIRED,
       });

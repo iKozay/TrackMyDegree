@@ -14,6 +14,11 @@ const app = express();
 app.use(express.json());
 app.use('/degree', degreeRoutes);
 
+jest.mock('../lib/cache', () => ({
+  cacheGet: jest.fn().mockResolvedValue(null),
+  cacheSet: jest.fn().mockResolvedValue(true),
+}));
+
 describe('Degree Routes', () => {
   let mongoServer, mongoUri;
 
@@ -219,18 +224,10 @@ describe('Degree Routes', () => {
       expect(response.body.error).toContain('does not exist');
     });
 
-    it('should return 400 if id is missing (route param simulation)', async () => {
-      const testApp = express();
-      testApp.use(express.json());
-      testApp.get('/test', (req, res) => {
-        if (!req.params.id) {
-          res.status(400).json({ error: 'Degree ID is required' });
-        }
-      });
-
-      const response = await request(testApp).get('/test');
-      expect(response.status).toBe(400);
-    });
+    it('should return 400 if id is empty or whitespace', async () => {
+  const response = await request(app).get('/degree/%20');
+  expect(response.status).toBe(400);
+});
 
     it('should handle errors during fetch via Degree.findById rejection', async () => {
       const originalFindById = Degree.findById;
@@ -315,16 +312,8 @@ describe('Degree Routes', () => {
       expect(response.body.error).toContain('does not exist');
     });
 
-    it('should return 400 if id is missing (route param simulation)', async () => {
-      const testApp = express();
-      testApp.use(express.json());
-      testApp.get('/test', (req, res) => {
-        if (!req.params.id) {
-          res.status(400).json({ error: 'Degree ID is required' });
-        }
-      });
-
-      const response = await request(testApp).get('/test');
+   it('should return 400 if id is empty or whitespace', async () => {
+      const response = await request(app).get('/degree/%20/credits');
       expect(response.status).toBe(400);
     });
 
@@ -401,16 +390,8 @@ describe('Degree Routes', () => {
       expect(response.body.error).toContain('does not exist');
     });
 
-    it('should return 400 if id is missing', async () => {
-      const testApp = express();
-      testApp.use(express.json());
-      testApp.get('/test', (req, res) => {
-        if (!req.params.id) {
-          res.status(400).json({ error: 'Degree ID is required' });
-        }
-      });
-
-      const response = await request(testApp).get('/test');
+    it('should return 400 if id is empty or whitespace', async () => {
+      const response = await request(app).get('/degree/%20/coursepools');
       expect(response.status).toBe(400);
     });
 

@@ -186,6 +186,70 @@ describe('generateSemestersFromPredefinedSequence', () => {
     expect(result[0].courses[0].code).toBe("COMP 303");
   });
 
+  test('merges duplicate capstone across Fall and Winter into one Fall/Winter term', async () => {
+
+    const sequence = [
+      {
+        type: 'Academic',
+        courses: ['SOEN 490', 'COMP 202']
+      },
+      {
+        type: 'Academic',
+        courses: ['SOEN490', 'COMP 248']
+      }
+    ];
+
+    const courses = {
+      SOEN490: { _id: 'SOEN 490', name: 'Capstone' },
+      COMP202: { _id: 'COMP 202', name: 'Foundations' },
+      COMP248: { _id: 'COMP 248', name: 'Object Oriented Programming' }
+    };
+    const statusMap = {};
+
+    const result = await generateSemestersFromPredefinedSequence(
+      sequence,
+      'Fall 2024',
+      courses,
+      statusMap
+    );
+
+    expect(result).toHaveLength(3);
+    expect(result[1].term).toBe('FALL/WINTER 2024-2025');
+    expect(result[1].courses.map((course) => course.code)).toEqual(['SOEN 490']);
+    expect(statusMap['SOEN 490'].semester).toBe('FALL/WINTER 2024-2025');
+  });
+
+  test('does not merge terms when capstone is not duplicated in consecutive terms', async () => {
+
+    const sequence = [
+      {
+        type: 'Academic',
+        courses: ['SOEN 490', 'COMP 202']
+      },
+      {
+        type: 'Academic',
+        courses: ['COMP 248']
+      }
+    ];
+
+    const courses = {
+      SOEN490: { _id: 'SOEN 490' },
+      COMP202: { _id: 'COMP 202' },
+      COMP248: { _id: 'COMP 248' }
+    };
+
+    const result = await generateSemestersFromPredefinedSequence(
+      sequence,
+      'Fall 2024',
+      courses,
+      {}
+    );
+
+    expect(result).toHaveLength(2);
+    expect(result[0].term).toBe('FALL 2024');
+    expect(result[1].term).toBe('WINTER 2025');
+  });
+
 });
 
 

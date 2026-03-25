@@ -25,6 +25,7 @@
     "mongoose": "^8.19.2",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.11",
+    "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
     "rate-limit-redis": "^4.2.3",
     "redis": "^5.8.3",

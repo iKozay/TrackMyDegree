@@ -121,14 +121,15 @@ router.get('/by-degree/:degreeId', cacheGET(COURSE_BY_DEGREE_CACHE_TTL), async (
   try {
     const { degreeId } = req.params;
 
-    if (!degreeId) {
+    const cleanId = (degreeId as string)?.trim();
+    if (!cleanId) {
       res.status(HTTP.BAD_REQUEST).json({
         error: 'Degree ID is required',
       });
       return;
     }
     const coursePools =
-      await degreeController.getCoursePoolsForDegree(degreeId as string);
+      await degreeController.getCoursePoolsForDegree(cleanId);
 
     // Fetch full course pool objects for each ID
     const populatedPools = await Promise.all(
@@ -200,14 +201,15 @@ router.get('/:code', cacheGET(COURSE_CACHE_TTL), async (req: Request, res: Respo
   try {
     const { code } = req.params;
 
-    if (!code) {
+    const cleanCode = (code as string)?.trim();
+    if (!cleanCode) {
       res.status(HTTP.BAD_REQUEST).json({
         error: 'Course code is required',
       });
       return;
     }
 
-    const course = await courseController.getCourseByCode(code as string);
+    const course = await courseController.getCourseByCode(cleanCode);
     res.status(HTTP.OK).json(course);
   } catch (error) {
     console.error('Error in GET /courses/:code', error);

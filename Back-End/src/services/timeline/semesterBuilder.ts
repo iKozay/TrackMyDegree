@@ -137,7 +137,84 @@ export async function generateSemestersFromPredefinedSequence(
     }
   }
 
-  return results;
+  // Post-process: merge capstone (XXX 490) courses that appear in consecutive
+  // FALL and WINTER semesters into a single FALL/WINTER semester, matching the
+  // behaviour of the transcript-based timeline.
+  return mergeCapstoneSemesters(results, courseStatusMap);
+}
+
+/**
+ * Attempts to merge a capstone course (code ending in " 490") from a consecutive
+ * FALL + WINTER semester pair at position `i` into a single "FALL/WINTER YYYY-YYYY+1"
+ * semester.  Returns the replacement semesters and the number of original entries
+ * consumed, or null if no merge is applicable.
+ */
+function tryMergeCapstoneAtIndex(
+  semesters: TimelineSemester[],
+  i: number,
+  courseStatusMap: Record<string, { status: CourseStatus; semester: string | null }>
+): { merged: TimelineSemester[]; consumed: number } | null {
+  const current = semesters[i];
+  const next = semesters[i + 1];
+
+  if (!next) return null;
+  if (!current.term.startsWith(`${SEASONS.FALL} `)) return null;
+  if (!next.term.startsWith(`${SEASONS.WINTER} `)) return null;
+
+  const fallCapstones = current.courses.filter(c => c.code.endsWith(' 490'));
+  const winterCapstones = next.courses.filter(c => c.code.endsWith(' 490'));
+
+  if (fallCapstones.length === 0 || winterCapstones.length === 0) return null;
+
+  const fallYear = Number.parseInt(current.term.split(' ')[1]);
+  const winterYear = Number.parseInt(next.term.split(' ')[1]);
+  const fallWinterLabel = `${SEASONS.FALL_WINTER} ${fallYear}-${winterYear}`;
+
+  // Take the capstone entry from the fall semester (same course code in both terms)
+  const capstoneCourse = fallCapstones[0];
+
+  // Reassign the capstone to the merged Fall/Winter period in the status map
+  courseStatusMap[capstoneCourse.code] = {
+    status: courseStatusMap[capstoneCourse.code]?.status ?? 'planned',
+    semester: fallWinterLabel,
+  };
+
+  const merged: TimelineSemester[] = [];
+  const fallWithout = current.courses.filter(c => !c.code.endsWith(' 490'));
+  const winterWithout = next.courses.filter(c => !c.code.endsWith(' 490'));
+
+  if (fallWithout.length > 0) merged.push({ term: current.term, courses: fallWithout });
+  merged.push({ term: fallWinterLabel, courses: [capstoneCourse] });
+  if (winterWithout.length > 0) merged.push({ term: next.term, courses: winterWithout });
+
+  return { merged, consumed: 2 };
+}
+
+/**
+ * Scans the semester list for consecutive FALL + WINTER pairs that both contain
+ * a capstone course (code ending in " 490").  When found, the capstone is
+ * removed from each individual semester and placed in a new "FALL/WINTER YYYY-YYYY+1"
+ * semester inserted between them.  Semesters that become empty after removal are dropped.
+ */
+function mergeCapstoneSemesters(
+  semesters: TimelineSemester[],
+  courseStatusMap: Record<string, { status: CourseStatus; semester: string | null }>
+): TimelineSemester[] {
+  const result: TimelineSemester[] = [];
+  let i = 0;
+
+  while (i < semesters.length) {
+    const mergeResult = tryMergeCapstoneAtIndex(semesters, i, courseStatusMap);
+    if (mergeResult) {
+      result.push(...mergeResult.merged);
+      i += mergeResult.consumed;
+    } else {
+      result.push(semesters[i]);
+      i++;
+    }
+  }
+
+  return result;
 }
 
 function parseStartTerm(startTerm: string | undefined, terms: string[]) {

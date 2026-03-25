@@ -66,13 +66,17 @@ export async function createForm(
     const { programId, title, subtitle, filename, uploadedBy } = input;
     const uploadedByOid = uploadedBy ? new Types.ObjectId(uploadedBy) : null;
 
+    // Normalize programId to a primitive value to avoid query injection
+    const safeProgramId = String(programId);
+
     // Check for existing form with same programId
-    const existing = await CreditForm.findOne({ programId });
+    const existing = await CreditForm.findOne({ programId: { $eq: safeProgramId } });
 
     if (existing) {
         if (existing.isActive) {
             // Clean up the uploaded file since we're rejecting
-            const filePath = path.join(UPLOAD_DIR, filename);
+            const safeFilename = path.basename(filename);
+            const filePath = path.join(UPLOAD_DIR, safeFilename);
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
             }
@@ -141,7 +145,8 @@ export async function updateForm(
     if (!form) {
         // Clean up the uploaded file if one was provided
         if (input.filename) {
-            const filePath = path.join(UPLOAD_DIR, input.filename);
+            const safeFilename = path.basename(input.filename);
+            const filePath = path.join(UPLOAD_DIR, safeFilename);
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
             }

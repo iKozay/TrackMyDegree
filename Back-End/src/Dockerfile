@@ -44,6 +44,7 @@ COPY --from=builder --chown=65532:65532 /app/shared       ./shared
 COPY --from=builder --chown=65532:65532 /app/Back-End/src/dist ./dist
 COPY --from=builder --chown=65532:65532 /app/data         ./data
 COPY --from=builder --chown=65532:65532 /app/tmp          ./tmp
+COPY --from=builder --chown=65532:65532 /app/Back-End/src/public ./dist/Back-End/src/public
 
 EXPOSE 8000
 
