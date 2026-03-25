@@ -126,7 +126,8 @@ router.get(
     try {
       const { degreeId } = req.params;
       const academicYear = req.query.academicYear as string | undefined;
-      const cleanDegreeId = degreeId?.trim();
+      const cleanDegreeId =
+        typeof degreeId === 'string' ? degreeId.trim() : '';
 
       if (!cleanDegreeId) {
         res.status(HTTP.BAD_REQUEST).json({
@@ -212,7 +213,7 @@ router.get(
     try {
       const { code } = req.params;
       const academicYear = req.query.academicYear as string | undefined;
-      const cleanCode = code?.trim();
+      const cleanCode = typeof code === 'string' ? code.trim() : '';
 
       if (!cleanCode) {
         res.status(HTTP.BAD_REQUEST).json({
