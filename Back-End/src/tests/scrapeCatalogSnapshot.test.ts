@@ -28,6 +28,9 @@ const mockParseAllDegrees = parseAllDegrees as jest.MockedFunction<
 const mockParseDegree = parseDegree as jest.MockedFunction<typeof parseDegree>;
 describe('scrapeCatalogSnapshot script', () => {
   const originalArgv = process.argv;
+  const academicYear = '2026-2027';
+  const degreeId = 'COMP';
+  const academicYearArg = '--academic-year';
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -47,26 +50,26 @@ describe('scrapeCatalogSnapshot script', () => {
   it('parses args and output path', () => {
     expect(
       parseArgs([
-        '--academic-year',
-        '2026-2027',
+        academicYearArg,
+        academicYear,
         '--degree',
-        'COMP',
+        degreeId,
         '--out',
         './tmp/file.json',
       ]),
     ).toEqual({
-      academicYear: '2026-2027',
-      degree: 'COMP',
+      academicYear,
+      degree: degreeId,
       out: './tmp/file.json',
     });
 
-    expect(parseArgs(['--academic-year'])).toEqual({
+    expect(parseArgs([academicYearArg])).toEqual({
       academicYear: undefined,
       degree: undefined,
       out: undefined,
     });
-    expect(parseArgs(['noop', '--academic-year', '2026-2027'])).toEqual({
-      academicYear: '2026-2027',
+    expect(parseArgs(['noop', academicYearArg, academicYear])).toEqual({
+      academicYear,
       degree: undefined,
       out: undefined,
     });
@@ -90,15 +93,15 @@ describe('scrapeCatalogSnapshot script', () => {
   });
 
   it('scrapes all degrees or one degree', async () => {
-    const allPayload = await scrapeCatalogSnapshot({ academicYear: '2026-2027' });
+    const allPayload = await scrapeCatalogSnapshot({ academicYear });
     expect(mockParseAllDegrees).toHaveBeenCalled();
     expect(allPayload.source.mode).toBe('all-degrees');
 
     const onePayload = await scrapeCatalogSnapshot({
-      academicYear: '2026-2027',
-      degree: 'COMP',
+      academicYear,
+      degree: degreeId,
     });
-    expect(mockParseDegree).toHaveBeenCalledWith('COMP');
+    expect(mockParseDegree).toHaveBeenCalledWith(degreeId);
     expect(onePayload.source.mode).toBe('single-degree');
   });
 
@@ -121,8 +124,8 @@ describe('scrapeCatalogSnapshot script', () => {
     process.argv = [
       'node',
       'scrapeCatalogSnapshot.ts',
-      '--academic-year',
-      '2026-2027',
+      academicYearArg,
+      academicYear,
     ];
 
     await main();

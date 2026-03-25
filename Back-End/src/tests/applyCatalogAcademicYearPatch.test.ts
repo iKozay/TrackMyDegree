@@ -41,6 +41,9 @@ const mockMongoose = mongoose as jest.Mocked<typeof mongoose>;
 describe('applyCatalogAcademicYearPatch script', () => {
   const originalArgv = process.argv;
   const originalEnv = process.env;
+  const academicYear = '2026-2027';
+  const courseDiffId = `Course:C:${academicYear}`;
+  const degreeDiffId = `Degree:D:${academicYear}`;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -187,13 +190,13 @@ describe('applyCatalogAcademicYearPatch script', () => {
     const diffs = normalizeDiffs(
       'Course',
       [{ entityId: 'C', patch: [{ op: 'add', path: '/x', value: 1 }] }],
-      '2026-2027',
+      academicYear,
     );
 
-    expect(diffs[0]._id).toContain('Course:C:2026-2027');
+    expect(diffs[0]._id).toContain(courseDiffId);
 
     const grouped = groupDiffsByAcademicYear(diffs as any);
-    expect(grouped.get('2026-2027')).toHaveLength(1);
+    expect(grouped.get(academicYear)).toHaveLength(1);
   });
 
   it('loads known ids and catalog state', async () => {
@@ -248,10 +251,10 @@ describe('applyCatalogAcademicYearPatch script', () => {
 
     applyDiffsForAcademicYear(state as any, [
       {
-        _id: 'Degree:D:2026-2027',
+        _id: degreeDiffId,
         entityType: 'Degree',
         entityId: 'D',
-        academicYear: '2026-2027',
+        academicYear,
         academicYearStart: 2026,
         patch: [{ op: 'replace', path: '/name', value: 'Updated Degree' }],
       },

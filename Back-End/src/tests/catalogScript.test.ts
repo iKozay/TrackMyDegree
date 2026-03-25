@@ -35,6 +35,12 @@ const mockScrapeCatalogSnapshot = scrapeCatalogSnapshot as jest.MockedFunction<
 describe('catalog script', () => {
   const originalArgv = process.argv;
   const originalEnv = process.env;
+  const academicYear = '2026-2027';
+  const pythonServiceBaseUrl = 'http://localhost:15001';
+  const allDegreesMode = 'all-degrees' as const;
+  const catalogScript = 'catalog.ts';
+  const degreeId = 'COMP';
+  const academicYearArg = '--academic-year';
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -54,10 +60,10 @@ describe('catalog script', () => {
   it('parses command arguments', () => {
     expect(
       parseArgs([
-        '--academic-year',
-        '2026-2027',
+        academicYearArg,
+        academicYear,
         '--degree',
-        'COMP',
+        degreeId,
         '--apply',
         '--write-snapshot',
         '--write-patch',
@@ -65,15 +71,15 @@ describe('catalog script', () => {
         './tmp/out',
       ]),
     ).toEqual({
-      academicYear: '2026-2027',
-      degree: 'COMP',
+      academicYear,
+      degree: degreeId,
       apply: true,
       writeSnapshot: true,
       writePatch: true,
       inspectDir: './tmp/out',
     });
 
-    expect(parseArgs(['noop', '--apply', '--academic-year'])).toEqual({
+    expect(parseArgs(['noop', '--apply', academicYearArg])).toEqual({
       academicYear: undefined,
       degree: undefined,
       apply: true,
@@ -92,7 +98,7 @@ describe('catalog script', () => {
   });
 
   it('resolves inspect dir', () => {
-    expect(resolveInspectDir('2026-2027', './tmp/foo')).toContain('tmp/foo');
+    expect(resolveInspectDir(academicYear, './tmp/foo')).toContain('tmp/foo');
     expect(resolveInspectDir('2026/2027')).toContain('catalog-2026_2027');
   });
 
@@ -108,11 +114,11 @@ describe('catalog script', () => {
 
   it('conditionally writes snapshot and patch files', async () => {
     const snapshot = {
-      academicYear: '2026-2027',
+      academicYear,
       scrapedAt: 'now',
       source: {
-        pythonServiceBaseUrl: 'http://localhost:15001',
-        mode: 'all-degrees' as const,
+        pythonServiceBaseUrl,
+        mode: allDegreesMode,
       },
       degrees: [],
       courses: [],
@@ -120,7 +126,7 @@ describe('catalog script', () => {
 
     await expect(
       maybeWriteSnapshot(snapshot, {
-        academicYear: '2026-2027',
+        academicYear,
         apply: false,
         writeSnapshot: false,
         writePatch: false,
@@ -130,9 +136,9 @@ describe('catalog script', () => {
     await expect(
       maybeWritePatch(
         { patch: true },
-        '2026-2027',
+        academicYear,
         {
-          academicYear: '2026-2027',
+          academicYear,
           apply: false,
           writeSnapshot: false,
           writePatch: false,
@@ -142,7 +148,7 @@ describe('catalog script', () => {
 
     await expect(
       maybeWriteSnapshot(snapshot, {
-        academicYear: '2026-2027',
+        academicYear,
         apply: false,
         writeSnapshot: true,
         writePatch: false,
@@ -152,9 +158,9 @@ describe('catalog script', () => {
     await expect(
       maybeWritePatch(
         { patch: true },
-        '2026-2027',
+        academicYear,
         {
-          academicYear: '2026-2027',
+          academicYear,
           apply: false,
           writeSnapshot: false,
           writePatch: true,
@@ -166,7 +172,7 @@ describe('catalog script', () => {
   it('prints usage and exits early when academic year is missing', async () => {
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
-    process.argv = ['node', 'catalog.ts'];
+    process.argv = ['node', catalogScript];
     process.exitCode = 0;
 
     await main();
@@ -182,17 +188,17 @@ describe('catalog script', () => {
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
     mockScrapeCatalogSnapshot.mockResolvedValue({
-      academicYear: '2026-2027',
+      academicYear,
       scrapedAt: 'now',
       source: {
-        pythonServiceBaseUrl: 'http://localhost:15001',
-        mode: 'all-degrees',
+        pythonServiceBaseUrl,
+        mode: allDegreesMode,
       },
       degrees: [],
       courses: [],
     });
     mockGeneratePatchFromSnapshotData.mockResolvedValue({
-      academicYear: '2026-2027',
+      academicYear,
       baseEntities: { degrees: [], coursePools: [], courses: [] },
       diffs: { degrees: [], coursePools: [], courses: [] },
     } as never);
@@ -205,9 +211,9 @@ describe('catalog script', () => {
 
     process.argv = [
       'node',
-      'catalog.ts',
-      '--academic-year',
-      '2026-2027',
+      catalogScript,
+      academicYearArg,
+      academicYear,
       '--apply',
       '--write-snapshot',
       '--write-patch',
@@ -217,7 +223,7 @@ describe('catalog script', () => {
 
     expect(mockMongoose.connect).toHaveBeenCalled();
     expect(mockScrapeCatalogSnapshot).toHaveBeenCalledWith({
-      academicYear: '2026-2027',
+      academicYear,
       degree: undefined,
     });
     expect(mockGeneratePatchFromSnapshotData).toHaveBeenCalled();
@@ -232,17 +238,17 @@ describe('catalog script', () => {
     const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
     mockScrapeCatalogSnapshot.mockResolvedValue({
-      academicYear: '2026-2027',
+      academicYear,
       scrapedAt: 'now',
       source: {
-        pythonServiceBaseUrl: 'http://localhost:15001',
-        mode: 'all-degrees',
+        pythonServiceBaseUrl,
+        mode: allDegreesMode,
       },
       degrees: [],
       courses: [],
     });
     mockGeneratePatchFromSnapshotData.mockResolvedValue({
-      academicYear: '2026-2027',
+      academicYear,
       baseEntities: { degrees: [], coursePools: [], courses: [] },
       diffs: { degrees: [], coursePools: [], courses: [] },
     } as never);
@@ -253,7 +259,7 @@ describe('catalog script', () => {
       upsertedDiffs: 0,
     });
 
-    process.argv = ['node', 'catalog.ts', '--academic-year', '2026-2027'];
+    process.argv = ['node', catalogScript, academicYearArg, academicYear];
 
     await main();
 
