@@ -102,14 +102,14 @@ export function parseArgs(argv: string[]) {
   };
 }
 
-function getMongoUri(): string {
+export function getMongoUri(): string {
   return (
     process.env.MONGODB_URI ||
     'mongodb://admin:changeme123@localhost:27017/trackmydegree?authSource=admin'
   );
 }
 
-function getDiffId(
+export function getDiffId(
   entityType: VersionedEntityType,
   entityId: string,
   academicYear: string,
@@ -117,7 +117,7 @@ function getDiffId(
   return `${entityType}:${entityId}:${academicYear}`;
 }
 
-function ensurePatchShape(patch: VersionPatch, label: string): void {
+export function ensurePatchShape(patch: VersionPatch, label: string): void {
   if (!Array.isArray(patch) || patch.length === 0) {
     throw new Error(
       `${label} patch must contain at least one JSON Patch operation.`,
@@ -125,7 +125,7 @@ function ensurePatchShape(patch: VersionPatch, label: string): void {
   }
 }
 
-function normalizeBaseDegrees(
+export function normalizeBaseDegrees(
   degrees: DegreeSeedData[] = [],
   academicYear: string,
 ): DegreeSeedData[] {
@@ -138,7 +138,7 @@ function normalizeBaseDegrees(
   }));
 }
 
-function normalizeBaseCoursePools(
+export function normalizeBaseCoursePools(
   coursePools: CoursePoolSeedData[] = [],
   academicYear: string,
 ): CoursePoolSeedData[] {
@@ -150,7 +150,7 @@ function normalizeBaseCoursePools(
   }));
 }
 
-function normalizeBaseCourses(
+export function normalizeBaseCourses(
   courses: CourseSeedData[] = [],
   academicYear: string,
 ): CourseSeedData[] {
@@ -161,7 +161,7 @@ function normalizeBaseCourses(
   }));
 }
 
-function normalizeDiffs(
+export function normalizeDiffs(
   entityType: VersionedEntityType,
   diffs: DiffPayload[] = [],
   academicYear: string,
@@ -218,11 +218,11 @@ type CatalogState = {
   courseState: Map<string, CourseSeedData>;
 };
 
-function toStringId(value: unknown): string {
+export function toStringId(value: unknown): string {
   return String(value);
 }
 
-function collectReferencedIds(payload: {
+export function collectReferencedIds(payload: {
   degrees: DegreeSeedData[];
   coursePools: CoursePoolSeedData[];
   diffs: Array<{
@@ -255,7 +255,7 @@ function collectReferencedIds(payload: {
   };
 }
 
-async function loadKnownEntityIds(payload: {
+export async function loadKnownEntityIds(payload: {
   degrees: DegreeSeedData[];
   coursePools: CoursePoolSeedData[];
   courses: CourseSeedData[];
@@ -322,7 +322,7 @@ async function loadKnownEntityIds(payload: {
   };
 }
 
-function validateBaseEntityReferences(
+export function validateBaseEntityReferences(
   payload: {
     degrees: DegreeSeedData[];
     coursePools: CoursePoolSeedData[];
@@ -350,7 +350,7 @@ function validateBaseEntityReferences(
   }
 }
 
-function validateDiffTarget(
+export function validateDiffTarget(
   diff: {
     _id: string;
     entityType: VersionedEntityType;
@@ -403,7 +403,7 @@ export async function validateReferences(payload: {
   }
 }
 
-async function loadCatalogState(
+export async function loadCatalogState(
   knownIds: ExistingEntityIds,
   payload: {
     degrees: DegreeSeedData[];
@@ -483,7 +483,7 @@ async function loadCatalogState(
   return { degreeState, coursePoolState, courseState };
 }
 
-function groupDiffsByAcademicYear(
+export function groupDiffsByAcademicYear(
   diffs: NormalizedDiff[],
 ): Map<string, NormalizedDiff[]> {
   const diffsByYear = new Map<string, NormalizedDiff[]>();
@@ -496,7 +496,7 @@ function groupDiffsByAcademicYear(
   return diffsByYear;
 }
 
-function applyDiffsForAcademicYear(
+export function applyDiffsForAcademicYear(
   state: CatalogState,
   diffs: NormalizedDiff[],
 ): void {
@@ -533,7 +533,7 @@ function applyDiffsForAcademicYear(
   }
 }
 
-function assertResolvedReferences(
+export function assertResolvedReferences(
   state: CatalogState,
   academicYear: string,
 ): void {
@@ -636,7 +636,7 @@ export async function applyPatchFile(
   };
 }
 
-function printUsage(): void {
+export function printUsage(): void {
   console.log(
     [
       'Usage:',
@@ -682,6 +682,7 @@ export async function main() {
   }
 }
 
+/* istanbul ignore next */
 if (require.main === module) {
   void main().catch((error) => {
     console.error(

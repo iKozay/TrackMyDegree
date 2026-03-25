@@ -20,7 +20,7 @@ interface CatalogCommandArgs {
   inspectDir?: string;
 }
 
-function parseArgs(argv: string[]): CatalogCommandArgs {
+export function parseArgs(argv: string[]): CatalogCommandArgs {
   const valueArgs = new Map<string, string>();
   const flagArgs = new Set<string>();
 
@@ -48,14 +48,17 @@ function parseArgs(argv: string[]): CatalogCommandArgs {
   };
 }
 
-function getMongoUri(): string {
+export function getMongoUri(): string {
   return (
     process.env.MONGODB_URI ||
     'mongodb://admin:changeme123@localhost:27017/trackmydegree?authSource=admin'
   );
 }
 
-function resolveInspectDir(academicYear: string, inspectDir?: string): string {
+export function resolveInspectDir(
+  academicYear: string,
+  inspectDir?: string,
+): string {
   if (inspectDir) {
     return path.resolve(inspectDir);
   }
@@ -64,7 +67,7 @@ function resolveInspectDir(academicYear: string, inspectDir?: string): string {
   return path.resolve(process.cwd(), 'tmp', `catalog-${safeYear}`);
 }
 
-async function writeInspectionFile(
+export async function writeInspectionFile(
   filePath: string,
   payload: unknown,
 ): Promise<string> {
@@ -73,7 +76,7 @@ async function writeInspectionFile(
   return filePath;
 }
 
-function printUsage(): void {
+export function printUsage(): void {
   console.log(
     [
       'Usage:',
@@ -87,7 +90,7 @@ function printUsage(): void {
   );
 }
 
-async function maybeWriteSnapshot(
+export async function maybeWriteSnapshot(
   snapshot: CatalogSnapshotPayload,
   args: CatalogCommandArgs,
 ): Promise<string | undefined> {
@@ -99,7 +102,7 @@ async function maybeWriteSnapshot(
   return writeInspectionFile(path.join(inspectDir, 'snapshot.json'), snapshot);
 }
 
-async function maybeWritePatch(
+export async function maybeWritePatch(
   patch: unknown,
   academicYear: string,
   args: CatalogCommandArgs,
@@ -157,6 +160,7 @@ export async function main(): Promise<void> {
   }
 }
 
+/* istanbul ignore next */
 if (require.main === module) {
   void main().catch((error) => {
     console.error(

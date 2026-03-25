@@ -84,7 +84,7 @@ type CatalogPatch = {
   };
 };
 
-function parseArgs(argv: string[]) {
+export function parseArgs(argv: string[]) {
   const args = new Map<string, string>();
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -104,18 +104,18 @@ function parseArgs(argv: string[]) {
   };
 }
 
-function getMongoUri(): string {
+export function getMongoUri(): string {
   return (
     process.env.MONGODB_URI ||
     'mongodb://admin:changeme123@localhost:27017/trackmydegree?authSource=admin'
   );
 }
 
-function sortUnique(values: string[] = []): string[] {
+export function sortUnique(values: string[] = []): string[] {
   return [...new Set(values)].sort((left, right) => left.localeCompare(right));
 }
 
-function normalizeRules(rules?: CourseRules): Required<CourseRules> {
+export function normalizeRules(rules?: CourseRules): Required<CourseRules> {
   const normalizeGroups = (groups: string[][] = []) => {
     return groups
       .map((group) => sortUnique(group))
@@ -132,7 +132,10 @@ function normalizeRules(rules?: CourseRules): Required<CourseRules> {
   };
 }
 
-function normalizeCourse(course: CourseType, academicYear: string): CourseType {
+export function normalizeCourse(
+  course: CourseType,
+  academicYear: string,
+): CourseType {
   return {
     _id: course._id,
     title: course.title,
@@ -148,7 +151,7 @@ function normalizeCourse(course: CourseType, academicYear: string): CourseType {
   };
 }
 
-function normalizeCoursePool(
+export function normalizeCoursePool(
   coursePool: CoursePoolType,
   academicYear: string,
 ): CoursePoolType {
@@ -162,7 +165,10 @@ function normalizeCoursePool(
   };
 }
 
-function normalizeDegree(degree: DegreeType, academicYear: string): DegreeType {
+export function normalizeDegree(
+  degree: DegreeType,
+  academicYear: string,
+): DegreeType {
   return {
     _id: degree._id,
     name: degree.name,
@@ -175,11 +181,11 @@ function normalizeDegree(degree: DegreeType, academicYear: string): DegreeType {
   };
 }
 
-function compactPatch(patch: VersionPatch): VersionPatch | null {
+export function compactPatch(patch: VersionPatch): VersionPatch | null {
   return patch.length > 0 ? patch : null;
 }
 
-function stripVersionMetadata<T extends { baseAcademicYear?: string }>(
+export function stripVersionMetadata<T extends { baseAcademicYear?: string }>(
   entity: T,
 ): Omit<T, 'baseAcademicYear'> {
   const { baseAcademicYear, ...rest } = entity;
@@ -187,15 +193,15 @@ function stripVersionMetadata<T extends { baseAcademicYear?: string }>(
   return rest;
 }
 
-function sameValue(left: unknown, right: unknown): boolean {
+export function sameValue(left: unknown, right: unknown): boolean {
   return JSON.stringify(left) === JSON.stringify(right);
 }
 
-function escapeJsonPointerSegment(segment: string): string {
+export function escapeJsonPointerSegment(segment: string): string {
   return segment.replace(/~/g, '~0').replace(/\//g, '~1');
 }
 
-function buildJsonPatch<T extends { baseAcademicYear?: string }>(
+export function buildJsonPatch<T extends { baseAcademicYear?: string }>(
   current: T,
   next: T,
 ): VersionPatch | null {
@@ -235,7 +241,7 @@ function buildJsonPatch<T extends { baseAcademicYear?: string }>(
   return compactPatch(patch);
 }
 
-function normalizeSnapshot(snapshot: CatalogSnapshot): CatalogSnapshot {
+export function normalizeSnapshot(snapshot: CatalogSnapshot): CatalogSnapshot {
   const academicYear = normalizeAcademicYear(snapshot.academicYear) as string;
 
   return {
@@ -252,7 +258,7 @@ function normalizeSnapshot(snapshot: CatalogSnapshot): CatalogSnapshot {
   };
 }
 
-function buildCurrentEntityMaps(
+export function buildCurrentEntityMaps(
   dbDegrees: DegreeType[],
   dbCoursePools: CoursePoolType[],
   dbCourses: CourseType[],
@@ -287,7 +293,7 @@ function buildCurrentEntityMaps(
   };
 }
 
-function addBaseEntity<T extends { baseAcademicYear?: string }>(
+export function addBaseEntity<T extends { baseAcademicYear?: string }>(
   entities: T[],
   entity: T,
   academicYear: string,
@@ -298,7 +304,7 @@ function addBaseEntity<T extends { baseAcademicYear?: string }>(
   });
 }
 
-function appendEntityChanges<
+export function appendEntityChanges<
   T extends { _id: string; baseAcademicYear?: string },
 >(
   entities: Iterable<T>,
@@ -327,7 +333,7 @@ function appendEntityChanges<
   }
 }
 
-function sortPatchCollections(patch: CatalogPatch): void {
+export function sortPatchCollections(patch: CatalogPatch): void {
   patch.baseEntities.degrees.sort((left, right) =>
     left._id.localeCompare(right._id),
   );
@@ -421,20 +427,22 @@ export async function generatePatchFromSnapshotData(
   return patch;
 }
 
-async function readSnapshotFile(filePath: string): Promise<CatalogSnapshot> {
+export async function readSnapshotFile(
+  filePath: string,
+): Promise<CatalogSnapshot> {
   const absolutePath = path.resolve(filePath);
   const raw = await fs.readFile(absolutePath, 'utf8');
   return JSON.parse(raw) as CatalogSnapshot;
 }
 
-function resolveOutputPath(snapshotFile: string, out?: string): string {
+export function resolveOutputPath(snapshotFile: string, out?: string): string {
   if (out) return path.resolve(out);
 
   const parsed = path.parse(snapshotFile);
   return path.resolve(parsed.dir, `${parsed.name}-patch.json`);
 }
 
-function printUsage(): void {
+export function printUsage(): void {
   console.log(
     [
       'Usage:',
@@ -492,6 +500,7 @@ export async function main(): Promise<void> {
   }
 }
 
+/* istanbul ignore next */
 if (require.main === module) {
   void main().catch((error) => {
     console.error(

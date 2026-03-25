@@ -10,6 +10,7 @@ module.exports = {
     'middleware/**/*.ts',
     'models/**/*.ts',
     'routes/**/*.ts',
+    'scripts/**/*.ts',
     'services/**/*.ts',
     'types/**/*.ts',
     'utils/**/*.ts',

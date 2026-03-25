@@ -126,8 +126,7 @@ router.get(
     try {
       const { degreeId } = req.params;
       const academicYear = req.query.academicYear as string | undefined;
-      const cleanDegreeId =
-        typeof degreeId === 'string' ? degreeId.trim() : '';
+      const cleanDegreeId = `${degreeId ?? ''}`.trim();
 
       if (!cleanDegreeId) {
         res.status(HTTP.BAD_REQUEST).json({
@@ -139,11 +138,7 @@ router.get(
         cleanDegreeId,
         academicYear,
       );
-      const courseIds = [
-        ...new Set(
-          coursePools.flatMap((coursePool) => coursePool.courses || []),
-        ),
-      ];
+      const courseIds = [...new Set(coursePools.flatMap((coursePool) => coursePool.courses))];
       const courses = await courseController.getCoursesByCodes(
         courseIds,
         academicYear,
@@ -153,10 +148,10 @@ router.get(
       );
 
       const populatedPools = coursePools.map((coursePool) => ({
-        _id: coursePool?._id,
-        name: coursePool?.name,
-        creditsRequired: coursePool?.creditsRequired,
-        courses: (coursePool.courses || [])
+        _id: coursePool._id,
+        name: coursePool.name,
+        creditsRequired: coursePool.creditsRequired,
+        courses: coursePool.courses
           .map((courseId) => coursesById.get(courseId))
           .filter(Boolean),
       }));
@@ -213,7 +208,7 @@ router.get(
     try {
       const { code } = req.params;
       const academicYear = req.query.academicYear as string | undefined;
-      const cleanCode = typeof code === 'string' ? code.trim() : '';
+      const cleanCode = `${code ?? ''}`.trim();
 
       if (!cleanCode) {
         res.status(HTTP.BAD_REQUEST).json({

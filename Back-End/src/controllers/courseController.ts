@@ -120,7 +120,6 @@ export class CourseController extends BaseMongoController<any> {
       return result.data.map((course: any) => course._id);
     } catch (error) {
       this.handleError(error, 'getAllCourseCodes');
-      return [];
     }
   }
 

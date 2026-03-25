@@ -28,7 +28,7 @@ export interface CatalogSnapshotPayload {
   courses: unknown[];
 }
 
-function parseArgs(argv: string[]): ScrapeArgs {
+export function parseArgs(argv: string[]): ScrapeArgs {
   const args = new Map<string, string>();
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -51,7 +51,10 @@ function parseArgs(argv: string[]): ScrapeArgs {
   };
 }
 
-function resolveOutputPath(academicYear: string, out?: string): string {
+export function resolveOutputPath(
+  academicYear: string,
+  out?: string,
+): string {
   if (out) return path.resolve(out);
 
   const safeYear = academicYear.replace(/[^0-9-]/g, '_');
@@ -62,7 +65,7 @@ function resolveOutputPath(academicYear: string, out?: string): string {
   );
 }
 
-async function ensurePythonServiceReady(): Promise<void> {
+export async function ensurePythonServiceReady(): Promise<void> {
   try {
     await axios.get(`${PYTHON_SERVICE_BASE_URL}/health`, { timeout: 50000 });
   } catch (error) {
@@ -98,7 +101,7 @@ export async function scrapeCatalogSnapshot(options: {
   };
 }
 
-function printUsage(): void {
+export function printUsage(): void {
   console.log(
     [
       'Usage:',
@@ -147,6 +150,7 @@ export async function main(): Promise<void> {
   );
 }
 
+/* istanbul ignore next */
 if (require.main === module) {
   void main().catch((error) => {
     console.error(
