@@ -126,15 +126,16 @@ router.get(
     try {
       const { degreeId } = req.params;
       const academicYear = req.query.academicYear as string | undefined;
+      const cleanDegreeId = degreeId?.trim();
 
-      if (!degreeId) {
+      if (!cleanDegreeId) {
         res.status(HTTP.BAD_REQUEST).json({
           error: 'Degree ID is required',
         });
         return;
       }
       const coursePools = await degreeController.getCoursePoolsForDegree(
-        degreeId as string,
+        cleanDegreeId,
         academicYear,
       );
       const courseIds = [
@@ -211,8 +212,9 @@ router.get(
     try {
       const { code } = req.params;
       const academicYear = req.query.academicYear as string | undefined;
+      const cleanCode = code?.trim();
 
-      if (!code) {
+      if (!cleanCode) {
         res.status(HTTP.BAD_REQUEST).json({
           error: 'Course code is required',
         });
@@ -220,7 +222,7 @@ router.get(
       }
 
       const course = await courseController.getCourseByCode(
-        code as string,
+        cleanCode,
         academicYear,
       );
       res.status(HTTP.OK).json(course);

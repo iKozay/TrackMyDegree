@@ -39,6 +39,12 @@ export class DegreeController extends BaseMongoController<any> {
 
       return resolveEntityVersions('Course', baseCourses, academicYear);
     } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === DEGREE_WITH_ID_DOES_NOT_EXIST
+      ) {
+        throw new Error('Degree not found');
+      }
       this.handleError(error, 'readDegreeData');
     }
   }
@@ -193,7 +199,18 @@ export class DegreeController extends BaseMongoController<any> {
         .lean<CoursePoolInfo[]>()
         .exec();
 
-      return resolveEntityVersions('CoursePool', basePools, academicYear);
+      const resolvedPools = await resolveEntityVersions(
+        'CoursePool',
+        basePools,
+        academicYear,
+      );
+
+      return resolvedPools.map((coursePool) => ({
+        _id: coursePool._id,
+        name: coursePool.name,
+        creditsRequired: coursePool.creditsRequired,
+        courses: coursePool.courses || [],
+      }));
     } catch (error) {
       this.handleError(error, 'getCoursePoolsForDegree');
     }
