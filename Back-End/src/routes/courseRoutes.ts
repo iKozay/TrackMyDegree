@@ -11,7 +11,6 @@ const INTERNAL_SERVER_ERROR = 'Internal server error';
 const COURSE_CACHE_TTL = 900; // 15 minutes
 const COURSE_BY_DEGREE_CACHE_TTL = 1800; // 30 minutes
 
-
 // ==========================
 // COURSE ROUTES (READ ONLY)
 // ==========================
@@ -138,31 +137,27 @@ router.get(
         degreeId as string,
         academicYear,
       );
-
-      // Fetch full course pool objects for each ID
-      const populatedPools = await Promise.all(
-        coursePools.map(async (coursePool) => {
-          const courses = await Promise.all(
-            coursePool.courses.map(async (courseId) => {
-              try {
-                return await courseController.getCourseByCode(
-                  courseId,
-                  academicYear,
-                );
-              } catch {
-                return null;
-              }
-            }),
-          );
-
-          return {
-            _id: coursePool?._id,
-            name: coursePool?.name,
-            creditsRequired: coursePool?.creditsRequired,
-            courses: courses.filter(Boolean),
-          };
-        }),
+      const courseIds = [
+        ...new Set(
+          coursePools.flatMap((coursePool) => coursePool.courses || []),
+        ),
+      ];
+      const courses = await courseController.getCoursesByCodes(
+        courseIds,
+        academicYear,
       );
+      const coursesById = new Map(
+        courses.map((course) => [course._id, course]),
+      );
+
+      const populatedPools = coursePools.map((coursePool) => ({
+        _id: coursePool?._id,
+        name: coursePool?.name,
+        creditsRequired: coursePool?.creditsRequired,
+        courses: (coursePool.courses || [])
+          .map((courseId) => coursesById.get(courseId))
+          .filter(Boolean),
+      }));
 
       res.status(HTTP.OK).json(populatedPools);
     } catch (error) {

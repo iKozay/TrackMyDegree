@@ -5,6 +5,8 @@ import mongoose from 'mongoose';
 import { Course, CoursePool, Degree, EntityVersionDiff } from '@models';
 import {
   DEFAULT_BASE_ACADEMIC_YEAR,
+  compareAcademicYears,
+  applyVersionPatch,
   normalizeAcademicYear,
   VersionPatch,
   VersionedEntityType,
@@ -116,17 +118,10 @@ function getDiffId(
 }
 
 function ensurePatchShape(patch: VersionPatch, label: string): void {
-  if (!patch || typeof patch !== 'object') {
-    throw new Error(`${label} must include a patch object.`);
-  }
-
-  if (
-    !patch.set &&
-    !patch.unset &&
-    !patch.addToSet &&
-    !patch.pull
-  ) {
-    throw new Error(`${label} patch must contain at least one operation.`);
+  if (!Array.isArray(patch) || patch.length === 0) {
+    throw new Error(
+      `${label} patch must contain at least one JSON Patch operation.`,
+    );
   }
 }
 
@@ -182,12 +177,15 @@ function normalizeDiffs(
       entityType,
       entityId: diff.entityId,
       academicYear: resolvedAcademicYear,
+      academicYearStart: Number.parseInt(resolvedAcademicYear.slice(0, 4), 10),
       patch: diff.patch,
     };
   });
 }
 
-export async function readPatchFile(filePath: string): Promise<CatalogPatchFile> {
+export async function readPatchFile(
+  filePath: string,
+): Promise<CatalogPatchFile> {
   const absolutePath = path.resolve(filePath);
   const raw = await fs.readFile(absolutePath, 'utf8');
   const parsed = JSON.parse(raw) as CatalogPatchFile;
@@ -203,6 +201,21 @@ type ExistingEntityIds = {
   knownDegrees: Set<string>;
   knownCoursePools: Set<string>;
   knownCourses: Set<string>;
+};
+
+type NormalizedDiff = {
+  _id: string;
+  entityType: VersionedEntityType;
+  entityId: string;
+  academicYear: string;
+  academicYearStart: number;
+  patch: VersionPatch;
+};
+
+type CatalogState = {
+  degreeState: Map<string, DegreeSeedData>;
+  coursePoolState: Map<string, CoursePoolSeedData>;
+  courseState: Map<string, CourseSeedData>;
 };
 
 function toStringId(value: unknown): string {
@@ -256,11 +269,8 @@ async function loadKnownEntityIds(payload: {
     payload.coursePools.map((coursePool) => coursePool._id),
   );
   const newCourseIds = new Set(payload.courses.map((course) => course._id));
-  const {
-    referencedDegreeIds,
-    referencedCoursePoolIds,
-    referencedCourseIds,
-  } = collectReferencedIds(payload);
+  const { referencedDegreeIds, referencedCoursePoolIds, referencedCourseIds } =
+    collectReferencedIds(payload);
 
   const [existingDegrees, existingCoursePools, existingCourses] =
     await Promise.all([
@@ -371,13 +381,7 @@ export async function validateReferences(payload: {
   degrees: DegreeSeedData[];
   coursePools: CoursePoolSeedData[];
   courses: CourseSeedData[];
-  diffs: Array<{
-    _id: string;
-    entityType: VersionedEntityType;
-    entityId: string;
-    academicYear: string;
-    patch: VersionPatch;
-  }>;
+  diffs: NormalizedDiff[];
 }): Promise<void> {
   const knownIds = await loadKnownEntityIds(payload);
 
@@ -386,6 +390,172 @@ export async function validateReferences(payload: {
   for (const diff of payload.diffs) {
     validateDiffTarget(diff, knownIds);
   }
+
+  const state = await loadCatalogState(knownIds, payload);
+  const diffsByYear = groupDiffsByAcademicYear(payload.diffs);
+  const academicYears = Array.from(diffsByYear.keys()).sort(
+    compareAcademicYears,
+  );
+
+  for (const academicYear of academicYears) {
+    applyDiffsForAcademicYear(state, diffsByYear.get(academicYear) || []);
+    assertResolvedReferences(state, academicYear);
+  }
+}
+
+async function loadCatalogState(
+  knownIds: ExistingEntityIds,
+  payload: {
+    degrees: DegreeSeedData[];
+    coursePools: CoursePoolSeedData[];
+    courses: CourseSeedData[];
+  },
+): Promise<CatalogState> {
+  const [existingDegrees, existingCoursePools, existingCourses] =
+    await Promise.all([
+      Degree.find(
+        { _id: { $in: Array.from(knownIds.knownDegrees) } },
+        {
+          _id: 1,
+          name: 1,
+          totalCredits: 1,
+          coursePools: 1,
+          degreeType: 1,
+          ecpDegreeId: 1,
+          baseAcademicYear: 1,
+        },
+      )
+        .lean<DegreeSeedData[]>()
+        .exec(),
+      CoursePool.find(
+        { _id: { $in: Array.from(knownIds.knownCoursePools) } },
+        {
+          _id: 1,
+          name: 1,
+          creditsRequired: 1,
+          courses: 1,
+          baseAcademicYear: 1,
+        },
+      )
+        .lean<CoursePoolSeedData[]>()
+        .exec(),
+      Course.find(
+        { _id: { $in: Array.from(knownIds.knownCourses) } },
+        {
+          _id: 1,
+          title: 1,
+          description: 1,
+          credits: 1,
+          offeredIn: 1,
+          prereqCoreqText: 1,
+          rules: 1,
+          notes: 1,
+          components: 1,
+          baseAcademicYear: 1,
+        },
+      )
+        .lean<CourseSeedData[]>()
+        .exec(),
+    ]);
+
+  const degreeState = new Map(
+    existingDegrees.map((degree) => [degree._id, degree]),
+  );
+  const coursePoolState = new Map(
+    existingCoursePools.map((coursePool) => [coursePool._id, coursePool]),
+  );
+  const courseState = new Map(
+    existingCourses.map((course) => [course._id, course]),
+  );
+
+  for (const degree of payload.degrees) {
+    degreeState.set(degree._id, degree);
+  }
+
+  for (const coursePool of payload.coursePools) {
+    coursePoolState.set(coursePool._id, coursePool);
+  }
+
+  for (const course of payload.courses) {
+    courseState.set(course._id, course);
+  }
+
+  return { degreeState, coursePoolState, courseState };
+}
+
+function groupDiffsByAcademicYear(
+  diffs: NormalizedDiff[],
+): Map<string, NormalizedDiff[]> {
+  const diffsByYear = new Map<string, NormalizedDiff[]>();
+  for (const diff of diffs) {
+    const items = diffsByYear.get(diff.academicYear) || [];
+    items.push(diff);
+    diffsByYear.set(diff.academicYear, items);
+  }
+
+  return diffsByYear;
+}
+
+function applyDiffsForAcademicYear(
+  state: CatalogState,
+  diffs: NormalizedDiff[],
+): void {
+  for (const diff of diffs) {
+    if (diff.entityType === 'Degree') {
+      const degree = state.degreeState.get(diff.entityId);
+      if (!degree) {
+        throw new Error(`Missing degree state for diff ${diff._id}.`);
+      }
+      state.degreeState.set(
+        diff.entityId,
+        applyVersionPatch(degree, diff.patch),
+      );
+      continue;
+    }
+
+    if (diff.entityType === 'CoursePool') {
+      const coursePool = state.coursePoolState.get(diff.entityId);
+      if (!coursePool) {
+        throw new Error(`Missing course pool state for diff ${diff._id}.`);
+      }
+      state.coursePoolState.set(
+        diff.entityId,
+        applyVersionPatch(coursePool, diff.patch),
+      );
+      continue;
+    }
+
+    const course = state.courseState.get(diff.entityId);
+    if (!course) {
+      throw new Error(`Missing course state for diff ${diff._id}.`);
+    }
+    state.courseState.set(diff.entityId, applyVersionPatch(course, diff.patch));
+  }
+}
+
+function assertResolvedReferences(
+  state: CatalogState,
+  academicYear: string,
+): void {
+  for (const degree of state.degreeState.values()) {
+    for (const coursePoolId of degree.coursePools || []) {
+      if (!state.coursePoolState.has(coursePoolId)) {
+        throw new Error(
+          `Academic year ${academicYear}: degree ${degree._id} references missing course pool ${coursePoolId}.`,
+        );
+      }
+    }
+  }
+
+  for (const coursePool of state.coursePoolState.values()) {
+    for (const courseId of coursePool.courses || []) {
+      if (!state.courseState.has(courseId)) {
+        throw new Error(
+          `Academic year ${academicYear}: course pool ${coursePool._id} references missing course ${courseId}.`,
+        );
+      }
+    }
+  }
 }
 
 export async function applyPatchFile(
@@ -393,8 +563,7 @@ export async function applyPatchFile(
   apply: boolean,
 ): Promise<OperationSummary> {
   const academicYear =
-    normalizeAcademicYear(patchFile.academicYear) ||
-    DEFAULT_BASE_ACADEMIC_YEAR;
+    normalizeAcademicYear(patchFile.academicYear) || DEFAULT_BASE_ACADEMIC_YEAR;
 
   const degrees = normalizeBaseDegrees(
     patchFile.baseEntities?.degrees,
@@ -419,9 +588,13 @@ export async function applyPatchFile(
 
   if (apply) {
     for (const degree of degrees) {
-      await Degree.updateOne({ _id: degree._id }, { $set: degree }, {
-        upsert: true,
-      });
+      await Degree.updateOne(
+        { _id: degree._id },
+        { $set: degree },
+        {
+          upsert: true,
+        },
+      );
     }
 
     for (const coursePool of coursePools) {
@@ -433,14 +606,22 @@ export async function applyPatchFile(
     }
 
     for (const course of courses) {
-      await Course.updateOne({ _id: course._id }, { $set: course }, {
-        upsert: true,
-      });
+      await Course.updateOne(
+        { _id: course._id },
+        { $set: course },
+        {
+          upsert: true,
+        },
+      );
     }
 
     for (const diff of diffs) {
       await EntityVersionDiff.updateOne(
-        { entityType: diff.entityType, entityId: diff.entityId, academicYear: diff.academicYear },
+        {
+          entityType: diff.entityType,
+          entityId: diff.entityId,
+          academicYear: diff.academicYear,
+        },
         { $set: diff },
         { upsert: true },
       );

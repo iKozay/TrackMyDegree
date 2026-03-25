@@ -10,12 +10,8 @@ const EntityVersionDiffSchema = new Schema(
     },
     entityId: { type: String, required: true },
     academicYear: { type: String, required: true },
-    patch: {
-      set: { type: Schema.Types.Mixed, default: {} },
-      unset: { type: [String], default: [] },
-      addToSet: { type: Schema.Types.Mixed, default: {} },
-      pull: { type: Schema.Types.Mixed, default: {} },
-    },
+    academicYearStart: { type: Number, required: true },
+    patch: { type: Schema.Types.Mixed, required: true },
   },
   { timestamps: true },
 );
@@ -24,6 +20,11 @@ EntityVersionDiffSchema.index(
   { entityType: 1, entityId: 1, academicYear: 1 },
   { unique: true },
 );
+EntityVersionDiffSchema.index({
+  entityType: 1,
+  entityId: 1,
+  academicYearStart: 1,
+});
 
 export const EntityVersionDiff = model(
   'EntityVersionDiff',

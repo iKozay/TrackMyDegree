@@ -1,20 +1,18 @@
 import { EntityVersionDiff } from '@models';
+import { Operation, applyPatch } from 'fast-json-patch';
 
 export const DEFAULT_BASE_ACADEMIC_YEAR = '2025-2026';
 
 export type VersionedEntityType = 'Degree' | 'CoursePool' | 'Course';
 
-export interface VersionPatch {
-  set?: Record<string, unknown>;
-  unset?: string[];
-  addToSet?: Record<string, unknown[]>;
-  pull?: Record<string, unknown[]>;
-}
+export type JsonPatch = Operation[];
+export type VersionPatch = JsonPatch;
 
 export interface EntityVersionDiffData {
   entityType: VersionedEntityType;
   entityId: string;
   academicYear: string;
+  academicYearStart?: number;
   patch?: VersionPatch;
 }
 
@@ -23,10 +21,11 @@ interface ResolveEntityOptions<T> {
   entityId: string;
   baseEntity: T;
   academicYear?: string;
+  diffs?: EntityVersionDiffData[];
 }
 
 function deepClone<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value));
+  return JSON.parse(JSON.stringify(value)) as T;
 }
 
 function parseAcademicYearStart(value: string): number {
@@ -69,125 +68,14 @@ export function normalizeAcademicYear(value?: string): string | undefined {
   );
 }
 
-function compareAcademicYears(a: string, b: string): number {
+export function compareAcademicYears(a: string, b: string): number {
   return parseAcademicYearStart(a) - parseAcademicYearStart(b);
 }
 
-const PROTOTYPE_POLLUTION_KEYS = new Set([
-  '__proto__',
-  'constructor',
-  'prototype',
-]);
-
-function getSafePathParts(path: string): string[] {
-  const parts = path.split('.');
-
-  if (
-    parts.length === 0 ||
-    parts.some((part) => !part || PROTOTYPE_POLLUTION_KEYS.has(part))
-  ) {
-    throw new Error(`Invalid patch path "${path}".`);
-  }
-
-  return parts;
-}
-
-function setValueAtPath(
-  target: Record<string, unknown>,
-  path: string,
-  value: unknown,
-): void {
-  const parts = getSafePathParts(path);
-  let current: Record<string, unknown> = target;
-
-  for (let index = 0; index < parts.length - 1; index += 1) {
-    const key = parts[index];
-    const next = current[key];
-
-    if (!next || typeof next !== 'object' || Array.isArray(next)) {
-      current[key] = {};
-    }
-
-    current = current[key] as Record<string, unknown>;
-  }
-
-  current[parts[parts.length - 1]] = value;
-}
-
-function getValueAtPath(target: Record<string, unknown>, path: string): unknown {
-  return getSafePathParts(path).reduce<unknown>((current, key) => {
-    if (!current || typeof current !== 'object') return undefined;
-    return (current as Record<string, unknown>)[key];
-  }, target);
-}
-
-function deleteValueAtPath(target: Record<string, unknown>, path: string): void {
-  const parts = getSafePathParts(path);
-  let current: Record<string, unknown> = target;
-
-  for (let index = 0; index < parts.length - 1; index += 1) {
-    const next = current[parts[index]];
-    if (!next || typeof next !== 'object' || Array.isArray(next)) {
-      return;
-    }
-    current = next as Record<string, unknown>;
-  }
-
-  delete current[parts[parts.length - 1]];
-}
-
-function applyArrayOperation(
-  target: Record<string, unknown>,
-  path: string,
-  items: unknown[],
-  mode: 'add' | 'remove',
-): void {
-  const currentValue = getValueAtPath(target, path);
-  const currentArray = Array.isArray(currentValue) ? [...currentValue] : [];
-
-  if (mode === 'add') {
-    for (const item of items) {
-      if (!currentArray.some((existing) => existing === item)) {
-        currentArray.push(item);
-      }
-    }
-  } else {
-    for (const item of items) {
-      let index = currentArray.findIndex((existing) => existing === item);
-      while (index >= 0) {
-        currentArray.splice(index, 1);
-        index = currentArray.findIndex((existing) => existing === item);
-      }
-    }
-  }
-
-  setValueAtPath(target, path, currentArray);
-}
-
 export function applyVersionPatch<T>(baseEntity: T, patch?: VersionPatch): T {
-  if (!patch) {
-    return deepClone(baseEntity);
-  }
-
-  const nextEntity = deepClone(baseEntity) as Record<string, unknown>;
-
-  for (const [path, value] of Object.entries(patch.set || {})) {
-    setValueAtPath(nextEntity, path, deepClone(value));
-  }
-
-  for (const path of patch.unset || []) {
-    deleteValueAtPath(nextEntity, path);
-  }
-
-  for (const [path, items] of Object.entries(patch.addToSet || {})) {
-    applyArrayOperation(nextEntity, path, items, 'add');
-  }
-
-  for (const [path, items] of Object.entries(patch.pull || {})) {
-    applyArrayOperation(nextEntity, path, items, 'remove');
-  }
-
-  return nextEntity as T;
+  if (!patch) return deepClone(baseEntity);
+  const result = applyPatch(deepClone(baseEntity), patch, true, false);
+  return result.newDocument as T;
 }
 
 export function getLatestAcademicYear(
@@ -201,26 +89,24 @@ export function getLatestAcademicYear(
   }, baseAcademicYear);
 }
 
-export async function resolveEntityVersion<T extends { baseAcademicYear?: string }>(
-  options: ResolveEntityOptions<T>,
-): Promise<{ entity: T; academicYear: string }> {
+function normalizeDiff(diff: EntityVersionDiffData): EntityVersionDiffData {
+  const academicYear = normalizeAcademicYear(diff.academicYear) as string;
+
+  return {
+    ...diff,
+    academicYear,
+    academicYearStart:
+      diff.academicYearStart ?? parseAcademicYearStart(academicYear),
+  };
+}
+
+export function resolveEntityVersionFromDiffs<
+  T extends { baseAcademicYear?: string },
+>(options: ResolveEntityOptions<T>): { entity: T; academicYear: string } {
   const baseAcademicYear = normalizeAcademicYear(
     options.baseEntity.baseAcademicYear || DEFAULT_BASE_ACADEMIC_YEAR,
   ) as string;
-
-  const diffs = await EntityVersionDiff.find({
-    entityType: options.entityType,
-    entityId: options.entityId,
-  })
-    .sort({ academicYear: 1 })
-    .lean<EntityVersionDiffData[]>()
-    .exec();
-
-  const normalizedDiffs = diffs.map((diff) => ({
-    ...diff,
-    academicYear: normalizeAcademicYear(diff.academicYear) as string,
-  }));
-
+  const normalizedDiffs = (options.diffs || []).map(normalizeDiff);
   const targetAcademicYear =
     normalizeAcademicYear(options.academicYear) ||
     getLatestAcademicYear(baseAcademicYear, normalizedDiffs);
@@ -231,12 +117,21 @@ export async function resolveEntityVersion<T extends { baseAcademicYear?: string
     );
   }
 
-  const applicableDiffs = normalizedDiffs.filter((diff) => {
-    return (
-      compareAcademicYears(diff.academicYear, baseAcademicYear) > 0 &&
-      compareAcademicYears(diff.academicYear, targetAcademicYear) <= 0
-    );
-  });
+  const applicableDiffs = normalizedDiffs
+    .filter((diff) => {
+      return (
+        compareAcademicYears(diff.academicYear, baseAcademicYear) > 0 &&
+        compareAcademicYears(diff.academicYear, targetAcademicYear) <= 0
+      );
+    })
+    .sort((left, right) => {
+      const byYear = compareAcademicYears(
+        left.academicYear,
+        right.academicYear,
+      );
+      if (byYear !== 0) return byYear;
+      return left.entityId.localeCompare(right.entityId);
+    });
 
   const resolvedEntity = applicableDiffs.reduce<T>((entity, diff) => {
     return applyVersionPatch(entity, diff.patch);
@@ -248,4 +143,79 @@ export async function resolveEntityVersion<T extends { baseAcademicYear?: string
     entity: resolvedEntity,
     academicYear: targetAcademicYear,
   };
+}
+
+async function loadEntityDiffs(
+  entityType: VersionedEntityType,
+  entityIds: string[],
+): Promise<Map<string, EntityVersionDiffData[]>> {
+  const uniqueIds = [...new Set(entityIds)];
+  if (uniqueIds.length === 0) {
+    return new Map();
+  }
+
+  const diffs = await EntityVersionDiff.find({
+    entityType,
+    entityId: { $in: uniqueIds },
+  })
+    .sort({ academicYearStart: 1, academicYear: 1, entityId: 1 })
+    .lean<EntityVersionDiffData[]>()
+    .exec();
+
+  const grouped = new Map<string, EntityVersionDiffData[]>();
+  for (const diff of diffs.map(normalizeDiff)) {
+    const items = grouped.get(diff.entityId) || [];
+    items.push(diff);
+    grouped.set(diff.entityId, items);
+  }
+
+  return grouped;
+}
+
+export async function resolveEntityVersions<
+  T extends { _id: string; baseAcademicYear?: string },
+>(
+  entityType: VersionedEntityType,
+  entities: T[],
+  academicYear?: string,
+): Promise<T[]> {
+  if (entities.length === 0) {
+    return [];
+  }
+
+  const diffsByEntityId = await loadEntityDiffs(
+    entityType,
+    entities.map((entity) => entity._id),
+  );
+
+  return entities.map((entity) => {
+    return resolveEntityVersionFromDiffs({
+      entityType,
+      entityId: entity._id,
+      baseEntity: entity,
+      academicYear,
+      diffs: diffsByEntityId.get(entity._id) || [],
+    }).entity;
+  });
+}
+
+export async function resolveEntityVersion<
+  T extends { baseAcademicYear?: string },
+>(
+  options: ResolveEntityOptions<T>,
+): Promise<{ entity: T; academicYear: string }> {
+  const diffs =
+    options.diffs ||
+    (await EntityVersionDiff.find({
+      entityType: options.entityType,
+      entityId: options.entityId,
+    })
+      .sort({ academicYearStart: 1, academicYear: 1 })
+      .lean<EntityVersionDiffData[]>()
+      .exec());
+
+  return resolveEntityVersionFromDiffs({
+    ...options,
+    diffs,
+  });
 }

@@ -2,7 +2,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import dotenv from 'dotenv';
 import axios from 'axios';
-import { getAllCourses, parseAllDegrees, parseDegree } from '@utils/pythonUtilsApi';
+import {
+  getAllCourses,
+  parseAllDegrees,
+  parseDegree,
+} from '@utils/pythonUtilsApi';
 import { PYTHON_SERVICE_BASE_URL } from '@utils/constants';
 
 dotenv.config();
@@ -11,6 +15,17 @@ interface ScrapeArgs {
   academicYear?: string;
   degree?: string;
   out?: string;
+}
+
+export interface CatalogSnapshotPayload {
+  academicYear: string;
+  scrapedAt: string;
+  source: {
+    pythonServiceBaseUrl: string;
+    mode: 'single-degree' | 'all-degrees';
+  };
+  degrees: unknown[];
+  courses: unknown[];
 }
 
 function parseArgs(argv: string[]): ScrapeArgs {
@@ -49,14 +64,38 @@ function resolveOutputPath(academicYear: string, out?: string): string {
 
 async function ensurePythonServiceReady(): Promise<void> {
   try {
-    await axios.get(`${PYTHON_SERVICE_BASE_URL}/health`, { timeout: 5000 });
+    await axios.get(`${PYTHON_SERVICE_BASE_URL}/health`, { timeout: 50000 });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? error.message : String(error);
     throw new Error(
       `Python scraper service is not reachable at ${PYTHON_SERVICE_BASE_URL}. ${message}`,
     );
   }
+}
+
+export async function scrapeCatalogSnapshot(options: {
+  academicYear: string;
+  degree?: string;
+}): Promise<CatalogSnapshotPayload> {
+  await ensurePythonServiceReady();
+
+  const [degrees, courses] = await Promise.all([
+    options.degree
+      ? Promise.resolve([await parseDegree(options.degree)])
+      : parseAllDegrees(),
+    getAllCourses(),
+  ]);
+
+  return {
+    academicYear: options.academicYear,
+    scrapedAt: new Date().toISOString(),
+    source: {
+      pythonServiceBaseUrl: PYTHON_SERVICE_BASE_URL,
+      mode: options.degree ? 'single-degree' : 'all-degrees',
+    },
+    degrees,
+    courses,
+  };
 }
 
 function printUsage(): void {
@@ -81,36 +120,26 @@ export async function main(): Promise<void> {
     return;
   }
 
-  await ensurePythonServiceReady();
-
-  const [degrees, courses] = await Promise.all([
-    args.degree ? Promise.resolve([await parseDegree(args.degree)]) : parseAllDegrees(),
-    getAllCourses(),
-  ]);
-
   const outputPath = resolveOutputPath(args.academicYear, args.out);
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
-
-  const payload = {
+  const payload = await scrapeCatalogSnapshot({
     academicYear: args.academicYear,
-    scrapedAt: new Date().toISOString(),
-    source: {
-      pythonServiceBaseUrl: PYTHON_SERVICE_BASE_URL,
-      mode: args.degree ? 'single-degree' : 'all-degrees',
-    },
-    degrees,
-    courses,
-  };
+    degree: args.degree,
+  });
 
-  await fs.writeFile(outputPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+  await fs.writeFile(
+    outputPath,
+    `${JSON.stringify(payload, null, 2)}\n`,
+    'utf8',
+  );
 
   console.log(
     JSON.stringify(
       {
         outputPath,
         academicYear: args.academicYear,
-        degreeCount: degrees.length,
-        courseCount: courses.length,
+        degreeCount: payload.degrees.length,
+        courseCount: payload.courses.length,
       },
       null,
       2,

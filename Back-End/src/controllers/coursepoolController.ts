@@ -1,7 +1,10 @@
 import { BaseMongoController } from './baseMongoController';
 import { CoursePool } from '@models';
 import * as Sentry from '@sentry/node';
-import { resolveEntityVersion } from '@services/catalogVersionService';
+import {
+  resolveEntityVersion,
+  resolveEntityVersions,
+} from '@services/catalogVersionService';
 
 export interface CoursePoolData {
   _id: string;
@@ -83,23 +86,16 @@ export class CoursePoolController extends BaseMongoController<any> {
         throw new Error('Failed to fetch course pools');
       }
 
-      return Promise.all(
-        (result.data || []).map(async (cp: any) => {
-          const resolved = await resolveEntityVersion({
-            entityType: 'CoursePool',
-            entityId: cp._id,
-            baseEntity: {
-              _id: cp._id,
-              name: cp.name,
-              creditsRequired: cp.creditsRequired,
-              courses: cp.courses || [],
-              baseAcademicYear: cp.baseAcademicYear,
-            },
-            academicYear,
-          });
-
-          return resolved.entity;
-        }),
+      return resolveEntityVersions(
+        'CoursePool',
+        (result.data || []).map((cp: any) => ({
+          _id: cp._id,
+          name: cp.name,
+          creditsRequired: cp.creditsRequired,
+          courses: cp.courses || [],
+          baseAcademicYear: cp.baseAcademicYear,
+        })),
+        academicYear,
       );
     } catch (error) {
       Sentry.captureException(error);

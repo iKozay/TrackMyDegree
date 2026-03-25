@@ -2,8 +2,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import { Operation } from 'fast-json-patch';
 import { Course, CoursePool, Degree } from '@models';
-import { normalizeAcademicYear, VersionPatch } from '@services/catalogVersionService';
+import {
+  normalizeAcademicYear,
+  VersionPatch,
+} from '@services/catalogVersionService';
 
 dotenv.config();
 
@@ -62,6 +66,9 @@ type DiffPayload = {
   academicYear: string;
   patch: VersionPatch;
 };
+
+// eslint-disable-next-line no-unused-vars
+type BuildDiff<T> = (current: T, next: T) => VersionPatch | null;
 
 type CatalogPatch = {
   academicYear: string;
@@ -168,125 +175,64 @@ function normalizeDegree(degree: DegreeType, academicYear: string): DegreeType {
   };
 }
 
+function compactPatch(patch: VersionPatch): VersionPatch | null {
+  return patch.length > 0 ? patch : null;
+}
+
+function stripVersionMetadata<T extends { baseAcademicYear?: string }>(
+  entity: T,
+): Omit<T, 'baseAcademicYear'> {
+  const { baseAcademicYear, ...rest } = entity;
+  void baseAcademicYear;
+  return rest;
+}
+
 function sameValue(left: unknown, right: unknown): boolean {
   return JSON.stringify(left) === JSON.stringify(right);
 }
 
-function buildMembershipPatch(
-  currentValues: string[] = [],
-  nextValues: string[] = [],
-  path: string,
-): VersionPatch {
-  const current = sortUnique(currentValues);
-  const next = sortUnique(nextValues);
-  const added = next.filter((value) => !current.includes(value));
-  const removed = current.filter((value) => !next.includes(value));
-  const patch: VersionPatch = {};
-
-  if (added.length > 0) {
-    patch.addToSet = { [path]: added };
-  }
-
-  if (removed.length > 0) {
-    patch.pull = { [path]: removed };
-  }
-
-  return patch;
+function escapeJsonPointerSegment(segment: string): string {
+  return segment.replace(/~/g, '~0').replace(/\//g, '~1');
 }
 
-function mergePatch(base: VersionPatch, extra: VersionPatch): VersionPatch {
-  return {
-    set: { ...(base.set || {}), ...(extra.set || {}) },
-    unset: [...(base.unset || []), ...(extra.unset || [])],
-    addToSet: { ...(base.addToSet || {}), ...(extra.addToSet || {}) },
-    pull: { ...(base.pull || {}), ...(extra.pull || {}) },
-  };
-}
-
-function compactPatch(patch: VersionPatch): VersionPatch | null {
-  const nextPatch: VersionPatch = {};
-
-  if (patch.set && Object.keys(patch.set).length > 0) {
-    nextPatch.set = patch.set;
-  }
-
-  if (patch.unset && patch.unset.length > 0) {
-    nextPatch.unset = patch.unset;
-  }
-
-  if (patch.addToSet && Object.keys(patch.addToSet).length > 0) {
-    nextPatch.addToSet = patch.addToSet;
-  }
-
-  if (patch.pull && Object.keys(patch.pull).length > 0) {
-    nextPatch.pull = patch.pull;
-  }
-
-  return Object.keys(nextPatch).length > 0 ? nextPatch : null;
-}
-
-function buildDegreeDiff(
-  current: DegreeType,
-  next: DegreeType,
+function buildJsonPatch<T extends { baseAcademicYear?: string }>(
+  current: T,
+  next: T,
 ): VersionPatch | null {
-  const set: Record<string, unknown> = {};
+  const currentEntity = stripVersionMetadata(current) as Record<
+    string,
+    unknown
+  >;
+  const nextEntity = stripVersionMetadata(next) as Record<string, unknown>;
+  const keys = Array.from(
+    new Set([...Object.keys(currentEntity), ...Object.keys(nextEntity)]),
+  ).sort((left, right) => left.localeCompare(right));
 
-  for (const field of ['name', 'totalCredits', 'degreeType', 'ecpDegreeId'] as const) {
-    if (!sameValue(current[field], next[field])) {
-      set[field] = next[field] ?? '';
+  const patch: Operation[] = [];
+
+  for (const key of keys) {
+    const path = `/${escapeJsonPointerSegment(key)}`;
+    const currentValue = currentEntity[key];
+    const nextValue = nextEntity[key];
+    const hasCurrent = Object.prototype.hasOwnProperty.call(currentEntity, key);
+    const hasNext = Object.prototype.hasOwnProperty.call(nextEntity, key);
+
+    if (!hasNext) {
+      patch.push({ op: 'remove', path });
+      continue;
+    }
+
+    if (!hasCurrent) {
+      patch.push({ op: 'add', path, value: nextValue });
+      continue;
+    }
+
+    if (!sameValue(currentValue, nextValue)) {
+      patch.push({ op: 'replace', path, value: nextValue });
     }
   }
-
-  const patch = mergePatch(
-    Object.keys(set).length > 0 ? { set } : {},
-    buildMembershipPatch(current.coursePools, next.coursePools, 'coursePools'),
-  );
 
   return compactPatch(patch);
-}
-
-function buildCoursePoolDiff(
-  current: CoursePoolType,
-  next: CoursePoolType,
-): VersionPatch | null {
-  const set: Record<string, unknown> = {};
-
-  for (const field of ['name', 'creditsRequired'] as const) {
-    if (!sameValue(current[field], next[field])) {
-      set[field] = next[field];
-    }
-  }
-
-  const patch = mergePatch(
-    Object.keys(set).length > 0 ? { set } : {},
-    buildMembershipPatch(current.courses, next.courses, 'courses'),
-  );
-
-  return compactPatch(patch);
-}
-
-function buildCourseDiff(
-  current: CourseType,
-  next: CourseType,
-): VersionPatch | null {
-  const set: Record<string, unknown> = {};
-
-  for (const field of [
-    'title',
-    'description',
-    'credits',
-    'prereqCoreqText',
-    'notes',
-    'offeredIn',
-    'components',
-    'rules',
-  ] as const) {
-    if (!sameValue(current[field], next[field])) {
-      set[field] = next[field];
-    }
-  }
-
-  return compactPatch(Object.keys(set).length > 0 ? { set } : {});
 }
 
 function normalizeSnapshot(snapshot: CatalogSnapshot): CatalogSnapshot {
@@ -352,13 +298,15 @@ function addBaseEntity<T extends { baseAcademicYear?: string }>(
   });
 }
 
-function appendEntityChanges<T extends { _id: string; baseAcademicYear?: string }>(
+function appendEntityChanges<
+  T extends { _id: string; baseAcademicYear?: string },
+>(
   entities: Iterable<T>,
   currentEntities: Map<string, T>,
   academicYear: string,
   baseEntities: T[],
   diffs: DiffPayload[],
-  buildDiff: (current: T, next: T) => VersionPatch | null,
+  buildDiff: BuildDiff<T>,
 ): void {
   for (const entity of entities) {
     const current = currentEntities.get(entity._id);
@@ -380,16 +328,24 @@ function appendEntityChanges<T extends { _id: string; baseAcademicYear?: string 
 }
 
 function sortPatchCollections(patch: CatalogPatch): void {
-  patch.baseEntities.degrees.sort((left, right) => left._id.localeCompare(right._id));
+  patch.baseEntities.degrees.sort((left, right) =>
+    left._id.localeCompare(right._id),
+  );
   patch.baseEntities.coursePools.sort((left, right) =>
     left._id.localeCompare(right._id),
   );
-  patch.baseEntities.courses.sort((left, right) => left._id.localeCompare(right._id));
-  patch.diffs.degrees.sort((left, right) => left.entityId.localeCompare(right.entityId));
+  patch.baseEntities.courses.sort((left, right) =>
+    left._id.localeCompare(right._id),
+  );
+  patch.diffs.degrees.sort((left, right) =>
+    left.entityId.localeCompare(right.entityId),
+  );
   patch.diffs.coursePools.sort((left, right) =>
     left.entityId.localeCompare(right.entityId),
   );
-  patch.diffs.courses.sort((left, right) => left.entityId.localeCompare(right.entityId));
+  patch.diffs.courses.sort((left, right) =>
+    left.entityId.localeCompare(right.entityId),
+  );
 }
 
 export async function generatePatchFromSnapshotData(
@@ -441,7 +397,7 @@ export async function generatePatchFromSnapshotData(
     academicYear,
     patch.baseEntities.courses,
     patch.diffs.courses,
-    buildCourseDiff,
+    buildJsonPatch,
   );
   appendEntityChanges(
     scrapedCoursePools.values(),
@@ -449,7 +405,7 @@ export async function generatePatchFromSnapshotData(
     academicYear,
     patch.baseEntities.coursePools,
     patch.diffs.coursePools,
-    buildCoursePoolDiff,
+    buildJsonPatch,
   );
   appendEntityChanges(
     scrapedDegrees.values(),
@@ -457,7 +413,7 @@ export async function generatePatchFromSnapshotData(
     academicYear,
     patch.baseEntities.degrees,
     patch.diffs.degrees,
-    buildDegreeDiff,
+    buildJsonPatch,
   );
 
   sortPatchCollections(patch);
@@ -507,7 +463,11 @@ export async function main(): Promise<void> {
     const outputPath = resolveOutputPath(file, out);
 
     await fs.mkdir(path.dirname(outputPath), { recursive: true });
-    await fs.writeFile(outputPath, `${JSON.stringify(patch, null, 2)}\n`, 'utf8');
+    await fs.writeFile(
+      outputPath,
+      `${JSON.stringify(patch, null, 2)}\n`,
+      'utf8',
+    );
 
     console.log(
       JSON.stringify(

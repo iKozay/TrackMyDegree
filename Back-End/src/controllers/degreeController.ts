@@ -2,7 +2,10 @@ import { BaseMongoController } from './baseMongoController';
 import { Degree, CoursePool, Course } from '@models';
 import { DEGREE_WITH_ID_DOES_NOT_EXIST } from '@utils/constants';
 import { DegreeData, CoursePoolInfo, CourseData } from '@shared/degree';
-import { resolveEntityVersion } from '@services/catalogVersionService';
+import {
+  resolveEntityVersion,
+  resolveEntityVersions,
+} from '@services/catalogVersionService';
 
 export interface DegreeXCPData {
   degree_id: string;
@@ -34,17 +37,7 @@ export class DegreeController extends BaseMongoController<any> {
         .lean<CourseData[]>()
         .exec();
 
-      return Promise.all(
-        baseCourses.map(async (course) => {
-          const resolved = await resolveEntityVersion({
-            entityType: 'Course',
-            entityId: course._id,
-            baseEntity: course,
-            academicYear,
-          });
-          return resolved.entity;
-        }),
-      );
+      return resolveEntityVersions('Course', baseCourses, academicYear);
     } catch (error) {
       this.handleError(error, 'readDegreeData');
     }
@@ -152,25 +145,18 @@ export class DegreeController extends BaseMongoController<any> {
         throw new Error('Failed to fetch degrees');
       }
 
-      return Promise.all(
-        (result.data || []).map(async (degree) => {
-          const resolved = await resolveEntityVersion({
-            entityType: 'Degree',
-            entityId: degree._id,
-            baseEntity: {
-              _id: degree._id,
-              name: degree.name,
-              totalCredits: degree.totalCredits,
-              degreeType: degree.degreeType,
-              coursePools: degree.coursePools,
-              ecpDegreeId: degree.ecpDegreeId,
-              baseAcademicYear: degree.baseAcademicYear,
-            },
-            academicYear,
-          });
-
-          return resolved.entity;
-        }),
+      return resolveEntityVersions(
+        'Degree',
+        (result.data || []).map((degree) => ({
+          _id: degree._id,
+          name: degree.name,
+          totalCredits: degree.totalCredits,
+          degreeType: degree.degreeType,
+          coursePools: degree.coursePools,
+          ecpDegreeId: degree.ecpDegreeId,
+          baseAcademicYear: degree.baseAcademicYear,
+        })),
+        academicYear,
       );
     } catch (error) {
       this.handleError(error, 'readAllDegrees');
@@ -207,18 +193,7 @@ export class DegreeController extends BaseMongoController<any> {
         .lean<CoursePoolInfo[]>()
         .exec();
 
-      const resolvedPools = await Promise.all(
-        basePools.map(async (coursePool) => {
-          const resolved = await resolveEntityVersion({
-            entityType: 'CoursePool',
-            entityId: coursePool._id,
-            baseEntity: coursePool,
-            academicYear,
-          });
-          return resolved.entity;
-        }),
-      );
-      return resolvedPools;
+      return resolveEntityVersions('CoursePool', basePools, academicYear);
     } catch (error) {
       this.handleError(error, 'getCoursePoolsForDegree');
     }

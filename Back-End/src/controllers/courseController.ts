@@ -1,7 +1,10 @@
 import { BaseMongoController } from './baseMongoController';
 import { Course } from '@models';
 import { CourseData } from '@shared/degree';
-import { resolveEntityVersion } from '@services/catalogVersionService';
+import {
+  resolveEntityVersion,
+  resolveEntityVersions,
+} from '@services/catalogVersionService';
 
 export class CourseController extends BaseMongoController<any> {
   constructor() {
@@ -80,19 +83,29 @@ export class CourseController extends BaseMongoController<any> {
       const result = await this.findAll(filter, options);
       const courses = result.data || [];
 
-      return Promise.all(
-        courses.map(async (course) => {
-          const resolved = await resolveEntityVersion({
-            entityType: 'Course',
-            entityId: course._id,
-            baseEntity: course,
-            academicYear,
-          });
-          return resolved.entity;
-        }),
-      );
+      return resolveEntityVersions('Course', courses, academicYear);
     } catch (error) {
       this.handleError(error, 'getAllCourses');
+    }
+  }
+
+  async getCoursesByCodes(
+    courseCodes: string[],
+    academicYear?: string,
+  ): Promise<CourseData[]> {
+    try {
+      const uniqueCodes = [...new Set(courseCodes)];
+      if (uniqueCodes.length === 0) {
+        return [];
+      }
+
+      const courses = await Course.find({ _id: { $in: uniqueCodes } })
+        .lean<CourseData[]>()
+        .exec();
+
+      return resolveEntityVersions('Course', courses, academicYear);
+    } catch (error) {
+      this.handleError(error, 'getCoursesByCodes');
     }
   }
 
@@ -146,17 +159,7 @@ export class CourseController extends BaseMongoController<any> {
         throw new Error(result.error || 'Failed to fetch courses');
       }
 
-      return Promise.all(
-        (result.data || []).map(async (course) => {
-          const resolved = await resolveEntityVersion({
-            entityType: 'Course',
-            entityId: course._id,
-            baseEntity: course,
-            academicYear,
-          });
-          return resolved.entity;
-        }),
-      );
+      return resolveEntityVersions('Course', result.data || [], academicYear);
     } catch (error) {
       this.handleError(error, 'getCoursesByPool');
     }
