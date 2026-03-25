@@ -17,6 +17,16 @@ jest.mock('@middleware/cacheGet', () => ({
 
 import courseRoutes from '../routes/courseRoutes';
 
+function getRouteHandler(path: string) {
+  const layer = courseRoutes.stack.find(
+    (entry: any) => entry.route?.path === path,
+  );
+
+  expect(layer?.route?.stack?.[1]?.handle).toEqual(expect.any(Function));
+
+  return layer!.route!.stack[1]!.handle;
+}
+
 function createResponse() {
   const response = {
     status: jest.fn().mockReturnThis(),
@@ -27,10 +37,7 @@ function createResponse() {
 
 describe('courseRoutes nullish parameter branches', () => {
   it('handles missing degreeId values in the by-degree handler', async () => {
-    const layer = courseRoutes.stack.find(
-      (entry: any) => entry.route?.path === '/by-degree/:degreeId',
-    );
-    const handler = layer.route.stack[1].handle;
+    const handler = getRouteHandler('/by-degree/:degreeId');
     const res = createResponse();
 
     await handler({ params: {}, query: {} } as any, res as any, jest.fn());
@@ -40,10 +47,7 @@ describe('courseRoutes nullish parameter branches', () => {
   });
 
   it('handles missing code values in the by-code handler', async () => {
-    const layer = courseRoutes.stack.find(
-      (entry: any) => entry.route?.path === '/:code',
-    );
-    const handler = layer.route.stack[1].handle;
+    const handler = getRouteHandler('/:code');
     const res = createResponse();
 
     await handler({ params: {}, query: {} } as any, res as any, jest.fn());
