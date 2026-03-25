@@ -24,7 +24,7 @@ interface ResolveEntityOptions<T> {
 }
 
 function deepClone<T>(value: T): T {
-  return structuredClone(value);
+  return globalThis.structuredClone(value);
 }
 
 function parseAcademicYearStart(value: string): number {
