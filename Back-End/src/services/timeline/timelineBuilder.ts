@@ -113,7 +113,7 @@ export const buildTimeline = async (
 
   const { degreeData: degree, coursePools, courses } = result;
 
-  await handleEcp(degreeId, coursePools, courses, degree, programInfo.isExtendedCreditProgram ?? false);
+  await handleEcp(coursePools, courses, degree, programInfo.isExtendedCreditProgram ?? false);
 
   if (programInfo.isCoop) {
     await handleCoop(degree, coursePools, courses);
@@ -234,7 +234,6 @@ function addToCoursePools(
 
 // Moved addEcpCoursePools outside buildTimeline for better testability
 export async function handleEcp(
-  degreeId: string,
   coursePools: CoursePoolInfo[],
   courses: Record<string, CourseData>,
   degree: DegreeData,
@@ -253,7 +252,7 @@ export async function handleEcp(
       }
 
       for (const course of Object.values(ecpResult.courses || {})) {
-        courses[course._id] = course;
+        courses[normalizeCourseCode(course._id)] = course;
       }
 
       // If a degree object was passed in, increment its totalCredits by 30
