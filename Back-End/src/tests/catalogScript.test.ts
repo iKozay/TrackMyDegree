@@ -270,4 +270,106 @@ describe('catalog script', () => {
 
     logSpy.mockRestore();
   });
+
+  it('preserves written snapshot path when a later step fails', async () => {
+    mockScrapeCatalogSnapshot.mockResolvedValue({
+      academicYear,
+      scrapedAt: 'now',
+      source: {
+        pythonServiceBaseUrl,
+        mode: allDegreesMode,
+      },
+      degrees: [],
+      courses: [],
+    });
+    mockGeneratePatchFromSnapshotData.mockRejectedValue(
+      new Error('patch generation failed'),
+    );
+
+    process.argv = [
+      'node',
+      catalogScript,
+      academicYearArg,
+      academicYear,
+      '--write-snapshot',
+    ];
+
+    let error: unknown;
+    try {
+      await main();
+    } catch (caughtError) {
+      error = caughtError;
+    }
+
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).name).toBe('CatalogCommandError');
+    expect((error as Error).message).toBe('patch generation failed');
+    expect(
+      (error as { inspectionFiles?: { snapshot?: string } }).inspectionFiles
+        ?.snapshot,
+    ).toEqual(expect.stringContaining('snapshot.json'));
+    expect(
+      (error as { inspectionFiles?: { patch?: string } }).inspectionFiles?.patch,
+    ).toBeUndefined();
+
+    expect(mockFs.writeFile).toHaveBeenCalledWith(
+      expect.stringContaining('snapshot.json'),
+      expect.any(String),
+      'utf8',
+    );
+    expect(mockMongoose.disconnect).toHaveBeenCalled();
+  });
+
+  it('preserves written patch path when apply fails', async () => {
+    mockScrapeCatalogSnapshot.mockResolvedValue({
+      academicYear,
+      scrapedAt: 'now',
+      source: {
+        pythonServiceBaseUrl,
+        mode: allDegreesMode,
+      },
+      degrees: [],
+      courses: [],
+    });
+    mockGeneratePatchFromSnapshotData.mockResolvedValue({
+      academicYear,
+      baseEntities: { degrees: [], coursePools: [], courses: [] },
+      diffs: { degrees: [], coursePools: [], courses: [] },
+    } as never);
+    mockApplyPatchFile.mockRejectedValue(new Error('apply failed'));
+
+    process.argv = [
+      'node',
+      catalogScript,
+      academicYearArg,
+      academicYear,
+      '--write-snapshot',
+      '--write-patch',
+    ];
+
+    let error: unknown;
+    try {
+      await main();
+    } catch (caughtError) {
+      error = caughtError;
+    }
+
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).name).toBe('CatalogCommandError');
+    expect((error as Error).message).toBe('apply failed');
+    expect(
+      (error as { inspectionFiles?: { snapshot?: string } }).inspectionFiles
+        ?.snapshot,
+    ).toEqual(expect.stringContaining('snapshot.json'));
+    expect(
+      (error as { inspectionFiles?: { patch?: string } }).inspectionFiles?.patch,
+    ).toEqual(expect.stringContaining('patch.json'));
+
+    expect(mockFs.writeFile).toHaveBeenCalledWith(
+      expect.stringContaining('patch.json'),
+      expect.any(String),
+      'utf8',
+    );
+    expect(mockMongoose.disconnect).toHaveBeenCalled();
+  });
 });

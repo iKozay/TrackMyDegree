@@ -143,6 +143,42 @@ describe('applyCatalogAcademicYearPatch script', () => {
       referencedCourseIds: new Set(['C']),
     });
 
+    expect(
+      collectReferencedIds({
+        degrees: [],
+        coursePools: [],
+        diffs: [
+          {
+            entityType: 'Degree',
+            entityId: 'D2',
+            patch: [
+              {
+                op: 'replace',
+                path: '/coursePools',
+                value: ['P3'],
+              },
+            ],
+          },
+          {
+            entityType: 'CoursePool',
+            entityId: 'P2',
+            patch: [
+              {
+                op: 'replace',
+                path: '/courses',
+                value: ['C2'],
+              },
+            ],
+          },
+          { entityType: 'Course', entityId: 'C3' },
+        ],
+      }),
+    ).toEqual({
+      referencedDegreeIds: new Set(['D2']),
+      referencedCoursePoolIds: new Set(['P2', 'P3']),
+      referencedCourseIds: new Set(['C2', 'C3']),
+    });
+
     expect(() =>
       validateBaseEntityReferences(
         {
@@ -398,6 +434,56 @@ describe('applyCatalogAcademicYearPatch script', () => {
             entityId: 'D',
             academicYear: '2027-2028',
             academicYearStart: 2027,
+            patch: [{ op: 'replace', path: '/coursePools', value: ['P'] }],
+          },
+        ],
+      }),
+    ).resolves.toBeUndefined();
+  });
+
+  it('validates references when a degree diff points to an unchanged existing course pool', async () => {
+    (Degree.find as jest.Mock).mockReturnValueOnce({
+      lean: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([{ _id: 'D' }]),
+    });
+    (CoursePool.find as jest.Mock).mockReturnValueOnce({
+      lean: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([{ _id: 'P' }]),
+    });
+    (Course.find as jest.Mock).mockReturnValueOnce({
+      lean: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([]),
+    });
+
+    (Degree.find as jest.Mock).mockReturnValueOnce({
+      lean: jest.fn().mockReturnThis(),
+      exec: jest
+        .fn()
+        .mockResolvedValue([{ _id: 'D', name: 'D', totalCredits: 1, coursePools: [] }]),
+    });
+    (CoursePool.find as jest.Mock).mockReturnValueOnce({
+      lean: jest.fn().mockReturnThis(),
+      exec: jest
+        .fn()
+        .mockResolvedValue([{ _id: 'P', name: 'P', creditsRequired: 1, courses: [] }]),
+    });
+    (Course.find as jest.Mock).mockReturnValueOnce({
+      lean: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([]),
+    });
+
+    await expect(
+      validateReferences({
+        degrees: [],
+        coursePools: [],
+        courses: [],
+        diffs: [
+          {
+            _id: 'Degree:D:2026-2027',
+            entityType: 'Degree',
+            entityId: 'D',
+            academicYear: '2026-2027',
+            academicYearStart: 2026,
             patch: [{ op: 'replace', path: '/coursePools', value: ['P'] }],
           },
         ],

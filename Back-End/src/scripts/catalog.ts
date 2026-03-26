@@ -20,6 +20,21 @@ interface CatalogCommandArgs {
   inspectDir?: string;
 }
 
+type InspectionFiles = {
+  snapshot?: string;
+  patch?: string;
+};
+
+export class CatalogCommandError extends Error {
+  inspectionFiles: InspectionFiles;
+
+  constructor(message: string, inspectionFiles: InspectionFiles) {
+    super(message);
+    this.name = 'CatalogCommandError';
+    this.inspectionFiles = inspectionFiles;
+  }
+}
+
 export function parseArgs(argv: string[]): CatalogCommandArgs {
   const valueArgs = new Map<string, string>();
   const flagArgs = new Set<string>();
@@ -126,17 +141,23 @@ export async function main(): Promise<void> {
 
   await mongoose.connect(getMongoUri());
 
+  const inspectionFiles: InspectionFiles = {};
+
   try {
     const snapshot = await scrapeCatalogSnapshot({
       academicYear: args.academicYear,
       degree: args.degree,
     });
-    const snapshotPath = await maybeWriteSnapshot(snapshot, args);
+    inspectionFiles.snapshot = await maybeWriteSnapshot(snapshot, args);
 
     const patch = await generatePatchFromSnapshotData(
       snapshot as Parameters<typeof generatePatchFromSnapshotData>[0],
     );
-    const patchPath = await maybeWritePatch(patch, snapshot.academicYear, args);
+    inspectionFiles.patch = await maybeWritePatch(
+      patch,
+      snapshot.academicYear,
+      args,
+    );
 
     const summary = await applyPatchFile(patch, args.apply);
 
@@ -145,16 +166,16 @@ export async function main(): Promise<void> {
         {
           mode: args.apply ? 'apply' : 'dry-run',
           academicYear: snapshot.academicYear,
-          inspectionFiles: {
-            snapshot: snapshotPath,
-            patch: patchPath,
-          },
+          inspectionFiles,
           summary,
         },
         null,
         2,
       ),
     );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new CatalogCommandError(message, inspectionFiles);
   } finally {
     await mongoose.disconnect();
   }
@@ -166,10 +187,13 @@ if (require.main === module) {
     try {
       await main();
     } catch (error) {
+      const inspectionFiles =
+        error instanceof CatalogCommandError ? error.inspectionFiles : {};
       console.error(
         JSON.stringify(
           {
             error: error instanceof Error ? error.message : String(error),
+            inspectionFiles,
           },
           null,
           2,

@@ -223,6 +223,7 @@ export function collectReferencedIds(payload: {
   coursePools: CoursePoolSeedData[];
   diffs: Array<{
     entityType: VersionedEntityType;
+    patch?: JsonPatch;
     entityId: string;
   }>;
 }): {
@@ -230,6 +231,32 @@ export function collectReferencedIds(payload: {
   referencedCoursePoolIds: Set<string>;
   referencedCourseIds: Set<string>;
 } {
+  const extractStringArrayValues = (
+    diffs: Array<{
+      entityType: VersionedEntityType;
+      patch?: JsonPatch;
+    }>,
+    entityType: VersionedEntityType,
+    field: string,
+  ): string[] => {
+    return diffs
+      .filter((diff) => diff.entityType === entityType)
+      .flatMap((diff) => diff.patch || [])
+      .flatMap((operation) => {
+        if (
+          (operation.op === 'add' || operation.op === 'replace') &&
+          operation.path === `/${field}` &&
+          Array.isArray(operation.value)
+        ) {
+          return operation.value.filter(
+            (value): value is string => typeof value === 'string',
+          );
+        }
+
+        return [];
+      });
+  };
+
   return {
     referencedDegreeIds: new Set(
       payload.diffs
@@ -238,12 +265,14 @@ export function collectReferencedIds(payload: {
     ),
     referencedCoursePoolIds: new Set([
       ...payload.degrees.flatMap((degree) => degree.coursePools || []),
+      ...extractStringArrayValues(payload.diffs, 'Degree', 'coursePools'),
       ...payload.diffs
         .filter((diff) => diff.entityType === 'CoursePool')
         .map((diff) => diff.entityId),
     ]),
     referencedCourseIds: new Set([
       ...payload.coursePools.flatMap((coursePool) => coursePool.courses || []),
+      ...extractStringArrayValues(payload.diffs, 'CoursePool', 'courses'),
       ...payload.diffs
         .filter((diff) => diff.entityType === 'Course')
         .map((diff) => diff.entityId),
