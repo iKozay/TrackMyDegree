@@ -1,6 +1,7 @@
 import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { adminController } from '@controllers/adminController';
+import { CatalogError, runCatalog } from '@services/catalogService';
 import {
   adminCheckMiddleware,
   authMiddleware,
@@ -8,7 +9,7 @@ import {
 import {
   seedAllDegreeData,
   seedDegreeData,
-} from '../controllers/seedingController';
+} from '@controllers/seedingController';
 const router = express.Router();
 
 // ==========================
@@ -24,6 +25,7 @@ router.use(adminCheckMiddleware);
 
 const INTERNAL_SERVER_ERROR = 'Internal server error';
 const COLLECTION_NAME_REQUIRED = 'Collection name is required';
+const ACADEMIC_YEAR_REQUIRED = 'Academic year is required';
 const NOT_AVAILABLE = 'not available';
 
 /**
@@ -225,7 +227,9 @@ router.delete(
         return;
       }
 
-      const count = await adminController.clearCollection(collectionName as string);
+      const count = await adminController.clearCollection(
+        collectionName as string,
+      );
       res.status(HTTP.OK).json({
         success: true,
         message: `${count} documents cleared successfully`,
@@ -278,6 +282,58 @@ router.get('/connection-status', (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error in GET /admin/connection-status', error);
     res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+  }
+});
+
+router.post('/catalog', async (req: Request, res: Response) => {
+  try {
+    const {
+      academicYear,
+      degree,
+      apply = false,
+      writeSnapshot = false,
+      writePatch = false,
+      inspectDir,
+    } = req.body || {};
+
+    if (!academicYear || typeof academicYear !== 'string') {
+      res.status(HTTP.BAD_REQUEST).json({
+        success: false,
+        message: ACADEMIC_YEAR_REQUIRED,
+      });
+      return;
+    }
+
+    const result = await runCatalog({
+      academicYear,
+      // Omit degree to import all degrees for the academic year.
+      degree: typeof degree === 'string' ? degree : undefined,
+      apply: Boolean(apply),
+      writeSnapshot: Boolean(writeSnapshot),
+      writePatch: Boolean(writePatch),
+      inspectDir: typeof inspectDir === 'string' ? inspectDir : undefined,
+    });
+
+    res.status(HTTP.OK).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error('Error in POST /admin/catalog', error);
+
+    if (error instanceof CatalogError) {
+      res.status(HTTP.SERVER_ERR).json({
+        success: false,
+        error: error.message,
+        inspectionFiles: error.inspectionFiles,
+      });
+      return;
+    }
+
+    res.status(HTTP.SERVER_ERR).json({
+      success: false,
+      message: INTERNAL_SERVER_ERROR,
+    });
   }
 });
 

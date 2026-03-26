@@ -40,7 +40,6 @@
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:worker\"",
     "dev:api": "nodemon --config nodemon.json",
     "dev:worker": "nodemon --config nodemon.worker.json",
-    "catalog": "ts-node -r tsconfig-paths/register scripts/catalog.ts",
     "test": "jest --coverage --verbose",
     "test:integration": "jest --config jest.integration.config.js",
     "lint": "eslint . --quiet",

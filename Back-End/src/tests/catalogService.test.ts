@@ -1,26 +1,23 @@
 import fs from 'node:fs/promises';
-import mongoose from 'mongoose';
 import {
-  getMongoUri,
-  main,
+  CatalogError,
+  CatalogResult,
   maybeWritePatch,
   maybeWriteSnapshot,
-  parseArgs,
   resolveInspectDir,
+  runCatalog,
   writeInspectionFile,
-} from '../scripts/catalog';
+} from '../services/catalogService';
 import { applyPatchFile } from '../scripts/applyCatalogAcademicYearPatch';
 import { generatePatchFromSnapshotData } from '../scripts/generateCatalogPatchFromSnapshot';
 import { scrapeCatalogSnapshot } from '../scripts/scrapeCatalogSnapshot';
 
 jest.mock('node:fs/promises');
-jest.mock('mongoose');
 jest.mock('../scripts/applyCatalogAcademicYearPatch');
 jest.mock('../scripts/generateCatalogPatchFromSnapshot');
 jest.mock('../scripts/scrapeCatalogSnapshot');
 
 const mockFs = fs as jest.Mocked<typeof fs>;
-const mockMongoose = mongoose as jest.Mocked<typeof mongoose>;
 const mockApplyPatchFile = applyPatchFile as jest.MockedFunction<
   typeof applyPatchFile
 >;
@@ -32,69 +29,15 @@ const mockScrapeCatalogSnapshot = scrapeCatalogSnapshot as jest.MockedFunction<
   typeof scrapeCatalogSnapshot
 >;
 
-describe('catalog script', () => {
-  const originalArgv = process.argv;
-  const originalEnv = process.env;
+describe('catalogService', () => {
   const academicYear = '2026-2027';
   const pythonServiceBaseUrl = 'http://localhost:15001';
   const allDegreesMode = 'all-degrees' as const;
-  const catalogScript = 'catalog.ts';
-  const degreeId = 'COMP';
-  const academicYearArg = '--academic-year';
 
   beforeEach(() => {
     jest.clearAllMocks();
-    process.argv = [...originalArgv];
-    process.env = { ...originalEnv };
     mockFs.mkdir.mockResolvedValue(undefined as never);
     mockFs.writeFile.mockResolvedValue(undefined);
-    mockMongoose.connect.mockResolvedValue(mockMongoose as never);
-    mockMongoose.disconnect.mockResolvedValue(undefined);
-  });
-
-  afterAll(() => {
-    process.argv = originalArgv;
-    process.env = originalEnv;
-  });
-
-  it('parses command arguments', () => {
-    expect(
-      parseArgs([
-        academicYearArg,
-        academicYear,
-        '--degree',
-        degreeId,
-        '--apply',
-        '--write-snapshot',
-        '--write-patch',
-        '--inspect-dir',
-        './tmp/out',
-      ]),
-    ).toEqual({
-      academicYear,
-      degree: degreeId,
-      apply: true,
-      writeSnapshot: true,
-      writePatch: true,
-      inspectDir: './tmp/out',
-    });
-
-    expect(parseArgs(['noop', '--apply', academicYearArg])).toEqual({
-      academicYear: undefined,
-      degree: undefined,
-      apply: true,
-      writeSnapshot: false,
-      writePatch: false,
-      inspectDir: undefined,
-    });
-  });
-
-  it('returns configured or default mongo uri', () => {
-    delete (process.env as any).MONGODB_URI;
-    expect(getMongoUri()).toContain('localhost:27017');
-
-    process.env.MONGODB_URI = 'mongodb://custom';
-    expect(getMongoUri()).toBe('mongodb://custom');
   });
 
   it('resolves inspect dir', () => {
@@ -134,16 +77,12 @@ describe('catalog script', () => {
     ).resolves.toBeUndefined();
 
     await expect(
-      maybeWritePatch(
-        { patch: true },
+      maybeWritePatch({ patch: true }, academicYear, {
         academicYear,
-        {
-          academicYear,
-          apply: false,
-          writeSnapshot: false,
-          writePatch: false,
-        },
-      ),
+        apply: false,
+        writeSnapshot: false,
+        writePatch: false,
+      }),
     ).resolves.toBeUndefined();
 
     await expect(
@@ -153,40 +92,21 @@ describe('catalog script', () => {
         writeSnapshot: true,
         writePatch: false,
       }),
+      // eslint-disable-next-line sonarjs/no-duplicate-string
     ).resolves.toContain('snapshot.json');
 
     await expect(
-      maybeWritePatch(
-        { patch: true },
+      maybeWritePatch({ patch: true }, academicYear, {
         academicYear,
-        {
-          academicYear,
-          apply: false,
-          writeSnapshot: false,
-          writePatch: true,
-        },
-      ),
+        apply: false,
+        writeSnapshot: false,
+        writePatch: true,
+      }),
+      // eslint-disable-next-line sonarjs/no-duplicate-string
     ).resolves.toContain('patch.json');
   });
 
-  it('prints usage and exits early when academic year is missing', async () => {
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-
-    process.argv = ['node', catalogScript];
-    process.exitCode = 0;
-
-    await main();
-
-    expect(process.exitCode).toBe(1);
-    expect(mockMongoose.connect).not.toHaveBeenCalled();
-    expect(logSpy).toHaveBeenCalled();
-
-    logSpy.mockRestore();
-  });
-
   it('runs end-to-end orchestration', async () => {
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-
     mockScrapeCatalogSnapshot.mockResolvedValue({
       academicYear,
       scrapedAt: 'now',
@@ -209,34 +129,37 @@ describe('catalog script', () => {
       upsertedDiffs: 0,
     });
 
-    process.argv = [
-      'node',
-      catalogScript,
-      academicYearArg,
+    await expect(
+      runCatalog({
+        academicYear,
+        apply: true,
+        writeSnapshot: true,
+        writePatch: true,
+      }),
+    ).resolves.toEqual<CatalogResult>({
+      mode: 'apply',
       academicYear,
-      '--apply',
-      '--write-snapshot',
-      '--write-patch',
-    ];
+      inspectionFiles: {
+        snapshot: expect.stringContaining('snapshot.json'),
+        patch: expect.stringContaining('patch.json'),
+      },
+      summary: {
+        upsertedDegrees: 0,
+        upsertedCoursePools: 0,
+        upsertedCourses: 0,
+        upsertedDiffs: 0,
+      },
+    } as unknown as CatalogResult);
 
-    await main();
-
-    expect(mockMongoose.connect).toHaveBeenCalled();
     expect(mockScrapeCatalogSnapshot).toHaveBeenCalledWith({
       academicYear,
       degree: undefined,
     });
     expect(mockGeneratePatchFromSnapshotData).toHaveBeenCalled();
     expect(mockApplyPatchFile).toHaveBeenCalledWith(expect.any(Object), true);
-    expect(mockMongoose.disconnect).toHaveBeenCalled();
-    expect(logSpy).toHaveBeenCalled();
-
-    logSpy.mockRestore();
   });
 
   it('runs in dry-run mode when apply is omitted', async () => {
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-
     mockScrapeCatalogSnapshot.mockResolvedValue({
       academicYear,
       scrapedAt: 'now',
@@ -259,16 +182,17 @@ describe('catalog script', () => {
       upsertedDiffs: 0,
     });
 
-    process.argv = ['node', catalogScript, academicYearArg, academicYear];
-
-    await main();
-
-    expect(mockApplyPatchFile).toHaveBeenCalledWith(expect.any(Object), false);
-    expect(logSpy).toHaveBeenCalledWith(
-      expect.stringContaining('"mode": "dry-run"'),
-    );
-
-    logSpy.mockRestore();
+    await expect(
+      runCatalog({
+        academicYear,
+        apply: false,
+        writeSnapshot: false,
+        writePatch: false,
+      }),
+    ).resolves.toMatchObject({
+      mode: 'dry-run',
+      academicYear,
+    });
   });
 
   it('preserves written snapshot path when a later step fails', async () => {
@@ -286,30 +210,28 @@ describe('catalog script', () => {
       new Error('patch generation failed'),
     );
 
-    process.argv = [
-      'node',
-      catalogScript,
-      academicYearArg,
-      academicYear,
-      '--write-snapshot',
-    ];
-
     let error: unknown;
     try {
-      await main();
+      await runCatalog({
+        academicYear,
+        apply: false,
+        writeSnapshot: true,
+        writePatch: false,
+      });
     } catch (caughtError) {
       error = caughtError;
     }
 
     expect(error).toBeInstanceOf(Error);
-    expect((error as Error).name).toBe('CatalogCommandError');
+    expect((error as Error).name).toBe('CatalogError');
     expect((error as Error).message).toBe('patch generation failed');
     expect(
       (error as { inspectionFiles?: { snapshot?: string } }).inspectionFiles
         ?.snapshot,
     ).toEqual(expect.stringContaining('snapshot.json'));
     expect(
-      (error as { inspectionFiles?: { patch?: string } }).inspectionFiles?.patch,
+      (error as { inspectionFiles?: { patch?: string } }).inspectionFiles
+        ?.patch,
     ).toBeUndefined();
 
     expect(mockFs.writeFile).toHaveBeenCalledWith(
@@ -317,7 +239,6 @@ describe('catalog script', () => {
       expect.any(String),
       'utf8',
     );
-    expect(mockMongoose.disconnect).toHaveBeenCalled();
   });
 
   it('preserves written patch path when apply fails', async () => {
@@ -338,31 +259,27 @@ describe('catalog script', () => {
     } as never);
     mockApplyPatchFile.mockRejectedValue(new Error('apply failed'));
 
-    process.argv = [
-      'node',
-      catalogScript,
-      academicYearArg,
-      academicYear,
-      '--write-snapshot',
-      '--write-patch',
-    ];
-
     let error: unknown;
     try {
-      await main();
+      await runCatalog({
+        academicYear,
+        apply: false,
+        writeSnapshot: true,
+        writePatch: true,
+      });
     } catch (caughtError) {
       error = caughtError;
     }
 
-    expect(error).toBeInstanceOf(Error);
-    expect((error as Error).name).toBe('CatalogCommandError');
+    expect(error).toBeInstanceOf(CatalogError);
     expect((error as Error).message).toBe('apply failed');
     expect(
       (error as { inspectionFiles?: { snapshot?: string } }).inspectionFiles
         ?.snapshot,
     ).toEqual(expect.stringContaining('snapshot.json'));
     expect(
-      (error as { inspectionFiles?: { patch?: string } }).inspectionFiles?.patch,
+      (error as { inspectionFiles?: { patch?: string } }).inspectionFiles
+        ?.patch,
     ).toEqual(expect.stringContaining('patch.json'));
 
     expect(mockFs.writeFile).toHaveBeenCalledWith(
@@ -370,6 +287,5 @@ describe('catalog script', () => {
       expect.any(String),
       'utf8',
     );
-    expect(mockMongoose.disconnect).toHaveBeenCalled();
   });
 });
