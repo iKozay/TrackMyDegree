@@ -3,6 +3,8 @@ import { RuleSchema } from './rule';
 
 const DEFAULT_BASE_ACADEMIC_YEAR = '2025-2026';
 
+const DEFAULT_BASE_ACADEMIC_YEAR = '2025-2026';
+
 const CourseSchema = new Schema({
   _id: { type: String }, // course code ex: 'SOEN 490'
   title: { type: String, required: true },
