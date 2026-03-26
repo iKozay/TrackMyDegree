@@ -31,7 +31,7 @@ export async function ensurePythonServiceReady(): Promise<void> {
   }
 }
 
-export async function scrapeCatalogSnapshot(options: {
+export async function fetchCatalogSnapshot(options: {
   academicYear: string;
   degree?: string;
 }): Promise<CatalogSnapshotPayload> {

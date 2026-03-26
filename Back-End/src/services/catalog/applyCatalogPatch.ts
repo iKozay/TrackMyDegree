@@ -534,7 +534,7 @@ export function assertResolvedReferences(
   }
 }
 
-export async function applyPatchFile(
+export async function applyCatalogPatch(
   patchFile: CatalogPatchFile,
   apply: boolean,
 ): Promise<OperationSummary> {

@@ -323,7 +323,7 @@ export function sortPatchCollections(patch: CatalogPatch): void {
   );
 }
 
-export async function generatePatchFromSnapshotData(
+export async function buildCatalogPatchFromSnapshot(
   rawSnapshot: CatalogSnapshot,
 ): Promise<CatalogPatch> {
   const snapshot = normalizeSnapshot(rawSnapshot);

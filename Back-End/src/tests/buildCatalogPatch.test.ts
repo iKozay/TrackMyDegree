@@ -3,10 +3,10 @@ import {
   addBaseEntity,
   appendEntityChanges,
   buildCurrentEntityMaps,
+  buildCatalogPatchFromSnapshot,
   buildJsonPatch,
   compactPatch,
   escapeJsonPointerSegment,
-  generatePatchFromSnapshotData,
   normalizeCourse,
   normalizeCoursePool,
   normalizeDegree,
@@ -16,7 +16,7 @@ import {
   sortPatchCollections,
   sortUnique,
   stripVersionMetadata,
-} from '../scripts/generateCatalogPatchFromSnapshot';
+} from '@services/catalog/buildCatalogPatch';
 
 jest.mock('@models', () => ({
   Degree: { find: jest.fn() },
@@ -24,7 +24,7 @@ jest.mock('@models', () => ({
   Course: { find: jest.fn() },
 }));
 
-describe('generateCatalogPatchFromSnapshot script', () => {
+describe('buildCatalogPatch', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (Degree.find as jest.Mock).mockReturnValue({
@@ -231,7 +231,7 @@ describe('generateCatalogPatchFromSnapshot script', () => {
   });
 
   it('generates patch data from snapshot', async () => {
-    const patch = await generatePatchFromSnapshotData({
+    const patch = await buildCatalogPatchFromSnapshot({
       academicYear: '2026-2027',
       degrees: [
         {

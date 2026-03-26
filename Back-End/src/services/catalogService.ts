@@ -2,12 +2,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Course, CoursePool, Degree } from '@models';
 import { normalizeAcademicYear } from '@services/catalogVersionService';
-import { applyPatchFile } from '../scripts/applyCatalogAcademicYearPatch';
-import { generatePatchFromSnapshotData } from '../scripts/generateCatalogPatchFromSnapshot';
+import { applyCatalogPatch } from '@services/catalog/applyCatalogPatch';
+import { buildCatalogPatchFromSnapshot } from '@services/catalog/buildCatalogPatch';
 import {
   CatalogSnapshotPayload,
-  scrapeCatalogSnapshot,
-} from '../scripts/scrapeCatalogSnapshot';
+  fetchCatalogSnapshot,
+} from '@services/catalog/fetchCatalogSnapshot';
 
 export interface CatalogArgs {
   academicYear: string;
@@ -34,7 +34,7 @@ export type CatalogResult = {
     updatedCoursePools: number;
     updatedCourses: number;
   };
-  summary: Awaited<ReturnType<typeof applyPatchFile>>;
+  summary: Awaited<ReturnType<typeof applyCatalogPatch>>;
 };
 
 export class CatalogError extends Error {
@@ -145,14 +145,14 @@ export async function runCatalog(args: CatalogArgs): Promise<CatalogResult> {
     const backfill = await maybeBackfillBaseAcademicYear(
       args.backfillBaseAcademicYear,
     );
-    const snapshot = await scrapeCatalogSnapshot({
+    const snapshot = await fetchCatalogSnapshot({
       academicYear: args.academicYear,
       degree: args.degree,
     });
     inspectionFiles.snapshot = await maybeWriteSnapshot(snapshot, args);
 
-    const patch = await generatePatchFromSnapshotData(
-      snapshot as Parameters<typeof generatePatchFromSnapshotData>[0],
+    const patch = await buildCatalogPatchFromSnapshot(
+      snapshot as Parameters<typeof buildCatalogPatchFromSnapshot>[0],
     );
     inspectionFiles.patch = await maybeWritePatch(
       patch,
@@ -160,7 +160,7 @@ export async function runCatalog(args: CatalogArgs): Promise<CatalogResult> {
       args,
     );
 
-    const summary = await applyPatchFile(patch, args.apply);
+    const summary = await applyCatalogPatch(patch, args.apply);
 
     return {
       mode: args.apply ? 'apply' : 'dry-run',

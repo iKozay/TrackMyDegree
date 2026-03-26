@@ -1,7 +1,7 @@
 import { Course, CoursePool, Degree, EntityVersionDiff } from '@models';
 import {
   applyDiffsForAcademicYear,
-  applyPatchFile,
+  applyCatalogPatch,
   assertResolvedReferences,
   collectReferencedIds,
   ensurePatchShape,
@@ -16,8 +16,8 @@ import {
   validateBaseEntityReferences,
   validateDiffTarget,
   validateReferences,
-} from '../scripts/applyCatalogAcademicYearPatch';
-import * as applyCatalogAcademicYearPatchModule from '../scripts/applyCatalogAcademicYearPatch';
+} from '../services/catalog/applyCatalogPatch';
+import * as applyCatalogPatchModule from '../services/catalog/applyCatalogPatch';
 
 jest.mock('@models', () => ({
   Degree: { find: jest.fn(), updateOne: jest.fn() },
@@ -26,7 +26,7 @@ jest.mock('@models', () => ({
   EntityVersionDiff: { updateOne: jest.fn() },
 }));
 
-describe('applyCatalogAcademicYearPatch script', () => {
+describe('applyCatalogPatch', () => {
   const academicYear = '2026-2027';
   const courseDiffId = `Course:C:${academicYear}`;
   const degreeDiffId = `Degree:D:${academicYear}`;
@@ -458,7 +458,7 @@ describe('applyCatalogAcademicYearPatch script', () => {
 
   it('uses the empty-diff fallback while validating references', async () => {
     const groupSpy = jest
-      .spyOn(applyCatalogAcademicYearPatchModule, 'groupDiffsByAcademicYear')
+      .spyOn(applyCatalogPatchModule, 'groupDiffsByAcademicYear')
       .mockReturnValue(new Map([['2026-2027', undefined as any]]));
 
     await expect(
@@ -497,14 +497,14 @@ describe('applyCatalogAcademicYearPatch script', () => {
       },
     };
 
-    await expect(applyPatchFile(patchFile as any, false)).resolves.toEqual({
+    await expect(applyCatalogPatch(patchFile as any, false)).resolves.toEqual({
       upsertedDegrees: 1,
       upsertedCoursePools: 1,
       upsertedCourses: 1,
       upsertedDiffs: 1,
     });
 
-    await applyPatchFile(patchFile as any, true);
+    await applyCatalogPatch(patchFile as any, true);
     expect(Degree.updateOne).toHaveBeenCalled();
     expect(CoursePool.updateOne).toHaveBeenCalled();
     expect(Course.updateOne).toHaveBeenCalled();
@@ -513,7 +513,7 @@ describe('applyCatalogAcademicYearPatch script', () => {
 
   it('falls back to the default academic year when none is provided', async () => {
     await expect(
-      applyPatchFile(
+      applyCatalogPatch(
         {
           academicYear: '',
         } as any,

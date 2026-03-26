@@ -11,9 +11,9 @@ import {
   runCatalog,
   writeInspectionFile,
 } from '../services/catalogService';
-import { applyPatchFile } from '../scripts/applyCatalogAcademicYearPatch';
-import { generatePatchFromSnapshotData } from '../scripts/generateCatalogPatchFromSnapshot';
-import { scrapeCatalogSnapshot } from '../scripts/scrapeCatalogSnapshot';
+import { applyCatalogPatch } from '../services/catalog/applyCatalogPatch';
+import { buildCatalogPatchFromSnapshot } from '../services/catalog/buildCatalogPatch';
+import { fetchCatalogSnapshot } from '../services/catalog/fetchCatalogSnapshot';
 
 jest.mock('node:fs/promises');
 jest.mock('@models', () => ({
@@ -21,23 +21,23 @@ jest.mock('@models', () => ({
   CoursePool: { updateMany: jest.fn() },
   Course: { updateMany: jest.fn() },
 }));
-jest.mock('../scripts/applyCatalogAcademicYearPatch');
-jest.mock('../scripts/generateCatalogPatchFromSnapshot');
-jest.mock('../scripts/scrapeCatalogSnapshot');
+jest.mock('../services/catalog/applyCatalogPatch');
+jest.mock('../services/catalog/buildCatalogPatch');
+jest.mock('../services/catalog/fetchCatalogSnapshot');
 
 const mockFs = fs as jest.Mocked<typeof fs>;
 const mockDegree = Degree as jest.Mocked<typeof Degree>;
 const mockCoursePool = CoursePool as jest.Mocked<typeof CoursePool>;
 const mockCourse = Course as jest.Mocked<typeof Course>;
-const mockApplyPatchFile = applyPatchFile as jest.MockedFunction<
-  typeof applyPatchFile
+const mockApplyCatalogPatch = applyCatalogPatch as jest.MockedFunction<
+  typeof applyCatalogPatch
 >;
-const mockGeneratePatchFromSnapshotData =
-  generatePatchFromSnapshotData as jest.MockedFunction<
-    typeof generatePatchFromSnapshotData
+const mockBuildCatalogPatchFromSnapshot =
+  buildCatalogPatchFromSnapshot as jest.MockedFunction<
+    typeof buildCatalogPatchFromSnapshot
   >;
-const mockScrapeCatalogSnapshot = scrapeCatalogSnapshot as jest.MockedFunction<
-  typeof scrapeCatalogSnapshot
+const mockFetchCatalogSnapshot = fetchCatalogSnapshot as jest.MockedFunction<
+  typeof fetchCatalogSnapshot
 >;
 
 describe('catalogService', () => {
@@ -176,7 +176,7 @@ describe('catalogService', () => {
   });
 
   it('runs end-to-end orchestration', async () => {
-    mockScrapeCatalogSnapshot.mockResolvedValue({
+    mockFetchCatalogSnapshot.mockResolvedValue({
       academicYear,
       scrapedAt: 'now',
       source: {
@@ -186,12 +186,12 @@ describe('catalogService', () => {
       degrees: [],
       courses: [],
     });
-    mockGeneratePatchFromSnapshotData.mockResolvedValue({
+    mockBuildCatalogPatchFromSnapshot.mockResolvedValue({
       academicYear,
       baseEntities: { degrees: [], coursePools: [], courses: [] },
       diffs: { degrees: [], coursePools: [], courses: [] },
     } as never);
-    mockApplyPatchFile.mockResolvedValue({
+    mockApplyCatalogPatch.mockResolvedValue({
       upsertedDegrees: 0,
       upsertedCoursePools: 0,
       upsertedCourses: 0,
@@ -227,16 +227,16 @@ describe('catalogService', () => {
       },
     } as unknown as CatalogResult);
 
-    expect(mockScrapeCatalogSnapshot).toHaveBeenCalledWith({
+    expect(mockFetchCatalogSnapshot).toHaveBeenCalledWith({
       academicYear,
       degree: undefined,
     });
-    expect(mockGeneratePatchFromSnapshotData).toHaveBeenCalled();
-    expect(mockApplyPatchFile).toHaveBeenCalledWith(expect.any(Object), true);
+    expect(mockBuildCatalogPatchFromSnapshot).toHaveBeenCalled();
+    expect(mockApplyCatalogPatch).toHaveBeenCalledWith(expect.any(Object), true);
   });
 
   it('runs in dry-run mode when apply is omitted', async () => {
-    mockScrapeCatalogSnapshot.mockResolvedValue({
+    mockFetchCatalogSnapshot.mockResolvedValue({
       academicYear,
       scrapedAt: 'now',
       source: {
@@ -246,12 +246,12 @@ describe('catalogService', () => {
       degrees: [],
       courses: [],
     });
-    mockGeneratePatchFromSnapshotData.mockResolvedValue({
+    mockBuildCatalogPatchFromSnapshot.mockResolvedValue({
       academicYear,
       baseEntities: { degrees: [], coursePools: [], courses: [] },
       diffs: { degrees: [], coursePools: [], courses: [] },
     } as never);
-    mockApplyPatchFile.mockResolvedValue({
+    mockApplyCatalogPatch.mockResolvedValue({
       upsertedDegrees: 0,
       upsertedCoursePools: 0,
       upsertedCourses: 0,
@@ -272,7 +272,7 @@ describe('catalogService', () => {
   });
 
   it('preserves written snapshot path when a later step fails', async () => {
-    mockScrapeCatalogSnapshot.mockResolvedValue({
+    mockFetchCatalogSnapshot.mockResolvedValue({
       academicYear,
       scrapedAt: 'now',
       source: {
@@ -282,7 +282,7 @@ describe('catalogService', () => {
       degrees: [],
       courses: [],
     });
-    mockGeneratePatchFromSnapshotData.mockRejectedValue(
+    mockBuildCatalogPatchFromSnapshot.mockRejectedValue(
       new Error('patch generation failed'),
     );
 
@@ -318,7 +318,7 @@ describe('catalogService', () => {
   });
 
   it('preserves written patch path when apply fails', async () => {
-    mockScrapeCatalogSnapshot.mockResolvedValue({
+    mockFetchCatalogSnapshot.mockResolvedValue({
       academicYear,
       scrapedAt: 'now',
       source: {
@@ -328,12 +328,12 @@ describe('catalogService', () => {
       degrees: [],
       courses: [],
     });
-    mockGeneratePatchFromSnapshotData.mockResolvedValue({
+    mockBuildCatalogPatchFromSnapshot.mockResolvedValue({
       academicYear,
       baseEntities: { degrees: [], coursePools: [], courses: [] },
       diffs: { degrees: [], coursePools: [], courses: [] },
     } as never);
-    mockApplyPatchFile.mockRejectedValue(new Error('apply failed'));
+    mockApplyCatalogPatch.mockRejectedValue(new Error('apply failed'));
 
     let error: unknown;
     try {
