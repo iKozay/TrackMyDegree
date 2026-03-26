@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import { Course, CoursePool, Degree } from '@models';
 import {
+  canWriteInspectionFiles,
   CatalogError,
   CatalogResult,
   maybeBackfillBaseAcademicYear,
@@ -43,14 +44,20 @@ describe('catalogService', () => {
   const academicYear = '2026-2027';
   const pythonServiceBaseUrl = 'http://localhost:15001';
   const allDegreesMode = 'all-degrees' as const;
+  const originalNodeEnv = process.env.NODE_ENV;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    process.env.NODE_ENV = 'development';
     mockFs.mkdir.mockResolvedValue(undefined as never);
     mockFs.writeFile.mockResolvedValue(undefined);
     mockDegree.updateMany.mockResolvedValue({ modifiedCount: 0 } as never);
     mockCoursePool.updateMany.mockResolvedValue({ modifiedCount: 0 } as never);
     mockCourse.updateMany.mockResolvedValue({ modifiedCount: 0 } as never);
+  });
+
+  afterAll(() => {
+    process.env.NODE_ENV = originalNodeEnv;
   });
 
   it('resolves inspect dir', () => {
@@ -66,6 +73,35 @@ describe('catalogService', () => {
     expect(output).toBe('/tmp/catalog/file.json');
     expect(mockFs.mkdir).toHaveBeenCalled();
     expect(mockFs.writeFile).toHaveBeenCalled();
+  });
+
+  it('only allows inspection file writes in local development', async () => {
+    process.env.NODE_ENV = 'test';
+
+    expect(canWriteInspectionFiles()).toBe(false);
+
+    await expect(
+      maybeWriteSnapshot(
+        {
+          academicYear,
+          scrapedAt: 'now',
+          source: {
+            pythonServiceBaseUrl,
+            mode: allDegreesMode,
+          },
+          degrees: [],
+          courses: [],
+        },
+        {
+          academicYear,
+          apply: false,
+          writeSnapshot: true,
+          writePatch: false,
+        },
+      ),
+    ).rejects.toThrow(
+      'Catalog inspection file writes are only allowed in local development.',
+    );
   });
 
   it('conditionally writes snapshot and patch files', async () => {

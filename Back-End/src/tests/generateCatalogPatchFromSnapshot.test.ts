@@ -1,5 +1,3 @@
-import fs from 'node:fs/promises';
-import mongoose from 'mongoose';
 import { Course, CoursePool, Degree } from '@models';
 import {
   addBaseEntity,
@@ -9,43 +7,26 @@ import {
   compactPatch,
   escapeJsonPointerSegment,
   generatePatchFromSnapshotData,
-  main,
   normalizeCourse,
   normalizeCoursePool,
   normalizeDegree,
   normalizeRules,
   normalizeSnapshot,
-  parseArgs,
-  readSnapshotFile,
-  resolveOutputPath,
   sameValue,
   sortPatchCollections,
   sortUnique,
   stripVersionMetadata,
 } from '../scripts/generateCatalogPatchFromSnapshot';
 
-jest.mock('node:fs/promises');
-jest.mock('mongoose');
 jest.mock('@models', () => ({
   Degree: { find: jest.fn() },
   CoursePool: { find: jest.fn() },
   Course: { find: jest.fn() },
 }));
 
-const mockFs = fs as jest.Mocked<typeof fs>;
-const mockMongoose = mongoose as jest.Mocked<typeof mongoose>;
-
 describe('generateCatalogPatchFromSnapshot script', () => {
-  const originalArgv = process.argv;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    process.argv = [...originalArgv];
-    mockFs.readFile.mockResolvedValue('{}');
-    mockFs.mkdir.mockResolvedValue(undefined as never);
-    mockFs.writeFile.mockResolvedValue(undefined);
-    mockMongoose.connect.mockResolvedValue(mockMongoose as never);
-    mockMongoose.disconnect.mockResolvedValue(undefined);
     (Degree.find as jest.Mock).mockReturnValue({
       lean: jest.fn().mockReturnThis(),
       exec: jest.fn().mockResolvedValue([]),
@@ -60,19 +41,7 @@ describe('generateCatalogPatchFromSnapshot script', () => {
     });
   });
 
-  afterAll(() => {
-    process.argv = originalArgv;
-  });
-
   it('covers normalization helpers', () => {
-    expect(parseArgs(['--file', 'in.json', '--out', 'out.json'])).toEqual({
-      file: 'in.json',
-      out: 'out.json',
-    });
-    expect(parseArgs(['noop', '--file'])).toEqual({
-      file: undefined,
-      out: undefined,
-    });
     expect(sortUnique(['b', 'a', 'a'])).toEqual(['a', 'b']);
     expect(sortUnique()).toEqual([]);
     expect(normalizeRules({ prereq: [['B', 'A']], min_credits: 1 })).toEqual({
@@ -278,36 +247,4 @@ describe('generateCatalogPatchFromSnapshot script', () => {
     expect(patch.baseEntities.courses).toHaveLength(1);
   });
 
-  it('reads snapshot files, resolves output paths, and runs main', async () => {
-    mockFs.readFile.mockResolvedValue(
-      JSON.stringify({
-        academicYear: '2026-2027',
-        degrees: [],
-        courses: [],
-      }),
-    );
-
-    expect(await readSnapshotFile('x.json')).toEqual({
-      academicYear: '2026-2027',
-      degrees: [],
-      courses: [],
-    });
-    expect(resolveOutputPath('/tmp/a.json')).toContain('/tmp/a-patch.json');
-    expect(resolveOutputPath('/tmp/a.json', '/tmp/out.json')).toContain('/tmp/out.json');
-
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-
-    process.argv = ['node', 'generate.ts'];
-    process.exitCode = 0;
-    await main();
-    expect(process.exitCode).toBe(1);
-
-    process.argv = ['node', 'generate.ts', '--file', '/tmp/in.json'];
-    await main();
-    expect(mockMongoose.connect).toHaveBeenCalled();
-    expect(mockFs.writeFile).toHaveBeenCalled();
-    expect(mockMongoose.disconnect).toHaveBeenCalled();
-
-    logSpy.mockRestore();
-  });
 });

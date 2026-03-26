@@ -285,7 +285,54 @@ router.get('/connection-status', (req: Request, res: Response) => {
   }
 });
 
-router.post('/catalog', async (req: Request, res: Response) => {
+/**
+ * @openapi
+ * /admin/catalogs-update:
+ *   post:
+ *     summary: Scrape, diff, and optionally apply catalog updates
+ *     description: Runs the catalog update flow for an academic year and optionally persists the resulting changes.
+ *     tags: [Admin]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - academicYear
+ *             properties:
+ *               academicYear:
+ *                 type: string
+ *                 example: 2026-2027
+ *               degree:
+ *                 type: string
+ *                 description: Optional degree name to limit the scrape scope.
+ *               apply:
+ *                 type: boolean
+ *                 default: false
+ *               writeSnapshot:
+ *                 type: boolean
+ *                 default: false
+ *                 description: Writes snapshot JSON locally in development only.
+ *               writePatch:
+ *                 type: boolean
+ *                 default: false
+ *                 description: Writes patch JSON locally in development only.
+ *               inspectDir:
+ *                 type: string
+ *                 description: Optional output directory for local inspection files in development only.
+ *               backfillBaseAcademicYear:
+ *                 type: string
+ *                 description: Optional academic year used to backfill missing baseAcademicYear fields before applying.
+ *     responses:
+ *       200:
+ *         description: Catalog update completed successfully.
+ *       400:
+ *         description: Academic year is missing or invalid.
+ *       500:
+ *         description: Catalog update failed.
+ */
+router.post('/catalogs-update', async (req: Request, res: Response) => {
   try {
     const {
       academicYear,
@@ -324,7 +371,7 @@ router.post('/catalog', async (req: Request, res: Response) => {
       data: result,
     });
   } catch (error) {
-    console.error('Error in POST /admin/catalog', error);
+    console.error('Error in POST /admin/catalogs-update', error);
 
     if (error instanceof CatalogError) {
       res.status(HTTP.SERVER_ERR).json({

@@ -314,7 +314,7 @@ describe('Admin Routes', () => {
     });
   });
 
-  describe('POST /admin/catalog', () => {
+  describe('POST /admin/catalogs-update', () => {
     it('should run the catalog import via admin endpoint', async () => {
       const catalogService = require('../services/catalogService');
       const originalRunCatalog = catalogService.runCatalog;
@@ -334,7 +334,7 @@ describe('Admin Routes', () => {
           },
         });
 
-      const response = await request(app).post('/admin/catalog').send({
+      const response = await request(app).post('/admin/catalogs-update').send({
         academicYear: '2026-2027',
         writeSnapshot: true,
         backfillBaseAcademicYear: '2025',
@@ -360,7 +360,7 @@ describe('Admin Routes', () => {
     });
 
     it('should require academic year for catalog import', async () => {
-      const response = await request(app).post('/admin/catalog').send({});
+      const response = await request(app).post('/admin/catalogs-update').send({});
 
       expect(response.status).toBe(400);
       expect(response.body).toEqual({
@@ -381,7 +381,7 @@ describe('Admin Routes', () => {
           }),
         );
 
-      const response = await request(app).post('/admin/catalog').send({
+      const response = await request(app).post('/admin/catalogs-update').send({
         academicYear: '2026-2027',
       });
 

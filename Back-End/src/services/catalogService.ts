@@ -47,6 +47,13 @@ export class CatalogError extends Error {
   }
 }
 
+const LOCAL_INSPECTION_FILES_DISABLED =
+  'Catalog inspection file writes are only allowed in local development.';
+
+export function canWriteInspectionFiles(): boolean {
+  return process.env.NODE_ENV === 'development';
+}
+
 export function resolveInspectDir(
   academicYear: string,
   inspectDir?: string,
@@ -76,6 +83,10 @@ export async function maybeWriteSnapshot(
     return undefined;
   }
 
+  if (!canWriteInspectionFiles()) {
+    throw new Error(LOCAL_INSPECTION_FILES_DISABLED);
+  }
+
   const inspectDir = resolveInspectDir(snapshot.academicYear, args.inspectDir);
   return writeInspectionFile(path.join(inspectDir, 'snapshot.json'), snapshot);
 }
@@ -87,6 +98,10 @@ export async function maybeWritePatch(
 ): Promise<string | undefined> {
   if (!args.writePatch) {
     return undefined;
+  }
+
+  if (!canWriteInspectionFiles()) {
+    throw new Error(LOCAL_INSPECTION_FILES_DISABLED);
   }
 
   const inspectDir = resolveInspectDir(academicYear, args.inspectDir);

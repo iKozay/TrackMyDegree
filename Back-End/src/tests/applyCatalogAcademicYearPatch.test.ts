@@ -1,5 +1,3 @@
-import fs from 'node:fs/promises';
-import mongoose from 'mongoose';
 import { Course, CoursePool, Degree, EntityVersionDiff } from '@models';
 import {
   applyDiffsForAcademicYear,
@@ -8,25 +6,19 @@ import {
   collectReferencedIds,
   ensurePatchShape,
   getDiffId,
-  getMongoUri,
   groupDiffsByAcademicYear,
   loadCatalogState,
   loadKnownEntityIds,
-  main,
   normalizeBaseCoursePools,
   normalizeBaseCourses,
   normalizeBaseDegrees,
   normalizeDiffs,
-  parseArgs,
-  readPatchFile,
   validateBaseEntityReferences,
   validateDiffTarget,
   validateReferences,
 } from '../scripts/applyCatalogAcademicYearPatch';
 import * as applyCatalogAcademicYearPatchModule from '../scripts/applyCatalogAcademicYearPatch';
 
-jest.mock('node:fs/promises');
-jest.mock('mongoose');
 jest.mock('@models', () => ({
   Degree: { find: jest.fn(), updateOne: jest.fn() },
   CoursePool: { find: jest.fn(), updateOne: jest.fn() },
@@ -34,12 +26,7 @@ jest.mock('@models', () => ({
   EntityVersionDiff: { updateOne: jest.fn() },
 }));
 
-const mockFs = fs as jest.Mocked<typeof fs>;
-const mockMongoose = mongoose as jest.Mocked<typeof mongoose>;
-
 describe('applyCatalogAcademicYearPatch script', () => {
-  const originalArgv = process.argv;
-  const originalEnv = process.env;
   const academicYear = '2026-2027';
   const courseDiffId = `Course:C:${academicYear}`;
   const degreeDiffId = `Degree:D:${academicYear}`;
@@ -47,11 +34,6 @@ describe('applyCatalogAcademicYearPatch script', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    process.argv = [...originalArgv];
-    process.env = { ...originalEnv };
-    mockFs.readFile.mockResolvedValue('{}');
-    mockMongoose.connect.mockResolvedValue(mockMongoose as never);
-    mockMongoose.disconnect.mockResolvedValue(undefined);
 
     for (const model of [Degree, CoursePool, Course]) {
       (model.find as jest.Mock).mockReturnValue({
@@ -63,24 +45,7 @@ describe('applyCatalogAcademicYearPatch script', () => {
     (EntityVersionDiff.updateOne as jest.Mock).mockResolvedValue({});
   });
 
-  afterAll(() => {
-    process.argv = originalArgv;
-    process.env = originalEnv;
-  });
-
   it('covers argument parsing and normalization helpers', () => {
-    expect(parseArgs(['noop'])).toEqual({
-      file: undefined,
-      apply: false,
-      dryRun: true,
-    });
-    expect(parseArgs(['--file', 'x.json', '--apply'])).toEqual({
-      file: 'x.json',
-      apply: true,
-      dryRun: false,
-    });
-    delete (process.env as any).MONGODB_URI;
-    expect(getMongoUri()).toContain('localhost:27017');
     expect(getDiffId('Course', 'COMP 248', '2026-2027')).toBe(
       'Course:COMP 248:2026-2027',
     );
@@ -101,18 +66,6 @@ describe('applyCatalogAcademicYearPatch script', () => {
       ])[0].baseAcademicYear,
     ).toBe('2026-2027');
     expect(String(123)).toBe('123');
-  });
-
-  it('reads patch files and validates academicYear presence', async () => {
-    mockFs.readFile.mockResolvedValue(
-      JSON.stringify({ academicYear: '2026-2027' }),
-    );
-    await expect(readPatchFile('x.json')).resolves.toEqual({
-      academicYear: '2026-2027',
-    });
-
-    mockFs.readFile.mockResolvedValue(JSON.stringify({}));
-    await expect(readPatchFile('x.json')).rejects.toThrow('academicYear');
   });
 
   it('collects references and validates explicit errors', () => {
@@ -572,31 +525,5 @@ describe('applyCatalogAcademicYearPatch script', () => {
       upsertedCourses: 0,
       upsertedDiffs: 0,
     });
-  });
-
-  it('prints usage when file is missing and runs main on success', async () => {
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
-
-    process.argv = ['node', 'apply.ts'];
-    process.exitCode = 0;
-    await main();
-    expect(process.exitCode).toBe(1);
-
-    mockFs.readFile.mockResolvedValue(JSON.stringify({ academicYear: '2026-2027' }));
-    process.argv = ['node', 'apply.ts', '--file', 'x.json'];
-    await main();
-
-    expect(mockMongoose.connect).toHaveBeenCalled();
-    expect(mockMongoose.disconnect).toHaveBeenCalled();
-    expect(logSpy).toHaveBeenCalled();
-
-    mockFs.readFile.mockResolvedValue(JSON.stringify({ academicYear: '2026-2027' }));
-    process.argv = ['node', 'apply.ts', '--file', 'x.json', '--apply'];
-    await main();
-    expect(logSpy).toHaveBeenLastCalledWith(
-      expect.stringContaining('"mode": "apply"'),
-    );
-
-    logSpy.mockRestore();
   });
 });

@@ -1,7 +1,4 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
 import { Operation } from 'fast-json-patch';
 import { Course, CoursePool, Degree } from '@models';
 import {
@@ -83,33 +80,6 @@ type CatalogPatch = {
     courses: DiffPayload[];
   };
 };
-
-export function parseArgs(argv: string[]) {
-  const args = new Map<string, string>();
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const value = argv[index];
-    if (!value.startsWith('--')) continue;
-
-    const next = argv[index + 1];
-    if (!next || next.startsWith('--')) continue;
-
-    args.set(value, next);
-    index += 1;
-  }
-
-  return {
-    file: args.get('--file'),
-    out: args.get('--out'),
-  };
-}
-
-export function getMongoUri(): string {
-  return (
-    process.env.MONGODB_URI ||
-    'mongodb://admin:changeme123@localhost:27017/trackmydegree?authSource=admin'
-  );
-}
 
 export function sortUnique(values: string[] = []): string[] {
   return [...new Set(values)].sort((left, right) => left.localeCompare(right));
@@ -424,97 +394,4 @@ export async function generatePatchFromSnapshotData(
   sortPatchCollections(patch);
 
   return patch;
-}
-
-export async function readSnapshotFile(
-  filePath: string,
-): Promise<CatalogSnapshot> {
-  const absolutePath = path.resolve(filePath);
-  const raw = await fs.readFile(absolutePath, 'utf8');
-  return JSON.parse(raw) as CatalogSnapshot;
-}
-
-export function resolveOutputPath(snapshotFile: string, out?: string): string {
-  if (out) return path.resolve(out);
-
-  const parsed = path.parse(snapshotFile);
-  return path.resolve(parsed.dir, `${parsed.name}-patch.json`);
-}
-
-export function printUsage(): void {
-  console.log(
-    [
-      'Usage:',
-      '  npm run catalog:generate-patch -- --file ./tmp/catalog-snapshot-2026-2027.json [--out ./tmp/catalog-patch-2026-2027.json]',
-      '',
-      'Behavior:',
-      '  Reads a scraped snapshot file, compares it with MongoDB, and writes a patch JSON.',
-    ].join('\n'),
-  );
-}
-
-export async function main(): Promise<void> {
-  const { file, out } = parseArgs(process.argv.slice(2));
-
-  if (!file) {
-    printUsage();
-    process.exitCode = 1;
-    return;
-  }
-
-  await mongoose.connect(getMongoUri());
-
-  try {
-    const snapshot = await readSnapshotFile(file);
-    const patch = await generatePatchFromSnapshotData(snapshot);
-    const outputPath = resolveOutputPath(file, out);
-
-    await fs.mkdir(path.dirname(outputPath), { recursive: true });
-    await fs.writeFile(
-      outputPath,
-      `${JSON.stringify(patch, null, 2)}\n`,
-      'utf8',
-    );
-
-    console.log(
-      JSON.stringify(
-        {
-          outputPath,
-          academicYear: patch.academicYear,
-          summary: {
-            newDegrees: patch.baseEntities.degrees.length,
-            newCoursePools: patch.baseEntities.coursePools.length,
-            newCourses: patch.baseEntities.courses.length,
-            degreeDiffs: patch.diffs.degrees.length,
-            coursePoolDiffs: patch.diffs.coursePools.length,
-            courseDiffs: patch.diffs.courses.length,
-          },
-        },
-        null,
-        2,
-      ),
-    );
-  } finally {
-    await mongoose.disconnect();
-  }
-}
-
-/* istanbul ignore next */
-if (require.main === module) {
-  (async () => {
-    try {
-      await main();
-    } catch (error) {
-      console.error(
-        JSON.stringify(
-          {
-            error: error instanceof Error ? error.message : String(error),
-          },
-          null,
-          2,
-        ),
-      );
-      process.exit(1);
-    }
-  })();
 }

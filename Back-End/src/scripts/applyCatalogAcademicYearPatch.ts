@@ -1,7 +1,4 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
 import { Course, CoursePool, Degree, EntityVersionDiff } from '@models';
 import {
   DEFAULT_BASE_ACADEMIC_YEAR,
@@ -77,38 +74,6 @@ interface OperationSummary {
   upsertedDiffs: number;
 }
 
-export function parseArgs(argv: string[]) {
-  const args = new Map<string, string | boolean>();
-
-  for (let index = 0; index < argv.length; index += 1) {
-    const value = argv[index];
-
-    if (!value.startsWith('--')) continue;
-
-    const next = argv[index + 1];
-    if (!next || next.startsWith('--')) {
-      args.set(value, true);
-      continue;
-    }
-
-    args.set(value, next);
-    index += 1;
-  }
-
-  return {
-    file: args.get('--file') as string | undefined,
-    apply: Boolean(args.get('--apply')),
-    dryRun: !args.get('--apply'),
-  };
-}
-
-export function getMongoUri(): string {
-  return (
-    process.env.MONGODB_URI ||
-    'mongodb://admin:changeme123@localhost:27017/trackmydegree?authSource=admin'
-  );
-}
-
 export function getDiffId(
   entityType: VersionedEntityType,
   entityId: string,
@@ -181,20 +146,6 @@ export function normalizeDiffs(
       patch: diff.patch,
     };
   });
-}
-
-export async function readPatchFile(
-  filePath: string,
-): Promise<CatalogPatchFile> {
-  const absolutePath = path.resolve(filePath);
-  const raw = await fs.readFile(absolutePath, 'utf8');
-  const parsed = JSON.parse(raw) as CatalogPatchFile;
-
-  if (!parsed.academicYear) {
-    throw new Error('Patch file must include "academicYear".');
-  }
-
-  return parsed;
 }
 
 type ExistingEntityIds = {
@@ -659,70 +610,4 @@ export async function applyPatchFile(
     upsertedCourses: courses.length,
     upsertedDiffs: diffs.length,
   };
-}
-
-export function printUsage(): void {
-  console.log(
-    [
-      'Usage:',
-      '  npm run catalog:patch -- --file ./path/to/patch.json [--apply]',
-      '',
-      'Behavior:',
-      '  default: dry-run validation only',
-      '  --apply: writes base entities and diffs to MongoDB',
-    ].join('\n'),
-  );
-}
-
-export async function main() {
-  const { file, apply, dryRun } = parseArgs(process.argv.slice(2));
-
-  if (!file) {
-    printUsage();
-    process.exitCode = 1;
-    return;
-  }
-
-  const mongoUri = getMongoUri();
-  await mongoose.connect(mongoUri);
-
-  try {
-    const patchFile = await readPatchFile(file);
-    const summary = await applyPatchFile(patchFile, apply);
-
-    console.log(
-      JSON.stringify(
-        {
-          mode: dryRun ? 'dry-run' : 'apply',
-          file: path.resolve(file),
-          academicYear: normalizeAcademicYear(patchFile.academicYear),
-          summary,
-        },
-        null,
-        2,
-      ),
-    );
-  } finally {
-    await mongoose.disconnect();
-  }
-}
-
-/* istanbul ignore next */
-if (require.main === module) {
-  (async () => {
-    try {
-      await main();
-    } catch (error) {
-      console.error(
-        JSON.stringify(
-          {
-            error: error instanceof Error ? error.message : String(error),
-          },
-          null,
-          2,
-        ),
-      );
-      process.exit(1);
-    }
-  })();
 }
