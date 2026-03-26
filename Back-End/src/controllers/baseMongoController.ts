@@ -30,6 +30,10 @@ export interface QueryOptions extends PaginationOptions, SearchOptions {
   select?: string | string[];
 }
 
+function escapeRegexLiteral(value: string): string {
+  return value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+}
+
 /**
  * Generic base controller class for MongoDB operations
  */
@@ -66,7 +70,9 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   protected sanitizeUpdate(update: UpdateQuery<T>): UpdateQuery<T> {
     const unsafeKeys = new Set(['__proto__', 'constructor', 'prototype']);
 
-    const isPlainObject = (value: unknown): value is Record<string, unknown> => {
+    const isPlainObject = (
+      value: unknown,
+    ): value is Record<string, unknown> => {
       if (value === null || typeof value !== 'object') {
         return false;
       }
@@ -206,7 +212,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
 
       // Apply search if provided
       if (options.search && options.fields && options.fields.length > 0) {
-        const searchRegex = new RegExp(options.search, 'i');
+        const searchRegex = new RegExp(escapeRegexLiteral(options.search), 'i');
         const searchConditions = options.fields.map((field) => ({
           [field]: searchRegex,
         }));

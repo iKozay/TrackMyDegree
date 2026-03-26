@@ -1,5 +1,7 @@
 import { Schema, model } from 'mongoose';
 
+const DEFAULT_BASE_ACADEMIC_YEAR = '2025-2026';
+
 const CourseSchema = new Schema({
   _id: { type: String }, // course code ex: 'SOEN 490'
   title: { type: String, required: true },
@@ -15,6 +17,11 @@ const CourseSchema = new Schema({
   },
   notes: { type: String },
   components: [{ type: String }],
+  baseAcademicYear: {
+    type: String,
+    required: true,
+    default: DEFAULT_BASE_ACADEMIC_YEAR,
+  },
 });
 
 export const Course = model('Course', CourseSchema);
