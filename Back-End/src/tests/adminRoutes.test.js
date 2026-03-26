@@ -314,6 +314,90 @@ describe('Admin Routes', () => {
     });
   });
 
+  describe('POST /admin/catalogs-update', () => {
+    it('should run the catalog import via admin endpoint', async () => {
+      const catalogService = require('../services/catalogService');
+      const originalRunCatalog = catalogService.runCatalog;
+      catalogService.runCatalog = jest
+        .fn()
+        .mockResolvedValue({
+          mode: 'dry-run',
+          academicYear: '2026-2027',
+          inspectionFiles: {
+            snapshot: '/tmp/catalog-2026-2027/snapshot.json',
+          },
+          summary: {
+            upsertedDegrees: 0,
+            upsertedCoursePools: 0,
+            upsertedCourses: 0,
+            upsertedDiffs: 0,
+          },
+        });
+
+      const response = await request(app).post('/admin/catalogs-update').send({
+        academicYear: '2026-2027',
+        writeSnapshot: true,
+        backfillBaseAcademicYear: '2025',
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toMatchObject({
+        mode: 'dry-run',
+        academicYear: '2026-2027',
+      });
+      expect(catalogService.runCatalog).toHaveBeenCalledWith({
+        academicYear: '2026-2027',
+        degree: undefined,
+        apply: false,
+        writeSnapshot: true,
+        writePatch: false,
+        inspectDir: undefined,
+        backfillBaseAcademicYear: '2025',
+      });
+
+      catalogService.runCatalog = originalRunCatalog;
+    });
+
+    it('should require academic year for catalog import', async () => {
+      const response = await request(app).post('/admin/catalogs-update').send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        success: false,
+        message: 'Academic year is required',
+      });
+    });
+
+    it('should return structured catalog errors', async () => {
+      const catalogService = require('../services/catalogService');
+      const { CatalogError } = require('../services/catalogService');
+      const originalRunCatalog = catalogService.runCatalog;
+      catalogService.runCatalog = jest
+        .fn()
+        .mockRejectedValue(
+          new CatalogError('catalog failed', {
+            snapshot: '/tmp/catalog-2026-2027/snapshot.json',
+          }),
+        );
+
+      const response = await request(app).post('/admin/catalogs-update').send({
+        academicYear: '2026-2027',
+      });
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        success: false,
+        error: 'catalog failed',
+        inspectionFiles: {
+          snapshot: '/tmp/catalog-2026-2027/snapshot.json',
+        },
+      });
+
+      catalogService.runCatalog = originalRunCatalog;
+    });
+  });
+
   describe('Edge Cases', () => {
     describe('getCollectionDocuments edge cases', () => {
       beforeEach(async () => {

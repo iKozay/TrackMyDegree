@@ -92,6 +92,7 @@ export interface DegreeData {
   coursePools?: string[];
   degreeType?: string;
   ecpDegreeId: string;
+  baseAcademicYear?: string;
 }
 export interface CoursePoolData {
   _id: string;
@@ -99,6 +100,7 @@ export interface CoursePoolData {
   creditsRequired: number;
   courses: string[];
   rules: Rule[];
+  baseAcademicYear?: string;
 }
 
 export interface CourseData {
@@ -111,6 +113,7 @@ export interface CourseData {
   rules: Rule[];
   notes?: string;
   components?: string[];
+  baseAcademicYear?: string;
 }
 
 export interface Rule {
