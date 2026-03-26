@@ -2,7 +2,7 @@
 import { handleEcp } from '@services/timeline/timelineBuilder';
 import { degreeController } from '@controllers/degreeController';
 import * as dataLoader from '@services/timeline/dataLoader';
-import { CourseData } from '@shared/degree';
+import { CourseData } from '@trackmydegree/shared';
 
 jest.mock('@controllers/degreeController', () => ({
   degreeController: {
@@ -216,6 +216,7 @@ describe('addEcpCoursePools', () => {
           name: ECP_POOL_1_NAME,
           creditsRequired: 3,
           courses: ['MATH 203'],
+          rules: [],
         },
       ],
       courses: {

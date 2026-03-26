@@ -104,13 +104,14 @@ def expand_course_shorthand(match):
 def extract_prereq_coreq_from_sentence(sentences):
     prereq_parts = []
     coreq_parts = []
+    prereq_or_coreq_parts = []
     patterns = [
         # (pattern, action)
-        (r'must be completed? previously or concurrently[: ]+([^.]+)', lambda m: (m, m)),
-        (r'must be completed? previously[: ]+([^.]+)', lambda m: (m, None)),
-        (r'must be completed? concurrently[: ]+([^.]+)', lambda m: (None, m)),
-        (r'by passing ([A-Z]{4}\s+\d{3})', lambda m: (m, None)),
-        (r'must complete.*?including the following courses?[: ]+([^.]+)', lambda m: (m, None)),
+        (r'must be completed? previously or concurrently[: ]+([^.]+)', lambda m: (None, None, m)),
+        (r'must be completed? previously[: ]+([^.]+)', lambda m: (m, None, None)),
+        (r'must be completed? concurrently[: ]+([^.]+)', lambda m: (None, m, None)),
+        (r'by passing ([A-Z]{4}\s+\d{3})', lambda m: (m, None, None)),
+        (r'must complete.*?including the following courses?[: ]+([^.]+)', lambda m: (m, None, None)),
     ]
     for sentence in sentences:
         sentence = sentence.strip()
@@ -121,22 +122,24 @@ def extract_prereq_coreq_from_sentence(sentences):
             if match:
                 course_text = clean_text(match.group(1))
                 if course_text:
-                    prereq_val, coreq_val = act(course_text)
+                    prereq_val, coreq_val, prereq_or_coreq_val = act(course_text)
                     if prereq_val:
                         prereq_parts.append(prereq_val)
                     if coreq_val:
                         coreq_parts.append(coreq_val)
+                    if prereq_or_coreq_val:
+                        prereq_or_coreq_parts.append(prereq_or_coreq_val)
                 break
-    return prereq_parts, coreq_parts
-    
+    return prereq_parts, coreq_parts, prereq_or_coreq_parts
+
 def parse_prereq_coreq(text):
     """Extract prerequisites and corequisites from text."""
     if not text:
-        return "", ""
+        return "", "", ""
         
     # Split the text by sentences (periods followed by capital letters or end)
     sentences = re.split(r'\.\s*(?=[A-Z]|$)', text)
-    prereq_parts, coreq_parts = extract_prereq_coreq_from_sentence(sentences)
+    prereq_parts, coreq_parts, prereq_or_coreq_parts = extract_prereq_coreq_from_sentence(sentences)
  
     # if no previously/concurrently patterns found, assume all are prerequisites
     if not prereq_parts and not coreq_parts:
@@ -147,8 +150,8 @@ def parse_prereq_coreq(text):
     # Join all parts with semicolons to separate different requirements
     prereq = "; ".join(prereq_parts)
     coreq = "; ".join(coreq_parts)
-    
-    return prereq.strip(), coreq.strip()
+    prereq_or_coreq = "; ".join(prereq_or_coreq_parts)
+    return prereq.strip(), coreq.strip(), prereq_or_coreq.strip()
 
 def make_prereq_coreq_into_array(s):
     if not s or not s.strip():
@@ -207,23 +210,6 @@ def make_prereq_coreq_into_array(s):
     
     return result
 
-def make_requisite_arrays(prereq_text, coreq_text) -> tuple[list[str], list[str], list[str]]:
-    prereq = make_prereq_coreq_into_array(prereq_text)
-    coreq = make_prereq_coreq_into_array(coreq_text)
-    pre_coreq = []
-    # Find courses that appear in both prereq and coreq lists
-    for p in prereq:
-        for c in coreq:
-            if set(p) & set(c):  # If there's any overlap in courses
-                pre_coreq.append(list(set(p) & set(c)))  # Add the overlapping courses to pre_coreq
-                # Remove the overlapping courses from prereq and coreq
-                p[:] = [course for course in p if course not in pre_coreq[-1]]
-                c[:] = [course for course in c if course not in pre_coreq[-1]]
-    # Remove empty lists from prereq and coreq
-    prereq = [p for p in prereq if p]
-    coreq = [c for c in coreq if c]
-    return prereq, coreq, pre_coreq
-
 def get_not_taken(s):
     if "not take this course for credit" not in s:
         return []
@@ -241,9 +227,9 @@ def parse_minimum_credits(s):
     return 0.0
 
 def parse_course_rules(prereq_coreq_text: str, notes_text: str) -> list[Rule]:
-    prereq_text, coreq_text = parse_prereq_coreq(prereq_coreq_text)
+    prereq_text, coreq_text, prereq_or_coreq_text = parse_prereq_coreq(prereq_coreq_text)
 
-    prereq, coreq, pre_coreq = make_requisite_arrays(prereq_text, coreq_text)
+    prereq, coreq, pre_coreq = make_prereq_coreq_into_array(prereq_text), make_prereq_coreq_into_array(coreq_text), make_prereq_coreq_into_array(prereq_or_coreq_text)
     not_taken_list=get_not_taken(notes_text)
     min_credits=parse_minimum_credits(prereq_coreq_text)
 
@@ -253,7 +239,7 @@ def parse_course_rules(prereq_coreq_text: str, notes_text: str) -> list[Rule]:
             rules.append(Rule(
                 type=RuleType.PREREQUISITE,
                 params=MinCoursesFromSetParams(courseList=group, minCourses=1),
-                message="At least 1 of the following courses must be completed previously: " + ", ".join([", ".join(group)]) + "."
+                message="At least 1 of the following courses must be completed previously: " + ", ".join(group) + "."
             ))
     
     if coreq:
@@ -261,7 +247,7 @@ def parse_course_rules(prereq_coreq_text: str, notes_text: str) -> list[Rule]:
             rules.append(Rule(
                 type=RuleType.COREQUISITE,
                 params=MinCoursesFromSetParams(courseList=group, minCourses=1),
-                message="At least 1 of the following courses must be taken concurrently: " + ", ".join([", ".join(group)]) + "."
+                message="At least 1 of the following courses must be taken concurrently: " + ", ".join(group) + "."
             ))
     
     if pre_coreq:
@@ -269,7 +255,7 @@ def parse_course_rules(prereq_coreq_text: str, notes_text: str) -> list[Rule]:
             rules.append(Rule(
                 type=RuleType.PREREQUISITE_OR_COREQUISITE,
                 params=MinCoursesFromSetParams(courseList=group, minCourses=1),
-                message="At least 1 of the following courses must be completed previously or taken concurrently: " + ", ".join([", ".join(group)]) + "."
+                message="At least 1 of the following courses must be completed previously or taken concurrently: " + ", ".join(group) + "."
             ))
     
     if not_taken_list:

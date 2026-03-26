@@ -43,9 +43,12 @@
   "scripts": {
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "dev": "concurrently --names \"BACKEND-API,BACKEND-WORKER,FRONTEND\" --prefix-colors \"blue,magenta,green\" \"npm run dev:backend\" \"npm run dev:worker\" \"npm run dev:frontend\"",
-    "dev:backend": "cd Back-End/src && npm run dev:api",
-    "dev:worker": "cd Back-End/src && npm run dev:worker",
-    "dev:frontend": "cd ts-front-end && npm run dev"
+    "dev": "npm run build:shared && npm run dev:all",
+    "build:shared": "npm --prefix shared run build",
+    "dev:all": "concurrently --names \"SHARED,BACKEND-API,BACKEND-WORKER,FRONTEND\" --prefix-colors \"yellow,blue,green,magenta\" \"npm run dev:shared\" \"npm run dev:backend\" \"npm run dev:worker\" \"npm run dev:frontend\"",
+    "dev:shared": "npm --prefix shared run build:watch",
+    "dev:backend": "npm --prefix Back-End/src run dev:api",
+    "dev:worker": "npm --prefix Back-End/src run dev:worker",
+    "dev:frontend": "npm --prefix ts-front-end run dev"
   }
 }

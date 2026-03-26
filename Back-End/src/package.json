@@ -36,9 +36,11 @@
   "scripts": {
     "prepare": "npx ts-patch install -s",
     "build": "tsc",
+    "build:shared": "npm --prefix ../../shared run build",
     "start": "node dist/Back-End/src/index.js",
     "worker": "node dist/Back-End/src/worker.js",
-    "dev": "concurrently \"npm run dev:api\" \"npm run dev:worker\"",
+    "dev": "npm run build:shared && npm run dev:all",
+    "dev:all": "concurrently \"npm run dev:api\" \"npm run dev:worker\"",
     "dev:api": "nodemon --config nodemon.json",
     "dev:worker": "nodemon --config nodemon.worker.json",
     "test": "jest --coverage --verbose",

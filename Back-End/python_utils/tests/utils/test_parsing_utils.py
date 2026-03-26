@@ -106,36 +106,40 @@ def test_expand_course_shorthand():
 
 def test_extract_prereq_coreq_from_sentence_previously():
     sentences = ["Must be completed previously: MATH 204"]
-    prereq, coreq = extract_prereq_coreq_from_sentence(sentences)
+    prereq, coreq, prereq_or_coreq = extract_prereq_coreq_from_sentence(sentences)
     assert len(prereq) == 1
     assert prereq[0] == "MATH 204"
     assert len(coreq) == 0
+    assert len(prereq_or_coreq) == 0
 
 def test_extract_prereq_coreq_from_sentence_concurrently():
     sentences = ["Must be completed concurrently: PHYS 204"]
-    prereq, coreq = extract_prereq_coreq_from_sentence(sentences)
+    prereq, coreq, prereq_or_coreq = extract_prereq_coreq_from_sentence(sentences)
     assert len(prereq) == 0
     assert len(coreq) == 1
     assert coreq[0] == "PHYS 204"
+    assert len(prereq_or_coreq) == 0
 
-def test_extract_prereq_coreq_from_sentence_both():
+def test_extract_prereq_coreq_from_sentence_previously_or_concurrently():
     sentences = ["Must be completed previously or concurrently: MATH 204"]
-    prereq, coreq = extract_prereq_coreq_from_sentence(sentences)
-    assert len(prereq) == 1
-    assert len(coreq) == 1
-    assert prereq[0] == "MATH 204"
-    assert coreq[0] == "MATH 204"
+    prereq, coreq, prereq_or_coreq = extract_prereq_coreq_from_sentence(sentences)
+    assert len(prereq) == 0
+    assert len(coreq) == 0
+    assert len(prereq_or_coreq) == 1
+    assert prereq_or_coreq[0] == "MATH 204"
 
 def test_parse_prereq_coreq_empty():
-    prereq, coreq = parse_prereq_coreq("")
+    prereq, coreq, prereq_or_coreq = parse_prereq_coreq("")
     assert prereq == ""
     assert coreq == ""
+    assert prereq_or_coreq == ""
 
 def test_parse_prereq_coreq_no_patterns():
     text = "MATH 204 and COMP 248"
-    prereq, coreq = parse_prereq_coreq(text)
+    prereq, coreq, prereq_or_coreq = parse_prereq_coreq(text)
     assert prereq == text
     assert coreq == ""
+    assert prereq_or_coreq == ""
 
 def test_make_prereq_coreq_into_array_empty():
     result = make_prereq_coreq_into_array("")

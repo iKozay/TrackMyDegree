@@ -234,7 +234,7 @@ function addToCoursePools(
 
 // Moved addEcpCoursePools outside buildTimeline for better testability
 export async function handleEcp(
-  coursePools: CoursePoolInfo[],
+  coursePools: CoursePoolData[],
   courses: Record<string, CourseData>,
   degree: DegreeData,
   isExtendedCreditProgram: boolean,
@@ -264,14 +264,14 @@ export async function handleEcp(
 }
 async function handle_general_education_electives(ecpResult: { coursePools: CoursePoolData[] }, coursePools: CoursePoolData[]) {
   const ecpPool = ecpResult.coursePools.find((pool) => pool.name.includes('General Education Humanities and Social Sciences Electives'));
-  const gen_ed_pool_id = coursePools.find(pool => pool.name.includes('General Education Humanities and Social Sciences Electives'));
-  if (ecpPool && gen_ed_pool_id) {
+  const gen_ed_pool = coursePools.find(pool => pool.name.includes('General Education Humanities and Social Sciences Electives'));
+  if (ecpPool && gen_ed_pool) {
     for (const courseCode of ecpPool.courses) {
-      if (!gen_ed_pool_id.courses.includes(courseCode)) {
-        gen_ed_pool_id.courses.push(courseCode);
+      if (!gen_ed_pool.courses.includes(courseCode)) {
+        gen_ed_pool.courses.push(courseCode);
       }
     }
-    gen_ed_pool_id.creditsRequired += ecpPool.creditsRequired;
+    gen_ed_pool.creditsRequired += ecpPool.creditsRequired;
     ecpResult.coursePools = ecpResult.coursePools.filter(pool => pool._id !== ecpPool._id); // Remove the merged pool from ecpResult
   }
 }
