@@ -43,6 +43,7 @@ describe('applyCatalogAcademicYearPatch script', () => {
   const academicYear = '2026-2027';
   const courseDiffId = `Course:C:${academicYear}`;
   const degreeDiffId = `Degree:D:${academicYear}`;
+  const coursePoolsPath = '/coursePools';
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -154,7 +155,7 @@ describe('applyCatalogAcademicYearPatch script', () => {
             patch: [
               {
                 op: 'replace',
-                path: '/coursePools',
+                path: coursePoolsPath,
                 value: ['P3'],
               },
             ],
@@ -369,10 +370,10 @@ describe('applyCatalogAcademicYearPatch script', () => {
         } as any,
         [
           {
-            _id: 'Degree:D:2026-2027',
+            _id: degreeDiffId,
             entityType: 'Degree',
             entityId: 'D',
-            academicYear: '2026-2027',
+            academicYear,
             academicYearStart: 2026,
             patch: [{ op: 'add', path: '/name', value: 'D' }],
           },
@@ -434,7 +435,7 @@ describe('applyCatalogAcademicYearPatch script', () => {
             entityId: 'D',
             academicYear: '2027-2028',
             academicYearStart: 2027,
-            patch: [{ op: 'replace', path: '/coursePools', value: ['P'] }],
+            patch: [{ op: 'replace', path: coursePoolsPath, value: ['P'] }],
           },
         ],
       }),
@@ -479,12 +480,12 @@ describe('applyCatalogAcademicYearPatch script', () => {
         courses: [],
         diffs: [
           {
-            _id: 'Degree:D:2026-2027',
+            _id: degreeDiffId,
             entityType: 'Degree',
             entityId: 'D',
-            academicYear: '2026-2027',
+            academicYear,
             academicYearStart: 2026,
-            patch: [{ op: 'replace', path: '/coursePools', value: ['P'] }],
+            patch: [{ op: 'replace', path: coursePoolsPath, value: ['P'] }],
           },
         ],
       }),
