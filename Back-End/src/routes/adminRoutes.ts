@@ -294,6 +294,7 @@ router.post('/catalog', async (req: Request, res: Response) => {
       writeSnapshot = false,
       writePatch = false,
       inspectDir,
+      backfillBaseAcademicYear,
     } = req.body || {};
 
     if (!academicYear || typeof academicYear !== 'string') {
@@ -312,6 +313,10 @@ router.post('/catalog', async (req: Request, res: Response) => {
       writeSnapshot: Boolean(writeSnapshot),
       writePatch: Boolean(writePatch),
       inspectDir: typeof inspectDir === 'string' ? inspectDir : undefined,
+      backfillBaseAcademicYear:
+        typeof backfillBaseAcademicYear === 'string'
+          ? backfillBaseAcademicYear
+          : undefined,
     });
 
     res.status(HTTP.OK).json({

@@ -337,6 +337,7 @@ describe('Admin Routes', () => {
       const response = await request(app).post('/admin/catalog').send({
         academicYear: '2026-2027',
         writeSnapshot: true,
+        backfillBaseAcademicYear: '2025',
       });
 
       expect(response.status).toBe(200);
@@ -352,6 +353,7 @@ describe('Admin Routes', () => {
         writeSnapshot: true,
         writePatch: false,
         inspectDir: undefined,
+        backfillBaseAcademicYear: '2025',
       });
 
       catalogService.runCatalog = originalRunCatalog;

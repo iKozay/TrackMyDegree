@@ -1,5 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { Course, CoursePool, Degree } from '@models';
+import { normalizeAcademicYear } from '@services/catalogVersionService';
 import { applyPatchFile } from '../scripts/applyCatalogAcademicYearPatch';
 import { generatePatchFromSnapshotData } from '../scripts/generateCatalogPatchFromSnapshot';
 import {
@@ -14,6 +16,7 @@ export interface CatalogArgs {
   writeSnapshot: boolean;
   writePatch: boolean;
   inspectDir?: string;
+  backfillBaseAcademicYear?: string;
 }
 
 export type InspectionFiles = {
@@ -25,6 +28,12 @@ export type CatalogResult = {
   mode: 'apply' | 'dry-run';
   academicYear: string;
   inspectionFiles: InspectionFiles;
+  backfill?: {
+    academicYear: string;
+    updatedDegrees: number;
+    updatedCoursePools: number;
+    updatedCourses: number;
+  };
   summary: Awaited<ReturnType<typeof applyPatchFile>>;
 };
 
@@ -84,10 +93,43 @@ export async function maybeWritePatch(
   return writeInspectionFile(path.join(inspectDir, 'patch.json'), patch);
 }
 
+export async function maybeBackfillBaseAcademicYear(
+  backfillBaseAcademicYear?: string,
+): Promise<CatalogResult['backfill']> {
+  if (!backfillBaseAcademicYear) {
+    return undefined;
+  }
+
+  const academicYear = normalizeAcademicYear(backfillBaseAcademicYear) as string;
+  const filter = {
+    $or: [
+      { baseAcademicYear: { $exists: false } },
+      { baseAcademicYear: null },
+      { baseAcademicYear: '' },
+    ],
+  };
+
+  const [degreesResult, coursePoolsResult, coursesResult] = await Promise.all([
+    Degree.updateMany(filter, { $set: { baseAcademicYear: academicYear } }),
+    CoursePool.updateMany(filter, { $set: { baseAcademicYear: academicYear } }),
+    Course.updateMany(filter, { $set: { baseAcademicYear: academicYear } }),
+  ]);
+
+  return {
+    academicYear,
+    updatedDegrees: degreesResult.modifiedCount || 0,
+    updatedCoursePools: coursePoolsResult.modifiedCount || 0,
+    updatedCourses: coursesResult.modifiedCount || 0,
+  };
+}
+
 export async function runCatalog(args: CatalogArgs): Promise<CatalogResult> {
   const inspectionFiles: InspectionFiles = {};
 
   try {
+    const backfill = await maybeBackfillBaseAcademicYear(
+      args.backfillBaseAcademicYear,
+    );
     const snapshot = await scrapeCatalogSnapshot({
       academicYear: args.academicYear,
       degree: args.degree,
@@ -109,6 +151,7 @@ export async function runCatalog(args: CatalogArgs): Promise<CatalogResult> {
       mode: args.apply ? 'apply' : 'dry-run',
       academicYear: snapshot.academicYear,
       inspectionFiles,
+      backfill,
       summary,
     };
   } catch (error) {

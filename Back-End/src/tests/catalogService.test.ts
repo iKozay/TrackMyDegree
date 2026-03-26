@@ -1,7 +1,9 @@
 import fs from 'node:fs/promises';
+import { Course, CoursePool, Degree } from '@models';
 import {
   CatalogError,
   CatalogResult,
+  maybeBackfillBaseAcademicYear,
   maybeWritePatch,
   maybeWriteSnapshot,
   resolveInspectDir,
@@ -13,11 +15,19 @@ import { generatePatchFromSnapshotData } from '../scripts/generateCatalogPatchFr
 import { scrapeCatalogSnapshot } from '../scripts/scrapeCatalogSnapshot';
 
 jest.mock('node:fs/promises');
+jest.mock('@models', () => ({
+  Degree: { updateMany: jest.fn() },
+  CoursePool: { updateMany: jest.fn() },
+  Course: { updateMany: jest.fn() },
+}));
 jest.mock('../scripts/applyCatalogAcademicYearPatch');
 jest.mock('../scripts/generateCatalogPatchFromSnapshot');
 jest.mock('../scripts/scrapeCatalogSnapshot');
 
 const mockFs = fs as jest.Mocked<typeof fs>;
+const mockDegree = Degree as jest.Mocked<typeof Degree>;
+const mockCoursePool = CoursePool as jest.Mocked<typeof CoursePool>;
+const mockCourse = Course as jest.Mocked<typeof Course>;
 const mockApplyPatchFile = applyPatchFile as jest.MockedFunction<
   typeof applyPatchFile
 >;
@@ -38,6 +48,9 @@ describe('catalogService', () => {
     jest.clearAllMocks();
     mockFs.mkdir.mockResolvedValue(undefined as never);
     mockFs.writeFile.mockResolvedValue(undefined);
+    mockDegree.updateMany.mockResolvedValue({ modifiedCount: 0 } as never);
+    mockCoursePool.updateMany.mockResolvedValue({ modifiedCount: 0 } as never);
+    mockCourse.updateMany.mockResolvedValue({ modifiedCount: 0 } as never);
   });
 
   it('resolves inspect dir', () => {
@@ -106,6 +119,26 @@ describe('catalogService', () => {
     ).resolves.toContain('patch.json');
   });
 
+  it('backfills missing base academic year when requested', async () => {
+    mockDegree.updateMany.mockResolvedValue({ modifiedCount: 2 } as never);
+    mockCoursePool.updateMany.mockResolvedValue({ modifiedCount: 3 } as never);
+    mockCourse.updateMany.mockResolvedValue({ modifiedCount: 4 } as never);
+
+    await expect(
+      maybeBackfillBaseAcademicYear('2025'),
+    ).resolves.toEqual({
+      academicYear: '2025-2026',
+      updatedDegrees: 2,
+      updatedCoursePools: 3,
+      updatedCourses: 4,
+    });
+
+    expect(mockDegree.updateMany).toHaveBeenCalledWith(
+      expect.any(Object),
+      { $set: { baseAcademicYear: '2025-2026' } },
+    );
+  });
+
   it('runs end-to-end orchestration', async () => {
     mockScrapeCatalogSnapshot.mockResolvedValue({
       academicYear,
@@ -135,6 +168,7 @@ describe('catalogService', () => {
         apply: true,
         writeSnapshot: true,
         writePatch: true,
+        backfillBaseAcademicYear: '2025',
       }),
     ).resolves.toEqual<CatalogResult>({
       mode: 'apply',
@@ -142,6 +176,12 @@ describe('catalogService', () => {
       inspectionFiles: {
         snapshot: expect.stringContaining('snapshot.json'),
         patch: expect.stringContaining('patch.json'),
+      },
+      backfill: {
+        academicYear: '2025-2026',
+        updatedDegrees: 0,
+        updatedCoursePools: 0,
+        updatedCourses: 0,
       },
       summary: {
         upsertedDegrees: 0,
