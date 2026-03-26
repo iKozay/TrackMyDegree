@@ -166,7 +166,7 @@ export async function runCatalog(args: CatalogArgs): Promise<CatalogResult> {
       mode: args.apply ? 'apply' : 'dry-run',
       academicYear: snapshot.academicYear,
       inspectionFiles,
-      backfill,
+      ...(backfill ? { backfill } : {}),
       summary,
     };
   } catch (error) {
