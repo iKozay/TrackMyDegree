@@ -12,7 +12,6 @@ const router = express.Router();
 const INTERNAL_SERVER_ERROR = 'Internal server error';
 const COURSEPOOL_CACHE_TTL = 1800; // 30 minutes
 
-
 /**
  * @openapi
  * tags:
@@ -48,20 +47,28 @@ const COURSEPOOL_CACHE_TTL = 1800; // 30 minutes
  *       500:
  *         description: Server error
  */
-router.get('/:id', cacheGET(COURSEPOOL_CACHE_TTL), async (req: Request, res: Response) => {
-  try {
-    const coursePool = await coursepoolController.getCoursePool(req.params.id as string);
-    if (!coursePool) {
-      return res
-        .status(HTTP.NOT_FOUND)
-        .json({ error: 'Course pool not found' });
+router.get(
+  '/:id',
+  cacheGET(COURSEPOOL_CACHE_TTL),
+  async (req: Request, res: Response) => {
+    try {
+      const academicYear = req.query.academicYear as string | undefined;
+      const coursePool = await coursepoolController.getCoursePool(
+        req.params.id as string,
+        academicYear,
+      );
+      if (!coursePool) {
+        return res
+          .status(HTTP.NOT_FOUND)
+          .json({ error: 'Course pool not found' });
+      }
+      return res.status(HTTP.OK).json(coursePool);
+    } catch (error) {
+      console.error('Error fetching course pool:', error);
+      return res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
-    return res.status(HTTP.OK).json(coursePool);
-  } catch (error) {
-    console.error('Error fetching course pool:', error);
-    return res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
-});
+  },
+);
 
 /**
  * GET /coursepool/ - Get all course pools
@@ -85,14 +92,20 @@ router.get('/:id', cacheGET(COURSEPOOL_CACHE_TTL), async (req: Request, res: Res
  *       500:
  *         description: Server error
  */
-router.get('/', cacheGET(COURSEPOOL_CACHE_TTL), async (req: Request, res: Response) => {
-  try {
-    const coursePools = await coursepoolController.getAllCoursePools();
-    return res.status(HTTP.OK).json(coursePools);
-  } catch (error) {
-    console.error('Error fetching course pools:', error);
-    return res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
-});
+router.get(
+  '/',
+  cacheGET(COURSEPOOL_CACHE_TTL),
+  async (req: Request, res: Response) => {
+    try {
+      const academicYear = req.query.academicYear as string | undefined;
+      const coursePools =
+        await coursepoolController.getAllCoursePools(academicYear);
+      return res.status(HTTP.OK).json(coursePools);
+    } catch (error) {
+      console.error('Error fetching course pools:', error);
+      return res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    }
+  },
+);
 
 export default router;
