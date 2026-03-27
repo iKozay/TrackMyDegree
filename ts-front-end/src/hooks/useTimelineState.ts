@@ -27,17 +27,17 @@ export interface TimelineActions {
     degree: Degree,
     pools: Pool[],
     courses: CourseMap,
-    semesters: SemesterList
+    semesters: SemesterList,
   ) => void;
   selectCourse: (courseId: CourseCode | null) => void;
   moveFromPoolToSemester: (
     courseId: CourseCode,
-    toSemesterId: SemesterId
+    toSemesterId: SemesterId,
   ) => void;
   moveBetweenSemesters: (
     courseId: CourseCode,
     fromSemesterId: SemesterId,
-    toSemesterId: SemesterId
+    toSemesterId: SemesterId,
   ) => void;
   removeFromSemester: (courseId: CourseCode, semesterId: SemesterId) => void;
   undo: () => void;
@@ -143,7 +143,10 @@ function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
       });
     },
     setTimelineName(timelineName: string) {
-        dispatch({ type: TimelineActionConstants.SetTimelineName, payload: { timelineName } });
+      dispatch({
+        type: TimelineActionConstants.SetTimelineName,
+        payload: { timelineName },
+      });
     },
   };
 }
@@ -156,32 +159,27 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
   const [state, dispatch] = useReducer(timelineReducer, EMPTY_TIMELINE_STATE);
 
   const actions = useMemo(() => createTimelineActions(dispatch), [dispatch]);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const mountedRef = useRef(true);
+  // const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // const mountedRef = useRef(true);
 
   useEffect(() => {
-    mountedRef.current = true;
+    if (!jobId || initialized) return;
 
-    if (!jobId) return;
-    if (initialized) return;
+    let cancelled = false;
+    const start = Date.now();
 
-    const POLL_INTERVAL_MS = 1_500;
-    const MAX_ERRORS = 3;
-    let consecutiveErrors = 0;
-
-    const stopPolling = () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+    const fetchResult = async (): Promise<void> => {
+      if (cancelled || Date.now() - start > 60_000) {
+        if (!cancelled) {
+          setStatus("failed");
+          setErrorMessage("Processing is taking too long. Please try again.");
+        }
+        return;
       }
-    };
 
-    const fetchResult = async () => {
       try {
         const data = await api.get<TimelineJobResponse>(`/jobs/${jobId}`);
-        if (!mountedRef.current) return;
-
-        consecutiveErrors = 0;
+        if (cancelled) return;
 
         if (data.status === "done" && data.result) {
           const { degree, pools, courses, semesters } = data.result;
@@ -194,34 +192,38 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
           );
           setInitialized(true);
           setStatus("done");
-          stopPolling();
+          return;
         }
+
+        if (data.status === "processing") {
+          await new Promise((r) => setTimeout(r, 1_500));
+          return await fetchResult();
+        }
+        if (data.status !== "failed") {
+          setStatus("failed");
+          setErrorMessage("Job failed. Please try again.");
+          return;
+        }
+
+        setStatus("failed");
+        setErrorMessage("Job failed. Please try again.");
       } catch (err) {
-        if (!mountedRef.current) return;
-        consecutiveErrors++;
-
-        if (consecutiveErrors < MAX_ERRORS) return;
-
-        console.error("Error fetching timeline result:", err);
-        setStatus("error");
+        if (cancelled) return;
+        setStatus("failed");
         setErrorMessage(
           err instanceof Error && err.message.includes("HTTP 410")
             ? "Timeline generation expired. Please try again."
-            : null,
+            : "Unable to reach server. Please try again.",
         );
-        stopPolling();
       }
     };
 
     fetchResult();
-    intervalRef.current = setInterval(fetchResult, POLL_INTERVAL_MS);
 
     return () => {
-      mountedRef.current = false;
-      stopPolling();
+      cancelled = true;
     };
   }, [jobId, initialized, actions]);
-
   const prevStateRef = useRef<TimelineState | null>(null);
 
   useEffect(() => {

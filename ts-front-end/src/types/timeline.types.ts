@@ -1,4 +1,4 @@
-export type JobStatus = "done" | "processing" | "error";
+export type JobStatus = "done" | "processing" | "failed";
 
 export type JobID = string; // e.g. "7272727727219nui"
 
@@ -161,4 +161,7 @@ export type TimelineActionType =
       payload: { courseId: CourseCode; type: string };
     }
   | { type: typeof TimelineActionConstants.AddSemester }
-  | { type: typeof TimelineActionConstants.SetTimelineName; payload: { timelineName: string } };
+  | {
+      type: typeof TimelineActionConstants.SetTimelineName;
+      payload: { timelineName: string };
+    };
