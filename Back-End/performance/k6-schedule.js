@@ -38,7 +38,7 @@ const STEADY_DURATION = __ENV.STEADY_DURATION         || "3m";
 
 // ── Fixture pairs ────────────────────────────────────────────────────────────
 const DEFAULT_PAIRS = [
-    { subject: "COMP", catalog: "248" },  // OBJ-ORIENTED PROGRAMMING I     — high enrolment, every term
+    { subject: "COMP", catalog: "248" },  // OBJ-ORIENTED PROGRAMMING I — high enrolment, every term
     { subject: "COMP", catalog: "346" },  // Data Structures & Algorithms    — high enrolment, every term
     { subject: "COEN", catalog: "212" },  // Digital Systems Design I        — every term
     { subject: "SOEN", catalog: "287" },  // Web Programming                 — every term
@@ -129,15 +129,12 @@ export default function scheduleFlow() {
 
         const res = http.get(
             url,
-            // expected_response: true — lets k6 tag failed requests in http_req_failed
-            // so the built-in threshold and Grafana error dashboards pick them up.
             { tags: { name: "GET /api/section/schedule" } }
         );
 
         const preview = truncate(res.body, 300);
         debugLog(`[VU=${__VU} ITER=${__ITER}] ← ${res.status} (${res.timings.duration.toFixed(1)}ms) body=${preview}`);
 
-        // ── Check 1: HTTP status ─────────────────────────────────────────────
         const httpOk = check(res, {
             "schedule status is 200": (r) => r.status === 200,
         });
