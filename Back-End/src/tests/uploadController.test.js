@@ -8,6 +8,9 @@ jest.mock('../workers/queue', () => ({
     add: mockQueueAdd,
   },
 }));
+jest.mock('@lib/cache', () => ({
+  cacheJobResult: jest.fn().mockResolvedValue(undefined),
+}));
 
 // Import AFTER mocks
 const { uploadController } = require('../controllers/uploadController');

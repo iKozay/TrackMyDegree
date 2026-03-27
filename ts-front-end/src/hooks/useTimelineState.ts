@@ -76,6 +76,7 @@ const EMPTY_TIMELINE_STATE: TimelineState = {
     type: "",
   },
 };
+
 function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
   return {
     initTimelineState(timelineName, degree, pools, courses, semesters) {
@@ -90,32 +91,27 @@ function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
         payload: { courseId },
       });
     },
-
     moveFromPoolToSemester(courseId, toSemesterId) {
       dispatch({
         type: TimelineActionConstants.MoveFromPoolToSemester,
         payload: { courseId, toSemesterId },
       });
     },
-
     moveBetweenSemesters(courseId, fromSemesterId, toSemesterId) {
       dispatch({
         type: TimelineActionConstants.MoveBetweenSemesters,
         payload: { courseId, fromSemesterId, toSemesterId },
       });
     },
-
     removeFromSemester(courseId, semesterId) {
       dispatch({
         type: TimelineActionConstants.RemoveFromSemester,
         payload: { courseId, semesterId },
       });
     },
-
     undo() {
       dispatch({ type: TimelineActionConstants.Undo });
     },
-
     redo() {
       dispatch({ type: TimelineActionConstants.Redo });
     },
@@ -138,9 +134,7 @@ function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
       });
     },
     addSemester() {
-      dispatch({
-        type: TimelineActionConstants.AddSemester,
-      });
+      dispatch({ type: TimelineActionConstants.AddSemester });
     },
     setTimelineName(timelineName: string) {
       dispatch({
@@ -158,103 +152,110 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
 
   const [state, dispatch] = useReducer(timelineReducer, EMPTY_TIMELINE_STATE);
 
-  const actions = useMemo(() => createTimelineActions(dispatch), [dispatch]);
-  // const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  // const mountedRef = useRef(true);
+  const actions = useMemo(() => createTimelineActions(dispatch), []);
 
+  const prevStateRef = useRef<TimelineState | null>(null);
+
+  // Polling effect — uses a loop instead of recursion, no AbortController
   useEffect(() => {
     if (!jobId || initialized) return;
 
     let cancelled = false;
-    const start = Date.now();
+    let timerId: ReturnType<typeof setTimeout> | null = null;
 
-    const fetchResult = async (): Promise<void> => {
-      if (cancelled || Date.now() - start > 60_000) {
-        if (!cancelled) {
+    const poll = async () => {
+      const start = Date.now();
+
+      while (!cancelled && Date.now() - start <= 180_000) {
+        try {
+          const data = await api.get<TimelineJobResponse>(`/jobs/${jobId}`);
+          if (cancelled) return;
+
+          if (data.status === "done" && data.result) {
+            const { degree, pools, courses, semesters } = data.result;
+            dispatch({
+              type: TimelineActionConstants.Init,
+              payload: {
+                timelineName: data.result.timelineName ?? "",
+                degree,
+                pools,
+                courses,
+                semesters,
+              },
+            });
+            // Set the sync baseline to the initialized state so the
+            // sync effect doesn't POST the entire initial payload back.
+            prevStateRef.current = null; // will be set on next sync render
+            setInitialized(true);
+            setStatus("done");
+            return;
+          }
+
+          if (data.status === "failed") {
+            setStatus("failed");
+            setErrorMessage("Job failed. Please try again.");
+            return;
+          }
+        } catch (err) {
+          if (cancelled) return;
           setStatus("failed");
-          setErrorMessage("Processing is taking too long. Please try again.");
+          setErrorMessage(
+            err instanceof Error && err.message.includes("HTTP 410")
+              ? "Timeline generation expired. Please try again."
+              : "Unable to reach server. Please try again.",
+          );
+          return;
         }
-        return;
+
+        // Wait before next poll, but track the timer so cleanup can clear it
+        await new Promise<void>((resolve) => {
+          timerId = setTimeout(() => {
+            timerId = null;
+            resolve();
+          }, 1_500);
+        });
       }
 
-      try {
-        const data = await api.get<TimelineJobResponse>(`/jobs/${jobId}`);
-        if (cancelled) return;
-
-        if (data.status === "done" && data.result) {
-          const { degree, pools, courses, semesters } = data.result;
-          actions.initTimelineState(
-            data.result.timelineName ?? "",
-            degree,
-            pools,
-            courses,
-            semesters,
-          );
-          setInitialized(true);
-          setStatus("done");
-          return;
-        }
-
-        if (data.status === "processing") {
-          await new Promise((r) => setTimeout(r, 1_500));
-          return await fetchResult();
-        }
-        if (data.status !== "failed") {
-          setStatus("failed");
-          setErrorMessage("Job failed. Please try again.");
-          return;
-        }
-
+      if (!cancelled) {
         setStatus("failed");
-        setErrorMessage("Job failed. Please try again.");
-      } catch (err) {
-        if (cancelled) return;
-        setStatus("failed");
-        setErrorMessage(
-          err instanceof Error && err.message.includes("HTTP 410")
-            ? "Timeline generation expired. Please try again."
-            : "Unable to reach server. Please try again.",
-        );
+        setErrorMessage("Processing is taking too long. Please try again.");
       }
     };
 
-    fetchResult();
+    poll();
 
     return () => {
       cancelled = true;
+      if (timerId !== null) clearTimeout(timerId);
     };
-  }, [jobId, initialized, actions]);
-  const prevStateRef = useRef<TimelineState | null>(null);
+  }, [jobId, initialized]);
 
+  // Sync effect — skips the first render after init so we don't POST the
+  // initial state back to the server
   useEffect(() => {
     if (!jobId || !initialized) return;
 
     const prev = prevStateRef.current;
-    if (!prev) {
-      prevStateRef.current = state;
-      return;
-    }
+    prevStateRef.current = state;
+
+    // Skip the first render after initialization
+    if (!prev) return;
 
     const update = computeTimelinePartialUpdate(prev, state);
-
     if (update) {
       api.post(`/jobs/${jobId}`, update).catch((err) => {
         console.error("Failed to sync timeline update", err);
+        setErrorMessage("Failed to save changes. Please try again.");
       });
     }
-
-    prevStateRef.current = state;
   }, [state, jobId, initialized]);
-
-  const canUndo = state.history.length > 0;
-  const canRedo = state.future.length > 0;
 
   return {
     status,
     state,
     actions,
-    canUndo,
-    canRedo,
+    canUndo: state.history.length > 0,
+    canRedo: state.future.length > 0,
     errorMessage,
   };
 }
