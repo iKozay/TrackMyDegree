@@ -4,7 +4,7 @@ import { timelineController } from '@controllers/timelineController';
 import { assignJobId, RequestWithJobId } from '@middleware/assignJobId';
 import { queue } from '../workers/queue';
 import mongoose from 'mongoose';
-import { getJobResult } from '../lib/cache';
+import { getJobResult, cacheJobProcessing } from '../lib/cache';
 import { TimelineResult } from '@shared/timeline';
 
 const router = express.Router();
@@ -140,6 +140,7 @@ router.get('/:id', assignJobId, async (req: Request, res: Response) => {
       return;
     }
 
+      await cacheJobProcessing(jobId); // set initial status in cache to "processing" while the job runs to prevent "job not found" responses to clients polling for status
       await queue.add('processData', {
         jobId,
         kind: 'timelineData',

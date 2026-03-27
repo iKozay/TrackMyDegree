@@ -4,6 +4,19 @@ import { RESULT_TTL_SECONDS } from '@utils/constants';
 const resultKey = (jobId: string): string => `job:timeline:${jobId}`;
 
 // Job result functions use db 1
+/*
+* cacheJobProcessing is called when a job starts processing, to set the initial status in cache.
+* Allows clients to know that the job is being processed even if the final result is not yet available.
+* Prevents sending false "job not found" responses to clients polling for job status while the job is still running.
+*/
+export async function cacheJobProcessing(jobId: string): Promise<void> {
+  await jobRedisClient.setEx(
+    resultKey(jobId),
+    86400,
+    JSON.stringify({ payload: { status: 'processing', data: null } }),
+  );
+}
+
 export async function cacheJobResult(
   jobId: string,
   payload: unknown,

@@ -2,6 +2,7 @@
 import type { Request, Response, NextFunction, RequestHandler } from 'express';
 import { queue, CourseProcessorJobData } from '../workers/queue';
 import type { RequestWithJobId } from '../middleware/assignJobId';
+import { cacheJobProcessing } from '../lib/cache';
 
 export const uploadController: RequestHandler = async (
   req: Request,
@@ -41,6 +42,7 @@ export const uploadController: RequestHandler = async (
       return;
     }
 
+    await cacheJobProcessing(jobId); // set initial status in cache to "processing" while the job runs to prevent "job not found" responses to clients polling for status
     await queue.add('processData', jobData, {
       removeOnComplete: true,
       removeOnFail: { age: 86400 },
