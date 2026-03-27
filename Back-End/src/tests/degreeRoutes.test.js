@@ -370,14 +370,16 @@ describe('Degree Routes', () => {
         name: 'COMP_CORE',
         creditsRequired: 60,
         courses: ['course 1'],
-        rules: []
+        rules: [],
+        baseAcademicYear: '2025-2026',
       },
       {
         _id: 'POOL2',
         name: 'COMP_ELECTIVES',
         creditsRequired: 60,
         courses: ['course 2'],
-        rules: []
+        rules: [],
+        baseAcademicYear: '2025-2026',
       }]);
       
     });
