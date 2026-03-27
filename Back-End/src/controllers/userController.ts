@@ -14,7 +14,7 @@ export interface CreateUserData {
   email: string;
   password?: string;
   fullname: string;
-  type: 'student' | 'advisor'; 
+  type: 'student' | 'admin';
 }
 
 
@@ -56,8 +56,8 @@ export class UserController extends BaseMongoController<any> {
         throw new Error('User with this email already exists.');
       }
 
-      if(userData.type!== 'student' && userData.type !== 'advisor') 
-        throw new Error(`User type (${userData.type}) is not supported through this route. Allowed types: "student", "advisor".`)
+      if(userData.type !== 'student' && userData.type !== 'admin')
+        throw new Error(`User type (${userData.type}) is not supported through this route. Allowed types: "student", "admin".`)
 
       const result = await this.create(userData);
 

@@ -3,14 +3,14 @@ export interface RequisiteGroup {
 }
 
 export interface CourseDocument {
-  _id?: string;
-  code: string;
+  _id: string;
+  code?: string;
   title: string;
   credits: number;
   description?: string;
-  offeredIN: string[];
-  prerequisites: RequisiteGroup[];
-  corequisites: RequisiteGroup[];
+  offeredIn: string[];
+  prerequisites?: RequisiteGroup[];
+  corequisites?: RequisiteGroup[];
 }
 
 export interface CreateCourseInput {
@@ -18,7 +18,7 @@ export interface CreateCourseInput {
   title: string;
   credits: number;
   description?: string;
-  offeredIN: string[];
+  offeredIn: string[];
   prerequisites: RequisiteGroup[];
   corequisites: RequisiteGroup[];
 }

@@ -6,13 +6,7 @@ export interface AdminStats {
   usersByRole: {
     student: number;
     admin: number;
-    advisor: number;
   };
-}
-
-export interface CollectionInfo {
-  name: string;
-  count: number;
 }
 
 export interface SeedResult {

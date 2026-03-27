@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Spinner, Alert, Badge, Button, Card, Col, Row } from 'react-bootstrap';
+import { Spinner, Alert, Button, Card, Col, Row } from 'react-bootstrap';
 import { api } from '../../api/http-api-client';
 import type { AdminStats, DbConnectionStatus } from '@shared/admin';
 import type { UserDocument } from '@shared/user';
@@ -12,48 +12,45 @@ const MetricsTab: React.FC = () => {
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
 
   const fetchMetrics = useCallback(async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const [usersRes, degreesRes, coursesRes, timelinesRes, dbRes] = await Promise.allSettled([
-          api.get<UserDocument[]>('/users'),
-          api.get<{ total?: number }>('/admin/collections/degrees/documents?limit=1'),
-          api.get<{ total?: number }>('/admin/collections/courses/documents?limit=1'),
-          api.get<{ total?: number }>('/admin/collections/timelines/documents?limit=1'),
-          api.get<DbConnectionStatus>('/admin/connection-status'),
-        ]);
+    setLoading(true);
+    setError(null);
+    try {
+      const [usersRes, degreesRes, coursesRes, timelinesRes, dbRes] = await Promise.allSettled([
+        api.get<UserDocument[]>('/users'),
+        api.get<{ total?: number }>('/admin/collections/degrees/documents?limit=1'),
+        api.get<{ total?: number }>('/admin/collections/courses/documents?limit=1'),
+        api.get<{ total?: number }>('/admin/collections/timelines/documents?limit=1'),
+        api.get<DbConnectionStatus>('/admin/connection-status'),
+      ]);
 
-        const users = usersRes.status === 'fulfilled' ? (usersRes.value as UserDocument[]) : [];
-        const degreesData = degreesRes.status === 'fulfilled' ? (degreesRes.value as { total?: number }) : null;
-        const coursesData = coursesRes.status === 'fulfilled' ? (coursesRes.value as { total?: number }) : null;
-        const timelinesData = timelinesRes.status === 'fulfilled' ? (timelinesRes.value as { total?: number }) : null;
+      const users = usersRes.status === 'fulfilled' ? (usersRes.value as UserDocument[]) : [];
+      const degreesData = degreesRes.status === 'fulfilled' ? (degreesRes.value as { total?: number }) : null;
+      const coursesData = coursesRes.status === 'fulfilled' ? (coursesRes.value as { total?: number }) : null;
+      const timelinesData = timelinesRes.status === 'fulfilled' ? (timelinesRes.value as { total?: number }) : null;
 
-        if (dbRes.status === 'fulfilled') {
-          setDbStatus(dbRes.value as DbConnectionStatus);
-        }
-
-        const byRole = { student: 0, admin: 0, advisor: 0 };
-        (users as UserDocument[]).forEach((u) => {
-          if (u.role === 'student') byRole.student++;
-          else if (u.role === 'admin') byRole.admin++;
-          else if (u.role === 'advisor') byRole.advisor++;
-        });
-
-        setStats({
-          totalUsers: users.length,
-          totalTimelines: timelinesData?.total ?? 0,
-          totalDegrees: degreesData?.total ?? 0,
-          totalCourses: coursesData?.total ?? 0,
-          usersByRole: byRole,
-        });
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load metrics');
-        setLastRefreshed(new Date());
-      } finally {
-        setLoading(false);
+      if (dbRes.status === 'fulfilled') {
+        setDbStatus(dbRes.value as DbConnectionStatus);
       }
-    };
 
+      const byRole = { student: 0, admin: 0 };
+      (users as UserDocument[]).forEach((u) => {
+        if (u.type === 'student') byRole.student++;
+        else if (u.type === 'admin') byRole.admin++;
+      });
+
+      setStats({
+        totalUsers: users.length,
+        totalTimelines: timelinesData?.total ?? 0,
+        totalDegrees: degreesData?.total ?? 0,
+        totalCourses: coursesData?.total ?? 0,
+        usersByRole: byRole,
+      });
+      setLastRefreshed(new Date());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load metrics');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { void fetchMetrics(); }, [fetchMetrics]);
@@ -89,8 +86,8 @@ const MetricsTab: React.FC = () => {
         <Col xs={12} sm={6} md={3}>
           <Card className="h-100 text-center border-primary">
             <Card.Body>
-              <div className="display-4 fw-bold text-primary">{stats?.totalUsers ?? 0}</div>
-              <Card.Text className="text-muted">Total Users</Card.Text>
+              <div className="display-4 fw-bold text-primary">{stats?.usersByRole.student ?? 0}</div>
+              <Card.Text className="text-muted">Number of Students</Card.Text>
             </Card.Body>
           </Card>
         </Col>
@@ -119,32 +116,6 @@ const MetricsTab: React.FC = () => {
           </Card>
         </Col>
       </Row>
-
-      <Card>
-        <Card.Header><strong>Users by Role</strong></Card.Header>
-        <Card.Body>
-          <Row className="g-3">
-            <Col xs={12} sm={4}>
-              <div className="d-flex align-items-center gap-2">
-                <Badge bg="secondary" className="fs-6 px-3 py-2">{stats?.usersByRole.student ?? 0}</Badge>
-                <span>Students</span>
-              </div>
-            </Col>
-            <Col xs={12} sm={4}>
-              <div className="d-flex align-items-center gap-2">
-                <Badge bg="danger" className="fs-6 px-3 py-2">{stats?.usersByRole.admin ?? 0}</Badge>
-                <span>Admins</span>
-              </div>
-            </Col>
-            <Col xs={12} sm={4}>
-              <div className="d-flex align-items-center gap-2">
-                <Badge bg="info" className="fs-6 px-3 py-2">{stats?.usersByRole.advisor ?? 0}</Badge>
-                <span>Advisors</span>
-              </div>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
     </div>
   );
 };

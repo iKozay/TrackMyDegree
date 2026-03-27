@@ -11,10 +11,18 @@ type AdminTab = "metrics" | "degrees" | "users" | "seeding";
 const AdminPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>("metrics");
+  // Increment this key each time the degrees tab is activated to force a fresh fetch.
+  const [degreeTabKey, setDegreeTabKey] = useState(0);
 
   if (!isAuthenticated) {
     return <p>Please log in to see your data.</p>;
   }
+
+  const handleTabSelect = (k: string | null) => {
+    const tab = (k ?? "metrics") as AdminTab;
+    if (tab === "degrees") setDegreeTabKey((n) => n + 1);
+    setActiveTab(tab);
+  };
 
   return (
     <Container fluid className="py-4">
@@ -24,14 +32,15 @@ const AdminPage: React.FC = () => {
       </div>
       <Tabs
         activeKey={activeTab}
-        onSelect={(k) => setActiveTab((k ?? "metrics") as AdminTab)}
+        onSelect={handleTabSelect}
         className="mb-3"
+        mountOnEnter
       >
         <Tab eventKey="metrics" title="Metrics & Stats">
           <MetricsTab />
         </Tab>
         <Tab eventKey="degrees" title="Degrees & Courses">
-          <DegreeManagementTab />
+          <DegreeManagementTab key={degreeTabKey} />
         </Tab>
         <Tab eventKey="users" title="Manage Users">
           <UserManagementTab />

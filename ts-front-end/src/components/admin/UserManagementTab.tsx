@@ -3,9 +3,9 @@ import { Alert, Badge, Button, Col, Form, Modal, Row, Spinner, Table } from 'rea
 import { api } from '../../api/http-api-client';
 import type { UserDocument, UserRole, CreateUserInput, UpdateUserInput } from '@shared/user';
 
-const ROLES: UserRole[] = ['student', 'advisor', 'admin'];
+const ROLES: UserRole[] = ['student', 'admin'];
 
-// ─── Invite Admin modal ──────────────────────────────────────────────────────
+// ─── Invite Admin modal ───────────────────────────────────────────────────────
 
 interface InviteAdminModalProps {
   show: boolean;
@@ -40,7 +40,7 @@ const InviteAdminModal: React.FC<InviteAdminModalProps> = ({ show, onHide, onSav
       <Modal.Header closeButton><Modal.Title>Invite Admin User</Modal.Title></Modal.Header>
       <Modal.Body>
         {error && <Alert variant="danger">{error}</Alert>}
-        <p className="text-muted small">An invitation email will be sent to the address below.</p>
+        <p className="text-muted small">An invitation email will be sent with a link to set their password.</p>
         <Form>
           <Form.Group className="mb-3">
             <Form.Label>Name</Form.Label>
@@ -54,13 +54,15 @@ const InviteAdminModal: React.FC<InviteAdminModalProps> = ({ show, onHide, onSav
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>Cancel</Button>
-        <Button variant="warning" onClick={() => void handleInvite()} disabled={saving}>{saving ? 'Sending…' : 'Send Invite'}</Button>
+        <Button variant="warning" onClick={() => void handleInvite()} disabled={saving || !email || !name}>
+          {saving ? 'Sending…' : 'Send Invite'}
+        </Button>
       </Modal.Footer>
     </Modal>
   );
 };
 
-// ─── Create / Edit modal ─────────────────────────────────────────────────────
+// ─── Create / Edit modal ──────────────────────────────────────────────────────
 
 interface UserModalProps {
   show: boolean;
@@ -71,13 +73,13 @@ interface UserModalProps {
 
 const UserModal: React.FC<UserModalProps> = ({ show, onHide, onSaved, editing }) => {
   const isEdit = editing !== null;
-  const [form, setForm] = useState<CreateUserInput>({ email: '', name: '', password: '', role: 'student' });
+  const [form, setForm] = useState<CreateUserInput>({ email: '', fullname: '', password: '', type: 'student' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (editing) { setForm({ email: editing.email, name: editing.name, password: '', role: editing.role }); }
-    else { setForm({ email: '', name: '', password: '', role: 'student' }); }
+    if (editing) { setForm({ email: editing.email, fullname: editing.fullname, password: '', type: editing.type }); }
+    else { setForm({ email: '', fullname: '', password: '', type: 'student' }); }
     setError(null);
   }, [editing, show]);
 
@@ -86,7 +88,7 @@ const UserModal: React.FC<UserModalProps> = ({ show, onHide, onSaved, editing })
     setError(null);
     try {
       if (isEdit) {
-        const payload: UpdateUserInput = { email: form.email, name: form.name, role: form.role };
+        const payload: UpdateUserInput = { email: form.email, fullname: form.fullname, type: form.type };
         await api.put(`/users/${editing!._id}`, payload);
       } else {
         await api.post<UserDocument>('/users', form);
@@ -107,8 +109,8 @@ const UserModal: React.FC<UserModalProps> = ({ show, onHide, onSaved, editing })
         {error && <Alert variant="danger">{error}</Alert>}
         <Form>
           <Form.Group className="mb-3">
-            <Form.Label>Name</Form.Label>
-            <Form.Control value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+            <Form.Label>Full Name</Form.Label>
+            <Form.Control value={form.fullname} onChange={(e) => setForm((f) => ({ ...f, fullname: e.target.value }))} />
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Email</Form.Label>
@@ -122,7 +124,7 @@ const UserModal: React.FC<UserModalProps> = ({ show, onHide, onSaved, editing })
           )}
           <Form.Group className="mb-3">
             <Form.Label>Role</Form.Label>
-            <Form.Select value={form.role} onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as UserRole }))}>
+            <Form.Select value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as UserRole }))}>
               {ROLES.map((r) => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
             </Form.Select>
           </Form.Group>
@@ -136,9 +138,8 @@ const UserModal: React.FC<UserModalProps> = ({ show, onHide, onSaved, editing })
   );
 };
 
-const roleBadgeVariant = (role: UserRole) => {
-  if (role === 'admin') return 'danger';
-  if (role === 'advisor') return 'info';
+const roleBadgeVariant = (type: UserRole) => {
+  if (type === 'admin') return 'danger';
   return 'secondary';
 };
 
@@ -168,14 +169,14 @@ const UserManagementTab: React.FC = () => {
   useEffect(() => { void load(); }, [load]);
 
   const handleDelete = async (user: UserDocument) => {
-    if (!window.confirm(`Delete user "${user.name}" (${user.email})?`)) return;
+    if (!window.confirm(`Delete user "${user.fullname}" (${user.email})?`)) return;
     try { await api.delete(`/users/${user._id}`); await load(); }
     catch (err) { alert(err instanceof Error ? err.message : 'Delete failed'); }
   };
 
   const filtered = users.filter((u) => {
-    const matchesRole = roleFilter === 'all' || u.role === roleFilter;
-    const matchesSearch = !search || u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
+    const matchesRole = roleFilter === 'all' || u.type === roleFilter;
+    const matchesSearch = !search || u.fullname.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
     return matchesRole && matchesSearch;
   });
 
@@ -202,22 +203,21 @@ const UserManagementTab: React.FC = () => {
       </Row>
       <Table striped hover responsive>
         <thead>
-          <tr><th>Name</th><th>Email</th><th>Role</th><th>Created</th><th></th></tr>
+          <tr><th>Name</th><th>Email</th><th>Role</th><th></th></tr>
         </thead>
         <tbody>
           {filtered.map((u) => (
             <tr key={u._id}>
-              <td>{u.name}</td>
+              <td>{u.fullname}</td>
               <td>{u.email}</td>
-              <td><Badge bg={roleBadgeVariant(u.role)}>{u.role}</Badge></td>
-              <td className="text-muted small">{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
+              <td><Badge bg={roleBadgeVariant(u.type)}>{u.type}</Badge></td>
               <td className="text-end">
                 <Button size="sm" variant="outline-secondary" className="me-1" onClick={() => { setEditingUser(u); setShowUserModal(true); }}>Edit</Button>
                 <Button size="sm" variant="outline-danger" onClick={() => void handleDelete(u)}>Delete</Button>
               </td>
             </tr>
           ))}
-          {filtered.length === 0 && <tr><td colSpan={5} className="text-center text-muted py-4">No users found</td></tr>}
+          {filtered.length === 0 && <tr><td colSpan={4} className="text-center text-muted py-4">No users found</td></tr>}
         </tbody>
       </Table>
       <UserModal show={showUserModal} onHide={() => setShowUserModal(false)} onSaved={() => void load()} editing={editingUser} />

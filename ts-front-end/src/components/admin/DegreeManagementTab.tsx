@@ -1,12 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Badge, Button, Col, Form, Modal, Row, Spinner, Tab, Table, Tabs } from 'react-bootstrap';
 import { api } from '../../api/http-api-client';
 import type { DegreeData, CoursePoolInfo, CreateDegreeInput, UpdateDegreeInput, CreateCoursePoolInput } from '@shared/degree';
-import type { CourseDocument, CreateCourseInput } from '@shared/course';
+import type { CourseDocument } from '@shared/course';
 
-// ─── Degrees sub-tab ────────────────────────────────────────────────────────
+// ─── Degrees sub-tab ─────────────────────────────────────────────────────────
 
-const DegreesPanel: React.FC = () => {
+interface DegreesPanelProps {
+  onManagePools: (degreeId: string) => void;
+}
+
+const DegreesPanel: React.FC<DegreesPanelProps> = ({ onManagePools }) => {
   const [degrees, setDegrees] = useState<DegreeData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +103,7 @@ const DegreesPanel: React.FC = () => {
               <td>{d.totalCredits}</td>
               <td><Badge bg="secondary">{d.coursePools?.length ?? 0}</Badge></td>
               <td className="text-end">
+                <Button size="sm" variant="outline-primary" className="me-1" onClick={() => onManagePools(d._id)}>Manage Pools</Button>
                 <Button size="sm" variant="outline-secondary" className="me-1" onClick={() => openEdit(d)}>Edit</Button>
                 <Button size="sm" variant="outline-danger" onClick={() => void handleDelete(d._id)}>Delete</Button>
               </td>
@@ -126,6 +131,11 @@ const DegreesPanel: React.FC = () => {
               <Form.Control value={form.degreeType ?? ''} onChange={(e) => setForm((f) => ({ ...f, degreeType: e.target.value }))} placeholder="e.g. BEng, BSc" />
             </Form.Group>
           </Form>
+          {editing && (
+            <p className="text-muted small mt-2 mb-0">
+              To add or remove course pools for this degree, click <strong>Manage Pools</strong> in the table.
+            </p>
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
@@ -136,11 +146,44 @@ const DegreesPanel: React.FC = () => {
   );
 };
 
-// ─── Course Pools sub-tab ────────────────────────────────────────────────────
+// ─── Course search hook ───────────────────────────────────────────────────────
 
-const CoursePoolsPanel: React.FC = () => {
+function useCourseSearch() {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<CourseDocument[]>([]);
+  const [searching, setSearching] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!query.trim()) { setResults([]); return; }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const data = await api.get<CourseDocument[]>(`/courses?search=${encodeURIComponent(query)}&limit=10`);
+        const list = Array.isArray(data) ? data : [];
+        setResults(list.map((c) => ({ ...c, code: c.code ?? c._id })));
+      } catch {
+        setResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [query]);
+
+  return { query, setQuery, results, searching };
+}
+
+// ─── Course Pools sub-tab ─────────────────────────────────────────────────────
+
+interface CoursePoolsPanelProps {
+  initialDegreeId?: string;
+}
+
+const CoursePoolsPanel: React.FC<CoursePoolsPanelProps> = ({ initialDegreeId }) => {
   const [degrees, setDegrees] = useState<DegreeData[]>([]);
-  const [selectedDegreeId, setSelectedDegreeId] = useState<string>('');
+  const [selectedDegreeId, setSelectedDegreeId] = useState<string>(initialDegreeId ?? '');
   const [pools, setPools] = useState<CoursePoolInfo[]>([]);
   const [loadingDegrees, setLoadingDegrees] = useState(true);
   const [loadingPools, setLoadingPools] = useState(false);
@@ -149,6 +192,7 @@ const CoursePoolsPanel: React.FC = () => {
   const [editing, setEditing] = useState<CoursePoolInfo | null>(null);
   const [form, setForm] = useState<Omit<CreateCoursePoolInput, 'degreeId'>>({ name: '', creditsRequired: 0, courses: [] });
   const [saving, setSaving] = useState(false);
+  const courseSearch = useCourseSearch();
 
   useEffect(() => {
     const fetchDegrees = async () => {
@@ -156,7 +200,7 @@ const CoursePoolsPanel: React.FC = () => {
       try {
         const data = await api.get<DegreeData[]>('/degree');
         setDegrees(data);
-        if (data.length > 0) setSelectedDegreeId(data[0]._id);
+        if (!initialDegreeId && data.length > 0) setSelectedDegreeId(data[0]._id);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load degrees');
       } finally {
@@ -164,7 +208,12 @@ const CoursePoolsPanel: React.FC = () => {
       }
     };
     void fetchDegrees();
-  }, []);
+  }, [initialDegreeId]);
+
+  // Sync initialDegreeId prop when it changes (e.g. navigated from Degrees tab)
+  useEffect(() => {
+    if (initialDegreeId) setSelectedDegreeId(initialDegreeId);
+  }, [initialDegreeId]);
 
   const loadPools = useCallback(async (degreeId: string) => {
     if (!degreeId) return;
@@ -182,8 +231,19 @@ const CoursePoolsPanel: React.FC = () => {
 
   useEffect(() => { if (selectedDegreeId) void loadPools(selectedDegreeId); }, [selectedDegreeId, loadPools]);
 
-  const openCreate = () => { setEditing(null); setForm({ name: '', creditsRequired: 0, courses: [] }); setShowModal(true); };
-  const openEdit = (pool: CoursePoolInfo) => { setEditing(pool); setForm({ name: pool.name, creditsRequired: pool.creditsRequired, courses: pool.courses }); setShowModal(true); };
+  const openCreate = () => { setEditing(null); setForm({ name: '', creditsRequired: 0, courses: [] }); courseSearch.setQuery(''); setShowModal(true); };
+  const openEdit = (pool: CoursePoolInfo) => { setEditing(pool); setForm({ name: pool.name, creditsRequired: pool.creditsRequired, courses: [...pool.courses] }); courseSearch.setQuery(''); setShowModal(true); };
+
+  const addCourse = (code: string) => {
+    if (!form.courses.includes(code)) {
+      setForm((f) => ({ ...f, courses: [...f.courses, code] }));
+    }
+    courseSearch.setQuery('');
+  };
+
+  const removeCourse = (code: string) => {
+    setForm((f) => ({ ...f, courses: f.courses.filter((c) => c !== code) }));
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -236,7 +296,8 @@ const CoursePoolsPanel: React.FC = () => {
           </tbody>
         </Table>
       )}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+
+      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton><Modal.Title>{editing ? 'Edit Pool' : 'Add Pool'}</Modal.Title></Modal.Header>
         <Modal.Body>
           <Form>
@@ -247,6 +308,44 @@ const CoursePoolsPanel: React.FC = () => {
             <Form.Group className="mb-3">
               <Form.Label>Credits Required</Form.Label>
               <Form.Control type="number" value={form.creditsRequired} onChange={(e) => setForm((f) => ({ ...f, creditsRequired: Number(e.target.value) }))} />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Courses</Form.Label>
+              <div className="mb-2 d-flex flex-wrap gap-1">
+                {form.courses.map((code) => (
+                  <Badge key={code} bg="secondary" className="d-flex align-items-center gap-1" style={{ fontSize: '0.85em' }}>
+                    {code}
+                    <span role="button" style={{ cursor: 'pointer' }} onClick={() => removeCourse(code)}>&times;</span>
+                  </Badge>
+                ))}
+                {form.courses.length === 0 && <span className="text-muted small">No courses added yet</span>}
+              </div>
+              <Form.Control
+                placeholder="Search course code or title…"
+                value={courseSearch.query}
+                onChange={(e) => courseSearch.setQuery(e.target.value)}
+              />
+              {courseSearch.searching && <small className="text-muted">Searching…</small>}
+              {courseSearch.results.length > 0 && (
+                <div className="border rounded mt-1" style={{ maxHeight: 180, overflowY: 'auto' }}>
+                  {courseSearch.results.map((c) => {
+                    const code = c.code ?? c._id;
+                    return (
+                      <div
+                        key={code}
+                        className="px-3 py-2 d-flex justify-content-between align-items-center"
+                        style={{ cursor: 'pointer', borderBottom: '1px solid #eee' }}
+                        onClick={() => addCourse(code)}
+                      >
+                        <span><code>{code}</code> — {c.title}</span>
+                        <Badge bg={form.courses.includes(code) ? 'success' : 'outline-secondary'}>
+                          {form.courses.includes(code) ? 'Added' : '+ Add'}
+                        </Badge>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </Form.Group>
           </Form>
         </Modal.Body>
@@ -267,21 +366,17 @@ const CoursesPanel: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
   const limit = 20;
-  const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<CourseDocument | null>(null);
-  const [form, setForm] = useState<CreateCourseInput>({ code: '', title: '', credits: 3, offeredIN: [], prerequisites: [], corequisites: [] });
-  const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const params = new URLSearchParams({ page: String(page), limit: String(limit), ...(search && { search }) });
-      const data = await api.get<{ courses: CourseDocument[]; total: number }>(`/courses?${params.toString()}`);
-      setCourses(data.courses ?? []);
-      setTotal(data.total ?? 0);
+      const data = await api.get<CourseDocument[]>(`/courses?${params.toString()}`);
+      // Backend returns an array directly
+      const list = Array.isArray(data) ? data : [];
+      setCourses(list.map((c) => ({ ...c, code: c.code ?? c._id })));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load courses');
     } finally {
@@ -291,27 +386,7 @@ const CoursesPanel: React.FC = () => {
 
   useEffect(() => { void load(); }, [load]);
 
-  const openCreate = () => { setEditing(null); setForm({ code: '', title: '', credits: 3, offeredIN: [], prerequisites: [], corequisites: [] }); setShowModal(true); };
-  const openEdit = (c: CourseDocument) => { setEditing(c); setForm({ code: c.code, title: c.title, credits: c.credits, description: c.description, offeredIN: c.offeredIN, prerequisites: c.prerequisites, corequisites: c.corequisites }); setShowModal(true); };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      if (editing) { await api.put(`/courses/${editing.code}`, form); }
-      else { await api.post('/courses', form); }
-      setShowModal(false);
-      await load();
-    } catch (err) { alert(err instanceof Error ? err.message : 'Save failed'); }
-    finally { setSaving(false); }
-  };
-
-  const handleDelete = async (code: string) => {
-    if (!window.confirm(`Delete course ${code}?`)) return;
-    try { await api.delete(`/courses/${code}`); await load(); }
-    catch (err) { alert(err instanceof Error ? err.message : 'Delete failed'); }
-  };
-
-  const totalPages = Math.ceil(total / limit);
+  const hasMore = courses.length === limit;
 
   return (
     <>
@@ -319,99 +394,68 @@ const CoursesPanel: React.FC = () => {
         <Col>
           <Form.Control placeholder="Search courses…" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
         </Col>
-        <Col xs="auto"><Button size="sm" onClick={openCreate}>+ Add Course</Button></Col>
       </Row>
       {error && <Alert variant="danger">{error}</Alert>}
       {loading ? <div className="py-4 text-center"><Spinner animation="border" /></div> : (
         <>
           <Table striped hover responsive>
-            <thead><tr><th>Code</th><th>Title</th><th>Credits</th><th>Offered In</th><th></th></tr></thead>
+            <thead><tr><th>Code</th><th>Title</th><th>Credits</th><th>Offered In</th></tr></thead>
             <tbody>
               {courses.map((c) => (
-                <tr key={c.code}>
-                  <td><code>{c.code}</code></td>
+                <tr key={c.code ?? c._id}>
+                  <td><code>{c.code ?? c._id}</code></td>
                   <td>{c.title}</td>
                   <td>{c.credits}</td>
-                  <td>{c.offeredIN.join(', ')}</td>
-                  <td className="text-end">
-                    <Button size="sm" variant="outline-secondary" className="me-1" onClick={() => openEdit(c)}>Edit</Button>
-                    <Button size="sm" variant="outline-danger" onClick={() => void handleDelete(c.code)}>Delete</Button>
-                  </td>
+                  <td>{(c.offeredIn ?? []).join(', ') || '—'}</td>
                 </tr>
               ))}
-              {courses.length === 0 && <tr><td colSpan={5} className="text-center text-muted py-4">No courses found</td></tr>}
+              {courses.length === 0 && <tr><td colSpan={4} className="text-center text-muted py-4">No courses found</td></tr>}
             </tbody>
           </Table>
-          {totalPages > 1 && (
-            <div className="d-flex justify-content-between align-items-center">
-              <span className="text-muted small">Page {page} of {totalPages} ({total} total)</span>
-              <div>
-                <Button size="sm" variant="outline-secondary" className="me-1" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>‹ Prev</Button>
-                <Button size="sm" variant="outline-secondary" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>Next ›</Button>
-              </div>
+          <div className="d-flex justify-content-between align-items-center">
+            <span className="text-muted small">Page {page}</span>
+            <div>
+              <Button size="sm" variant="outline-secondary" className="me-1" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>‹ Prev</Button>
+              <Button size="sm" variant="outline-secondary" disabled={!hasMore} onClick={() => setPage((p) => p + 1)}>Next ›</Button>
             </div>
-          )}
+          </div>
         </>
       )}
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-        <Modal.Header closeButton><Modal.Title>{editing ? `Edit ${editing.code}` : 'Add Course'}</Modal.Title></Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Row>
-              <Col md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Code</Form.Label>
-                  <Form.Control value={form.code} onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))} disabled={!!editing} />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Title</Form.Label>
-                  <Form.Control value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} />
-                </Form.Group>
-              </Col>
-              <Col md={2}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Credits</Form.Label>
-                  <Form.Control type="number" value={form.credits} onChange={(e) => setForm((f) => ({ ...f, credits: Number(e.target.value) }))} />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control as="textarea" rows={2} value={form.description ?? ''} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Offered In <span className="text-muted small">(comma-separated, e.g. F, W, S)</span></Form.Label>
-              <Form.Control value={form.offeredIN.join(', ')} onChange={(e) => setForm((f) => ({ ...f, offeredIN: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) }))} />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
-          <Button onClick={() => void handleSave()} disabled={saving}>{saving ? 'Saving…' : 'Save'}</Button>
-        </Modal.Footer>
-      </Modal>
     </>
   );
 };
 
 // ─── Main export ─────────────────────────────────────────────────────────────
 
-const DegreeManagementTab: React.FC = () => (
-  <div className="py-3">
-    <Tabs defaultActiveKey="degrees" id="degree-management-tabs" className="mb-3">
-      <Tab eventKey="degrees" title="Degrees">
-        <DegreesPanel />
-      </Tab>
-      <Tab eventKey="pools" title="Course Pools">
-        <CoursePoolsPanel />
-      </Tab>
-      <Tab eventKey="courses" title="Courses">
-        <CoursesPanel />
-      </Tab>
-    </Tabs>
-  </div>
-);
+const DegreeManagementTab: React.FC = () => {
+  const [activeSubTab, setActiveSubTab] = useState('degrees');
+  const [managingPoolsForDegree, setManagingPoolsForDegree] = useState<string | undefined>(undefined);
+
+  const handleManagePools = (degreeId: string) => {
+    setManagingPoolsForDegree(degreeId);
+    setActiveSubTab('pools');
+  };
+
+  return (
+    <div className="py-3">
+      <Tabs
+        activeKey={activeSubTab}
+        onSelect={(k) => setActiveSubTab(k ?? 'degrees')}
+        id="degree-management-tabs"
+        className="mb-3"
+      >
+        <Tab eventKey="degrees" title="Degrees">
+          <DegreesPanel onManagePools={handleManagePools} />
+        </Tab>
+        <Tab eventKey="pools" title="Course Pools">
+          <CoursePoolsPanel initialDegreeId={managingPoolsForDegree} />
+        </Tab>
+        <Tab eventKey="courses" title="Courses">
+          <CoursesPanel />
+        </Tab>
+      </Tabs>
+    </div>
+  );
+};
 
 export default DegreeManagementTab;
