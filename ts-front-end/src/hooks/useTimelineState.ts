@@ -155,21 +155,22 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
   const actions = useMemo(() => createTimelineActions(dispatch), []);
 
   const prevStateRef = useRef<TimelineState | null>(null);
+  const cancelledRef = useRef(false);
 
   // Polling effect — uses a loop instead of recursion, no AbortController
   useEffect(() => {
     if (!jobId || initialized) return;
 
-    let cancelled = false;
+    cancelledRef.current = false;
     let timerId: ReturnType<typeof setTimeout> | null = null;
 
     const poll = async () => {
       const start = Date.now();
 
-      while (!cancelled && Date.now() - start <= 180_000) {
+      while (!cancelledRef.current && Date.now() - start <= 180_000) {
         try {
           const data = await api.get<TimelineJobResponse>(`/jobs/${jobId}`);
-          if (cancelled) return;
+          if (cancelledRef.current) return;
 
           if (data.status === "done" && data.result) {
             const { degree, pools, courses, semesters } = data.result;
@@ -197,7 +198,7 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
             return;
           }
         } catch (err) {
-          if (cancelled) return;
+          if (cancelledRef.current) return;
           setStatus("failed");
           setErrorMessage(
             err instanceof Error && err.message.includes("HTTP 410")
@@ -207,7 +208,6 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
           return;
         }
 
-        // Wait before next poll, but track the timer so cleanup can clear it
         await new Promise<void>((resolve) => {
           timerId = setTimeout(() => {
             timerId = null;
@@ -216,7 +216,7 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
         });
       }
 
-      if (!cancelled) {
+      if (!cancelledRef.current) {
         setStatus("failed");
         setErrorMessage("Processing is taking too long. Please try again.");
       }
@@ -225,7 +225,7 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
     poll();
 
     return () => {
-      cancelled = true;
+      cancelledRef.current = true;
       if (timerId !== null) clearTimeout(timerId);
     };
   }, [jobId, initialized]);
