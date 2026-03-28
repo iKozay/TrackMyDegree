@@ -108,7 +108,7 @@ export interface CourseData {
   title: string;
   description?: string;
   credits: number;
-  offeredIn?: string[];
+  offeredIn: string[];
   prereqCoreqText?: string;
   rules: Rule[];
   notes?: string;

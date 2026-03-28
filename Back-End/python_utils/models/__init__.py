@@ -117,7 +117,7 @@ class Course(MongoDBModel):
     title: str
     credits: float
     description: str
-    offered_in: list[str]
+    offeredIn: list[str]
     prereqCoreqText: str
     notes: str
     components: list[str]

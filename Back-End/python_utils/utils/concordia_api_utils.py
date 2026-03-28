@@ -1,4 +1,3 @@
-import math
 import sys
 import pandas as pd
 import os
@@ -121,7 +120,16 @@ class ConcordiaAPIUtils:
                 term_int = term_int % pow(10, 3-i)
             
             terms.append(TERM[term_int])
-        return list(set(terms))
+        
+        # Sort terms with custom priority, then keep any others afterward.
+        custom_term_order = {
+            "Fall": 0,
+            "Fall/Winter": 1,
+            "Winter": 2,
+            "Summer": 3,
+        }
+        sorted_terms = sorted(set(terms), key=lambda x: (custom_term_order.get(x, 99), x))
+        return sorted_terms
 
     def _sanitize_data(self, data):
         if isinstance(data, list):

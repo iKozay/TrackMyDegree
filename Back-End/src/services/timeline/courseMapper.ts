@@ -20,7 +20,7 @@ function toTimelineCourse(
     title: course.title,
     credits: course.credits,
     description: course.description,
-    offeredIn: course.offeredIn ?? [],
+    offeredIn: course.offeredIn,
     rules: course.rules,
     status: {
       status: override?.status ?? 'incomplete',
