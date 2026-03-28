@@ -158,13 +158,13 @@ describe("StudentPage", () => {
     renderPage();
 
     const editBtn = await screen.findByTitle("Edit name");
-    editBtn.click();
+    fireEvent.click(editBtn);
 
     const input = await screen.findByDisplayValue("John") as HTMLInputElement;
     fireEvent.change(input, { target: { value: "New Name" } });
 
     const saveBtn = screen.getByTitle("Save");
-    saveBtn.click();
+    fireEvent.click(saveBtn);
 
     await waitFor(() => {
       expect(api.patch).toHaveBeenCalled();
@@ -187,10 +187,10 @@ describe("StudentPage", () => {
     renderPage();
 
     const toggle = await screen.findByText(/change password/i);
-    toggle.click();
+    fireEvent.click(toggle);
 
     const saveBtn = await screen.findByText(/update password/i);
-    saveBtn.click();
+    fireEvent.click(saveBtn);
 
     expect(
       screen.getByText("Current password is required.")
@@ -311,10 +311,10 @@ describe("StudentPage", () => {
     renderPage();
 
     const deleteBtn = await screen.findByTitle("Delete");
-    deleteBtn.click();
+    fireEvent.click(deleteBtn);
 
     const confirmBtn = await screen.findByText(/yes, Delete/i);
-    confirmBtn.click();
+    fireEvent.click(confirmBtn);
 
     await waitFor(() => {
       expect(api.delete).toHaveBeenCalled();
