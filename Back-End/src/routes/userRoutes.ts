@@ -1,6 +1,7 @@
 import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { userController } from '@controllers/userController';
+import { authController } from '@controllers/authController';
 import mongoose from 'mongoose';
 
 const router = express.Router();
