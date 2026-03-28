@@ -19,7 +19,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import " ts-front-end/src/legacy/css/StudentPage.css";
+import "../legacy/css/StudentPage.css";
 
 // Types
 export interface Timeline {
