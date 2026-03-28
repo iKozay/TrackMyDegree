@@ -1,423 +1,423 @@
-# from unittest.mock import patch, MagicMock
-# import sys
-# import os
+from unittest.mock import patch, MagicMock
+import sys
+import os
 
-# sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-# from scraper.comp_sci_degree_scraper import (
-#     CompDegreeScraper,
-#     CompVariantDegreeScraper,
-#     CompCaDegreeScraper,
-#     CompDsDegreeScraper
-# )
-# from models import ConstraintType, CoursePool, DegreeType, ECPDegreeIDs
+from scraper.comp_sci_degree_scraper import (
+    CompDegreeScraper,
+    CompVariantDegreeScraper,
+    CompCaDegreeScraper,
+    CompDsDegreeScraper
+)
+from models import ConstraintType, CoursePool, DegreeType, ECPDegreeIDs
 
 
-# class TestCompDegreeScraper:
-#     """Test Computer Science degree scraper"""
+class TestCompDegreeScraper:
+    """Test Computer Science degree scraper"""
 
-#     def test_handle_special_cases(self):
-#         """Test handling special cases for Computer Science"""
-#         # Setup scraper with program requirements including Computer Science Electives and General Electives
-#         cs_electives_pool = CoursePool(
-#             _id="cs_electives", 
-#             name="Computer Science Electives", 
-#             creditsRequired=30, 
-#             courses=["COMP 352", "COMP 353"]
-#         )
-#         general_electives_pool = CoursePool(
-#             _id="gen_electives", 
-#             name="General Electives: BCompSc", 
-#             creditsRequired=18, 
-#             courses=[]
-#         )
-#         math_electives_pool = CoursePool(
-#             _id="math_electives", 
-#             name="Mathematics Electives: BCompSc", 
-#             creditsRequired=9, 
-#             courses=["MATH 363", "MATH 364"]
-#         )
+    def test_handle_special_cases(self):
+        """Test handling special cases for Computer Science"""
+        # Setup scraper with program requirements including Computer Science Electives and General Electives
+        cs_electives_pool = CoursePool(
+            _id="cs_electives", 
+            name="Computer Science Electives", 
+            creditsRequired=30, 
+            courses=["COMP 352", "COMP 353"]
+        )
+        general_electives_pool = CoursePool(
+            _id="gen_electives", 
+            name="General Electives: BCompSc", 
+            creditsRequired=18, 
+            courses=[]
+        )
+        math_electives_pool = CoursePool(
+            _id="math_electives", 
+            name="Mathematics Electives: BCompSc", 
+            creditsRequired=9, 
+            courses=["MATH 363", "MATH 364"]
+        )
         
-#         scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
-#         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [cs_electives_pool, general_electives_pool, math_electives_pool])
+        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [cs_electives_pool, general_electives_pool, math_electives_pool])
         
-#         with patch.object(scraper, '_handle_computer_science_electives') as mock_handle_cs, \
-#              patch.object(scraper, '_handle_computer_general_electives') as mock_handle_gen:
+        with patch.object(scraper, '_handle_computer_science_electives') as mock_handle_cs, \
+             patch.object(scraper, '_handle_computer_general_electives') as mock_handle_gen:
             
-#             scraper._handle_special_cases()
+            scraper._handle_special_cases()
             
-#             mock_handle_cs.assert_called_once_with(cs_electives_pool)
-#             mock_handle_gen.assert_called_once_with(general_electives_pool)
+            mock_handle_cs.assert_called_once_with(cs_electives_pool)
+            mock_handle_gen.assert_called_once_with(general_electives_pool)
 
-#     @patch('scraper.comp_sci_degree_scraper.get_course_scraper_instance')
-#     def test_handle_computer_science_electives(self, mock_get_course_scraper):
-#         """Test handling computer science electives pool"""
-#         mock_course_scraper = MagicMock()
-#         mock_course_scraper.get_courses_by_subjects.return_value = ["COMP 248", "COMP 249", "COMP 325", "COMP 352", "COMP 361"]
-#         mock_get_course_scraper.return_value = mock_course_scraper
+    @patch('scraper.comp_sci_degree_scraper.get_course_scraper_instance')
+    def test_handle_computer_science_electives(self, mock_get_course_scraper):
+        """Test handling computer science electives pool"""
+        mock_course_scraper = MagicMock()
+        mock_course_scraper.get_courses_by_subjects.return_value = ["COMP 248", "COMP 249", "COMP 325", "COMP 352", "COMP 361"]
+        mock_get_course_scraper.return_value = mock_course_scraper
         
-#         cs_electives_pool = CoursePool(
-#             _id="cs_electives", 
-#             name="Computer Science Electives", 
-#             creditsRequired=30, 
-#             courses=["COMP 352", "COMP 353"]
-#         )
+        cs_electives_pool = CoursePool(
+            _id="cs_electives", 
+            name="Computer Science Electives", 
+            creditsRequired=30, 
+            courses=["COMP 352", "COMP 353"]
+        )
         
-#         scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
-#         scraper._handle_computer_science_electives(cs_electives_pool)
+        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
+        scraper._handle_computer_science_electives(cs_electives_pool)
         
-#         # Should include COMP courses 325 and higher
-#         assert "COMP 325" in cs_electives_pool.courses
-#         assert "COMP 352" in cs_electives_pool.courses
-#         assert "COMP 361" in cs_electives_pool.courses
-#         # Should not include courses below 325
-#         assert "COMP 248" not in cs_electives_pool.courses
-#         assert "COMP 249" not in cs_electives_pool.courses
-#         # Should not have duplicates
-#         assert cs_electives_pool.courses.count("COMP 352") == 1
+        # Should include COMP courses 325 and higher
+        assert "COMP 325" in cs_electives_pool.courses
+        assert "COMP 352" in cs_electives_pool.courses
+        assert "COMP 361" in cs_electives_pool.courses
+        # Should not include courses below 325
+        assert "COMP 248" not in cs_electives_pool.courses
+        assert "COMP 249" not in cs_electives_pool.courses
+        # Should not have duplicates
+        assert cs_electives_pool.courses.count("COMP 352") == 1
 
-#     @patch('scraper.comp_sci_degree_scraper.get_course_scraper_instance')
-#     def test_handle_computer_general_electives(self, mock_get_course_scraper):
-#         """Test handling computer general electives pool"""
-#         mock_course_scraper = MagicMock()
-#         mock_get_course_scraper.return_value = mock_course_scraper
-#         general_electives_pool = CoursePool(
-#             _id="gen_electives", 
-#             name="General Electives: BCompSc", 
-#             creditsRequired=18, 
-#             courses=[]
-#         )
+    @patch('scraper.comp_sci_degree_scraper.get_course_scraper_instance')
+    def test_handle_computer_general_electives(self, mock_get_course_scraper):
+        """Test handling computer general electives pool"""
+        mock_course_scraper = MagicMock()
+        mock_get_course_scraper.return_value = mock_course_scraper
+        general_electives_pool = CoursePool(
+            _id="gen_electives", 
+            name="General Electives: BCompSc", 
+            creditsRequired=18, 
+            courses=[]
+        )
         
-#         # Setup scraper with all required pools
-#         scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
-#         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [general_electives_pool])
+        # Setup scraper with all required pools
+        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [general_electives_pool])
         
-#         # Mock the _get_general_education_pool method
-#         mock_gen_ed_pool = CoursePool(
-#             _id="gen_ed", 
-#             name="General Education", 
-#             creditsRequired=6, 
-#             courses=["ANTH 101", "PHIL 212", "MAST 221"]  # MAST 221 should be excluded
-#         )
-#         with patch.object(scraper, '_get_general_education_pool', return_value=mock_gen_ed_pool):
-#             scraper._handle_computer_general_electives(general_electives_pool)
+        # Mock the _get_general_education_pool method
+        mock_gen_ed_pool = CoursePool(
+            _id="gen_ed", 
+            name="General Education", 
+            creditsRequired=6, 
+            courses=["ANTH 101", "PHIL 212", "MAST 221"]  # MAST 221 should be excluded
+        )
+        with patch.object(scraper, '_get_general_education_pool', return_value=mock_gen_ed_pool):
+            scraper._handle_computer_general_electives(general_electives_pool)
         
-#         # Should include courses from General Education (excluding exclusion list)
-#         assert "ANTH 101" in general_electives_pool.courses
-#         assert "PHIL 212" in general_electives_pool.courses
-#         # Should exclude courses from exclusion list
-#         assert "MAST 221" not in general_electives_pool.courses
+        # Should include courses from General Education (excluding exclusion list)
+        assert "ANTH 101" in general_electives_pool.courses
+        assert "PHIL 212" in general_electives_pool.courses
+        # Should exclude courses from exclusion list
+        assert "MAST 221" not in general_electives_pool.courses
 
-#     @patch('scraper.comp_sci_degree_scraper.CompDegreeScraper._get_general_education_pool')
-#     def test_handle_computer_general_electives_exclusions(self, mock_get_gen_ed):
-#         """Test that excluded courses are properly removed from general electives"""
-#         # Mock general education pool with some excluded courses
-#         mock_gen_ed_pool = CoursePool(
-#             _id="gen_ed", 
-#             name="General Education", 
-#             creditsRequired=6, 
-#             courses=["ANTH 101", "BCEE 231", "BTM 380", "CART 315", "COMM 215"]
-#         )
-#         mock_get_gen_ed.return_value = mock_gen_ed_pool
+    @patch('scraper.comp_sci_degree_scraper.CompDegreeScraper._get_general_education_pool')
+    def test_handle_computer_general_electives_exclusions(self, mock_get_gen_ed):
+        """Test that excluded courses are properly removed from general electives"""
+        # Mock general education pool with some excluded courses
+        mock_gen_ed_pool = CoursePool(
+            _id="gen_ed", 
+            name="General Education", 
+            creditsRequired=6, 
+            courses=["ANTH 101", "BCEE 231", "BTM 380", "CART 315", "COMM 215"]
+        )
+        mock_get_gen_ed.return_value = mock_gen_ed_pool
         
-#         # Setup pools
-#         general_electives_pool = CoursePool(
-#             _id="gen_electives", 
-#             name="General Electives: BCompSc", 
-#             creditsRequired=18, 
-#             courses=[]
-#         )
+        # Setup pools
+        general_electives_pool = CoursePool(
+            _id="gen_electives", 
+            name="General Electives: BCompSc", 
+            creditsRequired=18, 
+            courses=[]
+        )
         
-#         scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
-#         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [general_electives_pool])
+        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [general_electives_pool])
         
-#         scraper._handle_computer_general_electives(general_electives_pool)
+        scraper._handle_computer_general_electives(general_electives_pool)
         
-#         # Should exclude courses from exclusion list
-#         assert "BCEE 231" not in general_electives_pool.courses
-#         assert "BTM 380" not in general_electives_pool.courses
-#         assert "CART 315" not in general_electives_pool.courses
-#         assert "COMM 215" not in general_electives_pool.courses
+        # Should exclude courses from exclusion list
+        assert "BCEE 231" not in general_electives_pool.courses
+        assert "BTM 380" not in general_electives_pool.courses
+        assert "CART 315" not in general_electives_pool.courses
+        assert "COMM 215" not in general_electives_pool.courses
 
-#     def test_add_coursepool_rules_adds_overflow_constraints(self):
-#         """Test that EXCESS_CREDITS_OVERFLOW constraints are added to CS and Math elective pools"""
-#         cs_electives_pool = CoursePool(
-#             _id="cs_electives",
-#             name="Computer Science Electives",
-#             creditsRequired=30,
-#             courses=["COMP 352"]
-#         )
-#         math_electives_pool = CoursePool(
-#             _id="math_electives",
-#             name="Mathematics Electives: BCompSc",
-#             creditsRequired=9,
-#             courses=["MATH 363"]
-#         )
-#         gen_electives_pool = CoursePool(
-#             _id="gen_electives",
-#             name="General Electives: BCompSc",
-#             creditsRequired=18,
-#             courses=[]
-#         )
+    def test_add_coursepool_rules_adds_overflow_constraints(self):
+        """Test that EXCESS_CREDITS_OVERFLOW constraints are added to CS and Math elective pools"""
+        cs_electives_pool = CoursePool(
+            _id="cs_electives",
+            name="Computer Science Electives",
+            creditsRequired=30,
+            courses=["COMP 352"]
+        )
+        math_electives_pool = CoursePool(
+            _id="math_electives",
+            name="Mathematics Electives: BCompSc",
+            creditsRequired=9,
+            courses=["MATH 363"]
+        )
+        gen_electives_pool = CoursePool(
+            _id="gen_electives",
+            name="General Electives: BCompSc",
+            creditsRequired=18,
+            courses=[]
+        )
 
-#         scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
-#         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [cs_electives_pool, math_electives_pool, gen_electives_pool])
+        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [cs_electives_pool, math_electives_pool, gen_electives_pool])
 
-#         scraper._add_coursepool_rules()
+        scraper._add_coursepool_rules()
 
-#         # CS Electives should have EXCESS_CREDITS_OVERFLOW flowing to general electives
-#         assert len(cs_electives_pool.rules) == 1
-#         cs_rule = cs_electives_pool.rules[0]
-#         assert cs_rule.type == ConstraintType.EXCESS_CREDITS_OVERFLOW
-#         assert cs_rule.params.targetPoolId == gen_electives_pool._id
+        # CS Electives should have EXCESS_CREDITS_OVERFLOW flowing to general electives
+        assert len(cs_electives_pool.rules) == 1
+        cs_rule = cs_electives_pool.rules[0]
+        assert cs_rule.type == ConstraintType.EXCESS_CREDITS_OVERFLOW
+        assert cs_rule.params.targetPoolId == gen_electives_pool._id
 
-#         # Math Electives should have EXCESS_CREDITS_OVERFLOW flowing to general electives
-#         assert len(math_electives_pool.rules) == 1
-#         math_rule = math_electives_pool.rules[0]
-#         assert math_rule.type == ConstraintType.EXCESS_CREDITS_OVERFLOW
-#         assert math_rule.params.targetPoolId == gen_electives_pool._id
-
-
-# class TestCompVariantDegreeScraper:
-#     """Test Computer Science variant degree scraper"""
-
-#     @patch('scraper.comp_sci_degree_scraper.CompDegreeScraper')
-#     def test_get_program_node_exact_match(self, mock_comp_scraper):
-#         """Test finding program node with exact degree name match"""
-#         # Mock the CompDegreeScraper constructor and scrape_degree
-#         mock_instance = MagicMock()
-#         mock_instance.scrape_degree.return_value = MagicMock()
-#         mock_comp_scraper.return_value = mock_instance
-        
-#         mock_soup = MagicMock()
-#         mock_program_node = MagicMock()
-        
-#         # Setup to return node on first try (exact match)
-#         mock_soup.find.return_value = mock_program_node
-        
-#         scraper = CompVariantDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
-        
-#         result = scraper._get_program_node(mock_soup)
-        
-#         assert result == mock_program_node
-#         # Should try with exact name first
-#         mock_soup.find.assert_called_with("div", class_="program-node", attrs={"title": "BCompSc Joint Major in Data Science"})
-
-#     @patch('scraper.comp_sci_degree_scraper.CompDegreeScraper')
-#     def test_get_program_node_with_replacement(self, mock_comp_scraper):
-#         """Test finding program node with BCompSc replacement"""
-#         # Mock the CompDegreeScraper
-#         mock_instance = MagicMock()
-#         mock_instance.scrape_degree.return_value = MagicMock()
-#         mock_comp_scraper.return_value = mock_instance
-        
-#         mock_soup = MagicMock()
-#         mock_program_node = MagicMock()
-        
-#         # Setup to return None on first try, node on second try
-#         mock_soup.find.side_effect = [None, mock_program_node]
-        
-#         scraper = CompVariantDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
-        
-#         result = scraper._get_program_node(mock_soup)
-        
-#         assert result == mock_program_node
-#         # Should have been called twice - first exact, then with replacement
-#         assert mock_soup.find.call_count == 2
-
-#     @patch('scraper.comp_sci_degree_scraper.CompDegreeScraper')
-#     def test_handle_failed_course_pools(self, mock_comp_scraper):
-#         """Test handling failed course pools using computer science requirements"""
-#         # Setup computer science requirements
-#         cs_requirements = MagicMock()
-#         cs_requirements.coursePools = [
-#             CoursePool(_id="cs_core", name="Computer Science Core", creditsRequired=33, courses=["COMP 248", "COMP 249"]),
-#             CoursePool(_id="cs_electives", name="Computer Science Electives", creditsRequired=30, courses=["COMP 352"])
-#         ]
-        
-#         # Mock the CompDegreeScraper
-#         mock_instance = MagicMock()
-#         mock_instance.scrape_degree.return_value = cs_requirements
-#         mock_comp_scraper.return_value = mock_instance
-        
-#         scraper = CompVariantDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
-        
-#         # Setup failed pools
-#         failed_pool_1 = CoursePool(_id="failed1", name="Computer Science Core", creditsRequired=33, courses=[])
-#         failed_pool_2 = CoursePool(_id="failed2", name="Some Unknown Pool", creditsRequired=6, courses=[])
-        
-#         with patch.object(scraper, 'logger') as mock_logger:
-#             scraper._handle_failed_course_pools([failed_pool_1, failed_pool_2])
-        
-#         # Should copy courses from CS requirements
-#         assert failed_pool_1.courses == ["COMP 248", "COMP 249"]
-#         # Should log error for unknown pool
-#         mock_logger.error.assert_called_once()
+        # Math Electives should have EXCESS_CREDITS_OVERFLOW flowing to general electives
+        assert len(math_electives_pool.rules) == 1
+        math_rule = math_electives_pool.rules[0]
+        assert math_rule.type == ConstraintType.EXCESS_CREDITS_OVERFLOW
+        assert math_rule.params.targetPoolId == gen_electives_pool._id
 
 
-# class TestCompCaDegreeScraper:
-#     """Test Computation Arts Computer Science scraper"""
+class TestCompVariantDegreeScraper:
+    """Test Computer Science variant degree scraper"""
 
-#     @patch('scraper.comp_sci_degree_scraper.get_course_scraper_instance')
-#     @patch('scraper.comp_sci_degree_scraper.get_all_links_from_div')
-#     @patch('scraper.comp_sci_degree_scraper.CompDegreeScraper')
-#     def test_handle_special_cases(self, mock_comp_scraper, mock_get_links, mock_get_course_scraper):
-#         """Test handling special cases for Computation Arts"""
-#         # Mock CompDegreeScraper
-#         mock_instance = MagicMock()
-#         mock_instance.scrape_degree.return_value = MagicMock()
-#         mock_comp_scraper.return_value = mock_instance
+    @patch('scraper.comp_sci_degree_scraper.CompDegreeScraper')
+    def test_get_program_node_exact_match(self, mock_comp_scraper):
+        """Test finding program node with exact degree name match"""
+        # Mock the CompDegreeScraper constructor and scrape_degree
+        mock_instance = MagicMock()
+        mock_instance.scrape_degree.return_value = MagicMock()
+        mock_comp_scraper.return_value = mock_instance
         
-#         # Mock course scraper
-#         mock_course_scraper = MagicMock()
-#         mock_course_scraper.get_courses_by_subjects.return_value = [
-#             "CART 200", "CART 315", "CART 399", "DART 100", "DART 200"
-#         ]
-#         mock_get_course_scraper.return_value = mock_course_scraper
+        mock_soup = MagicMock()
+        mock_program_node = MagicMock()
         
-#         # Mock links from div
-#         mock_link_1 = MagicMock()
-#         mock_link_1.text = "COMP 345"
-#         mock_link_2 = MagicMock()
-#         mock_link_2.text = "COMP 371"
-#         mock_get_links.return_value = [mock_link_1, mock_link_2]
+        # Setup to return node on first try (exact match)
+        mock_soup.find.return_value = mock_program_node
         
-#         # Setup Computation Arts Core pool
-#         comp_arts_pool = CoursePool(
-#             _id="comp_arts_core", 
-#             name="Computation Arts Core", 
-#             creditsRequired=24, 
-#             courses=["CART 210", "CART 311"]
-#         )
+        scraper = CompVariantDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
         
-#         scraper = CompCaDegreeScraper("BCompSc Joint Major in Computation Arts and Computer Science", "COMP_CA", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
+        result = scraper._get_program_node(mock_soup)
         
-#         # Mock the program requirements directly instead of using ProgramRequirements constructor
-#         scraper.program_requirements = MagicMock()
-#         scraper.program_requirements.coursePools = [comp_arts_pool]
-#         scraper.program_requirements.degree = MagicMock()
-#         scraper.program_requirements.degree.coursePools = []
+        assert result == mock_program_node
+        # Should try with exact name first
+        mock_soup.find.assert_called_with("div", class_="program-node", attrs={"title": "BCompSc Joint Major in Data Science"})
+
+    @patch('scraper.comp_sci_degree_scraper.CompDegreeScraper')
+    def test_get_program_node_with_replacement(self, mock_comp_scraper):
+        """Test finding program node with BCompSc replacement"""
+        # Mock the CompDegreeScraper
+        mock_instance = MagicMock()
+        mock_instance.scrape_degree.return_value = MagicMock()
+        mock_comp_scraper.return_value = mock_instance
         
-#         scraper._handle_special_cases()
+        mock_soup = MagicMock()
+        mock_program_node = MagicMock()
         
-#         # Should have added CART 315+ and DART courses
-#         assert "CART 315" in comp_arts_pool.courses
-#         assert "CART 399" in comp_arts_pool.courses
-#         assert "DART 100" in comp_arts_pool.courses
-#         assert "DART 200" in comp_arts_pool.courses
-#         # Should not add CART courses below 300
-#         assert "CART 200" not in comp_arts_pool.courses
+        # Setup to return None on first try, node on second try
+        mock_soup.find.side_effect = [None, mock_program_node]
         
-#         # Should have added Other Required Courses pool
-#         assert len(scraper.program_requirements.coursePools) == 2
-#         other_pool = scraper.program_requirements.coursePools[1]
-#         assert other_pool.name == "Other Required Courses"
-#         assert other_pool.courses == ["COMP 345", "COMP 371"]
-
-#     def test_add_coursepool_rules_adds_max_credits_constraints(self):
-#         """Test that MAX_CREDITS_FROM_SET constraints are added to Computation Arts Core pool"""
-#         cart_300_course = "CART 315"
-#         cart_400_course = "CART 415"
-#         dart_course = "DART 211"
-#         comp_arts_pool = CoursePool(
-#             _id="COMP_CA_Computation Arts Core",
-#             name="Computation Arts Core",
-#             creditsRequired=24,
-#             courses=["CART 310", cart_300_course, "CART 470", cart_400_course, dart_course]
-#         )
-
-#         scraper = CompCaDegreeScraper(
-#             "BCompSc Joint Major in Computation Arts and Computer Science",
-#             "COMP_CA", ECPDegreeIDs.COMP_ECP_ID, "http://test.com"
-#         )
-#         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [comp_arts_pool])
-
-#         scraper._add_coursepool_rules()
-
-#         assert len(comp_arts_pool.rules) == 3
-
-#         cart_300_rule = next((r for r in comp_arts_pool.rules
-#                               if r.type == ConstraintType.MAX_CREDITS_FROM_SET
-#                               and cart_300_course in r.params.courseList), None)
-#         assert cart_300_rule is not None
-#         assert "CART 310" not in cart_300_rule.params.courseList  # CART 310 excluded
-#         assert (cart_300_rule.params.maxCredits - 6.0) < 1e8
-
-#         cart_400_rule = next((r for r in comp_arts_pool.rules
-#                               if r.type == ConstraintType.MAX_CREDITS_FROM_SET
-#                               and cart_400_course in r.params.courseList), None)
-#         assert cart_400_rule is not None
-#         assert "CART 470" not in cart_400_rule.params.courseList  # CART 470 excluded
-#         assert (cart_400_rule.params.maxCredits - 6.0) < 1e8
-
-#         dart_rule = next((r for r in comp_arts_pool.rules
-#                           if r.type == ConstraintType.MAX_CREDITS_FROM_SET
-#                           and dart_course in r.params.courseList), None)
-#         assert dart_rule is not None
-#         assert dart_rule.params.maxCredits == 6.0
-
-
-# class TestCompDsDegreeScraper:
-#     """Test Data Science Computer Science scraper"""
-
-#     @patch('scraper.comp_sci_degree_scraper.CompDegreeScraper')
-#     def test_handle_special_cases(self, mock_comp_scraper):
-#         """Test handling special cases for Data Science - replacing COMP 233 with MAST 221"""
-#         # Mock CompDegreeScraper
-#         mock_instance = MagicMock()
-#         mock_instance.scrape_degree.return_value = MagicMock()
-#         mock_comp_scraper.return_value = mock_instance
+        scraper = CompVariantDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
         
-#         # Setup Computer Science Core pool with COMP 233
-#         cs_core_pool = CoursePool(
-#             _id="cs_core", 
-#             name="Computer Science Core", 
-#             creditsRequired=33, 
-#             courses=["COMP 248", "COMP 233", "COMP 249"]
-#         )
-#         math_pool = CoursePool(
-#             _id="math_core", 
-#             name="Mathematics and Statistics Core: Joint Major in Data Science", 
-#             creditsRequired=18, 
-#             courses=["MAST 334", "STAT 360"]
-#         )
+        result = scraper._get_program_node(mock_soup)
         
-#         scraper = CompDsDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
+        assert result == mock_program_node
+        # Should have been called twice - first exact, then with replacement
+        assert mock_soup.find.call_count == 2
+
+    @patch('scraper.comp_sci_degree_scraper.CompDegreeScraper')
+    def test_handle_failed_course_pools(self, mock_comp_scraper):
+        """Test handling failed course pools using computer science requirements"""
+        # Setup computer science requirements
+        cs_requirements = MagicMock()
+        cs_requirements.coursePools = [
+            CoursePool(_id="cs_core", name="Computer Science Core", creditsRequired=33, courses=["COMP 248", "COMP 249"]),
+            CoursePool(_id="cs_electives", name="Computer Science Electives", creditsRequired=30, courses=["COMP 352"])
+        ]
         
-#         # Mock the program requirements directly
-#         scraper.program_requirements = MagicMock()
-#         scraper.program_requirements.coursePools = [cs_core_pool, math_pool]
+        # Mock the CompDegreeScraper
+        mock_instance = MagicMock()
+        mock_instance.scrape_degree.return_value = cs_requirements
+        mock_comp_scraper.return_value = mock_instance
         
-#         with patch.object(scraper, 'remove_courses_from_pool') as mock_remove:
-#             scraper._handle_special_cases()
+        scraper = CompVariantDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
         
-#         # Should remove COMP 233 from Computer Science Core
-#         mock_remove.assert_called_once_with(cs_core_pool.name, ["COMP 233"])
-#         # Should add MAST 221 to Computer Science Core
-#         assert "MAST 221" in cs_core_pool.courses
-#         # Should add MAST 334 and COMP 361 to Mathematics and Statistics Core
-#         assert "MAST 334" in math_pool.courses
-#         assert "COMP 361" in math_pool.courses
+        # Setup failed pools
+        failed_pool_1 = CoursePool(_id="failed1", name="Computer Science Core", creditsRequired=33, courses=[])
+        failed_pool_2 = CoursePool(_id="failed2", name="Some Unknown Pool", creditsRequired=6, courses=[])
+        
+        with patch.object(scraper, 'logger') as mock_logger:
+            scraper._handle_failed_course_pools([failed_pool_1, failed_pool_2])
+        
+        # Should copy courses from CS requirements
+        assert failed_pool_1.courses == ["COMP 248", "COMP 249"]
+        # Should log error for unknown pool
+        mock_logger.error.assert_called_once()
 
-#     def test_add_coursepool_rules_adds_max_courses_constraint(self):
-#         """Test that MAX_COURSES_FROM_SET rule is added to Mathematics and Statistics Core pool"""
-#         math_stats_pool = CoursePool(
-#             _id="math_stats_core",
-#             name="Mathematics and Statistics Core: Joint Major in Data Science",
-#             creditsRequired=18,
-#             courses=["MAST 334", "COMP 361", "STAT 360"]
-#         )
 
-#         scraper = CompDsDegreeScraper(
-#             "BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com"
-#         )
-#         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [math_stats_pool])
+class TestCompCaDegreeScraper:
+    """Test Computation Arts Computer Science scraper"""
 
-#         scraper._add_coursepool_rules()
+    @patch('scraper.comp_sci_degree_scraper.get_course_scraper_instance')
+    @patch('scraper.comp_sci_degree_scraper.get_all_links_from_div')
+    @patch('scraper.comp_sci_degree_scraper.CompDegreeScraper')
+    def test_handle_special_cases(self, mock_comp_scraper, mock_get_links, mock_get_course_scraper):
+        """Test handling special cases for Computation Arts"""
+        # Mock CompDegreeScraper
+        mock_instance = MagicMock()
+        mock_instance.scrape_degree.return_value = MagicMock()
+        mock_comp_scraper.return_value = mock_instance
+        
+        # Mock course scraper
+        mock_course_scraper = MagicMock()
+        mock_course_scraper.get_courses_by_subjects.return_value = [
+            "CART 200", "CART 315", "CART 399", "DART 100", "DART 200"
+        ]
+        mock_get_course_scraper.return_value = mock_course_scraper
+        
+        # Mock links from div
+        mock_link_1 = MagicMock()
+        mock_link_1.text = "COMP 345"
+        mock_link_2 = MagicMock()
+        mock_link_2.text = "COMP 371"
+        mock_get_links.return_value = [mock_link_1, mock_link_2]
+        
+        # Setup Computation Arts Core pool
+        comp_arts_pool = CoursePool(
+            _id="comp_arts_core", 
+            name="Computation Arts Core", 
+            creditsRequired=24, 
+            courses=["CART 210", "CART 311"]
+        )
+        
+        scraper = CompCaDegreeScraper("BCompSc Joint Major in Computation Arts and Computer Science", "COMP_CA", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
+        
+        # Mock the program requirements directly instead of using ProgramRequirements constructor
+        scraper.program_requirements = MagicMock()
+        scraper.program_requirements.coursePools = [comp_arts_pool]
+        scraper.program_requirements.degree = MagicMock()
+        scraper.program_requirements.degree.coursePools = []
+        
+        scraper._handle_special_cases()
+        
+        # Should have added CART 315+ and DART courses
+        assert "CART 315" in comp_arts_pool.courses
+        assert "CART 399" in comp_arts_pool.courses
+        assert "DART 100" in comp_arts_pool.courses
+        assert "DART 200" in comp_arts_pool.courses
+        # Should not add CART courses below 300
+        assert "CART 200" not in comp_arts_pool.courses
+        
+        # Should have added Other Required Courses pool
+        assert len(scraper.program_requirements.coursePools) == 2
+        other_pool = scraper.program_requirements.coursePools[1]
+        assert other_pool.name == "Other Required Courses"
+        assert other_pool.courses == ["COMP 345", "COMP 371"]
 
-#         assert len(math_stats_pool.rules) == 1
-#         rule = math_stats_pool.rules[0]
-#         assert rule.type == ConstraintType.MAX_COURSES_FROM_SET
-#         assert "MAST 334" in rule.params.courseList
-#         assert "COMP 361" in rule.params.courseList
-#         assert rule.params.maxCourses == 1
+    def test_add_coursepool_rules_adds_max_credits_constraints(self):
+        """Test that MAX_CREDITS_FROM_SET constraints are added to Computation Arts Core pool"""
+        cart_300_course = "CART 315"
+        cart_400_course = "CART 415"
+        dart_course = "DART 211"
+        comp_arts_pool = CoursePool(
+            _id="COMP_CA_Computation Arts Core",
+            name="Computation Arts Core",
+            creditsRequired=24,
+            courses=["CART 310", cart_300_course, "CART 470", cart_400_course, dart_course]
+        )
+
+        scraper = CompCaDegreeScraper(
+            "BCompSc Joint Major in Computation Arts and Computer Science",
+            "COMP_CA", ECPDegreeIDs.COMP_ECP_ID, "http://test.com"
+        )
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [comp_arts_pool])
+
+        scraper._add_coursepool_rules()
+
+        assert len(comp_arts_pool.rules) == 3
+
+        cart_300_rule = next((r for r in comp_arts_pool.rules
+                              if r.type == ConstraintType.MAX_CREDITS_FROM_SET
+                              and cart_300_course in r.params.courseList), None)
+        assert cart_300_rule is not None
+        assert "CART 310" not in cart_300_rule.params.courseList  # CART 310 excluded
+        assert (cart_300_rule.params.maxCredits - 6.0) < 1e8
+
+        cart_400_rule = next((r for r in comp_arts_pool.rules
+                              if r.type == ConstraintType.MAX_CREDITS_FROM_SET
+                              and cart_400_course in r.params.courseList), None)
+        assert cart_400_rule is not None
+        assert "CART 470" not in cart_400_rule.params.courseList  # CART 470 excluded
+        assert (cart_400_rule.params.maxCredits - 6.0) < 1e8
+
+        dart_rule = next((r for r in comp_arts_pool.rules
+                          if r.type == ConstraintType.MAX_CREDITS_FROM_SET
+                          and dart_course in r.params.courseList), None)
+        assert dart_rule is not None
+        assert dart_rule.params.maxCredits == 6.0
+
+
+class TestCompDsDegreeScraper:
+    """Test Data Science Computer Science scraper"""
+
+    @patch('scraper.comp_sci_degree_scraper.CompDegreeScraper')
+    def test_handle_special_cases(self, mock_comp_scraper):
+        """Test handling special cases for Data Science - replacing COMP 233 with MAST 221"""
+        # Mock CompDegreeScraper
+        mock_instance = MagicMock()
+        mock_instance.scrape_degree.return_value = MagicMock()
+        mock_comp_scraper.return_value = mock_instance
+        
+        # Setup Computer Science Core pool with COMP 233
+        cs_core_pool = CoursePool(
+            _id="cs_core", 
+            name="Computer Science Core", 
+            creditsRequired=33, 
+            courses=["COMP 248", "COMP 233", "COMP 249"]
+        )
+        math_pool = CoursePool(
+            _id="math_core", 
+            name="Mathematics and Statistics Core: Joint Major in Data Science", 
+            creditsRequired=18, 
+            courses=["MAST 334", "STAT 360"]
+        )
+        
+        scraper = CompDsDegreeScraper("BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
+        
+        # Mock the program requirements directly
+        scraper.program_requirements = MagicMock()
+        scraper.program_requirements.coursePools = [cs_core_pool, math_pool]
+        
+        with patch.object(scraper, 'remove_courses_from_pool') as mock_remove:
+            scraper._handle_special_cases()
+        
+        # Should remove COMP 233 from Computer Science Core
+        mock_remove.assert_called_once_with(cs_core_pool.name, ["COMP 233"])
+        # Should add MAST 221 to Computer Science Core
+        assert "MAST 221" in cs_core_pool.courses
+        # Should add MAST 334 and COMP 361 to Mathematics and Statistics Core
+        assert "MAST 334" in math_pool.courses
+        assert "COMP 361" in math_pool.courses
+
+    def test_add_coursepool_rules_adds_max_courses_constraint(self):
+        """Test that MAX_COURSES_FROM_SET rule is added to Mathematics and Statistics Core pool"""
+        math_stats_pool = CoursePool(
+            _id="math_stats_core",
+            name="Mathematics and Statistics Core: Joint Major in Data Science",
+            creditsRequired=18,
+            courses=["MAST 334", "COMP 361", "STAT 360"]
+        )
+
+        scraper = CompDsDegreeScraper(
+            "BCompSc Joint Major in Data Science", "COMP_DS", ECPDegreeIDs.COMP_ECP_ID, "http://test.com"
+        )
+        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [math_stats_pool])
+
+        scraper._add_coursepool_rules()
+
+        assert len(math_stats_pool.rules) == 1
+        rule = math_stats_pool.rules[0]
+        assert rule.type == ConstraintType.MAX_COURSES_FROM_SET
+        assert "MAST 334" in rule.params.courseList
+        assert "COMP 361" in rule.params.courseList
+        assert rule.params.maxCourses == 1
