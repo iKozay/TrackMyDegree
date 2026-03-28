@@ -40,6 +40,7 @@ WORKDIR /app
 
 # Copy everything from builder - this includes node_modules with workspace links
 COPY --from=builder --chown=65532:65532 /app/node_modules ./node_modules
+COPY --from=builder --chown=65532:65532 /app/Back-End/src/node_modules ./node_modules
 COPY --from=builder --chown=65532:65532 /app/shared       ./shared
 COPY --from=builder --chown=65532:65532 /app/Back-End/src/dist ./dist
 COPY --from=builder --chown=65532:65532 /app/data         ./data
