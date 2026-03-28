@@ -4,8 +4,10 @@ import { vi } from "vitest";
 
 import StudentPage from "../../pages/StudentPage";
 
-/* ---------------- Mock hooks and API ---------------- */
+/* Mocks */
+
 const mockNavigate = vi.fn();
+
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
@@ -15,6 +17,7 @@ vi.mock("react-router-dom", async () => {
 });
 
 const mockUseAuth = vi.fn();
+
 vi.mock("../../hooks/useAuth", () => ({
   useAuth: () => mockUseAuth(),
 }));
@@ -22,19 +25,14 @@ vi.mock("../../hooks/useAuth", () => ({
 vi.mock("../../api/http-api-client", () => ({
   api: {
     get: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
-vi.mock("../../legacy/pages/UserPage.jsx", () => ({
-  default: ({ student, timelines }: any) => (
-    <div data-testid="legacy-student-page">
-      <div data-testid="student-data">{JSON.stringify(student)}</div>
-      <div data-testid="timelines-data">{JSON.stringify(timelines)}</div>
-    </div>
-  ),
-}));
-
 import { api } from "../../api/http-api-client";
+
+/* Helpers */
 
 const renderPage = () => {
   return render(
@@ -44,7 +42,8 @@ const renderPage = () => {
   );
 };
 
-/* ---------------- Tests ---------------- */
+/* Tests */
+
 describe("StudentPage", () => {
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
@@ -60,6 +59,8 @@ describe("StudentPage", () => {
     consoleErrorSpy.mockRestore();
   });
 
+  /* Auth */
+
   test("shows login message when not authenticated", () => {
     mockUseAuth.mockReturnValue({
       isAuthenticated: false,
@@ -71,37 +72,63 @@ describe("StudentPage", () => {
     expect(
       screen.getByText("Please log in to see your data.")
     ).toBeInTheDocument();
-    expect(screen.queryByTestId("legacy-student-page")).not.toBeInTheDocument();
   });
 
+  /* Redirect */
+
   test("handles redirect after login", async () => {
-    const mockUser = { id: "user-123", name: "John Doe" };
     localStorage.setItem("redirectAfterLogin", "/timeline/edit/123");
 
     mockUseAuth.mockReturnValue({
       isAuthenticated: true,
-      user: mockUser,
+      user: { id: "1" },
     });
 
-    vi.mocked(api.get).mockResolvedValueOnce([]);
+    vi.mocked(api.get).mockResolvedValueOnce({
+      user: { _id: "1", email: "a", fullname: "b" },
+      timelines: [],
+    });
 
     renderPage();
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith("/timeline/edit/123", {
-        replace: true,
-      });
+      expect(mockNavigate).toHaveBeenCalledWith(
+        "/timeline/edit/123",
+        { replace: true }
+      );
     });
 
     expect(localStorage.getItem("redirectAfterLogin")).toBeNull();
   });
 
-  test("handles API error gracefully", async () => {
-    const mockUser = { id: "user-123", name: "John Doe" };
+  /* Fetch data */
 
+  test("fetches and displays timelines", async () => {
     mockUseAuth.mockReturnValue({
       isAuthenticated: true,
-      user: mockUser,
+      user: { id: "1", name: "Test", email: "test@test.com" },
+    });
+
+    vi.mocked(api.get).mockResolvedValueOnce({
+      user: { _id: "1", email: "test@test.com", fullname: "Test" },
+      timelines: [
+        { _id: "t1", name: "Timeline 1" },
+        { _id: "t2", name: "Timeline 2" },
+      ],
+    });
+
+    renderPage();
+
+    expect(await screen.findByText("Timeline 1")).toBeInTheDocument();
+    expect(screen.getByText("Timeline 2")).toBeInTheDocument();
+  });
+
+  /* API error */
+
+  test("handles API error gracefully", async () => {
+    mockUseAuth.mockReturnValue({
+      isAuthenticated: true,
+      user: { id: "1" },
     });
 
     vi.mocked(api.get).mockRejectedValueOnce(new Error("API Error"));
@@ -109,11 +136,190 @@ describe("StudentPage", () => {
     renderPage();
 
     await waitFor(() => {
-      expect(api.get).toHaveBeenCalled();
+      expect(consoleErrorSpy).toHaveBeenCalled();
+    });
+  });
+
+  /* Name update */
+
+  test("updates name successfully", async () => {
+    mockUseAuth.mockReturnValue({
+      isAuthenticated: true,
+      user: { id: "1", name: "John" },
     });
 
-    // Should still render the page, just with empty timelines
-    expect(screen.getByTestId("legacy-student-page")).toBeInTheDocument();
-    expect(consoleErrorSpy).toHaveBeenCalled();
+    vi.mocked(api.get).mockResolvedValueOnce({
+      user: { _id: "1", email: "a", fullname: "John" },
+      timelines: [],
+    });
+
+    vi.mocked(api.patch).mockResolvedValueOnce({});
+
+    renderPage();
+
+    const editBtn = await screen.findByTitle("Edit name");
+    editBtn.click();
+
+    const input = screen.getByDisplayValue("John");
+    input.value = "New Name";
+
+    const saveBtn = screen.getByTitle("Save");
+    saveBtn.click();
+
+    await waitFor(() => {
+      expect(api.patch).toHaveBeenCalled();
+    });
+  });
+
+  /* Password validation */
+
+  test("shows error when current password is empty", async () => {
+    mockUseAuth.mockReturnValue({
+      isAuthenticated: true,
+      user: { id: "1" },
+    });
+
+    vi.mocked(api.get).mockResolvedValueOnce({
+      user: { _id: "1", email: "a", fullname: "John" },
+      timelines: [],
+    });
+
+    renderPage();
+
+    const toggle = await screen.findByText(/change password/i);
+    toggle.click();
+
+    const saveBtn = screen.getByText(/update password/i);
+    saveBtn.click();
+
+    expect(
+      screen.getByText("Current password is required.")
+    ).toBeInTheDocument();
+  });
+
+  test("shows error when passwords do not match", async () => {
+    mockUseAuth.mockReturnValue({
+      isAuthenticated: true,
+      user: { id: "1" },
+    });
+
+    vi.mocked(api.get).mockResolvedValueOnce({
+      user: { _id: "1", email: "a", fullname: "John" },
+      timelines: [],
+    });
+
+    renderPage();
+
+    const toggle = await screen.findByText(/change password/i);
+    toggle.click();
+
+    const current = screen.getByLabelText(/current password/i);
+    const next = screen.getByLabelText(/new password/i);
+    const confirm = screen.getByLabelText(/confirm new password/i);
+
+    current.value = "old";
+    next.value = "newpass";
+    confirm.value = "different";
+
+    screen.getByText(/update password/i).click();
+
+    expect(
+      screen.getByText("Passwords do not match.")
+    ).toBeInTheDocument();
+  });
+
+  test("shows error when password is too short", async () => {
+    mockUseAuth.mockReturnValue({
+      isAuthenticated: true,
+      user: { id: "1" },
+    });
+
+    vi.mocked(api.get).mockResolvedValueOnce({
+      user: { _id: "1", email: "a", fullname: "John" },
+      timelines: [],
+    });
+
+    renderPage();
+
+    const toggle = await screen.findByText(/change password/i);
+    toggle.click();
+
+    const current = screen.getByLabelText(/current password/i);
+    const next = screen.getByLabelText(/new password/i);
+    const confirm = screen.getByLabelText(/confirm new password/i);
+
+    current.value = "old";
+    next.value = "123";
+    confirm.value = "123";
+
+    screen.getByText(/update password/i).click();
+
+    expect(
+      screen.getByText("New password must be at least 6 characters.")
+    ).toBeInTheDocument();
+  });
+
+  test("shows incorrect password error from API (401)", async () => {
+    mockUseAuth.mockReturnValue({
+      isAuthenticated: true,
+      user: { id: "1" },
+    });
+
+    vi.mocked(api.get).mockResolvedValueOnce({
+      user: { _id: "1", email: "a", fullname: "John" },
+      timelines: [],
+    });
+
+    vi.mocked(api.patch).mockRejectedValueOnce(
+      new Error("HTTP 401: Unauthorized")
+    );
+
+    renderPage();
+
+    const toggle = await screen.findByText(/change password/i);
+    toggle.click();
+
+    const current = screen.getByLabelText(/current password/i);
+    const next = screen.getByLabelText(/new password/i);
+    const confirm = screen.getByLabelText(/confirm new password/i);
+
+    current.value = "wrong";
+    next.value = "newpassword";
+    confirm.value = "newpassword";
+
+    screen.getByText(/update password/i).click();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Current password is incorrect")
+      ).toBeInTheDocument();
+    });
+  });
+
+  /* Delete */
+
+  test("deletes a timeline", async () => {
+    mockUseAuth.mockReturnValue({
+      isAuthenticated: true,
+      user: { id: "1" },
+    });
+
+    vi.mocked(api.get).mockResolvedValueOnce({
+      user: { _id: "1", email: "a", fullname: "John" },
+      timelines: [{ _id: "1", name: "Test Timeline" }],
+    });
+
+    vi.mocked(api.delete).mockResolvedValueOnce({});
+
+    renderPage();
+
+    const deleteBtn = await screen.findByTitle("Delete");
+    deleteBtn.click();
+
+    screen.getByText(/yes, Delete/i).click();
+
+    await waitFor(() => {
+      expect(api.delete).toHaveBeenCalled();
+    });
   });
 });
