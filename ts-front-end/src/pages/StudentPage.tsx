@@ -180,7 +180,6 @@ const StudentPage: React.FC = () => {
     }
     setPasswordLoading(true);
     try {
-      // TODO: wire to PATCH /users/:id (changePassword) once backend route is added
       await api.patch(`/users/${user?.id}`, {
         currentPassword: passwordForm.currentPassword,
         newPassword: passwordForm.newPassword,
