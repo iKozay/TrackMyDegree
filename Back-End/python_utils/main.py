@@ -131,18 +131,6 @@ def get_course_schedule():
 def health_check():
     return jsonify({"status": "ok"})
 
-@app.before_request
-def run_init():
-    global initialized
-
-    # Skip specific route
-    if request.endpoint == "parse_transcript_api":
-        return
-
-    if not initialized:
-        init_instances()
-        initialized = True
-
 def init_instances():
     global course_scraper_instance, degree_data_scraper_instance, concordia_api_instance
 
@@ -158,9 +146,8 @@ def init_instances():
     # Step 2: Initialize Course Data Scraper  
     if course_scraper_instance is None:
         logger.info("Initializing Course Data Scraper...")
-        init_course_scraper_instance(cache_dir=cache_path)
+        init_course_scraper_instance()
         course_scraper_instance = get_course_scraper_instance()
-        course_scraper_instance.load_cache_from_file()
         logger.info("Course scraper instance created")
         module_status["course_scraper"] = "ready"
     
@@ -184,6 +171,8 @@ if cache_path:
     os.makedirs(cache_path, exist_ok=True)
 if env_file:
     load_dotenv(env_file)
+
+init_instances()
 
 def main():
     app.run(host="0.0.0.0", port=15001)

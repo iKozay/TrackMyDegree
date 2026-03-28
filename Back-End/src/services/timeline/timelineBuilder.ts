@@ -3,9 +3,8 @@ import { parseFile } from '@services/parsingService';
 import { ParsedData, ProgramInfo } from '../../types/transcript';
 import { Timeline } from '@models';
 import { coursepoolController } from '@controllers/coursepoolController';
-import { TimelineResult, TimelineCourse, TimelineDocument, TimelineSemester, CourseStatus } from '@shared/timeline';
-import { DegreeData, CoursePoolInfo, CourseData } from '@shared/degree';
-import {  normalizeCourseCode } from './courseHelper';
+import { TimelineResult, TimelineCourse, TimelineDocument, TimelineSemester, CourseStatus, DegreeData, CoursePoolData, CourseData } from '@trackmydegree/shared';
+import { normalizeCourseCode } from './courseHelper';
 import { processSemestersFromParsedData, generateEmptySemesters, generateSemestersFromPredefinedSequence } from './semesterBuilder';
 import { mapCoursesToTimelineFormat } from './courseMapper';
 import { getDegreeData, loadMissingCourses, getCourseData, getDegreeId } from './dataLoader';
@@ -113,7 +112,9 @@ export const buildTimeline = async (
 
   const { degreeData: degree, coursePools, courses } = result;
 
-  await handleEcp(coursePools, courses, degree, programInfo.isExtendedCreditProgram ?? false);
+  if (programInfo.isExtendedCreditProgram) {
+    await handleEcp(coursePools, courses, degree);
+  }
 
   if (programInfo.isCoop) {
     await handleCoop(degree, coursePools, courses);
@@ -208,7 +209,7 @@ function addToCoursePools(
   coursePoolName: string,
   coursesToAdd: string[],
   allCourses: Record<string, CourseData>,
-  coursePools: CoursePoolInfo[],
+  coursePools: CoursePoolData[],
   calculateCredits: boolean = true,
 ) {
   const normalizedCourses = coursesToAdd.map(normalizeCourseCode);
@@ -228,57 +229,55 @@ function addToCoursePools(
     name: coursePoolName,
     creditsRequired: creditsRequired,
     courses: normalizedCourses,
+    rules: [],
   });
 }
 
 
 // Moved addEcpCoursePools outside buildTimeline for better testability
 export async function handleEcp(
-  coursePools: CoursePoolInfo[],
+  coursePools: CoursePoolData[],
   courses: Record<string, CourseData>,
   degree: DegreeData,
-  isExtendedCreditProgram: boolean,
 ) {
 
   if (degree.ecpDegreeId) {
-    const ecpResult = await getDegreeData(degree.ecpDegreeId);
+    const ecpResult = await getDegreeData(degree.ecpDegreeId, false);
     if (ecpResult) {
       
-      if (isExtendedCreditProgram) {
-        // Merge "General Education and Humanities Electives"
-        handle_general_education_electives(ecpResult, coursePools);
-        // Then add the remaining ECP pools (if any) to the main coursePools array
-        coursePools.push(...(ecpResult.coursePools || []));
-      }
+      // Merge "General Education and Humanities Electives"
+      handle_general_education_electives(ecpResult, coursePools);
+      // Then add the remaining ECP pools (if any) to the main coursePools array
+      coursePools.push(...(ecpResult.coursePools || []));
 
       for (const course of Object.values(ecpResult.courses || {})) {
         courses[normalizeCourseCode(course._id)] = course;
       }
 
       // If a degree object was passed in, increment its totalCredits by 30
-      if (degree && isExtendedCreditProgram) {
+      if (degree) {
         degree.totalCredits = (degree.totalCredits ?? 0) + 30;
       }
     }
   }
 }
-async function handle_general_education_electives(ecpResult: { coursePools: CoursePoolInfo[] }, coursePools: CoursePoolInfo[]) {
+async function handle_general_education_electives(ecpResult: { coursePools: CoursePoolData[] }, coursePools: CoursePoolData[]) {
   const ecpPool = ecpResult.coursePools.find((pool) => pool.name.includes('General Education Humanities and Social Sciences Electives'));
-  const gen_ed_pool_id = coursePools.find(pool => pool.name.includes('General Education Humanities and Social Sciences Electives'));
-  if (ecpPool && gen_ed_pool_id) {
+  const gen_ed_pool = coursePools.find(pool => pool.name.includes('General Education Humanities and Social Sciences Electives'));
+  if (ecpPool && gen_ed_pool) {
     for (const courseCode of ecpPool.courses) {
-      if (!gen_ed_pool_id.courses.includes(courseCode)) {
-        gen_ed_pool_id.courses.push(courseCode);
+      if (!gen_ed_pool.courses.includes(courseCode)) {
+        gen_ed_pool.courses.push(courseCode);
       }
     }
-    gen_ed_pool_id.creditsRequired += ecpPool.creditsRequired;
+    gen_ed_pool.creditsRequired += ecpPool.creditsRequired;
     ecpResult.coursePools = ecpResult.coursePools.filter(pool => pool._id !== ecpPool._id); // Remove the merged pool from ecpResult
   }
 }
 
 async function handleCoop(
   degree: DegreeData,
-  coursePools: CoursePoolInfo[],
+  coursePools: CoursePoolData[],
   courses: Record<string, CourseData>,
 ) {
   const COOP_POOL_ID = "COOP_Co-op Work Terms";
@@ -292,7 +291,7 @@ async function handleCoop(
   if (coopCoursePool) {
     const coopCoursesList = coopCoursePool.courses || [];
     const coopCourses = await Promise.all(coopCoursesList.map(async (code) => await getCourseData(code)));
-    coursePools.push(coopCoursePool as CoursePoolInfo);
+    coursePools.push(coopCoursePool as CoursePoolData);
     for (const c of coopCourses) {
       if (c) {
         courses[c._id] = c;
@@ -305,7 +304,7 @@ async function handleCoop(
 
 async function addUnusedCredits(semestersResults: Array<{ courses: Array<{ code: string }> }>,
   courses: Record<string, any>,
-  coursePools: CoursePoolInfo[],
+  coursePools: CoursePoolData[],
 ): Promise<void> {
   const unusedCreditCourses = []
   for (const semester of semestersResults) {

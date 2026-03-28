@@ -1,57 +1,28 @@
-import React, { useState, useEffect } from "react";
-import { api } from "../api/http-api-client";
-import type { CourseCode } from "../types/timeline.types";
+import React, { useMemo, useState } from "react";
+import type { CourseCode, CourseMap } from "../types/timeline.types";
 import "../styles/components/AddModal.css";
 
 type AddModalProps = {
   type: "exemption" | "deficiency";
+  courses: CourseMap;
   onAdd: (courseId: CourseCode, type: string) => void;
 };
 
-export const AddModal: React.FC<AddModalProps> = ({ type, onAdd }) => {
-  const [courses, setCourses] = useState<CourseCode[]>([]);
-  const [filteredCourses, setFilteredCourses] = useState<CourseCode[]>([]);
+export const AddModal: React.FC<AddModalProps> = ({ type, courses, onAdd }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // Fetch courses from the database
-  useEffect(() => {
-    const fetchCourses = async () => {
-      setLoading(true);
-      setError(null);
+  const filteredCourses = useMemo(() => {
+    const courseCodes = Object.keys(courses);
 
-      try {
-        const response = await api.get<{ courseCodes: CourseCode[] }>(
-          "/courses/all-codes",
-        );
-        setCourses(response.courseCodes);
-        setFilteredCourses(response.courseCodes);
-      } catch (err) {
-        console.error("Error fetching courses:", err);
-        setError("Failed to load courses. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCourses();
-  }, []);
-
-  // Filter courses based on search term
-  useEffect(() => {
     if (!searchTerm.trim()) {
-      setFilteredCourses(courses);
-      return;
+      return courseCodes;
     }
 
     const search = searchTerm.toLowerCase();
-    const filtered = courses.filter((course) => {
+    return courseCodes.filter((course) => {
       const code = course.toLowerCase();
       return code.includes(search);
     });
-
-    setFilteredCourses(filtered);
   }, [searchTerm, courses]);
 
   const handleAddCourse = (course: CourseCode) => {
@@ -78,19 +49,8 @@ export const AddModal: React.FC<AddModalProps> = ({ type, onAdd }) => {
       </div>
 
       <div className="add-modal-body">
-        {loading && (
-          <div className="add-modal-loading">
-            <p>Loading courses...</p>
-          </div>
-        )}
 
-        {error && (
-          <div className="add-modal-error">
-            <p>{error}</p>
-          </div>
-        )}
-
-        {!loading && !error && filteredCourses.length === 0 && (
+        {filteredCourses.length === 0 && (
           <div className="add-modal-no-results">
             <p>
               {searchTerm.trim()
@@ -100,7 +60,7 @@ export const AddModal: React.FC<AddModalProps> = ({ type, onAdd }) => {
           </div>
         )}
 
-        {!loading && !error && filteredCourses.length > 0 && (
+        {filteredCourses.length > 0 && (
           <div className="add-modal-courses">
             {filteredCourses.map((course) => (
               <div key={course} className="add-modal-course-item">

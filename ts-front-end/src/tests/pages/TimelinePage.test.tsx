@@ -336,8 +336,8 @@ describe("TimeLinePage", () => {
       state: {
         ...mockTimelineState.state,
         pools: [
-          { _id: "exemption-id", name: "ExemPtion", creditsRequired: 0, courses: [] },
-          { _id: "deficiency-id", name: "DefiCiency", creditsRequired: 3, courses: [] },
+          { _id: "exemption-id", name: "ExemPtion", creditsRequired: 0, courses: [], rules: [] },
+          { _id: "deficiency-id", name: "DefiCiency", creditsRequired: 3, courses: [], rules: [] },
         ],
       }
     });

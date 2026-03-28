@@ -1,0 +1,28 @@
+{
+  "coursePools": [
+    {
+      "_id": "COOP_Co-op Work Terms",
+      "courses": [
+        "CWT 100",
+        "CWT 101",
+        "CWT 200",
+        "CWT 201",
+        "CWT 300",
+        "CWT 301"
+      ],
+      "creditsRequired": 0.0,
+      "name": "Co-op Work Terms",
+      "rules": []
+    }
+  ],
+  "degree": {
+    "_id": "Co-op Program",
+    "coursePools": [
+      "COOP_Co-op Work Terms"
+    ],
+    "degreeType": "Co-op",
+    "ecpDegreeId": "",
+    "name": "Co-op Program",
+    "totalCredits": 0.0
+  }
+}

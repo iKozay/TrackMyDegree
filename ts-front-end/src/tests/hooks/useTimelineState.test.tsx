@@ -93,8 +93,28 @@ describe("useTimelineState", () => {
     expect(api.get).not.toHaveBeenCalled();
   });
 
-  it("fetches immediately then initializes timeline when job is done", async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(makeDoneResponse() as any);
+  it("initializes timeline state when job is done", async () => {
+    vi.mocked(api.get).mockResolvedValueOnce({
+      status: "done",
+      result: {
+        degree: { name: "CS", totalCredits: 90, coursePools: [] },
+        pools: [],
+        courses: {
+          "COMP 248": {
+            id: "COMP 248",
+            title: "OOP",
+            credits: 3,
+            description: "",
+            offeredIn: [],
+            prerequisites: [],
+            corequisites: [],
+            status: { status: "completed", semester: "FALL 2025" },
+          },
+        },
+        semesters: [{ term: "FALL 2025", courses: [] }],
+        timelineName: "Saved Timeline",
+      },
+    } as any);
 
     const { result } = renderHook(() => useTimelineState("job-1"));
 
@@ -159,8 +179,22 @@ describe("useTimelineState", () => {
           { _id: "exemptions", name: "exemptions", creditsRequired: 0, courses: [] },
           { _id: "deficiencies", name: "deficiencies", creditsRequired: 0, courses: [] },
         ],
-      }) as any,
-    );
+        courses: {
+          "COMP 248": {
+            id: "COMP 248",
+            title: "OOP",
+            credits: 3,
+            description: "",
+            offeredIn: [],
+            prerequisites: [],
+            corequisites: [],
+            status: { status: "completed", semester: "FALL 2025" },
+          },
+        },
+        semesters: [{ term: "FALL 2025", courses: [] }],
+        timelineName: "Saved Timeline",
+      }));
+
     vi.mocked(api.post).mockResolvedValue({} as any);
 
     const { result } = renderHook(() => useTimelineState("job-3"));

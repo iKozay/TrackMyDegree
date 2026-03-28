@@ -219,11 +219,11 @@ describe('DegreeController versioning branches', () => {
     (CoursePool.find as jest.Mock).mockReturnValue({
       lean: jest.fn().mockReturnThis(),
       exec: jest.fn().mockResolvedValue([
-        { _id: 'POOL1', name: 'Core', creditsRequired: 3 },
+        { _id: 'POOL1', name: 'Core', creditsRequired: 3, rules: [], baseAcademicYear: '2026-2027' },
       ]),
     });
     (resolveEntityVersions as jest.Mock).mockResolvedValue([
-      { _id: 'POOL1', name: 'Core', creditsRequired: 3 },
+      { _id: 'POOL1', name: 'Core', creditsRequired: 3, rules: [], baseAcademicYear: '2026-2027' },
     ]);
 
     await expect(controller.getCoursePoolsForDegree('COMP')).resolves.toEqual([
@@ -232,6 +232,8 @@ describe('DegreeController versioning branches', () => {
         name: 'Core',
         creditsRequired: 3,
         courses: [],
+        rules: [],
+        baseAcademicYear: '2026-2027',
       },
     ]);
   });

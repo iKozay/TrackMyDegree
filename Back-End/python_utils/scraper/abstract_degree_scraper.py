@@ -49,7 +49,7 @@ class AbstractDegreeScraper(ABC):
         for pool in self.program_requirements.coursePools:
             if pool.name == pool_name:
                 pool.courses.extend(courses_to_add)
-                pool.courses = list(set(pool.courses))  # Remove duplicates
+                pool.courses = list(dict.fromkeys(pool.courses))
 
     def remove_courses_from_pool(self, pool_name: str, courses_to_remove: list[str]) -> None:
         for pool in self.program_requirements.coursePools:

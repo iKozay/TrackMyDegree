@@ -3,13 +3,12 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import {
   generateDegreeAudit,
   generateDegreeAuditForUser,
+  generateDegreeAuditFromTimeline
 } from '@services/audit';
 import { Course, CoursePool, Degree, Timeline, User } from '@models';
-import { GenerateAuditParams } from '@shared/audit';
+import { GenerateAuditParams, TimelineCourse, TimelineResult} from '@trackmydegree/shared';
 import * as misc from '@utils/misc';
 
-import { generateDegreeAuditFromTimeline } from '@services/audit';
-import { TimelineCourse, TimelineResult } from '@shared/timeline';
 const STATUS_COMPLETED = 'Completed';
 const STATUS_NOT_STARTED = 'Not Started';
 const STATUS_MISSING = 'Missing';
@@ -228,18 +227,21 @@ describe('DegreeAuditService', () => {
       name: 'core_computer_science',
       creditsRequired: 6,
       courses: ['COMP 248', 'COMP 249'],
+      rules:[]
     },
     {
       _id: 'exemptions',
       name: 'exemptions',
       creditsRequired: 3,
       courses: ['ENGL 101'],
+      rules: []
     },
     {
       _id: 'deficiencies',
       name: 'deficiencies',
       creditsRequired: 3,
       courses: ['MATH 203'],
+      rules: []
     },
   ];
       const mockSemesters = [
@@ -254,9 +256,8 @@ describe('DegreeAuditService', () => {
         title: 'OOP I',
         credits: 3,
         description: '',
-        offeredIN: [],
-        prerequisites: [],
-        corequisites: [],
+        offeredIn: [],
+        rules: [],
         status: { status: 'completed', semester: 'Fall 2022' },
       },
       'COMP 249': {
@@ -264,9 +265,8 @@ describe('DegreeAuditService', () => {
         title: 'OOP II',
         credits: 3,
         description: '',
-        offeredIN: [],
-        prerequisites: [],
-        corequisites: [],
+        offeredIn: [],
+        rules: [],
         status: { status: 'planned', semester: 'Fall 2027' },
       },
       'ENGL 101': {
@@ -274,9 +274,8 @@ describe('DegreeAuditService', () => {
         title: 'English',
         credits: 3,
         description: '',
-        offeredIN: [],
-        prerequisites: [],
-        corequisites: [],
+        offeredIn: [],
+        rules: [],
         status: { status: 'incomplete', semester: null },
       },
       'MATH 203': {
@@ -284,9 +283,8 @@ describe('DegreeAuditService', () => {
         title: 'Calculus I',
         credits: 3,
         description: '',
-        offeredIN: [],
-        prerequisites: [],
-        corequisites: [],
+        offeredIn: [],
+        rules: [],
         status: { status: 'planned', semester: 'Fall 2027' },
       },
     };

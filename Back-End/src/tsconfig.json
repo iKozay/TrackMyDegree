@@ -18,8 +18,7 @@
       "@routes/*": ["./routes/*"],
       "@services/*": ["./services/*"],
       "@types/*": ["./types/*"],
-      "@utils/*": ["./utils/*"],
-      "@shared/*": ["../../shared/types/*"]
+      "@utils/*": ["./utils/*"]
     },
     "plugins": [
       { "transform": "typescript-transform-paths" },

@@ -7,12 +7,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Permission of the GCS is required.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "COMP 208",
@@ -22,12 +17,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COMP 108. Permission of the GCS is required.",
-    "rules": {
-      "prereq": [["COMP 108"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 108"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 108."
+      }
+    ]
   },
   {
     "_id": "COMP 218",
@@ -37,12 +36,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MATH 201 or equivalent. No prior experience with computers is assumed.",
-    "rules": {
-      "prereq": [["MATH 201"]],
-      "coreq": [],
-      "not_taken": ["COEN 243","COMP 248"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 201"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 201."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["COMP 248", "COEN 243"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: COMP 248, COEN 243."
+      }
+    ]
   },
   {
     "_id": "COMP 228",
@@ -52,12 +63,40 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COMP 248. The following courses must be completed previously or concurrently: MATH 203 or Cegep Mathematics 103 or NYA; MATH 204 or Cegep Mathematics 105 or NYC.",
-    "rules": {
-      "prereq": [["COMP 248"], ["MATH 203"], ["MATH 204"]],
-      "coreq": [["MATH 203"], ["MATH 204"]],
-      "not_taken": ["SOEN 228"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 248"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 248."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MATH 203"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MATH 203."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MATH 204"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MATH 204."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["SOEN 228"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: SOEN 228."
+      }
+    ]
   },
   {
     "_id": "COMP 232",
@@ -67,12 +106,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: MATH 203 or Cegep Mathematics 103 or NYA; MATH 204 or Cegep Mathematics 105 or NYC.",
-    "rules": {
-      "prereq": [["MATH 203"], ["MATH 204"]],
-      "coreq": [],
-      "not_taken": ["COMP 238","COEN 231"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 203"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 203."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 204"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 204."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["COMP 238", "COEN 231"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: COMP 238, COEN 231."
+      }
+    ]
   },
   {
     "_id": "COMP 233",
@@ -82,12 +141,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MATH 205 or Cegep Mathematics 203 or NYB.",
-    "rules": {
-      "prereq": [["MATH 205"]],
-      "coreq": [],
-      "not_taken": ["BIOL 322", "ENGR 371", "STAT 249", "STAT 250", "COMM 215", "MAST 221", "MAST 333"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 205"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 205."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["BIOL 322", "ENGR 371", "STAT 249", "STAT 250", "COMM 215", "MAST 221", "MAST 333"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: BIOL 322, ENGR 371, STAT 249, STAT 250, COMM 215, MAST 221, MAST 333."
+      }
+    ]
   },
   {
     "_id": "COMP 248",
@@ -97,12 +168,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously or concurrently: MATH 204 or Cegep Mathematics 105 or NYC.",
-    "rules": {
-      "prereq": [["MATH 204"]],
-      "coreq": [["MATH 204"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MATH 204"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MATH 204."
+      }
+    ]
   },
   {
     "_id": "COMP 249",
@@ -112,12 +187,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 248; MATH 203 or Cegep Mathematics 103 or NYA. The following courses must be completed previously or concurrently: MATH 205 or Cegep Mathematics 203 or NYB.",
-    "rules": {
-      "prereq": [["COMP 248"], ["MATH 203"], ["MATH 205"]],
-      "coreq": [["MATH 205"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 248"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 248."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 203"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 203."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MATH 205"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MATH 205."
+      }
+    ]
   },
   {
     "_id": "COMP 326",
@@ -127,12 +222,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COMP 346.",
-    "rules": {
-      "prereq": [["COMP 346"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 346"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 346."
+      }
+    ]
   },
   {
     "_id": "COMP 333",
@@ -142,12 +241,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 233 or ENGR 371; COMP 352; ENCS 282.",
-    "rules": {
-      "prereq": [["COMP 233", "ENGR 371"], ["COMP 352"], ["ENCS 282"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 233", "ENGR 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 233, ENGR 371."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 282."
+      }
+    ]
   },
   {
     "_id": "COMP 335",
@@ -157,12 +276,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 232 or COEN 231; and COMP 249 or COEN 244.",
-    "rules": {
-      "prereq": [["COMP 232", "COEN 231"], ["COMP 249", "COEN 244"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 232", "COEN 231"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 232, COEN 231."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 249", "COEN 244"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 249, COEN 244."
+      }
+    ]
   },
   {
     "_id": "COMP 339",
@@ -172,12 +303,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COMP 232; or students must complete have completed 18 credits in post‑Cegep Mathematics prior to enrolling.",
-    "rules": {
-      "prereq": [["COMP 232"]],
-      "coreq": [],
-      "not_taken": ["MATH 339"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 232"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 232."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["MATH 339"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: MATH 339."
+      }
+    ]
   },
   {
     "_id": "COMP 345",
@@ -187,12 +330,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: COMP 352.",
-    "rules": {
-      "prereq": [["COMP 352"]],
-      "coreq": [["COMP 352"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["COMP 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: COMP 352."
+      }
+    ]
   },
   {
     "_id": "COMP 346",
@@ -202,12 +349,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 228 or SOEN 228; COMP 352.",
-    "rules": {
-      "prereq": [["COMP 228", "SOEN 228"], ["COMP 352"]],
-      "coreq": [],
-      "not_taken": ["COEN 346"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 228", "SOEN 228"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 228, SOEN 228."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["COEN 346"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: COEN 346."
+      }
+    ]
   },
   {
     "_id": "COMP 348",
@@ -217,12 +384,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COMP 249.",
-    "rules": {
-      "prereq": [["COMP 249"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 249"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 249."
+      }
+    ]
   },
   {
     "_id": "COMP 352",
@@ -232,12 +403,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: COMP 232. The following courses must be completed previously: COMP 249.",
-    "rules": {
-      "prereq": [["COMP 232"], ["COMP 249"]],
-      "coreq": [["COMP 232"]],
-      "not_taken": ["COEN 352"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["COMP 232"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: COMP 232."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 249"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 249."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["COEN 352"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: COEN 352."
+      }
+    ]
   },
   {
     "_id": "COMP 353",
@@ -247,12 +438,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 232 or COEN 231; and COMP 352 or COEN 352.",
-    "rules": {
-      "prereq": [["COMP 232", "COEN 231"], ["COMP 352", "COEN 352"]],
-      "coreq": [],
-      "not_taken": ["SOEN 363"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 232", "COEN 231"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 232, COEN 231."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352", "COEN 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352, COEN 352."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["SOEN 363"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: SOEN 363."
+      }
+    ]
   },
   {
     "_id": "COMP 354",
@@ -262,12 +473,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 352; ENCS 282.",
-    "rules": {
-      "prereq": [["COMP 352"], ["ENCS 282"]],
-      "coreq": [],
-      "not_taken": ["SOEN 341"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 282."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["SOEN 341"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: SOEN 341."
+      }
+    ]
   },
   {
     "_id": "COMP 361",
@@ -277,12 +508,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 232, COMP 249.",
-    "rules": {
-      "prereq": [["COMP 232"], ["COMP 249"]],
-      "coreq": [],
-      "not_taken": ["ENGR 391","MAST 334"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 232"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 232."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 249"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 249."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ENGR 391","MAST 334"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ENGR 391, MAST 334."
+      }
+    ]
   },
   {
     "_id": "COMP 367",
@@ -292,12 +543,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: MATH 222 or COMP 232 or equivalent; COMP 248 or equivalent.",
-    "rules": {
-      "prereq": [["MATH 222", "COMP 232"], ["COMP 248"]],
-      "coreq": [],
-      "not_taken": ["MAST 332"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 222", "COMP 232"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 222, COMP 232."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 248"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 248."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["MAST 332"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: MAST 332."
+      }
+    ]
   },
   {
     "_id": "COMP 371",
@@ -307,12 +578,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 232 or COEN 231; COMP 352 or COEN 352.",
-    "rules": {
-      "prereq": [["COMP 232", "COEN 231"], ["COMP 352", "COEN 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 232", "COEN 231"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 232, COEN 231."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352", "COEN 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352, COEN 352."
+      }
+    ]
   },
   {
     "_id": "COMP 376",
@@ -322,12 +605,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 371.",
-    "rules": {
-      "prereq": [["COMP 371"]],
-      "coreq": [],
-      "not_taken": ["CART 315"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 371."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["CART 315"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: CART 315."
+      }
+    ]
   },
   {
     "_id": "COMP 425",
@@ -337,12 +632,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "COMP 426",
@@ -352,12 +642,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 346 or COEN 346.",
-    "rules": {
-      "prereq": [["COMP 346", "COEN 346"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 346", "COEN 346"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 346, COEN 346."
+      }
+    ]
   },
   {
     "_id": "COMP 428",
@@ -367,12 +661,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 346 or COEN 346.",
-    "rules": {
-      "prereq": [["COMP 346", "COEN 346"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 346", "COEN 346"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 346, COEN 346."
+      }
+    ]
   },
   {
     "_id": "COMP 432",
@@ -382,12 +680,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COMP 352.",
-    "rules": {
-      "prereq": [["COMP 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352."
+      }
+    ]
   },
   {
     "_id": "COMP 433",
@@ -397,12 +699,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COMP 352.",
-    "rules": {
-      "prereq": [["COMP 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352."
+      }
+    ]
   },
   {
     "_id": "COMP 438",
@@ -412,12 +718,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COMP 352.",
-    "rules": {
-      "prereq": [["COMP 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352."
+      }
+    ]
   },
   {
     "_id": "COMP 442",
@@ -427,12 +737,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 228 or SOEN 228 or COEN 311; COMP 335; COMP 352 or COEN 352.",
-    "rules": {
-      "prereq": [["COMP 228", "SOEN 228", "COEN 311"], ["COMP 335"], ["COMP 352", "COEN 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 228", "SOEN 228", "COEN 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 228, SOEN 228, COEN 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 335"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 335."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352", "COEN 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352, COEN 352."
+      }
+    ]
   },
   {
     "_id": "COMP 444",
@@ -442,12 +772,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 346.",
-    "rules": {
-      "prereq": [["COMP 346"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 346"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 346."
+      }
+    ]
   },
   {
     "_id": "COMP 445",
@@ -457,12 +791,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 346.",
-    "rules": {
-      "prereq": [["COMP 346"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 346"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 346."
+      }
+    ]
   },
   {
     "_id": "COMP 451",
@@ -472,12 +810,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 353.",
-    "rules": {
-      "prereq": [["COMP 353"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 353"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 353."
+      }
+    ]
   },
   {
     "_id": "COMP 465",
@@ -487,12 +829,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 232 or COEN 231; COMP 339; COMP 352 or COEN 352.",
-    "rules": {
-      "prereq": [["COMP 232", "COEN 231"], ["COMP 339"], ["COMP 352", "COEN 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 232", "COEN 231"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 232, COEN 231."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 339"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 339."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352", "COEN 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352, COEN 352."
+      }
+    ]
   },
   {
     "_id": "COMP 472",
@@ -502,12 +864,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COMP 352 or COEN 352.",
-    "rules": {
-      "prereq": [["COMP 352", "COEN 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352", "COEN 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352, COEN 352."
+      }
+    ]
   },
   {
     "_id": "COMP 473",
@@ -517,12 +883,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 352.",
-    "rules": {
-      "prereq": [["COMP 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352."
+      }
+    ]
   },
   {
     "_id": "COMP 474",
@@ -532,12 +902,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COMP 352 or COEN 352.",
-    "rules": {
-      "prereq": [["COMP 352", "COEN 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352", "COEN 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352, COEN 352."
+      }
+    ]
   },
   {
     "_id": "COMP 475",
@@ -547,12 +921,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COMP 371.",
-    "rules": {
-      "prereq": [["COMP 371"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 371."
+      }
+    ]
   },
   {
     "_id": "COMP 476",
@@ -562,12 +940,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COMP 361 or ENGR 391; COMP 376.",
-    "rules": {
-      "prereq": [["COMP 361", "ENGR 391"], ["COMP 376"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 361", "ENGR 391"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 361, ENGR 391."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 376"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 376."
+      }
+    ]
   },
   {
     "_id": "COMP 477",
@@ -577,12 +967,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 361 or ENGR 391, COMP 371.",
-    "rules": {
-      "prereq": [["COMP 361", "ENGR 391"], ["COMP 371"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 361", "ENGR 391"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 361, ENGR 391."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 371."
+      }
+    ]
   },
   {
     "_id": "COMP 478",
@@ -592,12 +994,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 352.",
-    "rules": {
-      "prereq": [["COMP 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352."
+      }
+    ]
   },
   {
     "_id": "COMP 479",
@@ -607,12 +1013,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COMP 233 or ENGR 371; COMP 352.",
-    "rules": {
-      "prereq": [["COMP 233", "ENGR 371"], ["COMP 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 233", "ENGR 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 233, ENGR 371."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352."
+      }
+    ]
   },
   {
     "_id": "COMP 490",
@@ -622,12 +1040,23 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENCS 282. Students must complete 60 credits prior to enrolling. Permission of the Department is required.",
-    "rules": {
-      "prereq": [["ENCS 282"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 60.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 282."
+      },
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 60.0
+        },
+        "message": "Students must complete at least 60.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "COMP 492",
@@ -637,12 +1066,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously or concurrently: COMP 490. Permission of the Department is required.",
-    "rules": {
-      "prereq": [["COMP 490"]],
-      "coreq": [["COMP 490"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["COMP 490"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: COMP 490."
+      }
+    ]
   },
   {
     "_id": "COMP 493",
@@ -652,12 +1085,39 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: BIOL 367; COMP 352. Students must complete a minimum of 54 credits in the BCompSc in Health and Life Sciences program prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
-    "rules": {
-      "prereq": [["BIOL 367"], ["COMP 352"]],
-      "coreq": [],
-      "not_taken": ["BIOL 493"],
-      "min_credits": 54.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BIOL 367"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BIOL 367."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["BIOL 493"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: BIOL 493."
+      },
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 54.0
+        },
+        "message": "Students must complete at least 54.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "COMP 495",
@@ -667,12 +1127,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENCS 282. Registration in the final year of the honours program is required.",
-    "rules": {
-      "prereq": [["ENCS 282"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 282."
+      }
+    ]
   },
   {
     "_id": "COMP 498",
@@ -682,12 +1146,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Permission of the Department is required.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "COMP 499",
@@ -697,11 +1156,6 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Permission of the Department is required.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   }
 ]

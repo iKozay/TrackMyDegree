@@ -68,7 +68,7 @@ describe("TimelineDndProvider", () => {
         title: "Object-Oriented Programming I",
         description: "Test description",
         credits: 3,
-        offeredIN: [],
+        offeredIn: [],
         prerequisites: [],
         corequisites: [],
         status: { status: "incomplete" as const, semester: null },
