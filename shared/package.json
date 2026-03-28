@@ -20,7 +20,7 @@
     "build": "npm run build:cjs && npm run build:esm",
     "build:cjs": "tsc --project tsconfig.cjs.json",
     "build:esm": "tsc --project tsconfig.esm.json",
-    "build:watch": "concurrently \"npm run build:cjs -- --watch\" \"npm run build:esm -- --watch\"",
+    "build:watch": "concurrently \"npm run build:cjs -- --watch --preserveWatchOutput\" \"npm run build:esm -- --watch --preserveWatchOutput\"",
     "clean": "rm -rf dist"
   },
   "devDependencies": {
