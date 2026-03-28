@@ -218,6 +218,27 @@ router.get('/', async (req: Request, res: Response) => {
 /**
  * PATCH /users/:id - Partial update fullname
  */
+
+async function handlePasswordUpdate(
+  id: string,
+  currentPassword: string,
+  newPassword: string
+): Promise<string | null> {
+  if (!currentPassword) {
+    return 'currentPassword is required to set a new password';
+  }
+  if (newPassword.length < 6) {
+    return 'newPassword must be at least 6 characters';
+  }
+
+  const changed = await authController.changePassword(id, currentPassword, newPassword);
+  if (!changed) {
+    return 'Current password is incorrect';
+  }
+
+  return null;
+}
+
 router.patch('/:id', async (req: Request<{ id: string }>, res: Response) => {
   try {
     const { id } = req.params;
@@ -243,20 +264,12 @@ router.patch('/:id', async (req: Request<{ id: string }>, res: Response) => {
 
     // Password update
     if (newPassword) {
-      if (!currentPassword) {
-        return res.status(HTTP.BAD_REQUEST).json({
-          error: 'currentPassword is required to set a new password',
-        });
-      }
-      if (newPassword.length < 6) {
-        return res.status(HTTP.BAD_REQUEST).json({
-          error: 'newPassword must be at least 6 characters',
-        });
-      }
-
-      const changed = await authController.changePassword(id, currentPassword, newPassword);
-      if (!changed) {
-        return res.status(HTTP.UNAUTHORIZED).json({ error: 'Current password is incorrect' });
+      const passwordError = await handlePasswordUpdate(id, currentPassword, newPassword);
+      if (passwordError) {
+        const statusCode = passwordError.includes('required') || passwordError.includes('6 characters')
+          ? HTTP.BAD_REQUEST
+          : HTTP.UNAUTHORIZED;
+        return res.status(statusCode).json({ error: passwordError });
       }
     }
 
