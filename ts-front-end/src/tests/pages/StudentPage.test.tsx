@@ -160,7 +160,7 @@ describe("StudentPage", () => {
     const editBtn = await screen.findByTitle("Edit name");
     editBtn.click();
 
-    const input = screen.getByDisplayValue("John");
+    const input = screen.getByDisplayValue("John") as HTMLInputElement;
     input.value = "New Name";
 
     const saveBtn = screen.getByTitle("Save");
@@ -213,9 +213,9 @@ describe("StudentPage", () => {
     const toggle = await screen.findByText(/change password/i);
     toggle.click();
 
-    const current = screen.getByLabelText(/current password/i);
-    const next = screen.getByLabelText(/new password/i);
-    const confirm = screen.getByLabelText(/confirm new password/i);
+    const current = screen.getByLabelText(/current password/i) as HTMLInputElement;
+    const next = screen.getByLabelText(/new password/i) as HTMLInputElement;
+    const confirm = screen.getByLabelText(/confirm new password/i) as HTMLInputElement;
 
     current.value = "old";
     next.value = "newpass";
@@ -244,9 +244,9 @@ describe("StudentPage", () => {
     const toggle = await screen.findByText(/change password/i);
     toggle.click();
 
-    const current = screen.getByLabelText(/current password/i);
-    const next = screen.getByLabelText(/new password/i);
-    const confirm = screen.getByLabelText(/confirm new password/i);
+    const current = screen.getByLabelText(/current password/i) as HTMLInputElement;
+    const next = screen.getByLabelText(/new password/i) as HTMLInputElement;
+    const confirm = screen.getByLabelText(/confirm new password/i) as HTMLInputElement;
 
     current.value = "old";
     next.value = "123";
@@ -279,9 +279,9 @@ describe("StudentPage", () => {
     const toggle = await screen.findByText(/change password/i);
     toggle.click();
 
-    const current = screen.getByLabelText(/current password/i);
-    const next = screen.getByLabelText(/new password/i);
-    const confirm = screen.getByLabelText(/confirm new password/i);
+    const current = screen.getByLabelText(/current password/i) as HTMLInputElement;
+    const next = screen.getByLabelText(/new password/i) as HTMLInputElement;
+    const confirm = screen.getByLabelText(/confirm new password/i) as HTMLInputElement;
 
     current.value = "wrong";
     next.value = "newpassword";
@@ -316,7 +316,8 @@ describe("StudentPage", () => {
     const deleteBtn = await screen.findByTitle("Delete");
     deleteBtn.click();
 
-    screen.getByText(/yes, Delete/i).click();
+    const confirmBtn = await screen.findByText(/yes, Delete/i);
+    confirmBtn.click();
 
     await waitFor(() => {
       expect(api.delete).toHaveBeenCalled();
