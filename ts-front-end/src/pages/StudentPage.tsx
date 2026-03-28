@@ -191,8 +191,13 @@ const StudentPage: React.FC = () => {
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
       setTimeout(() => setPasswordSuccess(false), 3000);
     } catch (err: unknown) {
-  console.log("ERROR:", err)
-    }finally {
+      const message = err instanceof Error ? err.message : "";
+      if (message.includes("401")) {
+        setPasswordError("Current password is incorrect");
+      } else {
+        setPasswordError("Failed to update password.");
+      }
+    } finally {
       setPasswordLoading(false);
     }
   };
