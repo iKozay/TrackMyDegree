@@ -214,6 +214,34 @@ router.get('/', async (req: Request, res: Response) => {
  *         description: Internal server error
  */
 
+/**
+ * PATCH /users/:id - Partial update fullname
+ */
+router.patch('/:id', async (req: Request<{ id: string }>, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { fullname } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(HTTP.BAD_REQUEST).json({ error: INVALID_ID_FORMAT });
+    }
+
+    if (!fullname || !fullname.trim()) {
+      return res.status(HTTP.BAD_REQUEST).json({ error: 'fullname is required' });
+    }
+
+    const user = await userController.updateUser(id, { fullname: fullname.trim() });
+    res.status(HTTP.OK).json({ message: 'User updated successfully', user });
+  } catch (error) {
+    console.error('Error in PATCH /users/:id', error);
+    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
+      res.status(HTTP.NOT_FOUND).json({ error: error.message });
+    } else {
+      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    }
+  }
+});
+
 // TODO: sanitize req.body — currently accepts any field, including sensitive ones
 // planned: allowlist fields (fullname, email, type) before passing to updateUser
 router.put('/:id', async (req: Request, res: Response) => {
