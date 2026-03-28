@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../legacy/css/StudentPage.css";
+import axios from "axios";
 
 // Types
 export interface Timeline {
@@ -189,9 +190,9 @@ const StudentPage: React.FC = () => {
       setShowPasswordSection(false);
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
       setTimeout(() => setPasswordSuccess(false), 3000);
-    } catch (err) {
-      setPasswordError(err instanceof Error ? err.message : "Failed to update password.");
-    } finally {
+    } catch (err: unknown) {
+  console.log("ERROR:", err)
+    }finally {
       setPasswordLoading(false);
     }
   };
