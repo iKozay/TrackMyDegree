@@ -108,7 +108,7 @@ def expected_fixture_loader():
 def initialized_course_scraper():
     expected_dir = Path(__file__).resolve().parents[1] / "fixtures" / "expected"
     all_courses_path = expected_dir / "All_Courses.json"
-    course_scraper = CourseDataScraper(cache_dir=str(expected_dir))
+    course_scraper = CourseDataScraper()
 
     CourseDataScraper.all_courses = {}
     with open(all_courses_path, encoding="utf-8") as fixture_file:

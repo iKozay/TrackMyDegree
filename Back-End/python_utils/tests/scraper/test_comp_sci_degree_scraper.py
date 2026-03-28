@@ -10,7 +10,7 @@ from scraper.comp_sci_degree_scraper import (
     CompCaDegreeScraper,
     CompDsDegreeScraper
 )
-from models import ConstraintType, CoursePool, DegreeType, ECPDegreeIDs
+from models import RuleType, CoursePool, DegreeType, ECPDegreeIDs
 
 
 class TestCompDegreeScraper:
@@ -168,13 +168,13 @@ class TestCompDegreeScraper:
         # CS Electives should have EXCESS_CREDITS_OVERFLOW flowing to general electives
         assert len(cs_electives_pool.rules) == 1
         cs_rule = cs_electives_pool.rules[0]
-        assert cs_rule.type == ConstraintType.EXCESS_CREDITS_OVERFLOW
+        assert cs_rule.type == RuleType.EXCESS_CREDITS_OVERFLOW
         assert cs_rule.params.targetPoolId == gen_electives_pool._id
 
         # Math Electives should have EXCESS_CREDITS_OVERFLOW flowing to general electives
         assert len(math_electives_pool.rules) == 1
         math_rule = math_electives_pool.rules[0]
-        assert math_rule.type == ConstraintType.EXCESS_CREDITS_OVERFLOW
+        assert math_rule.type == RuleType.EXCESS_CREDITS_OVERFLOW
         assert math_rule.params.targetPoolId == gen_electives_pool._id
 
 
@@ -337,21 +337,21 @@ class TestCompCaDegreeScraper:
         assert len(comp_arts_pool.rules) == 3
 
         cart_300_rule = next((r for r in comp_arts_pool.rules
-                              if r.type == ConstraintType.MAX_CREDITS_FROM_SET
+                              if r.type == RuleType.MAX_CREDITS_FROM_SET
                               and cart_300_course in r.params.courseList), None)
         assert cart_300_rule is not None
         assert "CART 310" not in cart_300_rule.params.courseList  # CART 310 excluded
         assert (cart_300_rule.params.maxCredits - 6.0) < 1e8
 
         cart_400_rule = next((r for r in comp_arts_pool.rules
-                              if r.type == ConstraintType.MAX_CREDITS_FROM_SET
+                              if r.type == RuleType.MAX_CREDITS_FROM_SET
                               and cart_400_course in r.params.courseList), None)
         assert cart_400_rule is not None
         assert "CART 470" not in cart_400_rule.params.courseList  # CART 470 excluded
         assert (cart_400_rule.params.maxCredits - 6.0) < 1e8
 
         dart_rule = next((r for r in comp_arts_pool.rules
-                          if r.type == ConstraintType.MAX_CREDITS_FROM_SET
+                          if r.type == RuleType.MAX_CREDITS_FROM_SET
                           and dart_course in r.params.courseList), None)
         assert dart_rule is not None
         assert dart_rule.params.maxCredits == 6.0
@@ -417,7 +417,7 @@ class TestCompDsDegreeScraper:
 
         assert len(math_stats_pool.rules) == 1
         rule = math_stats_pool.rules[0]
-        assert rule.type == ConstraintType.MAX_COURSES_FROM_SET
+        assert rule.type == RuleType.MAX_COURSES_FROM_SET
         assert "MAST 334" in rule.params.courseList
         assert "COMP 361" in rule.params.courseList
         assert rule.params.maxCourses == 1

@@ -23,26 +23,8 @@ class CourseDataScraper:
 
     all_courses: dict[str, Course] = {}
 
-    def __init__(self, cache_dir: str = None):
+    def __init__(self):
         self.logger = get_logger("CourseDataScraper")
-        self.local_cache_file = os.path.join(cache_dir, "course_data_cache.json")
-
-    def load_cache_from_file(self) -> None:
-        if os.path.exists(self.local_cache_file):
-            self.logger.info(f"Loading course data from local cache file: {self.local_cache_file}")
-            with open(self.local_cache_file, "r") as f:
-                cached_courses = json.load(f)
-                for course_data in cached_courses.values():
-                    course = Course(**course_data)
-                    self.all_courses[course._id] = course
-        else:
-            self.logger.info("No local cache file found. Scraping course data from website...")
-            self.scrape_all_courses()
-            self._save_cache_to_file()
-    
-    def _save_cache_to_file(self) -> None:
-        with open(self.local_cache_file, "w") as f:
-            json.dump({course_id: serialize(course) for course_id, course in self.all_courses.items()}, f, indent=4)
 
     def scrape_all_courses(self) -> None:
         self.logger.info("Scraping all courses from website...")
@@ -197,9 +179,9 @@ class CourseDataScraper:
             self.all_courses[course._id] = course
 
 course_scraper_instance: CourseDataScraper = None
-def init_course_scraper_instance(cache_dir: str) -> None:
+def init_course_scraper_instance() -> None:
     global course_scraper_instance
-    course_scraper_instance = CourseDataScraper(cache_dir=cache_dir)
+    course_scraper_instance = CourseDataScraper()
 
 def get_course_scraper_instance() -> CourseDataScraper:
     global course_scraper_instance
