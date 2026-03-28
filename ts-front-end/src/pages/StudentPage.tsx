@@ -145,7 +145,6 @@ const StudentPage: React.FC = () => {
     }
     setNameLoading(true);
     try {
-      // TODO: wire to PATCH /users/:id once backend route is added
       await api.patch(`/users/${user?.id}`, { fullname: nameInput.trim() });
       setDisplayName(nameInput.trim());
       setIsEditingName(false);
