@@ -4,13 +4,14 @@ import type {
   Course,
   CourseCode,
   CourseMap,
-  Pool,
-  RequisiteGroup,
   SemesterId,
   SemesterList,
   TimelinePartialUpdate,
   TimelineState,
 } from "../types/timeline.types";
+import { type CoursePoolData, type Rule, type MinCoursesFromSetParams, type MaxCoursesFromSetParams, type MinCreditsFromSetParams, type MaxCreditsFromSetParams, RuleType, type MinCreditsCompletedParams } from "@trackmydegree/shared";
+import { toast } from "react-toastify";
+import { api } from "../api/http-api-client";
 
 // Function that checks if a course already exists in a semester
 export function canDropCourse(
@@ -57,23 +58,22 @@ export function canDropCourse(
   };
 }
 
-export function calculateEarnedCredits(courses: CourseMap, pool: Pool): number {
+export function calculateEarnedCredits(courses: CourseMap, pool: CoursePoolData,
+): number {
   return Object.values(courses).reduce((total, course) => {
     // Exclude exempted courses from the calculation
     if (pool.courses.includes(course.id)) {
       return total;
     }
 
-    if (course.status.status === "completed") {
+    if (course.status.status === "completed" || course.status.status === "planned") {
       return total + (course.credits || 0);
     }
     return total;
   }, 0);
 }
 
-export function calculateCoursePoolEarnedCredits(
-  courses: CourseMap,
-  pool: Pool,
+export function calculateCoursePoolEarnedCredits(courses: CourseMap, pool: CoursePoolData,
 ): number {
   return Object.values(courses).reduce((total, course) => {
     if (
@@ -85,9 +85,6 @@ export function calculateCoursePoolEarnedCredits(
     return total;
   }, 0);
 }
-
-import { toast } from "react-toastify";
-import { api } from "../api/http-api-client";
 
 export async function saveTimeline(
   userId: string,
@@ -112,6 +109,7 @@ function isCourseSatisfied(
   courseSemesterIndex: number,
   semesters: SemesterList,
 ): boolean {
+  // This function checks if a course is satisfied (completed or planned in a previous semesters)
   if (!course) return false;
 
   if (course.status.status === "completed") return true;
@@ -126,11 +124,12 @@ function isCourseSatisfied(
     prereqSemesterIndex !== -1 && prereqSemesterIndex < courseSemesterIndex
   );
 }
-function isCourseSatisfiedSameOrBefore(
+function isCourseSatisfiedSameSemester(
   course: Course | undefined,
   courseSemesterIndex: number,
   semesters: SemesterList,
 ): boolean {
+  // This function checks if a course is satisfied (completed or planned in same semester)
   if (!course) return false;
 
   if (course.status.status === "completed") return true;
@@ -139,17 +138,22 @@ function isCourseSatisfiedSameOrBefore(
 
   const index = semesters.findIndex((s) => s.term === course.status.semester);
 
-  return index !== -1 && index <= courseSemesterIndex;
+  return index !== -1 && index === courseSemesterIndex;
 }
-function isRequisiteGroup(req: RequisiteGroup | string): req is RequisiteGroup {
-  return typeof req === "object" && req !== null && "anyOf" in req;
+function isCourseSatisfiedSameOrBefore(
+  course: Course | undefined,
+  courseSemesterIndex: number,
+  semesters: SemesterList
+): boolean {
+  // This function checks if a course is satisfied (completed or planned in a previous semesters or the same semester)
+  return isCourseSatisfied(course, courseSemesterIndex, semesters) || isCourseSatisfiedSameSemester(course, courseSemesterIndex, semesters);
 }
 
 export function getCourseValidationMessage(
   course: Course,
   state: TimelineState,
 ): string {
-  const { semesters, courses } = state;
+  const { semesters } = state;
 
   const courseSemesterId = course.status.semester;
   if (!courseSemesterId) return "";
@@ -159,43 +163,208 @@ export function getCourseValidationMessage(
   );
   if (courseSemesterIndex === -1) return "";
 
-  /* ---------------- PREREQUISITES ---------------- */
+  const violations: string[] = [];
 
-  for (const prereqGroup of course.prerequisites ?? []) {
-    if (isRequisiteGroup(prereqGroup)) {
-      const satisfied = prereqGroup.anyOf.some((code) =>
-        isCourseSatisfied(courses[code], courseSemesterIndex, semesters),
-      );
+  /* ---------------- DEGREE REQUIREMENTS ---------------- */
+  checkIfCourseInDegreeRequirements(course, state.pools, violations);  
 
-      if (!satisfied) {
-        return `Prerequisite (${prereqGroup.anyOf.join(" or ")}) not met`;
-      }
-    }
+  /* ---------------- COURSE RULES ---------------- */
+  processRules(course, course.rules, state, violations);
+
+  /* -------------- COURSEPOOL RULES -------------- */
+  const pool = state.pools.find((p) =>
+    p.courses.includes(course.id)
+  );
+
+  if (pool?.rules && Array.isArray(pool.rules) && pool.rules.length > 0) {
+    processRules(course, pool.rules, state, violations);
   }
 
-  /* ---------------- COREQUISITES ---------------- */
-  for (const coreqGroup of course.corequisites ?? []) {
-    if (isRequisiteGroup(coreqGroup)) {
-      const satisfied = coreqGroup.anyOf.some((code) =>
-        isCourseSatisfiedSameOrBefore(
-          courses[code],
-          courseSemesterIndex,
-          semesters,
-        ),
-      );
-
-      if (!satisfied) {
-        return `Corequisite (${coreqGroup.anyOf.join(" or ")}) not met`;
-      }
-    }
+  // pretty print the violations (if any)
+  if (violations.length > 0) {
+    return violations.join("\n");
   }
 
   return "";
 }
 
+export function processRules(targetCourse: Course, rules: Rule[], state: TimelineState, violations: string[]) {
+  // Guard check: ensure rules is an array
+  if (!Array.isArray(rules) || rules.length === 0) {
+    return;
+  }
+
+  for (const rule of rules) {
+    switch (rule.type) {
+      case RuleType.Prerequisite:{
+        processRequisiteRule(rule, isCourseSatisfied, state, violations);
+        break;
+      }
+      case RuleType.Corequisite:{
+        processRequisiteRule(rule, isCourseSatisfiedSameSemester, state, violations);
+        break;
+      }
+      case RuleType.PrerequisiteOrCorequisite: {
+        processRequisiteRule(rule, isCourseSatisfiedSameOrBefore, state, violations);
+        break;
+      }
+      case RuleType.NotTaken: {
+        processMaxCoursesFromSetRule(rule, null, state, violations);
+        break;
+      }
+      case RuleType.MinimumCredits: {
+        processMinCreditsRule(rule, targetCourse, state, violations);
+        break;
+      }
+      case RuleType.MinCreditsFromSet: {
+        processMinCreditsFromSetRule(rule, targetCourse, state, violations);
+        break;
+      }
+      case RuleType.MaxCreditsFromSet: {
+        processMaxCreditsFromSetRule(rule, targetCourse, state, violations);
+        break;
+      }
+      case RuleType.MinCoursesFromSet: {
+        processMinCoursesFromSetRule(rule, targetCourse, state, violations);
+        break;
+      }
+      case RuleType.MaxCoursesFromSet: {
+        processMaxCoursesFromSetRule(rule, targetCourse, state, violations);
+        break;
+      }
+      default:
+        break;
+    }
+  }
+}
+
+function processRequisiteRule(
+  rule: Rule,
+  validationFunction: (course: Course | undefined, courseSemesterIndex: number, semesters: SemesterList) => boolean,
+  state: TimelineState,
+  violations: string[]
+) {
+  const { courseList } = rule.params as MinCoursesFromSetParams;
+
+  const satisfied = courseList.some((code) => {
+    const course = state.courses[code];
+    return validationFunction(course, Number.MAX_SAFE_INTEGER, state.semesters);
+  });
+
+  if (!satisfied) {
+    violations.push(rule.message);
+  }
+}
+
+function processMinCreditsRule(rule: Rule, targetCourse: Course | null, state: TimelineState, violations: string[]) {
+  const { minCredits } = rule.params as MinCreditsCompletedParams;
+
+  // Get all courses before the semester of the target course (or all courses if targetCourse is null)
+  const coursesBeforeTarget: CourseMap = {};
+  for (const code in state.courses) {
+    const course = state.courses[code];
+    if (!course.status.semester) continue;
+
+    const semesterIndex = state.semesters.findIndex(
+      (s) => s.term === course.status.semester
+    );
+
+    const targetSemesterIndex = targetCourse
+      ? state.semesters.findIndex((s) => s.term === targetCourse.status.semester)
+      : Number.MAX_SAFE_INTEGER;
+
+    if (semesterIndex !== -1 && semesterIndex < targetSemesterIndex) {
+      coursesBeforeTarget[code] = course;
+    }
+  }
+  
+  const earnedCredits = calculateEarnedCredits(coursesBeforeTarget, {
+    _id: "",
+    name: "",
+    courses: [],
+    creditsRequired: 0,
+    rules: [],
+  });
+
+  if (earnedCredits < minCredits) {
+    violations.push(rule.message);
+  }
+}
+
+function processMinCreditsFromSetRule(rule: Rule, targetCourse: Course | null, state: TimelineState, violations: string[]) {
+  const { courseList, minCredits } = rule.params as MinCreditsFromSetParams;
+  if (targetCourse && !courseList.includes(targetCourse.id)) return;
+
+  const earnedCredits = calculateCoursePoolEarnedCredits(state.courses, {
+    _id: "",
+    name: "",
+    courses: courseList,
+    creditsRequired: 0,
+    rules: [],
+  });
+
+  if (earnedCredits < minCredits) {
+    violations.push(rule.message);
+  }
+}
+
+function processMaxCreditsFromSetRule(rule: Rule, targetCourse: Course | null, state: TimelineState, violations: string[]) {
+  const { courseList, maxCredits } = rule.params as MaxCreditsFromSetParams;
+  if (targetCourse && !courseList.includes(targetCourse.id)) return;
+
+  const earnedCredits = calculateCoursePoolEarnedCredits(state.courses, {
+    _id: "",
+    name: "",
+    courses: courseList,
+    creditsRequired: 0,
+    rules: [],
+  });
+
+  if (earnedCredits > maxCredits) {
+    violations.push(rule.message);
+  }
+}
+
+function processMinCoursesFromSetRule(rule: Rule, targetCourse: Course | null, state: TimelineState, violations: string[]) {
+  const { courseList, minCourses } = rule.params as MinCoursesFromSetParams;
+  if (targetCourse && !courseList.includes(targetCourse.id)) return;
+
+  const earnedCourses = courseList.filter((code) => 
+    isCourseSatisfied(state.courses[code], Number.MAX_SAFE_INTEGER, state.semesters)
+  ).length;
+
+  if (earnedCourses < minCourses) {
+    violations.push(rule.message);
+  }
+}
+
+function processMaxCoursesFromSetRule(rule: Rule, targetCourse: Course | null, state: TimelineState, violations: string[]) {
+  const { courseList, maxCourses } = rule.params as MaxCoursesFromSetParams;
+  if (targetCourse && !courseList.includes(targetCourse.id)) return;
+
+  const earnedCourses = courseList.filter((code) => 
+    isCourseSatisfied(state.courses[code], Number.MAX_SAFE_INTEGER, state.semesters)
+  ).length;
+
+  if (earnedCourses > maxCourses) {
+    violations.push(rule.message);
+  }
+}
+
+function checkIfCourseInDegreeRequirements(course: Course, pools: CoursePoolData[], violations: string[]) {
+  // A course is valid if it exists in at least one non-exemption pool.
+  const isInDegreeRequirements = pools
+    .filter((pool) => pool._id.toLowerCase() !== "exemptions")
+    .some((pool) => pool.courses.includes(course.id));
+
+  if (!isInDegreeRequirements) {
+    violations.push("Course is not part of the degree requirements.");
+  }
+}
+
 function getPoolCourses(
-  pools: Pool[],
-  id: "exemptions" | "deficiencies",
+  pools: CoursePoolData[],
+  id: "exemptions" | "deficiencies"
 ): CourseCode[] {
   return pools.find((p) => p._id.toLowerCase() === id)?.courses ?? [];
 }
@@ -327,7 +496,7 @@ export function canAddCourse(
   courseId: CourseCode,
   type: string,
   courses: CourseMap,
-  pools: Pool[],
+  pools: CoursePoolData[],
 ): AddCourseValidationResult {
   const poolName =
     type === "exemption"

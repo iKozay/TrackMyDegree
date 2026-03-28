@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import type { HTMLAttributes, ReactNode } from "react";
 import CoursePage, { type CourseGroup } from "../../pages/CoursePage";
-import type { CourseData } from "@shared/degree";
+import type { CourseData } from "@trackmydegree/shared";
 import useDegrees from "../../legacy/hooks/useDegree.jsx";
 import useCourses from "../../legacy/hooks/useCourses.jsx";
 import useResponsive from "../../legacy/hooks/useResponsive.jsx";
@@ -62,6 +62,7 @@ const defaultCourseList: CourseGroup[] = [
         components: ["Lecture"],
         notes: "Department approval may be required.",
         prereqCoreqText: "SOEN 287 or COMP 348",
+        rules: [],
       },
       {
         _id: "SOEN341",
@@ -69,6 +70,7 @@ const defaultCourseList: CourseGroup[] = [
         credits: 3,
         description: "Intro to software process.",
         prereqCoreqText: "",
+        rules: [],
       },
     ],
   },
@@ -77,13 +79,13 @@ const defaultCourseList: CourseGroup[] = [
 const subcourseList: CourseGroup[] = [
   {
     name: "Electives",
-    courses: [{ _id: "SOEN287", title: "Web Programming", credits: 3 }],
+    courses: [{ _id: "SOEN287", title: "Web Programming", credits: 3, rules: [] }],
     subcourseTitle: "Choose One",
     subcourseCredits: 3,
     subcourses: [
       {
         name: "",
-        courses: [{ _id: "SOEN321", title: "Intro to Systems Security", credits: 3 }],
+        courses: [{ _id: "SOEN321", title: "Intro to Systems Security", credits: 3, rules: [] }],
       },
     ],
   },
@@ -263,6 +265,7 @@ function makeLargeCourseList(count: number): CourseGroup[] {
     _id: `COMP${String(i).padStart(3, "0")}`,
     title: `Course ${i}`,
     credits: 3,
+    rules: [],
   }));
   return [{ name: "Large Pool", courses }];
 }

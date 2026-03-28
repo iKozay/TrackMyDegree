@@ -1,18 +1,11 @@
 import { BaseMongoController } from './baseMongoController';
 import { CoursePool } from '@models';
 import * as Sentry from '@sentry/node';
+import { CoursePoolData } from '@trackmydegree/shared';
 import {
   resolveEntityVersion,
   resolveEntityVersions,
 } from '@services/catalogVersionService';
-
-export interface CoursePoolData {
-  _id: string;
-  name: string;
-  creditsRequired: number;
-  courses?: string[];
-  baseAcademicYear?: string;
-}
 
 export class CoursePoolController extends BaseMongoController<any> {
   constructor() {
@@ -68,6 +61,7 @@ export class CoursePoolController extends BaseMongoController<any> {
         name: result.data.name,
         creditsRequired: result.data.creditsRequired,
         courses: result.data.courses || [],
+        rules: result.data.rules || [],
       };
     } catch (error) {
       this.handleError(error, 'updateCoursePool');
@@ -93,6 +87,7 @@ export class CoursePoolController extends BaseMongoController<any> {
           name: cp.name,
           creditsRequired: cp.creditsRequired,
           courses: cp.courses || [],
+          rules: cp.rules || [],
           baseAcademicYear: cp.baseAcademicYear,
         })),
         academicYear,
@@ -129,6 +124,7 @@ export class CoursePoolController extends BaseMongoController<any> {
           name: result.data.name,
           creditsRequired: result.data.creditsRequired,
           courses: result.data.courses || [],
+          rules: result.data.rules || [],
           baseAcademicYear: result.data.baseAcademicYear,
         },
         academicYear,
@@ -139,6 +135,7 @@ export class CoursePoolController extends BaseMongoController<any> {
         name: resolved.entity.name,
         creditsRequired: resolved.entity.creditsRequired,
         courses: resolved.entity.courses || [],
+        rules: resolved.entity.rules || [],
         baseAcademicYear: resolved.entity.baseAcademicYear,
       };
     } catch (error) {
