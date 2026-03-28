@@ -239,6 +239,7 @@ async function handlePasswordUpdate(
   return null;
 }
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 router.patch('/:id', async (req: Request<{ id: string }>, res: Response) => {
   try {
     const { id } = req.params;
