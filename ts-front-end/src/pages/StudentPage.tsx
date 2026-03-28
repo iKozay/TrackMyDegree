@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../legacy/css/StudentPage.css";
-import axios from "axios";
 
 // Types
 export interface Timeline {
