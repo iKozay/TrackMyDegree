@@ -221,18 +221,46 @@ router.get('/', async (req: Request, res: Response) => {
 router.patch('/:id', async (req: Request<{ id: string }>, res: Response) => {
   try {
     const { id } = req.params;
-    const { fullname } = req.body;
+    const { fullname, currentPassword, newPassword } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(HTTP.BAD_REQUEST).json({ error: INVALID_ID_FORMAT });
     }
 
-    if (!fullname || !fullname.trim()) {
-      return res.status(HTTP.BAD_REQUEST).json({ error: 'fullname is required' });
+    if (!fullname && !newPassword) {
+      return res.status(HTTP.BAD_REQUEST).json({
+        error: 'Provide at least one field to update: fullname or newPassword',
+      });
     }
 
-    const user = await userController.updateUser(id, { fullname: fullname.trim() });
-    res.status(HTTP.OK).json({ message: 'User updated successfully', user });
+    // Name update
+    if (fullname) {
+      if (!fullname.trim()) {
+        return res.status(HTTP.BAD_REQUEST).json({ error: 'fullname cannot be empty' });
+      }
+      await userController.updateUser(id, { fullname: fullname.trim() });
+    }
+
+    // Password update
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(HTTP.BAD_REQUEST).json({
+          error: 'currentPassword is required to set a new password',
+        });
+      }
+      if (newPassword.length < 6) {
+        return res.status(HTTP.BAD_REQUEST).json({
+          error: 'newPassword must be at least 6 characters',
+        });
+      }
+
+      const changed = await authController.changePassword(id, currentPassword, newPassword);
+      if (!changed) {
+        return res.status(HTTP.UNAUTHORIZED).json({ error: 'Current password is incorrect' });
+      }
+    }
+
+    res.status(HTTP.OK).json({ message: 'User updated successfully' });
   } catch (error) {
     console.error('Error in PATCH /users/:id', error);
     if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
