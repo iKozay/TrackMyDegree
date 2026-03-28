@@ -371,7 +371,7 @@ router.get('/:id/data', async (req: Request, res: Response) => {
   }
 });
 
-// TODO: add PATCH /:id route for partial updates (name, email, password)
+// TODO: add PATCH /:id route for partial updates (name - DONE, email, password)
 // password changes must verify current password and hash the new one with bcrypt
 // before persisting — never store or return plaintext passwords
 export default router;
