@@ -216,7 +216,7 @@ router.get('/', async (req: Request, res: Response) => {
  */
 
 /**
- * PATCH /users/:id - Partial update fullname
+ * PATCH /users/:id - Partial update fullname, password
  */
 
 async function handlePasswordUpdate(
@@ -414,7 +414,7 @@ router.get('/:id/data', async (req: Request, res: Response) => {
   }
 });
 
-// TODO: add PATCH /:id route for partial updates (name - DONE, email, password)
+// TODO: add PATCH /:id route for partial updates (name - DONE, email - NOT NEEDED, password - DONE)
 // password changes must verify current password and hash the new one with bcrypt
 // before persisting — never store or return plaintext passwords
 export default router;
