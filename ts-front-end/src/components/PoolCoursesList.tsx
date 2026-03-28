@@ -27,9 +27,9 @@ export const PoolCoursesList: React.FC<PoolCoursesListProps> = ({
     <div className="pool-courses">
       {idsToRender.map((courseId, index) => {
         const course = courses[courseId];
+        if (!course) return null;
         const isCompleted = course.status.status === "completed";
         const isPlanned = course.status.status === "planned";
-        if (!course) return null;
         if (showIncompleted && (isCompleted || isPlanned)) return null;
 
         return (

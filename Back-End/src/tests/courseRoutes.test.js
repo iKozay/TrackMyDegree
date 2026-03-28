@@ -338,6 +338,25 @@ describe('Course Routes', () => {
       }
     });
 
+    it('should pass academicYear through grouped degree lookups', async () => {
+      const degreeSpy = jest
+        .spyOn(degreeController, 'getCoursePoolsForDegree');
+      const courseSpy = jest.spyOn(courseController, 'getCoursesByCodes');
+
+      await request(app)
+        .get('/courses/by-degree/COMP?academicYear=2026-2027')
+        .expect(200);
+
+      expect(degreeSpy).toHaveBeenCalledWith('COMP', '2026-2027');
+      expect(courseSpy).toHaveBeenCalledWith(
+        expect.arrayContaining(['COMP101', 'COMP102']),
+        '2026-2027',
+      );
+
+      degreeSpy.mockRestore();
+      courseSpy.mockRestore();
+    });
+
     it('should return 400 if degreeId is missing', async () => {
       // This test is for the route parameter validation
       // Since Express handles route params, we test with empty string or invalid format
@@ -427,6 +446,19 @@ describe('Course Routes', () => {
         expect(response.body[0].courses).toEqual([]);
       }
     });
+
+    it('should filter out missing courses from populated pools', async () => {
+      await CoursePool.findByIdAndUpdate('POOL1', {
+        courses: ['COMP101', 'MISSING101'],
+      });
+
+      const response = await request(app)
+        .get('/courses/by-degree/COMP')
+        .expect(200);
+
+      expect(response.body[0].courses).toHaveLength(1);
+      expect(response.body[0].courses[0]._id).toBe('COMP101');
+    });
   });
 
   describe('GET /courses/:code', () => {
@@ -452,6 +484,17 @@ describe('Course Routes', () => {
         credits: 3,
       });
       expect(response.body.title).toBe('Introduction to Programming');
+    });
+
+    it('should pass academicYear to getCourseByCode', async () => {
+      const spy = jest.spyOn(courseController, 'getCourseByCode');
+
+      await request(app)
+        .get('/courses/COMP101?academicYear=2026-2027')
+        .expect(200);
+
+      expect(spy).toHaveBeenCalledWith('COMP101', '2026-2027');
+      spy.mockRestore();
     });
 
     it('should return 404 for non-existent course', async () => {

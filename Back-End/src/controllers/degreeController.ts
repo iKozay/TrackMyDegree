@@ -1,7 +1,11 @@
 import { BaseMongoController } from './baseMongoController';
 import { Degree, CoursePool, Course } from '@models';
 import { DEGREE_WITH_ID_DOES_NOT_EXIST } from '@utils/constants';
-import { CourseData, DegreeData, CoursePoolInfo } from '@shared/degree';
+import { DegreeData, CoursePoolInfo, CourseData } from '@shared/degree';
+import {
+  resolveEntityVersion,
+  resolveEntityVersions,
+} from '@services/catalogVersionService';
 
 export interface DegreeXCPData {
   degree_id: string;
@@ -18,40 +22,32 @@ export class DegreeController extends BaseMongoController<any> {
   // DEGREE OPERATIONS
   // ==========================
 
+  async getCoursesForDegree(
+    _id: string,
+    academicYear?: string,
+  ): Promise<CourseData[]> {
+    try {
+      const pools = await this.getCoursePoolsForDegree(_id, academicYear);
 
-  async getCoursesForDegree( _id: string): Promise<CourseData[]> {
-    try{
-    // 1. Fetch degree
-    const degree = await this.model
-      .findById(_id)
-      .lean<DegreeData>()
-      .exec();
+      // 3. Gather all course IDs
+      const courseIds = [...new Set(pools.flatMap((p) => p.courses || []))];
 
-    if (!degree) {
-      throw new Error("Degree not found");
-    }
+      // 4. Fetch all courses
+      const baseCourses = await Course.find({ _id: { $in: courseIds } })
+        .lean<CourseData[]>()
+        .exec();
 
-    // 2. Fetch pools
-    const pools = await CoursePool
-      .find({ _id: { $in: degree.coursePools ?? [] } })
-      .lean<CoursePoolInfo[]>()
-      .exec();
-
-    // 3. Gather all course IDs
-    const courseIds = pools.flatMap((p) => p.courses);
-
-    // 4. Fetch all courses
-    const courseArr = await Course
-      .find({ _id: { $in: courseIds } })
-      .lean<CourseData[]>()
-      .exec();
-
-    return courseArr;
-  }catch (error) {
+      return resolveEntityVersions('Course', baseCourses, academicYear);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === DEGREE_WITH_ID_DOES_NOT_EXIST
+      ) {
+        throw new Error('Degree not found');
+      }
       this.handleError(error, 'readDegreeData');
     }
   }
-
 
   /**
    * Create a new degree
@@ -108,7 +104,7 @@ export class DegreeController extends BaseMongoController<any> {
   /**
    * Get degree by ID
    */
-  async readDegree(_id: string): Promise<DegreeData> {
+  async readDegree(_id: string, academicYear?: string): Promise<DegreeData> {
     try {
       const result = await this.findById(_id);
 
@@ -116,14 +112,22 @@ export class DegreeController extends BaseMongoController<any> {
         throw new Error(DEGREE_WITH_ID_DOES_NOT_EXIST);
       }
 
-      return {
-        _id: result.data._id,
-        name: result.data.name,
-        totalCredits: result.data.totalCredits,
-        degreeType: result.data.degreeType,
-        coursePools: result.data.coursePools || [],
-        ecpDegreeId: result.data.ecpDegreeId,
-      };
+      const resolved = await resolveEntityVersion({
+        entityType: 'Degree',
+        entityId: _id,
+        baseEntity: {
+          _id: result.data._id,
+          name: result.data.name,
+          totalCredits: result.data.totalCredits,
+          degreeType: result.data.degreeType,
+          coursePools: result.data.coursePools || [],
+          ecpDegreeId: result.data.ecpDegreeId,
+          baseAcademicYear: result.data.baseAcademicYear,
+        },
+        academicYear,
+      });
+
+      return resolved.entity;
     } catch (error) {
       this.handleError(error, 'readDegree');
     }
@@ -132,25 +136,34 @@ export class DegreeController extends BaseMongoController<any> {
   /**
    * Get all degrees (excluding ECP)
    */
-  async readAllDegrees(): Promise<DegreeData[]> {
+  async readAllDegrees(academicYear?: string): Promise<DegreeData[]> {
     try {
       const result = await this.findAll(
         { degreeType: { $nin: ['ECP', 'Co-op'] } },
-        { select: 'name totalCredits degreeType', sort: { name: 1 } },
+        {
+          select:
+            'name totalCredits degreeType coursePools ecpDegreeId baseAcademicYear',
+          sort: { name: 1 },
+        },
       );
 
       if (!result.success) {
         throw new Error('Failed to fetch degrees');
       }
 
-      return (result.data || []).map((degree) => ({
-        _id: degree._id,
-        name: degree.name,
-        totalCredits: degree.totalCredits,
-        degreeType: degree.degreeType,
-        coursePools: degree.coursePools,
-        ecpDegreeId: degree.ecpDegreeId,
-      }));
+      return resolveEntityVersions(
+        'Degree',
+        (result.data || []).map((degree) => ({
+          _id: degree._id,
+          name: degree.name,
+          totalCredits: degree.totalCredits,
+          degreeType: degree.degreeType,
+          coursePools: degree.coursePools,
+          ecpDegreeId: degree.ecpDegreeId,
+          baseAcademicYear: degree.baseAcademicYear,
+        })),
+        academicYear,
+      );
     } catch (error) {
       this.handleError(error, 'readAllDegrees');
     }
@@ -159,15 +172,13 @@ export class DegreeController extends BaseMongoController<any> {
   /**
    * Get credits for degree (optimized - only fetches totalCredits field)
    */
-  async getCreditsForDegree(_id: string): Promise<number> {
+  async getCreditsForDegree(
+    _id: string,
+    academicYear?: string,
+  ): Promise<number> {
     try {
-      const result = await this.findById(_id, 'totalCredits');
-
-      if (!result.success) {
-        throw new Error(DEGREE_WITH_ID_DOES_NOT_EXIST);
-      }
-
-      return result.data.totalCredits;
+      const degree = await this.readDegree(_id, academicYear);
+      return degree.totalCredits;
     } catch (error) {
       this.handleError(error, 'getCreditsForDegree');
     }
@@ -176,30 +187,35 @@ export class DegreeController extends BaseMongoController<any> {
   /**
    * Get course pools for a degree (optimized - only fetches coursePools field)
    */
- async getCoursePoolsForDegree(_id: string): Promise<CoursePoolInfo[]> {
+  async getCoursePoolsForDegree(
+    _id: string,
+    academicYear?: string,
+  ): Promise<CoursePoolInfo[]> {
     try {
-      // Using populate to get full course pool details
-      const result = await this.model
-      .findById(_id)
-      .lean<{ coursePools?: CoursePoolInfo[] }>()
-      .populate({
-        path: 'coursePools',
-        model: CoursePool,
-        options: { lean: true },
-        select: '-__v',
+      const degree = await this.readDegree(_id, academicYear);
+      const basePools = await CoursePool.find({
+        _id: { $in: degree.coursePools || [] },
       })
-      .exec();
+        .lean<CoursePoolInfo[]>()
+        .exec();
 
-      if (!result) {
-        throw new Error(DEGREE_WITH_ID_DOES_NOT_EXIST);
-      }
+      const resolvedPools = await resolveEntityVersions(
+        'CoursePool',
+        basePools,
+        academicYear,
+      );
 
-      return result.coursePools || [];
+      return resolvedPools.map((coursePool) => ({
+        _id: coursePool._id,
+        name: coursePool.name,
+        creditsRequired: coursePool.creditsRequired,
+        courses: coursePool.courses || [],
+      }));
     } catch (error) {
       this.handleError(error, 'getCoursePoolsForDegree');
     }
   }
-  
+
   /**
    * Delete a degree by ID
    */
