@@ -399,14 +399,14 @@ const CoursesPanel: React.FC = () => {
       {loading ? <div className="py-4 text-center"><Spinner animation="border" /></div> : (
         <>
           <Table striped hover responsive>
-            <thead><tr><th>Code</th><th>Title</th><th>Credits</th><th>Offered In</th></tr></thead>
+            <thead><tr><th>Code</th><th>Title</th><th className="text-center">Credits</th><th className="text-center">Offered In</th></tr></thead>
             <tbody>
               {courses.map((c) => (
                 <tr key={c.code ?? c._id}>
                   <td><code>{c.code ?? c._id}</code></td>
                   <td>{c.title}</td>
-                  <td>{c.credits}</td>
-                  <td>{(c.offeredIn ?? []).join(', ') || '—'}</td>
+                  <td className="text-center">{c.credits}</td>
+                  <td className="text-center">{(c.offeredIn ?? []).join(', ') || '—'}</td>
                 </tr>
               ))}
               {courses.length === 0 && <tr><td colSpan={4} className="text-center text-muted py-4">No courses found</td></tr>}

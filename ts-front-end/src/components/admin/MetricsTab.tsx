@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Spinner, Alert, Button, Card, Col, Row } from 'react-bootstrap';
+import { Spinner, Alert, Button, Card, Col, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
 import { api } from '../../api/http-api-client';
 import type { AdminStats, DbConnectionStatus } from '@shared/admin';
 import type { UserDocument } from '@shared/user';
@@ -84,36 +84,44 @@ const MetricsTab: React.FC = () => {
       )}
       <Row className="g-3 mb-4">
         <Col xs={12} sm={6} md={3}>
-          <Card className="h-100 text-center border-primary">
-            <Card.Body>
-              <div className="display-4 fw-bold text-primary">{stats?.usersByRole.student ?? 0}</div>
-              <Card.Text className="text-muted">Number of Students</Card.Text>
-            </Card.Body>
-          </Card>
+          <OverlayTrigger placement="top" overlay={<Tooltip>Total number of registered student accounts in the system</Tooltip>}>
+            <Card className="h-100 text-center border-primary" style={{ cursor: 'default' }}>
+              <Card.Body>
+                <div className="display-4 fw-bold text-primary">{stats?.usersByRole.student ?? 0}</div>
+                <Card.Text className="text-muted">Number of Students</Card.Text>
+              </Card.Body>
+            </Card>
+          </OverlayTrigger>
         </Col>
         <Col xs={12} sm={6} md={3}>
-          <Card className="h-100 text-center border-success">
-            <Card.Body>
-              <div className="display-4 fw-bold text-success">{stats?.totalTimelines ?? 0}</div>
-              <Card.Text className="text-muted">Total Timelines</Card.Text>
-            </Card.Body>
-          </Card>
+          <OverlayTrigger placement="top" overlay={<Tooltip>Total number of degree timelines created by students</Tooltip>}>
+            <Card className="h-100 text-center border-success" style={{ cursor: 'default' }}>
+              <Card.Body>
+                <div className="display-4 fw-bold text-success">{stats?.totalTimelines ?? 0}</div>
+                <Card.Text className="text-muted">Total Timelines</Card.Text>
+              </Card.Body>
+            </Card>
+          </OverlayTrigger>
         </Col>
         <Col xs={12} sm={6} md={3}>
-          <Card className="h-100 text-center border-info">
-            <Card.Body>
-              <div className="display-4 fw-bold text-info">{stats?.totalDegrees ?? 0}</div>
-              <Card.Text className="text-muted">Degrees</Card.Text>
-            </Card.Body>
-          </Card>
+          <OverlayTrigger placement="top" overlay={<Tooltip>Total number of degree programs available in the system</Tooltip>}>
+            <Card className="h-100 text-center border-info" style={{ cursor: 'default' }}>
+              <Card.Body>
+                <div className="display-4 fw-bold text-info">{stats?.totalDegrees ?? 0}</div>
+                <Card.Text className="text-muted">Degrees</Card.Text>
+              </Card.Body>
+            </Card>
+          </OverlayTrigger>
         </Col>
         <Col xs={12} sm={6} md={3}>
-          <Card className="h-100 text-center border-warning">
-            <Card.Body>
-              <div className="display-4 fw-bold text-warning">{stats?.totalCourses ?? 0}</div>
-              <Card.Text className="text-muted">Courses</Card.Text>
-            </Card.Body>
-          </Card>
+          <OverlayTrigger placement="top" overlay={<Tooltip>Total number of courses available across all degree programs</Tooltip>}>
+            <Card className="h-100 text-center border-warning" style={{ cursor: 'default' }}>
+              <Card.Body>
+                <div className="display-4 fw-bold text-warning">{stats?.totalCourses ?? 0}</div>
+                <Card.Text className="text-muted">Courses</Card.Text>
+              </Card.Body>
+            </Card>
+          </OverlayTrigger>
         </Col>
       </Row>
     </div>
