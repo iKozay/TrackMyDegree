@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import moment from "moment";
 import { useAuth } from "../hooks/useAuth";
 import { api } from "../api/http-api-client";
-import DeleteModal from 'ts-front-end/src/legacy/components/DeleteModal.jsx';
+import DeleteModal from "../legacy/components/DeleteModal.jsx";
 import avatar from "../icons/avatar.svg";
 import {
   Trash2,
