@@ -142,7 +142,7 @@ def parse_prereq_coreq(text):
     prereq_parts, coreq_parts, prereq_or_coreq_parts = extract_prereq_coreq_from_sentence(sentences)
  
     # if no previously/concurrently patterns found, assume all are prerequisites
-    if not prereq_parts and not coreq_parts:
+    if not prereq_parts and not coreq_parts and not prereq_or_coreq_parts:
         # Avoid adding eligibility statements as prerequisites (see ENGR 490)
         if not re.search(r'must be eligible to register in[: ]+([^:]+)', text, re.I):
             prereq_parts.append(text)

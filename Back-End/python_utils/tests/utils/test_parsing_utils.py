@@ -199,6 +199,17 @@ def test_parse_course_rules():
     assert len(not_taken_rules) == 1
     assert not_taken_rules[0].params.courseList == ["COMP 218"]
 
+def test_parse_course_rules_previously_or_concurrently_only_creates_pre_coreq_rule():
+    prereq_text = "The following courses must be completed previously or concurrently: MATH 204 or Cegep Mathematics 105 or NYC."
+    result = parse_course_rules(prereq_text, "")
+
+    prereq_rules = [r for r in result if r.type == RuleType.PREREQUISITE]
+    pre_coreq_rules = [r for r in result if r.type == RuleType.PREREQUISITE_OR_COREQUISITE]
+
+    assert len(prereq_rules) == 0
+    assert len(pre_coreq_rules) == 1
+    assert pre_coreq_rules[0].params.courseList == ["MATH 204"]
+
 def test_parse_course_components_multiple():
     text = "Lecture 3 hours per week; Tutorial 1 hour per week; Laboratory 2 hours per week"
     result = parse_course_components(text)
