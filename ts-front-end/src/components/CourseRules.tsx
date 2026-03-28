@@ -45,7 +45,7 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
     for (const semester of semesters) {
       for (const semCourse of semester.courses) {
         if (semCourse.code === course.id) {
-          if (semCourse.message.includes(rule.message)) {
+          if (semCourse.message?.includes(rule.message)) {
             return false; // Rule is violated
           }
         }

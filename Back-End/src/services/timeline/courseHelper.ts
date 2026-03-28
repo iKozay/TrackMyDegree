@@ -87,3 +87,52 @@ export function validateGrade(minGrade: string, courseGrade?: string): boolean {
 
   return studentValue >= minValue;
 }
+
+export function addAllPrerequisitesAndCorequisitesToCourseArr(degreeCourses: CourseData[], allCourses: CourseData[]) {
+  const coursesToAdd = new Set<CourseData>();
+  const visited = new Set<string>();
+
+  // Build a lookup map for quick access
+  const courseMap = new Map<string, CourseData>();
+  for (const course of allCourses) {
+    courseMap.set(course._id, course);
+  }
+
+  // DFS to find all prerequisites and corequisites
+  function dfs(courseCode: string) {
+    if (visited.has(courseCode)) return;
+    visited.add(courseCode);
+
+    const course = courseMap.get(courseCode);
+    if (!course) return;
+    if (!Array.isArray(course.rules)){
+      console.warn(`Course ${courseCode} has invalid rules format`);
+      return;
+    }
+    for (const rule of course.rules) {
+      if (rule.type === RuleType.Prerequisite || rule.type === RuleType.Corequisite) {
+        const params = rule.params as MinCoursesFromSetParams;
+
+        for (const prereq of params.courseList) {
+          const prereqCourse = courseMap.get(prereq);
+          if (prereqCourse) {
+            coursesToAdd.add(prereqCourse);
+            dfs(prereq);
+          }
+        }
+      }
+    }
+  }
+
+  // Start DFS from all degree courses
+  for (const course of degreeCourses) {
+    dfs(course._id);
+  }
+
+  // add all coursesToAdd to degreeCourses
+  for (const course of coursesToAdd) {
+    if (!degreeCourses.some(c => c._id === course._id)) {
+      degreeCourses.push(course);
+    }
+  }
+}

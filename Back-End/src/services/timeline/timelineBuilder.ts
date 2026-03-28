@@ -112,7 +112,9 @@ export const buildTimeline = async (
 
   const { degreeData: degree, coursePools, courses } = result;
 
-  await handleEcp(coursePools, courses, degree, programInfo.isExtendedCreditProgram ?? false);
+  if (programInfo.isExtendedCreditProgram) {
+    await handleEcp(coursePools, courses, degree);
+  }
 
   if (programInfo.isCoop) {
     await handleCoop(degree, coursePools, courses);
@@ -237,26 +239,23 @@ export async function handleEcp(
   coursePools: CoursePoolData[],
   courses: Record<string, CourseData>,
   degree: DegreeData,
-  isExtendedCreditProgram: boolean,
 ) {
 
   if (degree.ecpDegreeId) {
-    const ecpResult = await getDegreeData(degree.ecpDegreeId);
+    const ecpResult = await getDegreeData(degree.ecpDegreeId, false);
     if (ecpResult) {
       
-      if (isExtendedCreditProgram) {
-        // Merge "General Education and Humanities Electives"
-        handle_general_education_electives(ecpResult, coursePools);
-        // Then add the remaining ECP pools (if any) to the main coursePools array
-        coursePools.push(...(ecpResult.coursePools || []));
-      }
+      // Merge "General Education and Humanities Electives"
+      handle_general_education_electives(ecpResult, coursePools);
+      // Then add the remaining ECP pools (if any) to the main coursePools array
+      coursePools.push(...(ecpResult.coursePools || []));
 
       for (const course of Object.values(ecpResult.courses || {})) {
         courses[normalizeCourseCode(course._id)] = course;
       }
 
       // If a degree object was passed in, increment its totalCredits by 30
-      if (degree && isExtendedCreditProgram) {
+      if (degree) {
         degree.totalCredits = (degree.totalCredits ?? 0) + 30;
       }
     }

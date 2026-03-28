@@ -129,12 +129,6 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
         semesters={semesters}
       />
 
-      <CourseStatusActions
-        currentStatus={course.status.status}
-        onRemoveCourse={onRemoveCourse}
-        onChangeCourseStatus={onChangeCourseStatus}
-        course={course}
-      />
     </div>
   );
 };

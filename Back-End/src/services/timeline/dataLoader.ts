@@ -1,14 +1,23 @@
 import { CourseData } from "@trackmydegree/shared";
-import { normalizeCourseCode } from './courseHelper';
+import { addAllPrerequisitesAndCorequisitesToCourseArr, normalizeCourseCode } from './courseHelper';
 import { degreeController } from '@controllers/degreeController';
 import { Course } from '@models';
+import { courseController } from "@controllers/courseController";
 
-export async function getDegreeData(degreeId: string) {
+export async function getDegreeData(
+  degreeId: string,
+  includeRelatedCourses: boolean = true,
+) {
   const [degreeData, coursePools, courseArr] = await Promise.all([
     degreeController.readDegree(degreeId),
     degreeController.getCoursePoolsForDegree(degreeId),
     degreeController.getCoursesForDegree(degreeId),
   ]);
+
+  if (includeRelatedCourses) {
+    const allCourses = await courseController.getAllCourses();
+    addAllPrerequisitesAndCorequisitesToCourseArr(courseArr, allCourses);
+  }
 
   // Build dictionary
   const courses: Record<string, CourseData> = {};
@@ -18,10 +27,6 @@ export async function getDegreeData(degreeId: string) {
 
   return { degreeData, coursePools, courses };
 }
-
-
-
-
 
 export async function loadMissingCourses(
   coursesToAdd: string[],

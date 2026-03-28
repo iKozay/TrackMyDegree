@@ -278,7 +278,15 @@ describe("timelineUtils", () => {
     const baseState: TimelineState = {
       timelineName: "Test",
       degree: { name: "CS", totalCredits: 90, coursePools: [] },
-      pools: [],
+      pools: [
+        {
+          _id: "core-courses",
+          name: "Core Courses",
+          creditsRequired: 0,
+          courses: ["COMP 248", "COMP 249", "COMP 352"],
+          rules: [],
+        },
+      ],
       selectedCourse: null,
       history: [],
       future: [],
@@ -392,6 +400,25 @@ describe("timelineUtils", () => {
         rules: [],
       };
       expect(getCourseValidationMessage(course, baseState)).toBe("");
+    });
+
+    it("flags course that is not part of degree requirements", () => {
+      const state: TimelineState = {
+        ...baseState,
+        pools: [
+          {
+            _id: "core-courses",
+            name: "Core Courses",
+            creditsRequired: 0,
+            courses: ["COMP 249"],
+            rules: [],
+          },
+        ],
+      };
+
+      expect(getCourseValidationMessage(baseCourse, state)).toContain(
+        "Course is not part of the degree requirements.",
+      );
     });
 
     it("flags min credits from set when credits are below minimum", () => {

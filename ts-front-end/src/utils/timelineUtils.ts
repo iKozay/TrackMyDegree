@@ -165,6 +165,9 @@ export function getCourseValidationMessage(
 
   const violations: string[] = [];
 
+  /* ---------------- DEGREE REQUIREMENTS ---------------- */
+  checkIfCourseInDegreeRequirements(course, state.pools, violations);  
+
   /* ---------------- COURSE RULES ---------------- */
   processRules(course, course.rules, state, violations);
 
@@ -345,6 +348,17 @@ function processMaxCoursesFromSetRule(rule: Rule, targetCourse: Course | null, s
 
   if (earnedCourses > maxCourses) {
     violations.push(rule.message);
+  }
+}
+
+function checkIfCourseInDegreeRequirements(course: Course, pools: CoursePoolData[], violations: string[]) {
+  // A course is valid if it exists in at least one non-exemption pool.
+  const isInDegreeRequirements = pools
+    .filter((pool) => pool._id.toLowerCase() !== "exemptions")
+    .some((pool) => pool.courses.includes(course.id));
+
+  if (!isInDegreeRequirements) {
+    violations.push("Course is not part of the degree requirements.");
   }
 }
 

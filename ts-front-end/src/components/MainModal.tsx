@@ -65,9 +65,9 @@ export const MainModal: React.FC<MainModalProps> = ({
           />
         );
       case "exemption":
-        return <AddModal type="exemption" onAdd={handleAdd} />;
+        return <AddModal type="exemption" courses={courses} onAdd={handleAdd} />;
       case "deficiency":
-        return <AddModal type="deficiency" onAdd={handleAdd} />;
+        return <AddModal type="deficiency" courses={courses} onAdd={handleAdd} />;
       case "save":
         return (
           <SaveTimelineModal

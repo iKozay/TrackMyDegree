@@ -64,7 +64,7 @@ describe('addEcpCoursePools', () => {
     const courses: Record<string, CourseData> = {'SOEN 000': {_id: 'SOEN 000', title: 'Intro Course', credits: 3, rules: []}};
     const mockDegree = { _id: BENG_SOFTWARE, name: 'Software Engineering', totalCredits: 120, degreeType: 'Standalone', coursePools: [], ecpDegreeId: ENGR_ECP };
 
-    await handleEcp(coursePools, courses, mockDegree, true);
+    await handleEcp(coursePools, courses, mockDegree);
 
     expect(coursePools.map((p) => p._id)).toEqual([
       'base_pool',
@@ -102,7 +102,7 @@ describe('addEcpCoursePools', () => {
     const courses: Record<string, CourseData> = {};
     const mockDegree = { _id: 'BCompSc_GENERAL', name: 'Computer Science', totalCredits: 120, degreeType: 'Standalone', coursePools: [], ecpDegreeId: COMP_ECP };
 
-    await handleEcp(coursePools, courses, mockDegree, true);
+    await handleEcp(coursePools, courses, mockDegree);
 
     expect(coursePools.map((p) => p._id)).toEqual([COMP_ECP_POOL_ID]);
     expect(Object.keys(courses)).toEqual([]);
@@ -145,7 +145,7 @@ describe('addEcpCoursePools', () => {
       ecpDegreeId: ENGR_ECP,
     };
 
-    await handleEcp(coursePools, courses, degreeObj, true);
+    await handleEcp(coursePools, courses, degreeObj);
 
     expect(degreeObj.totalCredits).toBe(150);
 
@@ -165,7 +165,7 @@ describe('addEcpCoursePools', () => {
     const courses: Record<string, CourseData> = {};
     const degreeObj: any = { _id: 'ENGR_SOFTWARE', name: DEGREE_OBJ_NAME, ecpDegreeId: ENGR_ECP };
 
-    await handleEcp(coursePools, courses, degreeObj, true);
+    await handleEcp(coursePools, courses, degreeObj);
 
     expect(degreeObj.totalCredits).toBe(30);
     expect(coursePools).toEqual([]);
@@ -181,7 +181,7 @@ describe('addEcpCoursePools', () => {
     const courses: Record<string, CourseData> = {};
     const mockDegree = { _id: BENG_SOFTWARE, name: 'Software Engineering', totalCredits: 120, degreeType: 'Standalone', coursePools: [], ecpDegreeId: ENGR_ECP };
 
-    await expect(handleEcp(coursePools, courses, mockDegree, false)).rejects.toThrow('DB fail');
+    await expect(handleEcp(coursePools, courses, mockDegree)).rejects.toThrow('DB fail');
 
     // Ensure nothing was mutated on failure
     expect(coursePools).toEqual([]);
@@ -193,7 +193,7 @@ describe('addEcpCoursePools', () => {
     const courses: Record<string, CourseData> = {};
     const mockDegree = { _id: 'BA_ARTS', name: 'Bachelor of Arts', totalCredits: 120, degreeType: 'Standalone', coursePools: [], ecpDegreeId: '' };
 
-    await handleEcp(coursePools, courses, mockDegree, false);
+    await handleEcp(coursePools, courses, mockDegree);
 
     expect(coursePools).toEqual([{ _id: 'base_pool' }]);
     expect(Object.keys(courses)).toEqual([]);
@@ -201,58 +201,5 @@ describe('addEcpCoursePools', () => {
     expect(mockedDegreeController.readDegree).not.toHaveBeenCalled();
     expect(mockedDegreeController.getCoursePoolsForDegree).not.toHaveBeenCalled();
     expect(mockedDegreeController.getCoursesForDegree).not.toHaveBeenCalled();
-  });
-
-  it('add ecp courses to timelineState when not in ecp', async () => {
-    const getDegreeDataSpy = jest.spyOn(dataLoader, 'getDegreeData');
-    getDegreeDataSpy.mockResolvedValue({
-      degreeData: {
-        _id: ENGR_ECP,
-        name: 'ENGR ECP',
-      } as any,
-      coursePools: [
-        {
-          _id: ECP_POOL_1_ID,
-          name: ECP_POOL_1_NAME,
-          creditsRequired: 3,
-          courses: ['MATH 203'],
-          rules: [],
-        },
-      ],
-      courses: {
-        'MATH 203': {
-          _id: 'MATH 203',
-          title: 'Engineering Foundations',
-          credits: 3,
-        } as CourseData,
-      },
-    });
-
-    const coursePools: any[] = [
-      { _id: 'base_pool', name: 'Base Pool', creditsRequired: 0, courses: [] },
-    ];
-    const courses: Record<string, CourseData> = {};
-    const degreeObj: any = {
-      _id: 'Some_Degree',
-      name: 'Some Degree',
-      totalCredits: 120,
-      degreeType: 'Standalone',
-      coursePools: [],
-      ecpDegreeId: ENGR_ECP,
-    };
-
-    await handleEcp(coursePools, courses, degreeObj, false);
-
-    // Courses from the linked ECP degree are added
-    expect(courses['MATH 203']).toEqual(
-      expect.objectContaining({ _id: 'MATH 203', credits: 3 }),
-    );
-    // Coursepool and degree unchanged
-    expect(coursePools).toEqual([
-      { _id: 'base_pool', name: 'Base Pool', creditsRequired: 0, courses: [] },
-    ]);
-    expect(degreeObj.totalCredits).toBe(120);
-
-    getDegreeDataSpy.mockRestore();
   });
 });
