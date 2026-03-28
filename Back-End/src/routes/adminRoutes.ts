@@ -9,7 +9,8 @@ import {
 import {
   seedAllDegreeData,
   seedDegreeData,
-} from '@controllers/seedingController';
+} from '../controllers/seedingController';
+import { cacheDelPattern } from '@lib/cache';
 const router = express.Router();
 
 // ==========================
@@ -392,12 +393,12 @@ router.post('/catalogs-update', async (req: Request, res: Response) => {
 router.get('/seed-data', async (req: Request, res: Response) => {
   try {
     const result = await seedAllDegreeData();
-    res.status(HTTP.OK).json({
-      message: result,
-    });
+    await cacheDelPattern('GET:/degree*');
+    await cacheDelPattern('GET:/courses*');
+    res.status(HTTP.OK).json({ success: true, message: result });
   } catch (error) {
     console.error('Error in GET /admin/seed-data', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    res.status(HTTP.SERVER_ERR).json({ success: false, message: INTERNAL_SERVER_ERROR });
   }
 });
 
@@ -406,19 +407,17 @@ router.get('/seed-data/:degreeName', async (req: Request, res: Response) => {
     const { degreeName } = req.params;
 
     if (!degreeName) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: 'Degree name is required',
-      });
+      res.status(HTTP.BAD_REQUEST).json({ success: false, message: 'Degree name is required' });
       return;
     }
 
     const result = await seedDegreeData(degreeName as string);
-    res.status(HTTP.OK).json({
-      message: result,
-    });
+    await cacheDelPattern('GET:/degree*');
+    await cacheDelPattern('GET:/courses*');
+    res.status(HTTP.OK).json({ success: true, message: result });
   } catch (error) {
-    console.error('Error in GET /admin/seed-data', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    console.error('Error in GET /admin/seed-data/:degreeName', error);
+    res.status(HTTP.SERVER_ERR).json({ success: false, message: INTERNAL_SERVER_ERROR });
   }
 });
 
