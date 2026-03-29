@@ -43,7 +43,13 @@ const TimeLinePage: React.FC = () => {
   // Find the exemption pool, with fallback to empty pool
   const exemptionCoursePool = state.pools.find((pool) =>
     pool._id.toLowerCase().includes("exemption"),
-  ) || { _id: "exemption", name: "Exemption", creditsRequired: 0, courses: [] };
+  ) || {
+    _id: "exemption",
+    name: "Exemption",
+    creditsRequired: 0,
+    courses: [],
+    rules: [],
+  };
 
   const deficiencyCoursePool = state.pools.find((pool) =>
     pool._id.toLowerCase().includes("deficiency"),
