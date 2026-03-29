@@ -24,7 +24,7 @@ const CoursePool: React.FC<CoursePoolProps> = ({
   );
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [showIncompleted, setShowIncompleted] = useState(true);
+  const [showIncompleted, setShowIncompleted] = useState(false);
   const hasActiveSearch = searchTerm.trim().length > 0;
   const search = searchTerm.trim().toLowerCase();
 
