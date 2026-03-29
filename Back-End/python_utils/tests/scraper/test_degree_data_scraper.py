@@ -156,7 +156,7 @@ class TestDegreeDataScraper:
 
         scraper = DegreeDataScraper()
         result = scraper.scrape_degree_by_name("BEng in Aerospace Engineering Option: Aerodynamics and Propulsion")
-        expected = expected_fixture_loader("BEng_in_Aerospace_Engineering_Option:_Aerodynamics_and_Propulsion.json")
+        expected = expected_fixture_loader("BEng_in_Aerospace_Engineering_Option_Aerodynamics_and_Propulsion.json")
 
         assert serialize(result) == expected
 
@@ -190,5 +190,5 @@ class TestDegreeDataScraper:
         assert len(results) == len(TESTED_DEGREES)
         for result in results:
             assert isinstance(result, ProgramRequirements)
-            expected = expected_fixture_loader(f"{result.degree.name.replace(' ', '_')}.json")
+            expected = expected_fixture_loader(f"{result.degree.name.replace(' ', '_').replace(':', '')}.json")
             assert serialize(result) == expected
